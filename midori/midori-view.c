@@ -18,6 +18,10 @@
 
 #include "marshal.h"
 
+#ifdef HAVE_GRANITE
+#include <granite.h>
+#endif
+
 #include <string.h>
 #include <stdlib.h>
 #include <glib/gi18n.h>
@@ -595,10 +599,29 @@ midori_view_class_init (MidoriViewClass* class)
                                      flags));
 }
 
+#ifdef HAVE_GRANITE
+static GraniteWidgetsTab*
+midori_view_get_tab (MidoriView* view)
+{
+    GraniteWidgetsDynamicNotebook* notebook;
+    GraniteWidgetsTab* tab = NULL;
+
+    notebook = (GraniteWidgetsDynamicNotebook*)gtk_widget_get_parent ((GtkWidget*)view);
+    if (notebook != NULL)
+        tab = granite_widgets_dynamic_notebook_get_nth_page (notebook,
+            granite_widgets_dynamic_notebook_page_num (notebook, (GtkWidget*)view));
+
+    return tab;
+}
+#endif
+
 static void
 midori_view_set_title (MidoriView* view, const gchar* title)
 {
     const gchar* display_title;
+    #ifdef HAVE_GRANITE
+    GraniteWidgetsTab* tab;
+    #endif
 
     if (!title)
         title = view->uri;
@@ -632,6 +655,12 @@ midori_view_set_title (MidoriView* view, const gchar* title)
     #endif
 
     display_title = midori_view_get_display_title (view);
+    #ifdef HAVE_GRANITE
+    /* FIXME: granite: GraniteWidgetsTab.text should be a property */
+    tab = midori_view_get_tab (view);
+    if (tab != NULL)
+        katze_assign (tab->text, g_strdup (display_title));
+    #endif
     if (view->tab_label)
     {
         /* If the title starts with the presumed name of the website, we
@@ -667,6 +696,11 @@ midori_view_apply_icon (MidoriView*  view,
                         GdkPixbuf*   icon,
                         const gchar* icon_name)
 {
+    #ifdef HAVE_GRANITE
+    GraniteWidgetsTab* tab = midori_view_get_tab (view);
+    g_object_set (tab, "pixbuf", icon, NULL);
+    #endif
+
     katze_item_set_icon (view->item, icon_name);
     /* katze_item_get_image knows about this pixbuf */
     g_object_set_data_full (G_OBJECT (view->item), "pixbuf", g_object_ref (icon),
@@ -898,6 +932,10 @@ midori_view_update_load_status (MidoriView*      view,
     view->load_status = load_status;
     g_object_notify (G_OBJECT (view), "load-status");
 
+    #ifdef HAVE_GRANITE
+    g_object_set (midori_view_get_tab (view),
+                  "loading", view->load_status != MIDORI_LOAD_FINISHED, NULL);
+    #endif
     if (view->tab_icon)
         katze_throbber_set_animated (KATZE_THROBBER (view->tab_icon),
             view->load_status != MIDORI_LOAD_FINISHED);

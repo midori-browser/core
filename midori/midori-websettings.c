@@ -656,8 +656,14 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      "always-show-tabbar",
                                      _("Always Show Tabbar"),
                                      _("Always show the tabbar"),
+        #ifdef HAVE_GRANITE
+                                     TRUE,
+                                     G_PARAM_READABLE
+        #else
                                      FALSE,
-                                     flags));
+                                     flags
+        #endif
+                                     ));
 
     g_object_class_install_property (gobject_class,
                                      PROP_CLOSE_BUTTONS_ON_TABS,

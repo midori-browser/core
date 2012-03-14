@@ -32,6 +32,10 @@
 #include <gdk/gdkkeysyms.h>
 #include <string.h>
 
+#ifdef HAVE_GRANITE
+    #include <granite.h>
+#endif
+
 #include <config.h>
 #ifdef HAVE_UNISTD_H
     #include <unistd.h>
@@ -247,6 +251,10 @@ static gboolean
 _toggle_tabbar_smartly (MidoriBrowser* browser,
                         gboolean       ignore_fullscreen)
 {
+#ifdef HAVE_GRANITE
+    gboolean has_tabs = !(midori_browser_is_fullscreen (browser) || ignore_fullscreen);
+    /* FIXME: Toggle tabbar visibility */
+#else
     gboolean has_tabs =
         gtk_notebook_get_nth_page (GTK_NOTEBOOK (browser->notebook), 1) != NULL;
     gboolean show_tabs =
@@ -257,6 +265,7 @@ _toggle_tabbar_smartly (MidoriBrowser* browser,
 
     gtk_notebook_set_show_tabs (GTK_NOTEBOOK (browser->notebook), show_tabs);
     gtk_notebook_set_show_border (GTK_NOTEBOOK (browser->notebook), show_tabs);
+#endif
     return has_tabs;
 }
 
@@ -612,9 +621,13 @@ midori_view_notify_minimized_cb (GtkWidget*     widget,
 {
     if (katze_object_get_boolean (widget, "minimized"))
     {
+        #ifdef HAVE_GRANITE
+        /* FIXME */
+        #else
         GtkNotebook* notebook = GTK_NOTEBOOK (browser->notebook);
         GtkWidget* label = gtk_notebook_get_tab_label (notebook, widget);
         gtk_widget_set_size_request (label, -1, -1);
+        #endif
     }
     else
         midori_browser_notebook_size_allocate_cb (NULL, NULL, browser);
@@ -1512,6 +1525,7 @@ midori_browser_tab_destroy_cb (GtkWidget*     widget,
     return FALSE;
 }
 
+#ifndef HAVE_GRANITE
 static void
 midori_browser_notebook_resize (MidoriBrowser* browser,
                                 GdkRectangle*  allocation)
@@ -1555,33 +1569,33 @@ midori_browser_notebook_resize (MidoriBrowser* browser,
             gtk_widget_set_size_request (label, new_size, -1);
     }
 }
+#endif
 
 static void
 midori_browser_notebook_size_allocate_cb (GtkWidget*     widget,
                                           GdkRectangle*  allocation,
                                           MidoriBrowser* browser)
 {
+    #ifndef HAVE_GRANITE
     if (!gtk_notebook_get_show_tabs (GTK_NOTEBOOK (browser->notebook)))
         return;
 
     midori_browser_notebook_resize (browser, allocation);
+    #endif
 }
 
 static void
 _midori_browser_add_tab (MidoriBrowser* browser,
                          GtkWidget*     view)
 {
-    GtkNotebook* notebook = GTK_NOTEBOOK (browser->notebook);
+    GtkWidget* notebook = browser->notebook;
+#ifndef HAVE_GRANITE
     GtkWidget* tab_label;
+#endif
     KatzeItem* item;
     guint n;
 
     gtk_widget_set_can_focus (view, TRUE);
-    tab_label = midori_view_get_proxy_tab_label (MIDORI_VIEW (view));
-    /* Don't resize empty bin, which is used for thumbnail tabs */
-    if (GTK_IS_BIN (tab_label) && gtk_bin_get_child (GTK_BIN (tab_label))
-     && !katze_object_get_boolean (view, "minimized"))
-        gtk_widget_set_size_request (tab_label, browser->last_tab_size, -1);
     item = midori_view_get_proxy_item (MIDORI_VIEW (view));
     katze_array_add_item (browser->proxy_array, item);
 
@@ -1634,11 +1648,22 @@ _midori_browser_add_tab (MidoriBrowser* browser,
     }
     else
         n = -1;
-    gtk_notebook_insert_page (notebook, view, tab_label, n);
+#ifdef HAVE_GRANITE
+    /* FIXME: Move to desired position */
+    granite_widgets_dynamic_notebook_append_page (
+        GRANITE_WIDGETS_DYNAMIC_NOTEBOOK (notebook),
+        view, midori_view_get_display_title (MIDORI_VIEW (view)), "text-plain");
+#else
+    tab_label = midori_view_get_proxy_tab_label (MIDORI_VIEW (view));
+    /* Don't resize empty bin, which is used for thumbnail tabs */
+    if (GTK_IS_BIN (tab_label) && gtk_bin_get_child (GTK_BIN (tab_label))
+     && !katze_object_get_boolean (view, "minimized"))
+        gtk_widget_set_size_request (tab_label, browser->last_tab_size, -1);
+    gtk_notebook_insert_page (GTK_NOTEBOOK (notebook), view, tab_label, n);
+    gtk_notebook_set_tab_reorderable (GTK_NOTEBOOK (notebook), view, TRUE);
+    gtk_notebook_set_tab_detachable (GTK_NOTEBOOK (notebook), view, TRUE);
+#endif
     katze_item_set_meta_integer (item, "append", -1);
-
-    gtk_notebook_set_tab_reorderable (notebook, view, TRUE);
-    gtk_notebook_set_tab_detachable (notebook, view, TRUE);
 
     /* We want the tab to be removed if the widget is destroyed */
     g_signal_connect (view, "destroy",
@@ -2037,7 +2062,11 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      "notebook",
                                      "Notebook",
                                      "The notebook containing the views",
+                                     #ifdef HAVE_GRANITE
+                                     GRANITE_WIDGETS_TYPE_DYNAMIC_NOTEBOOK,
+                                     #else
                                      GTK_TYPE_NOTEBOOK,
+                                     #endif
                                      G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
     g_object_class_install_property (gobject_class,
@@ -3433,8 +3462,12 @@ _action_fullscreen_activate (GtkAction*     action,
         gtk_widget_hide (browser->bookmarkbar);
         gtk_widget_hide (browser->navigationbar);
         gtk_widget_hide (browser->statusbar);
+        #ifndef HAVE_GRANITE
+        /* FIXME hide tabs */
+        #else
         gtk_notebook_set_show_tabs (GTK_NOTEBOOK (browser->notebook), FALSE);
         gtk_notebook_set_show_border (GTK_NOTEBOOK (browser->notebook), FALSE);
+        #endif
 
         gtk_window_fullscreen (GTK_WINDOW (browser));
     }
@@ -4555,7 +4588,12 @@ _action_inspect_page_activate (GtkAction*     action,
 static gint
 midori_browser_get_n_pages (MidoriBrowser* browser)
 {
+    #ifdef HAVE_GRANITE
+    return granite_widgets_dynamic_notebook_get_n_pages (
+        GRANITE_WIDGETS_DYNAMIC_NOTEBOOK (browser->notebook));
+    #else
     return gtk_notebook_get_n_pages (GTK_NOTEBOOK (browser->notebook));
+    #endif
 }
 
 static void
@@ -4569,8 +4607,12 @@ _action_tab_move_backward_activate (GtkAction*     action,
         new_pos = cur_pos - 1;
     else
         new_pos = midori_browser_get_n_pages (browser) - 1;
+    #ifdef HAVE_GRANITE
+    /* FIXME */
+    #else
     gtk_notebook_reorder_child (GTK_NOTEBOOK (browser->notebook), widget, new_pos);
     g_signal_emit (browser, signals[MOVE_TAB], 0, browser->notebook, cur_pos, new_pos);
+    #endif
 }
 
 static void
@@ -4961,6 +5003,20 @@ midori_browser_notebook_switch_page_after_cb (GtkWidget*       notebook,
     _midori_browser_update_progress (browser, view);
 }
 
+#ifdef HAVE_GRANITE
+static void
+midori_browser_notebook_new_tab_created_cb (GtkWidget*         notebook,
+                                            GraniteWidgetsTab* tab,
+                                            MidoriBrowser*     browser)
+{
+    /* FIXME Pack view into tab: How? */
+    KatzeItem* item = katze_item_new ();
+    GtkWidget* view = midori_view_new_with_item (item, browser->settings);
+    gint n = midori_browser_add_tab (browser, view);
+    midori_browser_set_current_page (browser, n);
+}
+#endif
+
 static void
 midori_browser_notebook_page_reordered_cb (GtkNotebook*   notebook,
                                            MidoriView*    view,
@@ -4970,6 +5026,15 @@ midori_browser_notebook_page_reordered_cb (GtkNotebook*   notebook,
     KatzeItem* item = midori_view_get_proxy_item (view);
     katze_array_move_item (browser->proxy_array, item, page_num);
     g_object_notify (G_OBJECT (browser), "tab");
+}
+
+static void
+midori_browser_notebook_page_removed_cb (GtkWidget*     notebook,
+                                         GtkWidget*     view,
+                                         guint          page_num,
+                                         MidoriBrowser* browser)
+{
+    _midori_browser_remove_tab (browser, view);
 }
 
 static gboolean
@@ -6159,7 +6224,13 @@ midori_browser_init (MidoriBrowser* browser)
     vpaned = gtk_vpaned_new ();
     gtk_paned_pack2 (GTK_PANED (hpaned), vpaned, TRUE, FALSE);
     gtk_widget_show (vpaned);
+    #ifdef HAVE_GRANITE
+    /* FIXME: granite: should return GtkWidget* like GTK+ */
+    browser->notebook = (GtkWidget*)granite_widgets_dynamic_notebook_new ();
+    #else
     browser->notebook = gtk_notebook_new ();
+    gtk_notebook_set_scrollable (GTK_NOTEBOOK (browser->notebook), TRUE);
+    #endif
     #if !GTK_CHECK_VERSION (3, 0, 0)
     {
     /* Remove the inner border between scrollbars and the window border */
@@ -6169,7 +6240,6 @@ midori_browser_init (MidoriBrowser* browser)
     g_object_unref (rcstyle);
     }
     #endif
-    gtk_notebook_set_scrollable (GTK_NOTEBOOK (browser->notebook), TRUE);
     gtk_paned_pack1 (GTK_PANED (vpaned), browser->notebook, FALSE, FALSE);
     g_signal_connect (browser->notebook, "switch-page",
                       G_CALLBACK (midori_browser_notebook_switch_page_cb),
@@ -6177,8 +6247,16 @@ midori_browser_init (MidoriBrowser* browser)
     g_signal_connect_after (browser->notebook, "switch-page",
                             G_CALLBACK (midori_browser_notebook_switch_page_after_cb),
                             browser);
+    #ifdef HAVE_GRANITE
+    g_signal_connect (browser->notebook, "new-tab-created",
+                      G_CALLBACK (midori_browser_notebook_new_tab_created_cb),
+                      browser);
+    #endif
     g_signal_connect (browser->notebook, "page-reordered",
                       G_CALLBACK (midori_browser_notebook_page_reordered_cb),
+                      browser);
+    g_signal_connect (browser->notebook, "page-removed",
+                      G_CALLBACK (midori_browser_notebook_page_removed_cb),
                       browser);
     g_signal_connect (browser->notebook, "size-allocate",
                       G_CALLBACK (midori_browser_notebook_size_allocate_cb),
@@ -6440,6 +6518,11 @@ _midori_browser_set_toolbar_items (MidoriBrowser* browser,
             }
             else if (token_current != token_dontcare && token_last == token_dontcare)
                 continue;
+            #ifdef HAVE_GRANITE
+            /* A "new tab" button is already part of the notebook */
+            else if (!strcmp (gtk_action_get_name (action), "TabNew"))
+                continue;
+            #endif
             else
                 toolitem = gtk_action_create_tool_item (action);
 
@@ -7061,8 +7144,14 @@ midori_browser_page_num (MidoriBrowser* browser,
     g_return_val_if_fail (MIDORI_IS_BROWSER (browser), -1);
     g_return_val_if_fail (MIDORI_IS_VIEW (view), -1);
 
+#ifdef HAVE_GRANITE
+    return granite_widgets_dynamic_notebook_page_num (
+        GRANITE_WIDGETS_DYNAMIC_NOTEBOOK (browser->notebook), view);
+#else
     return gtk_notebook_page_num (GTK_NOTEBOOK (browser->notebook), view);
+#endif
 }
+
 
 /**
  * midori_browser_remove_tab:
@@ -7311,7 +7400,12 @@ midori_browser_set_current_page (MidoriBrowser* browser,
     view = midori_browser_get_nth_tab (browser, n);
     g_return_if_fail (view != NULL);
 
+    #ifdef HAVE_GRANITE
+    granite_widgets_dynamic_notebook_set_current_page (
+        GRANITE_WIDGETS_DYNAMIC_NOTEBOOK (browser->notebook), n);
+    #else
     gtk_notebook_set_current_page (GTK_NOTEBOOK (browser->notebook), n);
+    #endif
     if (midori_view_is_blank (MIDORI_VIEW (view)))
         midori_browser_activate_action (browser, "Location");
     else
@@ -7338,7 +7432,12 @@ midori_browser_get_current_page (MidoriBrowser* browser)
 {
     g_return_val_if_fail (MIDORI_IS_BROWSER (browser), -1);
 
+    #ifdef HAVE_GRANITE
+    return granite_widgets_dynamic_notebook_get_current_page (
+        GRANITE_WIDGETS_DYNAMIC_NOTEBOOK (browser->notebook));
+    #else
     return gtk_notebook_get_current_page (GTK_NOTEBOOK (browser->notebook));
+    #endif
 }
 
 /**
@@ -7358,9 +7457,19 @@ GtkWidget*
 midori_browser_get_nth_tab (MidoriBrowser* browser,
                             gint           page)
 {
+#ifdef HAVE_GRANITE
+    GraniteWidgetsTab* tab;
+
+    g_return_val_if_fail (MIDORI_IS_BROWSER (browser), NULL);
+
+    tab = granite_widgets_dynamic_notebook_get_nth_page (
+        GRANITE_WIDGETS_DYNAMIC_NOTEBOOK (browser->notebook), page);
+    return tab != NULL ? tab->widget : NULL;
+#else
     g_return_val_if_fail (MIDORI_IS_BROWSER (browser), NULL);
 
     return gtk_notebook_get_nth_page (GTK_NOTEBOOK (browser->notebook), page);
+#endif
 }
 
 /**
@@ -7408,7 +7517,7 @@ midori_browser_get_current_tab (MidoriBrowser* browser)
 
     g_return_val_if_fail (MIDORI_IS_BROWSER (browser), NULL);
 
-    n = gtk_notebook_get_current_page (GTK_NOTEBOOK (browser->notebook));
+    n = midori_browser_get_current_page (browser);
     if (n >= 0)
         return midori_browser_get_nth_tab (browser, n);
     else

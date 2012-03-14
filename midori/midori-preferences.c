@@ -429,10 +429,12 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     button = katze_property_proxy (settings, "open-new-pages-in", NULL);
     SPANNED_ADD (button);
     #if !HAVE_HILDON
-    button = katze_property_proxy (settings, "always-show-tabbar", NULL);
-    INDENTED_ADD (button);
     button = katze_property_proxy (settings, "close-buttons-on-tabs", NULL);
+    INDENTED_ADD (button);
+    #ifndef HAVE_GRANITE
+    button = katze_property_proxy (settings, "always-show-tabbar", NULL);
     SPANNED_ADD (button);
+    #endif
     #endif
     button = katze_property_proxy (settings, "open-tabs-next-to-current", NULL);
     INDENTED_ADD (button);
