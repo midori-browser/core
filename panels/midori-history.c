@@ -28,7 +28,8 @@ void
 midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
                                          KatzeItem*     bookmark,
                                          gboolean       new_bookmark,
-                                         gboolean       is_folder);
+                                         gboolean       is_folder,
+                                         GtkWidget*     proxy);
 
 
 struct _MidoriHistory
@@ -373,6 +374,7 @@ midori_history_bookmark_add_cb (GtkWidget*     menuitem,
     GtkTreeIter iter;
     KatzeItem* item = NULL;
 
+    GtkWidget* proxy = GTK_IS_TOOL_ITEM (menuitem) ? menuitem : NULL;
     MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (history));
     if (katze_tree_view_get_selected_iter (GTK_TREE_VIEW (history->treeview),
                                            &model, &iter))
@@ -380,11 +382,11 @@ midori_history_bookmark_add_cb (GtkWidget*     menuitem,
 
     if (KATZE_IS_ITEM (item) && katze_item_get_uri (item))
     {
-        midori_browser_edit_bookmark_dialog_new (browser, item, TRUE, FALSE);
+        midori_browser_edit_bookmark_dialog_new (browser, item, TRUE, FALSE, proxy);
         g_object_unref (item);
     }
     else
-        midori_browser_edit_bookmark_dialog_new (browser, NULL, TRUE, FALSE);
+        midori_browser_edit_bookmark_dialog_new (browser, NULL, TRUE, FALSE, proxy);
 }
 
 static GtkWidget*

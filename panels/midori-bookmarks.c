@@ -29,7 +29,8 @@ gboolean
 midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
                                          KatzeItem*     bookmark,
                                          gboolean       new_bookmark,
-                                         gboolean       is_folder);
+                                         gboolean       is_folder,
+                                         GtkWidget*     proxy);
 
 void
 midori_browser_open_bookmark (MidoriBrowser* browser,
@@ -341,9 +342,9 @@ midori_bookmarks_add_clicked_cb (GtkWidget* toolitem)
     MidoriBrowser* browser = midori_browser_get_for_widget (toolitem);
     /* FIXME: Take selected folder into account */
     if (g_str_equal (gtk_widget_get_name (toolitem), "BookmarkFolderAdd"))
-        midori_browser_edit_bookmark_dialog_new (browser, NULL, TRUE, TRUE);
+        midori_browser_edit_bookmark_dialog_new (browser, NULL, TRUE, TRUE, toolitem);
     else
-        midori_browser_edit_bookmark_dialog_new (browser, NULL, TRUE, FALSE);
+        midori_browser_edit_bookmark_dialog_new (browser, NULL, TRUE, FALSE, toolitem);
 }
 
 static void
@@ -365,7 +366,7 @@ midori_bookmarks_edit_clicked_cb (GtkWidget*       toolitem,
 
         browser = midori_browser_get_for_widget (bookmarks->treeview);
         midori_browser_edit_bookmark_dialog_new (
-            browser, item, FALSE, KATZE_ITEM_IS_FOLDER (item));
+            browser, item, FALSE, KATZE_ITEM_IS_FOLDER (item), NULL);
         g_object_unref (item);
     }
 }

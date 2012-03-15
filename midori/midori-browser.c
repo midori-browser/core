@@ -742,7 +742,8 @@ midori_browser_edit_bookmark_add_speed_dial_cb (GtkWidget* button,
 midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
                                          KatzeItem*     bookmark,
                                          gboolean       new_bookmark,
-                                         gboolean       is_folder)
+                                         gboolean       is_folder,
+                                         GtkWidget*     proxy)
 {
     const gchar* title;
     GtkWidget* dialog;
@@ -772,12 +773,23 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         title = new_bookmark ? _("New folder") : _("Edit folder");
     else
         title = new_bookmark ? _("New bookmark") : _("Edit bookmark");
-    dialog = gtk_dialog_new_with_buttons (
-        title, GTK_WINDOW (browser),
-        GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR,
+    #ifdef HAVE_GRANITE
+    if (proxy != NULL)
+    {
+        /* FIXME: granite: should return GtkWidget* like GTK+ */
+        dialog = (GtkWidget*)granite_widgets_pop_over_new ();
+        granite_widgets_pop_over_move_to_widget (
+            GRANITE_WIDGETS_POP_OVER (dialog), proxy);
+    }
+    else
+    #endif
+    {
+        dialog = gtk_dialog_new_with_buttons (title, GTK_WINDOW (browser),
+            GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR, NULL);
+    }
+    gtk_dialog_add_buttons (GTK_DIALOG (dialog),
         GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-        new_bookmark ? GTK_STOCK_ADD : GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
-        NULL);
+        new_bookmark ? GTK_STOCK_ADD : GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT, NULL);
     content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
     gtk_window_set_icon_name (GTK_WINDOW (dialog),
         new_bookmark ? GTK_STOCK_ADD : GTK_STOCK_REMOVE);
@@ -3877,13 +3889,11 @@ _action_search_activate (GtkAction*     action,
                          MidoriBrowser* browser)
 {
     GSList* proxies = gtk_action_get_proxies (action);
-    guint i = 0;
-    GtkWidget* proxy;
     const gchar* uri;
     gchar* search;
 
-    while (((proxy = g_slist_nth_data (proxies, i++))))
-        if (GTK_IS_TOOL_ITEM (proxy))
+    for (; proxies != NULL; proxies = g_slist_next (proxies))
+        if (GTK_IS_TOOL_ITEM (proxies->data))
         {
             if (!gtk_widget_get_visible (browser->navigationbar))
                 gtk_widget_show (browser->navigationbar);
@@ -4040,9 +4050,9 @@ midori_browser_bookmark_edit_activate_cb (GtkWidget*     menuitem,
     item = (KatzeItem*)g_object_get_data (G_OBJECT (menuitem), "KatzeItem");
 
     if (KATZE_ITEM_IS_BOOKMARK (item))
-        midori_browser_edit_bookmark_dialog_new (browser, item, FALSE, FALSE);
+        midori_browser_edit_bookmark_dialog_new (browser, item, FALSE, FALSE, NULL);
     else
-        midori_browser_edit_bookmark_dialog_new (browser, item, FALSE, TRUE);
+        midori_browser_edit_bookmark_dialog_new (browser, item, FALSE, TRUE, NULL);
 }
 
 static void
@@ -4140,10 +4150,19 @@ static void
 _action_bookmark_add_activate (GtkAction*     action,
                                MidoriBrowser* browser)
 {
+    GtkWidget* proxy = NULL;
+    GSList* proxies = gtk_action_get_proxies (action);
+    for (; proxies != NULL; proxies = g_slist_next (proxies))
+    if (GTK_IS_TOOL_ITEM (proxies->data))
+    {
+        proxy = proxies->data;
+        break;
+    }
+
     if (g_str_equal (gtk_action_get_name (action), "BookmarkFolderAdd"))
-        midori_browser_edit_bookmark_dialog_new (browser, NULL, TRUE, TRUE);
+        midori_browser_edit_bookmark_dialog_new (browser, NULL, TRUE, TRUE, proxy);
     else
-        midori_browser_edit_bookmark_dialog_new (browser, NULL, TRUE, FALSE);
+        midori_browser_edit_bookmark_dialog_new (browser, NULL, TRUE, FALSE, proxy);
 }
 
 static void
