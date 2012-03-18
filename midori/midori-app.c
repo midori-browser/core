@@ -68,9 +68,6 @@ struct _MidoriApp
 {
     GObject parent_instance;
 
-    MidoriBrowser* browser;
-
-    gchar* name;
     MidoriWebSettings* settings;
     KatzeArray* bookmarks;
     KatzeArray* trash;
@@ -80,12 +77,15 @@ struct _MidoriApp
     KatzeArray* extensions;
     KatzeArray* browsers;
 
+    MidoriBrowser* browser;
     MidoriAppInstance instance;
 
     #if !HAVE_HILDON || !HAVE_LIBNOTIFY
     gchar* program_notify_send;
     #endif
 };
+
+static gchar* app_name = NULL;
 
 struct _MidoriAppClass
 {
@@ -718,29 +718,30 @@ midori_app_create_instance (MidoriApp* app)
     GIOChannel* channel;
     #endif
 
-    if (!app->name)
+    if (!(display = gdk_display_get_default ()))
+        return MidoriAppInstanceNull;
+
     {
         #if HAVE_UNIQUE
         const gchar* config = sokoke_set_config_dir (NULL);
         gchar* name_hash;
         name_hash = g_compute_checksum_for_string (G_CHECKSUM_MD5, config, -1);
-        app->name = g_strconcat ("midori", "_", name_hash, NULL);
+        katze_assign (app_name, g_strconcat ("midori", "_", name_hash, NULL));
         g_free (name_hash);
         g_object_notify (G_OBJECT (app), "name");
         #else
-        app->name = g_strdup (PACKAGE_NAME);
+        katze_assign (app_name, g_strdup (PACKAGE_NAME));
         #endif
     }
-
-    if (!(display = gdk_display_get_default ()))
-        return MidoriAppInstanceNull;
 
     display_name = g_strdup (gdk_display_get_name (display));
     n = strlen (display_name);
     for (i = 0; i < n; i++)
         if (strchr (":.\\/", display_name[i]))
             display_name[i] = '_';
-    instance_name = g_strdup_printf ("de.twotoasts.%s_%s", app->name, display_name);
+    instance_name = g_strdup_printf ("de.twotoasts.%s_%s", app_name, display_name);
+    g_free (display_name);
+    katze_assign (app_name, instance_name);
 
     #if HAVE_UNIQUE
     instance = unique_app_new (instance_name, NULL);
@@ -758,12 +759,14 @@ midori_app_create_instance (MidoriApp* app)
             (GIOFunc)midori_app_io_channel_watch_cb, app);
     }
     #endif
-
-    g_free (instance_name);
-    g_free (display_name);
-
     #endif
     return instance;
+}
+
+const gchar*
+midori_app_get_name (MidoriApp* app)
+{
+    return app_name;
 }
 
 static void
@@ -793,7 +796,7 @@ midori_app_finalize (GObject* object)
 {
     MidoriApp* app = MIDORI_APP (object);
 
-    katze_assign (app->name, NULL);
+    katze_assign (app_name, NULL);
     katze_object_assign (app->settings, NULL);
     katze_object_assign (app->bookmarks, NULL);
     katze_object_assign (app->trash, NULL);
@@ -833,7 +836,7 @@ midori_app_set_property (GObject*      object,
     switch (prop_id)
     {
     case PROP_NAME:
-        katze_assign (app->name, g_value_dup_string (value));
+        katze_assign (app_name, g_value_dup_string (value));
         break;
     case PROP_SETTINGS:
         katze_object_assign (app->settings, g_value_dup_object (value));
@@ -873,7 +876,7 @@ midori_app_get_property (GObject*    object,
     switch (prop_id)
     {
     case PROP_NAME:
-        g_value_set_string (value, app->name);
+        g_value_set_string (value, app_name);
         break;
     case PROP_SETTINGS:
         g_value_set_object (value, app->settings);

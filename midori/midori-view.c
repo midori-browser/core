@@ -13,6 +13,7 @@
 #include "midori-view.h"
 #include "midori-browser.h"
 #include "midori-searchaction.h"
+#include "midori-app.h"
 #include "midori-platform.h"
 #include "midori-core.h"
 #include "midori-findbar.h"
@@ -4142,7 +4143,7 @@ midori_view_set_uri (MidoriView*  view,
                     "style=\"position: absolute; right: 15px; bottom: 15px; z-index: -9;\">"
                     "<table>"
                     "<tr><td>Command&nbsp;line</td><td>%s</td></tr>"
-                    "<tr><td>Midori</td><td>%s</td></tr>"
+                    "<tr><td>Midori</td><td>%s (%s)</td></tr>"
                     "<tr><td>WebKitGTK+</td><td>%d.%d.%d (%d.%d.%d)</td></tr>"
                     "<tr><td>GTK+</td><td>%d.%d.%d (%d.%d.%d)</td></tr>"
                     "<tr><td>Glib</td><td>%d.%d.%d (%d.%d.%d)</td></tr>"
@@ -4159,7 +4160,7 @@ midori_view_set_uri (MidoriView*  view,
                     "</body></html>",
                     _("Version numbers in brackets show the version used at runtime."),
                     command_line,
-                    PACKAGE_VERSION,
+                    PACKAGE_VERSION, midori_app_get_name (NULL),
                     WEBKIT_MAJOR_VERSION, WEBKIT_MINOR_VERSION, WEBKIT_MICRO_VERSION,
                     webkit_major_version (),
                     webkit_minor_version (),
