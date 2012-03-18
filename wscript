@@ -207,7 +207,7 @@ def configure (conf):
     conf.define ('HAVE_LIBNOTIFY', [0,1][libnotify == 'yes'])
 
     if option_enabled ('granite'):
-        if option_enabled('gtk3'):
+        if not option_enabled ('gtk3'):
             option_checkfatal ('granite', 'granite requires --enable-gtk3')
         check_pkg ('granite', '0.1', False)
         granite = ['N/A', 'yes'][conf.env['HAVE_GRANITE'] == 1]
@@ -256,12 +256,13 @@ def configure (conf):
             check_pkg ('javascriptcoregtk-1.0', '1.5.1', args=args)
     conf.env['HAVE_GTK3'] = option_enabled ('gtk3')
     check_pkg ('libsoup-2.4', '2.27.90')
-    conf.define ('HAVE_LIBSOUP_2_25_2', 1)
-    conf.define ('HAVE_LIBSOUP_2_27_90', 1)
-    check_pkg ('libsoup-2.4', '2.29.3', False, var='LIBSOUP_2_29_3')
-    check_pkg ('libsoup-2.4', '2.29.91', False, var='LIBSOUP_2_29_91')
-    check_pkg ('libsoup-2.4', '2.37.1', False, var='LIBSOUP_2_37_1')
     conf.define ('LIBSOUP_VERSION', conf.check_cfg (modversion='libsoup-2.4'))
+    if check_version (conf.env['LIBSOUP_VERSION'], 2, 29, 3):
+        conf.define ('LIBSOUP_2_29_3', 1)
+    if check_version (conf.env['LIBSOUP_VERSION'], 2, 29, 91):
+        conf.define ('LIBSOUP_2_29_91', 1)
+    if check_version (conf.env['LIBSOUP_VERSION'], 2, 37, 1):
+        conf.define ('LIBSOUP_2_37_1', 1)
     check_pkg ('libxml-2.0', '2.6')
     check_pkg ('sqlite3', '3.0', True, var='SQLITE')
 
