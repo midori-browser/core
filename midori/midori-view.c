@@ -5232,7 +5232,7 @@ midori_view_save_source (MidoriView* view,
     {
         if ((fp = fdopen (fd, "w")))
         {
-            ret = fwrite (data->str, 1, data->len, fp);
+            ret = fwrite (data ? data->str : "", 1, data ? data->len : 0, fp);
             fclose (fp);
             if ((ret - data->len) != 0)
             {
