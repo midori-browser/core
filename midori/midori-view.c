@@ -5131,7 +5131,7 @@ midori_view_can_save (MidoriView* view)
     return FALSE;
 }
 
-static gchar*
+/* static */ gchar*
 midori_view_get_uri_extension (const gchar* uri)
 {
     gchar* slash;
@@ -5160,7 +5160,6 @@ midori_view_get_uri_extension (const gchar* uri)
     while (*ext_end && g_ascii_isalnum (*ext_end))
         ext_end++;
 
-    *ext_end = 0;
     return g_strdup (period);
 }
 
