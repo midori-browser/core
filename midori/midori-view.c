@@ -112,6 +112,11 @@ struct _MidoriView
     gboolean back_forward_set;
     GHashTable* memory;
     GtkWidget* scrolled_window;
+
+    #if GTK_CHECK_VERSION (3, 2, 0)
+    GtkWidget* overlay;
+    GtkWidget* overlay_label;
+    #endif
 };
 
 struct _MidoriViewClass
@@ -3162,7 +3167,20 @@ midori_view_init (MidoriView* view)
     view->scrolled_window = katze_scrolled_new (NULL, NULL);
     gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (view->scrolled_window),
                                          GTK_SHADOW_NONE);
+
+    #if GTK_CHECK_VERSION(3, 2, 0)
+    view->overlay = gtk_overlay_new ();
+    gtk_widget_show (view->overlay);
+    gtk_container_add (GTK_CONTAINER (view->overlay), view->scrolled_window);
+    gtk_box_pack_start (GTK_BOX (view), view->overlay, TRUE, TRUE, 0);
+
+    view->overlay_label = gtk_label_new (NULL);
+    gtk_widget_set_halign (view->overlay_label, GTK_ALIGN_START);
+    gtk_widget_set_valign (view->overlay_label, GTK_ALIGN_END);
+    gtk_overlay_add_overlay (GTK_OVERLAY (view->overlay), view->overlay_label);
+    #else
     gtk_box_pack_start (GTK_BOX (view), view->scrolled_window, TRUE, TRUE, 0);
+    #endif
 
     g_signal_connect (view->item, "meta-data-changed",
         G_CALLBACK (midori_view_item_meta_data_changed), view);
@@ -4215,6 +4233,33 @@ midori_view_set_uri (MidoriView*  view,
             webkit_web_view_open (WEBKIT_WEB_VIEW (view->web_view), uri);
         }
     }
+}
+
+/**
+ * midori_view_set_overlay_text:
+ * @view: a #MidoriView
+ * @text: a URI or text string
+ *
+ * Show a specified URI or text on top of the view.
+ * Has no effect with < GTK+ 3.2.0.
+ *
+ * Since: 0.4.5
+ **/
+void
+midori_view_set_overlay_text (MidoriView*  view,
+                              const gchar* text)
+{
+    g_return_if_fail (MIDORI_IS_VIEW (view));
+
+    #if GTK_CHECK_VERSION (3, 2, 0)
+    if (text == NULL)
+        gtk_widget_hide (view->overlay_label);
+    else
+    {
+        gtk_label_set_text (GTK_LABEL (view->overlay_label), text);
+        gtk_widget_show (view->overlay_label);
+    }
+    #endif
 }
 
 /**

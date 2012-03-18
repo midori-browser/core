@@ -96,6 +96,10 @@ void
 midori_view_set_uri                    (MidoriView*        view,
                                         const gchar*       uri);
 
+void
+midori_view_set_overlay_text           (MidoriView*        view,
+                                        const gchar*       text);
+
 gboolean
 midori_view_is_blank                   (MidoriView*        view);
 

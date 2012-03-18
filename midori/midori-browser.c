@@ -370,45 +370,56 @@ static void
 _midori_browser_set_statusbar_text (MidoriBrowser* browser,
                                     const gchar*   text)
 {
+    GtkWidget* view = midori_browser_get_current_tab (browser);
+    #if GTK_CHECK_VERSION (3, 2, 0)
+    gboolean is_location = FALSE;
+    #else
     GtkWidget* widget = gtk_window_get_focus (GTK_WINDOW (browser));
     gboolean is_location = widget && GTK_IS_ENTRY (widget)
         && GTK_IS_ALIGNMENT (gtk_widget_get_parent (widget));
+    #endif
 
     katze_assign (browser->statusbar_text, midori_uri_format_for_display (text));
+    if (view == NULL)
+        return;
 
-    if (!browser->show_statusbar && !is_location)
+    if (!gtk_widget_get_visible (browser->statusbar) && !is_location
+     && text && *text)
     {
+        #if GTK_CHECK_VERSION (3, 2, 0)
+        midori_view_set_overlay_text (MIDORI_VIEW (view), browser->statusbar_text);
+        #else
         GtkAction* action = _action_by_name (browser, "Location");
         MidoriLocationAction* location_action = MIDORI_LOCATION_ACTION (action);
-        if (text && *text)
-        {
-            midori_location_action_set_text (location_action, browser->statusbar_text);
-            midori_location_action_set_icon (location_action, NULL);
-            midori_location_action_set_secondary_icon (location_action, NULL);
-        }
+        midori_location_action_set_text (location_action, browser->statusbar_text);
+        midori_location_action_set_icon (location_action, NULL);
+        midori_location_action_set_secondary_icon (location_action, NULL);
+        #endif
+    }
+    else if (!gtk_widget_get_visible (browser->statusbar) && !is_location)
+    {
+        #if GTK_CHECK_VERSION (3, 2, 0)
+        midori_view_set_overlay_text (MIDORI_VIEW (view), NULL);
+        #else
+        GtkAction* action = _action_by_name (browser, "Location");
+        MidoriLocationAction* location_action = MIDORI_LOCATION_ACTION (action);
+        if (g_object_get_data (G_OBJECT (view), "news-feeds"))
+            midori_location_action_set_secondary_icon (
+                location_action, STOCK_NEWS_FEED);
         else
-        {
-            GtkWidget* view = midori_browser_get_current_tab (browser);
-            if (G_LIKELY (view))
-            {
-                if (g_object_get_data (G_OBJECT (view), "news-feeds"))
-                    midori_location_action_set_secondary_icon (
-                        location_action, STOCK_NEWS_FEED);
-                else
-                    midori_location_action_set_secondary_icon (
-                        location_action, GTK_STOCK_JUMP_TO);
-                midori_location_action_set_text (location_action,
-                    midori_view_get_display_uri (MIDORI_VIEW (view)));
-                midori_location_action_set_icon (location_action,
-                    midori_view_get_icon (MIDORI_VIEW (view)));
-            }
-        }
+            midori_location_action_set_secondary_icon (
+                location_action, GTK_STOCK_JUMP_TO);
+        midori_location_action_set_text (location_action,
+            midori_view_get_display_uri (MIDORI_VIEW (view)));
+        midori_location_action_set_icon (location_action,
+            midori_view_get_icon (MIDORI_VIEW (view)));
+        #endif
     }
     else
     {
         gtk_statusbar_pop (GTK_STATUSBAR (browser->statusbar), 1);
         gtk_statusbar_push (GTK_STATUSBAR (browser->statusbar), 1,
-                            browser->statusbar_text ? browser->statusbar_text : "");
+                            katze_str_non_null (browser->statusbar_text));
     }
 }
 
