@@ -15,6 +15,7 @@
 #include "midori-searchaction.h"
 #include "midori-platform.h"
 #include "midori-core.h"
+#include "midori-findbar.h"
 
 #include "marshal.h"
 
@@ -116,6 +117,7 @@ struct _MidoriView
     #if GTK_CHECK_VERSION (3, 2, 0)
     GtkWidget* overlay;
     GtkWidget* overlay_label;
+    GtkWidget* overlay_find;
     #endif
 };
 
@@ -2044,7 +2046,12 @@ gtk_widget_key_press_event_cb (WebKitWebView* web_view,
         && !webkit_web_view_can_paste_clipboard (web_view))
     {
         gchar* text = character ? g_strdup_printf ("%c", character) : NULL;
+        #if GTK_CHECK_VERSION(3, 2, 0)
+        midori_findbar_search_text (MIDORI_FINDBAR (view->overlay_find),
+            (GtkWidget*)view, TRUE, katze_str_non_null (text));
+        #else
         g_signal_emit (view, signals[SEARCH_TEXT], 0, TRUE, text ? text : "");
+        #endif
         g_free (text);
         return TRUE;
     }
@@ -3174,10 +3181,17 @@ midori_view_init (MidoriView* view)
     gtk_container_add (GTK_CONTAINER (view->overlay), view->scrolled_window);
     gtk_box_pack_start (GTK_BOX (view), view->overlay, TRUE, TRUE, 0);
 
+    /* Overlays must be created before showing GtkOverlay as of GTK+ 3.2 */
     view->overlay_label = gtk_label_new (NULL);
     gtk_widget_set_halign (view->overlay_label, GTK_ALIGN_START);
     gtk_widget_set_valign (view->overlay_label, GTK_ALIGN_END);
     gtk_overlay_add_overlay (GTK_OVERLAY (view->overlay), view->overlay_label);
+    view->overlay_find = g_object_new (MIDORI_TYPE_FINDBAR, NULL);
+    gtk_widget_set_halign (view->overlay_find, GTK_ALIGN_END);
+    gtk_widget_set_valign (view->overlay_find, GTK_ALIGN_START);
+    gtk_overlay_add_overlay (GTK_OVERLAY (view->overlay),
+                             view->overlay_find);
+    gtk_widget_set_no_show_all (view->overlay_find, TRUE);
     #else
     gtk_box_pack_start (GTK_BOX (view), view->scrolled_window, TRUE, TRUE, 0);
     #endif

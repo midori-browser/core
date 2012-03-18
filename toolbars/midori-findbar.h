@@ -55,7 +55,7 @@ void
 midori_findbar_search_text            (MidoriFindbar* findbar,
                                        GtkWidget*     view,
                                        gboolean       found,
-                                       gchar*         typing);
+                                       const gchar*   typing);
 
 void
 midori_findbar_set_close_button_left  (MidoriFindbar* findbar,

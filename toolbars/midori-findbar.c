@@ -253,6 +253,7 @@ midori_findbar_init (MidoriFindbar* findbar)
     #endif
     gtk_toolbar_set_icon_size (GTK_TOOLBAR (findbar), GTK_ICON_SIZE_MENU);
     gtk_toolbar_set_style (GTK_TOOLBAR (findbar), GTK_TOOLBAR_BOTH_HORIZ);
+    gtk_toolbar_set_show_arrow (GTK_TOOLBAR (findbar), FALSE);
     g_signal_connect (findbar, "key-press-event",
         G_CALLBACK (midori_findbar_find_key_press_event_cb), NULL);
 
@@ -336,7 +337,7 @@ void
 midori_findbar_search_text (MidoriFindbar* findbar,
                             GtkWidget*     view,
                             gboolean       found,
-                            gchar*         typing)
+                            const gchar*   typing)
 {
     const gchar* text;
     gboolean case_sensitive;
