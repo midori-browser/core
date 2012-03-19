@@ -5146,7 +5146,7 @@ midori_view_can_save (MidoriView* view)
     return FALSE;
 }
 
-/* static */ gchar*
+static gchar*
 midori_view_get_uri_extension (const gchar* uri)
 {
     gchar* slash;
@@ -5248,10 +5248,11 @@ midori_view_save_source (MidoriView* view,
         {
             ret = fwrite (data ? data->str : "", 1, data ? data->len : 0, fp);
             fclose (fp);
-            if ((ret - data->len) != 0)
+            if (ret - (data ? data->len : 0) != 0)
             {
-                g_warning ("Error writing to file %s "
-                           "in midori_browser_source_transfer_cb()", unique_filename);
+                midori_view_add_info_bar (view, GTK_MESSAGE_ERROR,
+                    unique_filename, NULL, view,
+                    GTK_STOCK_OK, GTK_RESPONSE_ACCEPT, NULL);
                 katze_assign (unique_filename, NULL);
             }
         }
