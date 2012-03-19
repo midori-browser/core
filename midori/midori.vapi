@@ -164,7 +164,7 @@ namespace Midori {
         public GLib.Object net { get; }
 
         [HasEmitter]
-        public signal bool download_requested (WebKit.Download download, Midori.Browser browser);
+        public signal bool download_requested (WebKit.Download download);
 
     }
 
