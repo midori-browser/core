@@ -422,7 +422,7 @@ midori_location_action_add_search_engines (MidoriLocationAction* action,
 
 static void
 midori_location_action_complete (MidoriLocationAction* action,
-                                 GdkEventButton*       event,
+                                 gboolean              new_tab,
                                  const gchar*          uri)
 {
     if (!strcmp (uri, "about:search"))
@@ -436,8 +436,7 @@ midori_location_action_complete (MidoriLocationAction* action,
     {
         midori_location_action_popdown_completion (action);
         gtk_entry_set_text (GTK_ENTRY (action->entry), uri);
-        g_signal_emit (action, signals[SUBMIT_URI], 0, uri,
-                       MIDORI_MOD_NEW_TAB (event->state));
+        g_signal_emit (action, signals[SUBMIT_URI], 0, uri, new_tab);
     }
 }
 
@@ -457,7 +456,8 @@ midori_location_action_treeview_button_press_cb (GtkWidget*            treeview,
         gtk_tree_model_get_iter (action->completion_model, &iter, path);
         gtk_tree_path_free (path);
         gtk_tree_model_get (action->completion_model, &iter, URI_COL, &uri, -1);
-        midori_location_action_complete (action, event, uri);
+        midori_location_action_complete (action,
+                MIDORI_MOD_NEW_TAB (event->state), uri);
         g_free (uri);
 
         return TRUE;
@@ -963,7 +963,8 @@ midori_location_action_key_press_event_cb (GtkEntry*    entry,
                 gtk_tree_model_get (model, &iter, URI_COL, &uri, -1);
 
                 if (is_enter)
-                    midori_location_action_complete (location_action, (GdkEventButton*)event, uri);
+                    midori_location_action_complete (location_action,
+                            MIDORI_MOD_NEW_TAB (event->state), uri);
                 else
                 {
                     midori_location_action_popdown_completion (location_action);
