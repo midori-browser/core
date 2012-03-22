@@ -2357,7 +2357,8 @@ midori_view_populate_popup (MidoriView* view,
     context = katze_object_get_int (view->hit_test, "context");
     has_selection = context & WEBKIT_HIT_TEST_RESULT_CONTEXT_SELECTION;
     /* Ensure view->selected_text */
-    midori_view_has_selection (view);
+    if (!midori_view_has_selection (view))
+        has_selection = false;
     is_editable = context & WEBKIT_HIT_TEST_RESULT_CONTEXT_EDITABLE;
     is_image = context & WEBKIT_HIT_TEST_RESULT_CONTEXT_IMAGE;
     is_media = context & WEBKIT_HIT_TEST_RESULT_CONTEXT_MEDIA;
