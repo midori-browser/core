@@ -656,11 +656,10 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      "always-show-tabbar",
                                      _("Always Show Tabbar"),
                                      _("Always show the tabbar"),
-        #ifdef HAVE_GRANITE
                                      TRUE,
+        #ifdef HAVE_GRANITE
                                      G_PARAM_READABLE
         #else
-                                     FALSE,
                                      flags
         #endif
                                      ));
