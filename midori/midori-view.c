@@ -1782,12 +1782,7 @@ midori_view_web_view_button_press_event_cb (WebKitWebView*  web_view,
             view->button_press_handled = TRUE;
             return TRUE;
         }
-        else if (MIDORI_MOD_SCROLL (event->state))
-        {
-            midori_view_set_zoom_level (MIDORI_VIEW (view), 1.0);
-            return FALSE; /* Allow Ctrl + Middle click */
-        }
-        else if (view->middle_click_opens_selection)
+        if (view->middle_click_opens_selection)
         {
             gboolean is_editable;
             WebKitHitTestResult* result;
@@ -1797,56 +1792,63 @@ midori_view_web_view_button_press_event_cb (WebKitWebView*  web_view,
             context = katze_object_get_int (result, "context");
             is_editable = context & WEBKIT_HIT_TEST_RESULT_CONTEXT_EDITABLE;
             g_object_unref (result);
-            if (is_editable)
-                return FALSE;
-
-            clipboard = gtk_clipboard_get_for_display (
-                gtk_widget_get_display (GTK_WIDGET (view)),
-                GDK_SELECTION_PRIMARY);
-            if ((uri = gtk_clipboard_wait_for_text (clipboard)))
+            if (!is_editable)
             {
-                guint i = 0;
-                while (uri[i++] != '\0')
-                    if (uri[i] == '\n' || uri[i] == '\r')
-                        uri[i] = ' ';
-                g_strstrip (uri);
-
-                /* Hold Alt to search for the selected word */
-                if (event->state & GDK_MOD1_MASK)
+                clipboard = gtk_clipboard_get_for_display (
+                    gtk_widget_get_display (GTK_WIDGET (view)),
+                    GDK_SELECTION_PRIMARY);
+                if ((uri = gtk_clipboard_wait_for_text (clipboard)))
                 {
-                    new_uri = sokoke_magic_uri (uri);
-                    if (!new_uri)
+                    guint i = 0;
+                    while (uri[i++] != '\0')
+                        if (uri[i] == '\n' || uri[i] == '\r')
+                            uri[i] = ' ';
+                    g_strstrip (uri);
+
+                    /* Hold Alt to search for the selected word */
+                    if (event->state & GDK_MOD1_MASK)
                     {
-                        gchar* search = katze_object_get_string (
-                            view->settings, "location-entry-search");
-                        new_uri = midori_uri_for_search (search, uri);
-                        g_free (search);
+                        new_uri = sokoke_magic_uri (uri);
+                        if (!new_uri)
+                        {
+                            gchar* search = katze_object_get_string (
+                                view->settings, "location-entry-search");
+                            new_uri = midori_uri_for_search (search, uri);
+                            g_free (search);
+                        }
+                        katze_assign (uri, new_uri);
                     }
-                    katze_assign (uri, new_uri);
+                    else if (midori_uri_is_location (uri))
+                    {
+                        if (MIDORI_MOD_NEW_TAB (event->state))
+                        {
+                            background = view->open_tabs_in_the_background;
+                            if (MIDORI_MOD_BACKGROUND (event->state))
+                                background = !background;
+                            g_signal_emit (view, signals[NEW_TAB], 0, uri, background);
+                        }
+                        else
+                        {
+                            midori_view_set_uri (MIDORI_VIEW (view), uri);
+                            gtk_widget_grab_focus (GTK_WIDGET (view));
+                        }
+                        g_free (uri);
+                        view->button_press_handled = TRUE;
+                        return TRUE;
+                    }
+                    else
+                    {
+                        g_free (uri);
+                    }
                 }
-                else if (!midori_uri_is_location (uri))
-                {
-                    g_free (uri);
-                    return FALSE;
-                }
-
-                if (MIDORI_MOD_NEW_TAB (event->state))
-                {
-                    background = view->open_tabs_in_the_background;
-                    if (MIDORI_MOD_BACKGROUND (event->state))
-                        background = !background;
-                    g_signal_emit (view, signals[NEW_TAB], 0, uri, background);
-                }
-                else
-                {
-                    midori_view_set_uri (MIDORI_VIEW (view), uri);
-                    gtk_widget_grab_focus (GTK_WIDGET (view));
-                }
-                g_free (uri);
-                view->button_press_handled = TRUE;
-                return TRUE;
             }
         }
+        if (MIDORI_MOD_SCROLL (event->state))
+        {
+            midori_view_set_zoom_level (MIDORI_VIEW (view), 1.0);
+            return FALSE; /* Allow Ctrl + Middle click */
+        }
+        return FALSE;
         break;
     case 3:
         if (event->state & GDK_CONTROL_MASK)
