@@ -4812,7 +4812,7 @@ _action_help_link_activate (GtkAction*     action,
                             MidoriBrowser* browser)
 {
     const gchar* action_name;
-    const gchar* uri;
+    const gchar* uri = NULL;
     gint n;
     #if defined (G_OS_WIN32) && defined (DOCDIR)
     gchar* free_uri = NULL;
@@ -4847,9 +4847,10 @@ _action_help_link_activate (GtkAction*     action,
         #endif
     }
     else if  (!strncmp ("HelpBugs", action_name, 8))
-        uri = PACKAGE_BUGREPORT;
-    else
-        uri = NULL;
+    {
+        if (!g_spawn_command_line_async ("ubuntu-bug " PACKAGE_NAME, NULL))
+            uri = PACKAGE_BUGREPORT;
+    }
 
     if (uri)
     {
