@@ -5380,6 +5380,48 @@ midori_view_go_forward (MidoriView* view)
     webkit_web_view_go_forward (WEBKIT_WEB_VIEW (view->web_view));
 }
 
+/**
+ * midori_view_go_back_or_forward
+ * @view: a #MidoriView
+ * @steps: number of steps to jump in history
+ *
+ * Goes back or forward in history.
+ *
+ * Since: 0.4.5
+ **/
+void
+midori_view_go_back_or_forward (MidoriView* view,
+                                gint        steps)
+{
+    g_return_if_fail (MIDORI_IS_VIEW (view));
+
+    webkit_web_view_go_back_or_forward (WEBKIT_WEB_VIEW (view->web_view), steps);
+    /* Force the speed dial to kick in if going back to a blank page */
+    if (midori_view_is_blank (view))
+        midori_view_set_uri (view, "");
+}
+
+/**
+ * midori_view_can_go_back_or_forward
+ * @view: a #MidoriView
+ * @steps: number of steps to jump in history
+ *
+ * Determines whether the view can go back or forward by number of steps.
+ *
+ * Since: 0.4.5
+ **/
+gboolean
+midori_view_can_go_back_or_forward (MidoriView* view,
+                                    gint        steps)
+{
+    g_return_val_if_fail (MIDORI_IS_VIEW (view), FALSE);
+
+    if (view->web_view)
+        return webkit_web_view_can_go_back_or_forward (WEBKIT_WEB_VIEW (view->web_view), steps);
+    else
+        return FALSE;
+}
+
 static gchar*
 midori_view_get_related_page (MidoriView*  view,
                               const gchar* rel,

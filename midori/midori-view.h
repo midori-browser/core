@@ -183,6 +183,14 @@ midori_view_can_go_forward             (MidoriView*        view);
 void
 midori_view_go_forward                 (MidoriView*        view);
 
+
+void midori_view_go_back_or_forward    (MidoriView*        view,
+                                        gint               steps);
+
+gboolean
+midori_view_can_go_back_or_forward     (MidoriView*        view,
+                                        gint               steps);
+
 const gchar*
 midori_view_get_previous_page          (MidoriView*        view);
 

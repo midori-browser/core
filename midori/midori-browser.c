@@ -6436,6 +6436,95 @@ _midori_browser_set_toolbar_style (MidoriBrowser*     browser,
                                     gtk_toolbar_style);
 }
 
+static void
+midori_browser_toolbar_popup_context_menu_history_cb (GtkMenuItem* menu_item,
+                                                      MidoriBrowser* browser)
+{
+    gint steps = GPOINTER_TO_INT (g_object_get_data (G_OBJECT (menu_item), "steps"));
+    MidoriView* view = MIDORI_VIEW (midori_browser_get_current_tab (browser));
+    midori_view_go_back_or_forward (view, steps);
+}
+
+static void
+midori_browser_toolbar_popup_context_menu_history (MidoriBrowser* browser,
+                                                   GtkWidget* widget,
+                                                   gboolean back,
+                                                   gint x,
+                                                   gint y)
+{
+    const gint step = back ? -1 : 1;
+    gint steps = step;
+    GtkWidget* menu;
+    GtkWidget* menu_item;
+    WebKitWebBackForwardList* list;
+    WebKitWebHistoryItem* current_item;
+    WebKitWebHistoryItem* history_item;
+    WebKitWebHistoryItem* (*history_next)(WebKitWebBackForwardList*);
+    void (*history_action)(WebKitWebBackForwardList*);
+
+    list = webkit_web_view_get_back_forward_list (
+        WEBKIT_WEB_VIEW (midori_view_get_web_view (
+        MIDORI_VIEW (midori_browser_get_current_tab (browser)))));
+
+    if (!list)
+        return;
+
+    menu = gtk_menu_new ();
+
+    history_action = back ?
+        webkit_web_back_forward_list_go_back :
+        webkit_web_back_forward_list_go_forward;
+    history_next = back ?
+        webkit_web_back_forward_list_get_back_item :
+        webkit_web_back_forward_list_get_forward_item;
+    current_item = webkit_web_back_forward_list_get_current_item (list);
+
+    for (; (history_item = history_next (list)); history_action (list), steps += step)
+    {
+        #if WEBKIT_CHECK_VERSION (1, 3, 13)
+        gchar* icon_uri;
+        gchar* icon_path;
+        GdkPixbuf* pixbuf;
+        GdkPixbuf* pixbuf_scaled = NULL;
+        #endif
+
+        menu_item = gtk_image_menu_item_new_with_label (
+            webkit_web_history_item_get_title (history_item));
+        #if WEBKIT_CHECK_VERSION (1, 3, 13)
+        icon_uri = webkit_icon_database_get_icon_uri (webkit_get_icon_database (),
+            webkit_web_history_item_get_uri (history_item));
+        icon_path = katze_net_get_cached_path (NULL, icon_uri, "icons");
+        if ((pixbuf = gdk_pixbuf_new_from_file (icon_path, NULL)))
+        {
+            gint w = 16, h = 16;
+            gtk_icon_size_lookup_for_settings (gtk_widget_get_settings (widget),
+                GTK_ICON_SIZE_MENU, &w, &h);
+            pixbuf_scaled = gdk_pixbuf_scale_simple (pixbuf,
+                w, h, GDK_INTERP_BILINEAR);
+        }
+        gtk_image_menu_item_set_image (
+            GTK_IMAGE_MENU_ITEM (menu_item),
+            pixbuf_scaled ? gtk_image_new_from_pixbuf (pixbuf_scaled) :
+            gtk_image_new_from_stock (GTK_STOCK_FILE, GTK_ICON_SIZE_MENU));
+        g_free (icon_uri);
+        g_free (icon_path);
+        #endif
+        g_object_set_data (G_OBJECT (menu_item), "uri",
+            (gpointer) webkit_web_history_item_get_uri (history_item));
+        g_object_set_data (G_OBJECT (menu_item), "steps", GINT_TO_POINTER (steps));
+        gtk_menu_shell_append (GTK_MENU_SHELL (menu), menu_item);
+        g_signal_connect (G_OBJECT (menu_item), "activate",
+            G_CALLBACK (midori_browser_toolbar_popup_context_menu_history_cb),
+            browser);
+    }
+
+    webkit_web_back_forward_list_go_to_item (list, current_item);
+    gtk_widget_show_all (menu);
+
+    katze_widget_popup (widget, GTK_MENU (menu), NULL,
+        KATZE_MENU_POSITION_LEFT);
+}
+
 static gboolean
 midori_browser_toolbar_item_button_press_event_cb (GtkWidget*      toolitem,
                                                    GdkEventButton* event,
@@ -6455,11 +6544,29 @@ midori_browser_toolbar_item_button_press_event_cb (GtkWidget*      toolitem,
     }
     else if (MIDORI_EVENT_CONTEXT_MENU (event))
     {
-        midori_browser_toolbar_popup_context_menu_cb (
-            GTK_IS_BIN (toolitem) && gtk_bin_get_child (GTK_BIN (toolitem)) ?
+        if (g_object_get_data (G_OBJECT (toolitem), "history-back"))
+        {
+            midori_browser_toolbar_popup_context_menu_history (
+                browser,
+                GTK_IS_BIN (toolitem) && gtk_bin_get_child (GTK_BIN (toolitem)) ?
                 gtk_widget_get_parent (toolitem) : toolitem,
-            event->x, event->y, event->button, browser);
-
+                TRUE, event->x, event->y);
+        }
+        else if (g_object_get_data (G_OBJECT (toolitem), "history-forward"))
+        {
+            midori_browser_toolbar_popup_context_menu_history (
+                browser,
+                GTK_IS_BIN (toolitem) && gtk_bin_get_child (GTK_BIN (toolitem)) ?
+                gtk_widget_get_parent (toolitem) : toolitem,
+                FALSE, event->x, event->y);
+        }
+        else
+        {
+            midori_browser_toolbar_popup_context_menu_cb (
+                GTK_IS_BIN (toolitem) && gtk_bin_get_child (GTK_BIN (toolitem)) ?
+                    gtk_widget_get_parent (toolitem) : toolitem,
+                event->x, event->y, event->button, browser);
+        }
         return TRUE;
     }
     return FALSE;
@@ -6558,10 +6665,19 @@ _midori_browser_set_toolbar_items (MidoriBrowser* browser,
                 toolitem = gtk_action_create_tool_item (action);
 
             if (gtk_bin_get_child (GTK_BIN (toolitem)))
+            {
+                if (!g_strcmp0 (*name, "Back"))
+                    g_object_set_data (G_OBJECT (gtk_bin_get_child (GTK_BIN (toolitem))),
+                        "history-back", (void*) 0xdeadbeef);
+                else if (!g_strcmp0 (*name, "Forward"))
+                    g_object_set_data (G_OBJECT (gtk_bin_get_child (GTK_BIN (toolitem))),
+                        "history-forward", (void*) 0xdeadbeef);
+
                 g_signal_connect (gtk_bin_get_child (GTK_BIN (toolitem)),
                     "button-press-event",
                     G_CALLBACK (midori_browser_toolbar_item_button_press_event_cb),
                     browser);
+            }
             else
             {
                 gtk_tool_item_set_use_drag_window (GTK_TOOL_ITEM (toolitem), TRUE);
