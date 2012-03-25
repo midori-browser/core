@@ -26,6 +26,10 @@
 #if defined (G_OS_UNIX)
     #include <sys/utsname.h>
 #endif
+#if defined(__FreeBSD__)
+    #include <sys/types.h>
+    #include <sys/sysctl.h>
+#endif
 
 struct _MidoriWebSettings
 {
@@ -353,6 +357,14 @@ midori_web_settings_low_memory_profile ()
     mem.dwLength = sizeof (mem);
     if (GlobalMemoryStatusEx (&mem))
         return mem.ullTotalPhys / 1024 / 1024 < 352;
+#elif defined(__FreeBSD__)
+    size_t size;
+    int mem_total;
+    size = sizeof mem_total;
+
+    sysctlbyname("hw.realmem", &mem_total, &size, NULL, 0);
+
+    return mem_total / 1048576 < 352;
 #else
     gchar* contents;
     const gchar* total;
