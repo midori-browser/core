@@ -2793,12 +2793,8 @@ static gboolean
 webkit_web_view_web_view_ready_cb (GtkWidget*  web_view,
                                    MidoriView* view)
 {
-    #if GTK_CHECK_VERSION(3, 2, 0)
-    GtkWidget* new_view = gtk_widget_get_parent (gtk_widget_get_parent (gtk_widget_get_parent (web_view)));
-    #else
-    GtkWidget* new_view = gtk_widget_get_parent (gtk_widget_get_parent (web_view));
-    #endif
     MidoriNewView where = MIDORI_NEW_VIEW_TAB;
+    GtkWidget* new_view = GTK_WIDGET (midori_view_get_for_widget (web_view));
 
     /* FIXME: Open windows opened by scripts in tabs if they otherwise
         would be replacing the page the user opened. */
@@ -5812,6 +5808,29 @@ midori_view_get_web_view        (MidoriView*        view)
     g_return_val_if_fail (MIDORI_IS_VIEW (view), NULL);
 
     return view->web_view;
+}
+
+/**
+ * midori_view_get_for_widget:
+ * @widget: a #GtkWidget
+ *
+ * Determines the view appropriate for the specified widget.
+ *
+ * Return value: a #MidoriView
+ *
+ * Since 0.4.5
+ **/
+MidoriView*
+midori_view_get_for_widget (GtkWidget* web_view)
+{
+    GtkWidget* scrolled = gtk_widget_get_parent (web_view);
+    #if GTK_CHECK_VERSION(3, 2, 0)
+    GtkWidget* overlay = gtk_widget_get_parent (scrolled);
+    GtkWidget* view = gtk_widget_get_parent (overlay);
+    #else
+    GtkWidget* view = gtk_widget_get_parent (scrolled);
+    #endif
+    return MIDORI_VIEW (view);
 }
 
 /**

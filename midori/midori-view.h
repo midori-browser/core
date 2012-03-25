@@ -248,6 +248,9 @@ midori_view_get_snapshot               (MidoriView*        view,
 GtkWidget*
 midori_view_get_web_view               (MidoriView*        view);
 
+MidoriView*
+midori_view_get_for_widget             (GtkWidget*         web_view);
+
 MidoriSecurity
 midori_view_get_security               (MidoriView*        view);
 

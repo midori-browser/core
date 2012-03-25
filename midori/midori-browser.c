@@ -1780,8 +1780,8 @@ midori_browser_key_press_event (GtkWidget*   widget,
           && !webkit_web_view_can_paste_clipboard (WEBKIT_WEB_VIEW (focus)))
     {
         /* Space at the bottom of the page: Go to next page */
+        MidoriView* view = midori_view_get_for_widget (focus);
         GtkScrolledWindow* scrolled = GTK_SCROLLED_WINDOW (gtk_widget_get_parent (focus));
-        MidoriView* view = MIDORI_VIEW (gtk_widget_get_parent (GTK_WIDGET (scrolled)));
         GtkAdjustment* vadjust = gtk_scrolled_window_get_vadjustment (scrolled);
         if (gtk_adjustment_get_value (vadjust)
          == (gtk_adjustment_get_upper (vadjust) - gtk_adjustment_get_page_size (vadjust)))
