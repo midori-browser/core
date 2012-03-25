@@ -1992,10 +1992,14 @@ main (int    argc,
         return 1;
     }
 
+    /* Relative config path */
     if (config && !g_path_is_absolute (config))
     {
-        g_critical (_("The specified configuration folder is invalid."));
-        return 1;
+        gchar* old_config = config;
+        gchar* current_dir = g_get_current_dir ();
+        config = g_build_filename (current_dir, old_config, NULL);
+        g_free (current_dir);
+        g_free (old_config);
     }
 
     /* Private browsing, window title, default config folder */
