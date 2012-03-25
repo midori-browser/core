@@ -2793,7 +2793,11 @@ static gboolean
 webkit_web_view_web_view_ready_cb (GtkWidget*  web_view,
                                    MidoriView* view)
 {
+    #if GTK_CHECK_VERSION(3, 2, 0)
+    GtkWidget* new_view = gtk_widget_get_parent (gtk_widget_get_parent (gtk_widget_get_parent (web_view)));
+    #else
     GtkWidget* new_view = gtk_widget_get_parent (gtk_widget_get_parent (web_view));
+    #endif
     MidoriNewView where = MIDORI_NEW_VIEW_TAB;
 
     /* FIXME: Open windows opened by scripts in tabs if they otherwise
