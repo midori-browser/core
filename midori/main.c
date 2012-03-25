@@ -1515,7 +1515,8 @@ midori_prepare_uri (const gchar *uri)
 
     if (g_str_has_prefix(uri, "javascript:"))
         return NULL;
-    else if (g_file_test (uri, G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR))
+    else if (g_file_test (uri, G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR)
+         && !g_path_is_absolute (uri))
     {
         gchar* current_dir = g_get_current_dir ();
         uri_ready = g_strconcat ("file://", current_dir,
