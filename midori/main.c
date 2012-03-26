@@ -1226,6 +1226,34 @@ midori_load_soup_session_full (gpointer settings)
     return FALSE;
 }
 
+static void
+midori_load_extension (MidoriApp*       app,
+                       KatzeArray*      extensions,
+                       gchar**          active_extensions,
+                       MidoriExtension* extension,
+                       const gchar*     filename)
+{
+    /* Signal that we want the extension to load and save */
+    g_object_set_data_full (G_OBJECT (extension), "filename",
+                            g_strdup (filename), g_free);
+    if (midori_extension_is_prepared (extension))
+        midori_extension_get_config_dir (extension);
+
+    katze_array_add_item (extensions, extension);
+    if (active_extensions)
+    {
+        guint i = 0;
+        gchar* name;
+        while ((name = active_extensions[i++]))
+            if (!g_strcmp0 (filename, name))
+                g_signal_emit_by_name (extension, "activate", app);
+    }
+    g_signal_connect_after (extension, "activate",
+        G_CALLBACK (extension_activate_cb), app);
+    g_signal_connect_after (extension, "deactivate",
+        G_CALLBACK (extension_activate_cb), app);
+}
+
 static gboolean
 midori_load_extensions (gpointer data)
 {
@@ -1257,9 +1285,9 @@ midori_load_extensions (gpointer data)
             {
                 gchar* fullname;
                 GModule* module;
-                typedef MidoriExtension* (*extension_init_func)(void);
+                typedef GObject* (*extension_init_func)(void);
                 extension_init_func extension_init;
-                MidoriExtension* extension = NULL;
+                GObject* extension = NULL;
 
                 /* Ignore files which don't have the correct suffix */
                 if (!g_str_has_suffix (filename, G_MODULE_SUFFIX))
@@ -1275,11 +1303,22 @@ midori_load_extensions (gpointer data)
                     extension = extension_init ();
                     if (extension != NULL)
                     {
-                        /* Signal that we want the extension to load and save */
-                        g_object_set_data_full (G_OBJECT (extension), "filename",
-                                                g_strdup (filename), g_free);
-                        if (midori_extension_is_prepared (extension))
-                            midori_extension_get_config_dir (extension);
+                        if (MIDORI_IS_EXTENSION (extension))
+                            midori_load_extension (app, extensions,
+                                    active_extensions,
+                                    MIDORI_EXTENSION (extension), filename);
+                        else if (KATZE_IS_ARRAY (extension))
+                        {
+                            MidoriExtension* extension_item;
+                            KATZE_ARRAY_FOREACH_ITEM (extension_item, KATZE_ARRAY (extension))
+                            {
+                                if (MIDORI_IS_EXTENSION (extension))
+                                    midori_load_extension (app, extensions,
+                                            active_extensions, extension_item,
+                                            filename);
+                            }
+                        }
+
                     }
                 }
 
@@ -1294,20 +1333,8 @@ midori_load_extensions (gpointer data)
                                               "description", g_module_error (),
                                               NULL);
                     g_warning ("%s", g_module_error ());
+                    katze_array_add_item (extensions, extension);
                 }
-                katze_array_add_item (extensions, extension);
-                if (active_extensions)
-                {
-                    guint i = 0;
-                    gchar* name;
-                    while ((name = active_extensions[i++]))
-                        if (!g_strcmp0 (filename, name))
-                            g_signal_emit_by_name (extension, "activate", app);
-                }
-                g_signal_connect_after (extension, "activate",
-                    G_CALLBACK (extension_activate_cb), app);
-                g_signal_connect_after (extension, "deactivate",
-                    G_CALLBACK (extension_activate_cb), app);
                 g_object_unref (extension);
             }
             g_dir_close (extension_dir);
