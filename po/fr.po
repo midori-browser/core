@@ -13,7 +13,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: midori 0.2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-03-27 21:18+0000\n"
+"POT-Creation-Date: 2012-03-28 03:06+0000\n"
 "PO-Revision-Date: 2011-05-01 12:40+0100\n"
 "Last-Translator: Marin Moulinier <marinmoulinier@free.fr>\n"
 "Language-Team: French <fr@li.org>\n"
@@ -24,9 +24,8 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #: ../data/midori.desktop.in.h:1
-#, fuzzy
 msgid "Browse the Web"
-msgstr "_Rechercher sur Internet"
+msgstr "Rechercher sur Internet"
 
 #: ../data/midori.desktop.in.h:2
 #, fuzzy
@@ -43,19 +42,16 @@ msgid "Web Browser"
 msgstr "Navigateur Internet"
 
 #: ../data/midori-private.desktop.in.h:1
-#, fuzzy
 msgid "Midori Private Browsing"
 msgstr "Midori (Navigation privée)"
 
 #: ../data/midori-private.desktop.in.h:2
-#, fuzzy
 msgid "Open a new private browsing window"
-msgstr "Navigation en mode _privé"
+msgstr "Ouvrir une nouvelle fenêtre (Navigation privée)"
 
 #: ../data/midori-private.desktop.in.h:3 ../midori/midori-view.c:4117
-#, fuzzy
 msgid "Private Browsing"
-msgstr "Navigation en mode _privé"
+msgstr "Navigation privée"
 
 #: ../midori/main.c:96 ../midori/main.c:102
 #, c-format
@@ -277,7 +273,7 @@ msgstr "Vérifier l'existence de nouvelles versions à :"
 #. i18n: Logins and passwords in websites and web forms
 #: ../midori/main.c:2142
 msgid "Saved logins and _passwords"
-msgstr ""
+msgstr "Mots de _passe et identifiants enregistrés"
 
 #: ../midori/main.c:2144
 msgid "Cookies and Website data"
@@ -294,7 +290,6 @@ msgid "Website icons"
 msgstr "Icônes des pages Internet"
 
 #: ../midori/main.c:2257
-#, fuzzy
 msgid "An unknown error occured"
 msgstr "Une erreur inconnue est survenue."
 
@@ -419,9 +414,9 @@ msgid "Unexpected action '%s'."
 msgstr "Action inattendue « %s »."
 
 #: ../midori/midori-browser.c:579
-#, fuzzy, c-format
+#, c-format
 msgid "%s (Private Browsing)"
-msgstr "%s (Private Browsing)"
+msgstr "%s (Navigation privée)"
 
 #: ../midori/midori-browser.c:693 ../midori/midori-browser.c:726
 msgid "Toplevel folder"
@@ -518,9 +513,8 @@ msgid "Can not open selected image in a default viewer."
 msgstr ""
 
 #: ../midori/midori-browser.c:1375
-#, fuzzy
 msgid "Error downloading the image!"
-msgstr "Erreur lors du chargement du flux « %s »"
+msgstr "Erreur lors du téléchargement de l'image !"
 
 #: ../midori/midori-browser.c:1376
 msgid "Can not downlaod selected image."
@@ -607,9 +601,9 @@ msgid "Epiphany"
 msgstr "Epiphany"
 
 #: ../midori/midori-browser.c:4195
-#, fuzzy, c-format
+#, c-format
 msgid "Firefox (%s)"
-msgstr "Firefox"
+msgstr "Firefox (%s)"
 
 #: ../midori/midori-browser.c:4216
 msgid "Import bookmarks..."
@@ -966,9 +960,8 @@ msgid "Side_panel"
 msgstr "Panneau la_téral"
 
 #: ../midori/midori-browser.c:5421
-#, fuzzy
 msgid "Sidepanel"
-msgstr "Panneau la_téral"
+msgstr "Panneau latéral"
 
 #: ../midori/midori-browser.c:5424
 msgid "_Bookmarkbar"
@@ -1084,9 +1077,8 @@ msgid "Search with %s"
 msgstr "Rechercher avec %s"
 
 #: ../midori/midori-locationaction.c:412
-#, fuzzy
 msgid "Search with..."
-msgstr "Rechercher _avec"
+msgstr "Rechercher avec..."
 
 #: ../midori/midori-locationaction.c:537
 #, c-format
@@ -1522,13 +1514,12 @@ msgid "Flash the browser window if a new tab was opened in the background"
 msgstr "Indique s'il faut ouvrir les nouveaux onglets en arrière-plan"
 
 #: ../midori/midori-websettings.c:836
-#, fuzzy
 msgid "Enable WebGL support"
-msgstr "Activer le support de base de données HTML5"
+msgstr "Activer le support WebGL"
 
 #: ../midori/midori-websettings.c:837
 msgid "Allow websites to use OpenGL rendering"
-msgstr ""
+msgstr "Permettre aux sites d'utiliser le rendu OpenGL"
 
 #: ../midori/midori-websettings.c:863
 msgid "Zoom Text and Images"
@@ -1558,9 +1549,8 @@ msgstr ""
 "vitesse"
 
 #: ../midori/midori-websettings.c:904
-#, fuzzy
 msgid "Delete old Cookies after:"
-msgstr "Effacer les anciens cookies après 1 jour"
+msgstr "Effacer les anciens cookies après :"
 
 #: ../midori/midori-websettings.c:905
 msgid "The maximum number of days to save cookies for"
@@ -1572,7 +1562,6 @@ msgid "Only accept Cookies from sites you visit"
 msgstr "N'accepter les cookies que de sites que vous visitez"
 
 #: ../midori/midori-websettings.c:922
-#, fuzzy
 msgid "Block cookies sent by third-party websites"
 msgstr "Bloquer les cookies envoyés par des sites tiers"
 
@@ -1602,7 +1591,6 @@ msgid "The proxy server used for HTTP connections"
 msgstr "Le serveur mandataire (proxy) pour les connexions HTTP"
 
 #: ../midori/midori-websettings.c:978
-#, fuzzy
 msgid "Port"
 msgstr "Port"
 
@@ -1759,9 +1747,8 @@ msgid "Save I_mage"
 msgstr "Enregistrer l'i_mage"
 
 #: ../midori/midori-view.c:2512
-#, fuzzy
 msgid "Open in Image _Viewer"
-msgstr "Ouvrir l'image dans un _nouvel onglet"
+msgstr "Ouvrir dans la _Visionneuse d'images"
 
 #: ../midori/midori-view.c:2519
 msgid "Copy Video _Address"
@@ -1802,9 +1789,9 @@ msgid "File Type: %s ('%s')"
 msgstr "Type de fichier : %s (« %s »)"
 
 #: ../midori/midori-view.c:2911
-#, fuzzy, c-format
+#, c-format
 msgid "File Name: %s"
-msgstr "Type de fichier : « %s »"
+msgstr "Nom du fichier : %s"
 
 #. i18n: A file open dialog title, ie. "Open http://fila.com/manual.tgz"
 #: ../midori/midori-view.c:2930
@@ -1844,15 +1831,15 @@ msgstr "Pas de documentation installée"
 
 #: ../midori/midori-view.c:4118
 msgid "Midori doesn't store any personal data:"
-msgstr ""
+msgstr "Midori ne stocke aucune donnée personnelle :"
 
 #: ../midori/midori-view.c:4119
 msgid "No history or web cookies are being saved."
-msgstr ""
+msgstr "Aucun historique ou cookie n'est enregistré."
 
 #: ../midori/midori-view.c:4120
 msgid "Extensions are disabled."
-msgstr ""
+msgstr "Les extensions sont désactivées."
 
 #: ../midori/midori-view.c:4121
 msgid "HTML5 storage, local database and application caches are disabled."
@@ -1945,9 +1932,8 @@ msgid "Startup"
 msgstr "Démarrage"
 
 #: ../midori/midori-preferences.c:310
-#, fuzzy
 msgid "Use _current page"
-msgstr "Imprimer la page actuelle"
+msgstr "Utiliser la page _actuelle"
 
 #: ../midori/midori-preferences.c:314
 msgid "Use current page as homepage"
@@ -2673,9 +2659,8 @@ msgid "Failed to add form value: %s\n"
 msgstr "Impossible d'ajouter la valeur de formulaire : %s\n"
 
 #: ../extensions/formhistory/formhistory.c:95
-#, fuzzy
 msgid "Form history"
-msgstr "_Historique des formulaires"
+msgstr "Historique des formulaires"
 
 #: ../extensions/formhistory/formhistory.c:112
 #, fuzzy
@@ -2687,22 +2672,20 @@ msgstr ""
 "pour l'ouverture de cet emplacement :"
 
 #: ../extensions/formhistory/formhistory.c:294
-#, fuzzy
 msgid "Remember password on this page?"
-msgstr "Se _souvenir du mot de passe"
+msgstr "Se souvenir du mot de passe sur cette page ?"
 
 #: ../extensions/formhistory/formhistory.c:299
-#, fuzzy
 msgid "Remember"
-msgstr "Se _souvenir du mot de passe"
+msgstr "Mémoriser"
 
 #: ../extensions/formhistory/formhistory.c:300
 msgid "Not now"
-msgstr ""
+msgstr "Pas maintenant"
 
 #: ../extensions/formhistory/formhistory.c:301
 msgid "Never for this page"
-msgstr ""
+msgstr "Jamais sur cette page"
 
 #: ../extensions/formhistory/formhistory.c:437
 msgid "Toggle form history state"
