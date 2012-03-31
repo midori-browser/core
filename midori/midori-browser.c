@@ -6516,6 +6516,8 @@ midori_browser_toolbar_popup_context_menu_history (MidoriBrowser* browser,
         g_signal_connect (G_OBJECT (menu_item), "activate",
             G_CALLBACK (midori_browser_toolbar_popup_context_menu_history_cb),
             browser);
+        if (steps == (10 - 1))
+            break;
     }
 
     webkit_web_back_forward_list_go_to_item (list, current_item);
