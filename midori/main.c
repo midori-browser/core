@@ -441,9 +441,12 @@ midori_history_initialize (KatzeArray*  array,
         return FALSE;
     }
 
+    if (sqlite3_exec (db,
+        "PRAGMA journal_mode = WAL; PRAGMA cache_size = 32100;",
+        NULL, NULL, errmsg) != SQLITE_OK)
+        sqlite3_exec (db, "PRAGMA journal_mode = TRUNCATE;", NULL, NULL, errmsg);
     sqlite3_exec (db,
-        /* "PRAGMA synchronous = OFF; PRAGMA temp_store = MEMORY" */
-        "PRAGMA count_changes = OFF; PRAGMA journal_mode = TRUNCATE;",
+        "PRAGMA synchronous = NORMAL; PRAGMA temp_store = MEMORY;",
         NULL, NULL, errmsg);
     if (*errmsg)
     {
