@@ -1312,7 +1312,7 @@ midori_load_extensions (gpointer data)
                             MidoriExtension* extension_item;
                             KATZE_ARRAY_FOREACH_ITEM (extension_item, KATZE_ARRAY (extension))
                             {
-                                if (MIDORI_IS_EXTENSION (extension))
+                                if (MIDORI_IS_EXTENSION (extension_item))
                                     midori_load_extension (app, extensions,
                                             active_extensions, extension_item,
                                             filename);
