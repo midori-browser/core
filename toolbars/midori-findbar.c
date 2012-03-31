@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2008-2010 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2008-2012 Christian Dywan <christian@twotoasts.de>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -97,7 +97,7 @@ midori_findbar_find_key_press_event_cb (MidoriFindbar* findbar,
     else if (event->keyval == GDK_KEY_Return
           && (event->state & GDK_SHIFT_MASK))
     {
-        midori_findbar_find (findbar, FALSE);
+        midori_findbar_find_text (findbar, NULL, FALSE);
         return TRUE;
     }
 
@@ -141,6 +141,9 @@ midori_findbar_find_text (MidoriFindbar* findbar,
     if (!(view = midori_browser_get_current_tab (browser)))
         return;
 
+    if (text == NULL)
+        text = gtk_entry_get_text (GTK_ENTRY (findbar->find_text));
+
     case_sensitive = midori_findbar_case_sensitive (findbar);
     midori_view_search_text (MIDORI_VIEW (view), text, case_sensitive, forward);
 }
@@ -161,12 +164,20 @@ midori_findbar_get_text (MidoriFindbar* findbar)
     return gtk_entry_get_text (GTK_ENTRY (findbar->find_text));
 }
 
+/**
+ * midori_findbar_find:
+ * @findbar: #MidoriFindbar
+ * @forward: %TRUE to search forward
+ *
+ * Advance to the next match.
+ *
+ * Deprecated: 0.4.5: Use midori_findbar_find_text() instead.
+ **/
 void
 midori_findbar_find (MidoriFindbar* findbar,
                      gboolean       forward)
 {
-    const gchar* text = gtk_entry_get_text (GTK_ENTRY (findbar->find_text));
-    midori_findbar_find_text (findbar, text, forward);
+    midori_findbar_find_text (findbar, NULL, forward);
 }
 
 void
@@ -195,14 +206,14 @@ static void
 midori_findbar_next_activate_cb (GtkWidget*     entry,
                                  MidoriFindbar* findbar)
 {
-    midori_findbar_find (findbar, TRUE);
+    midori_findbar_find_text (findbar, NULL, TRUE);
 }
 
 static void
 midori_findbar_previous_clicked_cb (GtkWidget*     entry,
                                     MidoriFindbar* findbar)
 {
-    midori_findbar_find (findbar, FALSE);
+    midori_findbar_find_text (findbar, NULL, FALSE);
 }
 
 static void
