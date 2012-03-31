@@ -145,6 +145,22 @@ midori_findbar_find_text (MidoriFindbar* findbar,
     midori_view_search_text (MIDORI_VIEW (view), text, case_sensitive, forward);
 }
 
+/**
+ * midori_findbar_get_text:
+ * @findbar: #MidoriFindbar
+ *
+ * Returns: the text typed in the entry
+ *
+ * Since: 0.4.5
+ **/
+const gchar*
+midori_findbar_get_text (MidoriFindbar* findbar)
+{
+    g_return_val_if_fail (MIDORI_IS_FINDBAR (findbar), NULL);
+
+    return gtk_entry_get_text (GTK_ENTRY (findbar->find_text));
+}
+
 void
 midori_findbar_find (MidoriFindbar* findbar,
                      gboolean       forward)

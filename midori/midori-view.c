@@ -5593,6 +5593,15 @@ midori_view_search_text (MidoriView*  view,
 {
     g_return_if_fail (MIDORI_IS_VIEW (view));
 
+    #if GTK_CHECK_VERSION (3, 2, 0)
+    if (gtk_widget_get_visible (view->overlay_find))
+    {
+        text = midori_findbar_get_text (MIDORI_FINDBAR (view->overlay_find));
+        webkit_web_view_search_text (WEBKIT_WEB_VIEW (view->web_view),
+            text, case_sensitive, forward, TRUE);
+        return;
+    }
+    #endif
     g_signal_emit (view, signals[SEARCH_TEXT], 0,
         webkit_web_view_search_text (WEBKIT_WEB_VIEW (view->web_view),
             text, case_sensitive, forward, TRUE), NULL);
