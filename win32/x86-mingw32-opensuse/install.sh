@@ -43,7 +43,7 @@ gunzip -N $DOWNLOAD_PATH/other.xml
 rm packages.version
 touch packages.version
 
-# downlaod all packages
+# download all packages
 while read line
 do
   VERSION=`xmlgrep -c -f $DOWNLOAD_PATH/other.xml otherdata.package:name="$line":arch="$REPO_ARCH" | awk -F\< '{print $2}' |sed -e 'h' -e 's/^.*ver="\([^"]*\)".*$/\1/p' -e 'g' -e 's/^.*rel="\([^"]*\)".*$/\1/' | sed -e N -e 's/\n/-/' | sort -V -r | head -n 1`

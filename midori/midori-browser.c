@@ -1373,7 +1373,7 @@ midori_browser_download_status_cb (WebKitDownload*  download,
             webkit_download_cancel (download);
             sokoke_message_dialog (GTK_MESSAGE_ERROR,
                 _("Error downloading the image!"),
-                _("Can not downlaod selected image."), FALSE);
+                _("Can not download selected image."), FALSE);
             break;
         case WEBKIT_DOWNLOAD_STATUS_CREATED:
         case WEBKIT_DOWNLOAD_STATUS_STARTED:
