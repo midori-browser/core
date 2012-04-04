@@ -45,7 +45,7 @@ except:
     pass
 
 srcdir = '.'
-blddir = '_build_'
+blddir = '_build' # recognized by ack
 
 def option_enabled (option):
     if getattr (Options.options, 'enable_' + option):

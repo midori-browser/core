@@ -3788,13 +3788,11 @@ midori_view_construct_web_view (MidoriView* view)
                       NULL);
 }
 
-static gchar* list_netscape_plugins ()
+static gchar*
+list_netscape_plugins (JSContextRef js_context)
 {
     if (midori_web_settings_has_plugin_support ())
     {
-    GtkWidget* web_view = webkit_web_view_new ();
-    WebKitWebFrame* web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view));
-    JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
     /* Joins available plugins like this: URI1|title1,URI2|title2 */
     gchar* value = sokoke_js_script_eval (js_context,
         "function plugins (l) { var f = new Array (); for (var i in l) "
@@ -3824,7 +3822,6 @@ static gchar* list_netscape_plugins ()
         g_string_append (ns_plugins, "</table>");
         g_strfreev (items);
         g_free (value);
-    gtk_widget_destroy (web_view);
     return g_string_free (ns_plugins, FALSE);
     }
     else
@@ -3832,11 +3829,9 @@ static gchar* list_netscape_plugins ()
 }
 
 static gchar*
-list_video_formats ()
+static gchar*
+list_video_formats (JSContextRef js_context)
 {
-    GtkWidget* web_view = webkit_web_view_new ();
-    WebKitWebFrame* web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view));
-    JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
     gchar* value = sokoke_js_script_eval (js_context,
         "var supported = function (format) { "
         "var video = document.createElement('video');"
@@ -3849,7 +3844,6 @@ list_video_formats ()
         "' &nbsp; WebM [' + "
         "supported('video/webm; codecs=\"vp8, vorbis\"') + ']' "
         "", NULL);
-    gtk_widget_destroy (web_view);
     return value;
 }
 
@@ -4134,8 +4128,10 @@ midori_view_set_uri (MidoriView*  view,
                 const gchar* sys_name = midori_web_settings_get_system_name (
                     &architecture, &platform);
                 gchar* ident = katze_object_get_string (view->settings, "user-agent");
-                gchar* netscape_plugins = list_netscape_plugins ();
-                gchar* video_formats = list_video_formats ();
+                WebKitWebFrame* web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view));
+                JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
+                gchar* netscape_plugins = list_netscape_plugins (js_context);
+                gchar* video_formats = list_video_formats (js_context);
 
                 katze_assign (view->uri, g_strdup (uri));
                 data = g_strdup_printf (
