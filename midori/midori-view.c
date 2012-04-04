@@ -3828,7 +3828,43 @@ list_netscape_plugins (JSContextRef js_context)
         return g_strdup ("");
 }
 
-static gchar*
+static const gchar*
+list_geolocation ()
+{
+    return
+    "<a href=\"http://dev.w3.org/geo/api/spec-source.html\" id=\"method\"></a>"
+    "<span id=\"locationInfo\"><noscript>No Geolocation without Javascript</noscript></span>"
+    "<script>"
+    "function displayLocation (position) {"
+    "var geouri = 'geo:' + position.coords.latitude + ',' + position.coords.longitude + ',' + position.coords.altitude + ',u=' + position.coords.accuracy;"
+    "document.getElementById('locationInfo').innerHTML = '<a href=\"' + geouri + '\">' + geouri + '</a><br><code>'"
+    "+ ' timestamp: ' + position.timestamp"
+    "+ ' latitude: ' + position.coords.latitude"
+    "+ ' longitude: ' + position.coords.longitude"
+    "+ ' altitude: ' + position.coords.altitude + '<br>'"
+    "+ ' accuracy: ' + position.coords.accuracy"
+    "+ ' altitudeAccuracy: ' + position.coords.altitudeAccuracy"
+    "+ ' heading: ' + position.coords.heading"
+    "+ ' speed: ' + position.coords.speed"
+    "+ '</code>'; }"
+    "function handleError (error) {"
+    "var errorMessage = '<b>' + ['Unknown error', 'Permission denied', 'Position failed', 'Timed out'][error.code] + '</b>';"
+    "if (error.code == 3) document.getElementById('locationInfo').innerHTML += (' ' + errorMessage);"
+    "else document.getElementById('locationInfo').innerHTML = errorMessage; }"
+    "if (navigator.geolocation) {"
+    "var options = { enableHighAccuracy: true, timeout: 60000, maximumAge: \"Infinite\" };"
+    "  if (navigator.geolocation.watchPosition) {"
+    "    document.getElementById('method').innerHTML = '<code>geolocation.watchPosition</code>:';"
+    "    navigator.geolocation.watchPosition(displayLocation, handleError, options);"
+    "  } else {"
+    "    document.getElementById('method').innerHTML = '<code>geolocation.getCurrentPosition</code>:';"
+    "    navigator.geolocation.getCurrentPosition(displayLocation, handleError);"
+    "  }"
+    "} else"
+    "  document.getElementById('locationInfo').innerHTML = 'Geolocation unavailable';"
+    "</script>";
+}
+
 static gchar*
 list_video_formats (JSContextRef js_context)
 {
@@ -4155,7 +4191,7 @@ midori_view_set_uri (MidoriView*  view,
                     "<tr><td>Identification</td><td>%s</td></tr>"
                     "<tr><td>Video&nbsp;Formats</td><td>%s</td></tr>"
                     "</table>"
-                    "%s"
+                    "%s %s"
                     "</body></html>",
                     _("Version numbers in brackets show the version used at runtime."),
                     command_line,
@@ -4182,7 +4218,7 @@ midori_view_set_uri (MidoriView*  view,
                     "Sockets",
                     #endif
                     platform, sys_name, architecture ? architecture : "", ident,
-                    video_formats, netscape_plugins);
+                    video_formats, list_geolocation (), netscape_plugins);
                 g_free (command_line);
                 g_free (arguments);
                 g_free (ident);
