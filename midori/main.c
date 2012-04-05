@@ -979,7 +979,7 @@ midori_soup_session_settings_accept_language_cb (SoupSession*       session,
         SoupURI* destination = soup_message_get_uri (msg);
         if (referer && destination && !strstr (referer, destination->host))
         {
-            SoupURI* stripped_uri = soup_uri_new (referer);
+            SoupURI* stripped_uri = soup_uri_new (katze_str_non_null (referer));
             if (stripped_uri != NULL)
             {
                 gchar* stripped_referer;
