@@ -877,16 +877,16 @@ adblock_custom_block_image_cb (GtkWidget*       widget,
 
     custom_list = g_build_filename (midori_extension_get_config_dir (extension),
                                     CUSTOM_LIST_NAME, NULL);
-    if (!(list = g_fopen (custom_list, "a+")))
+    katze_mkdir_with_parents (midori_extension_get_config_dir (extension), 0700);
+    if ((list = g_fopen (custom_list, "a+")))
     {
-        g_free (custom_list);
-        return;
+        g_fprintf (list, "%s\n", gtk_entry_get_text (GTK_ENTRY (entry)));
+        fclose (list);
+        adblock_reload_rules (extension, TRUE);
+        g_debug ("%s: Updated custom list\n", G_STRFUNC);
     }
-
-    g_fprintf (list, "%s\n", gtk_entry_get_text (GTK_ENTRY (entry)));
-    fclose (list);
-    adblock_reload_rules (extension, TRUE);
-
+    else
+        g_debug ("%s: Failed to open custom list %s\n", G_STRFUNC, custom_list);
     g_free (custom_list);
     gtk_widget_destroy (dialog);
 }
