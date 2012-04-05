@@ -37,7 +37,7 @@ Midori is now built with debugging symbols.
 
 Make sure you have installed 'gdb', the GNU Debugger.
 
-Run Midori as 'gdb _build_/default/midori/midori'.
+Run Midori as 'gdb _build/default/midori/midori'.
 
 Inside gdb, type 'run'.
 
@@ -49,29 +49,29 @@ function names and line numbers.
 
 If the problem is a warning and not a crash, try this:
 
-'G_DEBUG=all gdb _build_/default/midori/midori'
+'G_DEBUG=all gdb _build/default/midori/midori'
 
 If you are interested in HTTP communication, try this:
 
-'MIDORI_SOUP_DEBUG=2 _build_/default/midori/midori'
+'MIDORI_SOUP_DEBUG=2 _build/default/midori/midori'
 
 Where '2' can be a level between 0 and 3.
 
 If you are interested in (non-) touchscreen behaviour, try this:
 
-'MIDORI_TOUCHSCREEN=1 _build_/default/midori/midori', or
+'MIDORI_TOUCHSCREEN=1 _build/default/midori/midori', or
 
-'MIDORI_TOUCHSCREEN=0 _build_/default/midori/midori'
+'MIDORI_TOUCHSCREEN=0 _build/default/midori/midori'
 
 If you want to "dry run" without WebKitGTK+ rendering, try this:
 
-'MIDORI_UNARMED=1 _build_/default/midori/midori'
+'MIDORI_UNARMED=1 _build/default/midori/midori'
 
 To disable Netscape plugins, use MOZ_PLUGIN_PATH=/.
 
 To debug extensions you can specify the path:
 
-'export MIDORI_EXTENSION_PATH=_build_/default/extensions'
+'export MIDORI_EXTENSION_PATH=_build/default/extensions'
 
 For further information a tutorial for gdb and
 reading up on how you can install debugging

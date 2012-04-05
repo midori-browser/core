@@ -6,18 +6,20 @@ import pproc as subprocess
 import os
 import Utils
 
+blddir = '_build' # recognized by ack
+
 for module in ('midori', 'katze'):
     try:
-        if not os.access ('_build_', os.F_OK):
-            Utils.check_dir ('_build_')
-        if not os.access ('_build_/docs', os.F_OK):
-            Utils.check_dir ('_build_/docs')
-        if not os.access ('_build_/docs/api', os.F_OK):
-            Utils.check_dir ('_build_/docs/api')
+        if not os.access (blddir, os.F_OK):
+            Utils.check_dir (blddir)
+        if not os.access (blddir + '/docs', os.F_OK):
+            Utils.check_dir (blddir + '/docs')
+        if not os.access (blddir + '/docs/api', os.F_OK):
+            Utils.check_dir (blddir + '/docs/api')
         subprocess.call (['gtkdoc-scan', '--module=' + module,
-            '--source-dir=' + module, '--output-dir=_build_/docs/api/' + module,
+            '--source-dir=' + module, '--output-dir=' + blddir + '/docs/api/' + module,
             '--rebuild-sections', '--rebuild-types'])
-        os.chdir ('_build_/docs/api/' + module)
+        os.chdir (blddir + '/docs/api/' + module)
         subprocess.call (['gtkdoc-mktmpl', '--module=' + module,
             '--output-dir=.' + module])
         subprocess.call (['gtkdoc-mkdb', '--module=' + module,
