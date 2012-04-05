@@ -264,8 +264,24 @@ settings_save_to_file (MidoriWebSettings* settings,
     {
         KATZE_ARRAY_FOREACH_ITEM (extension, extensions)
             if (midori_extension_is_active (extension))
-                g_key_file_set_boolean (key_file, "extensions",
-                    g_object_get_data (G_OBJECT (extension), "filename"), TRUE);
+            {
+                const gchar* filename = g_object_get_data (
+                    G_OBJECT (extension), "filename");
+
+                gchar* key;
+                gchar* term;
+
+                key = katze_object_get_string (extension, "key");
+                if (key && *key)
+                    term = g_strdup_printf ("%s/%s", filename, key);
+                else
+                    term = g_strdup (filename);
+
+                g_key_file_set_boolean (key_file, "extensions", term, TRUE);
+
+                g_free (key);
+                g_free (term);
+            }
         g_object_unref (extensions);
     }
     else if ((_extensions = g_object_get_data (G_OBJECT (app), "extensions")))
@@ -1246,10 +1262,22 @@ midori_load_extension (MidoriApp*       app,
     if (active_extensions)
     {
         guint i = 0;
+        gchar* key;
         gchar* name;
+        gchar* term;
+
+        key = katze_object_get_string (extension, "key");
+        if (key && *key)
+            term = g_strdup_printf ("%s/%s", filename, key);
+        else
+            term = g_strdup (filename);
+
         while ((name = active_extensions[i++]))
-            if (!g_strcmp0 (filename, name))
+            if (!g_strcmp0 (term, name))
                 g_signal_emit_by_name (extension, "activate", app);
+
+        g_free (key);
+        g_free (term);
     }
     g_signal_connect_after (extension, "activate",
         G_CALLBACK (extension_activate_cb), app);

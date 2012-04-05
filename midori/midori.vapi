@@ -115,6 +115,10 @@ namespace Midori {
         public string version { get; set; }
         [NoAccessorMethod]
         public string authors { get; set; }
+        [NoAccessorMethod]
+        public string website { get; set; }
+        [NoAccessorMethod]
+        public string key { get; set; }
 
         public signal void activate (Midori.App app);
         public signal void deactivate ();

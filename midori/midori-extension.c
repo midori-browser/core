@@ -25,6 +25,7 @@ struct _MidoriExtensionPrivate
     gchar* version;
     gchar* authors;
     gchar* website;
+    gchar* key;
 
     MidoriApp* app;
     gint active;
@@ -127,7 +128,8 @@ enum
     PROP_DESCRIPTION,
     PROP_VERSION,
     PROP_AUTHORS,
-    PROP_WEBSITE
+    PROP_WEBSITE,
+    PROP_KEY
 };
 
 enum {
@@ -257,6 +259,23 @@ midori_extension_class_init (MidoriExtensionClass* class)
                                      "website",
                                      "Website",
                                      "The website of the extension",
+                                     NULL,
+                                     flags));
+
+    /**
+     * MidoriExtension:key:
+     *
+     * The extension key.
+     * Needed if there is more than one extension object in a single module.
+     *
+     * Since: 0.4.5
+     */
+    g_object_class_install_property (gobject_class,
+                                     PROP_KEY,
+                                     g_param_spec_string (
+                                     "key",
+                                     "Key",
+                                     "The extension key",
                                      NULL,
                                      flags));
 
@@ -400,6 +419,7 @@ midori_extension_finalize (GObject* object)
     katze_assign (extension->priv->version, NULL);
     katze_assign (extension->priv->authors, NULL);
     katze_assign (extension->priv->website, NULL);
+    katze_assign (extension->priv->key, NULL);
 
     katze_assign (extension->priv->config_dir, NULL);
     g_list_free (extension->priv->lsettings);
@@ -446,6 +466,9 @@ midori_extension_set_property (GObject*      object,
     case PROP_WEBSITE:
         katze_assign (extension->priv->website, g_value_dup_string (value));
         break;
+    case PROP_KEY:
+        katze_assign (extension->priv->key, g_value_dup_string (value));
+        break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
         break;
@@ -476,6 +499,9 @@ midori_extension_get_property (GObject*    object,
         break;
     case PROP_WEBSITE:
         g_value_set_string (value, extension->priv->website);
+        break;
+    case PROP_KEY:
+        g_value_set_string (value, extension->priv->key);
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
