@@ -113,6 +113,21 @@ namespace EDM {
             manager.deactivated (this);
         }
 
+        public void handle_exception (GLib.Error error) {
+            string ext_name;
+            this.get ("name",out ext_name);
+            var dialog = new MessageDialog (null, DialogFlags.MODAL,
+                MessageType.ERROR, ButtonsType.CLOSE,
+                _("An error occurred when attempting to download a file with the following plugin:\n" +
+                  "%s\n\n" +
+                  "Error:\n%s\n\n" +
+                  "Carry on without this plugin."
+                  ),
+                ext_name, error.message);
+            dialog.response.connect ((a) => { dialog.destroy (); });
+            dialog.run ();
+        }
+
         public abstract bool download (DownloadRequest dlReq);
     }
 
@@ -146,7 +161,7 @@ namespace EDM {
                 XMLRPC.parse_method_response ((string) message.response_body.flatten ().data, -1, out v);
                 return true;
             } catch (Error e) {
-                stderr.printf ("Error while processing the response: %s\n", e.message);
+                this.handle_exception (e);
             }
 
             return false;
@@ -174,7 +189,7 @@ namespace EDM {
                 dm.AddFile (dlReq.uri);
                 return true;
             } catch (Error e) {
-                stderr.printf("Error: %s\n", e.message);
+                this.handle_exception (e);
             }
             return false;
         }
