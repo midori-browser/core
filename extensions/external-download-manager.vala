@@ -25,12 +25,13 @@ namespace EDM {
         public string uri;
         public string auth;
         public string referer;
-        public SList<Cookie> cookies;
+        public string? cookie_header;
     }
 
     internal Manager manager;
 
     private class Manager : GLib.Object {
+        private CookieJar cookie_jar;
         private GLib.PtrArray download_managers =  new GLib.PtrArray ();
 
         public bool download_requested (Midori.View view, WebKit.Download download) {
@@ -41,11 +42,11 @@ namespace EDM {
 
                 var request = download.get_network_request ();
                 var message = request.get_message ();
-                var headers = message.request_headers;
+                weak MessageHeaders headers = message.request_headers;
 
                 dlReq.auth = headers.get ("Authorization");
                 dlReq.referer = headers.get ("Referer");
-                dlReq.cookies = cookies_from_request (message);
+                dlReq.cookie_header = this.cookie_jar.get_cookies (new Soup.URI (dlReq.uri), true);
 
                 for (var i = 0 ; i < download_managers.len; i++) {
                     var dm = download_managers.index (i) as ExternalDownloadManager;
@@ -96,6 +97,11 @@ namespace EDM {
                 app.add_browser.disconnect (browser_added);
             }
         }
+
+        construct {
+            var session = WebKit.get_default_session ();
+            this.cookie_jar = session.get_feature (typeof (CookieJar)) as CookieJar;
+        }
     }
 
     private abstract class ExternalDownloadManager : Midori.Extension {
@@ -113,12 +119,20 @@ namespace EDM {
     private class Aria2 : ExternalDownloadManager {
         public override bool download (DownloadRequest dlReq) {
             var url = value_array_new ();
-            value_array_insert (url, 0, typeof(string), dlReq.uri);
+            value_array_insert (url, 0, typeof (string), dlReq.uri);
 
             var options = value_hash_new ();
             var referer = new GLib.Value (typeof (string));
             referer.set_string (dlReq.referer);
             options.insert ("referer", referer);
+
+            var headers = value_array_new ();
+            if (dlReq.cookie_header != null) {
+                value_array_insert (headers, 0, typeof (string), "Cookie: %s".printf(dlReq.cookie_header));
+            }
+
+            if (headers.n_values > 0)
+               options.insert ("header", headers);
 
             var message = XMLRPC.request_new ("http://127.0.0.1:6800/rpc",
                 "aria2.addUri",
