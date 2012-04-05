@@ -10,8 +10,10 @@
 */
 
 using Gtk;
-using WebKit;
+using Soup;
+using Katze;
 using Midori;
+using WebKit;
 
 namespace EDM {
     [DBus (name = "net.launchpad.steadyflow.App")]
@@ -19,19 +21,36 @@ namespace EDM {
         public abstract void AddFile (string url) throws IOError;
     }
 
-    private class Manager : Midori.Extension {
+    private class DownloadRequest : GLib.Object {
+        public string uri;
+        public string auth;
+        public string referer;
+        public SList<Cookie> cookies;
+    }
+
+    internal Manager manager;
+
+    private class Manager : GLib.Object {
+        private GLib.PtrArray download_managers =  new GLib.PtrArray ();
+
         public bool download_requested (Midori.View view, WebKit.Download download) {
             if (download.get_data<void*> ("save-as-download") == null
              && download.get_data<void*> ("open-download") == null) {
-                try {
-                    SteadyflowInterface db = Bus.get_proxy_sync (
-                        BusType.SESSION,
-                        "net.launchpad.steadyflow.App",
-                        "/net/launchpad/steadyflow/app");
-                    db.AddFile (download.get_uri ());
-                    return true;
-                } catch (Error e) {
-                    stderr.printf("Error: %s\n", e.message);
+                var dlReq = new DownloadRequest ();
+                dlReq.uri = download.get_uri ();
+
+                var request = download.get_network_request ();
+                var message = request.get_message ();
+                var headers = message.request_headers;
+
+                dlReq.auth = headers.get ("Authorization");
+                dlReq.referer = headers.get ("Referer");
+                dlReq.cookies = cookies_from_request (message);
+
+                for (var i = 0 ; i < download_managers.len; i++) {
+                    var dm = download_managers.index (i) as ExternalDownloadManager;
+                    if (dm.download (dlReq))
+                        return true;
                 }
             }
             return false;
@@ -59,24 +78,99 @@ namespace EDM {
             browser.remove_tab.disconnect (tab_removed);
         }
 
+        public void activated (Midori.Extension extension, Midori.App app) {
+            this.download_managers.add (extension);
+            if (this.download_managers.len == 1) {
+                foreach (var browser in app.get_browsers ())
+                    browser_added (browser);
+                app.add_browser.connect (browser_added);
+            }
+        }
+
+        public void deactivated (Midori.Extension extension) {
+            this.download_managers.remove (extension);
+            if (this.download_managers.len == 0) {
+                var app = extension.get_app ();
+                foreach (var browser in app.get_browsers ())
+                    browser_removed (browser);
+                app.add_browser.disconnect (browser_added);
+            }
+        }
+    }
+
+    private abstract class ExternalDownloadManager : Midori.Extension {
         public void activated (Midori.App app) {
-            foreach (var browser in app.get_browsers ())
-                browser_added (browser);
-            app.add_browser.connect (browser_added);
+            manager.activated (this, app);
         }
 
         public void deactivated () {
-            var app = get_app ();
-            foreach (var browser in app.get_browsers ())
-                browser_removed (browser);
-            app.add_browser.disconnect (browser_added);
+            manager.deactivated (this);
         }
 
-        internal Manager () {
-            GLib.Object (name: _("External Download Manager"),
+        public abstract bool download (DownloadRequest dlReq);
+    }
+
+    private class Aria2 : ExternalDownloadManager {
+        public override bool download (DownloadRequest dlReq) {
+            var url = value_array_new ();
+            value_array_insert (url, 0, typeof(string), dlReq.uri);
+
+            var options = value_hash_new ();
+            var referer = new GLib.Value (typeof (string));
+            referer.set_string (dlReq.referer);
+            options.insert ("referer", referer);
+
+            var message = XMLRPC.request_new ("http://127.0.0.1:6800/rpc",
+                "aria2.addUri",
+                typeof (ValueArray), url,
+                typeof(HashTable), options);
+            var session = new SessionSync ();
+            session.send_message (message);
+
+            try {
+                Value v;
+                XMLRPC.parse_method_response ((string) message.response_body.flatten ().data, -1, out v);
+                return true;
+            } catch (Error e) {
+                stderr.printf ("Error while processing the response: %s\n", e.message);
+            }
+
+            return false;
+        }
+
+        internal Aria2 () {
+            GLib.Object (name: _("External Download Manager - Aria2"),
+                         description: _("Download files with Aria2"),
+                         version: "0.1" + Midori.VERSION_SUFFIX,
+                         authors: "André Stösel <andre@stoesel.de>",
+                         key: "aria2");
+
+            this.activate.connect (activated);
+            this.deactivate.connect (deactivated);
+        }
+    }
+
+    private class SteadyFlow : ExternalDownloadManager {
+        public override bool download (DownloadRequest dlReq) {
+            try {
+                SteadyflowInterface dm = Bus.get_proxy_sync (
+                    BusType.SESSION,
+                    "net.launchpad.steadyflow.App",
+                    "/net/launchpad/steadyflow/app");
+                dm.AddFile (dlReq.uri);
+                return true;
+            } catch (Error e) {
+                stderr.printf("Error: %s\n", e.message);
+            }
+            return false;
+        }
+
+        internal SteadyFlow () {
+            GLib.Object (name: _("External Download Manager - SteadyFlow"),
                          description: _("Download files with SteadyFlow"),
                          version: "0.1" + Midori.VERSION_SUFFIX,
-                         authors: "André Stösel <andre@stoesel.de>");
+                         authors: "André Stösel <andre@stoesel.de>",
+                         key: "steadyflow");
 
             this.activate.connect (activated);
             this.deactivate.connect (deactivated);
@@ -84,7 +178,12 @@ namespace EDM {
     }
 }
 
-public Midori.Extension extension_init () {
-    return new EDM.Manager ();
+public Katze.Array extension_init () {
+    EDM.manager = new EDM.Manager();
+
+    var extensions = new Katze.Array( typeof (Midori.Extension));
+    extensions.add_item (new EDM.Aria2 ());
+    extensions.add_item (new EDM.SteadyFlow ());
+    return extensions;
 }
 
