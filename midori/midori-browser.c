@@ -1356,13 +1356,13 @@ midori_view_download_save_as_response_cb (GtkWidget*      dialog,
 static void
 midori_browser_download_status_cb (WebKitDownload*  download,
                                    GParamSpec*      pspec,
-                                   gpointer         user_data)
+                                   GtkWidget*       widget)
 {
     const gchar* uri = webkit_download_get_destination_uri (download);
     switch (webkit_download_get_status (download))
     {
         case WEBKIT_DOWNLOAD_STATUS_FINISHED:
-            if (!g_app_info_launch_default_for_uri (uri, NULL, NULL))
+            if (!sokoke_show_uri (gtk_widget_get_screen (widget), uri, 0, NULL))
             {
                 sokoke_message_dialog (GTK_MESSAGE_ERROR,
                     _("Error opening the image!"),
@@ -1463,7 +1463,7 @@ midori_view_download_requested_cb (GtkWidget*      view,
             midori_browser_download_prepare_destination_uri (download, NULL);
         midori_browser_prepare_download (browser, download, destination_uri);
         g_signal_connect (download, "notify::status",
-            G_CALLBACK (midori_browser_download_status_cb), (gpointer) browser);
+            G_CALLBACK (midori_browser_download_status_cb), GTK_WIDGET (browser));
         webkit_download_start (download);
         g_free (destination_uri);
     }
