@@ -136,7 +136,7 @@ namespace EDM {
             var url = value_array_new ();
             value_array_insert (url, 0, typeof (string), dlReq.uri);
 
-            var options = value_hash_new ();
+            GLib.HashTable<string, GLib.Value?> options = value_hash_new ();
             var referer = new GLib.Value (typeof (string));
             referer.set_string (dlReq.referer);
             options.insert ("referer", referer);
