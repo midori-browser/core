@@ -2956,23 +2956,23 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
        case 4:
             g_object_set_data (G_OBJECT (view), "save-as-download", (gpointer)1);
             webkit_web_policy_decision_download (decision);
-            webkit_web_view_stop_loading (WEBKIT_WEB_VIEW (view->web_view));
-            return TRUE;
+            break;
         case 3:
             g_object_set_data (G_OBJECT (view), "open-download", (gpointer)1);
         case 1:
             webkit_web_policy_decision_download (decision);
-            /* Apparently WebKit will continue loading which ends in an error.
-               It's unclear whether it's a bug or we are doing something wrong. */
-            webkit_web_view_stop_loading (WEBKIT_WEB_VIEW (view->web_view));
-            return TRUE;
+            break;
         case 2:
+            webkit_web_policy_decision_ignore (decision);
+            break;
         default:
-            /* Apparently WebKit will continue loading which ends in an error.
-               It's unclear whether it's a bug or we are doing something wrong. */
-            webkit_web_view_stop_loading (WEBKIT_WEB_VIEW (view->web_view));
-            return FALSE;
+            g_warn_if_reached ();
     }
+
+    /* Apparently WebKit will continue loading which ends in an error.
+       It's unclear whether it's a bug or we are doing something wrong. */
+    webkit_web_view_stop_loading (WEBKIT_WEB_VIEW (view->web_view));
+    return TRUE;
 }
 
 static gboolean
