@@ -262,8 +262,11 @@ midori_transferbar_add_download_item (MidoriTransferbar* transferbar,
         g_free (path);
     }
     else
-        gtk_progress_bar_set_text (GTK_PROGRESS_BAR (progress),
-            webkit_download_get_suggested_filename (download));
+    {
+        gchar* filename = sokoke_get_download_filename (download);
+        gtk_progress_bar_set_text (GTK_PROGRESS_BAR (progress), filename);
+        g_free (filename);
+    }
     sokoke_widget_get_text_size (progress, "M", &width, NULL);
     gtk_widget_set_size_request (progress, width * 10, 1);
     /* Avoid a bug in WebKit */

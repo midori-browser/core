@@ -257,6 +257,7 @@ midori_transfers_treeview_render_text_cb (GtkTreeViewColumn* column,
     gchar* total;
     gchar* size_text;
     gchar* text;
+    gchar* filename;
     gdouble progress;
 
     gtk_tree_model_get (model, iter, 1, &download, -1);
@@ -267,8 +268,9 @@ midori_transfers_treeview_render_text_cb (GtkTreeViewColumn* column,
     size_text = g_strdup_printf (_("%s of %s"), current, total);
     g_free (current);
     g_free (total);
-    text = g_strdup_printf ("%s\n%s",
-        webkit_download_get_suggested_filename (download), size_text);
+    filename = sokoke_get_download_filename (download);
+    text = g_strdup_printf ("%s\n%s", filename, size_text);
+    g_free (filename);
     g_free (size_text);
     /* Avoid a bug in WebKit */
     if (webkit_download_get_status (download) != WEBKIT_DOWNLOAD_STATUS_CREATED)

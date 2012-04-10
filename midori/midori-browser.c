@@ -1417,7 +1417,7 @@ static gchar*
 midori_browser_download_prepare_destination_uri (WebKitDownload* download,
                                                  const gchar*    folder)
 {
-    const gchar* suggested_filename;
+    gchar* suggested_filename;
     GFile* file_source;
     gchar* file_basename;
     gchar* download_dir = NULL;
@@ -1425,8 +1425,9 @@ midori_browser_download_prepare_destination_uri (WebKitDownload* download,
     gchar* destination_filename;
     gchar* midori_tmp_dir;
 
-    suggested_filename = webkit_download_get_suggested_filename (download);
+    suggested_filename = sokoke_get_download_filename (download);
     file_source = g_file_new_for_uri (suggested_filename);
+    g_free (suggested_filename);
     file_basename = g_file_get_basename (file_source);
     if (folder == NULL)
     {
@@ -1472,6 +1473,7 @@ midori_view_download_requested_cb (GtkWidget*      view,
         if (g_object_get_data (G_OBJECT (download), "save-as-download"))
         {
             static GtkWidget* dialog = NULL;
+            gchar* filename;
 
             if (!dialog)
             {
@@ -1490,8 +1492,9 @@ midori_view_download_requested_cb (GtkWidget*      view,
                     G_CALLBACK (midori_view_download_save_as_response_cb), browser);
             }
             g_object_set_data (G_OBJECT (dialog), "download", download);
-            gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (dialog),
-                webkit_download_get_suggested_filename (download));
+            filename = sokoke_get_download_filename (download);
+            gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (dialog), filename);
+            g_free (filename);
             gtk_widget_show (dialog);
         }
         else

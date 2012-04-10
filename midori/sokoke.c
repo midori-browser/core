@@ -31,6 +31,7 @@
 #include <glib/gi18n.h>
 #include <glib/gprintf.h>
 #include <glib/gstdio.h>
+#include <webkit/webkit.h>
 
 #ifdef HAVE_HILDON_FM
     #include <hildon/hildon-file-chooser-dialog.h>
@@ -1730,5 +1731,19 @@ sokoke_entry_set_clear_button_visible (GtkEntry* entry,
         gtk_icon_entry_set_icon_from_stock (
             GTK_ICON_ENTRY (entry), GTK_ICON_ENTRY_SECONDARY, NULL);
     }
+}
+
+gchar*
+sokoke_get_download_filename (WebKitDownload* download)
+{
+    /* https://bugs.webkit.org/show_bug.cgi?id=83161 */
+    /* https://d19vezwu8eufl6.cloudfront.net/nlp/slides%2F03-01-FormalizingNB.pdf */
+    gchar* filename = g_strdup (webkit_download_get_suggested_filename (download));
+    #ifdef G_OS_WIN32
+    g_strdelimit (filename, "/\\<>:\"|?*", '_');
+    #else
+    g_strdelimit (filename, "/", '_');
+    #endif
+    return filename;
 }
 

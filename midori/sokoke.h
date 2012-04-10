@@ -14,6 +14,7 @@
 #define __SOKOKE_H__ 1
 
 #include <JavaScriptCore/JavaScript.h>
+#include <webkit/webkit.h>
 #include <midori/midori-websettings.h>
 #include <katze/gtk3-compat.h>
 
@@ -175,6 +176,8 @@ sokoke_accept_languages                 (const gchar* const * lang_names);
 gboolean
 sokoke_recursive_fork_protection        (const gchar*         uri,
                                          gboolean             set_uri);
+gchar*
+sokoke_get_download_filename            (WebKitDownload*      download);
 
 typedef struct
 {

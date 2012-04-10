@@ -2845,6 +2845,7 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
     gchar* content_type;
     gchar* description;
     gchar* file_type;
+    gchar* name;
     gchar* file_name;
     WebKitDownload *download;
     WebKitWebDataSource* datasource;
@@ -2908,8 +2909,9 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
     g_free (description);
 
     download = webkit_download_new (request);
-    file_name = g_strdup_printf (_("File Name: %s"),
-            webkit_download_get_suggested_filename (download));
+    name = sokoke_get_download_filename (download);
+    file_name = g_strdup_printf (_("File Name: %s"), name);
+    g_free (name);
     g_object_unref (download);
 
     /* Link Fingerprint */
