@@ -2953,7 +2953,7 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
     g_object_set_data (G_OBJECT (view), "open-download", (gpointer)0);
     switch (response)
     {
-       case 4:
+        case 4:
             g_object_set_data (G_OBJECT (view), "save-as-download", (gpointer)1);
             webkit_web_policy_decision_download (decision);
             break;
@@ -2963,6 +2963,7 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
             webkit_web_policy_decision_download (decision);
             break;
         case 2:
+        case GTK_RESPONSE_DELETE_EVENT:
             webkit_web_policy_decision_ignore (decision);
             break;
         default:
