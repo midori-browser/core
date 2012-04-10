@@ -331,7 +331,13 @@ proxy_widget_string_destroy_cb (GtkWidget* proxy,
 static GList*
 katze_app_info_get_all_for_category (const gchar* category)
 {
+    #ifdef _WIN32
+    /* FIXME: Real filtering by category would be better */
+    const gchar* content_type = g_content_type_from_mime_type (category);
+    GList* all_apps = g_app_info_get_all_for_type (content_type);
+    #else
     GList* all_apps = g_app_info_get_all ();
+    #endif
     GList* apps = NULL;
     guint i = 0;
     GAppInfo* info;
