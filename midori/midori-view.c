@@ -3790,11 +3790,13 @@ midori_view_construct_web_view (MidoriView* view)
                       NULL);
 }
 
-static gchar*
-list_netscape_plugins (JSContextRef js_context)
+static void
+list_netscape_plugins (GString*     ns_plugins,
+                       JSContextRef js_context)
 {
-    if (midori_web_settings_has_plugin_support ())
-    {
+    if (!midori_web_settings_has_plugin_support ())
+        return;
+
     /* Joins available plugins like this: URI1|title1,URI2|title2 */
     gchar* value = sokoke_js_script_eval (js_context,
         "function plugins (l) { var f = new Array (); for (var i in l) "
@@ -3803,7 +3805,7 @@ list_netscape_plugins (JSContextRef js_context)
         "plugins (navigator.plugins)", NULL);
     gchar** items = g_strsplit (value, ",", 0);
     guint i = 0;
-    GString* ns_plugins = g_string_new ("<h2>Netscape Plugins:</h2><table>");
+    g_string_append (ns_plugins, "<h2>Netscape Plugins:</h2><table>");
     if (items != NULL)
         while (items[i] != NULL)
         {
@@ -3824,16 +3826,12 @@ list_netscape_plugins (JSContextRef js_context)
         g_string_append (ns_plugins, "</table>");
         g_strfreev (items);
         g_free (value);
-    return g_string_free (ns_plugins, FALSE);
-    }
-    else
-        return g_strdup ("");
 }
 
-static const gchar*
-list_geolocation ()
+static void
+list_geolocation (GString* markup)
 {
-    return
+    g_string_append (markup,
     "<a href=\"http://dev.w3.org/geo/api/spec-source.html\" id=\"method\"></a>"
     "<span id=\"locationInfo\"><noscript>No Geolocation without Javascript</noscript></span>"
     "<script>"
@@ -3864,7 +3862,7 @@ list_geolocation ()
     "  }"
     "} else"
     "  document.getElementById('locationInfo').innerHTML = 'Geolocation unavailable';"
-    "</script>";
+    "</script>");
 }
 
 static gchar*
@@ -3883,6 +3881,23 @@ list_video_formats (JSContextRef js_context)
         "supported('video/webm; codecs=\"vp8, vorbis\"') + ']' "
         "", NULL);
     return value;
+}
+
+static const gchar* valid_about_uris[] = {
+    "about:widgets",
+    "about:private",
+    "error:nodocs",
+    "http://.invalid",
+};
+
+static void
+list_about_uris (GString* markup)
+{
+    g_string_append (markup, "<p>");
+    guint i;
+    for (i = 0; i < G_N_ELEMENTS (valid_about_uris); i++)
+        g_string_append_printf (markup, "<a href=\"%s\">%s</a> &nbsp;",
+                                valid_about_uris[i], valid_about_uris[i]);
 }
 
 static gchar*
@@ -4168,8 +4183,11 @@ midori_view_set_uri (MidoriView*  view,
                 gchar* ident = katze_object_get_string (view->settings, "user-agent");
                 WebKitWebFrame* web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view));
                 JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
-                gchar* netscape_plugins = list_netscape_plugins (js_context);
                 gchar* video_formats = list_video_formats (js_context);
+                GString* more = g_string_new ("");
+                list_netscape_plugins (more, js_context);
+                list_geolocation (more);
+                list_about_uris (more);
 
                 katze_assign (view->uri, g_strdup (uri));
                 data = g_strdup_printf (
@@ -4193,7 +4211,7 @@ midori_view_set_uri (MidoriView*  view,
                     "<tr><td>Identification</td><td>%s</td></tr>"
                     "<tr><td>Video&nbsp;Formats</td><td>%s</td></tr>"
                     "</table>"
-                    "%s %s"
+                    "%s"
                     "</body></html>",
                     _("Version numbers in brackets show the version used at runtime."),
                     command_line,
@@ -4220,12 +4238,12 @@ midori_view_set_uri (MidoriView*  view,
                     "Sockets",
                     #endif
                     platform, sys_name, architecture ? architecture : "", ident,
-                    video_formats, list_geolocation (), netscape_plugins);
+                    video_formats, (gchar*)(more->str));
                 g_free (command_line);
                 g_free (arguments);
                 g_free (ident);
-                g_free (netscape_plugins);
                 g_free (video_formats);
+                g_string_free (more, TRUE);
            }
             else
             {
