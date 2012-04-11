@@ -234,8 +234,8 @@ def configure (conf):
                     includes='/usr/X11R6/include', mandatory=False)
         conf.check (lib='Xss', libpath='/usr/X11R6/lib', mandatory=False)
     if option_enabled ('gtk3'):
-        if option_enabled ('addons') and not check_version (conf.env['VALAC_VERSION'], 0, 13, 2):
-            Utils.pprint ('RED', 'Vala 0.13.2 or later is required ' \
+        if option_enabled ('addons') and not check_version (conf.env['VALAC_VERSION'], 0, 14, 0):
+            Utils.pprint ('RED', 'Vala 0.14.0 or later is required ' \
                 'to build with GTK+ 3 and extensions.\n' \
                 'Pass --disable-addons to build without extensions.\n' \
                 'Pass --disable-gtk3 to build with extensions and GTK+ 2.')
