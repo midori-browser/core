@@ -92,9 +92,21 @@ def configure (conf):
         conf.define (defname, dirvalue)
         return dirvalue
 
+    def check_version (given_version, major, minor, micro):
+        if '.' in given_version:
+            given_major, given_minor, given_micro = given_version.split ('.')
+        else:
+            given_major, given_minor, given_micro = given_version
+        return int(given_major) >  major or \
+               int(given_major) == major and int(given_minor) >  minor or \
+               int(given_major) == major and int(given_minor) == minor and int(given_micro) >= micro
+
     conf.check_tool ('compiler_cc')
     conf.check_tool ('vala')
     conf.check_tool ('glib2')
+    if not check_version (conf.env['VALAC_VERSION'], 0, 14, 0):
+        Utils.pprint ('RED', 'Vala 0.14.0 or later is required.')
+        sys.exit (1)
 
     if option_enabled ('nls'):
         conf.check_tool ('intltool')
@@ -169,15 +181,6 @@ def configure (conf):
             atleast_version=version, mandatory=mandatory)
         return conf.env['HAVE_' + var]
 
-    def check_version (given_version, major, minor, micro):
-        if '.' in given_version:
-            given_major, given_minor, given_micro = given_version.split ('.')
-        else:
-            given_major, given_minor, given_micro = given_version
-        return int(given_major) >  major or \
-               int(given_major) == major and int(given_minor) >  minor or \
-               int(given_major) == major and int(given_minor) == minor and int(given_micro) >= micro
-
     if option_enabled ('unique'):
         if option_enabled('gtk3'): unique_pkg = 'unique-3.0'
         else: unique_pkg = 'unique-1.0'
@@ -234,12 +237,6 @@ def configure (conf):
                     includes='/usr/X11R6/include', mandatory=False)
         conf.check (lib='Xss', libpath='/usr/X11R6/lib', mandatory=False)
     if option_enabled ('gtk3'):
-        if option_enabled ('addons') and not check_version (conf.env['VALAC_VERSION'], 0, 14, 0):
-            Utils.pprint ('RED', 'Vala 0.14.0 or later is required ' \
-                'to build with GTK+ 3 and extensions.\n' \
-                'Pass --disable-addons to build without extensions.\n' \
-                'Pass --disable-gtk3 to build with extensions and GTK+ 2.')
-            sys.exit (1)
         check_pkg ('gtk+-3.0', '3.0.0', var='GTK', mandatory=False)
         check_pkg ('webkitgtk-3.0', '1.1.17', var='WEBKIT', mandatory=False)
         if not conf.env['HAVE_GTK'] or not conf.env['HAVE_WEBKIT']:
