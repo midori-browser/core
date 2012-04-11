@@ -3889,6 +3889,7 @@ static const gchar* valid_about_uris[] = {
     "about:private",
     "error:nodocs",
     "http://.invalid",
+    "about:geolocation",
 };
 
 static void
@@ -4173,6 +4174,13 @@ midori_view_set_uri (MidoriView*  view,
                     _("The language and timezone are not revealed to websites."),
                     _("Flash and other Netscape plugins cannot be listed by websites."));
             }
+            else if (!strcmp (uri, "about:geolocation"))
+            {
+                GString* markup = g_string_new ("");
+                katze_assign (view->uri, g_strdup (uri));
+                list_geolocation (markup);
+                data = g_string_free (markup, FALSE);
+            }
             else if (!strcmp (uri, "about:") || !strcmp (uri, "about:version"))
             {
                 gchar* arguments = g_strjoinv (" ", sokoke_get_argv (NULL));
@@ -4187,7 +4195,6 @@ midori_view_set_uri (MidoriView*  view,
                 gchar* video_formats = list_video_formats (js_context);
                 GString* more = g_string_new ("");
                 list_netscape_plugins (more, js_context);
-                list_geolocation (more);
                 list_about_uris (more);
 
                 katze_assign (view->uri, g_strdup (uri));
