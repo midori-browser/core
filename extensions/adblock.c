@@ -1459,8 +1459,6 @@ adblock_deactivate_tabs (MidoriView*      view,
     GtkWidget* image = g_object_get_data (G_OBJECT (browser), "status-image");
 
     g_signal_handlers_disconnect_by_func (
-       browser, adblock_add_tab_cb, extension);
-    g_signal_handlers_disconnect_by_func (
        web_view, adblock_window_object_cleared_cb, 0);
     g_signal_handlers_disconnect_by_func (
        web_view, adblock_populate_popup_cb, extension);
@@ -1485,7 +1483,7 @@ adblock_deactivate_cb (MidoriExtension* extension,
         app, adblock_app_add_browser_cb, extension);
     g_signal_handlers_disconnect_by_func (
         browser, adblock_add_tab_cb, extension);
-    midori_browser_foreach (browser, (GtkCallback)adblock_deactivate_tabs, browser);
+    midori_browser_foreach (browser, (GtkCallback)adblock_deactivate_tabs, extension);
 
     adblock_destroy_db ();
     midori_web_settings_remove_style (settings, "adblock-blockcss");
