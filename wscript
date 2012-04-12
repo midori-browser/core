@@ -211,9 +211,14 @@ def configure (conf):
 
     if option_enabled ('granite'):
         if not option_enabled ('gtk3'):
-            option_checkfatal ('granite', 'granite requires --enable-gtk3')
-        check_pkg ('granite', '0.1', False)
-        granite = ['N/A', 'yes'][conf.env['HAVE_GRANITE'] == 1]
+            if getattr (Options.options, 'enable_granite'):
+                Utils.pprint ('RED', 'Granite requires --enable-gtk3')
+                sys.exit (1)
+            else:
+                granite = 'no (requires --enable-gtk3)'
+        else:
+            check_pkg ('granite', '0.1', False)
+            granite = ['N/A', 'yes'][conf.env['HAVE_GRANITE'] == 1]
         if granite != 'yes':
             option_checkfatal ('granite', 'new notebook, pop-overs')
             conf.define ('GRANITE_VERSION', 'No')
