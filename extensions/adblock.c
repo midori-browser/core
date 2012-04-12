@@ -39,6 +39,7 @@ static GHashTable* keys = NULL;
 static GHashTable* optslist = NULL;
 static GHashTable* urlcache = NULL;
 static GHashTable* blockcssprivate = NULL;
+static GHashTable* navigationwhitelist = NULL;
 static GString* blockcss = NULL;
 #ifdef G_ENABLE_DEBUG
 static guint debug;
@@ -127,6 +128,8 @@ adblock_destroy_db ()
     urlcache = NULL;
     g_hash_table_destroy (blockcssprivate);
     blockcssprivate = NULL;
+    g_hash_table_destroy (navigationwhitelist);
+    navigationwhitelist = NULL;
 }
 
 static void
@@ -146,6 +149,9 @@ adblock_init_db ()
                    (GDestroyNotify)g_free);
     blockcssprivate = g_hash_table_new_full (g_str_hash, g_str_equal,
                    (GDestroyNotify)g_free,
+                   (GDestroyNotify)g_free);
+    navigationwhitelist = g_hash_table_new_full (g_direct_hash, g_str_equal,
+                   NULL,
                    (GDestroyNotify)g_free);
 
     if (blockcss && blockcss->len > 0)
@@ -779,6 +785,23 @@ adblock_prepare_urihider_js (GList* uris)
     return g_string_free (js, FALSE);
 }
 
+static gboolean
+adblock_navigation_policy_decision_requested_cb (WebKitWebView*             web_view,
+                                                 WebKitWebFrame*            web_frame,
+                                                 WebKitNetworkRequest*      request,
+                                                 WebKitWebNavigationAction* action,
+                                                 WebKitWebPolicyDecision*   decision,
+                                                 MidoriView*                view)
+{
+    if (web_frame == webkit_web_view_get_main_frame (web_view))
+    {
+        const gchar* req_uri = webkit_network_request_get_uri (request);
+        g_hash_table_replace (navigationwhitelist, web_view, g_strdup (req_uri));
+    }
+    return false;
+}
+
+
 static void
 adblock_resource_request_starting_cb (WebKitWebView*         web_view,
                                       WebKitWebFrame*        web_frame,
@@ -798,6 +821,10 @@ adblock_resource_request_starting_cb (WebKitWebView*         web_view,
         return;
 
     req_uri = webkit_network_request_get_uri (request);
+
+    if (!g_strcmp0 (req_uri, g_hash_table_lookup (navigationwhitelist, web_view)))
+        return;
+
     if (!midori_uri_is_http (req_uri)
      || g_str_has_suffix (req_uri, "favicon.ico"))
         return;
@@ -983,10 +1010,21 @@ adblock_add_tab_cb (MidoriBrowser*   browser,
 
     g_signal_connect_after (web_view, "populate-popup",
         G_CALLBACK (adblock_populate_popup_cb), extension);
+    g_signal_connect (web_view, "navigation-policy-decision-requested",
+        G_CALLBACK (adblock_navigation_policy_decision_requested_cb), view);
     g_signal_connect (web_view, "resource-request-starting",
         G_CALLBACK (adblock_resource_request_starting_cb), image);
     g_signal_connect (web_view, "load-finished",
         G_CALLBACK (adblock_load_finished_cb), image);
+}
+
+static void
+adblock_remove_tab_cb (MidoriBrowser*   browser,
+                       MidoriView*      view,
+                       MidoriExtension* extension)
+{
+    GtkWidget* web_view = midori_view_get_web_view (view);
+    g_hash_table_remove (navigationwhitelist, web_view);
 }
 
 static void
@@ -1021,6 +1059,8 @@ adblock_app_add_browser_cb (MidoriApp*       app,
           (GtkCallback)adblock_add_tab_foreach_cb, extension);
     g_signal_connect (browser, "add-tab",
         G_CALLBACK (adblock_add_tab_cb), extension);
+    g_signal_connect (browser, "remove-tab",
+        G_CALLBACK (adblock_remove_tab_cb), extension);
     g_signal_connect (extension, "open-preferences",
         G_CALLBACK (adblock_open_preferences_cb), extension);
     g_signal_connect (extension, "deactivate",
@@ -1466,6 +1506,8 @@ adblock_deactivate_tabs (MidoriView*      view,
        web_view, adblock_resource_request_starting_cb, image);
     g_signal_handlers_disconnect_by_func (
        web_view, adblock_load_finished_cb, image);
+    g_signal_handlers_disconnect_by_func (
+            web_view, adblock_navigation_policy_decision_requested_cb, view);
 }
 
 static void
@@ -1483,6 +1525,8 @@ adblock_deactivate_cb (MidoriExtension* extension,
         app, adblock_app_add_browser_cb, extension);
     g_signal_handlers_disconnect_by_func (
         browser, adblock_add_tab_cb, extension);
+    g_signal_handlers_disconnect_by_func (
+        browser, adblock_remove_tab_cb, extension);
     midori_browser_foreach (browser, (GtkCallback)adblock_deactivate_tabs, extension);
 
     adblock_destroy_db ();
