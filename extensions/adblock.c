@@ -833,6 +833,15 @@ adblock_resource_request_starting_cb (WebKitWebView*         web_view,
     if (!(msg && !g_strcmp0 (msg->method, "GET")))
         return;
 
+    if (response != NULL) /* request is caused by redirect */
+    {
+        if (web_frame == webkit_web_view_get_main_frame (web_view))
+        {
+            g_hash_table_replace (navigationwhitelist, web_view, g_strdup (req_uri));
+            return;
+        }
+    }
+
     #ifdef G_ENABLE_DEBUG
     if (debug == 2)
         g_test_timer_start ();
