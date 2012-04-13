@@ -1032,20 +1032,14 @@ adblock_deactivate_cb (MidoriExtension* extension,
                        MidoriBrowser*   browser);
 
 static void
-adblock_add_tab_foreach_cb (MidoriView*      view,
-                            MidoriBrowser*   browser,
-                            MidoriExtension* extension)
-{
-    adblock_add_tab_cb (browser, view, extension);
-}
-
-static void
 adblock_app_add_browser_cb (MidoriApp*       app,
                             MidoriBrowser*   browser,
                             MidoriExtension* extension)
 {
     GtkWidget* statusbar;
     GtkWidget* image;
+    GtkWidget* view;
+    gint i;
 
     statusbar = katze_object_get_object (browser, "statusbar");
     image = NULL;
@@ -1055,8 +1049,10 @@ adblock_app_add_browser_cb (MidoriApp*       app,
     g_object_set_data_full (G_OBJECT (browser), "status-image", image,
                             (GDestroyNotify)gtk_widget_destroy);
 
-    midori_browser_foreach (browser,
-          (GtkCallback)adblock_add_tab_foreach_cb, extension);
+    i = 0;
+    while((view = midori_browser_get_nth_tab(browser, i++)))
+        adblock_add_tab_cb (browser, MIDORI_VIEW (view), extension);
+
     g_signal_connect (browser, "add-tab",
         G_CALLBACK (adblock_add_tab_cb), extension);
     g_signal_connect (browser, "remove-tab",
@@ -1514,6 +1510,8 @@ static void
 adblock_deactivate_cb (MidoriExtension* extension,
                        MidoriBrowser*   browser)
 {
+    gint i;
+    GtkWidget* view;
     MidoriApp* app = midori_extension_get_app (extension);
     MidoriWebSettings* settings = katze_object_get_object (app, "settings");
 
@@ -1527,7 +1525,10 @@ adblock_deactivate_cb (MidoriExtension* extension,
         browser, adblock_add_tab_cb, extension);
     g_signal_handlers_disconnect_by_func (
         browser, adblock_remove_tab_cb, extension);
-    midori_browser_foreach (browser, (GtkCallback)adblock_deactivate_tabs, extension);
+
+    i = 0;
+    while((view = midori_browser_get_nth_tab(browser, i++)))
+        adblock_deactivate_tabs (MIDORI_VIEW (view), browser, extension);
 
     adblock_destroy_db ();
     midori_web_settings_remove_style (settings, "adblock-blockcss");
