@@ -103,6 +103,7 @@ pushd $root_dir/bin > /dev/null
 dll_recursive midori*.exe gspawn-*-helper*.exe libhunspell*.dll > $temp_dir/midori.exe.lst
 dll_recursive ../lib/gio/modules/*.dll >> $temp_dir/midori.exe.lst
 dll_recursive iconv.dll >> $temp_dir/midori.exe.lst
+dll_recursive ../lib/gstreamer-0.10/*.dll >> $temp_dir/midori.exe.lst
 
 if [ "$DEBUG_BUILD" != "" ]; then
     dll_recursive gdb.exe GtkLauncher.exe >> $temp_dir/midori.exe.lst
@@ -145,6 +146,8 @@ grab_files lib gio
 
 # Fedora ships on-demand pango modules, check just in case
 grab_files lib pango
+
+grab_files lib gstreamer-0.10
 
 echo -n .
 
