@@ -1,5 +1,31 @@
 This file is licensed under the terms of the expat license, see the file EXPAT.
 
+v0.4.5:
+ + Work around black border around widgets on Win32
+ + Whitelist direct/ re-directed navigation requests in adblock
+ + Require Vala 0.14
+ + Provide geolocation diagnostics in about:geolocation
+ + List available about: URLs and app instance name in about:version
+ + Replace illegal characters in download filenames
+ + Tweak app options on Win32 and use ShellExecuteEx in sokoke_show_uri
+ + Use sokoke_show_uri in midori_browser_download_status_cb
+ + External Download manager Steadyflow and Aria2 (with cookies)
+ + Ensure adblock config folder when blocking images
+ + Use sqlite WAL mode for history if available
+ + Allow relative -c/ --config path
+ + Context menus on Back and Forward toolbar items
+ + Always show the tabbar by default
+ + Use ubuntu-bug if it exists
+ + Show inline find while typing and statusbar text in overlay with GTK+ 3.2
+ + Esc/ closing "downloads still active" should cancel, not continue
+ + Optional Granite support for notebook and bookmark dialog as pop-over
+ + Ctrl+j to toggle statusbar aka downloads
+ + Show at most 3 search engines in completion
+ + Don't replace existing onclick/ blur with autosuggest
+ + Implement low_memory_profile for FreeBSD and Win32
+ + Use var in internal javascript, to fix Google apps
+ + Handle download requests in frames
+
 v0.4.4:
  + Disable page cache with < 352 MB RAM
  + Display filename in download dialog
