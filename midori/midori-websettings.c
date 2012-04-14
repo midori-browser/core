@@ -1227,6 +1227,14 @@ midori_web_settings_init (MidoriWebSettings* web_settings)
         "* { -webkit-box-shadow: none !important; }");
     #endif
 
+    #if defined (_WIN32) && WEBKIT_CHECK_VERSION (1, 7, 1)
+    /* Try to work-around black borders on native widgets and GTK+2 on Win32 */
+    midori_web_settings_add_style (web_settings, "black-widgets-workaround",
+    "input[type='checkbox'] { -webkit-appearance: checkbox !important }"
+    " input[type='radio'] { -webkit-appearance: radio !important }"
+    " * { -webkit-appearance: none !important }");
+    #endif
+
     g_signal_connect (web_settings, "notify::default-encoding",
                       G_CALLBACK (notify_default_encoding_cb), NULL);
     g_signal_connect (web_settings, "notify::default-font-family",
