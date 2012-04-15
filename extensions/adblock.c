@@ -808,7 +808,7 @@ adblock_resource_request_starting_cb (WebKitWebView*         web_view,
                                       WebKitWebResource*     web_resource,
                                       WebKitNetworkRequest*  request,
                                       WebKitNetworkResponse* response,
-                                      GtkWidget*             image)
+                                      MidoriView*            view)
 {
     SoupMessage* msg;
     GList* blocked_uris;
@@ -1012,7 +1012,6 @@ adblock_add_tab_cb (MidoriBrowser*   browser,
                     MidoriExtension* extension)
 {
     GtkWidget* web_view = midori_view_get_web_view (view);
-    GtkWidget* image = g_object_get_data (G_OBJECT (browser), "status-image");
 
     g_signal_connect (web_view, "window-object-cleared",
         G_CALLBACK (adblock_window_object_cleared_cb), 0);
@@ -1022,9 +1021,9 @@ adblock_add_tab_cb (MidoriBrowser*   browser,
     g_signal_connect (web_view, "navigation-policy-decision-requested",
         G_CALLBACK (adblock_navigation_policy_decision_requested_cb), view);
     g_signal_connect (web_view, "resource-request-starting",
-        G_CALLBACK (adblock_resource_request_starting_cb), image);
+        G_CALLBACK (adblock_resource_request_starting_cb), view);
     g_signal_connect (web_view, "load-finished",
-        G_CALLBACK (adblock_load_finished_cb), image);
+        G_CALLBACK (adblock_load_finished_cb), view);
 }
 
 static void
@@ -1501,18 +1500,17 @@ adblock_deactivate_tabs (MidoriView*      view,
                          MidoriExtension* extension)
 {
     GtkWidget* web_view = midori_view_get_web_view (view);
-    GtkWidget* image = g_object_get_data (G_OBJECT (browser), "status-image");
 
     g_signal_handlers_disconnect_by_func (
        web_view, adblock_window_object_cleared_cb, 0);
     g_signal_handlers_disconnect_by_func (
        web_view, adblock_populate_popup_cb, extension);
     g_signal_handlers_disconnect_by_func (
-       web_view, adblock_resource_request_starting_cb, image);
+       web_view, adblock_resource_request_starting_cb, view);
     g_signal_handlers_disconnect_by_func (
-       web_view, adblock_load_finished_cb, image);
+       web_view, adblock_load_finished_cb, view);
     g_signal_handlers_disconnect_by_func (
-            web_view, adblock_navigation_policy_decision_requested_cb, view);
+       web_view, adblock_navigation_policy_decision_requested_cb, view);
 }
 
 static void
