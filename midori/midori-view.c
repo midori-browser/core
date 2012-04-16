@@ -1463,13 +1463,15 @@ webkit_web_view_load_error_cb (WebKitWebView*  web_view,
     gchar* message;
     gboolean result;
 
+    /* The unholy trinity; also ignored in Webkit's default error handler */
     switch (error->code)
     {
     case WEBKIT_PLUGIN_ERROR_WILL_HANDLE_LOAD:
         /* A plugin will take over. That's expected, it's not fatal. */
-        return FALSE;
     case WEBKIT_NETWORK_ERROR_CANCELLED:
         /* Mostly initiated by JS redirects. */
+    case WEBKIT_POLICY_ERROR_FRAME_LOAD_INTERRUPTED_BY_POLICY_CHANGE:
+        /* A frame load is cancelled because of a download. */
         return FALSE;
     }
 
