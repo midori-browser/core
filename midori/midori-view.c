@@ -2971,10 +2971,6 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
         default:
             g_warn_if_reached ();
     }
-
-    /* Apparently WebKit will continue loading which ends in an error.
-       It's unclear whether it's a bug or we are doing something wrong. */
-    webkit_web_view_stop_loading (WEBKIT_WEB_VIEW (view->web_view));
     return TRUE;
 }
 

@@ -1465,7 +1465,6 @@ midori_view_download_requested_cb (GtkWidget*      view,
         midori_browser_prepare_download (browser, download, destination_uri);
         g_signal_connect (download, "notify::status",
             G_CALLBACK (midori_browser_download_status_cb), GTK_WIDGET (browser));
-        webkit_download_start (download);
         g_free (destination_uri);
     }
     else if (!webkit_download_get_destination_uri (download))
