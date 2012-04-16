@@ -3891,7 +3891,10 @@ _action_search_submit (GtkAction*     action,
     search = midori_uri_for_search (url, keywords);
 
     if (new_tab)
-        midori_browser_add_uri (browser, search);
+    {
+        int n = midori_browser_add_uri (browser, search);
+        midori_browser_set_current_page_smartly (browser, n);
+    }
     else
         midori_browser_set_current_uri (browser, search);
 
