@@ -260,11 +260,11 @@ def configure (conf):
     check_pkg ('libsoup-2.4', '2.27.90')
     conf.define ('LIBSOUP_VERSION', conf.check_cfg (modversion='libsoup-2.4'))
     if check_version (conf.env['LIBSOUP_VERSION'], 2, 29, 3):
-        conf.define ('LIBSOUP_2_29_3', 1)
+        conf.define ('HAVE_LIBSOUP_2_29_3', 1)
     if check_version (conf.env['LIBSOUP_VERSION'], 2, 29, 91):
-        conf.define ('LIBSOUP_2_29_91', 1)
+        conf.define ('HAVE_LIBSOUP_2_29_91', 1)
     if check_version (conf.env['LIBSOUP_VERSION'], 2, 37, 1):
-        conf.define ('LIBSOUP_2_37_1', 1)
+        conf.define ('HAVE_LIBSOUP_2_37_1', 1)
     check_pkg ('libxml-2.0', '2.6')
     check_pkg ('sqlite3', '3.0', True, var='SQLITE')
 
