@@ -1454,10 +1454,24 @@ midori_browser_download_prepare_destination_uri (WebKitDownload* download,
 }
 
 static gboolean
+midori_browser_remove_tab_idle (gpointer view)
+{
+    MidoriBrowser* browser;
+
+    g_return_val_if_fail (GTK_IS_WIDGET (view), FALSE);
+    browser = midori_browser_get_for_widget (GTK_WIDGET (view));
+    midori_browser_remove_tab (browser, GTK_WIDGET (view));
+    return G_SOURCE_REMOVE;
+}
+
+static gboolean
 midori_view_download_requested_cb (GtkWidget*      view,
                                    WebKitDownload* download,
                                    MidoriBrowser*  browser)
 {
+    GtkWidget* web_view;
+    WebKitWebFrame* web_frame;
+    WebKitWebDataSource* datasource;
     gboolean handled;
 
     g_return_val_if_fail (MIDORI_IS_VIEW (view), FALSE);
@@ -1514,6 +1528,13 @@ midori_view_download_requested_cb (GtkWidget*      view,
             g_free (destination_uri);
         }
     }
+
+    /* Close empty tabs due to download links with a target */
+    web_view = midori_view_get_web_view (MIDORI_VIEW (view));
+    web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view));
+    datasource = webkit_web_frame_get_data_source (web_frame);
+    if (midori_view_is_blank (MIDORI_VIEW (view)) && webkit_web_data_source_get_data (datasource) == NULL)
+        g_idle_add (midori_browser_remove_tab_idle, view);
     return handled;
 }
 
