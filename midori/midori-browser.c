@@ -1458,7 +1458,15 @@ midori_view_download_requested_cb (GtkWidget*      view,
                                    WebKitDownload* download,
                                    MidoriBrowser*  browser)
 {
-    if (g_object_get_data (G_OBJECT (download), "open-in-viewer"))
+    gboolean handled;
+
+    g_return_val_if_fail (MIDORI_IS_VIEW (view), FALSE);
+    handled = TRUE;
+    if (g_object_get_data (G_OBJECT (download), "cancel-download"))
+    {
+        handled = FALSE;
+    }
+    else if (g_object_get_data (G_OBJECT (download), "open-in-viewer"))
     {
         gchar* destination_uri =
             midori_browser_download_prepare_destination_uri (download, NULL);
@@ -1506,7 +1514,7 @@ midori_view_download_requested_cb (GtkWidget*      view,
             g_free (destination_uri);
         }
     }
-    return TRUE;
+    return handled;
 }
 
 static void

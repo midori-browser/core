@@ -200,6 +200,13 @@ enum {
     LAST_SIGNAL
 };
 
+enum {
+    DOWNLOAD_SAVE = 1,
+    DOWNLOAD_SAVE_AS,
+    DOWNLOAD_CANCEL,
+    DOWNLOAD_OPEN,
+};
+
 static guint signals[LAST_SIGNAL];
 
 static gchar* speeddial_markup = NULL;
@@ -2843,27 +2850,6 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
                                        WebKitWebPolicyDecision* decision,
                                        MidoriView*              view)
 {
-    GtkWidget* dialog;
-    gchar* content_type;
-    gchar* description;
-    gchar* file_type;
-    gchar* name;
-    gchar* file_name;
-    WebKitDownload *download;
-    WebKitWebDataSource* datasource;
-    WebKitNetworkRequest* original_request;
-    const gchar* original_uri;
-    gchar* fingerprint;
-    gchar* fplabel;
-    #if GTK_CHECK_VERSION (2, 14, 0)
-    GIcon* icon;
-    GtkWidget* image;
-    #endif
-    gchar* title;
-    GdkScreen* screen;
-    GtkIconTheme* icon_theme;
-    gint response;
-
     if (webkit_web_view_can_show_mime_type (WEBKIT_WEB_VIEW (web_view), mime_type))
     {
         gboolean view_source = FALSE;
@@ -2883,10 +2869,45 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
 
         return FALSE;
     }
+    g_object_set_data(G_OBJECT (view), "download-mime-type", (gpointer)mime_type);
+    webkit_web_policy_decision_download (decision);
+    g_object_set_data(G_OBJECT (view), "download-mime-type", NULL);
+    return TRUE;
+}
+
+static gboolean
+webkit_web_view_download_requested_cb (GtkWidget*      web_view,
+                                       WebKitDownload* download,
+                                       MidoriView*     view)
+{
+    GtkWidget* dialog;
+    gchar* content_type;
+    gchar* description;
+    gchar* file_type;
+    gchar* name;
+    gchar* file_name;
+    WebKitWebFrame* web_frame;
+    const gchar* mime_type;
+    WebKitWebDataSource* datasource;
+    WebKitNetworkRequest* request;
+    WebKitNetworkRequest* original_request;
+    const gchar* original_uri;
+    gchar* fingerprint;
+    gchar* fplabel;
+    #if GTK_CHECK_VERSION (2, 14, 0)
+    GIcon* icon;
+    GtkWidget* image;
+    #endif
+    gchar* title;
+    GdkScreen* screen;
+    GtkIconTheme* icon_theme;
+    gint response;
+    gboolean handled;
 
     dialog = gtk_message_dialog_new (
         NULL, 0, GTK_MESSAGE_WARNING, GTK_BUTTONS_NONE,
         _("Open or download file"));
+    mime_type = g_object_get_data(G_OBJECT (view), "download-mime-type");
     content_type = g_content_type_from_mime_type (mime_type);
     if (!content_type)
     #ifdef G_OS_WIN32
@@ -2910,14 +2931,13 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
         file_type = g_strdup_printf (_("File Type: %s ('%s')"), description, mime_type);
     g_free (description);
 
-    download = webkit_download_new (request);
     name = sokoke_get_download_filename (download);
     file_name = g_strdup_printf (_("File Name: %s"), name);
     g_free (name);
-    g_object_unref (download);
 
     /* Link Fingerprint */
     /* We look at the original URI because redirection would lose the fragment */
+    web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view));
     datasource = webkit_web_frame_get_provisional_data_source (web_frame);
     original_request = webkit_web_data_source_get_initial_request (datasource);
     original_uri = webkit_network_request_get_uri (original_request);
@@ -2931,6 +2951,7 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
 
     gtk_window_set_skip_taskbar_hint (GTK_WINDOW (dialog), FALSE);
     /* i18n: A file open dialog title, ie. "Open http://fila.com/manual.tgz" */
+    request = webkit_download_get_network_request (download);
     title = g_strdup_printf (_("Open %s"),
         webkit_network_request_get_uri (request));
     gtk_window_set_title (GTK_WINDOW (dialog), title);
@@ -2945,55 +2966,34 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
             gtk_window_set_icon_name (GTK_WINDOW (dialog), GTK_STOCK_OPEN);
     }
     gtk_dialog_add_buttons (GTK_DIALOG (dialog),
-        GTK_STOCK_SAVE, 1,
-        GTK_STOCK_SAVE_AS, 4,
-        GTK_STOCK_CANCEL, 2,
-        GTK_STOCK_OPEN, 3,
+        GTK_STOCK_SAVE, DOWNLOAD_SAVE,
+        GTK_STOCK_SAVE_AS, DOWNLOAD_SAVE_AS,
+        GTK_STOCK_CANCEL, DOWNLOAD_CANCEL,
+        GTK_STOCK_OPEN, DOWNLOAD_OPEN,
         NULL);
     response = gtk_dialog_run (GTK_DIALOG (dialog));
     gtk_widget_destroy (dialog);
-    g_object_set_data (G_OBJECT (view), "open-download", (gpointer)0);
     switch (response)
     {
-        case 4:
-            g_object_set_data (G_OBJECT (view), "save-as-download", (gpointer)1);
-            webkit_web_policy_decision_download (decision);
+        case DOWNLOAD_SAVE_AS:
+            g_object_set_data (G_OBJECT (download), "save-as-download", (gpointer)1);
             break;
-        case 3:
-            g_object_set_data (G_OBJECT (view), "open-download", (gpointer)1);
-        case 1:
-            webkit_web_policy_decision_download (decision);
+        case DOWNLOAD_OPEN:
+            g_object_set_data (G_OBJECT (download), "open-download", (gpointer)1);
+        case DOWNLOAD_SAVE:
             break;
-        case 2:
+        case DOWNLOAD_CANCEL:
         case GTK_RESPONSE_DELETE_EVENT:
-            webkit_web_policy_decision_ignore (decision);
+            g_object_set_data (G_OBJECT (download), "cancel-download", (gpointer)1);
             break;
         default:
             g_warn_if_reached ();
     }
-    return TRUE;
-}
 
-static gboolean
-webkit_web_view_download_requested_cb (GtkWidget*      web_view,
-                                       WebKitDownload* download,
-                                       MidoriView*     view)
-{
-    gboolean handled;
     /* Propagate original URI to make it available when the download finishes */
-    WebKitWebFrame* web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view));
-    WebKitWebDataSource* datasource = webkit_web_frame_get_provisional_data_source (web_frame);
-    WebKitNetworkRequest* original_request = webkit_web_data_source_get_initial_request (datasource);
-    const gchar* original_uri = webkit_network_request_get_uri (original_request);
-    WebKitNetworkRequest* request = webkit_download_get_network_request (download);
     g_object_set_data_full (G_OBJECT (request), "midori-original-uri",
                             g_strdup (original_uri), g_free);
-    g_object_set_data (G_OBJECT (download), "open-download",
-        g_object_get_data (G_OBJECT (view), "open-download"));
-    g_object_set_data (G_OBJECT (download), "save-as-download",
-        g_object_get_data (G_OBJECT (view), "save-as-download"));
-    g_object_set_data (G_OBJECT (view), "open-download", (gpointer)0);
-    g_object_set_data (G_OBJECT (view), "save-as-download", (gpointer)0);
+
     g_signal_emit (view, signals[DOWNLOAD_REQUESTED], 0, download, &handled);
     return handled;
 }
