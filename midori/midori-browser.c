@@ -392,7 +392,6 @@ _midori_browser_set_statusbar_text (MidoriBrowser* browser,
         GtkAction* action = _action_by_name (browser, "Location");
         MidoriLocationAction* location_action = MIDORI_LOCATION_ACTION (action);
         midori_location_action_set_text (location_action, browser->statusbar_text);
-        midori_location_action_set_icon (location_action, NULL);
         midori_location_action_set_secondary_icon (location_action, NULL);
         #endif
     }
@@ -411,8 +410,6 @@ _midori_browser_set_statusbar_text (MidoriBrowser* browser,
                 location_action, GTK_STOCK_JUMP_TO);
         midori_location_action_set_text (location_action,
             midori_view_get_display_uri (MIDORI_VIEW (view)));
-        midori_location_action_set_icon (location_action,
-            midori_view_get_icon (MIDORI_VIEW (view)));
         #endif
     }
     else
@@ -494,14 +491,9 @@ midori_view_notify_icon_cb (MidoriView*    view,
                             GParamSpec*    pspec,
                             MidoriBrowser* browser)
 {
-    GtkAction* action;
-
     if (midori_browser_get_current_tab (browser) != (GtkWidget*)view)
         return;
 
-    action = _action_by_name (browser, "Location");
-    midori_location_action_set_icon (MIDORI_LOCATION_ACTION (action),
-                                     midori_view_get_icon (view));
     if (sokoke_is_app_or_private ())
         gtk_window_set_icon (GTK_WINDOW (browser), midori_view_get_icon (view));
 }
@@ -518,9 +510,6 @@ midori_view_notify_load_status_cb (GtkWidget*      widget,
 
     uri = midori_view_get_display_uri (view);
     action = _action_by_name (browser, "Location");
-
-    if (load_status == MIDORI_LOAD_COMMITTED)
-        midori_location_action_add_uri (MIDORI_LOCATION_ACTION (action), uri);
 
     if (widget == midori_browser_get_current_tab (browser))
     {
@@ -3730,8 +3719,6 @@ _action_location_reset_uri (GtkAction*     action,
     {
         midori_location_action_set_text (MIDORI_LOCATION_ACTION (action),
             midori_view_get_display_uri (MIDORI_VIEW (view)));
-        midori_location_action_set_icon (MIDORI_LOCATION_ACTION (action),
-            midori_view_get_icon (MIDORI_VIEW (view)));
     }
 }
 
@@ -5053,8 +5040,6 @@ midori_browser_notebook_switch_page_after_cb (GtkWidget*       notebook,
     midori_browser_set_title (browser, midori_view_get_display_title (view));
     action = _action_by_name (browser, "Location");
     midori_location_action_set_text (MIDORI_LOCATION_ACTION (action), uri);
-    midori_location_action_set_icon (MIDORI_LOCATION_ACTION (action),
-                                     midori_view_get_icon (view));
     if (sokoke_is_app_or_private ())
         gtk_window_set_icon (GTK_WINDOW (browser), midori_view_get_icon (view));
 

@@ -838,8 +838,6 @@ midori_location_action_create_tool_item (GtkAction* action)
     hildon_gtk_entry_set_input_mode (GTK_ENTRY (entry), mode);
     #else
     entry = gtk_icon_entry_new ();
-    gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (entry),
-         GTK_ICON_ENTRY_PRIMARY, GTK_STOCK_FILE);
     /* Work-around icon being activatable by default */
     gtk_icon_entry_set_icon_highlight (GTK_ICON_ENTRY (entry),
          GTK_ICON_ENTRY_PRIMARY, FALSE);
@@ -1508,7 +1506,7 @@ midori_location_action_get_text (MidoriLocationAction* location_action)
  * @location_action: a #MidoriLocationAction
  * @text: a string
  *
- * Sets the entry text to @text and, if applicable, updates the icon.
+ * Sets the entry text to @text.
  *
  * Since: 0.2.0
  **/
@@ -1517,7 +1515,6 @@ midori_location_action_set_text (MidoriLocationAction* location_action,
                                  const gchar*          text)
 {
     GSList* proxies;
-    GdkPixbuf* icon;
 
     g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
     g_return_if_fail (text != NULL);
@@ -1530,21 +1527,12 @@ midori_location_action_set_text (MidoriLocationAction* location_action,
     if (!(proxies = gtk_action_get_proxies (GTK_ACTION (location_action))))
         return;
 
-    if (!(icon = katze_load_cached_icon (location_action->uri, NULL)))
-        icon = g_object_ref (location_action->default_icon);
-
     for (; proxies != NULL; proxies = g_slist_next (proxies))
     if (GTK_IS_TOOL_ITEM (proxies->data))
     {
         GtkWidget* entry = midori_location_action_entry_for_proxy (proxies->data);
         gtk_entry_set_text (GTK_ENTRY (entry), text);
-        #if !HAVE_HILDON
-        gtk_icon_entry_set_icon_from_pixbuf (GTK_ICON_ENTRY (entry),
-            GTK_ICON_ENTRY_PRIMARY, icon);
-        #endif
     }
-
-    g_object_unref (icon);
 }
 
 /**
@@ -1554,33 +1542,12 @@ midori_location_action_set_text (MidoriLocationAction* location_action,
  *
  * Sets the icon shown on the left hand side.
  *
- * Note: Since 0.1.8 %NULL can be passed to indicate that the
- *     visible URI refers to a target, not the current location.
+ * Deprecated: 0.4.6: The left hand icon only shows security status.
  **/
 void
 midori_location_action_set_icon (MidoriLocationAction* location_action,
                                  GdkPixbuf*            icon)
 {
-    #if !HAVE_HILDON
-    GSList* proxies;
-
-    g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
-    g_return_if_fail (!icon || GDK_IS_PIXBUF (icon));
-
-    proxies = gtk_action_get_proxies (GTK_ACTION (location_action));
-
-    for (; proxies != NULL; proxies = g_slist_next (proxies))
-    if (GTK_IS_TOOL_ITEM (proxies->data))
-    {
-        GtkWidget* entry = midori_location_action_entry_for_proxy (proxies->data);
-        if (icon)
-            gtk_icon_entry_set_icon_from_pixbuf (GTK_ICON_ENTRY (entry),
-                GTK_ICON_ENTRY_PRIMARY, icon);
-        else
-            gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (entry),
-                GTK_ICON_ENTRY_PRIMARY, GTK_STOCK_JUMP_TO);
-    }
-    #endif
 }
 
 void
@@ -1593,32 +1560,24 @@ midori_location_action_add_uri (MidoriLocationAction* location_action,
     katze_assign (location_action->uri, g_strdup (uri));
 }
 
+/**
+ * midori_location_action_add_item:
+ * @location_action: a #MidoriLocationAction
+ * @icon: a #GdkPixbuf or %NULL
+ * @title: a string
+ *
+ * Adds the item to the location, historically this added it to
+ * completion suggestions and updated the left side icon.
+ *
+ * Deprecated: 0.4.6: The left hand icon only shows security status.
+ **/
+
 void
 midori_location_action_add_item (MidoriLocationAction* location_action,
                                  const gchar*          uri,
                                  GdkPixbuf*            icon,
                                  const gchar*          title)
 {
-    #if !HAVE_HILDON
-    GSList* proxies;
-    #endif
-
-    g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
-    g_return_if_fail (uri != NULL);
-    g_return_if_fail (title != NULL);
-    g_return_if_fail (!icon || GDK_IS_PIXBUF (icon));
-
-    #if !HAVE_HILDON
-    proxies = gtk_action_get_proxies (GTK_ACTION (location_action));
-
-    for (; proxies != NULL; proxies = g_slist_next (proxies))
-    if (GTK_IS_TOOL_ITEM (proxies->data))
-    {
-        GtkWidget* entry = midori_location_action_entry_for_proxy (proxies->data);
-        gtk_icon_entry_set_icon_from_pixbuf (GTK_ICON_ENTRY (entry),
-            GTK_ICON_ENTRY_PRIMARY, icon);
-    }
-    #endif
 }
 
 /**
@@ -1757,13 +1716,13 @@ midori_location_action_set_security_hint (MidoriLocationAction* location_action,
             #if !HAVE_HILDON
             if (gtk_icon_theme_has_icon (icon_theme, "channel-insecure-symbolic"))
                 gtk_icon_entry_set_icon_from_icon_name (GTK_ICON_ENTRY (entry),
-                    GTK_ICON_ENTRY_SECONDARY, "channel-insecure-symbolic");
+                    GTK_ICON_ENTRY_PRIMARY, "channel-insecure-symbolic");
             else if (gtk_icon_theme_has_icon (icon_theme, "lock-insecure"))
                 gtk_icon_entry_set_icon_from_icon_name (GTK_ICON_ENTRY (entry),
-                    GTK_ICON_ENTRY_SECONDARY, "lock-insecure");
+                    GTK_ICON_ENTRY_PRIMARY, "lock-insecure");
             else
                 gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (entry),
-                    GTK_ICON_ENTRY_SECONDARY, GTK_STOCK_INFO);
+                    GTK_ICON_ENTRY_PRIMARY, GTK_STOCK_INFO);
             gtk_icon_entry_set_tooltip (GTK_ICON_ENTRY (entry),
                 GTK_ICON_ENTRY_SECONDARY, _("Not verified"));
             #endif
@@ -1777,20 +1736,28 @@ midori_location_action_set_security_hint (MidoriLocationAction* location_action,
             #if !HAVE_HILDON
             if (gtk_icon_theme_has_icon (icon_theme, "channel-secure-symbolic"))
                 gtk_icon_entry_set_icon_from_icon_name (GTK_ICON_ENTRY (entry),
-                    GTK_ICON_ENTRY_SECONDARY, "channel-secure-symbolic");
+                    GTK_ICON_ENTRY_PRIMARY, "channel-secure-symbolic");
             else if (gtk_icon_theme_has_icon (icon_theme, "lock-secure"))
                 gtk_icon_entry_set_icon_from_icon_name (GTK_ICON_ENTRY (entry),
-                    GTK_ICON_ENTRY_SECONDARY, "lock-secure");
+                    GTK_ICON_ENTRY_PRIMARY, "lock-secure");
             else
                 gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (entry),
                     GTK_ICON_ENTRY_SECONDARY, GTK_STOCK_DIALOG_AUTHENTICATION);
             gtk_icon_entry_set_tooltip (GTK_ICON_ENTRY (entry),
-                GTK_ICON_ENTRY_SECONDARY, _("Verified and encrypted connection"));
+                GTK_ICON_ENTRY_PRIMARY, _("Verified and encrypted connection"));
             #endif
         }
         else if (hint == MIDORI_SECURITY_NONE)
+        {
+            if (gtk_icon_theme_has_icon (icon_theme, "text-html-symbolic"))
+                gtk_icon_entry_set_icon_from_icon_name (GTK_ICON_ENTRY (entry),
+                    GTK_ICON_ENTRY_PRIMARY, "text-html-symbolic");
+            else
+                gtk_icon_entry_set_icon_from_icon_name (GTK_ICON_ENTRY (entry),
+                    GTK_ICON_ENTRY_PRIMARY, "text-html");
             gtk_icon_entry_set_tooltip (GTK_ICON_ENTRY (entry),
-                GTK_ICON_ENTRY_SECONDARY, NULL);
+                GTK_ICON_ENTRY_PRIMARY, _("Open, unencrypted connection"));
+        }
 
         {
         #if GTK_CHECK_VERSION (3, 0, 0)
