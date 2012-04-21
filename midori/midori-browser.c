@@ -3690,8 +3690,14 @@ static void
 _action_location_focus_in (GtkAction*     action,
                            MidoriBrowser* browser)
 {
-    midori_location_action_set_secondary_icon (
-        MIDORI_LOCATION_ACTION (action), GTK_STOCK_JUMP_TO);
+    GdkScreen* screen = gtk_widget_get_screen (browser->notebook);
+    GtkIconTheme* icon_theme = gtk_icon_theme_get_for_screen (screen);
+    if (gtk_icon_theme_has_icon (icon_theme, "go-jump-symbolic"))
+        midori_location_action_set_secondary_icon (
+            MIDORI_LOCATION_ACTION (action), "go-jump-symbolic");
+    else
+        midori_location_action_set_secondary_icon (
+            MIDORI_LOCATION_ACTION (action), GTK_STOCK_JUMP_TO);
 }
 
 static void

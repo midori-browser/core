@@ -1649,6 +1649,15 @@ midori_location_action_set_progress (MidoriLocationAction* location_action,
     }
 }
 
+/**
+ * midori_location_action_set_security_hint:
+ * @location_action: a #MidoriLocationAction
+ * @icon: a stock ID, or an icon name
+ *
+ * Sets the secondary, ie right hand side icon.
+ *
+ * Since 0.4.6 @icon can be a stock ID or an icon name.
+ **/
 void
 midori_location_action_set_secondary_icon (MidoriLocationAction* location_action,
                                            const gchar*          stock_id)
@@ -1659,7 +1668,6 @@ midori_location_action_set_secondary_icon (MidoriLocationAction* location_action
     GtkStockItem stock_item;
 
     g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
-    g_return_if_fail (!stock_id || gtk_stock_lookup (stock_id, &stock_item));
 
     katze_assign (location_action->secondary_icon, g_strdup (stock_id));
 
@@ -1670,8 +1678,12 @@ midori_location_action_set_secondary_icon (MidoriLocationAction* location_action
     if (GTK_IS_TOOL_ITEM (proxies->data))
     {
         GtkWidget* entry = midori_location_action_entry_for_proxy (proxies->data);
-        gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (entry),
-            GTK_ICON_ENTRY_SECONDARY, stock_id);
+        if (stock_id && gtk_stock_lookup (stock_id, &stock_item))
+            gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (entry),
+                GTK_ICON_ENTRY_SECONDARY, stock_id);
+        else
+            gtk_icon_entry_set_icon_from_icon_name (GTK_ICON_ENTRY (entry),
+                GTK_ICON_ENTRY_SECONDARY, stock_id);
     }
     #endif
 }
