@@ -285,6 +285,25 @@ _midori_browser_update_actions (MidoriBrowser* browser)
 }
 
 static void
+midori_browser_update_secondary_icon (MidoriBrowser* browser,
+                                      MidoriView*    view,
+                                      GtkAction*     action)
+{
+    if (g_object_get_data (G_OBJECT (view), "news-feeds"))
+    {
+        midori_location_action_set_secondary_icon (
+            MIDORI_LOCATION_ACTION (action), STOCK_NEWS_FEED);
+        _action_set_sensitive (browser, "AddNewsFeed", TRUE);
+    }
+    else
+    {
+        midori_location_action_set_secondary_icon (
+            MIDORI_LOCATION_ACTION (action), NULL);
+        _action_set_sensitive (browser, "AddNewsFeed", FALSE);
+    }
+}
+
+static void
 _midori_browser_update_interface (MidoriBrowser* browser)
 {
     GtkWidget* widget = midori_browser_get_current_tab (browser);
@@ -350,20 +369,9 @@ _midori_browser_update_interface (MidoriBrowser* browser)
     #endif
 
     action = _action_by_name (browser, "Location");
-    if (g_object_get_data (G_OBJECT (view), "news-feeds"))
-    {
-        midori_location_action_set_secondary_icon (
-            MIDORI_LOCATION_ACTION (action), STOCK_NEWS_FEED);
-        _action_set_sensitive (browser, "AddNewsFeed", TRUE);
-    }
-    else
-    {
-        midori_location_action_set_secondary_icon (
-            MIDORI_LOCATION_ACTION (action), GTK_STOCK_JUMP_TO);
-        _action_set_sensitive (browser, "AddNewsFeed", FALSE);
-    }
     midori_location_action_set_security_hint (
         MIDORI_LOCATION_ACTION (action), midori_view_get_security (view));
+    midori_browser_update_secondary_icon (browser, MIDORI_VIEW (view), action);
 }
 
 static void
@@ -402,12 +410,7 @@ _midori_browser_set_statusbar_text (MidoriBrowser* browser,
         #else
         GtkAction* action = _action_by_name (browser, "Location");
         MidoriLocationAction* location_action = MIDORI_LOCATION_ACTION (action);
-        if (g_object_get_data (G_OBJECT (view), "news-feeds"))
-            midori_location_action_set_secondary_icon (
-                location_action, STOCK_NEWS_FEED);
-        else
-            midori_location_action_set_secondary_icon (
-                location_action, GTK_STOCK_JUMP_TO);
+        midori_browser_update_secondary_icon (browser, view, action);
         midori_location_action_set_text (location_action,
             midori_view_get_display_uri (MIDORI_VIEW (view)));
         #endif
@@ -517,8 +520,6 @@ midori_view_notify_load_status_cb (GtkWidget*      widget,
         {
             midori_location_action_set_text (
                 MIDORI_LOCATION_ACTION (action), uri);
-            midori_location_action_set_secondary_icon (
-                MIDORI_LOCATION_ACTION (action), GTK_STOCK_JUMP_TO);
             g_object_notify (G_OBJECT (browser), "uri");
         }
 
@@ -3702,12 +3703,7 @@ _action_location_focus_out (GtkAction*     action,
     if (!browser->show_navigationbar || midori_browser_is_fullscreen (browser))
         gtk_widget_hide (browser->navigationbar);
 
-    if (g_object_get_data (G_OBJECT (view), "news-feeds"))
-        midori_location_action_set_secondary_icon (
-            MIDORI_LOCATION_ACTION (action), STOCK_NEWS_FEED);
-    else
-        midori_location_action_set_secondary_icon (
-            MIDORI_LOCATION_ACTION (action), GTK_STOCK_JUMP_TO);
+    midori_browser_update_secondary_icon (browser, MIDORI_VIEW (view), action);
 }
 
 static void
