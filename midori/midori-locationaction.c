@@ -1736,7 +1736,7 @@ midori_location_action_set_security_hint (MidoriLocationAction* location_action,
                 gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (entry),
                     GTK_ICON_ENTRY_PRIMARY, GTK_STOCK_INFO);
             gtk_icon_entry_set_tooltip (GTK_ICON_ENTRY (entry),
-                GTK_ICON_ENTRY_SECONDARY, _("Not verified"));
+                GTK_ICON_ENTRY_PRIMARY, _("Not verified"));
             #endif
         }
         else if (hint == MIDORI_SECURITY_TRUSTED)
@@ -1754,7 +1754,7 @@ midori_location_action_set_security_hint (MidoriLocationAction* location_action,
                     GTK_ICON_ENTRY_PRIMARY, "lock-secure");
             else
                 gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (entry),
-                    GTK_ICON_ENTRY_SECONDARY, GTK_STOCK_DIALOG_AUTHENTICATION);
+                    GTK_ICON_ENTRY_PRIMARY, GTK_STOCK_DIALOG_AUTHENTICATION);
             gtk_icon_entry_set_tooltip (GTK_ICON_ENTRY (entry),
                 GTK_ICON_ENTRY_PRIMARY, _("Verified and encrypted connection"));
             #endif
