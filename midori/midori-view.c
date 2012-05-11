@@ -2677,6 +2677,7 @@ midori_view_populate_popup (MidoriView* view,
             static const GtkActionEntry encodings[] = {
               { "EncodingAutomatic" },
               { "EncodingChinese" },
+              { "EncodingChineseSimplified" },
               { "EncodingJapanese" },
               { "EncodingKorean" },
               { "EncodingRussian" },

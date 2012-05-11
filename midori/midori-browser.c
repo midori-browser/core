@@ -3407,6 +3407,8 @@ _action_view_encoding_activate (GtkAction*     action,
             const gchar* encoding;
             if (!strcmp (name, "EncodingChinese"))
                 encoding = "BIG5";
+            else if (!strcmp (name, "EncodingChineseSimplified"))
+                encoding = "GB18030";
             else if (!strcmp (name, "EncodingJapanese"))
                 encoding = "SHIFT_JIS";
             else if (!strcmp (name, "EncodingKorean"))
@@ -5458,7 +5460,10 @@ static const GtkRadioActionEntry encoding_entries[] =
         N_("_Automatic"), "",
         NULL, 1 },
     { "EncodingChinese", NULL,
-        N_("Chinese (BIG5)"), "",
+        N_("Chinese Traditional (BIG5)"), "",
+        NULL, 1 },
+    { "EncodingChineseSimplified", NULL,
+        N_("Chinese Simplified (GB18030)"), "",
         NULL, 1 },
     { "EncodingJapanese", NULL,
         /* i18n: A double underscore "__" is used to prevent the mnemonic */
@@ -5630,6 +5635,7 @@ static const gchar* ui_markup =
                 "<menu action='Encoding'>"
                     "<menuitem action='EncodingAutomatic'/>"
                     "<menuitem action='EncodingChinese'/>"
+                    "<menuitem action='EncodingChineseSimplified'/>"
                     "<menuitem action='EncodingJapanese'/>"
                     "<menuitem action='EncodingKorean'/>"
                     "<menuitem action='EncodingRussian'/>"
