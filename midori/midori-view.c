@@ -1032,6 +1032,9 @@ webkit_web_view_load_committed_cb (WebKitWebView*  web_view,
     const gchar* uri;
     GList* children;
 
+    if (web_frame != webkit_web_view_get_main_frame (web_view))
+        return;
+
     g_object_freeze_notify (G_OBJECT (view));
 
     uri = webkit_web_frame_get_uri (web_frame);
@@ -1529,6 +1532,7 @@ webkit_web_view_load_finished_cb (WebKitWebView*  web_view,
     g_object_notify (G_OBJECT (view), "progress");
     midori_view_update_load_status (view, MIDORI_LOAD_FINISHED);
 
+    if (web_frame == webkit_web_view_get_main_frame (web_view))
     {
         JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
         /* Icon: URI, News Feed: $URI|title, Search: :URI|title */
@@ -1612,11 +1616,11 @@ webkit_web_view_load_finished_cb (WebKitWebView*  web_view,
         g_free (value);
         /* Ensure load-status is notified again, whether it changed or not */
         g_object_notify (G_OBJECT (view), "load-status");
-    }
 
-    #if !WEBKIT_CHECK_VERSION (1, 4, 3)
-    _midori_web_view_load_icon (view);
-    #endif
+        #if !WEBKIT_CHECK_VERSION (1, 4, 3)
+        _midori_web_view_load_icon (view);
+        #endif
+    }
 
     g_object_thaw_notify (G_OBJECT (view));
 }
@@ -2864,9 +2868,12 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
             view_source = TRUE;
         webkit_web_view_set_view_source_mode (WEBKIT_WEB_VIEW (web_view), view_source);
 
-        katze_assign (view->mime_type, g_strdup (mime_type));
-        midori_view_unset_icon (view);
-        g_object_notify (G_OBJECT (view), "mime-type");
+        if (web_frame == webkit_web_view_get_main_frame (web_view))
+        {
+            katze_assign (view->mime_type, g_strdup (mime_type));
+            midori_view_unset_icon (view);
+            g_object_notify (G_OBJECT (view), "mime-type");
+        }
 
         return FALSE;
     }
