@@ -5299,11 +5299,11 @@ midori_view_save_source (MidoriView* view,
     if (!outfile)
     {
         gchar* extension = midori_view_get_uri_extension (uri);
-        gchar* filename = g_strdup_printf ("%uXXXXXX%s",
+        unique_filename = g_strdup_printf ("%s/midori-%s/%uXXXXXX%s",
+            g_get_tmp_dir (), g_get_user_name (),
             g_str_hash (uri), midori_view_fallback_extension (view, extension));
         g_free (extension);
-        fd = g_file_open_tmp (filename, &unique_filename, NULL);
-        g_free (filename);
+        fd = g_mkstemp (unique_filename);
     }
     else
     {
