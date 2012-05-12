@@ -734,7 +734,12 @@ midori_app_create_instance (MidoriApp* app)
         #endif
     }
 
+    #ifdef GDK_WINDOWING_X11
+    /* On X11: :0 or :0.0 which is equivalent */
+    display_name = g_strndup (gdk_display_get_name (display), 2);
+    #else
     display_name = g_strdup (gdk_display_get_name (display));
+    #endif
     n = strlen (display_name);
     for (i = 0; i < n; i++)
         if (strchr (":.\\/", display_name[i]))
