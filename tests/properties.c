@@ -10,7 +10,6 @@
 */
 
 #include "midori.h"
-#include "midori-bookmarks.h"
 
 typedef struct
 {
