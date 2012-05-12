@@ -67,6 +67,10 @@ If you want to "dry run" without WebKitGTK+ rendering, try this:
 
 'MIDORI_UNARMED=1 _build/default/midori/midori'
 
+If you want to test bookmarks, you can enable database tracing:
+
+'MIDORI_BOOKMARKS_DEBUG=1 _build/default/midori/midori'
+
 To disable Netscape plugins, use MOZ_PLUGIN_PATH=/.
 
 To debug extensions you can specify the path:

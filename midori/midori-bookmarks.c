@@ -16,6 +16,13 @@
 
 #include <glib/gi18n.h>
 
+#ifdef G_ENABLE_DEBUG
+void midori_bookmarks_dbtracer(void* dummy, const char* query)
+{
+    g_printerr ("%s\n", query);
+}
+#endif
+
 void
 midori_bookmarks_add_item_cb (KatzeArray* array,
                               KatzeItem*  item,
@@ -71,6 +78,11 @@ midori_bookmarks_initialize (KatzeArray*  array,
         sqlite3_close (db);
         return NULL;
     }
+
+#ifdef G_ENABLE_DEBUG
+    if (g_getenv ("MIDORI_BOOKMARKS_DEBUG"))
+        sqlite3_trace (db, midori_bookmarks_dbtracer, NULL);
+#endif
 
     if (sqlite3_exec (db,
                       "CREATE TABLE IF NOT EXISTS "
