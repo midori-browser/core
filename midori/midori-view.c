@@ -2959,9 +2959,16 @@ webkit_web_view_download_requested_cb (GtkWidget*      web_view,
     /* We look at the original URI because redirection would lose the fragment */
     web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view));
     datasource = webkit_web_frame_get_provisional_data_source (web_frame);
-    original_request = webkit_web_data_source_get_initial_request (datasource);
-    original_uri = webkit_network_request_get_uri (original_request);
-    midori_uri_get_fingerprint (original_uri, &fingerprint, &fplabel);
+    if (datasource)
+    {
+        original_request = webkit_web_data_source_get_initial_request (datasource);
+        original_uri = webkit_network_request_get_uri (original_request);
+        midori_uri_get_fingerprint (original_uri, &fingerprint, &fplabel);
+    }
+    else
+    {
+        fingerprint = fplabel = NULL;
+    }
     gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
         "%s\n%s\n%s %s", file_name, file_type, fplabel ? fplabel : "", fingerprint ? fingerprint : "");
     g_free (fingerprint);
