@@ -786,7 +786,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     #endif
     {
         dialog = gtk_dialog_new_with_buttons (title, GTK_WINDOW (browser),
-            GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR, NULL);
+            GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR, NULL, NULL);
     }
     gtk_dialog_add_buttons (GTK_DIALOG (dialog),
         GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
