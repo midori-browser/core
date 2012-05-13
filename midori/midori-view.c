@@ -2288,6 +2288,15 @@ midori_view_tab_label_menu_window_new_cb (GtkWidget* menuitem,
 }
 
 static void
+midori_web_view_open_frame_in_new_tab_cb (GtkWidget*  widget,
+                                          MidoriView* view)
+{
+    WebKitWebFrame* web_frame = webkit_web_view_get_focused_frame (WEBKIT_WEB_VIEW (view->web_view));
+    g_signal_emit (view, signals[NEW_TAB], 0,
+        webkit_web_frame_get_uri (web_frame), view->open_tabs_in_the_background);
+}
+
+static void
 midori_web_view_menu_inspect_element_activate_cb (GtkWidget*  widget,
                                                   MidoriView* view)
 {
@@ -2669,6 +2678,12 @@ midori_view_populate_popup (MidoriView* view,
         menuitem = sokoke_action_create_popup_menu_item (
             gtk_action_group_get_action (actions, "UndoTabClose"));
         gtk_menu_shell_append (menu_shell, menuitem);
+
+        if (webkit_web_view_get_focused_frame (web_view) != webkit_web_view_get_main_frame (web_view))
+            menuitem = midori_view_insert_menu_item (menu_shell, -1,
+                _("Open _Frame in New Tab"), NULL,
+                G_CALLBACK (midori_web_view_open_frame_in_new_tab_cb), widget);
+
         menuitem = gtk_image_menu_item_new_from_stock (STOCK_WINDOW_NEW, NULL);
         gtk_menu_item_set_label (GTK_MENU_ITEM (menuitem), _("Open in New _Window"));
         gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
