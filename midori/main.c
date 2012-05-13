@@ -2020,11 +2020,21 @@ main (int    argc,
         MidoriBrowser* browser = midori_browser_new ();
         GtkActionGroup* action_group = midori_browser_get_action_group (browser);
         GList* actions = gtk_action_group_list_actions (action_group);
+        GList* temp = actions;
+        guint length = 1;
+        gchar* space;
+
+        for (; temp; temp = g_list_next (temp))
+        {
+            GtkAction* action = temp->data;
+            length = MAX (length, 1 + strlen (gtk_action_get_name (action)));
+        }
+
+        space = g_strnfill (length, ' ');
         for (; actions; actions = g_list_next (actions))
         {
             GtkAction* action = actions->data;
             const gchar* name = gtk_action_get_name (action);
-            const gchar* space = "                       ";
             gchar* padding = g_strndup (space, strlen (space) - strlen (name));
             gchar* label = katze_object_get_string (action, "label");
             gchar* stripped = katze_strip_mnemonics (label);
@@ -2036,6 +2046,7 @@ main (int    argc,
             g_free (label);
             g_free (stripped);
         }
+        g_free (space);
         g_list_free (actions);
         gtk_widget_destroy (GTK_WIDGET (browser));
         return 0;
