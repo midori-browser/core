@@ -2895,7 +2895,7 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
             view_source = TRUE;
         webkit_web_view_set_view_source_mode (WEBKIT_WEB_VIEW (web_view), view_source);
 
-        if (web_frame == webkit_web_view_get_main_frame (web_view))
+        if (web_frame == webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view)))
         {
             katze_assign (view->mime_type, g_strdup (mime_type));
             midori_view_unset_icon (view);
