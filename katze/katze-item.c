@@ -15,6 +15,8 @@
 
 #include <glib/gi18n.h>
 
+#include <webkit/webkit.h>
+
 /**
  * SECTION:katze-item
  * @short_description: A useful item
@@ -442,6 +444,12 @@ katze_item_get_image (KatzeItem* item)
 
     if (KATZE_ITEM_IS_FOLDER (item))
         image = gtk_image_new_from_stock (GTK_STOCK_DIRECTORY, GTK_ICON_SIZE_MENU);
+    #if WEBKIT_CHECK_VERSION (1, 8, 0)
+    /* FIXME: Don't hard-code icon size */
+    else if ((pixbuf = webkit_favicon_database_try_get_favicon_pixbuf (
+        webkit_get_favicon_database (), item->uri, 16, 16)))
+        image = gtk_image_new_from_pixbuf (pixbuf);
+    #endif
     else if ((pixbuf = g_object_get_data (G_OBJECT (item), "pixbuf")))
         image = gtk_image_new_from_pixbuf (pixbuf);
     else if ((icon = katze_item_get_icon (item)) && !strchr (icon, '/'))

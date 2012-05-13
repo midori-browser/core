@@ -981,6 +981,13 @@ midori_load_soup_session (gpointer settings)
             G_CALLBACK (soup_session_settings_notify_first_party_cb), session);
     #endif
 
+    #if WEBKIT_CHECK_VERSION (1, 8, 0)
+    gchar* cache = g_build_filename (g_get_user_data_dir (),
+                                     "webkit", "icondatabase", NULL);
+    webkit_favicon_database_set_path (webkit_get_favicon_database (), cache);
+    g_free (cache);
+    #endif
+
     g_signal_connect (session, "request-queued",
         G_CALLBACK (midori_soup_session_settings_accept_language_cb), settings);
 
@@ -1794,6 +1801,9 @@ midori_clear_page_icons_cb (void)
                               "webkit", "icondatabase", NULL);
     sokoke_remove_path (cache, TRUE);
     g_free (cache);
+    #if WEBKIT_CHECK_VERSION (1, 8, 0)
+    webkit_favicon_database_clear (webkit_get_favicon_database ());
+    #endif
 }
 
 static void

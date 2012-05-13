@@ -802,6 +802,7 @@ free_parts:
     g_strfreev (parts);
 }
 
+#if !WEBKIT_CHECK_VERSION (1, 8, 0)
 static gboolean
 katze_net_icon_status_cb (KatzeNetRequest*  request,
                           MidoriView*       view)
@@ -869,14 +870,24 @@ katze_net_icon_transfer_cb (KatzeNetRequest*  request,
     pixbuf_scaled = gdk_pixbuf_scale_simple (pixbuf, icon_width, icon_height, GDK_INTERP_BILINEAR);
     midori_view_apply_icon (view, pixbuf_scaled, view->icon_uri);
 }
+#endif
 
 static void
 _midori_web_view_load_icon (MidoriView* view)
 {
     GdkPixbuf* pixbuf = NULL;
     gint icon_width, icon_height;
-    GdkPixbuf* pixbuf_scaled;
     GtkSettings* settings;
+
+    #if WEBKIT_CHECK_VERSION (1, 8, 0)
+    settings = gtk_widget_get_settings (view->web_view);
+    gtk_icon_size_lookup_for_settings (settings, GTK_ICON_SIZE_MENU,
+                                       &icon_width, &icon_height);
+    if ((pixbuf = webkit_web_view_try_get_favicon_pixbuf (
+        WEBKIT_WEB_VIEW (view->web_view), 16, 16)))
+        midori_view_apply_icon (view, pixbuf, view->icon_uri);
+    #else
+    GdkPixbuf* pixbuf_scaled;
 
     if (!midori_uri_is_http (view->icon_uri))
         katze_assign (view->icon_uri, NULL);
@@ -932,6 +943,7 @@ _midori_web_view_load_icon (MidoriView* view)
         pixbuf = pixbuf_scaled;
         midori_view_apply_icon (view, pixbuf, view->icon_uri);
     }
+    #endif
 }
 
 static void
