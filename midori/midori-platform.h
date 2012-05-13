@@ -33,9 +33,10 @@
 #endif
 
 #define MIDORI_EVENT_NEW_TAB(evt) \
-    ((((GdkEventButton*)evt)->button == 1 \
-     && MIDORI_MOD_NEW_TAB(((GdkEventButton*)evt)->state)) \
-    || (((GdkEventButton*)evt)->button == 2))
+    (evt != NULL \
+     && ((((GdkEventButton*)evt)->button == 1 \
+       && MIDORI_MOD_NEW_TAB(((GdkEventButton*)evt)->state)) \
+     || (((GdkEventButton*)evt)->button == 2)))
 
 #ifndef G_OS_WIN32
     #define MIDORI_MODULE_PREFIX "lib"
