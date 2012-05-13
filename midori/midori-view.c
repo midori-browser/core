@@ -2895,6 +2895,43 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
     return TRUE;
 }
 
+#if HAVE_LIBSOUP_2_33_4 && !GLIB_CHECK_VERSION (2, 33, 1)
+#define WORKAROUND_GLIB_MAINLOOP_HANG
+#endif
+
+#ifdef WORKAROUND_GLIB_MAINLOOP_HANG
+
+#define GSOURCE_PREV(s) (s->prev)
+#define GSOURCE_NEXT(s) (s->next)
+
+static GSource*
+midori_workaround_g_source_unlink (GSource* source)
+{
+    GSource* prev = GSOURCE_PREV (source);
+    GSource* next = GSOURCE_NEXT (source);
+    if (next)
+        GSOURCE_NEXT (prev) = next;
+    if (prev)
+        GSOURCE_PREV (next) = prev;
+
+    return prev ? prev : next;
+}
+
+static GSource*
+midori_workaround_g_source_relink (GSource* source,
+                                   GSource* prev)
+{
+    GSource* next = GSOURCE_NEXT (prev);
+
+    GSOURCE_NEXT (source) = next;
+    GSOURCE_PREV (source) = prev;
+    GSOURCE_NEXT (prev) = source;
+    GSOURCE_PREV (next) = source;
+
+    return prev;
+}
+#endif
+
 static gboolean
 webkit_web_view_download_requested_cb (GtkWidget*      web_view,
                                        WebKitDownload* download,
@@ -2923,6 +2960,13 @@ webkit_web_view_download_requested_cb (GtkWidget*      web_view,
     GtkIconTheme* icon_theme;
     gint response;
     gboolean handled;
+    #ifdef WORKAROUND_GLIB_MAINLOOP_HANG
+    GSource* last;
+    GSource* source;
+    GSource* prev = NULL;
+    GSource** sources = NULL;
+    guint n_sources = 0, i;
+    #endif
 
     dialog = gtk_message_dialog_new (
         NULL, 0, GTK_MESSAGE_WARNING, GTK_BUTTONS_NONE,
@@ -2998,7 +3042,45 @@ webkit_web_view_download_requested_cb (GtkWidget*      web_view,
         GTK_STOCK_CANCEL, DOWNLOAD_CANCEL,
         GTK_STOCK_OPEN, DOWNLOAD_OPEN,
         NULL);
+
+    #ifdef WORKAROUND_GLIB_MAINLOOP_HANG
+    {
+        GSource* new_source = g_idle_source_new ();
+        g_source_attach (new_source, NULL);
+        last = GSOURCE_PREV (new_source);
+        g_source_destroy (new_source);
+    }
+
+    for (source = last; source; source = GSOURCE_PREV (source))
+    {
+        const char* name;
+        if (source && (name = g_source_get_name (source)))
+        {
+            if(!strcmp (name, "GPollableSource") || !strcmp (name, "GSocket"))
+            {
+                sources = realloc (sources, (++n_sources) * sizeof (GSource*));
+                sources[n_sources - 1] = source;
+            }
+        }
+    }
+    i = n_sources;
+    while (i > 0)
+    {
+        prev = midori_workaround_g_source_unlink (sources[--i]);
+    }
+    #endif
+
     response = gtk_dialog_run (GTK_DIALOG (dialog));
+
+    #ifdef WORKAROUND_GLIB_MAINLOOP_HANG
+    i = n_sources;
+    while (i > 0)
+    {
+        prev = midori_workaround_g_source_relink (sources[--i], prev);
+    }
+    g_free (sources);
+    #endif
+
     gtk_widget_destroy (dialog);
     switch (response)
     {

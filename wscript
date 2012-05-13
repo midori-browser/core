@@ -263,6 +263,8 @@ def configure (conf):
         conf.define ('HAVE_LIBSOUP_2_29_3', 1)
     if check_version (conf.env['LIBSOUP_VERSION'], 2, 29, 91):
         conf.define ('HAVE_LIBSOUP_2_29_91', 1)
+    if check_version (conf.env['LIBSOUP_VERSION'], 2, 33, 4):
+        conf.define ('HAVE_LIBSOUP_2_33_4', 1)
     if check_version (conf.env['LIBSOUP_VERSION'], 2, 37, 1):
         conf.define ('HAVE_LIBSOUP_2_37_1', 1)
     check_pkg ('libxml-2.0', '2.6')
