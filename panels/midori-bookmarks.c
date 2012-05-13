@@ -563,6 +563,8 @@ midori_bookmarks_treeview_render_icon_cb (GtkTreeViewColumn* column,
     if (KATZE_ITEM_IS_FOLDER (item))
         pixbuf = gtk_widget_render_icon (treeview, GTK_STOCK_DIRECTORY,
                                          GTK_ICON_SIZE_MENU, NULL);
+    else if ((pixbuf = katze_item_get_pixbuf (item, treeview)))
+        ;
     else if (KATZE_ITEM_IS_BOOKMARK (item))
         pixbuf = katze_load_cached_icon (katze_item_get_uri (item), treeview);
     g_object_set (renderer, "pixbuf", pixbuf, NULL);

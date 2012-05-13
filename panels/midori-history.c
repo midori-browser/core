@@ -594,6 +594,8 @@ midori_history_treeview_render_icon_cb (GtkTreeViewColumn* column,
 
     if (!item)
         pixbuf = NULL;
+    else if ((pixbuf = katze_item_get_pixbuf (item, treeview)))
+        ;
     else if (katze_item_get_uri (item))
         pixbuf = katze_load_cached_icon (katze_item_get_uri (item), treeview);
     else

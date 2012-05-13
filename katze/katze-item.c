@@ -424,6 +424,40 @@ katze_item_set_icon (KatzeItem*   item,
 }
 
 /**
+ * katze_item_get_pixbuf:
+ * @item: a #KatzeItem
+ * @widget: a #GtkWidget, or %NULL
+ *
+ * Retrieves a #GdkPixbuf fit to display @item.
+ *
+ * Return value: the icon of the item
+ *
+ * Since: 0.4.6
+ **/
+GdkPixbuf*
+katze_item_get_pixbuf (KatzeItem* item,
+                       GtkWidget*  widget)
+{
+    GdkPixbuf* pixbuf;
+
+    g_return_val_if_fail (KATZE_IS_ITEM (item), NULL);
+
+    if (item->uri == NULL)
+        return NULL;
+
+    #if WEBKIT_CHECK_VERSION (1, 8, 0)
+    /* FIXME: Don't hard-code icon size */
+    if ((pixbuf = webkit_favicon_database_try_get_favicon_pixbuf (
+        webkit_get_favicon_database (), item->uri, 16, 16)))
+        return pixbuf;
+    #else
+    if ((pixbuf = g_object_get_data (G_OBJECT (item), "pixbuf")))
+        return pixbuf;
+    #endif
+    return NULL;
+}
+
+/**
  * katze_item_get_image:
  * @item: a #KatzeItem
  *
@@ -444,13 +478,8 @@ katze_item_get_image (KatzeItem* item)
 
     if (KATZE_ITEM_IS_FOLDER (item))
         image = gtk_image_new_from_stock (GTK_STOCK_DIRECTORY, GTK_ICON_SIZE_MENU);
-    #if WEBKIT_CHECK_VERSION (1, 8, 0)
-    /* FIXME: Don't hard-code icon size */
-    else if ((pixbuf = webkit_favicon_database_try_get_favicon_pixbuf (
-        webkit_get_favicon_database (), item->uri, 16, 16)))
-        image = gtk_image_new_from_pixbuf (pixbuf);
-    #endif
-    else if ((pixbuf = g_object_get_data (G_OBJECT (item), "pixbuf")))
+    /* FIXME: Pass widget for icon size */
+    else if ((pixbuf = katze_item_get_pixbuf (item, NULL)))
         image = gtk_image_new_from_pixbuf (pixbuf);
     else if ((icon = katze_item_get_icon (item)) && !strchr (icon, '/'))
         image = gtk_image_new_from_icon_name (icon, GTK_ICON_SIZE_MENU);
