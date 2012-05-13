@@ -4315,45 +4315,22 @@ midori_view_set_uri (MidoriView*  view,
                 WebKitWebFrame* web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view));
                 JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
                 gchar* video_formats = list_video_formats (js_context);
-                GString* more = g_string_new ("");
-                list_netscape_plugins (more, js_context);
-                list_about_uris (more);
 
-                katze_assign (view->uri, g_strdup (uri));
-                data = g_strdup_printf (
-                    "<html><head><title>about:version</title></head>"
-                    "<body><h1>about:version</h1>"
-                    "<p>%s</p>"
-                    "<img src=\"res://logo-shade.png\" "
-                    "style=\"position: absolute; right: 15px; bottom: 15px; z-index: -9;\">"
-                    "<table>"
-                    "<tr><td>Command&nbsp;line</td><td>%s</td></tr>"
-                    "<tr><td>Midori</td><td>%s (%s)</td></tr>"
-                    "<tr><td>WebKitGTK+</td><td>%d.%d.%d (%d.%d.%d)</td></tr>"
-                    "<tr><td>GTK+</td><td>%d.%d.%d (%d.%d.%d)</td></tr>"
-                    "<tr><td>Glib</td><td>%d.%d.%d (%d.%d.%d)</td></tr>"
-                    "<tr><td>libsoup</td><td>%s</td></tr>"
-                    "<tr><td>cairo</td><td>%s (%s)</td></tr>"
-                    "<tr><td>granite</td><td>%s</td></tr>"
-                    "<tr><td>libnotify</td><td>%s</td></tr>"
-                    "<tr><td>single instance</td><td>%s</td></tr>"
-                    "<tr><td>Platform</td><td>%s %s %s</td></tr>"
-                    "<tr><td>Identification</td><td>%s</td></tr>"
-                    "<tr><td>Video&nbsp;Formats</td><td>%s</td></tr>"
-                    "</table>"
-                    "%s"
-                    "</body></html>",
-                    _("Version numbers in brackets show the version used at runtime."),
-                    command_line,
-                    PACKAGE_VERSION, midori_app_get_name (NULL),
-                    WEBKIT_MAJOR_VERSION, WEBKIT_MINOR_VERSION, WEBKIT_MICRO_VERSION,
-                    webkit_major_version (),
-                    webkit_minor_version (),
-                    webkit_micro_version (),
-                    GTK_MAJOR_VERSION, GTK_MINOR_VERSION, GTK_MICRO_VERSION,
-                    gtk_major_version, gtk_minor_version, gtk_micro_version,
-                    GLIB_MAJOR_VERSION, GLIB_MINOR_VERSION, GLIB_MICRO_VERSION,
-                    glib_major_version, glib_minor_version, glib_micro_version,
+                /* FIXME: This is for workarounding a crash deeper down the callstack on some systems. */
+                static char const * const version_format_strings[] = {
+                    "<tr><td>libsoup</td><td>%s</td></tr>",
+                    "<tr><td>cairo</td><td>%s ",
+                    "(%s)</td></tr>",
+                    "<tr><td>granite</td><td>%s</td></tr>",
+                    "<tr><td>libnotify</td><td>%s</td></tr>",
+                    "<tr><td>single instance</td><td>%s</td></tr>",
+                    "<tr><td>Platform</td><td>%s ",
+                    "%s ",
+                    "%s</td></tr>",
+                    "<tr><td>Identification</td><td>%s</td></tr>",
+                    "<tr><td>Video&nbsp;Formats</td><td>%s</td></tr>",
+                };
+                char const *  version_strings[] = {
                     LIBSOUP_VERSION,
                     CAIRO_VERSION_STRING, cairo_version_string (),
                     GRANITE_VERSION,
@@ -4368,7 +4345,50 @@ midori_view_set_uri (MidoriView*  view,
                     "Sockets",
                     #endif
                     platform, sys_name, architecture ? architecture : "", ident,
-                    video_formats, (gchar*)(more->str));
+                    video_formats,
+                };
+                int i = 0;
+                GString * tmp = g_string_new("");;
+
+                GString* more = g_string_new ("");
+                list_netscape_plugins (more, js_context);
+                list_about_uris (more);
+
+                katze_assign (view->uri, g_strdup (uri));
+                g_string_append_printf (tmp,
+                    "<html><head><title>about:version</title></head>"
+                    "<body><h1>about:version</h1>"
+                    "<p>%s</p>"
+                    "<img src=\"res://logo-shade.png\" "
+                    "style=\"position: absolute; right: 15px; bottom: 15px; z-index: -9;\">"
+                    "<table>"
+                    "<tr><td>Command&nbsp;line</td><td>%s</td></tr>"
+                    "<tr><td>Midori</td><td>%s (%s)</td></tr>"
+                    "<tr><td>WebKitGTK+</td><td>%d.%d.%d (%d.%d.%d)</td></tr>"
+                    "<tr><td>GTK+</td><td>%d.%d.%d (%d.%d.%d)</td></tr>"
+                    "<tr><td>Glib</td><td>%d.%d.%d (%d.%d.%d)</td></tr>",
+                    _("Version numbers in brackets show the version used at runtime."),
+                    command_line,
+                    PACKAGE_VERSION, midori_app_get_name (NULL),
+                    WEBKIT_MAJOR_VERSION, WEBKIT_MINOR_VERSION, WEBKIT_MICRO_VERSION,
+                    webkit_major_version (),
+                    webkit_minor_version (),
+                    webkit_micro_version (),
+                    GTK_MAJOR_VERSION, GTK_MINOR_VERSION, GTK_MICRO_VERSION,
+                    gtk_major_version, gtk_minor_version, gtk_micro_version,
+                    GLIB_MAJOR_VERSION, GLIB_MINOR_VERSION, GLIB_MICRO_VERSION,
+                    glib_major_version, glib_minor_version, glib_micro_version);
+
+                for (i = 0;
+                     i < sizeof (version_format_strings) / sizeof (version_format_strings[0]);
+                     ++i)
+                    g_string_append_printf (tmp, version_format_strings[i], version_strings[i]);
+
+                g_string_append_printf (
+                    tmp, "</table>%s</body></html>", (gchar*)(more->str));
+
+                data = g_string_free (tmp, FALSE);
+
                 g_free (command_line);
                 g_free (arguments);
                 g_free (ident);
