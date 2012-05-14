@@ -4320,15 +4320,12 @@ midori_view_set_uri (MidoriView*  view,
 
                 /* FIXME: This is for workarounding a crash deeper down the callstack on some systems. */
                 static char const * const version_format_strings[] = {
-                    "<tr><td>libsoup</td><td>%s</td></tr>",
-                    "<tr><td>cairo</td><td>%s ",
-                    "(%s)</td></tr>",
+                    " &nbsp; libsoup %s</td></tr>",
+                    "<tr><td>cairo</td><td>%s ", "(%s)</td></tr>",
                     "<tr><td>granite</td><td>%s</td></tr>",
                     "<tr><td>libnotify</td><td>%s</td></tr>",
                     "<tr><td>single instance</td><td>%s</td></tr>",
-                    "<tr><td>Platform</td><td>%s ",
-                    "%s ",
-                    "%s</td></tr>",
+                    "<tr><td>Platform</td><td>%s ", "%s ", "%s</td></tr>",
                     "<tr><td>Identification</td><td>%s</td></tr>",
                     "<tr><td>Video&nbsp;Formats</td><td>%s</td></tr>",
                 };
@@ -4366,20 +4363,18 @@ midori_view_set_uri (MidoriView*  view,
                     "<table>"
                     "<tr><td>Command&nbsp;line</td><td>%s</td></tr>"
                     "<tr><td>Midori</td><td>%s (%s)</td></tr>"
-                    "<tr><td>WebKitGTK+</td><td>%d.%d.%d (%d.%d.%d)</td></tr>"
-                    "<tr><td>GTK+</td><td>%d.%d.%d (%d.%d.%d)</td></tr>"
-                    "<tr><td>Glib</td><td>%d.%d.%d (%d.%d.%d)</td></tr>",
+                    "<tr><td>GTK+</td><td>%d.%d.%d (%d.%d.%d)"
+                    " &nbsp; Glib %d.%d.%d (%d.%d.%d)</td></tr>"
+                    "<tr><td>WebKitGTK+</td><td>%d.%d.%d (%d.%d.%d)",
                     _("Version numbers in brackets show the version used at runtime."),
                     command_line,
                     PACKAGE_VERSION, midori_app_get_name (NULL),
-                    WEBKIT_MAJOR_VERSION, WEBKIT_MINOR_VERSION, WEBKIT_MICRO_VERSION,
-                    webkit_major_version (),
-                    webkit_minor_version (),
-                    webkit_micro_version (),
                     GTK_MAJOR_VERSION, GTK_MINOR_VERSION, GTK_MICRO_VERSION,
                     gtk_major_version, gtk_minor_version, gtk_micro_version,
                     GLIB_MAJOR_VERSION, GLIB_MINOR_VERSION, GLIB_MICRO_VERSION,
-                    glib_major_version, glib_minor_version, glib_micro_version);
+                    glib_major_version, glib_minor_version, glib_micro_version,
+                    WEBKIT_MAJOR_VERSION, WEBKIT_MINOR_VERSION, WEBKIT_MICRO_VERSION,
+                    webkit_major_version (), webkit_minor_version (), webkit_micro_version ());
 
                 for (i = 0;
                      i < sizeof (version_format_strings) / sizeof (version_format_strings[0]);
