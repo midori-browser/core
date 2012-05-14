@@ -406,7 +406,7 @@ static TBEditorWidget *tb_editor_create_dialog(MidoriBrowser *parent)
 		G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
 
 	label = gtk_label_new(
-		_("Select items to be displayed on the toolbar. Items can be reodered by drag and drop."));
+		_("Select items to be displayed on the toolbar. Items can be reordered by drag and drop."));
 	gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
 
 	tree_available = gtk_tree_view_new();
