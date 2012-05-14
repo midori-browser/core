@@ -1,5 +1,20 @@
 This file is licensed under the terms of the expat license, see the file EXPAT.
 
+v0.4.6:
+ + Fix crasher in geolocation infobar
+ + Fix crasher in about:version on some systems
+ + Fix crasher opening bookmarks from Unity global menu
+ + Use WebKitFaviconDatabase as of WebKit 1.8.0
+ + Use midori-prefixed temp folder in midori_view_save_source
+ + Fix cancelling downloads with SteadyFlow or Aria2
+ + Fix crash dialog instead of opening tab in a running window
+ + Fix page icons in multi-frame sites (gmail, tumbler)
+ + Distinguish Simplified and Traditional Chinese
+ + Support go-jump-symbolic
+ + Handle empty tabs due to download links with a target
+ + Handle frame load interrupted in the unholy trinity
+ + Fix libsoup version check and wrong SSL status in location
+
 v0.4.5:
  + Work around black border around widgets on Win32
  + Whitelist direct/ re-directed navigation requests in adblock
