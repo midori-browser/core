@@ -1394,6 +1394,7 @@ midori_view_location_response_cb (GtkWidget*                       infobar,
         webkit_geolocation_policy_allow (decision);
     else
         webkit_geolocation_policy_deny (decision);
+    g_object_unref (decision);
 }
 
 static gboolean
@@ -1406,8 +1407,9 @@ midori_view_web_view_geolocation_decision_cb (WebKitWebView*                   w
     gchar* hostname = midori_uri_parse_hostname (uri, NULL);
     gchar* message = g_strdup_printf (_("%s wants to know your location."),
                                      hostname && *hostname ? hostname : uri);
+    /* FIXME: decision should be released even if neither buttons's pressed */
     midori_view_add_info_bar (view, GTK_MESSAGE_QUESTION,
-        message, G_CALLBACK (midori_view_location_response_cb), decision,
+        message, G_CALLBACK (midori_view_location_response_cb), g_object_ref (decision),
         _("_Deny"), GTK_RESPONSE_REJECT, _("_Allow"), GTK_RESPONSE_ACCEPT,
         NULL);
     g_free (hostname);
