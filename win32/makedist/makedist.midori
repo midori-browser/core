@@ -196,6 +196,9 @@ cp -L $workdir/share/doc/midori/{COPYING,AUTHORS} $workdir
 
 echo -n .
 
+#drop a/la files, we don't do static builds anyway
+find $workdir -iname *.*a -exec rm {} \;
+
 ARCHIVE=`pwd`/$ARCHIVE
 
 # store as zip/7z file
