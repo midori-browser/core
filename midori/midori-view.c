@@ -2947,11 +2947,10 @@ webkit_web_view_download_requested_cb (GtkWidget*      web_view,
     mime_type = g_object_get_data(G_OBJECT (view), "download-mime-type");
     content_type = g_content_type_from_mime_type (mime_type);
     if (!content_type)
-    #ifdef G_OS_WIN32
-        content_type = g_content_type_get_mime_type ("*");
-    #else
-        content_type = g_strdup ("application/octet-stream");
-    #endif
+        content_type = g_content_type_guess (
+            webkit_download_get_suggested_filename (download), NULL, 0, NULL);
+    if (!content_type)
+        content_type = g_content_type_from_mime_type ("application/octet-stream");
     description = g_content_type_get_description (content_type);
     #if GTK_CHECK_VERSION (2, 14, 0)
     icon = g_content_type_get_icon (content_type);
