@@ -2941,8 +2941,11 @@ webkit_web_view_download_requested_cb (GtkWidget*      web_view,
     dialog = gtk_message_dialog_new (
         NULL, 0, GTK_MESSAGE_WARNING, GTK_BUTTONS_NONE,
         _("Open or download file"));
-    mime_type = g_object_get_data(G_OBJECT (view), "download-mime-type");
-    content_type = g_content_type_from_mime_type (mime_type);
+    mime_type = g_object_get_data (G_OBJECT (view), "download-mime-type");
+    if (mime_type != NULL)
+        content_type = g_content_type_from_mime_type (mime_type);
+    else
+        content_type = NULL;
     if (!content_type)
         content_type = g_content_type_guess (
             webkit_download_get_suggested_filename (download), NULL, 0, NULL);
