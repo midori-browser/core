@@ -2951,6 +2951,7 @@ webkit_web_view_download_requested_cb (GtkWidget*      web_view,
             webkit_download_get_suggested_filename (download), NULL, 0, NULL);
     if (!content_type)
         content_type = g_content_type_from_mime_type ("application/octet-stream");
+    mime_type = g_content_type_get_mime_type (content_type);
     description = g_content_type_get_description (content_type);
     #if GTK_CHECK_VERSION (2, 14, 0)
     icon = g_content_type_get_icon (content_type);
@@ -2974,6 +2975,7 @@ webkit_web_view_download_requested_cb (GtkWidget*      web_view,
         g_string_append_printf (details, _("File Type: %s ('%s')"), description, mime_type);
     g_string_append_c (details, '\n');
     g_free (description);
+    g_free (mime_type);
 
     /* Link Fingerprint */
     /* We look at the original URI because redirection would lose the fragment */
