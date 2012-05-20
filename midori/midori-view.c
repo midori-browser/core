@@ -2920,17 +2920,14 @@ webkit_web_view_download_requested_cb (GtkWidget*      web_view,
     GtkWidget* dialog;
     gchar* content_type;
     gchar* description;
-    gchar* file_type;
     gchar* name;
-    gchar* file_name;
     WebKitWebFrame* web_frame;
     const gchar* mime_type;
     WebKitWebDataSource* datasource;
     WebKitNetworkRequest* request;
     WebKitNetworkRequest* original_request;
     const gchar* original_uri;
-    gchar* fingerprint;
-    gchar* fplabel;
+    GString* details;
     #if GTK_CHECK_VERSION (2, 14, 0)
     GIcon* icon;
     GtkWidget* image;
@@ -2961,15 +2958,19 @@ webkit_web_view_download_requested_cb (GtkWidget*      web_view,
     gtk_message_dialog_set_image (GTK_MESSAGE_DIALOG (dialog), image);
     #endif
     g_free (content_type);
-    if (g_strrstr (description, mime_type))
-        file_type = g_strdup_printf (_("File Type: '%s'"), mime_type);
-    else
-        file_type = g_strdup_printf (_("File Type: %s ('%s')"), description, mime_type);
-    g_free (description);
 
+    details = g_string_sized_new (20 * 4);
     name = sokoke_get_download_filename (download);
-    file_name = g_strdup_printf (_("File Name: %s"), name);
+    g_string_append_printf (details, _("File Name: %s"), name);
+    g_string_append_c (details, '\n');
     g_free (name);
+
+    if (g_strrstr (description, mime_type))
+        g_string_append_printf (details, _("File Type: '%s'"), mime_type);
+    else
+        g_string_append_printf (details, _("File Type: %s ('%s')"), description, mime_type);
+    g_string_append_c (details, '\n');
+    g_free (description);
 
     /* Link Fingerprint */
     /* We look at the original URI because redirection would lose the fragment */
@@ -2977,20 +2978,33 @@ webkit_web_view_download_requested_cb (GtkWidget*      web_view,
     datasource = webkit_web_frame_get_provisional_data_source (web_frame);
     if (datasource)
     {
+        gchar* fingerprint;
+        gchar* fplabel;
         original_request = webkit_web_data_source_get_initial_request (datasource);
         original_uri = webkit_network_request_get_uri (original_request);
         midori_uri_get_fingerprint (original_uri, &fingerprint, &fplabel);
+        if (fplabel && fingerprint)
+        {
+            g_string_append (details, fplabel);
+            g_string_append_c (details, ' ');
+            g_string_append (details, fingerprint);
+            g_string_append_c (details, '\n');
+        }
+        g_free (fplabel);
+        g_free (fingerprint);
     }
-    else
+
+    if (webkit_download_get_total_size (download) > webkit_download_get_current_size (download))
     {
-        fingerprint = fplabel = NULL;
+        gchar* total = g_format_size (webkit_download_get_total_size (download));
+        g_string_append_printf (details, _("Size: %s"), total);
+        g_string_append_c (details, '\n');
+        g_free (total);
     }
+
     gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
-        "%s\n%s\n%s %s", file_name, file_type, fplabel ? fplabel : "", fingerprint ? fingerprint : "");
-    g_free (fingerprint);
-    g_free (fplabel);
-    g_free (file_name);
-    g_free (file_type);
+        "%s", details->str);
+    g_string_free (details, TRUE);
 
     gtk_window_set_skip_taskbar_hint (GTK_WINDOW (dialog), FALSE);
     /* i18n: A file open dialog title, ie. "Open http://fila.com/manual.tgz" */
