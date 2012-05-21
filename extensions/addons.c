@@ -839,10 +839,7 @@ addons_get_directories (AddonsKind kind)
 
     path = g_build_path (G_DIR_SEPARATOR_S, g_get_user_data_dir (),
                          PACKAGE_NAME, folder_name, NULL);
-    if (g_access (path, X_OK) == 0)
-        directories = g_slist_prepend (directories, path);
-    else
-        g_free (path);
+    directories = g_slist_prepend (directories, path);
 
     datadirs = g_get_system_data_dirs ();
     while (*datadirs)
