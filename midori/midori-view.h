@@ -272,6 +272,10 @@ void
 midori_view_save_speed_dial_config     (MidoriView*        view,
                                         GKeyFile*          key_file);
 
+const gchar*
+midori_view_fallback_extension         (MidoriView*        view,
+                                        const gchar*       extension);
+
 G_END_DECLS
 
 #endif /* __MIDORI_VIEW_H__ */

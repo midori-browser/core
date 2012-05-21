@@ -1017,7 +1017,6 @@ midori_browser_save_uri (MidoriBrowser* browser,
     gboolean folder_set = FALSE;
     GtkWidget* dialog;
     gchar* filename;
-    gchar* dirname;
     gchar* last_slash;
 
     if (!gtk_widget_get_visible (GTK_WIDGET (browser)))
@@ -1029,6 +1028,8 @@ midori_browser_save_uri (MidoriBrowser* browser,
 
     if (uri)
     {
+        gchar* dirname;
+
         /* Base the start folder on the current view's uri if it is local */
         filename = g_filename_from_uri (uri, NULL, NULL);
         if (filename)
@@ -1043,13 +1044,29 @@ midori_browser_save_uri (MidoriBrowser* browser,
             g_free (dirname);
             g_free (filename);
         }
+    }
+
+    if (uri == NULL)
+        uri = midori_view_get_display_uri (view);
 
         /* Try to provide a good default filename, UTF-8 encoded */
         filename = soup_uri_decode (uri);
         last_slash = g_strrstr (filename, "/") + 1;
-        gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (dialog), last_slash);
+        /* Take the rest of the URI if needed */
+        if (*last_slash == '\0')
+        {
+            const gchar* extension = midori_view_fallback_extension (view, NULL);
+            gchar* guessed;
+            gchar* no_scheme;
+            last_slash = g_strdelimit (filename, "/\\<>:\"|?*", '-');
+            guessed = g_strconcat (filename, extension, NULL);
+            no_scheme = strstr (guessed, "---") + 3;
+            gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (dialog), no_scheme);
+            g_free (guessed);
+        }
+        else
+            gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (dialog), last_slash);
         g_free (filename);
-    }
 
     if (!folder_set && last_dir && *last_dir)
         gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), last_dir);

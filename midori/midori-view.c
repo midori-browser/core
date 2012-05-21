@@ -5318,7 +5318,7 @@ midori_view_get_uri_extension (const gchar* uri)
     return g_strdup (period);
 }
 
-static const gchar*
+const gchar*
 midori_view_fallback_extension (MidoriView* view,
                                 const gchar* extension)
 {
@@ -5332,6 +5332,8 @@ midori_view_fallback_extension (MidoriView* view,
         return ".js";
     if (strstr (view->mime_type, "html"))
         return ".htm";
+    if (strstr (view->mime_type, "plain"))
+        return ".txt";
     return "";
 }
 
