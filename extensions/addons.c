@@ -522,10 +522,16 @@ addons_open_target_folder_clicked_cb (GtkWidget* toolitem,
         folder = g_path_get_dirname (element->fullpath);
     }
     else
+    {
         folder = g_build_path (G_DIR_SEPARATOR_S, g_get_user_data_dir (),
                                PACKAGE_NAME,
                                addons->kind == ADDONS_USER_SCRIPTS
                                ? "scripts" : "styles", NULL);
+
+        if (!g_file_test (folder, G_FILE_TEST_EXISTS))
+            katze_mkdir_with_parents (folder, 0700);
+    }
+
     folder_uri = g_filename_to_uri (folder, NULL, NULL);
     g_free (folder);
 
