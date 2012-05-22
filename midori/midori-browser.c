@@ -3483,7 +3483,30 @@ static void
 _action_caret_browsing_activate (GtkAction*     action,
                                  MidoriBrowser* browser)
 {
-    _("Toggle text cursor navigation");
+    gint response;
+    GtkWidget* dialog;
+
+    if (!katze_object_get_boolean (browser->settings, "enable-caret-browsing"))
+    {
+        dialog = gtk_message_dialog_new (GTK_WINDOW (browser),
+            GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR,
+            GTK_MESSAGE_QUESTION, GTK_BUTTONS_NONE,
+            _("Toggle text cursor navigation"));
+        gtk_window_set_title (GTK_WINDOW (dialog), _("Toggle text cursor navigation"));
+        gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
+            _("Pressing F7 toggles Caret Browsing. When active, a text cursor appears in all websites."));
+        gtk_dialog_add_buttons (GTK_DIALOG (dialog),
+            GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+            _("_Enable Caret Browsing"), GTK_RESPONSE_ACCEPT,
+            NULL);
+
+        response = gtk_dialog_run (GTK_DIALOG (dialog));
+        gtk_widget_destroy (dialog);
+
+        if (response != GTK_RESPONSE_ACCEPT)
+            return;
+    }
+
     g_object_set (browser->settings, "enable-caret-browsing",
         !katze_object_get_boolean (browser->settings, "enable-caret-browsing"), NULL);
 }
