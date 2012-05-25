@@ -5465,7 +5465,7 @@ static const GtkActionEntry entries[] =
     { "About", GTK_STOCK_ABOUT,
         NULL, "",
         NULL, G_CALLBACK (_action_about_activate) },
-    { "Dummy", NULL, "Dummy" },
+    { "Dummy", NULL, N_("_Tools") },
 };
 static const guint entries_n = G_N_ELEMENTS (entries);
 
@@ -5707,6 +5707,7 @@ static const gchar* ui_markup =
         "</menu>"
         /* For accelerators to work all actions need to be used
            *somewhere* in the UI definition */
+        /* These also show up in Unity's HUD */
         "<menu action='Dummy'>"
             "<menuitem action='TabMoveBackward'/>"
             "<menuitem action='TabMoveForward'/>"
