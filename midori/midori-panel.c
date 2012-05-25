@@ -253,36 +253,6 @@ static GtkWidget*
 _midori_panel_child_for_scrolled (MidoriPanel* panel,
                                   GtkWidget*   scrolled);
 
-static gboolean
-midori_panel_detached_window_delete_event_cb (GtkWidget*   window,
-                                              GdkEvent*    event,
-                                              MidoriPanel* panel)
-{
-    /* FIXME: The panel will not end up at its original position */
-    /* FIXME: The menuitem may be mispositioned */
-    GtkWidget* vbox = gtk_bin_get_child (GTK_BIN (window));
-    GtkWidget* scrolled = g_object_get_data (G_OBJECT (window), "scrolled");
-    GtkWidget* toolbar = g_object_get_data (G_OBJECT (scrolled), "panel-toolbar");
-    GtkWidget* menuitem = g_object_get_data (G_OBJECT (scrolled), "panel-menuitem");
-    GtkWidget* viewable = _midori_panel_child_for_scrolled (panel, scrolled);
-    GtkToolItem* toolitem;
-    gint n;
-
-    g_object_ref (toolbar);
-    gtk_container_remove (GTK_CONTAINER (vbox), toolbar);
-    gtk_container_add (GTK_CONTAINER (panel->toolbook), toolbar);
-    g_object_unref (toolbar);
-    g_object_ref (scrolled);
-    gtk_container_remove (GTK_CONTAINER (vbox), scrolled);
-    n = gtk_notebook_append_page (GTK_NOTEBOOK (panel->notebook), scrolled, NULL);
-    g_object_unref (scrolled);
-    toolitem = midori_panel_construct_tool_item (panel, MIDORI_VIEWABLE (viewable));
-    if (menuitem)
-        g_object_set_data (G_OBJECT (menuitem), "toolitem", toolitem);
-    midori_panel_set_current_page (panel, n);
-    return FALSE;
-}
-
 static void
 midori_panel_widget_destroy_cb (GtkWidget* viewable,
                                 GtkWidget* widget)
@@ -290,57 +260,6 @@ midori_panel_widget_destroy_cb (GtkWidget* viewable,
     gtk_widget_destroy (widget);
     g_signal_handlers_disconnect_by_func (
         viewable, midori_panel_widget_destroy_cb, widget);
-}
-
-static void
-midori_panel_detach_page (MidoriPanel* panel,
-                          gint         n)
-{
-    GtkToolItem* toolitem = gtk_toolbar_get_nth_item (
-        GTK_TOOLBAR (panel->toolbar), n);
-    const gchar* title = gtk_tool_button_get_label (GTK_TOOL_BUTTON (toolitem));
-    GtkWidget* toolbar = gtk_notebook_get_nth_page (
-        GTK_NOTEBOOK (panel->toolbook), n);
-    GtkWidget* scrolled = gtk_notebook_get_nth_page (
-        GTK_NOTEBOOK (panel->notebook), n);
-    GtkWidget* vbox = gtk_vbox_new (FALSE, 0);
-    #if HAVE_HILDON
-    GtkWidget* window = hildon_window_new ();
-    hildon_program_add_window (hildon_program_get_instance (), HILDON_WINDOW (window));
-    #else
-    GtkWidget* window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_skip_taskbar_hint (GTK_WINDOW (window), TRUE);
-    gtk_window_set_default_size (GTK_WINDOW (window), 250, 400);
-    gtk_window_set_transient_for (GTK_WINDOW (window),
-        GTK_WINDOW (gtk_widget_get_toplevel (panel->notebook)));
-    #endif
-    gtk_widget_show (vbox);
-    gtk_container_add (GTK_CONTAINER (window), vbox);
-    g_object_set_data (G_OBJECT (window), "scrolled", scrolled);
-    gtk_window_set_title (GTK_WINDOW (window), title);
-    g_signal_handlers_disconnect_by_func (
-        _midori_panel_child_for_scrolled (panel, scrolled),
-        midori_panel_widget_destroy_cb, toolitem);
-    gtk_container_remove (GTK_CONTAINER (panel->toolbar), GTK_WIDGET (toolitem));
-    g_object_ref (toolbar);
-    gtk_container_remove (GTK_CONTAINER (panel->toolbook), toolbar);
-    #if HAVE_HILDON
-    hildon_window_add_toolbar (HILDON_WINDOW (window), GTK_TOOLBAR (toolbar));
-    #else
-    gtk_box_pack_start (GTK_BOX (vbox), toolbar, FALSE, FALSE, 0);
-    #endif
-    g_object_unref (toolbar);
-    g_object_set_data (G_OBJECT (scrolled), "panel-toolbar", toolbar);
-    g_object_ref (scrolled);
-    gtk_container_remove (GTK_CONTAINER (panel->notebook), scrolled);
-    gtk_box_pack_start (GTK_BOX (vbox), scrolled, TRUE, TRUE, 0);
-    g_object_unref (scrolled);
-    midori_panel_set_current_page (panel, n > 0 ? n - 1 : 0);
-    toolitem = gtk_toolbar_get_nth_item (GTK_TOOLBAR (panel->toolbar),
-                                         n > 0 ? n - 1 : 0);
-    g_signal_connect (window, "delete-event",
-        G_CALLBACK (midori_panel_detached_window_delete_event_cb), panel);
-    gtk_widget_show (window);
 }
 
 static void
@@ -638,24 +557,9 @@ midori_panel_action_activate_cb (GtkRadioAction* action,
     GtkWidget* viewable = g_object_get_data (G_OBJECT (action), "viewable");
     gint n = midori_panel_page_num (panel, viewable);
 
-    /* If the panel is detached, focus the window */
-    if (n == -1)
-    {
-        GtkWidget* toplevel = gtk_widget_get_toplevel (viewable);
-        gtk_window_present (GTK_WINDOW (toplevel));
-        return;
-    }
-
-    if (panel->open_panels_in_windows
-     && gtk_radio_action_get_current_value (action)
-     == katze_object_get_int (action, "value"))
-        midori_panel_detach_page (panel, n);
-    else
-    {
-        midori_panel_set_current_page (panel, n);
-        g_signal_emit (panel, signals[SWITCH_PAGE], 0, n);
-        gtk_widget_show (GTK_WIDGET (panel));
-    }
+    midori_panel_set_current_page (panel, n);
+    g_signal_emit (panel, signals[SWITCH_PAGE], 0, n);
+    gtk_widget_show (GTK_WIDGET (panel));
 }
 
 /**
