@@ -19,7 +19,6 @@
 #include "midori-panel.h"
 #include "midori-locationaction.h"
 #include "midori-searchaction.h"
-#include "midori-panedaction.h"
 #include "midori-findbar.h"
 #include "midori-transferbar.h"
 #include "midori-platform.h"

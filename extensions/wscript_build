@@ -33,11 +33,11 @@ for extension in extensions:
 
     obj = bld.new_task_gen ('cc', 'shlib')
     obj.target = target
-    obj.includes = '..'
+    obj.includes = '.. ../katze ../midori'
     obj.source = source
     obj.uselib = 'UNIQUE LIBSOUP GIO GTK SQLITE WEBKIT LIBXML HILDON'
     obj.vapi_dirs = '../midori ../katze'
-    obj.packages = 'glib-2.0 gio-2.0 libsoup-2.4 midori katze'
+    obj.packages = 'glib-2.0 gio-2.0 libsoup-2.4 midori midori-core katze'
     if bld.env['HAVE_GTK3']:
         obj.packages += ' gtk+-3.0 webkitgtk-3.0'
     else:
