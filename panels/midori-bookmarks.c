@@ -16,7 +16,7 @@
 #include "midori-browser.h"
 #include "midori-platform.h"
 #include "midori-view.h"
-#include "midori-viewable.h"
+#include "midori-core.h"
 
 #include <glib/gi18n.h>
 #include <string.h>

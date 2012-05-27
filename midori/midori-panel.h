@@ -12,11 +12,7 @@
 #ifndef __MIDORI_PANEL_H__
 #define __MIDORI_PANEL_H__
 
-#include <gtk/gtk.h>
-
-#include <katze/katze.h>
-
-#include "midori-viewable.h"
+#include "midori-core.h"
 
 G_BEGIN_DECLS
 

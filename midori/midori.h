@@ -22,7 +22,6 @@
 #include "midori-preferences.h"
 #include "midori-searchaction.h"
 #include "midori-view.h"
-#include "midori-viewable.h"
 #include "midori-websettings.h"
 #include "midori-platform.h"
 #include <midori/midori-core.h> /* Vala API */
