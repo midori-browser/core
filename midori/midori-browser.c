@@ -1342,24 +1342,6 @@ midori_view_new_view_cb (GtkWidget*     view,
 }
 
 static void
-midori_view_download_save_as_response_cb (GtkWidget*      dialog,
-                                          gint            response,
-                                          MidoriBrowser*  browser)
-{
-    WebKitDownload* download = g_object_get_data (G_OBJECT (dialog), "download");
-    if (response == GTK_RESPONSE_OK)
-    {
-        gchar* uri = gtk_file_chooser_get_uri (GTK_FILE_CHOOSER (dialog));
-        if (midori_browser_prepare_download (browser, download, uri))
-            webkit_download_start (download);
-        g_free (uri);
-    }
-    else
-        g_object_unref (download);
-    gtk_widget_hide (dialog);
-}
-
-static void
 midori_browser_download_status_cb (WebKitDownload*  download,
                                    GParamSpec*      pspec,
                                    GtkWidget*       widget)
@@ -1515,14 +1497,28 @@ midori_view_download_requested_cb (GtkWidget*      view,
                 g_free (folder);
                 g_signal_connect (dialog, "destroy",
                                   G_CALLBACK (gtk_widget_destroyed), &dialog);
-                g_signal_connect (dialog, "response",
-                    G_CALLBACK (midori_view_download_save_as_response_cb), browser);
             }
             g_object_set_data (G_OBJECT (dialog), "download", download);
             filename = sokoke_get_download_filename (download);
             gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (dialog), filename);
             g_free (filename);
-            gtk_widget_show (dialog);
+
+            if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK)
+            {
+                gtk_widget_hide (dialog);
+                gchar* uri = gtk_file_chooser_get_uri (GTK_FILE_CHOOSER (dialog));
+                if (!midori_browser_prepare_download (browser, download, uri))
+                {
+                    g_free (uri);
+                    return FALSE;
+                }
+                g_free (uri);
+            }
+            else
+            {
+                gtk_widget_hide (dialog);
+                return FALSE;
+            }
         }
         else
         {
