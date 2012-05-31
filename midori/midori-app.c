@@ -1352,6 +1352,40 @@ midori_app_find_res_filename (const gchar* filename)
     return g_build_filename (MDATADIR, PACKAGE_NAME, "res", filename, NULL);
 }
 
+/**
+ * midori_app_get_lib_path:
+ * @package: a filename or relative path
+ *
+ * Looks for the specified filename in Midori's library path.
+ *
+ * Return value: a newly allocated full path
+ *
+ * Since: 0.4.7
+ **/
+gchar*
+midori_app_get_lib_path (const gchar* package)
+{
+    gchar* path;
+
+    path = g_build_filename (exec_path, "lib", package, NULL);
+    if (g_access (path, F_OK) == 0)
+        return path;
+
+    g_free (path);
+
+    if (!strcmp (package, PACKAGE_NAME))
+    {
+        /* Fallback to build folder */
+        path = g_build_filename (g_file_get_path (
+            g_file_new_for_path (exec_path)),
+            "extensions", NULL);
+        if (g_access (path, F_OK) == 0)
+            return path;
+        g_free (path);
+    }
+
+    return g_build_filename (MDATADIR, package, "lib", NULL);
+}
 
 /**
  * midori_app_setup:

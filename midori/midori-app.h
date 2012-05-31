@@ -91,6 +91,9 @@ midori_app_get_command_line       (void);
 gchar*
 midori_app_find_res_filename      (const gchar* filename);
 
+gchar*
+midori_app_get_lib_path           (const gchar* package);
+
 G_END_DECLS
 
 #endif /* __MIDORI_APP_H__ */

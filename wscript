@@ -605,7 +605,6 @@ def shutdown ():
         except:
             pass
         try:
-            ext = 'MIDORI_EXTENSION_PATH=' + relfolder + os.sep + 'extensions'
             nls = 'MIDORI_NLSPATH=' + relfolder + os.sep + 'po'
             lang = os.environ['LANG']
             try:
@@ -622,7 +621,7 @@ def shutdown ():
                         'LC_MESSAGES' + os.sep + APPNAME + '.mo')
             except:
                 pass
-            command = ext + ' ' + nls + ' '
+            command = nls + ' '
             if is_mingw (Build.bld.env):
                 # This works only if everything is installed to that prefix
                 os.chdir (Build.bld.env['PREFIX'] + os.sep + 'bin')

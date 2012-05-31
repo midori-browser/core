@@ -1225,9 +1225,7 @@ midori_load_extensions (gpointer data)
         gchar* extension_path;
         GDir* extension_dir = NULL;
 
-        if (!(extension_path = g_strdup (g_getenv ("MIDORI_EXTENSION_PATH"))))
-            extension_path = sokoke_find_lib_path (PACKAGE_NAME);
-        if (extension_path != NULL)
+        if ((extension_path = midori_app_get_lib_path (PACKAGE_NAME)))
             extension_dir = g_dir_open (extension_path, 0, NULL);
         if (extension_dir != NULL)
         {

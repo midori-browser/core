@@ -73,9 +73,8 @@ If you want to test bookmarks, you can enable database tracing:
 
 To disable Netscape plugins, use MOZ_PLUGIN_PATH=/.
 
-To debug extensions you can specify the path:
-
-'export MIDORI_EXTENSION_PATH=_build/default/extensions'
+When running from the build folder, extensions will also be located
+in the build folder (setting MIDORI_EXTENSION_PATH is no longer needed).
 
 For further information a tutorial for gdb and
 reading up on how you can install debugging
