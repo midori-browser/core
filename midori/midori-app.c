@@ -1302,6 +1302,57 @@ midori_app_send_notification (MidoriApp*   app,
     #endif
 }
 
+static gchar** command_line = NULL;
+static gchar* exec_path = NULL;
+
+/**
+ * midori_app_get_command_line:
+ *
+ * Retrieves the argument vector passed at program startup.
+ *
+ * Return value: the argument vector
+ *
+ * Since: 0.4.7
+ **/
+gchar**
+midori_app_get_command_line (void)
+{
+    return command_line;
+}
+
+/**
+ * midori_app_find_res_filename:
+ * @filename: a filename or relative path
+ *
+ * Looks for the specified filename in Midori's resources.
+ *
+ * Return value: a newly allocated full path
+ *
+ * Since: 0.4.7
+ **/
+gchar*
+midori_app_find_res_filename (const gchar* filename)
+{
+    gchar* path;
+
+    path = g_build_filename (exec_path, "share", PACKAGE_NAME, "res", filename, NULL);
+    if (g_access (path, F_OK) == 0)
+        return path;
+
+    g_free (path);
+
+    /* Fallback to build folder */
+    path = g_build_filename (g_file_get_path (g_file_get_parent (
+        g_file_get_parent (g_file_get_parent (g_file_new_for_path (exec_path))))),
+        "data", filename, NULL);
+    if (g_access (path, F_OK) == 0)
+        return path;
+    g_free (path);
+
+    return g_build_filename (MDATADIR, PACKAGE_NAME, "res", filename, NULL);
+}
+
+
 /**
  * midori_app_setup:
  *
@@ -1351,9 +1402,6 @@ midori_app_setup (gchar** argument_vector)
         { STOCK_WINDOW_NEW,     N_("New _Window"), 0, 0, GTK_STOCK_ADD },
         { GTK_STOCK_DIRECTORY,  N_("New _Folder"), 0, 0, NULL },
     };
-
-    /* Preserve argument vector */
-    sokoke_get_argv (argument_vector);
 
     /* libSoup uses threads, therefore if WebKit is built with libSoup
      * or Midori is using it, we need to initialize threads. */
@@ -1448,6 +1496,15 @@ midori_app_setup (gchar** argument_vector)
     }
     gtk_icon_factory_add_default (factory);
     g_object_unref (factory);
+    #endif
+
+    /* Preserve argument vector */
+    command_line = g_strdupv (argument_vector);
+    #ifdef G_OS_WIN32
+    exec_path = g_win32_get_package_installation_directory_of_module (NULL);
+    #else
+    exec_path = g_file_get_path (g_file_get_parent (g_file_get_parent (g_file_new_for_path (
+        g_find_program_in_path (command_line[0])))));
     #endif
 
     /* Print messages to stdout on Win32 console, cf. AbiWord

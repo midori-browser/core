@@ -27,7 +27,7 @@ formhistory_construct_popup_gui (FormHistoryPriv* priv)
     guint i;
     gchar* file;
 
-    file = sokoke_find_data_filename ("autosuggestcontrol.js", TRUE);
+    file = midori_app_find_res_filename ("autosuggestcontrol.js");
     if (!g_file_get_contents (file, &autosuggest, NULL, NULL))
     {
         g_free (file);
@@ -35,7 +35,7 @@ formhistory_construct_popup_gui (FormHistoryPriv* priv)
     }
     g_strchomp (autosuggest);
 
-    katze_assign (file, sokoke_find_data_filename ("autosuggestcontrol.css", TRUE));
+    katze_assign (file, midori_app_find_res_filename ("autosuggestcontrol.css"));
     if (!g_file_get_contents (file, &style, NULL, NULL))
     {
         g_free (file);

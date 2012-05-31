@@ -15,6 +15,7 @@
 
 #include "midori-core.h"
 #include "midori-platform.h"
+#include "midori-app.h"
 
 #include <config.h>
 #if HAVE_UNISTD_H
@@ -496,7 +497,7 @@ void
 sokoke_spawn_app (const gchar* uri,
                   gboolean     private)
 {
-    const gchar* executable = sokoke_get_argv (NULL)[0];
+    const gchar* executable = midori_app_get_command_line ()[0];
     /* "midori"
        "/usr/bin/midori"
        "c:/Program Files/Midori/bin/midori.exe" */
@@ -1176,25 +1177,6 @@ sokoke_find_data_filename (const gchar* filename,
         g_free (path);
     }
     return g_build_filename (MDATADIR, res1, res2, filename, NULL);
-}
-
-/**
- * sokoke_get_argv:
- * @argument_vector: %NULL
- *
- * Retrieves the argument vector passed at program startup.
- *
- * Return value: the argument vector
- **/
-gchar**
-sokoke_get_argv (gchar** argument_vector)
-{
-    static gchar** stored_argv = NULL;
-
-    if (!stored_argv)
-        stored_argv = g_strdupv (argument_vector);
-
-    return stored_argv;
 }
 
 gchar*

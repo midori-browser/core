@@ -85,6 +85,12 @@ midori_app_send_notification      (MidoriApp*         app,
 void
 midori_app_setup                  (gchar**            argument_vector);
 
+gchar**
+midori_app_get_command_line       (void);
+
+gchar*
+midori_app_find_res_filename      (const gchar* filename);
+
 G_END_DECLS
 
 #endif /* __MIDORI_APP_H__ */
