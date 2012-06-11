@@ -1402,6 +1402,7 @@ midori_app_setup (gchar** argument_vector)
     GtkIconSet* icon_set;
     GtkIconFactory* factory;
     gsize i;
+    gchar* executable;
 
     typedef struct
     {
@@ -1537,8 +1538,10 @@ midori_app_setup (gchar** argument_vector)
     #ifdef G_OS_WIN32
     exec_path = g_win32_get_package_installation_directory_of_module (NULL);
     #else
+    executable = g_file_read_link (command_line[0], NULL);
     exec_path = g_file_get_path (g_file_get_parent (g_file_get_parent (g_file_new_for_path (
-        g_find_program_in_path (command_line[0])))));
+        g_find_program_in_path (executable ? executable : command_line[0])))));
+    g_free (executable);
     #endif
 
     /* Print messages to stdout on Win32 console, cf. AbiWord
