@@ -7,5 +7,11 @@ namespace Katze {
         public Array (GLib.Type type);
         public void add_item (GLib.Object item);
     }
+
+    public class Item : GLib.Object {
+        public bool get_meta_boolean (string key);
+        public int64 get_meta_integer (string key);
+        public void set_meta_integer (string key, int64 value);
+    }
 }
 

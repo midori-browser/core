@@ -142,7 +142,7 @@ namespace Midori {
         public Gtk.Menu get_tab_menu ();
         public Pango.EllipsizeMode get_label_ellipsize ();
         public Gtk.Label get_proxy_tab_label ();
-        public GLib.Object get_proxy_item ();
+        public Katze.Item get_proxy_item ();
         public bool can_view_source ();
         public bool can_find ();
         public void search_text (string text, bool case_sensitive, bool forward);
