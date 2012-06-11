@@ -1385,7 +1385,7 @@ midori_app_get_lib_path (const gchar* package)
         g_free (path);
     }
 
-    return g_build_filename (MDATADIR, package, "lib", NULL);
+    return g_build_filename (LIBDIR, PACKAGE_NAME, NULL);
 }
 
 /**
