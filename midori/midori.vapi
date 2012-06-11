@@ -152,6 +152,8 @@ namespace Midori {
         public Gdk.Pixbuf get_snapshot (int width, int height);
         public unowned WebKit.WebView get_web_view ();
         public void populate_popup (Gtk.Menu menu, bool manual);
+        public bool can_reload ();
+        public void reload (bool from_cache);
 
         public string uri { get; }
         public string title { get; }
@@ -174,6 +176,14 @@ namespace Midori {
 
     public class WebSettings : WebKit.WebSettings {
         public WebSettings ();
+    }
+
+    [CCode (cheader_filename = "midori/midori-websettings.h", cprefix = "MIDORI_STARTUP_")]
+    public enum MidoriStartup {
+        BLANK_PAGE,
+        HOMEPAGE,
+        LAST_OPEN_PAGES,
+        DELAYED_PAGES
     }
 
     [CCode (cheader_filename = "midori/sokoke.h", lower_case_cprefix = "sokoke_")]
