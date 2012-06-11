@@ -409,7 +409,7 @@ _midori_browser_set_statusbar_text (MidoriBrowser* browser,
         #else
         GtkAction* action = _action_by_name (browser, "Location");
         MidoriLocationAction* location_action = MIDORI_LOCATION_ACTION (action);
-        midori_browser_update_secondary_icon (browser, view, action);
+        midori_browser_update_secondary_icon (browser, MIDORI_VIEW (view), action);
         midori_location_action_set_text (location_action,
             midori_view_get_display_uri (MIDORI_VIEW (view)));
         #endif
