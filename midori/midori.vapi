@@ -14,7 +14,7 @@ namespace Midori {
         [NoAccessorMethod]
         public string name { get; set; }
         [NoAccessorMethod]
-        public Midori.WebSettings settings { get; set; }
+        public Midori.WebSettings settings { owned get; set; }
         [NoAccessorMethod]
         public GLib.Object bookmarks { get; set; }
         [NoAccessorMethod]
@@ -176,6 +176,8 @@ namespace Midori {
 
     public class WebSettings : WebKit.WebSettings {
         public WebSettings ();
+        [NoAccessorMethod]
+        public MidoriStartup load_on_startup { get; set; }
     }
 
     [CCode (cheader_filename = "midori/midori-websettings.h", cprefix = "MIDORI_STARTUP_")]
