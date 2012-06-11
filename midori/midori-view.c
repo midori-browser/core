@@ -2922,7 +2922,7 @@ webkit_web_view_download_requested_cb (GtkWidget*      web_view,
     gchar* description;
     gchar* name;
     WebKitWebFrame* web_frame;
-    const gchar* mime_type;
+    gchar* mime_type;
     WebKitWebDataSource* datasource;
     WebKitNetworkRequest* request;
     WebKitNetworkRequest* original_request;
