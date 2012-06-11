@@ -24,6 +24,7 @@
 
 #include <string.h>
 #include <gtk/gtk.h>
+#include <glib/gstdio.h>
 #include <glib/gi18n.h>
 
 #if ENABLE_NLS
