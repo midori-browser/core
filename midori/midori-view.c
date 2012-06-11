@@ -4351,7 +4351,7 @@ midori_view_set_uri (MidoriView*  view,
         else if (katze_item_get_meta_boolean (view->item, "delay"))
         {
             katze_assign (view->uri, g_strdup (uri));
-            katze_item_set_meta_integer (view->item, "delay", -1);
+            katze_item_set_meta_integer (view->item, "delay", -2);
             midori_view_display_error (
                 view, view->uri, view->title ? view->title : view->uri,
                 _("Page loading delayed"),
