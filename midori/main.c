@@ -45,12 +45,6 @@
     #include <signal.h>
 #endif
 
-#if HAVE_HILDON
-    #define BOOKMARK_FILE "/home/user/.bookmarks/MyBookmarks.xml"
-#else
-    #define BOOKMARK_FILE "bookmarks.xbel"
-#endif
-
 #ifdef HAVE_X11_EXTENSIONS_SCRNSAVER_H
     #include <X11/Xlib.h>
     #include <X11/Xutil.h>
@@ -2361,21 +2355,6 @@ main (int    argc,
         g_string_append_printf (error_messages,
             _("Bookmarks couldn't be loaded: %s\n"), errmsg);
         errmsg = NULL;
-    }
-    else if (!bookmarks_exist)
-    {
-        /* Initial creation, import old bookmarks */
-        gchar* old_bookmarks;
-        if (g_path_is_absolute (BOOKMARK_FILE))
-            old_bookmarks = g_strdup (BOOKMARK_FILE);
-        else
-            old_bookmarks = g_build_filename (config, BOOKMARK_FILE, NULL);
-        if (g_access (old_bookmarks, F_OK) == 0)
-        {
-            midori_bookmarks_import (old_bookmarks, db);
-            /* Leave old bookmarks around */
-        }
-        g_free (old_bookmarks);
     }
     g_object_set_data (G_OBJECT (bookmarks), "db", db);
     midori_startup_timer ("Bookmarks read: \t%f");

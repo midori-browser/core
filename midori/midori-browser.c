@@ -4253,6 +4253,7 @@ _action_bookmarks_import_activate (GtkAction*     action,
         { ".kde/share/apps/konqueror/bookmarks.xml", N_("Konqueror"), "konqueror" },
         { ".gnome2/epiphany/bookmarks.rdf", N_("Epiphany"), "epiphany" },
         { ".mozilla/firefox/*/bookmarks.html", N_("Firefox (%s)"), "firefox" },
+        { ".config/midori/bookmarks.xbel", N_("Midori 0.2.6"), "midori" },
     };
 
     GtkWidget* dialog;
