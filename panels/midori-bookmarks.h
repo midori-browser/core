@@ -40,15 +40,19 @@ midori_bookmarks_get_type               (void);
 GtkWidget*
 midori_bookmarks_new                    (void);
 
-void
-midori_bookmarks_insert_item_db (sqlite3*     db,
-                                 KatzeItem*   item,
-                                 const gchar* folder);
+gint64
+midori_bookmarks_insert_item_db (sqlite3*   db,
+                                 KatzeItem* item,
+                                 gint64     parentid);
 
 void
-midori_bookmarks_import_array_db (sqlite3*       db,
-                                  KatzeArray*    array,
-                                  const gchar*   folder);
+midori_bookmarks_import_array_db (sqlite3*    db,
+                                  KatzeArray* array,
+                                  gint64      parentid);
+
+gboolean
+midori_bookmarks_update_item_db (sqlite3*   db,
+                                 KatzeItem* item);
 
 G_END_DECLS
 

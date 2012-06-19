@@ -982,23 +982,25 @@ katze_item_set_value_from_column (sqlite3_stmt* stmt,
         item->added = date;
     }
     else if (g_str_equal (name, "day") || g_str_equal (name, "app")
-          || g_str_equal (name, "toolbar"))
+          || g_str_equal (name, "toolbar") || g_str_equal (name, "id")
+          || g_str_equal (name, "parentid") || g_str_equal (name, "seq")
+          || g_str_equal (name, "pos_panel") || g_str_equal (name, "pos_bar"))
     {
         gint value;
         value = sqlite3_column_int64 (stmt, column);
         katze_item_set_meta_integer (item, name, value);
-    }
-    else if (g_str_equal (name, "folder"))
-    {
-        const unsigned char* folder;
-        folder = sqlite3_column_text (stmt, column);
-        katze_item_set_meta_string (item, name, (gchar*)folder);
     }
     else if (g_str_equal (name, "desc"))
     {
         const unsigned char* text;
         text = sqlite3_column_text (stmt, column);
         item->text =  g_strdup ((gchar*)text);
+    }
+    else if (g_str_equal (name, "sql"))
+    {
+        const unsigned char* sql;
+        sql = sqlite3_column_text (stmt, column);
+        katze_item_set_meta_string (item, name, (gchar*)sql);
     }
     else
         g_warn_if_reached ();
@@ -1102,7 +1104,7 @@ midori_array_query_recursive (KatzeArray*  bookmarks,
         return NULL;
 
     sqlcmd = g_strdup_printf ("SELECT %s FROM bookmarks WHERE %s "
-                              "ORDER BY title DESC", fields, condition);
+                              "ORDER BY (uri='') ASC, title DESC", fields, condition);
     if (strstr (condition, "%q"))
     {
         sqlcmd_value = sqlite3_mprintf (sqlcmd, value ? value : "");
@@ -1120,10 +1122,14 @@ midori_array_query_recursive (KatzeArray*  bookmarks,
     {
         if (KATZE_ITEM_IS_FOLDER (item))
         {
+            gchar* parentid = g_strdup_printf ("%" G_GINT64_FORMAT,
+                katze_item_get_meta_integer (item, "id"));
             KatzeArray* subarray = midori_array_query_recursive (bookmarks,
-                fields, "folder='%q'", item->name, TRUE);
+                fields, "parentid=%q", parentid, TRUE);
             katze_item_set_name (KATZE_ITEM (subarray), item->name);
             katze_array_add_item (array, subarray);
+
+            g_free (parentid);
         }
     }
     g_list_free (list);

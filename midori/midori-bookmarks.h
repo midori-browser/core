@@ -25,7 +25,6 @@ midori_bookmarks_remove_item_cb (KatzeArray* array,
 
 sqlite3*
 midori_bookmarks_initialize (KatzeArray*  array,
-                             const gchar* filename,
                              char**       errmsg);
 
 void

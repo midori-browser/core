@@ -434,7 +434,6 @@ midori_history_clear_cb (KatzeArray* array,
 static gboolean
 midori_history_initialize (KatzeArray*  array,
                            const gchar* filename,
-                           const gchar* bookmarks_filename,
                            char**       errmsg)
 {
     sqlite3* db;
@@ -442,6 +441,9 @@ midori_history_initialize (KatzeArray*  array,
     sqlite3_stmt* stmt;
     gint result;
     gchar* sql;
+    gchar* bookmarks_filename;
+
+    g_return_val_if_fail (errmsg != NULL, FALSE);
 
     if (sqlite3_open (filename, &db) != SQLITE_OK)
     {
@@ -493,7 +495,9 @@ midori_history_initialize (KatzeArray*  array,
                       "COMMIT;",
                       NULL, NULL, errmsg);
 
+    bookmarks_filename = build_config_filename ("bookmarks_v2.db");
     sql = g_strdup_printf ("ATTACH DATABASE '%s' AS bookmarks", bookmarks_filename);
+    g_free (bookmarks_filename);
     sqlite3_exec (db, sql, NULL, NULL, errmsg);
     g_free (sql);
     g_object_set_data (G_OBJECT (array), "db", db);
@@ -1900,9 +1904,7 @@ main (int    argc,
     gchar** extensions;
     MidoriWebSettings* settings;
     gchar* config_file;
-    gchar* bookmarks_file;
     GKeyFile* speeddial;
-    gboolean bookmarks_exist;
     MidoriStartup load_on_startup;
     KatzeArray* search_engines;
     KatzeArray* bookmarks;
@@ -2347,10 +2349,8 @@ main (int    argc,
     midori_startup_timer ("Search read: \t%f");
 
     bookmarks = katze_array_new (KATZE_TYPE_ARRAY);
-    bookmarks_file = g_build_filename (config, "bookmarks.db", NULL);
-    bookmarks_exist = g_access (bookmarks_file, F_OK) == 0;
     errmsg = NULL;
-    if ((db = midori_bookmarks_initialize (bookmarks, bookmarks_file, &errmsg)) == NULL)
+    if ((db = midori_bookmarks_initialize (bookmarks, &errmsg)) == NULL)
     {
         g_string_append_printf (error_messages,
             _("Bookmarks couldn't be loaded: %s\n"), errmsg);
@@ -2396,13 +2396,12 @@ main (int    argc,
     katze_assign (config_file, g_build_filename (config, "history.db", NULL));
 
     errmsg = NULL;
-    if (!midori_history_initialize (history, config_file, bookmarks_file, &errmsg))
+    if (!midori_history_initialize (history, config_file, &errmsg))
     {
         g_string_append_printf (error_messages,
             _("The history couldn't be loaded: %s\n"), errmsg);
         errmsg = NULL;
     }
-    g_free (bookmarks_file);
     midori_startup_timer ("History read: \t%f");
 
     error = NULL;

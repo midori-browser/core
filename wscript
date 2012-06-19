@@ -268,7 +268,7 @@ def configure (conf):
     if check_version (conf.env['LIBSOUP_VERSION'], 2, 37, 1):
         conf.define ('HAVE_LIBSOUP_2_37_1', 1)
     check_pkg ('libxml-2.0', '2.6')
-    check_pkg ('sqlite3', '3.0', True, var='SQLITE')
+    check_pkg ('sqlite3', '3.6.19', True, var='SQLITE')
 
     if option_enabled ('hildon'):
         if check_pkg ('hildon-1', mandatory=False, var='HILDON'):

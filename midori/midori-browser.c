@@ -173,7 +173,11 @@ midori_browser_get_property (GObject*    object,
 void
 midori_bookmarks_import_array_db (sqlite3*    db,
                                   KatzeArray* array,
-                                  gchar*      folder);
+                                  gint64      parentid);
+
+gboolean
+midori_bookmarks_update_item_db (sqlite3*   db,
+                                 KatzeItem* item);
 
 void
 midori_browser_open_bookmark (MidoriBrowser* browser,
@@ -659,9 +663,10 @@ midori_view_notify_statusbar_text_cb (GtkWidget*     view,
 }
 
 static GtkWidget*
-midori_bookmark_folder_button_new (KatzeArray*  array,
-                                   gboolean     new_bookmark,
-                                   const gchar* selected)
+midori_bookmark_folder_button_new (KatzeArray* array,
+                                   gboolean    new_bookmark,
+                                   gint64      selected,
+                                   gint64      parentid)
 {
     GtkListStore* model;
     GtkWidget* combo;
@@ -670,16 +675,16 @@ midori_bookmark_folder_button_new (KatzeArray*  array,
     sqlite3* db;
     sqlite3_stmt* statement;
     gint result;
-    const gchar* sqlcmd = "SELECT title from bookmarks where uri=''";
+    const gchar* sqlcmd = "SELECT title, id FROM bookmarks WHERE uri='' ORDER BY title ASC";
 
-    model = gtk_list_store_new (2, G_TYPE_STRING, G_TYPE_INT);
+    model = gtk_list_store_new (3, G_TYPE_STRING, G_TYPE_INT, G_TYPE_INT64);
     combo = gtk_combo_box_new_with_model (GTK_TREE_MODEL (model));
     renderer = gtk_cell_renderer_text_new ();
     gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (combo), renderer, TRUE);
     gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (combo), renderer, "text", 0);
     gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (combo), renderer, "ellipsize", 1);
     gtk_list_store_insert_with_values (model, NULL, G_MAXINT,
-        0, _("Toplevel folder"), 1, PANGO_ELLIPSIZE_END, -1);
+        0, _("Toplevel folder"), 1, PANGO_ELLIPSIZE_END, 2, (gint64)0, -1);
     gtk_combo_box_set_active (GTK_COMBO_BOX (combo), 0);
 
     db = g_object_get_data (G_OBJECT (array), "db");
@@ -689,34 +694,45 @@ midori_bookmark_folder_button_new (KatzeArray*  array,
     while ((result = sqlite3_step (statement)) == SQLITE_ROW)
     {
         const unsigned char* name = sqlite3_column_text (statement, 0);
-        gtk_list_store_insert_with_values (model, NULL, G_MAXINT,
-            0, name, 1, PANGO_ELLIPSIZE_END, -1);
-        if (!new_bookmark && !g_strcmp0 (selected, (gchar*)name))
-            gtk_combo_box_set_active (GTK_COMBO_BOX (combo), n);
-        n++;
+        gint64 id = sqlite3_column_int64 (statement, 1);
+
+        /* do not show the folder itself */
+        if (id != selected)
+        {
+            gtk_list_store_insert_with_values (model, NULL, G_MAXINT,
+                0, name, 1, PANGO_ELLIPSIZE_END, 2, id, -1);
+
+            if (!new_bookmark && id == parentid)
+                gtk_combo_box_set_active (GTK_COMBO_BOX (combo), n);
+            n++;
+        }
     }
     if (n < 2)
         gtk_widget_set_sensitive (combo, FALSE);
     return combo;
 }
 
-static gchar*
+static gint64
 midori_bookmark_folder_button_get_active (GtkWidget* combo)
 {
-    gchar* selected = NULL;
+    gint64 id;
     GtkTreeIter iter;
 
-    g_return_val_if_fail (GTK_IS_COMBO_BOX (combo), NULL);
+    g_return_val_if_fail (GTK_IS_COMBO_BOX (combo), 0);
 
     if (gtk_combo_box_get_active_iter (GTK_COMBO_BOX (combo), &iter))
     {
+        gchar* selected = NULL;
         GtkTreeModel* model = gtk_combo_box_get_model (GTK_COMBO_BOX (combo));
-        gtk_tree_model_get (GTK_TREE_MODEL (model), &iter, 0, &selected, -1);
+        gtk_tree_model_get (GTK_TREE_MODEL (model), &iter, 0, &selected, 2, &id, -1);
+
         if (g_str_equal (selected, _("Toplevel folder")))
-            katze_assign (selected, g_strdup (""));
+            id = 0;
+
+        g_free (selected);
     }
 
-    return selected;
+    return id;
 }
 
 static void
@@ -861,7 +877,8 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     gtk_size_group_add_widget (sizegroup, label);
     gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
     combo_folder = midori_bookmark_folder_button_new (browser->bookmarks,
-        new_bookmark, katze_item_get_meta_string (bookmark, "folder"));
+        new_bookmark, katze_item_get_meta_integer (bookmark, "id"),
+        katze_item_get_meta_integer (bookmark, "parentid"));
     gtk_box_pack_start (GTK_BOX (hbox), combo_folder, TRUE, TRUE, 0);
     gtk_container_add (GTK_CONTAINER (content_area), hbox);
     gtk_widget_show_all (hbox);
@@ -912,10 +929,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT);
     if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
     {
-        gchar* selected;
-
-        if (!new_bookmark)
-            katze_array_remove_item (browser->bookmarks, bookmark);
+        gint64 selected;
 
         katze_item_set_name (bookmark,
             gtk_entry_get_text (GTK_ENTRY (entry_title)));
@@ -930,13 +944,16 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         }
 
         selected = midori_bookmark_folder_button_get_active (combo_folder);
-        katze_item_set_meta_string (bookmark, "folder", selected);
-        katze_array_add_item (browser->bookmarks, bookmark);
+        katze_item_set_meta_integer (bookmark, "parentid", selected);
+
+        if (new_bookmark)
+            katze_array_add_item (browser->bookmarks, bookmark);
+        else
+            midori_bookmarks_update_item_db (db, bookmark);
 
         if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (check_toolbar)))
             if (!gtk_widget_get_visible (browser->bookmarkbar))
                 _action_set_active (browser, "Bookmarkbar", TRUE);
-        g_free (selected);
         return_status = TRUE;
     }
     if (gtk_widget_get_visible (browser->bookmarkbar))
@@ -3041,14 +3058,35 @@ _action_bookmarks_populate_folder (GtkAction*     action,
                                    KatzeArray*    folder,
                                    MidoriBrowser* browser)
 {
-    const gchar* folder_name;
+    gint64 id;
     KatzeArray* bookmarks;
     GtkWidget* menuitem;
 
-    folder_name = katze_item_get_name (KATZE_ITEM (folder));
-    if (!(bookmarks = midori_array_query (browser->bookmarks,
-          "uri, title, app, folder", "folder = '%q'", folder_name)))
-        return FALSE;
+    id = katze_item_get_meta_integer (KATZE_ITEM (folder), "id");
+
+    if (id == -1)
+    {
+        if (!(bookmarks = midori_array_query (browser->bookmarks,
+          "id, title, parentid, uri, app, pos_panel, pos_bar", "parentid is NULL", NULL)))
+        {
+            g_warning ("midori_array_query returned NULL)");
+            return FALSE;
+        }
+    }
+    else
+    {
+        gchar *parentid = g_strdup_printf ("%" G_GINT64_FORMAT, id);
+
+        if (!(bookmarks = midori_array_query (browser->bookmarks,
+              "id, title, parentid, uri, app, pos_panel, pos_bar", "parentid = %q", parentid)))
+        {
+            g_warning ("midori_array_query returned NULL (id='%s')", parentid);
+            g_free (parentid);
+            return FALSE;
+        }
+
+        g_free (parentid);
+    }
 
     /* Clear items from dummy array here */
     gtk_container_foreach (GTK_CONTAINER (menu),
@@ -4365,7 +4403,7 @@ _action_bookmarks_import_activate (GtkAction*     action,
     gtk_size_group_add_widget (sizegroup, label);
     gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
     combobox_folder = midori_bookmark_folder_button_new (browser->bookmarks,
-                                                         FALSE, NULL);
+                                                         FALSE, 0, 0);
     gtk_box_pack_start (GTK_BOX (hbox), combobox_folder, TRUE, TRUE, 0);
     gtk_container_add (GTK_CONTAINER (content_area), hbox);
     gtk_widget_show_all (hbox);
@@ -4375,7 +4413,7 @@ _action_bookmarks_import_activate (GtkAction*     action,
     {
         GtkTreeIter iter;
         gchar* path = NULL;
-        gchar* selected = NULL;
+        gint64 selected;
         GError* error;
         sqlite3* db = g_object_get_data (G_OBJECT (browser->bookmarks), "db");
 
@@ -4408,7 +4446,6 @@ _action_bookmarks_import_activate (GtkAction*     action,
         midori_bookmarks_import_array_db (db, bookmarks, selected);
         katze_array_update (browser->bookmarks);
         g_object_unref (bookmarks);
-        g_free (selected);
         g_free (path);
     }
     else
@@ -4465,7 +4502,7 @@ wrong_format:
 
     error = NULL;
     bookmarks = midori_array_query_recursive (browser->bookmarks,
-        "*", "folder='%q'", "", TRUE);
+        "*", "parentid IS NULL", NULL, TRUE);
     if (!midori_array_to_file (bookmarks, path, format, &error))
     {
         sokoke_message_dialog (GTK_MESSAGE_ERROR,
@@ -7044,9 +7081,10 @@ midori_bookmarkbar_populate (MidoriBrowser* browser)
                         gtk_separator_tool_item_new (), -1);
 
     array = midori_array_query (browser->bookmarks,
-        "uri, title, desc, app, folder, toolbar", "toolbar = 1", NULL);
+        "id, parentid, title, uri, desc, app, toolbar, pos_panel, pos_bar", "toolbar = 1", NULL);
     if (!array)
     {
+        g_warning ("midori_array_query returned NULL");
         _action_set_sensitive (browser, "BookmarkAdd", FALSE);
         _action_set_sensitive (browser, "BookmarkFolderAdd", FALSE);
         return;
@@ -7058,10 +7096,22 @@ midori_bookmarkbar_populate (MidoriBrowser* browser)
             midori_bookmarkbar_insert_item (browser->bookmarkbar, item);
         else
         {
+            gint64 id = katze_item_get_meta_integer (item, "id");
+            gchar* parentid = g_strdup_printf ("%" G_GINT64_FORMAT, id);
             KatzeArray* subfolder = midori_array_query (browser->bookmarks,
-                "uri, title, desc, app", "folder = '%q' AND uri != ''", katze_item_get_name (item));
-            katze_item_set_name (KATZE_ITEM (subfolder), katze_item_get_name (item));
-            midori_bookmarkbar_insert_item (browser->bookmarkbar, KATZE_ITEM (subfolder));
+                "id, parentid, title, uri, desc, app, toolbar, pos_panel, pos_bar", "parentid = %q AND uri != ''",
+                parentid);
+
+            if (subfolder)
+            {
+                katze_item_set_name (KATZE_ITEM (subfolder), katze_item_get_name (item));
+                katze_item_set_meta_integer (KATZE_ITEM (subfolder), "id", id);
+                midori_bookmarkbar_insert_item (browser->bookmarkbar, KATZE_ITEM (subfolder));
+            }
+            else
+                g_warning ("midori_array_query returned NULL (id='%s')", parentid);
+
+            g_free (parentid);
         }
     }
     _action_set_sensitive (browser, "BookmarkAdd", TRUE);
