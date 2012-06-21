@@ -311,6 +311,7 @@ midori_identity_get_type (void)
         static const GEnumValue values[] = {
          { MIDORI_IDENT_MIDORI, "MIDORI_IDENT_MIDORI", N_("_Automatic") },
          { MIDORI_IDENT_GENUINE, "MIDORI_IDENT_GENUINE", N_("Midori") },
+         { MIDORI_IDENT_CHROME, "MIDORI_IDENT_CHROME", N_("Chrome") },
          { MIDORI_IDENT_SAFARI, "MIDORI_IDENT_SAFARI", N_("Safari") },
          { MIDORI_IDENT_IPHONE, "MIDORI_IDENT_IPHONE", N_("iPhone") },
          { MIDORI_IDENT_FIREFOX, "MIDORI_IDENT_FIREFOX", N_("Firefox") },
@@ -1434,6 +1435,10 @@ generate_ident_string (MidoriWebSettings* web_settings,
     case MIDORI_IDENT_GENUINE:
         return g_strdup_printf ("Mozilla/5.0 (%s %s) AppleWebKit/%d.%d+ %s",
             platform, os, webcore_major, webcore_minor, appname);
+    case MIDORI_IDENT_CHROME:
+        return g_strdup_printf ("Mozilla/5.0 (%s %s) AppleWebKit/%d.%d "
+            "(KHTML, like Gecko) Chrome/18.0.1025.133 Safari/%d.%d %s",
+            platform, os, webcore_major, webcore_minor, webcore_major, webcore_minor, appname);
     case MIDORI_IDENT_MIDORI:
     case MIDORI_IDENT_SAFARI:
         g_object_set (web_settings, "enable-site-specific-quirks", TRUE, NULL);
