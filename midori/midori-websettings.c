@@ -1435,13 +1435,12 @@ generate_ident_string (MidoriWebSettings* web_settings,
     case MIDORI_IDENT_GENUINE:
         return g_strdup_printf ("Mozilla/5.0 (%s %s) AppleWebKit/%d.%d+ %s",
             platform, os, webcore_major, webcore_minor, appname);
+    case MIDORI_IDENT_MIDORI:
     case MIDORI_IDENT_CHROME:
         return g_strdup_printf ("Mozilla/5.0 (%s %s) AppleWebKit/%d.%d "
             "(KHTML, like Gecko) Chrome/18.0.1025.133 Safari/%d.%d %s",
             platform, os, webcore_major, webcore_minor, webcore_major, webcore_minor, appname);
-    case MIDORI_IDENT_MIDORI:
     case MIDORI_IDENT_SAFARI:
-        g_object_set (web_settings, "enable-site-specific-quirks", TRUE, NULL);
         return g_strdup_printf ("Mozilla/5.0 (Macintosh; U; Intel Mac OS X; %s) "
             "AppleWebKit/%d+ (KHTML, like Gecko) Version/5.0 Safari/%d.%d+ %s",
             lang, webcore_major, webcore_major, webcore_minor, appname);
