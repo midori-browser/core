@@ -107,6 +107,81 @@ statusbar_features_zoom_level_changed_cb (GtkWidget*     combobox,
     midori_view_set_zoom_level (view, zoom_level / 100.0);
 }
 
+GtkWidget*
+statusbar_features_property_proxy (MidoriWebSettings* settings,
+                                   const gchar*       property,
+                                   GtkWidget*         toolbar)
+{
+    const gchar* kind = NULL;
+    GtkWidget* button;
+    GtkWidget* image;
+    if (!strcmp (property, "auto-load-images")
+     || !strcmp (property, "enable-scripts")
+     || !strcmp (property, "enable-plugins"))
+        kind = "toggle";
+    else if (!strcmp (property, "identify-as"))
+        kind = "custom-user-agent";
+    else if (strstr (property, "font") != NULL)
+        kind = "font";
+    else if (!strcmp (property, "zoom-level"))
+    {
+        MidoriBrowser* browser = midori_browser_get_for_widget (toolbar);
+        gint i;
+        button = gtk_combo_box_text_new_with_entry ();
+        gtk_entry_set_width_chars (GTK_ENTRY (gtk_bin_get_child (GTK_BIN (button))), 4);
+        for (i = 0; i < G_N_ELEMENTS (zoom_levels); i++)
+            gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (button), zoom_levels[i].label);
+        g_signal_connect (button, "changed",
+            G_CALLBACK (statusbar_features_zoom_level_changed_cb), browser);
+        g_signal_connect (browser, "notify::tab",
+            G_CALLBACK (statusbar_features_browser_notify_tab_cb), button);
+        statusbar_features_browser_notify_tab_cb (browser, NULL, button);
+        return button;
+    }
+
+    button = katze_property_proxy (settings, property, kind);
+    if (GTK_IS_BIN (button))
+    {
+        GtkWidget* label = gtk_bin_get_child (GTK_BIN (button));
+        if (GTK_IS_LABEL (label))
+            gtk_label_set_ellipsize (GTK_LABEL (label), PANGO_ELLIPSIZE_END);
+    }
+
+    if (!strcmp (property, "auto-load-images"))
+    {
+        g_object_set_data (G_OBJECT (button), "feature-label", _("Images"));
+        image = gtk_image_new_from_stock (STOCK_IMAGE, GTK_ICON_SIZE_MENU);
+        gtk_button_set_image (GTK_BUTTON (button), image);
+        gtk_widget_set_tooltip_text (button, _("Load images automatically"));
+        statusbar_features_toolbar_notify_toolbar_style_cb (toolbar, NULL, button);
+        g_signal_connect (toolbar, "notify::toolbar-style",
+            G_CALLBACK (statusbar_features_toolbar_notify_toolbar_style_cb), button);
+    }
+    if (!strcmp (property, "enable-scripts"))
+    {
+        g_object_set_data (G_OBJECT (button), "feature-label", _("Scripts"));
+        image = gtk_image_new_from_stock (STOCK_SCRIPTS, GTK_ICON_SIZE_MENU);
+        gtk_button_set_image (GTK_BUTTON (button), image);
+        gtk_widget_set_tooltip_text (button, _("Enable scripts"));
+        statusbar_features_toolbar_notify_toolbar_style_cb (toolbar, NULL, button);
+        g_signal_connect (toolbar, "notify::toolbar-style",
+            G_CALLBACK (statusbar_features_toolbar_notify_toolbar_style_cb), button);
+    }
+    else if (!strcmp (property, "enable-plugins"))
+    {
+        if (!midori_web_settings_has_plugin_support ())
+            gtk_widget_hide (button);
+        g_object_set_data (G_OBJECT (button), "feature-label", _("Netscape plugins"));
+        image = gtk_image_new_from_stock (STOCK_PLUGINS, GTK_ICON_SIZE_MENU);
+        gtk_button_set_image (GTK_BUTTON (button), image);
+        gtk_widget_set_tooltip_text (button, _("Enable Netscape plugins"));
+        statusbar_features_toolbar_notify_toolbar_style_cb (toolbar, NULL, button);
+        g_signal_connect (toolbar, "notify::toolbar-style",
+            G_CALLBACK (statusbar_features_toolbar_notify_toolbar_style_cb), button);
+    }
+    return button;
+}
+
 static void
 statusbar_features_app_add_browser_cb (MidoriApp*       app,
                                        MidoriBrowser*   browser,
@@ -117,8 +192,8 @@ statusbar_features_app_add_browser_cb (MidoriApp*       app,
     MidoriWebSettings* settings;
     GtkWidget* toolbar;
     GtkWidget* button;
-    GtkWidget* image;
     gsize i;
+    gchar** filters;
 
     /* FIXME: Monitor each view and modify its settings individually
               instead of merely replicating the global preferences. */
@@ -127,52 +202,37 @@ statusbar_features_app_add_browser_cb (MidoriApp*       app,
     bbox = gtk_hbox_new (FALSE, 0);
     settings = midori_browser_get_settings (browser);
     toolbar = katze_object_get_object (browser, "navigationbar");
-    button = katze_property_proxy (settings, "auto-load-images", "toggle");
-    g_object_set_data (G_OBJECT (button), "feature-label", _("Images"));
-    image = gtk_image_new_from_stock (STOCK_IMAGE, GTK_ICON_SIZE_MENU);
-    gtk_button_set_image (GTK_BUTTON (button), image);
-    gtk_widget_set_tooltip_text (button, _("Load images automatically"));
-    statusbar_features_toolbar_notify_toolbar_style_cb (toolbar, NULL, button);
-    g_signal_connect (toolbar, "notify::toolbar-style",
-        G_CALLBACK (statusbar_features_toolbar_notify_toolbar_style_cb), button);
-    gtk_box_pack_start (GTK_BOX (bbox), button, FALSE, FALSE, 2);
-    button = katze_property_proxy (settings, "enable-scripts", "toggle");
-    g_object_set_data (G_OBJECT (button), "feature-label", _("Scripts"));
-    image = gtk_image_new_from_stock (STOCK_SCRIPTS, GTK_ICON_SIZE_MENU);
-    gtk_button_set_image (GTK_BUTTON (button), image);
-    gtk_widget_set_tooltip_text (button, _("Enable scripts"));
-    statusbar_features_toolbar_notify_toolbar_style_cb (toolbar, NULL, button);
-    g_signal_connect (toolbar, "notify::toolbar-style",
-        G_CALLBACK (statusbar_features_toolbar_notify_toolbar_style_cb), button);
-    gtk_box_pack_start (GTK_BOX (bbox), button, FALSE, FALSE, 2);
-    if (midori_web_settings_has_plugin_support ())
+
+    filters = midori_extension_get_string_list (extension, "items", NULL);
+    if (filters && *filters)
     {
-        button = katze_property_proxy (settings, "enable-plugins", "toggle");
-        g_object_set_data (G_OBJECT (button), "feature-label", _("Netscape plugins"));
-    image = gtk_image_new_from_stock (STOCK_PLUGINS, GTK_ICON_SIZE_MENU);
-    gtk_button_set_image (GTK_BUTTON (button), image);
-    gtk_widget_set_tooltip_text (button, _("Enable Netscape plugins"));
-    statusbar_features_toolbar_notify_toolbar_style_cb (toolbar, NULL, button);
-    g_signal_connect (toolbar, "notify::toolbar-style",
-        G_CALLBACK (statusbar_features_toolbar_notify_toolbar_style_cb), button);
-    gtk_box_pack_start (GTK_BOX (bbox), button, FALSE, FALSE, 2);
+        i = 0;
+        while (filters[i] != NULL)
+        {
+            button = statusbar_features_property_proxy (settings, filters[i], toolbar);
+            gtk_box_pack_start (GTK_BOX (bbox), button, FALSE, FALSE, 2);
+            i++;
+        }
     }
-    button = katze_property_proxy (settings, "identify-as", "custom-user-agent");
-    gtk_box_pack_start (GTK_BOX (bbox), button, FALSE, FALSE, 2);
-    button = gtk_combo_box_text_new_with_entry ();
-    gtk_entry_set_width_chars (GTK_ENTRY (gtk_bin_get_child (GTK_BIN (button))), 4);
-    for (i = 0; i < G_N_ELEMENTS (zoom_levels); i++)
-        gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (button), zoom_levels[i].label);
-    gtk_box_pack_start (GTK_BOX (bbox), button, FALSE, FALSE, 2);
-    g_signal_connect (button, "changed",
-        G_CALLBACK (statusbar_features_zoom_level_changed_cb), browser);
-    g_signal_connect (browser, "notify::tab",
-        G_CALLBACK (statusbar_features_browser_notify_tab_cb), button);
-    statusbar_features_browser_notify_tab_cb (browser, NULL, button);
+    else
+    {
+        button = statusbar_features_property_proxy (settings, "auto-load-images", toolbar);
+        gtk_box_pack_start (GTK_BOX (bbox), button, FALSE, FALSE, 2);
+        button = statusbar_features_property_proxy (settings, "enable-scripts", toolbar);
+        gtk_box_pack_start (GTK_BOX (bbox), button, FALSE, FALSE, 2);
+        button = statusbar_features_property_proxy (settings, "enable-plugins", toolbar);
+        gtk_box_pack_start (GTK_BOX (bbox), button, FALSE, FALSE, 2);
+        button = statusbar_features_property_proxy (settings, "identify-as", toolbar);
+        gtk_box_pack_start (GTK_BOX (bbox), button, FALSE, FALSE, 2);
+        button = statusbar_features_property_proxy (settings, "zoom-level", toolbar);
+        gtk_box_pack_start (GTK_BOX (bbox), button, FALSE, FALSE, 2);
+    }
     gtk_widget_show_all (bbox);
     gtk_box_pack_end (GTK_BOX (statusbar), bbox, FALSE, FALSE, 3);
     g_object_unref (statusbar);
+    g_object_unref (toolbar);
 
+    g_strfreev (filters);
     g_signal_connect (extension, "deactivate",
         G_CALLBACK (statusbar_features_deactivate_cb), bbox);
 }
@@ -201,6 +261,7 @@ extension_init (void)
         "version", "0.1" MIDORI_VERSION_SUFFIX,
         "authors", "Christian Dywan <christian@twotoasts.de>",
         NULL);
+    midori_extension_install_string_list (extension, "items", NULL, G_MAXSIZE);
 
     g_signal_connect (extension, "activate",
         G_CALLBACK (statusbar_features_activate_cb), NULL);
