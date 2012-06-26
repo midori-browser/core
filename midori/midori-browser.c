@@ -3168,7 +3168,6 @@ _action_compact_menu_populate_popup (GtkAction*     action,
       { "Find" },
       #if !HAVE_HILDON
       { "Print" },
-      { "InspectPage" },
       #endif
       { NULL },
       { "PrivateBrowsing" },
