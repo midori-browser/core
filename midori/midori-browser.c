@@ -3187,8 +3187,10 @@ _action_compact_menu_populate_popup (GtkAction*     action,
       #endif
       { NULL },
       #if !HAVE_HILDON
+      #if !HAVE_GRANITE
       { "HelpFAQ" },
       { "HelpBugs"},
+      #endif
       #endif
       { "About" },
       { "Preferences" },
@@ -4869,6 +4871,33 @@ _action_about_activate_email (GtkAboutDialog* about,
 }
 #endif
 
+static gchar*
+midori_browser_get_docs ()
+{
+    #ifdef G_OS_WIN32
+    gchar* path = sokoke_find_data_filename ("doc/midori/faq.html", FALSE);
+    if (g_access (path, F_OK) == 0)
+        return g_filename_to_uri (path, NULL, NULL);
+    else
+    {
+        #ifdef DOCDIR
+        if (g_access (DOCDIR "/faq.html", F_OK) == 0)
+            return g_strdup ("file://" DOCDIR "/faq.html");
+        else
+        #endif
+            return g_strdup ("error:nodocs share/doc/midori/faq.html");
+    }
+    g_free (path);
+    #else
+    #ifdef DOCDIR
+    if (g_access (DOCDIR "/faq.html", F_OK) == 0)
+        return g_strdup ("file://" DOCDIR "/faq.html");
+    else
+    #endif
+        return g_strdup ("error:nodocs " DOCDIR "/faq.html");
+    #endif
+}
+
 static void
 _action_about_activate (GtkAction*     action,
                         MidoriBrowser* browser)
@@ -4881,12 +4910,32 @@ _action_about_activate (GtkAction*     action,
     "modify it under the terms of the GNU Lesser General Public "
     "License as published by the Free Software Foundation; either "
     "version 2.1 of the License, or (at your option) any later version.");
+    GtkWidget* dialog;
 
 #if !GTK_CHECK_VERSION (2, 24, 0)
     gtk_about_dialog_set_email_hook (_action_about_activate_email, NULL, NULL);
     gtk_about_dialog_set_url_hook (_action_about_activate_link, browser, NULL);
 #endif
-    gtk_show_about_dialog (GTK_WINDOW (browser),
+#if HAVE_GRANITE
+    dialog = granite_widgets_about_dialog_new ();
+    {
+        gchar* docs = midori_browser_get_docs ();
+        if (!g_str_has_prefix (docs, "error:"))
+            g_object_set (dialog, "help", docs, NULL);
+        g_free (docs);
+    }
+    g_object_set (dialog,
+        "translate", "https://translations.xfce.org/projects/p/midori/",
+        "bugs", PACKAGE_BUGREPORT,
+        NULL);
+#else
+    dialog = gtk_about_dialog_new ();
+    g_object_set (dialog,
+        "wrap-license", TRUE,
+        NULL);
+#endif
+    g_object_set (dialog,
+        "transient-for", browser,
         "logo-icon-name", gtk_window_get_icon_name (GTK_WINDOW (browser)),
         "name", PACKAGE_NAME,
         "version", PACKAGE_VERSION,
@@ -4897,65 +4946,32 @@ _action_about_activate (GtkAction*     action,
         "documenters", credits_documenters,
         "artists", credits_artists,
         "license", license,
-        "wrap-license", TRUE,
         "translator-credits", _("translator-credits"),
         NULL);
     g_free (comments);
+    gtk_dialog_run (GTK_DIALOG (dialog));
+    gtk_widget_destroy (dialog);
 }
 
 static void
 _action_help_link_activate (GtkAction*     action,
                             MidoriBrowser* browser)
 {
-    const gchar* action_name;
-    const gchar* uri = NULL;
-    gint n;
-    #if defined (G_OS_WIN32) && defined (DOCDIR)
-    gchar* free_uri = NULL;
-    #endif
-
-    action_name = gtk_action_get_name (action);
-    if  (!strncmp ("HelpFAQ", action_name, 7))
-    {
-        #ifdef G_OS_WIN32
-        {
-            #ifdef DOCDIR
-            gchar* path = sokoke_find_data_filename ("doc/midori/faq.html", FALSE);
-            uri = free_uri = g_filename_to_uri (path, NULL, NULL);
-            if (g_access (path, F_OK) != 0)
-            {
-                if (g_access (DOCDIR "/faq.html", F_OK) == 0)
-                    uri = "file://" DOCDIR "/faq.html";
-                else
-            #endif
-                    uri = "error:nodocs share/doc/midori/faq.html";
-            #ifdef DOCDIR
-            }
-            g_free (path);
-            #endif
-        }
-        #else
-        #ifdef DOCDIR
-        uri = "file://" DOCDIR "/faq.html";
-        if (g_access (DOCDIR "/faq.html", F_OK) != 0)
-        #endif
-            uri = "error:nodocs " DOCDIR "/faq.html";
-        #endif
-    }
+    const gchar* action_name = gtk_action_get_name (action);
+    gchar* uri = NULL;
+    if (!strncmp ("HelpFAQ", action_name, 7))
+        uri = midori_browser_get_docs ();
     else if  (!strncmp ("HelpBugs", action_name, 8))
     {
         if (!g_spawn_command_line_async ("ubuntu-bug " PACKAGE_NAME, NULL))
-            uri = PACKAGE_BUGREPORT;
+            uri = g_strdup (PACKAGE_BUGREPORT);
     }
 
     if (uri)
     {
-        n = midori_browser_add_uri (browser, uri);
+        gint n = midori_browser_add_uri (browser, uri);
         midori_browser_set_current_page (browser, n);
-
-        #if defined (G_OS_WIN32) && defined (DOCDIR)
-        g_free (free_uri);
-        #endif
+        g_free (uri);
     }
 }
 
