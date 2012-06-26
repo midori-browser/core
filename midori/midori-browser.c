@@ -3165,7 +3165,6 @@ _action_compact_menu_populate_popup (GtkAction*     action,
       { "TabNew" },
       { "WindowNew" },
       { NULL },
-      { "Open" },
       { "Find" },
       #if !HAVE_HILDON
       { "Print" },
