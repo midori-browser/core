@@ -3164,13 +3164,13 @@ _action_compact_menu_populate_popup (GtkAction*     action,
     static const GtkActionEntry actions[] = {
       { "TabNew" },
       { "WindowNew" },
+      { "PrivateBrowsing" },
       { NULL },
       { "Find" },
       #if !HAVE_HILDON
       { "Print" },
       #endif
       { NULL },
-      { "PrivateBrowsing" },
       #if !HAVE_HILDON
       { "ClearPrivateData" },
       #if defined (GDK_WINDOWING_X11)
