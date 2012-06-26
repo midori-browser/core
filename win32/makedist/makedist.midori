@@ -36,19 +36,27 @@ temp_dir=`mktemp -d`
 have_7zip=`which 7za`
 
 grep -q gtk-3.0 _build/config.log && GTK3_BUILD=1
+version=`grep PACKAGE_VERSION _build/default/config.h | awk '{ print $3 $4; }' | sed 's@(debug)@-debug@g'|sed 's@"@@g'`
+
 if [ "$1" != "" ]; then
    if [ "$1" == "debug" ]; then
        DEBUG_BUILD=1
-   else
-       version_tag=$1
+       shift
    fi
+   version_tag="$1"
+fi
+
+if [ $version_tag != "" ]; then
+    version_tag=$version_tag-$version
+else
+    version_tag=$version
 fi
 
 # generate unique filename
 if [ "$have_7zip" != ""  ]; then
-    ARCHIVE=midori$version_tag-`date +%Y%m%d%H%M`.7z
+    ARCHIVE=midori-$version_tag-`date +%Y%m%d%H%M`.7z
 else
-    ARCHIVE=midori$version_tag-`date +%Y%m%d%H%M`.zip
+    ARCHIVE=midori-$version_tag-`date +%Y%m%d%H%M`.zip
 fi
 
 # function: dll-recursive <list of exe and dll files ...>
@@ -94,7 +102,7 @@ grab_files ()
 echo -n "Creating $ARCHIVE ."
 
 # create destination folder
-workdir=$temp_dir/midori$version_tag
+workdir=$temp_dir/midori-$version_tag
 mkdir $workdir
 
 echo -n .
@@ -242,9 +250,9 @@ ARCHIVE=`pwd`/$ARCHIVE
 # store as zip/7z file
 pushd $temp_dir > /dev/null
 if [ "$have_7zip" != "" ]; then
-    7za a -m0=lzma $ARCHIVE midori$version_tag
+    7za a -m0=lzma $ARCHIVE midori-$version_tag
 else
-    zip -rq $ARCHIVE midori$version_tag
+    zip -rq $ARCHIVE midori-$version_tag
 fi
 popd > /dev/null
 
