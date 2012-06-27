@@ -825,7 +825,6 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     label = gtk_label_new (_("Type a name for this bookmark and choose where to keep it."));
     gtk_box_pack_start (GTK_BOX (vbox), label, FALSE, FALSE, 12);
     gtk_box_pack_start (GTK_BOX (hbox), vbox, FALSE, FALSE, 12);
-    gtk_widget_show_all (hbox);
 
     gtk_box_pack_start (GTK_BOX (content_area), hbox, FALSE, FALSE, 0);
     gtk_window_set_icon_name (GTK_WINDOW (dialog),
@@ -894,7 +893,6 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (check_toolbar),
         katze_item_get_meta_boolean (bookmark, "toolbar"));
     gtk_container_add (GTK_CONTAINER (content_area), check_toolbar);
-    gtk_widget_show_all (content_area);
 
     check_app = NULL;
     if (!is_folder)
@@ -904,6 +902,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
             katze_item_get_meta_boolean (bookmark, "app"));
         gtk_container_add (GTK_CONTAINER (content_area), check_app);
     }
+    gtk_widget_show_all (content_area);
 
     gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT);
     if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
