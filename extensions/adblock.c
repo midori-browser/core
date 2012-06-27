@@ -571,6 +571,7 @@ adblock_get_preferences_dialog (MidoriExtension* extension)
     vbox = gtk_vbox_new (FALSE, 4);
     gtk_box_pack_start (GTK_BOX (hbox), vbox, FALSE, FALSE, 4);
     button = gtk_button_new_from_stock (GTK_STOCK_ADD);
+    g_object_set_data (G_OBJECT (dialog), "entry", entry);
     g_object_set_data (G_OBJECT (button), "entry", entry);
     g_signal_connect (button, "clicked",
         G_CALLBACK (adblock_preferences_add_clicked_cb), liststore);
@@ -619,8 +620,9 @@ adblock_get_preferences_dialog (MidoriExtension* extension)
     return dialog;
 }
 
-static void
-adblock_open_preferences_cb (MidoriExtension* extension)
+static GtkWidget*
+adblock_show_preferences_dialog (MidoriExtension* extension,
+                                 const gchar*     uri)
 {
     static GtkWidget* dialog = NULL;
 
@@ -633,6 +635,19 @@ adblock_open_preferences_cb (MidoriExtension* extension)
     }
     else
         gtk_window_present (GTK_WINDOW (dialog));
+
+    if (uri != NULL)
+    {
+        GtkWidget* entry = g_object_get_data (G_OBJECT (dialog), "entry");
+        gtk_entry_set_text (GTK_ENTRY (entry), uri);
+    }
+    return dialog;
+}
+
+static void
+adblock_open_preferences_cb (MidoriExtension* extension)
+{
+    adblock_show_preferences_dialog (extension, NULL);
 }
 
 static inline gint
@@ -791,8 +806,29 @@ adblock_navigation_policy_decision_requested_cb (WebKitWebView*             web_
                                                  WebKitNetworkRequest*      request,
                                                  WebKitWebNavigationAction* action,
                                                  WebKitWebPolicyDecision*   decision,
-                                                 MidoriView*                view)
+                                                 MidoriExtension*           extension)
 {
+    const gchar* uri = webkit_network_request_get_uri (request);
+    if (g_str_has_prefix (uri, "abp:"))
+    {
+        gchar** parts;
+        gchar* filter;
+        if (g_str_has_prefix (uri, "abp:subscribe?location="))
+            uri = &uri[23];
+        else if (g_str_has_prefix (uri, "abp://subscribe?location="))
+            uri = &uri[25];
+        else
+            return FALSE;
+
+        parts = g_strsplit (uri, "&", 2);
+        filter = soup_uri_decode (parts[0]);
+        webkit_web_policy_decision_ignore (decision);
+        adblock_show_preferences_dialog (extension, filter);
+        g_free (filter);
+        g_strfreev (parts);
+        return TRUE;
+    }
+
     if (web_frame == webkit_web_view_get_main_frame (web_view))
     {
         const gchar* req_uri = webkit_network_request_get_uri (request);
@@ -1019,7 +1055,7 @@ adblock_add_tab_cb (MidoriBrowser*   browser,
     g_signal_connect_after (web_view, "populate-popup",
         G_CALLBACK (adblock_populate_popup_cb), extension);
     g_signal_connect (web_view, "navigation-policy-decision-requested",
-        G_CALLBACK (adblock_navigation_policy_decision_requested_cb), view);
+        G_CALLBACK (adblock_navigation_policy_decision_requested_cb), extension);
     g_signal_connect (web_view, "resource-request-starting",
         G_CALLBACK (adblock_resource_request_starting_cb), view);
     g_signal_connect (web_view, "load-finished",
@@ -1510,7 +1546,7 @@ adblock_deactivate_tabs (MidoriView*      view,
     g_signal_handlers_disconnect_by_func (
        web_view, adblock_load_finished_cb, view);
     g_signal_handlers_disconnect_by_func (
-       web_view, adblock_navigation_policy_decision_requested_cb, view);
+       web_view, adblock_navigation_policy_decision_requested_cb, extension);
 }
 
 static void
