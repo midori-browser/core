@@ -4889,7 +4889,8 @@ _action_about_activate (GtkAction*     action,
     gtk_about_dialog_set_url_hook (_action_about_activate_link, browser, NULL);
 #endif
 #if HAVE_GRANITE
-    dialog = granite_widgets_about_dialog_new ();
+    /* FIXME: granite: should return GtkWidget* like GTK+ */
+    dialog = (GtkWidget*)granite_widgets_about_dialog_new ();
     {
         gchar* docs = midori_browser_get_docs ();
         if (!g_str_has_prefix (docs, "error:"))
