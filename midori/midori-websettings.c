@@ -1231,7 +1231,7 @@ midori_web_settings_init (MidoriWebSettings* web_settings)
         "* { -webkit-box-shadow: none !important; }");
     #endif
 
-    #if defined (_WIN32) && WEBKIT_CHECK_VERSION (1, 7, 1)
+    #if defined (_WIN32) && WEBKIT_CHECK_VERSION (1, 7, 1) && !GTK_CHECK_VERSION (3, 0, 0)
     /* Try to work-around black borders on native widgets and GTK+2 on Win32 */
     midori_web_settings_add_style (web_settings, "black-widgets-workaround",
     "input[type='checkbox'] { -webkit-appearance: checkbox !important }"
