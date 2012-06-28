@@ -580,7 +580,7 @@ static void tb_editor_browser_populate_toolbar_menu_cb(MidoriBrowser *browser, G
     separator = gtk_separator_menu_item_new ();
     gtk_widget_show (separator);
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), separator);
-    menuitem = gtk_menu_item_new_with_mnemonic (_("_Customize..."));
+    menuitem = gtk_menu_item_new_with_mnemonic (_("_Customize Toolbar…"));
     g_signal_connect (menuitem, "activate",
         G_CALLBACK (tb_editor_menu_configure_toolbar_activate_cb), browser);
     gtk_widget_show (menuitem);

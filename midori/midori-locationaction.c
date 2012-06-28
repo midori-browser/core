@@ -409,7 +409,7 @@ midori_location_action_add_search_engines (MidoriLocationAction* action,
         if (i > 2 && matches > 0)
         {
             gtk_list_store_insert_with_values (store, NULL, matches + i,
-                URI_COL, "about:search", TITLE_COL, _("Search with..."),
+                URI_COL, "about:search", TITLE_COL, _("Search with…"),
                 YALIGN_COL, 0.25,
                 BACKGROUND_COL, style ? &style->bg[GTK_STATE_NORMAL] : NULL,
                 STYLE_COL, 1, FAVICON_COL, NULL, -1);

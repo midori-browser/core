@@ -4290,7 +4290,7 @@ _action_bookmarks_import_activate (GtkAction*     action,
         return;
 
     dialog = gtk_dialog_new_with_buttons (
-        _("Import bookmarks..."), GTK_WINDOW (browser),
+        _("Import bookmarks…"), GTK_WINDOW (browser),
         GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR,
         GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
         _("_Import bookmarks"), GTK_RESPONSE_ACCEPT,
@@ -5286,7 +5286,7 @@ static const GtkActionEntry entries[] =
         NULL, "<Ctrl>o",
         N_("Open a file"), G_CALLBACK (_action_open_activate) },
     { "SaveAs", GTK_STOCK_SAVE_AS,
-        N_("_Save Page As..."), "<Ctrl>s",
+        N_("_Save Page As…"), "<Ctrl>s",
         N_("Save to a file"), G_CALLBACK (_action_save_as_activate) },
     { "AddSpeedDial", NULL,
         N_("Add to Speed _dial"), "<Ctrl>h",
@@ -5340,7 +5340,7 @@ static const GtkActionEntry entries[] =
         NULL, "<Ctrl>a",
         NULL, G_CALLBACK (_action_select_all_activate) },
     { "Find", GTK_STOCK_FIND,
-        N_("_Find..."), "<Ctrl>f",
+        N_("_Find…"), "<Ctrl>f",
         N_("Find a word or phrase in the page"), G_CALLBACK (_action_find_activate) },
     { "FindNext", GTK_STOCK_GO_FORWARD,
         N_("Find _Next"), "<Ctrl>g",
@@ -5479,7 +5479,7 @@ static const GtkActionEntry entries[] =
         N_("_Frequent Questions"), "F1",
         NULL, G_CALLBACK (_action_help_link_activate) },
     { "HelpBugs", NULL,
-        N_("_Report a Problem..."), NULL,
+        N_("_Report a Problem…"), NULL,
         NULL, G_CALLBACK (_action_help_link_activate) },
     { "About", GTK_STOCK_ABOUT,
         NULL, "",
@@ -5541,7 +5541,7 @@ static const GtkRadioActionEntry encoding_entries[] =
         N_("Western (ISO-8859-1)"), "",
         NULL, 1 },
     { "EncodingCustom", NULL,
-        N_("Custom..."), "",
+        N_("Custom…"), "",
         NULL, 1 },
 };
 static const guint encoding_entries_n = G_N_ELEMENTS (encoding_entries);
@@ -6055,7 +6055,7 @@ midori_browser_init (MidoriBrowser* browser)
 
     action = g_object_new (MIDORI_TYPE_LOCATION_ACTION,
         "name", "Location",
-        "label", _("_Location..."),
+        "label", _("_Location…"),
         "stock-id", GTK_STOCK_JUMP_TO,
         "tooltip", _("Open a particular location"),
         NULL);
@@ -6079,7 +6079,7 @@ midori_browser_init (MidoriBrowser* browser)
 
     action = g_object_new (MIDORI_TYPE_SEARCH_ACTION,
         "name", "Search",
-        "label", _("_Web Search..."),
+        "label", _("_Web Search…"),
         "stock-id", GTK_STOCK_FIND,
         "tooltip", _("Run a web search"),
         NULL);
