@@ -4384,6 +4384,7 @@ midori_view_set_uri (MidoriView*  view,
             katze_assign (view->uri, midori_uri_format_for_display (uri));
             if (g_strcmp0 (view->item->uri, view->uri))
                 katze_item_set_uri (view->item, view->uri);
+            katze_assign (view->title, NULL);
             g_object_notify (G_OBJECT (view), "uri");
             webkit_web_view_open (WEBKIT_WEB_VIEW (view->web_view), uri);
         }
