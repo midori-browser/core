@@ -684,7 +684,7 @@ midori_bookmark_folder_button_new (KatzeArray* array,
     gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (combo), renderer, "text", 0);
     gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (combo), renderer, "ellipsize", 1);
     gtk_list_store_insert_with_values (model, NULL, G_MAXINT,
-        0, _("Toplevel folder"), 1, PANGO_ELLIPSIZE_END, 2, (gint64)0, -1);
+        0, _("Bookmarks"), 1, PANGO_ELLIPSIZE_END, 2, (gint64)0, -1);
     gtk_combo_box_set_active (GTK_COMBO_BOX (combo), 0);
 
     db = g_object_get_data (G_OBJECT (array), "db");
@@ -726,7 +726,7 @@ midori_bookmark_folder_button_get_active (GtkWidget* combo)
         GtkTreeModel* model = gtk_combo_box_get_model (GTK_COMBO_BOX (combo));
         gtk_tree_model_get (GTK_TREE_MODEL (model), &iter, 0, &selected, 2, &id, -1);
 
-        if (g_str_equal (selected, _("Toplevel folder")))
+        if (g_str_equal (selected, _("Bookmarks")))
             id = 0;
 
         g_free (selected);
