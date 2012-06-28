@@ -1144,10 +1144,14 @@ midori_view_web_view_resource_request_cb (WebKitWebView*         web_view,
         gint real_icon_size;
         GtkIconInfo* icon_info;
         const gchar* icon_filename;
+        static gint icon_size_large_dialog = 0;
+
+        if (!icon_size_large_dialog)
+            icon_size_large_dialog = gtk_icon_size_register ("large-dialog", 64, 64);
 
         if (g_ascii_isalpha (icon_name[0]))
             icon_size = strstr (icon_name, "dialog") ?
-                GTK_ICON_SIZE_DIALOG : GTK_ICON_SIZE_BUTTON;
+                icon_size_large_dialog : GTK_ICON_SIZE_BUTTON;
         else if (g_ascii_isdigit (icon_name[0]))
         {
             guint i = 0;
