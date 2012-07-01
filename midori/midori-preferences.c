@@ -392,13 +392,10 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     else
         button = katze_property_proxy (settings, "middle-click-opens-selection", NULL);
     INDENTED_ADD (button);
-    button = katze_property_proxy (settings, "flash-window-on-new-bg-tabs", NULL);
-    SPANNED_ADD (button);
-
     if (katze_object_has_property (settings, "enable-webgl"))
     {
         button = katze_property_proxy (settings, "enable-webgl", NULL);
-        INDENTED_ADD (button);
+        SPANNED_ADD (button);
     }
 
     FRAME_NEW (NULL);

@@ -822,6 +822,13 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
         !midori_web_settings_low_memory_profile (),
                                                            flags));
     #endif
+    /**
+     * MidoriWebSettings::flash-window-on-new-bg-tabs
+     *
+     * Doesn't do anything.
+     *
+     * Deprecated: 0.4.7
+     */
     g_object_class_install_property (gobject_class,
                                      PROP_FLASH_WINDOW_ON_BG_TABS,
                                      g_param_spec_boolean (
