@@ -5247,7 +5247,12 @@ midori_view_can_view_source (MidoriView* view)
         return FALSE;
 
     content_type = g_content_type_from_mime_type (view->mime_type);
+#ifdef _WIN32
+    /* On Win32 text/plain maps to ".txt" but is_a expects "text" */
+    text_type = g_strdup ("text");
+#else
     text_type = g_content_type_from_mime_type ("text/plain");
+#endif
     is_text = g_content_type_is_a (content_type, text_type);
     g_free (content_type);
     g_free (text_type);
