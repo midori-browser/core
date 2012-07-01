@@ -228,7 +228,7 @@ sokoke_open_with_response_cb (GtkWidget* dialog,
     {
         const gchar* command = gtk_entry_get_text (entry);
         const gchar* uri = g_object_get_data (G_OBJECT (dialog), "uri");
-        sokoke_spawn_program (command, uri);
+        sokoke_spawn_program (command, FALSE, uri, TRUE);
     }
     gtk_widget_destroy (dialog);
 }
@@ -379,117 +379,112 @@ sokoke_show_uri (GdkScreen*   screen,
     #endif
 }
 
+/**
+ * sokoke_prepare_command:
+ * @command: the command, properly quoted
+ * @argument: any arguments, properly quoted
+ * @quote_command: if %TRUE, @command will be quoted
+ * @quote_argument: if %TRUE, @argument will be quoted, ie. a URI or filename
+ *
+ * If @command contains %s, @argument will be quoted and inserted into
+ * @command, which is left unquoted regardless of @quote_command.
+ *
+ * Return value: the command prepared for spawning
+ **/
+gchar*
+sokoke_prepare_command (const gchar* command,
+                        gboolean     quote_command,
+                        const gchar* argument,
+                        gboolean     quote_argument)
+{
+    g_return_val_if_fail (command != NULL, FALSE);
+    g_return_val_if_fail (argument != NULL, FALSE);
+
+    g_print ("Preparing command: %s %d %s %d\n",
+             command, quote_command, argument, quote_argument);
+
+    {
+        gchar* uri_format;
+        gchar* real_command;
+        gchar* command_ready;
+
+        /* .desktop files accept %u as URI, we cheap and treat it like %s */
+        if ((uri_format = strstr (command, "%u")))
+            uri_format[1] = 's';
+
+        real_command = quote_command ? g_shell_quote (command) : g_strdup (command);
+
+        if (strstr (command, "%s"))
+        {
+            gchar* argument_quoted = g_shell_quote (argument);
+            command_ready = sokoke_replace_variables (real_command, "%s", argument_quoted);
+            g_free (argument_quoted);
+        }
+        else if (quote_argument)
+        {
+            gchar* argument_quoted = g_shell_quote (argument);
+            command_ready = g_strconcat (real_command, " ", argument_quoted, NULL);
+            g_free (argument_quoted);
+        }
+        else
+            command_ready = g_strconcat (real_command, " ", argument, NULL);
+        g_free (real_command);
+        return command_ready;
+    }
+}
+
+/**
+ * sokoke_spawn_program:
+ * @command: the command, properly quoted
+ * @argument: any arguments, properly quoted
+ * @quote_command: if %TRUE, @command will be quoted
+ * @quote_argument: if %TRUE, @argument will be quoted, ie. a URI or filename
+ *
+ * If @command contains %s, @argument will be quoted and inserted into
+ * @command, which is left unquoted regardless of @quote_command.
+ *
+ * Return value: %TRUE on success, %FALSE if an error occurred
+ **/
 gboolean
 sokoke_spawn_program (const gchar* command,
-                      const gchar* argument)
+                      gboolean     quote_command,
+                      const gchar* argument,
+                      gboolean     quote_argument)
 {
     GError* error;
+    gchar* command_ready;
+    gchar** argv;
 
     g_return_val_if_fail (command != NULL, FALSE);
     g_return_val_if_fail (argument != NULL, FALSE);
 
-    if (!g_strstr_len (argument, 8, "://")
-     && !g_str_has_prefix (argument, "about:"))
+    command_ready = sokoke_prepare_command (command, quote_command, argument, quote_argument);
+    g_print ("Launching command: %s\n", command_ready);
+
+    error = NULL;
+    if (!g_shell_parse_argv (command_ready, NULL, &argv, &error))
     {
-        gboolean success;
-
-        #if HAVE_HILDON
-        osso_context_t* osso;
-        DBusConnection* dbus;
-
-        osso = osso_initialize (PACKAGE_NAME, PACKAGE_VERSION, FALSE, NULL);
-        if (!osso)
-        {
-            sokoke_message_dialog (GTK_MESSAGE_ERROR,
-                                   _("Could not run external program."),
-                                   "Failed to initialize libosso", FALSE);
-            return FALSE;
-        }
-
-        dbus = (DBusConnection *) osso_get_dbus_connection (osso);
-        if (!dbus)
-        {
-            osso_deinitialize (osso);
-            sokoke_message_dialog (GTK_MESSAGE_ERROR,
-                                   _("Could not run external program."),
-                                   "Failed to get dbus connection from osso context", FALSE);
-            return FALSE;
-        }
-
-        error = NULL;
-        /* FIXME: This is not correct, find a proper way to do this */
-        success = (osso_application_top (osso, command, argument) == OSSO_OK);
-        osso_deinitialize (osso);
-        #else
-        GAppInfo* info;
-        GFile* file;
-        GList* files;
-
-        info = g_app_info_create_from_commandline (command,
-            NULL, G_APP_INFO_CREATE_NONE, NULL);
-        file = g_file_new_for_commandline_arg (argument);
-        files = g_list_append (NULL, file);
-
-        error = NULL;
-        success = g_app_info_launch (info, files, NULL, &error);
-        g_object_unref (file);
-        g_list_free (files);
-        #endif
-
-        if (!success)
-        {
-            sokoke_message_dialog (GTK_MESSAGE_ERROR,
-                _("Could not run external program."),
-                error ? error->message : "", FALSE);
-            if (error)
-                g_error_free (error);
-            return FALSE;
-        }
-    }
-    else
-    {
-        /* FIXME: Implement Hildon specific version */
-        gchar* uri_format;
-        gchar* argument_quoted;
-        gchar* command_ready;
-        gchar** argv;
-
-        if ((uri_format = strstr (command, "%u")))
-            uri_format[1] = 's';
-
-        argument_quoted = g_shell_quote (argument);
-        if (strstr (command, "%s"))
-            command_ready = g_strdup_printf (command, argument_quoted);
-        else
-            command_ready = g_strconcat (command, " ", argument_quoted, NULL);
-        g_free (argument_quoted);
-
-        error = NULL;
-        if (!g_shell_parse_argv (command_ready, NULL, &argv, &error))
-        {
-            sokoke_message_dialog (GTK_MESSAGE_ERROR,
-                                   _("Could not run external program."),
-                                   error->message, FALSE);
-            g_error_free (error);
-            g_free (command_ready);
-            return FALSE;
-        }
+        sokoke_message_dialog (GTK_MESSAGE_ERROR,
+                               _("Could not run external program."),
+                               error->message, FALSE);
+        g_error_free (error);
         g_free (command_ready);
+        return FALSE;
+    }
+    g_free (command_ready);
 
-        error = NULL;
-        if (!g_spawn_async (NULL, argv, NULL,
-            (GSpawnFlags)G_SPAWN_SEARCH_PATH | G_SPAWN_DO_NOT_REAP_CHILD,
-            NULL, NULL, NULL, &error))
-        {
-            sokoke_message_dialog (GTK_MESSAGE_ERROR,
-                                   _("Could not run external program."),
-                                   error->message, FALSE);
-            g_error_free (error);
-        }
-
-        g_strfreev (argv);
+    error = NULL;
+    if (!g_spawn_async (NULL, argv, NULL,
+        (GSpawnFlags)G_SPAWN_SEARCH_PATH | G_SPAWN_DO_NOT_REAP_CHILD,
+        NULL, NULL, NULL, &error))
+    {
+        sokoke_message_dialog (GTK_MESSAGE_ERROR,
+                               _("Could not run external program."),
+                               error->message, FALSE);
+        g_error_free (error);
     }
 
+    g_strfreev (argv);
     return TRUE;
 }
 
@@ -498,23 +493,19 @@ sokoke_spawn_app (const gchar* uri,
                   gboolean     private)
 {
     const gchar* executable = midori_app_get_command_line ()[0];
-    /* "midori"
-       "/usr/bin/midori"
-       "c:/Program Files/Midori/bin/midori.exe" */
-    gchar* quoted = g_shell_quote (executable);
-    gchar* command;
+    gchar* uri_quoted = g_shell_quote (uri);
+    gchar* argument;
     if (private)
     {
-        gchar* quoted_config = g_shell_quote (sokoke_set_config_dir (NULL));
-        command = g_strconcat (quoted, " -c ", quoted_config,
-                                       " -p", NULL);
-        g_free (quoted_config);
+        gchar* config_quoted = g_shell_quote (sokoke_set_config_dir (NULL));
+        argument = g_strconcat ("-c ", config_quoted,
+                                " -p ", uri_quoted, NULL);
     }
     else
-        command = g_strconcat (quoted, " -a", NULL);
-    g_free (quoted);
-    sokoke_spawn_program (command, uri);
-    g_free (command);
+        argument = g_strconcat ("-a ", uri_quoted, NULL);
+    g_free (uri_quoted);
+    sokoke_spawn_program (executable, TRUE, argument, FALSE);
+    g_free (argument);
 }
 
 static void

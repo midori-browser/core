@@ -42,9 +42,17 @@ sokoke_show_uri                         (GdkScreen*      screen,
                                          guint32         timestamp,
                                          GError**        error);
 
+gchar*
+sokoke_prepare_command                  (const gchar*    command,
+                                         gboolean        quote_command,
+                                         const gchar*    argument,
+                                         gboolean        quote_argument);
+
 gboolean
 sokoke_spawn_program                    (const gchar* command,
-                                         const gchar* argument);
+                                         gboolean        quote_command,
+                                         const gchar*    argument,
+                                         gboolean        quote_argument);
 
 void
 sokoke_spawn_app                        (const gchar*    uri,

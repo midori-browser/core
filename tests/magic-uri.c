@@ -287,6 +287,49 @@ magic_uri_prefetch (void)
     g_assert (!sokoke_prefetch_uri (NULL, "javascript: alert()", NULL, NULL));
 }
 
+static void
+magic_uri_commands (void)
+{
+    typedef struct
+    {
+        const gchar* command;
+        gboolean quote;
+        const gchar* expected;
+    } CommandItem;
+
+    static const CommandItem commands[] = {
+        { "midori", TRUE, NULL },
+        { "/usr/bin/midori", TRUE, NULL },
+        { "C:/Program Files/Midori/bin/midori.exe", TRUE, NULL },
+        { "C:/Programme/Midori/bin/midori.exe", TRUE, NULL },
+    };
+    static const CommandItem arguments[] = {
+        { "-a 'http://lunduke.com/?p=3606'", FALSE, NULL },
+        { "about:private", FALSE, NULL },
+    };
+    guint i, j;
+
+    for (i = 0; i < G_N_ELEMENTS (commands); i++)
+        for (j = 0; j < G_N_ELEMENTS (arguments); j++)
+        {
+            gchar* input = g_strconcat (commands[i].command, " ", arguments[j].command, NULL);
+            gchar* ce = commands[i].expected ? commands[i].expected
+             : g_strconcat ("'", commands[i].command, "'", NULL);
+            gchar* ae = arguments[j].expected ? arguments[j].expected
+              : (arguments[j].quote ? g_strconcat ("'", arguments[j].command, "'", NULL)
+              : g_strdup (arguments[j].command));
+            gchar* expected = g_strconcat (ce, " ", ae, NULL);
+            gchar* result = sokoke_prepare_command (commands[i].command,
+                commands[i].quote, arguments[j].command, arguments[j].quote);
+            katze_assert_str_equal (input, result, expected);
+            g_free (input);
+            g_free (ce);
+            g_free (ae);
+            g_free (expected);
+            g_free (result);
+        }
+}
+
 int
 main (int    argc,
       char** argv)
@@ -303,6 +346,7 @@ main (int    argc,
     g_test_add_func ("/magic-uri/fingerprint", magic_uri_fingerprint);
     g_test_add_func ("/magic-uri/format", magic_uri_format);
     g_test_add_func ("/magic-uri/prefetch", magic_uri_prefetch);
+    g_test_add_func ("/magic-uri/commands", magic_uri_commands);
 
     return g_test_run ();
 }
