@@ -18,6 +18,11 @@
 #include <glib/gstdio.h>
 #include <glib/gi18n.h>
 
+#include <config.h>
+#ifdef HAVE_UNISTD_H
+    #include <unistd.h>
+#endif
+
 #ifdef G_ENABLE_DEBUG
 void midori_bookmarks_dbtracer(void* dummy, const char* query)
 {
