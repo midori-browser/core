@@ -210,7 +210,7 @@ katze_preferences_prepare (KatzePreferences* preferences)
                       G_CALLBACK (gtk_widget_destroyed), &priv->scrolled);
     #else
     #if HAVE_GRANITE
-    priv->notebook = granite_widgets_static_notebook_new ();
+    priv->notebook = g_object_new (GRANITE_WIDGETS_TYPE_STATIC_NOTEBOOK, NULL);
     #else
     priv->notebook = gtk_notebook_new ();
     #endif
@@ -310,7 +310,7 @@ katze_preferences_add_category (KatzePreferences* preferences,
     #if HAVE_GRANITE
     granite_widgets_static_notebook_append_page (
         GRANITE_WIDGETS_STATIC_NOTEBOOK (priv->notebook),
-        priv->page, gtk_label_new (label));
+        priv->page, GTK_LABEL (gtk_label_new (label)));
     #else
     gtk_notebook_append_page (GTK_NOTEBOOK (priv->notebook),
                               priv->page, gtk_label_new (label));
