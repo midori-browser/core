@@ -16,6 +16,10 @@
 
 #include <katze/katze.h>
 
+#ifdef HAVE_GRANITE
+    #include <granite/granite.h>
+#endif
+
 G_BEGIN_DECLS
 
 #define MIDORI_LOAD_PROVISIONAL WEBKIT_LOAD_PROVISIONAL
@@ -142,8 +146,17 @@ midori_view_get_tab_menu               (MidoriView*        view);
 PangoEllipsizeMode
 midori_view_get_label_ellipsize        (MidoriView*        view);
 
+#ifdef HAVE_GRANITE
+GraniteWidgetsTab*
+midori_view_get_tab                    (MidoriView*        view);
+
+void
+midori_view_set_tab                    (MidoriView*        view,
+                                        GraniteWidgetsTab* tab);
+#else
 GtkWidget*
 midori_view_get_proxy_tab_label        (MidoriView*        view);
+#endif
 
 KatzeItem*
 midori_view_get_proxy_item             (MidoriView*        view);

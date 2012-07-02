@@ -105,10 +105,15 @@ struct _MidoriView
     gint alerts;
 
     GtkWidget* menu_item;
+    PangoEllipsizeMode ellipsize;
+    #ifdef HAVE_GRANITE
+    GraniteWidgetsTab* tab;
+    #else
     GtkWidget* tab_label;
     GtkWidget* tab_icon;
     GtkWidget* tab_title;
     GtkWidget* tab_close;
+    #endif
     KatzeItem* item;
     gint scrollh, scrollv;
     gboolean back_forward_set;
@@ -614,29 +619,10 @@ midori_view_class_init (MidoriViewClass* class)
                                      flags));
 }
 
-#ifdef HAVE_GRANITE
-static GraniteWidgetsTab*
-midori_view_get_tab (MidoriView* view)
-{
-    GraniteWidgetsDynamicNotebook* notebook;
-    GraniteWidgetsTab* tab = NULL;
-
-    notebook = (GraniteWidgetsDynamicNotebook*)gtk_widget_get_parent ((GtkWidget*)view);
-    if (notebook != NULL)
-        tab = granite_widgets_dynamic_notebook_get_nth_page (notebook,
-            granite_widgets_dynamic_notebook_page_num (notebook, (GtkWidget*)view));
-
-    return tab;
-}
-#endif
-
 static void
 midori_view_set_title (MidoriView* view, const gchar* title)
 {
     const gchar* display_title;
-    #ifdef HAVE_GRANITE
-    GraniteWidgetsTab* tab;
-    #endif
 
     if (!title)
         title = view->uri;
@@ -670,18 +656,8 @@ midori_view_set_title (MidoriView* view, const gchar* title)
     #endif
 
     display_title = midori_view_get_display_title (view);
-    #ifdef HAVE_GRANITE
-    /* FIXME: granite: GraniteWidgetsTab.text should be a property */
-    tab = midori_view_get_tab (view);
-    if (tab != NULL)
-        katze_assign (tab->text, g_strdup (display_title));
-    #endif
-    if (view->tab_label)
-    {
         /* If the title starts with the presumed name of the website, we
             ellipsize differently, to emphasize the subtitle */
-        if (gtk_label_get_angle (GTK_LABEL (view->tab_title)) == 0.0)
-        {
             SoupURI* uri = soup_uri_new (view->uri);
             const gchar* host = uri ? (uri->host ? uri->host : "") : "";
             const gchar* name = g_str_has_prefix (host, "www.") ? &host[4] : host;
@@ -690,16 +666,24 @@ midori_view_set_title (MidoriView* view, const gchar* title)
                 if (name[i] == '.')
                     break;
             if (!g_ascii_strncasecmp (display_title, name, i))
-                gtk_label_set_ellipsize (GTK_LABEL (view->tab_title), PANGO_ELLIPSIZE_START);
+                view->ellipsize = PANGO_ELLIPSIZE_START;
             else
-                gtk_label_set_ellipsize (GTK_LABEL (view->tab_title), PANGO_ELLIPSIZE_END);
+                view->ellipsize = PANGO_ELLIPSIZE_END;
             if (uri)
                 soup_uri_free (uri);
-        }
+    #ifdef HAVE_GRANITE
+    g_object_set (midori_view_get_tab (view),
+        "label", display_title, "ellipsize-mode", view->ellipsize, NULL);
+    #else
+    if (view->tab_label)
+    {
         gtk_label_set_text (GTK_LABEL (view->tab_title), display_title);
         gtk_widget_set_tooltip_text (view->tab_icon, display_title);
         gtk_widget_set_tooltip_text (view->tab_title, display_title);
+        if (gtk_label_get_angle (GTK_LABEL (view->tab_title)) == 0.0)
+            gtk_label_set_ellipsize (GTK_LABEL (view->tab_title), view->ellipsize);
     }
+    #endif
     if (view->menu_item)
         gtk_label_set_text (GTK_LABEL (gtk_bin_get_child (GTK_BIN (
                             view->menu_item))), display_title);
@@ -711,11 +695,6 @@ midori_view_apply_icon (MidoriView*  view,
                         GdkPixbuf*   icon,
                         const gchar* icon_name)
 {
-    #ifdef HAVE_GRANITE
-    GraniteWidgetsTab* tab = midori_view_get_tab (view);
-    g_object_set (tab, "pixbuf", icon, NULL);
-    #endif
-
     katze_item_set_icon (view->item, icon_name);
     /* katze_item_get_image knows about this pixbuf */
     g_object_set_data_full (G_OBJECT (view->item), "pixbuf", g_object_ref (icon),
@@ -723,6 +702,9 @@ midori_view_apply_icon (MidoriView*  view,
     katze_object_assign (view->icon, icon);
     g_object_notify (G_OBJECT (view), "icon");
 
+    #ifdef HAVE_GRANITE
+    g_object_set (midori_view_get_tab (view), "icon", icon, NULL);
+    #else
     if (view->tab_icon)
     {
         if (icon_name && !strchr (icon_name, '/'))
@@ -732,6 +714,7 @@ midori_view_apply_icon (MidoriView*  view,
             katze_throbber_set_static_pixbuf (KATZE_THROBBER (view->tab_icon),
                                               view->icon);
     }
+    #endif
     if (view->menu_item)
     {
         GtkWidget* image = katze_item_get_image (view->item);
@@ -961,11 +944,12 @@ midori_view_update_load_status (MidoriView*      view,
 
     #ifdef HAVE_GRANITE
     g_object_set (midori_view_get_tab (view),
-                  "loading", view->load_status != MIDORI_LOAD_FINISHED, NULL);
-    #endif
+                  "working", view->load_status != MIDORI_LOAD_FINISHED, NULL);
+    #else
     if (view->tab_icon)
         katze_throbber_set_animated (KATZE_THROBBER (view->tab_icon),
             view->load_status != MIDORI_LOAD_FINISHED);
+    #endif
 }
 
 static gboolean
@@ -3337,8 +3321,14 @@ midori_view_set_property (GObject*      object,
                                      view->minimized ? 1 : -1);
         g_signal_handlers_unblock_by_func (view->item,
             midori_view_item_meta_data_changed, view);
+        #ifdef HAVE_GRANITE
+        g_object_set (midori_view_get_tab (view), "label",
+            "fixed", view->minimized, NULL);
+            //view->minimized ? NULL : midori_view_get_display_title(view), NULL);
+        #else
         if (view->tab_label)
             sokoke_widget_set_visible (view->tab_title, !view->minimized);
+        #endif
         break;
     case PROP_ZOOM_LEVEL:
         midori_view_set_zoom_level (view, g_value_get_float (value));
@@ -3549,8 +3539,10 @@ midori_view_settings_notify_cb (MidoriWebSettings* settings,
     else if (name == g_intern_string ("close-buttons-on-tabs"))
     {
         view->close_buttons_on_tabs = g_value_get_boolean (&value);
+        #ifndef HAVE_GRANITE
         sokoke_widget_set_visible (view->tab_close,
                                    view->close_buttons_on_tabs);
+        #endif
     }
     else if (name == g_intern_string ("open-new-pages-in"))
         view->open_new_pages_in = g_value_get_enum (&value);
@@ -4813,6 +4805,30 @@ midori_view_get_tab_menu (MidoriView* view)
     return menu;
 }
 
+#ifdef HAVE_GRANITE
+GraniteWidgetsTab*
+midori_view_get_tab (MidoriView* view)
+{
+    if (view->tab == NULL)
+        view->tab = granite_widgets_tab_new (
+            midori_view_get_display_title (view), G_ICON (view->icon), GTK_WIDGET (view));
+    return view->tab;
+}
+
+void
+midori_view_set_tab (MidoriView*        view,
+                     GraniteWidgetsTab* tab)
+{
+    g_return_if_fail (view->tab == NULL);
+
+    view->tab = tab;
+    g_object_set (tab,
+        "label", midori_view_get_display_title (view),
+        "icon", G_ICON (view->icon),
+        "page", GTK_WIDGET (view),
+        NULL);
+}
+#else
 static gboolean
 midori_view_tab_label_button_press_event (GtkWidget*      tab_label,
                                           GdkEventButton* event,
@@ -4957,27 +4973,6 @@ midori_view_tab_label_parent_set (GtkWidget*  tab_label,
 
         /* FIXME: Connect orientation notification */
     }
-}
-
-/**
- * midori_view_get_label_ellipsize:
- * @view: a #MidoriView
- *
- * Determines how labels representing the view should be
- * ellipsized, which is helpful for alternative labels.
- *
- * Return value: how to ellipsize the label
- *
- * Since: 0.1.9
- **/
-PangoEllipsizeMode
-midori_view_get_label_ellipsize (MidoriView* view)
-{
-    g_return_val_if_fail (MIDORI_IS_VIEW (view), PANGO_ELLIPSIZE_END);
-
-    if (view->tab_label)
-        return gtk_label_get_ellipsize (GTK_LABEL (view->tab_title));
-    return PANGO_ELLIPSIZE_END;
 }
 
 static void midori_view_tab_label_data_received (GtkWidget* widget,
@@ -5137,6 +5132,26 @@ midori_view_get_proxy_tab_label (MidoriView* view)
                           view);
     }
     return view->tab_label;
+}
+#endif
+
+/**
+ * midori_view_get_label_ellipsize:
+ * @view: a #MidoriView
+ *
+ * Determines how labels representing the view should be
+ * ellipsized, which is helpful for alternative labels.
+ *
+ * Return value: how to ellipsize the label
+ *
+ * Since: 0.1.9
+ **/
+PangoEllipsizeMode
+midori_view_get_label_ellipsize (MidoriView* view)
+{
+    g_return_val_if_fail (MIDORI_IS_VIEW (view), PANGO_ELLIPSIZE_END);
+
+    return view->ellipsize;
 }
 
 static void
