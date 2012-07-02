@@ -5160,14 +5160,6 @@ midori_browser_notebook_tab_added_cb (GtkWidget*         notebook,
 }
 
 static void
-midori_browser_notebook_tab_removed_cb (GtkWidget*         notebook,
-                                        GraniteWidgetsTab* tab,
-                                        MidoriBrowser*     browser)
-{
-    _midori_browser_remove_tab (browser, granite_widgets_tab_get_page (tab));
-}
-
-static void
 midori_browser_notebook_tab_switched_cb (GtkWidget*         notebook,
                                          GraniteWidgetsTab* old_tab,
                                          GraniteWidgetsTab* new_tab,
@@ -6408,9 +6400,6 @@ midori_browser_init (MidoriBrowser* browser)
     /* FIXME menu items */
     g_signal_connect (browser->notebook, "tab-added",
                       G_CALLBACK (midori_browser_notebook_tab_added_cb),
-                      browser);
-    g_signal_connect (browser->notebook, "tab-removed",
-                      G_CALLBACK (midori_browser_notebook_tab_removed_cb),
                       browser);
     g_signal_connect (browser->notebook, "tab-switched",
                       G_CALLBACK (midori_browser_notebook_tab_switched_cb),
