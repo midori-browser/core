@@ -210,7 +210,7 @@ katze_preferences_prepare (KatzePreferences* preferences)
                       G_CALLBACK (gtk_widget_destroyed), &priv->scrolled);
     #else
     #if HAVE_GRANITE
-    priv->notebook = g_object_new (GRANITE_WIDGETS_TYPE_STATIC_NOTEBOOK, NULL);
+    priv->notebook = granite_widgets_static_notebook_new (FALSE);
     #else
     priv->notebook = gtk_notebook_new ();
     #endif
