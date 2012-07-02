@@ -1344,7 +1344,7 @@ midori_app_find_res_filename (const gchar* filename)
 
     /* Fallback to build folder */
     path = g_build_filename (g_file_get_path (g_file_get_parent (
-        g_file_get_parent (g_file_get_parent (g_file_new_for_path (exec_path))))),
+        g_file_get_parent (g_file_new_for_path (exec_path)))),
         "data", filename, NULL);
     if (g_access (path, F_OK) == 0)
         return path;
