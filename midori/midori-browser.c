@@ -1522,6 +1522,17 @@ midori_view_search_text_cb (GtkWidget*     view,
     midori_findbar_search_text (MIDORI_FINDBAR (browser->find), view, found, typing);
 }
 
+static gint
+midori_browser_get_n_pages (MidoriBrowser* browser)
+{
+    #ifdef HAVE_GRANITE
+    return granite_widgets_dynamic_notebook_get_n_tabs (
+        GRANITE_WIDGETS_DYNAMIC_NOTEBOOK (browser->notebook));
+    #else
+    return gtk_notebook_get_n_pages (GTK_NOTEBOOK (browser->notebook));
+    #endif
+}
+
 static gboolean
 midori_browser_tab_destroy_cb (GtkWidget*     widget,
                                MidoriBrowser* browser)
@@ -1549,7 +1560,13 @@ midori_browser_tab_destroy_cb (GtkWidget*     widget,
        so just create an empty one if the last one is closed.
        The only exception is when we are closing the window,
        which is indicated by the proxy array having been unset. */
+    #ifdef HAVE_GRANITE
+    if (midori_browser_get_current_tab (browser) && midori_browser_get_n_pages (browser) > 0)
+        g_warning ("FIXME granite_widgets_get_current returns NULL");
+    if (browser->proxy_array && !midori_browser_get_n_pages (browser))
+    #else
     if (browser->proxy_array && !midori_browser_get_current_tab (browser))
+    #endif
         midori_browser_add_uri (browser, "");
     return FALSE;
 }
@@ -2569,8 +2586,7 @@ _action_tab_close_activate (GtkAction*     action,
                             MidoriBrowser* browser)
 {
     GtkWidget* widget = midori_browser_get_current_tab (browser);
-    gboolean last_tab =
-        midori_browser_get_nth_tab (browser, 1) == NULL;
+    gboolean last_tab = midori_browser_get_n_pages (browser) == 1;
     if (last_tab && sokoke_is_app_or_private ())
     {
         gtk_widget_destroy (GTK_WIDGET (browser));
@@ -4666,17 +4682,6 @@ _action_inspect_page_activate (GtkAction*     action,
     WebKitWebView* web_view = WEBKIT_WEB_VIEW (midori_view_get_web_view (MIDORI_VIEW (view)));
     WebKitWebInspector* inspector = webkit_web_view_get_inspector (web_view);
     webkit_web_inspector_show (inspector);
-}
-
-static gint
-midori_browser_get_n_pages (MidoriBrowser* browser)
-{
-    #ifdef HAVE_GRANITE
-    return granite_widgets_dynamic_notebook_get_n_tabs (
-        GRANITE_WIDGETS_DYNAMIC_NOTEBOOK (browser->notebook));
-    #else
-    return gtk_notebook_get_n_pages (GTK_NOTEBOOK (browser->notebook));
-    #endif
 }
 
 static void
@@ -7828,8 +7833,20 @@ midori_browser_get_current_tab (MidoriBrowser* browser)
     n = midori_browser_get_current_page (browser);
     if (n >= 0)
         return midori_browser_get_nth_tab (browser, n);
+    #ifdef HAVE_GRANITE
+    else
+    {
+        GraniteWidgetsTab* tab = granite_widgets_dynamic_notebook_get_current (
+            GRANITE_WIDGETS_DYNAMIC_NOTEBOOK (browser->notebook));
+        g_warning ("FIXME granite_widgets_get_tab_position returns NULL");
+        if (tab == NULL)
+            g_warning ("granite_widgets_dynamic_notebook_get_current returns NULL");
+        return tab ? granite_widgets_tab_get_page (tab) : NULL;
+    }
+    #else
     else
         return NULL;
+    #endif
 }
 
 /**
