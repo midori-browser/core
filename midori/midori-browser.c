@@ -1559,13 +1559,7 @@ midori_browser_tab_destroy_cb (GtkWidget*     widget,
        so just create an empty one if the last one is closed.
        The only exception is when we are closing the window,
        which is indicated by the proxy array having been unset. */
-    #ifdef HAVE_GRANITE
-    if (midori_browser_get_current_tab (browser) && midori_browser_get_n_pages (browser) > 0)
-        g_warning ("FIXME granite_widgets_get_current returns NULL");
-    if (browser->proxy_array && !midori_browser_get_n_pages (browser))
-    #else
     if (browser->proxy_array && !midori_browser_get_current_tab (browser))
-    #endif
         midori_browser_add_uri (browser, "");
     return FALSE;
 }
@@ -7822,26 +7816,19 @@ midori_browser_set_current_tab (MidoriBrowser* browser,
 GtkWidget*
 midori_browser_get_current_tab (MidoriBrowser* browser)
 {
-    gint n;
+    #ifdef HAVE_GRANITE
+    GraniteWidgetsTab* tab;
+    #endif
 
     g_return_val_if_fail (MIDORI_IS_BROWSER (browser), NULL);
 
-    n = midori_browser_get_current_page (browser);
-    if (n >= 0)
-        return midori_browser_get_nth_tab (browser, n);
     #ifdef HAVE_GRANITE
-    else
-    {
-        GraniteWidgetsTab* tab = granite_widgets_dynamic_notebook_get_current (
-            GRANITE_WIDGETS_DYNAMIC_NOTEBOOK (browser->notebook));
-        g_warning ("FIXME granite_widgets_get_tab_position returns NULL");
-        if (tab == NULL)
-            g_warning ("granite_widgets_dynamic_notebook_get_current returns NULL");
-        return tab ? granite_widgets_tab_get_page (tab) : NULL;
-    }
+    tab = granite_widgets_dynamic_notebook_get_current (
+        GRANITE_WIDGETS_DYNAMIC_NOTEBOOK (browser->notebook));
+    return tab ? granite_widgets_tab_get_page (tab) : NULL;
     #else
-    else
-        return NULL;
+    return midori_browser_get_nth_tab (browser,
+        midori_browser_get_current_page (browser));
     #endif
 }
 
