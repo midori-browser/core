@@ -159,6 +159,9 @@ midori_browser_page_num               (MidoriBrowser*     browser,
 GList*
 midori_browser_get_tabs               (MidoriBrowser*     browser);
 
+gint
+midori_browser_get_n_pages            (MidoriBrowser*     browser);
+
 KatzeArray*
 midori_browser_get_proxy_items        (MidoriBrowser*     browser);
 

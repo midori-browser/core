@@ -254,13 +254,12 @@ static gboolean
 _toggle_tabbar_smartly (MidoriBrowser* browser,
                         gboolean       ignore_fullscreen)
 {
+    gboolean has_tabs = midori_browser_get_n_pages (browser) > 1;
 #ifdef HAVE_GRANITE
-    gboolean has_tabs = !(midori_browser_is_fullscreen (browser) || ignore_fullscreen);
+    gboolean show_tabs = !(midori_browser_is_fullscreen (browser) || ignore_fullscreen);
     granite_widgets_dynamic_notebook_set_show_tabs (
-        GRANITE_WIDGETS_DYNAMIC_NOTEBOOK (browser->notebook), has_tabs);
+        GRANITE_WIDGETS_DYNAMIC_NOTEBOOK (browser->notebook), show_tabs);
 #else
-    gboolean has_tabs =
-        gtk_notebook_get_nth_page (GTK_NOTEBOOK (browser->notebook), 1) != NULL;
     gboolean show_tabs =
         browser->show_tabs
      && (!midori_browser_is_fullscreen (browser) || ignore_fullscreen)
@@ -1522,7 +1521,7 @@ midori_view_search_text_cb (GtkWidget*     view,
     midori_findbar_search_text (MIDORI_FINDBAR (browser->find), view, found, typing);
 }
 
-static gint
+gint
 midori_browser_get_n_pages (MidoriBrowser* browser)
 {
     #ifdef HAVE_GRANITE
@@ -1631,20 +1630,13 @@ midori_browser_notebook_size_allocate_cb (GtkWidget*     widget,
 }
 
 static void
-_midori_browser_add_tab (MidoriBrowser* browser,
-                         GtkWidget*     view)
+midori_browser_connect_tab (MidoriBrowser* browser,
+                            GtkWidget*     view)
 {
-    GtkWidget* notebook = browser->notebook;
-#ifndef HAVE_GRANITE
-    GtkWidget* tab_label;
-#endif
-    KatzeItem* item;
-    guint n;
-
-    gtk_widget_set_can_focus (view, TRUE);
-    item = midori_view_get_proxy_item (MIDORI_VIEW (view));
+    KatzeItem* item = midori_view_get_proxy_item (MIDORI_VIEW (view));
     katze_array_add_item (browser->proxy_array, item);
 
+    gtk_widget_set_can_focus (view, TRUE);
     g_object_connect (view,
                       "signal::notify::icon",
                       midori_view_notify_icon_cb, browser,
@@ -1684,7 +1676,23 @@ _midori_browser_add_tab (MidoriBrowser* browser,
                       midori_view_add_speed_dial_cb, browser,
                       "signal::leave-notify-event",
                       midori_browser_tab_leave_notify_event_cb, browser,
+                      "signal::destroy",
+                      midori_browser_tab_destroy_cb, browser,
                       NULL);
+}
+
+static void
+_midori_browser_add_tab (MidoriBrowser* browser,
+                         GtkWidget*     view)
+{
+    GtkWidget* notebook = browser->notebook;
+    KatzeItem* item = midori_view_get_proxy_item (MIDORI_VIEW (view));
+    #ifndef HAVE_GRANITE
+    GtkWidget* tab_label;
+    #endif
+    guint n;
+
+    midori_browser_connect_tab (browser, view);
 
     if (!katze_item_get_meta_boolean (item, "append") &&
         katze_object_get_boolean (browser->settings, "open-tabs-next-to-current"))
@@ -1694,6 +1702,8 @@ _midori_browser_add_tab (MidoriBrowser* browser,
     }
     else
         n = -1;
+    katze_item_set_meta_integer (item, "append", -1);
+
 #ifdef HAVE_GRANITE
     granite_widgets_dynamic_notebook_insert_tab (
         GRANITE_WIDGETS_DYNAMIC_NOTEBOOK (notebook),
@@ -1707,15 +1717,10 @@ _midori_browser_add_tab (MidoriBrowser* browser,
     gtk_notebook_insert_page (GTK_NOTEBOOK (notebook), view, tab_label, n);
     gtk_notebook_set_tab_reorderable (GTK_NOTEBOOK (notebook), view, TRUE);
     gtk_notebook_set_tab_detachable (GTK_NOTEBOOK (notebook), view, TRUE);
+    midori_browser_notebook_size_allocate_cb (browser->notebook, NULL, browser);
 #endif
-    katze_item_set_meta_integer (item, "append", -1);
-
-    /* We want the tab to be removed if the widget is destroyed */
-    g_signal_connect (view, "destroy",
-        G_CALLBACK (midori_browser_tab_destroy_cb), browser);
 
     _midori_browser_update_actions (browser);
-    midori_browser_notebook_size_allocate_cb (browser->notebook, NULL, browser);
 }
 
 static void
@@ -5155,8 +5160,10 @@ midori_browser_notebook_tab_added_cb (GtkWidget*         notebook,
 {
     GtkWidget* view = midori_view_new_with_item (NULL, browser->settings);
     midori_view_set_tab (MIDORI_VIEW (view), tab);
-    gint n = midori_browser_add_tab (browser, view);
-    midori_browser_set_current_page (browser, n);
+    midori_browser_connect_tab (browser, view);
+    /* FIXME: signal add-tab */
+    _midori_browser_update_actions (browser);
+    midori_view_set_uri (MIDORI_VIEW (view), "");
 }
 
 static void

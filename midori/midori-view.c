@@ -672,8 +672,9 @@ midori_view_set_title (MidoriView* view, const gchar* title)
             if (uri)
                 soup_uri_free (uri);
     #ifdef HAVE_GRANITE
-    g_object_set (midori_view_get_tab (view),
-        "label", display_title, "ellipsize-mode", view->ellipsize, NULL);
+    if (view->tab)
+        g_object_set (view->tab,
+            "label", display_title, "ellipsize-mode", view->ellipsize, NULL);
     #else
     if (view->tab_label)
     {
@@ -703,7 +704,8 @@ midori_view_apply_icon (MidoriView*  view,
     g_object_notify (G_OBJECT (view), "icon");
 
     #ifdef HAVE_GRANITE
-    g_object_set (midori_view_get_tab (view), "icon", icon, NULL);
+    if (view->tab)
+        g_object_set (view->tab, "icon", icon, NULL);
     #else
     if (view->tab_icon)
     {
@@ -943,8 +945,9 @@ midori_view_update_load_status (MidoriView*      view,
     g_object_notify (G_OBJECT (view), "load-status");
 
     #ifdef HAVE_GRANITE
-    g_object_set (midori_view_get_tab (view),
-                  "working", view->load_status != MIDORI_LOAD_FINISHED, NULL);
+    if (view->tab)
+        g_object_set (view->tab,
+            "working", view->load_status != MIDORI_LOAD_FINISHED, NULL);
     #else
     if (view->tab_icon)
         katze_throbber_set_animated (KATZE_THROBBER (view->tab_icon),
@@ -3322,8 +3325,9 @@ midori_view_set_property (GObject*      object,
         g_signal_handlers_unblock_by_func (view->item,
             midori_view_item_meta_data_changed, view);
         #ifdef HAVE_GRANITE
-        g_object_set (midori_view_get_tab (view), "label",
-            "fixed", view->minimized, NULL);
+        if (view->tab)
+            g_object_set (view->tab, "label",
+                "fixed", view->minimized, NULL);
             //view->minimized ? NULL : midori_view_get_display_title(view), NULL);
         #else
         if (view->tab_label)
