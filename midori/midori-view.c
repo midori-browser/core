@@ -1936,6 +1936,7 @@ handle_link_hints (WebKitWebView* web_view,
                    MidoriView*    view)
 {
     gint digit = g_ascii_digit_value (event->keyval);
+    gunichar uc = gdk_keyval_to_unicode (event->keyval);
     gchar* result = NULL;
     WebKitWebFrame* web_frame = webkit_web_view_get_main_frame (web_view);
     JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
@@ -2022,7 +2023,33 @@ handle_link_hints (WebKitWebView* web_view,
         return;
     }
 
-    if (event->keyval == GDK_KEY_Return)
+    if (g_unichar_isalpha (uc))
+    {
+        /* letter pressed if we have a corresponding accessKey and grab URI */
+        gchar* script = NULL;
+        gchar* utf8 = NULL;
+        gulong sz = g_unichar_to_utf8 (uc, NULL);
+
+        utf8 = g_malloc0 (sz);
+        g_unichar_to_utf8 (uc, utf8);
+        script = g_strdup_printf (
+            "var l = 'undefined';"
+            "for (i in document.links) {"
+            "   if ( document.links[i].href &&"
+            "        document.links[i].accessKey == \"%s\" )"
+            "   {"
+            "       l = document.links[i].href;"
+            "       break;"
+            "   }"
+            "}"
+            "if (l != 'undefined') { l; }"
+            ,utf8,utf8
+        );
+        g_free (utf8);
+        result = sokoke_js_script_eval (js_context, script, NULL);
+        g_free (script);
+    }
+    else if (event->keyval == GDK_KEY_Return)
     {
         /* Return pressed, grab URI if we have a link with the entered number */
         gchar* script = g_strdup_printf (
