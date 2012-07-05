@@ -3623,14 +3623,19 @@ _action_readable_activate (GtkAction*     action,
     if (!view)
         return;
 
-    filename = midori_app_find_res_filename ("readable.css");
+    filename = midori_app_find_res_filename ("faq.css");
     stylesheet = NULL;
     if (!g_file_get_contents (filename, &stylesheet, NULL, NULL))
+    {
+        katze_assign (filename, sokoke_find_data_filename ("doc/midori/faq.css", FALSE));
+        g_file_get_contents (filename, &stylesheet, NULL, NULL);
+    }
+    if (!(stylesheet && *stylesheet))
     {
         g_free (filename);
         g_free (stylesheet);
         midori_view_add_info_bar (MIDORI_VIEW (view), GTK_MESSAGE_ERROR,
-            "Stylesheet readable.css not found", NULL, view,
+            "Stylesheet faq.css not found", NULL, view,
             GTK_STOCK_OK, GTK_RESPONSE_ACCEPT, NULL);
         return;
     }
