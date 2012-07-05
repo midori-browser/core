@@ -3149,18 +3149,17 @@ _action_compact_menu_populate_popup (GtkAction*     action,
       #if !HAVE_HILDON
       { "Print" },
       #endif
+      { "Fullscreen" },
       { NULL },
       #if !HAVE_HILDON
+      { "p" },
+      { NULL },
+      { "BookmarksImport" },
+      { "BookmarksExport" },
       { "ClearPrivateData" },
       #if defined (GDK_WINDOWING_X11)
       { "AddDesktopShortcut" },
       #endif
-      { NULL },
-      { "BookmarksImport"},
-      { "BookmarksExport"},
-      { NULL },
-      { "Fullscreen" },
-      { "p" },
       { "-" },
       #endif
       { NULL },
