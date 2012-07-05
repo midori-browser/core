@@ -2044,7 +2044,7 @@ handle_link_hints (WebKitWebView* web_view,
             "   }"
             "}"
             "if (l != 'undefined') { l; }"
-            ,utf8,utf8
+            , utf8
         );
         g_free (utf8);
         result = sokoke_js_script_eval (js_context, script, NULL);
