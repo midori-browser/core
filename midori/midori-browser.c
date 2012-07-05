@@ -199,7 +199,8 @@ _midori_browser_set_toolbar_style (MidoriBrowser*     browser,
 
 GtkWidget*
 midori_panel_construct_menu_item (MidoriPanel*    panel,
-                                  MidoriViewable* viewable);
+                                  MidoriViewable* viewable,
+                                  gboolean        popup);
 
 static void
 midori_browser_settings_notify (MidoriWebSettings* web_settings,
@@ -3008,7 +3009,7 @@ _action_tools_populate_popup (GtkAction*     action,
                 j = 0;
                 while ((widget = midori_panel_get_nth_page (panel, j++)))
                 {
-                    menuitem = midori_panel_construct_menu_item (panel, MIDORI_VIEWABLE (widget));
+                    menuitem = midori_panel_construct_menu_item (panel, MIDORI_VIEWABLE (widget), FALSE);
                     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
                 }
                 continue;
@@ -3158,7 +3159,7 @@ _action_compact_menu_populate_popup (GtkAction*     action,
       { "BookmarksExport"},
       { NULL },
       { "Fullscreen" },
-      { "Panel" },
+      { "p" },
       { "-" },
       #endif
       { NULL },
@@ -3211,6 +3212,21 @@ _action_compact_menu_populate_popup (GtkAction*     action,
             if (actions[i].name[0] == '-')
             {
                 g_signal_emit (browser, signals[POPULATE_TOOL_MENU], 0, menu);
+                continue;
+            }
+            else if (actions[i].name[0] == 'p')
+            {
+                MidoriPanel* panel;
+                gsize j;
+                GtkWidget* widget;
+
+                panel = MIDORI_PANEL (browser->panel);
+                j = 0;
+                while ((widget = midori_panel_get_nth_page (panel, j++)))
+                {
+                    menuitem = midori_panel_construct_menu_item (panel, MIDORI_VIEWABLE (widget), TRUE);
+                    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+                }
                 continue;
             }
             menuitem = sokoke_action_create_popup_menu_item (

@@ -489,13 +489,15 @@ midori_panel_set_right_aligned (MidoriPanel* panel,
 /* Private function, used by MidoriBrowser */
 /* static */ GtkWidget*
 midori_panel_construct_menu_item (MidoriPanel*    panel,
-                                  MidoriViewable* viewable)
+                                  MidoriViewable* viewable,
+                                  gboolean        popup)
 {
     GtkAction* action;
     GtkWidget* menuitem;
 
     action = g_object_get_data (G_OBJECT (viewable), "midori-panel-action");
-    menuitem = gtk_action_create_menu_item (action);
+    menuitem = popup ? sokoke_action_create_popup_menu_item (action)
+      : gtk_action_create_menu_item (action);
     g_object_set_data (G_OBJECT (menuitem), "page", viewable);
 
     if (gtk_widget_get_visible (GTK_WIDGET (viewable)))
