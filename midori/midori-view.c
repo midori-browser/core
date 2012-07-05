@@ -1218,7 +1218,8 @@ midori_view_infobar_response_cb (GtkWidget* infobar,
 {
     void (*response_cb) (GtkWidget*, gint, gpointer);
     response_cb = g_object_get_data (G_OBJECT (infobar), "midori-infobar-cb");
-    response_cb (infobar, response, data_object);
+    if (response_cb != NULL)
+        response_cb (infobar, response, data_object);
     gtk_widget_destroy (infobar);
 }
 #else
@@ -1230,7 +1231,8 @@ midori_view_info_bar_button_cb (GtkWidget* button,
     gint response = GPOINTER_TO_INT (g_object_get_data (G_OBJECT (button), "midori-infobar-response"));
     void (*response_cb) (GtkWidget*, gint, gpointer);
     response_cb = g_object_get_data (G_OBJECT (infobar), "midori-infobar-cb");
-    response_cb (infobar, response, data_object);
+    if (response_cb != NULL)
+        response_cb (infobar, response, data_object);
     gtk_widget_destroy (infobar);
 }
 #endif
@@ -1270,7 +1272,6 @@ midori_view_add_info_bar (MidoriView*    view,
     const gchar* button_text;
 
     g_return_val_if_fail (message != NULL, NULL);
-    g_return_val_if_fail (response_cb != NULL, NULL);
 
     va_start (args, first_button_text);
 

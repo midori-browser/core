@@ -13,6 +13,7 @@
 
 #include "midori-browser.h"
 
+#include "midori-app.h"
 #include "midori-array.h"
 #include "midori-view.h"
 #include "midori-preferences.h"
@@ -3609,6 +3610,66 @@ _action_scroll_somewhere_activate (GtkAction*     action,
         webkit_web_view_move_cursor (web_view, GTK_MOVEMENT_VISUAL_POSITIONS, 1);
 }
 
+static void
+_action_readable_activate (GtkAction*     action,
+                           MidoriBrowser* browser)
+{
+    GtkWidget* view = midori_browser_get_current_tab (browser);
+    gchar* filename;
+    gchar* stylesheet;
+    gint i;
+    gchar* script;
+    gchar* exception;
+
+    if (!view)
+        return;
+
+    filename = midori_app_find_res_filename ("readable.css");
+    stylesheet = NULL;
+    if (!g_file_get_contents (filename, &stylesheet, NULL, NULL))
+    {
+        g_free (filename);
+        g_free (stylesheet);
+        midori_view_add_info_bar (MIDORI_VIEW (view), GTK_MESSAGE_ERROR,
+            "Stylesheet readable.css not found", NULL, view,
+            GTK_STOCK_OK, GTK_RESPONSE_ACCEPT, NULL);
+        return;
+    }
+
+    i = 0;
+    while (stylesheet[i])
+    {
+        /* Replace line breaks with spaces */
+        if (stylesheet[i] == '\n' || stylesheet[i] == '\r')
+            stylesheet[i] = ' ';
+        /* Change all single quotes to double quotes */
+        else if (stylesheet[i] == '\'')
+            stylesheet[i] = '\"';
+        i++;
+    }
+
+    script = g_strdup_printf (
+        "(function () {"
+        "var style = document.createElement ('style');"
+        "style.setAttribute ('type', 'text/css');"
+        "style.appendChild (document.createTextNode ('%s'));"
+        "var head = document.getElementsByTagName ('head')[0];"
+        "if (head) head.appendChild (style);"
+        "else document.documentElement.insertBefore"
+        "(style, document.documentElement.firstChild);"
+        "}) ();", stylesheet);
+    g_free (stylesheet);
+    exception = NULL;
+    if (!midori_view_execute_script (MIDORI_VIEW (view), script, &exception))
+    {
+        midori_view_add_info_bar (MIDORI_VIEW (view), GTK_MESSAGE_ERROR,
+            exception, NULL, view,
+            GTK_STOCK_OK, GTK_RESPONSE_ACCEPT, NULL);
+        g_free (exception);
+    }
+    g_free (script);
+}
+
 static gboolean
 _action_navigation_activate (GtkAction*     action,
                              MidoriBrowser* browser)
@@ -5447,6 +5508,9 @@ static const GtkActionEntry entries[] =
     { "ScrollRight", NULL,
         N_("Scroll _Right"), "l",
         NULL, G_CALLBACK (_action_scroll_somewhere_activate) },
+    { "Readable", NULL,
+       N_("_Readable"), "<Ctrl><Alt>R",
+        NULL, G_CALLBACK (_action_readable_activate) },
 
     { "Go", NULL, N_("_Go") },
     { "Back", GTK_STOCK_GO_BACK,
@@ -5756,6 +5820,7 @@ static const gchar* ui_markup =
                 "</menu>"
                 "<menuitem action='SourceView'/>"
                 "<menuitem action='Fullscreen'/>"
+                "<menuitem action='Readable'/>"
             "</menu>"
             "<menu action='Go'>"
                 "<menuitem action='Back'/>"
