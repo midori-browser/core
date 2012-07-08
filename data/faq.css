@@ -28,6 +28,7 @@ Stylesheet for Midori's documentation based on a version of Enrico Troeger.
         -webkit-column-count: auto !important;
         -webkit-column-width: auto !important;
         -webkit-box-shadow: none !important;
+        width: auto !important;
     }
 
     div, p {
@@ -38,20 +39,24 @@ Stylesheet for Midori's documentation based on a version of Enrico Troeger.
         padding-left: 5pt !important;
     }
 
-    img, *[accesskey], form *, form, iframe {
+    img, *[accesskey], form *, form, iframe,
+    *[id^=navigation], *[id$=navigation], *[id*=navigation], .collapsed, .expanded {
         display: none !important
     }
 
+    /* FIXME: we want "images bigger than 50px here" */
     img[width] {
         display: inline !important
     }
 
     :link, :link * {
         color: #013100 !important;
+        text-decoration: underline !important;
     }
 
     :visited, :visited * {
         color: #7E558E !important;
+        text-decoration: underline !important;
     }
 
     a:hover {
