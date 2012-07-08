@@ -408,16 +408,19 @@ sokoke_prepare_command (const gchar* command,
         gchar* real_command;
         gchar* command_ready;
 
-        /* .desktop files accept %u as URI, we cheap and treat it like %s */
-        if ((uri_format = strstr (command, "%u")))
-            uri_format[1] = 's';
-
         real_command = quote_command ? g_shell_quote (command) : g_strdup (command);
 
-        if (strstr (command, "%s"))
+        /* .desktop files accept %u, %U, %f, %F as URI/ filename, we treat it like %s */
+        if ((uri_format = strstr (real_command, "%u"))
+         || (uri_format = strstr (real_command, "%U"))
+         || (uri_format = strstr (real_command, "%f"))
+         || (uri_format = strstr (real_command, "%F")))
+            uri_format[1] = 's';
+
+        if (strstr (real_command, "%s"))
         {
-            gchar* argument_quoted = g_shell_quote (argument);
-            command_ready = sokoke_replace_variables (real_command, "%s", argument_quoted);
+            gchar* argument_quoted = quote_argument ? g_shell_quote (argument) : g_strdup (argument);
+            command_ready = g_strdup_printf (real_command, argument_quoted);
             g_free (argument_quoted);
         }
         else if (quote_argument)
