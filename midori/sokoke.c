@@ -408,14 +408,14 @@ sokoke_prepare_command (const gchar* command,
         gchar* real_command;
         gchar* command_ready;
 
-        real_command = quote_command ? g_shell_quote (command) : g_strdup (command);
-
         /* .desktop files accept %u, %U, %f, %F as URI/ filename, we treat it like %s */
+        real_command = g_strdup (command);
         if ((uri_format = strstr (real_command, "%u"))
          || (uri_format = strstr (real_command, "%U"))
          || (uri_format = strstr (real_command, "%f"))
          || (uri_format = strstr (real_command, "%F")))
             uri_format[1] = 's';
+
 
         if (strstr (real_command, "%s"))
         {
@@ -425,12 +425,18 @@ sokoke_prepare_command (const gchar* command,
         }
         else if (quote_argument)
         {
+            gchar* quoted_command = quote_command ? g_shell_quote (real_command) : g_strdup (real_command);
             gchar* argument_quoted = g_shell_quote (argument);
-            command_ready = g_strconcat (real_command, " ", argument_quoted, NULL);
+            command_ready = g_strconcat (quoted_command, " ", argument_quoted, NULL);
             g_free (argument_quoted);
+            g_free (quoted_command);
         }
         else
-            command_ready = g_strconcat (real_command, " ", argument, NULL);
+        {
+            gchar* quoted_command = quote_command ? g_shell_quote (real_command) : g_strdup (real_command);
+            command_ready = g_strconcat (quoted_command, " ", argument, NULL);
+            g_free (quoted_command);
+        }
         g_free (real_command);
         return command_ready;
     }

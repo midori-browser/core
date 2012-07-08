@@ -491,7 +491,7 @@ addons_open_in_editor_clicked_cb (GtkWidget* toolitem,
 
         g_object_get (settings, "text-editor", &text_editor, NULL);
         if (text_editor && *text_editor)
-            sokoke_spawn_program (text_editor, FALSE, element->fullpath, TRUE);
+            sokoke_spawn_program (text_editor, TRUE, element->fullpath, TRUE);
         else
         {
             gchar* element_uri = g_filename_to_uri (element->fullpath, NULL, NULL);

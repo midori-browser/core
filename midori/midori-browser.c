@@ -3498,7 +3498,7 @@ _action_source_view_activate (GtkAction*     action,
     }
     else
     {
-        sokoke_spawn_program (text_editor, FALSE, filename, TRUE);
+        sokoke_spawn_program (text_editor, TRUE, filename, TRUE);
         g_free (filename);
     }
     g_free (text_editor);
