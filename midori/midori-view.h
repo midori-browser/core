@@ -57,6 +57,15 @@ midori_security_get_type (void) G_GNUC_CONST;
 #define MIDORI_TYPE_SECURITY \
     (midori_security_get_type ())
 
+typedef enum
+{
+    MIDORI_DOWNLOAD_CANCEL,
+    MIDORI_DOWNLOAD_OPEN,
+    MIDORI_DOWNLOAD_SAVE,
+    MIDORI_DOWNLOAD_SAVE_AS,
+    MIDORI_DOWNLOAD_OPEN_IN_VIEWER,
+} MidoriDownloadType;
+
 #define MIDORI_VIEW(obj) \
     (G_TYPE_CHECK_INSTANCE_CAST ((obj), MIDORI_TYPE_VIEW, MidoriView))
 #define MIDORI_VIEW_CLASS(klass) \

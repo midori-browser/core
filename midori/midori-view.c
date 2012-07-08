@@ -205,13 +205,6 @@ enum {
     LAST_SIGNAL
 };
 
-enum {
-    DOWNLOAD_SAVE = 1,
-    DOWNLOAD_SAVE_AS,
-    DOWNLOAD_CANCEL,
-    DOWNLOAD_OPEN,
-};
-
 static guint signals[LAST_SIGNAL];
 
 static gchar* speeddial_markup = NULL;
@@ -2182,15 +2175,24 @@ midori_web_view_menu_link_copy_activate_cb (GtkWidget*  widget,
 }
 
 static void
-midori_web_view_menu_save_activate_cb (GtkWidget*  widget,
-                                       MidoriView* view)
+midori_view_download_uri (MidoriView*        view,
+                          MidoriDownloadType type,
+                          const gchar*       uri)
 {
-    WebKitNetworkRequest* request = webkit_network_request_new (view->link_uri);
+    WebKitNetworkRequest* request = webkit_network_request_new (uri);
     WebKitDownload* download = webkit_download_new (request);
     gboolean handled;
     g_object_unref (request);
-    g_object_set_data (G_OBJECT (download), "save-as-download", (void*)0xdeadbeef);
+    g_object_set_data (G_OBJECT (download), "midori-download-type",
+                       GINT_TO_POINTER (type));
     g_signal_emit (view, signals[DOWNLOAD_REQUESTED], 0, download, &handled);
+}
+
+static void
+midori_web_view_menu_save_activate_cb (GtkWidget*  widget,
+                                       MidoriView* view)
+{
+    midori_view_download_uri (view, MIDORI_DOWNLOAD_SAVE_AS, view->link_uri);
 }
 
 static void
@@ -2217,26 +2219,16 @@ midori_web_view_menu_image_save_activate_cb (GtkWidget*  widget,
                                              MidoriView* view)
 {
     gchar* uri = katze_object_get_string (view->hit_test, "image-uri");
-    WebKitNetworkRequest* request = webkit_network_request_new (uri);
-    WebKitDownload* download = webkit_download_new (request);
-    gboolean handled;
-    g_object_unref (request);
-    g_object_set_data (G_OBJECT (download), "save-as-download", (void*)0xdeadbeef);
-    g_signal_emit (view, signals[DOWNLOAD_REQUESTED], 0, download, &handled);
+    midori_view_download_uri (view, MIDORI_DOWNLOAD_SAVE_AS, uri);
     g_free (uri);
 }
 
 static void
-midori_web_view_open_picture_cb (GtkWidget* widget,
-                                 MidoriView* view)
+midori_web_view_open_in_viewer_cb (GtkWidget* widget,
+                                   MidoriView* view)
 {
     gchar* uri = katze_object_get_string (view->hit_test, "image-uri");
-    WebKitNetworkRequest* request = webkit_network_request_new (uri);
-    WebKitDownload* download = webkit_download_new (request);
-    gboolean handled;
-    g_object_unref (request);
-    g_object_set_data (G_OBJECT (download), "open-in-viewer", (void*)0xdeadbeef);
-    g_signal_emit (view, signals[DOWNLOAD_REQUESTED], 0, download, &handled);
+    midori_view_download_uri (view, MIDORI_DOWNLOAD_OPEN_IN_VIEWER, uri);
     g_free (uri);
 }
 
@@ -2254,12 +2246,7 @@ midori_web_view_menu_video_save_activate_cb (GtkWidget*  widget,
                                              MidoriView* view)
 {
     gchar* uri = katze_object_get_string (view->hit_test, "media-uri");
-    WebKitNetworkRequest* request = webkit_network_request_new (uri);
-    WebKitDownload* download = webkit_download_new (request);
-    gboolean handled;
-    g_object_unref (request);
-    g_object_set_data (G_OBJECT (download), "save-as-download", (void*)0xdeadbeef);
-    g_signal_emit (view, signals[DOWNLOAD_REQUESTED], 0, download, &handled);
+    midori_view_download_uri (view, MIDORI_DOWNLOAD_SAVE_AS, uri);
     g_free (uri);
 }
 
@@ -2593,7 +2580,7 @@ midori_view_populate_popup (MidoriView* view,
             G_CALLBACK (midori_web_view_menu_image_save_activate_cb), widget);
         midori_view_insert_menu_item (menu_shell, -1,
             _("Open in Image _Viewer"), GTK_STOCK_OPEN,
-            G_CALLBACK (midori_web_view_open_picture_cb), widget);
+            G_CALLBACK (midori_web_view_open_in_viewer_cb), widget);
     }
 
     if (is_media)
@@ -3075,31 +3062,17 @@ webkit_web_view_download_requested_cb (GtkWidget*      web_view,
             gtk_window_set_icon_name (GTK_WINDOW (dialog), GTK_STOCK_OPEN);
     }
     gtk_dialog_add_buttons (GTK_DIALOG (dialog),
-        GTK_STOCK_SAVE, DOWNLOAD_SAVE,
-        GTK_STOCK_SAVE_AS, DOWNLOAD_SAVE_AS,
-        GTK_STOCK_CANCEL, DOWNLOAD_CANCEL,
-        GTK_STOCK_OPEN, DOWNLOAD_OPEN,
+        GTK_STOCK_SAVE, MIDORI_DOWNLOAD_SAVE,
+        GTK_STOCK_SAVE_AS, MIDORI_DOWNLOAD_SAVE_AS,
+        GTK_STOCK_CANCEL, MIDORI_DOWNLOAD_CANCEL,
+        GTK_STOCK_OPEN, MIDORI_DOWNLOAD_OPEN,
         NULL);
 
     response = gtk_dialog_run (GTK_DIALOG (dialog));
-
     gtk_widget_destroy (dialog);
-    switch (response)
-    {
-        case DOWNLOAD_SAVE_AS:
-            g_object_set_data (G_OBJECT (download), "save-as-download", (gpointer)1);
-            break;
-        case DOWNLOAD_OPEN:
-            g_object_set_data (G_OBJECT (download), "open-download", (gpointer)1);
-        case DOWNLOAD_SAVE:
-            break;
-        case DOWNLOAD_CANCEL:
-        case GTK_RESPONSE_DELETE_EVENT:
-            g_object_set_data (G_OBJECT (download), "cancel-download", (gpointer)1);
-            break;
-        default:
-            g_warn_if_reached ();
-    }
+    if (response == GTK_RESPONSE_DELETE_EVENT)
+        response = MIDORI_DOWNLOAD_CANCEL;
+    g_object_set_data (G_OBJECT (download), "midori-download-type", GINT_TO_POINTER (response));
 
     /* Propagate original URI to make it available when the download finishes */
     g_object_set_data_full (G_OBJECT (request), "midori-original-uri",

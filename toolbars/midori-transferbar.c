@@ -102,6 +102,8 @@ midori_transferbar_download_notify_status_cb (WebKitDownload* download,
         case WEBKIT_DOWNLOAD_STATUS_FINISHED:
         {
             MidoriBrowser* browser = midori_browser_get_for_widget (button);
+            MidoriDownloadType type = GPOINTER_TO_INT (
+                g_object_get_data (G_OBJECT (download), "midori-download-type"));
             WebKitNetworkRequest* request;
             const gchar* original_uri;
             GChecksumType checksum_type;
@@ -110,7 +112,7 @@ midori_transferbar_download_notify_status_cb (WebKitDownload* download,
 
             icon = gtk_image_new_from_stock (GTK_STOCK_OPEN, GTK_ICON_SIZE_MENU);
             gtk_button_set_image (GTK_BUTTON (button), icon);
-            if (g_object_get_data (G_OBJECT (download), "open-download"))
+            if (type == MIDORI_DOWNLOAD_OPEN)
                 gtk_button_clicked (GTK_BUTTON (button));
 
             if (1)

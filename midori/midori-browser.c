@@ -1423,6 +1423,8 @@ midori_view_download_requested_cb (GtkWidget*      view,
                                    WebKitDownload* download,
                                    MidoriBrowser*  browser)
 {
+    MidoriDownloadType type = GPOINTER_TO_INT (
+        g_object_get_data (G_OBJECT (download), "midori-download-type"));
     GtkWidget* web_view;
     WebKitWebFrame* web_frame;
     WebKitWebDataSource* datasource;
@@ -1430,11 +1432,11 @@ midori_view_download_requested_cb (GtkWidget*      view,
 
     g_return_val_if_fail (MIDORI_IS_VIEW (view), FALSE);
     handled = TRUE;
-    if (g_object_get_data (G_OBJECT (download), "cancel-download"))
+    if (type == MIDORI_DOWNLOAD_CANCEL)
     {
         handled = FALSE;
     }
-    else if (g_object_get_data (G_OBJECT (download), "open-in-viewer"))
+    else if (type == MIDORI_DOWNLOAD_OPEN_IN_VIEWER)
     {
         gchar* destination_uri =
             midori_browser_download_prepare_destination_uri (download, NULL);
@@ -1446,7 +1448,7 @@ midori_view_download_requested_cb (GtkWidget*      view,
     }
     else if (!webkit_download_get_destination_uri (download))
     {
-        if (g_object_get_data (G_OBJECT (download), "save-as-download"))
+        if (type == MIDORI_DOWNLOAD_SAVE_AS)
         {
             static GtkWidget* dialog = NULL;
             gchar* filename;
@@ -1489,8 +1491,8 @@ midori_view_download_requested_cb (GtkWidget*      view,
         }
         else
         {
-            gchar* folder = g_object_get_data (G_OBJECT (download), "open-download")
-                ? NULL : katze_object_get_string (browser->settings, "download-folder");
+            gchar* folder = type == MIDORI_DOWNLOAD_OPEN ? NULL
+              : katze_object_get_string (browser->settings, "download-folder");
             gchar* destination_uri =
                 midori_browser_download_prepare_destination_uri (download, folder);
             midori_browser_prepare_download (browser, download, destination_uri);
