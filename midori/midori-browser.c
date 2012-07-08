@@ -1442,6 +1442,7 @@ midori_view_download_requested_cb (GtkWidget*      view,
         g_signal_connect (download, "notify::status",
             G_CALLBACK (midori_browser_download_status_cb), GTK_WIDGET (browser));
         g_free (destination_uri);
+        webkit_download_start (download);
     }
     else if (!webkit_download_get_destination_uri (download))
     {
@@ -1495,6 +1496,7 @@ midori_view_download_requested_cb (GtkWidget*      view,
             midori_browser_prepare_download (browser, download, destination_uri);
             g_free (destination_uri);
         }
+        webkit_download_start (download);
     }
 
     /* Close empty tabs due to download links with a target */
