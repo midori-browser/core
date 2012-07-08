@@ -5422,6 +5422,15 @@ midori_view_fallback_extension (MidoriView* view,
     return "";
 }
 
+gchar*
+midori_view_get_tmp_dir (void)
+{
+    gchar* tmpdir = g_strdup_printf ("%s/midori-%s",
+                                     g_get_tmp_dir (), g_get_user_name ());
+    g_mkdir (tmpdir, 0700);
+    return tmpdir;
+}
+
 /**
  * midori_view_save_source:
  * @view: a #MidoriView
@@ -5457,8 +5466,7 @@ midori_view_save_source (MidoriView* view,
     if (!outfile)
     {
         gchar* extension = midori_view_get_uri_extension (uri);
-        gchar* tmpdir = g_strdup_printf ("%s/midori-%s", g_get_tmp_dir (), g_get_user_name ());
-        g_mkdir (tmpdir, 0700);
+        gchar* tmpdir = midori_view_get_tmp_dir ();
         unique_filename = g_strdup_printf ("%s/%uXXXXXX%s", tmpdir,
             g_str_hash (uri), midori_view_fallback_extension (view, extension));
         g_free (tmpdir);

@@ -1385,26 +1385,18 @@ midori_browser_download_prepare_destination_uri (WebKitDownload* download,
     gchar* download_dir = NULL;
     gchar* destination_uri;
     gchar* destination_filename;
-    gchar* midori_tmp_dir;
 
     suggested_filename = sokoke_get_download_filename (download);
     file_source = g_file_new_for_uri (suggested_filename);
     g_free (suggested_filename);
     file_basename = g_file_get_basename (file_source);
     if (folder == NULL)
-    {
-        midori_tmp_dir = g_strconcat ("midori-", g_get_user_name (), NULL);
-        download_dir = g_build_filename (g_get_tmp_dir (), midori_tmp_dir, NULL);
-        g_free (midori_tmp_dir);
-    }
+        download_dir = midori_view_get_tmp_dir ();
     else
         download_dir = (gchar*)folder;
     destination_filename = g_build_filename (download_dir, file_basename, NULL);
     destination_filename = midori_browser_download_prepare_filename (destination_filename);
     destination_uri = g_filename_to_uri (destination_filename, NULL, NULL);
-
-    if (!g_file_test (download_dir, G_FILE_TEST_EXISTS))
-        katze_mkdir_with_parents (download_dir, 0700);
 
     g_free (file_basename);
     if (folder == NULL)
