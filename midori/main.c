@@ -255,7 +255,17 @@ settings_save_to_file (MidoriWebSettings* settings,
     }
     g_free (pspecs);
 
-    if (extensions)
+    /* Take frozen list of active extensions until preferences reset it */
+    if ((_extensions = g_object_get_data (G_OBJECT (app), "extensions")))
+    {
+        i = 0;
+        while (_extensions[i])
+        {
+            g_key_file_set_boolean (key_file, "extensions", _extensions[i], TRUE);
+            i++;
+        }
+    }
+    else if (extensions)
     {
         KATZE_ARRAY_FOREACH_ITEM (extension, extensions)
             if (midori_extension_is_active (extension))
@@ -279,16 +289,6 @@ settings_save_to_file (MidoriWebSettings* settings,
             }
         g_object_unref (extensions);
     }
-    else if ((_extensions = g_object_get_data (G_OBJECT (app), "extensions")))
-    {
-        i = 0;
-        while (_extensions[i])
-        {
-            g_key_file_set_boolean (key_file, "extensions", _extensions[i], TRUE);
-            i++;
-        }
-    }
-
     saved = sokoke_key_file_save_to_file (key_file, filename, error);
     g_key_file_free (key_file);
     return saved;
@@ -549,15 +549,6 @@ settings_notify_cb (MidoriWebSettings* settings,
 }
 
 static void
-extension_activate_cb (MidoriExtension* extension,
-                       MidoriApp*       app)
-{
-    MidoriWebSettings* settings = katze_object_get_object (app, "settings");
-    settings_notify_cb (settings, NULL, app);
-    g_object_unref (settings);
-}
-
-static void
 accel_map_changed_cb (GtkAccelMap*    accel_map,
                       gchar*          accel_path,
                       guint           accel_key,
@@ -628,18 +619,50 @@ midori_trash_add_item_cb (KatzeArray* trash,
 }
 
 static void
+midori_load_module (MidoriApp*   app,
+                    const gchar* extension_path,
+                    const gchar* filename,
+                    gboolean     activate);
+static void
 midori_browser_show_preferences_cb (MidoriBrowser*    browser,
                                     KatzePreferences* preferences,
                                     MidoriApp*        app)
 {
     KatzeArray* array;
+    gchar* extension_path;
     GtkWidget* scrolled;
     GtkWidget* addon;
     GList* children;
     GtkWidget* page;
 
-    /* Hide if there are no extensions at all */
+    if (!g_module_supported ())
+        return;
+
     array = katze_object_get_object (app, "extensions");
+    if ((extension_path = midori_app_get_lib_path (PACKAGE_NAME)))
+    {
+        GDir* extension_dir = NULL;
+        if ((extension_dir = g_dir_open (extension_path, 0, NULL)))
+        {
+            const gchar* filename;
+            while ((filename = g_dir_read_name (extension_dir)))
+            {
+                /* Ignore files which don't have the correct suffix */
+                if (!g_str_has_suffix (filename, G_MODULE_SUFFIX))
+                    continue;
+
+                midori_load_module (app, extension_path, filename, FALSE);
+            }
+            g_dir_close (extension_dir);
+        }
+        g_free (extension_path);
+    }
+
+
+    /* Reset frozen list: allow active extensions to be saved */
+    g_object_set_data (G_OBJECT (app), "extensions", NULL);
+
+    /* Hide if there are no extensions at all */
     if (!katze_array_get_nth_item (array, 0))
     {
         g_object_unref (array);
@@ -1010,6 +1033,7 @@ static void
 button_disable_extensions_clicked_cb (GtkWidget* button,
                                       MidoriApp* app)
 {
+    /* Reset frozen list of active extensions */
     g_object_set_data (G_OBJECT (app), "extensions", NULL);
     gtk_widget_set_sensitive (button, FALSE);
 }
@@ -1166,49 +1190,110 @@ midori_load_soup_session_full (gpointer settings)
 
 static void
 midori_load_extension (MidoriApp*       app,
-                       KatzeArray*      extensions,
-                       gchar**          active_extensions,
                        MidoriExtension* extension,
                        const gchar*     filename)
 {
+    KatzeArray* extensions = katze_object_get_object (app, "extensions");
     /* Signal that we want the extension to load and save */
     g_object_set_data_full (G_OBJECT (extension), "filename",
                             g_strdup (filename), g_free);
     if (midori_extension_is_prepared (extension))
         midori_extension_get_config_dir (extension);
-
     katze_array_add_item (extensions, extension);
-    if (active_extensions)
+    g_object_unref (extensions);
+}
+
+static void
+midori_load_module (MidoriApp*   app,
+                    const gchar* extension_path,
+                    const gchar* filename,
+                    gboolean     activate)
+{
+    gchar* fullname;
+    GModule* module;
+    typedef GObject* (*extension_init_func)(void);
+    extension_init_func extension_init;
+    GObject* extension = NULL;
+    static GHashTable* modules = NULL;
+
+    if (strchr (filename, '/'))
     {
-        guint i = 0;
-        gchar* key;
-        gchar* name;
-        gchar* term;
-
-        key = katze_object_get_string (extension, "key");
-        if (key && *key)
-            term = g_strdup_printf ("%s/%s", filename, key);
-        else
-            term = g_strdup (filename);
-
-        while ((name = active_extensions[i++]))
-            if (!g_strcmp0 (term, name))
-                g_signal_emit_by_name (extension, "activate", app);
-
-        g_free (key);
-        g_free (term);
+        gchar* clean = g_strndup (filename, strchr (filename, '/') - filename);
+        fullname = g_build_filename (extension_path, clean, NULL);
+        g_free (clean);
     }
-    g_signal_connect_after (extension, "activate",
-        G_CALLBACK (extension_activate_cb), app);
-    g_signal_connect_after (extension, "deactivate",
-        G_CALLBACK (extension_activate_cb), app);
+    else
+        fullname = g_build_filename (extension_path, filename, NULL);
+
+    module = g_module_open (fullname, G_MODULE_BIND_LOCAL);
+    g_free (fullname);
+
+    /* GModule detects repeated loading but exposes no API to check it.
+       Skip any modules that were loaded before. */
+    if (modules == NULL)
+        modules = g_hash_table_new (g_direct_hash, g_direct_equal);
+    if (g_hash_table_contains (modules, module))
+        return;
+    g_hash_table_insert (modules, module, (gchar*)filename);
+
+    if (module && g_module_symbol (module, "extension_init",
+                                   (gpointer) &extension_init)
+        && (extension = extension_init ()))
+    {
+        if (MIDORI_IS_EXTENSION (extension))
+        {
+            midori_load_extension (app, MIDORI_EXTENSION (extension), filename);
+            if (activate)
+                g_signal_emit_by_name (extension, "activate", app);
+        }
+        else if (KATZE_IS_ARRAY (extension))
+        {
+            MidoriExtension* extension_item;
+            KATZE_ARRAY_FOREACH_ITEM (extension_item, KATZE_ARRAY (extension))
+                if (MIDORI_IS_EXTENSION (extension_item))
+                {
+                    gchar* key;
+
+                    midori_load_extension (app, extension_item, filename);
+                    if (activate)
+                    {
+                        key = katze_object_get_string (extension_item, "key");
+                        if (key && strstr (filename, key))
+                            g_signal_emit_by_name (extension_item, "activate", app);
+                        g_free (key);
+                    }
+                }
+        }
+    }
+
+    if (!extension  && g_module_error () != NULL)
+    {
+        KatzeArray* extensions = katze_object_get_object (app, "extensions");
+        extension = g_object_new (MIDORI_TYPE_EXTENSION,
+                                  "name", filename,
+                                  "description", g_module_error (),
+                                  NULL);
+        g_warning ("%s", g_module_error ());
+        katze_array_add_item (extensions, extension);
+        g_object_unref (extensions);
+    }
+    g_object_unref (extension);
+}
+
+static void
+extensions_update_cb (KatzeArray* extensions,
+                      MidoriApp*  app)
+{
+    MidoriWebSettings* settings = katze_object_get_object (app, "settings");
+    settings_notify_cb (settings, NULL, app);
+    g_object_unref (settings);
 }
 
 static gboolean
 midori_load_extensions (gpointer data)
 {
     MidoriApp* app = MIDORI_APP (data);
-    gchar** active_extensions = g_object_get_data (G_OBJECT (app), "extensions");
+    gchar** keys = g_object_get_data (G_OBJECT (app), "extensions");
     KatzeArray* extensions;
     #ifdef G_ENABLE_DEBUG
     gboolean startup_timer = g_getenv ("MIDORI_STARTTIME") != NULL;
@@ -1217,79 +1302,21 @@ midori_load_extensions (gpointer data)
 
     /* Load extensions */
     extensions = katze_array_new (MIDORI_TYPE_EXTENSION);
+    g_signal_connect (extensions, "update", G_CALLBACK (extensions_update_cb), app);
     g_object_set (app, "extensions", extensions, NULL);
     if (g_module_supported ())
     {
         gchar* extension_path;
-        GDir* extension_dir = NULL;
-
         if ((extension_path = midori_app_get_lib_path (PACKAGE_NAME)))
-            extension_dir = g_dir_open (extension_path, 0, NULL);
-        if (extension_dir != NULL)
         {
+            gint i = 0;
             const gchar* filename;
-
-            while ((filename = g_dir_read_name (extension_dir)))
-            {
-                gchar* fullname;
-                GModule* module;
-                typedef GObject* (*extension_init_func)(void);
-                extension_init_func extension_init;
-                GObject* extension = NULL;
-
-                /* Ignore files which don't have the correct suffix */
-                if (!g_str_has_suffix (filename, G_MODULE_SUFFIX))
-                    continue;
-
-                fullname = g_build_filename (extension_path, filename, NULL);
-                module = g_module_open (fullname, G_MODULE_BIND_LOCAL);
-                g_free (fullname);
-
-                if (module && g_module_symbol (module, "extension_init",
-                                               (gpointer) &extension_init))
-                {
-                    extension = extension_init ();
-                    if (extension != NULL)
-                    {
-                        if (MIDORI_IS_EXTENSION (extension))
-                            midori_load_extension (app, extensions,
-                                    active_extensions,
-                                    MIDORI_EXTENSION (extension), filename);
-                        else if (KATZE_IS_ARRAY (extension))
-                        {
-                            MidoriExtension* extension_item;
-                            KATZE_ARRAY_FOREACH_ITEM (extension_item, KATZE_ARRAY (extension))
-                            {
-                                if (MIDORI_IS_EXTENSION (extension_item))
-                                    midori_load_extension (app, extensions,
-                                            active_extensions, extension_item,
-                                            filename);
-                            }
-                        }
-
-                    }
-                }
-
-                if (!extension)
-                {
-                    /* No extension, no error: not available, not shown */
-                    if (g_module_error () == NULL)
-                        continue;
-
-                    extension = g_object_new (MIDORI_TYPE_EXTENSION,
-                                              "name", filename,
-                                              "description", g_module_error (),
-                                              NULL);
-                    g_warning ("%s", g_module_error ());
-                    katze_array_add_item (extensions, extension);
-                }
-                g_object_unref (extension);
-            }
-            g_dir_close (extension_dir);
+            while ((filename = keys[i++]))
+                midori_load_module (app, extension_path, filename, TRUE);
         }
         g_free (extension_path);
     }
-    g_strfreev (active_extensions);
+    g_strfreev (keys);
 
     #ifdef G_ENABLE_DEBUG
     if (startup_timer)

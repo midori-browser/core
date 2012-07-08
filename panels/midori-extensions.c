@@ -304,13 +304,17 @@ midori_extensions_treeview_row_activated_cb (GtkTreeView*       treeview,
     if (gtk_tree_model_get_iter (model, &iter, path))
     {
         MidoriExtension* extension;
+        KatzeArray* array = katze_object_get_object (extensions->app, "extensions");
 
         gtk_tree_model_get (model, &iter, 0, &extension, -1);
         if (midori_extension_is_active (extension))
             midori_extension_deactivate (extension);
         else if (midori_extension_is_prepared (extension))
             g_signal_emit_by_name (extension, "activate", extensions->app);
+        /* Make it easy for listeners to see that extensions changed */
+        katze_array_update (array);
 
+        g_object_unref (array);
         g_object_unref (extension);
     }
 }
@@ -327,13 +331,17 @@ midori_extensions_cell_renderer_toggled_cb (GtkCellRendererToggle* renderer,
     if (gtk_tree_model_get_iter_from_string (model, &iter, path))
     {
         MidoriExtension* extension;
+        KatzeArray* array = katze_object_get_object (extensions->app, "extensions");
 
         gtk_tree_model_get (model, &iter, 0, &extension, -1);
         if (midori_extension_is_active (extension))
             midori_extension_deactivate (extension);
         else if (midori_extension_is_prepared (extension))
             g_signal_emit_by_name (extension, "activate", extensions->app);
+        /* Make it easy for listeners to see that extensions changed */
+        katze_array_update (array);
 
+        g_object_unref (array);
         g_object_unref (extension);
     }
 }
