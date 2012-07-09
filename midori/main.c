@@ -1304,17 +1304,18 @@ midori_load_extensions (gpointer data)
     extensions = katze_array_new (MIDORI_TYPE_EXTENSION);
     g_signal_connect (extensions, "update", G_CALLBACK (extensions_update_cb), app);
     g_object_set (app, "extensions", extensions, NULL);
+
     if (g_module_supported ())
     {
         gchar* extension_path;
-        if ((extension_path = midori_app_get_lib_path (PACKAGE_NAME)))
+        if (keys && (extension_path = midori_app_get_lib_path (PACKAGE_NAME)))
         {
             gint i = 0;
             const gchar* filename;
             while ((filename = keys[i++]))
                 midori_load_module (app, extension_path, filename, TRUE);
+            g_free (extension_path);
         }
-        g_free (extension_path);
     }
     g_strfreev (keys);
 
