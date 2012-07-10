@@ -951,6 +951,7 @@ midori_load_soup_session (gpointer settings)
 {
     SoupSession* session = webkit_get_default_session ();
 
+    #ifndef G_OS_WIN32
     #if defined (HAVE_LIBSOUP_2_37_1)
     g_object_set (session,
                   "ssl-use-system-ca-file", TRUE,
@@ -980,6 +981,17 @@ midori_load_soup_session (gpointer settings)
     if (i == G_N_ELEMENTS (certificate_files))
         g_warning (_("No root certificate file is available. "
                      "SSL certificates cannot be verified."));
+    #endif
+    #else /* G_OS_WIN32 */
+    /* We cannot use "ssl-use-system-ca-file" on Windows
+     * some GTLS backend pieces are missing currently.
+     * Instead we specify the bundle we ship ourselves */
+    gchar* certificate_file = midori_app_find_res_filename ("ca-bundle.crt");
+    g_object_set (session,
+                  "ssl-ca-file", certificate_file,
+                  "ssl-strict", FALSE,
+                  NULL);
+    g_free (certificate_file);
     #endif
 
     #if !WEBKIT_CHECK_VERSION (1, 3, 5)
