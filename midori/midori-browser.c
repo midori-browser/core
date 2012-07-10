@@ -1059,8 +1059,7 @@ midori_browser_download_prepare_filename (gchar* filename);
 
 static void
 midori_browser_save_resources (MidoriView*  view,
-                               const gchar* folder,
-                               const gchar* title)
+                               const gchar* folder)
 {
     WebKitWebView* web_view = WEBKIT_WEB_VIEW (midori_view_get_web_view (view));
     WebKitWebFrame* frame = webkit_web_view_get_main_frame (web_view);
@@ -1068,8 +1067,7 @@ midori_browser_save_resources (MidoriView*  view,
     GList* resources = webkit_web_data_source_get_subresources (data_source);
     GList* list;
 
-    gchar* path = g_strconcat (folder, "/", title, NULL);
-    g_mkdir (path, 0700);
+    g_mkdir (folder, 0700);
 
     for (list = resources; list; list = g_list_next (list))
     {
@@ -1078,7 +1076,7 @@ midori_browser_save_resources (MidoriView*  view,
         /* FIXME: mime type fallback should respect the resource's type */
         gchar* sub_filename = midori_browser_get_filename_suggestion_for_uri (
             view, webkit_web_resource_get_uri (resource));
-        gchar* sub_path = g_build_filename (path, sub_filename, NULL);
+        gchar* sub_path = g_build_filename (folder, sub_filename, NULL);
         sub_path = midori_browser_download_prepare_filename (sub_path);
         if (data)
         {
@@ -1094,7 +1092,6 @@ midori_browser_save_resources (MidoriView*  view,
         g_free (sub_filename);
         g_free (sub_path);
     }
-    g_free (path);
     g_list_free (resources);
 }
 
@@ -1125,17 +1122,23 @@ midori_browser_save_uri (MidoriBrowser* browser,
 
     if (uri == NULL)
         uri = midori_view_get_display_uri (view);
-    filename = midori_browser_get_filename_suggestion_for_uri (view, uri);
+    if (!g_str_equal (title, uri))
+        filename = midori_browser_fixup_filename (g_strdup (title));
+    else
+        filename = midori_browser_get_filename_suggestion_for_uri (view, uri);
     gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (dialog), filename);
     g_free (filename);
 
     if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK)
     {
+        gchar* fullname;
         filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
-        midori_view_save_source (view, uri, filename);
+        fullname = g_strconcat (filename, ".html", NULL);
+        midori_view_save_source (view, uri, fullname);
         katze_assign (last_dir,
             gtk_file_chooser_get_current_folder (GTK_FILE_CHOOSER (dialog)));
-        midori_browser_save_resources (view, last_dir, title);
+        midori_browser_save_resources (view, filename);
+        g_free (fullname);
     }
     gtk_widget_destroy (dialog);
 }
