@@ -397,7 +397,9 @@ midori_location_action_add_search_engines (MidoriLocationAction* action,
         icon = midori_search_action_get_icon (item, action->treeview, NULL, FALSE);
         gtk_list_store_insert_with_values (store, NULL, matches + i,
             URI_COL, uri, TITLE_COL, desc, YALIGN_COL, 0.25,
+            #ifndef G_OS_WIN32
             BACKGROUND_COL, style ? &style->bg[GTK_STATE_NORMAL] : NULL,
+            #endif
             STYLE_COL, 1, FAVICON_COL, icon, -1);
         g_free (uri);
         g_free (title);
@@ -411,7 +413,9 @@ midori_location_action_add_search_engines (MidoriLocationAction* action,
             gtk_list_store_insert_with_values (store, NULL, matches + i,
                 URI_COL, "about:search", TITLE_COL, _("Search with…"),
                 YALIGN_COL, 0.25,
+                #ifndef G_OS_WIN32
                 BACKGROUND_COL, style ? &style->bg[GTK_STATE_NORMAL] : NULL,
+                #endif
                 STYLE_COL, 1, FAVICON_COL, NULL, -1);
             i++;
             break;
