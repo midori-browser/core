@@ -1423,6 +1423,7 @@ midori_app_setup (gchar** argument_vector)
         { STOCK_PLUGINS,      N_("Netscape p_lugins") },
         { STOCK_USER_TRASH,   N_("_Closed Tabs") },
         { STOCK_WINDOW_NEW,   N_("New _Window") },
+        { STOCK_FOLDER_NEW,   N_("New _Folder") },
     };
 
     /* libSoup uses threads, therefore if WebKit is built with libSoup

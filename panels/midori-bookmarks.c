@@ -521,7 +521,7 @@ midori_bookmarks_get_toolbar (MidoriViewable* viewable)
         gtk_toolbar_set_icon_size (GTK_TOOLBAR (toolbar), GTK_ICON_SIZE_BUTTON);
         gtk_toolbar_set_show_arrow (GTK_TOOLBAR (toolbar), FALSE);
         bookmarks->toolbar = toolbar;
-        toolitem = gtk_tool_button_new_from_stock (GTK_STOCK_ADD);
+        toolitem = gtk_tool_button_new_from_stock (STOCK_BOOKMARK_ADD);
         gtk_widget_set_name (GTK_WIDGET (toolitem), "BookmarkAdd");
         gtk_widget_set_tooltip_text (GTK_WIDGET (toolitem),
                                      _("Add a new bookmark"));
@@ -552,7 +552,7 @@ midori_bookmarks_get_toolbar (MidoriViewable* viewable)
         gtk_tool_item_set_expand (toolitem, TRUE);
         gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
         gtk_widget_show (GTK_WIDGET (toolitem));
-        toolitem = gtk_tool_button_new_from_stock (GTK_STOCK_DIRECTORY);
+        toolitem = gtk_tool_button_new_from_stock (STOCK_FOLDER_NEW);
         gtk_widget_set_name (GTK_WIDGET (toolitem), "BookmarkFolderAdd");
         gtk_widget_set_tooltip_text (GTK_WIDGET (toolitem),
                                      _("Add a new folder"));

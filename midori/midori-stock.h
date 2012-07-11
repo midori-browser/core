@@ -30,5 +30,6 @@
 #define STOCK_TAB_NEW            "tab-new"
 #define STOCK_USER_TRASH         "user-trash"
 #define STOCK_WINDOW_NEW         "window-new"
+#define STOCK_FOLDER_NEW         "folder-new"
 
 #endif /* !__MIDORI_STOCK_H__ */
