@@ -1582,6 +1582,11 @@ GtkWidget*
 katze_uri_entry_new (GtkWidget* other_widget)
 {
     GtkWidget* entry = gtk_entry_new ();
+
+    #if GTK_CHECK_VERSION (2, 16, 0)
+    gtk_entry_set_icon_from_gicon (GTK_ENTRY (entry), GTK_ENTRY_ICON_PRIMARY,
+        g_themed_icon_new_with_default_fallbacks ("text-html-symbolic"));
+    #endif
     g_signal_connect (entry, "changed",
         G_CALLBACK (katze_uri_entry_changed_cb), other_widget);
     return entry;
