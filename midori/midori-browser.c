@@ -309,10 +309,9 @@ midori_browser_update_secondary_icon (MidoriBrowser* browser,
 }
 
 static void
-_midori_browser_update_interface (MidoriBrowser* browser)
+_midori_browser_update_interface (MidoriBrowser* browser,
+                                  MidoriView*    view)
 {
-    GtkWidget* widget = midori_browser_get_current_tab (browser);
-    MidoriView* view = MIDORI_VIEW (widget);
     gboolean loading = midori_view_get_load_status (view) != MIDORI_LOAD_FINISHED;
     gboolean can_reload = midori_view_can_reload (view);
     GtkAction* action;
@@ -376,7 +375,7 @@ _midori_browser_update_interface (MidoriBrowser* browser)
     action = _action_by_name (browser, "Location");
     midori_location_action_set_security_hint (
         MIDORI_LOCATION_ACTION (action), midori_view_get_security (view));
-    midori_browser_update_secondary_icon (browser, MIDORI_VIEW (view), action);
+    midori_browser_update_secondary_icon (browser, view, action);
 }
 
 static void
@@ -528,7 +527,7 @@ midori_view_notify_load_status_cb (GtkWidget*      widget,
             g_object_notify (G_OBJECT (browser), "uri");
         }
 
-        _midori_browser_update_interface (browser);
+        _midori_browser_update_interface (browser, view);
         _midori_browser_set_statusbar_text (browser, NULL);
 
         /* This is a hack to ensure that the address entry is focussed
@@ -795,7 +794,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         /* FIXME: granite: should return GtkWidget* like GTK+ */
         dialog = (GtkWidget*)granite_widgets_pop_over_new ();
         granite_widgets_pop_over_move_to_widget (
-            GRANITE_WIDGETS_POP_OVER (dialog), proxy);
+            GRANITE_WIDGETS_POP_OVER (dialog), proxy, TRUE);
     }
     else
     #endif
@@ -4844,11 +4843,7 @@ _action_tab_move_backward_activate (GtkAction*     action,
     else
         new_pos = midori_browser_get_n_pages (browser) - 1;
     #ifdef HAVE_GRANITE
-    /* FIXME: There is no move/ set_tab_position function */
-    granite_widgets_dynamic_notebook_remove_tab (
-        GRANITE_WIDGETS_DYNAMIC_NOTEBOOK (browser->notebook),
-        midori_view_get_tab (MIDORI_VIEW (widget)));
-    granite_widgets_dynamic_notebook_insert_tab (
+    granite_widgets_dynamic_notebook_set_tab_position (
         GRANITE_WIDGETS_DYNAMIC_NOTEBOOK (browser->notebook),
         midori_view_get_tab (MIDORI_VIEW (widget)), new_pos);
     #else
@@ -5222,7 +5217,7 @@ midori_browser_notebook_switch_page_cb (GtkWidget*       notebook,
     GtkAction* action;
     const gchar* text;
 
-    if (!(widget = midori_browser_get_current_tab (browser)))
+    if (!(widget = midori_browser_get_nth_tab (browser, page_num)))
         return;
 
     action = _action_by_name (browser, "Location");
@@ -5242,7 +5237,7 @@ midori_browser_notebook_switch_page_after_cb (GtkWidget*       notebook,
     const gchar* uri;
     GtkAction* action;
 
-    if (!(widget = midori_browser_get_current_tab (browser)))
+    if (!(widget = midori_browser_get_nth_tab (browser, page_num)))
         return;
 
     view = MIDORI_VIEW (widget);
@@ -5261,7 +5256,7 @@ midori_browser_notebook_switch_page_after_cb (GtkWidget*       notebook,
     g_object_notify (G_OBJECT (browser), "tab");
 
     _midori_browser_set_statusbar_text (browser, NULL);
-    _midori_browser_update_interface (browser);
+    _midori_browser_update_interface (browser, view);
     _midori_browser_update_progress (browser, view);
 }
 
@@ -5310,13 +5305,18 @@ midori_browser_notebook_tab_added_cb (GtkWidget*         notebook,
 }
 
 static void
-midori_browser_notebook_tab_switched_cb (GtkWidget*         notebook,
+midori_browser_notebook_tab_switched_cb (GraniteWidgetsDynamicNotebook* notebook,
                                          GraniteWidgetsTab* old_tab,
                                          GraniteWidgetsTab* new_tab,
                                          MidoriBrowser*     browser)
 {
-    midori_browser_notebook_switch_page_cb (notebook, NULL, 0, browser);
-    midori_browser_notebook_switch_page_after_cb (notebook, NULL, 0, browser);
+    gint new_pos = granite_widgets_dynamic_notebook_get_tab_position (notebook, new_tab);
+    if (old_tab)
+    {
+        gint old_pos = granite_widgets_dynamic_notebook_get_tab_position (notebook, old_tab);
+        midori_browser_notebook_switch_page_cb (browser->notebook, NULL, old_pos, browser);
+    }
+    midori_browser_notebook_switch_page_after_cb (browser->notebook, NULL, new_pos, browser);
 }
 
 static void
