@@ -112,7 +112,7 @@ midori_findbar_entry_clear_icon_released_cb (GtkIconEntry* entry,
 {
     if (icon_pos == GTK_ICON_ENTRY_SECONDARY)
     {
-        midori_findbar_set_icon (findbar, GTK_ICON_ENTRY_PRIMARY, "edit-find");
+        midori_findbar_set_icon (findbar, GTK_ICON_ENTRY_PRIMARY, STOCK_EDIT_FIND);
     }
 }
 
@@ -191,7 +191,7 @@ midori_findbar_invoke (MidoriFindbar* findbar)
         GtkWidget* view = midori_browser_get_current_tab (browser);
         const gchar* text;
 
-        midori_findbar_set_icon (findbar, GTK_ICON_ENTRY_PRIMARY, "edit-find");
+        midori_findbar_set_icon (findbar, GTK_ICON_ENTRY_PRIMARY, STOCK_EDIT_FIND);
         gtk_widget_show (GTK_WIDGET (findbar->find_case));
         gtk_widget_show (GTK_WIDGET (findbar->find_highlight));
         gtk_widget_show (GTK_WIDGET (findbar->find_close));
@@ -233,7 +233,7 @@ midori_findbar_preedit_changed_cb (GtkWidget*     entry,
     midori_view_unmark_text_matches (MIDORI_VIEW (view));
     if (g_utf8_strlen (preedit, -1) >= 1)
     {
-        midori_findbar_set_icon (findbar, GTK_ICON_ENTRY_SECONDARY, "edit-clear");
+        midori_findbar_set_icon (findbar, GTK_ICON_ENTRY_SECONDARY, STOCK_EDIT_CLEAR);
         midori_findbar_find_text (findbar, preedit, TRUE);
     }
     else
@@ -291,7 +291,7 @@ midori_findbar_init (MidoriFindbar* findbar)
         gtk_label_new_with_mnemonic (_("_Inline Find:")));
     gtk_toolbar_insert (GTK_TOOLBAR (findbar), toolitem, -1);
     findbar->find_text = gtk_icon_entry_new ();
-    midori_findbar_set_icon (findbar, GTK_ICON_ENTRY_PRIMARY, "edit-find");
+    midori_findbar_set_icon (findbar, GTK_ICON_ENTRY_PRIMARY, STOCK_EDIT_FIND);
     sokoke_entry_set_clear_button_visible (GTK_ENTRY (findbar->find_text), TRUE);
     g_signal_connect (findbar->find_text, "icon-release",
         G_CALLBACK (midori_findbar_entry_clear_icon_released_cb), findbar);
@@ -370,7 +370,7 @@ midori_findbar_search_text (MidoriFindbar* findbar,
     gboolean case_sensitive;
     gboolean highlight;
 
-    midori_findbar_set_icon (findbar, GTK_ICON_ENTRY_PRIMARY, found ? "edit-find" : "stop");
+    midori_findbar_set_icon (findbar, GTK_ICON_ENTRY_PRIMARY, found ? STOCK_EDIT_FIND : STOCK_STOP);
 
     if (typing)
     {

@@ -433,7 +433,7 @@ midori_search_action_get_icon (KatzeItem*    item,
     else if (gtk_icon_theme_has_icon (icon_theme, "edit-find-option"))
         *icon_name = "edit-find-option";
     else
-        *icon_name = "edit-find";
+        *icon_name = STOCK_EDIT_FIND;
     return NULL;
 }
 

@@ -31,5 +31,9 @@
 #define STOCK_USER_TRASH         "user-trash"
 #define STOCK_WINDOW_NEW         "window-new"
 #define STOCK_FOLDER_NEW         "folder-new"
+#define STOCK_EDIT_CLEAR         "edit-clear"
+#define STOCK_EDIT_FIND          "edit-find"
+#define STOCK_STOP               "stop"
+#define STOCK_URL                "text-html"
 
 #endif /* !__MIDORI_STOCK_H__ */

@@ -1770,7 +1770,7 @@ midori_location_action_set_security_hint (MidoriLocationAction* location_action,
                     GTK_ICON_ENTRY_PRIMARY, "text-html-symbolic");
             else
                 gtk_icon_entry_set_icon_from_icon_name (GTK_ICON_ENTRY (entry),
-                    GTK_ICON_ENTRY_PRIMARY, "text-html");
+                    GTK_ICON_ENTRY_PRIMARY, STOCK_URL);
             gtk_icon_entry_set_tooltip (GTK_ICON_ENTRY (entry),
                 GTK_ICON_ENTRY_PRIMARY, _("Open, unencrypted connection"));
         }
