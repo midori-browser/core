@@ -32,11 +32,12 @@
 #include <gdk/gdkkeysyms.h>
 #include <string.h>
 
+#include <config.h>
+
 #ifdef HAVE_GRANITE
     #include <granite.h>
 #endif
 
-#include <config.h>
 #ifdef HAVE_UNISTD_H
     #include <unistd.h>
 #endif

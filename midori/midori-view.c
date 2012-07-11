@@ -20,6 +20,8 @@
 
 #include "marshal.h"
 
+#include <config.h>
+
 #ifdef HAVE_GRANITE
 #include <granite.h>
 #endif
@@ -32,7 +34,6 @@
 #include <gdk/gdkkeysyms.h>
 #include <webkit/webkit.h>
 
-#include <config.h>
 #if HAVE_UNISTD_H
     #include <unistd.h>
 #endif
