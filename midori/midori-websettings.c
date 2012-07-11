@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2008-2010 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2008-2012 Christian Dywan <christian@twotoasts.de>
  Copyright (C) 2011 Peter Hatina <phatina@redhat.com>
 
  This library is free software; you can redistribute it and/or
@@ -70,6 +70,7 @@ struct _MidoriWebSettings
     gint last_panel_position;
     gint last_panel_page;
     gint last_web_search;
+    gboolean last_inspector_attached;
     gint maximum_cookie_age;
     gint maximum_history_age;
     gint search_width;
@@ -120,6 +121,7 @@ enum
     PROP_LAST_PANEL_POSITION,
     PROP_LAST_PANEL_PAGE,
     PROP_LAST_WEB_SEARCH,
+    PROP_LAST_INSPECTOR_ATTACHED,
 
     PROP_SHOW_MENUBAR,
     PROP_SHOW_NAVIGATIONBAR,
@@ -466,6 +468,21 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("The last saved Web search"),
                                      0, G_MAXINT, 0,
                                      flags));
+    /**
+     * MidoriWebSettings:last-inspector-attached:
+     *
+     * Whether the inspector was attached.
+     *
+     * Since: 0.4.7
+     */
+    g_object_class_install_property (gobject_class,
+                                     PROP_LAST_INSPECTOR_ATTACHED,
+                                     g_param_spec_boolean (
+                                     "last-inspector-attached",
+                                     "Inspector attached",
+                                     "Whether the inspector was attached",
+                                     FALSE,
+                                     flags | MIDORI_PARAM_DELAY_SAVING));
 
 
     g_object_class_install_property (gobject_class,
@@ -1505,6 +1522,9 @@ midori_web_settings_set_property (GObject*      object,
     case PROP_LAST_WEB_SEARCH:
         web_settings->last_web_search = g_value_get_int (value);
         break;
+    case PROP_LAST_INSPECTOR_ATTACHED:
+        web_settings->last_inspector_attached = g_value_get_boolean (value);
+        break;
 
     case PROP_SHOW_MENUBAR:
         web_settings->show_menubar = g_value_get_boolean (value);
@@ -1814,6 +1834,9 @@ midori_web_settings_get_property (GObject*    object,
         break;
     case PROP_LAST_WEB_SEARCH:
         g_value_set_int (value, web_settings->last_web_search);
+        break;
+    case PROP_LAST_INSPECTOR_ATTACHED:
+        g_value_set_boolean (value, web_settings->last_inspector_attached);
         break;
 
     case PROP_SHOW_MENUBAR:

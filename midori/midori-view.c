@@ -3705,7 +3705,7 @@ midori_view_web_inspector_construct_window (gpointer       inspector,
     gtk_window_set_hide_titlebar_when_maximized (GTK_WINDOW (window), TRUE);
     #endif
     gtk_container_add (GTK_CONTAINER (window), inspector_view);
-    gtk_widget_show_all (window);
+    gtk_widget_show_all (inspector_view);
 
     g_signal_connect (window, "key-press-event",
         G_CALLBACK (midori_view_inspector_window_key_press_event_cb), NULL);
@@ -3737,7 +3737,13 @@ midori_view_web_inspector_show_window_cb (WebKitWebInspector* inspector,
     GtkWidget* window = gtk_widget_get_toplevel (GTK_WIDGET (inspector_view));
     if (!window)
         return FALSE;
-    gtk_window_present (GTK_WINDOW (window));
+    if (katze_object_get_boolean (view->settings, "last-inspector-attached"))
+        g_signal_emit_by_name (inspector, "attach-window");
+    else
+    {
+        gtk_widget_show (window);
+        gtk_window_present (GTK_WINDOW (window));
+    }
     return TRUE;
 }
 

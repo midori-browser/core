@@ -1274,6 +1274,8 @@ midori_view_attach_inspector_cb (GtkWidget*     view,
     gtk_widget_show_all (browser->inspector);
     browser->inspector_view = inspector_view;
     gtk_widget_destroy (toplevel);
+    if (!katze_object_get_boolean (browser->settings, "last-inspector-attached"))
+        g_object_set (browser->settings, "last-inspector-attached", TRUE, NULL);
 }
 
 static void
@@ -1287,6 +1289,8 @@ midori_view_detach_inspector_cb (GtkWidget*     view,
     gtk_container_remove (GTK_CONTAINER (scrolled), GTK_WIDGET (inspector_view));
     gtk_container_add (GTK_CONTAINER (scrolled), browser->inspector_view);
     gtk_widget_hide (paned);
+    if (katze_object_get_boolean (browser->settings, "last-inspector-attached"))
+        g_object_set (browser->settings, "last-inspector-attached", FALSE, NULL);
 }
 
 static void
