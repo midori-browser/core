@@ -18,7 +18,7 @@
 #define STOCK_EXTENSION          "extension"
 #define STOCK_HISTORY            "document-open-recent"
 #define STOCK_WEB_BROWSER        "web-browser"
-#define STOCK_NEWS_FEED          "news-feed"
+#define STOCK_NEWS_FEED          "internet-news-reader"
 #define STOCK_STYLE              "preferences-desktop-theme"
 #define STOCK_TRANSFER           "package"
 #define STOCK_PLUGINS            "application-x-shockwave-flash"

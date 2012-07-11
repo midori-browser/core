@@ -295,7 +295,7 @@ Section "Tango icons" SEC07
 	!insertmacro InstallTangoIcon "mimetypes\package"
 	!insertmacro InstallTangoIcon "mimetypes\stock_script"
 	!insertmacro InstallTangoIcon "mimetypes\vcard"
-	#!insertmacro InstallTangoIcon "news-feed"
+	#!insertmacro InstallTangoIcon "internet-news-reader"
 	#!insertmacro InstallTangoIcon "place-holder"
 	!insertmacro InstallTangoIcon "places\gnome-stock-trash"
 	!insertmacro InstallTangoIcon "places\gtk-directory"
