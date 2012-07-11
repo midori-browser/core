@@ -5595,8 +5595,8 @@ static const GtkActionEntry entries[] =
         NULL, "<Alt><Shift>Right",
         /* i18n: Visit the following logical page, ie. in a forum or blog */
         N_("Go to the next sub-page"), G_CALLBACK (_action_navigation_activate) },
-    { "Homepage", STOCK_HOMEPAGE,
-        NULL, "<Alt>Home",
+    { "Homepage", GTK_STOCK_HOME,
+        N_("_Homepage"), "<Alt>Home",
         N_("Go to your homepage"), G_CALLBACK (_action_navigation_activate) },
     { "TrashEmpty", GTK_STOCK_CLEAR,
         N_("Empty Trash"), "",
@@ -5967,7 +5967,7 @@ midori_browser_realize_cb (GtkStyle*      style,
         if (gtk_icon_theme_has_icon (icon_theme, "midori"))
             gtk_window_set_icon_name (GTK_WINDOW (browser), "midori");
         else
-            gtk_window_set_icon_name (GTK_WINDOW (browser), "web-browser");
+            gtk_window_set_icon_name (GTK_WINDOW (browser), STOCK_WEB_BROWSER);
     }
 }
 
@@ -6192,7 +6192,7 @@ midori_browser_init (MidoriBrowser* browser)
     g_signal_connect (browser, "destroy",
                       G_CALLBACK (midori_browser_destroy_cb), NULL);
     gtk_window_set_role (GTK_WINDOW (browser), "browser");
-    gtk_window_set_icon_name (GTK_WINDOW (browser), "web-browser");
+    gtk_window_set_icon_name (GTK_WINDOW (browser), STOCK_WEB_BROWSER);
     #if GTK_CHECK_VERSION (3, 4, 0)
     gtk_window_set_hide_titlebar_when_maximized (GTK_WINDOW (browser), TRUE);
     #endif

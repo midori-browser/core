@@ -93,7 +93,7 @@ midori_extensions_get_label (MidoriViewable* viewable)
 static const gchar*
 midori_extensions_get_stock_id (MidoriViewable* viewable)
 {
-    return STOCK_EXTENSIONS;
+    return STOCK_EXTENSION;
 }
 
 static GtkWidget*

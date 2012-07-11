@@ -160,7 +160,7 @@ statusbar_features_property_proxy (MidoriWebSettings* settings,
     if (!strcmp (property, "enable-scripts"))
     {
         g_object_set_data (G_OBJECT (button), "feature-label", _("Scripts"));
-        image = gtk_image_new_from_stock (STOCK_SCRIPTS, GTK_ICON_SIZE_MENU);
+        image = gtk_image_new_from_stock (STOCK_SCRIPT, GTK_ICON_SIZE_MENU);
         gtk_button_set_image (GTK_BUTTON (button), image);
         gtk_widget_set_tooltip_text (button, _("Enable scripts"));
         statusbar_features_toolbar_notify_toolbar_style_cb (toolbar, NULL, button);

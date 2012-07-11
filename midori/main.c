@@ -678,7 +678,7 @@ midori_browser_show_preferences_cb (MidoriBrowser*    browser,
     gtk_widget_reparent (g_list_nth_data (children, 0), scrolled);
     g_list_free (children);
     page = katze_preferences_add_category (preferences,
-                                           _("Extensions"), STOCK_EXTENSIONS);
+                                           _("Extensions"), STOCK_EXTENSION);
     gtk_box_pack_start (GTK_BOX (page), scrolled, TRUE, TRUE, 4);
 }
 

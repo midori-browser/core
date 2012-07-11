@@ -90,7 +90,7 @@ midori_transfers_get_label (MidoriViewable* viewable)
 static const gchar*
 midori_transfers_get_stock_id (MidoriViewable* viewable)
 {
-    return STOCK_TRANSFERS;
+    return STOCK_TRANSFER;
 }
 
 static void
