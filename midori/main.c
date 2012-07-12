@@ -1329,7 +1329,6 @@ midori_load_extensions (gpointer data)
             g_free (extension_path);
         }
     }
-    g_strfreev (keys);
 
     #ifdef G_ENABLE_DEBUG
     if (startup_timer)
@@ -2534,7 +2533,7 @@ main (int    argc,
         G_CALLBACK (midori_trash_remove_item_cb), NULL);
 
     katze_item_set_parent (KATZE_ITEM (_session), app);
-    g_object_set_data (G_OBJECT (app), "extensions", extensions);
+    g_object_set_data_full (G_OBJECT (app), "extensions", extensions, (GDestroyNotify)g_strfreev);
     /* We test for the presence of a dummy file which is created once
        and deleted during normal runtime, but persists in case of a crash. */
     katze_assign (config_file, g_build_filename (config, "running", NULL));
