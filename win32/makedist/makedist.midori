@@ -217,13 +217,13 @@ if [ "$GTK3_BUILD" == "1" ]; then
 
     cat > $gtk_rc_file << _EOF
 [Settings]
-gtk-fallback-icon-theme = Tango
+gtk-icon-theme-name = Faenza
 _EOF
 
 else
     cat > $gtk_rc_file << _EOF
 gtk-theme-name = "MS-Windows"
-gtk-fallback-icon-theme = "Tango"
+gtk-icon-theme-name = "Faenza"
 _EOF
 
 fi
