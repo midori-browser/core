@@ -1246,7 +1246,7 @@ midori_load_module (MidoriApp*   app,
         modules = g_hash_table_new (g_direct_hash, g_direct_equal);
     if (g_hash_table_contains (modules, module))
         return;
-    g_hash_table_insert (modules, module, (gchar*)filename);
+    g_hash_table_insert (modules, module, g_strdup (filename));
 
     if (module && g_module_symbol (module, "extension_init",
                                    (gpointer) &extension_init)
