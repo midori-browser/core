@@ -254,6 +254,9 @@ midori_transferbar_add_download_item (MidoriTransferbar* transferbar,
 
     box = gtk_hbox_new (FALSE, 0);
     progress = gtk_progress_bar_new ();
+    #if GTK_CHECK_VERSION (3, 0, 0)
+    gtk_progress_bar_set_show_text (GTK_PROGRESS_BAR (progress), TRUE);
+    #endif
     gtk_progress_bar_set_ellipsize (GTK_PROGRESS_BAR (progress),
                                     PANGO_ELLIPSIZE_MIDDLE);
     if ((uri = webkit_download_get_destination_uri (download)))
