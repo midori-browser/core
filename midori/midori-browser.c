@@ -381,9 +381,9 @@ _midori_browser_update_interface (MidoriBrowser* browser,
 
 static void
 _midori_browser_set_statusbar_text (MidoriBrowser* browser,
+                                    MidoriView*    view,
                                     const gchar*   text)
 {
-    GtkWidget* view = midori_browser_get_current_tab (browser);
     #if GTK_CHECK_VERSION (3, 2, 0)
     gboolean is_location = FALSE;
     #else
@@ -400,7 +400,7 @@ _midori_browser_set_statusbar_text (MidoriBrowser* browser,
      && text && *text)
     {
         #if GTK_CHECK_VERSION (3, 2, 0)
-        midori_view_set_overlay_text (MIDORI_VIEW (view), browser->statusbar_text);
+        midori_view_set_overlay_text (view, browser->statusbar_text);
         #else
         GtkAction* action = _action_by_name (browser, "Location");
         MidoriLocationAction* location_action = MIDORI_LOCATION_ACTION (action);
@@ -411,13 +411,13 @@ _midori_browser_set_statusbar_text (MidoriBrowser* browser,
     else if (!gtk_widget_get_visible (browser->statusbar) && !is_location)
     {
         #if GTK_CHECK_VERSION (3, 2, 0)
-        midori_view_set_overlay_text (MIDORI_VIEW (view), NULL);
+        midori_view_set_overlay_text (view, NULL);
         #else
         GtkAction* action = _action_by_name (browser, "Location");
         MidoriLocationAction* location_action = MIDORI_LOCATION_ACTION (action);
-        midori_browser_update_secondary_icon (browser, MIDORI_VIEW (view), action);
+        midori_browser_update_secondary_icon (browser, view, action);
         midori_location_action_set_text (location_action,
-            midori_view_get_display_uri (MIDORI_VIEW (view)));
+            midori_view_get_display_uri (view));
         #endif
     }
     else
@@ -529,7 +529,7 @@ midori_view_notify_load_status_cb (GtkWidget*      widget,
         }
 
         _midori_browser_update_interface (browser, view);
-        _midori_browser_set_statusbar_text (browser, NULL);
+        _midori_browser_set_statusbar_text (browser, view, NULL);
 
         /* This is a hack to ensure that the address entry is focussed
            with speed dial open. */
@@ -657,7 +657,7 @@ midori_view_notify_statusbar_text_cb (GtkWidget*     view,
     if (view == midori_browser_get_current_tab (browser))
     {
         g_object_get (view, "statusbar-text", &text, NULL);
-        _midori_browser_set_statusbar_text (browser, text);
+        _midori_browser_set_statusbar_text (browser, MIDORI_VIEW (view), text);
         g_free (text);
     }
 }
@@ -1246,7 +1246,7 @@ midori_browser_tab_leave_notify_event_cb (GtkWidget*        widget,
                                           GdkEventCrossing* event,
                                           MidoriBrowser*    browser)
 {
-    _midori_browser_set_statusbar_text (browser, NULL);
+    _midori_browser_set_statusbar_text (browser, MIDORI_VIEW (widget), NULL);
     return TRUE;
 }
 
@@ -5209,56 +5209,42 @@ midori_panel_close_cb (MidoriPanel*   panel,
 }
 
 static void
-midori_browser_notebook_switch_page_cb (GtkWidget*       notebook,
-                                        gpointer         page,
-                                        guint            page_num,
-                                        MidoriBrowser*   browser)
+midori_browser_switched_tab (MidoriBrowser* browser,
+                             GtkWidget*     old_widget,
+                             MidoriView*    new_view,
+                             gint           new_page)
 {
-    GtkWidget* widget;
     GtkAction* action;
     const gchar* text;
-
-    if (!(widget = midori_browser_get_nth_tab (browser, page_num)))
-        return;
-
-    action = _action_by_name (browser, "Location");
-    text = midori_location_action_get_text (MIDORI_LOCATION_ACTION (action));
-    g_object_set_data_full (G_OBJECT (widget), "midori-browser-typed-text",
-                            g_strdup (text), g_free);
-}
-
-static void
-midori_browser_notebook_switch_page_after_cb (GtkWidget*       notebook,
-                                              gpointer         page,
-                                              guint            page_num,
-                                              MidoriBrowser*   browser)
-{
-    GtkWidget* widget;
-    MidoriView* view;
     const gchar* uri;
-    GtkAction* action;
 
-    if (!(widget = midori_browser_get_nth_tab (browser, page_num)))
+    if (old_widget != NULL)
+    {
+        action = _action_by_name (browser, "Location");
+        text = midori_location_action_get_text (MIDORI_LOCATION_ACTION (action));
+        g_object_set_data_full (G_OBJECT (old_widget), "midori-browser-typed-text",
+                                g_strdup (text), g_free);
+    }
+
+    if (new_view == NULL)
         return;
 
-    view = MIDORI_VIEW (widget);
-    uri = g_object_get_data (G_OBJECT (widget), "midori-browser-typed-text");
+    uri = g_object_get_data (G_OBJECT (new_view), "midori-browser-typed-text");
     if (!uri)
-        uri = midori_view_get_display_uri (view);
-    midori_browser_set_title (browser, midori_view_get_display_title (view));
+        uri = midori_view_get_display_uri (new_view);
+    midori_browser_set_title (browser, midori_view_get_display_title (new_view));
     action = _action_by_name (browser, "Location");
     midori_location_action_set_text (MIDORI_LOCATION_ACTION (action), uri);
     if (sokoke_is_app_or_private ())
-        gtk_window_set_icon (GTK_WINDOW (browser), midori_view_get_icon (view));
+        gtk_window_set_icon (GTK_WINDOW (browser), midori_view_get_icon (new_view));
 
     if (browser->proxy_array)
-        katze_item_set_meta_integer (KATZE_ITEM (browser->proxy_array), "current",
-                                     midori_browser_get_current_page (browser));
+        katze_item_set_meta_integer (KATZE_ITEM (browser->proxy_array), "current", new_page);
     g_object_notify (G_OBJECT (browser), "tab");
 
-    _midori_browser_set_statusbar_text (browser, NULL);
-    _midori_browser_update_interface (browser, view);
-    _midori_browser_update_progress (browser, view);
+    _midori_browser_set_statusbar_text (browser, new_view, NULL);
+    _midori_browser_update_interface (browser, new_view);
+    _midori_browser_update_progress (browser, new_view);
 }
 
 static void
@@ -5312,12 +5298,10 @@ midori_browser_notebook_tab_switched_cb (GraniteWidgetsDynamicNotebook* notebook
                                          MidoriBrowser*     browser)
 {
     gint new_pos = granite_widgets_dynamic_notebook_get_tab_position (notebook, new_tab);
-    if (old_tab)
-    {
-        gint old_pos = granite_widgets_dynamic_notebook_get_tab_position (notebook, old_tab);
-        midori_browser_notebook_switch_page_cb (browser->notebook, NULL, old_pos, browser);
-    }
-    midori_browser_notebook_switch_page_after_cb (browser->notebook, NULL, new_pos, browser);
+    gint old_pos = old_tab ? granite_widgets_dynamic_notebook_get_tab_position (notebook, old_tab) : -1;
+    midori_browser_switched_tab (browser,
+        old_tab ? midori_browser_get_nth_tab (browser, old_pos) : NULL,
+        MIDORI_VIEW (midori_browser_get_nth_tab (browser, new_pos)), new_pos);
 }
 
 static void
@@ -5343,6 +5327,17 @@ midori_browser_notebook_tab_moved_cb (GtkWidget*         notebook,
     }
 }
 #else
+static void
+midori_browser_notebook_switch_page_cb (GtkWidget*       notebook,
+                                        gpointer         page,
+                                        guint            page_num,
+                                        MidoriBrowser*   browser)
+{
+    midori_browser_switched_tab (browser,
+        midori_browser_get_current_tab (browser),
+        MIDORI_VIEW (midori_browser_get_nth_tab (browser, page_num)), page_num);
+}
+
 static void
 midori_browser_notebook_page_removed_cb (GtkWidget*     notebook,
                                          GtkWidget*     view,
@@ -6566,9 +6561,6 @@ midori_browser_init (MidoriBrowser* browser)
     g_signal_connect (browser->notebook, "switch-page",
                       G_CALLBACK (midori_browser_notebook_switch_page_cb),
                       browser);
-    g_signal_connect_after (browser->notebook, "switch-page",
-                            G_CALLBACK (midori_browser_notebook_switch_page_after_cb),
-                            browser);
     g_signal_connect (browser->notebook, "page-reordered",
                       G_CALLBACK (midori_browser_notebook_page_reordered_cb),
                       browser);
@@ -7389,7 +7381,9 @@ midori_browser_set_property (GObject*      object,
         midori_browser_set_current_tab (browser, g_value_get_object (value));
         break;
     case PROP_STATUSBAR_TEXT:
-        _midori_browser_set_statusbar_text (browser, g_value_get_string (value));
+        _midori_browser_set_statusbar_text (browser,
+            MIDORI_VIEW (midori_browser_get_current_tab (browser)),
+            g_value_get_string (value));
         break;
     case PROP_SETTINGS:
         g_signal_handlers_disconnect_by_func (browser->settings,
