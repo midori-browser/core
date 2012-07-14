@@ -480,6 +480,11 @@ adblock_get_preferences_dialog (MidoriExtension* extension)
         GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE,
         #endif
         NULL);
+    #if GTK_CHECK_VERSION (3, 0, 0)
+    gtk_style_context_add_class (gtk_widget_get_style_context (
+        gtk_dialog_get_widget_for_response (GTK_DIALOG (dialog),
+            GTK_RESPONSE_HELP)), "help_button");
+    #endif
     content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
     g_signal_connect (dialog, "destroy",
                       G_CALLBACK (gtk_widget_destroyed), &dialog);

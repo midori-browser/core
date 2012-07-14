@@ -4752,6 +4752,11 @@ _action_clear_private_data_activate (GtkAction*     action,
             GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR,
             GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
             _("_Clear private data"), GTK_RESPONSE_ACCEPT, NULL);
+        #if GTK_CHECK_VERSION (3, 0, 0)
+        gtk_style_context_add_class (gtk_widget_get_style_context (
+            gtk_dialog_get_widget_for_response (GTK_DIALOG (dialog),
+                GTK_RESPONSE_ACCEPT)), "noundo");
+        #endif
         content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
         gtk_window_set_skip_taskbar_hint (GTK_WINDOW (dialog), FALSE);
         screen = gtk_widget_get_screen (GTK_WIDGET (browser));

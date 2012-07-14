@@ -1305,6 +1305,11 @@ midori_search_action_get_dialog (MidoriSearchAction* search_action)
         GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE,
         #endif
         NULL);
+    #if GTK_CHECK_VERSION (3, 0, 0)
+    gtk_style_context_add_class (gtk_widget_get_style_context (
+        gtk_dialog_get_widget_for_response (GTK_DIALOG (dialog),
+            GTK_RESPONSE_HELP)), "help_button");
+    #endif
     g_signal_connect (dialog, "destroy",
                       G_CALLBACK (gtk_widget_destroyed), &search_action->dialog);
     gtk_window_set_icon_name (GTK_WINDOW (dialog), GTK_STOCK_PROPERTIES);
