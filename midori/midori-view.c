@@ -1439,6 +1439,8 @@ midori_view_display_error (MidoriView*     view,
         title_escaped = g_markup_escape_text (title, -1);
         icon = katze_item_get_icon (view->item);
         result = sokoke_replace_variables (template,
+            "{dir}", gtk_widget_get_default_direction () == GTK_TEXT_DIR_RTL ?
+                "rtl" : "ltr",
             "{title}", title_escaped,
             "{icon}", icon ? icon : "",
             "{message}", message,
