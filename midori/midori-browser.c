@@ -1602,36 +1602,32 @@ midori_browser_get_n_pages (MidoriBrowser* browser)
     #endif
 }
 
-static gboolean
-midori_browser_tab_destroy_cb (GtkWidget*     widget,
+static void
+midori_browser_tab_destroy_cb (MidoriView*    view,
                                MidoriBrowser* browser)
 {
-    KatzeItem* item;
-
-    if (browser->proxy_array && MIDORI_IS_VIEW (widget))
+    if (browser->proxy_array)
     {
-        item = midori_view_get_proxy_item (MIDORI_VIEW (widget));
-        if (browser->trash && !midori_view_is_blank (MIDORI_VIEW (widget)))
+        KatzeItem* item = midori_view_get_proxy_item (view);
+        if (browser->trash && !midori_view_is_blank (view))
             katze_array_add_item (browser->trash, item);
         katze_array_remove_item (browser->proxy_array, item);
-    }
-
-    _midori_browser_update_actions (browser);
-
-    /* This callback must only be called once, but we need to ensure
-       that "remove-tab" is emitted in any case */
-    g_signal_handlers_disconnect_by_func (widget,
-        midori_browser_tab_destroy_cb, browser);
-
-    g_signal_emit (browser, signals[REMOVE_TAB], 0, widget);
 
     /* We don't ever want to be in a situation with no tabs,
        so just create an empty one if the last one is closed.
        The only exception is when we are closing the window,
        which is indicated by the proxy array having been unset. */
-    if (browser->proxy_array && !midori_browser_get_current_tab (browser))
-        midori_browser_add_uri (browser, "");
-    return FALSE;
+        if (midori_browser_get_n_pages (browser) == 0)
+            midori_browser_add_uri (browser, "");
+    }
+
+    _midori_browser_update_actions (browser);
+}
+
+static void
+_midori_browser_remove_tab (MidoriBrowser* browser,
+                            GtkWidget*     widget)
+{
 }
 
 #ifndef HAVE_GRANITE
@@ -1785,14 +1781,6 @@ _midori_browser_add_tab (MidoriBrowser* browser,
 #endif
 
     _midori_browser_update_actions (browser);
-}
-
-static void
-_midori_browser_remove_tab (MidoriBrowser* browser,
-                            GtkWidget*     view)
-{
-    gtk_widget_destroy (view);
-    midori_browser_notebook_size_allocate_cb (browser->notebook, NULL, browser);
 }
 
 /**
@@ -2655,15 +2643,16 @@ _action_tab_close_activate (GtkAction*     action,
                             MidoriBrowser* browser)
 {
     GtkWidget* widget = midori_browser_get_current_tab (browser);
+    MidoriView* view = MIDORI_VIEW (widget);
     gboolean last_tab = midori_browser_get_n_pages (browser) == 1;
     if (last_tab && sokoke_is_app_or_private ())
     {
         gtk_widget_destroy (GTK_WIDGET (browser));
         return;
     }
-    if (last_tab && midori_view_is_blank (MIDORI_VIEW (widget)))
+    if (last_tab && midori_view_is_blank (view))
         return;
-    gtk_widget_destroy (widget);
+    midori_browser_remove_tab (browser, widget);
 }
 
 static void
@@ -4267,13 +4256,7 @@ midori_browser_bookmark_open_in_window_activate_cb (GtkWidget*     menuitem,
 
     item = (KatzeItem*)g_object_get_data (G_OBJECT (menuitem), "KatzeItem");
     uri = katze_item_get_uri (item);
-
-    if (uri && *uri)
-    {
-        MidoriBrowser* new_browser;
-        g_signal_emit (browser, signals[NEW_WINDOW], 0, NULL, &new_browser);
-        midori_browser_add_uri (new_browser, uri);
-    }
+    midori_view_new_window_cb (NULL, uri, browser);
 }
 
 static void
@@ -5296,6 +5279,17 @@ midori_browser_notebook_tab_added_cb (GtkWidget*         notebook,
     midori_view_set_uri (MIDORI_VIEW (view), "");
 }
 
+static gboolean
+midori_browser_notebook_tab_removed_cb (GtkWidget*         notebook,
+                                        GraniteWidgetsTab* tab,
+                                        MidoriBrowser*     browser)
+{
+    MidoriView* view = MIDORI_VIEW (granite_widgets_tab_get_page (tab));
+    g_signal_emit (browser, signals[REMOVE_TAB], 0, view);
+    gtk_widget_destroy (view);
+    return TRUE;
+}
+
 static void
 midori_browser_notebook_tab_switched_cb (GraniteWidgetsDynamicNotebook* notebook,
                                          GraniteWidgetsTab* old_tab,
@@ -5350,6 +5344,7 @@ midori_browser_notebook_page_removed_cb (GtkWidget*     notebook,
                                          MidoriBrowser* browser)
 {
     _midori_browser_remove_tab (browser, view);
+    midori_browser_notebook_size_allocate_cb (browser->notebook, NULL, browser);
 }
 
 static gboolean
@@ -6556,6 +6551,9 @@ midori_browser_init (MidoriBrowser* browser)
     g_signal_connect (browser->notebook, "tab-added",
                       G_CALLBACK (midori_browser_notebook_tab_added_cb),
                       browser);
+    g_signal_connect (browser->notebook, "tab-removed",
+                      G_CALLBACK (midori_browser_notebook_tab_removed_cb),
+                      browser);
     g_signal_connect (browser->notebook, "tab-switched",
                       G_CALLBACK (midori_browser_notebook_tab_switched_cb),
                       browser);
@@ -7622,6 +7620,13 @@ midori_browser_remove_tab (MidoriBrowser* browser,
     g_return_if_fail (GTK_IS_WIDGET (view));
 
     g_signal_emit (browser, signals[REMOVE_TAB], 0, view);
+    #ifdef HAVE_GRANITE
+    granite_widgets_dynamic_notebook_remove_tab (
+        GRANITE_WIDGETS_DYNAMIC_NOTEBOOK (browser->notebook),
+        midori_view_get_tab (MIDORI_VIEW (view)));
+    #else
+    gtk_widget_destroy (view);
+    #endif
 }
 
 /**
