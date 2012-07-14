@@ -2390,13 +2390,7 @@ static void
 _action_window_new_activate (GtkAction*     action,
                              MidoriBrowser* browser)
 {
-    MidoriBrowser* new_browser;
-    g_signal_emit (browser, signals[NEW_WINDOW], 0, NULL, &new_browser);
-    if (new_browser)
-    {
-        midori_browser_add_uri (new_browser, "");
-        midori_browser_activate_action (new_browser, "Location");
-    }
+    midori_view_new_window_cb (NULL, "", browser);
 }
 
 static void
@@ -4853,11 +4847,7 @@ _action_tab_move_forward_activate (GtkAction*     action,
     else
         new_pos = cur_pos + 1;
     #ifdef HAVE_GRANITE
-    /* FIXME: There is no move/ set_tab_position function */
-    granite_widgets_dynamic_notebook_remove_tab (
-        GRANITE_WIDGETS_DYNAMIC_NOTEBOOK (browser->notebook),
-        midori_view_get_tab (MIDORI_VIEW (widget)));
-    granite_widgets_dynamic_notebook_insert_tab (
+    granite_widgets_dynamic_notebook_set_tab_position (
         GRANITE_WIDGETS_DYNAMIC_NOTEBOOK (browser->notebook),
         midori_view_get_tab (MIDORI_VIEW (widget)), new_pos);
     #else
@@ -5247,8 +5237,8 @@ midori_browser_notebook_page_reordered_cb (GtkWidget*     notebook,
 }
 
 static GtkWidget*
-midori_browser_notebook_create_window_cb (GtkNotebook*   notebook,
-                                          MidoriView*    view,
+midori_browser_notebook_create_window_cb (GtkWidget*     notebook,
+                                          GtkWidget*     view,
                                           gint           x,
                                           gint           y,
                                           MidoriBrowser* browser)
@@ -5315,7 +5305,17 @@ midori_browser_notebook_tab_moved_cb (GtkWidget*         notebook,
     GtkWidget* view = granite_widgets_tab_get_page (tab);
     if (new_window)
     {
-        /* FIXME midori_browser_notebook_create_window_cb */
+        GtkWidget* notebook = midori_browser_notebook_create_window_cb (
+            browser->notebook, view, x, y, browser);
+        if (notebook != NULL)
+        {
+            g_object_ref (tab);
+            granite_widgets_dynamic_notebook_remove_tab (
+                GRANITE_WIDGETS_DYNAMIC_NOTEBOOK (browser->notebook), tab);
+            granite_widgets_dynamic_notebook_insert_tab (
+                GRANITE_WIDGETS_DYNAMIC_NOTEBOOK (notebook), tab, 0);
+            g_object_unref (tab);
+        }
     }
     else
     {
@@ -6530,6 +6530,8 @@ midori_browser_init (MidoriBrowser* browser)
     #ifdef HAVE_GRANITE
     /* FIXME: granite: should return GtkWidget* like GTK+ */
     browser->notebook = (GtkWidget*)granite_widgets_dynamic_notebook_new ();
+    granite_widgets_dynamic_notebook_set_allow_new_window (
+        GRANITE_WIDGETS_DYNAMIC_NOTEBOOK (browser->notebook), TRUE);
     /* FIXME: work-around a bug */
     gtk_widget_show_all (browser->notebook);
     #else
