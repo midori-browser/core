@@ -228,6 +228,32 @@ _midori_app_add_browser (MidoriApp*     app,
 
     katze_array_add_item (app->browsers, browser);
 
+    #if GTK_CHECK_VERSION (3, 0, 0)
+    if (app->browser == NULL)
+    {
+        gchar* filename;
+        if ((filename = midori_app_find_res_filename ("gtk3.css")))
+        {
+            GtkCssProvider* css_provider = gtk_css_provider_new ();
+            GError* error = NULL;
+            gtk_css_provider_load_from_path (css_provider, filename, &error);
+            if (error == NULL)
+            {
+                gtk_style_context_add_provider_for_screen (
+                    gtk_widget_get_screen (GTK_WIDGET (browser)),
+                    GTK_STYLE_PROVIDER (css_provider),
+                    GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+            }
+            else
+            {
+                g_warning ("Failed to load \"%s\": %s", filename, error->message);
+                g_error_free (error);
+            }
+            g_free (filename);
+        }
+    }
+    #endif
+
     app->browser = browser;
     #if HAVE_UNIQUE
     /* We *do not* let unique watch windows because that includes

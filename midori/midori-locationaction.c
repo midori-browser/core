@@ -851,30 +851,6 @@ midori_location_action_create_tool_item (GtkAction* action)
     gtk_widget_show (entry);
     gtk_container_add (GTK_CONTAINER (alignment), entry);
 
-    #if GTK_CHECK_VERSION (3, 0, 0)
-    {
-    static const gchar default_style[] =
-        ".security_unknown {\n"
-        "background-image: none;\n"
-        "background-color: #ef7070;\n"
-        "color: #000;\n"
-        "}\n"
-        ".security_trusted {\n"
-        "background-image: none;\n"
-        "background-color: #d1eeb9;\n"
-        "color: #000;\n"
-        "}\n";
-    GtkCssProvider* css_provider;
-    GtkStyleContext* context;
-
-    css_provider = gtk_css_provider_new ();
-    context = gtk_widget_get_style_context (entry);
-    gtk_css_provider_load_from_data (css_provider, default_style, -1, NULL);
-    gtk_style_context_add_provider (context, GTK_STYLE_PROVIDER (css_provider),
-                                    GTK_STYLE_PROVIDER_PRIORITY_FALLBACK);
-    }
-    #endif
-
     return toolitem;
 }
 

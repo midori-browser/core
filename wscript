@@ -518,7 +518,7 @@ def build (bld):
         else:
             Utils.pprint ('BLUE', "logo-shade could not be rasterized.")
 
-    for res_file in ['about.css', 'error.html', 'close.png', 'speeddial-head.html']:
+    for res_file in ['about.css', 'error.html', 'close.png', 'gtk3.css', 'speeddial-head.html']:
         bld.install_files ('${MDATADIR}/' + APPNAME + '/res', 'data/' + res_file)
 
     if bld.env['addons']:

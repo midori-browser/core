@@ -3272,10 +3272,14 @@ midori_view_init (MidoriView* view)
     gtk_box_pack_start (GTK_BOX (view), view->overlay, TRUE, TRUE, 0);
 
     /* Overlays must be created before showing GtkOverlay as of GTK+ 3.2 */
+    {
+    GtkWidget* frame = gtk_frame_new (NULL);
     view->overlay_label = gtk_label_new (NULL);
-    gtk_widget_set_halign (view->overlay_label, GTK_ALIGN_START);
-    gtk_widget_set_valign (view->overlay_label, GTK_ALIGN_END);
-    gtk_overlay_add_overlay (GTK_OVERLAY (view->overlay), view->overlay_label);
+    gtk_container_add (GTK_CONTAINER (frame), view->overlay_label);
+    gtk_widget_set_halign (frame, GTK_ALIGN_START);
+    gtk_widget_set_valign (frame, GTK_ALIGN_END);
+    gtk_overlay_add_overlay (GTK_OVERLAY (view->overlay), frame);
+    }
     view->overlay_find = g_object_new (MIDORI_TYPE_FINDBAR, NULL);
     gtk_widget_set_halign (view->overlay_find, GTK_ALIGN_END);
     gtk_widget_set_valign (view->overlay_find, GTK_ALIGN_START);
@@ -4445,11 +4449,11 @@ midori_view_set_overlay_text (MidoriView*  view,
 
     #if GTK_CHECK_VERSION (3, 2, 0)
     if (text == NULL)
-        gtk_widget_hide (view->overlay_label);
+        gtk_widget_hide (gtk_widget_get_parent (view->overlay_label));
     else
     {
         gtk_label_set_text (GTK_LABEL (view->overlay_label), text);
-        gtk_widget_show (view->overlay_label);
+        gtk_widget_show (gtk_widget_get_parent (view->overlay_label));
     }
     #endif
 }
@@ -5063,19 +5067,8 @@ midori_view_get_proxy_tab_label (MidoriView* view)
 {
     GtkWidget* event_box;
     GtkWidget* hbox;
+    #if !GTK_CHECK_VERSION (3, 0, 0)
     static const gchar style_fixup[] =
-    #if GTK_CHECK_VERSION (3, 0, 0)
-        "* {\n"
-        "-GtkButton-default-border : 0;\n"
-        "-GtkButton-default-outside-border : 0;\n"
-        "-GtkButton-inner-border: 0;\n"
-        "-GtkWidget-focus-line-width : 0;\n"
-        "-GtkWidget-focus-padding : 0;\n"
-        "padding: 0;\n"
-        "}";
-    GtkStyleContext* context;
-    GtkCssProvider* css_provider;
-    #else
         "style \"midori-close-button-style\"\n"
         "{\n"
         "GtkWidget::focus-padding = 0\n"
@@ -5109,13 +5102,7 @@ midori_view_get_proxy_tab_label (MidoriView* view)
         view->tab_close = gtk_button_new ();
         gtk_button_set_relief (GTK_BUTTON (view->tab_close), GTK_RELIEF_NONE);
         gtk_button_set_focus_on_click (GTK_BUTTON (view->tab_close), FALSE);
-        #if GTK_CHECK_VERSION (3, 0, 0)
-        context = gtk_widget_get_style_context (view->tab_close);
-        css_provider = gtk_css_provider_new ();
-        gtk_css_provider_load_from_data (css_provider, style_fixup, -1, NULL);
-        gtk_style_context_add_provider (context, GTK_STYLE_PROVIDER (css_provider),
-                                        GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
-        #else
+        #if !GTK_CHECK_VERSION (3, 0, 0)
         gtk_rc_parse_string (style_fixup);
         gtk_widget_set_name (view->tab_close, "midori-close-button");
         g_signal_connect (view->tab_close, "style-set",
