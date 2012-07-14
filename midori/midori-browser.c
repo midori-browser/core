@@ -259,7 +259,7 @@ _toggle_tabbar_smartly (MidoriBrowser* browser,
 {
     gboolean has_tabs = midori_browser_get_n_pages (browser) > 1;
 #ifdef HAVE_GRANITE
-    gboolean show_tabs = !(midori_browser_is_fullscreen (browser) || ignore_fullscreen);
+    gboolean show_tabs = !midori_browser_is_fullscreen (browser) || ignore_fullscreen;
     granite_widgets_dynamic_notebook_set_show_tabs (
         GRANITE_WIDGETS_DYNAMIC_NOTEBOOK (browser->notebook), show_tabs);
 #else
