@@ -50,27 +50,21 @@ midori_findbar_set_icon (MidoriFindbar*       findbar,
                          GtkIconEntryPosition icon_pos,
                          const gchar*         icon_name)
 {
-    #if !HAVE_HILDON
-    GdkScreen* screen = gtk_widget_get_screen (findbar->find_text);
-    GtkIconTheme* icon_theme = gtk_icon_theme_get_for_screen (screen);
-    gchar* symbolic_icon_name;
-
-    if (icon_name == NULL)
+    if (icon_name != NULL)
     {
-        gtk_icon_entry_set_icon_from_icon_name (GTK_ICON_ENTRY (findbar->find_text),
-                                                icon_pos, NULL);
-        return;
-    }
-
-    symbolic_icon_name = g_strconcat (icon_name, "-symbolic", NULL);
-    if (gtk_icon_theme_has_icon (icon_theme, symbolic_icon_name))
-        gtk_icon_entry_set_icon_from_icon_name (GTK_ICON_ENTRY (findbar->find_text),
-                                                icon_pos, symbolic_icon_name);
-    else
+        #if GTK_CHECK_VERSION (2, 16, 0)
+        gchar* symbolic_icon_name = g_strconcat (icon_name, "-symbolic", NULL);
+        gtk_entry_set_icon_from_gicon (GTK_ENTRY (findbar->find_text), icon_pos,
+            g_themed_icon_new_with_default_fallbacks (symbolic_icon_name));
+        g_free (symbolic_icon_name);
+        #else
         gtk_icon_entry_set_icon_from_icon_name (GTK_ICON_ENTRY (findbar->find_text),
                                                 icon_pos, icon_name);
-    g_free (symbolic_icon_name);
-    #endif
+        #endif
+    }
+    else
+        gtk_icon_entry_set_icon_from_icon_name (GTK_ICON_ENTRY (findbar->find_text),
+                                                icon_pos, NULL);
 }
 
 static void

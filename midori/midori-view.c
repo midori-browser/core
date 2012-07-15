@@ -718,67 +718,39 @@ midori_view_apply_icon (MidoriView*  view,
     }
 }
 
-static gboolean
-midori_view_mime_icon (MidoriView*   view,
-                       GtkIconTheme* icon_theme,
-                       const gchar*  format,
-                       const gchar*  part1,
-                       const gchar*  part2)
-{
-    gchar* icon_name;
-    GdkPixbuf* icon;
-
-    icon_name = part2 ? g_strdup_printf (format, part1, part2)
-        : g_strdup_printf (format, part1);
-    if (!(icon = gtk_icon_theme_load_icon (icon_theme, icon_name, 16, 0, NULL)))
-    {
-        g_free (icon_name);
-        return FALSE;
-    }
-
-    g_object_ref (icon);
-    midori_view_apply_icon (view, icon, icon_name);
-    g_free (icon_name);
-    return TRUE;
-}
-
 static void
 midori_view_unset_icon (MidoriView* view)
 {
     GdkScreen* screen;
-    GtkIconTheme* theme;
-    gchar** parts = NULL;
-    GdkPixbuf* icon;
+    GtkIconTheme* icon_theme;
+    GIcon* icon;
+    gchar** icon_names;
+    GdkPixbuf* pixbuf = NULL;
 
     if (!((screen = gtk_widget_get_screen (view->web_view))
-        && (theme = gtk_icon_theme_get_for_screen (screen))))
+        && (icon_theme = gtk_icon_theme_get_for_screen (screen))))
         return;
 
-    if (!(view->mime_type
-       && (parts = g_strsplit (view->mime_type, "/", 2))
-       && (*parts && parts[1])))
+    if (view->mime_type != NULL)
     {
-        icon = gtk_widget_render_icon (view->web_view,
-            GTK_STOCK_FILE, GTK_ICON_SIZE_MENU, NULL);
-        midori_view_apply_icon (view, icon, GTK_STOCK_FILE);
-        goto free_parts;
+        gchar* content_type = g_content_type_from_mime_type (view->mime_type);
+        icon = g_content_type_get_icon (content_type);
+        g_free (content_type);
+        g_themed_icon_append_name (G_THEMED_ICON (icon), "text-html");
     }
+    else
+        icon = g_themed_icon_new ("text-html");
 
-    if (midori_view_mime_icon (view, theme, "%s-%s", *parts, parts[1]))
-        goto free_parts;
-    if (midori_view_mime_icon (view, theme, "gnome-mime-%s-%s", *parts, parts[1]))
-        goto free_parts;
-    if (midori_view_mime_icon (view, theme, "%s-x-generic", *parts, NULL))
-        goto free_parts;
-    if (midori_view_mime_icon (view, theme, "gnome-mime-%s-x-generic", *parts, NULL))
-        goto free_parts;
+    if ((icon_names = (gchar**)g_themed_icon_get_names (G_THEMED_ICON (icon))))
+    while (*icon_names)
+    {
+        if ((pixbuf = gtk_icon_theme_load_icon (icon_theme, *icon_names, 16, 0, NULL)))
+            break;
+        icon_names++;
+    }
+    g_object_unref (icon);
 
-    icon = gtk_widget_render_icon (view->web_view,
-        GTK_STOCK_FILE, GTK_ICON_SIZE_MENU, NULL);
-    midori_view_apply_icon (view, icon, GTK_STOCK_FILE);
-
-free_parts:
-    g_strfreev (parts);
+    midori_view_apply_icon (view, pixbuf, GTK_STOCK_FILE);
 }
 
 #if !WEBKIT_CHECK_VERSION (1, 8, 0)
@@ -3012,7 +2984,7 @@ webkit_web_view_download_requested_cb (GtkWidget*      web_view,
     description = g_content_type_get_description (content_type);
     #if GTK_CHECK_VERSION (2, 14, 0)
     icon = g_content_type_get_icon (content_type);
-    g_themed_icon_append_name (G_THEMED_ICON (icon), "document-x-generic");
+    g_themed_icon_append_name (G_THEMED_ICON (icon), "text-html");
     image = gtk_image_new_from_gicon (icon, GTK_ICON_SIZE_DIALOG);
     g_object_unref (icon);
     gtk_widget_show (image);

@@ -1692,53 +1692,39 @@ midori_location_action_set_security_hint (MidoriLocationAction* location_action,
     if (GTK_IS_TOOL_ITEM (proxies->data))
     {
         GtkWidget* entry = midori_location_action_entry_for_proxy (proxies->data);
-        GdkScreen* screen = gtk_widget_get_screen (entry);
-        GtkIconTheme* icon_theme = gtk_icon_theme_get_for_screen (screen);
 
         if (hint == MIDORI_SECURITY_UNKNOWN)
         {
-            #if !GTK_CHECK_VERSION (3, 0, 0)
+            #if GTK_CHECK_VERSION (2, 16, 0)
+            gchar* icon_names[] = { "channel-insecure-symbolic", "lock-insecure", "dialog-information", NULL };
+            gtk_entry_set_icon_from_gicon (GTK_ENTRY (entry), GTK_ICON_ENTRY_PRIMARY,
+                g_themed_icon_new_from_names (icon_names, -1));
+            #else
+            gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (entry), GTK_ICON_ENTRY_PRIMARY, GTK_STOCK_INFO);
             #endif
-            #if !HAVE_HILDON
-            if (gtk_icon_theme_has_icon (icon_theme, "channel-insecure-symbolic"))
-                gtk_icon_entry_set_icon_from_icon_name (GTK_ICON_ENTRY (entry),
-                    GTK_ICON_ENTRY_PRIMARY, "channel-insecure-symbolic");
-            else if (gtk_icon_theme_has_icon (icon_theme, "lock-insecure"))
-                gtk_icon_entry_set_icon_from_icon_name (GTK_ICON_ENTRY (entry),
-                    GTK_ICON_ENTRY_PRIMARY, "lock-insecure");
-            else
-                gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (entry),
-                    GTK_ICON_ENTRY_PRIMARY, GTK_STOCK_INFO);
             gtk_icon_entry_set_tooltip (GTK_ICON_ENTRY (entry),
                 GTK_ICON_ENTRY_PRIMARY, _("Not verified"));
-            #endif
         }
         else if (hint == MIDORI_SECURITY_TRUSTED)
         {
-            #if !GTK_CHECK_VERSION (3, 0, 0)
+            #if GTK_CHECK_VERSION (2, 16, 0)
+            gchar* icon_names[] = { "channel-secure-symbolic", "lock-secure", "locked", NULL };
+            gtk_entry_set_icon_from_gicon (GTK_ENTRY (entry), GTK_ICON_ENTRY_PRIMARY,
+                g_themed_icon_new_from_names (icon_names, -1));
+            #else
+            gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (entry), GTK_ICON_ENTRY_PRIMARY, GTK_STOCK_DIALOG_AUTHENTICATION);
             #endif
-            #if !HAVE_HILDON
-            if (gtk_icon_theme_has_icon (icon_theme, "channel-secure-symbolic"))
-                gtk_icon_entry_set_icon_from_icon_name (GTK_ICON_ENTRY (entry),
-                    GTK_ICON_ENTRY_PRIMARY, "channel-secure-symbolic");
-            else if (gtk_icon_theme_has_icon (icon_theme, "lock-secure"))
-                gtk_icon_entry_set_icon_from_icon_name (GTK_ICON_ENTRY (entry),
-                    GTK_ICON_ENTRY_PRIMARY, "lock-secure");
-            else
-                gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (entry),
-                    GTK_ICON_ENTRY_PRIMARY, GTK_STOCK_DIALOG_AUTHENTICATION);
             gtk_icon_entry_set_tooltip (GTK_ICON_ENTRY (entry),
                 GTK_ICON_ENTRY_PRIMARY, _("Verified and encrypted connection"));
-            #endif
         }
         else if (hint == MIDORI_SECURITY_NONE)
         {
-            if (gtk_icon_theme_has_icon (icon_theme, "text-html-symbolic"))
-                gtk_icon_entry_set_icon_from_icon_name (GTK_ICON_ENTRY (entry),
-                    GTK_ICON_ENTRY_PRIMARY, "text-html-symbolic");
-            else
-                gtk_icon_entry_set_icon_from_icon_name (GTK_ICON_ENTRY (entry),
-                    GTK_ICON_ENTRY_PRIMARY, STOCK_URL);
+            #if GTK_CHECK_VERSION (2, 16, 0)
+            gtk_entry_set_icon_from_gicon (GTK_ENTRY (entry), GTK_ICON_ENTRY_PRIMARY,
+                g_themed_icon_new_with_default_fallbacks ("text-html-symbolic"));
+            #else
+            gtk_icon_entry_set_icon_from_icon_name (GTK_ICON_ENTRY (entry), GTK_ICON_ENTRY_PRIMARY, STOCK_URL);
+            #endif
             gtk_icon_entry_set_tooltip (GTK_ICON_ENTRY (entry),
                 GTK_ICON_ENTRY_PRIMARY, _("Open, unencrypted connection"));
         }
