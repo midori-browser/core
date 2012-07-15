@@ -1691,10 +1691,6 @@ midori_location_action_set_security_hint (MidoriLocationAction* location_action,
     for (; proxies != NULL; proxies = g_slist_next (proxies))
     if (GTK_IS_TOOL_ITEM (proxies->data))
     {
-        #if !GTK_CHECK_VERSION (3, 0, 0)
-        const gchar* bg_color = NULL;
-        const gchar* fg_color = NULL;
-        #endif
         GtkWidget* entry = midori_location_action_entry_for_proxy (proxies->data);
         GdkScreen* screen = gtk_widget_get_screen (entry);
         GtkIconTheme* icon_theme = gtk_icon_theme_get_for_screen (screen);
@@ -1702,8 +1698,6 @@ midori_location_action_set_security_hint (MidoriLocationAction* location_action,
         if (hint == MIDORI_SECURITY_UNKNOWN)
         {
             #if !GTK_CHECK_VERSION (3, 0, 0)
-            bg_color = "#ef7070";
-            fg_color = "#000";
             #endif
             #if !HAVE_HILDON
             if (gtk_icon_theme_has_icon (icon_theme, "channel-insecure-symbolic"))
@@ -1722,8 +1716,6 @@ midori_location_action_set_security_hint (MidoriLocationAction* location_action,
         else if (hint == MIDORI_SECURITY_TRUSTED)
         {
             #if !GTK_CHECK_VERSION (3, 0, 0)
-            bg_color = "#d1eeb9";
-            fg_color = "#000";
             #endif
             #if !HAVE_HILDON
             if (gtk_icon_theme_has_icon (icon_theme, "channel-secure-symbolic"))
@@ -1749,33 +1741,6 @@ midori_location_action_set_security_hint (MidoriLocationAction* location_action,
                     GTK_ICON_ENTRY_PRIMARY, STOCK_URL);
             gtk_icon_entry_set_tooltip (GTK_ICON_ENTRY (entry),
                 GTK_ICON_ENTRY_PRIMARY, _("Open, unencrypted connection"));
-        }
-
-        {
-        #if GTK_CHECK_VERSION (3, 0, 0)
-        GtkStyleContext* context = gtk_widget_get_style_context (entry);
-        if (hint == MIDORI_SECURITY_UNKNOWN)
-        {
-            gtk_style_context_add_class (context, "security_unknown");
-            gtk_style_context_remove_class (context, "security_trusted");
-        }
-        else if (hint == MIDORI_SECURITY_TRUSTED)
-        {
-            gtk_style_context_add_class (context, "security_trusted");
-            gtk_style_context_remove_class (context, "security_unknown");
-        }
-        else if (hint == MIDORI_SECURITY_NONE)
-        {
-            gtk_style_context_remove_class (context, "security_unknown");
-            gtk_style_context_remove_class (context, "security_trusted");
-        }
-        #else
-        GdkColor color = { 0 };
-        if (bg_color) gdk_color_parse (bg_color, &color);
-        gtk_widget_modify_base (entry, GTK_STATE_NORMAL, bg_color ? &color : NULL);
-        if (fg_color) gdk_color_parse (fg_color, &color);
-        gtk_widget_modify_text (entry, GTK_STATE_NORMAL, fg_color ? &color : NULL);
-        #endif
         }
     }
 }

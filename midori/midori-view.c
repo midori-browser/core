@@ -1017,6 +1017,15 @@ webkit_web_view_load_started_cb (WebKitWebView*  web_view,
     g_object_thaw_notify (G_OBJECT (view));
 }
 
+static gboolean
+midori_view_display_error (MidoriView*     view,
+                           const gchar*    uri,
+                           const gchar*    title,
+                           const gchar*    message,
+                           const gchar*    description,
+                           const gchar*    try_again,
+                           WebKitWebFrame* web_frame);
+
 static void
 webkit_web_view_load_committed_cb (WebKitWebView*  web_view,
                                    WebKitWebFrame* web_frame,
@@ -1069,6 +1078,17 @@ webkit_web_view_load_committed_cb (WebKitWebView*  web_view,
         if (message
          && soup_message_get_flags (message) & SOUP_MESSAGE_CERTIFICATE_TRUSTED)
             view->security = MIDORI_SECURITY_TRUSTED;
+        else if (!view->special)
+        {
+            view->security = MIDORI_SECURITY_UNKNOWN;
+            midori_view_stop_loading (view);
+            midori_view_display_error (
+                view, view->uri, view->title ? view->title : view->uri,
+                _("Security unknown"),
+                _("The certificate is invalid or unknown"),
+                _("Load Page"),
+                NULL);
+        }
         else
         #endif
             view->security = MIDORI_SECURITY_UNKNOWN;

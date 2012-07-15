@@ -7,24 +7,6 @@
     padding: 0;
 }
 
-.entry.progressbar {
-    background-image: -gtk-gradient(linear,
-        left top, left bottom, from (@selected_bg_color), to (@selected_bg_color));
-    color: @selected_fg_color;
-}
-
-.entry.security_unknown {
-    background-image: -gtk-gradient(linear,
-        left top, left bottom, from (#ef7070), to(#ef7070));
-    color: #000;
-}
-
-.entry.security_trusted {
-    background-image: -gtk-gradient(linear,
-        left top, left bottom, from (#d1eeb9), to(#d1eeb9));
-    color: #000;
-}
-
 GtkOverlay > * {
     padding: 4px;
     border-style: solid;
