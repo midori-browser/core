@@ -42,6 +42,7 @@ G_BEGIN_DECLS
                                          GtkEntryIconPosition position,
                                          GdkPixbuf*           pixbuf);
     #define gtk_icon_entry_set_tooltip gtk_entry_set_icon_tooltip_text
+    #define gtk_icon_entry_get_tooltip gtk_entry_get_icon_tooltip_text
     #define gtk_icon_entry_set_icon_highlight gtk_entry_set_icon_activatable
     #define gtk_icon_entry_set_progress_fraction gtk_entry_set_progress_fraction
 #else
@@ -123,6 +124,8 @@ void       gtk_icon_entry_set_cursor              (const GtkIconEntry *icon_entr
 						   GtkIconEntryPosition icon_pos,
 						   GdkCursorType cursor_type);
 
+const gchar* gtk_icon_entry_get_tooltip            (const GtkIconEntry *icon_entry,
+						   GtkIconEntryPosition icon_pos);
 void       gtk_icon_entry_set_tooltip             (const GtkIconEntry *icon_entry,
 						   GtkIconEntryPosition icon_pos,
 						   const gchar *text);

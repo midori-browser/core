@@ -842,9 +842,8 @@ midori_location_action_create_tool_item (GtkAction* action)
     hildon_gtk_entry_set_input_mode (GTK_ENTRY (entry), mode);
     #else
     entry = gtk_icon_entry_new ();
-    /* Work-around icon being activatable by default */
     gtk_icon_entry_set_icon_highlight (GTK_ICON_ENTRY (entry),
-         GTK_ICON_ENTRY_PRIMARY, FALSE);
+         GTK_ICON_ENTRY_PRIMARY, TRUE);
     gtk_icon_entry_set_icon_highlight (GTK_ICON_ENTRY (entry),
          GTK_ICON_ENTRY_SECONDARY, TRUE);
     #endif
@@ -1133,6 +1132,46 @@ midori_location_action_icon_released_cb (GtkWidget*           widget,
                                          gint                 button,
                                          GtkAction*           action)
 {
+    if (icon_pos == GTK_ICON_ENTRY_PRIMARY)
+    {
+        const gchar* title = _("Security details");
+        GtkWidget* content_area;
+        GtkWidget* hbox;
+        gint root_x, root_y;
+        #ifdef HAVE_GRANITE
+        GdkRectangle icon_rect;
+        /* FIXME: granite: should return GtkWidget* like GTK+ */
+        GtkWidget* dialog = (GtkWidget*)granite_widgets_pop_over_new ();
+        gchar* markup = g_strdup_printf ("<b>%s</b>", title);
+        GtkWidget* label = gtk_label_new (markup);
+        content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
+        g_free (markup);
+        gtk_label_set_use_markup (GTK_LABEL (label), TRUE);
+        gtk_box_pack_start (GTK_BOX (content_area), label, FALSE, FALSE, 0);
+        gtk_entry_get_icon_area (GTK_ENTRY (widget), icon_pos, &icon_rect);
+        gdk_window_get_root_coords (gtk_widget_get_window (widget),
+            icon_rect.x + icon_rect.width / 2, icon_rect.y + icon_rect.height,
+            &root_x, &root_y);
+        granite_widgets_pop_over_move_to_coords (GRANITE_WIDGETS_POP_OVER (dialog),
+            root_x, root_y, TRUE);
+        #else
+        GtkWidget* dialog = gtk_dialog_new_with_buttons (title, gtk_widget_get_toplevel (widget),
+            GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR, NULL, NULL);
+        content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
+        #endif
+        hbox = gtk_hbox_new (FALSE, 0);
+        #if GTK_CHECK_VERSION (2, 16, 0)
+        gtk_box_pack_start (GTK_BOX (hbox), gtk_image_new_from_gicon (
+            gtk_entry_get_icon_gicon (GTK_ENTRY (widget), icon_pos), GTK_ICON_SIZE_DIALOG), FALSE, FALSE, 0);
+        #else
+        gtk_box_pack_start (GTK_BOX (hbox),
+            gtk_image_new_from_stock (GTK_STOCK_DIALOG_AUTHENTICATION, GTK_ICON_SIZE_DIALOG), FALSE, FALSE, 0);
+        #endif
+        gtk_box_pack_start (GTK_BOX (hbox),
+            gtk_label_new (gtk_icon_entry_get_tooltip (GTK_ICON_ENTRY (widget), icon_pos)), FALSE, FALSE, 0);
+        gtk_box_pack_start (GTK_BOX (content_area), hbox, FALSE, FALSE, 0);
+        gtk_widget_show_all (dialog);
+    }
     if (icon_pos == GTK_ICON_ENTRY_SECONDARY)
     {
         gboolean result;

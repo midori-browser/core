@@ -1877,6 +1877,17 @@ gtk_icon_entry_set_tooltip (const GtkIconEntry *entry,
   icon_info->tooltip_text = new_tooltip;
 }
 
+const gchar*
+gtk_icon_entry_get_icon_tooltip (const GtkIconEntry *entry,
+				   GtkIconEntryPosition icon_pos)
+{
+  g_return_val_if_fail (entry != NULL, FALSE);
+  g_return_val_if_fail (GTK_IS_ICON_ENTRY (entry), FALSE);
+  g_return_val_if_fail (IS_VALID_ICON_ENTRY_POSITION (icon_pos), FALSE);
+
+  return entry->priv->icons[icon_pos].tooltip_text;
+}
+
 /**
  * gtk_icon_entry_set_icon_sensitive
  * @entry: A #GtkIconEntry.
