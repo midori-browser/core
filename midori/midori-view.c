@@ -999,6 +999,9 @@ midori_view_display_error (MidoriView*     view,
                            WebKitWebFrame* web_frame);
 
 #if HAVE_GCR
+    #define GCR_API_SUBJECT_TO_CHANGE
+    #include <gcr/gcr.h>
+
 const gchar*
 midori_location_action_tls_flags_to_string (GTlsCertificateFlags flags);
 
@@ -1061,17 +1064,34 @@ webkit_web_view_load_committed_cb (WebKitWebView*  web_view,
         #if HAVE_GCR
         else if (!view->special && message != NULL)
         {
-            GTlsCertificateFlags tls_flags;
+            GTlsCertificate* tls_cert;
+            GcrCertificate* gcr_cert;
+            GByteArray* der_cert;
+            SoupURI* soup_uri;
+
             message = midori_map_get_message (message);
-            g_object_get (message, "tls-errors", &tls_flags, NULL);
-            view->security = MIDORI_SECURITY_UNKNOWN;
-            midori_view_stop_loading (view);
-            midori_view_display_error (
-                view, view->uri, view->title ? view->title : view->uri,
-                _("Security unknown"),
-                midori_location_action_tls_flags_to_string (tls_flags),
-                _("Load Page"),
-                NULL);
+            g_object_get (message, "tls-certificate", &tls_cert, NULL);
+            g_object_get (tls_cert, "certificate", &der_cert, NULL);
+            gcr_cert = gcr_simple_certificate_new (der_cert->data, der_cert->len);
+            g_byte_array_unref (der_cert);
+            soup_uri = soup_message_get_uri (message);
+            if (gcr_trust_is_certificate_pinned (gcr_cert, GCR_PURPOSE_SERVER_AUTH, soup_uri->host, NULL, NULL))
+                view->security = MIDORI_SECURITY_TRUSTED;
+            else
+            {
+                GTlsCertificateFlags tls_flags;
+                view->security = MIDORI_SECURITY_UNKNOWN;
+                g_object_get (message, "tls-errors", &tls_flags, NULL);
+                midori_view_stop_loading (view);
+                midori_view_display_error (
+                    view, view->uri, view->title ? view->title : view->uri,
+                    _("Security unknown"),
+                    midori_location_action_tls_flags_to_string (tls_flags),
+                    _("Load page"),
+                    NULL);
+            }
+            g_object_unref (tls_cert);
+            g_object_unref (gcr_cert);
         }
         #endif
         else
