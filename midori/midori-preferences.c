@@ -397,6 +397,10 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
         button = katze_property_proxy (settings, "enable-webgl", NULL);
         SPANNED_ADD (button);
     }
+    #ifndef G_OS_WIN32
+    button = katze_property_proxy (settings, "flash-window-on-new-bg-tabs", NULL);
+    INDENTED_ADD (button);
+    #endif
 
     FRAME_NEW (NULL);
     button = katze_property_label (settings, "preferred-languages");

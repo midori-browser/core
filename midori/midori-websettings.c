@@ -842,9 +842,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
     /**
      * MidoriWebSettings::flash-window-on-new-bg-tabs
      *
-     * Doesn't do anything.
-     *
-     * Deprecated: 0.4.7
+     * Uses opacity to attract attention. Nothing on Windows.
      */
     g_object_class_install_property (gobject_class,
                                      PROP_FLASH_WINDOW_ON_BG_TABS,
