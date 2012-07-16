@@ -8,7 +8,7 @@ import platform
 progressive = True
 libs = 'M UNIQUE LIBSOUP GMODULE GTHREAD LIBIDN GIO GTK SQLITE ' \
        'LIBNOTIFY WEBKIT JAVASCRIPTCOREGTK LIBXML X11 XSS WS2_32 HILDON' \
-       'HILDON_FM GRANITE'
+       'HILDON_FM GCR GRANITE'
 
 if progressive or Options.commands['check']:
     obj = bld.new_task_gen ('cc', 'staticlib')

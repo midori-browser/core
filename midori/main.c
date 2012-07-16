@@ -880,6 +880,21 @@ soup_session_settings_notify_first_party_cb (MidoriWebSettings* settings,
 }
 #endif
 
+#if defined (HAVE_LIBSOUP_2_34_0)
+/* Implemented in MidoriLocationAction */
+void
+midori_map_add_message (SoupMessage* message);
+
+static void
+midori_soup_session_request_started_cb (SoupSession* session,
+                                        SoupMessage* message,
+                                        SoupSocket*  socket,
+                                        gpointer     user_data)
+{
+    midori_map_add_message (message);
+}
+#endif
+
 static void
 midori_soup_session_settings_accept_language_cb (SoupSession*       session,
                                                  SoupMessage*       msg,
@@ -1021,6 +1036,10 @@ midori_load_soup_session (gpointer settings)
     g_free (cache);
     #endif
 
+    #if defined (HAVE_LIBSOUP_2_34_0)
+    g_signal_connect (session, "request-started",
+        G_CALLBACK (midori_soup_session_request_started_cb), session);
+    #endif
     g_signal_connect (session, "request-queued",
         G_CALLBACK (midori_soup_session_settings_accept_language_cb), settings);
 

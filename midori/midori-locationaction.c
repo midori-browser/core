@@ -1126,6 +1126,97 @@ midori_location_action_focus_out_event_cb (GtkWidget*   widget,
     return FALSE;
 }
 
+#if HAVE_GCR
+    #define GCR_API_SUBJECT_TO_CHANGE
+    #include <gcr/gcr.h>
+#endif
+
+#if defined (HAVE_LIBSOUP_2_34_0)
+static GHashTable* message_map = NULL;
+void
+midori_map_add_message (SoupMessage* message)
+{
+    SoupURI* uri = soup_message_get_uri (message);
+    if (message_map == NULL)
+        message_map = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_object_unref);
+    g_return_if_fail (uri && uri->host);
+    g_hash_table_insert (message_map, g_strdup (uri->host), g_object_ref (message));
+}
+
+static SoupMessage*
+midori_map_get_message (SoupMessage* message)
+{
+    SoupURI* uri = soup_message_get_uri (message);
+    SoupMessage* full;
+    g_return_val_if_fail (uri && uri->host, message);
+    full = g_hash_table_lookup (message_map, uri->host);
+    g_return_val_if_fail (full, message);
+    return full;
+}
+
+void
+midori_location_action_show_page_info (GtkWidget* widget,
+                                       GtkBox*    box)
+{
+    MidoriBrowser* browser = midori_browser_get_for_widget (widget);
+    MidoriView* view = MIDORI_VIEW (midori_browser_get_current_tab (browser));
+    WebKitWebView* web_view = WEBKIT_WEB_VIEW (midori_view_get_web_view (view));
+    WebKitWebFrame* web_frame = webkit_web_view_get_main_frame (web_view);
+    WebKitWebDataSource* source = webkit_web_frame_get_data_source (web_frame);
+    WebKitNetworkRequest* request = webkit_web_data_source_get_request (source);
+    SoupMessage* message = midori_map_get_message (webkit_network_request_get_message (request));
+    GTlsCertificate* tls_cert;
+    GTlsCertificateFlags tls_flags;
+
+    g_return_if_fail (message);
+    g_object_get (message, "tls-certificate", &tls_cert, "tls-errors", &tls_flags, NULL);
+
+    if (tls_cert == NULL)
+        return;
+
+    #if HAVE_GCR
+    GByteArray* der_cert;
+    GcrCertificate* gcr_cert;
+    GtkWidget* details;
+
+    g_object_get (tls_cert, "certificate", &der_cert, NULL);
+    gcr_cert = gcr_simple_certificate_new (
+        der_cert->data, der_cert->len);
+    g_byte_array_unref (der_cert);
+    g_object_unref (tls_cert);
+    details = (GtkWidget*)gcr_certificate_details_widget_new (gcr_cert);
+    gtk_widget_show (details);
+    gtk_container_add (GTK_CONTAINER (box), details);
+    #else
+    const gchar* tls_error;
+
+    if (!g_tls_certificate_get_issuer (tls_cert))
+        gtk_box_pack_start (box, gtk_label_new (_("Self-signed")), FALSE, FALSE, 0);
+
+    if (tls_flags & G_TLS_CERTIFICATE_UNKNOWN_CA)
+        tls_error = _("The signing certificate authority is not known.");
+    else if (tls_flags & G_TLS_CERTIFICATE_BAD_IDENTITY)
+        tls_error = _("The certificate does not match the expected identity of the site that it was retrieved from.");
+    else if(tls_flags & G_TLS_CERTIFICATE_NOT_ACTIVATED)
+        tls_error = _("The certificate's activation time is still in the future.");
+    else if (tls_flags & G_TLS_CERTIFICATE_EXPIRED)
+        tls_error = _("The certificate has expired");
+    else if (tls_flags & G_TLS_CERTIFICATE_REVOKED)
+        tls_error = _("The certificate has been revoked according to the GTlsConnection's certificate revocation list.");
+    else if (tls_flags & G_TLS_CERTIFICATE_INSECURE)
+        tls_error = _("The certificate's algorithm is considered insecure.");
+    else if (tls_flags & G_TLS_CERTIFICATE_GENERIC_ERROR)
+        tls_error = _("Some other error occurred validating the certificate.");
+    else
+        tls_error = "Unknown GTLSCertificateFlags value";
+
+    gtk_box_pack_start (box, gtk_label_new (tls_error), FALSE, FALSE, 0);
+    #endif
+
+    g_object_unref (tls_cert);
+}
+#endif
+
 static void
 midori_location_action_icon_released_cb (GtkWidget*           widget,
                                          GtkIconEntryPosition icon_pos,
@@ -1170,6 +1261,9 @@ midori_location_action_icon_released_cb (GtkWidget*           widget,
         gtk_box_pack_start (GTK_BOX (hbox),
             gtk_label_new (gtk_icon_entry_get_tooltip (GTK_ICON_ENTRY (widget), icon_pos)), FALSE, FALSE, 0);
         gtk_box_pack_start (GTK_BOX (content_area), hbox, FALSE, FALSE, 0);
+        #if defined (HAVE_LIBSOUP_2_34_0)
+        midori_location_action_show_page_info (widget, GTK_BOX (content_area));
+        #endif
         gtk_widget_show_all (dialog);
     }
     if (icon_pos == GTK_ICON_ENTRY_SECONDARY)

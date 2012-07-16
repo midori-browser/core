@@ -265,8 +265,11 @@ def configure (conf):
         conf.define ('HAVE_LIBSOUP_2_29_91', 1)
     if check_version (conf.env['LIBSOUP_VERSION'], 2, 33, 4):
         conf.define ('HAVE_LIBSOUP_2_33_4', 1)
+    if check_version (conf.env['LIBSOUP_VERSION'], 2, 34, 0):
+        conf.define ('HAVE_LIBSOUP_2_34_0', 1)
     if check_version (conf.env['LIBSOUP_VERSION'], 2, 37, 1):
         conf.define ('HAVE_LIBSOUP_2_37_1', 1)
+    check_pkg ('gcr-3', '2.32', mandatory=False)
     check_pkg ('libxml-2.0', '2.6')
     check_pkg ('sqlite3', '3.6.19', True, var='SQLITE')
 
