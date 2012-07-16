@@ -998,6 +998,14 @@ midori_view_display_error (MidoriView*     view,
                            const gchar*    try_again,
                            WebKitWebFrame* web_frame);
 
+#if HAVE_GCR
+const gchar*
+midori_location_action_tls_flags_to_string (GTlsCertificateFlags flags);
+
+SoupMessage*
+midori_map_get_message (SoupMessage* message);
+#endif
+
 static void
 webkit_web_view_load_committed_cb (WebKitWebView*  web_view,
                                    WebKitWebFrame* web_frame,
@@ -1050,17 +1058,22 @@ webkit_web_view_load_committed_cb (WebKitWebView*  web_view,
         if (message
          && soup_message_get_flags (message) & SOUP_MESSAGE_CERTIFICATE_TRUSTED)
             view->security = MIDORI_SECURITY_TRUSTED;
-        else if (!view->special)
+        #if HAVE_GCR
+        else if (!view->special && message != NULL)
         {
+            GTlsCertificateFlags tls_flags;
+            message = midori_map_get_message (message);
+            g_object_get (message, "tls-errors", &tls_flags, NULL);
             view->security = MIDORI_SECURITY_UNKNOWN;
             midori_view_stop_loading (view);
             midori_view_display_error (
                 view, view->uri, view->title ? view->title : view->uri,
                 _("Security unknown"),
-                _("The certificate is invalid or unknown"),
+                midori_location_action_tls_flags_to_string (tls_flags),
                 _("Load Page"),
                 NULL);
         }
+        #endif
         else
         #endif
             view->security = MIDORI_SECURITY_UNKNOWN;
