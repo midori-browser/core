@@ -3826,7 +3826,7 @@ midori_view_construct_web_view (MidoriView* view)
     view->web_view = webkit_web_view_new ();
 
     /* Load something to avoid a bug where WebKit might not set a main frame */
-    webkit_web_view_open (WEBKIT_WEB_VIEW (view->web_view), "");
+    webkit_web_view_load_uri (WEBKIT_WEB_VIEW (view->web_view), "");
 
     #if HAVE_HILDON
     gtk_widget_tap_and_hold_setup (view->web_view, NULL, NULL, 0);
@@ -4453,7 +4453,7 @@ midori_view_set_uri (MidoriView*  view,
                 katze_item_set_uri (view->item, view->uri);
             katze_assign (view->title, NULL);
             g_object_notify (G_OBJECT (view), "uri");
-            webkit_web_view_open (WEBKIT_WEB_VIEW (view->web_view), uri);
+            webkit_web_view_load_uri (WEBKIT_WEB_VIEW (view->web_view), uri);
         }
     }
 }
@@ -6145,8 +6145,8 @@ thumb_view_load_status_cb (WebKitWebView* thumb_view_,
     {
         g_object_set_data_full (G_OBJECT (thumb_view), "spec",
                                 thumb_queue->data, (GDestroyNotify)g_free);
-        webkit_web_view_open (WEBKIT_WEB_VIEW (thumb_view),
-                              strstr (thumb_queue->data, "|") + 1);
+        webkit_web_view_load_uri (WEBKIT_WEB_VIEW (thumb_view),
+                                  strstr (thumb_queue->data, "|") + 1);
     }
     else
         g_signal_handlers_disconnect_by_func (
@@ -6223,7 +6223,7 @@ midori_view_speed_dial_get_thumb (MidoriView* view,
                             thumb_queue->data, (GDestroyNotify)g_free);
     g_signal_connect (thumb_view, "notify::load-status",
         G_CALLBACK (thumb_view_load_status_cb), view);
-    webkit_web_view_open (WEBKIT_WEB_VIEW (thumb_view), url);
+    webkit_web_view_load_uri (WEBKIT_WEB_VIEW (thumb_view), url);
 }
 
 /**

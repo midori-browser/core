@@ -2145,7 +2145,7 @@ main (int    argc,
         #endif
         g_signal_connect (web_view, "load-finished",
             G_CALLBACK (snapshot_load_finished_cb), filename);
-        webkit_web_view_open (WEBKIT_WEB_VIEW (web_view), snapshot);
+        webkit_web_view_load_uri (WEBKIT_WEB_VIEW (web_view), snapshot);
         gtk_main ();
         g_free (filename);
         return 0;
