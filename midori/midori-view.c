@@ -26,6 +26,14 @@
 #include <granite.h>
 #endif
 
+#if HAVE_GCR
+    #define GCR_API_SUBJECT_TO_CHANGE
+    #include <gcr/gcr.h>
+
+SoupMessage*
+midori_map_get_message (SoupMessage* message);
+#endif
+
 #include <string.h>
 #include <stdlib.h>
 #include <glib/gi18n.h>
@@ -948,6 +956,47 @@ midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view
             return TRUE;
         }
     }
+    #if HAVE_GCR
+    else if (/* view->special && */ !strncmp (uri, "https", 5))
+    {
+        /* We show an error page if the certificate is invalid.
+           If a "special", unverified page loads a form, it must be that page.
+           if (webkit_web_navigation_action_get_reason (action) == WEBKIT_WEB_NAVIGATION_REASON_FORM_SUBMITTED)
+           FIXME: Verify more stricly that this cannot be eg. a simple Reload */
+        if (webkit_web_navigation_action_get_reason (action) == WEBKIT_WEB_NAVIGATION_REASON_RELOAD)
+        {
+            SoupMessage* message = webkit_network_request_get_message (request);
+            if (!(soup_message_get_flags (message) & SOUP_MESSAGE_CERTIFICATE_TRUSTED))
+            {
+                SoupURI* soup_uri = soup_message_get_uri (message);
+                GTlsCertificate* tls_cert;
+                GcrCertificate* gcr_cert;
+                GByteArray* der_cert;
+
+                message = midori_map_get_message (message);
+                g_object_get (message, "tls-certificate", &tls_cert, NULL);
+                g_return_val_if_fail (tls_cert != NULL, FALSE);
+                g_object_get (tls_cert, "certificate", &der_cert, NULL);
+                gcr_cert = gcr_simple_certificate_new (der_cert->data, der_cert->len);
+                g_byte_array_unref (der_cert);
+                if (soup_uri && soup_uri->host && !gcr_trust_is_certificate_pinned (gcr_cert, GCR_PURPOSE_SERVER_AUTH, soup_uri->host, NULL, NULL))
+                {
+                    GError* error = NULL;
+                    gcr_trust_add_pinned_certificate (gcr_cert, GCR_PURPOSE_SERVER_AUTH, soup_uri->host, NULL, &error);
+                    if (error != NULL)
+                    {
+                        g_warning ("Error granting trust: %s", error->message);
+                        g_error_free (error);
+                    }
+                }
+                else
+                    g_warn_if_reached ();
+                g_object_unref (gcr_cert);
+                g_object_unref (tls_cert);
+            }
+        }
+    }
+    #endif
     view->special = FALSE;
 
     /* Remove link labels */
@@ -999,9 +1048,6 @@ midori_view_display_error (MidoriView*     view,
                            WebKitWebFrame* web_frame);
 
 #if HAVE_GCR
-    #define GCR_API_SUBJECT_TO_CHANGE
-    #include <gcr/gcr.h>
-
 const gchar*
 midori_location_action_tls_flags_to_string (GTlsCertificateFlags flags);
 
@@ -1087,7 +1133,7 @@ webkit_web_view_load_committed_cb (WebKitWebView*  web_view,
                     view, view->uri, view->title ? view->title : view->uri,
                     _("Security unknown"),
                     midori_location_action_tls_flags_to_string (tls_flags),
-                    _("Load page"),
+                    _("Trust this website"),
                     NULL);
             }
             g_object_unref (tls_cert);
