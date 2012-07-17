@@ -1249,7 +1249,7 @@ midori_location_action_show_page_info (GtkWidget* widget,
     g_signal_connect (dialog, "response",
         G_CALLBACK (midori_location_action_cert_response_cb), gcr_cert);
     #else
-    const gchar* tls_error = midori_location_action_tls_flags_to_string (tls_clags);
+    const gchar* tls_error = midori_location_action_tls_flags_to_string (tls_flags);
 
     if (!g_tls_certificate_get_issuer (tls_cert))
         gtk_box_pack_start (box, gtk_label_new (_("Self-signed")), FALSE, FALSE, 0);
@@ -1272,8 +1272,8 @@ midori_location_action_icon_released_cb (GtkWidget*           widget,
         const gchar* title = _("Security details");
         GtkWidget* content_area;
         GtkWidget* hbox;
-        gint root_x, root_y;
         #ifdef HAVE_GRANITE
+        gint root_x, root_y;
         GdkRectangle icon_rect;
         /* FIXME: granite: should return GtkWidget* like GTK+ */
         GtkWidget* dialog = (GtkWidget*)granite_widgets_pop_over_new ();
@@ -1290,7 +1290,7 @@ midori_location_action_icon_released_cb (GtkWidget*           widget,
         granite_widgets_pop_over_move_to_coords (GRANITE_WIDGETS_POP_OVER (dialog),
             root_x, root_y, TRUE);
         #else
-        GtkWidget* dialog = gtk_dialog_new_with_buttons (title, gtk_widget_get_toplevel (widget),
+        GtkWidget* dialog = gtk_dialog_new_with_buttons (title, GTK_WINDOW (gtk_widget_get_toplevel (widget)),
             GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR, NULL, NULL);
         content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
         #endif
