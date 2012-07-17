@@ -5448,10 +5448,9 @@ const gchar*
 midori_view_fallback_extension (MidoriView* view,
                                 const gchar* extension)
 {
-    if (!view->mime_type)
-        extension = "";
     if (extension && *extension)
         return extension;
+    g_return_val_if_fail (view->mime_type != NULL, "");
     if (strstr (view->mime_type, "css"))
         return ".css";
     if (strstr (view->mime_type, "javascript"))
