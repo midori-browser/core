@@ -1261,6 +1261,17 @@ midori_location_action_show_page_info (GtkWidget* widget,
 }
 #endif
 
+#ifndef HAVE_GRANITE
+static gboolean
+midori_location_action_dialog_focus_out_cb (GtkWidget* dialog,
+                                            GdkEvent*  event,
+                                            gpointer   user_data)
+{
+    gtk_widget_destroy (dialog);
+    return TRUE;
+}
+#endif
+
 static void
 midori_location_action_icon_released_cb (GtkWidget*           widget,
                                          GtkIconEntryPosition icon_pos,
@@ -1292,6 +1303,8 @@ midori_location_action_icon_released_cb (GtkWidget*           widget,
         #else
         GtkWidget* dialog = gtk_dialog_new_with_buttons (title, GTK_WINDOW (gtk_widget_get_toplevel (widget)),
             GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR, NULL, NULL);
+        g_signal_connect (dialog, "focus-out-event",
+            G_CALLBACK (midori_location_action_dialog_focus_out_cb), NULL);
         content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
         #endif
         hbox = gtk_hbox_new (FALSE, 0);
