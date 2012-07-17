@@ -3302,6 +3302,7 @@ midori_view_init (MidoriView* view)
     {
     GtkWidget* frame = gtk_frame_new (NULL);
     view->overlay_label = gtk_label_new (NULL);
+    gtk_widget_show (view->overlay_label);
     gtk_container_add (GTK_CONTAINER (frame), view->overlay_label);
     gtk_widget_set_halign (frame, GTK_ALIGN_START);
     gtk_widget_set_valign (frame, GTK_ALIGN_END);
