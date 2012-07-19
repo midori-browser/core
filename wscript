@@ -181,6 +181,11 @@ def configure (conf):
             atleast_version=version, mandatory=mandatory)
         return conf.env['HAVE_' + var]
 
+    if option_enabled ('gtk3'):
+        check_pkg ('gcr-3', '2.32', mandatory=False)
+    else:
+        check_pkg ('gcr-3-gtk2', '2.32', mandatory=False)
+
     if option_enabled ('unique'):
         if option_enabled('gtk3'): unique_pkg = 'unique-3.0'
         else: unique_pkg = 'unique-1.0'
@@ -269,7 +274,6 @@ def configure (conf):
         conf.define ('HAVE_LIBSOUP_2_34_0', 1)
     if check_version (conf.env['LIBSOUP_VERSION'], 2, 37, 1):
         conf.define ('HAVE_LIBSOUP_2_37_1', 1)
-    check_pkg ('gcr-3', '2.32', mandatory=False)
     check_pkg ('libxml-2.0', '2.6')
     check_pkg ('sqlite3', '3.6.19', True, var='SQLITE')
 
