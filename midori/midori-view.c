@@ -3037,8 +3037,6 @@ webkit_web_view_download_requested_cb (GtkWidget*      web_view,
     gchar* mime_type;
     WebKitWebDataSource* datasource;
     WebKitNetworkRequest* request;
-    WebKitNetworkRequest* original_request;
-    const gchar* original_uri;
     GString* details;
     #if GTK_CHECK_VERSION (2, 14, 0)
     GIcon* icon;
@@ -3054,6 +3052,7 @@ webkit_web_view_download_requested_cb (GtkWidget*      web_view,
         NULL, 0, GTK_MESSAGE_WARNING, GTK_BUTTONS_NONE,
         _("Open or download file"));
     mime_type = g_object_get_data (G_OBJECT (view), "download-mime-type");
+    request = webkit_download_get_network_request (download);
     if (mime_type != NULL)
         content_type = g_content_type_from_mime_type (mime_type);
     else
@@ -3097,8 +3096,8 @@ webkit_web_view_download_requested_cb (GtkWidget*      web_view,
     {
         gchar* fingerprint;
         gchar* fplabel;
-        original_request = webkit_web_data_source_get_initial_request (datasource);
-        original_uri = webkit_network_request_get_uri (original_request);
+        WebKitNetworkRequest* original_request = webkit_web_data_source_get_initial_request (datasource);
+        const gchar* original_uri = webkit_network_request_get_uri (original_request);
         midori_uri_get_fingerprint (original_uri, &fingerprint, &fplabel);
         if (fplabel && fingerprint)
         {
@@ -3109,6 +3108,11 @@ webkit_web_view_download_requested_cb (GtkWidget*      web_view,
         }
         g_free (fplabel);
         g_free (fingerprint);
+
+        /* Propagate original URI to make it available when the download finishes */
+        g_object_set_data_full (G_OBJECT (request), "midori-original-uri",
+                                g_strdup (original_uri), g_free);
+
     }
 
     if (webkit_download_get_total_size (download) > webkit_download_get_current_size (download))
@@ -3125,7 +3129,6 @@ webkit_web_view_download_requested_cb (GtkWidget*      web_view,
 
     gtk_window_set_skip_taskbar_hint (GTK_WINDOW (dialog), FALSE);
     /* i18n: A file open dialog title, ie. "Open http://fila.com/manual.tgz" */
-    request = webkit_download_get_network_request (download);
     title = g_strdup_printf (_("Open %s"),
         webkit_network_request_get_uri (request));
     gtk_window_set_title (GTK_WINDOW (dialog), title);
@@ -3151,10 +3154,6 @@ webkit_web_view_download_requested_cb (GtkWidget*      web_view,
     if (response == GTK_RESPONSE_DELETE_EVENT)
         response = MIDORI_DOWNLOAD_CANCEL;
     g_object_set_data (G_OBJECT (download), "midori-download-type", GINT_TO_POINTER (response));
-
-    /* Propagate original URI to make it available when the download finishes */
-    g_object_set_data_full (G_OBJECT (request), "midori-original-uri",
-                            g_strdup (original_uri), g_free);
 
     g_signal_emit (view, signals[DOWNLOAD_REQUESTED], 0, download, &handled);
     return handled;
