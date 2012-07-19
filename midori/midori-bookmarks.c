@@ -160,7 +160,7 @@ midori_bookmarks_initialize (KatzeArray*  array,
     }
 
 #ifdef G_ENABLE_DEBUG
-    if (midori_debug ("bookmarks")
+    if (midori_debug ("bookmarks"))
         sqlite3_trace (db, midori_bookmarks_dbtracer, NULL);
 #endif
 
