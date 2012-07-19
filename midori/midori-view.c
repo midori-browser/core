@@ -4232,7 +4232,7 @@ midori_view_set_uri (MidoriView*  view,
             #ifdef G_ENABLE_DEBUG
             GTimer* timer = NULL;
 
-            if (g_getenv ("MIDORI_STARTTIME") != NULL)
+            if (midori_debug ("startup")
                 timer = g_timer_new ();
             #endif
 
@@ -4247,7 +4247,7 @@ midori_view_set_uri (MidoriView*  view,
                 speeddial_markup ? speeddial_markup : "", "about:blank", NULL);
 
             #ifdef G_ENABLE_DEBUG
-            if (g_getenv ("MIDORI_STARTTIME") != NULL)
+            if (midori_debug ("startup")
             {
                 g_debug ("Speed Dial: \t%fs", g_timer_elapsed (timer, NULL));
                 g_timer_destroy (timer);

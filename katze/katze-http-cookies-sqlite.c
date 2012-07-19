@@ -207,7 +207,7 @@ katze_http_cookies_sqlite_jar_changed_cb (SoupCookieJar*    jar,
         }
     }
 
-    if (g_getenv ("MIDORI_COOKIES_DEBUG") != NULL)
+    if (!g_strcmp0 (g_getenv ("MIDORI_DEBUG"), "cookies"))
         http_cookies->counter++;
 
     if (old_cookie) {

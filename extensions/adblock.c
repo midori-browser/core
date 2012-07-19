@@ -29,7 +29,7 @@
     (__filter[4] != '-' && __filter[5] != '-')
 #ifdef G_ENABLE_DEBUG
     #define adblock_debug(dmsg, darg1, darg2) \
-        do { if (debug == 1) g_debug (dmsg, darg1, darg2); } while (0)
+        do { if (midori_debug ("adblock:1")) g_debug (dmsg, darg1, darg2); } while (0)
 #else
     #define adblock_debug(dmsg, darg1, darg2) /* nothing */
 #endif
@@ -41,9 +41,6 @@ static GHashTable* urlcache = NULL;
 static GHashTable* blockcssprivate = NULL;
 static GHashTable* navigationwhitelist = NULL;
 static GString* blockcss = NULL;
-#ifdef G_ENABLE_DEBUG
-static guint debug;
-#endif
 
 static gboolean
 adblock_parse_file (gchar* path);
@@ -884,7 +881,7 @@ adblock_resource_request_starting_cb (WebKitWebView*         web_view,
     }
 
     #ifdef G_ENABLE_DEBUG
-    if (debug == 2)
+    if (midori_debug ("adblock:2"))
         g_test_timer_start ();
     #endif
     if (adblock_is_matched (req_uri, page_uri))
@@ -895,7 +892,7 @@ adblock_resource_request_starting_cb (WebKitWebView*         web_view,
         g_object_set_data (G_OBJECT (web_view), "blocked-uris", blocked_uris);
     }
     #ifdef G_ENABLE_DEBUG
-    if (debug == 2)
+    if (midori_debug ("adblock:2"))
         g_debug ("match: %f%s", g_test_timer_elapsed (), "seconds");
     #endif
 
@@ -1587,24 +1584,8 @@ static void
 adblock_activate_cb (MidoriExtension* extension,
                      MidoriApp*       app)
 {
-    #ifdef G_ENABLE_DEBUG
-    const gchar* debug_mode;
-    #endif
     KatzeArray* browsers;
     MidoriBrowser* browser;
-
-    #ifdef G_ENABLE_DEBUG
-    debug_mode = g_getenv ("MIDORI_ADBLOCK");
-    if (debug_mode)
-    {
-        if (*debug_mode == '1')
-            debug = 1;
-        else if (*debug_mode == '2')
-            debug = 2;
-        else
-            debug = 0;
-    }
-    #endif
 
     adblock_reload_rules (extension, FALSE);
 

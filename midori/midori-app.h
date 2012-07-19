@@ -94,6 +94,9 @@ midori_app_find_res_filename      (const gchar* filename);
 gchar*
 midori_app_get_lib_path           (const gchar* package);
 
+gboolean
+midori_debug                      (const gchar*       token);
+
 G_END_DECLS
 
 #endif /* __MIDORI_APP_H__ */

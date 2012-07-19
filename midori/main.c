@@ -937,7 +937,7 @@ midori_soup_session_settings_accept_language_cb (SoupSession*       session,
                 soup_uri_set_query (stripped_uri, NULL);
                 stripped_referer = soup_uri_to_string (stripped_uri, FALSE);
                 soup_uri_free (stripped_uri);
-                if (g_getenv ("MIDORI_SOUP_DEBUG"))
+                if (midori_debug ("soup"))
                     g_message ("Referer %s stripped to %s", referer, stripped_referer);
                 soup_message_headers_replace (msg->request_headers, "Referer",
                                               stripped_referer);
@@ -950,11 +950,15 @@ midori_soup_session_settings_accept_language_cb (SoupSession*       session,
 static void
 midori_soup_session_debug (SoupSession* session)
 {
-    const char* soup_debug = g_getenv ("MIDORI_SOUP_DEBUG");
-
-    if (soup_debug)
+    gint soup_debug_level = 0;
+    if (midori_debug ("soup:1"))
+        soup_debug_level = 1;
+    else if (midori_debug ("soup:2"))
+        soup_debug_level = 2;
+    else if (midori_debug ("soup:3"))
+        soup_debug_level = 3;
+    if (soup_debug_level > 0)
     {
-        gint soup_debug_level = atoi (soup_debug);
         SoupLogger* logger = soup_logger_new (soup_debug_level, -1);
         soup_logger_attach (logger, session);
         g_object_unref (logger);
@@ -1327,7 +1331,7 @@ midori_load_extensions (gpointer data)
     gchar** keys = g_object_get_data (G_OBJECT (app), "extensions");
     KatzeArray* extensions;
     #ifdef G_ENABLE_DEBUG
-    gboolean startup_timer = g_getenv ("MIDORI_STARTTIME") != NULL;
+    gboolean startup_timer = midori_debug ("startup");
     GTimer* timer = startup_timer ? g_timer_new () : NULL;
     #endif
 
@@ -1396,7 +1400,7 @@ midori_load_session (gpointer data)
     gint64 current;
     gchar** command = g_object_get_data (G_OBJECT (app), "execute-command");
     #ifdef G_ENABLE_DEBUG
-    gboolean startup_timer = g_getenv ("MIDORI_STARTTIME") != NULL;
+    gboolean startup_timer = midori_debug ("startup");
     GTimer* timer = startup_timer ? g_timer_new () : NULL;
     #endif
 
@@ -1978,7 +1982,7 @@ main (int    argc,
     gint max_history_age;
     gint clear_prefs = MIDORI_CLEAR_NONE;
     #ifdef G_ENABLE_DEBUG
-        gboolean startup_timer = g_getenv ("MIDORI_STARTTIME") != NULL;
+        gboolean startup_timer = midori_debug ("startup");
         #define midori_startup_timer(tmrmsg) if (startup_timer) \
             g_debug (tmrmsg, (g_test_timer_last () - g_test_timer_elapsed ()) * -1)
     #else

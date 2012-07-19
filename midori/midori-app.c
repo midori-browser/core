@@ -1527,3 +1527,37 @@ midori_app_setup (gchar** argument_vector)
     #endif
 }
 
+gboolean
+midori_debug (const gchar* token)
+{
+    static const gchar* debug_token = NULL;
+    g_return_val_if_fail (token != NULL, FALSE);
+    if (debug_token == NULL)
+    {
+        const gchar* debug = g_getenv ("MIDORI_DEBUG");
+        const gchar* debug_tokens = "soup:1 soup:2 soup:3 cookies";
+        const gchar* full_debug_tokens = "adblock:1 adblock:2 startup bookmarks";
+        if (debug && strstr (full_debug_tokens, debug))
+        {
+            #ifdef G_ENABLE_DEBUG
+            debug_token = g_intern_static_string (debug);
+            #else
+            g_warning ("Value '%s' for MIDORI_DEBUG requires a full debugging build.", debug);
+            #endif
+        }
+        else if (debug && strstr (debug_tokens, debug))
+            debug_token = g_intern_static_string (debug);
+        else if (debug)
+            g_warning ("Unrecognized value '%s' for MIDORI_DEBUG.", debug);
+        else
+            debug_token = "NONE";
+        if (!debug_token)
+        {
+            debug_token = "INVALID";
+            g_print ("Supported values: %s\nWith full debugging: %s\n",
+                     debug_tokens, full_debug_tokens);
+        }
+    }
+    return debug_token == g_intern_static_string (token);
+}
+
