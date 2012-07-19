@@ -4397,6 +4397,7 @@ midori_view_set_uri (MidoriView*  view,
                 static char const * const version_format_strings[] = {
                     " &nbsp; libsoup %s</td></tr>",
                     "<tr><td>cairo</td><td>%s ", "(%s)</td></tr>",
+                    "<tr><td>gcr</td><td>%s</td></tr>",
                     "<tr><td>granite</td><td>%s</td></tr>",
                     "<tr><td>libnotify</td><td>%s</td></tr>",
                     "<tr><td>single instance</td><td>%s</td></tr>",
@@ -4404,9 +4405,10 @@ midori_view_set_uri (MidoriView*  view,
                     "<tr><td>Identification</td><td>%s</td></tr>",
                     "<tr><td>Video&nbsp;Formats</td><td>%s</td></tr>",
                 };
-                char const *  version_strings[] = {
+                gchar const* version_strings[] = {
                     LIBSOUP_VERSION,
                     CAIRO_VERSION_STRING, cairo_version_string (),
+                    GCR_VERSION,
                     GRANITE_VERSION,
                     LIBNOTIFY_VERSION,
                     #ifdef HAVE_HILDON_2_2
@@ -4421,9 +4423,8 @@ midori_view_set_uri (MidoriView*  view,
                     platform, sys_name, architecture ? architecture : "", ident,
                     video_formats,
                 };
-                int i = 0;
-                GString * tmp = g_string_new("");;
-
+                gsize i = 0;
+                GString * tmp = g_string_new ("");
                 GString* more = g_string_new ("");
                 list_netscape_plugins (more, js_context);
                 list_about_uris (more);

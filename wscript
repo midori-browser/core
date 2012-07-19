@@ -182,9 +182,11 @@ def configure (conf):
         return conf.env['HAVE_' + var]
 
     if option_enabled ('gtk3'):
-        check_pkg ('gcr-3', '2.32', mandatory=False)
+        gcr_pkg = 'gcr-3'
     else:
-        check_pkg ('gcr-3-gtk2', '2.32', mandatory=False)
+        gcr_pkg = 'gcr-3-gtk2'
+    check_pkg (gcr_pkg, '2.32', mandatory=False)
+    conf.define ('GCR_VERSION', ['No',conf.check_cfg(modversion=gcr_pkg)][conf.env['HAVE_GCR'] == 1])
 
     if option_enabled ('unique'):
         if option_enabled('gtk3'): unique_pkg = 'unique-3.0'
