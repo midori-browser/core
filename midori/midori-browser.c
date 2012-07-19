@@ -8054,6 +8054,8 @@ midori_browser_get_current_tab (MidoriBrowser* browser)
 {
     #ifdef HAVE_GRANITE
     GraniteWidgetsTab* tab;
+    #else
+    gint n;
     #endif
 
     g_return_val_if_fail (MIDORI_IS_BROWSER (browser), NULL);
@@ -8063,8 +8065,8 @@ midori_browser_get_current_tab (MidoriBrowser* browser)
         GRANITE_WIDGETS_DYNAMIC_NOTEBOOK (browser->notebook));
     return tab ? granite_widgets_tab_get_page (tab) : NULL;
     #else
-    return midori_browser_get_nth_tab (browser,
-        midori_browser_get_current_page (browser));
+    n = midori_browser_get_current_page (browser);
+    return (n >= 0) ? midori_browser_get_nth_tab (browser, n) : NULL;
     #endif
 }
 
