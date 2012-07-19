@@ -702,7 +702,6 @@ static gchar *cm_get_domain_description_text(const gchar *domain, gint cookie_co
 }
 
 
-#if GTK_CHECK_VERSION(2, 12, 0)
 static gboolean cm_tree_query_tooltip(GtkWidget *widget, gint x, gint y, gboolean keyboard_mode,
 									  GtkTooltip *tooltip, CookieManagerPage *cmp)
 {
@@ -731,8 +730,6 @@ static gboolean cm_tree_query_tooltip(GtkWidget *widget, gint x, gint y, gboolea
 
 	return FALSE;
 }
-#endif
-
 
 static gboolean cm_filter_match(const gchar *haystack, const gchar *needle)
 {
@@ -1045,10 +1042,8 @@ static GtkWidget *cm_tree_prepare(CookieManagerPage *cmp)
 	g_signal_connect(treeview, "popup-menu", G_CALLBACK(cm_tree_popup_menu_cb), cmp);
 
 	/* tooltips */
-#if GTK_CHECK_VERSION(2, 12, 0)
 	gtk_widget_set_has_tooltip(treeview, TRUE);
 	g_signal_connect(treeview, "query-tooltip", G_CALLBACK(cm_tree_query_tooltip), cmp);
-#endif
 
 	/* drag'n'drop */
 	gtk_tree_view_enable_model_drag_source(

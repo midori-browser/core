@@ -52,15 +52,10 @@ midori_findbar_set_icon (MidoriFindbar*       findbar,
 {
     if (icon_name != NULL)
     {
-        #if GTK_CHECK_VERSION (2, 16, 0)
         gchar* symbolic_icon_name = g_strconcat (icon_name, "-symbolic", NULL);
         gtk_entry_set_icon_from_gicon (GTK_ENTRY (findbar->find_text), icon_pos,
             g_themed_icon_new_with_default_fallbacks (symbolic_icon_name));
         g_free (symbolic_icon_name);
-        #else
-        gtk_icon_entry_set_icon_from_icon_name (GTK_ICON_ENTRY (findbar->find_text),
-                                                icon_pos, icon_name);
-        #endif
     }
     else
         gtk_icon_entry_set_icon_from_icon_name (GTK_ICON_ENTRY (findbar->find_text),

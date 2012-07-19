@@ -277,7 +277,6 @@ proxy_combo_box_changed_cb (GtkComboBox* button,
 
     if (custom_value)
     {
-        #if GTK_CHECK_VERSION (2, 12, 0)
         if (value == custom_value)
             gtk_widget_set_tooltip_text (GTK_WIDGET (button), NULL);
         else
@@ -286,7 +285,6 @@ proxy_combo_box_changed_cb (GtkComboBox* button,
             gtk_widget_set_tooltip_text (GTK_WIDGET (button), custom_text);
             g_free (custom_text);
         }
-        #endif
     }
 }
 #endif
@@ -523,14 +521,8 @@ katze_property_proxy (gpointer     object,
             string = g_strdup (G_PARAM_SPEC_STRING (pspec)->default_value);
         gtk_file_chooser_set_uri (GTK_FILE_CHOOSER (widget),
                                   string ? string : "");
-        #if GTK_CHECK_VERSION (2, 12, 0)
         g_signal_connect (widget, "file-set",
                           G_CALLBACK (proxy_uri_file_set_cb), object);
-        #else
-        if (pspec->flags & G_PARAM_WRITABLE)
-            g_signal_connect (widget, "selection-changed",
-                              G_CALLBACK (proxy_uri_file_set_cb), object);
-        #endif
     }
     else if (type == G_TYPE_PARAM_STRING && (_hint == I_("font")
         || _hint == I_("font-monospace")))
@@ -819,10 +811,8 @@ katze_property_proxy (gpointer     object,
                 g_object_set_data_full (G_OBJECT (entry), "property",
                                         g_strdup (custom), g_free);
             }
-            #if GTK_CHECK_VERSION (2, 12, 0)
             else
                 gtk_widget_set_tooltip_text (widget, custom_text);
-            #endif
 
             g_free (custom_text);
 
@@ -837,10 +827,8 @@ katze_property_proxy (gpointer     object,
         widget = gtk_label_new (gettext (nick));
     g_free (string);
 
-    #if GTK_CHECK_VERSION (2, 12, 0)
     if (!gtk_widget_get_tooltip_text (widget))
         gtk_widget_set_tooltip_text (widget, g_param_spec_get_blurb (pspec));
-    #endif
     gtk_widget_set_sensitive (widget, pspec->flags & G_PARAM_WRITABLE);
 
     g_object_set_data_full (G_OBJECT (widget), "property",
@@ -888,9 +876,7 @@ katze_property_label (gpointer     object,
 
     nick = g_param_spec_get_nick (pspec);
     widget = gtk_label_new (nick);
-    #if GTK_CHECK_VERSION (2, 12, 0)
     gtk_widget_set_tooltip_text (widget, g_param_spec_get_blurb (pspec));
-    #endif
     gtk_misc_set_alignment (GTK_MISC (widget), 0.0, 0.5);
 
     return widget;
@@ -1583,10 +1569,8 @@ katze_uri_entry_new (GtkWidget* other_widget)
 {
     GtkWidget* entry = gtk_entry_new ();
 
-    #if GTK_CHECK_VERSION (2, 16, 0)
     gtk_entry_set_icon_from_gicon (GTK_ENTRY (entry), GTK_ENTRY_ICON_PRIMARY,
         g_themed_icon_new_with_default_fallbacks ("text-html-symbolic"));
-    #endif
     g_signal_connect (entry, "changed",
         G_CALLBACK (katze_uri_entry_changed_cb), other_widget);
     return entry;

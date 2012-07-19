@@ -39,25 +39,6 @@ G_BEGIN_DECLS
     #define g_format_size(sz) g_format_size_for_display ((goffset)sz)
 #endif
 
-#if !GTK_CHECK_VERSION (2, 14, 0)
-    #define gtk_dialog_get_content_area(dlg) dlg->vbox
-    #define gtk_dialog_get_action_area(dlg) dlg->action_area
-    #define gtk_widget_get_window(wdgt) wdgt->window
-    #define gtk_adjustment_get_page_size(adj) adj->page_size
-    #define gtk_adjustment_get_upper(adj) adj->upper
-    #define gtk_adjustment_get_lower(adj) adj->lower
-    #define gtk_adjustment_get_value(adj) adj->value
-#endif
-
-#if !GTK_CHECK_VERSION (2, 16, 0)
-    #define GTK_ACTIVATABLE GTK_WIDGET
-    #define gtk_activatable_get_related_action gtk_widget_get_action
-    #define gtk_menu_item_set_label(menuitem, label) \
-        gtk_label_set_label (GTK_LABEL (GTK_BIN (menuitem)->child), \
-                             label ? label : "");
-    #define gtk_image_menu_item_set_always_show_image(menuitem, yesno) ()
-#endif
-
 #if !GTK_CHECK_VERSION (2, 18, 0)
     #define gtk_widget_is_toplevel(widget) GTK_WIDGET_TOPLEVEL (widget)
     #define gtk_widget_has_focus(widget) GTK_WIDGET_HAS_FOCUS (widget)
@@ -93,22 +74,6 @@ G_BEGIN_DECLS
 #elif !GTK_CHECK_VERSION (3, 2, 0)
     void gtk_entry_set_placeholder_text (GtkEntry* entry, const gchar* text);
     const gchar* gtk_entry_get_placeholder_text (GtkEntry* entry);
-#endif
-
-#if !GTK_CHECK_VERSION(2, 12, 0)
-
-void
-gtk_widget_set_has_tooltip             (GtkWidget*         widget,
-                                        gboolean           has_tooltip);
-
-void
-gtk_widget_set_tooltip_text            (GtkWidget*         widget,
-                                        const gchar*       text);
-
-void
-gtk_tool_item_set_tooltip_text         (GtkToolItem*       toolitem,
-                                        const gchar*       text);
-
 #endif
 
 #if !GTK_CHECK_VERSION (2, 24 ,0)

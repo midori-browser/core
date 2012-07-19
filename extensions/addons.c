@@ -336,23 +336,13 @@ addons_button_add_clicked_cb (GtkToolItem* toolitem,
         if (!g_file_test (path, G_FILE_TEST_EXISTS))
             katze_mkdir_with_parents (path, 0700);
 
-        #if !GTK_CHECK_VERSION (2, 14, 0)
-        files = gtk_file_chooser_get_filenames (GTK_FILE_CHOOSER (dialog));
-        #else
         files = gtk_file_chooser_get_files (GTK_FILE_CHOOSER (dialog));
-        #endif
-
         while (files)
         {
             GFile* src_file;
             GError* error = NULL;
 
-            #if !GTK_CHECK_VERSION (2, 14, 0)
-            src_file = g_file_new_for_path (files);
-            #else
             src_file = files->data;
-            #endif
-
             if (G_IS_FILE (src_file))
             {
                 GFile* dest_file;

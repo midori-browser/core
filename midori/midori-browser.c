@@ -2658,11 +2658,7 @@ _action_compact_add_activate (GtkAction*     action,
         g_free (label);
         gtk_widget_set_name (button, "GtkButton-thumb");
         gtk_box_pack_start (box, button, TRUE, TRUE, 4);
-        #if GTK_CHECK_VERSION (2, 16, 0)
         gtk_activatable_set_related_action (GTK_ACTIVATABLE (button), action);
-        #else
-        gtk_action_connect_proxy (action, button);
-        #endif
         g_signal_connect_swapped (button, "clicked",
                                   G_CALLBACK (gtk_widget_destroy), dialog);
     }

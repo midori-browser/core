@@ -3038,10 +3038,8 @@ webkit_web_view_download_requested_cb (GtkWidget*      web_view,
     WebKitWebDataSource* datasource;
     WebKitNetworkRequest* request;
     GString* details;
-    #if GTK_CHECK_VERSION (2, 14, 0)
     GIcon* icon;
     GtkWidget* image;
-    #endif
     gchar* title;
     GdkScreen* screen;
     GtkIconTheme* icon_theme;
@@ -3064,14 +3062,12 @@ webkit_web_view_download_requested_cb (GtkWidget*      web_view,
         content_type = g_content_type_from_mime_type ("application/octet-stream");
     mime_type = g_content_type_get_mime_type (content_type);
     description = g_content_type_get_description (content_type);
-    #if GTK_CHECK_VERSION (2, 14, 0)
     icon = g_content_type_get_icon (content_type);
     g_themed_icon_append_name (G_THEMED_ICON (icon), "text-html");
     image = gtk_image_new_from_gicon (icon, GTK_ICON_SIZE_DIALOG);
     g_object_unref (icon);
     gtk_widget_show (image);
     gtk_message_dialog_set_image (GTK_MESSAGE_DIALOG (dialog), image);
-    #endif
     g_free (content_type);
 
     details = g_string_sized_new (20 * 4);

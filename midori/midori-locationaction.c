@@ -1342,13 +1342,8 @@ midori_location_action_icon_released_cb (GtkWidget*           widget,
         content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
         #endif
         hbox = gtk_hbox_new (FALSE, 0);
-        #if GTK_CHECK_VERSION (2, 16, 0)
         gtk_box_pack_start (GTK_BOX (hbox), gtk_image_new_from_gicon (
             gtk_entry_get_icon_gicon (GTK_ENTRY (widget), icon_pos), GTK_ICON_SIZE_DIALOG), FALSE, FALSE, 0);
-        #else
-        gtk_box_pack_start (GTK_BOX (hbox),
-            gtk_image_new_from_stock (GTK_STOCK_DIALOG_AUTHENTICATION, GTK_ICON_SIZE_DIALOG), FALSE, FALSE, 0);
-        #endif
         gtk_box_pack_start (GTK_BOX (hbox),
             gtk_label_new (gtk_icon_entry_get_tooltip (GTK_ICON_ENTRY (widget), icon_pos)), FALSE, FALSE, 0);
         gtk_box_pack_start (GTK_BOX (content_area), hbox, FALSE, FALSE, 0);
@@ -1920,36 +1915,24 @@ midori_location_action_set_security_hint (MidoriLocationAction* location_action,
 
         if (hint == MIDORI_SECURITY_UNKNOWN)
         {
-            #if GTK_CHECK_VERSION (2, 16, 0)
             gchar* icon_names[] = { "channel-insecure-symbolic", "lock-insecure", "dialog-information", NULL };
             gtk_entry_set_icon_from_gicon (GTK_ENTRY (entry), GTK_ICON_ENTRY_PRIMARY,
                 g_themed_icon_new_from_names (icon_names, -1));
-            #else
-            gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (entry), GTK_ICON_ENTRY_PRIMARY, GTK_STOCK_INFO);
-            #endif
             gtk_icon_entry_set_tooltip (GTK_ICON_ENTRY (entry),
                 GTK_ICON_ENTRY_PRIMARY, _("Not verified"));
         }
         else if (hint == MIDORI_SECURITY_TRUSTED)
         {
-            #if GTK_CHECK_VERSION (2, 16, 0)
             gchar* icon_names[] = { "channel-secure-symbolic", "lock-secure", "locked", NULL };
             gtk_entry_set_icon_from_gicon (GTK_ENTRY (entry), GTK_ICON_ENTRY_PRIMARY,
                 g_themed_icon_new_from_names (icon_names, -1));
-            #else
-            gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (entry), GTK_ICON_ENTRY_PRIMARY, GTK_STOCK_DIALOG_AUTHENTICATION);
-            #endif
             gtk_icon_entry_set_tooltip (GTK_ICON_ENTRY (entry),
                 GTK_ICON_ENTRY_PRIMARY, _("Verified and encrypted connection"));
         }
         else if (hint == MIDORI_SECURITY_NONE)
         {
-            #if GTK_CHECK_VERSION (2, 16, 0)
             gtk_entry_set_icon_from_gicon (GTK_ENTRY (entry), GTK_ICON_ENTRY_PRIMARY,
                 g_themed_icon_new_with_default_fallbacks ("text-html-symbolic"));
-            #else
-            gtk_icon_entry_set_icon_from_icon_name (GTK_ICON_ENTRY (entry), GTK_ICON_ENTRY_PRIMARY, STOCK_URL);
-            #endif
             gtk_icon_entry_set_tooltip (GTK_ICON_ENTRY (entry),
                 GTK_ICON_ENTRY_PRIMARY, _("Open, unencrypted connection"));
         }

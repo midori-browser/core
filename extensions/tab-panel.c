@@ -143,7 +143,6 @@ midori_extension_cursor_or_row_changed_cb (GtkTreeView*     treeview,
     /* Nothing to do */
 }
 
-#if GTK_CHECK_VERSION (2, 12, 0)
 static gboolean
 tab_panel_treeview_query_tooltip_cb (GtkWidget*  treeview,
                                      gint        x,
@@ -171,7 +170,6 @@ tab_panel_treeview_query_tooltip_cb (GtkWidget*  treeview,
 
     return TRUE;
 }
-#endif
 
 static void
 midori_extension_row_activated_cb (GtkTreeView*       treeview,
@@ -534,11 +532,9 @@ tab_panel_app_add_browser_cb (MidoriApp*       app,
     treeview = gtk_tree_view_new_with_model (GTK_TREE_MODEL (model));
     gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (treeview), FALSE);
     gtk_tree_view_set_show_expanders (GTK_TREE_VIEW (treeview), FALSE);
-    #if GTK_CHECK_VERSION (2, 12, 0)
     g_signal_connect (treeview, "query-tooltip",
         G_CALLBACK (tab_panel_treeview_query_tooltip_cb), NULL);
     gtk_widget_set_has_tooltip (treeview, TRUE);
-    #endif
     column = gtk_tree_view_column_new ();
     renderer_pixbuf = gtk_cell_renderer_pixbuf_new ();
     gtk_tree_view_column_pack_start (column, renderer_pixbuf, FALSE);
