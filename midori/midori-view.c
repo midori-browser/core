@@ -4066,6 +4066,7 @@ static const gchar* valid_about_uris[] = {
     "error:nodocs",
     "http://.invalid",
     "about:geolocation",
+    "about:paths",
 };
 
 static void
@@ -4356,6 +4357,24 @@ midori_view_set_uri (MidoriView*  view,
                 katze_assign (view->uri, g_strdup (uri));
                 list_geolocation (markup);
                 data = g_string_free (markup, FALSE);
+            }
+            else if (!strcmp (uri, "about:paths"))
+            {
+                gchar* res_dir = midori_app_find_res_filename ("");
+                gchar* lib_dir = midori_app_get_lib_path (PACKAGE_NAME);
+                gchar* tmp_dir = midori_view_get_tmp_dir ();
+                data = g_strdup_printf ("<body><h1>%s</h1>"
+                    "<p>config: %s</p>"
+                    "<p>res: %s</p>"
+                    "<p>lib: %s</p>"
+                    "<p>cache: %s</p>"
+                    "<p>tmp: %s</p>"
+                    "</body>",
+                    uri, sokoke_set_config_dir (NULL), res_dir, lib_dir, g_get_user_cache_dir (), tmp_dir);
+                g_free (res_dir);
+                g_free (lib_dir);
+                g_free (tmp_dir);
+                katze_assign (view->uri, g_strdup (uri));
             }
             else if (!strcmp (uri, "about:") || !strcmp (uri, "about:version"))
             {
