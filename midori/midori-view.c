@@ -82,6 +82,15 @@ midori_view_speed_dial_get_thumb (MidoriView* view,
                                   gchar*      dial_id,
                                   gchar*      url);
 
+static gboolean
+midori_view_display_error (MidoriView*     view,
+                           const gchar*    uri,
+                           const gchar*    title,
+                           const gchar*    message,
+                           const gchar*    description,
+                           const gchar*    try_again,
+                           WebKitWebFrame* web_frame);
+
 struct _MidoriView
 {
     GtkVBox parent_instance;
@@ -979,13 +988,20 @@ midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view
                 g_object_get (tls_cert, "certificate", &der_cert, NULL);
                 gcr_cert = gcr_simple_certificate_new (der_cert->data, der_cert->len);
                 g_byte_array_unref (der_cert);
-                if (soup_uri && soup_uri->host && !gcr_trust_is_certificate_pinned (gcr_cert, GCR_PURPOSE_SERVER_AUTH, soup_uri->host, NULL, NULL))
+                if (soup_uri && soup_uri->host && gcr_trust_is_certificate_pinned (gcr_cert, GCR_PURPOSE_SERVER_AUTH, soup_uri->host, NULL, NULL))
                 {
                     GError* error = NULL;
                     gcr_trust_add_pinned_certificate (gcr_cert, GCR_PURPOSE_SERVER_AUTH, soup_uri->host, NULL, &error);
                     if (error != NULL)
                     {
-                        g_warning ("Error granting trust: %s", error->message);
+                        midori_view_stop_loading (view);
+                        gchar* slots = g_strjoinv (" , ", (gchar**)gcr_pkcs11_get_trust_lookup_uris ());
+                        gchar* title = g_strdup_printf ("Error granting trust: %s", error->message);
+                        midori_view_display_error (view, view->uri,
+                            view->title ? view->title : view->uri, title, slots,
+                            _("Trust this website"), NULL);
+                        g_free (title);
+                        g_free (slots);
                         g_error_free (error);
                     }
                 }
@@ -1038,21 +1054,9 @@ webkit_web_view_load_started_cb (WebKitWebView*  web_view,
     g_object_thaw_notify (G_OBJECT (view));
 }
 
-static gboolean
-midori_view_display_error (MidoriView*     view,
-                           const gchar*    uri,
-                           const gchar*    title,
-                           const gchar*    message,
-                           const gchar*    description,
-                           const gchar*    try_again,
-                           WebKitWebFrame* web_frame);
-
 #if HAVE_GCR
 const gchar*
 midori_location_action_tls_flags_to_string (GTlsCertificateFlags flags);
-
-SoupMessage*
-midori_map_get_message (SoupMessage* message);
 #endif
 
 static void
