@@ -1304,6 +1304,12 @@ midori_location_action_icon_released_cb (GtkWidget*           widget,
                                          gint                 button,
                                          GtkAction*           action)
 {
+    /* The dialog should "toggle" like a menu, as far as users go
+       FIXME: Half-working: the dialog closes but re-opens */
+    static GtkWidget* dialog = NULL;
+    if (icon_pos == GTK_ICON_ENTRY_PRIMARY && dialog != NULL)
+        gtk_widget_destroy (dialog);
+
     if (icon_pos == GTK_ICON_ENTRY_PRIMARY)
     {
         const gchar* title = _("Security details");
@@ -1313,7 +1319,7 @@ midori_location_action_icon_released_cb (GtkWidget*           widget,
         gint root_x, root_y;
         GdkRectangle icon_rect;
         /* FIXME: granite: should return GtkWidget* like GTK+ */
-        GtkWidget* dialog = (GtkWidget*)granite_widgets_pop_over_new ();
+        dialog = (GtkWidget*)granite_widgets_pop_over_new ();
         gchar* markup = g_strdup_printf ("<b>%s</b>", title);
         GtkWidget* label = gtk_label_new (markup);
         content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
@@ -1327,8 +1333,10 @@ midori_location_action_icon_released_cb (GtkWidget*           widget,
         granite_widgets_pop_over_move_to_coords (GRANITE_WIDGETS_POP_OVER (dialog),
             root_x, root_y, TRUE);
         #else
-        GtkWidget* dialog = gtk_dialog_new_with_buttons (title, GTK_WINDOW (gtk_widget_get_toplevel (widget)),
+        dialog = gtk_dialog_new_with_buttons (title, GTK_WINDOW (gtk_widget_get_toplevel (widget)),
             GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR, NULL, NULL);
+        /* FIXME: check focus-in on the transient-for window instead of
+                  focus-out-event */
         g_signal_connect (dialog, "focus-out-event",
             G_CALLBACK (midori_location_action_dialog_focus_out_cb), NULL);
         content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
@@ -1347,6 +1355,7 @@ midori_location_action_icon_released_cb (GtkWidget*           widget,
         #if defined (HAVE_LIBSOUP_2_34_0)
         midori_location_action_show_page_info (widget, GTK_BOX (content_area), dialog);
         #endif
+        g_signal_connect (dialog, "destroy", G_CALLBACK (gtk_widget_destroyed), &dialog);
         gtk_widget_show_all (dialog);
     }
     if (icon_pos == GTK_ICON_ENTRY_SECONDARY)
