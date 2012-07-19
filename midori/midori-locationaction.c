@@ -1158,6 +1158,7 @@ midori_map_get_message (SoupMessage* message)
 typedef enum {
     MIDORI_CERT_TRUST,
     MIDORI_CERT_REVOKE,
+    MIDORI_CERT_EXPORT,
 } MidoriCertTrust;
 
 static void
@@ -1171,6 +1172,27 @@ midori_location_action_cert_response_cb (GtkWidget*      dialog,
         gcr_trust_add_pinned_certificate (gcr_cert, GCR_PURPOSE_SERVER_AUTH, peer, NULL, &error);
     else if (response == MIDORI_CERT_REVOKE)
         gcr_trust_remove_pinned_certificate (gcr_cert, GCR_PURPOSE_SERVER_AUTH, peer, NULL, &error);
+    else if (response == MIDORI_CERT_EXPORT)
+    {
+        /* FIXME: Would be nice if GcrCertificateExporter became public */
+        gchar* filename = g_strconcat (peer, ".crt", NULL);
+        GtkWidget* dialog = sokoke_file_chooser_dialog_new (_("Export certificate"),
+            NULL, GTK_FILE_CHOOSER_ACTION_SAVE);
+        gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (dialog), TRUE);
+        gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (dialog), filename);
+        g_free (filename);
+
+        if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK)
+        {
+            gsize n_data;
+            gconstpointer data = gcr_certificate_get_der_data (gcr_cert, &n_data);
+            g_return_if_fail (data);
+            filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
+            g_file_set_contents (filename, data, n_data, NULL);
+            g_free (filename);
+        }
+        gtk_widget_destroy (dialog);
+    }
     if (error != NULL)
     {
         g_warning ("Error %s trust: %s", response == MIDORI_CERT_TRUST ?
@@ -1244,6 +1266,10 @@ midori_location_action_show_page_info (GtkWidget* widget,
     else if (tls_flags > 0)
         gtk_dialog_add_buttons (GTK_DIALOG (dialog),
             ("_Trust this website"), MIDORI_CERT_TRUST, NULL);
+    gtk_container_child_set (GTK_CONTAINER (gtk_dialog_get_action_area (GTK_DIALOG (dialog))),
+        gtk_dialog_add_button (GTK_DIALOG (dialog), _("_Export certificate"), MIDORI_CERT_EXPORT),
+        "secondary", TRUE, NULL);
+
     g_object_set_data_full (G_OBJECT (gcr_cert), "peer", g_strdup (uri->host), (GDestroyNotify)g_free);
     g_object_set_data_full (G_OBJECT (dialog), "gcr-cert", gcr_cert, (GDestroyNotify)g_object_unref);
     g_signal_connect (dialog, "response",
