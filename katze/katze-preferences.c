@@ -209,7 +209,7 @@ katze_preferences_prepare (KatzePreferences* preferences)
     g_signal_connect (priv->scrolled, "destroy",
                       G_CALLBACK (gtk_widget_destroyed), &priv->scrolled);
     #else
-    #if HAVE_GRANITE
+    #ifdef HAVE_GRANITE
     /* FIXME: granite: should return GtkWidget* like GTK+ */
     priv->notebook = (GtkWidget*)granite_widgets_static_notebook_new (FALSE);
     #else
@@ -308,7 +308,7 @@ katze_preferences_add_category (KatzePreferences* preferences,
     priv->sizegroup = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
     gtk_widget_show (priv->page);
     gtk_container_set_border_width (GTK_CONTAINER (priv->page), 4);
-    #if HAVE_GRANITE
+    #ifdef HAVE_GRANITE
     granite_widgets_static_notebook_append_page (
         GRANITE_WIDGETS_STATIC_NOTEBOOK (priv->notebook),
         priv->page, GTK_LABEL (gtk_label_new (label)));

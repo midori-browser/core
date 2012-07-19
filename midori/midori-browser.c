@@ -2708,7 +2708,7 @@ _action_print_activate (GtkAction*     action,
     if (!(view = midori_browser_get_current_tab (browser)))
         return;
 
-    #if HAVE_GRANITE
+    #ifdef HAVE_GRANITE
     /* FIXME: Blacklist/ custom contract doesn't work
     gchar* blacklisted_contracts[] = { "print", NULL }; */
     /* FIXME: granite: should return GtkWidget* like GTK+ */
@@ -3283,7 +3283,7 @@ _action_compact_menu_populate_popup (GtkAction*     action,
       #endif
       { NULL },
       #if !HAVE_HILDON
-      #if !HAVE_GRANITE
+      #ifndef HAVE_GRANITE
       { "HelpFAQ" },
       { "HelpBugs"},
       #endif
@@ -5078,7 +5078,7 @@ _action_about_activate (GtkAction*     action,
     gtk_about_dialog_set_email_hook (_action_about_activate_email, NULL, NULL);
     gtk_about_dialog_set_url_hook (_action_about_activate_link, browser, NULL);
 #endif
-#if HAVE_GRANITE
+#ifdef HAVE_GRANITE
     /* FIXME: granite: should return GtkWidget* like GTK+ */
     dialog = (GtkWidget*)granite_widgets_about_dialog_new ();
     {
@@ -5557,7 +5557,7 @@ static const GtkActionEntry entries[] =
     { "WindowClose", NULL,
         N_("C_lose Window"), "<Ctrl><Shift>w",
         NULL, G_CALLBACK (_action_window_close_activate) },
-    #if HAVE_GRANITE
+    #ifdef HAVE_GRANITE
     { "Print", "document-export",
         N_("_Share"), "<Ctrl>p",
         NULL, G_CALLBACK (_action_print_activate) },
