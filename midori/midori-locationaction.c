@@ -818,15 +818,31 @@ midori_location_action_activate (GtkAction* action)
         GTK_ACTION_CLASS (midori_location_action_parent_class)->activate (action);
 }
 
+static void
+midori_location_action_entry_drag_data_get_cb (GtkWidget*        entry,
+                                               GdkDragContext*   context,
+                                               GtkSelectionData* data,
+                                               guint             info,
+                                               guint32           time,
+                                               GtkAction*        action)
+{
+    if (gtk_entry_get_current_icon_drag_source (GTK_ENTRY (entry)) == GTK_ENTRY_ICON_PRIMARY)
+    {
+        const gchar* uri = gtk_entry_get_text (GTK_ENTRY (entry));
+        gchar** uris = g_strsplit (uri, uri, 1);
+        gtk_selection_data_set_uris (data, uris);
+        g_strfreev (uris);
+    }
+}
+
 static GtkWidget*
 midori_location_action_create_tool_item (GtkAction* action)
 {
     GtkWidget* toolitem;
     GtkWidget* alignment;
     GtkWidget* entry;
-    #if HAVE_HILDON
-    HildonGtkInputMode mode;
-    #endif
+
+    GtkTargetList *targetlist;
 
     toolitem = GTK_WIDGET (gtk_tool_item_new ());
     gtk_tool_item_set_expand (GTK_TOOL_ITEM (toolitem), TRUE);
@@ -835,18 +851,18 @@ midori_location_action_create_tool_item (GtkAction* action)
     gtk_widget_show (alignment);
     gtk_container_add (GTK_CONTAINER (toolitem), alignment);
 
-    #if HAVE_HILDON
-    entry = gtk_entry_new ();
-    mode = hildon_gtk_entry_get_input_mode (GTK_ENTRY (entry));
-    mode &= ~HILDON_GTK_INPUT_MODE_AUTOCAP;
-    hildon_gtk_entry_set_input_mode (GTK_ENTRY (entry), mode);
-    #else
     entry = gtk_icon_entry_new ();
     gtk_icon_entry_set_icon_highlight (GTK_ICON_ENTRY (entry),
          GTK_ICON_ENTRY_PRIMARY, TRUE);
     gtk_icon_entry_set_icon_highlight (GTK_ICON_ENTRY (entry),
          GTK_ICON_ENTRY_SECONDARY, TRUE);
-    #endif
+
+    targetlist = gtk_target_list_new (NULL, 0);
+    gtk_target_list_add_uri_targets (targetlist, 0);
+    gtk_entry_set_icon_drag_source (GTK_ENTRY (entry), GTK_ENTRY_ICON_PRIMARY, targetlist, GDK_ACTION_ASK | GDK_ACTION_COPY | GDK_ACTION_LINK);
+    gtk_target_list_unref (targetlist);
+    g_signal_connect (entry, "drag-data-get",
+        G_CALLBACK (midori_location_action_entry_drag_data_get_cb), action);
     gtk_widget_show (entry);
     gtk_container_add (GTK_CONTAINER (alignment), entry);
 
