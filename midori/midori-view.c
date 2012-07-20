@@ -2424,6 +2424,93 @@ midori_web_view_menu_inspect_element_activate_cb (GtkWidget*  widget,
     webkit_web_inspector_show (inspector);
 }
 
+#if WEBKIT_CHECK_VERSION (1, 5, 0)
+void
+midori_search_action_get_editor (MidoriSearchAction* search_action,
+                                 KatzeItem*          item,
+                                 gboolean            new_engine);
+
+static void
+midori_view_menu_add_search_engine_cb (GtkWidget*  widget,
+                                       MidoriView* view)
+{
+    MidoriBrowser* browser = midori_browser_get_for_widget (view->web_view);
+    GtkActionGroup* actions = midori_browser_get_action_group (browser);
+    GtkAction* action = gtk_action_group_get_action (actions, "Search");
+    KatzeItem* item = g_object_get_data (G_OBJECT (widget), "item");
+    midori_search_action_get_editor (MIDORI_SEARCH_ACTION (action), item, TRUE);
+}
+
+static KatzeItem*
+midori_view_search_engine_for_form (WebKitWebView* web_view)
+{
+
+    WebKitDOMDocument* doc;
+    WebKitDOMHTMLFormElement* active_form;
+    WebKitDOMHTMLCollection* form_nodes;
+    WebKitDOMElement* active_element;
+    gchar* token_element;
+    GString* uri_str;
+    gulong form_len;
+    guint i;
+
+    #if WEBKIT_CHECK_VERSION (1, 9, 5)
+    doc = webkit_web_frame_get_dom_document (web_view);
+    #else
+    if (webkit_web_view_get_focused_frame (web_view) != webkit_web_view_get_main_frame (web_view))
+        return NULL;
+    doc = webkit_web_view_get_dom_document (web_view);
+    #endif
+
+    active_element = webkit_dom_html_document_get_active_element ((WebKitDOMHTMLDocument*)doc);
+    active_form = webkit_dom_html_input_element_get_form ((WebKitDOMHTMLInputElement*)active_element);
+    token_element = webkit_dom_element_get_attribute (active_element, "name");
+
+    form_nodes = webkit_dom_html_form_element_get_elements (active_form);
+    form_len = webkit_dom_html_form_element_get_length (active_form);
+
+    uri_str = g_string_new (webkit_dom_html_form_element_get_action (active_form));
+    g_string_append (uri_str, "?");
+
+    for (i = 0; i < form_len; i++)
+    {
+        WebKitDOMNode* form_node = webkit_dom_html_collection_item (form_nodes, i);
+        WebKitDOMElement* form_element = (WebKitDOMElement*) form_node;
+        gchar* name = webkit_dom_element_get_attribute (form_element, "name");
+
+        if (name && *name)
+        {
+            if (!g_strcmp0 (token_element, name))
+                g_string_append_printf (uri_str, "%s=%s&", name, "\%s");
+            else
+            {
+                gchar* value;
+                if (!g_strcmp0 (webkit_dom_element_get_tag_name (form_element), "SELECT"))
+                {
+                    WebKitDOMHTMLSelectElement* select_element = (WebKitDOMHTMLSelectElement*) form_element;
+                    gulong pos = webkit_dom_html_select_element_get_selected_index (select_element);
+                    WebKitDOMNode* selected_node = webkit_dom_html_select_element_item (select_element, pos);
+                    WebKitDOMElement* selected_element = (WebKitDOMElement*) selected_node;
+
+                    value = webkit_dom_element_get_attribute (selected_element, "value");
+                }
+                else
+                    value = webkit_dom_element_get_attribute (form_element, "value");
+
+                g_string_append_printf (uri_str, "%s=%s&", name, value);
+                g_free (value);
+            }
+            g_free (name);
+        }
+    }
+
+    g_free (token_element);
+    return g_object_new (KATZE_TYPE_ITEM,
+        "uri", g_string_free (uri_str, FALSE),
+        "name", webkit_web_view_get_title (web_view), NULL);
+}
+#endif
+
 static GtkWidget*
 midori_view_insert_menu_item (GtkMenuShell* menu,
                              gint          position,
@@ -2529,6 +2616,22 @@ midori_view_populate_popup (MidoriView* view,
         gtk_widget_set_sensitive (menuitem,
             webkit_web_view_can_undo (web_view));
         gtk_menu_shell_prepend (menu_shell, menuitem);
+
+        #if WEBKIT_CHECK_VERSION (1, 5, 0)
+        {
+            KatzeItem* item = midori_view_search_engine_for_form (web_view);
+            if (item != NULL)
+            {
+                menuitem = midori_view_insert_menu_item (menu_shell, -1,
+                    _("Add _search engine..."), NULL,
+                    G_CALLBACK (midori_view_menu_add_search_engine_cb), widget);
+                g_object_set_data (G_OBJECT (menuitem), "item", item);
+                gtk_menu_shell_append (menu_shell, menuitem);
+                gtk_widget_show (menuitem);
+            }
+        }
+        #endif
+
         if (manual)
         {
             menuitem = sokoke_action_create_popup_menu_item (

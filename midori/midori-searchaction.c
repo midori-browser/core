@@ -877,15 +877,15 @@ midori_search_action_editor_name_changed_cb (GtkWidget* entry,
         GTK_RESPONSE_ACCEPT, text && *text);
 }
 
-static void
+void
 midori_search_action_get_editor (MidoriSearchAction* search_action,
+                                 KatzeItem*          item,
                                  gboolean            new_engine)
 {
     GtkWidget* toplevel;
     GtkWidget* dialog;
     GtkWidget* content_area;
     GtkSizeGroup* sizegroup;
-    KatzeItem* item;
     GtkWidget* hbox;
     GtkWidget* label;
     GtkTreeModel* liststore;
@@ -914,7 +914,6 @@ midori_search_action_get_editor (MidoriSearchAction* search_action,
 
     if (new_engine)
     {
-        item = katze_item_new ();
         gtk_dialog_set_response_sensitive (GTK_DIALOG (dialog),
                                            GTK_RESPONSE_ACCEPT, FALSE);
     }
@@ -935,9 +934,8 @@ midori_search_action_get_editor (MidoriSearchAction* search_action,
     g_signal_connect (entry_name, "changed",
         G_CALLBACK (midori_search_action_editor_name_changed_cb), dialog);
     gtk_entry_set_activates_default (GTK_ENTRY (entry_name), TRUE);
-    if (!new_engine)
-        gtk_entry_set_text (GTK_ENTRY (entry_name),
-            katze_str_non_null (katze_item_get_name (item)));
+    gtk_entry_set_text (GTK_ENTRY (entry_name),
+        katze_str_non_null (katze_item_get_name (item)));
     gtk_box_pack_start (GTK_BOX (hbox), entry_name, TRUE, TRUE, 0);
     gtk_container_add (GTK_CONTAINER (content_area), hbox);
     gtk_widget_show_all (hbox);
@@ -969,9 +967,8 @@ midori_search_action_get_editor (MidoriSearchAction* search_action,
     #endif
     g_object_set_data (G_OBJECT (entry_uri), "allow_%s", (void*)1);
     gtk_entry_set_activates_default (GTK_ENTRY (entry_uri), TRUE);
-    if (!new_engine)
-        gtk_entry_set_text (GTK_ENTRY (entry_uri)
-         , katze_str_non_null (katze_item_get_uri (item)));
+    gtk_entry_set_text (GTK_ENTRY (entry_uri),
+        katze_str_non_null (katze_item_get_uri (item)));
     gtk_box_pack_start (GTK_BOX (hbox), entry_uri, TRUE, TRUE, 0);
     gtk_container_add (GTK_CONTAINER (content_area), hbox);
     gtk_widget_show_all (hbox);
@@ -1036,7 +1033,7 @@ midori_search_action_activate_edit_cb (GtkTreeView *treeview,
 
     selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
     if (gtk_tree_selection_get_selected (selection, NULL, NULL))
-        midori_search_action_get_editor (search_action, FALSE);
+        midori_search_action_get_editor (search_action, NULL, FALSE);
 }
 
 
@@ -1044,7 +1041,7 @@ static void
 midori_search_action_dialog_add_cb (GtkWidget*          widget,
                                     MidoriSearchAction* search_action)
 {
-    midori_search_action_get_editor (search_action, TRUE);
+    midori_search_action_get_editor (search_action, katze_item_new (), TRUE);
 }
 
 static void
@@ -1057,7 +1054,7 @@ midori_search_action_dialog_edit_cb (GtkWidget*  widget,
     treeview = search_action->treeview;
     selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
     if (gtk_tree_selection_get_selected (selection, NULL, NULL))
-        midori_search_action_get_editor (search_action, FALSE);
+        midori_search_action_get_editor (search_action, NULL, FALSE);
 }
 
 static void
