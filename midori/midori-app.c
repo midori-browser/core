@@ -1144,7 +1144,19 @@ midori_app_send_command (MidoriApp* app,
     /* g_return_val_if_fail (MIDORI_IS_APP (app), FALSE); */
     g_return_val_if_fail (command != NULL, FALSE);
 
-    if (!midori_app_instance_is_running (app))
+    if (midori_app_instance_is_running (app))
+    {
+        MidoriBrowser* browser = midori_browser_new ();
+        int i;
+        for (i=0; command && command[i]; i++)
+        {
+            gboolean action_known = (gtk_action_group_get_action (midori_browser_get_action_group (browser), command[i]) != NULL);
+            if (!action_known)
+                g_warning (_("Unexpected action '%s'."), command[i]);
+        }
+        gtk_widget_destroy (GTK_WIDGET (browser));
+    }
+    else
         return midori_app_command_received (app, "command", command, NULL);
 
     #if HAVE_HILDON
