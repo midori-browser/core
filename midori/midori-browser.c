@@ -1801,7 +1801,7 @@ _midori_browser_add_tab (MidoriBrowser* browser,
         katze_array_move_item (browser->proxy_array, item, n);
     }
     else
-        n = -1;
+        n = midori_browser_get_n_pages (browser) - 1;
     katze_item_set_meta_integer (item, "append", -1);
 
 #ifdef HAVE_GRANITE
@@ -5271,6 +5271,8 @@ midori_browser_switched_tab (MidoriBrowser* browser,
     if (new_view == NULL)
         return;
 
+    g_return_if_fail (MIDORI_IS_VIEW (new_view));
+
     uri = g_object_get_data (G_OBJECT (new_view), "midori-browser-typed-text");
     if (!uri)
         uri = midori_view_get_display_uri (new_view);
@@ -5351,10 +5353,10 @@ midori_browser_notebook_tab_switched_cb (GraniteWidgetsDynamicNotebook* notebook
                                          MidoriBrowser*     browser)
 {
     gint new_pos = granite_widgets_dynamic_notebook_get_tab_position (notebook, new_tab);
-    gint old_pos = old_tab ? granite_widgets_dynamic_notebook_get_tab_position (notebook, old_tab) : -1;
+
     midori_browser_switched_tab (browser,
-        old_tab ? midori_browser_get_nth_tab (browser, old_pos) : NULL,
-        MIDORI_VIEW (midori_browser_get_nth_tab (browser, new_pos)), new_pos);
+        old_tab ? granite_widgets_tab_get_page (old_tab) : NULL,
+        MIDORI_VIEW (granite_widgets_tab_get_page (new_tab)), new_pos);
 }
 
 static void
