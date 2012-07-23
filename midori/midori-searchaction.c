@@ -894,7 +894,6 @@ midori_search_action_get_editor (MidoriSearchAction* search_action,
     GtkWidget* entry_name;
     GtkWidget* entry_description;
     GtkWidget* entry_uri;
-    GtkWidget* entry_icon;
     GtkWidget* entry_token;
 
     toplevel = gtk_widget_get_toplevel (search_action->treeview);
@@ -975,20 +974,6 @@ midori_search_action_get_editor (MidoriSearchAction* search_action,
 
     hbox = gtk_hbox_new (FALSE, 8);
     gtk_container_set_border_width (GTK_CONTAINER (hbox), 5);
-    label = gtk_label_new_with_mnemonic (_("_Icon:"));
-    gtk_size_group_add_widget (sizegroup, label);
-    gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
-    entry_icon = gtk_entry_new ();
-    gtk_entry_set_activates_default (GTK_ENTRY (entry_icon), TRUE);
-    if (!new_engine)
-        gtk_entry_set_text (GTK_ENTRY (entry_icon)
-         , katze_str_non_null (katze_item_get_icon (item)));
-    gtk_box_pack_start (GTK_BOX (hbox), entry_icon, TRUE, TRUE, 0);
-    gtk_container_add (GTK_CONTAINER (content_area), hbox);
-    gtk_widget_show_all (hbox);
-
-    hbox = gtk_hbox_new (FALSE, 8);
-    gtk_container_set_border_width (GTK_CONTAINER (hbox), 5);
     label = gtk_label_new_with_mnemonic (_("_Token:"));
     gtk_size_group_add_widget (sizegroup, label);
     gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
@@ -1008,7 +993,6 @@ midori_search_action_get_editor (MidoriSearchAction* search_action,
             "name", gtk_entry_get_text (GTK_ENTRY (entry_name)),
             "text", gtk_entry_get_text (GTK_ENTRY (entry_description)),
             "uri", gtk_entry_get_text (GTK_ENTRY (entry_uri)),
-            "icon", gtk_entry_get_text (GTK_ENTRY (entry_icon)),
             "token", gtk_entry_get_text (GTK_ENTRY (entry_token)),
             NULL);
 
