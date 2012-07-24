@@ -1073,6 +1073,11 @@ midori_browser_save_resources (MidoriView*  view,
     {
         WebKitWebResource* resource = WEBKIT_WEB_RESOURCE (list->data);
         GString* data = webkit_web_resource_get_data (resource);
+
+        /* Resource could be adblocked, skip it in that case */
+        if (!g_strcmp0 (webkit_web_resource_get_uri (resource), "about:blank"))
+            continue;
+
         /* FIXME: mime type fallback should respect the resource's type */
         gchar* sub_filename = midori_browser_get_filename_suggestion_for_uri (
             view, webkit_web_resource_get_uri (resource));
