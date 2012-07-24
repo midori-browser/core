@@ -94,7 +94,9 @@ def configure (conf):
 
     def check_version (given_version, major, minor, micro):
         if '.' in given_version:
-            given_major, given_minor, given_micro = given_version.split ('.')
+            given_major, given_minor, given_micro = given_version.split ('.', 2)
+            if '.' in given_micro:
+                given_micro, given_pico = given_micro.split ('.', 1)
         else:
             given_major, given_minor, given_micro = given_version
         return int(given_major) >  major or \
