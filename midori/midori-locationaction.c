@@ -1290,6 +1290,10 @@ midori_location_action_show_page_info (GtkWidget* widget,
     g_object_set_data_full (G_OBJECT (dialog), "gcr-cert", gcr_cert, (GDestroyNotify)g_object_unref);
     g_signal_connect (dialog, "response",
         G_CALLBACK (midori_location_action_cert_response_cb), gcr_cert);
+    /* With GTK+2 the scrolled contents can't communicate a natural size to the window */
+    #if !GTK_CHECK_VERSION (3, 0, 0)
+    gtk_window_set_default_size (GTK_WINDOW (dialog), 250, 200);
+    #endif
     #else
     const gchar* tls_error = midori_location_action_tls_flags_to_string (tls_flags);
 
