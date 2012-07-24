@@ -946,8 +946,7 @@ midori_search_action_get_editor (MidoriSearchAction* search_action,
     gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
     entry_description = gtk_entry_new ();
     gtk_entry_set_activates_default (GTK_ENTRY (entry_description), TRUE);
-    if (!new_engine)
-        gtk_entry_set_text (GTK_ENTRY (entry_description)
+    gtk_entry_set_text (GTK_ENTRY (entry_description)
          , katze_str_non_null (katze_item_get_text (item)));
     gtk_box_pack_start (GTK_BOX (hbox), entry_description, TRUE, TRUE, 0);
     gtk_container_add (GTK_CONTAINER (content_area), hbox);

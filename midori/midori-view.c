@@ -2442,7 +2442,8 @@ midori_view_menu_add_search_engine_cb (GtkWidget*  widget,
 }
 
 static KatzeItem*
-midori_view_search_engine_for_form (WebKitWebView* web_view)
+midori_view_search_engine_for_form (MidoriView*    view,
+                                    WebKitWebView* web_view)
 {
 
     WebKitDOMDocument* doc;
@@ -2450,9 +2451,12 @@ midori_view_search_engine_for_form (WebKitWebView* web_view)
     WebKitDOMHTMLCollection* form_nodes;
     WebKitDOMElement* active_element;
     gchar* token_element;
+    const gchar* title;
     GString* uri_str;
     gulong form_len;
     guint i;
+    KatzeItem* item;
+    gchar** parts;
 
     #if WEBKIT_CHECK_VERSION (1, 9, 5)
     doc = webkit_web_frame_get_dom_document (web_view);
@@ -2504,10 +2508,37 @@ midori_view_search_engine_for_form (WebKitWebView* web_view)
         }
     }
 
+    title = webkit_web_view_get_title (web_view);
+
+    item = katze_item_new ();
+    katze_item_set_uri (item, g_string_free (uri_str, FALSE));
+
+    if (strstr (title, " - "))
+        parts = g_strsplit (title, " - ", 2);
+    else if (strstr (title, ": "))
+        parts = g_strsplit (title, ": ", 2);
+    else
+        parts = NULL;
+    if (parts != NULL)
+    {
+        /* See midori_view_set_title: title can be first or last */
+        if (view->ellipsize == PANGO_ELLIPSIZE_END)
+        {
+            katze_item_set_name (item, g_strdup (parts[0]));
+            katze_item_set_text (item, g_strdup (parts[1]));
+        }
+        else
+        {
+            katze_item_set_name (item, g_strdup (parts[1]));
+            katze_item_set_text (item, g_strdup (parts[2]));
+        }
+        g_strfreev (parts);
+    }
+    else
+        katze_item_set_name (item, title);
+
     g_free (token_element);
-    return g_object_new (KATZE_TYPE_ITEM,
-        "uri", g_string_free (uri_str, FALSE),
-        "name", webkit_web_view_get_title (web_view), NULL);
+    return item;
 }
 #endif
 
@@ -2619,7 +2650,7 @@ midori_view_populate_popup (MidoriView* view,
 
         #if WEBKIT_CHECK_VERSION (1, 5, 0)
         {
-            KatzeItem* item = midori_view_search_engine_for_form (web_view);
+            KatzeItem* item = midori_view_search_engine_for_form (view, web_view);
             if (item != NULL)
             {
                 menuitem = midori_view_insert_menu_item (menu_shell, -1,
