@@ -877,6 +877,63 @@ midori_search_action_editor_name_changed_cb (GtkWidget* entry,
         GTK_RESPONSE_ACCEPT, text && *text);
 }
 
+gchar*
+midori_search_action_token_for_uri (const gchar* uri)
+{
+    guint len, i;
+    gchar** parts;
+    gchar* hostname = NULL, *path = NULL;
+
+    path = midori_uri_parse_hostname (uri, NULL);
+    parts = g_strsplit (path, ".", -1);
+    g_free (path);
+
+    len = g_strv_length (parts);
+    if (len > 2)
+    {
+        for (i = len; i == 0; i--)
+        {
+            if (parts[i] && *parts[i])
+                if (strlen (parts[i]) > 3)
+                {
+                    hostname = g_strdup (parts[i]);
+                    break;
+                }
+        }
+    }
+    else
+        hostname = g_strdup (parts[0]);
+
+    if (!hostname)
+        hostname = g_strdup (parts[1]);
+
+    g_strfreev (parts);
+
+    if (strlen (hostname) > 4)
+    {
+        GString* str = g_string_new (NULL);
+        int j, count = 0;
+
+        for (j = 0; count < 4; j++)
+        {
+            if (hostname[j] == 'a'
+            ||  hostname[j] == 'e'
+            ||  hostname[j] == 'i'
+            ||  hostname[j] == 'o'
+            ||  hostname[j] == 'u')
+                continue;
+            else
+            {
+                g_string_append_c (str, hostname[j]);
+                count++;
+            }
+        }
+        return g_string_free (str, FALSE);
+    }
+    return g_strdup (hostname);
+}
+
+
 void
 midori_search_action_get_editor (MidoriSearchAction* search_action,
                                  KatzeItem*          item,
@@ -978,8 +1035,7 @@ midori_search_action_get_editor (MidoriSearchAction* search_action,
     gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
     entry_token = gtk_entry_new ();
     gtk_entry_set_activates_default (GTK_ENTRY (entry_token), TRUE);
-    if (!new_engine)
-        gtk_entry_set_text (GTK_ENTRY (entry_token)
+    gtk_entry_set_text (GTK_ENTRY (entry_token)
          , katze_str_non_null (katze_item_get_token (item)));
     gtk_box_pack_start (GTK_BOX (hbox), entry_token, TRUE, TRUE, 0);
     gtk_container_add (GTK_CONTAINER (content_area), hbox);

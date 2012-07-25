@@ -2441,6 +2441,9 @@ midori_view_menu_add_search_engine_cb (GtkWidget*  widget,
     midori_search_action_get_editor (MIDORI_SEARCH_ACTION (action), item, TRUE);
 }
 
+gchar*
+midori_search_action_token_for_uri (const gchar* uri);
+
 static KatzeItem*
 midori_view_search_engine_for_form (MidoriView*    view,
                                     WebKitWebView* web_view)
@@ -2512,6 +2515,7 @@ midori_view_search_engine_for_form (MidoriView*    view,
 
     item = katze_item_new ();
     katze_item_set_uri (item, g_string_free (uri_str, FALSE));
+    item->token = midori_search_action_token_for_uri (view->uri);
 
     if (strstr (title, " - "))
         parts = g_strsplit (title, " - ", 2);
