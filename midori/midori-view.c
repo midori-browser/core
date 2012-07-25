@@ -5030,6 +5030,7 @@ midori_view_get_tab_menu (MidoriView* view)
 {
     MidoriBrowser* browser;
     GtkActionGroup* actions;
+    gint pages;
     GtkWidget* menu;
     GtkWidget* menuitem;
 
@@ -5037,6 +5038,7 @@ midori_view_get_tab_menu (MidoriView* view)
 
     browser = midori_browser_get_for_widget (GTK_WIDGET (view));
     actions = midori_browser_get_action_group (browser);
+    pages = midori_browser_get_n_pages (browser);
 
     menu = gtk_menu_new ();
     menuitem = sokoke_action_create_popup_menu_item (
@@ -5063,10 +5065,12 @@ midori_view_get_tab_menu (MidoriView* view)
         G_CALLBACK (midori_view_tab_label_menu_minimize_tab_cb), view);
     menuitem = gtk_separator_menu_item_new ();
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-    menuitem = gtk_menu_item_new_with_mnemonic (_("Close ot_her Tabs"));
+    menuitem = gtk_menu_item_new_with_mnemonic (
+        g_dngettext (NULL, "Close Ot_her Tab", "Close Ot_her Tabs", pages - 1));
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
     g_signal_connect (menuitem, "activate",
         G_CALLBACK (midori_view_tab_label_menu_close_other_tabs_cb), view);
+    gtk_widget_set_sensitive (menuitem, pages > 1);
     menuitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_CLOSE, NULL);
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
     g_signal_connect (menuitem, "activate",
