@@ -1380,6 +1380,11 @@ midori_search_action_get_dialog (MidoriSearchAction* search_action)
     gtk_tree_view_column_set_cell_data_func (column, renderer_pixbuf,
         (GtkTreeCellDataFunc)midori_search_action_dialog_render_tick_cb,
         treeview, NULL);
+    renderer_text = gtk_cell_renderer_text_new ();
+    gtk_tree_view_column_pack_start (column, renderer_text, FALSE);
+    gtk_tree_view_column_set_cell_data_func (column, renderer_text,
+        (GtkTreeCellDataFunc)midori_search_action_dialog_render_token,
+        treeview, NULL);
     renderer_pixbuf = gtk_cell_renderer_pixbuf_new ();
     gtk_tree_view_column_pack_start (column, renderer_pixbuf, FALSE);
     gtk_tree_view_column_set_cell_data_func (column, renderer_pixbuf,
@@ -1389,11 +1394,6 @@ midori_search_action_get_dialog (MidoriSearchAction* search_action)
     gtk_tree_view_column_pack_start (column, renderer_text, TRUE);
     gtk_tree_view_column_set_cell_data_func (column, renderer_text,
         (GtkTreeCellDataFunc)midori_search_action_dialog_render_text,
-        treeview, NULL);
-    renderer_text = gtk_cell_renderer_text_new ();
-    gtk_tree_view_column_pack_start (column, renderer_text, TRUE);
-    gtk_tree_view_column_set_cell_data_func (column, renderer_text,
-        (GtkTreeCellDataFunc)midori_search_action_dialog_render_token,
         treeview, NULL);
     gtk_tree_view_append_column (GTK_TREE_VIEW (treeview), column);
     scrolled = gtk_scrolled_window_new (NULL, NULL);
