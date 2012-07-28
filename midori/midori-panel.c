@@ -346,6 +346,7 @@ midori_panel_init (MidoriPanel* panel)
 
     /* Create the notebook */
     panel->notebook = gtk_notebook_new ();
+    katze_widget_add_class (panel->notebook, "content-view");
     gtk_notebook_set_show_border (GTK_NOTEBOOK (panel->notebook), FALSE);
     gtk_notebook_set_show_tabs (GTK_NOTEBOOK (panel->notebook), FALSE);
     panel->frame = gtk_frame_new (NULL);
