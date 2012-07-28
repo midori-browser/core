@@ -1267,7 +1267,7 @@ midori_load_module (MidoriApp*   app,
        Skip any modules that were loaded before. */
     if (modules == NULL)
         modules = g_hash_table_new (g_direct_hash, g_direct_equal);
-    if (g_hash_table_contains (modules, module))
+    if (g_hash_table_lookup (modules, module))
         return;
     g_hash_table_insert (modules, module, g_strdup (filename));
 
