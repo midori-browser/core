@@ -104,7 +104,12 @@ static GSList *tb_editor_array_to_list(const gchar **items)
 	name = items;
 	while (*name != NULL)
 	{
+		#ifdef HAVE_GRANITE
+		/* A "new tab" button is already part of the notebook */
+		if (*name[0] != '\0' && strcmp (*name, "TabNew"))
+		#else
 		if (*name[0] != '\0')
+		#endif
 			list = g_slist_append(list, g_strdup(*name));
 		name++;
 	}
