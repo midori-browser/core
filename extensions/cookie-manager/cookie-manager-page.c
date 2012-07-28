@@ -1095,7 +1095,6 @@ static void cookie_manager_page_init(CookieManagerPage *self)
 	GtkWidget *desc_swin;
 	GtkWidget *paned;
 	GtkWidget *filter_hbox;
-	GtkWidget *filter_label;
 	GtkWidget *treeview;
 	CookieManagerPagePrivate *priv;
 
@@ -1131,25 +1130,18 @@ static void cookie_manager_page_init(CookieManagerPage *self)
 	gtk_container_add(GTK_CONTAINER(tree_swin), treeview);
 	gtk_widget_show(tree_swin);
 
-	filter_label = gtk_label_new(_("Filter:"));
-	gtk_widget_show(filter_label);
-
 	priv->filter_entry = gtk_icon_entry_new();
-	gtk_widget_set_tooltip_text(priv->filter_entry,
-		_("Enter a filter string to show only cookies whose name or domain "
-		  "field match the entered filter"));
+	gtk_entry_set_placeholder_text (GTK_ENTRY (priv->filter_entry), _("Search Cookies by Name or Domain"));
+	gtk_entry_set_icon_from_stock (GTK_ENTRY (priv->filter_entry),
+		GTK_ENTRY_ICON_PRIMARY, GTK_STOCK_FIND);
+	sokoke_entry_set_clear_button_visible (GTK_ENTRY (priv->filter_entry), TRUE);
 	gtk_widget_show(priv->filter_entry);
-	gtk_icon_entry_set_icon_from_stock(GTK_ICON_ENTRY(priv->filter_entry),
-		GTK_ICON_ENTRY_SECONDARY, GTK_STOCK_CLEAR);
-	gtk_icon_entry_set_icon_highlight(GTK_ICON_ENTRY (priv->filter_entry),
-		GTK_ICON_ENTRY_SECONDARY, TRUE);
 	g_signal_connect(priv->filter_entry, "icon-release",
 		G_CALLBACK(cm_filter_entry_clear_icon_released_cb), NULL);
 	g_signal_connect(priv->filter_entry, "changed", G_CALLBACK(cm_filter_entry_changed_cb), self);
 	g_signal_connect(priv->filter_entry, "activate", G_CALLBACK(cm_filter_entry_changed_cb), self);
 
 	filter_hbox = gtk_hbox_new(FALSE, 0);
-	gtk_box_pack_start(GTK_BOX(filter_hbox), filter_label, FALSE, FALSE, 3);
 	gtk_box_pack_start(GTK_BOX(filter_hbox), priv->filter_entry, TRUE, TRUE, 3);
 	gtk_widget_show(filter_hbox);
 

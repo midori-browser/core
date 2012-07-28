@@ -1027,6 +1027,7 @@ midori_bookmarks_init (MidoriBookmarks* bookmarks)
 
     /* Create the filter entry */
     entry = gtk_icon_entry_new ();
+    gtk_entry_set_placeholder_text (GTK_ENTRY (entry), _("Search Bookmarks"));
     gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (entry),
                                         GTK_ICON_ENTRY_PRIMARY,
                                         GTK_STOCK_FIND);
