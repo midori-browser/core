@@ -316,11 +316,16 @@ _midori_browser_update_interface (MidoriBrowser* browser,
     gboolean loading = midori_view_get_load_status (view) != MIDORI_LOAD_FINISHED;
     gboolean can_reload = midori_view_can_reload (view);
     GtkAction* action;
+    GSList* proxies;
 
     _action_set_sensitive (browser, "Reload", can_reload);
     _action_set_sensitive (browser, "Stop", can_reload && loading);
     _action_set_sensitive (browser, "Back", midori_view_can_go_back (view));
     _action_set_sensitive (browser, "Forward", midori_view_can_go_forward (view));
+    proxies = gtk_action_get_proxies (_action_by_name (browser, "Forward"));
+    for (; proxies != NULL; proxies = g_slist_next (proxies))
+        if (GTK_IS_TOOL_ITEM (proxies->data))
+            gtk_widget_set_visible (proxies->data, midori_view_can_go_forward (view));
     _action_set_sensitive (browser, "Previous",
         midori_view_get_previous_page (view) != NULL);
     _action_set_sensitive (browser, "Next",
