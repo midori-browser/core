@@ -110,11 +110,8 @@ katze_preferences_init (KatzePreferences* preferences)
     gtk_dialog_add_buttons (GTK_DIALOG (preferences),
         GTK_STOCK_HELP, GTK_RESPONSE_HELP,
         NULL);
-    #if GTK_CHECK_VERSION (3, 0, 0)
-    gtk_style_context_add_class (gtk_widget_get_style_context (
-        gtk_dialog_get_widget_for_response (GTK_DIALOG (preferences),
-            GTK_RESPONSE_HELP)), "help_button");
-    #endif
+    katze_widget_add_class (gtk_dialog_get_widget_for_response (
+        GTK_DIALOG (preferences), GTK_RESPONSE_HELP), "help_button");
 
     gtk_dialog_add_buttons (GTK_DIALOG (preferences),
         #if HAVE_HILDON

@@ -300,6 +300,7 @@ midori_panel_init (MidoriPanel* panel)
 
     /* Create the titlebar */
     labelbar = gtk_toolbar_new ();
+    katze_widget_add_class (labelbar, "secondary-toolbar");
     panel->labelbar = labelbar;
     gtk_toolbar_set_icon_size (GTK_TOOLBAR (labelbar), GTK_ICON_SIZE_MENU);
     gtk_toolbar_set_style (GTK_TOOLBAR (labelbar), GTK_TOOLBAR_ICONS);

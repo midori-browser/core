@@ -161,6 +161,10 @@ GtkWidget*
 katze_uri_entry_new                  (GtkWidget*      other_widget);
 
 void
+katze_widget_add_class               (GtkWidget*      widget,
+                                      const gchar*    class_name);
+
+void
 katze_assert_str_equal               (const gchar*    input,
                                       const gchar*    result,
                                       const gchar*    expected);

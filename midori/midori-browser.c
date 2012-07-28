@@ -4798,11 +4798,8 @@ _action_clear_private_data_activate (GtkAction*     action,
             GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR,
             GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
             _("_Clear private data"), GTK_RESPONSE_ACCEPT, NULL);
-        #if GTK_CHECK_VERSION (3, 0, 0)
-        gtk_style_context_add_class (gtk_widget_get_style_context (
-            gtk_dialog_get_widget_for_response (GTK_DIALOG (dialog),
-                GTK_RESPONSE_ACCEPT)), "noundo");
-        #endif
+        katze_widget_add_class (gtk_dialog_get_widget_for_response (
+            GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT), "noundo");
         content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
         gtk_window_set_skip_taskbar_hint (GTK_WINDOW (dialog), FALSE);
         screen = gtk_widget_get_screen (GTK_WIDGET (browser));
@@ -6523,9 +6520,7 @@ midori_browser_init (MidoriBrowser* browser)
     /* Create the navigationbar */
     browser->navigationbar = gtk_ui_manager_get_widget (
         ui_manager, "/toolbar_navigation");
-#if GTK_CHECK_VERSION(3,0,0)
-    gtk_style_context_add_class(gtk_widget_get_style_context(browser->navigationbar), "primary-toolbar");
-#endif
+    katze_widget_add_class (browser->navigationbar, "primary-toolbar");
     /* FIXME: Settings should be connected with screen changes */
     gtk_settings = gtk_widget_get_settings (GTK_WIDGET (browser));
     if (gtk_settings)
@@ -6557,10 +6552,7 @@ midori_browser_init (MidoriBrowser* browser)
 
     /* Bookmarkbar */
     browser->bookmarkbar = gtk_toolbar_new ();
-#if GTK_CHECK_VERSION (3, 0, 0)
-    gtk_style_context_add_class (
-        gtk_widget_get_style_context (browser->bookmarkbar), "secondary-toolbar");
-#endif
+    katze_widget_add_class (browser->bookmarkbar, "secondary-toolbar");
     gtk_widget_set_name (browser->bookmarkbar, "MidoriBookmarkbar");
     gtk_toolbar_set_icon_size (GTK_TOOLBAR (browser->bookmarkbar),
                                GTK_ICON_SIZE_MENU);

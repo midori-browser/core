@@ -1576,6 +1576,16 @@ katze_uri_entry_new (GtkWidget* other_widget)
     return entry;
 }
 
+void
+katze_widget_add_class (GtkWidget*   widget,
+                        const gchar* class_name)
+{
+    #if GTK_CHECK_VERSION (3,0,0)
+    GtkStyleContext* context = gtk_widget_get_style_context (widget);
+    gtk_style_context_add_class (context, class_name);
+    #endif
+}
+
 /**
  * katze_assert_str_equal:
  * @input: a string
