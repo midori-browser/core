@@ -5037,7 +5037,7 @@ _action_about_activate_email (GtkAboutDialog* about,
 #endif
 
 static gchar*
-midori_browser_get_docs ()
+midori_browser_get_docs (gboolean error)
 {
     #ifdef G_OS_WIN32
     gchar* path = sokoke_find_data_filename ("doc/midori/faq.html", FALSE);
@@ -5050,7 +5050,7 @@ midori_browser_get_docs ()
             return g_strdup ("file://" DOCDIR "/faq.html");
         else
         #endif
-            return g_strdup ("error:nodocs share/doc/midori/faq.html");
+            return error ? g_strdup ("error:nodocs share/doc/midori/faq.html") : NULL;
     }
     g_free (path);
     #else
@@ -5059,7 +5059,7 @@ midori_browser_get_docs ()
         return g_strdup ("file://" DOCDIR "/faq.html");
     else
     #endif
-        return g_strdup ("error:nodocs " DOCDIR "/faq.html");
+        return error ? g_strdup ("error:nodocs " DOCDIR "/faq.html") : NULL;
     #endif
 }
 
@@ -5075,38 +5075,27 @@ _action_about_activate (GtkAction*     action,
     "modify it under the terms of the GNU Lesser General Public "
     "License as published by the Free Software Foundation; either "
     "version 2.1 of the License, or (at your option) any later version.");
-    GtkWidget* dialog;
 
 #if !GTK_CHECK_VERSION (2, 24, 0)
     gtk_about_dialog_set_email_hook (_action_about_activate_email, NULL, NULL);
     gtk_about_dialog_set_url_hook (_action_about_activate_link, browser, NULL);
 #endif
 #ifdef HAVE_GRANITE
-    /* FIXME: granite: should return GtkWidget* like GTK+ */
-    dialog = (GtkWidget*)granite_widgets_about_dialog_new ();
-    {
-        gchar* docs = midori_browser_get_docs ();
-        if (!g_str_has_prefix (docs, "error:"))
-            g_object_set (dialog, "help", docs, NULL);
-        g_free (docs);
-    }
-    g_object_set (dialog,
+    gchar* docs = midori_browser_get_docs (FALSE);
+    granite_widgets_show_about_dialog (GTK_WINDOW (browser),
         "translate", "https://translations.xfce.org/projects/p/midori/",
-        "bugs", PACKAGE_BUGREPORT,
-        NULL);
+        "bug", PACKAGE_BUGREPORT,
+        "help", docs,
+        "copyright", "2007-2011 Christian Dywan",
 #else
-    dialog = gtk_about_dialog_new ();
-    g_object_set (dialog,
+    gtk_show_about_dialog (GTK_WINDOW (browser),
         "wrap-license", TRUE,
-        NULL);
+        "copyright", "Copyright © 2007-2011 Christian Dywan",
 #endif
-    g_object_set (dialog,
-        "transient-for", browser,
         "logo-icon-name", gtk_window_get_icon_name (GTK_WINDOW (browser)),
-        "name", PACKAGE_NAME,
+        "program-name", PACKAGE_NAME,
         "version", PACKAGE_VERSION,
         "comments", comments,
-        "copyright", "Copyright © 2007-2011 Christian Dywan",
         "website", "http://www.twotoasts.de",
         "authors", credits_authors,
         "documenters", credits_documenters,
@@ -5115,8 +5104,9 @@ _action_about_activate (GtkAction*     action,
         "translator-credits", _("translator-credits"),
         NULL);
     g_free (comments);
-    gtk_dialog_run (GTK_DIALOG (dialog));
-    gtk_widget_destroy (dialog);
+    #ifdef HAVE_GRANITE
+    g_free (docs);
+    #endif
 }
 
 static void
@@ -5126,7 +5116,7 @@ _action_help_link_activate (GtkAction*     action,
     const gchar* action_name = gtk_action_get_name (action);
     gchar* uri = NULL;
     if (!strncmp ("HelpFAQ", action_name, 7))
-        uri = midori_browser_get_docs ();
+        uri = midori_browser_get_docs (TRUE);
     else if  (!strncmp ("HelpBugs", action_name, 8))
     {
         if (!g_spawn_command_line_async ("ubuntu-bug " PACKAGE_NAME, NULL))
