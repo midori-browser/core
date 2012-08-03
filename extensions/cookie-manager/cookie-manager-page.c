@@ -809,7 +809,10 @@ static void cm_filter_entry_changed_cb(GtkEditable *editable, CookieManagerPage 
 	if (priv->ignore_changed_filter)
 		return;
 
-	text = gtk_entry_get_text(GTK_ENTRY(editable));
+	if (gtk_entry_get_placeholder_text(GTK_ENTRY(editable)) != NULL)
+		text = gtk_entry_get_text(GTK_ENTRY(editable));
+	else
+		text = NULL;
 	cm_filter_tree(cmp, text);
 
 	cookie_manager_update_filter(priv->parent, text);

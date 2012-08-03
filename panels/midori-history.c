@@ -964,7 +964,11 @@ midori_history_filter_entry_changed_cb (GtkEntry*      entry,
         g_source_remove (history->filter_timeout);
     history->filter_timeout = g_timeout_add (COMPLETION_DELAY,
         midori_history_filter_timeout_cb, history);
-    katze_assign (history->filter, g_strdup (gtk_entry_get_text (entry)));
+
+    if (gtk_entry_get_placeholder_text (entry) != NULL)
+        katze_assign (history->filter, g_strdup (gtk_entry_get_text (entry)));
+    else
+        katze_assign (history->filter, NULL);
 }
 
 static void

@@ -998,7 +998,12 @@ midori_bookmarks_filter_entry_changed_cb (GtkEntry*        entry,
 {
     if (bookmarks->filter_timeout)
         g_source_remove (bookmarks->filter_timeout);
-    katze_assign (bookmarks->filter, g_strdup (gtk_entry_get_text (entry)));
+
+    if (gtk_entry_get_placeholder_text (entry) != NULL)
+        katze_assign (bookmarks->filter, g_strdup (gtk_entry_get_text (entry)));
+    else
+        katze_assign (bookmarks->filter, NULL);
+
     bookmarks->filter_timeout = g_timeout_add (COMPLETION_DELAY,
         midori_bookmarks_filter_timeout_cb, bookmarks);
 }
