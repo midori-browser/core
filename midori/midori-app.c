@@ -1509,9 +1509,22 @@ midori_app_setup (gchar** argument_vector)
     #ifdef G_OS_WIN32
     exec_path = g_win32_get_package_installation_directory_of_module (NULL);
     #else
-    executable = g_file_read_link (command_line[0], NULL);
+    if (!g_path_is_absolute (command_line[0]))
+    {
+        gchar* program = g_find_program_in_path (command_line[0]);
+
+        if (g_file_test (program, G_FILE_TEST_IS_SYMLINK))
+            executable = g_file_read_link (program, NULL);
+        else
+            executable = g_strdup (program);
+
+        g_free (program);
+    }
+    else
+        executable = g_file_read_link (command_line[0], NULL);
+
     exec_path = g_file_get_path (g_file_get_parent (g_file_get_parent (g_file_new_for_path (
-        g_find_program_in_path (executable ? executable : command_line[0])))));
+        executable ? executable : command_line[0]))));
     g_free (executable);
     #endif
 
