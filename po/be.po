@@ -330,7 +330,7 @@ msgstr "_Закладкі"
 
 #: ../midori/midori-app.c:1454
 msgid "Add Boo_kmark"
-msgstr "Дадаць зак_ладку"
+msgstr "Зак_ладку на гэту старонку"
 
 #: ../midori/midori-app.c:1455
 msgid "_Extensions"
@@ -514,6 +514,11 @@ msgid ""
 "Aggregator. Next time you click the news feed icon, it will be added "
 "automatically."
 msgstr ""
+"Каб скарыстацца URI-спасылкай вышэй, адкрыйце агрэгатар навін. Звычайна ў ім ёсць меню ці "
+"кнопка \"Дадаць падпіску\", \"Новы фід\" ці падобнае.\n"
+"Іначай, зайдзіце ў Настаўленні, Праграмы ў Midori, і выберыце Агрэгатар "
+"навін. Калі ў наступны раз вы націсніце на значок жывільніка навін, ён дадасца "
+"аўтаматычна."
 
 #: ../midori/midori-browser.c:2614 ../extensions/feed-panel/main.c:365
 msgid "New feed"
@@ -717,7 +722,7 @@ msgstr "Дадаць цэтлік на дэсктоп"
 
 #: ../midori/midori-browser.c:5540
 msgid "Create _Launcher"
-msgstr "Стварыць _пускальнік"
+msgstr "Зрабіць цэт_лік"
 
 #: ../midori/midori-browser.c:5544
 msgid "Subscribe to News _feed"
@@ -1395,11 +1400,11 @@ msgstr "Хатняя старонка"
 
 #: ../midori/midori-websettings.c:625
 msgid "Show crash dialog"
-msgstr "Паказаць дыялог падзення"
+msgstr "Паказваць гэты дыялог пасля падзення"
 
 #: ../midori/midori-websettings.c:626
 msgid "Show a dialog after Midori crashed"
-msgstr "Паказаць дыялог пасля падзення Midori"
+msgstr "Паказваць гэты дыялог пасля аварыйнага завяршэння Midori"
 
 #: ../midori/midori-websettings.c:634
 msgid "Save downloaded files to:"
@@ -1763,27 +1768,27 @@ msgstr "Інспектаваць эл_емент"
 
 #: ../midori/midori-view.c:2757
 msgid "Open Link in New _Tab"
-msgstr "Адкрыць спасылку ў новай _картцы"
+msgstr "Адкрыць у новай _картцы"
 
 #: ../midori/midori-view.c:2761
 msgid "Open Link in _Foreground Tab"
-msgstr "Адкрыць спасылку ў _бягучай картцы"
+msgstr "Адкрыць у _бягучай картцы"
 
 #: ../midori/midori-view.c:2762
 msgid "Open Link in _Background Tab"
-msgstr "Адкрыць спасылку ў фонавай кар_тцы"
+msgstr "Адкрыць у фонавай кар_тцы"
 
 #: ../midori/midori-view.c:2765
 msgid "Open Link in New _Window"
-msgstr "Адкры_ць спасылку ў новым акне"
+msgstr "Адкры_ць у новым акне"
 
 #: ../midori/midori-view.c:2768
 msgid "Open Link as Web A_pplication"
-msgstr "Адкрыць спасылку як в_еб-прыкладанне"
+msgstr "Адкрыць як в_еб-прыкладанне"
 
 #: ../midori/midori-view.c:2773
 msgid "Copy Link de_stination"
-msgstr "Капіраваць мэту спас_ылкі"
+msgstr "Капіраваць адрас спас_ылкі"
 
 #: ../midori/midori-view.c:2789
 msgid "Open _Image in New Tab"
@@ -1911,7 +1916,7 @@ msgstr "Midori забараняе веб-пляцоўкам адсочваць �
 
 #: ../midori/midori-view.c:4487
 msgid "Referrer URLs are stripped down to the hostname."
-msgstr ""
+msgstr "URL-спасылкі рэферэра скарачаюцца да назвы хоста."
 
 #: ../midori/midori-view.c:4488
 msgid "DNS prefetching is disabled."
@@ -2756,7 +2761,7 @@ msgstr "Не ўдалося выканаць заяву базы звестак:
 
 #: ../extensions/formhistory/formhistory.c:629
 msgid "Only activate form history via hotkey (Ctrl+Shift+F) per tab"
-msgstr ""
+msgstr "Уключаць гісторыю форм кнопкамі (Ctrl+Shift+F) у кожнай картцы"
 
 #: ../extensions/formhistory/formhistory.c:668
 msgid "Form history filler"
@@ -2815,11 +2820,11 @@ msgstr "Папярэдняя новая картка з гісторыі"
 
 #: ../extensions/history-list.vala:443
 msgid "Display tab in background (History List)"
-msgstr ""
+msgstr "Паказваць картку ў фоне (Спіс гісторы)"
 
 #: ../extensions/history-list.vala:444
 msgid "Display the current selected tab in background"
-msgstr ""
+msgstr "Паказваць бягучую вылучаную картку ў фоне"
 
 #: ../extensions/history-list.vala:569
 msgid "History List"
@@ -2827,7 +2832,7 @@ msgstr "Спіс гісторыі"
 
 #: ../extensions/history-list.vala:570
 msgid "Move to the last used tab when switching or closing tabs"
-msgstr "Ісці да апошняй прагляданай карткі па пераключэнні ці закрыцці карткі"
+msgstr "Ісці да апошняй ужытай карткі па пераключэнні ці закрыцці"
 
 #: ../extensions/mouse-gestures.c:301
 msgid "Mouse Gestures"
@@ -2899,7 +2904,7 @@ msgstr "Паказваць карткі ў вертыкальнай панэлі
 
 #: ../extensions/tabs-minimized.c:76
 msgid "Only Icons on Tabs by default"
-msgstr "Тыпова, толькі значкі на картках"
+msgstr "Толькі значкі на новых картках"
 
 #: ../extensions/tabs-minimized.c:77
 msgid "New tabs have no label by default"
