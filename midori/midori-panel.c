@@ -618,7 +618,7 @@ midori_panel_append_page (MidoriPanel*    panel,
     {
         scrolled = gtk_scrolled_window_new (NULL, NULL);
         gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled),
-                                        GTK_POLICY_AUTOMATIC,
+                                        GTK_POLICY_NEVER,
                                         GTK_POLICY_AUTOMATIC);
         gtk_widget_set_can_focus (scrolled, TRUE);
         gtk_widget_show (scrolled);

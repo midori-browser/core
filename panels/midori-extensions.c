@@ -284,6 +284,7 @@ midori_extensions_treeview_render_text_cb (GtkTreeViewColumn* column,
 
     g_object_set (renderer,
         "markup", text,
+        "ellipsize", PANGO_ELLIPSIZE_END,
         "sensitive", midori_extension_is_prepared (extension),
         NULL);
 
@@ -461,10 +462,9 @@ midori_extensions_init (MidoriExtensions* extensions)
         extensions->treeview, NULL);
     gtk_tree_view_append_column (GTK_TREE_VIEW (extensions->treeview), column);
     column = gtk_tree_view_column_new ();
-    gtk_tree_view_column_set_sizing (column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
-    renderer_text = gtk_cell_renderer_text_new ();
-    gtk_tree_view_column_pack_start (column, renderer_text, FALSE);
     gtk_tree_view_column_set_expand (column, TRUE);
+    renderer_text = gtk_cell_renderer_text_new ();
+    gtk_tree_view_column_pack_start (column, renderer_text, TRUE);
     gtk_tree_view_column_set_cell_data_func (column, renderer_text,
         (GtkTreeCellDataFunc)midori_extensions_treeview_render_text_cb,
         extensions->treeview, NULL);

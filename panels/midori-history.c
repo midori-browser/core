@@ -624,11 +624,14 @@ midori_history_treeview_render_text_cb (GtkTreeViewColumn* column,
 
     if (KATZE_ITEM_IS_BOOKMARK (item))
         g_object_set (renderer, "markup", NULL,
+                      "ellipsize", PANGO_ELLIPSIZE_END,
                       "text", katze_item_get_name (item), NULL);
     else if (KATZE_ITEM_IS_FOLDER (item))
     {
         gchar* formatted = midori_history_format_date (item);
-        g_object_set (renderer, "markup", NULL, "text", formatted, NULL);
+        g_object_set (renderer, "markup", NULL, "text", formatted,
+                      "ellipsize", PANGO_ELLIPSIZE_END,
+                      NULL);
         g_free (formatted);
     }
     else
@@ -1022,14 +1025,14 @@ midori_history_init (MidoriHistory* history)
     gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (treeview), FALSE);
     gtk_tree_view_set_tooltip_column (GTK_TREE_VIEW (treeview), 1);
     column = gtk_tree_view_column_new ();
-    gtk_tree_view_column_set_sizing (column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
+    gtk_tree_view_column_set_expand (column, TRUE);
     renderer_pixbuf = gtk_cell_renderer_pixbuf_new ();
     gtk_tree_view_column_pack_start (column, renderer_pixbuf, FALSE);
     gtk_tree_view_column_set_cell_data_func (column, renderer_pixbuf,
         (GtkTreeCellDataFunc)midori_history_treeview_render_icon_cb,
         treeview, NULL);
     renderer_text = gtk_cell_renderer_text_new ();
-    gtk_tree_view_column_pack_start (column, renderer_text, FALSE);
+    gtk_tree_view_column_pack_start (column, renderer_text, TRUE);
     gtk_tree_view_column_set_cell_data_func (column, renderer_text,
         (GtkTreeCellDataFunc)midori_history_treeview_render_text_cb,
         treeview, NULL);

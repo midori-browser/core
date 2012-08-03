@@ -1002,6 +1002,7 @@ static void cm_tree_render_text_cb(GtkTreeViewColumn *column, GtkCellRenderer *r
 	}
 	else
 		g_object_set(renderer, "text", name, NULL);
+	g_object_set (renderer, "ellipsize", PANGO_ELLIPSIZE_END, NULL);
 
 	g_free(name);
 }
@@ -1022,6 +1023,7 @@ static GtkWidget *cm_tree_prepare(CookieManagerPage *cmp)
 	renderer = gtk_cell_renderer_text_new();
 	column = gtk_tree_view_column_new_with_attributes(
 		_("Name"), renderer, "text", COOKIE_MANAGER_COL_NAME, NULL);
+	gtk_tree_view_column_set_expand (column, TRUE);
 	gtk_tree_view_column_set_sort_indicator(column, TRUE);
 	gtk_tree_view_column_set_sort_column_id(column, COOKIE_MANAGER_COL_NAME);
 	gtk_tree_view_column_set_resizable(column, TRUE);
