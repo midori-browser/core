@@ -4224,6 +4224,7 @@ prepare_speed_dial_html (MidoriView* view,
     GKeyFile* key_file;
     GString* markup = NULL;
     guint slot_count = 1, i, grid_index = 3, slot_size;
+    guint margin, div_factor;
     gchar* speed_dial_head;
     gchar* file_path;
     gchar** groups;
@@ -4278,9 +4279,19 @@ prepare_speed_dial_html (MidoriView* view,
 
    /* Combined width of slots should always be less than 100%.
     * Use half of the remaining percentage as a margin size */
+   if (slot_size * grid_index >= 100 && grid_index > 4)
+       div_factor = 8;
+   else
+       div_factor = 2;
+
+   margin = (100 - ((slot_size - 4) * grid_index)) / div_factor;
+
+   if (margin > 9)
+       margin = margin % 10;
+
    g_string_append_printf (markup,
         "<style> body { overflow:hidden } #content { margin-left: %d%%; }</style>",
-        (100 - ((slot_size - 4) * grid_index)) / 2);
+        margin);
 
     if (katze_object_get_boolean (view->settings, "close-buttons-left"))
         g_string_append_printf (markup,
