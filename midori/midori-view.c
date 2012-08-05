@@ -3150,6 +3150,7 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
         if (web_frame == webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view)))
         {
             katze_assign (view->mime_type, g_strdup (mime_type));
+            katze_item_set_meta_string (view->item, "mime-type", mime_type);
             midori_view_unset_icon (view);
             g_object_notify (G_OBJECT (view), "mime-type");
         }
@@ -4387,6 +4388,7 @@ midori_view_set_uri (MidoriView*  view,
 
             katze_assign (view->uri, NULL);
             katze_assign (view->mime_type, NULL);
+            katze_item_set_meta_string (view->item, "mime-type", NULL);
             katze_item_set_meta_integer (view->item, "delay", -1);
 
             if (speeddial_markup == NULL)
@@ -5455,7 +5457,7 @@ midori_view_item_meta_data_changed (KatzeItem*   item,
  * Retrieves a proxy item that can be used for bookmark storage as
  * well as session management.
  *
- * The item reflects changes to the title and uri automatically.
+ * The item reflects changes to title (name), URI and MIME type (mime-type).
  *
  * Return value: the proxy #KatzeItem
  **/

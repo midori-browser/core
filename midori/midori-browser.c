@@ -38,6 +38,10 @@
     #include <granite.h>
 #endif
 
+#if HAVE_ZEITGEIST
+    #include <zeitgeist.h>
+#endif
+
 #ifdef HAVE_UNISTD_H
     #include <unistd.h>
 #endif
@@ -460,6 +464,46 @@ _midori_browser_update_progress (MidoriBrowser* browser,
     midori_location_action_set_progress (action, progress);
 }
 
+/**
+ * midori_browser_update_history:
+ * @item: a #KatzeItem
+ * @type: "website", "bookmark" or "download"
+ * @event: "access", "leave", "modify", "delete"
+ *
+ * Since: 0.4.7
+ **/
+void
+midori_browser_update_history (KatzeItem*   item,
+                               const gchar* type,
+                               const gchar* event)
+{
+    #if HAVE_ZEITGEIST
+    const gchar* inter;
+    if (strstr (event, "access"))
+        inter = ZEITGEIST_ZG_ACCESS_EVENT;
+    else if (strstr (event, "leave"))
+        inter = ZEITGEIST_ZG_LEAVE_EVENT;
+    else if (strstr (event, "modify"))
+        inter = ZEITGEIST_ZG_MODIFY_EVENT;
+    else if (strstr (event, "create"))
+        inter = ZEITGEIST_ZG_CREATE_EVENT;
+    else if (strstr (event, "delete"))
+        inter = ZEITGEIST_ZG_DELETE_EVENT;
+    else
+        g_assert_not_reached ();
+    zeitgeist_log_insert_events_no_reply (zeitgeist_log_get_default (),
+        zeitgeist_event_new_full (inter, ZEITGEIST_ZG_USER_ACTIVITY,
+                                  "application://midori.desktop",
+                                  zeitgeist_subject_new_full (
+            item->uri,
+            strstr (type, "bookmark") ? ZEITGEIST_NFO_BOOKMARK : ZEITGEIST_NFO_WEBSITE,
+            zeitgeist_manifestation_for_uri (item->uri),
+            katze_item_get_meta_string (item, "mime-type"), NULL, item->name, NULL),
+                                  NULL),
+        NULL);
+    #endif
+}
+
 static void
 midori_browser_update_history_title (MidoriBrowser* browser,
                                      KatzeItem*     item)
@@ -486,6 +530,8 @@ midori_browser_update_history_title (MidoriBrowser* browser,
         g_printerr (_("Failed to update title: %s\n"), sqlite3_errmsg (db));
     sqlite3_reset (stmt);
     sqlite3_clear_bindings (stmt);
+
+    midori_browser_update_history (item, "website", "access");
 }
 
 static void
@@ -590,9 +636,6 @@ midori_view_notify_title_cb (GtkWidget*     widget,
                              MidoriBrowser* browser)
 {
     MidoriView* view = MIDORI_VIEW (widget);
-    const gchar* title;
-
-    title = midori_view_get_display_title (view);
 
     if (midori_view_get_load_status (view) == MIDORI_LOAD_COMMITTED)
     {
@@ -622,7 +665,7 @@ midori_view_notify_title_cb (GtkWidget*     widget,
     }
 
     if (widget == midori_browser_get_current_tab (browser))
-        midori_browser_set_title (browser, title);
+        midori_browser_set_title (browser, midori_view_get_display_title (view));
 }
 
 static void
@@ -933,6 +976,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
             katze_array_add_item (browser->bookmarks, bookmark);
         else
             midori_bookmarks_update_item_db (db, bookmark);
+        midori_browser_update_history (bookmark, "bookmark", "modify");
 
         if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (check_toolbar)))
             if (!gtk_widget_get_visible (browser->bookmarkbar))
@@ -1659,9 +1703,16 @@ midori_browser_tab_destroy_cb (MidoriView*    view,
     if (browser->proxy_array)
     {
         KatzeItem* item = midori_view_get_proxy_item (view);
-        if (browser->trash && !midori_view_is_blank (view))
-            katze_array_add_item (browser->trash, item);
-        katze_array_remove_item (browser->proxy_array, item);
+        if (katze_array_get_item_index (browser->proxy_array, item) != -1)
+        {
+            if (!midori_view_is_blank (view))
+            {
+                if (browser->trash)
+                    katze_array_add_item (browser->trash, item);
+                midori_browser_update_history (item, "website", "leave");
+            }
+            katze_array_remove_item (browser->proxy_array, item);
+        }
 
     /* We don't ever want to be in a situation with no tabs,
        so just create an empty one if the last one is closed.
@@ -2719,10 +2770,11 @@ _action_print_activate (GtkAction*     action,
     gchar* blacklisted_contracts[] = { "print", NULL }; */
     /* FIXME: granite: should return GtkWidget* like GTK+ */
     GtkWidget* dialog = (GtkWidget*)granite_widgets_pop_over_new ();
-    gchar* mime_type = katze_object_get_string (view, "mime-type");
     GtkWidget* content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
     /* FIXME: granite: should return GtkWidget* like GTK+ */
     gchar* filename = midori_view_save_source (MIDORI_VIEW (view), NULL, NULL);
+    const gchar* mime_type = katze_item_get_meta_string (
+        midori_view_get_proxy_item (MIDORI_VIEW (view)), "mime-type");
     GtkWidget* contractor = (GtkWidget*)granite_widgets_contractor_view_new (
         filename, mime_type, 32, TRUE);
     /* granite_widgets_contractor_view_add_item (GRANITE_WIDGETS_CONTRACTOR_VIEW (
@@ -2731,7 +2783,6 @@ _action_print_activate (GtkAction*     action,
     granite_widgets_contractor_view_name_blacklist (GRANITE_WIDGETS_CONTRACTOR_VIEW (
         contractor), blacklisted_contracts, -1); */
     g_free (filename);
-    g_free (mime_type);
     gtk_container_add (GTK_CONTAINER (content_area), contractor);
     gtk_widget_show (contractor);
     gtk_widget_show (dialog);
@@ -7317,6 +7368,7 @@ midori_bookmarkbar_remove_item_cb (KatzeArray*    bookmarks,
 {
     if (gtk_widget_get_visible (browser->bookmarkbar))
         midori_bookmarkbar_populate (browser);
+    midori_browser_update_history (item, "bookmark", "delete");
 }
 
 static void

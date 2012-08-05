@@ -122,10 +122,16 @@ midori_transferbar_download_notify_status_cb (WebKitDownload* download,
                 gchar* filename = g_strrstr (path, "/") + 1;
                 gchar* msg = g_strdup_printf (
                     _("The file '<b>%s</b>' has been downloaded."), filename);
-                g_free (path);
+                KatzeItem* item = katze_item_new ();
+                item->uri = (gchar*)uri;
+                item->name = filename;
                 g_signal_emit_by_name (browser, "send-notification",
                                        _("Transfer completed"), msg);
                 g_free (msg);
+                midori_browser_update_history (item, "download", "create");
+                item->uri = item->name = NULL;
+                g_object_unref (item);
+                g_free (path);
             }
 
             /* Link Fingerprint */

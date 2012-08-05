@@ -237,6 +237,7 @@ def configure (conf):
         granite = 'no '
         conf.define ('GRANITE_VERSION', 'No')
 
+    check_pkg ('zeitgeist-1.0', '0.3.14', mandatory=False)
     conf.check (lib='m', mandatory=True)
     check_pkg ('gmodule-2.0', '2.8.0', False)
     check_pkg ('gthread-2.0', '2.8.0', False)

@@ -180,6 +180,11 @@ midori_browser_get_toolbar_actions    (MidoriBrowser*     browser);
 MidoriWebSettings*
 midori_browser_get_settings           (MidoriBrowser*     browser);
 
+void
+midori_browser_update_history         (KatzeItem*         item,
+                                       const gchar*       type,
+                                       const gchar*       event);
+
 G_END_DECLS
 
 #endif /* __MIDORI_BROWSER_H__ */
