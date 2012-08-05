@@ -975,16 +975,6 @@ midori_history_filter_entry_changed_cb (GtkEntry*      entry,
 }
 
 static void
-midori_history_filter_entry_clear_cb (GtkEntry*      entry,
-                                      gint           icon_pos,
-                                      gint           button,
-                                      MidoriHistory* history)
-{
-    if (icon_pos == GTK_ICON_ENTRY_SECONDARY)
-        gtk_entry_set_text (entry, "");
-}
-
-static void
 midori_history_selection_changed_cb (GtkTreeView*   treeview,
                                      MidoriHistory* history)
 {
@@ -1004,15 +994,8 @@ midori_history_init (MidoriHistory* history)
     GtkTreeSelection* selection;
 
     /* Create the filter entry */
-    entry = gtk_icon_entry_new ();
-    gtk_entry_set_placeholder_text (GTK_ENTRY (entry), _("Search History"));
-    gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (entry),
-                                        GTK_ICON_ENTRY_PRIMARY,
-                                        GTK_STOCK_FIND);
-    sokoke_entry_set_clear_button_visible (GTK_ENTRY (entry), TRUE);
-    g_signal_connect (entry, "icon-release",
-        G_CALLBACK (midori_history_filter_entry_clear_cb), history);
-    g_signal_connect (entry, "changed",
+    entry = sokoke_search_entry_new (_("Search History"));
+    g_signal_connect_after (entry, "changed",
         G_CALLBACK (midori_history_filter_entry_changed_cb), history);
     box = gtk_hbox_new (FALSE, 0);
     gtk_box_pack_start (GTK_BOX (box), entry, TRUE, TRUE, 3);

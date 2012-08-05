@@ -823,14 +823,6 @@ static void cm_filter_entry_changed_cb(GtkEditable *editable, CookieManagerPage 
 		gtk_tree_view_collapse_all(GTK_TREE_VIEW(priv->treeview));
 }
 
-
-static void cm_filter_entry_clear_icon_released_cb(GtkIconEntry *e, gint pos, gint btn, gpointer data)
-{
-	if (pos == GTK_ICON_ENTRY_SECONDARY)
-		gtk_entry_set_text(GTK_ENTRY(e), "");
-}
-
-
 static void cm_tree_selection_changed_cb(GtkTreeSelection *selection, CookieManagerPage *cmp)
 {
 	GList *rows;
@@ -1134,14 +1126,8 @@ static void cookie_manager_page_init(CookieManagerPage *self)
 	gtk_container_add(GTK_CONTAINER(tree_swin), treeview);
 	gtk_widget_show(tree_swin);
 
-	priv->filter_entry = gtk_icon_entry_new();
-	gtk_entry_set_placeholder_text (GTK_ENTRY (priv->filter_entry), _("Search Cookies by Name or Domain"));
-	gtk_entry_set_icon_from_stock (GTK_ENTRY (priv->filter_entry),
-		GTK_ENTRY_ICON_PRIMARY, GTK_STOCK_FIND);
-	sokoke_entry_set_clear_button_visible (GTK_ENTRY (priv->filter_entry), TRUE);
+	priv->filter_entry = sokoke_search_entry_new (_("Search Cookies by Name or Domain"));
 	gtk_widget_show(priv->filter_entry);
-	g_signal_connect(priv->filter_entry, "icon-release",
-		G_CALLBACK(cm_filter_entry_clear_icon_released_cb), NULL);
 	g_signal_connect(priv->filter_entry, "changed", G_CALLBACK(cm_filter_entry_changed_cb), self);
 	g_signal_connect(priv->filter_entry, "activate", G_CALLBACK(cm_filter_entry_changed_cb), self);
 

@@ -206,8 +206,7 @@ sokoke_build_thumbnail_path (const gchar* name);
 gchar*
 midori_download_prepare_tooltip_text (WebKitDownload* download);
 
-void
-sokoke_entry_set_clear_button_visible (GtkEntry*           entry,
-                                       gboolean            visible);
+GtkWidget*
+sokoke_search_entry_new               (const gchar*        placeholder_text);
 
 #endif /* !__SOKOKE_H__ */

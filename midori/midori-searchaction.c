@@ -311,8 +311,7 @@ midori_search_action_create_tool_item (GtkAction* action)
     GtkWidget* alignment;
 
     toolitem = GTK_WIDGET (gtk_tool_item_new ());
-    entry = gtk_icon_entry_new ();
-    sokoke_entry_set_clear_button_visible (GTK_ENTRY (entry), TRUE);
+    entry = sokoke_search_entry_new (NULL);
     gtk_icon_entry_set_icon_highlight (GTK_ICON_ENTRY (entry),
                                        GTK_ICON_ENTRY_PRIMARY, TRUE);
     alignment = gtk_alignment_new (0, 0.5, 1, 0.1);

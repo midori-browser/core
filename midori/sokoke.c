@@ -1630,15 +1630,15 @@ sokoke_entry_icon_released_cb (GtkEntry*            entry,
     gtk_widget_grab_focus (GTK_WIDGET (entry));
 }
 
-void
-sokoke_entry_set_clear_button_visible (GtkEntry* entry,
-                                       gboolean  visible)
+GtkWidget*
+sokoke_search_entry_new (const gchar* placeholder_text)
 {
-    g_return_if_fail (GTK_IS_ENTRY (entry));
-
-    gtk_icon_entry_set_icon_highlight (GTK_ICON_ENTRY (entry),
-        GTK_ICON_ENTRY_SECONDARY, TRUE);
-    if (visible)
+    GtkWidget* entry = gtk_entry_new ();
+    gtk_entry_set_placeholder_text (GTK_ENTRY (entry), placeholder_text);
+    gtk_entry_set_icon_from_stock (GTK_ENTRY (entry),
+                                   GTK_ENTRY_ICON_PRIMARY, GTK_STOCK_FIND);
+    gtk_icon_entry_set_icon_highlight (GTK_ENTRY (entry),
+        GTK_ENTRY_ICON_SECONDARY, TRUE);
     {
         g_object_connect (entry,
             "signal::icon-release",
@@ -1649,22 +1649,9 @@ sokoke_entry_set_clear_button_visible (GtkEntry* entry,
             G_CALLBACK (sokoke_entry_focus_out_event_cb), entry,
             "signal::changed",
             G_CALLBACK (sokoke_entry_changed_cb), entry, NULL);
-        sokoke_entry_changed_cb ((GtkEditable*)entry, entry);
+        sokoke_entry_changed_cb ((GtkEditable*)entry, GTK_ENTRY (entry));
     }
-    else
-    {
-        g_object_disconnect (entry,
-            "any_signal::icon-release",
-            G_CALLBACK (sokoke_entry_icon_released_cb), NULL,
-            "any_signal::focus-in-event",
-            G_CALLBACK (sokoke_entry_focus_out_event_cb), entry,
-            "any_signal::focus-out-event",
-            G_CALLBACK (sokoke_entry_focus_out_event_cb), entry,
-            "any_signal::changed",
-            G_CALLBACK (sokoke_entry_changed_cb), entry, NULL);
-        gtk_icon_entry_set_icon_from_stock (
-            GTK_ICON_ENTRY (entry), GTK_ICON_ENTRY_SECONDARY, NULL);
-    }
+    return entry;
 }
 
 gchar*

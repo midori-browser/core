@@ -93,18 +93,6 @@ midori_findbar_find_key_press_event_cb (MidoriFindbar* findbar,
     return FALSE;
 }
 
-static void
-midori_findbar_entry_clear_icon_released_cb (GtkIconEntry* entry,
-                                             gint          icon_pos,
-                                             gint          button,
-                                             MidoriFindbar*findbar)
-{
-    if (icon_pos == GTK_ICON_ENTRY_SECONDARY)
-    {
-        midori_findbar_set_icon (findbar, GTK_ICON_ENTRY_PRIMARY, STOCK_EDIT_FIND);
-    }
-}
-
 static gboolean
 midori_findbar_case_sensitive (MidoriFindbar* findbar)
 {
@@ -276,11 +264,7 @@ midori_findbar_init (MidoriFindbar* findbar)
         /* i18n: A panel at the bottom, to search text in pages */
         gtk_label_new_with_mnemonic (_("_Inline Find:")));
     gtk_toolbar_insert (GTK_TOOLBAR (findbar), toolitem, -1);
-    findbar->find_text = gtk_icon_entry_new ();
-    midori_findbar_set_icon (findbar, GTK_ICON_ENTRY_PRIMARY, STOCK_EDIT_FIND);
-    sokoke_entry_set_clear_button_visible (GTK_ENTRY (findbar->find_text), TRUE);
-    g_signal_connect (findbar->find_text, "icon-release",
-        G_CALLBACK (midori_findbar_entry_clear_icon_released_cb), findbar);
+    findbar->find_text = sokoke_search_entry_new (NULL);
     g_signal_connect (findbar->find_text, "activate",
         G_CALLBACK (midori_findbar_next_activate_cb), findbar);
     g_signal_connect (findbar->find_text, "preedit-changed",
