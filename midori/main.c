@@ -2004,8 +2004,6 @@ main (int    argc,
     #endif
     #endif
 
-    midori_app_setup (argv);
-
     /* Parse cli options */
     webapp = NULL;
     config = NULL;
@@ -2022,8 +2020,7 @@ main (int    argc,
     block_uris = NULL;
     inactivity_reset = 0;
     error = NULL;
-    if (!gtk_init_with_args (&argc, &argv, _("[Addresses]"), entries,
-                             GETTEXT_PACKAGE, &error))
+    if (!midori_app_setup (&argc, &argv, entries, &error))
     {
         g_print ("%s - %s\n", _("Midori"), error->message);
         g_error_free (error);

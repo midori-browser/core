@@ -195,9 +195,7 @@ main (int    argc,
     //TestParameters default_params = {":memory:", TRUE, NULL, NULL};
     TestParameters default_params = {":memory:", FALSE, NULL, NULL};
 
-    midori_app_setup (argv);
-    g_test_init (&argc, &argv, NULL);
-    gtk_init_check (&argc, &argv);
+    midori_app_setup (&argc, &argv, NULL, NULL);
 
     g_test_add ("/bookmarks/simple test",
                     BookmarksFixture, &default_params,

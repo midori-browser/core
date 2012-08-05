@@ -1434,14 +1434,18 @@ midori_app_get_lib_path (const gchar* package)
  *
  * Since: 0.4.2
  **/
-void
-midori_app_setup (gchar** argument_vector)
+gboolean
+midori_app_setup (gint               *argc,
+                  gchar**            *argument_vector,
+                  const GOptionEntry *entries,
+                  GError*            *error)
 {
     GtkIconSource* icon_source;
     GtkIconSet* icon_set;
     GtkIconFactory* factory;
     gsize i;
     gchar* executable;
+    gboolean success;
 
     static GtkStockItem items[] =
     {
@@ -1488,7 +1492,11 @@ midori_app_setup (gchar** argument_vector)
     textdomain (GETTEXT_PACKAGE);
     #endif
 
-    g_type_init ();
+    /* Preserve argument vector */
+    command_line = g_strdupv (*argument_vector);
+    success = gtk_init_with_args (argc, argument_vector, _("[Addresses]"),
+                                  entries, GETTEXT_PACKAGE, error);
+
     factory = gtk_icon_factory_new ();
     for (i = 0; i < G_N_ELEMENTS (items); i++)
     {
@@ -1504,8 +1512,6 @@ midori_app_setup (gchar** argument_vector)
     gtk_icon_factory_add_default (factory);
     g_object_unref (factory);
 
-    /* Preserve argument vector */
-    command_line = g_strdupv (argument_vector);
     #ifdef G_OS_WIN32
     exec_path = g_win32_get_package_installation_directory_of_module (NULL);
     #else
@@ -1550,6 +1556,8 @@ midori_app_setup (gchar** argument_vector)
         }
     }
     #endif
+
+    return success;
 }
 
 gboolean

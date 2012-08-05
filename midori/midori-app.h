@@ -82,8 +82,11 @@ midori_app_send_notification      (MidoriApp*         app,
                                    const gchar*       title,
                                    const gchar*       message);
 
-void
-midori_app_setup                  (gchar**            argument_vector);
+gboolean
+midori_app_setup                  (gint               *argc,
+                                   gchar**            *argument_vector,
+                                   const GOptionEntry *entries,
+                                   GError*            *error);
 
 gchar**
 midori_app_get_command_line       (void);
