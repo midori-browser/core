@@ -1159,7 +1159,7 @@ midori_browser_save_uri (MidoriBrowser* browser,
     const gchar* title = midori_view_get_display_title (view);
     gchar* filename;
     gboolean file_only = TRUE;
-    GtkWidget* checkbox;
+    GtkWidget* checkbox = NULL;
 
     if (!gtk_widget_get_visible (GTK_WIDGET (browser)))
         return;
@@ -1195,7 +1195,8 @@ midori_browser_save_uri (MidoriBrowser* browser,
     if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK)
     {
         filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
-        file_only = !file_only && !gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (checkbox));
+        if (checkbox != NULL)
+            file_only = !file_only && !gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (checkbox));
         if (!file_only && !g_str_equal (title, uri))
         {
             gchar* fullname = g_strconcat (filename, ".html", NULL);
