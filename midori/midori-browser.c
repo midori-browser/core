@@ -976,7 +976,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
             katze_array_add_item (browser->bookmarks, bookmark);
         else
             midori_bookmarks_update_item_db (db, bookmark);
-        midori_browser_update_history (bookmark, "bookmark", "modify");
+        midori_browser_update_history (bookmark, "bookmark", new_bookmark ? "create" : "modify");
 
         if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (check_toolbar)))
             if (!gtk_widget_get_visible (browser->bookmarkbar))
