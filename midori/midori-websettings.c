@@ -1302,7 +1302,7 @@ midori_web_settings_finalize (GObject* object)
 gboolean
 midori_web_settings_has_plugin_support (void)
 {
-    #ifdef G_OS_WIN32
+    #if !WEBKIT_CHECK_VERSION (1, 8, 2) && defined G_OS_WIN32
     return FALSE;
     #else
     return g_getenv ("MIDORI_UNARMED") == NULL
