@@ -386,6 +386,14 @@ def configure (conf):
     if unique == 'yes' and conf.check_cfg (modversion='unique-1.0') == '1.0.4':
         Utils.pprint ('RED', 'unique 1.0.4 found, this version is erroneous.')
         Utils.pprint ('RED', 'Please use an older or newer version.')
+        sys.exit (1)
+    if check_version (conf.env['LIBSOUP_VERSION'], 2, 33, 4) \
+        and check_version (conf.check_cfg (modversion='gio-2.0'), 2, 32, 1) \
+        and not check_version (conf.check_cfg (modversion='gio-2.0'), 2, 32, 3):
+        Utils.pprint ('RED', 'libsoup >= 2.33.4 found with glib >= 2.32.1 < 2.32.3:')
+        Utils.pprint ('RED', 'This combination breaks the download GUI.')
+        Utils.pprint ('RED', 'See https://bugs.launchpad.net/midori/+bug/780133/comments/14')
+        sys.exit (1)
 
 def set_options (opt):
     def is_maemo (): return os.path.exists ('/etc/osso-af-init/')
