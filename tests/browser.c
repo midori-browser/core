@@ -130,10 +130,11 @@ int
 main (int    argc,
       char** argv)
 {
-    g_object_set_data (G_OBJECT (webkit_get_default_session ()),
-                       "midori-session-initialized", (void*)1);
     g_test_init (&argc, &argv, NULL);
     midori_app_setup (&argc, &argv, NULL, NULL);
+
+    g_object_set_data (G_OBJECT (webkit_get_default_session ()),
+                       "midori-session-initialized", (void*)1);
 
     g_test_add_func ("/browser/create", browser_create);
     g_test_add_func ("/browser/tooltips", browser_tooltips);

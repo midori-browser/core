@@ -3688,6 +3688,9 @@ _action_caret_browsing_activate (GtkAction*     action,
     gint response;
     GtkWidget* dialog;
 
+    if (!gtk_widget_get_visible (GTK_WIDGET (browser)))
+        return;
+
     if (!katze_object_get_boolean (browser->settings, "enable-caret-browsing"))
     {
         dialog = gtk_message_dialog_new (GTK_WINDOW (browser),
