@@ -5759,7 +5759,7 @@ static const GtkActionEntry entries[] =
     { "TabMoveForward", NULL, N_("_Move Tab Forward"), "<Ctrl><Shift>Page_Down",
        NULL, G_CALLBACK (_action_tab_move_forward_activate) },
     { "TabCurrent", NULL,
-        N_("Focus _Current Tab"), "<Ctrl>Home",
+        N_("Focus _Current Tab"), "<Ctrl><Alt>Home",
         NULL, G_CALLBACK (_action_tab_current_activate) },
     { "NextView", NULL,
         N_("Focus _Next view"), "F6",
