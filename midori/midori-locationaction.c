@@ -988,10 +988,6 @@ midori_location_action_key_press_event_cb (GtkEntry*    entry,
         /* Return FALSE to allow Escape to stop loading */
         return FALSE;
     }
-    case GDK_KEY_Page_Up:
-    case GDK_KEY_Page_Down:
-        if (!(location_action->popup && gtk_widget_get_visible (location_action->popup)))
-            return TRUE;
     case GDK_KEY_Delete:
     case GDK_KEY_KP_Delete:
     {
@@ -1040,7 +1036,12 @@ midori_location_action_key_press_event_cb (GtkEntry*    entry,
     case GDK_KEY_KP_Up:
     case GDK_KEY_Tab:
     case GDK_KEY_ISO_Left_Tab:
+    case GDK_KEY_Page_Down:
+    case GDK_KEY_Page_Up:
     {
+        if ((event->keyval == GDK_KEY_Page_Up || event->keyval == GDK_KEY_Page_Down) &&
+           !(location_action->popup && gtk_widget_get_visible (location_action->popup)))
+            return TRUE;
         if (location_action->popup && gtk_widget_get_visible (location_action->popup))
         {
             GtkTreeModel* model = location_action->completion_model;
@@ -1050,35 +1051,62 @@ midori_location_action_key_press_event_cb (GtkEntry*    entry,
             gint selected = location_action->completion_index;
 
             if (event->keyval == GDK_KEY_Down || event->keyval == GDK_KEY_KP_Down
-             || event->keyval == GDK_KEY_Tab  || event->keyval == GDK_KEY_ISO_Left_Tab)
-                selected = MIN (selected + 1, matches -1);
-            else if (event->keyval == GDK_KEY_Up || event->keyval == GDK_KEY_KP_Up)
+             || ((event->keyval == GDK_KEY_Tab  || event->keyval == GDK_KEY_ISO_Left_Tab)
+             && !(event->state & GDK_SHIFT_MASK)))
+            {
+                selected = selected + 1;
+                if (selected == matches)
+                    selected = -1;
+            }
+            else if (event->keyval == GDK_KEY_Up || event->keyval == GDK_KEY_KP_Up
+                  || ((event->keyval == GDK_KEY_Tab  || event->keyval == GDK_KEY_ISO_Left_Tab)
+                  && (event->state & GDK_SHIFT_MASK)))
             {
                 if (selected == -1)
                     selected = matches - 1;
                 else
-                    selected = MAX (selected - 1, 0);
+                    selected = selected - 1;
             }
             else if (event->keyval == GDK_KEY_Page_Down)
-                selected = MIN (selected + 14, matches -1);
+            {
+                if (selected == -1)
+                    selected = 0;
+                else if (selected < matches - 1)
+                    selected = MIN (selected + 14, matches -1);
+                else
+                    selected = -1;
+            }
             else if (event->keyval == GDK_KEY_Page_Up)
-                selected = MAX (selected - 14, 0);
+            {
+                if (selected == -1)
+                    selected = matches - 1;
+                else if (selected > 0)
+                    selected = MAX (selected - 14, 0);
+                else
+                    selected = -1;
+            }
             else if (event->keyval != GDK_KEY_KP_Delete && event->keyval != GDK_KEY_Delete)
                 g_assert_not_reached ();
 
-            path = gtk_tree_path_new_from_indices (selected, -1);
-            gtk_tree_view_set_cursor (GTK_TREE_VIEW (location_action->treeview),
-                                      path, NULL, FALSE);
-            gtk_tree_path_free (path);
-
-            if (gtk_tree_model_iter_nth_child (model, &iter, NULL, selected))
+            if (selected != -1)
             {
-                gchar* uri;
-                gtk_tree_model_get (model, &iter, URI_COL, &uri, -1);
-                /* Update the layout without actually changing the text */
-                pango_layout_set_text (gtk_entry_get_layout (entry), uri, -1);
-                g_free (uri);
+                path = gtk_tree_path_new_from_indices (selected, -1);
+                gtk_tree_view_set_cursor (GTK_TREE_VIEW (location_action->treeview),
+                                          path, NULL, FALSE);
+                gtk_tree_path_free (path);
+
+                if (gtk_tree_model_iter_nth_child (model, &iter, NULL, selected))
+                {
+                    gchar* uri;
+                    gtk_tree_model_get (model, &iter, URI_COL, &uri, -1);
+                    /* Update the layout without actually changing the text */
+                    pango_layout_set_text (gtk_entry_get_layout (entry), uri, -1);
+                    g_free (uri);
+                }
             }
+            else
+                gtk_tree_selection_unselect_all (gtk_tree_view_get_selection (GTK_TREE_VIEW (location_action->treeview)));
+
             location_action->completion_index = selected;
             return TRUE;
         }
