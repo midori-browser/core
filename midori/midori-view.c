@@ -4327,9 +4327,9 @@ prepare_speed_dial_html (MidoriView* view,
             g_string_append_printf (markup,
                 "<div class=\"shortcut\" id=\"s%d\"><div class=\"preview\">"
                 "<a class=\"cross\" href=\"#\" onclick='clearShortcut(\"s%d\");'></a>"
-                "<a href=\"%s\"><img src=\"data:image/png;base64,%s\"></a>"
+                "<a href=\"%s\"><img src=\"data:image/png;base64,%s\" title='%s'></a>"
                 "</div><div class=\"title\" onclick='renameShortcut(\"s%d\");'>%s</div></div>\n",
-                slot, slot, uri, encoded ? encoded : "", slot, title ? title : "");
+                slot, slot, uri, encoded ? encoded : "", title, slot, title ? title : "");
 
             g_free (title);
             g_free (encoded);
