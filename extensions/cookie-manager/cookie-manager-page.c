@@ -809,7 +809,7 @@ static void cm_filter_entry_changed_cb(GtkEditable *editable, CookieManagerPage 
 	if (priv->ignore_changed_filter)
 		return;
 
-	if (gtk_entry_get_placeholder_text(GTK_ENTRY(editable)) != NULL)
+	if (!g_object_get_data (G_OBJECT (editable), "sokoke_has_default"))
 		text = gtk_entry_get_text(GTK_ENTRY(editable));
 	else
 		text = NULL;
@@ -817,10 +817,10 @@ static void cm_filter_entry_changed_cb(GtkEditable *editable, CookieManagerPage 
 
 	cookie_manager_update_filter(priv->parent, text);
 
-	if (*text != '\0')
-		gtk_tree_view_expand_all(GTK_TREE_VIEW(priv->treeview));
-	else
+	if (text && *text)
 		gtk_tree_view_collapse_all(GTK_TREE_VIEW(priv->treeview));
+	else
+		gtk_tree_view_expand_all(GTK_TREE_VIEW(priv->treeview));
 }
 
 static void cm_tree_selection_changed_cb(GtkTreeSelection *selection, CookieManagerPage *cmp)
