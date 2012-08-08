@@ -38,6 +38,16 @@ test_input (const gchar* input,
                              "token", "se", NULL);
         katze_array_add_item (search_engines, item);
         g_object_unref (item);
+        item = g_object_new (KATZE_TYPE_ITEM,
+                             "uri", "ddg.gg",
+                             "token", "dd", NULL);
+        katze_array_add_item (search_engines, item);
+        g_object_unref (item);
+        item = g_object_new (KATZE_TYPE_ITEM,
+                             "uri", "google.com",
+                             "token", "d", NULL);
+        katze_array_add_item (search_engines, item);
+        g_object_unref (item);
     }
 
     uri = sokoke_magic_uri (input);
@@ -160,6 +170,8 @@ static void
 magic_uri_search (void)
 {
     test_input ("sm midori", SM "midori");
+    test_input ("d midori browser", "google.com" "midori%20browser");
+    test_input ("dd midori browser", "ddg.gg" "midori%20browser");
     test_input ("sm cats dogs", SM "cats%20dogs");
     test_input ("se cats dogs", SM "cats%20dogs");
     test_input ("dict midori", NULL);

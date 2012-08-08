@@ -404,8 +404,13 @@ katze_array_find_token (KatzeArray*  array,
     for (items = array->items; items; items = g_list_next (items))
     {
         const gchar* found_token = ((KatzeItem*)items->data)->token;
-        if (found_token != NULL && !strncmp (token, found_token, token_length))
-            return items->data;
+        if (found_token != NULL)
+        {
+            guint bigger_item = strlen (found_token) > token_length ? strlen (found_token) : token_length;
+
+            if (strncmp (token, found_token, bigger_item) == 0)
+                return items->data;
+        }
     }
     return NULL;
 }
