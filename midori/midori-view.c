@@ -2471,6 +2471,10 @@ midori_view_search_engine_for_form (MidoriView*    view,
 
     active_element = webkit_dom_html_document_get_active_element ((WebKitDOMHTMLDocument*)doc);
     active_form = webkit_dom_html_input_element_get_form ((WebKitDOMHTMLInputElement*)active_element);
+
+    if (!active_form)
+        return NULL;
+
     token_element = webkit_dom_element_get_attribute (active_element, "name");
 
     form_nodes = webkit_dom_html_form_element_get_elements (active_form);
