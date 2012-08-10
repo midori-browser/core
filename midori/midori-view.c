@@ -3127,6 +3127,8 @@ webkit_web_view_create_web_view_cb (GtkWidget*      web_view,
         g_signal_connect (new_view->web_view, "web-view-ready",
                           G_CALLBACK (webkit_web_view_web_view_ready_cb), view);
     }
+    g_object_set_data_full (G_OBJECT (new_view), "opener-uri",
+        g_strdup (webkit_web_frame_get_uri (web_frame)), g_free);
     return new_view->web_view;
 }
 
@@ -3172,10 +3174,11 @@ webkit_web_view_download_requested_cb (GtkWidget*      web_view,
                                        WebKitDownload* download,
                                        MidoriView*     view)
 {
+    gchar* opener_uri;
+    gchar* hostname;
     GtkWidget* dialog;
     gchar* content_type;
     gchar* description;
-    gchar* name;
     WebKitWebFrame* web_frame;
     gchar* mime_type;
     WebKitWebDataSource* datasource;
@@ -3189,9 +3192,14 @@ webkit_web_view_download_requested_cb (GtkWidget*      web_view,
     gint response;
     gboolean handled;
 
-    dialog = gtk_message_dialog_new (
-        NULL, 0, GTK_MESSAGE_WARNING, GTK_BUTTONS_NONE,
-        _("Open or download file"));
+    /* Opener may differ from displaying view:
+       http://lcamtuf.coredump.cx/fldl/ http://lcamtuf.coredump.cx/switch/ */
+    opener_uri = g_object_get_data (G_OBJECT (view), "opener-uri");
+    hostname = midori_uri_parse_hostname (
+        opener_uri ? opener_uri : midori_view_get_display_uri (view), NULL);
+    dialog = gtk_message_dialog_new (NULL, 0, GTK_MESSAGE_WARNING, GTK_BUTTONS_NONE,
+        _("Open or download file from %s"), hostname);
+    g_free (hostname);
     mime_type = g_object_get_data (G_OBJECT (view), "download-mime-type");
     request = webkit_download_get_network_request (download);
     if (mime_type != NULL)
@@ -3214,10 +3222,9 @@ webkit_web_view_download_requested_cb (GtkWidget*      web_view,
     g_free (content_type);
 
     details = g_string_sized_new (20 * 4);
-    name = sokoke_get_download_filename (download);
-    g_string_append_printf (details, _("File Name: %s"), name);
+    g_string_append_printf (details, _("File Name: %s"),
+        webkit_download_get_suggested_filename (download));
     g_string_append_c (details, '\n');
-    g_free (name);
 
     if (g_strrstr (description, mime_type))
         g_string_append_printf (details, _("File Type: '%s'"), mime_type);
