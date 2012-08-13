@@ -263,7 +263,6 @@ midori_transfers_treeview_render_text_cb (GtkTreeViewColumn* column,
 
     gtk_tree_model_get (model, iter, 1, &download, -1);
 
-    /* FIXME: Ellipsize filename */
     current = g_format_size (webkit_download_get_current_size (download));
     total = g_format_size (webkit_download_get_total_size (download));
     size_text = g_strdup_printf (_("%s of %s"), current, total);
@@ -279,6 +278,7 @@ midori_transfers_treeview_render_text_cb (GtkTreeViewColumn* column,
     else
         progress = 0.0;
     g_object_set (renderer, "text", text,
+                  "ellipsize", PANGO_ELLIPSIZE_END,
                   "value", (gint)(progress * 100),
                   "xpad", 1, "ypad", 6, NULL);
     g_free (text);
