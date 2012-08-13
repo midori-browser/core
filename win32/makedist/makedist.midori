@@ -188,6 +188,18 @@ if [ "$DEBUG_BUILD" == "" ];then
     pushd $workdir > /dev/null
     find -iname *.debug -exec rm {} \;
     popd > /dev/null
+else
+    #add some gdb helper scripts
+    cat > $workdir/bin/backtrace.gdb << _EOF
+set logging on
+set logging file debug.log
+run
+thread apply all bt
+quit
+_EOF
+
+echo 'gdb.exe --command=backtrace.gdb midori.exe' > $workdir/bin/debug.bat
+
 fi
 
 # copy locales for gtk
