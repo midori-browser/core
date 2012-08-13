@@ -19,3 +19,7 @@ GtkOverlay MidoriFindbar {
     border-width: 0 0 1px 1px; /* top right bottom left */
 }
 
+/* Kill grey backround on inactive buttons */
+.button :insensitive {
+    background-color: @theme_base_color;
+}
