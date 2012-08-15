@@ -1444,7 +1444,9 @@ midori_app_setup (gint               *argc,
     GtkIconSet* icon_set;
     GtkIconFactory* factory;
     gsize i;
+    #ifndef G_OS_WIN32
     gchar* executable;
+    #endif
     gboolean success;
 
     static GtkStockItem items[] =

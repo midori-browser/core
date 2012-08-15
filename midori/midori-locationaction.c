@@ -376,10 +376,14 @@ midori_location_action_add_search_engines (MidoriLocationAction* action,
 {
     KatzeItem* item;
     gint i = 0;
+    #ifndef G_OS_WIN32
     GtkStyle* style;
+    #endif
 
     gtk_widget_realize (action->treeview);
+    #ifndef G_OS_WIN32
     style = gtk_widget_get_style (action->treeview);
+    #endif
 
     /* FIXME: choose 3 most frequently except for default */
     KATZE_ARRAY_FOREACH_ITEM (item, action->search_engines)
