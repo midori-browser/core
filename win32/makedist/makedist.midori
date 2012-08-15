@@ -191,8 +191,7 @@ if [ "$DEBUG_BUILD" == "" ];then
 else
     #add some gdb helper scripts
     cat > $workdir/bin/backtrace.gdb << _EOF
-set logging on
-set logging file debug.log
+set logging on debug.log
 run
 thread apply all bt
 quit
