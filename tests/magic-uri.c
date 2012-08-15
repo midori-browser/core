@@ -249,6 +249,8 @@ magic_uri_fingerprint (void)
     g_assert_cmpint (midori_uri_get_fingerprint (uri, NULL, NULL), ==, G_MAXINT);
     uri = "http://midori-0.4.1.tar.bz2#abcdefg";
     g_assert_cmpint (midori_uri_get_fingerprint (uri, NULL, NULL), ==, G_MAXINT);
+    uri = "http://midori-0.4.1.tar.bz2";
+    g_assert_cmpint (midori_uri_get_fingerprint (uri, NULL, NULL), ==, G_MAXINT);
 }
 
 static void
