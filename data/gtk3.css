@@ -20,6 +20,9 @@ GtkOverlay MidoriFindbar {
 }
 
 /* Kill grey backround on inactive buttons */
-.button :insensitive {
-    background-color: @theme_base_color;
+GtkDrawingArea,
+GtkImage,
+GtkImage:insensitive,
+GtkImage:selected {
+    background-color: @transparent;
 }
