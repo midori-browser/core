@@ -320,16 +320,11 @@ _midori_browser_update_interface (MidoriBrowser* browser,
     gboolean loading = midori_view_get_load_status (view) != MIDORI_LOAD_FINISHED;
     gboolean can_reload = midori_view_can_reload (view);
     GtkAction* action;
-    GSList* proxies;
 
     _action_set_sensitive (browser, "Reload", can_reload);
     _action_set_sensitive (browser, "Stop", can_reload && loading);
     _action_set_sensitive (browser, "Back", midori_view_can_go_back (view));
     _action_set_sensitive (browser, "Forward", midori_view_can_go_forward (view));
-    proxies = gtk_action_get_proxies (_action_by_name (browser, "Forward"));
-    for (; proxies != NULL; proxies = g_slist_next (proxies))
-        if (GTK_IS_TOOL_ITEM (proxies->data))
-            gtk_widget_set_visible (proxies->data, midori_view_can_go_forward (view));
     _action_set_sensitive (browser, "Previous",
         midori_view_get_previous_page (view) != NULL);
     _action_set_sensitive (browser, "Next",
@@ -372,6 +367,23 @@ _midori_browser_update_interface (MidoriBrowser* browser,
                       "stock-id", GTK_STOCK_STOP,
                       "tooltip", _("Stop loading the current page"), NULL);
     }
+
+    action = _action_by_name (browser, "NextForward");
+    if (midori_view_can_go_forward (view))
+    {
+        g_object_set (action,
+                      "stock-id", GTK_STOCK_GO_FORWARD,
+                      "tooltip", _("Go forward to the next page"),
+                      "sensitive", TRUE, NULL);
+    }
+    else
+    {
+        g_object_set (action,
+                      "stock-id", GTK_STOCK_MEDIA_NEXT,
+                      "tooltip", _("Go to the next sub-page"),
+                      "sensitive", midori_view_get_next_page (view) != NULL, NULL);
+    }
+
 
     #if HAVE_HILDON
     #if HILDON_CHECK_VERSION (2, 2, 0)
@@ -2999,7 +3011,7 @@ midori_browser_get_toolbar_actions (MidoriBrowser* browser)
     static const gchar* actions[] = {
             "WindowNew", "TabNew", "Open", "SaveAs", "Print", "Find",
             "Fullscreen", "Preferences", "Window", "Bookmarks",
-            "ReloadStop", "ZoomIn", "TabClose",
+            "ReloadStop", "ZoomIn", "TabClose", "NextForward",
             "ZoomOut", "Separator", "Back", "Forward", "Homepage",
             "Panel", "Trash", "Search", "BookmarkAdd", "Previous", "Next", NULL };
 
@@ -3882,8 +3894,10 @@ _action_navigation_activate (GtkAction*     action,
         return FALSE;
 
     view = MIDORI_VIEW (tab);
-
     name = gtk_action_get_name (action);
+
+    if (!strcmp (name, "NextForward"))
+        name = midori_view_can_go_forward (view) ? "Forward" : "Next";
 
     if (g_str_equal (name, "Back"))
     {
@@ -5667,7 +5681,7 @@ static const GtkActionEntry entries[] =
         NULL, "Escape",
         N_("Stop loading the current page"), G_CALLBACK (_action_reload_stop_activate) },
     { "ReloadStop", GTK_STOCK_STOP,
-        NULL, "<Ctrl>r",
+        NULL, "",
         N_("Reload the current page"), G_CALLBACK (_action_reload_stop_activate) },
     { "ZoomIn", GTK_STOCK_ZOOM_IN,
         NULL, "<Ctrl>plus",
@@ -5718,6 +5732,9 @@ static const GtkActionEntry entries[] =
     { "Next", GTK_STOCK_MEDIA_NEXT,
         NULL, "<Alt><Shift>Right",
         /* i18n: Visit the following logical page, ie. in a forum or blog */
+        N_("Go to the next sub-page"), G_CALLBACK (_action_navigation_activate) },
+    { "NextForward", GTK_STOCK_MEDIA_NEXT,
+        NULL, "",
         N_("Go to the next sub-page"), G_CALLBACK (_action_navigation_activate) },
     { "Homepage", GTK_STOCK_HOME,
         N_("_Homepage"), "<Alt>Home",
