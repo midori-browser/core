@@ -165,10 +165,6 @@ SectionEnd
 !macro InstallTangoIconRename OPath IPath
 	!insertmacro InstallTangoIconRenameSmall ${OPath} ${IPath}
 	File "/oname=48x48\${OPath}.png" "${RESOURCEDIR}\share\icons\Tango\48x48\${IPath}.png"
-	File /nonfatal "/oname=64x64\${OPath}.png" "${RESOURCEDIR}\share\icons\Tango\64x64\${IPath}.png"
-	File /nonfatal "/oname=72x72\${OPath}.png" "${RESOURCEDIR}\share\icons\Tango\72x72\${IPath}.png"
-	File /nonfatal "/oname=96x96\${OPath}.png" "${RESOURCEDIR}\share\icons\Tango\96x96\${IPath}.png"
-	File /nonfatal "/oname=128x128\${OPath}.png" "${RESOURCEDIR}\share\icons\Tango\128x128\${IPath}.png"
 	File "/oname=scalable\${OPath}.svg" "${RESOURCEDIR}\share\icons\Tango\scalable\${IPath}.svg"
 	File /nonfatal "/oname=scalable\${OPath}.icon" "${RESOURCEDIR}\share\icons\Tango\scalable\${IPath}.icon"
 !macroend
@@ -190,10 +186,6 @@ SectionEnd
 !macro CreateTangoSections SectionPath
 	!insertmacro CreateTangoSectionsSmall ${SectionPath}
 	CreateDirectory "$INSTDIR\share\icons\Tango\48x48\${SectionPath}"
-	CreateDirectory "$INSTDIR\share\icons\Tango\64x64\${SectionPath}"
-	CreateDirectory "$INSTDIR\share\icons\Tango\72x72\${SectionPath}"
-	CreateDirectory "$INSTDIR\share\icons\Tango\96x96\${SectionPath}"
-	CreateDirectory "$INSTDIR\share\icons\Tango\128x128\${SectionPath}"
 	CreateDirectory "$INSTDIR\share\icons\Tango\scalable\${SectionPath}"
 !macroend
 
