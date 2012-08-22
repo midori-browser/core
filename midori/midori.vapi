@@ -174,6 +174,15 @@ namespace Midori {
 
     }
 
+    [CCode (cheader_filename = "midori/midori-view.h", cprefix = "MIDORI_DOWNLOAD_")]
+    public enum DownloadType {
+        CANCEL,
+        OPEN,
+        SAVE,
+        SAVE_AS,
+        OPEN_IN_VIEWER
+    }
+
     public class WebSettings : WebKit.WebSettings {
         public WebSettings ();
         [NoAccessorMethod]
