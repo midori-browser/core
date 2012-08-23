@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: midori git version\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-08-19 12:06+0000\n"
-"PO-Revision-Date: 2012-08-19 19:03+0300\n"
+"PO-Revision-Date: 2012-08-24 00:38+0300\n"
 "Last-Translator: Efstathios Iosifidis <iosifidis@opensuse.org>\n"
 "Language-Team: Ελληνικά, Σύγχρονα <opensuse-translation-el@opensuse.org>\n"
 "Language: el\n"
@@ -33,11 +33,11 @@ msgstr "Internet;WWW;Explorer"
 #: ../data/midori.desktop.in.h:3 ../midori/main.c:2025 ../midori/main.c:2049
 #: ../midori/main.c:2063 ../midori/midori-websettings.c:315
 msgid "Midori"
-msgstr "Μιντόρι"
+msgstr "Midori"
 
 #: ../data/midori.desktop.in.h:4
 msgid "Midori Web Browser"
-msgstr "Περιηγητής Ιστού Μιντόρι"
+msgstr "Περιηγητής Ιστού Midori"
 
 #: ../data/midori.desktop.in.h:5
 msgid "New Private Browsing Window"
@@ -435,6 +435,8 @@ msgstr "Επεξεργασία σελιδοδείκτη"
 #: ../midori/midori-browser.c:873
 msgid "Type a name for this bookmark and choose where to keep it."
 msgstr ""
+"Πληκτρολογήστε ένα όνομα γι'αυτόν τον σελιδοδείκτη και επιλέξτε που θα τον "
+"αποθηκεύσετε."
 
 #: ../midori/midori-browser.c:934
 msgid "Add to _Speed Dial"
@@ -548,9 +550,8 @@ msgid ""
 msgstr ""
 
 #: ../midori/midori-browser.c:3705
-#, fuzzy
 msgid "_Enable Caret Browsing"
-msgstr "Περιήγηση κέρσορα κειμένου"
+msgstr "_Ενεργοποίηση Περιήγησης Δρομέα"
 
 #: ../midori/midori-browser.c:4095 ../midori/midori-browser.c:6128
 #, c-format
@@ -746,7 +747,7 @@ msgstr "Κ_λείσιμο παραθύρου"
 
 #: ../midori/midori-browser.c:5612
 msgid "_Share"
-msgstr ""
+msgstr "_Κοινόχρηστο"
 
 #: ../midori/midori-browser.c:5617
 msgid "Print the current page"
@@ -834,7 +835,7 @@ msgstr "Μετακίνηση _δεξιά"
 
 #: ../midori/midori-browser.c:5704
 msgid "_Readable"
-msgstr ""
+msgstr "_Αναγνώσιμο"
 
 #: ../midori/midori-browser.c:5707
 msgid "_Go"
@@ -1008,9 +1009,8 @@ msgid "Western (ISO-8859-1)"
 msgstr "Δυτικά (ISO-8859-1)"
 
 #: ../midori/midori-browser.c:5850
-#, fuzzy
 msgid "Custom…"
-msgstr "Προσαρμογή..."
+msgstr "Προσαρμοσμένο..."
 
 #: ../midori/midori-browser.c:6360
 msgid "_Separator"
@@ -1094,21 +1094,23 @@ msgstr "Αναζήτηση για %s"
 
 #: ../midori/midori-locationaction.c:1227
 msgid "Export certificate"
-msgstr ""
+msgstr "Εξαγωγή πιστοποιητικού"
 
 #: ../midori/midori-locationaction.c:1259
 msgid "The signing certificate authority is not known."
-msgstr ""
+msgstr "Άγνωστος δημιουργός υπογεγραμμένου πιστοποιητικού."
 
 #: ../midori/midori-locationaction.c:1261
 msgid ""
 "The certificate does not match the expected identity of the site that it was "
 "retrieved from."
 msgstr ""
+"Το πιστοποιητικό δεν ταιριάζει με την αναμενόμενη ταυτότητα της ιστοσελίδας "
+"από την οποία έχει ληφθεί."
 
 #: ../midori/midori-locationaction.c:1263
 msgid "The certificate's activation time is still in the future."
-msgstr ""
+msgstr "Ο χρόνος ενεργοποίησης πιστοποιητικού εξακολουθεί να είναι στο μέλλον."
 
 #: ../midori/midori-locationaction.c:1265
 msgid "The certificate has expired"
@@ -1122,15 +1124,15 @@ msgstr ""
 
 #: ../midori/midori-locationaction.c:1269
 msgid "The certificate's algorithm is considered insecure."
-msgstr ""
+msgstr "Ο αλγόριθμος του πιστοποιητικού θεωρείται μη ασφαλής."
 
 #: ../midori/midori-locationaction.c:1271
 msgid "Some other error occurred validating the certificate."
-msgstr ""
+msgstr "Παρουσιάστηκαν άλλα σφάλματα κατά τον έλεγχο του πιστοποιητικού."
 
 #: ../midori/midori-locationaction.c:1318
 msgid "_Export certificate"
-msgstr ""
+msgstr "_Εξαγωγή πιστοποιητικού"
 
 #: ../midori/midori-locationaction.c:1333
 msgid "Self-signed"
@@ -1138,7 +1140,7 @@ msgstr ""
 
 #: ../midori/midori-locationaction.c:1367
 msgid "Security details"
-msgstr ""
+msgstr "Λεπτομέρειες ασφαλείας"
 
 #. i18n: Right-click on Location, Open an URL from the clipboard
 #: ../midori/midori-locationaction.c:1650
@@ -1723,7 +1725,7 @@ msgstr ""
 
 #: ../midori/midori-view.c:1002 ../midori/midori-view.c:1140
 msgid "Trust this website"
-msgstr ""
+msgstr "Έμπιστη ιστοσελίδα"
 
 #: ../midori/midori-view.c:1138
 msgid "Security unknown"
