@@ -900,49 +900,33 @@ midori_soup_session_settings_accept_language_cb (SoupSession*       session,
                                                  SoupMessage*       msg,
                                                  MidoriWebSettings* settings)
 {
-    gchar* languages = katze_object_get_string (settings, "preferred-languages");
-    gchar* accpt;
-
-    /* Empty, use the system locales */
-    if (!(languages && *languages))
-        accpt = sokoke_accept_languages (g_get_language_names ());
-    /* No =, no ., looks like a list of language names */
-    else if (!(strchr (languages, '=') && strchr (languages, '.')))
-    {
-        gchar ** lang_names = g_strsplit_set (languages, ",; ", -1);
-        accpt = sokoke_accept_languages ((const gchar* const *)lang_names);
-        g_strfreev (lang_names);
-    }
-    /* Presumably a well formatted list including priorities */
-    else
-        accpt = languages;
-
-    if (accpt != languages)
-        g_free (languages);
-    soup_message_headers_append (msg->request_headers, "Accept-Language", accpt);
-    g_free (accpt);
+    const gchar* accept = midori_web_settings_get_accept_language (settings);
+    if (midori_debug ("soup"))
+        g_message ("Accept-Language set to '%s'", accept);
+    soup_message_headers_append (msg->request_headers, "Accept-Language", accept);
 
     if (katze_object_get_boolean (settings, "strip-referer"))
     {
         const gchar* referer
             = soup_message_headers_get_one (msg->request_headers, "Referer");
         SoupURI* destination = soup_message_get_uri (msg);
-        if (referer && destination && !strstr (referer, destination->host))
+        SoupURI* stripped_uri;
+        if (referer && destination && !strstr (referer, destination->host)
+                    && (stripped_uri = soup_uri_new (referer)))
         {
-            SoupURI* stripped_uri = soup_uri_new (referer);
-            if (stripped_uri != NULL)
+            gchar* stripped_referer;
+            soup_uri_set_path (stripped_uri, "");
+            soup_uri_set_query (stripped_uri, NULL);
+            stripped_referer = soup_uri_to_string (stripped_uri, FALSE);
+            soup_uri_free (stripped_uri);
+            if (strcmp (stripped_referer, referer))
             {
-                gchar* stripped_referer;
-                soup_uri_set_path (stripped_uri, "");
-                soup_uri_set_query (stripped_uri, NULL);
-                stripped_referer = soup_uri_to_string (stripped_uri, FALSE);
-                soup_uri_free (stripped_uri);
                 if (midori_debug ("soup"))
-                    g_message ("Referer %s stripped to %s", referer, stripped_referer);
+                    g_message ("Referer '%s' stripped to '%s'", referer, stripped_referer);
                 soup_message_headers_replace (msg->request_headers, "Referer",
                                               stripped_referer);
-                g_free (stripped_referer);
             }
+            g_free (stripped_referer);
         }
     }
 }

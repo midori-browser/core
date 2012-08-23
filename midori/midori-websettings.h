@@ -190,6 +190,9 @@ MidoriSiteDataPolicy
 midori_web_settings_get_site_data_policy   (MidoriWebSettings* settings,
                                             const gchar*       uri);
 
+const gchar*
+midori_web_settings_get_accept_language    (MidoriWebSettings* settings);
+
 G_END_DECLS
 
 #endif /* __MIDORI_WEB_SETTINGS_H__ */
