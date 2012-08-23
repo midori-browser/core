@@ -168,7 +168,6 @@ SectionEnd
 	!insertmacro InstallIconThemeRenameSmall ${OPath} ${IPath}
 	File "/oname=48x48\${OPath}.png" "${RESOURCEDIR}\share\icons\${ICON_THEME}\48x48\${IPath}.png"
 	File "/oname=scalable\${OPath}.svg" "${RESOURCEDIR}\share\icons\${ICON_THEME}\scalable\${IPath}.svg"
-	File /nonfatal "/oname=scalable\${OPath}.icon" "${RESOURCEDIR}\share\icons\${ICON_THEME}\scalable\${IPath}.icon"
 !macroend
 
 !macro InstallIconThemeSmall IconPath
