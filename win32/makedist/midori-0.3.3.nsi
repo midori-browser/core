@@ -160,6 +160,7 @@ SectionEnd
 !macro InstallIconThemeRenameSmall OPath IPath
 	File "/oname=16x16\${OPath}.png" "${RESOURCEDIR}\share\icons\${ICON_THEME}\16x16\${IPath}.png"
 	File "/oname=22x22\${OPath}.png" "${RESOURCEDIR}\share\icons\${ICON_THEME}\22x22\${IPath}.png"
+	File "/oname=24x24\${OPath}.png" "${RESOURCEDIR}\share\icons\${ICON_THEME}\24x24\${IPath}.png"
 	File "/oname=32x32\${OPath}.png" "${RESOURCEDIR}\share\icons\${ICON_THEME}\32x32\${IPath}.png"
 !macroend
 
@@ -181,6 +182,7 @@ SectionEnd
 !macro CreateIconThemeSectionsSmall SectionPath
 	CreateDirectory "$INSTDIR\share\icons\${ICON_THEME}\16x16\${SectionPath}"
 	CreateDirectory "$INSTDIR\share\icons\${ICON_THEME}\22x22\${SectionPath}"
+	CreateDirectory "$INSTDIR\share\icons\${ICON_THEME}\24x24\${SectionPath}"
 	CreateDirectory "$INSTDIR\share\icons\${ICON_THEME}\32x32\${SectionPath}"
 !macroend
 
