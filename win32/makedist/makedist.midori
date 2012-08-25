@@ -171,7 +171,6 @@ echo -n .
 # copy share
 grab_files share midori
 grab_files share icons
-grab_files share MS-Windows
 grab_files share mime
 grab_files share midori.mo
 
@@ -180,6 +179,7 @@ if [ "$GTK3_BUILD" == "1" ]; then
     grab_files share schemas
     MO_VER=30
 else
+    grab_files share MS-Windows
     grab_files share webkitgtk-1.0
     MO_VER=20
 fi
