@@ -5176,20 +5176,14 @@ midori_view_tab_icon_style_set_cb (GtkWidget* tab_close,
 #endif
 
 static void
-midori_view_update_tab_title (GtkWidget* label,
-                              gint       size,
-                              gdouble    angle)
+midori_view_update_tab_title (MidoriView* view,
+                              gdouble     angle)
 {
-    if (angle == 0.0 || angle == 360.0)
-    {
-        if (gtk_label_get_ellipsize (GTK_LABEL (label)) != PANGO_ELLIPSIZE_START)
-            gtk_label_set_ellipsize (GTK_LABEL (label), PANGO_ELLIPSIZE_END);
-    }
+    if (angle == 0.0)
+        gtk_label_set_ellipsize (GTK_LABEL (view->tab_title), view->ellipsize);
     else
-    {
-        gtk_label_set_ellipsize (GTK_LABEL (label), PANGO_ELLIPSIZE_NONE);
-    }
-    gtk_label_set_angle (GTK_LABEL (label), angle);
+        gtk_label_set_ellipsize (GTK_LABEL (view->tab_title), PANGO_ELLIPSIZE_NONE);
+    gtk_label_set_angle (GTK_LABEL (view->tab_title), angle);
 }
 
 static void
@@ -5273,7 +5267,7 @@ midori_view_tab_label_parent_set (GtkWidget*  tab_label,
             gtk_widget_show (box);
         }
 
-        midori_view_update_tab_title (view->tab_title, 10, angle);
+        midori_view_update_tab_title (view, angle);
 
         /* FIXME: Connect orientation notification */
     }
@@ -5357,7 +5351,7 @@ midori_view_get_proxy_tab_label (MidoriView* view)
         gtk_event_box_set_visible_window (GTK_EVENT_BOX (event_box), FALSE);
         hbox = gtk_hbox_new (FALSE, 1);
         gtk_container_add (GTK_CONTAINER (event_box), GTK_WIDGET (hbox));
-        midori_view_update_tab_title (view->tab_title, 10, 0.0);
+        midori_view_update_tab_title (view, 0.0);
 
         view->tab_close = gtk_button_new ();
         gtk_button_set_relief (GTK_BUTTON (view->tab_close), GTK_RELIEF_NONE);
