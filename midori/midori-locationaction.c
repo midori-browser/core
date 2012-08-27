@@ -1174,7 +1174,7 @@ midori_location_action_focus_out_event_cb (GtkWidget*   widget,
     return FALSE;
 }
 
-#if HAVE_GCR
+#ifdef HAVE_GCR
     #define GCR_API_SUBJECT_TO_CHANGE
     #include <gcr/gcr.h>
 #endif
@@ -1202,7 +1202,7 @@ midori_map_get_message (SoupMessage* message)
     return full;
 }
 
-#if HAVE_GCR
+#ifdef HAVE_GCR
 typedef enum {
     MIDORI_CERT_TRUST,
     MIDORI_CERT_REVOKE,
@@ -1295,7 +1295,7 @@ midori_location_action_show_page_info (GtkWidget* widget,
     if (tls_cert == NULL)
         return;
 
-    #if HAVE_GCR
+    #ifdef HAVE_GCR
     GByteArray* der_cert;
     GcrCertificate* gcr_cert;
     GtkWidget* details;

@@ -38,7 +38,7 @@
     #include <granite.h>
 #endif
 
-#if HAVE_ZEITGEIST
+#ifdef HAVE_ZEITGEIST
     #include <zeitgeist.h>
 #endif
 
@@ -489,7 +489,7 @@ midori_browser_update_history (KatzeItem*   item,
                                const gchar* type,
                                const gchar* event)
 {
-    #if HAVE_ZEITGEIST
+    #ifdef HAVE_ZEITGEIST
     const gchar* inter;
     if (strstr (event, "access"))
         inter = ZEITGEIST_ZG_ACCESS_EVENT;

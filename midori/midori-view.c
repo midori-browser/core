@@ -26,7 +26,7 @@
 #include <granite.h>
 #endif
 
-#if HAVE_GCR
+#ifdef HAVE_GCR
     #define GCR_API_SUBJECT_TO_CHANGE
     #include <gcr/gcr.h>
 
@@ -965,7 +965,7 @@ midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view
             return TRUE;
         }
     }
-    #if HAVE_GCR
+    #ifdef HAVE_GCR
     else if (/* view->special && */ !strncmp (uri, "https", 5))
     {
         /* We show an error page if the certificate is invalid.
@@ -1054,7 +1054,7 @@ webkit_web_view_load_started_cb (WebKitWebView*  web_view,
     g_object_thaw_notify (G_OBJECT (view));
 }
 
-#if HAVE_GCR
+#ifdef HAVE_GCR
 const gchar*
 midori_location_action_tls_flags_to_string (GTlsCertificateFlags flags);
 #endif
@@ -1111,7 +1111,7 @@ webkit_web_view_load_committed_cb (WebKitWebView*  web_view,
         if (message
          && soup_message_get_flags (message) & SOUP_MESSAGE_CERTIFICATE_TRUSTED)
             view->security = MIDORI_SECURITY_TRUSTED;
-        #if HAVE_GCR
+        #ifdef HAVE_GCR
         else if (!view->special && message != NULL)
         {
             GTlsCertificate* tls_cert;
