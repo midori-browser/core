@@ -19,7 +19,6 @@
 
 #include "katze-net.h"
 #include "midori-core.h"
-#include "sokoke.h"
 
 #include <glib/gstdio.h>
 #include <libsoup/soup.h>

@@ -14,7 +14,6 @@
 #include "katze-utils.h"
 #include "katze-array.h"
 #include "midori-core.h"
-#include "sokoke.h"
 
 #include <glib/gstdio.h>
 #include <glib/gi18n.h>

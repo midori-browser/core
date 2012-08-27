@@ -28,8 +28,7 @@ web_cache_get_cache_dir (void)
 {
     static gchar* cache_dir = NULL;
     if (!cache_dir)
-        cache_dir = g_build_filename (sokoke_get_user_cache_dir (),
-                                      PACKAGE_NAME, "web", NULL);
+        cache_dir = g_build_filename (midori_paths_get_cache_dir (), "web", NULL);
     return cache_dir;
 }
 
