@@ -2210,12 +2210,18 @@ main (int    argc,
                           NULL);
             #endif
 
+            g_object_set (gtk_settings_get_default (),
+                "gtk-recent-files-max-age", 0, NULL);
             midori_paths_init (MIDORI_RUNTIME_MODE_PRIVATE, "private://");
         }
         else if (webapp)
             midori_paths_init (MIDORI_RUNTIME_MODE_APP, config ? config : "app://");
         else if (portable)
+        {
+            g_object_set (gtk_settings_get_default (),
+                "gtk-recent-files-max-age", 0, NULL);
             midori_paths_init (MIDORI_RUNTIME_MODE_PORTABLE, "portable://");
+        }
 
         midori_load_soup_session (settings);
         if (block_uris)
