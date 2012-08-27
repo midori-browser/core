@@ -2216,12 +2216,6 @@ main (int    argc,
         }
         else if (webapp)
             midori_paths_init (MIDORI_RUNTIME_MODE_APP, config ? config : "app://");
-        else if (portable)
-        {
-            g_object_set (gtk_settings_get_default (),
-                "gtk-recent-files-max-age", 0, NULL);
-            midori_paths_init (MIDORI_RUNTIME_MODE_PORTABLE, "portable://");
-        }
 
         midori_load_soup_session (settings);
         if (block_uris)
@@ -2334,8 +2328,16 @@ main (int    argc,
     if (inactivity_reset > 0)
         g_error ("--inactivity-reset is currently only supported with --app.");
 
-    midori_paths_init (MIDORI_RUNTIME_MODE_NORMAL, config);
-        app = midori_app_new ();
+    if (portable)
+    {
+        g_object_set (gtk_settings_get_default (),
+            "gtk-recent-files-max-age", 0, NULL);
+        midori_paths_init (MIDORI_RUNTIME_MODE_PORTABLE, "portable://");
+    }
+    else
+        midori_paths_init (MIDORI_RUNTIME_MODE_NORMAL, config);
+
+    app = midori_app_new ();
     katze_assign (config, g_strdup (midori_paths_get_config_dir ()));
     midori_startup_timer ("App created: \t%f");
 
