@@ -988,15 +988,15 @@ midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view
                 g_object_get (tls_cert, "certificate", &der_cert, NULL);
                 gcr_cert = gcr_simple_certificate_new (der_cert->data, der_cert->len);
                 g_byte_array_unref (der_cert);
-                if (soup_uri && soup_uri->host && gcr_trust_is_certificate_pinned (gcr_cert, GCR_PURPOSE_SERVER_AUTH, soup_uri->host, NULL, NULL))
+                if (soup_uri && soup_uri->host && !gcr_trust_is_certificate_pinned (gcr_cert, GCR_PURPOSE_SERVER_AUTH, soup_uri->host, NULL, NULL))
                 {
                     GError* error = NULL;
                     gcr_trust_add_pinned_certificate (gcr_cert, GCR_PURPOSE_SERVER_AUTH, soup_uri->host, NULL, &error);
                     if (error != NULL)
                     {
-                        midori_view_stop_loading (view);
                         gchar* slots = g_strjoinv (" , ", (gchar**)gcr_pkcs11_get_trust_lookup_uris ());
                         gchar* title = g_strdup_printf ("Error granting trust: %s", error->message);
+                        midori_view_stop_loading (view);
                         midori_view_display_error (view, view->uri,
                             view->title ? view->title : view->uri, title, slots,
                             _("Trust this website"), NULL);
@@ -1121,6 +1121,7 @@ webkit_web_view_load_committed_cb (WebKitWebView*  web_view,
 
             message = midori_map_get_message (message);
             g_object_get (message, "tls-certificate", &tls_cert, NULL);
+            g_return_if_fail (tls_cert != NULL);
             g_object_get (tls_cert, "certificate", &der_cert, NULL);
             gcr_cert = gcr_simple_certificate_new (der_cert->data, der_cert->len);
             g_byte_array_unref (der_cert);
