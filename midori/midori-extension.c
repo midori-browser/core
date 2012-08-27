@@ -14,6 +14,7 @@
 
 #include <katze/katze.h>
 #include "midori-platform.h"
+#include "midori-core.h"
 #include <glib/gi18n.h>
 
 G_DEFINE_TYPE (MidoriExtension, midori_extension, G_TYPE_OBJECT);
@@ -648,7 +649,7 @@ midori_extension_get_config_dir (MidoriExtension* extension)
         if (!filename)
             return "/";
         extension->priv->config_dir = g_build_filename (
-            sokoke_set_config_dir (NULL), "extensions", filename, NULL);
+            midori_paths_get_config_dir (), "extensions", filename, NULL);
     }
 
     return extension->priv->config_dir;

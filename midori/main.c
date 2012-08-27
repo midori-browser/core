@@ -55,7 +55,7 @@
 static gchar*
 build_config_filename (const gchar* filename)
 {
-    return g_build_filename (sokoke_set_config_dir (NULL), filename, NULL);
+    return g_build_filename (midori_paths_get_config_dir (), filename, NULL);
 }
 
 static MidoriWebSettings*
@@ -1018,7 +1018,7 @@ midori_load_soup_session (gpointer settings)
     #endif
 
     #if WEBKIT_CHECK_VERSION (1, 8, 0)
-    gchar* cache = g_build_filename (g_get_user_data_dir (),
+    gchar* cache = g_build_filename (midori_paths_get_user_data_dir (),
                                      "webkit", "icondatabase", NULL);
     webkit_favicon_database_set_path (webkit_get_favicon_database (), cache);
     g_free (cache);
@@ -1194,8 +1194,7 @@ midori_load_soup_session_full (gpointer settings)
     }
 
     #if WEBKIT_CHECK_VERSION (1, 3, 11)
-    katze_assign (config_file, g_build_filename (g_get_user_cache_dir (),
-                                                 PACKAGE_NAME, "web", NULL));
+    katze_assign (config_file, g_build_filename (midori_paths_get_cache_dir (), "web", NULL));
     feature = SOUP_SESSION_FEATURE (soup_cache_new (config_file, 0));
     soup_session_add_feature (session, feature);
     soup_cache_set_max_size (SOUP_CACHE (feature),
@@ -1615,8 +1614,7 @@ speeddial_new_from_file (const gchar* config,
     g_key_file_load_from_data (key_file, keyfile, -1, 0, NULL);
     g_free (keyfile);
     tiles = g_key_file_get_groups (key_file, NULL);
-    thumb_dir = g_build_path (G_DIR_SEPARATOR_S, g_get_user_cache_dir (),
-                              PACKAGE_NAME, "thumbnails", NULL);
+    thumb_dir = g_build_path (G_DIR_SEPARATOR_S, midori_paths_get_cache_dir (), "thumbnails", NULL);
     if (!g_file_test (thumb_dir, G_FILE_TEST_EXISTS))
         katze_mkdir_with_parents (thumb_dir, 0700);
     g_free (thumb_dir);
@@ -1804,10 +1802,10 @@ static void
 midori_clear_saved_logins_cb (void)
 {
     sqlite3* db;
-    gchar* path = g_build_filename (sokoke_set_config_dir (NULL), "logins", NULL);
+    gchar* path = g_build_filename (midori_paths_get_config_dir (), "logins", NULL);
     g_unlink (path);
     /* Form History database, written by the extension */
-    katze_assign (path, g_build_filename (sokoke_set_config_dir (NULL),
+    katze_assign (path, g_build_filename (midori_paths_get_config_dir (),
         "extensions", MIDORI_MODULE_PREFIX "formhistory." G_MODULE_SUFFIX, "forms.db", NULL));
     if (sqlite3_open (path, &db) == SQLITE_OK)
     {
@@ -1823,7 +1821,7 @@ midori_clear_web_cache_cb (void)
 {
     SoupSession* session = webkit_get_default_session ();
     SoupSessionFeature* feature = soup_session_get_feature (session, SOUP_TYPE_CACHE);
-    gchar* cache = g_build_filename (g_get_user_cache_dir (), PACKAGE_NAME, "web", NULL);
+    gchar* cache = g_build_filename (midori_paths_get_cache_dir (), "web", NULL);
     soup_cache_clear (SOUP_CACHE (feature));
     soup_cache_flush (SOUP_CACHE (feature));
     sokoke_remove_path (cache, TRUE);
@@ -1834,13 +1832,11 @@ midori_clear_web_cache_cb (void)
 static void
 midori_clear_page_icons_cb (void)
 {
-    gchar* cache = g_build_filename (g_get_user_cache_dir (),
-                                     PACKAGE_NAME, "icons", NULL);
+    gchar* cache = g_build_filename (midori_paths_get_cache_dir (), "icons", NULL);
     /* FIXME: Exclude search engine icons */
     sokoke_remove_path (cache, TRUE);
     g_free (cache);
-    cache = g_build_filename (g_get_user_data_dir (),
-                              "webkit", "icondatabase", NULL);
+    cache = g_build_filename (midori_paths_get_user_data_dir (), "webkit", "icondatabase", NULL);
     sokoke_remove_path (cache, TRUE);
     g_free (cache);
     #if WEBKIT_CHECK_VERSION (1, 8, 0)
@@ -1897,6 +1893,7 @@ main (int    argc,
     gchar* webapp;
     gchar* config;
     gboolean private;
+    gboolean portable;
     gboolean diagnostic_dialog;
     gboolean back_from_crash;
     gboolean run;
@@ -1921,6 +1918,10 @@ main (int    argc,
        #endif
        { "private", 'p', 0, G_OPTION_ARG_NONE, &private,
        N_("Private browsing, no changes are saved"), NULL },
+       #ifdef G_OS_WIN32
+       { "portable", 't', 0, G_OPTION_ARG_NONE, &portable,
+       N_("Portable mode, all runtime files are stored in one place"), NULL },
+       #endif
        { "diagnostic-dialog", 'd', 0, G_OPTION_ARG_NONE, &diagnostic_dialog,
        N_("Show a diagnostic dialog"), NULL },
        { "run", 'r', 0, G_OPTION_ARG_NONE, &run,
@@ -1992,6 +1993,7 @@ main (int    argc,
     webapp = NULL;
     config = NULL;
     private = FALSE;
+    portable = FALSE;
     back_from_crash = FALSE;
     diagnostic_dialog = FALSE;
     run = FALSE;
@@ -2025,7 +2027,7 @@ main (int    argc,
     if (private)
     {
         if (!config && !webapp)
-            config = g_build_filename (g_get_user_config_dir (), PACKAGE_NAME, NULL);
+            config = midori_paths_get_readonly_config_dir (MIDORI_RUNTIME_MODE_PRIVATE);
         /* Mask the timezone, which can be read by Javascript */
         g_setenv ("TZ", "UTC", TRUE);
     }
@@ -2207,13 +2209,13 @@ main (int    argc,
                           "gtk-application-prefer-dark-theme", TRUE,
                           NULL);
             #endif
-        }
 
-        if (private || !config)
-        {
-            /* Disable saving by setting an unwritable folder */
-            sokoke_set_config_dir ("/");
+            midori_paths_init (MIDORI_RUNTIME_MODE_PRIVATE, "private://");
         }
+        else if (webapp)
+            midori_paths_init (MIDORI_RUNTIME_MODE_APP, config ? config : "app://");
+        else if (portable)
+            midori_paths_init (MIDORI_RUNTIME_MODE_PORTABLE, "portable://");
 
         midori_load_soup_session (settings);
         if (block_uris)
@@ -2326,9 +2328,9 @@ main (int    argc,
     if (inactivity_reset > 0)
         g_error ("--inactivity-reset is currently only supported with --app.");
 
-    sokoke_set_config_dir (config);
+    midori_paths_init (MIDORI_RUNTIME_MODE_NORMAL, config);
         app = midori_app_new ();
-    katze_assign (config, (gchar*)sokoke_set_config_dir (NULL));
+    katze_assign (config, g_strdup (midori_paths_get_config_dir ()));
     midori_startup_timer ("App created: \t%f");
 
     /* FIXME: The app might be 'running' but actually showing a dialog

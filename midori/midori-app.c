@@ -21,6 +21,7 @@
 
 #include "midori-app.h"
 #include "midori-platform.h"
+#include "midori-core.h"
 
 #include <string.h>
 #include <gtk/gtk.h>
@@ -750,7 +751,7 @@ midori_app_create_instance (MidoriApp* app)
 
     {
         #if HAVE_UNIQUE
-        const gchar* config = sokoke_set_config_dir (NULL);
+        const gchar* config = midori_paths_get_config_dir ();
         gchar* name_hash;
         name_hash = g_compute_checksum_for_string (G_CHECKSUM_MD5, config, -1);
         katze_assign (app_name, g_strconcat ("midori", "_", name_hash, NULL));
@@ -781,7 +782,7 @@ midori_app_create_instance (MidoriApp* app)
     g_signal_connect (instance, "message-received",
                       G_CALLBACK (midori_browser_message_received_cb), app);
     #else
-    instance = socket_init (instance_name, sokoke_set_config_dir (NULL), &exists);
+    instance = socket_init (instance_name, midori_paths_get_config_dir (), &exists);
     g_object_set_data (G_OBJECT (app), "sock-exists",
         exists ? (gpointer)0xdeadbeef : NULL);
     if (instance != MidoriAppInstanceNull)
@@ -1567,7 +1568,7 @@ midori_debug (const gchar* token)
 {
     static const gchar* debug_token = NULL;
     const gchar* debug = g_getenv ("MIDORI_DEBUG");
-    const gchar* debug_tokens = "soup soup:1 soup:2 soup:3 cookies ";
+    const gchar* debug_tokens = "soup soup:1 soup:2 soup:3 cookies paths ";
     const gchar* full_debug_tokens = "adblock:1 adblock:2 startup bookmarks ";
     if (debug_token == NULL)
     {

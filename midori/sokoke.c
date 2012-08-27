@@ -497,7 +497,7 @@ sokoke_spawn_app (const gchar* uri,
     gchar* argument;
     if (private)
     {
-        gchar* config_quoted = g_shell_quote (sokoke_set_config_dir (NULL));
+        gchar* config_quoted = g_shell_quote (midori_paths_get_config_dir ());
         argument = g_strconcat ("-c ", config_quoted,
                                 " -p ", uri_quoted, NULL);
     }
@@ -971,42 +971,6 @@ sokoke_time_t_to_julian (const time_t* timestamp)
 }
 
 /**
- * sokoke_set_config_dir:
- * @new_config_dir: an absolute path, or %NULL
- *
- * Retrieves and/ or sets the base configuration folder.
- *
- * "/" means no configuration is saved.
- *
- * Return value: the configuration folder, or %NULL
- **/
-const gchar*
-sokoke_set_config_dir (const gchar* new_config_dir)
-{
-    static gchar* config_dir = NULL;
-
-    if (config_dir)
-        return config_dir;
-
-    if (!new_config_dir)
-        config_dir = g_build_filename (g_get_user_config_dir (),
-                                       PACKAGE_NAME, NULL);
-    else
-    {
-        g_return_val_if_fail (g_path_is_absolute (new_config_dir), NULL);
-        katze_assign (config_dir, g_strdup (new_config_dir));
-    }
-
-    return config_dir;
-}
-
-gboolean
-sokoke_is_app_or_private (void)
-{
-    return !strcmp ("/", sokoke_set_config_dir (NULL));
-}
-
-/**
  * sokoke_remove_path:
  * @path: an absolute path
  * @ignore_errors: keep removing even if an error occurred
@@ -1116,7 +1080,7 @@ sokoke_find_data_filename (const gchar* filename,
     g_free (path);
     #endif
 
-    path = g_build_filename (g_get_user_data_dir (), res1, res2, filename, NULL);
+    path = g_build_filename (midori_paths_get_user_data_dir (), res1, res2, filename, NULL);
     if (g_access (path, F_OK) == 0)
         return path;
     g_free (path);
@@ -1409,8 +1373,7 @@ sokoke_build_thumbnail_path (const gchar* name)
         gchar* checksum = g_compute_checksum_for_string (G_CHECKSUM_MD5, name, -1);
         gchar* filename = g_strdup_printf ("%s.png", checksum);
 
-        path = g_build_filename (g_get_user_cache_dir (), "midori", "thumbnails",
-                                 filename, NULL);
+        path = g_build_filename (midori_paths_get_cache_dir (), "thumbnails", filename, NULL);
 
         g_free (filename);
         g_free (checksum);

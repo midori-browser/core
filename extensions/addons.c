@@ -14,6 +14,7 @@
 /* This extensions add support for user addons: userscripts and userstyles */
 
 #include <midori/midori.h>
+#include "midori-core.h"
 #include <glib/gstdio.h>
 
 #include "config.h"
@@ -182,8 +183,8 @@ addons_install_response (GtkWidget*  infobar,
 
             if (!filename)
                 filename = g_path_get_basename (uri);
-            folder_path = g_build_path (G_DIR_SEPARATOR_S, g_get_user_data_dir (),
-                                 PACKAGE_NAME, folder, NULL);
+            folder_path = g_build_path (G_DIR_SEPARATOR_S,
+                midori_paths_get_user_data_dir (), PACKAGE_NAME, folder, NULL);
 
             if (!g_file_test (folder_path, G_FILE_TEST_EXISTS))
                 katze_mkdir_with_parents (folder_path, 0700);
@@ -293,13 +294,13 @@ addons_button_add_clicked_cb (GtkToolItem* toolitem,
     if (addons->kind == ADDONS_USER_SCRIPTS)
     {
         addons_type = g_strdup ("userscripts");
-        path = g_build_path (G_DIR_SEPARATOR_S, g_get_user_data_dir (),
+        path = g_build_path (G_DIR_SEPARATOR_S, midori_paths_get_user_data_dir (),
                              PACKAGE_NAME, "scripts", NULL);
     }
     else if (addons->kind == ADDONS_USER_STYLES)
     {
         addons_type = g_strdup ("userstyles");
-        path = g_build_path (G_DIR_SEPARATOR_S, g_get_user_data_dir (),
+        path = g_build_path (G_DIR_SEPARATOR_S, midori_paths_get_user_data_dir (),
                              PACKAGE_NAME, "styles", NULL);
     }
     else
@@ -513,13 +514,10 @@ addons_open_target_folder_clicked_cb (GtkWidget* toolitem,
     }
     else
     {
-        folder = g_build_path (G_DIR_SEPARATOR_S, g_get_user_data_dir (),
-                               PACKAGE_NAME,
-                               addons->kind == ADDONS_USER_SCRIPTS
-                               ? "scripts" : "styles", NULL);
-
-        if (!g_file_test (folder, G_FILE_TEST_EXISTS))
-            katze_mkdir_with_parents (folder, 0700);
+        folder = g_build_path (G_DIR_SEPARATOR_S, midori_paths_get_user_data_dir (),
+            PACKAGE_NAME, addons->kind == ADDONS_USER_SCRIPTS
+                          ? "scripts" : "styles", NULL);
+        katze_mkdir_with_parents (folder, 0700);
     }
 
     folder_uri = g_filename_to_uri (folder, NULL, NULL);
@@ -827,7 +825,7 @@ addons_get_directories (AddonsKind kind)
     else
         g_assert_not_reached ();
 
-    path = g_build_path (G_DIR_SEPARATOR_S, g_get_user_data_dir (),
+    path = g_build_path (G_DIR_SEPARATOR_S, midori_paths_get_user_data_dir (),
                          PACKAGE_NAME, folder_name, NULL);
     directories = g_slist_prepend (directories, path);
 

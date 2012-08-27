@@ -298,9 +298,6 @@ const gchar*
 midori_view_fallback_extension         (MidoriView*        view,
                                         const gchar*       extension);
 
-gchar*
-midori_view_get_tmp_dir                (void);
-
 G_END_DECLS
 
 #endif /* __MIDORI_VIEW_H__ */

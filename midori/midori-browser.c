@@ -565,7 +565,7 @@ midori_view_notify_icon_cb (MidoriView*    view,
     if (midori_browser_get_current_tab (browser) != (GtkWidget*)view)
         return;
 
-    if (sokoke_is_app_or_private ())
+    if (midori_paths_is_readonly () /* APP, PRIVATE */)
         gtk_window_set_icon (GTK_WINDOW (browser), midori_view_get_icon (view));
 }
 
@@ -1286,8 +1286,7 @@ midori_browser_add_speed_dial (MidoriBrowser* browser)
         GKeyFile* key_file;
         gchar* dial_id = g_strdup_printf ("Dial %s", slot_id + 1);
         gchar* file_path = sokoke_build_thumbnail_path (uri);
-        gchar* thumb_dir = g_build_path (G_DIR_SEPARATOR_S, g_get_user_cache_dir (),
-                                         PACKAGE_NAME, "thumbnails", NULL);
+        gchar* thumb_dir = g_build_path (G_DIR_SEPARATOR_S, midori_paths_get_cache_dir (), "thumbnails", NULL);
         g_object_get (browser, "speed-dial", &key_file, NULL);
 
         g_key_file_set_string (key_file, dial_id, "uri", uri);
@@ -1560,7 +1559,7 @@ midori_browser_download_prepare_destination_uri (WebKitDownload* download,
     gchar* suggested_filename;
     GFile* file_source;
     gchar* file_basename;
-    gchar* download_dir = NULL;
+    const gchar* download_dir = NULL;
     gchar* destination_uri;
     gchar* destination_filename;
 
@@ -1569,16 +1568,14 @@ midori_browser_download_prepare_destination_uri (WebKitDownload* download,
     g_free (suggested_filename);
     file_basename = g_file_get_basename (file_source);
     if (folder == NULL)
-        download_dir = midori_view_get_tmp_dir ();
+        download_dir = midori_paths_get_tmp_dir ();
     else
-        download_dir = (gchar*)folder;
+        download_dir = folder;
     destination_filename = g_build_filename (download_dir, file_basename, NULL);
     destination_filename = midori_browser_download_prepare_filename (destination_filename);
     destination_uri = g_filename_to_uri (destination_filename, NULL, NULL);
 
     g_free (file_basename);
-    if (folder == NULL)
-        g_free (download_dir);
     g_free (destination_filename);
     g_object_unref (file_source);
 
@@ -2749,7 +2746,7 @@ _action_tab_close_activate (GtkAction*     action,
     GtkWidget* widget = midori_browser_get_current_tab (browser);
     MidoriView* view = MIDORI_VIEW (widget);
     gboolean last_tab = midori_browser_get_n_pages (browser) == 1;
-    if (last_tab && sokoke_is_app_or_private ())
+    if (last_tab && midori_paths_is_readonly () /* APP, PRIVATE */)
     {
         gtk_widget_destroy (GTK_WIDGET (browser));
         return;
@@ -5345,7 +5342,7 @@ midori_browser_switched_tab (MidoriBrowser* browser,
     midori_browser_set_title (browser, midori_view_get_display_title (new_view));
     action = _action_by_name (browser, "Location");
     midori_location_action_set_text (MIDORI_LOCATION_ACTION (action), uri);
-    if (sokoke_is_app_or_private ())
+    if (midori_paths_is_readonly () /* APP, PRIVATE */)
         gtk_window_set_icon (GTK_WINDOW (browser), midori_view_get_icon (new_view));
 
     if (browser->proxy_array)

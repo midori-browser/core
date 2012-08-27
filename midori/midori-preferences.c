@@ -12,6 +12,7 @@
 #include "midori-preferences.h"
 
 #include "midori-app.h"
+#include "midori-core.h"
 #include "midori-platform.h"
 
 #include <string.h>
@@ -293,7 +294,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     #define SPANNED_ADD(__widget) \
      katze_preferences_add_widget (_preferences, __widget, "spanned")
     /* Page "General" */
-    if (!sokoke_is_app_or_private ())
+    if (!midori_paths_is_readonly ())
     {
     PAGE_NEW (GTK_STOCK_HOME, _("Startup"));
     FRAME_NEW (NULL);

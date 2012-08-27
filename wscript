@@ -245,6 +245,7 @@ def configure (conf):
     args = ''
     if Options.platform == 'win32':
         args = '--define-variable=target=win32'
+        conf.env.append_value ('VALAFLAGS', '-D HAVE_WIN32')
     elif sys.platform != 'darwin':
         check_pkg ('x11')
         # Pass /usr/X11R6/include for OpenBSD

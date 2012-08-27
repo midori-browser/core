@@ -14,6 +14,7 @@
 #include "panels/midori-bookmarks.h"
 #include "midori-array.h"
 #include "sokoke.h"
+#include "midori-core.h"
 
 #include <glib/gstdio.h>
 #include <glib/gi18n.h>
@@ -142,9 +143,9 @@ midori_bookmarks_initialize (KatzeArray*  array,
 
     g_return_val_if_fail (errmsg != NULL, NULL);
 
-    oldfile = g_build_filename (sokoke_set_config_dir (NULL), "bookmarks.db", NULL);
+    oldfile = g_build_filename (midori_paths_get_config_dir (), "bookmarks.db", NULL);
     oldfile_exists = g_access (oldfile, F_OK) == 0;
-    newfile = g_build_filename (sokoke_set_config_dir (NULL), "bookmarks_v2.db", NULL);
+    newfile = g_build_filename (midori_paths_get_config_dir (), "bookmarks_v2.db", NULL);
     newfile_did_exist = g_access (newfile, F_OK) == 0;
 
     /* sqlite3_open will create the file if it did not exists already */

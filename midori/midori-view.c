@@ -3002,7 +3002,7 @@ midori_view_populate_popup (MidoriView* view,
                 gtk_action_group_get_action (actions, "BookmarkAdd"));
         gtk_menu_shell_append (menu_shell, menuitem);
 
-        if (!midori_view_is_blank (view) && !sokoke_is_app_or_private ())
+        if (!midori_view_is_blank (view) && !midori_paths_is_readonly ())
         {
             menuitem = sokoke_action_create_popup_menu_item (
                 gtk_action_group_get_action (actions, "AddSpeedDial"));
@@ -4286,8 +4286,8 @@ prepare_speed_dial_html (MidoriView* view,
    g_string_append_printf (markup,
         "%s<style>.cross { display:none }</style>%s"
         "<style> div.shortcut { height: %d%%; width: %d%%; }</style>\n",
-        sokoke_is_app_or_private () ? "" : "<noscript>",
-        sokoke_is_app_or_private () ? "" : "</noscript>",
+        midori_paths_is_readonly () ? "" : "<noscript>",
+        midori_paths_is_readonly () ? "" : "</noscript>",
         slot_size + 1, slot_size - 4);
 
    /* Combined width of slots should always be less than 100%.
@@ -4525,7 +4525,6 @@ midori_view_set_uri (MidoriView*  view,
             {
                 gchar* res_dir = midori_app_find_res_filename ("");
                 gchar* lib_dir = midori_app_get_lib_path (PACKAGE_NAME);
-                gchar* tmp_dir = midori_view_get_tmp_dir ();
                 data = g_strdup_printf ("<body><h1>%s</h1>"
                     "<p>config: %s</p>"
                     "<p>res: %s</p>"
@@ -4533,10 +4532,10 @@ midori_view_set_uri (MidoriView*  view,
                     "<p>cache: %s</p>"
                     "<p>tmp: %s</p>"
                     "</body>",
-                    uri, sokoke_set_config_dir (NULL), res_dir, lib_dir, g_get_user_cache_dir (), tmp_dir);
+                    uri, midori_paths_get_config_dir (), res_dir,
+                    lib_dir, midori_paths_get_cache_dir (), midori_paths_get_tmp_dir ());
                 g_free (res_dir);
                 g_free (lib_dir);
-                g_free (tmp_dir);
                 katze_assign (view->uri, g_strdup (uri));
             }
             else if (!strcmp (uri, "about:") || !strcmp (uri, "about:version"))
@@ -5643,15 +5642,6 @@ midori_view_fallback_extension (MidoriView* view,
     return "";
 }
 
-gchar*
-midori_view_get_tmp_dir (void)
-{
-    gchar* tmpdir = g_strdup_printf ("%s/midori-%s",
-                                     g_get_tmp_dir (), g_get_user_name ());
-    g_mkdir (tmpdir, 0700);
-    return tmpdir;
-}
-
 /**
  * midori_view_save_source:
  * @view: a #MidoriView
@@ -5687,10 +5677,8 @@ midori_view_save_source (MidoriView* view,
     if (!outfile)
     {
         gchar* extension = midori_view_get_uri_extension (uri);
-        gchar* tmpdir = midori_view_get_tmp_dir ();
-        unique_filename = g_strdup_printf ("%s/%uXXXXXX%s", tmpdir,
+        unique_filename = g_strdup_printf ("%s/%uXXXXXX%s", midori_paths_get_tmp_dir (),
             g_str_hash (uri), midori_view_fallback_extension (view, extension));
-        g_free (tmpdir);
         g_free (extension);
         fd = g_mkstemp (unique_filename);
     }
@@ -6348,8 +6336,7 @@ thumb_view_load_status_cb (WebKitWebView* thumb_view_,
     img = midori_view_web_view_get_snapshot (thumb_view, 240, 160);
     #endif
     file_path  = sokoke_build_thumbnail_path (url);
-    thumb_dir = g_build_path (G_DIR_SEPARATOR_S, g_get_user_cache_dir (),
-                              PACKAGE_NAME, "thumbnails", NULL);
+    thumb_dir = g_build_path (G_DIR_SEPARATOR_S, midori_paths_get_cache_dir (), "thumbnails", NULL);
 
     if (!g_file_test (thumb_dir, G_FILE_TEST_EXISTS))
         katze_mkdir_with_parents (thumb_dir, 0700);
@@ -6549,7 +6536,7 @@ midori_view_save_speed_dial_config (MidoriView* view,
     MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (view));
     GtkWidget* tab;
 
-    config_file = g_build_filename (sokoke_set_config_dir (NULL), "speeddial", NULL);
+    config_file = g_build_filename (midori_paths_get_config_dir (), "speeddial", NULL);
     sokoke_key_file_save_to_file (key_file, config_file, NULL);
     g_free (config_file);
 

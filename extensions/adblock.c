@@ -10,6 +10,7 @@
  See the file COPYING for the full license text.
 */
 #include <midori/midori.h>
+#include "midori-core.h"
 #include <glib/gstdio.h>
 
 #include "config.h"
@@ -179,8 +180,7 @@ adblock_get_filename_for_uri (const gchar* uri)
     if (!strncmp (uri, "file", 4))
         return g_strndup (uri + 7, strlen (uri) - 7);
 
-    folder = g_build_filename (g_get_user_cache_dir (), PACKAGE_NAME,
-                               "adblock", NULL);
+    folder = g_build_filename (midori_paths_get_cache_dir (), "adblock", NULL);
     katze_mkdir_with_parents (folder, 0700);
 
     filename = g_compute_checksum_for_string (G_CHECKSUM_MD5, uri, -1);

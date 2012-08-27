@@ -159,7 +159,7 @@ midori_transferbar_download_notify_status_cb (WebKitDownload* download,
             g_free (fingerprint);
             if (verified)
             {
-                if (!sokoke_is_app_or_private ())
+                if (!midori_paths_is_readonly ())
                     gtk_recent_manager_add_item (gtk_recent_manager_get_default (),
                         webkit_download_get_destination_uri (download));
             }

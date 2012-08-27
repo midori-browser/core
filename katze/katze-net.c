@@ -19,6 +19,7 @@
 
 #include "katze-net.h"
 #include "midori-core.h"
+#include "sokoke.h"
 
 #include <glib/gstdio.h>
 #include <libsoup/soup.h>
@@ -28,7 +29,6 @@ struct _KatzeNet
 {
     GObject parent_instance;
 
-    gchar* cache_path;
     guint cache_size;
 };
 
@@ -54,17 +54,11 @@ katze_net_class_init (KatzeNetClass* class)
 static void
 katze_net_init (KatzeNet* net)
 {
-    net->cache_path = g_build_filename (g_get_user_cache_dir (),
-                                        PACKAGE_NAME, NULL);
 }
 
 static void
 katze_net_finalize (GObject* object)
 {
-    KatzeNet* net = KATZE_NET (object);
-
-    katze_assign (net->cache_path, NULL);
-
     G_OBJECT_CLASS (katze_net_parent_class)->finalize (object);
 }
 
@@ -118,9 +112,9 @@ katze_net_get_cached_path (KatzeNet*    net,
     net = katze_net_new ();
 
     if (subfolder)
-        cache_path = g_build_filename (net->cache_path, subfolder, NULL);
+        cache_path = g_build_filename (midori_paths_get_cache_dir (), subfolder, NULL);
     else
-        cache_path = net->cache_path;
+        cache_path = midori_paths_get_cache_dir ();
     katze_mkdir_with_parents (cache_path, 0700);
     checksum = g_compute_checksum_for_string (G_CHECKSUM_MD5, uri, -1);
 

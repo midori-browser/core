@@ -130,12 +130,6 @@ sokoke_action_create_popup_menu_item    (GtkAction*      action);
 gint64
 sokoke_time_t_to_julian                 (const time_t*   timestamp);
 
-const gchar*
-sokoke_set_config_dir                   (const gchar*    new_config_dir);
-
-gboolean
-sokoke_is_app_or_private                (void);
-
 gboolean
 sokoke_remove_path                      (const gchar*    path,
                                          gboolean        ignore_errors);
