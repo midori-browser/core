@@ -887,7 +887,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                       "zoom-text-and-images",
                                       _("Zoom Text and Images"),
                                       _("Whether to zoom text and images"),
-                                      FALSE,
+                                      TRUE,
                                       flags));
 
     /**
