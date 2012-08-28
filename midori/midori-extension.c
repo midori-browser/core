@@ -646,10 +646,11 @@ midori_extension_get_config_dir (MidoriExtension* extension)
     if (!extension->priv->config_dir)
     {
         gchar* filename = g_object_get_data (G_OBJECT (extension), "filename");
-        if (!filename)
-            return "/";
-        extension->priv->config_dir = g_build_filename (
-            midori_paths_get_config_dir (), "extensions", filename, NULL);
+        if (filename != NULL)
+            extension->priv->config_dir = g_build_filename (
+                midori_paths_get_config_dir (), "extensions", filename, NULL);
+        else
+            extension->priv->config_dir = NULL;
     }
 
     return extension->priv->config_dir;

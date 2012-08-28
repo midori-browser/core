@@ -1678,10 +1678,10 @@ addons_save_settings (MidoriApp*       app,
 
     config_dir = midori_extension_get_config_dir (extension);
     config_file = g_build_filename (config_dir, "addons", NULL);
-    katze_mkdir_with_parents (config_dir, 0700);
+    if (config_dir != NULL)
+        katze_mkdir_with_parents (config_dir, 0700);
     sokoke_key_file_save_to_file (keyfile, config_file, &error);
-    /* If the folder is /, this is a test run, thus no error */
-    if (error && !g_str_equal (config_dir, "/"))
+    if (error && midori_extension_get_config_dir (extension) != NULL)
     {
         g_warning (_("The configuration of the extension '%s' couldn't be saved: %s\n"),
                     _("User addons"), error->message);

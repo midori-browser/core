@@ -522,12 +522,12 @@ formhistory_activate_cb (MidoriExtension* extension,
     formhistory_construct_popup_gui (priv);
 
     config_dir = midori_extension_get_config_dir (extension);
-    katze_mkdir_with_parents (config_dir, 0700);
+    if (config_dir != NULL)
+        katze_mkdir_with_parents (config_dir, 0700);
     filename = g_build_filename (config_dir, "forms.db", NULL);
     if (sqlite3_open (filename, &db) != SQLITE_OK)
     {
-        /* If the folder is /, this is a test run, thus no error */
-        if (!g_str_equal (midori_extension_get_config_dir (extension), "/"))
+        if (config_dir != NULL)
             g_warning (_("Failed to open database: %s\n"), sqlite3_errmsg (db));
         sqlite3_close (db);
     }
