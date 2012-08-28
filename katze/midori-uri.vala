@@ -127,6 +127,9 @@ namespace Midori {
                we'd have to separate the path from the URI first. */
             if (uri == null)
                 return false;
+            /* Skip leading user/ password */
+            if (uri.chr (-1, '@') != null)
+                return is_ip_address (uri.split ("@")[1]);
             /* IPv4 */
             if (uri[0].isdigit () && (uri.chr (4, '.') != null))
                 return true;

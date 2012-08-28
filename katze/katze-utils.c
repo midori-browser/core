@@ -1531,6 +1531,8 @@ katze_uri_entry_changed_cb (GtkWidget* entry,
     gboolean valid = midori_uri_is_location (uri);
     if (!valid && g_object_get_data (G_OBJECT (entry), "allow_%s"))
         valid = uri && g_str_has_prefix (uri, "%s");
+    if (!valid)
+        valid = midori_uri_is_ip_address (uri);
 
     #if GTK_CHECK_VERSION (3, 2, 0)
     g_object_set_data (G_OBJECT (entry), "invalid", GINT_TO_POINTER (*uri && !valid));

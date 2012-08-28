@@ -254,6 +254,19 @@ magic_uri_fingerprint (void)
 }
 
 static void
+magic_uri_ip (void)
+{
+    g_assert (midori_uri_is_ip_address ("192.168.1.1"));
+    g_assert (midori_uri_is_ip_address ("192.168.1.1:1234"));
+    g_assert (midori_uri_is_ip_address ("user@192.168.1.1"));
+    g_assert (midori_uri_is_ip_address ("user:password@192.168.1.1"));
+    g_assert (midori_uri_is_ip_address ("2001:0db8:85a3:0000:0000:8a2e:0370:7334"));
+    g_assert (midori_uri_is_ip_address ("fe80:0:0:0:202:b3ff:fe1e:8329"));
+    g_assert (midori_uri_is_ip_address ("fe80::202:b3ff:fe1e:8329"));
+    g_assert (midori_uri_is_ip_address ("fe80::76e5:bff:fe04:38e0/64"));
+}
+
+static void
 magic_uri_format (void)
 {
     typedef struct
@@ -357,6 +370,7 @@ main (int    argc,
     g_test_add_func ("/magic-uri/pseudo", magic_uri_pseudo);
     g_test_add_func ("/magic-uri/performance", magic_uri_performance);
     g_test_add_func ("/magic-uri/fingerprint", magic_uri_fingerprint);
+    g_test_add_func ("/magic-uri/ip", magic_uri_ip);
     g_test_add_func ("/magic-uri/format", magic_uri_format);
     g_test_add_func ("/magic-uri/prefetch", magic_uri_prefetch);
     g_test_add_func ("/magic-uri/commands", magic_uri_commands);

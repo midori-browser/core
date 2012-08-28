@@ -466,7 +466,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     label = gtk_label_new (_("Hostname"));
     gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
     INDENTED_ADD (label);
-    entry = katze_property_proxy (settings, "http-proxy", NULL);
+    entry = katze_property_proxy (settings, "http-proxy", "address");
     SPANNED_ADD (entry);
     g_signal_connect (settings, "notify::proxy-type",
         G_CALLBACK (midori_preferences_notify_proxy_type_cb), entry);
