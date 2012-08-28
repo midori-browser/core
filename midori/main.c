@@ -2045,11 +2045,11 @@ main (int    argc,
     {
         g_print (
           "%s %s\n\n"
-          "Copyright (c) 2007-2011 Christian Dywan\n\n"
+          "Copyright (c) 2007-2012 Christian Dywan\n\n"
           "%s\n"
           "\t%s\n\n"
           "%s\n"
-          "\thttp://www.twotoasts.de\n",
+          "\thttp://www.midori-browser.org\n",
           _("Midori"), PACKAGE_VERSION,
           _("Please report comments, suggestions and bugs to:"),
           PACKAGE_BUGREPORT,
