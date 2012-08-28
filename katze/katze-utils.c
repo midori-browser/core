@@ -1531,6 +1531,11 @@ katze_uri_entry_changed_cb (GtkWidget* entry,
     gboolean valid = midori_uri_is_location (uri);
     if (!valid && g_object_get_data (G_OBJECT (entry), "allow_%s"))
         valid = uri && g_str_has_prefix (uri, "%s");
+
+    #if GTK_CHECK_VERSION (3, 2, 0)
+    g_object_set_data (G_OBJECT (entry), "invalid", GINT_TO_POINTER (*uri && !valid));
+    gtk_widget_queue_draw (entry);
+    #else
     if (*uri && !valid)
     {
         GdkColor bg_color = { 0 };
@@ -1545,10 +1550,33 @@ katze_uri_entry_changed_cb (GtkWidget* entry,
         gtk_widget_modify_base (entry, GTK_STATE_NORMAL, NULL);
         gtk_widget_modify_text (entry, GTK_STATE_NORMAL, NULL);
     }
+    #endif
 
     if (other_widget != NULL)
         gtk_widget_set_sensitive (other_widget, valid);
 }
+
+#if GTK_CHECK_VERSION (3, 2, 0)
+static gboolean
+katze_uri_entry_draw_cb (GtkWidget* entry,
+                         cairo_t*   cr,
+                         GtkWidget* other_widget)
+{
+    const GdkRGBA color = { 0.9, 0., 0., 1. };
+    double width = gtk_widget_get_allocated_width (entry);
+    double height = gtk_widget_get_allocated_height (entry);
+
+    if (!g_object_get_data (G_OBJECT (entry), "invalid"))
+        return FALSE;
+
+    /* FIXME: error-underline-color requires GtkTextView */
+    gdk_cairo_set_source_rgba (cr, &color);
+
+    pango_cairo_show_error_underline (cr, width * 0.15, height / 1.9,
+        width * 0.75, height / 1.9 / 2);
+    return TRUE;
+}
+#endif
 
 /**
  * katze_uri_entry_new:
@@ -1572,6 +1600,10 @@ katze_uri_entry_new (GtkWidget* other_widget)
         g_themed_icon_new_with_default_fallbacks ("text-html-symbolic"));
     g_signal_connect (entry, "changed",
         G_CALLBACK (katze_uri_entry_changed_cb), other_widget);
+    #if GTK_CHECK_VERSION (3, 2, 0)
+    g_signal_connect_after (entry, "draw",
+        G_CALLBACK (katze_uri_entry_draw_cb), other_widget);
+    #endif
     return entry;
 }
 
