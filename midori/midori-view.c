@@ -4540,9 +4540,7 @@ midori_view_set_uri (MidoriView*  view,
             }
             else if (!strcmp (uri, "about:") || !strcmp (uri, "about:version"))
             {
-                gchar* arguments = g_strjoinv (" ", midori_paths_get_command_line (NULL));
-                gchar* command_line = sokoke_replace_variables (
-                    arguments, g_get_home_dir (), "~", NULL);
+                gchar* command_line = midori_paths_get_command_line_str ();
                 gchar* architecture, *platform;
                 const gchar* sys_name = midori_web_settings_get_system_name (
                     &architecture, &platform);
@@ -4621,7 +4619,6 @@ midori_view_set_uri (MidoriView*  view,
                 data = g_string_free (tmp, FALSE);
 
                 g_free (command_line);
-                g_free (arguments);
                 g_free (ident);
                 g_free (video_formats);
                 g_string_free (more, TRUE);

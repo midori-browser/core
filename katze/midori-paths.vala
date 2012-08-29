@@ -138,7 +138,7 @@ namespace Midori {
             #endif
             if (strcmp (Environment.get_variable ("MIDORI_DEBUG"), "paths") == 0) {
                 stdout.printf ("command_line: %s\nexec_path: %s\nres: %s\nlib: %s\n",
-                               "".joinv (" ", command_line), exec_path,
+                               get_command_line_str (), exec_path,
                                get_res_filename (""), get_lib_path (PACKAGE_NAME));
             }
         }
@@ -146,6 +146,11 @@ namespace Midori {
         public static unowned string[] get_command_line () {
             assert (command_line != null);
             return command_line;
+        }
+
+        public static string get_command_line_str () {
+            assert (command_line != null);
+            return "".joinv (" ", command_line).replace (Environment.get_home_dir (), "~");
         }
 
         public static string get_lib_path (string package) {
