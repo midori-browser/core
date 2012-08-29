@@ -1185,7 +1185,7 @@ midori_view_web_view_resource_request_cb (WebKitWebView*         web_view,
 
     if (g_str_has_prefix (uri, "res://"))
     {
-        gchar* filepath = midori_app_find_res_filename (&uri[6]);
+        gchar* filepath = midori_paths_get_res_filename (&uri[6]);
         gchar* file_uri = g_filename_to_uri (filepath, NULL, NULL);
         g_free (filepath);
         webkit_network_request_set_uri (request, file_uri);
@@ -1503,7 +1503,7 @@ midori_view_display_error (MidoriView*     view,
                            const gchar*    try_again,
                            WebKitWebFrame* web_frame)
 {
-    gchar* path = midori_app_find_res_filename ("error.html");
+    gchar* path = midori_paths_get_res_filename ("error.html");
     gchar* template;
 
     if (g_file_get_contents (path, &template, NULL, NULL))
@@ -4243,7 +4243,7 @@ prepare_speed_dial_html (MidoriView* view,
     gchar** groups;
 
     g_object_get (browser, "speed-dial", &key_file, NULL);
-    file_path = midori_app_find_res_filename ("speeddial-head.html");
+    file_path = midori_paths_get_res_filename ("speeddial-head.html");
 
     if (key_file != NULL
      && g_access (file_path, F_OK) == 0
@@ -4523,8 +4523,8 @@ midori_view_set_uri (MidoriView*  view,
             }
             else if (!strcmp (uri, "about:paths"))
             {
-                gchar* res_dir = midori_app_find_res_filename ("");
-                gchar* lib_dir = midori_app_get_lib_path (PACKAGE_NAME);
+                gchar* res_dir = midori_paths_get_res_filename ("");
+                gchar* lib_dir = midori_paths_get_lib_path (PACKAGE_NAME);
                 data = g_strdup_printf ("<body><h1>%s</h1>"
                     "<p>config: %s</p>"
                     "<p>res: %s</p>"
@@ -4540,7 +4540,7 @@ midori_view_set_uri (MidoriView*  view,
             }
             else if (!strcmp (uri, "about:") || !strcmp (uri, "about:version"))
             {
-                gchar* arguments = g_strjoinv (" ", midori_app_get_command_line ());
+                gchar* arguments = g_strjoinv (" ", midori_paths_get_command_line (NULL));
                 gchar* command_line = sokoke_replace_variables (
                     arguments, g_get_home_dir (), "~", NULL);
                 gchar* architecture, *platform;

@@ -367,7 +367,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     SPANNED_ADD (button);
     /* Disable spell check option if there are no enchant modules */
     {
-        gchar* enchant_path = midori_app_get_lib_path ("enchant");
+        gchar* enchant_path = midori_paths_get_lib_path ("enchant");
         if (enchant_path == NULL)
         {
             gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), FALSE);

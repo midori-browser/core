@@ -233,7 +233,7 @@ _midori_app_add_browser (MidoriApp*     app,
     if (app->browser == NULL)
     {
         gchar* filename;
-        if ((filename = midori_app_find_res_filename ("gtk3.css")))
+        if ((filename = midori_paths_get_res_filename ("gtk3.css")))
         {
             GtkCssProvider* css_provider = gtk_css_provider_new ();
             GError* error = NULL;
@@ -1342,91 +1342,6 @@ midori_app_send_notification (MidoriApp*   app,
     #endif
 }
 
-static gchar** command_line = NULL;
-static gchar* exec_path = NULL;
-
-/**
- * midori_app_get_command_line:
- *
- * Retrieves the argument vector passed at program startup.
- *
- * Return value: the argument vector
- *
- * Since: 0.4.7
- **/
-gchar**
-midori_app_get_command_line (void)
-{
-    return command_line;
-}
-
-/**
- * midori_app_find_res_filename:
- * @filename: a filename or relative path
- *
- * Looks for the specified filename in Midori's resources.
- *
- * Return value: a newly allocated full path
- *
- * Since: 0.4.7
- **/
-gchar*
-midori_app_find_res_filename (const gchar* filename)
-{
-    gchar* path;
-
-    path = g_build_filename (exec_path, "share", PACKAGE_NAME, "res", filename, NULL);
-    if (g_access (path, F_OK) == 0)
-        return path;
-
-    g_free (path);
-
-    /* Fallback to build folder */
-    path = g_build_filename (g_file_get_path (g_file_get_parent (
-        g_file_get_parent (g_file_new_for_path (exec_path)))),
-        "data", filename, NULL);
-    if (g_access (path, F_OK) == 0)
-        return path;
-    g_free (path);
-
-    return g_build_filename (MDATADIR, PACKAGE_NAME, "res", filename, NULL);
-}
-
-/**
- * midori_app_get_lib_path:
- * @package: a filename or relative path
- *
- * Looks for the specified filename in Midori's library path.
- *
- * Return value: a newly allocated full path
- *
- * Since: 0.4.7
- **/
-gchar*
-midori_app_get_lib_path (const gchar* package)
-{
-    gchar* path;
-
-    path = g_build_filename (exec_path, "lib", package, NULL);
-    if (g_access (path, F_OK) == 0)
-        return path;
-
-    g_free (path);
-
-    if (!strcmp (package, PACKAGE_NAME))
-    {
-        /* Fallback to build folder */
-        path = g_build_filename (g_file_get_path (
-            g_file_new_for_path (exec_path)),
-            "extensions", NULL);
-        if (g_access (path, F_OK) == 0)
-            return path;
-        g_free (path);
-    }
-
-    return g_build_filename (LIBDIR, PACKAGE_NAME, NULL);
-}
-
 /**
  * midori_app_setup:
  *
@@ -1445,9 +1360,6 @@ midori_app_setup (gint               *argc,
     GtkIconSet* icon_set;
     GtkIconFactory* factory;
     gsize i;
-    #ifndef G_OS_WIN32
-    gchar* executable;
-    #endif
     gboolean success;
 
     static GtkStockItem items[] =
@@ -1477,6 +1389,11 @@ midori_app_setup (gint               *argc,
     if (!g_thread_supported ()) g_thread_init (NULL);
     #endif
 
+    /* Midori.Paths uses GFile */
+    g_type_init ();
+    /* Preserve argument vector */
+    midori_paths_init_exec_path (*argument_vector, *argc);
+
     #if ENABLE_NLS
     setlocale (LC_ALL, "");
     if (g_getenv ("MIDORI_NLSPATH"))
@@ -1484,7 +1401,7 @@ midori_app_setup (gint               *argc,
     else
     #ifdef G_OS_WIN32
     {
-        gchar* path = sokoke_find_data_filename ("locale", FALSE);
+        gchar* path = midori_paths_get_data_filename ("locale", FALSE);
         bindtextdomain (GETTEXT_PACKAGE, path);
         g_free (path);
     }
@@ -1495,8 +1412,6 @@ midori_app_setup (gint               *argc,
     textdomain (GETTEXT_PACKAGE);
     #endif
 
-    /* Preserve argument vector */
-    command_line = g_strdupv (*argument_vector);
     success = gtk_init_with_args (argc, argument_vector, _("[Addresses]"),
                                   entries, GETTEXT_PACKAGE, error);
 
@@ -1514,28 +1429,6 @@ midori_app_setup (gint               *argc,
     gtk_stock_add_static ((GtkStockItem*)items, G_N_ELEMENTS (items));
     gtk_icon_factory_add_default (factory);
     g_object_unref (factory);
-
-    #ifdef G_OS_WIN32
-    exec_path = g_win32_get_package_installation_directory_of_module (NULL);
-    #else
-    if (!g_path_is_absolute (command_line[0]))
-    {
-        gchar* program = g_find_program_in_path (command_line[0]);
-
-        if (g_file_test (program, G_FILE_TEST_IS_SYMLINK))
-            executable = g_file_read_link (program, NULL);
-        else
-            executable = g_strdup (program);
-
-        g_free (program);
-    }
-    else
-        executable = g_file_read_link (command_line[0], NULL);
-
-    exec_path = g_file_get_path (g_file_get_parent (g_file_get_parent (g_file_new_for_path (
-        executable ? executable : command_line[0]))));
-    g_free (executable);
-    #endif
 
     /* Print messages to stdout on Win32 console, cf. AbiWord
      * http://svn.abisource.com/abiword/trunk/src/wp/main/win/Win32Main.cpp */

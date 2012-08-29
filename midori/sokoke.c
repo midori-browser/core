@@ -492,7 +492,7 @@ void
 sokoke_spawn_app (const gchar* uri,
                   gboolean     private)
 {
-    const gchar* executable = midori_app_get_command_line ()[0];
+    const gchar* executable = midori_paths_get_command_line (NULL)[0];
     gchar* uri_quoted = g_shell_quote (uri);
     gchar* argument;
     if (private)
@@ -1007,92 +1007,6 @@ sokoke_remove_path (const gchar* path,
     g_dir_close (dir);
     g_rmdir (path);
     return TRUE;
-}
-
-/**
- * sokoke_find_config_filename:
- * @folder: a subfolder
- * @filename: a filename or relative path
- *
- * Looks for the specified filename in the system config
- * directories, depending on the platform.
- *
- * Return value: a full path
- **/
-gchar*
-sokoke_find_config_filename (const gchar* folder,
-                             const gchar* filename)
-{
-    const gchar* const* config_dirs = g_get_system_config_dirs ();
-    guint i = 0;
-    const gchar* config_dir;
-    gchar* path;
-
-    if (!folder)
-        folder = "";
-
-    while ((config_dir = config_dirs[i++]))
-    {
-        path = g_build_filename (config_dir, PACKAGE_NAME, folder, filename, NULL);
-        if (g_access (path, F_OK) == 0)
-            return path;
-        g_free (path);
-    }
-
-    #ifdef G_OS_WIN32
-    config_dir = g_win32_get_package_installation_directory_of_module (NULL);
-    path = g_build_filename (config_dir, "etc", "xdg", PACKAGE_NAME, folder, filename, NULL);
-    if (g_access (path, F_OK) == 0)
-        return path;
-    g_free (path);
-    #endif
-
-    return g_build_filename (SYSCONFDIR, "xdg", PACKAGE_NAME, folder, filename, NULL);
-}
-
-/**
- * sokoke_find_data_filename:
- * @filename: a filename or relative path
- *
- * Looks for the specified filename in the system data
- * directories, depending on the platform.
- *
- * Return value: a newly allocated full path
- **/
-gchar*
-sokoke_find_data_filename (const gchar* filename,
-                           gboolean     res)
-{
-    const gchar* res1 = res ? PACKAGE_NAME : "";
-    const gchar* res2 = res ? "res" : "";
-    const gchar* const* data_dirs = g_get_system_data_dirs ();
-    guint i = 0;
-    const gchar* data_dir;
-    gchar* path;
-
-    #ifdef G_OS_WIN32
-    gchar* install_path = g_win32_get_package_installation_directory_of_module (NULL);
-    path = g_build_filename (install_path, "share", res1, res2, filename, NULL);
-    g_free (install_path);
-    if (g_access (path, F_OK) == 0)
-        return path;
-
-    g_free (path);
-    #endif
-
-    path = g_build_filename (midori_paths_get_user_data_dir (), res1, res2, filename, NULL);
-    if (g_access (path, F_OK) == 0)
-        return path;
-    g_free (path);
-
-    while ((data_dir = data_dirs[i++]))
-    {
-        path = g_build_filename (data_dir, res1, res2, filename, NULL);
-        if (g_access (path, F_OK) == 0)
-            return path;
-        g_free (path);
-    }
-    return g_build_filename (MDATADIR, res1, res2, filename, NULL);
 }
 
 gchar*

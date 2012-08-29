@@ -3812,11 +3812,11 @@ _action_readable_activate (GtkAction*     action,
     if (!view)
         return;
 
-    filename = midori_app_find_res_filename ("faq.css");
+    filename = midori_paths_get_res_filename ("faq.css");
     stylesheet = NULL;
     if (!g_file_get_contents (filename, &stylesheet, NULL, NULL))
     {
-        katze_assign (filename, sokoke_find_data_filename ("doc/midori/faq.css", FALSE));
+        katze_assign (filename, midori_paths_get_data_filename ("doc/midori/faq.css", FALSE));
         g_file_get_contents (filename, &stylesheet, NULL, NULL);
     }
     if (!(stylesheet && *stylesheet))
@@ -5106,7 +5106,7 @@ static gchar*
 midori_browser_get_docs (gboolean error)
 {
     #ifdef G_OS_WIN32
-    gchar* path = sokoke_find_data_filename ("doc/midori/faq.html", FALSE);
+    gchar* path = midori_paths_get_data_filename ("doc/midori/faq.html", FALSE);
     if (g_access (path, F_OK) == 0)
         return g_filename_to_uri (path, NULL, NULL);
     else

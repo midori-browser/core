@@ -83,7 +83,7 @@ settings_and_accels_new (const gchar* config,
         if (error->code == G_FILE_ERROR_NOENT)
         {
             GError* inner_error = NULL;
-            katze_assign (config_file, sokoke_find_config_filename (NULL, "config"));
+            katze_assign (config_file, midori_paths_get_config_filename (NULL, "config"));
             g_key_file_load_from_file (key_file, config_file,
                                        G_KEY_FILE_KEEP_COMMENTS, &inner_error);
             if (inner_error != NULL)
@@ -158,7 +158,7 @@ settings_and_accels_new (const gchar* config,
     /* Load accelerators */
     katze_assign (config_file, g_build_filename (config, "accels", NULL));
     if (g_access (config_file, F_OK) != 0)
-        katze_assign (config_file, sokoke_find_config_filename (NULL, "accels"));
+        katze_assign (config_file, midori_paths_get_config_filename (NULL, "accels"));
     gtk_accel_map_load (config_file);
     g_free (config_file);
 
@@ -364,7 +364,7 @@ search_engines_new_from_folder (const gchar* config,
         search_engines = search_engines_new_from_file (config_file, NULL);
         #else
         katze_assign (config_file,
-            sokoke_find_config_filename (NULL, "search"));
+            midori_paths_get_config_filename (NULL, "search"));
         search_engines = search_engines_new_from_file (config_file, NULL);
         #endif
     }
@@ -639,7 +639,7 @@ midori_browser_show_preferences_cb (MidoriBrowser*    browser,
         return;
 
     array = katze_object_get_object (app, "extensions");
-    if ((extension_path = midori_app_get_lib_path (PACKAGE_NAME)))
+    if ((extension_path = midori_paths_get_lib_path (PACKAGE_NAME)))
     {
         GDir* extension_dir = NULL;
         if ((extension_dir = g_dir_open (extension_path, 0, NULL)))
@@ -993,7 +993,7 @@ midori_load_soup_session (gpointer settings)
     /* We cannot use "ssl-use-system-ca-file" on Windows
      * some GTLS backend pieces are missing currently.
      * Instead we specify the bundle we ship ourselves */
-    gchar* certificate_file = midori_app_find_res_filename ("ca-bundle.crt");
+    gchar* certificate_file = midori_paths_get_res_filename ("ca-bundle.crt");
     g_object_set (session,
                   "ssl-ca-file", certificate_file,
                   "ssl-strict", FALSE,
@@ -1330,7 +1330,7 @@ midori_load_extensions (gpointer data)
     if (g_module_supported ())
     {
         gchar* extension_path;
-        if (keys && (extension_path = midori_app_get_lib_path (PACKAGE_NAME)))
+        if (keys && (extension_path = midori_paths_get_lib_path (PACKAGE_NAME)))
         {
             gint i = 0;
             const gchar* filename;

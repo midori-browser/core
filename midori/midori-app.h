@@ -88,15 +88,6 @@ midori_app_setup                  (gint               *argc,
                                    const GOptionEntry *entries,
                                    GError*            *error);
 
-gchar**
-midori_app_get_command_line       (void);
-
-gchar*
-midori_app_find_res_filename      (const gchar* filename);
-
-gchar*
-midori_app_get_lib_path           (const gchar* package);
-
 gboolean
 midori_debug                      (const gchar*       token);
 

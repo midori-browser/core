@@ -135,17 +135,6 @@ sokoke_remove_path                      (const gchar*    path,
                                          gboolean        ignore_errors);
 
 gchar*
-sokoke_find_config_filename             (const gchar*    folder,
-                                         const gchar*    filename);
-
-gchar*
-sokoke_find_data_filename               (const gchar*    filename,
-                                         gboolean        res);
-
-gchar**
-sokoke_get_argv                         (gchar**         argument_vector);
-
-gchar*
 sokoke_replace_variables                (const gchar* template,
                                          const gchar* variable_first, ...);
 

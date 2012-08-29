@@ -2032,7 +2032,7 @@ midori_web_settings_get_property (GObject*    object,
             GtkSettings* settings = gtk_settings_get_for_screen (screen);
             gchar* theme = katze_object_get_string (settings, "gtk-theme-name");
             gchar* theme_file = g_build_filename ("themes", theme, "index.theme", NULL);
-            gchar* filename = sokoke_find_data_filename (theme_file, FALSE);
+            gchar* filename = midori_paths_get_data_filename (theme_file, FALSE);
             g_free (theme_file);
             web_settings->close_buttons_left = 1;
             if (g_access (filename, F_OK) != 0)
