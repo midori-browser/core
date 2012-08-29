@@ -777,11 +777,10 @@ addons_treeview_render_text_cb (GtkTreeViewColumn* column,
 
     gtk_tree_model_get (model, iter, 0, &element, -1);
 
-    g_object_set (renderer, "text", element->displayname, NULL);
-    if (!element->enabled)
-        g_object_set (renderer, "sensitive", false, NULL);
-    else
-        g_object_set (renderer, "sensitive", true, NULL);
+    g_object_set (renderer, "text", element->displayname,
+                            "sensitive", element->enabled,
+                            "ellipsize", PANGO_ELLIPSIZE_END,
+                            NULL);
 }
 
 static void
