@@ -1383,6 +1383,29 @@ midori_app_setup (gint               *argc,
         { STOCK_FOLDER_NEW,   N_("New _Folder") },
     };
 
+    /* Print messages to stdout on Win32 console, cf. AbiWord
+     * http://svn.abisource.com/abiword/trunk/src/wp/main/win/Win32Main.cpp */
+    #ifdef _WIN32
+    if (fileno (stdout) != -1
+    && _get_osfhandle (fileno (stdout)) != -1)
+    {
+        /* stdout is already being redirected to a file */
+    }
+    else
+    {
+        typedef BOOL (WINAPI *AttachConsole_t) (DWORD);
+        AttachConsole_t p_AttachConsole =
+            (AttachConsole_t) GetProcAddress (GetModuleHandle ("kernel32.dll"), "AttachConsole");
+        if (p_AttachConsole != NULL && p_AttachConsole (ATTACH_PARENT_PROCESS))
+        {
+            freopen ("CONOUT$", "w", stdout);
+            dup2 (fileno (stdout), 1);
+            freopen ("CONOUT$", "w", stderr);
+            dup2 (fileno (stderr), 2);
+        }
+    }
+    #endif
+
     /* libSoup uses threads, therefore if WebKit is built with libSoup
      * or Midori is using it, we need to initialize threads. */
     #if !GLIB_CHECK_VERSION (2, 32, 0)
@@ -1429,29 +1452,6 @@ midori_app_setup (gint               *argc,
     gtk_stock_add_static ((GtkStockItem*)items, G_N_ELEMENTS (items));
     gtk_icon_factory_add_default (factory);
     g_object_unref (factory);
-
-    /* Print messages to stdout on Win32 console, cf. AbiWord
-     * http://svn.abisource.com/abiword/trunk/src/wp/main/win/Win32Main.cpp */
-    #ifdef _WIN32
-    if (fileno (stdout) != -1
-    && _get_osfhandle (fileno (stdout)) != -1)
-    {
-        /* stdout is already being redirected to a file */
-    }
-    else
-    {
-        typedef BOOL (WINAPI *AttachConsole_t) (DWORD);
-        AttachConsole_t p_AttachConsole =
-            (AttachConsole_t) GetProcAddress (GetModuleHandle ("kernel32.dll"), "AttachConsole");
-        if (p_AttachConsole != NULL && p_AttachConsole (ATTACH_PARENT_PROCESS))
-        {
-            freopen ("CONOUT$", "w", stdout);
-            dup2 (fileno (stdout), 1);
-            freopen ("CONOUT$", "w", stderr);
-            dup2 (fileno (stderr), 2);
-        }
-    }
-    #endif
 
     return success;
 }
