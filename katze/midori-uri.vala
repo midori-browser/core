@@ -131,7 +131,7 @@ namespace Midori {
             if (uri.chr (-1, '@') != null)
                 return is_ip_address (uri.split ("@")[1]);
             /* IPv4 */
-            if (uri[0].isdigit () && (uri.chr (4, '.') != null))
+            if (uri[0] != '0' && uri[0].isdigit () && (uri.chr (4, '.') != null))
                 return true;
             /* IPv6 */
             if (uri[0].isalnum () && uri[1].isalnum ()
