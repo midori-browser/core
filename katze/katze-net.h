@@ -14,8 +14,6 @@
 
 #include "katze-utils.h"
 
-#include <gtk/gtk.h>
-
 G_BEGIN_DECLS
 
 #define KATZE_TYPE_NET \
