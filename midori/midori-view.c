@@ -3148,10 +3148,6 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
         if (midori_view_is_blank (view))
             view_source = webkit_web_view_get_view_source_mode (WEBKIT_WEB_VIEW (web_view));
 
-        /* Render raw XML, including news feeds, as source */
-        if (!view_source && (!strcmp (mime_type, "application/xml")
-                          || !strcmp (mime_type, "text/xml")))
-            view_source = TRUE;
         webkit_web_view_set_view_source_mode (WEBKIT_WEB_VIEW (web_view), view_source);
 
         if (web_frame == webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view)))
