@@ -33,10 +33,8 @@
 
 struct _MidoriWebSettings
 {
-    WebKitWebSettings parent_instance;
+    MidoriSettings parent_instance;
 
-    gboolean remember_last_window_size : 1;
-    MidoriWindowState last_window_state : 2;
     gboolean show_menubar : 1;
     gboolean show_navigationbar : 1;
     gboolean show_bookmarkbar : 1;
@@ -65,22 +63,14 @@ struct _MidoriWebSettings
     MidoriProxy proxy_type : 2;
     MidoriIdentity identify_as : 3;
 
-    gint last_window_width;
-    gint last_window_height;
-    gint last_panel_position;
-    gint last_panel_page;
-    gint last_web_search;
-    gboolean last_inspector_attached;
     gint maximum_cookie_age;
     gint maximum_history_age;
     gint search_width;
 
-    gchar* toolbar_items;
     gchar* homepage;
     gchar* download_folder;
     gchar* text_editor;
     gchar* news_aggregator;
-    gchar* location_entry_search;
     gchar* http_proxy;
     gint http_proxy_port;
     #if WEBKIT_CHECK_VERSION (1, 3, 11)
@@ -106,23 +96,14 @@ struct _MidoriWebSettings
 
 struct _MidoriWebSettingsClass
 {
-    WebKitWebSettingsClass parent_class;
+    MidoriSettingsClass parent_class;
 };
 
-G_DEFINE_TYPE (MidoriWebSettings, midori_web_settings, WEBKIT_TYPE_WEB_SETTINGS)
+G_DEFINE_TYPE (MidoriWebSettings, midori_web_settings, MIDORI_TYPE_SETTINGS);
 
 enum
 {
     PROP_0,
-
-    PROP_REMEMBER_LAST_WINDOW_SIZE,
-    PROP_LAST_WINDOW_WIDTH,
-    PROP_LAST_WINDOW_HEIGHT,
-    PROP_LAST_WINDOW_STATE,
-    PROP_LAST_PANEL_POSITION,
-    PROP_LAST_PANEL_PAGE,
-    PROP_LAST_WEB_SEARCH,
-    PROP_LAST_INSPECTOR_ATTACHED,
 
     PROP_SHOW_MENUBAR,
     PROP_SHOW_NAVIGATIONBAR,
@@ -131,10 +112,7 @@ enum
     PROP_SHOW_STATUSBAR,
 
     PROP_TOOLBAR_STYLE,
-    PROP_TOOLBAR_ITEMS,
-    PROP_COMPACT_SIDEPANEL,
     PROP_RIGHT_ALIGN_SIDEPANEL,
-    PROP_OPEN_PANELS_IN_WINDOWS,
 
     PROP_LOAD_ON_STARTUP,
     PROP_HOMEPAGE,
@@ -142,7 +120,6 @@ enum
     PROP_DOWNLOAD_FOLDER,
     PROP_TEXT_EDITOR,
     PROP_NEWS_AGGREGATOR,
-    PROP_LOCATION_ENTRY_SEARCH,
     PROP_PREFERRED_ENCODING,
 
     PROP_ALWAYS_SHOW_TABBAR,
@@ -167,7 +144,6 @@ enum
     PROP_ENABLE_OFFLINE_WEB_APPLICATION_CACHE,
     PROP_ENABLE_PAGE_CACHE,
     PROP_ZOOM_TEXT_AND_IMAGES,
-    PROP_FIND_WHILE_TYPING,
     PROP_KINETIC_SCROLLING,
     PROP_MAXIMUM_COOKIE_AGE,
     PROP_FIRST_PARTY_COOKIES_ONLY,
@@ -182,34 +158,12 @@ enum
     PROP_USER_AGENT,
     PROP_PREFERRED_LANGUAGES,
 
-    PROP_CLEAR_PRIVATE_DATA,
-    PROP_CLEAR_DATA,
     PROP_SITE_DATA_RULES,
     PROP_ENABLE_DNS_PREFETCHING,
     PROP_STRIP_REFERER,
     PROP_ENFORCE_FONT_FAMILY,
     PROP_USER_STYLESHEET_URI,
-
-    PROP_SEARCH_WIDTH,
 };
-
-GType
-midori_window_state_get_type (void)
-{
-    static GType type = 0;
-    if (!type)
-    {
-        static const GEnumValue values[] = {
-         { MIDORI_WINDOW_NORMAL, "MIDORI_WINDOW_NORMAL", "Normal" },
-         { MIDORI_WINDOW_MINIMIZED, "MIDORI_WINDOW_MINIMIZED", "Minimized" },
-         { MIDORI_WINDOW_MAXIMIZED, "MIDORI_WINDOW_MAXIMIZED", "Maximized" },
-         { MIDORI_WINDOW_FULLSCREEN, "MIDORI_WINDOW_FULLSCREEN", "Fullscreen" },
-         { 0, NULL, NULL }
-        };
-        type = g_enum_register_static ("MidoriWindowState", values);
-    }
-    return type;
-}
 
 GType
 midori_startup_get_type (void)
@@ -399,94 +353,6 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
     flags = G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_STATIC_STRINGS;
 
     g_object_class_install_property (gobject_class,
-                                     PROP_REMEMBER_LAST_WINDOW_SIZE,
-                                     g_param_spec_boolean (
-                                     "remember-last-window-size",
-                                     _("Remember last window size"),
-                                     _("Whether to save the last window size"),
-                                     TRUE,
-                                     flags));
-
-    g_object_class_install_property (gobject_class,
-                                     PROP_LAST_WINDOW_WIDTH,
-                                     g_param_spec_int (
-                                     "last-window-width",
-                                     _("Last window width"),
-                                     _("The last saved window width"),
-                                     0, G_MAXINT, 0,
-                                     flags | MIDORI_PARAM_DELAY_SAVING));
-
-    g_object_class_install_property (gobject_class,
-                                     PROP_LAST_WINDOW_HEIGHT,
-                                     g_param_spec_int (
-                                     "last-window-height",
-                                     _("Last window height"),
-                                     _("The last saved window height"),
-                                     0, G_MAXINT, 0,
-                                     flags | MIDORI_PARAM_DELAY_SAVING));
-
-    /**
-    * MidoriWebSettings:last-window-state:
-    *
-    * The last saved window state.
-    *
-    * Since: 0.1.3
-    */
-    g_object_class_install_property (gobject_class,
-                                     PROP_LAST_WINDOW_STATE,
-                                     g_param_spec_enum (
-                                     "last-window-state",
-                                     "Last window state",
-                                     "The last saved window state",
-                                     MIDORI_TYPE_WINDOW_STATE,
-                                     MIDORI_WINDOW_NORMAL,
-                                     flags | MIDORI_PARAM_DELAY_SAVING));
-
-    g_object_class_install_property (gobject_class,
-                                     PROP_LAST_PANEL_POSITION,
-                                     g_param_spec_int (
-                                     "last-panel-position",
-                                     _("Last panel position"),
-                                     _("The last saved panel position"),
-                                     0, G_MAXINT, 0,
-                                     flags | MIDORI_PARAM_DELAY_SAVING));
-
-    g_object_class_install_property (gobject_class,
-                                     PROP_LAST_PANEL_PAGE,
-                                     g_param_spec_int (
-                                     "last-panel-page",
-        /* i18n: The internal index of the last opened panel */
-                                     _("Last panel page"),
-                                     _("The last saved panel page"),
-                                     0, G_MAXINT, 0,
-                                     flags | MIDORI_PARAM_DELAY_SAVING));
-
-    g_object_class_install_property (gobject_class,
-                                     PROP_LAST_WEB_SEARCH,
-                                     g_param_spec_int (
-                                     "last-web-search",
-                                     _("Last Web search"),
-                                     _("The last saved Web search"),
-                                     0, G_MAXINT, 0,
-                                     flags));
-    /**
-     * MidoriWebSettings:last-inspector-attached:
-     *
-     * Whether the inspector was attached.
-     *
-     * Since: 0.4.7
-     */
-    g_object_class_install_property (gobject_class,
-                                     PROP_LAST_INSPECTOR_ATTACHED,
-                                     g_param_spec_boolean (
-                                     "last-inspector-attached",
-                                     "Inspector attached",
-                                     "Whether the inspector was attached",
-                                     FALSE,
-                                     flags | MIDORI_PARAM_DELAY_SAVING));
-
-
-    g_object_class_install_property (gobject_class,
                                      PROP_SHOW_MENUBAR,
                                      g_param_spec_boolean (
                                      "show-menubar",
@@ -542,24 +408,6 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      MIDORI_TOOLBAR_DEFAULT,
                                      flags));
 
-    g_object_class_install_property (gobject_class,
-                                     PROP_TOOLBAR_ITEMS,
-                                     g_param_spec_string (
-                                     "toolbar-items",
-                                     _("Toolbar Items"),
-                                     _("The items to show on the toolbar"),
-                                     "TabNew,Back,NextForward,ReloadStop,BookmarkAdd,Location,Search,Trash,CompactMenu",
-                                     flags));
-
-    g_object_class_install_property (gobject_class,
-                                     PROP_COMPACT_SIDEPANEL,
-                                     g_param_spec_boolean (
-                                     "compact-sidepanel",
-                                     _("Compact Sidepanel"),
-                                     _("Whether to make the sidepanel compact"),
-                                     FALSE,
-                                     flags));
-
     /**
     * MidoriWebSettings:right-sidepanel:
     *
@@ -575,23 +423,6 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("Whether to align the sidepanel on the right"),
                                      FALSE,
                                      flags));
-
-    /**
-     * MidoriWebSettings:open-panels-in-window:
-     *
-     * Whether to open panels in separate windows.
-     *
-     * Since: 0.2.2
-     */
-    g_object_class_install_property (gobject_class,
-                                     PROP_OPEN_PANELS_IN_WINDOWS,
-                                     g_param_spec_boolean (
-                                     "open-panels-in-windows",
-                                     _("Open panels in separate windows"),
-        _("Whether to always open panels in separate windows"),
-                                     FALSE,
-                                     flags));
-
 
     g_object_class_install_property (gobject_class,
                                      PROP_LOAD_ON_STARTUP,
@@ -659,15 +490,6 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      "news-aggregator",
                                      _("News Aggregator"),
                                      _("An external news aggregator"),
-                                     NULL,
-                                     flags));
-
-    g_object_class_install_property (gobject_class,
-                                     PROP_LOCATION_ENTRY_SEARCH,
-                                     g_param_spec_string (
-                                     "location-entry-search",
-                                     _("Location entry Search"),
-                                     _("The search to perform inside the location entry"),
                                      NULL,
                                      flags));
 
@@ -891,22 +713,6 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                       flags));
 
     /**
-    * MidoriWebSettings:find-while-typing:
-    *
-    * Whether to automatically find inline while typing something.
-    *
-    * Since: 0.1.4
-    */
-    g_object_class_install_property (gobject_class,
-                                     PROP_FIND_WHILE_TYPING,
-                                     g_param_spec_boolean (
-                                     "find-while-typing",
-                                     _("Find inline while typing"),
-                                     _("Whether to automatically find inline while typing"),
-                                     FALSE,
-                                     flags));
-
-    /**
     * MidoriWebSettings:kinetic-scrolling:
     *
     * Whether scrolling should kinetically move according to speed.
@@ -1053,8 +859,8 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      PROP_USER_AGENT,
                                      g_param_spec_string (
                                      "user-agent",
-                                     _("Identification string"),
-                                     _("The application identification string"),
+                                     "Identification string",
+                                     "The application identification string",
                                      NULL,
                                      flags));
 
@@ -1075,37 +881,6 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      NULL,
                                      flags));
 
-    /**
-     * MidoriWebSettings:clear-private-data:
-     *
-     * The core data selected for deletion.
-     *
-     * Since: 0.1.7
-     */
-    g_object_class_install_property (gobject_class,
-                                     PROP_CLEAR_PRIVATE_DATA,
-                                     g_param_spec_int (
-                                     "clear-private-data",
-                                     _("Clear private data"),
-                                     _("The private data selected for deletion"),
-                                     0, G_MAXINT, 0,
-                                     flags));
-
-    /**
-     * MidoriWebSettings:clear-data:
-     *
-     * The data selected for deletion, including extensions.
-     *
-     * Since: 0.2.9
-     */
-    g_object_class_install_property (gobject_class,
-                                     PROP_CLEAR_DATA,
-                                     g_param_spec_string (
-                                     "clear-data",
-                                     _("Clear data"),
-                                     _("The data selected for deletion"),
-                                     NULL,
-                                     flags));
     /**
      * MidoriWebSettings:site-data-rules:
      *
@@ -1180,22 +955,6 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      "User stylesheet URI",
                                      "Load stylesheets from a local URI",
                                      NULL,
-                                     flags | MIDORI_PARAM_DELAY_SAVING));
-
-    /**
-     * MidoriWebSettings:search-entry-width:
-     *
-     * Search action width in pixels
-     *
-     * Since: 0.4.3
-     **/
-    g_object_class_install_property (gobject_class,
-                                     PROP_SEARCH_WIDTH,
-                                     g_param_spec_int (
-                                     "search-width",
-                                     "Search action width",
-                                     "Search action width in pixels",
-                                     10, G_MAXINT, 200,
                                      flags | MIDORI_PARAM_DELAY_SAVING));
 }
 
@@ -1275,12 +1034,10 @@ midori_web_settings_finalize (GObject* object)
 
     web_settings = MIDORI_WEB_SETTINGS (object);
 
-    katze_assign (web_settings->toolbar_items, NULL);
     katze_assign (web_settings->homepage, NULL);
     katze_assign (web_settings->download_folder, NULL);
     katze_assign (web_settings->text_editor, NULL);
     katze_assign (web_settings->news_aggregator, NULL);
-    katze_assign (web_settings->location_entry_search, NULL);
     katze_assign (web_settings->http_proxy, NULL);
     katze_assign (web_settings->http_accept_language, NULL);
     katze_assign (web_settings->accept, NULL);
@@ -1617,31 +1374,6 @@ midori_web_settings_set_property (GObject*      object,
 
     switch (prop_id)
     {
-    case PROP_REMEMBER_LAST_WINDOW_SIZE:
-        web_settings->remember_last_window_size = g_value_get_boolean (value);
-        break;
-    case PROP_LAST_WINDOW_WIDTH:
-        web_settings->last_window_width = g_value_get_int (value);
-        break;
-    case PROP_LAST_WINDOW_HEIGHT:
-        web_settings->last_window_height = g_value_get_int (value);
-        break;
-    case PROP_LAST_WINDOW_STATE:
-        web_settings->last_window_state = g_value_get_enum (value);
-        break;
-    case PROP_LAST_PANEL_POSITION:
-        web_settings->last_panel_position = g_value_get_int (value);
-        break;
-    case PROP_LAST_PANEL_PAGE:
-        web_settings->last_panel_page = g_value_get_int (value);
-        break;
-    case PROP_LAST_WEB_SEARCH:
-        web_settings->last_web_search = g_value_get_int (value);
-        break;
-    case PROP_LAST_INSPECTOR_ATTACHED:
-        web_settings->last_inspector_attached = g_value_get_boolean (value);
-        break;
-
     case PROP_SHOW_MENUBAR:
         web_settings->show_menubar = g_value_get_boolean (value);
         break;
@@ -1661,17 +1393,8 @@ midori_web_settings_set_property (GObject*      object,
     case PROP_TOOLBAR_STYLE:
         web_settings->toolbar_style = g_value_get_enum (value);
         break;
-    case PROP_TOOLBAR_ITEMS:
-        katze_assign (web_settings->toolbar_items, g_value_dup_string (value));
-        break;
-    case PROP_COMPACT_SIDEPANEL:
-        web_settings->compact_sidepanel = g_value_get_boolean (value);
-        break;
     case PROP_RIGHT_ALIGN_SIDEPANEL:
         web_settings->right_align_sidepanel = g_value_get_boolean (value);
-        break;
-    case PROP_OPEN_PANELS_IN_WINDOWS:
-        web_settings->open_panels_in_windows = g_value_get_boolean (value);
         break;
 
     case PROP_LOAD_ON_STARTUP:
@@ -1691,9 +1414,6 @@ midori_web_settings_set_property (GObject*      object,
         break;
     case PROP_NEWS_AGGREGATOR:
         katze_assign (web_settings->news_aggregator, g_value_dup_string (value));
-        break;
-    case PROP_LOCATION_ENTRY_SEARCH:
-        katze_assign (web_settings->location_entry_search, g_value_dup_string (value));
         break;
     case PROP_PREFERRED_ENCODING:
         web_settings->preferred_encoding = g_value_get_enum (value);
@@ -1792,9 +1512,6 @@ midori_web_settings_set_property (GObject*      object,
     case PROP_ZOOM_TEXT_AND_IMAGES:
         web_settings->zoom_text_and_images = g_value_get_boolean (value);
         break;
-    case PROP_FIND_WHILE_TYPING:
-        web_settings->find_while_typing = g_value_get_boolean (value);
-        break;
     case PROP_KINETIC_SCROLLING:
         web_settings->kinetic_scrolling = g_value_get_boolean (value);
         break;
@@ -1843,12 +1560,6 @@ midori_web_settings_set_property (GObject*      object,
         g_object_set (web_settings, "spell-checking-languages",
                       web_settings->http_accept_language, NULL);
         midori_web_settings_update_accept_language (web_settings);
-        break;
-    case PROP_CLEAR_PRIVATE_DATA:
-        web_settings->clear_private_data = g_value_get_int (value);
-        break;
-    case PROP_CLEAR_DATA:
-        katze_assign (web_settings->clear_data, g_value_dup_string (value));
         break;
     case PROP_SITE_DATA_RULES:
         katze_assign (web_settings->site_data_rules, g_value_dup_string (value));
@@ -1912,9 +1623,6 @@ midori_web_settings_set_property (GObject*      object,
             midori_web_settings_process_stylesheets (web_settings, new_len - old_len);
         }
         break;
-    case PROP_SEARCH_WIDTH:
-        web_settings->search_width = g_value_get_int (value);
-        break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
         break;
@@ -1931,31 +1639,6 @@ midori_web_settings_get_property (GObject*    object,
 
     switch (prop_id)
     {
-    case PROP_REMEMBER_LAST_WINDOW_SIZE:
-        g_value_set_boolean (value, web_settings->remember_last_window_size);
-        break;
-    case PROP_LAST_WINDOW_WIDTH:
-        g_value_set_int (value, web_settings->last_window_width);
-        break;
-    case PROP_LAST_WINDOW_HEIGHT:
-        g_value_set_int (value, web_settings->last_window_height);
-        break;
-    case PROP_LAST_WINDOW_STATE:
-        g_value_set_enum (value, web_settings->last_window_state);
-        break;
-    case PROP_LAST_PANEL_POSITION:
-        g_value_set_int (value, web_settings->last_panel_position);
-        break;
-    case PROP_LAST_PANEL_PAGE:
-        g_value_set_int (value, web_settings->last_panel_page);
-        break;
-    case PROP_LAST_WEB_SEARCH:
-        g_value_set_int (value, web_settings->last_web_search);
-        break;
-    case PROP_LAST_INSPECTOR_ATTACHED:
-        g_value_set_boolean (value, web_settings->last_inspector_attached);
-        break;
-
     case PROP_SHOW_MENUBAR:
         g_value_set_boolean (value, web_settings->show_menubar);
         break;
@@ -1975,17 +1658,8 @@ midori_web_settings_get_property (GObject*    object,
     case PROP_TOOLBAR_STYLE:
         g_value_set_enum (value, web_settings->toolbar_style);
         break;
-    case PROP_TOOLBAR_ITEMS:
-        g_value_set_string (value, web_settings->toolbar_items);
-        break;
-    case PROP_COMPACT_SIDEPANEL:
-        g_value_set_boolean (value, web_settings->compact_sidepanel);
-        break;
     case PROP_RIGHT_ALIGN_SIDEPANEL:
         g_value_set_boolean (value, web_settings->right_align_sidepanel);
-        break;
-    case PROP_OPEN_PANELS_IN_WINDOWS:
-        g_value_set_boolean (value, web_settings->open_panels_in_windows);
         break;
 
     case PROP_LOAD_ON_STARTUP:
@@ -2005,9 +1679,6 @@ midori_web_settings_get_property (GObject*    object,
         break;
     case PROP_NEWS_AGGREGATOR:
         g_value_set_string (value, web_settings->news_aggregator);
-        break;
-    case PROP_LOCATION_ENTRY_SEARCH:
-        g_value_set_string (value, web_settings->location_entry_search);
         break;
     case PROP_PREFERRED_ENCODING:
         g_value_set_enum (value, web_settings->preferred_encoding);
@@ -2114,9 +1785,6 @@ midori_web_settings_get_property (GObject*    object,
     case PROP_ZOOM_TEXT_AND_IMAGES:
         g_value_set_boolean (value, web_settings->zoom_text_and_images);
         break;
-    case PROP_FIND_WHILE_TYPING:
-        g_value_set_boolean (value, web_settings->find_while_typing);
-        break;
     case PROP_KINETIC_SCROLLING:
         g_value_set_boolean (value, web_settings->kinetic_scrolling);
         break;
@@ -2159,12 +1827,6 @@ midori_web_settings_get_property (GObject*    object,
     case PROP_PREFERRED_LANGUAGES:
         g_value_set_string (value, web_settings->http_accept_language);
         break;
-    case PROP_CLEAR_PRIVATE_DATA:
-        g_value_set_int (value, web_settings->clear_private_data);
-        break;
-    case PROP_CLEAR_DATA:
-        g_value_set_string (value, web_settings->clear_data);
-        break;
     case PROP_SITE_DATA_RULES:
         g_value_set_string (value, web_settings->site_data_rules);
         break;
@@ -2193,9 +1855,6 @@ midori_web_settings_get_property (GObject*    object,
     case PROP_USER_STYLESHEET_URI:
         g_value_take_string (value, katze_object_get_string (web_settings,
             "WebKitWebSettings::user-stylesheet-uri"));
-        break;
-    case PROP_SEARCH_WIDTH:
-        g_value_set_int (value, web_settings->search_width);
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);

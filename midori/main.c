@@ -536,7 +536,7 @@ settings_notify_cb (MidoriWebSettings* settings,
     gchar* config_file;
 
     /* Skip state related properties to avoid disk IO */
-    if (pspec && pspec->flags & MIDORI_PARAM_DELAY_SAVING)
+    if (pspec && midori_settings_delay_saving (MIDORI_SETTINGS (settings), pspec->name))
         return;
 
     config_file = build_config_filename ("config");
