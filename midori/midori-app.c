@@ -1418,7 +1418,6 @@ midori_app_setup (gint               *argc,
     midori_paths_init_exec_path (*argument_vector, *argc);
 
     #if ENABLE_NLS
-    setlocale (LC_ALL, "");
     if (g_getenv ("MIDORI_NLSPATH"))
         bindtextdomain (GETTEXT_PACKAGE, g_getenv ("MIDORI_NLSPATH"));
     else
