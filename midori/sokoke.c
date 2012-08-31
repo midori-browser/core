@@ -64,14 +64,17 @@ sokoke_js_script_eval (JSContextRef js_context,
                        const gchar* script,
                        gchar**      exception)
 {
+    JSGlobalContextRef temporary_context = NULL;
     gchar* value;
     JSStringRef js_value_string;
     JSStringRef js_script;
     JSValueRef js_exception = NULL;
     JSValueRef js_value;
 
-    g_return_val_if_fail (js_context, FALSE);
     g_return_val_if_fail (script, FALSE);
+
+    if (!js_context)
+        js_context = temporary_context = JSGlobalContextCreateInGroup (NULL, NULL);
 
     js_script = JSStringCreateWithUTF8CString (script);
     js_value = JSEvaluateScript (js_context, js_script,
@@ -91,12 +94,16 @@ sokoke_js_script_eval (JSContextRef js_context,
             g_free (value);
         }
         JSStringRelease (js_message);
+        if (temporary_context)
+            JSGlobalContextRelease (temporary_context);
         return NULL;
     }
 
     js_value_string = JSValueToStringCopy (js_context, js_value, NULL);
     value = sokoke_js_string_utf8 (js_value_string);
     JSStringRelease (js_value_string);
+    if (temporary_context)
+        JSGlobalContextRelease (temporary_context);
     return value;
 }
 

@@ -1578,92 +1578,6 @@ signal_handler (int signal_id)
 }
 #endif
 
-static GKeyFile*
-speeddial_new_from_file (const gchar* config,
-                         GError**     error)
-{
-
-    GKeyFile* key_file = g_key_file_new ();
-    gchar* config_file = g_build_filename (config, "speeddial", NULL);
-    guint i = 0;
-    gchar* json_content;
-    gsize json_length;
-    GString* script;
-    JSGlobalContextRef js_context;
-    gchar* keyfile;
-    gchar* thumb_dir;
-    gchar** tiles;
-
-    if (g_key_file_load_from_file (key_file, config_file, G_KEY_FILE_NONE, error))
-    {
-        g_free (config_file);
-        return key_file;
-    }
-
-    katze_assign (config_file, g_build_filename (config, "speeddial.json", NULL));
-    if (!g_file_get_contents (config_file, &json_content, &json_length, NULL))
-    {
-        katze_assign (json_content, g_strdup ("'{}'"));
-        json_length = strlen ("'{}'");
-    }
-
-    script = g_string_sized_new (json_length);
-    g_string_append (script, "var json = JSON.parse (");
-    g_string_append_len (script, json_content, json_length);
-    g_string_append (script, "); "
-        "var keyfile = '';"
-        "for (var i in json['shortcuts']) {"
-        "var tile = json['shortcuts'][i];"
-        "keyfile += '[Dial ' + tile['id'].substring (1) + ']\\n'"
-        "        +  'uri=' + tile['href'] + '\\n'"
-        "        +  'img=' + tile['img'] + '\\n'"
-        "        +  'title=' + tile['title'] + '\\n\\n';"
-        "} "
-        "var columns = json['width'] ? json['width'] : 3;"
-        "var rows = json['shortcuts'] ? json['shortcuts'].length / columns : 0;"
-        "keyfile += '[settings]\\n'"
-        "        +  'columns=' + columns + '\\n'"
-        "        +  'rows=' + (rows > 3 ? rows : 3) + '\\n\\n';"
-        "keyfile;");
-    g_free (json_content);
-    js_context = JSGlobalContextCreateInGroup (NULL, NULL);
-    keyfile = sokoke_js_script_eval (js_context, script->str, NULL);
-    JSGlobalContextRelease (js_context);
-    g_string_free (script, TRUE);
-    g_key_file_load_from_data (key_file, keyfile, -1, 0, NULL);
-    g_free (keyfile);
-    tiles = g_key_file_get_groups (key_file, NULL);
-    thumb_dir = g_build_path (G_DIR_SEPARATOR_S, midori_paths_get_cache_dir (), "thumbnails", NULL);
-    if (!g_file_test (thumb_dir, G_FILE_TEST_EXISTS))
-        katze_mkdir_with_parents (thumb_dir, 0700);
-    g_free (thumb_dir);
-
-    while (tiles[i] != NULL)
-    {
-        gsize sz;
-        gchar* uri = g_key_file_get_string (key_file, tiles[i], "uri", NULL);
-        gchar* img = g_key_file_get_string (key_file, tiles[i], "img", NULL);
-        if (img != NULL && (uri && *uri && *uri != '#'))
-        {
-            guchar* decoded = g_base64_decode (img, &sz);
-            gchar* thumb_path = sokoke_build_thumbnail_path (uri);
-            g_file_set_contents (thumb_path, (gchar*)decoded, sz, NULL);
-            g_free (thumb_path);
-            g_free (decoded);
-        }
-        g_free (img);
-        g_free (uri);
-        g_key_file_remove_key (key_file, tiles[i], "img", NULL);
-        i++;
-    }
-    g_strfreev (tiles);
-
-    katze_assign (config_file, g_build_filename (config, "speeddial", NULL));
-    sokoke_key_file_save_to_file (key_file, config_file, NULL);
-    g_free (config_file);
-    return key_file;
-}
-
 static void
 midori_soup_session_block_uris_cb (SoupSession* session,
                                    SoupMessage* msg,
@@ -1970,7 +1884,7 @@ main (int    argc,
     gchar** extensions;
     MidoriWebSettings* settings;
     gchar* config_file;
-    GKeyFile* speeddial;
+    MidoriSpeedDial* dial;
     MidoriStartup load_on_startup;
     KatzeArray* search_engines;
     KatzeArray* bookmarks;
@@ -2476,8 +2390,8 @@ main (int    argc,
     }
     midori_startup_timer ("History read: \t%f");
 
-    error = NULL;
-    speeddial = speeddial_new_from_file (config, &error);
+    katze_assign (config_file, g_build_filename (config, "speeddial", NULL));
+    dial = midori_speed_dial_new (config_file, NULL);
 
     /* In case of errors */
     if (error_messages->len)
@@ -2594,7 +2508,7 @@ main (int    argc,
                        "trash", trash,
                        "search-engines", search_engines,
                        "history", history,
-                       "speed-dial", speeddial,
+                       "speed-dial", dial->keyfile,
                        NULL);
     g_object_unref (history);
     g_object_unref (search_engines);
@@ -2657,7 +2571,7 @@ main (int    argc,
     }
 
     g_object_unref (settings);
-    g_key_file_free (speeddial);
+    g_object_unref (dial);
     g_object_unref (app);
     g_free (config_file);
     return 0;
