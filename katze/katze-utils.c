@@ -810,6 +810,7 @@ katze_property_proxy (gpointer     object,
                     G_CALLBACK (proxy_entry_focus_out_event_cb), object);
                 g_object_set_data_full (G_OBJECT (entry), "property",
                                         g_strdup (custom), g_free);
+                gtk_widget_set_tooltip_text (widget, NULL);
             }
             else
                 gtk_widget_set_tooltip_text (widget, custom_text);
@@ -827,8 +828,6 @@ katze_property_proxy (gpointer     object,
         widget = gtk_label_new (gettext (nick));
     g_free (string);
 
-    if (!gtk_widget_get_tooltip_text (widget))
-        gtk_widget_set_tooltip_text (widget, g_param_spec_get_blurb (pspec));
     gtk_widget_set_sensitive (widget, pspec->flags & G_PARAM_WRITABLE);
 
     g_object_set_data_full (G_OBJECT (widget), "property",
@@ -869,14 +868,8 @@ katze_property_label (gpointer     object,
         return gtk_label_new (property);
     }
 
-    #ifdef HAVE_HILDON_2_2
-    if (G_PARAM_SPEC_TYPE (pspec) == G_TYPE_PARAM_ENUM)
-        return gtk_label_new (NULL);
-    #endif
-
     nick = g_param_spec_get_nick (pspec);
     widget = gtk_label_new (nick);
-    gtk_widget_set_tooltip_text (widget, g_param_spec_get_blurb (pspec));
     gtk_misc_set_alignment (GTK_MISC (widget), 0.0, 0.5);
 
     return widget;

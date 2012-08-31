@@ -694,12 +694,17 @@ midori_browser_privacy_preferences_cb (MidoriBrowser*    browser,
 
     katze_preferences_add_category (preferences, _("Privacy"), GTK_STOCK_INDEX);
     katze_preferences_add_group (preferences, NULL);
-    button = katze_property_label (settings, "maximum-cookie-age");
+    button = gtk_label_new (_("Delete old Cookies after:"));
+    gtk_misc_set_alignment (GTK_MISC (button), 0.0, 0.5);
+    gtk_widget_set_tooltip_text (button, _("The maximum number of days to save cookies for"));
     katze_preferences_add_widget (preferences, button, "indented");
     button = katze_property_proxy (settings, "maximum-cookie-age", "days");
+    gtk_widget_set_tooltip_text (button, _("The maximum number of days to save cookies for"));
     katze_preferences_add_widget (preferences, button, "spanned");
     #ifdef HAVE_LIBSOUP_2_29_91
     button = katze_property_proxy (settings, "first-party-cookies-only", NULL);
+    gtk_button_set_label (GTK_BUTTON (button), _("Only accept Cookies from sites you visit"));
+    gtk_widget_set_tooltip_text (button, _("Block cookies sent by third-party websites"));
     katze_preferences_add_widget (preferences, button, "filled");
     #endif
 
@@ -711,15 +716,24 @@ midori_browser_privacy_preferences_cb (MidoriBrowser*    browser,
     g_free (markup);
     katze_preferences_add_widget (preferences, label, "filled");
     button = katze_property_proxy (settings, "enable-offline-web-application-cache", NULL);
+    gtk_button_set_label (GTK_BUTTON (button), _("Enable offline web application cache"));
     katze_preferences_add_widget (preferences, button, "indented");
     button = katze_property_proxy (settings, "enable-html5-local-storage", NULL);
+    gtk_button_set_label (GTK_BUTTON (button), _("Enable HTML5 local storage support"));
     katze_preferences_add_widget (preferences, button, "spanned");
     button = katze_property_proxy (settings, "strip-referer", NULL);
+    /* i18n: Reworded: Shorten details propagated when going to another page */
+    gtk_button_set_label (GTK_BUTTON (button), _("Strip referrer details sent to websites"));
+    /* i18n: Referer here is not a typo but a technical term */
+    gtk_widget_set_tooltip_text (button, _("Whether the \"Referer\" header should be shortened to the hostname"));
     katze_preferences_add_widget (preferences, button, "indented");
     katze_preferences_add_widget (preferences, gtk_label_new (NULL), "indented");
-    button = katze_property_label (settings, "maximum-history-age");
+    button = gtk_label_new (_("Delete pages from history after:"));
+    gtk_misc_set_alignment (GTK_MISC (button), 0.0, 0.5);
+    gtk_widget_set_tooltip_text (button, _("The maximum number of days to save the history for"));
     katze_preferences_add_widget (preferences, button, "indented");
     button = katze_property_proxy (settings, "maximum-history-age", "days");
+    gtk_widget_set_tooltip_text (button, _("The maximum number of days to save the history for"));
     katze_preferences_add_widget (preferences, button, "spanned");
 }
 
@@ -1110,6 +1124,7 @@ midori_show_diagnostic_dialog (MidoriWebSettings* settings,
     gtk_box_pack_start (GTK_BOX (box), button, FALSE, FALSE, 4);
     gtk_widget_show_all (align);
     button = katze_property_proxy (settings, "show-crash-dialog", NULL);
+    gtk_button_set_label (GTK_BUTTON (button), _("Show a dialog after Midori crashed"));
     gtk_widget_show (button);
     gtk_container_add (GTK_CONTAINER (content_area), button);
     gtk_container_set_focus_child (GTK_CONTAINER (dialog), gtk_dialog_get_action_area (GTK_DIALOG (dialog)));

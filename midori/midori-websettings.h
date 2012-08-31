@@ -34,8 +34,6 @@ G_BEGIN_DECLS
 typedef struct _MidoriWebSettings                MidoriWebSettings;
 typedef struct _MidoriWebSettingsClass           MidoriWebSettingsClass;
 
-#define MIDORI_PARAM_DELAY_SAVING (1 << 8)
-
 enum
 {
     MIDORI_CLEAR_NONE = 0,
