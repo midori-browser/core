@@ -5673,6 +5673,7 @@ midori_view_save_source (MidoriView* view,
         unique_filename = g_strdup_printf ("%s/%uXXXXXX%s", midori_paths_get_tmp_dir (),
             g_str_hash (uri), midori_view_fallback_extension (view, extension));
         g_free (extension);
+        katze_mkdir_with_parents (midori_paths_get_tmp_dir (), 0700);
         fd = g_mkstemp (unique_filename);
     }
     else
