@@ -46,6 +46,9 @@ static GString* blockcss = NULL;
 static gboolean
 adblock_parse_file (gchar* path);
 
+static gboolean
+adblock_file_is_up_to_date (gchar* path);
+
 static void
 adblock_reload_rules (MidoriExtension* extension,
                       gboolean         custom_only);
@@ -223,7 +226,8 @@ adblock_reload_rules (MidoriExtension* extension,
                 continue;
             }
 
-            if (!adblock_parse_file (path))
+            if (!adblock_parse_file (path)
+            ||  !adblock_file_is_up_to_date (path))
             {
                 WebKitNetworkRequest* request;
                 WebKitDownload* download;
@@ -1511,6 +1515,85 @@ adblock_parse_line (gchar* line)
         return adblock_add_url_pattern ("^", "fulluri", line);
     }
     return adblock_add_url_pattern ("", "uri", line);
+}
+
+static GDateMonth
+str_month_name_to_gdate (const gchar* month)
+{
+    guint i;
+    const gchar* months[] = {
+        "", "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    };
+
+    for (i = 0; i < G_N_ELEMENTS (months); i++)
+    {
+        if (strncmp (month, months[i], 3) == 0)
+            return i;
+    }
+    return 0;
+}
+
+static gboolean
+adblock_file_is_up_to_date (gchar* path)
+{
+    FILE* file;
+    guint days_to_expire = 0;
+    gchar* timestamp = NULL;
+    gchar line[2000];
+
+    /* Check a chunk of header for update info */
+    if ((file = g_fopen (path, "r")))
+    {
+        guint i;
+        for (i = 0; i <= 10; i++)
+        {
+            fgets (line, 2000, file);
+            if (strncmp ("! Expires", line, 9) == 0)
+            {
+                gchar** parts = g_strsplit (line, " ", 4);
+                days_to_expire = atoi (parts[2]);
+                g_strfreev (parts);
+            }
+            if (strncmp ("! Last modified", line, 15) == 0)
+            {
+                gchar** parts = g_strsplit (line, ":", 2);
+                timestamp = g_strdup (parts[1] + 1);
+                g_strchomp (timestamp);
+                g_strfreev (parts);
+            }
+        }
+
+        if (days_to_expire && timestamp != NULL)
+        {
+            guint days_elapsed = 0;
+
+            GDate* current = g_date_new ();
+            GDate* mod_date = g_date_new ();
+            gchar** parts = g_strsplit (timestamp, " ", 4);
+
+            g_date_set_day (mod_date, atoi (parts[0]));
+            g_date_set_month (mod_date, str_month_name_to_gdate (parts[1]));
+            g_date_set_year (mod_date, atoi (parts[2]));
+            g_strfreev (parts);
+
+            g_date_set_time_t (current, time (NULL));
+            days_elapsed = g_date_days_between (mod_date, current);
+
+            g_date_free (current);
+            g_date_free (mod_date);
+            g_free (timestamp);
+
+            if (days_elapsed < days_to_expire)
+                return TRUE;
+            else
+                return FALSE;
+        }
+        else
+            g_free (timestamp);
+        return TRUE;
+    }
+    return FALSE;
 }
 
 static gboolean
