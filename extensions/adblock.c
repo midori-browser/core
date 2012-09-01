@@ -43,7 +43,7 @@ static GHashTable* blockcssprivate = NULL;
 static GHashTable* navigationwhitelist = NULL;
 static GString* blockcss = NULL;
 
-static gboolean
+static void
 adblock_parse_file (gchar* path);
 
 static gboolean
@@ -226,8 +226,7 @@ adblock_reload_rules (MidoriExtension* extension,
                 continue;
             }
 
-            if (!adblock_parse_file (path)
-            ||  !adblock_file_is_up_to_date (path))
+            if (!adblock_file_is_up_to_date (path))
             {
                 WebKitNetworkRequest* request;
                 WebKitDownload* download;
@@ -242,6 +241,8 @@ adblock_reload_rules (MidoriExtension* extension,
                     G_CALLBACK (adblock_download_notify_status_cb), extension);
                 webkit_download_start (download);
             }
+            else
+                adblock_parse_file (path);
             g_free (path);
             i++;
         }
@@ -1596,7 +1597,7 @@ adblock_file_is_up_to_date (gchar* path)
     return FALSE;
 }
 
-static gboolean
+static void
 adblock_parse_file (gchar* path)
 {
     FILE* file;
@@ -1607,9 +1608,7 @@ adblock_parse_file (gchar* path)
         while (fgets (line, 2000, file))
             adblock_parse_line (line);
         fclose (file);
-        return TRUE;
     }
-    return FALSE;
 }
 
 static void
