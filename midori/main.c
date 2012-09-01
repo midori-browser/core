@@ -935,7 +935,7 @@ midori_soup_session_settings_accept_language_cb (SoupSession*       session,
 
         /* With HTTP, Host is optional. Strip to outsmart some filter proxies */
         if (destination && destination->scheme == SOUP_URI_SCHEME_HTTP)
-            soup_message_headers_replace (msg->request_headers, "Host", NULL);
+            soup_message_headers_remove (msg->request_headers, "Host");
     }
 }
 
