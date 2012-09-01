@@ -1465,7 +1465,7 @@ midori_debug (const gchar* token)
     if (debug_token == NULL)
     {
         gchar* found_token;
-        if (debug && (found_token = strstr (full_debug_tokens, debug)) && *found_token == ' ')
+        if (debug && (found_token = strstr (full_debug_tokens, debug)) && *(found_token + strlen (debug)) == ' ')
         {
             #ifdef G_ENABLE_DEBUG
             debug_token = g_intern_static_string (debug);
@@ -1473,7 +1473,7 @@ midori_debug (const gchar* token)
             g_warning ("Value '%s' for MIDORI_DEBUG requires a full debugging build.", debug);
             #endif
         }
-        else if (debug && (found_token = strstr (debug_tokens, debug)) && *found_token == ' ')
+        else if (debug && (found_token = strstr (debug_tokens, debug)) && *(found_token + strlen (debug)) == ' ')
             debug_token = g_intern_static_string (debug);
         else if (debug)
             g_warning ("Unrecognized value '%s' for MIDORI_DEBUG.", debug);
