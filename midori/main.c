@@ -311,8 +311,6 @@ search_engines_new_from_file (const gchar* filename,
     key_file = g_key_file_new ();
     g_key_file_load_from_file (key_file, filename,
                                G_KEY_FILE_KEEP_COMMENTS, error);
-    /*g_key_file_load_from_data_dirs(keyFile, sFilename, NULL
-     , G_KEY_FILE_KEEP_COMMENTS, error);*/
     engines = g_key_file_get_groups (key_file, NULL);
     pspecs = g_object_class_list_properties (G_OBJECT_GET_CLASS (search_engines),
 	                                     &n_properties);
@@ -355,18 +353,10 @@ search_engines_new_from_folder (const gchar* config,
     }
     if (!error && katze_array_is_empty (search_engines))
     {
-        g_object_unref (search_engines);
-        #ifdef G_OS_WIN32
-        gchar* dir = g_win32_get_package_installation_directory_of_module (NULL);
-        katze_assign (config_file,
-            g_build_filename (dir, "etc", "xdg", PACKAGE_NAME, "search", NULL));
-        g_free (dir);
-        search_engines = search_engines_new_from_file (config_file, NULL);
-        #else
         katze_assign (config_file,
             midori_paths_get_config_filename (NULL, "search"));
-        search_engines = search_engines_new_from_file (config_file, NULL);
-        #endif
+        katze_object_assign (search_engines,
+            search_engines_new_from_file (config_file, NULL));
     }
     else if (error)
     {
