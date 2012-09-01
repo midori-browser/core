@@ -1460,7 +1460,7 @@ midori_debug (const gchar* token)
 {
     static const gchar* debug_token = NULL;
     const gchar* debug = g_getenv ("MIDORI_DEBUG");
-    const gchar* debug_tokens = "soup soup:1 soup:2 soup:3 cookies paths ";
+    const gchar* debug_tokens = "soup soup:1 soup:2 soup:3 cookies paths hsts ";
     const gchar* full_debug_tokens = "adblock:1 adblock:2 startup bookmarks ";
     if (debug_token == NULL)
     {

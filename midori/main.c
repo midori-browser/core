@@ -1039,6 +1039,9 @@ midori_load_soup_session (gpointer settings)
     g_signal_connect (session, "request-queued",
         G_CALLBACK (midori_soup_session_settings_accept_language_cb), settings);
 
+    soup_session_add_feature (session,
+        SOUP_SESSION_FEATURE (midori_hsts_new (build_config_filename ("hsts"))));
+
     midori_soup_session_debug (session);
 
     g_object_set_data (G_OBJECT (session), "midori-session-initialized", (void*)1);
