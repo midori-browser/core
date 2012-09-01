@@ -100,7 +100,7 @@ struct _MidoriBrowser
     KatzeArray* trash;
     KatzeArray* search_engines;
     KatzeArray* history;
-    GKeyFile* speeddial;
+    MidoriSpeedDial* dial;
     gboolean show_tabs;
 
     gboolean show_navigationbar;
@@ -1239,26 +1239,19 @@ midori_browser_add_speed_dial (MidoriBrowser* browser)
 {
     GdkPixbuf* img;
     GtkWidget* view = midori_browser_get_current_tab (browser);
-    gchar* slot_id = midori_speed_dial_get_next_free_slot_fk (browser->speeddial);
-    gchar* uri;
-    gchar* title;
 
-    if (slot_id == NULL)
-        return;
-
-    uri = g_strdup (midori_view_get_display_uri (MIDORI_VIEW (view)));
-    title = g_strdup (midori_view_get_display_title (MIDORI_VIEW (view)));
     if ((img = midori_view_get_snapshot (MIDORI_VIEW (view), 240, 160)))
     {
+        gchar* slot_id = midori_speed_dial_get_next_free_slot (browser->dial);
         gchar* dial_id = g_strdup_printf ("Dial %s", slot_id + 1);
-        midori_speed_dial_add_fk (dial_id, uri, title, img, browser->speeddial);
+        midori_speed_dial_add (browser->dial, dial_id,
+            midori_view_get_display_uri (MIDORI_VIEW (view)),
+            midori_view_get_display_title (MIDORI_VIEW (view)), img);
         g_free (dial_id);
-        midori_view_save_speed_dial_config (MIDORI_VIEW (view), browser->speeddial);
+        midori_view_save_speed_dial_config (MIDORI_VIEW (view));
         g_object_unref (img);
+        g_free (slot_id);
     }
-    g_free (uri);
-    g_free (title);
-    g_free (slot_id);
 }
 
 
@@ -2408,15 +2401,15 @@ midori_browser_class_init (MidoriBrowserClass* class)
     * The speed dial configuration file.
     *
     * Since: 0.3.4
+    * Since 0.4.7 this is a Midori.SpeedDial instance.
     */
     g_object_class_install_property (gobject_class,
                                      PROP_SPEED_DIAL,
                                      g_param_spec_pointer (
                                      "speed-dial",
                                      "Speeddial",
-                                     "Pointer to key-value object with speed dial items",
+                                     "Speed dial",
                                      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
-
 
     /**
      * MidoriBrowser:show-tabs:
@@ -6270,7 +6263,7 @@ midori_browser_init (MidoriBrowser* browser)
     browser->bookmarks = NULL;
     browser->trash = NULL;
     browser->search_engines = NULL;
-    browser->speeddial = NULL;
+    browser->dial = NULL;
 
     /* Setup the window metrics */
     g_signal_connect (browser, "realize",
@@ -6761,7 +6754,7 @@ midori_browser_finalize (GObject* object)
     katze_object_assign (browser->trash, NULL);
     katze_object_assign (browser->search_engines, NULL);
     katze_object_assign (browser->history, NULL);
-    browser->speeddial = NULL;
+    browser->dial = NULL;
 
     katze_assign (browser->news_aggregator, NULL);
 
@@ -7535,7 +7528,7 @@ midori_browser_set_property (GObject*      object,
         midori_browser_set_history (browser, g_value_get_object (value));
         break;
     case PROP_SPEED_DIAL:
-        browser->speeddial = g_value_get_pointer (value);
+        browser->dial = g_value_get_pointer (value);
         break;
     case PROP_SHOW_TABS:
         browser->show_tabs = g_value_get_boolean (value);
@@ -7607,7 +7600,7 @@ midori_browser_get_property (GObject*    object,
         g_value_set_object (value, browser->history);
         break;
     case PROP_SPEED_DIAL:
-        g_value_set_pointer (value, browser->speeddial);
+        g_value_set_pointer (value, browser->dial);
         break;
     case PROP_SHOW_TABS:
         g_value_set_boolean (value, browser->show_tabs);

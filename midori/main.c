@@ -2508,7 +2508,7 @@ main (int    argc,
                        "trash", trash,
                        "search-engines", search_engines,
                        "history", history,
-                       "speed-dial", dial->keyfile,
+                       "speed-dial", dial,
                        NULL);
     g_object_unref (history);
     g_object_unref (search_engines);

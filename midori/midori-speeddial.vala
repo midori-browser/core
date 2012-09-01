@@ -20,9 +20,12 @@ namespace Sokoke {
 
 namespace Midori {
     public class SpeedDial : GLib.Object {
+        string filename;
         public GLib.KeyFile keyfile;
+        string? html = null;
 
-        public SpeedDial (string filename, string? fallback = null) {
+        public SpeedDial (string new_filename, string? fallback = null) {
+            filename = new_filename;
             keyfile = new GLib.KeyFile ();
             try {
                 keyfile.load_from_file (filename, GLib.KeyFileFlags.NONE);
@@ -91,7 +94,7 @@ namespace Midori {
             }
         }
 
-        public static string get_next_free_slot_fk (KeyFile keyfile) {
+        public string get_next_free_slot () {
             uint slot_count = 0;
             foreach (string tile in keyfile.get_groups ()) {
                 try {
@@ -111,7 +114,7 @@ namespace Midori {
             return "s%u".printf (slot_count + 1);
         }
 
-        public static void add_fk (string id, string uri, string title, Gdk.Pixbuf img, KeyFile keyfile) {
+        public void add (string id, string uri, string title, Gdk.Pixbuf img) {
             keyfile.set_string (id, "uri", uri);
             keyfile.set_string (id, "title", title);
 
@@ -126,8 +129,11 @@ namespace Midori {
             }
         }
 
-        public static string? get_html_fk (KeyFile? keyfile,
-            bool close_buttons_left, GLib.Object view, bool load_missing) throws Error {
+        public unowned string get_html (bool close_buttons_left, GLib.Object view) throws Error {
+            bool load_missing = true;
+
+            if (html != null)
+                return html;
 
             string? head = null;
             string filename = Paths.get_res_filename ("speeddial-head.html");
@@ -222,10 +228,61 @@ namespace Midori {
                     """,
                     slot_count + 1, slot_count + 1, _("Click to add a shortcut"));
                 markup.append_printf ("</div>\n</body>\n</html>\n");
-                return markup.str;
+                html = markup.str;
+            }
+            else
+                html = "";
+
+            return html;
+        }
+
+        public void save_message (string message) throws Error {
+            string msg = message.substring (16, -1);
+            string[] parts = msg.split (" ", 4);
+            string action = parts[0];
+
+            if (action == "add" || action == "rename"
+                                || action == "delete" || action == "swap") {
+                uint slot_id = parts[1].to_int () + 1;
+                string dial_id = "Dial %u".printf (slot_id);
+
+                if (action == "delete") {
+                    string uri = keyfile.get_string (dial_id, "uri");
+                    string file_path = Sokoke.build_thumbnail_path (uri);
+                    keyfile.remove_group (dial_id);
+                    FileUtils.unlink (file_path);
+                }
+                else if (action == "add") {
+                    keyfile.set_string (dial_id, "uri", parts[2]);
+                    /* FIXME midori_view_speed_dial_get_thumb (view, dial_id, parts[2]); */
+                }
+                else if (action == "rename") {
+                    uint offset = parts[0].length + parts[1].length + 2;
+                    string title = msg.substring (offset, -1);
+                    keyfile.set_string (dial_id, "title", title);
+                }
+                else if (action == "swap") {
+                    uint slot2_id = parts[2].to_int () + 1;
+                    string dial2_id = "Dial %u".printf (slot2_id);
+
+                    string uri = keyfile.get_string (dial_id, "uri");
+                    string title = keyfile.get_string (dial_id, "title");
+                    string uri2 = keyfile.get_string (dial2_id, "uri");
+                    string title2 = keyfile.get_string (dial2_id, "title");
+
+                    keyfile.set_string (dial_id, "uri", uri2);
+                    keyfile.set_string (dial2_id, "uri", uri);
+                    keyfile.set_string (dial_id, "title", title2);
+                    keyfile.set_string (dial2_id, "title", title);
+                }
             }
 
-            return null;
+        }
+
+        public void save () throws Error {
+            html = null;
+
+            FileUtils.set_contents (filename, keyfile.to_data ());
         }
     }
 }

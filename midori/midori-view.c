@@ -225,7 +225,6 @@ enum {
 
 static guint signals[LAST_SIGNAL];
 
-static gchar* speeddial_markup = NULL;
 static GtkWidget* thumb_view = NULL;
 static GList* thumb_queue = NULL;
 
@@ -252,10 +251,6 @@ static void
 midori_view_settings_notify_cb (MidoriWebSettings* settings,
                                 GParamSpec*        pspec,
                                 MidoriView*        view);
-
-static void
-midori_view_speed_dial_save (MidoriView*   view,
-                             const gchar* message);
 
 static void
 midori_view_class_init (MidoriViewClass* class)
@@ -3314,7 +3309,13 @@ webkit_web_view_console_message_cb (GtkWidget*   web_view,
         return FALSE;
 
     if (!strncmp (message, "speed_dial-save", 13))
-        midori_view_speed_dial_save (view, message);
+    {
+        MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (view));
+        MidoriSpeedDial* dial = katze_object_get_object (browser, "speed-dial");
+
+        midori_speed_dial_save_message (dial, message, NULL);
+        midori_view_save_speed_dial_config (view);
+    }
     else
         g_signal_emit (view, signals[CONSOLE_MESSAGE], 0, message, line, source_id);
     return TRUE;
@@ -4225,17 +4226,6 @@ list_about_uris (GString* markup)
                                 valid_about_uris[i], valid_about_uris[i]);
 }
 
-static gchar*
-prepare_speed_dial_html (MidoriView* view,
-                         gboolean    load_missing)
-{
-    MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (view));
-    GKeyFile* key_file = katze_object_get_object (browser, "speed-dial");
-    return midori_speed_dial_get_html_fk (key_file,
-        katze_object_get_boolean (view->settings, "close-buttons-left"),
-        G_OBJECT (view), load_missing, NULL);
-}
-
 
 /**
  * midori_view_set_uri:
@@ -4263,6 +4253,9 @@ midori_view_set_uri (MidoriView*  view,
     {
         if (!uri || !strcmp (uri, "") || !strcmp (uri, "about:blank"))
         {
+            MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (view));
+            MidoriSpeedDial* dial = katze_object_get_object (browser, "speed-dial");
+            const gchar* html;
             #ifdef G_ENABLE_DEBUG
             GTimer* timer = NULL;
 
@@ -4275,11 +4268,10 @@ midori_view_set_uri (MidoriView*  view,
             katze_item_set_meta_string (view->item, "mime-type", NULL);
             katze_item_set_meta_integer (view->item, "delay", -1);
 
-            if (speeddial_markup == NULL)
-                speeddial_markup = prepare_speed_dial_html (view, TRUE);
-
-            midori_view_load_alternate_string (view,
-                speeddial_markup ? speeddial_markup : "", "about:blank", NULL);
+            html = midori_speed_dial_get_html (dial,
+                katze_object_get_boolean (view->settings, "close-buttons-left"),
+                G_OBJECT (view), NULL);
+            midori_view_load_alternate_string (view, html, "about:blank", NULL);
 
             #ifdef G_ENABLE_DEBUG
             if (midori_debug ("startup"))
@@ -6180,17 +6172,18 @@ thumb_view_load_status_cb (WebKitWebView* thumb_view_,
     #if HAVE_OFFSCREEN
     GdkPixbuf* pixbuf_scaled;
     #endif
-    gchar* file_path;
-    gchar* thumb_dir;
     gchar* spec;
     gchar* url;
     gchar* dial_id;
     MidoriBrowser* browser;
-    GKeyFile* key_file;
+    MidoriSpeedDial* dial;
     const gchar* title;
 
     if (webkit_web_view_get_load_status (thumb_view_) != WEBKIT_LOAD_FINISHED)
         return;
+
+    browser = midori_browser_get_for_widget (GTK_WIDGET (view));
+    dial = katze_object_get_object (browser, "speed-dial");
 
     spec = g_object_get_data (G_OBJECT (thumb_view), "spec");
     url = strstr (spec, "|") + 1;
@@ -6205,24 +6198,11 @@ thumb_view_load_status_cb (WebKitWebView* thumb_view_,
     gtk_widget_realize (thumb_view);
     img = midori_view_web_view_get_snapshot (thumb_view, 240, 160);
     #endif
-    file_path  = sokoke_build_thumbnail_path (url);
-    thumb_dir = g_build_path (G_DIR_SEPARATOR_S, midori_paths_get_cache_dir (), "thumbnails", NULL);
 
-    if (!g_file_test (thumb_dir, G_FILE_TEST_EXISTS))
-        katze_mkdir_with_parents (thumb_dir, 0700);
-
-    gdk_pixbuf_save (img, file_path, "png", NULL, "compression", "7", NULL);
-
-    g_object_unref (img);
-
-    g_free (file_path);
-    g_free (thumb_dir);
-
-    browser = midori_browser_get_for_widget (GTK_WIDGET (view));
-    g_object_get (browser, "speed-dial", &key_file, NULL);
     title = webkit_web_view_get_title (WEBKIT_WEB_VIEW (thumb_view));
-    g_key_file_set_string (key_file, dial_id, "title", title ? title : url);
-    midori_view_save_speed_dial_config (view, key_file);
+    midori_speed_dial_add (dial, dial_id, url, title ? title : url, img);
+    g_object_unref (img);
+    midori_view_save_speed_dial_config (view);
 
     thumb_queue = g_list_remove (thumb_queue, spec);
     if (thumb_queue != NULL)
@@ -6310,110 +6290,16 @@ midori_view_speed_dial_get_thumb (MidoriView* view,
     webkit_web_view_load_uri (WEBKIT_WEB_VIEW (thumb_view), url);
 }
 
-/**
- * midori_view_speed_dial_save
- * @view: a #MidoriView
- * @message: message from JavaScript
- *
- * Save speed_dial settings
- *
- **/
-static void
-midori_view_speed_dial_save (MidoriView*  view,
-                             const gchar* message)
-{
-    gchar* action;
-    GKeyFile* key_file;
-    MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (view));
-    gchar* msg = g_strdup (message + 16);
-    gchar** parts = g_strsplit (msg, " ", 4);
-
-    g_object_get (browser, "speed-dial", &key_file, NULL);
-    action = parts[0];
-
-    if (g_str_equal (action, "add") || g_str_equal (action, "rename")
-    ||  g_str_equal (action, "delete") || g_str_equal (action, "swap"))
-    {
-        gchar* tmp = g_strdup (parts[1] + 1);
-        guint slot_id = atoi (tmp);
-        gchar* dial_id = g_strdup_printf ("Dial %d", slot_id);
-        g_free (tmp);
-
-
-        if (g_str_equal (action, "delete"))
-        {
-            gchar* uri = g_key_file_get_string (key_file, dial_id, "uri", NULL);
-            gchar* file_path = sokoke_build_thumbnail_path (uri);
-
-            g_key_file_remove_group (key_file, dial_id, NULL);
-            g_unlink (file_path);
-
-            g_free (uri);
-            g_free (file_path);
-        }
-        else if (g_str_equal (action, "add"))
-        {
-            g_key_file_set_string (key_file, dial_id, "uri", parts[2]);
-            midori_view_speed_dial_get_thumb (view, dial_id, parts[2]);
-        }
-        else if (g_str_equal (action, "rename"))
-        {
-            guint offset = strlen (parts[0]) + strlen (parts[1]) + 2;
-            gchar* title = g_strdup (msg + offset);
-            g_key_file_set_string (key_file, dial_id, "title", title);
-            g_free (title);
-        }
-        else if (g_str_equal (action, "swap"))
-        {
-            gchar* tmp1 = g_strdup (parts[2] + 1);
-            guint slot2_id = atoi (tmp1);
-            gchar* dial2_id = g_strdup_printf ("Dial %d", slot2_id);
-            gchar* uri, *uri2, *title, *title2;
-            g_free (tmp1);
-
-            uri = g_key_file_get_string (key_file, dial_id, "uri", NULL);
-            title = g_key_file_get_string (key_file, dial_id, "title", NULL);
-            uri2 = g_key_file_get_string (key_file, dial2_id, "uri", NULL);
-            title2 = g_key_file_get_string (key_file, dial2_id, "title", NULL);
-
-            g_key_file_set_string (key_file, dial_id, "uri", uri2);
-            g_key_file_set_string (key_file, dial2_id, "uri", uri);
-            g_key_file_set_string (key_file, dial_id, "title", title2);
-            g_key_file_set_string (key_file, dial2_id, "title", title);
-
-            g_free (uri);
-            g_free (uri2);
-            g_free (title);
-            g_free (title2);
-            g_free (dial2_id);
-        }
-
-        g_free (dial_id);
-    }
-
-    midori_view_save_speed_dial_config (view, key_file);
-
-    g_free (msg);
-    g_free (action);
-}
-
 void
-midori_view_save_speed_dial_config (MidoriView* view,
-                                    GKeyFile*   key_file)
+midori_view_save_speed_dial_config (MidoriView* view)
 {
-    gchar* config_file;
     guint i = 0;
     MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (view));
+    MidoriSpeedDial* dial = katze_object_get_object (browser, "speed-dial");
     GtkWidget* tab;
 
-    config_file = g_build_filename (midori_paths_get_config_dir (), "speeddial", NULL);
-    sokoke_key_file_save_to_file (key_file, config_file, NULL);
-    g_free (config_file);
-
-    katze_assign (speeddial_markup, prepare_speed_dial_html (view, FALSE));
-
+    midori_speed_dial_save (dial, NULL);
     while ((tab = midori_browser_get_nth_tab (browser, i++)))
         if (midori_view_is_blank (MIDORI_VIEW (tab)))
             midori_view_reload (MIDORI_VIEW (tab), FALSE);
-
 }

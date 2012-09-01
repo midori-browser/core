@@ -291,8 +291,7 @@ midori_view_add_info_bar               (MidoriView*        view,
                                         ...);
 
 void
-midori_view_save_speed_dial_config     (MidoriView*        view,
-                                        GKeyFile*          key_file);
+midori_view_save_speed_dial_config     (MidoriView*        view);
 
 const gchar*
 midori_view_fallback_extension         (MidoriView*        view,
