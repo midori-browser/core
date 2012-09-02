@@ -155,6 +155,9 @@ namespace Midori {
 
         public static string get_lib_path (string package) {
             assert (command_line != null);
+            #if HAVE_WIN32
+            return Path.build_filename (exec_path, "lib", package);
+            #else
             string path = Path.build_filename (exec_path, "lib", package);
             if (Posix.access (path, Posix.F_OK) == 0)
                 return path;
@@ -167,10 +170,14 @@ namespace Midori {
             }
 
             return Path.build_filename (LIBDIR, PACKAGE_NAME);
+            #endif
         }
 
         public static string get_res_filename (string filename) {
             assert (command_line != null);
+            #if HAVE_WIN32
+            return Path.build_filename (exec_path, "share", PACKAGE_NAME, "res", filename);
+            #else
             string path = Path.build_filename (exec_path, "share", PACKAGE_NAME, "res", filename);
             if (Posix.access (path, Posix.F_OK) == 0)
                 return path;
@@ -182,6 +189,7 @@ namespace Midori {
                 return path;
 
             return Path.build_filename (MDATADIR, PACKAGE_NAME, "res", filename);
+            #endif
         }
 
         public static string get_data_filename (string filename, bool res) {
@@ -190,9 +198,7 @@ namespace Midori {
             string res2 = res ? "res" : "";
 
             #if HAVE_WIN32
-            string path = Path.build_filename (exec_path, "share", res1, res2, filename);
-            if (Posix.access (path, Posix.F_OK) == 0)
-                return path;
+            return Path.build_filename (exec_path, "share", res1, res2, filename);
             #else
             string path = Path.build_filename (get_user_data_dir (), res1, res2, filename);
             if (Posix.access (path, Posix.F_OK) == 0)
@@ -203,27 +209,25 @@ namespace Midori {
                 if (Posix.access (path, Posix.F_OK) == 0)
                     return path;
             }
-            #endif
 
             return Path.build_filename (MDATADIR, res1, res2, filename);
+            #endif
         }
 
         public static string get_config_filename (string? folder, string filename) {
             assert (config_dir != null);
 
+            #if HAVE_WIN32
+            return Path.build_filename (exec_path, "etc", "xdg", PACKAGE_NAME, folder ?? "", filename);
+            #else
             foreach (string config_dir in Environment.get_system_config_dirs ()) {
                 string path = Path.build_filename (config_dir, PACKAGE_NAME, folder ?? "", filename);
                 if (Posix.access (path, Posix.F_OK) == 0)
                     return path;
             }
 
-            #if HAVE_WIN32
-            string path = Path.build_filename (exec_path, "etc", "xdg", PACKAGE_NAME, folder ?? "", filename);
-            if (Posix.access (path, Posix.F_OK) == 0)
-                return path;
-            #endif
-
             return Path.build_filename (SYSCONFDIR, "xdg", PACKAGE_NAME, folder ?? "", filename);
+            #endif
         }
     }
 }
