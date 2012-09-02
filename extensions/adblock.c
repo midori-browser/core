@@ -1556,7 +1556,20 @@ adblock_file_is_up_to_date (gchar* path)
                 days_to_expire = atoi (parts[2]);
                 g_strfreev (parts);
             }
-            if (strncmp ("! Last modified", line, 15) == 0)
+            if (strncmp ("! This list expires after", line, 25) == 0)
+            {
+                gchar** parts = g_strsplit (line, " ", 7);
+
+                if (strncmp (parts[6], "days", 4) == 0)
+                    days_to_expire = atoi (parts[5]);
+                if (strncmp (parts[6], "hours", 5) == 0)
+                    days_to_expire = (atoi (parts[5])) / 24;
+
+                g_strfreev (parts);
+            }
+
+            if (strncmp ("! Last modified", line, 15) == 0
+            ||  strncmp ("! Updated", line, 9) == 0)
             {
                 gchar** parts = g_strsplit (line, ":", 2);
                 timestamp = g_strdup (parts[1] + 1);
@@ -1571,10 +1584,25 @@ adblock_file_is_up_to_date (gchar* path)
 
             GDate* current = g_date_new ();
             GDate* mod_date = g_date_new ();
-            gchar** parts = g_strsplit (timestamp, " ", 4);
+            gchar** parts;
+            gboolean use_dots = FALSE;
+
+            /* Common dates are 20 Mar 2012, 20.08.2012 */
+            if (g_strrstr (timestamp, "."))
+            {
+                use_dots = TRUE;
+                parts = g_strsplit (timestamp, ".", 4);
+            }
+            else
+                parts = g_strsplit (timestamp, " ", 4);
 
             g_date_set_day (mod_date, atoi (parts[0]));
-            g_date_set_month (mod_date, str_month_name_to_gdate (parts[1]));
+
+            if (use_dots)
+                g_date_set_month (mod_date, atoi (parts[1]));
+            else
+                g_date_set_month (mod_date, str_month_name_to_gdate (parts[1]));
+
             g_date_set_year (mod_date, atoi (parts[2]));
             g_strfreev (parts);
 
