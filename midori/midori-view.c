@@ -924,12 +924,12 @@ midori_view_update_load_status (MidoriView*      view,
 
     #ifdef HAVE_GRANITE
     if (view->tab)
-        g_object_set (view->tab,
-            "working", view->load_status != MIDORI_LOAD_FINISHED, NULL);
+        g_object_set (view->tab, "working",
+            midori_view_get_progress (view) > 0.0, NULL);
     #else
     if (view->tab_icon)
         katze_throbber_set_animated (KATZE_THROBBER (view->tab_icon),
-            view->load_status != MIDORI_LOAD_FINISHED);
+            midori_view_get_progress (view) > 0.0);
     #endif
 }
 
@@ -1601,10 +1601,6 @@ webkit_web_view_load_finished_cb (WebKitWebView*  web_view,
 
     midori_view_apply_scroll_position (view);
 
-    view->progress = 1.0;
-    g_object_notify (G_OBJECT (view), "progress");
-    midori_view_update_load_status (view, MIDORI_LOAD_FINISHED);
-
     if (web_frame == webkit_web_view_get_main_frame (web_view))
     {
         JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
@@ -1687,13 +1683,15 @@ webkit_web_view_load_finished_cb (WebKitWebView*  web_view,
 
         g_object_set_data_full (G_OBJECT (view), "news-feeds", default_uri, g_free);
         g_free (value);
-        /* Ensure load-status is notified again, whether it changed or not */
-        g_object_notify (G_OBJECT (view), "load-status");
 
         #if !WEBKIT_CHECK_VERSION (1, 4, 3)
         _midori_web_view_load_icon (view);
         #endif
     }
+
+    view->progress = 1.0;
+    g_object_notify (G_OBJECT (view), "progress");
+    midori_view_update_load_status (view, MIDORI_LOAD_FINISHED);
 
     g_object_thaw_notify (G_OBJECT (view));
 }
@@ -3871,7 +3869,14 @@ midori_view_get_progress (MidoriView* view)
 {
     g_return_val_if_fail (MIDORI_IS_VIEW (view), 0.0);
 
-    return view->progress;
+    /* When we are finished, we don't want to *see* progress anymore */
+    if (view->load_status == MIDORI_LOAD_FINISHED)
+        return 0.0;
+    /* Full progress but not finished: presumably all loaded */
+    if (view->progress == 1.0)
+        return 0.0;
+    /* When loading we want to see at minimum 10% progress */
+    return CLAMP (view->progress, 0.1, 1.0);
 }
 
 static void

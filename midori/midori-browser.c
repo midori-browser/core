@@ -317,12 +317,8 @@ static void
 _midori_browser_update_interface (MidoriBrowser* browser,
                                   MidoriView*    view)
 {
-    gboolean loading = midori_view_get_load_status (view) != MIDORI_LOAD_FINISHED;
-    gboolean can_reload = midori_view_can_reload (view);
     GtkAction* action;
 
-    _action_set_sensitive (browser, "Reload", can_reload);
-    _action_set_sensitive (browser, "Stop", can_reload && loading);
     _action_set_sensitive (browser, "Back", midori_view_can_go_back (view));
     _action_set_sensitive (browser, "Forward", midori_view_can_go_forward (view));
     _action_set_sensitive (browser, "Previous",
@@ -351,23 +347,6 @@ _midori_browser_update_interface (MidoriBrowser* browser,
     midori_findbar_set_can_find (MIDORI_FINDBAR (browser->find),
         midori_view_can_find (view));
 
-    action = _action_by_name (browser, "ReloadStop");
-    if (!loading)
-    {
-        g_object_set (action,
-                      "stock-id", GTK_STOCK_REFRESH,
-                      "tooltip", _("Reload the current page"),
-                      "sensitive", can_reload, NULL);
-        katze_item_set_meta_integer (midori_view_get_proxy_item (view),
-                                     "dont-write-history", -1);
-    }
-    else
-    {
-        g_object_set (action,
-                      "stock-id", GTK_STOCK_STOP,
-                      "tooltip", _("Stop loading the current page"), NULL);
-    }
-
     action = _action_by_name (browser, "NextForward");
     if (midori_view_can_go_forward (view))
     {
@@ -383,16 +362,6 @@ _midori_browser_update_interface (MidoriBrowser* browser,
                       "tooltip", _("Go to the next sub-page"),
                       "sensitive", midori_view_get_next_page (view) != NULL, NULL);
     }
-
-
-    #if HAVE_HILDON
-    #if HILDON_CHECK_VERSION (2, 2, 0)
-    hildon_gtk_window_set_progress_indicator (GTK_WINDOW (browser), loading);
-    #endif
-    #else
-    gtk_widget_set_sensitive (browser->throbber, loading);
-    katze_throbber_set_animated (KATZE_THROBBER (browser->throbber), loading);
-    #endif
 
     action = _action_by_name (browser, "Location");
     midori_location_action_set_security_hint (
@@ -462,18 +431,34 @@ static void
 _midori_browser_update_progress (MidoriBrowser* browser,
                                  MidoriView*    view)
 {
-    MidoriLocationAction* action;
-    gdouble progress;
+    GtkAction* action;
+    gdouble progress = midori_view_get_progress (view);
+    gboolean loading = progress > 0.0;
 
-    action = MIDORI_LOCATION_ACTION (_action_by_name (browser, "Location"));
-    progress = midori_view_get_progress (view);
-    /* When we are finished, we don't want to *see* progress anymore */
-    if (midori_view_get_load_status (view) == MIDORI_LOAD_FINISHED)
-        progress = 0.0;
-    /* When loading we want to see at minimum 10% progress */
+    action = _action_by_name (browser, "Location");
+    midori_location_action_set_progress (MIDORI_LOCATION_ACTION (action), progress);
+
+    _action_set_sensitive (browser, "Reload", !loading);
+    _action_set_sensitive (browser, "Stop", loading);
+
+    action = _action_by_name (browser, "ReloadStop");
+    if (!loading)
+    {
+        g_object_set (action,
+                      "stock-id", GTK_STOCK_REFRESH,
+                      "tooltip", _("Reload the current page"), NULL);
+        katze_item_set_meta_integer (midori_view_get_proxy_item (view),
+                                     "dont-write-history", -1);
+    }
     else
-        progress = CLAMP (progress, 0.1, 1.0);
-    midori_location_action_set_progress (action, progress);
+    {
+        g_object_set (action,
+                      "stock-id", GTK_STOCK_STOP,
+                      "tooltip", _("Stop loading the current page"), NULL);
+    }
+
+    gtk_widget_set_sensitive (browser->throbber, loading);
+    katze_throbber_set_animated (KATZE_THROBBER (browser->throbber), loading);
 }
 
 /**
