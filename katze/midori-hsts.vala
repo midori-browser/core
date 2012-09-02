@@ -35,15 +35,35 @@ namespace Midori {
             }
         }
 
-        public string? filename { get; set; default = null; }
+        File file;
         HashTable<string, Directive> whitelist;
         bool debug = false;
 
-        public HSTS (owned string new_filename) {
-            filename = new_filename;
+        public HSTS (owned string filename) {
             whitelist = new HashTable<string, Directive> (str_hash, str_equal);
+            read_cache (File.new_for_path (Paths.get_config_filename (null, "hsts")));
+            file = File.new_for_path (filename);
+            read_cache (file);
             if (strcmp (Environment.get_variable ("MIDORI_DEBUG"), "hsts") == 0)
                 debug = true;
+        }
+
+        async void read_cache (File file) {
+            try {
+                var stream = new DataInputStream (yield file.read_async ());
+                do {
+                    string? line = yield stream.read_line_async ();
+                    if (line == null)
+                        break;
+                    string[] parts = line.split (" ", 2);
+                    if (parts[0] == null || parts[1] == null)
+                        break;
+                    var directive = new Directive.from_header (parts[1]);
+                    if (directive.is_valid ())
+                        append_to_whitelist (parts[0], directive);
+                } while (true);
+            }
+            catch (Error error) { }
         }
 
         /* No sub-features */
@@ -59,16 +79,42 @@ namespace Midori {
         public void request_queued (Soup.Session session, Soup.Message message) { }
         public void request_unqueued (Soup.Session session, Soup.Message msg) { }
 
+        bool should_secure_host (string host) {
+            Directive? directive = whitelist.lookup (host);
+            if (directive == null)
+                directive = whitelist.lookup ("*." + host);
+            return directive != null && directive.is_valid ();
+        }
+
         void queued (Soup.Session session, Soup.Message message) {
-            Directive? directive = whitelist.lookup (message.uri.host);
-            if (directive != null && directive.is_valid ()) {
+            if (should_secure_host (message.uri.host)) {
                 message.uri.set_scheme ("https");
                 session.requeue_message (message);
                 if (debug)
-                    stdout.printf ("HTPS: Enforce %s\n", message.uri.to_string (false));
+                    stdout.printf ("HSTS: Enforce %s\n", message.uri.host);
             }
             else if (message.uri.scheme == "http")
                 message.finished.connect (strict_transport_security_handled);
+        }
+
+        void append_to_whitelist (string host, Directive directive) {
+            whitelist.insert (host, directive);
+            if (directive.sub_domains)
+                whitelist.insert ("*." + host, directive);
+        }
+
+        async void append_to_cache (string host, string header) {
+            if (Midori.Paths.is_readonly ())
+                return;
+
+            try {
+                var stream = file.append_to/* FIXME _async*/ (FileCreateFlags.NONE);
+                yield stream.write_async ((host + " " + header + "\n").data);
+                yield stream.flush_async ();
+            }
+            catch (Error error) {
+                critical ("Failed to update %s: %s", file.get_path (), error.message);
+            }
         }
 
         void strict_transport_security_handled (Soup.Message message) {
@@ -80,11 +126,13 @@ namespace Midori {
                 return;
 
             var directive = new Directive.from_header (hsts);
-            if (directive.is_valid ())
-                whitelist.insert (message.uri.host, directive);
+            if (directive.is_valid ()) {
+                append_to_whitelist (message.uri.host, directive);
+                append_to_cache (message.uri.host, hsts);
+            }
             if (debug)
-                stdout.printf ("HTPS: '%s' sets '%s' valid? %s\n",
-                    message.uri.to_string (false), hsts, directive.is_valid ().to_string ());
+                stdout.printf ("HSTS: '%s' sets '%s' valid? %s\n",
+                    message.uri.host, hsts, directive.is_valid ().to_string ());
         }
 
     }
