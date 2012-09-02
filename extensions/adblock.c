@@ -1321,7 +1321,7 @@ adblock_frame_add (gchar* line)
     g_string_append (blockcss, line);
 }
 
-static inline void
+static void
 adblock_update_css_hash (gchar* domain,
                          gchar* value)
 {
