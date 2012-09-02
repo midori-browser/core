@@ -318,7 +318,7 @@ midori_extension_activate_cb (MidoriExtension* extension,
                         strlen (filename) - strlen ("." G_MODULE_SUFFIX));
                 else
                     filename = g_strdup (filename);
-                folder = g_strconcat ("extensions/", filename, NULL);
+                folder = g_build_filename ("extensions", filename, NULL);
                 g_free (filename);
                 katze_assign (config_file,
                     midori_paths_get_config_filename (folder, "config"));
