@@ -262,11 +262,14 @@ def configure (conf):
         if check_version (conf.check_cfg (modversion='webkitgtk-3.0'), 1, 5, 1):
             check_pkg ('javascriptcoregtk-3.0', '1.5.1', args=args)
         conf.env.append_value ('VALAFLAGS', '-D HAVE_GTK3')
+        conf.env.append_value ('VALAFLAGS', '-D HAVE_OFFSCREEN')
     else:
         check_pkg ('gtk+-2.0', '2.16.0', var='GTK')
         check_pkg ('webkit-1.0', '1.1.17', args=args)
         if check_version (conf.check_cfg (modversion='webkit-1.0'), 1, 5, 1):
             check_pkg ('javascriptcoregtk-1.0', '1.5.1', args=args)
+        if check_version ('gtk+-2.0', '2.20.0'):
+            conf.env.append_value ('VALAFLAGS', '-D HAVE_OFFSCREEN')
     conf.env['HAVE_GTK3'] = option_enabled ('gtk3')
     check_pkg ('libsoup-2.4', '2.27.90')
     conf.define ('LIBSOUP_VERSION', conf.check_cfg (modversion='libsoup-2.4'))

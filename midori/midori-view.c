@@ -77,11 +77,6 @@ midori_view_web_view_get_snapshot (GtkWidget* web_view,
                                    gint       width,
                                    gint       height);
 
-static void
-midori_view_speed_dial_get_thumb (MidoriView* view,
-                                  gchar*      dial_id,
-                                  gchar*      url);
-
 static gboolean
 midori_view_display_error (MidoriView*     view,
                            const gchar*    uri,
@@ -224,9 +219,6 @@ enum {
 };
 
 static guint signals[LAST_SIGNAL];
-
-static GtkWidget* thumb_view = NULL;
-static GList* thumb_queue = NULL;
 
 static void
 midori_view_finalize (GObject* object);
@@ -3310,9 +3302,7 @@ webkit_web_view_console_message_cb (GtkWidget*   web_view,
     {
         MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (view));
         MidoriSpeedDial* dial = katze_object_get_object (browser, "speed-dial");
-
         midori_speed_dial_save_message (dial, message, NULL);
-        midori_view_save_speed_dial_config (view);
     }
     else
         g_signal_emit (view, signals[CONSOLE_MESSAGE], 0, message, line, source_id);
@@ -6168,143 +6158,3 @@ midori_view_get_security (MidoriView* view)
     return view->security;
 }
 
-static void
-thumb_view_load_status_cb (WebKitWebView* thumb_view_,
-                           GParamSpec*    pspec,
-                           MidoriView*    view)
-{
-    GdkPixbuf* img;
-    #if HAVE_OFFSCREEN
-    GdkPixbuf* pixbuf_scaled;
-    #endif
-    gchar* spec;
-    gchar* url;
-    gchar* dial_id;
-    MidoriBrowser* browser;
-    MidoriSpeedDial* dial;
-    const gchar* title;
-
-    if (webkit_web_view_get_load_status (thumb_view_) != WEBKIT_LOAD_FINISHED)
-        return;
-
-    browser = midori_browser_get_for_widget (GTK_WIDGET (view));
-    dial = katze_object_get_object (browser, "speed-dial");
-
-    spec = g_object_get_data (G_OBJECT (thumb_view), "spec");
-    url = strstr (spec, "|") + 1;
-    dial_id = g_strndup (spec, url - spec - 1);
-
-    #if HAVE_OFFSCREEN
-    img = gtk_offscreen_window_get_pixbuf (GTK_OFFSCREEN_WINDOW (
-        gtk_widget_get_parent (GTK_WIDGET (thumb_view))));
-    pixbuf_scaled = gdk_pixbuf_scale_simple (img, 240, 160, GDK_INTERP_TILES);
-    katze_object_assign (img, pixbuf_scaled);
-    #else
-    gtk_widget_realize (thumb_view);
-    img = midori_view_web_view_get_snapshot (thumb_view, 240, 160);
-    #endif
-
-    title = webkit_web_view_get_title (WEBKIT_WEB_VIEW (thumb_view));
-    midori_speed_dial_add (dial, dial_id, url, title ? title : url, img);
-    g_object_unref (img);
-    midori_view_save_speed_dial_config (view);
-
-    thumb_queue = g_list_remove (thumb_queue, spec);
-    if (thumb_queue != NULL)
-    {
-        g_object_set_data_full (G_OBJECT (thumb_view), "spec",
-                                thumb_queue->data, (GDestroyNotify)g_free);
-        webkit_web_view_load_uri (WEBKIT_WEB_VIEW (thumb_view),
-                                  strstr (thumb_queue->data, "|") + 1);
-    }
-    else
-        g_signal_handlers_disconnect_by_func (
-            thumb_view, thumb_view_load_status_cb, view);
-}
-
-/**
- * midori_view_speed_dial_get_thumb
- * @view: a #MidoriView
- * @dom_id: Id of the shortcut on speed_dial page in wich to inject content
- * @url: url of the shortcut
- */
-static void
-midori_view_speed_dial_get_thumb (MidoriView* view,
-                                  gchar*      dial_id,
-                                  gchar*      url)
-{
-    WebKitWebSettings* settings;
-    GtkWidget* browser;
-    #if !HAVE_OFFSCREEN
-    GtkWidget* notebook;
-    GtkWidget* label;
-
-    browser = gtk_widget_get_toplevel (GTK_WIDGET (view));
-    if (!GTK_IS_WINDOW (browser))
-        return;
-
-    /* What we are doing here is a bit of a hack. In order to render a
-       thumbnail we need a new view and load the url in it. But it has
-       to be visible and packed in a container. So we secretly pack it
-       into the notebook of the parent browser. */
-    notebook = katze_object_get_object (browser, "notebook");
-    if (!notebook)
-        return;
-    #endif
-
-    if (!thumb_view)
-    {
-        thumb_view = webkit_web_view_new ();
-        settings = g_object_new (WEBKIT_TYPE_WEB_SETTINGS,
-            "enable-scripts", FALSE,
-            "enable-plugins", FALSE, "auto-load-images", TRUE,
-            "enable-html5-database", FALSE, "enable-html5-local-storage", FALSE,
-        #if WEBKIT_CHECK_VERSION (1, 1, 22)
-            "enable-java-applet", FALSE,
-        #endif
-            NULL);
-        webkit_web_view_set_settings (WEBKIT_WEB_VIEW (thumb_view), settings);
-        #if HAVE_OFFSCREEN
-        browser = gtk_offscreen_window_new ();
-        gtk_container_add (GTK_CONTAINER (browser), thumb_view);
-        gtk_widget_set_size_request (thumb_view, 800, 600);
-        gtk_widget_show_all (browser);
-        #else
-        gtk_container_add (GTK_CONTAINER (notebook), thumb_view);
-        g_signal_connect (thumb_view, "destroy",
-                          G_CALLBACK (gtk_widget_destroyed),
-                          &thumb_view);
-        /* We use an empty label. It's not invisible but at least hard to spot. */
-        label = gtk_event_box_new ();
-        gtk_notebook_set_tab_label (GTK_NOTEBOOK (notebook), thumb_view, label);
-        gtk_widget_show (thumb_view);
-        #endif
-    }
-    #if !HAVE_OFFSCREEN
-    g_object_unref (notebook);
-    #endif
-
-    thumb_queue = g_list_append (thumb_queue, g_strconcat (dial_id, "|", url, NULL));
-    if (g_list_nth_data (thumb_queue, 1) != NULL)
-        return;
-
-    g_object_set_data_full (G_OBJECT (thumb_view), "spec",
-                            thumb_queue->data, (GDestroyNotify)g_free);
-    g_signal_connect (thumb_view, "notify::load-status",
-        G_CALLBACK (thumb_view_load_status_cb), view);
-    webkit_web_view_load_uri (WEBKIT_WEB_VIEW (thumb_view), url);
-}
-
-void
-midori_view_save_speed_dial_config (MidoriView* view)
-{
-    guint i = 0;
-    MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (view));
-    MidoriSpeedDial* dial = katze_object_get_object (browser, "speed-dial");
-    GtkWidget* tab;
-
-    midori_speed_dial_save (dial, NULL);
-    while ((tab = midori_browser_get_nth_tab (browser, i++)))
-        if (midori_view_is_blank (MIDORI_VIEW (tab)))
-            midori_view_reload (MIDORI_VIEW (tab), FALSE);
-}

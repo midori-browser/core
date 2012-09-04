@@ -23,6 +23,18 @@ namespace Midori {
         string filename;
         public GLib.KeyFile keyfile;
         string? html = null;
+        List<Spec> thumb_queue = null;
+        WebKit.WebView thumb_view = null;
+        Spec? spec = null;
+
+        public class Spec {
+            public string dial_id;
+            public string uri;
+            public Spec (string dial_id, string uri) {
+                this.dial_id = dial_id;
+                this.uri = uri;
+            }
+        }
 
         public SpeedDial (string new_filename, string? fallback = null) {
             filename = new_filename;
@@ -114,7 +126,12 @@ namespace Midori {
             return "s%u".printf (slot_count + 1);
         }
 
-        public void add (string id, string uri, string title, Gdk.Pixbuf img) {
+        public void add (string uri, string title, Gdk.Pixbuf img) {
+            string id = "Dial " + get_next_free_slot ();
+            add_with_id (id, uri, title, img);
+        }
+
+        public void add_with_id (string id, string uri, string title, Gdk.Pixbuf img) {
             keyfile.set_string (id, "uri", uri);
             keyfile.set_string (id, "title", title);
 
@@ -127,6 +144,7 @@ namespace Midori {
             catch (Error error) {
                 critical ("Failed to save speed dial thumbnail: %s", error.message);
             }
+            save ();
         }
 
         public unowned string get_html (bool close_buttons_left, GLib.Object view) throws Error {
@@ -204,8 +222,7 @@ namespace Midori {
                             catch (FileError error) {
                                 encoded = null;
                                 if (load_missing)
-                                    /* FIXME: midori_view_speed_dial_get_thumb (view, tile, uri); */
-                                    critical ("FIXME midori_view_speed_dial_get_thumb");
+                                    get_thumb (tile, uri);
                             }
                             markup.append_printf ("""
                                 <div class="shortcut" id="s%u"><div class="preview">
@@ -254,7 +271,7 @@ namespace Midori {
                 }
                 else if (action == "add") {
                     keyfile.set_string (dial_id, "uri", parts[2]);
-                    /* FIXME midori_view_speed_dial_get_thumb (view, dial_id, parts[2]); */
+                    get_thumb (dial_id, parts[2]);
                 }
                 else if (action == "rename") {
                     uint offset = parts[0].length + parts[1].length + 2;
@@ -276,13 +293,83 @@ namespace Midori {
                     keyfile.set_string (dial2_id, "title", title);
                 }
             }
-
+            save ();
         }
 
-        public void save () throws Error {
+        void save () {
             html = null;
 
-            FileUtils.set_contents (filename, keyfile.to_data ());
+            try {
+                FileUtils.set_contents (filename, keyfile.to_data ());
+            }
+            catch (Error error) {
+                critical ("Failed to update speed dial: %s", error.message);
+            }
+            /* FIXME Refresh all open views */
+        }
+
+        void load_status (GLib.Object thumb_view_, ParamSpec pspec) {
+            if (thumb_view.load_status != WebKit.LoadStatus.FINISHED)
+                return;
+
+            return_if_fail (spec != null);
+            #if HAVE_OFFSCREEN
+            var img = (thumb_view.parent as Gtk.OffscreenWindow).get_pixbuf ();
+            var pixbuf_scaled = img.scale_simple (240, 160, Gdk.InterpType.TILES);
+            img = pixbuf_scaled;
+            #else
+            thumb_view.realize ();
+            var img = midori_view_web_view_get_snapshot (thumb_view, 240, 160);
+            #endif
+            unowned string title = thumb_view.get_title ();
+            add_with_id (spec.dial_id, spec.uri, title ?? spec.uri, img);
+
+            thumb_queue.remove (spec);
+            if (thumb_queue != null && thumb_queue.data != null) {
+                spec = thumb_queue.data;
+                thumb_view.load_uri (spec.uri);
+            }
+            else
+                /* disconnect_by_func (thumb_view, load_status) */;
+        }
+
+        void get_thumb (string dial_id, string uri) {
+            if (thumb_view == null) {
+                thumb_view = new WebKit.WebView ();
+                var settings = new WebKit.WebSettings ();
+                settings. set ("enable-scripts", false,
+                               "enable-plugins", false,
+                               "auto-load-images", true,
+                               "enable-html5-database", false,
+                               "enable-html5-local-storage", false);
+                if (settings.get_class ().find_property ("enable-java-applet") != null)
+                    settings.set ("enable-java-applet", false);
+                thumb_view.settings = settings;
+                #if HAVE_OFFSCREEN
+                var offscreen = new Gtk.OffscreenWindow ();
+                offscreen.add (thumb_view);
+                thumb_view.set_size_request (800, 600);
+                offscreen.show_all ();
+                #else
+                /* What we are doing here is a bit of a hack. In order to render a
+                   thumbnail we need a new view and load the url in it. But it has
+                   to be visible and packed in a container. So we secretly pack it
+                   into the notebook of the parent browser. */
+                notebook.add (thumb_view);
+                thumb_view.destroy.connect (Gtk.widget_destroyed);
+                /* We use an empty label. It's not invisible but hard to spot. */
+                notebook.set_tab_label (thumb_view, new Gtk.EventBox ());
+                thumb_view.show ();
+                #endif
+            }
+
+            thumb_queue.append (new Spec (dial_id, uri));
+            if (thumb_queue.nth_data (1) != null)
+                return;
+
+            spec = thumb_queue.data;
+            thumb_view.notify["load-status"].connect (load_status);
+            thumb_view.load_uri (spec.uri);
         }
     }
 }

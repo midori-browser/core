@@ -1227,15 +1227,10 @@ midori_browser_add_speed_dial (MidoriBrowser* browser)
 
     if ((img = midori_view_get_snapshot (MIDORI_VIEW (view), 240, 160)))
     {
-        gchar* slot_id = midori_speed_dial_get_next_free_slot (browser->dial);
-        gchar* dial_id = g_strdup_printf ("Dial %s", slot_id + 1);
-        midori_speed_dial_add (browser->dial, dial_id,
+        midori_speed_dial_add (browser->dial,
             midori_view_get_display_uri (MIDORI_VIEW (view)),
             midori_view_get_display_title (MIDORI_VIEW (view)), img);
-        g_free (dial_id);
-        midori_view_save_speed_dial_config (MIDORI_VIEW (view));
         g_object_unref (img);
-        g_free (slot_id);
     }
 }
 
