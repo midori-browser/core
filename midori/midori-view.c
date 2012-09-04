@@ -5571,19 +5571,6 @@ midori_view_save_source (MidoriView* view,
     return unique_filename;
 }
 
-#define can_do(what) \
-gboolean \
-midori_view_can_##what (MidoriView* view) \
-{ \
-    g_return_val_if_fail (MIDORI_IS_VIEW (view), FALSE); \
-\
-    return view->web_view != NULL; \
-}
-
-can_do (reload)
-can_do (print)
-can_do (find)
-
 /**
  * midori_view_reload:
  * @view: a #MidoriView

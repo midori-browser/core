@@ -183,9 +183,6 @@ void
 midori_view_set_zoom_level             (MidoriView*        view,
                                         gfloat             zoom_level);
 
-gboolean
-midori_view_can_reload                 (MidoriView*        view);
-
 void
 midori_view_reload                     (MidoriView*        view,
                                         gboolean           from_cache);
@@ -219,9 +216,6 @@ midori_view_get_previous_page          (MidoriView*        view);
 const gchar*
 midori_view_get_next_page              (MidoriView*        view);
 
-gboolean
-midori_view_can_print                  (MidoriView*        view);
-
 void
 midori_view_print                      (MidoriView*        view);
 
@@ -235,9 +229,6 @@ gchar*
 midori_view_save_source                (MidoriView*        view,
                                         const gchar*       uri,
                                         const gchar*       outfile);
-
-gboolean
-midori_view_can_find                   (MidoriView*        view);
 
 void
 midori_view_unmark_text_matches        (MidoriView*        view);

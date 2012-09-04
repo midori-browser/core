@@ -329,7 +329,6 @@ _midori_browser_update_interface (MidoriBrowser* browser,
     _action_set_sensitive (browser, "AddSpeedDial", !midori_view_is_blank (view));
     _action_set_sensitive (browser, "BookmarkAdd", !midori_view_is_blank (view));
     _action_set_sensitive (browser, "SaveAs", midori_view_can_save (view));
-    _action_set_sensitive (browser, "Print", midori_view_can_print (view));
     _action_set_sensitive (browser, "ZoomIn", midori_view_can_zoom_in (view));
     _action_set_sensitive (browser, "ZoomOut", midori_view_can_zoom_out (view));
     _action_set_sensitive (browser, "ZoomNormal",
@@ -338,14 +337,6 @@ _midori_browser_update_interface (MidoriBrowser* browser,
         midori_view_can_view_source (view));
     _action_set_sensitive (browser, "SourceView",
         midori_view_can_view_source (view));
-    _action_set_sensitive (browser, "Find",
-        midori_view_can_find (view));
-    _action_set_sensitive (browser, "FindNext",
-        midori_view_can_find (view));
-    _action_set_sensitive (browser, "FindPrevious",
-        midori_view_can_find (view));
-    midori_findbar_set_can_find (MIDORI_FINDBAR (browser->find),
-        midori_view_can_find (view));
 
     action = _action_by_name (browser, "NextForward");
     if (midori_view_can_go_forward (view))

@@ -141,7 +141,7 @@ namespace DelayedLoad {
                 item.ref();
 
                 int64 delay = item.get_meta_integer ("delay");
-                if (delay == -2 && view.can_reload ()) {
+                if (delay == -2 && view.progress < 1.0) {
                     this.schedule_reload (browser, view);
                 }
             }
@@ -164,7 +164,7 @@ namespace DelayedLoad {
                         if (this.timeout != 0)
                             this.tasks.set (browser, new TabShaker (browser));
 
-                        if (view.can_reload ())
+                        if (view.progress < 1.0)
                             this.schedule_reload (browser, view);
 
                         return false;

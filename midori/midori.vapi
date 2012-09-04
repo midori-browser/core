@@ -144,7 +144,6 @@ namespace Midori {
         public Gtk.Label get_proxy_tab_label ();
         public Katze.Item get_proxy_item ();
         public bool can_view_source ();
-        public bool can_find ();
         public void search_text (string text, bool case_sensitive, bool forward);
         public void mark_text_matches (string text, bool case_sensitive);
         public void set_highlight_text_matches (bool highlight);
@@ -152,7 +151,6 @@ namespace Midori {
         public Gdk.Pixbuf get_snapshot (int width, int height);
         public unowned WebKit.WebView get_web_view ();
         public void populate_popup (Gtk.Menu menu, bool manual);
-        public bool can_reload ();
         public void reload (bool from_cache);
 
         public string uri { get; }
