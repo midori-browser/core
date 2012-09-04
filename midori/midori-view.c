@@ -952,6 +952,13 @@ midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view
             return TRUE;
         }
     }
+    else if (g_str_has_prefix (uri, "data:image/"))
+    {
+        /* For security reasons, main content served as data: is limited to images
+           http://lcamtuf.coredump.cx/switch/ */
+        webkit_web_policy_decision_ignore (decision);
+        return TRUE;
+    }
     #ifdef HAVE_GCR
     else if (/* view->special && */ !strncmp (uri, "https", 5))
     {
