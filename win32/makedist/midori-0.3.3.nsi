@@ -135,27 +135,6 @@ Section "!Program Files" SEC01
 	CreateDirectory "$SMPROGRAMS\$StartmenuFolder"
 	CreateShortCut "$SMPROGRAMS\$StartmenuFolder\Midori.lnk" "${PRODUCT_EXE}"
 	!insertmacro MUI_STARTMENU_WRITE_END
-SectionEnd
-
-Section "Extensions" SEC04
-	SectionIn 1
-	SetOverwrite ifnewer
-	SetOutPath "$INSTDIR\lib"
-	File /r "${RESOURCEDIR}\lib\midori"
-SectionEnd
-
-Section "Language Files" SEC02
-	SectionIn 1
-	SetOutPath "$INSTDIR\share"
-	File /r "${RESOURCEDIR}\share\locale"
-SectionEnd
-
-Section "FAQ" SEC06
-	SectionIn 1
-	SetOutPath "$INSTDIR\share\doc\midori"
-	File "${RESOURCEDIR}\share\doc\midori\faq.css"
-	File "${RESOURCEDIR}\share\doc\midori\faq.html"
-SectionEnd
 
 !macro InstallIconThemeRenameSmall OPath IPath
 	File "/oname=16x16\${OPath}.png" "${RESOURCEDIR}\share\icons\${ICON_THEME}\16x16\${IPath}.png"
@@ -191,8 +170,6 @@ SectionEnd
 	CreateDirectory "$INSTDIR\share\icons\${ICON_THEME}\scalable\${SectionPath}"
 !macroend
 
-Section "${ICON_THEME} icons" SEC07
-	SectionIn 1
 	SetOutPath "$INSTDIR\share\icons\${ICON_THEME}"
 
 	!insertmacro CreateIconThemeSections "actions"
@@ -285,6 +262,20 @@ Section "${ICON_THEME} icons" SEC07
 	#!insertmacro InstallIconTheme "status\locked"
 
 SectionEnd
+
+Section "Extensions" SEC04
+	SectionIn 1
+	SetOverwrite ifnewer
+	SetOutPath "$INSTDIR\lib"
+	File /r "${RESOURCEDIR}\lib\midori"
+SectionEnd
+
+Section "Language Files" SEC02
+	SectionIn 1
+	SetOutPath "$INSTDIR\share"
+	File /r "${RESOURCEDIR}\share\locale"
+SectionEnd
+
 
 Section "Desktop Shortcuts" SEC03
 	SectionIn 1
@@ -383,8 +374,6 @@ SectionEnd
 !insertmacro MUI_DESCRIPTION_TEXT ${SEC03} "Create shortcuts for Midori on the desktop and in the Quicklaunch Bar"
 !insertmacro MUI_DESCRIPTION_TEXT ${SEC04} "Available plugins like 'Advertisement Blocker', 'Form history filler' and 'Mouse Gestures'."
 !insertmacro MUI_DESCRIPTION_TEXT ${SEC05} "Make Midori the default browser."
-!insertmacro MUI_DESCRIPTION_TEXT ${SEC06} "User manual of the Midori application."
-!insertmacro MUI_DESCRIPTION_TEXT ${SEC07} "Better looking icons from the ${ICON_THEME} icon theme."
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 ;;;;;;;;;;;;;;;;;;;;;
