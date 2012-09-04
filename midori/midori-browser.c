@@ -1113,7 +1113,7 @@ midori_browser_save_resources (MidoriView*  view,
     GList* resources = webkit_web_data_source_get_subresources (data_source);
     GList* list;
 
-    g_mkdir (folder, 0700);
+    katze_mkdir_with_parents (folder, 0700);
 
     for (list = resources; list; list = g_list_next (list))
     {
@@ -1498,7 +1498,10 @@ midori_browser_download_prepare_destination_uri (WebKitDownload* download,
     g_free (suggested_filename);
     file_basename = g_file_get_basename (file_source);
     if (folder == NULL)
+    {
         download_dir = midori_paths_get_tmp_dir ();
+        katze_mkdir_with_parents (download_dir, 0700);
+    }
     else
         download_dir = folder;
     destination_filename = g_build_filename (download_dir, file_basename, NULL);
