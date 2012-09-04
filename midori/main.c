@@ -2022,6 +2022,7 @@ main (int    argc,
         gchar* filename;
         gint fd;
         GtkWidget* web_view;
+        gchar* uri;
         #if HAVE_OFFSCREEN
         GtkWidget* offscreen;
         GdkScreen* screen;
@@ -2058,7 +2059,9 @@ main (int    argc,
         #endif
         g_signal_connect (web_view, "load-finished",
             G_CALLBACK (snapshot_load_finished_cb), filename);
-        webkit_web_view_load_uri (WEBKIT_WEB_VIEW (web_view), snapshot);
+        uri = midori_prepare_uri (snapshot);
+        webkit_web_view_load_uri (WEBKIT_WEB_VIEW (web_view), uri);
+        g_free (uri);
         gtk_main ();
         g_free (filename);
         return 0;
