@@ -1820,6 +1820,7 @@ main (int    argc,
     gchar* config;
     gboolean private;
     gboolean portable;
+    gboolean plain;
     gboolean diagnostic_dialog;
     gboolean back_from_crash;
     gboolean run;
@@ -1848,6 +1849,8 @@ main (int    argc,
        { "portable", 't', 0, G_OPTION_ARG_NONE, &portable,
        N_("Portable mode, all runtime files are stored in one place"), NULL },
        #endif
+       { "plain", '\0', 0, G_OPTION_ARG_NONE, &plain,
+       N_("Plain GTK+ window with WebKit, akin to GtkLauncher"), NULL },
        { "diagnostic-dialog", 'd', 0, G_OPTION_ARG_NONE, &diagnostic_dialog,
        N_("Show a diagnostic dialog"), NULL },
        { "run", 'r', 0, G_OPTION_ARG_NONE, &run,
@@ -1900,26 +1903,12 @@ main (int    argc,
         #define midori_startup_timer(tmrmsg)
     #endif
 
-    #ifdef HAVE_SIGNAL_H
-    #ifdef SIGHUP
-    signal (SIGHUP, &signal_handler);
-    #endif
-    #ifdef SIGINT
-    signal (SIGINT, &signal_handler);
-    #endif
-    #ifdef SIGTERM
-    signal (SIGTERM, &signal_handler);
-    #endif
-    #ifdef SIGQUIT
-    signal (SIGQUIT, &signal_handler);
-    #endif
-    #endif
-
     /* Parse cli options */
     webapp = NULL;
     config = NULL;
     private = FALSE;
     portable = FALSE;
+    plain = FALSE;
     back_from_crash = FALSE;
     diagnostic_dialog = FALSE;
     run = FALSE;
@@ -2071,6 +2060,39 @@ main (int    argc,
     {
         g_log_set_default_handler (midori_log_to_file, (gpointer)logfile);
     }
+
+    if (plain)
+    {
+        GtkWidget* window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+        GtkWidget* scrolled = gtk_scrolled_window_new (NULL, NULL);
+        GtkWidget* web_view = webkit_web_view_new ();
+        gchar* uri = midori_prepare_uri (
+            (uris != NULL && uris[0]) ? uris[0] : "http://www.example.com");
+        gtk_container_add (GTK_CONTAINER (window), scrolled);
+        gtk_container_add (GTK_CONTAINER (scrolled), web_view);
+        g_signal_connect (window, "delete-event",
+            G_CALLBACK (gtk_main_quit), window);
+        gtk_widget_show_all (window);
+        webkit_web_view_load_uri (WEBKIT_WEB_VIEW (web_view), uri);
+        g_free (uri);
+        gtk_main ();
+        return 0;
+    }
+
+    #ifdef HAVE_SIGNAL_H
+    #ifdef SIGHUP
+    signal (SIGHUP, &signal_handler);
+    #endif
+    #ifdef SIGINT
+    signal (SIGINT, &signal_handler);
+    #endif
+    #ifdef SIGTERM
+    signal (SIGTERM, &signal_handler);
+    #endif
+    #ifdef SIGQUIT
+    signal (SIGQUIT, &signal_handler);
+    #endif
+    #endif
 
     /* i18n: Logins and passwords in websites and web forms */
     sokoke_register_privacy_item ("formhistory", _("Saved logins and _passwords"),
