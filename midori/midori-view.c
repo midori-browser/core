@@ -130,7 +130,6 @@ struct _MidoriView
     KatzeItem* item;
     gint scrollh, scrollv;
     gboolean back_forward_set;
-    GHashTable* memory;
     GtkWidget* scrolled_window;
 
     #if GTK_CHECK_VERSION (3, 2, 0)
@@ -758,6 +757,23 @@ midori_view_unset_icon (MidoriView* view)
 }
 
 #if !WEBKIT_CHECK_VERSION (1, 8, 0)
+static void
+katze_net_object_maybe_unref (gpointer object)
+{
+    if (object)
+        g_object_unref (object);
+}
+
+static GHashTable*
+midori_view_get_memory (void)
+{
+    static GHashTable* memory = NULL;
+    if (!memory)
+        memory = g_hash_table_new_full (g_str_hash, g_str_equal,
+            g_free, katze_net_object_maybe_unref);
+    return (memory);
+}
+
 static gboolean
 katze_net_icon_status_cb (KatzeNetRequest*  request,
                           MidoriView*       view)
@@ -819,7 +835,7 @@ katze_net_icon_transfer_cb (KatzeNetRequest*  request,
         return;
     }
 
-    g_hash_table_insert (view->memory, g_strdup (view->icon_uri), pixbuf);
+    g_hash_table_insert (midori_view_get_memory (), g_strdup (view->icon_uri), pixbuf);
     settings = gtk_widget_get_settings (view->web_view);
     gtk_icon_size_lookup_for_settings (settings, GTK_ICON_SIZE_MENU, &icon_width, &icon_height);
     pixbuf_scaled = gdk_pixbuf_scale_simple (pixbuf, icon_width, icon_height, GDK_INTERP_BILINEAR);
@@ -865,7 +881,7 @@ _midori_web_view_load_icon (MidoriView* view)
                 view->icon_uri = g_strdup_printf ("%s/favicon.ico", view->uri);
         }
 
-        if (g_hash_table_lookup_extended (view->memory,
+        if (g_hash_table_lookup_extended (midori_view_get_memory (),
                                           view->icon_uri, NULL, (gpointer)&pixbuf))
         {
             g_warn_if_fail (pixbuf != NULL);
@@ -874,7 +890,7 @@ _midori_web_view_load_icon (MidoriView* view)
         else if ((icon_file = katze_net_get_cached_path (NULL, view->icon_uri, "icons")) &&
                  (pixbuf = gdk_pixbuf_new_from_file (icon_file, NULL)))
         {
-            g_hash_table_insert (view->memory,
+            g_hash_table_insert (midori_view_get_memory (),
                 g_strdup (view->icon_uri), g_object_ref (pixbuf));
         }
         else if (!view->special)
@@ -3428,23 +3444,6 @@ midori_view_notify_vadjustment_cb (MidoriView* view,
 }
 
 static void
-katze_net_object_maybe_unref (gpointer object)
-{
-    if (object)
-        g_object_unref (object);
-}
-
-static GHashTable* midori_view_get_memory (void)
-{
-    static GHashTable* memory = NULL;
-    if (!memory)
-        memory = g_hash_table_new_full (g_str_hash, g_str_equal,
-            g_free, katze_net_object_maybe_unref);
-    return g_hash_table_ref (memory);
-
-}
-
-static void
 midori_view_init (MidoriView* view)
 {
     view->uri = NULL;
@@ -3453,7 +3452,6 @@ midori_view_init (MidoriView* view)
     view->mime_type = NULL;
     view->icon = NULL;
     view->icon_uri = NULL;
-    view->memory = midori_view_get_memory ();
     view->progress = 0.0;
     view->load_status = MIDORI_LOAD_FINISHED;
     view->minimized = FALSE;
@@ -3533,12 +3531,6 @@ midori_view_finalize (GObject* object)
     katze_assign (view->title, NULL);
     katze_object_assign (view->icon, NULL);
     katze_assign (view->icon_uri, NULL);
-
-    if (view->memory)
-    {
-        g_hash_table_unref (view->memory);
-        view->memory = NULL;
-    }
 
     katze_assign (view->statusbar_text, NULL);
     katze_assign (view->link_uri, NULL);
