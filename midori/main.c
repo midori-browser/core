@@ -1846,7 +1846,7 @@ main (int    argc,
        { "private", 'p', 0, G_OPTION_ARG_NONE, &private,
        N_("Private browsing, no changes are saved"), NULL },
        #ifdef G_OS_WIN32
-       { "portable", 't', 0, G_OPTION_ARG_NONE, &portable,
+       { "portable", 'P', 0, G_OPTION_ARG_NONE, &portable,
        N_("Portable mode, all runtime files are stored in one place"), NULL },
        #endif
        { "plain", '\0', 0, G_OPTION_ARG_NONE, &plain,
