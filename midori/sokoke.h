@@ -137,9 +137,6 @@ void
 sokoke_widget_copy_clipboard (GtkWidget*   widget,
                               const gchar* text);
 
-gchar*
-sokoke_build_thumbnail_path (const gchar* name);
-
 GtkWidget*
 sokoke_search_entry_new               (const gchar*        placeholder_text);
 

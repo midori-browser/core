@@ -15,7 +15,6 @@ namespace Katze {
 
 namespace Sokoke {
     extern static string js_script_eval (void* ctx, string script, void* error);
-    extern static string build_thumbnail_path (string uri);
 }
 
 namespace Midori {
@@ -95,7 +94,7 @@ namespace Midori {
                         string uri = keyfile.get_string (tile, "uri");
                         if (img != null && uri[0] != '\0' && uri[0] != '#') {
                             uchar[] decoded = Base64.decode (img);
-                            FileUtils.set_data (Sokoke.build_thumbnail_path (uri), decoded);
+                            FileUtils.set_data (build_thumbnail_path (uri), decoded);
                         }
                         keyfile.remove_key (tile, "img");
                     }
@@ -137,7 +136,7 @@ namespace Midori {
 
             Katze.mkdir_with_parents (Path.build_path (Path.DIR_SEPARATOR_S,
                 Paths.get_cache_dir (), "thumbnails"), 0700);
-            string filename = Sokoke.build_thumbnail_path (uri);
+            string filename = build_thumbnail_path (uri);
             try {
                 img.save (filename, "png", null, "compression", "7", null);
             }
@@ -145,6 +144,11 @@ namespace Midori {
                 critical ("Failed to save speed dial thumbnail: %s", error.message);
             }
             save ();
+        }
+
+        string build_thumbnail_path (string filename) {
+            string thumbnail = Checksum.compute_for_string (ChecksumType.MD5, filename) + ".png";
+            return Path.build_filename (Paths.get_cache_dir (), "thumbnails", thumbnail);
         }
 
         public unowned string get_html (bool close_buttons_left, GLib.Object view) throws Error {
@@ -211,7 +215,7 @@ namespace Midori {
                         string uri = keyfile.get_string (tile, "uri");
                         if (uri != null && uri.str ("://") != null && tile.has_prefix ("Dial ")) {
                             string title = keyfile.get_string (tile, "title");
-                            string thumb_filename = Sokoke.build_thumbnail_path (uri);
+                            string thumb_filename = build_thumbnail_path (uri);
                             uint slot = tile.substring (5, -1).to_int ();
                             string encoded;
                             try {
@@ -265,7 +269,7 @@ namespace Midori {
 
                 if (action == "delete") {
                     string uri = keyfile.get_string (dial_id, "uri");
-                    string file_path = Sokoke.build_thumbnail_path (uri);
+                    string file_path = build_thumbnail_path (uri);
                     keyfile.remove_group (dial_id);
                     FileUtils.unlink (file_path);
                 }
