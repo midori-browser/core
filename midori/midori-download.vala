@@ -83,8 +83,10 @@ namespace Midori {
             }
 
             string speed;
-            if (elapsed != last_time)
-                speed = format_size ((int)((current_size - last_size) / (elapsed - last_time)));
+            if (elapsed != last_time) {
+                speed = format_size ((uint64)(
+                    (current_size - last_size) / (elapsed - last_time)));
+            }
             else
                 /* i18n: Unknown number of bytes, used for transfer rate like ?B/s */
                 speed = _("?B");

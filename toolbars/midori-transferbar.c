@@ -213,8 +213,6 @@ midori_transferbar_add_download_item (MidoriTransferbar* transferbar,
         G_CALLBACK (midori_transferbar_download_notify_status_cb), info);
     g_signal_connect (button, "clicked",
         G_CALLBACK (midori_transferbar_download_button_clicked_cb), info);
-    g_object_set_data_full (G_OBJECT (download), "last-time", g_new0 (gdouble, 1), g_free);
-    g_object_set_data_full (G_OBJECT (download), "last-size", g_new0 (guint64, 1), g_free);
 }
 
 static void
