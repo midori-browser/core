@@ -341,29 +341,32 @@ midori_extension_activate_cb (MidoriExtension* extension,
         if (setting->type == G_TYPE_BOOLEAN)
         {
             MESettingBoolean* setting_ = (MESettingBoolean*)setting;
-            if (extension->priv->key_file)
-                setting_->value = sokoke_key_file_get_boolean_default (
-                    extension->priv->key_file,
-                    "settings", setting->name, setting_->default_value, NULL);
+            if (extension->priv->key_file
+             && g_key_file_has_key (extension->priv->key_file, "settings", setting_->name, NULL))
+                setting_->value = g_key_file_get_boolean (extension->priv->key_file,
+                    "settings", setting->name, NULL);
             else
                 setting_->value = setting_->default_value;
         }
         else if (setting->type == G_TYPE_INT)
         {
             MESettingInteger* setting_ = (MESettingInteger*)setting;
-            if (extension->priv->key_file)
-                setting_->value = sokoke_key_file_get_integer_default (
-                    extension->priv->key_file,
-                    "settings", setting->name, setting_->default_value, NULL);
+            if (extension->priv->key_file
+             && g_key_file_has_key (extension->priv->key_file, "settings", setting_->name, NULL))
+                setting_->value = g_key_file_get_integer (extension->priv->key_file,
+                    "settings", setting_->name, NULL);
             else
                 setting_->value = setting_->default_value;
         }
         else if (setting->type == G_TYPE_STRING)
         {
             if (extension->priv->key_file)
-                setting->value = sokoke_key_file_get_string_default (
-                    extension->priv->key_file,
-                    "settings", setting->name, setting->default_value, NULL);
+            {
+                setting->value = g_key_file_get_string (
+                    extension->priv->key_file, "settings", setting->name, NULL);
+                if (setting->value == NULL)
+                    setting->value = setting->default_value;
+            }
             else
                 setting->value = g_strdup (setting->default_value);
         }
@@ -372,10 +375,10 @@ midori_extension_activate_cb (MidoriExtension* extension,
             MESettingStringList* setting_ = (MESettingStringList*)setting;
             if (extension->priv->key_file)
             {
-                setting_->value = sokoke_key_file_get_string_list_default (
-                    extension->priv->key_file,
-                    "settings", setting->name, &setting_->length,
-                    setting_->default_value, &setting_->default_length, NULL);
+                setting_->value = g_key_file_get_string_list (extension->priv->key_file,
+                    "settings", setting->name, &setting_->length, NULL);
+                if (setting_->value == NULL)
+                    setting_->value = g_strdupv (setting_->default_value);
             }
             else
                 setting_->value = g_strdupv (setting_->default_value);

@@ -72,47 +72,6 @@ GtkWidget*
 sokoke_xfce_header_new                  (const gchar*    icon,
                                          const gchar*    title);
 
-void
-sokoke_entry_set_default_text           (GtkEntry*       entry,
-                                         const gchar*    default_text);
-
-gchar*
-sokoke_key_file_get_string_default      (GKeyFile*       key_file,
-                                         const gchar*    group,
-                                         const gchar*    key,
-                                         const gchar*    default_value,
-                                         GError**        error);
-
-gint
-sokoke_key_file_get_integer_default     (GKeyFile*       key_file,
-                                         const gchar*    group,
-                                         const gchar*    key,
-                                         const gint      default_value,
-                                         GError**        error);
-
-gdouble
-sokoke_key_file_get_double_default      (GKeyFile*       key_file,
-                                         const gchar*    group,
-                                         const gchar*    key,
-                                         gdouble         default_value,
-                                         GError**        error);
-
-gboolean
-sokoke_key_file_get_boolean_default     (GKeyFile*       key_file,
-                                         const gchar*    group,
-                                         const gchar*    key,
-                                         gboolean        default_value,
-                                         GError**        error);
-
-gchar**
-sokoke_key_file_get_string_list_default (GKeyFile*       key_file,
-                                         const gchar*    group,
-                                         const gchar*    key,
-                                         gsize*          length,
-                                         gchar**         default_value,
-                                         gsize*          default_length,
-                                         GError*         error);
-
 gboolean
 sokoke_key_file_save_to_file            (GKeyFile*       key_file,
                                          const gchar*    filename,
