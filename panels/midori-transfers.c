@@ -497,7 +497,6 @@ midori_transfers_init (MidoriTransfers* transfers)
     gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (transfers->treeview), FALSE);
     column = gtk_tree_view_column_new ();
     gtk_tree_view_column_set_expand (column, TRUE);
-    gtk_tree_view_column_set_sizing (column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
     renderer_pixbuf = gtk_cell_renderer_pixbuf_new ();
     gtk_tree_view_column_pack_start (column, renderer_pixbuf, FALSE);
     gtk_tree_view_column_set_cell_data_func (column, renderer_pixbuf,
