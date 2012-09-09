@@ -161,8 +161,6 @@ sokoke_resolve_hostname                 (const gchar*        hostname);
 gboolean
 sokoke_recursive_fork_protection        (const gchar*         uri,
                                          gboolean             set_uri);
-gchar*
-sokoke_get_download_filename            (WebKitDownload*      download);
 
 typedef struct
 {
@@ -182,9 +180,6 @@ sokoke_widget_copy_clipboard (GtkWidget*   widget,
 
 gchar*
 sokoke_build_thumbnail_path (const gchar* name);
-
-gchar*
-midori_download_prepare_tooltip_text (WebKitDownload* download);
 
 GtkWidget*
 sokoke_search_entry_new               (const gchar*        placeholder_text);

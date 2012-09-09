@@ -104,13 +104,10 @@ midori_transfers_button_clear_clicked_cb (GtkToolItem*    toolitem,
     while ((gtk_tree_model_iter_nth_child (model, &iter, NULL, n++)))
     {
         WebKitDownload* download;
-        WebKitDownloadStatus status;
 
         gtk_tree_model_get (model, &iter, 1, &download, -1);
 
-        status = webkit_download_get_status (download);
-        if (status == WEBKIT_DOWNLOAD_STATUS_FINISHED
-            || status == WEBKIT_DOWNLOAD_STATUS_CANCELLED)
+        if (midori_download_is_finished (download))
         {
             gtk_list_store_remove (GTK_LIST_STORE (model), &iter);
             n--; /* Decrement n since we just removed it */
@@ -241,9 +238,21 @@ midori_transfers_treeview_render_icon_cb (GtkTreeViewColumn* column,
                                           GtkTreeIter*       iter,
                                           GtkWidget*         treeview)
 {
-    g_object_set (renderer, "stock-id", STOCK_TRANSFER,
+    WebKitDownload* download;
+    gchar* content_type;
+    GIcon* icon;
+
+    gtk_tree_model_get (model, iter, 1, &download, -1);
+    content_type = midori_download_get_content_type (download, NULL);
+    icon = g_content_type_get_icon (content_type);
+    g_themed_icon_append_name (G_THEMED_ICON (icon), "text-html");
+
+    g_object_set (renderer, "gicon", icon,
                   "stock-size", GTK_ICON_SIZE_DND,
                   "xpad", 1, "ypad", 12, NULL);
+    g_free (content_type);
+    g_object_unref (icon);
+    g_object_unref (download);
 }
 
 static void
@@ -254,34 +263,17 @@ midori_transfers_treeview_render_text_cb (GtkTreeViewColumn* column,
                                           GtkWidget*         treeview)
 {
     WebKitDownload* download;
-    gchar* current;
-    gchar* total;
-    gchar* size_text;
-    gchar* text;
-    gchar* filename;
+    gchar* tooltip;
     gdouble progress;
 
     gtk_tree_model_get (model, iter, 1, &download, -1);
 
-    current = g_format_size (webkit_download_get_current_size (download));
-    total = g_format_size (webkit_download_get_total_size (download));
-    size_text = g_strdup_printf (_("%s of %s"), current, total);
-    g_free (current);
-    g_free (total);
-    filename = sokoke_get_download_filename (download);
-    text = g_strdup_printf ("%s\n%s", filename, size_text);
-    g_free (filename);
-    g_free (size_text);
-    /* Avoid a bug in WebKit */
-    if (webkit_download_get_status (download) != WEBKIT_DOWNLOAD_STATUS_CREATED)
-        progress = webkit_download_get_progress (download);
-    else
-        progress = 0.0;
-    g_object_set (renderer, "text", text,
-                  "ellipsize", PANGO_ELLIPSIZE_END,
+    tooltip = midori_download_get_tooltip (download);
+    progress = midori_download_get_progress (download);
+    g_object_set (renderer, "text", tooltip,
                   "value", (gint)(progress * 100),
                   "xpad", 1, "ypad", 6, NULL);
-    g_free (text);
+    g_free (tooltip);
     g_object_unref (download);
 }
 
@@ -297,17 +289,7 @@ midori_transfers_treeview_render_button_cb (GtkTreeViewColumn* column,
 
     gtk_tree_model_get (model, iter, 1, &download, -1);
 
-    switch (webkit_download_get_status (download))
-    {
-        case WEBKIT_DOWNLOAD_STATUS_STARTED:
-            stock_id = GTK_STOCK_CANCEL;
-            break;
-        case WEBKIT_DOWNLOAD_STATUS_FINISHED:
-            stock_id = GTK_STOCK_OPEN;
-            break;
-        default:
-            stock_id = GTK_STOCK_CLEAR;
-    }
+    stock_id = midori_download_action_stock_id (download);
     g_object_set (renderer, "stock-id", stock_id,
                   "stock-size", GTK_ICON_SIZE_MENU, NULL);
 
@@ -328,25 +310,8 @@ midori_transfers_treeview_row_activated_cb (GtkTreeView*       treeview,
 
         gtk_tree_model_get (model, &iter, 1, &download, -1);
 
-        switch (webkit_download_get_status (download))
-        {
-            case WEBKIT_DOWNLOAD_STATUS_STARTED:
-                webkit_download_cancel (download);
-                break;
-            case WEBKIT_DOWNLOAD_STATUS_FINISHED:
-            {
-                const gchar* uri;
-
-                uri = webkit_download_get_destination_uri (download);
-                sokoke_show_uri (gtk_widget_get_screen (GTK_WIDGET (
-                    treeview)), uri, gtk_get_current_event_time (), NULL);
-                break;
-            }
-            case WEBKIT_DOWNLOAD_STATUS_CANCELLED:
-                /* FIXME: Remove this item from the model */
-            default:
-                break;
-        }
+        if (midori_download_action_clear (download, GTK_WIDGET (treeview), NULL))
+            ; /* FIXME: Remove this item from the model */
         g_object_unref (download);
     }
 }

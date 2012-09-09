@@ -983,54 +983,8 @@ midori_browser_prepare_download (MidoriBrowser*  browser,
                                  const gchar*    uri)
 
 {
-    guint64 total_size = webkit_download_get_total_size (download);
-    GFile* file = g_file_new_for_uri (uri);
-    GFile* folder = g_file_get_parent (file);
-    GError* error = NULL;
-    GFileInfo* info = g_file_query_filesystem_info (folder,
-        G_FILE_ATTRIBUTE_FILESYSTEM_FREE, NULL, &error);
-    guint64 free_space = g_file_info_get_attribute_uint64 (info,
-        G_FILE_ATTRIBUTE_FILESYSTEM_FREE);
-    gchar* path = g_file_get_path (folder);
-    gboolean can_write = g_access (path, W_OK) == 0;
-    g_free (path);
-    g_object_unref (file);
-    g_object_unref (folder);
-    if (free_space < total_size || !can_write)
-    {
-        gchar* message;
-        gchar* detailed_message;
-
-        if (!can_write)
-        {
-            message = g_strdup_printf (
-                _("The file \"%s\" can't be saved in this folder."), &uri[7]);
-            detailed_message = g_strdup_printf (
-                _("You don't have permission to write in this location."));
-        }
-        else if (free_space < total_size)
-        {
-            gchar* total_size_string = g_format_size (total_size);
-            gchar* free_space_string = g_format_size (free_space);
-            message = g_strdup_printf (
-                _("There is not enough free space to download \"%s\"."),
-                  &uri[7]);
-            detailed_message = g_strdup_printf (
-                _("The file needs %s but only %s are left."),
-                  total_size_string, free_space_string);
-            g_free (total_size_string);
-            g_free (free_space_string);
-        }
-        else
-            g_assert_not_reached ();
-
-        sokoke_message_dialog (GTK_MESSAGE_ERROR, message, detailed_message, FALSE);
-        g_free (message);
-        g_free (detailed_message);
-        g_object_unref (download);
+    if (!midori_download_has_enough_space (download, uri))
         return FALSE;
-    }
-
     webkit_download_set_destination_uri (download, uri);
     g_signal_emit (browser, signals[ADD_DOWNLOAD], 0, download);
     midori_transferbar_add_download_item (MIDORI_TRANSFERBAR (browser->transferbar), download);
@@ -1038,61 +992,6 @@ midori_browser_prepare_download (MidoriBrowser*  browser,
         MIDORI_TRANSFERBAR (browser->transferbar));
     return TRUE;
 }
-
-static gchar*
-midori_browser_get_folder_for_uri (MidoriBrowser* browser,
-                                   const gchar*   uri)
-{
-    if (uri)
-    {
-        /* Base the start folder on the current view's uri if it is local */
-        gchar* filename = g_filename_from_uri (uri, NULL, NULL);
-        if (filename)
-        {
-            gchar* dirname = g_path_get_dirname (filename);
-            g_free (filename);
-            if (dirname && g_file_test (dirname, G_FILE_TEST_IS_DIR))
-                return dirname;
-        }
-    }
-    return katze_object_get_string (browser->settings, "download-folder");
-}
-
-static gchar*
-midori_browser_fixup_filename (gchar* filename)
-{
-    #ifdef G_OS_WIN32
-    g_strdelimit (filename, "/\\<>:\"|?*", '_');
-    #else
-    g_strdelimit (filename, "/", '_');
-    #endif
-    return filename;
-}
-
-static gchar*
-midori_browser_get_filename_suggestion_for_uri (MidoriView*  view,
-                                                const gchar* uri)
-{
-    /* Try to provide a good default filename, UTF-8 encoded */
-    gchar* filename = soup_uri_decode (uri);
-    gchar* last_slash = g_strrstr (filename, "/") + 1;
-    /* Take the rest of the URI if needed */
-    if (*last_slash == '\0')
-    {
-        const gchar* extension = midori_view_fallback_extension (view, NULL);
-        gchar* guessed;
-        last_slash = midori_browser_fixup_filename (filename);
-        guessed = g_strconcat (filename, extension, NULL);
-        g_free (filename);
-        return guessed;
-    }
-    last_slash = g_strdup (last_slash);
-    g_free (filename);
-    return midori_browser_fixup_filename (last_slash);
-}
-
-static gchar*
-midori_browser_download_prepare_filename (gchar* filename);
 
 static void
 midori_browser_save_resources (MidoriView*  view,
@@ -1115,11 +1014,11 @@ midori_browser_save_resources (MidoriView*  view,
         if (!g_strcmp0 (webkit_web_resource_get_uri (resource), "about:blank"))
             continue;
 
-        /* FIXME: mime type fallback should respect the resource's type */
-        gchar* sub_filename = midori_browser_get_filename_suggestion_for_uri (
-            view, webkit_web_resource_get_uri (resource));
+        gchar* sub_filename = midori_download_get_filename_suggestion_for_uri (
+            webkit_web_resource_get_mime_type (resource),
+            webkit_web_resource_get_uri (resource));
         gchar* sub_path = g_build_filename (folder, sub_filename, NULL);
-        sub_path = midori_browser_download_prepare_filename (sub_path);
+        sub_path = midori_download_get_unique_filename (sub_path);
         if (data)
         {
             GError* error = NULL;
@@ -1155,6 +1054,10 @@ midori_browser_save_uri (MidoriBrowser* browser,
     dialog = sokoke_file_chooser_dialog_new (_("Save file as"),
         GTK_WINDOW (browser), GTK_FILE_CHOOSER_ACTION_SAVE);
     gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (dialog), TRUE);
+
+    if (uri == NULL)
+        uri = midori_view_get_display_uri (view);
+
     if (midori_view_can_view_source (view))
     {
         file_only = FALSE;
@@ -1162,21 +1065,26 @@ midori_browser_save_uri (MidoriBrowser* browser,
         gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbox), TRUE);
         gtk_file_chooser_set_extra_widget (GTK_FILE_CHOOSER (dialog), checkbox);
     }
+
     if (last_dir && *last_dir)
         gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), last_dir);
     else
     {
-        gchar* dirname = midori_browser_get_folder_for_uri (browser, uri);
+        gchar* dirname = midori_uri_get_folder (uri);
+        if (dirname == NULL)
+            dirname = katze_object_get_string (browser->settings, "download-folder");
         gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), dirname);
         g_free (dirname);
     }
 
-    if (uri == NULL)
-        uri = midori_view_get_display_uri (view);
     if (!file_only && !g_str_equal (title, uri))
-        filename = midori_browser_fixup_filename (g_strdup (title));
+        filename = midori_download_clean_filename (title);
     else
-        filename = midori_browser_get_filename_suggestion_for_uri (view, uri);
+    {
+        gchar* mime_type = katze_object_get_object (view, "mime-type");
+        filename = midori_download_get_filename_suggestion_for_uri (mime_type, uri);
+        g_free (mime_type);
+    }
     gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (dialog), filename);
     g_free (filename);
 
@@ -1437,70 +1345,6 @@ midori_browser_download_status_cb (WebKitDownload*  download,
     }
 }
 
-static gchar*
-midori_browser_download_prepare_filename (gchar* filename)
-{
-    if (g_file_test (filename, G_FILE_TEST_EXISTS))
-    {
-        int i = 1;
-        const gchar* dot_pos;
-        const gchar* last_separator;
-        gchar* serial;
-        GString* tmp_filename;
-        gssize position;
-
-        last_separator = strrchr (filename, G_DIR_SEPARATOR);
-        dot_pos = strrchr ((last_separator) ? last_separator : filename, '.');
-        position = dot_pos ? (dot_pos - filename) : (gssize) strlen (filename);
-        tmp_filename = g_string_new (NULL);
-
-        do
-        {
-            serial = g_strdup_printf ("-%d", i++);
-            g_string_assign (tmp_filename, filename);
-            g_string_insert (tmp_filename, position, serial);
-            g_free (serial);
-        } while (g_file_test (tmp_filename->str, G_FILE_TEST_EXISTS));
-
-        g_free (filename);
-        filename = g_string_free (tmp_filename, FALSE);
-    }
-    return filename;
-}
-
-static gchar*
-midori_browser_download_prepare_destination_uri (WebKitDownload* download,
-                                                 const gchar*    folder)
-{
-    gchar* suggested_filename;
-    GFile* file_source;
-    gchar* file_basename;
-    const gchar* download_dir = NULL;
-    gchar* destination_uri;
-    gchar* destination_filename;
-
-    suggested_filename = sokoke_get_download_filename (download);
-    file_source = g_file_new_for_uri (suggested_filename);
-    g_free (suggested_filename);
-    file_basename = g_file_get_basename (file_source);
-    if (folder == NULL)
-    {
-        download_dir = midori_paths_get_tmp_dir ();
-        katze_mkdir_with_parents (download_dir, 0700);
-    }
-    else
-        download_dir = folder;
-    destination_filename = g_build_filename (download_dir, file_basename, NULL);
-    destination_filename = midori_browser_download_prepare_filename (destination_filename);
-    destination_uri = g_filename_to_uri (destination_filename, NULL, NULL);
-
-    g_free (file_basename);
-    g_free (destination_filename);
-    g_object_unref (file_source);
-
-    return destination_uri;
-}
-
 static gboolean
 midori_browser_remove_tab_idle (gpointer view)
 {
@@ -1517,8 +1361,7 @@ midori_view_download_requested_cb (GtkWidget*      view,
                                    WebKitDownload* download,
                                    MidoriBrowser*  browser)
 {
-    MidoriDownloadType type = GPOINTER_TO_INT (
-        g_object_get_data (G_OBJECT (download), "midori-download-type"));
+    MidoriDownloadType type = midori_download_get_type (download);
     GtkWidget* web_view;
     WebKitWebFrame* web_frame;
     WebKitWebDataSource* datasource;
@@ -1533,7 +1376,7 @@ midori_view_download_requested_cb (GtkWidget*      view,
     else if (type == MIDORI_DOWNLOAD_OPEN_IN_VIEWER)
     {
         gchar* destination_uri =
-            midori_browser_download_prepare_destination_uri (download, NULL);
+            midori_download_prepare_destination_uri (download, NULL);
         midori_browser_prepare_download (browser, download, destination_uri);
         g_signal_connect (download, "notify::status",
             G_CALLBACK (midori_browser_download_status_cb), GTK_WIDGET (browser));
@@ -1555,15 +1398,16 @@ midori_view_download_requested_cb (GtkWidget*      view,
                 gtk_file_chooser_set_do_overwrite_confirmation (
                     GTK_FILE_CHOOSER (dialog), TRUE);
                 gtk_window_set_destroy_with_parent (GTK_WINDOW (dialog), TRUE);
-                folder = midori_browser_get_folder_for_uri (browser,
-                    webkit_download_get_uri (download));
+                folder = midori_uri_get_folder (webkit_download_get_uri (download));
+                if (folder == NULL)
+                    folder = katze_object_get_string (browser->settings, "download-folder");
                 gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), folder);
                 g_free (folder);
                 g_signal_connect (dialog, "destroy",
                                   G_CALLBACK (gtk_widget_destroyed), &dialog);
             }
             g_object_set_data (G_OBJECT (dialog), "download", download);
-            filename = sokoke_get_download_filename (download);
+            filename = midori_download_get_suggested_filename (download);
             gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (dialog), filename);
             g_free (filename);
 
@@ -1589,7 +1433,7 @@ midori_view_download_requested_cb (GtkWidget*      view,
             gchar* folder = type == MIDORI_DOWNLOAD_OPEN ? NULL
               : katze_object_get_string (browser->settings, "download-folder");
             gchar* destination_uri =
-                midori_browser_download_prepare_destination_uri (download, folder);
+                midori_download_prepare_destination_uri (download, folder);
             midori_browser_prepare_download (browser, download, destination_uri);
             g_free (destination_uri);
         }

@@ -145,6 +145,21 @@ namespace Midori {
              && uri.chr (-1, ' ') == null
              && (URI.is_location (uri) || uri.chr (-1, '.') != null);
         }
+
+        public static string? get_folder (string uri) {
+            /* Base the start folder on the current view's uri if it is local */
+            try {
+                string? filename = Filename.from_uri (uri);
+                if (filename != null) {
+                    string? dirname = Path.get_dirname (filename);
+                    if (dirname != null && FileUtils.test (dirname, FileTest.IS_DIR))
+                        return dirname;
+                }
+            }
+            catch (Error error) { }
+            return null;
+        }
+
         public static GLib.ChecksumType get_fingerprint (string uri,
             out string checksum, out string label) {
 

@@ -2270,8 +2270,7 @@ midori_view_download_uri (MidoriView*        view,
     WebKitDownload* download = webkit_download_new (request);
     gboolean handled;
     g_object_unref (request);
-    g_object_set_data (G_OBJECT (download), "midori-download-type",
-                       GINT_TO_POINTER (type));
+    midori_download_set_type (download, type);
     g_signal_emit (view, signals[DOWNLOAD_REQUESTED], 0, download, &handled);
 }
 
@@ -3185,9 +3184,7 @@ webkit_web_view_download_requested_cb (GtkWidget*      web_view,
     gchar* content_type;
     gchar* description;
     WebKitWebFrame* web_frame;
-    gchar* mime_type;
     WebKitWebDataSource* datasource;
-    WebKitNetworkRequest* request;
     GString* details;
     GIcon* icon;
     GtkWidget* image;
@@ -3205,18 +3202,8 @@ webkit_web_view_download_requested_cb (GtkWidget*      web_view,
     dialog = gtk_message_dialog_new (NULL, 0, GTK_MESSAGE_WARNING, GTK_BUTTONS_NONE,
         _("Open or download file from %s"), hostname);
     g_free (hostname);
-    mime_type = g_object_get_data (G_OBJECT (view), "download-mime-type");
-    request = webkit_download_get_network_request (download);
-    if (mime_type != NULL)
-        content_type = g_content_type_from_mime_type (mime_type);
-    else
-        content_type = NULL;
-    if (!content_type)
-        content_type = g_content_type_guess (
-            webkit_download_get_suggested_filename (download), NULL, 0, NULL);
-    if (!content_type)
-        content_type = g_content_type_from_mime_type ("application/octet-stream");
-    mime_type = g_content_type_get_mime_type (content_type);
+    content_type = midori_download_get_content_type (download,
+        g_object_get_data (G_OBJECT (view), "download-mime-type"));
     description = g_content_type_get_description (content_type);
     icon = g_content_type_get_icon (content_type);
     g_themed_icon_append_name (G_THEMED_ICON (icon), "text-html");
@@ -3224,20 +3211,19 @@ webkit_web_view_download_requested_cb (GtkWidget*      web_view,
     g_object_unref (icon);
     gtk_widget_show (image);
     gtk_message_dialog_set_image (GTK_MESSAGE_DIALOG (dialog), image);
-    g_free (content_type);
 
     details = g_string_sized_new (20 * 4);
     g_string_append_printf (details, _("File Name: %s"),
         webkit_download_get_suggested_filename (download));
     g_string_append_c (details, '\n');
 
-    if (g_strrstr (description, mime_type))
-        g_string_append_printf (details, _("File Type: '%s'"), mime_type);
+    if (g_strrstr (description, content_type))
+        g_string_append_printf (details, _("File Type: '%s'"), content_type);
     else
-        g_string_append_printf (details, _("File Type: %s ('%s')"), description, mime_type);
+        g_string_append_printf (details, _("File Type: %s ('%s')"), description, content_type);
     g_string_append_c (details, '\n');
     g_free (description);
-    g_free (mime_type);
+    g_free (content_type);
 
     /* Link Fingerprint */
     /* We look at the original URI because redirection would lose the fragment */
@@ -3252,17 +3238,19 @@ webkit_web_view_download_requested_cb (GtkWidget*      web_view,
         midori_uri_get_fingerprint (original_uri, &fingerprint, &fplabel);
         if (fplabel && fingerprint)
         {
+            WebKitNetworkRequest* request = webkit_download_get_network_request (download);
+
             g_string_append (details, fplabel);
             g_string_append_c (details, ' ');
             g_string_append (details, fingerprint);
             g_string_append_c (details, '\n');
+
+            /* Propagate original URI to make it available when the download finishes */
+            g_object_set_data_full (G_OBJECT (request), "midori-original-uri",
+                                    g_strdup (original_uri), g_free);
         }
         g_free (fplabel);
         g_free (fingerprint);
-
-        /* Propagate original URI to make it available when the download finishes */
-        g_object_set_data_full (G_OBJECT (request), "midori-original-uri",
-                                g_strdup (original_uri), g_free);
 
     }
 
@@ -3280,8 +3268,7 @@ webkit_web_view_download_requested_cb (GtkWidget*      web_view,
 
     gtk_window_set_skip_taskbar_hint (GTK_WINDOW (dialog), FALSE);
     /* i18n: A file open dialog title, ie. "Open http://fila.com/manual.tgz" */
-    title = g_strdup_printf (_("Open %s"),
-        webkit_network_request_get_uri (request));
+    title = g_strdup_printf (_("Open %s"), webkit_download_get_uri (download));
     gtk_window_set_title (GTK_WINDOW (dialog), title);
     g_free (title);
     screen = gtk_widget_get_screen (dialog);
@@ -3304,7 +3291,7 @@ webkit_web_view_download_requested_cb (GtkWidget*      web_view,
     gtk_widget_destroy (dialog);
     if (response == GTK_RESPONSE_DELETE_EVENT)
         response = MIDORI_DOWNLOAD_CANCEL;
-    g_object_set_data (G_OBJECT (download), "midori-download-type", GINT_TO_POINTER (response));
+    midori_download_set_type (download, response);
 
     g_signal_emit (view, signals[DOWNLOAD_REQUESTED], 0, download, &handled);
     return handled;
@@ -5447,56 +5434,6 @@ midori_view_can_save (MidoriView* view)
     return FALSE;
 }
 
-static gchar*
-midori_view_get_uri_extension (const gchar* uri)
-{
-    gchar* slash;
-    gchar* period;
-    gchar* ext_end;
-
-    /* Find the last slash in the URI and search for the last period
-       *after* the last slash. This is not completely accurate
-       but should cover most (simple) URIs */
-    slash = strrchr (uri, '/');
-    /* Huh, URI without slashes? */
-    if (!slash)
-        return NULL;
-
-    ext_end = period = strrchr (slash, '.');
-    if (!period)
-       return NULL;
-
-    /* Skip the period */
-    ext_end++;
-    /* If *ext_end is 0 here, the URI ended with a period, so skip */
-    if (!*ext_end)
-       return NULL;
-
-    /* Find the end of the extension */
-    while (*ext_end && g_ascii_isalnum (*ext_end))
-        ext_end++;
-
-    return g_strdup (period);
-}
-
-const gchar*
-midori_view_fallback_extension (MidoriView* view,
-                                const gchar* extension)
-{
-    if (extension && *extension)
-        return extension;
-    g_return_val_if_fail (view->mime_type != NULL, "");
-    if (strstr (view->mime_type, "css"))
-        return ".css";
-    if (strstr (view->mime_type, "javascript"))
-        return ".js";
-    if (strstr (view->mime_type, "html"))
-        return ".htm";
-    if (strstr (view->mime_type, "plain"))
-        return ".txt";
-    return "";
-}
-
 /**
  * midori_view_save_source:
  * @view: a #MidoriView
@@ -5531,9 +5468,9 @@ midori_view_save_source (MidoriView* view,
 
     if (!outfile)
     {
-        gchar* extension = midori_view_get_uri_extension (uri);
+        gchar* extension = midori_download_get_extension_for_uri (uri, NULL);
         unique_filename = g_strdup_printf ("%s/%uXXXXXX%s", midori_paths_get_tmp_dir (),
-            g_str_hash (uri), midori_view_fallback_extension (view, extension));
+            g_str_hash (uri), midori_download_fallback_extension (view->mime_type, extension));
         g_free (extension);
         katze_mkdir_with_parents (midori_paths_get_tmp_dir (), 0700);
         fd = g_mkstemp (unique_filename);

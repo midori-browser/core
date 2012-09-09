@@ -76,17 +76,11 @@ midori_transferbar_download_notify_progress_cb (WebKitDownload* download,
                                                 GtkWidget*      progress)
 {
     gchar* tooltip;
-    gchar* text;
-
     gtk_progress_bar_set_fraction (GTK_PROGRESS_BAR (progress),
-        webkit_download_get_progress (download));
-    tooltip = midori_download_prepare_tooltip_text (download);
-    text = g_strdup_printf ("%s\n%s",
-        gtk_progress_bar_get_text (GTK_PROGRESS_BAR (progress)), tooltip);
-    gtk_widget_set_tooltip_text (progress, text);
-
+        midori_download_get_progress (download));
+    tooltip = midori_download_get_tooltip (download);
+    gtk_widget_set_tooltip_text (progress, tooltip);
     g_free (tooltip);
-    g_free (text);
 }
 
 static void
@@ -95,31 +89,22 @@ midori_transferbar_download_notify_status_cb (WebKitDownload* download,
                                               TransferInfo*   info)
 {
     GtkWidget* button = info->button;
-    GtkWidget* icon;
 
-    switch (webkit_download_get_status (download))
+    const gchar* stock_id = midori_download_action_stock_id (download);
+    GtkWidget* icon = gtk_image_new_from_stock (stock_id, GTK_ICON_SIZE_MENU);
+    gtk_button_set_image (GTK_BUTTON (button), icon);
+
+    if (webkit_download_get_status (download) == WEBKIT_DOWNLOAD_STATUS_FINISHED)
     {
-        case WEBKIT_DOWNLOAD_STATUS_FINISHED:
-        {
             MidoriBrowser* browser = midori_browser_get_for_widget (button);
-            MidoriDownloadType type = GPOINTER_TO_INT (
-                g_object_get_data (G_OBJECT (download), "midori-download-type"));
-            WebKitNetworkRequest* request;
-            const gchar* original_uri;
-            GChecksumType checksum_type;
-            gchar* fingerprint;
-            gboolean verified = TRUE;
+            MidoriDownloadType type = midori_download_get_type (download);
 
-            icon = gtk_image_new_from_stock (GTK_STOCK_OPEN, GTK_ICON_SIZE_MENU);
-            gtk_button_set_image (GTK_BUTTON (button), icon);
             if (type == MIDORI_DOWNLOAD_OPEN)
                 gtk_button_clicked (GTK_BUTTON (button));
 
-            if (1)
             {
                 const gchar* uri = webkit_download_get_destination_uri (download);
-                gchar* path = soup_uri_decode (uri);
-                gchar* filename = g_strrstr (path, "/") + 1;
+                gchar* filename = g_path_get_basename (uri);
                 gchar* msg = g_strdup_printf (
                     _("The file '<b>%s</b>' has been downloaded."), filename);
                 KatzeItem* item = katze_item_new ();
@@ -131,47 +116,12 @@ midori_transferbar_download_notify_status_cb (WebKitDownload* download,
                 midori_browser_update_history (item, "download", "create");
                 item->uri = item->name = NULL;
                 g_object_unref (item);
-                g_free (path);
+                g_free (filename);
             }
 
-            /* Link Fingerprint */
-            request = webkit_download_get_network_request (download);
-            original_uri = g_object_get_data (G_OBJECT (request), "midori-original-uri");
-            if (!original_uri)
-                original_uri = webkit_download_get_uri (download);
-            checksum_type = midori_uri_get_fingerprint (original_uri, &fingerprint, NULL);
-            if (fingerprint != NULL)
-            {
-                gchar* filename = g_filename_from_uri (
-                    webkit_download_get_destination_uri (download), NULL, NULL);
-                gchar* contents;
-                gsize length;
-                gboolean y = g_file_get_contents (filename, &contents, &length, NULL);
-                gchar* checksum = g_compute_checksum_for_data (checksum_type,
-                    (guchar*)contents, length);
-                g_free (filename);
-                g_free (contents);
-                /* Checksums are case-insensitive */
-                if (!y || g_ascii_strcasecmp (fingerprint, checksum) != 0)
-                    verified = FALSE;
-                g_free (checksum);
-            }
-            g_free (fingerprint);
-            if (verified)
+            if (!midori_download_has_wrong_checksum (download))
                  gtk_recent_manager_add_item (gtk_recent_manager_get_default (),
                     webkit_download_get_destination_uri (download));
-            else
-                gtk_image_set_from_stock (GTK_IMAGE (icon),
-                    GTK_STOCK_DIALOG_WARNING, GTK_ICON_SIZE_MENU);
-            break;
-        }
-        case WEBKIT_DOWNLOAD_STATUS_CANCELLED:
-        case WEBKIT_DOWNLOAD_STATUS_ERROR:
-            icon = gtk_image_new_from_stock (GTK_STOCK_CLEAR, GTK_ICON_SIZE_MENU);
-            gtk_button_set_image (GTK_BUTTON (button), icon);
-            break;
-        default:
-            break;
     }
 }
 
@@ -180,37 +130,8 @@ midori_transferbar_download_button_clicked_cb (GtkWidget*    button,
                                                TransferInfo* info)
 {
     WebKitDownload* download = info->download;
-
-    switch (webkit_download_get_status (download))
-    {
-        case WEBKIT_DOWNLOAD_STATUS_STARTED:
-            webkit_download_cancel (download);
-            break;
-        case WEBKIT_DOWNLOAD_STATUS_FINISHED:
-        {
-            const gchar* uri = webkit_download_get_destination_uri (download);
-            GtkWidget* icon = gtk_button_get_image (GTK_BUTTON (button));
-            gchar* stock_id;
-            gtk_image_get_stock (GTK_IMAGE (icon), &stock_id, NULL);
-            if (g_str_equal (stock_id, GTK_STOCK_DIALOG_WARNING))
-            {
-                sokoke_message_dialog (GTK_MESSAGE_WARNING,
-                    _("The downloaded file is erroneous."),
-                    _("The checksum provided with the link did not match. " \
-                      "This means the file is probably incomplete or was " \
-                      "modified afterwards."),
-                    TRUE);
-            }
-            else if (sokoke_show_uri (gtk_widget_get_screen (button),
-                uri, gtk_get_current_event_time (), NULL))
-                gtk_widget_destroy (button);
-            break;
-        }
-        case WEBKIT_DOWNLOAD_STATUS_CANCELLED:
-            gtk_widget_destroy (button);
-        default:
-            break;
-    }
+    if (midori_download_action_clear (download, button, NULL))
+        gtk_widget_destroy (button);
 }
 
 void
@@ -231,13 +152,9 @@ midori_transferbar_check_size (GtkWidget* statusbar,
     for (list = transferbar->infos; list != NULL; list = g_list_next (list))
     {
       TransferInfo* info = list->data;
-      WebKitDownloadStatus status = webkit_download_get_status (info->download);
-      if (status == WEBKIT_DOWNLOAD_STATUS_ERROR
-       || status == WEBKIT_DOWNLOAD_STATUS_CANCELLED
-       || status == WEBKIT_DOWNLOAD_STATUS_FINISHED)
-      {
+      if (midori_download_is_finished (info->download)
+       || webkit_download_get_status (info->download) == WEBKIT_DOWNLOAD_STATUS_STARTED)
           gtk_widget_destroy (info->button);
-      }
     }
   }
 }
@@ -251,7 +168,7 @@ midori_transferbar_add_download_item (MidoriTransferbar* transferbar,
     GtkToolItem* toolitem;
     GtkWidget* button;
     GtkWidget* progress;
-    const gchar* uri;
+    const gchar* filename;
     gint width;
     TransferInfo* info;
 
@@ -260,29 +177,16 @@ midori_transferbar_add_download_item (MidoriTransferbar* transferbar,
     #if GTK_CHECK_VERSION (3, 0, 0)
     gtk_progress_bar_set_show_text (GTK_PROGRESS_BAR (progress), TRUE);
     #endif
-    gtk_progress_bar_set_ellipsize (GTK_PROGRESS_BAR (progress),
-                                    PANGO_ELLIPSIZE_MIDDLE);
-    if ((uri = webkit_download_get_destination_uri (download)))
-    {
-        gchar* path = soup_uri_decode (uri);
-        gchar* filename = g_strrstr (path, "/") + 1;
-        gtk_progress_bar_set_text (GTK_PROGRESS_BAR (progress), filename);
-        g_free (path);
-    }
-    else
-    {
-        gchar* filename = sokoke_get_download_filename (download);
-        gtk_progress_bar_set_text (GTK_PROGRESS_BAR (progress), filename);
-        g_free (filename);
-    }
+    gtk_progress_bar_set_ellipsize (GTK_PROGRESS_BAR (progress), PANGO_ELLIPSIZE_MIDDLE);
+    filename = g_strrstr (webkit_download_get_destination_uri (download), "/") + 1;
+    gtk_progress_bar_set_text (GTK_PROGRESS_BAR (progress), filename);
     sokoke_widget_get_text_size (progress, "M", &width, NULL);
     gtk_widget_set_size_request (progress, width * 10, 1);
-    /* Avoid a bug in WebKit */
-    if (webkit_download_get_status (download) != WEBKIT_DOWNLOAD_STATUS_CREATED)
-        gtk_progress_bar_set_fraction (GTK_PROGRESS_BAR (progress),
-            webkit_download_get_progress (download));
+    gtk_progress_bar_set_fraction (GTK_PROGRESS_BAR (progress),
+        midori_download_get_progress (download));
     gtk_box_pack_start (GTK_BOX (box), progress, FALSE, FALSE, 0);
-    icon = gtk_image_new_from_stock (GTK_STOCK_CANCEL, GTK_ICON_SIZE_MENU);
+    icon = gtk_image_new_from_stock (
+        midori_download_action_stock_id (download), GTK_ICON_SIZE_MENU);
     button = gtk_button_new ();
     gtk_button_set_relief (GTK_BUTTON (button), GTK_RELIEF_NONE);
     gtk_button_set_focus_on_click (GTK_BUTTON (button), FALSE);
@@ -322,13 +226,8 @@ midori_transferbar_clear_clicked_cb (GtkWidget*         button,
     for (list = transferbar->infos; list != NULL; list = g_list_next (list))
     {
         TransferInfo* info = list->data;
-        WebKitDownloadStatus status = webkit_download_get_status (info->download);
-        if (status == WEBKIT_DOWNLOAD_STATUS_ERROR
-         || status == WEBKIT_DOWNLOAD_STATUS_CANCELLED
-         || status == WEBKIT_DOWNLOAD_STATUS_FINISHED)
-        {
+        if (midori_download_is_finished (info->download))
             gtk_widget_destroy (info->button);
-        }
     }
 }
 
@@ -359,11 +258,7 @@ midori_transferbar_confirm_delete (MidoriTransferbar* transferbar)
     for (list = transferbar->infos; list != NULL; list = g_list_next (list))
     {
         TransferInfo* info = list->data;
-        WebKitDownloadStatus status = webkit_download_get_status (info->download);
-
-        if (status != WEBKIT_DOWNLOAD_STATUS_FINISHED
-         && status != WEBKIT_DOWNLOAD_STATUS_CANCELLED
-         && status != WEBKIT_DOWNLOAD_STATUS_ERROR)
+        if (!midori_download_is_finished (info->download))
         {
             all_done = FALSE;
             break;
