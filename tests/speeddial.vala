@@ -40,8 +40,8 @@ static void speeddial_load () {
     FileUtils.remove (json);
 
     Katze.assert_str_equal (json, dial_data.keyfile.to_data (), dial_json.keyfile.to_data ());
-    Katze.assert_str_equal (json, Midori.SpeedDial.get_next_free_slot_fk (dial_data.keyfile), "s2");
-    Katze.assert_str_equal (json, Midori.SpeedDial.get_next_free_Slot_fk (dial_json), "s2");
+    Katze.assert_str_equal (json, dial_data.get_next_free_slot (), "Dial 2");
+    Katze.assert_str_equal (json, dial_json.get_next_free_slot (), "Dial 2");
 }
 
 void main (string[] args) {

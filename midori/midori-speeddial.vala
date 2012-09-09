@@ -120,14 +120,14 @@ namespace Midori {
             while (slot <= slot_count) {
                 string tile = "Dial %u".printf (slot);
                 if (!keyfile.has_group (tile))
-                    return "s%u".printf (slot);
+                    return "Dial %u".printf (slot);
                 slot++;
             }
-            return "s%u".printf (slot_count + 1);
+            return "Dial %u".printf (slot_count + 1);
         }
 
         public void add (string uri, string title, Gdk.Pixbuf img) {
-            string id = "Dial " + get_next_free_slot ();
+            string id = get_next_free_slot ();
             add_with_id (id, uri, title, img);
         }
 
@@ -260,7 +260,7 @@ namespace Midori {
 
             if (action == "add" || action == "rename"
                                 || action == "delete" || action == "swap") {
-                uint slot_id = parts[1].to_int () + 1;
+                uint slot_id = parts[1].next_char().to_int () ;
                 string dial_id = "Dial %u".printf (slot_id);
 
                 if (action == "delete") {
@@ -279,7 +279,7 @@ namespace Midori {
                     keyfile.set_string (dial_id, "title", title);
                 }
                 else if (action == "swap") {
-                    uint slot2_id = parts[2].to_int () + 1;
+                    uint slot2_id = parts[2].next_char().to_int ();
                     string dial2_id = "Dial %u".printf (slot2_id);
 
                     string uri = keyfile.get_string (dial_id, "uri");
