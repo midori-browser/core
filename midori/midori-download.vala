@@ -49,6 +49,10 @@ namespace Midori {
                 format_size (download.current_size),
                 format_size (download.total_size));
 
+            /* Finished, no speed or remaining time */
+            if (is_finished (download) || download.status == WebKit.DownloadStatus.CREATED)
+                return "%s\n%s".printf (filename, size);
+
             uint64 total_size = download.total_size, current_size = download.current_size;
             double elapsed = download.get_elapsed_time (),
                diff = elapsed / current_size,
