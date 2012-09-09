@@ -311,7 +311,7 @@ midori_transfers_treeview_row_activated_cb (GtkTreeView*       treeview,
         gtk_tree_model_get (model, &iter, 1, &download, -1);
 
         if (midori_download_action_clear (download, GTK_WIDGET (treeview), NULL))
-            ; /* FIXME: Remove this item from the model */
+            gtk_list_store_remove (GTK_LIST_STORE (model), &iter);
         g_object_unref (download);
     }
 }
