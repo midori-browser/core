@@ -223,8 +223,8 @@ namespace Midori {
             /* Try to provide a good default filename, UTF-8 encoded */
             string filename = clean_filename (Soup.URI.decode (uri));
             /* Take the rest of the URI if needed */
-            if (filename.has_suffix ("/"))
-                return filename + fallback_extension (null, mime_type);
+            if (filename.has_suffix ("/") || uri.index_of_char ('.') == -1)
+                return Path.build_filename (filename, fallback_extension (null, mime_type));
             return filename;
         }
 

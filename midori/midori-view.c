@@ -5470,7 +5470,7 @@ midori_view_save_source (MidoriView* view,
     {
         gchar* extension = midori_download_get_extension_for_uri (uri, NULL);
         unique_filename = g_strdup_printf ("%s/%uXXXXXX%s", midori_paths_get_tmp_dir (),
-            g_str_hash (uri), midori_download_fallback_extension (view->mime_type, extension));
+            g_str_hash (uri), midori_download_fallback_extension (extension, view->mime_type));
         g_free (extension);
         katze_mkdir_with_parents (midori_paths_get_tmp_dir (), 0700);
         fd = g_mkstemp (unique_filename);
