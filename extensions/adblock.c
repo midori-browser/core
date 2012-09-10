@@ -1539,14 +1539,16 @@ static gboolean
 adblock_file_is_up_to_date (gchar* path)
 {
     FILE* file;
-    guint days_to_expire = 0;
-    gchar* timestamp = NULL;
     gchar line[2000];
 
     /* Check a chunk of header for update info */
     if ((file = g_fopen (path, "r")))
     {
+        guint days_to_expire = 0;
+        gchar* timestamp = NULL;
         guint i;
+        gboolean found_meta = FALSE;
+
         for (i = 0; i <= 10; i++)
         {
             fgets (line, 2000, file);
@@ -1555,6 +1557,7 @@ adblock_file_is_up_to_date (gchar* path)
                 gchar** parts = g_strsplit (line, " ", 4);
                 days_to_expire = atoi (parts[2]);
                 g_strfreev (parts);
+                found_meta = TRUE;
             }
             if (strncmp ("! This list expires after", line, 25) == 0)
             {
@@ -1566,6 +1569,7 @@ adblock_file_is_up_to_date (gchar* path)
                     days_to_expire = (atoi (parts[5])) / 24;
 
                 g_strfreev (parts);
+                found_meta = TRUE;
             }
 
             if (strncmp ("! Last modified", line, 15) == 0
@@ -1575,7 +1579,14 @@ adblock_file_is_up_to_date (gchar* path)
                 timestamp = g_strdup (parts[1] + 1);
                 g_strchomp (timestamp);
                 g_strfreev (parts);
+                found_meta = TRUE;
             }
+        }
+
+        if (!found_meta)
+        {
+            g_print ("Adblock: no metadata found in %s (broken download?)\n", path);
+            return FALSE;
         }
 
         if (days_to_expire && timestamp != NULL)
