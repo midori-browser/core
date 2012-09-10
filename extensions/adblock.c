@@ -42,6 +42,8 @@ static GHashTable* urlcache = NULL;
 static GHashTable* blockcssprivate = NULL;
 static GHashTable* navigationwhitelist = NULL;
 static GString* blockcss = NULL;
+static GList* update_list = NULL;
+static gboolean update_done = FALSE;
 
 static void
 adblock_parse_file (gchar* path);
@@ -165,9 +167,26 @@ adblock_download_notify_status_cb (WebKitDownload*  download,
                                    GParamSpec*      pspec,
                                    MidoriExtension* extension)
 {
-    if (webkit_download_get_status (download) != WEBKIT_DOWNLOAD_STATUS_FINISHED)
+    if (update_done)
         return;
-    adblock_reload_rules (extension, FALSE);
+
+    if (webkit_download_get_status (download) == WEBKIT_DOWNLOAD_STATUS_FINISHED)
+    {
+        GList* li = NULL;
+        for (li = update_list; li != NULL; li = g_list_next (li))
+        {
+            gchar* uri = g_strdup (webkit_download_get_destination_uri (download) + 7);
+            if (g_strcmp0 (li->data, uri))
+                update_list = g_list_remove (update_list, li->data);
+            g_free (uri);
+        }
+    }
+
+    if (g_list_length (update_list) == 0)
+    {
+        adblock_reload_rules (extension, FALSE);
+        update_done = TRUE;
+    }
 }
 
 static gchar*
@@ -236,6 +255,7 @@ adblock_reload_rules (MidoriExtension* extension,
                 download = webkit_download_new (request);
                 g_object_unref (request);
                 webkit_download_set_destination_uri (download, destination);
+                update_list = g_list_prepend (update_list, path);
                 g_free (destination);
                 g_signal_connect (download, "notify::status",
                     G_CALLBACK (adblock_download_notify_status_cb), extension);
