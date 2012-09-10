@@ -1727,6 +1727,57 @@ test_adblock_parse (void)
 }
 
 static void
+test_subscription_update (void)
+{
+    gint temp;
+    gchar* filename;
+
+    temp = g_file_open_tmp ("midori_adblock_update_test_XXXXXX", &filename, NULL);
+    close (temp);
+
+    g_file_set_contents (filename, "", -1, NULL);
+    g_assert (!adblock_file_is_up_to_date (filename));
+
+    g_file_set_contents (filename,
+        "[Adblock Plus 1.1]\n"
+        "! Checksum: 48f6Qdo4PsNogsurLvQ71w\n"
+        "! Title: EasyList\n"
+        "! Last modified: 05 Sep 2010 11:00 UTC\n"
+        "! This list expires after 48 hours\n",
+            -1, NULL);
+    g_assert (!adblock_file_is_up_to_date (filename));
+
+    g_file_set_contents (filename,
+        "[Adblock Plus 1.1]\n"
+        "! Checksum: 48f6Qdo4PsNogsurLvQ71w\n"
+        "! Title: EasyList\n"
+        "! Last modified: 05.09.2010 11:00 UTC\n"
+        "! Expires: 2 days (update frequency)\n",
+            -1, NULL);
+    g_assert (!adblock_file_is_up_to_date (filename));
+
+    g_file_set_contents (filename,
+        "[Adblock Plus 1.1]\n"
+        "! Checksum: 48f6Qdo4PsNogsurLvQ71w\n"
+        "! Title: EasyList\n"
+        "! Updated: 05 Nov 2014 11:00 UTC\n"
+        "! Expires: 5 days (update frequency)\n",
+            -1, NULL);
+    g_assert (adblock_file_is_up_to_date (filename));
+
+    g_file_set_contents (filename,
+        "[Adblock]\n"
+        "! dutchblock v3\n"
+        "! This list expires after 14 days\n"
+        "|http://b*.mookie1.com/\n",
+        -1, NULL);
+    g_assert (adblock_file_is_up_to_date (filename));
+
+    g_unlink (filename);
+    g_free (filename);
+}
+
+static void
 test_adblock_pattern (void)
 {
     gint temp;
@@ -1789,6 +1840,7 @@ extension_test (void)
 {
     g_test_add_func ("/extensions/adblock/parse", test_adblock_parse);
     g_test_add_func ("/extensions/adblock/pattern", test_adblock_pattern);
+    g_test_add_func ("/extensions/adblock/update", test_subscription_update);
 }
 #endif
 
