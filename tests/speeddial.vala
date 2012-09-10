@@ -42,12 +42,18 @@ static void speeddial_load () {
     Katze.assert_str_equal (json, dial_data.keyfile.to_data (), dial_json.keyfile.to_data ());
     Katze.assert_str_equal (json, dial_data.get_next_free_slot (), "Dial 2");
     Katze.assert_str_equal (json, dial_json.get_next_free_slot (), "Dial 2");
+
+    dial_data.save_message ("speed_dial-save-rename s1 Lorem");
+    Katze.assert_str_equal (data, dial_data.keyfile.get_string ("Dial 1", "title"), "Lorem");
+    dial_data.save_message ("speed_dial-save-delete s1");
+    Katze.assert_str_equal (data, dial_data.get_next_free_slot (), "Dial 1");
 }
 
 void main (string[] args) {
     string temporary_cache = DirUtils.make_tmp ("cacheXXXXXX");
     Environment.set_variable ("XDG_CACHE_HOME", temporary_cache, true);
     Test.init (ref args);
+    Midori.Paths.init (Midori.RuntimeMode.PRIVATE, null);
     Test.add_func ("/speeddial/load", speeddial_load);
     Test.run ();
     DirUtils.remove (temporary_cache);

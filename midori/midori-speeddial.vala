@@ -91,12 +91,12 @@ namespace Midori {
                 foreach (string tile in keyfile.get_groups ()) {
                     try {
                         string img = keyfile.get_string (tile, "img");
+                        keyfile.remove_key (tile, "img");
                         string uri = keyfile.get_string (tile, "uri");
                         if (img != null && uri[0] != '\0' && uri[0] != '#') {
                             uchar[] decoded = Base64.decode (img);
                             FileUtils.set_data (build_thumbnail_path (uri), decoded);
                         }
-                        keyfile.remove_key (tile, "img");
                     }
                     catch (GLib.Error img_error) {
                         /* img and uri can be missing */

@@ -8,6 +8,7 @@
 
  See the file COPYING for the full license text.
 */
+
 static void http_hsts () {
     Midori.HSTS.Directive d;
     d = new Midori.HSTS.Directive.from_header ("max-age=31536000");

@@ -341,9 +341,9 @@ magic_uri_commands (void)
         for (j = 0; j < G_N_ELEMENTS (arguments); j++)
         {
             gchar* input = g_strconcat (commands[i].command, " ", arguments[j].command, NULL);
-            gchar* ce = commands[i].expected ? commands[i].expected
+            gchar* ce = commands[i].expected ? (gchar*)commands[i].expected
              : g_strconcat ("'", commands[i].command, "'", NULL);
-            gchar* ae = arguments[j].expected ? arguments[j].expected
+            gchar* ae = arguments[j].expected ? (gchar*)arguments[j].expected
               : (arguments[j].quote ? g_strconcat ("'", arguments[j].command, "'", NULL)
               : g_strdup (arguments[j].command));
             gchar* expected = g_strconcat (ce, " ", ae, NULL);

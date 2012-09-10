@@ -22,10 +22,14 @@ namespace Midori {
 
             public Directive.from_header (string header) {
                 var param_list = Soup.header_parse_param_list (header);
+                if (param_list == null)
+                    return;
+
                 string? max_age = param_list.lookup ("max-age");
                 if (max_age != null)
                     expires = new Soup.Date.from_now (max_age.to_int ());
-                if (param_list.lookup_extended ("includeSubDomains", null, null))
+                // if (param_list.lookup_extended ("includeSubDomains", null, null))
+                if ("includeSubDomains" in header)
                     sub_domains = true;
                 Soup.header_free_param_list (param_list);
             }

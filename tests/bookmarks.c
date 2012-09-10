@@ -40,7 +40,7 @@ fixture_setup (BookmarksFixture* fixture,
     gchar *errmsg = NULL;
 
     fixture->db_bookmarks = katze_array_new (KATZE_TYPE_ARRAY);
-    db = midori_bookmarks_initialize (fixture->db_bookmarks, params->dbfile, &errmsg);
+    db = NULL; /* FIXME midori_bookmarks_initialize (fixture->db_bookmarks, params->dbfile, &errmsg); */
     if (db == NULL)
         g_error ("Bookmarks couldn't be loaded: %s\n", errmsg);
     g_assert (errmsg == NULL);

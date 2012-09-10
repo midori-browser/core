@@ -10,7 +10,7 @@ libs = 'M UNIQUE LIBSOUP GMODULE GTHREAD LIBIDN GIO GTK SQLITE ' \
        'LIBNOTIFY WEBKIT JAVASCRIPTCOREGTK LIBXML X11 XSS WS2_32 HILDON' \
        'HILDON_FM GCR GRANITE ZEITGEIST'
 
-if progressive or Options.commands['check']:
+if progressive:
     obj = bld.new_task_gen ('cc', 'staticlib')
     obj.target = 'midori-core'
     obj.includes = '.. ../katze . ../toolbars'
@@ -26,21 +26,11 @@ if progressive or Options.commands['check']:
         obj.packages += ' gtk+-2.0 webkit-1.0'
     bld.add_group ()
 
-if progressive:
     obj = bld.new_task_gen ('cc', 'program')
     obj.target = 'midori'
     obj.includes = '.. ../katze . ../panels'
     obj.source = './main.c'
     obj.uselib = libs
     obj.uselib_local = 'midori-core'
-    if bld.env['WINRC']:
-        obj.source += ' ../data/midori.rc'
-else:
-    obj = bld.new_task_gen ('cc', 'program')
-    obj.target = 'midori'
-    obj.includes = '.. ../katze . ../panels ../toolbars'
-    obj.find_sources_in_dirs ('../katze . ../panels ../toolbars')
-    obj.add_marshal_file ('marshal.list', 'midori_cclosure_marshal')
-    obj.uselib = libs
     if bld.env['WINRC']:
         obj.source += ' ../data/midori.rc'

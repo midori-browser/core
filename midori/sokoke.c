@@ -398,8 +398,9 @@ sokoke_prepare_command (const gchar* command,
     g_return_val_if_fail (command != NULL, FALSE);
     g_return_val_if_fail (argument != NULL, FALSE);
 
-    g_print ("Preparing command: %s %d %s %d\n",
-             command, quote_command, argument, quote_argument);
+    if (midori_debug ("paths"))
+        g_print ("Preparing command: %s %d %s %d\n",
+                 command, quote_command, argument, quote_argument);
 
     {
         gchar* uri_format;

@@ -14,7 +14,7 @@ for test in tests:
         for fila in files:
             if fila[-2:] == '.c':
                 source += ' ' + test + os.sep + fila
-            elif 'VALAC' in bld.env and file[-5:] == '.vala':
+            elif file[-5:] == '.vala':
                 source += ' ' + test + os.sep + fila
         if not source:
             Utils.pprint ('RED', folder + ': No source files found')
@@ -22,7 +22,7 @@ for test in tests:
     else:
         if test[-2:] == '.c':
             target = test[:-2]
-        elif 'VALAC' in bld.env and test[-5:] == '.vala':
+        elif test[-5:] == '.vala':
             target = test[:-5]
         else:
             continue
@@ -34,7 +34,7 @@ for test in tests:
     obj.cflags = ['-DEXTENSION_PATH="' + os.path.abspath ('_build/default/extensions') + '"']
     obj.source = source
     obj.vapi_dirs = '../midori ../katze'
-    obj.packages = 'glib-2.0 gio-2.0 libsoup-2.4 katze midori'
+    obj.packages = 'glib-2.0 gio-2.0 libsoup-2.4 katze midori midori-core'
     if bld.env['HAVE_GTK3']:
         obj.packages += ' gtk+-3.0 webkitgtk-3.0'
     else:
