@@ -1568,6 +1568,7 @@ adblock_file_is_up_to_date (gchar* path)
         gchar* timestamp = NULL;
         guint i;
         gboolean found_meta = FALSE;
+        gint fs_days_elapsed, days_elapsed = 0, least_days;
 
         for (i = 0; i <= 10; i++)
         {
@@ -1609,10 +1610,32 @@ adblock_file_is_up_to_date (gchar* path)
             return FALSE;
         }
 
+        /* query filesystem about file change, maybe there is no update yet
+         * or there is no "modified" metadata to check, otherwise we will repeatedly
+         * download files that have no new updates */
+        {
+            GDate* current = g_date_new ();
+            GDate* fs_mod_date = g_date_new ();
+            GTimeVal mod_time;
+            GFile* filter_file = g_file_new_for_path (path);
+            GFileInfo* info = g_file_query_info (filter_file, "time:modified", 0, NULL, NULL);
+
+            g_file_info_get_modification_time (info, &mod_time);
+            g_date_set_time_t (current, time (NULL));
+            g_date_set_time_val (fs_mod_date, &mod_time);
+
+            fs_days_elapsed = g_date_days_between (fs_mod_date, current);
+
+            g_date_free (current);
+            g_date_free (fs_mod_date);
+        }
+
+        /* If there is no update metadata but file is valid, assume one week */
+        if ((!days_to_expire && !timestamp) && fs_days_elapsed < 7)
+            return TRUE;
+
         if (days_to_expire && timestamp != NULL)
         {
-            gint days_elapsed = 0;
-
             GDate* current = g_date_new ();
             GDate* mod_date = g_date_new ();
             gchar** parts;
@@ -1643,22 +1666,22 @@ adblock_file_is_up_to_date (gchar* path)
             g_date_free (current);
             g_date_free (mod_date);
             g_free (timestamp);
-
-            /* File from the future? Assume up to date, not to loop */
-            if (days_elapsed < 0)
-            {
-                g_print ("Adblock: file %s appears to be from the future,"
-                         "check your system clock!\n", path);
-                return TRUE;
-            }
-
-            if (days_elapsed < days_to_expire)
-                return TRUE;
-            else
-                return FALSE;
         }
+
+        /* File from the future? Assume up to date */
+        if (days_elapsed < 0)
+        {
+            g_print ("Adblock: file %s appears to be from the future,"
+                     "check your system clock!\n", path);
+            return TRUE;
+        }
+
+        least_days = days_elapsed < fs_days_elapsed ? days_elapsed : fs_days_elapsed;
+        if (least_days < days_to_expire)
+            return TRUE;
         else
-            g_free (timestamp);
+            return FALSE;
+
         return TRUE;
     }
     return FALSE;
