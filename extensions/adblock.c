@@ -1544,7 +1544,7 @@ adblock_file_is_up_to_date (gchar* path)
     /* Check a chunk of header for update info */
     if ((file = g_fopen (path, "r")))
     {
-        guint days_to_expire = 0;
+        gint days_to_expire = 0;
         gchar* timestamp = NULL;
         guint i;
         gboolean found_meta = FALSE;
@@ -1591,7 +1591,7 @@ adblock_file_is_up_to_date (gchar* path)
 
         if (days_to_expire && timestamp != NULL)
         {
-            guint days_elapsed = 0;
+            gint days_elapsed = 0;
 
             GDate* current = g_date_new ();
             GDate* mod_date = g_date_new ();
@@ -1623,6 +1623,14 @@ adblock_file_is_up_to_date (gchar* path)
             g_date_free (current);
             g_date_free (mod_date);
             g_free (timestamp);
+
+            /* File from the future? Assume up to date, not to loop */
+            if (days_elapsed < 0)
+            {
+                g_print ("Adblock: file %s appears to be from the future,"
+                         "check your system clock!\n", path);
+                return TRUE;
+            }
 
             if (days_elapsed < days_to_expire)
                 return TRUE;
