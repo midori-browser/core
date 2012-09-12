@@ -63,6 +63,25 @@ static void speeddial_load () {
     Katze.assert_str_equal (data, dial_data.keyfile.get_string ("Dial 1", "title"), "Lorem");
     dial_data.save_message ("speed_dial-save-delete 1");
     Katze.assert_str_equal (data, dial_data.get_next_free_slot (), "Dial 1");
+
+    data = get_test_file ("""
+            [settings]
+            columns=3
+            rows=3
+
+            [Dial 2]
+            uri=http://green.cat
+            title=Green cat is green
+
+            [Dial 4]
+            uri=http://heise.de
+            title=IT-News
+        """);
+    dial_data = new Midori.SpeedDial (data, "");
+    FileUtils.remove (data);
+    Katze.assert_str_equal (data, dial_data.get_next_free_slot (), "Dial 1");
+    dial_data.save_message ("speed_dial-save-swap 2 4");
+    Katze.assert_str_equal (data, dial_data.keyfile.get_string ("Dial 2", "title"), "IT-News");
 }
 
 void main (string[] args) {
