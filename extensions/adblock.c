@@ -529,8 +529,10 @@ adblock_get_preferences_dialog (MidoriExtension* extension)
         "and click \"Add\" to add it to the list. "
         "You can find more lists at %s."),
         #if GTK_CHECK_VERSION (2, 18, 0)
+        "<a href=\"http://adblockplus.org/en/subscriptions\">adblockplus.org/en/subscriptions</a> "
         "<a href=\"http://easylist.adblockplus.org/\">easylist.adblockplus.org</a>");
         #else
+        "<u>http://adblockplus.org/en/subscriptions</u> "
         "<u>http://easylist.adblockplus.org/</u>");
         #endif
     #if GTK_CHECK_VERSION (2, 18, 0)
