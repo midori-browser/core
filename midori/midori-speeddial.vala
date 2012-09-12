@@ -232,10 +232,10 @@ namespace Midori {
                                     get_thumb (tile, uri);
                             }
                             markup.append_printf ("""
-                                <div class="shortcut" id="s%u"><div class="preview">
-                                <a class="cross" href="#" onclick='clearShortcut("s%u");'></a>
+                                <div class="shortcut" id="%u"><div class="preview">
+                                <a class="cross" href="#" onclick='clearShortcut("%u");'></a>
                                 <a href="%s"><img src="data:image/png;base64,%s" title='%s'></a>
-                                </div><div class="title" onclick='renameShortcut("s%u");'>%s</div></div>
+                                </div><div class="title" onclick='renameShortcut("%u");'>%s</div></div>
                                 """,
                                 slot, slot, uri, encoded ?? "", title, slot, title ?? "");
                         }
@@ -246,8 +246,8 @@ namespace Midori {
                 }
 
                 markup.append_printf ("""
-                    <div class="shortcut" id="s%u"><div class="preview new">
-                    <a class="add" href="#" onclick='return getAction("s%u");'></a>
+                    <div class="shortcut" id="%u"><div class="preview new">
+                    <a class="add" href="#" onclick='return getAction("%u");'></a>
                     </div><div class="title">%s</div></div>
                     """,
                     slot_count + 1, slot_count + 1, _("Click to add a shortcut"));
@@ -267,7 +267,7 @@ namespace Midori {
 
             if (action == "add" || action == "rename"
                                 || action == "delete" || action == "swap") {
-                uint slot_id = parts[1].next_char().to_int () ;
+                uint slot_id = parts[1].to_int () ;
                 string dial_id = "Dial %u".printf (slot_id);
 
                 if (action == "delete") {
@@ -286,7 +286,7 @@ namespace Midori {
                     keyfile.set_string (dial_id, "title", title);
                 }
                 else if (action == "swap") {
-                    uint slot2_id = parts[2].next_char().to_int ();
+                    uint slot2_id = parts[2].to_int ();
                     string dial2_id = "Dial %u".printf (slot2_id);
 
                     string uri = keyfile.get_string (dial_id, "uri");

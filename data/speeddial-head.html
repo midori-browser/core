@@ -114,22 +114,6 @@
         display:none;
     }
 
-    div.osd {
-        top: 9px;
-        position: fixed;
-        width: 100%;
-        text-align: right;
-    }
-
-    div.osd span {
-        border: 1px solid #999;
-        background-color: #f5f5f5;
-        padding: 8px;
-        color: #999;
-        -webkit-border-bottom-left-radius: 10px;
-        visibility: hidden;
-    }
-
     .selected {
         outline: 1px dotted black;
         background-color: #eef;
@@ -171,38 +155,6 @@
         console.log ("speed_dial-save-delete " + id);
     }
 
-    var key_id = 's';
-    var key_timeout;
-
-    document.onkeypress = function ()
-    {
-        key_id = key_id + String.fromCharCode (event.which);
-
-        clearTimeout (key_timeout);
-
-        document.getElementById('dialing').innerText = key_id.substr(1);
-        document.getElementById('dialing').style.visibility = 'visible';
-
-        var div = document.getElementById(key_id);
-        if (div)
-        {
-            if (key_id.substr(1) > 9)
-            {
-                if (getAction (key_id))
-                    document.location = div.childNodes[0].childNodes[1].href;
-                key_id = 's';
-            }
-            else
-                key_timeout = setTimeout ('if (getAction (key_id)) document.location = document.getElementById(key_id).childNodes[0].childNodes[1].href; key_id = \'s\'', 1000);
-        }
-        else
-            key_id = 's';
-
-        if (key_id.length <= 1)
-            document.getElementById('dialing').style.visibility = 'hidden';
-
-        return false;
-    }
 
     var firstNode, secondNode;
     var cursor;
@@ -273,7 +225,4 @@
     </script>
 </head>
 <body>
-    <div class="osd" >
-        <span id="dialing"></span>
-    </div>
     <div id="content">
