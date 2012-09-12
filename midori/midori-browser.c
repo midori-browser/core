@@ -1747,6 +1747,7 @@ midori_browser_key_press_event (GtkWidget*   widget,
         gtk_widget_grab_focus (midori_browser_get_current_tab (MIDORI_BROWSER (widget)));
     else if (G_OBJECT_TYPE (focus) == WEBKIT_TYPE_WEB_VIEW
           && event->keyval == GDK_KEY_space
+          && (!(event->state & GDK_SHIFT_MASK))
           && !webkit_web_view_can_cut_clipboard (WEBKIT_WEB_VIEW (focus))
           && !webkit_web_view_can_paste_clipboard (WEBKIT_WEB_VIEW (focus)))
     {
