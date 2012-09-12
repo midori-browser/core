@@ -905,8 +905,6 @@ midori_soup_session_settings_accept_language_cb (SoupSession*       session,
                                                  MidoriWebSettings* settings)
 {
     const gchar* accept = midori_web_settings_get_accept_language (settings);
-    if (midori_debug ("soup"))
-        g_message ("Accept-Language set to '%s'", accept);
     soup_message_headers_append (msg->request_headers, "Accept-Language", accept);
 
     if (katze_object_get_boolean (settings, "strip-referer"))
@@ -925,7 +923,7 @@ midori_soup_session_settings_accept_language_cb (SoupSession*       session,
             soup_uri_free (stripped_uri);
             if (strcmp (stripped_referer, referer))
             {
-                if (midori_debug ("soup"))
+                if (midori_debug ("referer"))
                     g_message ("Referer '%s' stripped to '%s'", referer, stripped_referer);
                 soup_message_headers_replace (msg->request_headers, "Referer",
                                               stripped_referer);
@@ -943,12 +941,10 @@ static void
 midori_soup_session_debug (SoupSession* session)
 {
     gint soup_debug_level = 0;
-    if (midori_debug ("soup:1"))
-        soup_debug_level = 1;
-    else if (midori_debug ("soup:2"))
-        soup_debug_level = 2;
-    else if (midori_debug ("soup:3"))
-        soup_debug_level = 3;
+    if (midori_debug ("headers"))
+        soup_debug_level = SOUP_LOGGER_LOG_HEADERS;
+    else if (midori_debug ("body"))
+        soup_debug_level = SOUP_LOGGER_LOG_BODY;
     if (soup_debug_level > 0)
     {
         SoupLogger* logger = soup_logger_new (soup_debug_level, -1);

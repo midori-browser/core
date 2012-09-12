@@ -12,6 +12,7 @@
 
 #include "midori-websettings.h"
 
+#include "midori-app.h"
 #include "sokoke.h"
 #include <midori/midori-core.h> /* Vala API */
 
@@ -581,8 +582,7 @@ midori_web_settings_has_plugin_support (void)
     #if !WEBKIT_CHECK_VERSION (1, 8, 2) && defined G_OS_WIN32
     return FALSE;
     #else
-    return g_getenv ("MIDORI_UNARMED") == NULL
-        && g_strcmp0 (g_getenv ("MOZ_PLUGIN_PATH"), "/");
+    return !midori_debug ("unarmed")  && g_strcmp0 (g_getenv ("MOZ_PLUGIN_PATH"), "/");
     #endif
 }
 

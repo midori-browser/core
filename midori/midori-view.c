@@ -4230,7 +4230,7 @@ midori_view_set_uri (MidoriView*  view,
         g_warning ("Calling %s() before adding the view to a browser. This "
                    "breaks extensions that monitor page loading.", G_STRFUNC);
 
-    if (g_getenv ("MIDORI_UNARMED") == NULL)
+    if (!midori_debug ("unarmed"))
     {
         if (!uri || !strcmp (uri, "") || !strcmp (uri, "about:blank"))
         {

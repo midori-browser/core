@@ -53,9 +53,9 @@ If the problem is a warning and not a crash, try this:
 
 If you are interested in HTTP communication, try this:
 
-'MIDORI_DEBUG=soup:2 _build/default/midori/midori'
+'MIDORI_DEBUG=headers _build/default/midori/midori'
 
-Where '2' can be a level between 1 and 3.
+Where 'headers' can be replaced with 'body' to get full message contents.
 
 If you are interested in (non-) touchscreen behaviour, try this:
 
@@ -65,7 +65,7 @@ If you are interested in (non-) touchscreen behaviour, try this:
 
 If you want to "dry run" without WebKitGTK+ rendering, try this:
 
-'MIDORI_UNARMED=1 _build/default/midori/midori'
+'MIDORI_DEBUG=unarmed _build/default/midori/midori'
 
 If you want to test bookmarks, you can enable database tracing:
 
