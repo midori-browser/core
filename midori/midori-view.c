@@ -3312,7 +3312,13 @@ webkit_web_view_console_message_cb (GtkWidget*   web_view,
     {
         MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (view));
         MidoriSpeedDial* dial = katze_object_get_object (browser, "speed-dial");
-        midori_speed_dial_save_message (dial, message, NULL);
+        GError* error = NULL;
+        midori_speed_dial_save_message (dial, message, &error);
+        if (error != NULL)
+        {
+            g_critical ("Failed speed dial message: %s\n", error->message);
+            g_error_free (error);
+        }
     }
     else
         g_signal_emit (view, signals[CONSOLE_MESSAGE], 0, message, line, source_id);

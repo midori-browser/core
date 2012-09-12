@@ -18,6 +18,16 @@ namespace Sokoke {
 }
 
 namespace Midori {
+    public errordomain SpeedDialError {
+        INVALID_MESSAGE,
+        NO_ACTION,
+        NO_ID,
+        NO_URL,
+        NO_TITLE,
+        NO_ID2,
+        INVALID_ACTION,
+    }
+
     public class SpeedDial : GLib.Object {
         string filename;
         string? html = null;
@@ -108,7 +118,7 @@ namespace Midori {
             }
         }
 
-        public string get_next_free_slot () {
+        public string get_next_free_slot (out uint count = null) {
             uint slot_count = 0;
             foreach (string tile in keyfile.get_groups ()) {
                 try {
@@ -117,14 +127,17 @@ namespace Midori {
                 }
                 catch (KeyFileError error) { }
             }
+            if (&count != null)
+                count = slot_count;
 
             uint slot = 1;
             while (slot <= slot_count) {
                 string tile = "Dial %u".printf (slot);
                 if (!keyfile.has_group (tile))
-                    return "Dial %u".printf (slot);
+                    return tile;
                 slot++;
             }
+
             return "Dial %u".printf (slot_count + 1);
         }
 
@@ -172,13 +185,8 @@ namespace Midori {
                 var markup = new StringBuilder (header);
 
                 uint slot_count = 1;
-                foreach (string tile in keyfile.get_groups ()) {
-                    try {
-                        if (keyfile.has_key (tile, "uri"))
-                            slot_count++;
-                    }
-                    catch (KeyFileError error) { }
-                }
+                string dial_id = get_next_free_slot (out slot_count);
+                uint next_slot = dial_id.substring (5, -1).to_int ();
 
                 /* Try to guess the best X by X grid size */
                 uint grid_index = 3;
@@ -250,7 +258,7 @@ namespace Midori {
                     <a class="add" href="#" onclick='return getAction("%u");'></a>
                     </div><div class="title">%s</div></div>
                     """,
-                    slot_count + 1, slot_count + 1, _("Click to add a shortcut"));
+                    next_slot, next_slot, _("Click to add a shortcut"));
                 markup.append_printf ("</div>\n</body>\n</html>\n");
                 html = markup.str;
             }
@@ -261,14 +269,18 @@ namespace Midori {
         }
 
         public void save_message (string message) throws Error {
+            if (!message.has_prefix ("speed_dial-save-"))
+                throw new SpeedDialError.INVALID_MESSAGE ("Invalid message '%s'", message);
+
             string msg = message.substring (16, -1);
             string[] parts = msg.split (" ", 4);
+            if (parts[0] == null)
+                throw new SpeedDialError.NO_ACTION ("No action.");
             string action = parts[0];
 
-            if (action == "add" || action == "rename"
-                                || action == "delete" || action == "swap") {
-                uint slot_id = parts[1].to_int () ;
-                string dial_id = "Dial %u".printf (slot_id);
+            if (parts[1] == null)
+                throw new SpeedDialError.NO_ID ("No ID argument.");
+            string dial_id = "Dial " + parts[1];
 
                 if (action == "delete") {
                     string uri = keyfile.get_string (dial_id, "uri");
@@ -277,17 +289,21 @@ namespace Midori {
                     FileUtils.unlink (file_path);
                 }
                 else if (action == "add") {
+                    if (parts[2] == null)
+                        throw new SpeedDialError.NO_URL ("No URL argument.");
                     keyfile.set_string (dial_id, "uri", parts[2]);
                     get_thumb (dial_id, parts[2]);
                 }
                 else if (action == "rename") {
-                    uint offset = parts[0].length + parts[1].length + 2;
-                    string title = msg.substring (offset, -1);
+                    if (parts[2] == null)
+                        throw new SpeedDialError.NO_TITLE ("No title argument.");
+                    string title = parts[2];
                     keyfile.set_string (dial_id, "title", title);
                 }
                 else if (action == "swap") {
-                    uint slot2_id = parts[2].to_int ();
-                    string dial2_id = "Dial %u".printf (slot2_id);
+                    if (parts[2] == null)
+                        throw new SpeedDialError.NO_ID2 ("No ID2 argument.");
+                    string dial2_id = "Dial " + parts[2];
 
                     string uri = keyfile.get_string (dial_id, "uri");
                     string title = keyfile.get_string (dial_id, "title");
@@ -299,7 +315,9 @@ namespace Midori {
                     keyfile.set_string (dial_id, "title", title2);
                     keyfile.set_string (dial2_id, "title", title);
                 }
-            }
+                else
+                    throw new SpeedDialError.INVALID_ACTION ("Invalid action '%s'", action);
+
             save ();
         }
 

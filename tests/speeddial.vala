@@ -43,6 +43,22 @@ static void speeddial_load () {
     Katze.assert_str_equal (json, dial_data.get_next_free_slot (), "Dial 2");
     Katze.assert_str_equal (json, dial_json.get_next_free_slot (), "Dial 2");
 
+    try {
+        dial_data.save_message ("SpeedDial");
+        assert_not_reached ();
+    }
+    catch (Error error) { /* Error expected: pass */ }
+    try {
+        dial_data.save_message ("speed_dial-save-rename ");
+        assert_not_reached ();
+    }
+    catch (Error error) { /* Error expected: pass */ }
+    try {
+        dial_data.save_message ("speed_dial-save-foo 1");
+        assert_not_reached ();
+    }
+    catch (Error error) { /* Error expected: pass */ }
+
     dial_data.save_message ("speed_dial-save-rename 1 Lorem");
     Katze.assert_str_equal (data, dial_data.keyfile.get_string ("Dial 1", "title"), "Lorem");
     dial_data.save_message ("speed_dial-save-delete 1");
