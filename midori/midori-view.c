@@ -4369,11 +4369,11 @@ midori_view_set_uri (MidoriView*  view,
                 gchar* res_dir = midori_paths_get_res_filename ("");
                 gchar* lib_dir = midori_paths_get_lib_path (PACKAGE_NAME);
                 data = g_strdup_printf ("<body><h1>%s</h1>"
-                    "<p>config: %s</p>"
-                    "<p>res: %s</p>"
-                    "<p>lib: %s</p>"
-                    "<p>cache: %s</p>"
-                    "<p>tmp: %s</p>"
+                    "<p>config: <code>%s</code></p>"
+                    "<p>res: <code>%s</code></p>"
+                    "<p>lib: <code>%s</code></p>"
+                    "<p>cache: <code>%s</code></p>"
+                    "<p>tmp: <code>%s</code></p>"
                     "</body>",
                     uri, midori_paths_get_config_dir (), res_dir,
                     lib_dir, midori_paths_get_cache_dir (), midori_paths_get_tmp_dir ());
@@ -4401,7 +4401,7 @@ midori_view_set_uri (MidoriView*  view,
                     "<tr><td>libnotify</td><td>%s</td></tr>",
                     "<tr><td>single instance</td><td>%s</td></tr>",
                     "<tr><td>Platform</td><td>%s ", "%s ", "%s</td></tr>",
-                    "<tr><td>Identification</td><td>%s</td></tr>",
+                    "<tr><td>Identification</td><td><code>%s</code></td></tr>",
                     "<tr><td>Video&nbsp;Formats</td><td>%s</td></tr>",
                 };
                 gchar const* version_strings[] = {
@@ -4436,7 +4436,7 @@ midori_view_set_uri (MidoriView*  view,
                     "<img src=\"res://logo-shade.png\" "
                     "style=\"position: absolute; right: 15px; bottom: 15px; z-index: -9;\">"
                     "<table>"
-                    "<tr><td>Command&nbsp;line</td><td>%s</td></tr>"
+                    "<tr><td>Command&nbsp;line</td><td><code>%s</code></td></tr>"
                     "<tr><td>Midori</td><td>%s (%s)</td></tr>"
                     "<tr><td>GTK+</td><td>%d.%d.%d (%d.%d.%d)"
                     " &nbsp; Glib %d.%d.%d (%d.%d.%d)</td></tr>"
