@@ -4249,9 +4249,7 @@ midori_view_set_uri (MidoriView*  view,
             katze_item_set_meta_string (view->item, "mime-type", NULL);
             katze_item_set_meta_integer (view->item, "delay", -1);
 
-            html = midori_speed_dial_get_html (dial,
-                katze_object_get_boolean (view->settings, "close-buttons-left"),
-                G_OBJECT (view), NULL);
+            html = midori_speed_dial_get_html (dial, NULL);
             midori_view_load_alternate_string (view, html, "about:blank", NULL);
 
             #ifdef G_ENABLE_DEBUG

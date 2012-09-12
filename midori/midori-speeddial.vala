@@ -20,11 +20,14 @@ namespace Sokoke {
 namespace Midori {
     public class SpeedDial : GLib.Object {
         string filename;
-        public GLib.KeyFile keyfile;
         string? html = null;
         List<Spec> thumb_queue = null;
         WebKit.WebView thumb_view = null;
         Spec? spec = null;
+
+        public GLib.KeyFile keyfile;
+        public bool close_buttons_left { get; set; default = false; }
+        public signal void refresh ();
 
         public class Spec {
             public string dial_id;
@@ -151,7 +154,7 @@ namespace Midori {
             return Path.build_filename (Paths.get_cache_dir (), "thumbnails", thumbnail);
         }
 
-        public unowned string get_html (bool close_buttons_left, GLib.Object view) throws Error {
+        public unowned string get_html () throws Error {
             bool load_missing = true;
 
             if (html != null)
@@ -309,7 +312,7 @@ namespace Midori {
             catch (Error error) {
                 critical ("Failed to update speed dial: %s", error.message);
             }
-            /* FIXME Refresh all open views */
+            refresh ();
         }
 
         void load_status (GLib.Object thumb_view_, ParamSpec pspec) {
