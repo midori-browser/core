@@ -282,15 +282,17 @@ namespace Midori {
 
         public static bool has_enough_space (WebKit.Download download, string uri) {
             var folder = File.new_for_uri (uri).get_parent ();
+            bool can_write;
             uint64 free_space;
             try {
-                var info = folder.query_filesystem_info ("filesystem::free");
+                var info = folder.query_filesystem_info ("access::can-write,filesystem::free");
+                can_write = info.get_attribute_boolean ("access::can-write");
                 free_space = info.get_attribute_uint64 ("filesystem::free");
             }
             catch (Error error) {
+                can_write = false;
                 free_space = 0;
             }
-            bool can_write = Posix.access (folder.get_path (), Posix.F_OK) == 0;
             if (free_space < download.total_size || !can_write) {
                 string message;
                 string detailed_message;
