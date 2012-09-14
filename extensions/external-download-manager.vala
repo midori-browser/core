@@ -206,6 +206,100 @@ namespace EDM {
             this.deactivate.connect (deactivated);
         }
     }
+
+    private class CommandLinePreferences : Dialog {
+        protected Entry input;
+        protected CommandLine commandline;
+
+        public CommandLinePreferences(CommandLine cl) {
+            this.commandline = cl;
+
+            string ext_name;
+            this.get ("name",out ext_name);
+
+            this.title = _("Preferences for %s").printf (ext_name);
+            if (this.get_class ().find_property ("has-separator") != null)
+                this.set ("has-separator", false);
+            this.border_width = 5;
+            this.set_modal (true);
+            this.set_default_size (400, 100);
+            this.create_widgets ();
+
+            this.response.connect (response_cb);
+        }
+
+        private void response_cb (Dialog source, int response_id) {
+            switch (response_id) {
+                case ResponseType.APPLY:
+                    this.commandline.set_string ("commandline", this.input.get_text ());
+                    this.destroy ();
+                    break;
+                case ResponseType.CANCEL:
+                    this.destroy ();
+                    break;
+            }
+        }
+
+        private void create_widgets () {
+            Label text = new Label ("%s:".printf (_("Command")));
+            this.input = new Entry ();
+            this.input.set_text (this.commandline.get_string ("commandline"));
+
+
+#if HAVE_GTK3
+            Gtk.Box vbox = get_content_area () as Gtk.Box;
+            vbox.pack_start (text, false, false, 0);
+            vbox.pack_start (this.input, false, true, 0);
+#else
+            this.vbox.pack_start (text, false, false, 0);
+            this.vbox.pack_start (this.input, false, true, 0);
+#endif
+
+            this.add_button (Gtk.STOCK_CANCEL, ResponseType.CANCEL);
+            this.add_button (Gtk.STOCK_APPLY, ResponseType.APPLY);
+
+            this.show_all ();
+        }
+    }
+
+    private class CommandLine : ExternalDownloadManager {
+        private void show_preferences () {
+            CommandLinePreferences dialog = new CommandLinePreferences (this);
+            dialog.show ();
+        }
+
+        public override bool download (DownloadRequest dlReq) {
+            try {
+                string cmd = this.get_string ("commandline");
+                cmd = cmd.replace("{REFERER}", GLib.Shell.quote (dlReq.referer));
+                if (dlReq.cookie_header != null) {
+                    cmd = cmd.replace("{COOKIES}", GLib.Shell.quote ("Cookie: " + dlReq.cookie_header));
+                } else {
+                    cmd = cmd.replace("{COOKIES}", "\'\'");
+                }
+                cmd = cmd.replace("{URL}", GLib.Shell.quote (dlReq.uri));
+                GLib.Process.spawn_command_line_async (cmd);
+                return true;
+            } catch (Error e) {
+                this.handle_exception (e);
+            }
+            return false;
+        }
+
+        internal CommandLine () {
+            GLib.Object (name: _("External Download Manager - CommandLine"),
+                         description: _("Download files with a specified command"),
+                         version: "0.1" + Midori.VERSION_SUFFIX,
+                         authors: "André Stösel <andre@stoesel.de>",
+                         key: "commandline");
+
+            this.install_string ("commandline", "wget --no-check-certificate --referer={REFERER} --header={COOKIES} {URL}");
+
+            this.activate.connect (activated);
+            this.deactivate.connect (deactivated);
+            this.open_preferences.connect (show_preferences);
+        }
+    }
 }
 
 public Katze.Array extension_init () {
@@ -214,6 +308,7 @@ public Katze.Array extension_init () {
     var extensions = new Katze.Array( typeof (Midori.Extension));
     extensions.add_item (new EDM.Aria2 ());
     extensions.add_item (new EDM.SteadyFlow ());
+    extensions.add_item (new EDM.CommandLine ());
     return extensions;
 }
 
