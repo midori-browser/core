@@ -46,7 +46,7 @@ namespace DelayedLoad {
         }
 
         private void create_widgets () {
-            Label text = new Label ("%s:".printf (_("Delay in seconds until loading the page")));
+            Label text = new Label (_("Delay in seconds until loading the page:"));
 #if HAVE_GTK3
             this.slider = new Scale.with_range (Orientation.HORIZONTAL, 0, 15, 0.1);
 #else

@@ -241,7 +241,7 @@ namespace EDM {
         }
 
         private void create_widgets () {
-            Label text = new Label ("%s:".printf (_("Command")));
+            Label text = new Label (_("Command:"));
             this.input = new Entry ();
             this.input.set_text (this.commandline.get_string ("commandline"));
 
