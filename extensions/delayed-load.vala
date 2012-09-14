@@ -132,17 +132,17 @@ namespace DelayedLoad {
             }
         }
 
-        private void tab_changed (GLib.Object window, GLib.ParamSpec pspec) {
-            Midori.Browser browser = window as Midori.Browser;
-            Midori.View? view = browser.tab as Midori.View;
+        private void tab_changed (Midori.View? old_view, Midori.View? new_view) {
+            if (new_view != null) {
+                Midori.App app = get_app ();
+                Midori.Browser browser = app.browser;
 
-            if (view != null) {
-                Katze.Item item = view.get_proxy_item ();
+                Katze.Item item = new_view.get_proxy_item ();
                 item.ref();
 
                 int64 delay = item.get_meta_integer ("delay");
-                if (delay == -2 && view.progress < 1.0) {
-                    this.schedule_reload (browser, view);
+                if (delay == -2 && new_view.progress < 1.0) {
+                    this.schedule_reload (browser, new_view);
                 }
             }
         }
@@ -176,11 +176,11 @@ namespace DelayedLoad {
         }
 
         private void browser_added (Midori.Browser browser) {
-            browser.notify["tab"].connect (this.tab_changed);
+            browser.switch_tab.connect_after (this.tab_changed);
         }
 
         private void browser_removed (Midori.Browser browser) {
-            browser.notify["tab"].disconnect (this.tab_changed);
+            browser.switch_tab.disconnect (this.tab_changed);
         }
 
         public void activated (Midori.App app) {

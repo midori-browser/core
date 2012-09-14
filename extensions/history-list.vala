@@ -462,7 +462,7 @@ namespace HistoryList {
                 tab_added (browser, tab);
             browser.add_tab.connect (tab_added);
             browser.remove_tab.connect (tab_removed);
-            browser.notify["tab"].connect (this.tab_changed);
+            browser.switch_tab.connect (this.tab_changed);
         }
 
         void browser_removed (Midori.Browser browser) {
@@ -491,7 +491,7 @@ namespace HistoryList {
 
             browser.add_tab.disconnect (tab_added);
             browser.remove_tab.disconnect (tab_removed);
-            browser.notify["tab"].disconnect (this.tab_changed);
+            browser.switch_tab.disconnect (this.tab_changed);
         }
 
         void tab_added (Midori.Browser browser, Midori.View view) {
@@ -520,21 +520,18 @@ namespace HistoryList {
             }
         }
 
-        void tab_changed (GLib.Object window, GLib.ParamSpec pspec) {
+        void tab_changed (Midori.View? old_view, Midori.View? new_view) {
             if(this.ignoreNextChange) {
                 this.ignoreNextChange = false;
             } else {
-                Midori.Browser browser = window as Midori.Browser;
-                Midori.View view = null;
-                Midori.View last_view = null;
-                browser.get ("tab", ref view);
-
-                last_view = browser.get_data<Midori.View?> ("history-list-last-change");
+                Midori.Browser browser = history_window as Midori.Browser;
+                Midori.View? last_view
+                    = browser.get_data<Midori.View?> ("history-list-last-change");
 
                 if (last_view != null) {
                     this.tab_list_resort (browser, last_view);
                 }
-                browser.set_data<Midori.View?> ("history-list-last-change", view);
+                browser.set_data<Midori.View?> ("history-list-last-change", new_view);
             }
         }
 

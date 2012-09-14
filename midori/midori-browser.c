@@ -145,6 +145,7 @@ enum
     ADD_TAB,
     REMOVE_TAB,
     MOVE_TAB,
+    SWITCH_TAB,
     ACTIVATE_ACTION,
     ADD_DOWNLOAD,
     SEND_NOTIFICATION,
@@ -1883,6 +1884,28 @@ midori_browser_class_init (MidoriBrowserClass* class)
         midori_cclosure_marshal_VOID__OBJECT_INT_INT,
         G_TYPE_NONE, 3,
         GTK_TYPE_NOTEBOOK, G_TYPE_INT, G_TYPE_INT);
+
+    /**
+     * MidoriBrowser::switch-tab:
+     * @browser: the object on which the signal is emitted
+     * @old_view: the previous tab
+     * @new_view: the new tab
+     *
+     * Emitted when a tab is switched.
+     * There's no guarantee what the current tab is.
+     *
+     * Since: 0.4.7
+     */
+     signals[SWITCH_TAB] = g_signal_new (
+        "switch-tab",
+        G_TYPE_FROM_CLASS (class),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
+        0,
+        0,
+        NULL,
+        midori_cclosure_marshal_VOID__OBJECT_OBJECT,
+        G_TYPE_NONE, 2,
+        G_TYPE_POINTER, G_TYPE_POINTER);
 
     signals[ACTIVATE_ACTION] = g_signal_new (
         "activate-action",
@@ -5107,7 +5130,10 @@ midori_browser_switched_tab (MidoriBrowser* browser,
     }
 
     if (new_view == NULL)
+    {
+        g_signal_emit (browser, signals[SWITCH_TAB], 0, old_widget, new_view);
         return;
+    }
 
     g_return_if_fail (MIDORI_IS_VIEW (new_view));
 
@@ -5123,6 +5149,7 @@ midori_browser_switched_tab (MidoriBrowser* browser,
     if (browser->proxy_array)
         katze_item_set_meta_integer (KATZE_ITEM (browser->proxy_array), "current", new_page);
     g_object_notify (G_OBJECT (browser), "tab");
+    g_signal_emit (browser, signals[SWITCH_TAB], 0, old_widget, new_view);
 
     _midori_browser_set_statusbar_text (browser, new_view, NULL);
     _midori_browser_update_interface (browser, new_view);

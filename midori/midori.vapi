@@ -82,6 +82,7 @@ namespace Midori {
         public signal void add_tab (View tab);
         [HasEmitter]
         public signal void remove_tab (View tab);
+        public signal void switch_tab (View? old_view, View? new_view);
         [HasEmitter]
         public signal void activate_action (string name);
         public signal void add_download (GLib.Object download);
