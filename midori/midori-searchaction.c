@@ -945,6 +945,7 @@ midori_search_action_get_engine_for_form (WebKitWebView*     web_view,
     const gchar* title;
     GString* uri_str;
     gulong form_len;
+    const gchar* action;
     guint i;
     KatzeItem* item;
     gchar** parts;
@@ -968,8 +969,17 @@ midori_search_action_get_engine_for_form (WebKitWebView*     web_view,
     form_nodes = webkit_dom_html_form_element_get_elements (active_form);
     form_len = webkit_dom_html_form_element_get_length (active_form);
 
-    uri_str = g_string_new (webkit_dom_html_form_element_get_action (active_form));
-    g_string_append (uri_str, "?");
+    /* action NULL or "": relative path */
+    if ((action = webkit_dom_html_form_element_get_action (active_form)) && *action)
+        uri_str = g_string_new (action);
+    else
+    {
+        gchar* hostname = midori_uri_parse_hostname (webkit_web_view_get_uri (web_view), NULL);
+        uri_str = g_string_new ("http://");
+        g_string_append (uri_str, hostname);
+        g_free (hostname);
+    }
+    g_string_append_c (uri_str, '?');
 
     for (i = 0; i < form_len; i++)
     {
