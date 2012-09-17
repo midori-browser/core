@@ -353,7 +353,8 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     button = katze_property_proxy (settings, "enforce-font-family", NULL);
     INDENTED_ADD (button);
     #endif
-    label = katze_property_label (settings, "preferred-encoding");
+    label = gtk_label_new (_("Preferred Encoding"));
+    gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
     INDENTED_ADD (label);
     button = katze_property_proxy (settings, "preferred-encoding", "custom-default-encoding");
     SPANNED_ADD (button);
@@ -421,9 +422,11 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     #endif
 
     FRAME_NEW (NULL);
-    button = katze_property_label (settings, "preferred-languages");
+    button = gtk_label_new (_("Preferred languages"));
+    gtk_misc_set_alignment (GTK_MISC (button), 0.0, 0.5);
     INDENTED_ADD (button);
     entry = katze_property_proxy (settings, "preferred-languages", "languages");
+    gtk_widget_set_tooltip_text (entry, _("A comma separated list of languages preferred for rendering multilingual webpages, for example \"de\", \"ru,nl\" or \"en-us;q=1.0, fr-fr;q=0.667\""));
     SPANNED_ADD (entry);
     label = gtk_label_new (_("Save downloaded files to:"));
     gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);

@@ -295,7 +295,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      PROP_PREFERRED_ENCODING,
                                      g_param_spec_enum (
                                      "preferred-encoding",
-                                     _("Preferred Encoding"),
+                                     "Preferred Encoding",
                                      "The preferred character encoding",
                                      MIDORI_TYPE_PREFERRED_ENCODING,
                                      MIDORI_ENCODING_WESTERN,
@@ -419,8 +419,8 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      PROP_PREFERRED_LANGUAGES,
                                      g_param_spec_string (
                                      "preferred-languages",
-                                     _("Preferred languages"),
-        _("A comma separated list of languages preferred for rendering multilingual webpages, for example \"de\", \"ru,nl\" or \"en-us;q=1.0, fr-fr;q=0.667\""),
+                                     "Preferred languages",
+                                     "A comma separated list of languages",
                                      NULL,
                                      flags));
 
