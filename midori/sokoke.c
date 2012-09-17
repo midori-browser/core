@@ -85,6 +85,8 @@ sokoke_js_script_eval (JSContextRef js_context,
     {
         JSStringRef js_message = JSValueToStringCopy (js_context,
                                                       js_exception, NULL);
+        g_return_val_if_fail (js_message != NULL, NULL);
+
         value = sokoke_js_string_utf8 (js_message);
         if (exception)
             *exception = value;
