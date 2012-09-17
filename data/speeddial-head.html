@@ -122,43 +122,44 @@
 
     <script type="text/javascript">
 
-    var getAction = function (id)
-    {
-        var s = document.getElementById(id).childNodes[0];
-        if (s.className == 'preview')
-            return true;
+    function add_tile (ev) {
+        ev.preventDefault();
 
         var url = prompt ("{enter_shortcut_address}", "http://");
-        if (!url) return false;
+        if (!url)
+            return false;
+
         if (url.indexOf ("://") == -1)
             url = "http://" + url;
 
+        var id = ev.target.parentNode.parentNode.id;
         console.log ("speed_dial-save-add " + id + " " + url + " ");
-        return false;
     }
 
-    var renameShortcut = function (id)
-    {
-        var old_name = document.getElementById(id).childNodes[1].textContent;
+    function rename_tile (ev) {
+        var old_name = ev.target.textContent;
 
         var name = prompt ("{enter_shortcut_name}", old_name);
-        if (!name) return;
+        if (!name)
+            return;
 
+        var id = ev.target.parentNode.id;
         console.log ("speed_dial-save-rename " + id + " " + name);
     }
 
-    var clearShortcut = function (id)
-    {
-        if(!confirm("{are_you_sure}"))
+    function delete_tile (ev) {
+        ev.preventDefault();
+
+        if (!confirm("{are_you_sure}"))
             return;
 
+        var id = ev.target.parentNode.parentNode.id;
         console.log ("speed_dial-save-delete " + id);
     }
 
 
     var firstNode, secondNode;
     var cursor;
-    var dial = document.getElementsByClassName("shortcut");
 
     var get_dial_div = function (ele) {
         var dial_div;
@@ -167,10 +168,14 @@
         if (ele.className == 'title')
             dial_div = ele.parentNode;
         if (ele.className.indexOf ('shortcut') != -1)
-            dial_dir = ele;
+            dial_div = ele;
         return dial_div;
     }
-    var click = function (ev) {
+
+    function click (ev) {
+        if (ev == undefined)
+            return;
+
         ev.preventDefault();
         var ele = ev.target;
         cursor = ele.style.cursor;
@@ -181,10 +186,13 @@
             eparent.className = 'shortcut selected';
             firstNode = eparent.id;
         }
-        document.RemoveEventListener('click', click, false);
     };
 
-    var up = function (ev) {
+    function up (ev) {
+        if (ev == undefined)
+            return;
+
+        ev.preventDefault();
         ele = ev.target;
         var eparent = get_dial_div (ele);
 
@@ -196,17 +204,19 @@
             swap();
     };
 
-    var over = function (ev) {
+    function over (ev) {
         if (ev == undefined)
             return;
 
+        ev.preventDefault();
         var ele = ev.target;
         var eparent = get_dial_div (ele);
 
+        var dial = document.getElementsByClassName("shortcut");
         if (firstNode != undefined)
         {
             eparent.className = 'shortcut selected';
-            for (var i = 0; i <= dial.length; i++) {
+            for (var i = 0; i < dial.length; i++) {
                 if (eparent.id != firstNode.id && dial[i].id != eparent.id) {
                     dial[i].className = 'shortcut';
                 }
@@ -219,10 +229,33 @@
         console.log ("speed_dial-save-swap " + firstNode + " " + secondNode);
     };
 
-    document.addEventListener('mousedown', click, false);
-    document.addEventListener('mouseup', up, false);
-    document.addEventListener('mouseover', over, false);
+    function init () {
+        var new_tile = document.getElementsByClassName ("preview new");
+        new_tile[0].addEventListener ('click', add_tile, false);
+
+        var titles = document.getElementsByClassName ("title");
+        var len = titles.length;
+        for (var i = 0; i < len; i++) {
+            if (titles[i].parentNode.childNodes[0].className != "preview new")
+                titles[i].addEventListener ('click', rename_tile, false);
+        }
+
+        var crosses = document.getElementsByClassName ("cross");
+        var len = crosses.length;
+        for (var i = 0; i < len; i++)
+            crosses[i].addEventListener ('click', delete_tile, false);
+
+        var occupied_tiles = document.getElementsByClassName ("shortcut");
+        var len = occupied_tiles.length;
+        for (var i = 0; i < len; i++) {
+            if (occupied_tiles[i].childNodes[0].className != "preview new") {
+                occupied_tiles[i].addEventListener('mousedown', click, false);
+                occupied_tiles[i].addEventListener('mouseover', over, false);
+                occupied_tiles[i].addEventListener('mouseup', up, false);
+            }
+        }
+    }
     </script>
 </head>
-<body>
+<body onload="init ();">
     <div id="content">

@@ -241,11 +241,11 @@ namespace Midori {
                             }
                             markup.append_printf ("""
                                 <div class="shortcut" id="%u"><div class="preview">
-                                <a class="cross" href="#" onclick='clearShortcut("%u");'></a>
+                                <a class="cross" href="#"></a>
                                 <a href="%s"><img src="data:image/png;base64,%s" title='%s'></a>
-                                </div><div class="title" onclick='renameShortcut("%u");'>%s</div></div>
+                                </div><div class="title">%s</div></div>
                                 """,
-                                slot, slot, uri, encoded ?? "", title, slot, title ?? "");
+                                slot, uri, encoded ?? "", title, title ?? "");
                         }
                         else if (tile != "settings")
                             keyfile.remove_group (tile);
@@ -255,10 +255,10 @@ namespace Midori {
 
                 markup.append_printf ("""
                     <div class="shortcut" id="%u"><div class="preview new">
-                    <a class="add" href="#" onclick='return getAction("%u");'></a>
+                    <a class="add" href="#"></a>
                     </div><div class="title">%s</div></div>
                     """,
-                    next_slot, next_slot, _("Click to add a shortcut"));
+                    next_slot,  _("Click to add a shortcut"));
                 markup.append_printf ("</div>\n</body>\n</html>\n");
                 html = markup.str;
             }
