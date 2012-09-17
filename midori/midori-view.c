@@ -2256,9 +2256,9 @@ midori_web_view_menu_link_copy_activate_cb (GtkWidget*  widget,
                                             MidoriView* view)
 {
     if (g_str_has_prefix (view->link_uri, "mailto:"))
-        sokoke_widget_copy_clipboard (widget, view->link_uri + 7);
+        sokoke_widget_copy_clipboard (widget, view->link_uri + 7, NULL, NULL);
     else
-        sokoke_widget_copy_clipboard (widget, view->link_uri);
+        sokoke_widget_copy_clipboard (widget, view->link_uri, NULL, NULL);
 }
 
 static void
@@ -2291,12 +2291,73 @@ midori_web_view_menu_image_new_tab_activate_cb (GtkWidget*  widget,
     g_free (uri);
 }
 
+static GString*
+midori_view_get_data_for_uri (MidoriView*  view,
+                              const gchar* uri)
+{
+    WebKitWebView* web_view = WEBKIT_WEB_VIEW (view->web_view);
+    WebKitWebFrame* frame = webkit_web_view_get_main_frame (web_view);
+    WebKitWebDataSource* data_source = webkit_web_frame_get_data_source (frame);
+    GList* resources = webkit_web_data_source_get_subresources (data_source);
+    GList* list;
+    GString* result;
+
+    for (list = resources; list; list = g_list_next (list))
+    {
+        WebKitWebResource* resource = WEBKIT_WEB_RESOURCE (list->data);
+        GString* data = webkit_web_resource_get_data (resource);
+        if (!g_strcmp0 (webkit_web_resource_get_uri (resource), uri))
+        {
+            result = data;
+            break;
+        }
+    }
+    g_list_free (resources);
+    return result;
+}
+
+static void
+midori_view_clipboard_get_image_cb (GtkClipboard*     clipboard,
+                                    GtkSelectionData* selection_data,
+                                    guint             info,
+                                    gpointer          user_data)
+{
+    MidoriView* view = MIDORI_VIEW (g_object_get_data (user_data, "view"));
+    WebKitHitTestResult* hit_test = user_data;
+    gchar* uri = katze_object_get_string (hit_test, "image-uri");
+    /* if (gtk_selection_data_targets_include_image (selection_data, TRUE)) */
+    {
+        GString* data = midori_view_get_data_for_uri (view, uri);
+        if (data != NULL)
+        {
+            GInputStream* stream = g_memory_input_stream_new_from_data (data->str, data->len, NULL);
+            GError* error = NULL;
+            GdkPixbuf* pixbuf = gdk_pixbuf_new_from_stream (stream, NULL, &error);
+            g_object_unref (stream);
+            if (error != NULL)
+            {
+                g_critical ("Error copying pixbuf: %s\n", error->message);
+                g_error_free (error);
+            }
+            gtk_selection_data_set_pixbuf (selection_data, pixbuf);
+            g_object_unref (pixbuf);
+        }
+        else
+            g_warn_if_reached ();
+    }
+    /* if (gtk_selection_data_targets_include_text (selection_data)) */
+        gtk_selection_data_set_text (selection_data, uri, -1);
+    g_free (uri);
+}
+
 static void
 midori_web_view_menu_image_copy_activate_cb (GtkWidget*  widget,
                                              MidoriView* view)
 {
     gchar* uri = katze_object_get_string (view->hit_test, "image-uri");
-    sokoke_widget_copy_clipboard (widget, uri);
+    g_object_set_data (G_OBJECT (view->hit_test), "view", view);
+    sokoke_widget_copy_clipboard (widget,
+        uri, midori_view_clipboard_get_image_cb, view->hit_test);
     g_free (uri);
 }
 
@@ -2323,7 +2384,7 @@ midori_web_view_menu_video_copy_activate_cb (GtkWidget*  widget,
                                              MidoriView* view)
 {
     gchar* uri = katze_object_get_string (view->hit_test, "media-uri");
-    sokoke_widget_copy_clipboard (widget, uri);
+    sokoke_widget_copy_clipboard (widget, uri, NULL, NULL);
     g_free (uri);
 }
 
@@ -2398,7 +2459,7 @@ static void
 midori_web_view_menu_copy_activate_cb (GtkWidget*  widget,
                                        MidoriView* view)
 {
-    sokoke_widget_copy_clipboard (widget, view->selected_text);
+    sokoke_widget_copy_clipboard (widget, view->selected_text, NULL, NULL);
 }
 
 static void
@@ -2689,7 +2750,7 @@ midori_view_populate_popup (MidoriView* view,
             _("Open _Image in New Tab"), STOCK_TAB_NEW,
             G_CALLBACK (midori_web_view_menu_image_new_tab_activate_cb), widget);
         midori_view_insert_menu_item (menu_shell, -1,
-            _("Copy Image _Address"), NULL,
+            _("Copy Im_age"), NULL,
             G_CALLBACK (midori_web_view_menu_image_copy_activate_cb), widget);
         midori_view_insert_menu_item (menu_shell, -1,
             _("Save I_mage"), GTK_STOCK_SAVE,

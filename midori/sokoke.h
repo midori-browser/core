@@ -134,8 +134,10 @@ sokoke_register_privacy_item (const gchar* name,
                               GCallback    clear);
 
 void
-sokoke_widget_copy_clipboard (GtkWidget*   widget,
-                              const gchar* text);
+sokoke_widget_copy_clipboard (GtkWidget*          widget,
+                              const gchar*        text,
+                              GtkClipboardGetFunc get_cb,
+                              gpointer            owner);
 
 GtkWidget*
 sokoke_search_entry_new               (const gchar*        placeholder_text);

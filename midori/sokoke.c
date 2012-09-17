@@ -1209,17 +1209,43 @@ sokoke_register_privacy_item (const gchar* name,
     return NULL;
 }
 
+static void
+sokoke_widget_clipboard_owner_clear_func (GtkClipboard* clipboard,
+                                          gpointer      user_data)
+{
+    g_object_unref (user_data);
+}
+
 void
-sokoke_widget_copy_clipboard (GtkWidget*   widget,
-                              const gchar* text)
+sokoke_widget_copy_clipboard (GtkWidget*          widget,
+                              const gchar*        text,
+                              GtkClipboardGetFunc get_cb,
+                              gpointer            owner)
 {
     GdkDisplay* display = gtk_widget_get_display (widget);
     GtkClipboard* clipboard;
 
-    clipboard = gtk_clipboard_get_for_display (display, GDK_SELECTION_CLIPBOARD);
-    gtk_clipboard_set_text (clipboard, text ? text : "", -1);
+    g_return_if_fail (text != NULL);
+
     clipboard = gtk_clipboard_get_for_display (display, GDK_SELECTION_PRIMARY);
-    gtk_clipboard_set_text (clipboard, text ? text : "", -1);
+    gtk_clipboard_set_text (clipboard, text, -1);
+
+    clipboard = gtk_clipboard_get_for_display (display, GDK_SELECTION_CLIPBOARD);
+    if (get_cb == NULL)
+        gtk_clipboard_set_text (clipboard, text, -1);
+    else
+    {
+        GtkTargetList* target_list = gtk_target_list_new (NULL, 0);
+        GtkTargetEntry* targets;
+        gint n_targets;
+        gtk_target_list_add_text_targets (target_list, 0);
+        gtk_target_list_add_image_targets (target_list, 0, TRUE);
+        targets = gtk_target_table_new_from_list (target_list, &n_targets);
+        gtk_clipboard_set_with_owner (clipboard, targets, n_targets, get_cb,
+            sokoke_widget_clipboard_owner_clear_func, owner);
+        gtk_target_table_free (targets, n_targets);
+        gtk_target_list_unref (target_list);
+    }
 }
 
 static gboolean
