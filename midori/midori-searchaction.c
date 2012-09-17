@@ -932,6 +932,113 @@ midori_search_action_token_for_uri (const gchar* uri)
     return g_strdup (hostname);
 }
 
+KatzeItem*
+midori_search_action_get_engine_for_form (WebKitWebView*     web_view,
+                                          PangoEllipsizeMode ellipsize)
+{
+    #if WEBKIT_CHECK_VERSION (1, 5, 0)
+    WebKitDOMDocument* doc;
+    WebKitDOMHTMLFormElement* active_form;
+    WebKitDOMHTMLCollection* form_nodes;
+    WebKitDOMElement* active_element;
+    gchar* token_element;
+    const gchar* title;
+    GString* uri_str;
+    gulong form_len;
+    guint i;
+    KatzeItem* item;
+    gchar** parts;
+
+    #if WEBKIT_CHECK_VERSION (1, 9, 5)
+    doc = webkit_web_frame_get_dom_document (web_view);
+    #else
+    if (webkit_web_view_get_focused_frame (web_view) != webkit_web_view_get_main_frame (web_view))
+        return NULL;
+    doc = webkit_web_view_get_dom_document (web_view);
+    #endif
+
+    active_element = webkit_dom_html_document_get_active_element ((WebKitDOMHTMLDocument*)doc);
+    active_form = webkit_dom_html_input_element_get_form ((WebKitDOMHTMLInputElement*)active_element);
+
+    if (!active_form)
+        return NULL;
+
+    token_element = webkit_dom_element_get_attribute (active_element, "name");
+
+    form_nodes = webkit_dom_html_form_element_get_elements (active_form);
+    form_len = webkit_dom_html_form_element_get_length (active_form);
+
+    uri_str = g_string_new (webkit_dom_html_form_element_get_action (active_form));
+    g_string_append (uri_str, "?");
+
+    for (i = 0; i < form_len; i++)
+    {
+        WebKitDOMNode* form_node = webkit_dom_html_collection_item (form_nodes, i);
+        WebKitDOMElement* form_element = (WebKitDOMElement*) form_node;
+        gchar* name = webkit_dom_element_get_attribute (form_element, "name");
+
+        if (name && *name)
+        {
+            if (!g_strcmp0 (token_element, name))
+                g_string_append_printf (uri_str, "%s=%s&", name, "\%s");
+            else
+            {
+                gchar* value;
+                if (!g_strcmp0 (webkit_dom_element_get_tag_name (form_element), "SELECT"))
+                {
+                    WebKitDOMHTMLSelectElement* select_element = (WebKitDOMHTMLSelectElement*) form_element;
+                    gulong pos = webkit_dom_html_select_element_get_selected_index (select_element);
+                    WebKitDOMNode* selected_node = webkit_dom_html_select_element_item (select_element, pos);
+                    WebKitDOMElement* selected_element = (WebKitDOMElement*) selected_node;
+
+                    value = webkit_dom_element_get_attribute (selected_element, "value");
+                }
+                else
+                    value = webkit_dom_element_get_attribute (form_element, "value");
+
+                g_string_append_printf (uri_str, "%s=%s&", name, value);
+                g_free (value);
+            }
+            g_free (name);
+        }
+    }
+
+    title = webkit_web_view_get_title (web_view);
+
+    item = katze_item_new ();
+    item->uri = g_string_free (uri_str, FALSE);
+    item->token = midori_search_action_token_for_uri (webkit_web_view_get_uri (web_view));
+
+    if (strstr (title, " - "))
+        parts = g_strsplit (title, " - ", 2);
+    else if (strstr (title, ": "))
+        parts = g_strsplit (title, ": ", 2);
+    else
+        parts = NULL;
+    if (parts != NULL)
+    {
+        /* See midori_view_set_title: title can be first or last */
+        if (ellipsize == PANGO_ELLIPSIZE_END)
+        {
+            item->name = g_strdup (parts[0]);
+            item->text = g_strdup (parts[1]);
+        }
+        else
+        {
+            item->name = g_strdup (parts[1]);
+            item->text = g_strdup (parts[2]);
+        }
+        g_strfreev (parts);
+    }
+    else
+        item->name = g_strdup (title);
+
+    g_free (token_element);
+    return item;
+    #else
+    return NULL;
+    #endif
+}
 
 void
 midori_search_action_get_editor (MidoriSearchAction* search_action,

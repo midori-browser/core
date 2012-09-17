@@ -13,6 +13,7 @@
 #define __MIDORI_SEARCH_ACTION_H__
 
 #include <katze/katze.h>
+#include <webkit/webkit.h>
 
 G_BEGIN_DECLS
 
@@ -71,6 +72,15 @@ midori_search_action_set_default_item      (MidoriSearchAction* search_action,
 
 GtkWidget*
 midori_search_action_get_dialog            (MidoriSearchAction* search_action);
+
+void
+midori_search_action_get_editor            (MidoriSearchAction* search_action,
+                                            KatzeItem*          item,
+                                            gboolean            new_engine);
+
+KatzeItem*
+midori_search_action_get_engine_for_form   (WebKitWebView*      web_view,
+                                            PangoEllipsizeMode  ellipsize);
 
 G_END_DECLS
 

@@ -9,10 +9,6 @@
  See the file COPYING for the full license text.
 */
 
-namespace Katze {
-    extern static string assert_str_equal (string input, string result, string expected);
-}
-
 struct TestCase {
     public string data;
     public string? expected;

@@ -16,10 +16,6 @@ string get_test_file (string contents) {
     return file;
 }
 
-namespace Katze {
-    extern static string assert_str_equal (string input, string result, string expected);
-}
-
 static void speeddial_load () {
     string data = get_test_file ("""
             [Dial 1]
