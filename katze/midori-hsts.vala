@@ -45,7 +45,7 @@ namespace Midori {
 
         public HSTS (owned string filename) {
             whitelist = new HashTable<string, Directive> (str_hash, str_equal);
-            read_cache (File.new_for_path (Paths.get_config_filename (null, "hsts")));
+            read_cache (File.new_for_path (Paths.get_preset_filename (null, "hsts")));
             file = File.new_for_path (filename);
             read_cache (file);
             if (strcmp (Environment.get_variable ("MIDORI_DEBUG"), "hsts") == 0)

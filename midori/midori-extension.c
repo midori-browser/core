@@ -321,7 +321,7 @@ midori_extension_activate_cb (MidoriExtension* extension,
                 folder = g_build_filename ("extensions", filename, NULL);
                 g_free (filename);
                 katze_assign (config_file,
-                    midori_paths_get_config_filename (folder, "config"));
+                    midori_paths_get_preset_filename (folder, "config"));
                 g_free (folder);
                 g_key_file_load_from_file (extension->priv->key_file, config_file,
                                            G_KEY_FILE_KEEP_COMMENTS, NULL);

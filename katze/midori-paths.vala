@@ -19,6 +19,7 @@ extern const string LIBDIR;
 extern const string MDATADIR;
 extern const string PACKAGE_NAME;
 extern const string SYSCONFDIR;
+extern const string MIDORI_VERSION_SUFFIX;
 
 namespace Midori {
     public enum RuntimeMode {
@@ -35,18 +36,25 @@ namespace Midori {
         static RuntimeMode mode = RuntimeMode.UNDEFINED;
 
         static string? config_dir = null;
+        static string? readonly_dir = null;
         static string? cache_dir = null;
         static string? user_data_dir = null;
         static string? tmp_dir = null;
 
-        public static string get_readonly_config_dir (RuntimeMode new_mode) {
-            assert (mode == RuntimeMode.UNDEFINED);
-            if (new_mode == RuntimeMode.PORTABLE) {
-                return Path.build_path (Path.DIR_SEPARATOR_S,
-                    exec_path, "profile", "config");
-            }
+        public static string get_readonly_config_dir () {
+            assert (mode != RuntimeMode.UNDEFINED);
+            return readonly_dir ?? config_dir;
+        }
+
+        public static string get_readonly_config_filename (string filename) {
+            assert (mode != RuntimeMode.UNDEFINED);
             return Path.build_path (Path.DIR_SEPARATOR_S,
-                Environment.get_user_config_dir (), PACKAGE_NAME);
+                readonly_dir ?? config_dir, filename);
+        }
+
+        public bool is_readonly () {
+            assert (mode != RuntimeMode.UNDEFINED);
+            return readonly_dir != null;
         }
 
         public static void init (RuntimeMode new_mode, string? config_base) {
@@ -64,18 +72,19 @@ namespace Midori {
                     exec_path, "profile", "tmp");
             }
             else if (mode == RuntimeMode.PRIVATE || mode == RuntimeMode.APP) {
-                config_dir = "private-or-app://";
-                cache_dir = "private-or-app://";
-                user_data_dir = "private-or-app://";
+                /* Use mock folders in development builds */
+                if ("." in MIDORI_VERSION_SUFFIX)
+                    config_dir = cache_dir = user_data_dir = config_base;
+                else
+                    config_dir = cache_dir = user_data_dir = "/";
+                readonly_dir = config_base ?? Path.build_path (Path.DIR_SEPARATOR_S,
+                    Environment.get_user_config_dir (), PACKAGE_NAME);
                 tmp_dir = Path.build_path (Path.DIR_SEPARATOR_S,
                     Environment.get_tmp_dir (), "midori-" + Environment.get_user_name ());
             }
             else {
-                if (config_base != null)
-                    config_dir = config_base;
-                else
-                    config_dir = Path.build_path (Path.DIR_SEPARATOR_S,
-                        Environment.get_user_config_dir (), PACKAGE_NAME);
+                config_dir = config_base ?? Path.build_path (Path.DIR_SEPARATOR_S,
+                    Environment.get_user_config_dir (), PACKAGE_NAME);
                 cache_dir = Path.build_path (Path.DIR_SEPARATOR_S,
                     Environment.get_user_cache_dir (), PACKAGE_NAME);
                 user_data_dir = Environment.get_user_data_dir ();
@@ -88,13 +97,15 @@ namespace Midori {
             }
         }
 
-        public bool is_readonly () {
-            return mode == RuntimeMode.APP || mode == RuntimeMode.PRIVATE;
-        }
-
         public static unowned string get_config_dir () {
             assert (config_dir != null);
             return config_dir;
+        }
+
+        public static string get_config_filename (string filename) {
+            assert (mode != RuntimeMode.UNDEFINED);
+            assert (config_dir != null);
+            return Path.build_path (Path.DIR_SEPARATOR_S, config_dir, filename);
         }
 
         public static unowned string get_cache_dir () {
@@ -214,7 +225,7 @@ namespace Midori {
             #endif
         }
 
-        public static string get_config_filename (string? folder, string filename) {
+        public static string get_preset_filename (string? folder, string filename) {
             assert (config_dir != null);
 
             #if HAVE_WIN32
