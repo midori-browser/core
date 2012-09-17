@@ -1572,7 +1572,7 @@ adblock_file_is_up_to_date (gchar* path)
         gboolean found_meta = FALSE;
         gint fs_days_elapsed, days_elapsed = 0, least_days;
 
-        for (i = 0; i <= 10; i++)
+        for (i = 0; i <= 15; i++)
         {
             fgets (line, 2000, file);
             if (strncmp ("! Expires", line, 9) == 0)
