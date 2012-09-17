@@ -1327,7 +1327,7 @@ addons_init (Addons* addons)
     column = gtk_tree_view_column_new ();
     gtk_tree_view_column_set_expand (column, TRUE);
     renderer_text = gtk_cell_renderer_text_new ();
-    gtk_tree_view_column_pack_start (column, renderer_text, FALSE);
+    gtk_tree_view_column_pack_start (column, renderer_text, TRUE);
     gtk_tree_view_column_set_cell_data_func (column, renderer_text,
         (GtkTreeCellDataFunc)addons_treeview_render_text_cb,
         addons->treeview, NULL);
