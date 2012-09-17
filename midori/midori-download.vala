@@ -228,7 +228,7 @@ namespace Midori {
             return filename;
         }
 
-        public static string? get_extension_for_uri (string uri, out string basename) {
+        public static string? get_extension_for_uri (string uri, out string basename = null) {
             if (&basename != null)
                 basename = null;
             /* Find the last slash and the last period *after* the last slash. */
@@ -248,11 +248,11 @@ namespace Midori {
         }
 
         public string get_unique_filename (string filename) {
-            if (Posix.access (filename, Posix.F_OK) != 0) {
+            if (Posix.access (filename, Posix.F_OK) == 0) {
                 string basename;
                 string? extension = get_extension_for_uri (filename, out basename);
                 string? new_filename = null;
-                int i = -1;
+                int i = 0;
                 do {
                     new_filename = "%s-%d%s".printf (basename, i++, extension ?? "");
                 } while (Posix.access (new_filename, Posix.F_OK) == 0);
