@@ -285,14 +285,16 @@ namespace Midori {
             bool can_write;
             uint64 free_space;
             try {
-                var info = folder.query_filesystem_info ("access::can-write,filesystem::free");
-                can_write = info.get_attribute_boolean ("access::can-write");
+                var info = folder.query_filesystem_info ("filesystem::free");
                 free_space = info.get_attribute_uint64 ("filesystem::free");
+                info = folder.query_info ("access::can-write", 0);
+                can_write = info.get_attribute_boolean ("access::can-write");
             }
             catch (Error error) {
                 can_write = false;
                 free_space = 0;
             }
+
             if (free_space < download.total_size || !can_write) {
                 string message;
                 string detailed_message;
