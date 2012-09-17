@@ -524,7 +524,7 @@ namespace HistoryList {
             if(this.ignoreNextChange) {
                 this.ignoreNextChange = false;
             } else {
-                Midori.Browser browser = history_window as Midori.Browser;
+                Midori.Browser? browser = Midori.Browser.get_for_widget (new_view);
                 Midori.View? last_view
                     = browser.get_data<Midori.View?> ("history-list-last-change");
 

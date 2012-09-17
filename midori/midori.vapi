@@ -46,7 +46,7 @@ namespace Midori {
         public void block_action (Gtk.Action action);
         public void unblock_action (Gtk.Action action);
         public unowned Gtk.ActionGroup get_action_group ();
-        public unowned Browser get_for_widget (Gtk.Widget widget);
+        public static unowned Browser get_for_widget (Gtk.Widget widget);
         public unowned string[] get_toolbar_actions ();
         public unowned Katze.Array get_proxy_items ();
 
