@@ -959,7 +959,7 @@ midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view
         g_free (new_uri);
         return TRUE;
     }
-    else if (g_str_has_prefix (uri, "mailto:") || sokoke_external_uri (uri))
+    else if (sokoke_external_uri (uri))
     {
         if (sokoke_show_uri (gtk_widget_get_screen (GTK_WIDGET (web_view)),
                              uri, GDK_CURRENT_TIME, NULL))
@@ -1784,7 +1784,7 @@ static gboolean
 midori_view_always_same_tab (const gchar* uri)
 {
     /* No opening in tab, window or app for Javascript or mailto links */
-    return g_str_has_prefix (uri, "javascript:") || midori_uri_is_email (uri);
+    return g_str_has_prefix (uri, "javascript:") || g_str_has_prefix (uri, "mailto:");
 }
 
 static void
@@ -2831,7 +2831,10 @@ midori_view_populate_popup (MidoriView* view,
         g_strstrip (view->selected_text);
         if (midori_uri_is_valid (view->selected_text))
         {
-            if (midori_uri_is_email (view->selected_text))
+            /* :// and @ together would mean login credentials */
+            if (g_str_has_prefix (view->selected_text, "mailto:")
+             || (strchr (view->selected_text, '@') != NULL
+              && strstr (view->selected_text, "://") == NULL))
             {
                 gchar* text = g_strdup_printf (_("Send a message to %s"), view->selected_text);
                 menuitem = midori_view_insert_menu_item (menu_shell, -1,
@@ -4466,7 +4469,7 @@ midori_view_set_uri (MidoriView*  view,
                 g_free (exception);
             }
         }
-        else if (g_str_has_prefix (uri, "mailto:") || sokoke_external_uri (uri))
+        else if (sokoke_external_uri (uri))
         {
             sokoke_show_uri (NULL, uri, GDK_CURRENT_TIME, NULL);
         }

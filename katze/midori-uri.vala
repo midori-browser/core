@@ -114,12 +114,7 @@ namespace Midori {
               || (uri.has_prefix ("geo:") && uri.chr (-1, ',') != null)
               || uri.has_prefix ("javascript:"));
         }
-        public static bool is_email (string? uri) {
-            return uri != null
-             && (uri.chr (-1, '@') != null || uri.has_prefix ("mailto:"))
-            /* :// and @ together would mean login credentials */
-             && uri.str ("://") == null;
-        }
+
         public static bool is_ip_address (string? uri) {
             /* Quick check for IPv4 or IPv6, no validation.
                FIXME: Schemes are not handled
