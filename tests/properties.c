@@ -11,29 +11,6 @@
 
 #include "midori.h"
 
-typedef struct
-{
-    const gchar* type;
-    const gchar* property;
-} ObjectProperty;
-
-static ObjectProperty properties_object_skip[] =
-{
-    { "MidoriWebSettings", "user-agent" },
-};
-
-static gboolean
-properties_should_skip (const gchar* type,
-                        const gchar* property)
-{
-    guint i;
-    for (i = 0; i < G_N_ELEMENTS (properties_object_skip); i++)
-        if (g_str_equal (properties_object_skip[i].type, type))
-            if (g_str_equal (properties_object_skip[i].property, property))
-                return TRUE;
-    return FALSE;
-}
-
 #define pspec_is_writable(pspec) (pspec->flags & G_PARAM_WRITABLE \
     && !(pspec->flags & (G_PARAM_CONSTRUCT | G_PARAM_CONSTRUCT_ONLY)))
 
@@ -49,17 +26,10 @@ properties_object_get_set (GObject* object)
     for (i = 0; i < n_properties; i++)
     {
         GParamSpec *pspec = pspecs[i];
-        GType type = G_PARAM_SPEC_TYPE (pspec);
-        const gchar* property = g_param_spec_get_name (pspec);
-        void* value = NULL;
         guint j;
 
         /* Skip properties of parent classes */
         if (pspec->owner_type != G_OBJECT_TYPE (object))
-            continue;
-
-        /* Skip properties that cannot be tested generically */
-        if (properties_should_skip (G_OBJECT_TYPE_NAME (object), property))
             continue;
 
         /* Verify that the ID is unique */
@@ -71,81 +41,6 @@ properties_object_get_set (GObject* object)
                         pspec->param_id,
                         g_param_spec_get_name (pspec),
                         g_param_spec_get_name (pspecs[j]));
-
-        if (!(pspec->flags & G_PARAM_READABLE))
-            continue;
-
-        g_object_get (object, property, &value, NULL);
-        if (type == G_TYPE_PARAM_BOOLEAN)
-        {
-            gboolean current_value = value ? TRUE : FALSE;
-            gboolean default_value = G_PARAM_SPEC_BOOLEAN (pspec)->default_value;
-            if (current_value != default_value)
-                g_error ("Set %s.%s to default (%d), but returned '%d'",
-                    G_OBJECT_TYPE_NAME (object), property,
-                    G_PARAM_SPEC_BOOLEAN (pspec)->default_value, current_value);
-            if (pspec_is_writable (pspec))
-            {
-                g_object_set (object, property, !default_value, NULL);
-                g_object_get (object, property, &current_value, NULL);
-                if (current_value == default_value)
-                    g_error ("Set %s.%s to non-default (%d), but returned '%d'",
-                        G_OBJECT_TYPE_NAME (object), property,
-                        !G_PARAM_SPEC_BOOLEAN (pspec)->default_value, current_value);
-                g_object_set (object, property, default_value, NULL);
-                g_object_get (object, property, &current_value, NULL);
-                if (current_value != default_value)
-                    g_error ("Set %s.%s to default again (%d), but returned '%d'",
-                        G_OBJECT_TYPE_NAME (object), property,
-                        G_PARAM_SPEC_BOOLEAN (pspec)->default_value, current_value);
-            }
-        }
-        else if (type == G_TYPE_PARAM_STRING)
-        {
-            g_free (value);
-            if (pspec_is_writable (pspec))
-            {
-                g_object_set (object, property,
-                    G_PARAM_SPEC_STRING (pspec)->default_value, NULL);
-                g_object_get (object, property, &value, NULL);
-                if (g_strcmp0 (value, G_PARAM_SPEC_STRING (pspec)->default_value))
-                    g_error ("Set %s.%s to %s, but returned '%s'",
-                        G_OBJECT_TYPE_NAME (object), property,
-                            G_PARAM_SPEC_STRING (pspec)->default_value, (gchar*)value);
-                g_free (value);
-            }
-        }
-        else if (type == G_TYPE_PARAM_ENUM)
-        {
-            GEnumClass* enum_class = G_ENUM_CLASS (
-                g_type_class_ref (pspec->value_type));
-
-            if (pspec_is_writable (pspec))
-            {
-                gint k;
-                g_object_set (object, property,
-                    G_PARAM_SPEC_ENUM (pspec)->default_value, NULL);
-                for (k = enum_class->minimum; k < enum_class->maximum; k++)
-                {
-                    GEnumValue* enum_value;
-                    GEnumValue* enum_value_;
-
-                    enum_value = g_enum_get_value (enum_class, k);
-                    if (!enum_value)
-                        g_error ("%s.%s has no value %d",
-                            G_OBJECT_TYPE_NAME (object), property, k);
-                    enum_value_ = g_enum_get_value_by_name (enum_class,
-                        enum_value->value_name);
-                    if (!enum_value)
-                        g_error ("%s.%s has no value '%s'",
-                            G_OBJECT_TYPE_NAME (object), property, enum_value->value_name);
-                    g_assert_cmpint (enum_value->value, ==, enum_value_->value);
-                    g_object_set (object, property, k, NULL);
-                }
-            }
-
-            g_type_class_unref (enum_class);
-        }
     }
   g_free (pspecs);
 }

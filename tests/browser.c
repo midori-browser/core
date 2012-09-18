@@ -15,32 +15,16 @@ static void
 browser_create (void)
 {
     MidoriApp* app;
+    MidoriSpeedDial* dial;
     MidoriBrowser* browser;
-    GtkActionGroup* action_group;
-    GList* actions;
 
     app = midori_app_new ();
+    dial = midori_speed_dial_new ("/", NULL);
+    g_object_set (app, "speed-dial", dial, NULL);
     browser = midori_app_create_browser (app);
-    gtk_widget_destroy (GTK_WIDGET (browser));
-
-    app = midori_app_new ();
-    browser = midori_app_create_browser (app);
-    action_group = midori_browser_get_action_group (browser);
-    actions = gtk_action_group_list_actions (action_group);
-    while (actions)
-    {
-        GtkAction* action = actions->data;
-        if (g_strcmp0 (gtk_action_get_name (action), "WindowClose"))
-            if (g_strcmp0 (gtk_action_get_name (action), "EncodingCustom"))
-                if (g_strcmp0 (gtk_action_get_name (action), "AddSpeedDial"))
-                    if (g_strcmp0 (gtk_action_get_name (action), "PrivateBrowsing"))
-                        if (g_strcmp0 (gtk_action_get_name (action), "AddDesktopShortcut"))
-                            gtk_action_activate (action);
-        actions = g_list_next (actions);
-    }
-    g_list_free (actions);
     gtk_widget_destroy (GTK_WIDGET (browser));
     g_object_unref (app);
+    g_object_unref (dial);
 }
 
 static void
