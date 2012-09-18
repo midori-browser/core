@@ -1599,9 +1599,16 @@ midori_inactivity_timeout (gpointer data)
     if (has_extension == -1)
     {
         GdkDisplay* display = gtk_widget_get_display (GTK_WIDGET (mit->browser));
-        xdisplay = GDK_DISPLAY_XDISPLAY (display);
-        has_extension = XScreenSaverQueryExtension (xdisplay,
-                                                    &event_base, &error_base);
+        if (GDK_IS_X11_DISPLAY (display))
+        {
+            xdisplay = GDK_DISPLAY_XDISPLAY (display);
+            has_extension = XScreenSaverQueryExtension (xdisplay,
+                                                        &event_base, &error_base);
+        }
+        else
+        {
+            has_extension = 0;
+        }
     }
 
     if (has_extension)

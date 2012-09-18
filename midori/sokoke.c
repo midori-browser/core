@@ -688,26 +688,29 @@ sokoke_get_desktop (void)
         }
         else
         {
-        /* Are we running in Xfce <= 4.6? */
-        GdkDisplay* display = gdk_display_get_default ();
-        Display* xdisplay = GDK_DISPLAY_XDISPLAY (display);
-        Window root_window = RootWindow (xdisplay, 0);
-        Atom save_mode_atom = gdk_x11_get_xatom_by_name_for_display (
-            display, "_DT_SAVE_MODE");
-        Atom actual_type;
-        int actual_format;
-        unsigned long n_items, bytes;
-        gchar* value;
-        int status = XGetWindowProperty (xdisplay, root_window,
-            save_mode_atom, 0, (~0L),
-            False, AnyPropertyType, &actual_type, &actual_format,
-            &n_items, &bytes, (unsigned char**)&value);
-        if (status == Success)
-        {
-            if (n_items == 6 && !strncmp (value, "xfce4", 6))
-                desktop = SOKOKE_DESKTOP_XFCE;
-            XFree (value);
-        }
+            /* Are we running in Xfce <= 4.6? */
+            GdkDisplay* display = gdk_display_get_default ();
+            if (GDK_IS_X11_DISPLAY (display))
+            {
+                Display* xdisplay = GDK_DISPLAY_XDISPLAY (display);
+                Window root_window = RootWindow (xdisplay, 0);
+                Atom save_mode_atom = gdk_x11_get_xatom_by_name_for_display (
+                    display, "_DT_SAVE_MODE");
+                Atom actual_type;
+                int actual_format;
+                unsigned long n_items, bytes;
+                gchar* value;
+                int status = XGetWindowProperty (xdisplay, root_window,
+                    save_mode_atom, 0, (~0L),
+                    False, AnyPropertyType, &actual_type, &actual_format,
+                    &n_items, &bytes, (unsigned char**)&value);
+                if (status == Success)
+                {
+                    if (n_items == 6 && !strncmp (value, "xfce4", 6))
+                        desktop = SOKOKE_DESKTOP_XFCE;
+                    XFree (value);
+                }
+            }
         }
     }
 
