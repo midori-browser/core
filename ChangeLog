@@ -1,5 +1,67 @@
 This file is licensed under the terms of the expat license, see the file EXPAT.
 
+v0.4.7:
+ Unify download behavior: link fingerprints, space check, clearing, tooltips
+ GIO-based check for enough space and permissions, GIO-based themed icons
+ Show opener/ tab domain in download dialog:
+  http://lcamtuf.coredump.cx/fldl/ http://lcamtuf.coredump.cx/switch/
+ Extension to download with a specific command line
+ Size in download dialog and fallback filename heuristic
+
+ Windows: GTK+3, Faenza icons, gdb helper, Netscape plugins,
+  ship CA bundle, fix View source, --portable/ -P on Windows
+ Granite (Beta): about dialog, static notebook, no "New Tab" in toolbar, Print → Share
+ Support building with Wayland-enabled GTK+3
+ Theming: content view, secondary toolbar class, drop old icon names, bigger error icon
+ Introduce --plain mode equivalent to GtkLauncher, lazy URLs for --snapshot/ -s
+ Log bookmarks, history and downloads to zeitgeist
+
+ Show security details and export certificates with GCR, error out instead of colored urlbar
+ Only allow data: URLs in urlbar for images
+ Recognize and cache HSTS, system-wide /etc/xdg/midori/hsts
+ Strip HTTP Host to outsmart some filter proxies
+
+ Completion: Fix PageUp/Down, Shift+Tab and wrap: This is consistent with GTK+ (excluding Tab) and Firefox
+ Change Focus Current Tab to Ctrl+Alt+Home
+ Fix Shift+Space for scrolling upwards
+ Control+Alt+R: Readable mode
+ Handle access key in link hints
+ Drop speed dial keyboard access in favour of "." link hints
+
+ No Open, Bookmark bar, Customize toolbar, Inspect page in app menu; split panel menu
+ Use ellipsises instead of period thresomes
+ Hinted text in bookmarks, history and cookie manager
+ Ellipsize panels (except for Transfers)
+ Add icon to bookmark dialog and remove labels
+ Validate proxy server IP and render invalid URLs in GTK+3
+ Rename "Toplevel" folder to "Bookmarks"
+
+ Chrome identification option; "Automatic" user agent is Chrome-based
+ Search: Create engines from search forms, remove "icon" field
+ Copy Image s/Address// always copy both URL and data
+ Rework debugging by introducing MIDORI_DEBUG; about:paths
+ Adblock: Refresh filters based on file time and meta data, abp: links
+ Optionally save website including resources
+ Merged NextForward akin to StopReload
+ PanedAction, Viewable, SpeedDial, (most of) Settings, Paths in Vala
+ Improved database: requires sqlite 3.6.19 and 0.2.6 in import dialog
+
+ Confirm Caret Browsing before enabling it
+ Support for custom items in Statusbar Features (see FAQ)
+ Draggable favicon as URL or text, URL icon for URL entries
+ Remember if inspector was attached
+ Open tabs in the background by default
+ RTL support in special/ error pages
+ Fix progressbar text with GTK+3
+ Build fix: More robust GTK+2 version check
+ Ensure progress in urlbar and tab match
+ Zoom text and images by default
+ Don't mixup tokens starting with the same letters
+ Seemless running out of build folder
+ No speed dial in --app/ --private, fix layout with many tiles
+ Add X-GNOME-Fullname to .desktop and translate desktop shortcuts
+ Delayed Load extension
+
 v0.4.6:
  + Fix crasher in geolocation infobar
  + Fix crasher in about:version on some systems
