@@ -7,7 +7,7 @@
   <title>midori:faq</title>
 <meta name="generator" content="DokuWiki"/>
 <meta name="robots" content="noindex,nofollow"/>
-<meta name="date" content="2012-05-11T19:02:21+0200"/>
+<meta name="date" content="2012-09-18T16:25:52+0200"/>
 <meta name="keywords" content="midori,faq"/>
 <link rel="search" type="application/opensearchdescription+xml" href="/lib/exe/opensearch.php" title="Xfce Wiki"/>
 <link rel="start" href="/"/>
@@ -37,6 +37,7 @@ var NS='midori';var JSINFO = {"id":"midori:faq","namespace":"midori"};
 <li class="level1"><div class="li"><span class="li"><a href="#getting_started" class="toc">Getting started</a></span></div></li>
 <li class="level1"><div class="li"><span class="li"><a href="#common_problems" class="toc">Common problems</a></span></div>
 <ul class="toc">
+<li class="level2"><div class="li"><span class="li"><a href="#security_features" class="toc">Security features</a></span></div></li>
 <li class="level2"><div class="li"><span class="li"><a href="#flash_doesn_t_work" class="toc">Flash doesn&#039;t work</a></span></div></li>
 </ul>
 </li>
@@ -50,6 +51,7 @@ var NS='midori';var JSINFO = {"id":"midori:faq","namespace":"midori"};
 <ul class="toc">
 <li class="level2"><div class="li"><span class="li"><a href="#web_applications" class="toc">Web Applications</a></span></div></li>
 <li class="level2"><div class="li"><span class="li"><a href="#private_browsing" class="toc">Private Browsing</a></span></div></li>
+<li class="level2"><div class="li"><span class="li"><a href="#portable_modewin32" class="toc">Portable mode/ Win32</a></span></div></li>
 <li class="level2"><div class="li"><span class="li"><a href="#kiosk_mode" class="toc">Kiosk mode</a></span></div></li>
 </ul>
 </li>
@@ -75,9 +77,12 @@ var NS='midori';var JSINFO = {"id":"midori:faq","namespace":"midori"};
 <p>
 This is a list of frequently asked questions about the Midori Web Browser. Anyone feel free to improve and/ or extend this page, but keep it clean and easy to read for other Xfce users.
 </p>
+<p>
+This is a snapshot of Frequently Asked Questions designated for offline viewing. The most recent version of this document can be found <a href="http://wiki.xfce.org/midori/faq">in the Xfce wiki</a>.
+<p/>
 
 </div>
-<!-- EDIT1 SECTION "Midori - Frequently asked questions" [1-289] -->
+
 <h1 class="sectionedit2"><a name="getting_started" id="getting_started">Getting started</a></h1>
 <div class="level1">
 
@@ -127,7 +132,7 @@ Midori and all delivered artwork are licensed under the LGPL2.
 </p>
 
 </div>
-<!-- EDIT2 SECTION "Getting started" [290-1188] -->
+
 <h1 class="sectionedit3"><a name="common_problems" id="common_problems">Common problems</a></h1>
 <div class="level1">
 
@@ -223,8 +228,49 @@ export XDG_CACHE_HOME=/dev/shm
 </p>
 
 </div>
-<!-- EDIT3 SECTION "Common problems" [1189-3299] -->
-<h2 class="sectionedit4"><a name="flash_doesn_t_work" id="flash_doesn_t_work">Flash doesn&#039;t work</a></h2>
+
+<h2 class="sectionedit4"><a name="security_features" id="security_features">Security features</a></h2>
+<div class="level2">
+
+</div>
+
+<h4><a name="hstshttp_strict_transport_security" id="hstshttp_strict_transport_security">HSTS/ HTTP Strict Transport Security</a></h4>
+<div class="level4">
+
+<p>
+Midori &gt;= 0.4.7 automatically picks up the Strict-Transport-Security header and caches sites locally. By design, there&#039;s no UI. System administrators can however place a pre-loaded cache at /etc/xdg/midori/hsts.
+</p>
+
+</div>
+
+<h4><a name="certificate_handling" id="certificate_handling">Certificate Handling</a></h4>
+<div class="level4">
+
+<p>
+Midori &gt;= 0.4.7 supports <a href="/midori/gcr" class="wikilink2" title="midori:gcr" rel="nofollow">http://git.gnome.org/browse/gcr/tree/gcr</a> for certificate display and management, you can click the lock in the urlbar to see detailed information. Earlier versions, or one without gcr will not handle certificates beyond the lock icon in the urlbar.
+</p>
+
+</div>
+
+<h5><a name="error_granting_trustcouldn_t_find_a_place_to_store_the_imported_certificate" id="error_granting_trustcouldn_t_find_a_place_to_store_the_imported_certificate">Error granting trust: Couldn&#039;t find a place to store the imported certificate</a></h5>
+<div class="level5">
+
+<p>
+No key store is available or it&#039;s incorrectly setup. By default GNOME keyring can do this. Under Xfce it is recommended to enable “GNOME services” under “Session and Startup settings”. Otherwise this can occur if a script doesn&#039;t correctly send the output of “gnome-keyring –startup” to the environment.
+</p>
+
+</div>
+
+<h5><a name="a_testcase_for_self-signed_certificates" id="a_testcase_for_self-signed_certificates">A testcase for self-signed certificates</a></h5>
+<div class="level5">
+
+<p>
+<a href="https://selfsigned.notyours.dk:444/menu.gif" class="urlextern" title="https://selfsigned.notyours.dk:444/menu.gif"  rel="nofollow">https://selfsigned.notyours.dk:444/menu.gif</a>
+</p>
+
+</div>
+
+<h2 class="sectionedit5"><a name="flash_doesn_t_work" id="flash_doesn_t_work">Flash doesn&#039;t work</a></h2>
 <div class="level2">
 
 </div>
@@ -233,7 +279,12 @@ export XDG_CACHE_HOME=/dev/shm
 <div class="level4">
 
 <p>
-WebKitGTK+ and thusly Midori on Windows doesn&#039;t support Flash or any other plugins. If WebKitGTK+ adds the feature in the future, we will support it. For now there&#039;s nothing we can do.
+WebKitGTK+ and thusly Midori on Windows doesn&#039;t support Flash or any other plugins. If WebKitGTK+ adds the feature in the future, we will support it. For now there&#039;s nothing we can do. 
+</p>
+
+<p>
+Starting with WebkitGTK+ 1.8.2 (Midori 0.4.7) Netscape plugins are now supported.
+Midori should pick them up from standard netscape plugins locations.
 </p>
 
 </div>
@@ -256,11 +307,17 @@ You can either run that above line and run Midori in the same terminal afterward
 
 </div>
 
-<h4><a name="flash_is_crashing_all_the_time" id="flash_is_crashing_all_the_time">Flash is crashing all the time</a></h4>
+<h4><a name="flash_is_crashingno_flash_with_gtk_3" id="flash_is_crashingno_flash_with_gtk_3">Flash is crashing/ No Flash with GTK+3</a></h4>
 <div class="level4">
 
 <p>
-Try searching for a package named nspluginwrapper or similar in your distribution repositories. It implements plugins in their own process so they can&#039;t drag down the whole browser.
+nspluginwrapper is a program that runs Flash and other Netscape plugins in a separate process. So a crash can&#039;t cresh the whole browser and Flash, which is GTK+2 can run in GTK+3.
+</p>
+
+<p>
+sudo apt-get install nspluginwrapper
+sudo nspluginwrapper -i /usr/lib/flashplugin-installer/libflashplayer.so
+nspluginwrapper -v -a -n -i
 </p>
 
 </div>
@@ -275,6 +332,15 @@ That&#039;s a problem with WebKit. You can work around it to some extent if you 
 
 </div>
 
+<h4><a name="bit_encryption_isn_t_supported" id="bit_encryption_isn_t_supported">256-bit encryption isn&#039;t supported?</a></h4>
+<div class="level4">
+
+<p>
+There&#039;s no official support right now. It&#039;s possible to <a href="https://opensource.conformal.com/fluxbb/viewtopic.php?pid=1332#p1332" class="urlextern" title="https://opensource.conformal.com/fluxbb/viewtopic.php?pid=1332#p1332"  rel="nofollow">patch glib-networking to enable 256-bit SSL</a>.
+</p>
+
+</div>
+
 <h4><a name="scroll_with_middle_mouse_buttonpan-scrolling" id="scroll_with_middle_mouse_buttonpan-scrolling">Scroll with middle mouse button/ pan-scrolling</a></h4>
 <div class="level4">
 
@@ -283,7 +349,8 @@ That&#039;s a problem with WebKit. You can work around it to some extent if you 
 </p>
 
 <p>
-Bug: <a href="https://bugs.launchpad.net/webkit/+bug/871425" class="urlextern" title="https://bugs.launchpad.net/webkit/+bug/871425"  rel="nofollow">https://bugs.launchpad.net/webkit/+bug/871425</a>
+Bug: <a href="https://bugs.launchpad.net/webkit/+bug/871425" class="urlextern" title="https://bugs.launchpad.net/webkit/+bug/871425"  rel="nofollow">https://bugs.launchpad.net/webkit/+bug/871425</a><br/>
+
 Upstream Bug: <a href="https://bugs.webkit.org/show_bug.cgi?id=50561" class="urlextern" title="https://bugs.webkit.org/show_bug.cgi?id=50561"  rel="nofollow">https://bugs.webkit.org/show_bug.cgi?id=50561</a>
 </p>
 
@@ -455,17 +522,76 @@ Edit→Preferences→Behavior and check “Enable Spell Checking”.
 </p>
 
 <p>
-Now while typing any errors should get underlined in red. To get suggestions, highlight the word and right-click. Should see a list of suggestions on the top of the menu.
+Now while typing any errors should get underlined in red. To get suggestions, highlight the word and right-click. You should see a list of suggestions at the top of the menu.
+</p>
+
+<p>
+On Windows <a href="http://download.services.openoffice.org/files/contrib/dictionaries/" class="urlextern" title="http://download.services.openoffice.org/files/contrib/dictionaries/"  rel="nofollow">you need to download OpenOffice dictionaries</a>, find the zipped file(s) for your locale(s) and unpack the contents into share/myspell/dicts/ in your Midori installation. The folder should contain *.aff and *.dic files
 </p>
 
 </div>
-<!-- EDIT4 SECTION "Flash doesn't work" [3300-8989] -->
-<h1 class="sectionedit5"><a name="privacy" id="privacy">Privacy</a></h1>
+
+<h4><a name="is_it_possible_to_disable_same_origin_policy_what_webkit_settings_not_in_the_preferences_can_i_change" id="is_it_possible_to_disable_same_origin_policy_what_webkit_settings_not_in_the_preferences_can_i_change">Is it possible to disable Same Origin Policy? What Webkit settings not in the preferences can I change?</a></h4>
+<div class="level4">
+
+<p>
+You can change <a href="http://webkitgtk.org/reference/webkitgtk/stable/WebKitWebSettings.html" class="urlextern" title="http://webkitgtk.org/reference/webkitgtk/stable/WebKitWebSettings.html"  rel="nofollow">all values of WebKitWebSettings</a> in the config file (~/.config/midori/config on unices, %APPDATA%\midori\config [please check :)] on Windows). For example, to disable Same Origin Policy for local files, add 
+</p>
+<pre class="code">enable-universal-access-from-file-uris=true</pre>
+
+<p>
+ to your config file.
+</p>
+
+</div>
+
+<h4><a name="how_do_i_change_the_proxy_server_from_the_toolbar_or_statusbar" id="how_do_i_change_the_proxy_server_from_the_toolbar_or_statusbar">How do I change the proxy server from the toolbar or statusbar?</a></h4>
+<div class="level4">
+<ol>
+<li class="level1"><div class="li"> Activate the Statusbar Features plugin.</div>
+</li>
+<li class="level1"><div class="li"> Close Midori.</div>
+</li>
+<li class="level1"><div class="li"> Create a folder ~/.config/midori/extensions/libstatusbar-features.so/</div>
+</li>
+<li class="level1"><div class="li"> Create a text file “config”</div>
+</li>
+<li class="level1"><div class="li"> Type the following for the default setup:</div>
+</li>
+</ol>
+<pre class="code">  [settings]
+  items=auto-load-images;enable-scripts;enable-plugins;identify-as;zoom-level</pre>
+
+<p>
+Add button types separated by semicolon:
+</p>
+<ul>
+<li class="level1"><div class="li"> proxy-type Proxy Server</div>
+</li>
+<li class="level1"><div class="li"> preferred-encoding Character Set/ Encoding</div>
+</li>
+<li class="level1"><div class="li"> enable-spell-checking Spell Check</div>
+</li>
+<li class="level1"><div class="li"> zoom-text-and-images Only zoom in text, or text and images</div>
+</li>
+<li class="level1"><div class="li"> first-party-cookies-only First party cookies only</div>
+</li>
+<li class="level1"><div class="li"> site-data-rules see <a href="#blacklist_cookies" title="midori:faq &crarr;" class="wikilink1">Blacklisting cookies</a></div>
+</li>
+</ul>
+
+<p>
+Most settings listed at <a href="http://webkitgtk.org/reference/webkitgtk/stable/WebKitWebSettings.html" class="urlextern" title="http://webkitgtk.org/reference/webkitgtk/stable/WebKitWebSettings.html"  rel="nofollow">http://webkitgtk.org/reference/webkitgtk/stable/WebKitWebSettings.html</a> will also work as button types.
+</p>
+
+</div>
+
+<h1 class="sectionedit6"><a name="privacy" id="privacy">Privacy</a></h1>
 <div class="level1">
 
 </div>
-<!-- EDIT5 SECTION "Privacy" [8990-9012] -->
-<h2 class="sectionedit6"><a name="blacklist_cookies" id="blacklist_cookies">Blacklist cookies</a></h2>
+
+<h2 class="sectionedit7"><a name="blacklist_cookies" id="blacklist_cookies">Blacklist cookies</a></h2>
 <div class="level2">
 
 <p>
@@ -490,8 +616,8 @@ The feature is currently experimental and will change in future versions.
 </p>
 
 </div>
-<!-- EDIT6 SECTION "Blacklist cookies" [9013-9549] -->
-<h2 class="sectionedit7"><a name="adblock" id="adblock">Adblock</a></h2>
+
+<h2 class="sectionedit8"><a name="adblock" id="adblock">Adblock</a></h2>
 <div class="level2">
 
 <p>
@@ -499,13 +625,13 @@ The Advertisement Blocker can be activated under Extensions. It uses the same li
 </p>
 
 </div>
-<!-- EDIT7 SECTION "Adblock" [9550-9805] -->
-<h1 class="sectionedit8"><a name="modes" id="modes">Modes</a></h1>
+
+<h1 class="sectionedit9"><a name="modes" id="modes">Modes</a></h1>
 <div class="level1">
 
 </div>
-<!-- EDIT8 SECTION "Modes" [9806-9826] -->
-<h2 class="sectionedit9"><a name="web_applications" id="web_applications">Web Applications</a></h2>
+
+<h2 class="sectionedit10"><a name="web_applications" id="web_applications">Web Applications</a></h2>
 <div class="level2">
 
 <p>
@@ -525,8 +651,8 @@ There are two closely related features to open websites as dedicated windows of 
 </p>
 
 </div>
-<!-- EDIT9 SECTION "Web Applications" [9827-10343] -->
-<h2 class="sectionedit10"><a name="private_browsing" id="private_browsing">Private Browsing</a></h2>
+
+<h2 class="sectionedit11"><a name="private_browsing" id="private_browsing">Private Browsing</a></h2>
 <div class="level2">
 
 <p>
@@ -551,8 +677,17 @@ The same options available to -a/ –app can be used for private browsing mode.
 </p>
 
 </div>
-<!-- EDIT10 SECTION "Private Browsing" [10344-11263] -->
-<h2 class="sectionedit11"><a name="kiosk_mode" id="kiosk_mode">Kiosk mode</a></h2>
+
+<h2 class="sectionedit12"><a name="portable_modewin32" id="portable_modewin32">Portable mode/ Win32</a></h2>
+<div class="level2">
+
+<p>
+On Windows builds, -P/ –portable causes all data to be written to the “profile” folder in the Midori folder. Everything, including temporary files and cache, is stored in a sub-folder without touching the system. So Midori can be run eg. from a USB stick on different machines.
+</p>
+
+</div>
+
+<h2 class="sectionedit13"><a name="kiosk_mode" id="kiosk_mode">Kiosk mode</a></h2>
 <div class="level2">
 
 <p>
@@ -583,8 +718,8 @@ Any links outside end up in an error page. All images and other files won&#039;t
 </p>
 
 </div>
-<!-- EDIT11 SECTION "Kiosk mode" [11264-12301] -->
-<h1 class="sectionedit12"><a name="proxy_servers" id="proxy_servers">Proxy servers</a></h1>
+
+<h1 class="sectionedit14"><a name="proxy_servers" id="proxy_servers">Proxy servers</a></h1>
 <div class="level1">
 
 <p>
@@ -638,7 +773,11 @@ Mousehole is a scriptable proxy server written in Ruby.
 <div class="level4">
 
 <p>
-Currently only <acronym title="Hyper Text Transfer Protocol">HTTP</acronym> proxy servers are supported directly. A way to use SOCKS on Unix is to use tsocks with <acronym title="Secure Shell">SSH</acronym> as follows:
+The coming libSoup 2.40 will support SOCKS proxies, <a href="https://bugzilla.gnome.org/show_bug.cgi?id=553269" class="urlextern" title="https://bugzilla.gnome.org/show_bug.cgi?id=553269"  rel="nofollow">see the relevant bug report</a>.
+</p>
+
+<p>
+libSoup &lt; 2.40 only supports <acronym title="Hyper Text Transfer Protocol">HTTP</acronym> proxy servers directly. A way to use SOCKS on Unix is to use tsocks with <acronym title="Secure Shell">SSH</acronym> as follows:
 </p>
 <ol>
 <li class="level1"><div class="li"> Install &#039;tsocks&#039;</div>
@@ -663,8 +802,8 @@ server_port = 5555</pre>
 </ol>
 
 </div>
-<!-- EDIT12 SECTION "Proxy servers" [12302-13990] -->
-<h1 class="sectionedit13"><a name="keyboard_hotkeys" id="keyboard_hotkeys">Keyboard Hotkeys</a></h1>
+
+<h1 class="sectionedit15"><a name="keyboard_hotkeys" id="keyboard_hotkeys">Keyboard Hotkeys</a></h1>
 <div class="level1">
 
 </div>
@@ -689,7 +828,7 @@ You can also use the arrow keys to do the same.
 <div class="level4">
 
 <p>
-To enable Hints in Midori [similar to those vimperator provides in Firefox], press .
+To enable Hints in Midori, similar to vimperator in Firefox or xxxterm, press .
 </p>
 
 <p>
@@ -745,8 +884,8 @@ When using Ctrl+f to bring up Find, use Ctrl+f again or ESC. When using ”/” 
 </p>
 
 </div>
-<!-- EDIT13 SECTION "Keyboard Hotkeys" [13991-15328] -->
-<h1 class="sectionedit14"><a name="mouse_gestures" id="mouse_gestures">Mouse Gestures</a></h1>
+
+<h1 class="sectionedit16"><a name="mouse_gestures" id="mouse_gestures">Mouse Gestures</a></h1>
 <div class="level1">
 
 <p>
@@ -775,8 +914,8 @@ Additionally, there are programs allowing mouse gestures system-wide, for exampl
 </p>
 
 </div>
-<!-- EDIT14 SECTION "Mouse Gestures" [15329-16004] -->
-<h1 class="sectionedit15"><a name="user_scripts_and_styles" id="user_scripts_and_styles">User scripts and styles</a></h1>
+
+<h1 class="sectionedit17"><a name="user_scripts_and_styles" id="user_scripts_and_styles">User scripts and styles</a></h1>
 <div class="level1">
 
 <p>
@@ -836,8 +975,8 @@ You can also use <a href="http://rightfootin.blogspot.com/2009/04/flashblock-wan
 </p>
 
 </div>
-<!-- EDIT15 SECTION "User scripts and styles" [16005-18559] -->
-<h2 class="sectionedit16"><a name="user_styles" id="user_styles">User styles</a></h2>
+
+<h2 class="sectionedit18"><a name="user_styles" id="user_styles">User styles</a></h2>
 <div class="level2">
 
 <p>
