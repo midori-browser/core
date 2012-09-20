@@ -140,13 +140,13 @@ Section "!Program Files" SEC01
 	File "/oname=16x16\${OPath}.png" "${RESOURCEDIR}\share\icons\${ICON_THEME}\16x16\${IPath}.png"
 	File "/oname=22x22\${OPath}.png" "${RESOURCEDIR}\share\icons\${ICON_THEME}\22x22\${IPath}.png"
 	File "/oname=24x24\${OPath}.png" "${RESOURCEDIR}\share\icons\${ICON_THEME}\24x24\${IPath}.png"
-	File "/oname=32x32\${OPath}.png" "${RESOURCEDIR}\share\icons\${ICON_THEME}\32x32\${IPath}.png"
+	File /nonfatal "/oname=32x32\${OPath}.png" "${RESOURCEDIR}\share\icons\${ICON_THEME}\32x32\${IPath}.png"
 !macroend
 
 !macro InstallIconThemeRename OPath IPath
 	!insertmacro InstallIconThemeRenameSmall ${OPath} ${IPath}
-	File "/oname=48x48\${OPath}.png" "${RESOURCEDIR}\share\icons\${ICON_THEME}\48x48\${IPath}.png"
-	File "/oname=scalable\${OPath}.svg" "${RESOURCEDIR}\share\icons\${ICON_THEME}\scalable\${IPath}.svg"
+	File /nonfatal "/oname=48x48\${OPath}.png" "${RESOURCEDIR}\share\icons\${ICON_THEME}\48x48\${IPath}.png"
+	File /nonfatal "/oname=scalable\${OPath}.svg" "${RESOURCEDIR}\share\icons\${ICON_THEME}\scalable\${IPath}.svg"
 !macroend
 
 !macro InstallIconThemeSmall IconPath
@@ -199,15 +199,18 @@ Section "!Program Files" SEC01
 	!insertmacro InstallIconTheme "actions\edit-undo"
 	!insertmacro InstallIconTheme "actions\folder-new"
 	!insertmacro InstallIconTheme "actions\format-indent-more"
+	!insertmacro InstallIconTheme "actions\go-down"
 	!insertmacro InstallIconTheme "actions\go-home"
 	!insertmacro InstallIconTheme "actions\go-jump"
 	!insertmacro InstallIconTheme "actions\go-next"
 	!insertmacro InstallIconTheme "actions\go-previous"
+	!insertmacro InstallIconTheme "actions\go-up"
 	!insertmacro InstallIconTheme "actions\gtk-cancel"
 	!insertmacro InstallIconTheme "actions\gtk-edit"
 	!insertmacro InstallIconTheme "actions\gtk-no"
 	!insertmacro InstallIconTheme "actions\gtk-ok"
 	!insertmacro InstallIconTheme "actions\gtk-save"
+	!insertmacro InstallIconTheme "actions\gtk-yes"
 	!insertmacro InstallIconTheme "actions\help-about"
 	!insertmacro InstallIconTheme "actions\help-contents"
 	!insertmacro InstallIconTheme "actions\list-add"
