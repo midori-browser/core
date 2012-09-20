@@ -1430,8 +1430,9 @@ midori_load_session (gpointer data)
     {
         katze_item_set_meta_integer (item, "append", 1);
         katze_item_set_meta_integer (item, "dont-write-history", 1);
-        if (load_on_startup == MIDORI_STARTUP_DELAYED_PAGES)
-            katze_item_set_meta_integer (item, "delay", 1);
+        if (load_on_startup == MIDORI_STARTUP_DELAYED_PAGES
+         || katze_item_get_meta_integer (item, "delay") == MIDORI_DELAY_PENDING_UNDELAY)
+            katze_item_set_meta_integer (item, "delay", MIDORI_DELAY_DELAYED);
         midori_browser_add_item (browser, item);
     }
     current = katze_item_get_meta_integer (KATZE_ITEM (_session), "current");

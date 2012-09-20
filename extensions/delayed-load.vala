@@ -86,7 +86,7 @@ namespace DelayedLoad {
                     item.ref();
 
                     int64 delay = item.get_meta_integer ("delay");
-                    if (delay == -2) {
+                    if (delay == Midori.Delay.PENDING_UNDELAY) {
                         view.reload (true);
                     }
                 }
@@ -141,7 +141,7 @@ namespace DelayedLoad {
                 item.ref();
 
                 int64 delay = item.get_meta_integer ("delay");
-                if (delay == -2 && new_view.progress < 1.0) {
+                if (delay == Midori.Delay.PENDING_UNDELAY && new_view.progress < 1.0) {
                     this.schedule_reload (browser, new_view);
                 }
             }
@@ -157,7 +157,7 @@ namespace DelayedLoad {
                 item.ref();
 
                 int64 delay = item.get_meta_integer ("delay");
-                if (delay != 1) {
+                if (delay != Midori.Delay.DELAYED) {
                     unowned WebKit.WebView web_view = view.get_web_view ();
                     WebKit.LoadStatus load_status = web_view.load_status;
                     if (load_status == WebKit.LoadStatus.FINISHED) {

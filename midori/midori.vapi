@@ -191,6 +191,13 @@ namespace Midori {
         OPEN_IN_VIEWER
     }
 
+    [CCode (cheader_filename = "midori/midori-view.h", cprefix = "MIDORI_DELAY_")]
+    public enum Delay {
+        UNDELAYED,
+        DELAYED,
+        PENDING_UNDELAY,
+    }
+
     public class WebSettings : WebKit.WebSettings {
         public WebSettings ();
         [NoAccessorMethod]
