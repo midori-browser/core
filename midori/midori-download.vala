@@ -172,6 +172,8 @@ namespace Midori {
                     return Gtk.Stock.OPEN;
                 case WebKit.DownloadStatus.CANCELLED:
                     return Gtk.Stock.CLEAR;
+                case WebKit.DownloadStatus.ERROR:
+                    return Gtk.Stock.DIALOG_ERROR;
                 default:
                     critical ("action_stock_id: %d", download.status);
                     warn_if_reached ();
