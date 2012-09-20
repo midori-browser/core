@@ -124,6 +124,7 @@ namespace Midori {
         public string key { get; set; }
 
         public signal void activate (Midori.App app);
+        public signal bool is_prepared ();
         public signal void deactivate ();
         public signal void open_preferences ();
     }

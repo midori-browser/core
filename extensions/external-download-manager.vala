@@ -232,6 +232,7 @@ namespace EDM {
             switch (response_id) {
                 case ResponseType.APPLY:
                     this.commandline.set_string ("commandline", this.input.get_text ());
+                    this.commandline.update_description (this.commandline.get_app ());
                     this.destroy ();
                     break;
                 case ResponseType.CANCEL:
@@ -286,16 +287,40 @@ namespace EDM {
             return false;
         }
 
+        #if HAVE_WIN32
+        string default_commandline = "\"%s\\FlashGet\\flashget.exe\" {URL}".printf (Environment.get_variable ("ProgramFiles"));
+        #else
+        const string default_commandline = "wget --no-check-certificate --referer={REFERER} --header={COOKIES} {URL}";
+        #endif
+
+        static string description_with_command (string commandline) {
+            string command;
+            try {
+                string[] argvp;
+                Shell.parse_argv (commandline, out argvp);
+                command = argvp[0];
+            }
+            catch (Error error) {
+                command = commandline.split (" ")[0];
+            }
+            return _("Download files with \"%s\" or a custom command").printf (command);
+        }
+
+        internal void update_description (Midori.App app) {
+            this.description = description_with_command (get_string ("commandline"));
+        }
+
         internal CommandLine () {
             GLib.Object (name: _("External Download Manager - CommandLine"),
-                         description: _("Download files with a specified command"),
+                         description: description_with_command (default_commandline),
                          version: "0.1" + Midori.VERSION_SUFFIX,
                          authors: "André Stösel <andre@stoesel.de>",
                          key: "commandline");
 
-            this.install_string ("commandline", "wget --no-check-certificate --referer={REFERER} --header={COOKIES} {URL}");
+            this.install_string ("commandline", default_commandline);
 
             this.activate.connect (activated);
+            this.activate.connect (update_description);
             this.deactivate.connect (deactivated);
             this.open_preferences.connect (show_preferences);
         }
