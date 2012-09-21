@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: midori\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-08-24 04:27+0000\n"
+"POT-Creation-Date: 2012-09-21 06:33+0000\n"
 "PO-Revision-Date: 2011-11-09 16:10+0900\n"
 "Last-Translator: Gheyret Kenji <gheyret@gmail.com>\n"
 "Language-Team: Uyghur Computer Science Association <UKIJ@yahoogroups.com>\n"
@@ -25,8 +25,8 @@ msgstr "تور كۆرۈش"
 msgid "Internet;WWW;Explorer"
 msgstr "ئىنتېرنېت؛WWW؛Explorer"
 
-#: ../data/midori.desktop.in.h:3 ../midori/main.c:2009 ../midori/main.c:2033
-#: ../midori/main.c:2047 ../midori/midori-websettings.c:316
+#: ../data/midori.desktop.in.h:3 ../midori/main.c:1922 ../midori/main.c:1937
+#: ../midori/main.c:1950 ../midori/midori-websettings.c:200
 msgid "Midori"
 msgstr "مىدورى(Midori)"
 
@@ -38,11 +38,11 @@ msgstr "مىدورى(Midori) توركۆرگۈ"
 msgid "New Private Browsing Window"
 msgstr "يېڭى شەخسىي كۆرۈش كۆزنىكى"
 
-#: ../data/midori.desktop.in.h:6 ../midori/midori-browser.c:1491
+#: ../data/midori.desktop.in.h:6 ../midori/midori-browser.c:1326
 msgid "New Tab"
 msgstr "يېڭى بەتكۈچ"
 
-#: ../data/midori.desktop.in.h:7 ../midori/midori-browser.c:1488
+#: ../data/midori.desktop.in.h:7 ../midori/midori-browser.c:1323
 msgid "New Window"
 msgstr "يېڭى كۆزنەك"
 
@@ -58,89 +58,131 @@ msgstr "مىدورى(Midori) شەخسىي كۆرۈش"
 msgid "Open a new private browsing window"
 msgstr "يېڭى شەخسىي كۆرۈش كۆزنىكىدىن بىرنى ئاچىدۇ"
 
-#: ../data/midori-private.desktop.in.h:3 ../midori/midori-view.c:4505
+#: ../data/midori-private.desktop.in.h:3 ../midori/midori-view.c:4310
 msgid "Private Browsing"
 msgstr "شەخسىي كۆرۈش"
 
-#: ../midori/main.c:91 ../midori/main.c:97
+#: ../midori/main.c:84 ../midori/main.c:90
 #, c-format
 msgid "The configuration couldn't be loaded: %s\n"
 msgstr "تەڭشەكنى ئوقۇغىلى بولمىدى: %s\n"
 
-#: ../midori/main.c:145
+#: ../midori/main.c:138
 #, c-format
 msgid "Value '%s' is invalid for %s"
 msgstr "قىممەت ‹%s› ئىناۋەتسىز (%s نىڭ قىممىتى)"
 
-#: ../midori/main.c:150 ../midori/main.c:254
+#: ../midori/main.c:143 ../midori/main.c:247
 #, c-format
 msgid "Invalid configuration value '%s'"
 msgstr "سەپلىمە قىممەت ‹%s› ئىناۋەتسىز"
 
-#: ../midori/main.c:375
+#: ../midori/main.c:357
 #, c-format
 msgid "The search engines couldn't be loaded. %s\n"
 msgstr "ئىزدەش ماتورىنى ئوقۇغىلى بولمىدى. %s\n"
 
-#: ../midori/main.c:429
+#: ../midori/main.c:411
 #, c-format
 msgid "Failed to clear history: %s\n"
 msgstr "ئىزنى تازىلاش مەغلۇپ بولدى: %s\n"
 
-#: ../midori/main.c:451 ../extensions/formhistory/formhistory.c:531
+#: ../midori/main.c:433 ../extensions/formhistory/formhistory.c:531
 #, c-format
 msgid "Failed to open database: %s\n"
 msgstr "سانداننى ئېچىش مەغلۇپ بولدى: %s\n"
 
 #. i18n: Couldn't remove items that are older than n days
-#: ../midori/main.c:523
+#: ../midori/main.c:505
 #, c-format
 msgid "Failed to remove old history items: %s\n"
 msgstr "كونا ئىزلارنى ئۆچۈرۈش مەغلۇپ بولدى: %s\n"
 
-#: ../midori/main.c:545
+#: ../midori/main.c:527
 #, c-format
 msgid "The configuration couldn't be saved. %s"
 msgstr "تەڭشەكنى ساقلىغىلى بولمىدى. %s"
 
-#: ../midori/main.c:571
+#: ../midori/main.c:553
 #, c-format
 msgid "The search engines couldn't be saved. %s"
 msgstr "ئىزدەش ماتورىنى ساقلىغىنى بولمىدى. %s"
 
 #. i18n: Trash, or wastebin, containing closed tabs
-#: ../midori/main.c:608
+#: ../midori/main.c:590
 #, c-format
 msgid "The trash couldn't be saved. %s"
 msgstr "ئەخلەتنى ساقلىغىلى بولمىدى. %s"
 
-#: ../midori/main.c:681 ../panels/midori-extensions.c:90
+#: ../midori/main.c:663 ../panels/midori-extensions.c:90
 msgid "Extensions"
 msgstr "كېڭەيتىلمىلەر"
 
-#: ../midori/main.c:695
+#: ../midori/main.c:677
 msgid "Privacy"
 msgstr "شەخسىيەت"
 
-#: ../midori/main.c:707
+#: ../midori/main.c:679
+msgid "Delete old Cookies after:"
+msgstr "بۇ ۋاقىتتىن كېيىن كونا Cookies ئۆچۈرسۇن:"
+
+#: ../midori/main.c:681 ../midori/main.c:684
+msgid "The maximum number of days to save cookies for"
+msgstr "Cookie نىڭ ئەڭ ئۇزۇن ساقلىنىش ۋاقتى"
+
+#: ../midori/main.c:688
+msgid "Only accept Cookies from sites you visit"
+msgstr "سىز زىيارەت قىلغان تورتۇرادىن كەلگەن cookie لارنىلا قوبۇل قىلىدۇ"
+
+#: ../midori/main.c:689
+msgid "Block cookies sent by third-party websites"
+msgstr "ئۈچىنچى تەرەپ تورتۇراسىغا Cookies لارنى ئەۋەتىشنى توسۇن"
+
+#: ../midori/main.c:694
 msgid ""
 "Cookies store login data, saved games, or user profiles for advertisement "
 "purposes."
 msgstr ""
 
-#: ../midori/main.c:763
+#: ../midori/main.c:701
+msgid "Enable offline web application cache"
+msgstr "تورسىز ھالەتتە تور پروگراممىلىرىنىڭ غەملىكىنى ئېچىۋەت"
+
+#: ../midori/main.c:704
+msgid "Enable HTML5 local storage support"
+msgstr "HTML5 يەرلىك ساقلىغۇچنى قوللا"
+
+#. i18n: Reworded: Shorten details propagated when going to another page
+#: ../midori/main.c:708
+msgid "Strip referrer details sent to websites"
+msgstr "تورتۇرالارغا ئەۋەتىلىدىغان پايدىلىنىشنىڭ تەپسىلاتلىرى چىقىرىۋېتىلسۇن"
+
+#. i18n: Referer here is not a typo but a technical term
+#: ../midori/main.c:710
+msgid "Whether the \"Referer\" header should be shortened to the hostname"
+msgstr "بۇنىڭدا «Referer» قېشى قىسقارتىلىۋېتىلىدۇ."
+
+#: ../midori/main.c:713
+msgid "Delete pages from history after:"
+msgstr "ئىزدىن بەتلەرنى بۇ ۋاقىتتىن كېيىن ئۆچۈرسۇن:"
+
+#: ../midori/main.c:715 ../midori/main.c:718
+msgid "The maximum number of days to save the history for"
+msgstr "ئىزنىڭ ئەڭ ئۇزۇن ساقلىنىش ۋاقتى"
+
+#: ../midori/main.c:759
 #, c-format
 msgid "The session couldn't be saved. %s"
 msgstr "ئەڭگىمەنى ساقلىغىلى بولمىدى. %s"
 
-#: ../midori/main.c:985
+#: ../midori/main.c:981
 msgid ""
 "No root certificate file is available. SSL certificates cannot be verified."
 msgstr ""
 "ئالىي ئىشلەتكۈچى ئىسپاتنامە ھۆججىتى يوق. SSL ئىسپاتنامىسىنى دەلىللىگىلى "
 "بولمايدۇ."
 
-#: ../midori/main.c:1077
+#: ../midori/main.c:1076
 msgid ""
 "Midori seems to have crashed the last time it was opened. If this happened "
 "repeatedly, try one of the following options to solve the problem."
@@ -148,27 +190,31 @@ msgstr ""
 "مىدورى(Midori) ئالدىنقى قېتىم قوزغىتىلغاندا غۇلاپ كەتكەندەك قىلىدۇ. بۇ يەنە "
 "تەكرارلانسا تۆۋەندىكى تاللانمىلارنى تاللاپ كۆرۈپ بېقىڭ."
 
-#: ../midori/main.c:1096
+#: ../midori/main.c:1095
 msgid "Modify _preferences"
 msgstr "تەڭشەكنى ئۆزگەرت(_P)"
 
-#: ../midori/main.c:1100
+#: ../midori/main.c:1099
 msgid "Disable all _extensions"
 msgstr "بارلىق كېڭەيتمىنى چەكلە(_E)"
+
+#: ../midori/main.c:1108
+msgid "Show a dialog after Midori crashed"
+msgstr "مىدورى(Midori)  غۇلاپ كېتىپ، قايتا قوزغالغاندا كۆزنەك كۆرسىتىدۇ"
 
 #: ../midori/main.c:1113
 msgid "Discard old tabs"
 msgstr "كونا بەتكۈچلەرنى تاشلىۋەت"
 
-#: ../midori/main.c:1114 ../midori/midori-websettings.c:224
+#: ../midori/main.c:1114 ../midori/midori-websettings.c:108
 msgid "Show last tabs without loading"
 msgstr "ئەڭ ئاخىرىدا ئېچىلغان بەتنى قايتا ئوقۇماي كۆرسەت"
 
-#: ../midori/main.c:1115 ../midori/midori-websettings.c:223
+#: ../midori/main.c:1115 ../midori/midori-websettings.c:107
 msgid "Show last open tabs"
 msgstr "ئەڭ ئاخىرىدا ئېچىلغان بەتكۈچنى كۆرسەت"
 
-#: ../midori/main.c:1363 ../midori/main.c:2417
+#: ../midori/main.c:1362 ../midori/main.c:2378
 #, c-format
 msgid "The session couldn't be loaded: %s\n"
 msgstr "ئەڭگىمەنى ئوقۇغىلى بولمىدى: %s\n"
@@ -178,196 +224,204 @@ msgstr "ئەڭگىمەنى ئوقۇغىلى بولمىدى: %s\n"
 msgid "Snapshot saved to: %s\n"
 msgstr "كۆرۈنۈش بۇ يەرگە ساقلاندى :%s\n"
 
-#: ../midori/main.c:1917
+#: ../midori/main.c:1837
 msgid "Run ADDRESS as a web application"
 msgstr "ADDRESS نى تور پروگراممىسى قاتارىدا ئىجرا قىلىدۇ"
 
-#: ../midori/main.c:1917
+#: ../midori/main.c:1837
 msgid "ADDRESS"
 msgstr "ADDRESS"
 
-#: ../midori/main.c:1920
+#: ../midori/main.c:1840
 msgid "Use FOLDER as configuration folder"
 msgstr "FOLDER نى تەڭشەك مۇندەرىجىسى قىلىپ ئىشلىتىدۇ"
 
-#: ../midori/main.c:1920
+#: ../midori/main.c:1840
 msgid "FOLDER"
 msgstr "FOLDER"
 
-#: ../midori/main.c:1923
+#: ../midori/main.c:1843
 msgid "Private browsing, no changes are saved"
 msgstr "شەخسىي كۆرۈش، ئۆزگىرىشلەر ساقلانمىدى"
 
-#: ../midori/main.c:1925
+#: ../midori/main.c:1846
+msgid "Portable mode, all runtime files are stored in one place"
+msgstr ""
+
+#: ../midori/main.c:1849
+msgid "Plain GTK+ window with WebKit, akin to GtkLauncher"
+msgstr ""
+
+#: ../midori/main.c:1851
 msgid "Show a diagnostic dialog"
 msgstr "دىئاگنوز سۆزلەشكۈسىنى كۆرسىتىدۇ"
 
-#: ../midori/main.c:1927
+#: ../midori/main.c:1853
 msgid "Run the specified filename as javascript"
 msgstr "كۆرسىتىلگەن ھۆججەت نامىنى javascript  دەپ قاراپ ئىجرا قىلىدۇ"
 
-#: ../midori/main.c:1929
+#: ../midori/main.c:1855
 msgid "Take a snapshot of the specified URI"
 msgstr "كۆرسىتىلگەن URI نىڭ كۆرۈنۈشىنى ئالىدۇ"
 
-#: ../midori/main.c:1931
+#: ../midori/main.c:1857
 msgid "Execute the specified command"
 msgstr "كۆرسىتىلگەن بۇيرۇقنى ئىجرا قىلىدۇ"
 
-#: ../midori/main.c:1933
+#: ../midori/main.c:1859
 msgid "List available commands to execute with -e/ --execute"
 msgstr ""
 "تاللانما -e/ --execute بىلەن بىرگە ئىجرا قىلغىلى بولىدىغان بۇيرۇقلارنى "
 "كۆرسىتىدۇ"
 
-#: ../midori/main.c:1935
+#: ../midori/main.c:1861
 msgid "Display program version"
 msgstr "پروگرامما نەشرى كۆرسىتىدۇ"
 
-#: ../midori/main.c:1937
+#: ../midori/main.c:1863
 msgid "Addresses"
 msgstr "ئادرېسلار"
 
-#: ../midori/main.c:1939
+#: ../midori/main.c:1865
 msgid "Block URIs according to regular expression PATTERN"
 msgstr "ئۆلچەملىك ئىپادە PATTERN غا بويسۇنۇپ URI چەكلە"
 
-#: ../midori/main.c:1939
+#: ../midori/main.c:1865
 msgid "PATTERN"
 msgstr "PATTERN"
 
 #. i18n: CLI: Close tabs, clear private data, open starting page
-#: ../midori/main.c:1943
+#: ../midori/main.c:1869
 msgid "Reset Midori after SECONDS seconds of inactivity"
 msgstr ""
 "مىدورى(Midori) ئاكتىپ ئەمەس ھالەتتە SECONDS سېكۇنت تۇرسا،  Midori نى ئەسلىگە "
 "قايتىدۇ"
 
-#: ../midori/main.c:1943
+#: ../midori/main.c:1869
 msgid "SECONDS"
 msgstr "SECONDS"
 
-#: ../midori/main.c:1946
+#: ../midori/main.c:1872
 msgid "Redirects console warnings to the specified FILENAME"
 msgstr "ئېكراندىكى ئاگاھلاندۇرۇشلارنى FILENAME غا يوللايدۇ"
 
-#: ../midori/main.c:1946
+#: ../midori/main.c:1872
 msgid "FILENAME"
 msgstr "FILENAME"
 
-#: ../midori/main.c:2048
+#: ../midori/main.c:1951
 msgid "Please report comments, suggestions and bugs to:"
 msgstr "پىكىر، تەكلىپ، شۇنداقلا كەمتۈكلەرنى بۇ يەرگە مەلۇم قىلىڭ:"
 
-#: ../midori/main.c:2050
+#: ../midori/main.c:1953
 msgid "Check for new versions at:"
 msgstr "يېڭى نەشرىنى بۇ يەردىن تەكشۈر:"
 
 #. i18n: Logins and passwords in websites and web forms
-#: ../midori/main.c:2145
+#: ../midori/main.c:2092
 msgid "Saved logins and _passwords"
 msgstr "ساقلانغان كىرىشلەر ۋە ئىملار(_P)"
 
-#: ../midori/main.c:2147
+#: ../midori/main.c:2094
 msgid "Cookies and Website data"
 msgstr "Cookies ۋە تورتۇرا سانلىق-مەلۇماتلىرى"
 
 #. TODO: Preserve page icons of search engines and merge privacy items
-#: ../midori/main.c:2151 ../midori/midori-websettings.c:1021
-#: ../extensions/web-cache.c:462 ../extensions/web-cache.c:471
+#: ../midori/main.c:2098 ../midori/midori-preferences.c:508
+#: ../extensions/web-cache.c:461 ../extensions/web-cache.c:470
 msgid "Web Cache"
 msgstr "تور غەملىكى"
 
-#: ../midori/main.c:2154
+#: ../midori/main.c:2101
 msgid "Website icons"
 msgstr "تورتۇرا سىنبەلگىسى"
 
-#: ../midori/main.c:2258
+#: ../midori/main.c:2211
 msgid "An unknown error occured"
 msgstr "نامەلۇم خاتالىق كۆرۈلدى"
 
-#: ../midori/main.c:2365
+#: ../midori/main.c:2326
 msgid "An instance of Midori is already running but not responding.\n"
 msgstr "مىدورى(Midori)نىڭ ئۈلگىسى ئىجرا قىلىنىۋېتىپتۇ بىراق ئىنكاس يوق.\n"
 
-#: ../midori/main.c:2399
+#: ../midori/main.c:2360
 #, c-format
 msgid "Bookmarks couldn't be loaded: %s\n"
 msgstr "خەتكۈشنى ئوقۇغىلى بولمىدى: %s\n"
 
-#: ../midori/main.c:2432
+#: ../midori/main.c:2393
 #, c-format
 msgid "The trash couldn't be loaded: %s\n"
 msgstr "ئەخلەت ساندۇقىنى ئوقۇغىلى بولمىدى: %s\n"
 
-#: ../midori/main.c:2445
+#: ../midori/main.c:2406
 #, c-format
 msgid "The history couldn't be loaded: %s\n"
 msgstr "ئىزلارنى ئوقۇغىلى بولمىدى: %s\n"
 
-#: ../midori/main.c:2460
+#: ../midori/main.c:2421
 msgid "The following errors occured:"
 msgstr "تۆۋەندىكىدەك خاتالىق كۆرۈلدى:"
 
-#: ../midori/main.c:2476
+#: ../midori/main.c:2437
 msgid "_Ignore"
 msgstr "پەرۋا قىلما(_I)"
 
-#: ../midori/midori-app.c:1155 ../midori/midori-browser.c:557
+#: ../midori/midori-app.c:1156 ../midori/midori-browser.c:534
 #, c-format
 msgid "Unexpected action '%s'."
 msgstr "تاسادىپىي مەشغۇلات ‹%s›"
 
-#: ../midori/midori-app.c:1459 ../midori/midori-browser.c:6452
+#: ../midori/midori-app.c:1372 ../midori/midori-browser.c:6251
 msgid "_Bookmarks"
 msgstr "خەتكۈش(_B)"
 
-#: ../midori/midori-app.c:1460
+#: ../midori/midori-app.c:1373
 msgid "Add Boo_kmark"
 msgstr "خەتكۈش قوش(_K)"
 
-#: ../midori/midori-app.c:1461
+#: ../midori/midori-app.c:1374
 msgid "_Extensions"
 msgstr "كېڭەيتمىلەر(_E)"
 
 #. i18n: Browsing history, visited web pages, closed tabs
-#: ../midori/midori-app.c:1462 ../midori/midori-browser.c:4905
+#: ../midori/midori-app.c:1375 ../midori/midori-browser.c:4700
 msgid "_History"
 msgstr "ئىز(_H)"
 
-#: ../midori/midori-app.c:1463
+#: ../midori/midori-app.c:1376
 msgid "_Userscripts"
 msgstr "_Userscripts"
 
-#: ../midori/midori-app.c:1464
+#: ../midori/midori-app.c:1377
 msgid "User_styles"
 msgstr "ئىشلەتكۈچى ئۇسلۇبى(_S)"
 
-#: ../midori/midori-app.c:1465
+#: ../midori/midori-app.c:1378
 msgid "New _Tab"
 msgstr "يېڭى بەتكۈچ(_T)"
 
-#: ../midori/midori-app.c:1466
+#: ../midori/midori-app.c:1379
 msgid "_Transfers"
 msgstr "ئۇزىتىش(_T)"
 
-#: ../midori/midori-app.c:1467
+#: ../midori/midori-app.c:1380
 msgid "Netscape p_lugins"
 msgstr "Netscape قىستۇرمىلىرى(_L)"
 
-#: ../midori/midori-app.c:1468
+#: ../midori/midori-app.c:1381
 msgid "_Closed Tabs"
 msgstr "تاقالغان بەتكۈچلەر(_C)"
 
-#: ../midori/midori-app.c:1469 ../midori/midori-browser.c:5588
+#: ../midori/midori-app.c:1382 ../midori/midori-browser.c:5387
 msgid "New _Window"
 msgstr "يېڭى كۆزنەك(_W)"
 
-#: ../midori/midori-app.c:1470
+#: ../midori/midori-app.c:1383
 msgid "New _Folder"
 msgstr "يېڭى مۇندەرىجە(_F)"
 
-#: ../midori/midori-app.c:1499
+#: ../midori/midori-app.c:1437
 msgid "[Addresses]"
 msgstr "[ئادرېسلار]"
 
@@ -388,133 +442,113 @@ msgstr "فورماتى خاتا بولغان خەتكۈش."
 msgid "Writing failed."
 msgstr "يېزىش مەغلۇپ بولدى."
 
-#: ../midori/midori-browser.c:359 ../midori/midori-browser.c:5676
-#: ../midori/midori-browser.c:5685
-msgid "Reload the current page"
-msgstr "ھازىرقى بەتنى قايتا ئوقۇيدۇ"
-
-#: ../midori/midori-browser.c:368 ../midori/midori-browser.c:5682
-msgid "Stop loading the current page"
-msgstr "ھازىرقى بېتىنى ئوقۇشنى توختىتىدۇ"
-
-#: ../midori/midori-browser.c:376 ../midori/midori-browser.c:5727
+#: ../midori/midori-browser.c:347 ../midori/midori-browser.c:5526
 msgid "Go forward to the next page"
 msgstr "كېيىنكى بەتكە ماڭىدۇ"
 
 #. i18n: Visit the following logical page, ie. in a forum or blog
-#: ../midori/midori-browser.c:383 ../midori/midori-browser.c:5735
-#: ../midori/midori-browser.c:5738
+#: ../midori/midori-browser.c:354 ../midori/midori-browser.c:5534
+#: ../midori/midori-browser.c:5537
 msgid "Go to the next sub-page"
 msgstr "كېيىنكى بالا بەتكە يۆتكىلىدۇ"
 
-#: ../midori/midori-browser.c:542
+#: ../midori/midori-browser.c:441 ../midori/midori-browser.c:5475
+#: ../midori/midori-browser.c:5484
+msgid "Reload the current page"
+msgstr "ھازىرقى بەتنى قايتا ئوقۇيدۇ"
+
+#: ../midori/midori-browser.c:449 ../midori/midori-browser.c:5481
+msgid "Stop loading the current page"
+msgstr "ھازىرقى بېتىنى ئوقۇشنى توختىتىدۇ"
+
+#: ../midori/midori-browser.c:519
 #, c-format
 msgid "Failed to update title: %s\n"
 msgstr "ماۋزۇنى يېڭىلاش مەغلۇپ بولدى: %s\n"
 
-#: ../midori/midori-browser.c:637
+#: ../midori/midori-browser.c:614
 #, c-format
 msgid "%s (Private Browsing)"
 msgstr "%s (شەخسىي كۆرۈش)"
 
-#: ../midori/midori-browser.c:747 ../midori/midori-browser.c:789
+#: ../midori/midori-browser.c:724 ../midori/midori-browser.c:766
 #: ../panels/midori-bookmarks.c:114
 msgid "Bookmarks"
 msgstr "خەتكۈش"
 
-#: ../midori/midori-browser.c:849
+#: ../midori/midori-browser.c:826
 msgid "New folder"
 msgstr "يېڭى مۇندەرىجە"
 
-#: ../midori/midori-browser.c:849
+#: ../midori/midori-browser.c:826
 msgid "Edit folder"
 msgstr "مۇندەرىجە تەھرىرلەيدۇ"
 
-#: ../midori/midori-browser.c:851
+#: ../midori/midori-browser.c:828
 msgid "New bookmark"
 msgstr "يېڭى خەتكۈش"
 
-#: ../midori/midori-browser.c:851
+#: ../midori/midori-browser.c:828
 msgid "Edit bookmark"
 msgstr "خەتكۈش تەھرىرلەش"
 
-#: ../midori/midori-browser.c:885
+#: ../midori/midori-browser.c:862
 msgid "Type a name for this bookmark and choose where to keep it."
 msgstr "خەتكۈشنىڭ ئاتىنى كىرگۈزۈپ ساقلايدىغان ئورۇننى كۆرسىتىپ بېرىدۇ."
 
-#: ../midori/midori-browser.c:946
+#: ../midori/midori-browser.c:923
 msgid "Add to _Speed Dial"
 msgstr "تەز تېلېفون قىلىشنى قوش(_S)"
 
-#: ../midori/midori-browser.c:952
+#: ../midori/midori-browser.c:929
 msgid "Show in the tool_bar"
 msgstr "قورال بالدىقىدا كۆرسەت(_B)"
 
-#: ../midori/midori-browser.c:960
+#: ../midori/midori-browser.c:937
 msgid "Run as _web application"
 msgstr "تور پروگراممىسى شەكلىدە ئىجرا قىل(_W)"
 
-#: ../midori/midori-browser.c:1031
-#, c-format
-msgid "The file \"%s\" can't be saved in this folder."
-msgstr "ھۆججەت «%s» نى بۇ مۇندەرىجىگە ساقلىغىلى بولمىدى."
-
-#: ../midori/midori-browser.c:1033
-#, c-format
-msgid "You don't have permission to write in this location."
-msgstr "بۇ ئورۇنغا يېزىش ئىمتىيازىڭىز يوق."
-
-#: ../midori/midori-browser.c:1040
-#, c-format
-msgid "There is not enough free space to download \"%s\"."
-msgstr "«%s» نى چۈشۈرۈشكە يېتەرلىك بوشلۇق يوق."
-
-#: ../midori/midori-browser.c:1043
-#, c-format
-msgid "The file needs %s but only %s are left."
-msgstr "ھۆججەتكە %s كېرەك ئىدى، بىراق %s  لا بار ئىكەن."
-
-#: ../midori/midori-browser.c:1179 ../midori/midori-browser.c:4709
+#: ../midori/midori-browser.c:1055 ../midori/midori-browser.c:4504
 msgid "Save file as"
 msgstr "باشقا نامدا ساقلا"
 
-#: ../midori/midori-browser.c:1185
+#: ../midori/midori-browser.c:1065
 msgid "Save associated _resources"
 msgstr "مۇناسىۋەتلىك مەنبەلەرنى ساقلا(_R)"
 
-#: ../midori/midori-browser.c:1488
+#: ../midori/midori-browser.c:1323
 msgid "A new window has been opened"
 msgstr "يېڭى بىر كۆزنەك ئېچىلدى"
 
-#: ../midori/midori-browser.c:1491
+#: ../midori/midori-browser.c:1326
 msgid "A new tab has been opened"
 msgstr "يېڭى بەتكۈچ ئېچىلدى"
 
-#: ../midori/midori-browser.c:1508
+#: ../midori/midori-browser.c:1343
 msgid "Error opening the image!"
 msgstr "مەزكۇر سۈرەتنى ئېچىشتا خاتالىق كۆرۈلدى!"
 
-#: ../midori/midori-browser.c:1509
+#: ../midori/midori-browser.c:1344
 msgid "Can not open selected image in a default viewer."
 msgstr "تاللانغان سۈرەتنى كۆڭۈلدىكى كۆرگۈدە ئاچقىلى بولمىدى."
 
-#: ../midori/midori-browser.c:1515
+#: ../midori/midori-browser.c:1350
 msgid "Error downloading the image!"
 msgstr "مەزكۇر سۈرەتنى چۈشۈرۈشتە خاتالىق كۆرۈلدى!"
 
-#: ../midori/midori-browser.c:1516
+#: ../midori/midori-browser.c:1351
 msgid "Can not download selected image."
 msgstr "تاللانغان سۈرەتنى چۈشۈرگىلى بولمىدى."
 
-#: ../midori/midori-browser.c:1637
+#: ../midori/midori-browser.c:1408
 msgid "Save file"
 msgstr "ھۆججەت ساقلا"
 
-#: ../midori/midori-browser.c:2540
+#: ../midori/midori-browser.c:2335
 msgid "Open file"
 msgstr "ھۆججەتنى ئاچ"
 
-#: ../midori/midori-browser.c:2672
+#: ../midori/midori-browser.c:2467
 msgid ""
 "To use the above URI open a news aggregator. There is usually a menu or "
 "button \"New Subscription\", \"New News Feed\" or similar.\n"
@@ -523,24 +557,24 @@ msgid ""
 "automatically."
 msgstr ""
 
-#: ../midori/midori-browser.c:2678 ../extensions/feed-panel/main.c:365
+#: ../midori/midori-browser.c:2473 ../extensions/feed-panel/main.c:365
 msgid "New feed"
 msgstr "يېڭى feed"
 
-#: ../midori/midori-browser.c:2721 ../midori/midori-browser.c:5751
+#: ../midori/midori-browser.c:2516 ../midori/midori-browser.c:5550
 #: ../panels/midori-bookmarks.c:527
 msgid "Add a new bookmark"
 msgstr "يېڭى خەتكۈش قوشىدۇ"
 
-#: ../midori/midori-browser.c:3265 ../midori/midori-searchaction.c:487
+#: ../midori/midori-browser.c:3060 ../midori/midori-searchaction.c:487
 msgid "Empty"
 msgstr "قۇرۇق"
 
-#: ../midori/midori-browser.c:3711 ../midori/midori-browser.c:3712
+#: ../midori/midori-browser.c:3506 ../midori/midori-browser.c:3507
 msgid "Toggle text cursor navigation"
 msgstr "تېكىست نۇر بەلگىسى ئارقىلىق كۆرۈشكە ئۆزگەرت"
 
-#: ../midori/midori-browser.c:3714
+#: ../midori/midori-browser.c:3509
 msgid ""
 "Pressing F7 toggles Caret Browsing. When active, a text cursor appears in "
 "all websites."
@@ -548,133 +582,133 @@ msgstr ""
 "كۇنۇپكا F7 بېسىلسا نۇربەلگە بىلەن كۆرۈشكە ئۆزگىرىدۇ. ئاكتىپ ھالەتتە بارلىق "
 "تور بەتلىرىدە تېكىست نۇر بەلگىسى كۆرۈنىدۇ."
 
-#: ../midori/midori-browser.c:3717
+#: ../midori/midori-browser.c:3512
 msgid "_Enable Caret Browsing"
 msgstr "نۇربەلگە بىلەن كۆرۈش ئىناۋەتلىك قىل(_R)"
 
-#: ../midori/midori-browser.c:4109 ../midori/midori-browser.c:6145
+#: ../midori/midori-browser.c:3904 ../midori/midori-browser.c:5944
 #, c-format
 msgid "Failed to insert new history item: %s\n"
 msgstr "يېڭى ئىز قىستۇرۇش مەغلۇپ بولدى: %s\n"
 
-#: ../midori/midori-browser.c:4435 ../panels/midori-bookmarks.c:850
+#: ../midori/midori-browser.c:4230 ../panels/midori-bookmarks.c:850
 #: ../panels/midori-history.c:806
 msgid "Open all in _Tabs"
 msgstr "ھەممىنى بەتكۈچتە ئاچ(_T)"
 
-#: ../midori/midori-browser.c:4442 ../panels/midori-bookmarks.c:856
+#: ../midori/midori-browser.c:4237 ../panels/midori-bookmarks.c:856
 #: ../panels/midori-history.c:812 ../extensions/feed-panel/feed-panel.c:528
 msgid "Open in New _Tab"
 msgstr "يېڭى بەتكۈچتە ئاچ(_T)"
 
-#: ../midori/midori-browser.c:4445 ../midori/midori-view.c:2944
-#: ../midori/midori-view.c:5082 ../panels/midori-bookmarks.c:858
+#: ../midori/midori-browser.c:4240 ../midori/midori-view.c:2907
+#: ../midori/midori-view.c:4883 ../panels/midori-bookmarks.c:858
 #: ../panels/midori-history.c:814 ../extensions/feed-panel/feed-panel.c:530
 msgid "Open in New _Window"
 msgstr "يېڭى كۆزنەكتە ئاچ(_W)"
 
-#: ../midori/midori-browser.c:4534
+#: ../midori/midori-browser.c:4329
 msgid "Arora"
 msgstr "Arora"
 
-#: ../midori/midori-browser.c:4535
+#: ../midori/midori-browser.c:4330
 msgid "Kazehakase"
 msgstr "Kazehakase"
 
-#: ../midori/midori-browser.c:4536
+#: ../midori/midori-browser.c:4331
 msgid "Opera"
 msgstr "Opera"
 
-#: ../midori/midori-browser.c:4537
+#: ../midori/midori-browser.c:4332
 msgid "Konqueror"
 msgstr "Konqueror"
 
-#: ../midori/midori-browser.c:4538
+#: ../midori/midori-browser.c:4333
 msgid "Epiphany"
 msgstr "Epiphany"
 
-#: ../midori/midori-browser.c:4539
+#: ../midori/midori-browser.c:4334
 #, c-format
 msgid "Firefox (%s)"
 msgstr "Firefox (%s)"
 
-#: ../midori/midori-browser.c:4540
+#: ../midori/midori-browser.c:4335
 msgid "Midori 0.2.6"
 msgstr "مىدورى(Midori 0.2.6)"
 
-#: ../midori/midori-browser.c:4561
+#: ../midori/midori-browser.c:4356
 msgid "Import bookmarks…"
 msgstr "خەتكۈش ئىمپورت قىل…"
 
-#: ../midori/midori-browser.c:4564 ../midori/midori-browser.c:5756
+#: ../midori/midori-browser.c:4359 ../midori/midori-browser.c:5555
 msgid "_Import bookmarks"
 msgstr "خەتكۈش ئىمپورت قىل(_I)"
 
-#: ../midori/midori-browser.c:4575
+#: ../midori/midori-browser.c:4370
 msgid "_Application:"
 msgstr "پروگرامما(_A):"
 
-#: ../midori/midori-browser.c:4640
+#: ../midori/midori-browser.c:4435
 msgid "Import from XBEL or HTML file"
 msgstr "XBEL ياكى HTML دىن ئىمپورت قىلىش"
 
-#: ../midori/midori-browser.c:4668
+#: ../midori/midori-browser.c:4463
 msgid "Import from a file"
 msgstr "ھۆججەتتىن ئىمپورت قىلىدۇ"
 
-#: ../midori/midori-browser.c:4680
+#: ../midori/midori-browser.c:4475
 msgid "Failed to import bookmarks"
 msgstr "خەتكۈش ئىمپورت قىلىش مەغلۇپ بولدى"
 
-#: ../midori/midori-browser.c:4714
+#: ../midori/midori-browser.c:4509
 msgid "XBEL Bookmarks"
 msgstr "XBEL خەتكۈش"
 
-#: ../midori/midori-browser.c:4719
+#: ../midori/midori-browser.c:4514
 msgid "Netscape Bookmarks"
 msgstr "Netscape خەتكۈش"
 
-#: ../midori/midori-browser.c:4733
+#: ../midori/midori-browser.c:4528
 msgid "Midori can only export to XBEL (*.xbel) and Netscape (*.html)"
 msgstr ""
 "مىدورى(Midori) پەقەتلا XBEL (*.xbel) ۋە Netscape (*.html) غا ئېكسپورت "
 "قىلالايدۇ"
 
-#: ../midori/midori-browser.c:4748
+#: ../midori/midori-browser.c:4543
 msgid "Failed to export bookmarks"
 msgstr "خەتكۈش ئېكسپورت قىلىش مەغلۇپ بولدى"
 
 #. i18n: Dialog: Clear Private Data, in the Tools menu
-#: ../midori/midori-browser.c:4870
+#: ../midori/midori-browser.c:4665
 msgid "Clear Private Data"
 msgstr "شەخسىي سانلىق-مەلۇماتلارنى تازىلايدۇ"
 
-#: ../midori/midori-browser.c:4874
+#: ../midori/midori-browser.c:4669
 msgid "_Clear private data"
 msgstr "شەخسىي سانلىق-مەلۇماتلار تازىلا(_C)"
 
-#: ../midori/midori-browser.c:4889
+#: ../midori/midori-browser.c:4684
 msgid "Clear the following data:"
 msgstr "تۆۋەندىكى سانلىق-مەلۇماتلارنى تازىلا:"
 
-#: ../midori/midori-browser.c:4899
+#: ../midori/midori-browser.c:4694
 msgid "Last open _tabs"
 msgstr "ئەڭ ئاخىرىدا ئېچىلغان بەتكۈچلەر"
 
-#: ../midori/midori-browser.c:4925
+#: ../midori/midori-browser.c:4720
 msgid "Clear private data when _quitting Midori"
 msgstr ""
 "مىدورى(Midori) نى ئاخىرلاشقاندا شەخسىي سانلىق-مەلۇماتلار تازىلانسۇن(_Q)"
 
-#: ../midori/midori-browser.c:5140
+#: ../midori/midori-browser.c:4935
 msgid "A lightweight web browser."
 msgstr "يېنىك ۋە ئەپچىل توركۆرگۈ."
 
-#: ../midori/midori-browser.c:5141
+#: ../midori/midori-browser.c:4936
 msgid "See about:version for version info."
 msgstr "نەشر ئۇچۇرىنى about:version دىن كۆرۈڭ."
 
-#: ../midori/midori-browser.c:5143
+#: ../midori/midori-browser.c:4938
 msgid ""
 "This library is free software; you can redistribute it and/or modify it "
 "under the terms of the GNU Lesser General Public License as published by the "
@@ -686,381 +720,381 @@ msgstr ""
 "ئۆزگەرتەلەيسىز؛ سىز شۇ ئىجازەت كېلىشىمىنىڭ ئىككىنچى نەشرى ياكى يۇقىرى "
 "نەشرىنى ئىشلەتسىڭىز بولىدۇ."
 
-#: ../midori/midori-browser.c:5173
+#: ../midori/midori-browser.c:4968
 msgid "translator-credits"
 msgstr "غەيرەت ت.كەنجى <gheyret@gmail.com>"
 
-#: ../midori/midori-browser.c:5586
+#: ../midori/midori-browser.c:5385
 msgid "_File"
 msgstr "ھۆججەت(_F)"
 
-#: ../midori/midori-browser.c:5589
+#: ../midori/midori-browser.c:5388
 msgid "Open a new window"
 msgstr "يېڭى كۆزنەكتىن بىرنى ئاچىدۇ"
 
-#: ../midori/midori-browser.c:5592
+#: ../midori/midori-browser.c:5391
 msgid "Open a new tab"
 msgstr "يېڭى بەتكۈچتىن بىرنى ئاچىدۇ"
 
-#: ../midori/midori-browser.c:5594
+#: ../midori/midori-browser.c:5393
 msgid "New P_rivate Browsing Window"
 msgstr "يېڭى شەخسىي كۆرۈش كۆزنىكى(_R)"
 
-#: ../midori/midori-browser.c:5598
+#: ../midori/midori-browser.c:5397
 msgid "Open a file"
 msgstr "ھۆججەت ئاچىدۇ"
 
-#: ../midori/midori-browser.c:5600
+#: ../midori/midori-browser.c:5399
 msgid "_Save Page As…"
 msgstr "بەتنى باشقا ئاتتا ساقلا(_S)…"
 
-#: ../midori/midori-browser.c:5601
+#: ../midori/midori-browser.c:5400
 msgid "Save to a file"
 msgstr "ھۆججەتكە ساقلايدۇ"
 
-#: ../midori/midori-browser.c:5603
+#: ../midori/midori-browser.c:5402
 msgid "Add to Speed _dial"
 msgstr "تەز تېلېفون قىلىشنى قوش(_D)"
 
-#: ../midori/midori-browser.c:5607
+#: ../midori/midori-browser.c:5406
 msgid "Add Shortcut to the _desktop"
 msgstr "ئۈستەلئۈستىگە تېزلەتمە قوش(_D)"
 
-#: ../midori/midori-browser.c:5609
+#: ../midori/midori-browser.c:5408
 msgid "Create _Launcher"
 msgstr "ئىجراچى قۇر(_L)"
 
-#: ../midori/midori-browser.c:5613
+#: ../midori/midori-browser.c:5412
 msgid "Subscribe to News _feed"
 msgstr "خەۋەر feed غا مۇشتەرى بول(_F)"
 
-#: ../midori/midori-browser.c:5619
+#: ../midori/midori-browser.c:5418
 msgid "_Close Tab"
 msgstr "بەتكۈچنى تاقا(_C)"
 
-#: ../midori/midori-browser.c:5620
+#: ../midori/midori-browser.c:5419
 msgid "Close the current tab"
 msgstr "ھازىرقى بەتكۈچنى تاقايدۇ"
 
-#: ../midori/midori-browser.c:5622
+#: ../midori/midori-browser.c:5421
 msgid "C_lose Window"
 msgstr "كۆزنەك تاقا(_L)"
 
-#: ../midori/midori-browser.c:5626
+#: ../midori/midori-browser.c:5425
 msgid "_Share"
 msgstr "ھەمبەھىرلە(_S)"
 
-#: ../midori/midori-browser.c:5631
+#: ../midori/midori-browser.c:5430
 msgid "Print the current page"
 msgstr "ھازىرقى بەتنى باسىدۇ"
 
-#: ../midori/midori-browser.c:5634
+#: ../midori/midori-browser.c:5433
 msgid "Close a_ll Windows"
 msgstr "بارلىق كۆزنەكلەر تاقا(_L)"
 
-#: ../midori/midori-browser.c:5637
+#: ../midori/midori-browser.c:5436
 msgid "_Edit"
 msgstr "تەھرىر(_E)"
 
-#: ../midori/midori-browser.c:5660
+#: ../midori/midori-browser.c:5459
 msgid "_Find…"
 msgstr "ئىزدە(_F)…"
 
-#: ../midori/midori-browser.c:5661
+#: ../midori/midori-browser.c:5460
 msgid "Find a word or phrase in the page"
 msgstr "بەت ئىچىدىن سوز ياكى سوز بىرىكمىسىنى ئىزدەيدۇ"
 
-#: ../midori/midori-browser.c:5663
+#: ../midori/midori-browser.c:5462
 msgid "Find _Next"
 msgstr "كېيىنكىسىنى ئىزدە(_N)"
 
-#: ../midori/midori-browser.c:5666
+#: ../midori/midori-browser.c:5465
 msgid "Find _Previous"
 msgstr "ئالدىنقىنى ئىزدە(_P)"
 
-#: ../midori/midori-browser.c:5670
+#: ../midori/midori-browser.c:5469
 msgid "Configure the application preferences"
 msgstr "مەزكۇر پروگراممىنىڭ تەڭشىكىنى تەڭشەيدۇ"
 
-#: ../midori/midori-browser.c:5672
+#: ../midori/midori-browser.c:5471
 msgid "_View"
 msgstr "كۆرۈنۈش(_V)"
 
-#: ../midori/midori-browser.c:5673
+#: ../midori/midori-browser.c:5472
 msgid "_Toolbars"
 msgstr "قورال بالدىقى(_T)"
 
-#: ../midori/midori-browser.c:5678
+#: ../midori/midori-browser.c:5477
 msgid "Reload page without caching"
 msgstr "غەملىمەيلا ھۆججەتنى قايتا ئوقۇسۇن"
 
-#: ../midori/midori-browser.c:5688
+#: ../midori/midori-browser.c:5487
 msgid "Increase the zoom level"
 msgstr "چوڭايتىش-كىچىكلىتىش دەرىجىسىنى چوڭايتىدۇ"
 
-#: ../midori/midori-browser.c:5691
+#: ../midori/midori-browser.c:5490
 msgid "Decrease the zoom level"
 msgstr "چوڭايتىش-كىچىكلىتىش دەرىجىسىنى كىچىكلىتىدۇ"
 
-#: ../midori/midori-browser.c:5695
+#: ../midori/midori-browser.c:5494
 msgid "_Encoding"
 msgstr "كودلىشى(_E)"
 
-#: ../midori/midori-browser.c:5697
+#: ../midori/midori-browser.c:5496
 msgid "View So_urce"
 msgstr "مەنبەنى كۆرسەت(_U)"
 
-#: ../midori/midori-browser.c:5700
+#: ../midori/midori-browser.c:5499
 msgid "Ca_ret Browsing"
 msgstr "نۇربەلگىسىدە كۆرۈش(_R)"
 
-#: ../midori/midori-browser.c:5704
+#: ../midori/midori-browser.c:5503
 msgid "Toggle fullscreen view"
 msgstr "تولۇق ئېكران كۆرسىتىش/كۆرسەتمەسلىكنى ئالماشتۇرىدۇ"
 
-#: ../midori/midori-browser.c:5706
+#: ../midori/midori-browser.c:5505
 msgid "Scroll _Left"
 msgstr "سولغا سىيرىل(_L)"
 
-#: ../midori/midori-browser.c:5709
+#: ../midori/midori-browser.c:5508
 msgid "Scroll _Down"
 msgstr "پەسكە سىيرىل(_D)"
 
-#: ../midori/midori-browser.c:5712
+#: ../midori/midori-browser.c:5511
 msgid "Scroll _Up"
 msgstr "ئۈستىگە سىيرىلىدۇ(_U)"
 
-#: ../midori/midori-browser.c:5715
+#: ../midori/midori-browser.c:5514
 msgid "Scroll _Right"
 msgstr "ئوڭغا سىيرىل(_R)"
 
-#: ../midori/midori-browser.c:5718
+#: ../midori/midori-browser.c:5517
 msgid "_Readable"
 msgstr "ئوقۇغىلى بولىدۇ(_R)"
 
-#: ../midori/midori-browser.c:5721
+#: ../midori/midori-browser.c:5520
 msgid "_Go"
 msgstr "يۆتكەل(_G)"
 
-#: ../midori/midori-browser.c:5724
+#: ../midori/midori-browser.c:5523
 msgid "Go back to the previous page"
 msgstr "ئالدىنقى بەتكە قايتىدۇ"
 
 #. i18n: Visit the previous logical page, ie. in a forum or blog
-#: ../midori/midori-browser.c:5731
+#: ../midori/midori-browser.c:5530
 msgid "Go to the previous sub-page"
 msgstr "ئالدىنقى بالا بەتكە قايتىدۇ"
 
-#: ../midori/midori-browser.c:5740
+#: ../midori/midori-browser.c:5539
 msgid "_Homepage"
 msgstr "ماكان بەت(_H)"
 
-#: ../midori/midori-browser.c:5741
+#: ../midori/midori-browser.c:5540
 msgid "Go to your homepage"
 msgstr "ئانا بەتكە يۆتكىلىدۇ"
 
-#: ../midori/midori-browser.c:5743
+#: ../midori/midori-browser.c:5542
 msgid "Empty Trash"
 msgstr "ئەخلەت ساندۇقىنى تازىلاش"
 
-#: ../midori/midori-browser.c:5746
+#: ../midori/midori-browser.c:5545
 msgid "Undo _Close Tab"
 msgstr "تاقالغان بەتكۈچنى ئەسلى كەلتۈر(_C)"
 
-#: ../midori/midori-browser.c:5753
+#: ../midori/midori-browser.c:5552
 msgid "Add a new _folder"
 msgstr "يېڭى مۇندەرىجە قوش(_F)"
 
-#: ../midori/midori-browser.c:5759
+#: ../midori/midori-browser.c:5558
 msgid "_Export bookmarks"
 msgstr "خەتكۈشنى ئېكسپورت قىل(_E)"
 
-#: ../midori/midori-browser.c:5762 ../midori/midori-searchaction.c:496
+#: ../midori/midori-browser.c:5561 ../midori/midori-searchaction.c:496
 msgid "_Manage Search Engines"
 msgstr "ئىزدەش ماتورىنى باشقۇر(_M)"
 
-#: ../midori/midori-browser.c:5765
+#: ../midori/midori-browser.c:5564
 msgid "_Clear Private Data"
 msgstr "شەخسىي سانلىق-مەلۇماتلارنى تازىلا(_C)"
 
-#: ../midori/midori-browser.c:5768
+#: ../midori/midori-browser.c:5567
 msgid "_Inspect Page"
 msgstr "بەتنى تەكشۈر(_I)"
 
-#: ../midori/midori-browser.c:5772
+#: ../midori/midori-browser.c:5571
 msgid "_Previous Tab"
 msgstr "ئالدىنقى بەتكۈچ(_P)"
 
-#: ../midori/midori-browser.c:5775
+#: ../midori/midori-browser.c:5574
 msgid "_Next Tab"
 msgstr "كېيىنكى بەتكۈچ(_N)"
 
-#: ../midori/midori-browser.c:5777
+#: ../midori/midori-browser.c:5576
 msgid "Move Tab _Backward"
 msgstr "بەتكۈچنى كەينىگە يۆتكەش(_B)"
 
-#: ../midori/midori-browser.c:5779
+#: ../midori/midori-browser.c:5578
 msgid "_Move Tab Forward"
 msgstr "بەتكۈچنى ئالدىغا يۆتكەش(_B)"
 
-#: ../midori/midori-browser.c:5782
+#: ../midori/midori-browser.c:5581
 msgid "Focus _Current Tab"
 msgstr "ھازىرقى بەتكۈچكە فوكۇسلان(_C)"
 
-#: ../midori/midori-browser.c:5785
+#: ../midori/midori-browser.c:5584
 msgid "Focus _Next view"
 msgstr "كېيىنكى كۆرۈنۈشكە فوكۇسلان(_N)"
 
-#: ../midori/midori-browser.c:5788
+#: ../midori/midori-browser.c:5587
 msgid "Only show the Icon of the _Current Tab"
 msgstr "پەقەت نۆۋەتتىكى بەتكۈچتىلا سىنبەلگىنى كۆرسەتسۇن(_C)"
 
-#: ../midori/midori-browser.c:5791
+#: ../midori/midori-browser.c:5590
 msgid "_Duplicate Current Tab"
 msgstr "بەتكۈچنى تۇغدۇر(_D)"
 
-#: ../midori/midori-browser.c:5794
+#: ../midori/midori-browser.c:5593
 msgid "Close Ot_her Tabs"
 msgstr "باشقا بەتكۈچلەرنى تاقا(_H)"
 
-#: ../midori/midori-browser.c:5797
+#: ../midori/midori-browser.c:5596
 msgid "Open last _session"
 msgstr "ئەڭ ئاخىرقى ئەڭگىمەنى ئاچ(_S)"
 
-#: ../midori/midori-browser.c:5800
+#: ../midori/midori-browser.c:5599
 msgid "_Help"
 msgstr "ياردەم(_H)"
 
-#: ../midori/midori-browser.c:5802
+#: ../midori/midori-browser.c:5601
 msgid "_Frequent Questions"
 msgstr "كۆپ سورىلىدىغان سوئاللار(_F)"
 
-#: ../midori/midori-browser.c:5805
+#: ../midori/midori-browser.c:5604
 msgid "_Report a Problem…"
 msgstr "كەمتۈك مەلۇم قىل(_R)"
 
-#: ../midori/midori-browser.c:5810 ../midori/midori-browser.c:6471
+#: ../midori/midori-browser.c:5609 ../midori/midori-browser.c:6270
 msgid "_Tools"
 msgstr "قورال(_T)"
 
-#: ../midori/midori-browser.c:5817
+#: ../midori/midori-browser.c:5616
 msgid "_Menubar"
 msgstr "تىزىملىك بالدىقى(_M)"
 
-#: ../midori/midori-browser.c:5821
+#: ../midori/midori-browser.c:5620
 msgid "_Navigationbar"
 msgstr "يولچى بالدىقى(_N)"
 
-#: ../midori/midori-browser.c:5825
+#: ../midori/midori-browser.c:5624
 msgid "Side_panel"
 msgstr "يان كۆزنەك(_P)"
 
-#: ../midori/midori-browser.c:5826
+#: ../midori/midori-browser.c:5625
 msgid "Sidepanel"
 msgstr "يان كۆزنەك"
 
-#: ../midori/midori-browser.c:5829
+#: ../midori/midori-browser.c:5628
 msgid "_Bookmarkbar"
 msgstr "خەتكۈش بالدىقى(_B)"
 
-#: ../midori/midori-browser.c:5833
+#: ../midori/midori-browser.c:5632
 msgid "_Statusbar"
 msgstr "ھالەت بالدىقى(_S)"
 
-#: ../midori/midori-browser.c:5842 ../midori/midori-websettings.c:315
+#: ../midori/midori-browser.c:5641 ../midori/midori-websettings.c:199
 msgid "_Automatic"
 msgstr "ئۆزلۈكىدىن(_A)"
 
-#: ../midori/midori-browser.c:5845 ../midori/midori-websettings.c:239
+#: ../midori/midori-browser.c:5644 ../midori/midori-websettings.c:123
 msgid "Chinese Traditional (BIG5)"
 msgstr "مۇرەككەپ خەنزۇچە(BIG5)"
 
-#: ../midori/midori-browser.c:5848 ../midori/midori-websettings.c:240
+#: ../midori/midori-browser.c:5647 ../midori/midori-websettings.c:124
 msgid "Chinese Simplified (GB18030)"
 msgstr "ئاددىيلاشتۇرۇلغان خەنزۇچە (GB18030)"
 
 #. i18n: A double underscore "__" is used to prevent the mnemonic
-#: ../midori/midori-browser.c:5852
+#: ../midori/midori-browser.c:5651
 msgid "Japanese (SHIFT__JIS)"
 msgstr "ياپونچە (SHIFT__JIS)"
 
-#: ../midori/midori-browser.c:5855 ../midori/midori-websettings.c:242
+#: ../midori/midori-browser.c:5654 ../midori/midori-websettings.c:126
 msgid "Korean (EUC-KR)"
 msgstr "كورېيەچە(EUC-KR)"
 
-#: ../midori/midori-browser.c:5858 ../midori/midori-websettings.c:243
+#: ../midori/midori-browser.c:5657 ../midori/midori-websettings.c:127
 msgid "Russian (KOI8-R)"
 msgstr "رۇسچە(KOI8-R)"
 
-#: ../midori/midori-browser.c:5861 ../midori/midori-websettings.c:244
+#: ../midori/midori-browser.c:5660 ../midori/midori-websettings.c:128
 msgid "Unicode (UTF-8)"
 msgstr "يۇنىكود (UTF-8)"
 
-#: ../midori/midori-browser.c:5864 ../midori/midori-websettings.c:245
+#: ../midori/midori-browser.c:5663 ../midori/midori-websettings.c:129
 msgid "Western (ISO-8859-1)"
 msgstr "غەربچە (ISO-8859-1)"
 
-#: ../midori/midori-browser.c:5867
+#: ../midori/midori-browser.c:5666
 msgid "Custom…"
 msgstr "ئىختىيارىي…"
 
-#: ../midori/midori-browser.c:6377
+#: ../midori/midori-browser.c:6176
 msgid "_Separator"
 msgstr "ئايرىغۇ(_S)"
 
-#: ../midori/midori-browser.c:6384
+#: ../midori/midori-browser.c:6183
 msgid "_Location…"
 msgstr "ئورۇن(_L)…"
 
-#: ../midori/midori-browser.c:6386
+#: ../midori/midori-browser.c:6185
 msgid "Open a particular location"
 msgstr "بەلگىلەنگەن ئورۇننى ئاچىدۇ"
 
-#: ../midori/midori-browser.c:6408
+#: ../midori/midori-browser.c:6207
 msgid "_Web Search…"
 msgstr "توردىن ئىزدە(_W)…"
 
-#: ../midori/midori-browser.c:6410
+#: ../midori/midori-browser.c:6209
 msgid "Run a web search"
 msgstr "توردىن ئىزدەيدۇ"
 
-#: ../midori/midori-browser.c:6437
+#: ../midori/midori-browser.c:6236
 msgid "Reopen a previously closed tab or window"
 msgstr "بۇرۇن يېپىلغان بەتكۈچ ياكى كۆزنەكنى قايتا ئاچىدۇ"
 
-#: ../midori/midori-browser.c:6454
+#: ../midori/midori-browser.c:6253
 msgid "Show the saved bookmarks"
 msgstr "ساقلانغان خەتكۈچلەرنى كۆرسىتىدۇ"
 
-#: ../midori/midori-browser.c:6487
+#: ../midori/midori-browser.c:6286
 msgid "_Window"
 msgstr "كۆزنەك(_W)"
 
-#: ../midori/midori-browser.c:6489
+#: ../midori/midori-browser.c:6288
 msgid "Show a list of all open tabs"
 msgstr "ئوچۇق بارلىق بەتكۈچلەرنى كۆرسىتىدۇ"
 
-#: ../midori/midori-browser.c:6503
+#: ../midori/midori-browser.c:6302
 msgid "_Menu"
 msgstr "تىزىملىك(_M)"
 
-#: ../midori/midori-browser.c:6505
+#: ../midori/midori-browser.c:6304
 msgid "Menu"
 msgstr "تىزىملىك"
 
-#: ../midori/midori-browser.c:7330
+#: ../midori/midori-browser.c:7134
 #, c-format
 msgid "Unexpected setting '%s'"
 msgstr "ئويلىمىغان تەڭشەك ‹%s›"
 
-#: ../midori/midori-extension.c:329
+#: ../midori/midori-extension.c:330
 #, c-format
 msgid "The configuration of the extension '%s' couldn't be loaded: %s\n"
 msgstr "كېڭەيتىلمە ‹%s› نىڭ سەپلىمىسىنى ساقلىغىلى بولمىدى: %s\n"
 
-#: ../midori/midori-extension.c:747 ../midori/midori-extension.c:844
-#: ../midori/midori-extension.c:941 ../midori/midori-extension.c:1053
-#: ../extensions/addons.c:1688
+#: ../midori/midori-extension.c:752 ../midori/midori-extension.c:849
+#: ../midori/midori-extension.c:946 ../midori/midori-extension.c:1058
+#: ../extensions/addons.c:1686
 #, c-format
 msgid "The configuration of the extension '%s' couldn't be saved: %s\n"
 msgstr "كېڭەيتىلمە ‹%s› نىڭ سەپلىمىسىنى ساقلىغىلى بولمىدى: %s\n"
@@ -1164,511 +1198,592 @@ msgstr "كۆزنەكنى تاقا"
 msgid "Align sidepanel to the left"
 msgstr "يان كۆزنەكنى سول تەرەپكە ئورۇنلاشتۇرىدۇ"
 
-#: ../midori/midori-websettings.c:221
+#: ../midori/midori-websettings.c:105
 msgid "Show Speed Dial"
 msgstr "تېز تېلېفون قىلىشنى كۆرسەت"
 
-#: ../midori/midori-websettings.c:222
+#: ../midori/midori-websettings.c:106
 msgid "Show Homepage"
 msgstr "ماكان بەتنى كۆرسەت"
 
-#: ../midori/midori-websettings.c:241
+#: ../midori/midori-websettings.c:125
 msgid "Japanese (SHIFT_JIS)"
 msgstr "ياپونچە (SHIFT_JIS)"
 
-#: ../midori/midori-websettings.c:246 ../midori/midori-websettings.c:322
+#: ../midori/midori-websettings.c:130 ../midori/midori-websettings.c:206
 #: ../katze/katze-utils.c:633
 msgid "Custom..."
 msgstr "ئىختىيارىي…"
 
-#: ../midori/midori-websettings.c:261
+#: ../midori/midori-websettings.c:145
 msgid "New tab"
 msgstr "يېڭى بەتكۈچ"
 
-#: ../midori/midori-websettings.c:262
+#: ../midori/midori-websettings.c:146
 msgid "New window"
 msgstr "يېڭى كۆزنەك"
 
-#: ../midori/midori-websettings.c:263
+#: ../midori/midori-websettings.c:147
 msgid "Current tab"
 msgstr "ھازىرقى بەتكۈچ"
 
-#: ../midori/midori-websettings.c:278
+#: ../midori/midori-websettings.c:162
 msgid "Default"
 msgstr "كۆڭۈلدىكى"
 
-#: ../midori/midori-websettings.c:279
+#: ../midori/midori-websettings.c:163
 msgid "Icons"
 msgstr "سىنبەلگىلەر"
 
-#: ../midori/midori-websettings.c:280
+#: ../midori/midori-websettings.c:164
 msgid "Small icons"
 msgstr "كىچىك سىنبەلگە"
 
-#: ../midori/midori-websettings.c:281
+#: ../midori/midori-websettings.c:165
 msgid "Text"
 msgstr "تېكىست"
 
-#: ../midori/midori-websettings.c:282
+#: ../midori/midori-websettings.c:166
 msgid "Icons and text"
 msgstr "سىنبەلگە ۋە تېكىست"
 
-#: ../midori/midori-websettings.c:283
+#: ../midori/midori-websettings.c:167
 msgid "Text beside icons"
 msgstr "تېكىست سىنبەلگىنىڭ يېنىدا كۆرسىتىلسۇن"
 
-#: ../midori/midori-websettings.c:298
+#: ../midori/midori-websettings.c:182
 msgid "Automatic (GNOME or environment)"
 msgstr "ئۆزلۈكىدىن (GNOME ياكى مۇھىت)"
 
-#: ../midori/midori-websettings.c:299
+#: ../midori/midori-websettings.c:183
 msgid "HTTP proxy server"
 msgstr "HTTP ۋاكالەتچى مۇلازىمېتىر"
 
-#: ../midori/midori-websettings.c:300
+#: ../midori/midori-websettings.c:184
 msgid "No proxy server"
 msgstr "ۋاكالەتچى مۇلازىمېتىر يوق"
 
-#: ../midori/midori-websettings.c:317
+#: ../midori/midori-websettings.c:201
 msgid "Chrome"
 msgstr "خىروم(Chrome)"
 
-#: ../midori/midori-websettings.c:318
+#: ../midori/midori-websettings.c:202
 msgid "Safari"
 msgstr "Safari"
 
-#: ../midori/midori-websettings.c:319
+#: ../midori/midori-websettings.c:203
 msgid "iPhone"
 msgstr "iPhone"
 
-#: ../midori/midori-websettings.c:320
+#: ../midori/midori-websettings.c:204
 msgid "Firefox"
 msgstr "Firefox"
 
-#: ../midori/midori-websettings.c:321
+#: ../midori/midori-websettings.c:205
 msgid "Internet Explorer"
 msgstr "Internet Explorer"
 
-#: ../midori/midori-websettings.c:405
-msgid "Remember last window size"
-msgstr "كۆزنەكنىڭ ئەڭ ئاخىرقى چوڭلۇقىنى ئەستە تۇتۇۋال"
-
-#: ../midori/midori-websettings.c:406
-msgid "Whether to save the last window size"
-msgstr "كۆزنەكنىڭ ئەڭ ئاخىرقى چوڭلۇقىنى ئەستە تۇتۇۋالىدۇ"
-
-#: ../midori/midori-websettings.c:414
-msgid "Last window width"
-msgstr "كۆزنەكنىڭ ئەڭ ئاخىرقى كەڭلىكى"
-
-#: ../midori/midori-websettings.c:415
-msgid "The last saved window width"
-msgstr "كۆزنەكنىڭ ئەڭ ئاخىرقى كەڭلىكى"
-
-#: ../midori/midori-websettings.c:423
-msgid "Last window height"
-msgstr "كۆزنەكنىڭ ئەڭ ئاخىرقى ئېگىزلىكى"
-
-#: ../midori/midori-websettings.c:424
-msgid "The last saved window height"
-msgstr "كۆزنەكنىڭ ئەڭ ئاخىرقى ئېگىزلىكى"
-
-#: ../midori/midori-websettings.c:449
-msgid "Last panel position"
-msgstr "كۆزنەكنىڭ ئەڭ ئاخىرقى ئورنى"
-
-#: ../midori/midori-websettings.c:450
-msgid "The last saved panel position"
-msgstr "كۆزنەكنىڭ ئەڭ ئاخىرقى ئورنى"
-
-#. i18n: The internal index of the last opened panel
-#: ../midori/midori-websettings.c:459
-msgid "Last panel page"
-msgstr "كۆزنەكتىكى ئەڭ ئاخىرقى بەت"
-
-#: ../midori/midori-websettings.c:460
-msgid "The last saved panel page"
-msgstr "ئەڭ ئاخىرى ساقلانغان كۆزنەك بېتى"
-
-#: ../midori/midori-websettings.c:468
-msgid "Last Web search"
-msgstr "ئەڭ ئاخىرقى ئىزدەلگەنلىرى"
-
-#: ../midori/midori-websettings.c:469
-msgid "The last saved Web search"
-msgstr "ساقلانغان ئەڭ ئاخىرقى ئىزدەلگەن"
-
-#: ../midori/midori-websettings.c:493
-msgid "Show Menubar"
-msgstr "تىزىملىك بالدىقىنى كۆرسەت"
-
-#: ../midori/midori-websettings.c:494
-msgid "Whether to show the menubar"
-msgstr "تىزىملىك بالدىقىنى كۆرسىتىدۇ"
-
-#: ../midori/midori-websettings.c:502
-msgid "Show Navigationbar"
-msgstr "يولچى بالدىقىنى كۆرسەت"
-
-#: ../midori/midori-websettings.c:503
-msgid "Whether to show the navigationbar"
-msgstr "يولچى بالدىقىنى كۆرسىتىدۇ"
-
-#: ../midori/midori-websettings.c:511
-msgid "Show Bookmarkbar"
-msgstr "خەتكۈش بالدىقىنى كۆرسەت"
-
-#: ../midori/midori-websettings.c:512
-msgid "Whether to show the bookmarkbar"
-msgstr "خەتكۈش بالدىقىنى كۆرسىتىدۇ"
-
-#: ../midori/midori-websettings.c:520
-msgid "Show Panel"
-msgstr "كۆزنەكنى كۆرسەت"
-
-#: ../midori/midori-websettings.c:521
-msgid "Whether to show the panel"
-msgstr "كۆزنەكنى كۆرسىتىدۇ"
-
-#: ../midori/midori-websettings.c:529
-msgid "Show Statusbar"
-msgstr "ھالەت بالدىقىنى كۆرسەت"
-
-#: ../midori/midori-websettings.c:530
-msgid "Whether to show the statusbar"
-msgstr "ھالەت بالدىقىنى كۆرسىتىدۇ"
-
-#: ../midori/midori-websettings.c:539
+#: ../midori/midori-websettings.c:278
 msgid "Toolbar Style:"
 msgstr "قورال بالدىقىنىڭ ئۇسلۇبى:"
 
-#: ../midori/midori-websettings.c:540
+#: ../midori/midori-websettings.c:279
 msgid "The style of the toolbar"
 msgstr "قورال بالدىقىنىڭ ئۇسلۇبىنى بەلگىلەيدۇ"
 
-#: ../midori/midori-websettings.c:549
-msgid "Toolbar Items"
-msgstr "قورال بالدىقىدىكى تۈرلەر"
-
-#: ../midori/midori-websettings.c:550
-msgid "The items to show on the toolbar"
-msgstr "قورال بالدىقىدا كۆرسىتىلىدىغان تۈرلەرنى بەلگىلەيدۇ"
-
-#: ../midori/midori-websettings.c:558
-msgid "Compact Sidepanel"
-msgstr "يان كۆزنەكنى ئىخچام كۆرسەت"
-
-#: ../midori/midori-websettings.c:559
-msgid "Whether to make the sidepanel compact"
-msgstr "يان كۆزنەكنى ئىخچام كۆرسىتىدۇ"
-
-#: ../midori/midori-websettings.c:574
-msgid "Align sidepanel on the right"
-msgstr "يان كۆزنەكنى ئوڭ تەرەپكە ئورۇنلاشتۇر"
-
-#: ../midori/midori-websettings.c:575
-msgid "Whether to align the sidepanel on the right"
-msgstr "يان كۆزنەكنى ئوڭ تەرەپكە ئورۇنلاشتۇرىدۇ"
-
-#: ../midori/midori-websettings.c:590
-msgid "Open panels in separate windows"
-msgstr "كۆزنەكنى ئايرىم كۆزنەكتە ئاچ"
-
-#: ../midori/midori-websettings.c:591
-msgid "Whether to always open panels in separate windows"
-msgstr "كۆزنەكنى ئايرىم كۆزنەكتە ئاچىدىغان قىلىدۇ"
-
-#: ../midori/midori-websettings.c:600
+#: ../midori/midori-websettings.c:288
 msgid "When Midori starts:"
 msgstr "مىدورى(Midori) قوزغالغاندا:"
 
-#: ../midori/midori-websettings.c:601
-msgid "What to do when Midori starts"
-msgstr "مىدورى(Midori)  قوزغالغاندا نېمە قىلىش كېرەك"
-
-#: ../midori/midori-websettings.c:610
-msgid "Homepage:"
-msgstr "ماكان بەت:"
-
-#: ../midori/midori-websettings.c:611
-msgid "The homepage"
-msgstr "ماكان بەتنى ئاچىدۇ"
-
-#: ../midori/midori-websettings.c:626
-msgid "Show crash dialog"
-msgstr "غۇلاش كۆزنىكىنى كۆرسەت"
-
-#: ../midori/midori-websettings.c:627
-msgid "Show a dialog after Midori crashed"
-msgstr "مىدورى(Midori)  غۇلاپ كېتىپ، قايتا قوزغالغاندا كۆزنەك كۆرسىتىدۇ"
-
-#: ../midori/midori-websettings.c:635
-msgid "Save downloaded files to:"
-msgstr "چۈشۈرگەن ھۆججەتنى ساقلايدىغان ئورۇن:"
-
-#: ../midori/midori-websettings.c:636
-msgid "The folder downloaded files are saved to"
-msgstr "چۈشۈرگەن ھۆججەتنى ساقلايدىغان ئورۇننى بەلگىلەيدۇ"
-
-#: ../midori/midori-websettings.c:644
-msgid "Text Editor"
-msgstr "تېكىست تەھرىرلىگۈ"
-
-#: ../midori/midori-websettings.c:645
-msgid "An external text editor"
-msgstr "سىرتقى تېكىست تەھرىرلىگۈنى بېكىتىدۇ"
-
-#: ../midori/midori-websettings.c:660
-msgid "News Aggregator"
-msgstr "خەۋەر يىغقۇچ"
-
-#: ../midori/midori-websettings.c:661
-msgid "An external news aggregator"
-msgstr "سىرتتىكى خەۋەر يىغقۇچ"
-
-#: ../midori/midori-websettings.c:669
-msgid "Location entry Search"
-msgstr "كىرگۈزگەن ئورۇندىن ئىزدە"
-
-#: ../midori/midori-websettings.c:670
-msgid "The search to perform inside the location entry"
-msgstr "ئىزدەش پەقەت كىرگۈزگەن ئورۇندىلا ئېلىپ بېرىلىدۇ"
-
-#: ../midori/midori-websettings.c:678
-msgid "Preferred Encoding"
-msgstr "ئامراق كودلاش"
-
-#: ../midori/midori-websettings.c:679
-msgid "The preferred character encoding"
-msgstr "ھەرپلەرنىڭ ئامراق كودلاش شەكلى"
-
-#: ../midori/midori-websettings.c:689
-msgid "Always Show Tabbar"
-msgstr "بەتكۈچ بالدىقىنى كۆرسەت"
-
-#: ../midori/midori-websettings.c:690
-msgid "Always show the tabbar"
-msgstr "بەتكۈچ بالدىقىنى كۆرسىتىپلا تۇرىدۇ"
-
-#: ../midori/midori-websettings.c:703
-msgid "Close Buttons on Tabs"
-msgstr "بەتكۈچتە تاقاش توپچىسىنى كۆرسەت"
-
-#: ../midori/midori-websettings.c:704
-msgid "Whether tabs have close buttons"
-msgstr "بەتكۈچتە تاقاش توپچىسىنى كۆرسىتىدۇ"
-
-#: ../midori/midori-websettings.c:729
+#: ../midori/midori-websettings.c:325
 msgid "Open new pages in:"
 msgstr "يېڭى بەت ئاچقاندا:"
 
-#: ../midori/midori-websettings.c:730
-msgid "Where to open new pages"
-msgstr "يېڭى بەتنى قەيەردە ئاچىدىغانلىقىنى بەلگىلەيدۇ"
+#. i18n: This refers to an application, not the 'user agent' string
+#: ../midori/midori-websettings.c:388
+msgid "Identify as"
+msgstr "تونۇتۇلىدۇ"
 
-#: ../midori/midori-websettings.c:739
+#: ../midori/midori-websettings.c:389
+msgid "What to identify as to web pages"
+msgstr "قانداقلىرىنى تور بېتى دەپ تونۇتىدىغانلىقىنى بېكىتىدۇ"
+
+#: ../midori/midori-websettings.c:472
+msgid "Always use my font choices"
+msgstr "ھەمىشە مەن تاللىغان خەت نۇسخىسىنى ئىشلەت"
+
+#: ../midori/midori-websettings.c:473
+msgid "Override fonts picked by websites with user preferences"
+msgstr ""
+"تور بەتلىرىدىكى خەت نۇسخىلىرىدىنمۇ بەكرەك ئىشلەتكۈچى تەڭشىكى ئابرۇيلۇق بولسۇن"
+
+#: ../midori/midori-view.c:1012 ../midori/midori-view.c:1154
+msgid "Trust this website"
+msgstr "بۇ تورتۇراغا ئىشەن"
+
+#: ../midori/midori-view.c:1152
+msgid "Security unknown"
+msgstr "بىخەتەرلىكى نامەلۇم"
+
+#: ../midori/midori-view.c:1450
+#, c-format
+msgid "%s wants to save an HTML5 database."
+msgstr "%s نىڭ بىر HTML ساندىنىغا ساقلىغۇسى بار ئىكەن."
+
+#: ../midori/midori-view.c:1454 ../midori/midori-view.c:1488
+msgid "_Deny"
+msgstr "رەت قىل(_D)"
+
+#: ../midori/midori-view.c:1454 ../midori/midori-view.c:1488
+msgid "_Allow"
+msgstr "ئىجازەت(_A)"
+
+#: ../midori/midori-view.c:1483
+#, c-format
+msgid "%s wants to know your location."
+msgstr "%s نىڭ ئورنىڭىزنى بىلگۈسى بار ئىكەن."
+
+#: ../midori/midori-view.c:1579
+#, c-format
+msgid "Error - %s"
+msgstr "خاتالىق - %s"
+
+#: ../midori/midori-view.c:1580
+#, c-format
+msgid "The page '%s' couldn't be loaded."
+msgstr "بەت ‹%s› نى ئوقۇغىلى بولمىدى."
+
+#: ../midori/midori-view.c:1582
+msgid "Try again"
+msgstr "قايتا سىناپ كۆر"
+
+#: ../midori/midori-view.c:1778 ../midori/midori-view.c:2842
+#, c-format
+msgid "Send a message to %s"
+msgstr "%s غا ئۇچۇر ئەۋەتىدۇ"
+
+#: ../midori/midori-view.c:2625
+msgid "Add _search engine..."
+msgstr "ئىزدەش ماتورى قوش(_S)…"
+
+#: ../midori/midori-view.c:2669 ../midori/midori-view.c:2998
+msgid "Inspect _Element"
+msgstr "ئېلېمېنتلارنى تەكشۈر(_E)"
+
+#: ../midori/midori-view.c:2721
+msgid "Open Link in New _Tab"
+msgstr "ئۇلانمىنى يېڭى بەتكۈچتە ئاچ(_T)"
+
+#: ../midori/midori-view.c:2725
+msgid "Open Link in _Foreground Tab"
+msgstr "ئۇلانمىنى ئەڭ ئالدىدىكى بەتكۈچتە ئاچ(_T)"
+
+#: ../midori/midori-view.c:2726
+msgid "Open Link in _Background Tab"
+msgstr "ئۇلانمىنى ئەڭ ئاخىرقى بەتكۈچتە ئاچ(_T)"
+
+#: ../midori/midori-view.c:2729
+msgid "Open Link in New _Window"
+msgstr "ئۇلانمىنى يېڭى كۆزنەكتە ئاچ(_W)"
+
+#: ../midori/midori-view.c:2732
+msgid "Open Link as Web A_pplication"
+msgstr "ئۇلانمىنى تور پروگراممىسى دەپ قاراپ ئاچ(_P)"
+
+#: ../midori/midori-view.c:2737
+msgid "Copy Link de_stination"
+msgstr "ئۇلانما نىشانىنى كۆچۈر(_S)"
+
+#: ../midori/midori-view.c:2753
+msgid "Open _Image in New Tab"
+msgstr "سۈرەتنى يېڭى بەتكۈچتە ئاچ(_I)"
+
+#: ../midori/midori-view.c:2756
+msgid "Copy Im_age"
+msgstr "سۈرەتنى كۆچۈر(_I)"
+
+#: ../midori/midori-view.c:2759
+msgid "Save I_mage"
+msgstr "سۈرەتنى ساقلا(_M)"
+
+#: ../midori/midori-view.c:2762
+msgid "Open in Image _Viewer"
+msgstr "سۈرەت كۆرگۈدە ئاچ(_V)"
+
+#: ../midori/midori-view.c:2769
+msgid "Copy Video _Address"
+msgstr "سىن ئادرېسىنى كۆچۈر(_A)"
+
+#: ../midori/midori-view.c:2772
+msgid "Save _Video"
+msgstr "سىننى ساقلا(_V)"
+
+#: ../midori/midori-view.c:2772
+msgid "Download _Video"
+msgstr "سىننى چۈشۈر(_V)"
+
+#: ../midori/midori-view.c:2798
+msgid "Search _with"
+msgstr "ئىزدە(_W)"
+
+#: ../midori/midori-view.c:2830
+msgid "_Search the Web"
+msgstr "توردا ئىزدە(_S)"
+
+#: ../midori/midori-view.c:2850
+msgid "Open Address in New _Tab"
+msgstr "ئادرېسنى يېڭى بەتكۈچتە ئاچ(_T)"
+
+#: ../midori/midori-view.c:2903
+msgid "Open _Frame in New Tab"
+msgstr "كاندۇكنى يېڭى بەتكۈچتە ئاچ(_F)"
+
+#: ../midori/midori-view.c:3158
+#, c-format
+msgid "Open or download file from %s"
+msgstr "ھۆججەتنى %s دىن ئېچىش ياكى چۈشۈرۈش"
+
+#: ../midori/midori-view.c:3171
+#, c-format
+msgid "File Name: %s"
+msgstr "ھۆججەت ئاتى: ‹%s›"
+
+#: ../midori/midori-view.c:3176
+#, c-format
+msgid "File Type: '%s'"
+msgstr "ھۆججەت تىپى: ‹%s›"
+
+#: ../midori/midori-view.c:3178
+#, c-format
+msgid "File Type: %s ('%s')"
+msgstr "ھۆججەت تىپى: %s (‹%s›)"
+
+#: ../midori/midori-view.c:3215
+#, c-format
+msgid "Size: %s"
+msgstr "چوڭلۇقى: %s"
+
+#. i18n: A file open dialog title, ie. "Open http://fila.com/manual.tgz"
+#: ../midori/midori-view.c:3226
+#, c-format
+msgid "Open %s"
+msgstr "%s نى ئاچ"
+
+#: ../midori/midori-view.c:3837
+#, c-format
+msgid "Inspect page - %s"
+msgstr "بەتنى تەكشۈر - %s"
+
+#: ../midori/midori-view.c:4234
+#, c-format
+msgid "No documentation installed"
+msgstr "پۈتۈك ئورنىتىلمىغان"
+
+#: ../midori/midori-view.c:4311
+msgid "Midori doesn't store any personal data:"
+msgstr "مىدورى(Midori) ھېچقانداق شەخسىي ئۇچۇرلارنى ساقلىمايدۇ:"
+
+#: ../midori/midori-view.c:4312
+msgid "No history or web cookies are being saved."
+msgstr "ھېچقانداق ئىز ۋە cookies لار ساقلانمىغان."
+
+#: ../midori/midori-view.c:4313
+msgid "Extensions are disabled."
+msgstr "كېڭەيتىلمىلەر چەكلەنگەن."
+
+#: ../midori/midori-view.c:4314
+msgid "HTML5 storage, local database and application caches are disabled."
+msgstr "يەرلىك ساندان، HTML5 ساقلىغۇچى ۋە پروگرامما غەملىكى چەكلەنگەن."
+
+#: ../midori/midori-view.c:4315
+msgid "Midori prevents websites from tracking the user:"
+msgstr "مىدورى(Midori) تورتۇرالارنىڭ ئىشلەتكۈچىنى ئىزلىشىنى توسىدۇ:"
+
+#: ../midori/midori-view.c:4316
+msgid "Referrer URLs are stripped down to the hostname."
+msgstr ""
+
+#: ../midori/midori-view.c:4317
+msgid "DNS prefetching is disabled."
+msgstr ""
+
+#: ../midori/midori-view.c:4318
+msgid "The language and timezone are not revealed to websites."
+msgstr "تىل ۋە ۋاقىت رايونى تورتۇراغا ئاشكارىلانمايدۇ."
+
+#: ../midori/midori-view.c:4319
+msgid "Flash and other Netscape plugins cannot be listed by websites."
+msgstr "بۇنىڭدا Flash ياكى Netscape قىستۇرمىلىرى تورتۇراغا خاتىرىلەنمەيدۇ."
+
+#: ../midori/midori-view.c:4405
+msgid "Version numbers in brackets show the version used at runtime."
+msgstr ""
+
+#: ../midori/midori-view.c:4454
+msgid "Page loading delayed"
+msgstr "بەتنى ئوقۇش كېچىكتۈرۈلدى"
+
+#: ../midori/midori-view.c:4455
+msgid "Loading delayed either due to a recent crash or startup preferences."
+msgstr "غۇلاش ياكى قوزغىلىش مايىللىقى سەۋەبىدىن ئوقۇش كېچىكتۈرۈلدى."
+
+#: ../midori/midori-view.c:4456
+msgid "Load Page"
+msgstr "بەتنى ئوقۇش"
+
+#: ../midori/midori-view.c:4623
+msgid "Blank page"
+msgstr "بوش بەت"
+
+#: ../midori/midori-view.c:4887
+msgid "_Duplicate Tab"
+msgstr "بەتكۈچنى تۇغدۇر(_D)"
+
+#: ../midori/midori-view.c:4892
+msgid "Show Tab _Label"
+msgstr "بەتكۈچ ئەنىنى كۆرسەت(_L)"
+
+#: ../midori/midori-view.c:4892
+msgid "Show Tab _Icon Only"
+msgstr "پەقەت بەتكۈچ سىنبەلگىسىنىلا كۆرسەت(_I)"
+
+#: ../midori/midori-view.c:4899
+msgid "Close Ot_her Tab"
+msgid_plural "Close Ot_her Tabs"
+msgstr[0] "باشقا بەتكۈچلەرنى تاقا(_H)"
+
+#. i18n: word stem of "previous page" type links, case is not important
+#: ../midori/midori-view.c:5655
+msgid "previous"
+msgstr "ئالدىنقى"
+
+#. i18n: word stem of "next page" type links, case is not important
+#: ../midori/midori-view.c:5674
+msgid "next"
+msgstr "كېيىنكى"
+
+#: ../midori/midori-view.c:5687
+msgid "Print background images"
+msgstr "تەگ سۈرىتىنى بېسىپ چىقار"
+
+#: ../midori/midori-view.c:5688
+msgid "Whether background images should be printed"
+msgstr "تەگ سۈرىتىنى بېسىپ چىقىرىدۇ"
+
+#: ../midori/midori-view.c:5720
+msgid "Features"
+msgstr "ئىقتىدار"
+
+#. i18n: Download tooltip (size): 4KB of 43MB
+#: ../midori/midori-download.vala:48
+#, c-format
+msgid "%s of %s"
+msgstr "%s / %s"
+
+#: ../midori/midori-download.vala:64
+#, c-format
+msgid "%d hour"
+msgid_plural "%d hours"
+msgstr[0] "%d سائەت"
+
+#: ../midori/midori-download.vala:65
+#, c-format
+msgid "%d minute"
+msgid_plural "%d minutes"
+msgstr[0] "%d مىنۇت"
+
+#: ../midori/midori-download.vala:66
+#, c-format
+msgid "%d second"
+msgid_plural "%d seconds"
+msgstr[0] "%d سېكۇنت"
+
+#. i18n: Download tooltip (estimated time) : - 1 hour, 5 minutes remaning
+#: ../midori/midori-download.vala:82
+#, c-format
+msgid " - %s remaining"
+msgstr " - %s قالدى"
+
+#. i18n: Unknown number of bytes, used for transfer rate like ?B/s
+#: ../midori/midori-download.vala:92
+msgid "?B"
+msgstr "؟ب"
+
+#. i18n: Download tooltip (transfer rate): (130KB/s)
+#: ../midori/midori-download.vala:94
+#, c-format
+msgid " (%s/s)"
+msgstr " (%s/s)"
+
+#: ../midori/midori-download.vala:190
+msgid "The downloaded file is erroneous."
+msgstr "چۈشۈرگەن ھۆججەتتە خاتالىقلار بار."
+
+#: ../midori/midori-download.vala:191
+msgid ""
+"The checksum provided with the link did not match. This means the file is "
+"probably incomplete or was modified afterwards."
+msgstr ""
+
+#: ../midori/midori-download.vala:304
+#, c-format
+msgid "The file \"%s\" can't be saved in this folder."
+msgstr "ھۆججەت «%s» نى بۇ مۇندەرىجىگە ساقلىغىلى بولمىدى."
+
+#: ../midori/midori-download.vala:306
+msgid "You don't have permission to write in this location."
+msgstr "بۇ ئورۇنغا يېزىش ئىمتىيازىڭىز يوق."
+
+#: ../midori/midori-download.vala:309
+#, c-format
+msgid "There is not enough free space to download \"%s\"."
+msgstr "«%s» نى چۈشۈرۈشكە يېتەرلىك بوشلۇق يوق."
+
+#: ../midori/midori-download.vala:311
+#, c-format
+msgid "The file needs %s but only %s are left."
+msgstr "ھۆججەتكە %s كېرەك ئىدى، بىراق %s  لا بار ئىكەن."
+
+#: ../midori/midori-speeddial.vala:180
+msgid "Speed Dial"
+msgstr "تېز تېلېفون قىلىش"
+
+#: ../midori/midori-speeddial.vala:181 ../midori/midori-speeddial.vala:261
+msgid "Click to add a shortcut"
+msgstr "چەكسە تېزلەتمىگە قوشۇلىدۇ"
+
+#: ../midori/midori-speeddial.vala:182
+msgid "Enter shortcut address"
+msgstr "تېزلەتمە ئادرېسىنى كىرگۈز"
+
+#: ../midori/midori-speeddial.vala:183
+msgid "Enter shortcut title"
+msgstr "تېزلەتمە ماۋزۇسىنى كىرگۈز"
+
+#: ../midori/midori-speeddial.vala:184
+msgid "Are you sure you want to delete this shortcut?"
+msgstr "بۇ تېزلەتمىنى راستلا ئۆچۈرەمسىز؟"
+
+#: ../midori/midori-preferences.c:299
+msgid "Startup"
+msgstr "قوزغات"
+
+#: ../midori/midori-preferences.c:305
+msgid "Homepage:"
+msgstr "ماكان بەت:"
+
+#: ../midori/midori-preferences.c:313
+msgid "Use _current page"
+msgstr "ھازىرقى بەتنى ئىشلىتىدۇ(_C)"
+
+#: ../midori/midori-preferences.c:317
+msgid "Use current page as homepage"
+msgstr "ھازىرقى بەتنى ماكان بەت قىلىدۇ"
+
+#. Page "Appearance"
+#: ../midori/midori-preferences.c:326
+msgid "Fonts"
+msgstr "خەت نۇسخىسى"
+
+#: ../midori/midori-preferences.c:329
+msgid "Proportional Font Family"
+msgstr "كەڭلىكى تەڭ بولمىغان خەت نۇسخىلىرى"
+
+#: ../midori/midori-preferences.c:333
+msgid "The default font family used to display text"
+msgstr "تېكىستلەرنى كۆرسىتىدىغان كۆڭۈلدىكى فونت"
+
+#: ../midori/midori-preferences.c:336
+msgid "The default font size used to display text"
+msgstr "تېكىستلەرنى كۆرسىتىدىغان كۆڭۈلدىكى فونتنىڭ چوڭلۇقى"
+
+#: ../midori/midori-preferences.c:338
+msgid "Fixed-width Font Family"
+msgstr "تەڭ كەڭلىكتىكى فونت"
+
+#: ../midori/midori-preferences.c:342
+msgid "The font family used to display fixed-width text"
+msgstr "تېكىستلەرنى تەڭ كەڭلىكتە كۆرسىتىدىغان فونت"
+
+#: ../midori/midori-preferences.c:345
+msgid "The font size used to display fixed-width text"
+msgstr "تېكىستلەرنى تەڭ كەڭلىكتە كۆرسىتىدىغان فونتنىڭ چوڭلۇقى"
+
+#: ../midori/midori-preferences.c:347
+msgid "Minimum Font Size"
+msgstr "فونتنىڭ ئەڭ كىچىك چوڭلۇقى"
+
+#: ../midori/midori-preferences.c:351
+msgid "The minimum font size used to display text"
+msgstr "تېكىستلەرنى كۆرسىتىدىغان فونتنىڭ ئەڭ كىچىك چوڭلۇقى"
+
+#: ../midori/midori-preferences.c:356
+msgid "Preferred Encoding"
+msgstr "ئامراق كودلاش"
+
+#. Page "Behavior"
+#: ../midori/midori-preferences.c:363
+msgid "Behavior"
+msgstr "ھەرىكىتى"
+
+#: ../midori/midori-preferences.c:367 ../extensions/statusbar-features.c:155
+msgid "Load images automatically"
+msgstr "سۈرەتنى ئۆزلۈكىدىن يۈكلە"
+
+#: ../midori/midori-preferences.c:370
+msgid "Enable Spell Checking"
+msgstr "ئىملا تەكشۈرۈش ئىناۋەتلىك"
+
+#: ../midori/midori-preferences.c:384 ../extensions/statusbar-features.c:165
+msgid "Enable scripts"
+msgstr "قوليازما(script) ئىناۋەتلىك"
+
+#: ../midori/midori-preferences.c:387 ../extensions/statusbar-features.c:177
+msgid "Enable Netscape plugins"
+msgstr "Netscape قىستۇرمىلىرى ئېچىۋەت"
+
+#: ../midori/midori-preferences.c:392
+msgid "Zoom Text and Images"
+msgstr "تېكىست ۋە سۈرەتلەرنى چوڭايت تارايت"
+
+#: ../midori/midori-preferences.c:395
+msgid "Allow scripts to open popups"
+msgstr "قوليازما ئىشلىتىپ سەكرىمىلەرنى چىقىرىشقا رۇخسەت قىل"
+
+#: ../midori/midori-preferences.c:396
+msgid "Whether scripts are allowed to open popup windows automatically"
+msgstr "قوليازما ئىشلىتىپ سەكرىمىلەرنى چىقىرىشقا رۇخسەت قىلىدۇ"
+
+#: ../midori/midori-preferences.c:402
+msgid "Kinetic scrolling"
+msgstr "Kinetic سىيرىلىش"
+
+#: ../midori/midori-preferences.c:403
+msgid "Whether scrolling should kinetically move according to speed"
+msgstr "تېزلىكىگە ئاساسەن Kinetic سىيرىلىپ يۆتكىلىدۇ"
+
+#: ../midori/midori-preferences.c:408
 msgid "Middle click opens Selection"
 msgstr "چاشقىنەكنىڭ ئوتتۇرىسىنى چېكىپ تاللىغاننى ئاچ"
 
-#: ../midori/midori-websettings.c:740
+#: ../midori/midori-preferences.c:409
 msgid "Load an address from the selection via middle click"
 msgstr ""
 "ئادرېسنى تاللاپ بولۇپ، چاشقىنەكنىڭ ئوتتۇرىسىنى چەكسە شۇ ئادرېس ئېچىلىدۇ"
 
-#: ../midori/midori-websettings.c:748
-msgid "Open tabs in the background"
-msgstr "بەتكۈچنى ئارقىدا تۇرۇپ ئاچ"
-
-#: ../midori/midori-websettings.c:749
-msgid "Whether to open new tabs in the background"
-msgstr "يېڭى بەتكۈچنى ئارقىدا تۇرۇپ ئاچىدۇ"
-
-#: ../midori/midori-websettings.c:757
-msgid "Open Tabs next to Current"
-msgstr "يېڭى بەتكۈچنى ھازىرقى بەتكۈچنىڭ يېنىدا ئاچ"
-
-#: ../midori/midori-websettings.c:758
-msgid "Whether to open new tabs next to the current tab or after the last one"
-msgstr "يېڭى بەتكۈچنى ھازىرقىنىڭ يېنىدا ياكى ئەڭ ئاخىرقىنىڭ يېنىدا ئاچىدۇ"
-
-#: ../midori/midori-websettings.c:766
-msgid "Open popups in tabs"
-msgstr "بەتكۈچتە قاڭقىشى ئاچ"
-
-#: ../midori/midori-websettings.c:767
-msgid "Whether to open popup windows in tabs"
-msgstr "بەتكۈچتە قاڭقىش تىزىملىكى ئاچىدىغان ئاچمايدىغانلىقنى بەلگىلەيدۇ"
-
-#: ../midori/midori-websettings.c:777 ../extensions/statusbar-features.c:155
-msgid "Load images automatically"
-msgstr "سۈرەتنى ئۆزلۈكىدىن يۈكلە"
-
-#: ../midori/midori-websettings.c:778
-msgid "Load and display images automatically"
-msgstr "سۈرەتنى ئۆزلۈكىدىن ئوقۇپ كۆرسىتىدۇ"
-
-#: ../midori/midori-websettings.c:785 ../extensions/statusbar-features.c:165
-msgid "Enable scripts"
-msgstr "قوليازما(script) ئىناۋەتلىك"
-
-#: ../midori/midori-websettings.c:786
-msgid "Enable embedded scripting languages"
-msgstr "سىڭدۈرمە قوليازما(script) تىلىنى ئىشلەتكىلى بولىدىغان قىلىدۇ"
-
-#: ../midori/midori-websettings.c:793 ../extensions/statusbar-features.c:177
-msgid "Enable Netscape plugins"
-msgstr "Netscape قىستۇرمىلىرى ئېچىۋەت"
-
-#: ../midori/midori-websettings.c:794
-msgid "Enable embedded Netscape plugin objects"
-msgstr "سىڭدۈرمە Netscape قىستۇرمىلىرىنى ئىشلەتكىلى بولىدىغان قىلىدۇ"
-
-#: ../midori/midori-websettings.c:809
-msgid "Enable Spell Checking"
-msgstr "ئىملا تەكشۈرۈش ئىناۋەتلىك"
-
-#: ../midori/midori-websettings.c:810
-msgid "Enable spell checking while typing"
-msgstr "كىرگۈزۈۋاتقاندا ئىملا تەكشۈرىدۇ"
-
-#: ../midori/midori-websettings.c:816
-msgid "Enable HTML5 database support"
-msgstr "HTML5 ساندانىنى قوللا"
-
-#: ../midori/midori-websettings.c:817
-msgid "Whether to enable HTML5 database support"
-msgstr "HTML5 ساندانىنى ئىشلەتكىلى بولىدىغان قىلىدۇ"
-
-#: ../midori/midori-websettings.c:823
-msgid "Enable HTML5 local storage support"
-msgstr "HTML5 يەرلىك ساقلىغۇچنى قوللا"
-
-#: ../midori/midori-websettings.c:824
-msgid "Whether to enable HTML5 local storage support"
-msgstr "HTML5 يەرلىك ساقلىغۇچنى ئىشلەتكىلى بولىدىغان قىلىدۇ"
-
-#: ../midori/midori-websettings.c:830
-msgid "Enable offline web application cache"
-msgstr "تورسىز ھالەتتە تور پروگراممىلىرىنىڭ غەملىكىنى ئېچىۋەت"
-
-#: ../midori/midori-websettings.c:831
-msgid "Whether to enable offline web application cache"
-msgstr "تورسىز ھالەتتە تور پروگراممىلىرىنىڭ غەملىكىنى ئېچىۋېتىدۇ"
-
-#: ../midori/midori-websettings.c:852
-msgid "Flash window on background tabs"
-msgstr "ئارقا تەرەپتە بەتكۈچلەر ئېچىلسا كۆزنەك چاقنىسۇن"
-
-#: ../midori/midori-websettings.c:853
-msgid "Flash the browser window if a new tab was opened in the background"
-msgstr "ئارقا تەرەپتە يېڭى بەتكۈچ ئېچىلسا توركۆرگۈ كۆزنىكى چاقنايدۇ"
-
-#: ../midori/midori-websettings.c:861
+#: ../midori/midori-preferences.c:415
 msgid "Enable WebGL support"
 msgstr "WebGL نى ئىناۋەتلىك قىل"
 
-#: ../midori/midori-websettings.c:862
-msgid "Allow websites to use OpenGL rendering"
-msgstr "تورتۇرالارنى OpenGL ئارقىلىق سىزىشقا ئىجازەت"
+#: ../midori/midori-preferences.c:420
+msgid "Flash window on background tabs"
+msgstr "ئارقا تەرەپتە بەتكۈچلەر ئېچىلسا كۆزنەك چاقنىسۇن"
 
-#: ../midori/midori-websettings.c:888
-msgid "Zoom Text and Images"
-msgstr "تېكىست ۋە سۈرەتلەرنى چوڭايت تارايت"
-
-#: ../midori/midori-websettings.c:889
-msgid "Whether to zoom text and images"
-msgstr "تېكىست ۋە سۈرەتلەرنى چوڭايتىدۇ ياكى تارايتىدۇ"
-
-#: ../midori/midori-websettings.c:904
-msgid "Find inline while typing"
-msgstr "كىرگۈزگەن ھامان ئىزدە"
-
-#: ../midori/midori-websettings.c:905
-msgid "Whether to automatically find inline while typing"
-msgstr "كۇنۇپكا بېسىلغان ھامان ئىزدەش ئېلىپ بارىدۇ"
-
-#: ../midori/midori-websettings.c:920
-msgid "Kinetic scrolling"
-msgstr "Kinetic سىيرىلىش"
-
-#: ../midori/midori-websettings.c:921
-msgid "Whether scrolling should kinetically move according to speed"
-msgstr "تېزلىكىگە ئاساسەن Kinetic سىيرىلىپ يۆتكىلىدۇ"
-
-#: ../midori/midori-websettings.c:929
-msgid "Delete old Cookies after:"
-msgstr "بۇ ۋاقىتتىن كېيىن كونا Cookies ئۆچۈرسۇن:"
-
-#: ../midori/midori-websettings.c:930
-msgid "The maximum number of days to save cookies for"
-msgstr "Cookie نىڭ ئەڭ ئۇزۇن ساقلىنىش ۋاقتى"
-
-#: ../midori/midori-websettings.c:946
-msgid "Only accept Cookies from sites you visit"
-msgstr "سىز زىيارەت قىلغان تورتۇرادىن كەلگەن cookie لارنىلا قوبۇل قىلىدۇ"
-
-#: ../midori/midori-websettings.c:947
-msgid "Block cookies sent by third-party websites"
-msgstr "ئۈچىنچى تەرەپ تورتۇراسىغا Cookies لارنى ئەۋەتىشنى توسۇن"
-
-#: ../midori/midori-websettings.c:961
-msgid "Delete pages from history after:"
-msgstr "ئىزدىن بەتلەرنى بۇ ۋاقىتتىن كېيىن ئۆچۈرسۇن:"
-
-#: ../midori/midori-websettings.c:962
-msgid "The maximum number of days to save the history for"
-msgstr "ئىزنىڭ ئەڭ ئۇزۇن ساقلىنىش ۋاقتى"
-
-#: ../midori/midori-websettings.c:977
-msgid "Proxy server"
-msgstr "ۋاكالەتچى مۇلازىمېتىر"
-
-#: ../midori/midori-websettings.c:978
-msgid "The type of proxy server to use"
-msgstr "ئىشلىتىدىغان ۋاكالەتچى مۇلازىمېتىرنىڭ تىپى"
-
-#: ../midori/midori-websettings.c:987
-msgid "HTTP Proxy Server"
-msgstr "HTTP ۋاكالەتچى مۇلازىمېتىر"
-
-#: ../midori/midori-websettings.c:988
-msgid "The proxy server used for HTTP connections"
-msgstr "HTTP باغلىنىشىدا ئىشلىتىدىغان ۋاكالەتچى مۇلازىمېتىرنى كۆرسىتىدۇ"
-
-#: ../midori/midori-websettings.c:1003
-msgid "Port"
-msgstr "ئېغىز"
-
-#: ../midori/midori-websettings.c:1004
-msgid "The proxy server port used for HTTP connections"
-msgstr "HTTP باغلىنىشىدا ئىشلىتىدىغان ۋاكالەتچى مۇلازىمېتىرنىڭ ئېغىزى"
-
-#: ../midori/midori-websettings.c:1022
-msgid "The maximum size of cached pages on disk"
-msgstr "دىسكىدىكى غەملەنگەن بەتلەرنىڭ ئەڭ چوڭ چوڭلۇقى"
-
-#. i18n: This refers to an application, not the 'user agent' string
-#: ../midori/midori-websettings.c:1039
-msgid "Identify as"
-msgstr "تونۇتۇلىدۇ"
-
-#: ../midori/midori-websettings.c:1040
-msgid "What to identify as to web pages"
-msgstr "قانداقلىرىنى تور بېتى دەپ تونۇتىدىغانلىقىنى بېكىتىدۇ"
-
-#: ../midori/midori-websettings.c:1056
-msgid "Identification string"
-msgstr "تونۇش ھەرپ تىزمىسى"
-
-#: ../midori/midori-websettings.c:1057
-msgid "The application identification string"
-msgstr "پروگراممىنىڭ كىملىك تېكىستى"
-
-#: ../midori/midori-websettings.c:1073
+#: ../midori/midori-preferences.c:425
 msgid "Preferred languages"
 msgstr "ئامراق تىللار"
 
-#: ../midori/midori-websettings.c:1074
+#: ../midori/midori-preferences.c:429
 msgid ""
 "A comma separated list of languages preferred for rendering multilingual "
 "webpages, for example \"de\", \"ru,nl\" or \"en-us;q=1.0, fr-fr;q=0.667\""
@@ -1676,483 +1791,112 @@ msgstr ""
 "كۆپ تىللىق بەتلەرنى كۆرسەتكەندە ئالدىن ئويلىشىدىغان تىللارنىڭ تىزىملىكى. "
 "مەسىلەن \"de\", \"ru,nl\" or \"en-us;q=1.0, fr-fr;q=0.667\""
 
-#: ../midori/midori-websettings.c:1089
-msgid "Clear private data"
-msgstr "شەخسىي سانلىق-مەلۇماتلارنى تازىلا"
-
-#: ../midori/midori-websettings.c:1090
-msgid "The private data selected for deletion"
-msgstr "تالانغان شەخسىي سانلىق-مەلۇماتلارنى ئۆچۈرىدۇ"
-
-#: ../midori/midori-websettings.c:1105
-msgid "Clear data"
-msgstr "شەخسىي سانلىق-مەلۇماتلارنى تازىلا"
-
-#: ../midori/midori-websettings.c:1106
-msgid "The data selected for deletion"
-msgstr "ئۆچۈرۈش ئۈچۈن تاللانغان سانلىق-مەلۇماتلار"
-
-#. i18n: Reworded: Shorten details propagated when going to another page
-#: ../midori/midori-websettings.c:1155
-msgid "Strip referrer details sent to websites"
-msgstr "تورتۇرالارغا ئەۋەتىلىدىغان پايدىلىنىشنىڭ تەپسىلاتلىرى چىقىرىۋېتىلسۇن"
-
-#. i18n: Referer here is not a typo but a technical term
-#: ../midori/midori-websettings.c:1157
-msgid "Whether the \"Referer\" header should be shortened to the hostname"
-msgstr "بۇنىڭدا «Referer» قېشى قىسقارتىلىۋېتىلىدۇ."
-
-#: ../midori/midori-websettings.c:1171
-msgid "Always use my font choices"
-msgstr "ھەمىشە مەن تاللىغان خەت نۇسخىسىنى ئىشلەت"
-
-#: ../midori/midori-websettings.c:1172
-msgid "Override fonts picked by websites with user preferences"
-msgstr ""
-"تور بەتلىرىدىكى خەت نۇسخىلىرىدىنمۇ بەكرەك ئىشلەتكۈچى تەڭشىكى ئابرۇيلۇق بولسۇن"
-
-#: ../midori/midori-view.c:1002 ../midori/midori-view.c:1140
-msgid "Trust this website"
-msgstr "بۇ تورتۇراغا ئىشەن"
-
-#: ../midori/midori-view.c:1138
-msgid "Security unknown"
-msgstr "بىخەتەرلىكى نامەلۇم"
-
-#: ../midori/midori-view.c:1436
-#, c-format
-msgid "%s wants to save an HTML5 database."
-msgstr "%s نىڭ بىر HTML ساندىنىغا ساقلىغۇسى بار ئىكەن."
-
-#: ../midori/midori-view.c:1440 ../midori/midori-view.c:1474
-msgid "_Deny"
-msgstr "رەت قىل(_D)"
-
-#: ../midori/midori-view.c:1440 ../midori/midori-view.c:1474
-msgid "_Allow"
-msgstr "ئىجازەت(_A)"
-
-#: ../midori/midori-view.c:1469
-#, c-format
-msgid "%s wants to know your location."
-msgstr "%s نىڭ ئورنىڭىزنى بىلگۈسى بار ئىكەن."
-
-#: ../midori/midori-view.c:1565
-#, c-format
-msgid "Error - %s"
-msgstr "خاتالىق - %s"
-
-#: ../midori/midori-view.c:1566
-#, c-format
-msgid "The page '%s' couldn't be loaded."
-msgstr "بەت ‹%s› نى ئوقۇغىلى بولمىدى."
-
-#: ../midori/midori-view.c:1568
-msgid "Try again"
-msgstr "قايتا سىناپ كۆر"
-
-#: ../midori/midori-view.c:1766 ../midori/midori-view.c:2879
-#, c-format
-msgid "Send a message to %s"
-msgstr "%s غا ئۇچۇر ئەۋەتىدۇ"
-
-#: ../midori/midori-view.c:2665
-msgid "Add _search engine..."
-msgstr "ئىزدەش ماتورى قوش(_S)…"
-
-#: ../midori/midori-view.c:2709 ../midori/midori-view.c:3035
-msgid "Inspect _Element"
-msgstr "ئېلېمېنتلارنى تەكشۈر(_E)"
-
-#: ../midori/midori-view.c:2761
-msgid "Open Link in New _Tab"
-msgstr "ئۇلانمىنى يېڭى بەتكۈچتە ئاچ(_T)"
-
-#: ../midori/midori-view.c:2765
-msgid "Open Link in _Foreground Tab"
-msgstr "ئۇلانمىنى ئەڭ ئالدىدىكى بەتكۈچتە ئاچ(_T)"
-
-#: ../midori/midori-view.c:2766
-msgid "Open Link in _Background Tab"
-msgstr "ئۇلانمىنى ئەڭ ئاخىرقى بەتكۈچتە ئاچ(_T)"
-
-#: ../midori/midori-view.c:2769
-msgid "Open Link in New _Window"
-msgstr "ئۇلانمىنى يېڭى كۆزنەكتە ئاچ(_W)"
-
-#: ../midori/midori-view.c:2772
-msgid "Open Link as Web A_pplication"
-msgstr "ئۇلانمىنى تور پروگراممىسى دەپ قاراپ ئاچ(_P)"
-
-#: ../midori/midori-view.c:2777
-msgid "Copy Link de_stination"
-msgstr "ئۇلانما نىشانىنى كۆچۈر(_S)"
-
-#: ../midori/midori-view.c:2793
-msgid "Open _Image in New Tab"
-msgstr "سۈرەتنى يېڭى بەتكۈچتە ئاچ(_I)"
-
-#: ../midori/midori-view.c:2796
-msgid "Copy Image _Address"
-msgstr "سۈرەت ئادرېسىنى كۆچۈر(_A)"
-
-#: ../midori/midori-view.c:2799
-msgid "Save I_mage"
-msgstr "سۈرەتنى ساقلا(_M)"
-
-#: ../midori/midori-view.c:2802
-msgid "Open in Image _Viewer"
-msgstr "سۈرەت كۆرگۈدە ئاچ(_V)"
-
-#: ../midori/midori-view.c:2809
-msgid "Copy Video _Address"
-msgstr "سىن ئادرېسىنى كۆچۈر(_A)"
-
-#: ../midori/midori-view.c:2812
-msgid "Save _Video"
-msgstr "سىننى ساقلا(_V)"
-
-#: ../midori/midori-view.c:2812
-msgid "Download _Video"
-msgstr "سىننى چۈشۈر(_V)"
-
-#: ../midori/midori-view.c:2838
-msgid "Search _with"
-msgstr "ئىزدە(_W)"
-
-#: ../midori/midori-view.c:2870
-msgid "_Search the Web"
-msgstr "توردا ئىزدە(_S)"
-
-#: ../midori/midori-view.c:2887
-msgid "Open Address in New _Tab"
-msgstr "ئادرېسنى يېڭى بەتكۈچتە ئاچ(_T)"
-
-#: ../midori/midori-view.c:2940
-msgid "Open _Frame in New Tab"
-msgstr "كاندۇكنى يېڭى بەتكۈچتە ئاچ(_F)"
-
-#: ../midori/midori-view.c:3201
-#, c-format
-msgid "Open or download file from %s"
-msgstr "ھۆججەتنى %s دىن ئېچىش ياكى چۈشۈرۈش"
-
-#: ../midori/midori-view.c:3225
-#, c-format
-msgid "File Name: %s"
-msgstr "ھۆججەت ئاتى: ‹%s›"
-
-#: ../midori/midori-view.c:3230
-#, c-format
-msgid "File Type: '%s'"
-msgstr "ھۆججەت تىپى: ‹%s›"
-
-#: ../midori/midori-view.c:3232
-#, c-format
-msgid "File Type: %s ('%s')"
-msgstr "ھۆججەت تىپى: %s (‹%s›)"
-
-#: ../midori/midori-view.c:3267
-#, c-format
-msgid "Size: %s"
-msgstr "چوڭلۇقى: %s"
-
-#. i18n: A file open dialog title, ie. "Open http://fila.com/manual.tgz"
-#: ../midori/midori-view.c:3278
-#, c-format
-msgid "Open %s"
-msgstr "%s نى ئاچ"
-
-#: ../midori/midori-view.c:3897
-#, c-format
-msgid "Inspect page - %s"
-msgstr "بەتنى تەكشۈر - %s"
-
-#: ../midori/midori-view.c:4252
-msgid "Speed Dial"
-msgstr "تېز تېلېفون قىلىش"
-
-#: ../midori/midori-view.c:4253 ../midori/midori-view.c:4359
-msgid "Click to add a shortcut"
-msgstr "چەكسە تېزلەتمىگە قوشۇلىدۇ"
-
-#: ../midori/midori-view.c:4254
-msgid "Enter shortcut address"
-msgstr "تېزلەتمە ئادرېسىنى كىرگۈز"
-
-#: ../midori/midori-view.c:4255
-msgid "Enter shortcut title"
-msgstr "تېزلەتمە ماۋزۇسىنى كىرگۈز"
-
-#: ../midori/midori-view.c:4256
-msgid "Are you sure you want to delete this shortcut?"
-msgstr "بۇ تېزلەتمىنى راستلا ئۆچۈرەمسىز؟"
-
-#: ../midori/midori-view.c:4429
-#, c-format
-msgid "No documentation installed"
-msgstr "پۈتۈك ئورنىتىلمىغان"
-
-#: ../midori/midori-view.c:4506
-msgid "Midori doesn't store any personal data:"
-msgstr "مىدورى(Midori) ھېچقانداق شەخسىي ئۇچۇرلارنى ساقلىمايدۇ:"
-
-#: ../midori/midori-view.c:4507
-msgid "No history or web cookies are being saved."
-msgstr "ھېچقانداق ئىز ۋە cookies لار ساقلانمىغان."
-
-#: ../midori/midori-view.c:4508
-msgid "Extensions are disabled."
-msgstr "كېڭەيتىلمىلەر چەكلەنگەن."
-
-#: ../midori/midori-view.c:4509
-msgid "HTML5 storage, local database and application caches are disabled."
-msgstr "يەرلىك ساندان، HTML5 ساقلىغۇچى ۋە پروگرامما غەملىكى چەكلەنگەن."
-
-#: ../midori/midori-view.c:4510
-msgid "Midori prevents websites from tracking the user:"
-msgstr "مىدورى(Midori) تورتۇرالارنىڭ ئىشلەتكۈچىنى ئىزلىشىنى توسىدۇ:"
-
-#: ../midori/midori-view.c:4511
-msgid "Referrer URLs are stripped down to the hostname."
-msgstr ""
-
-#: ../midori/midori-view.c:4512
-msgid "DNS prefetching is disabled."
-msgstr ""
-
-#: ../midori/midori-view.c:4513
-msgid "The language and timezone are not revealed to websites."
-msgstr "تىل ۋە ۋاقىت رايونى تورتۇراغا ئاشكارىلانمايدۇ."
-
-#: ../midori/midori-view.c:4514
-msgid "Flash and other Netscape plugins cannot be listed by websites."
-msgstr "بۇنىڭدا Flash ياكى Netscape قىستۇرمىلىرى تورتۇراغا خاتىرىلەنمەيدۇ."
-
-#: ../midori/midori-view.c:4603
-msgid "Version numbers in brackets show the version used at runtime."
-msgstr ""
-
-#: ../midori/midori-view.c:4653
-msgid "Page loading delayed"
-msgstr "بەتنى ئوقۇش كېچىكتۈرۈلدى"
-
-#: ../midori/midori-view.c:4654
-msgid "Loading delayed either due to a recent crash or startup preferences."
-msgstr "غۇلاش ياكى قوزغىلىش مايىللىقى سەۋەبىدىن ئوقۇش كېچىكتۈرۈلدى."
-
-#: ../midori/midori-view.c:4655
-msgid "Load Page"
-msgstr "بەتنى ئوقۇش"
-
-#: ../midori/midori-view.c:4822
-msgid "Blank page"
-msgstr "بوش بەت"
-
-#: ../midori/midori-view.c:5086
-msgid "_Duplicate Tab"
-msgstr "بەتكۈچنى تۇغدۇر(_D)"
-
-#: ../midori/midori-view.c:5091
-msgid "Show Tab _Label"
-msgstr "بەتكۈچ ئەنىنى كۆرسەت(_L)"
-
-#: ../midori/midori-view.c:5091
-msgid "Show Tab _Icon Only"
-msgstr "پەقەت بەتكۈچ سىنبەلگىسىنىلا كۆرسەت(_I)"
-
-#: ../midori/midori-view.c:5098
-msgid "Close Ot_her Tab"
-msgid_plural "Close Ot_her Tabs"
-msgstr[0] "باشقا بەتكۈچلەرنى تاقا(_H)"
-
-#. i18n: word stem of "previous page" type links, case is not important
-#: ../midori/midori-view.c:5934
-msgid "previous"
-msgstr "ئالدىنقى"
-
-#. i18n: word stem of "next page" type links, case is not important
-#: ../midori/midori-view.c:5953
-msgid "next"
-msgstr "كېيىنكى"
-
-#: ../midori/midori-view.c:5966
-msgid "Print background images"
-msgstr "تەگ سۈرىتىنى بېسىپ چىقار"
-
-#: ../midori/midori-view.c:5967
-msgid "Whether background images should be printed"
-msgstr "تەگ سۈرىتىنى بېسىپ چىقىرىدۇ"
-
-#: ../midori/midori-view.c:5999
-msgid "Features"
-msgstr "ئىقتىدار"
-
-#: ../midori/midori-preferences.c:298
-msgid "Startup"
-msgstr "قوزغات"
-
-#: ../midori/midori-preferences.c:311
-msgid "Use _current page"
-msgstr "ھازىرقى بەتنى ئىشلىتىدۇ(_C)"
-
-#: ../midori/midori-preferences.c:315
-msgid "Use current page as homepage"
-msgstr "ھازىرقى بەتنى ماكان بەت قىلىدۇ"
-
-#. Page "Appearance"
-#: ../midori/midori-preferences.c:324
-msgid "Fonts"
-msgstr "خەت نۇسخىسى"
-
-#: ../midori/midori-preferences.c:327
-msgid "Proportional Font Family"
-msgstr "كەڭلىكى تەڭ بولمىغان خەت نۇسخىلىرى"
-
-#: ../midori/midori-preferences.c:331
-msgid "The default font family used to display text"
-msgstr "تېكىستلەرنى كۆرسىتىدىغان كۆڭۈلدىكى فونت"
-
-#: ../midori/midori-preferences.c:334
-msgid "The default font size used to display text"
-msgstr "تېكىستلەرنى كۆرسىتىدىغان كۆڭۈلدىكى فونتنىڭ چوڭلۇقى"
-
-#: ../midori/midori-preferences.c:336
-msgid "Fixed-width Font Family"
-msgstr "تەڭ كەڭلىكتىكى فونت"
-
-#: ../midori/midori-preferences.c:340
-msgid "The font family used to display fixed-width text"
-msgstr "تېكىستلەرنى تەڭ كەڭلىكتە كۆرسىتىدىغان فونت"
-
-#: ../midori/midori-preferences.c:343
-msgid "The font size used to display fixed-width text"
-msgstr "تېكىستلەرنى تەڭ كەڭلىكتە كۆرسىتىدىغان فونتنىڭ چوڭلۇقى"
-
-#: ../midori/midori-preferences.c:345
-msgid "Minimum Font Size"
-msgstr "فونتنىڭ ئەڭ كىچىك چوڭلۇقى"
-
-#: ../midori/midori-preferences.c:349
-msgid "The minimum font size used to display text"
-msgstr "تېكىستلەرنى كۆرسىتىدىغان فونتنىڭ ئەڭ كىچىك چوڭلۇقى"
-
-#. Page "Behavior"
-#: ../midori/midori-preferences.c:360
-msgid "Behavior"
-msgstr "ھەرىكىتى"
-
-#: ../midori/midori-preferences.c:386
-msgid "Allow scripts to open popups"
-msgstr "قوليازما ئىشلىتىپ سەكرىمىلەرنى چىقىرىشقا رۇخسەت قىل"
-
-#: ../midori/midori-preferences.c:387
-msgid "Whether scripts are allowed to open popup windows automatically"
-msgstr "قوليازما ئىشلىتىپ سەكرىمىلەرنى چىقىرىشقا رۇخسەت قىلىدۇ"
+#: ../midori/midori-preferences.c:431
+msgid "Save downloaded files to:"
+msgstr "چۈشۈرگەن ھۆججەتنى ساقلايدىغان ئورۇن:"
 
 #. Page "Interface"
-#: ../midori/midori-preferences.c:418
+#: ../midori/midori-preferences.c:438
 msgid "Browsing"
 msgstr "كۆز يۈگۈرت"
 
-#. Page "Network"
+#: ../midori/midori-preferences.c:454
+msgid "Close Buttons on Tabs"
+msgstr "بەتكۈچتە تاقاش توپچىسىنى كۆرسەت"
+
 #: ../midori/midori-preferences.c:458
+msgid "Always Show Tabbar"
+msgstr "بەتكۈچ بالدىقىنى كۆرسەت"
+
+#: ../midori/midori-preferences.c:462
+msgid "Open Tabs next to Current"
+msgstr "يېڭى بەتكۈچنى ھازىرقى بەتكۈچنىڭ يېنىدا ئاچ"
+
+#: ../midori/midori-preferences.c:463
+msgid "Whether to open new tabs next to the current tab or after the last one"
+msgstr "يېڭى بەتكۈچنى ھازىرقىنىڭ يېنىدا ياكى ئەڭ ئاخىرقىنىڭ يېنىدا ئاچىدۇ"
+
+#: ../midori/midori-preferences.c:466
+msgid "Open tabs in the background"
+msgstr "بەتكۈچنى ئارقىدا تۇرۇپ ئاچ"
+
+#: ../midori/midori-preferences.c:470
+msgid "Text Editor"
+msgstr "تېكىست تەھرىرلىگۈ"
+
+#: ../midori/midori-preferences.c:475
+msgid "News Aggregator"
+msgstr "خەۋەر يىغقۇچ"
+
+#. Page "Network"
+#: ../midori/midori-preferences.c:482
 msgid "Network"
 msgstr "تور"
 
-#: ../midori/midori-preferences.c:465
+#: ../midori/midori-preferences.c:484
+msgid "Proxy server"
+msgstr "ۋاكالەتچى مۇلازىمېتىر"
+
+#: ../midori/midori-preferences.c:489
 msgid "Hostname"
 msgstr "مۇلازىمېتىر نامى"
 
-#: ../midori/midori-preferences.c:489
+#: ../midori/midori-preferences.c:497
+msgid "Port"
+msgstr "ئېغىز"
+
+#: ../midori/midori-preferences.c:509 ../midori/midori-preferences.c:512
+msgid "The maximum size of cached pages on disk"
+msgstr "دىسكىدىكى غەملەنگەن بەتلەرنىڭ ئەڭ چوڭ چوڭلۇقى"
+
+#: ../midori/midori-preferences.c:514
 msgid "MB"
 msgstr "م ب"
 
-#: ../midori/midori-searchaction.c:957
+#: ../midori/midori-searchaction.c:1074
 msgid "Add search engine"
 msgstr "ئىزدەش ماتورى قوش"
 
-#: ../midori/midori-searchaction.c:957
+#: ../midori/midori-searchaction.c:1074
 msgid "Edit search engine"
 msgstr "ئىزدەش ماتورى تەھرىرلە"
 
-#: ../midori/midori-searchaction.c:985
+#: ../midori/midori-searchaction.c:1102
 msgid "_Name:"
 msgstr "ئاتى(_N):"
 
-#: ../midori/midori-searchaction.c:1000
+#: ../midori/midori-searchaction.c:1117
 msgid "_Description:"
 msgstr "چۈشەندۈرۈش(_D):"
 
-#: ../midori/midori-searchaction.c:1013 ../extensions/feed-panel/main.c:377
+#: ../midori/midori-searchaction.c:1130 ../extensions/feed-panel/main.c:377
 msgid "_Address:"
 msgstr "ئادرېس(_A):"
 
-#: ../midori/midori-searchaction.c:1032
+#: ../midori/midori-searchaction.c:1149
 msgid "_Token:"
 msgstr "ماياق(_T):"
 
-#: ../midori/midori-searchaction.c:1330
+#: ../midori/midori-searchaction.c:1447
 msgid "Manage Search Engines"
 msgstr "ئىزدەش ماتورىنى باشقۇرۇش"
 
-#: ../midori/midori-searchaction.c:1432
+#: ../midori/midori-searchaction.c:1549
 msgid "Use as _default"
 msgstr "كۆڭۈلدىكى قىلىپ ئىشلەت(_D)"
 
-#: ../midori/sokoke.c:346
+#: ../midori/sokoke.c:355
 msgid "Open with"
 msgstr "بۇنىڭدا ئاچ"
 
-#: ../midori/sokoke.c:354
+#: ../midori/sokoke.c:363
 #, c-format
 msgid "Choose an application or command to open \"%s\":"
 msgstr "«%s» نى ئاچىدىغان پروگرامما ياكى بۇيرۇقنى تاللاڭ."
 
-#: ../midori/sokoke.c:468 ../midori/sokoke.c:482
+#: ../midori/sokoke.c:478 ../midori/sokoke.c:492
 msgid "Could not run external program."
 msgstr "سىرتقى پروگراممىنى ئىجرا قىلغىلى بولمىدى"
-
-#: ../midori/sokoke.c:1443
-#, c-format
-msgid "%d hour"
-msgid_plural "%d hours"
-msgstr[0] "%d سائەت"
-
-#: ../midori/sokoke.c:1444
-#, c-format
-msgid "%d minute"
-msgid_plural "%d minutes"
-msgstr[0] "%d مىنۇت"
-
-#: ../midori/sokoke.c:1445
-#, c-format
-msgid "%d second"
-msgid_plural "%d seconds"
-msgstr[0] "%d سېكۇنت"
-
-#. i18n: Download tooltip (size): 4KB of 43MB
-#: ../midori/sokoke.c:1453 ../panels/midori-transfers.c:268
-#, c-format
-msgid "%s of %s"
-msgstr "%s / %s"
-
-#. i18n: Unknown number of bytes, used for transfer rate like ?B/s
-#: ../midori/sokoke.c:1462
-msgid "?B"
-msgstr "؟ب"
-
-#. i18n: Download tooltip (transfer rate): (130KB/s)
-#: ../midori/sokoke.c:1465
-#, c-format
-msgid " (%s/s)"
-msgstr " (%s/s)"
-
-#. i18n: Download tooltip (estimated time) : - 1 hour, 5 minutes remaning
-#: ../midori/sokoke.c:1482
-#, c-format
-msgid " - %s remaining"
-msgstr " - %s قالدى"
 
 #. i18n: A panel at the bottom, to search text in pages
 #: ../toolbars/midori-findbar.c:265
@@ -2179,38 +1923,28 @@ msgstr "ماس كەلگەنلىرىنى يورۇتسۇن"
 msgid "Close Findbar"
 msgstr "تېپىش بالدىقىنى تاقاش"
 
-#: ../toolbars/midori-transferbar.c:124
+#: ../toolbars/midori-transferbar.c:109
 #, c-format
 msgid "The file '<b>%s</b>' has been downloaded."
 msgstr "ھۆججەت '<b>%s</b>' چۈشۈرۈلدى."
 
-#: ../toolbars/midori-transferbar.c:129
+#: ../toolbars/midori-transferbar.c:114
 msgid "Transfer completed"
 msgstr "ئۇزىتىش تاماملاندى"
 
-#: ../toolbars/midori-transferbar.c:201
-msgid "The downloaded file is erroneous."
-msgstr "چۈشۈرگەن ھۆججەتتە خاتالىقلار بار."
-
-#: ../toolbars/midori-transferbar.c:202
-msgid ""
-"The checksum provided with the link did not match. This means the file is "
-"probably incomplete or was modified afterwards."
-msgstr ""
-
-#: ../toolbars/midori-transferbar.c:345 ../panels/midori-transfers.c:142
+#: ../toolbars/midori-transferbar.c:239 ../panels/midori-transfers.c:139
 msgid "Clear All"
 msgstr "ھەممىنى تازىلا"
 
-#: ../toolbars/midori-transferbar.c:382 ../toolbars/midori-transferbar.c:384
+#: ../toolbars/midori-transferbar.c:272 ../toolbars/midori-transferbar.c:274
 msgid "Some files are being downloaded"
 msgstr "بەزى ھۆججەتلەر چۈشۈرۈلىدۇ"
 
-#: ../toolbars/midori-transferbar.c:388
+#: ../toolbars/midori-transferbar.c:278
 msgid "_Quit Midori"
 msgstr "مىدورى(Midori) نى ئاخىرلاشتۇر(_Q)"
 
-#: ../toolbars/midori-transferbar.c:390
+#: ../toolbars/midori-transferbar.c:280
 msgid "The transfers will be cancelled if Midori quits."
 msgstr "مىدورى(Midori) ئاخىرلاشتۇرۇلسا ئۇزىتىشلار ئۈزۈلىدۇ."
 
@@ -2297,11 +2031,11 @@ msgstr "ئىزدەش ئىزلىرى"
 msgid "Transfers"
 msgstr "ئۇزاتقانلىرى"
 
-#: ../panels/midori-transfers.c:470
+#: ../panels/midori-transfers.c:435
 msgid "Open Destination _Folder"
 msgstr "نىشان مۇندەرىجىنى ئاچ(_F)"
 
-#: ../panels/midori-transfers.c:473
+#: ../panels/midori-transfers.c:438
 msgid "Copy Link Loc_ation"
 msgstr "ئۇلانما ئورنىنى كۆچۈر(_A)"
 
@@ -2343,13 +2077,13 @@ msgstr ""
 msgid "Animation frames are broken"
 msgstr "جانلاندۇرۇم كاندۇكى بۇزۇلغان"
 
-#: ../katze/katze-utils.c:443 ../katze/katze-utils.c:867
+#: ../katze/katze-utils.c:443 ../katze/katze-utils.c:866
 #, c-format
 msgid "Property '%s' is invalid for %s"
 msgstr "خاسلىق ‹%s› ئىناۋەتسىز (%s نىڭ خاسلىقى)"
 
 #: ../katze/katze-utils.c:489 ../katze/katze-utils.c:518
-#: ../extensions/addons.c:308
+#: ../extensions/addons.c:309
 msgid "Choose file"
 msgstr "ھۆججەت تاللا"
 
@@ -2381,126 +2115,136 @@ msgstr "بىر ئاي"
 msgid "1 year"
 msgstr "بىر يىل"
 
-#: ../katze/katze-preferences.c:98 ../extensions/history-list.vala:235
+#: ../katze/katze-preferences.c:98 ../extensions/delayed-load.vala:24
+#: ../extensions/external-download-manager.vala:220
+#: ../extensions/history-list.vala:235
 #, c-format
 msgid "Preferences for %s"
 msgstr "%s نى تەڭشىكى"
 
-#: ../extensions/adblock.c:470
+#: ../katze/midori-uri.vala:168
+msgid "MD5-Checksum:"
+msgstr ""
+
+#: ../katze/midori-uri.vala:175
+msgid "SHA1-Checksum:"
+msgstr ""
+
+#: ../extensions/adblock.c:495
 msgid "Configure Advertisement filters"
 msgstr "ئېلان سۈزگۈچىنى تەڭشەش"
 
-#: ../extensions/adblock.c:503
+#: ../extensions/adblock.c:528
 #, c-format
 msgid ""
 "Type the address of a preconfigured filter list in the text entry and click "
 "\"Add\" to add it to the list. You can find more lists at %s."
 msgstr ""
 
-#: ../extensions/adblock.c:917
+#: ../extensions/adblock.c:944
 msgid "Edit rule"
 msgstr "تۇزۇم تەھرىرلە"
 
-#: ../extensions/adblock.c:931
+#: ../extensions/adblock.c:958
 msgid "_Rule:"
 msgstr "تۇزۇم(_R):"
 
-#: ../extensions/adblock.c:985
+#: ../extensions/adblock.c:1012
 msgid "Bl_ock image"
 msgstr "سۈرەتنى چەكلە(_O)"
 
-#: ../extensions/adblock.c:990
+#: ../extensions/adblock.c:1017
 msgid "Bl_ock link"
 msgstr "ئۇلانمىنى چەكلە(_O)"
 
-#: ../extensions/adblock.c:1689
+#: ../extensions/adblock.c:1915
 msgid "Advertisement blocker"
 msgstr "ئېلان چەكلىگۈ"
 
-#: ../extensions/adblock.c:1690
+#: ../extensions/adblock.c:1916
 msgid "Block advertisements according to a filter list"
 msgstr "سۈزگۈچ تىزىملىكىگە ئاساسەن ئېلاننى چەكلەيدۇ"
 
 #. i18n: An infobar shows up when viewing a script on userscripts.org
-#: ../extensions/addons.c:221
+#: ../extensions/addons.c:222
 msgid "This page appears to contain a user script. Do you wish to install it?"
 msgstr ""
 "مەزكۇر بەتتە ئىشلەتكۈچى قوليازما پروگراممىسى بار ئىكەن. ئورناتقۇڭىز بارمۇ؟"
 
-#: ../extensions/addons.c:222
+#: ../extensions/addons.c:223
 msgid "_Install user script"
 msgstr "ئىشلەتكۈچى قوليازما(script)سىنى ئورنات(_I)"
 
 #. i18n: An infobar shows up when viewing a style on userstyles.org
-#: ../extensions/addons.c:227
+#: ../extensions/addons.c:228
 msgid "This page appears to contain a user style. Do you wish to install it?"
 msgstr "مەزكۇر بەتتە ئىشلەتكۈچى ئۇسلۇبى بار ئىكەن. ئورناتقۇڭىز بارمۇ؟"
 
-#: ../extensions/addons.c:228
+#: ../extensions/addons.c:229
 msgid "_Install user style"
 msgstr "ئىشلەتكۈچى قوليازما پروگراممىسىنى ئورنات(_I)"
 
-#: ../extensions/addons.c:236
+#: ../extensions/addons.c:237
 msgid "Don't install"
 msgstr "ئورناتما"
 
-#: ../extensions/addons.c:319 ../extensions/addons.c:677
+#: ../extensions/addons.c:320 ../extensions/addons.c:675
 msgid "Userscripts"
 msgstr "Userscripts"
 
-#: ../extensions/addons.c:324 ../extensions/addons.c:679
+#: ../extensions/addons.c:325 ../extensions/addons.c:677
 msgid "Userstyles"
 msgstr "ئىشلەتكۈچى ئۇسلۇبى"
 
-#: ../extensions/addons.c:370 ../extensions/addons.c:449
+#: ../extensions/addons.c:371 ../extensions/addons.c:450
 #: ../extensions/feed-panel/main.c:129
 msgid "Error"
 msgstr "خاتالىق"
 
-#: ../extensions/addons.c:411
+#: ../extensions/addons.c:412
 #, c-format
 msgid "Do you want to delete '%s'?"
 msgstr "سىزنىڭ ‹%s› نى ئۆچۈرگۈڭىز بارمۇ؟"
 
-#: ../extensions/addons.c:417
+#: ../extensions/addons.c:418
 msgid "Delete user script"
 msgstr "ئىشلەتكۈچى قوليازما پروگراممىسىنى ئۆچۈر"
 
-#: ../extensions/addons.c:418
+#: ../extensions/addons.c:419
 msgid "Delete user style"
 msgstr "ئىشلەتكۈچى ئۇسلۇبىنى ئۆچۈر"
 
-#: ../extensions/addons.c:421
+#: ../extensions/addons.c:422
 #, c-format
 msgid "The file <b>%s</b> will be permanently deleted."
 msgstr "ھۆججەت <b>%s</b> مەڭگۈلۈككە ئۆچۈرۈلىدۇ."
 
-#: ../extensions/addons.c:566 ../extensions/addons.c:643
+#: ../extensions/addons.c:564 ../extensions/addons.c:641
 msgid "Open in Text Editor"
 msgstr "تېكىست تەھرىرلىگۈدە ئېچىش"
 
-#: ../extensions/addons.c:568 ../extensions/addons.c:652
+#: ../extensions/addons.c:566 ../extensions/addons.c:650
 msgid "Open Target Folder"
 msgstr "نىشان مۇندەرىجىنى ئېچىش"
 
-#: ../extensions/addons.c:634
+#: ../extensions/addons.c:632
 msgid "Add new addon"
 msgstr "يېڭى قوشۇلما قوش"
 
-#: ../extensions/addons.c:660
+#: ../extensions/addons.c:658
 msgid "Remove selected addon"
 msgstr "تاللانغان قوشۇلمىنى ئۆچۈر"
 
-#: ../extensions/addons.c:1689 ../extensions/addons.c:1907
+#: ../extensions/addons.c:1687 ../extensions/addons.c:1905
 msgid "User addons"
 msgstr "ئىشلەتكۈچى قوشۇلمىسى"
 
-#: ../extensions/addons.c:1819
+#: ../extensions/addons.c:1817
 #, c-format
 msgid "Can't monitor folder '%s': %s"
 msgstr "قىسقۇچ ‹%s› نى كۆزەتكىلى بولمىدى: %s"
 
-#: ../extensions/addons.c:1908
+#: ../extensions/addons.c:1906
 msgid "Support for userscripts and userstyles"
 msgstr ""
 "ئىشلەتكۈچى قوليازمىسى(userscripts ۋە) ئىشلەتكۈچى ئۇسلۇبىنى ئىشلەتكىلى بولىدۇ"
@@ -2619,6 +2363,54 @@ msgstr "بەتكۈچ ئادرېسىنى كۆچۈرىدۇ"
 #: ../extensions/copy-tabs.c:96
 msgid "Copy the addresses of all tabs to the clipboard"
 msgstr "بارلىق بەتكۈچنىڭ ئادرېسىنى چاپلاش تاختىسىغا كۆچۈرىدۇ"
+
+#: ../extensions/delayed-load.vala:24 ../extensions/delayed-load.vala:211
+#, c-format
+msgid "Delayed load"
+msgstr ""
+
+#: ../extensions/delayed-load.vala:49
+msgid "Delay in seconds until loading the page:"
+msgstr ""
+
+#: ../extensions/delayed-load.vala:212
+msgid "Delay page load until you actually use the tab."
+msgstr ""
+
+#: ../extensions/external-download-manager.vala:122
+msgid ""
+"An error occurred when attempting to download a file with the following "
+"plugin:\n"
+msgstr ""
+
+#: ../extensions/external-download-manager.vala:172
+msgid "External Download Manager - Aria2"
+msgstr ""
+
+#: ../extensions/external-download-manager.vala:173
+msgid "Download files with Aria2"
+msgstr "ھۆججەتلەرنى Aria2 دە چۈشۈرسۇن"
+
+#: ../extensions/external-download-manager.vala:199
+msgid "External Download Manager - SteadyFlow"
+msgstr ""
+
+#: ../extensions/external-download-manager.vala:200
+msgid "Download files with SteadyFlow"
+msgstr ""
+
+#: ../extensions/external-download-manager.vala:245
+msgid "Command:"
+msgstr ""
+
+#: ../extensions/external-download-manager.vala:306
+#, c-format
+msgid "Download files with \"%s\" or a custom command"
+msgstr ""
+
+#: ../extensions/external-download-manager.vala:314
+msgid "External Download Manager - CommandLine"
+msgstr ""
 
 #: ../extensions/feed-panel/feed-atom.c:209
 msgid "Failed to find required Atom \"entry\" elements in XML data."
@@ -2818,11 +2610,11 @@ msgstr "بەتكۈچنى ئارقىدا ئاچ(ئىز تىزىمى)"
 msgid "Display the current selected tab in background"
 msgstr "نۆۋەتتە تاللانغان بەتكۈچنى ئارقىدا ئاچىدۇ"
 
-#: ../extensions/history-list.vala:569
+#: ../extensions/history-list.vala:566
 msgid "History List"
 msgstr "ئىز تىزىمى"
 
-#: ../extensions/history-list.vala:570
+#: ../extensions/history-list.vala:567
 msgid "Move to the last used tab when switching or closing tabs"
 msgstr ""
 "بەتكۈچلەر يېپىلغاندا ياكى ئالماشتۇرۇلغاندا ئەڭ ئاخىرقى قېتىم ئىشلىتىلگەن "
@@ -2936,6 +2728,210 @@ msgstr "قورال بالدىقى تەھرىرلىگۈ"
 msgid "Easily edit the toolbar layout"
 msgstr "قورال بالدىقىنىڭ ئورۇنلاشتۇرۇلۇشىنى ئاسانلا تەھرىرلىگىلى بولىدۇ"
 
-#: ../extensions/web-cache.c:463
+#: ../extensions/web-cache.c:462
 msgid "Cache HTTP communication on disk"
 msgstr "HTTP ئالاقىسىنى دىسكىغا غەملەيدۇ"
+
+#~ msgid "Remember last window size"
+#~ msgstr "كۆزنەكنىڭ ئەڭ ئاخىرقى چوڭلۇقىنى ئەستە تۇتۇۋال"
+
+#~ msgid "Whether to save the last window size"
+#~ msgstr "كۆزنەكنىڭ ئەڭ ئاخىرقى چوڭلۇقىنى ئەستە تۇتۇۋالىدۇ"
+
+#~ msgid "Last window width"
+#~ msgstr "كۆزنەكنىڭ ئەڭ ئاخىرقى كەڭلىكى"
+
+#~ msgid "The last saved window width"
+#~ msgstr "كۆزنەكنىڭ ئەڭ ئاخىرقى كەڭلىكى"
+
+#~ msgid "Last window height"
+#~ msgstr "كۆزنەكنىڭ ئەڭ ئاخىرقى ئېگىزلىكى"
+
+#~ msgid "The last saved window height"
+#~ msgstr "كۆزنەكنىڭ ئەڭ ئاخىرقى ئېگىزلىكى"
+
+#~ msgid "Last panel position"
+#~ msgstr "كۆزنەكنىڭ ئەڭ ئاخىرقى ئورنى"
+
+#~ msgid "The last saved panel position"
+#~ msgstr "كۆزنەكنىڭ ئەڭ ئاخىرقى ئورنى"
+
+#~ msgid "Last panel page"
+#~ msgstr "كۆزنەكتىكى ئەڭ ئاخىرقى بەت"
+
+#~ msgid "The last saved panel page"
+#~ msgstr "ئەڭ ئاخىرى ساقلانغان كۆزنەك بېتى"
+
+#~ msgid "Last Web search"
+#~ msgstr "ئەڭ ئاخىرقى ئىزدەلگەنلىرى"
+
+#~ msgid "The last saved Web search"
+#~ msgstr "ساقلانغان ئەڭ ئاخىرقى ئىزدەلگەن"
+
+#~ msgid "Show Menubar"
+#~ msgstr "تىزىملىك بالدىقىنى كۆرسەت"
+
+#~ msgid "Whether to show the menubar"
+#~ msgstr "تىزىملىك بالدىقىنى كۆرسىتىدۇ"
+
+#~ msgid "Show Navigationbar"
+#~ msgstr "يولچى بالدىقىنى كۆرسەت"
+
+#~ msgid "Whether to show the navigationbar"
+#~ msgstr "يولچى بالدىقىنى كۆرسىتىدۇ"
+
+#~ msgid "Show Bookmarkbar"
+#~ msgstr "خەتكۈش بالدىقىنى كۆرسەت"
+
+#~ msgid "Whether to show the bookmarkbar"
+#~ msgstr "خەتكۈش بالدىقىنى كۆرسىتىدۇ"
+
+#~ msgid "Show Panel"
+#~ msgstr "كۆزنەكنى كۆرسەت"
+
+#~ msgid "Whether to show the panel"
+#~ msgstr "كۆزنەكنى كۆرسىتىدۇ"
+
+#~ msgid "Show Statusbar"
+#~ msgstr "ھالەت بالدىقىنى كۆرسەت"
+
+#~ msgid "Whether to show the statusbar"
+#~ msgstr "ھالەت بالدىقىنى كۆرسىتىدۇ"
+
+#~ msgid "Toolbar Items"
+#~ msgstr "قورال بالدىقىدىكى تۈرلەر"
+
+#~ msgid "The items to show on the toolbar"
+#~ msgstr "قورال بالدىقىدا كۆرسىتىلىدىغان تۈرلەرنى بەلگىلەيدۇ"
+
+#~ msgid "Compact Sidepanel"
+#~ msgstr "يان كۆزنەكنى ئىخچام كۆرسەت"
+
+#~ msgid "Whether to make the sidepanel compact"
+#~ msgstr "يان كۆزنەكنى ئىخچام كۆرسىتىدۇ"
+
+#~ msgid "Align sidepanel on the right"
+#~ msgstr "يان كۆزنەكنى ئوڭ تەرەپكە ئورۇنلاشتۇر"
+
+#~ msgid "Whether to align the sidepanel on the right"
+#~ msgstr "يان كۆزنەكنى ئوڭ تەرەپكە ئورۇنلاشتۇرىدۇ"
+
+#~ msgid "Open panels in separate windows"
+#~ msgstr "كۆزنەكنى ئايرىم كۆزنەكتە ئاچ"
+
+#~ msgid "Whether to always open panels in separate windows"
+#~ msgstr "كۆزنەكنى ئايرىم كۆزنەكتە ئاچىدىغان قىلىدۇ"
+
+#~ msgid "What to do when Midori starts"
+#~ msgstr "مىدورى(Midori)  قوزغالغاندا نېمە قىلىش كېرەك"
+
+#~ msgid "The homepage"
+#~ msgstr "ماكان بەتنى ئاچىدۇ"
+
+#~ msgid "Show crash dialog"
+#~ msgstr "غۇلاش كۆزنىكىنى كۆرسەت"
+
+#~ msgid "The folder downloaded files are saved to"
+#~ msgstr "چۈشۈرگەن ھۆججەتنى ساقلايدىغان ئورۇننى بەلگىلەيدۇ"
+
+#~ msgid "An external text editor"
+#~ msgstr "سىرتقى تېكىست تەھرىرلىگۈنى بېكىتىدۇ"
+
+#~ msgid "An external news aggregator"
+#~ msgstr "سىرتتىكى خەۋەر يىغقۇچ"
+
+#~ msgid "Location entry Search"
+#~ msgstr "كىرگۈزگەن ئورۇندىن ئىزدە"
+
+#~ msgid "The search to perform inside the location entry"
+#~ msgstr "ئىزدەش پەقەت كىرگۈزگەن ئورۇندىلا ئېلىپ بېرىلىدۇ"
+
+#~ msgid "The preferred character encoding"
+#~ msgstr "ھەرپلەرنىڭ ئامراق كودلاش شەكلى"
+
+#~ msgid "Always show the tabbar"
+#~ msgstr "بەتكۈچ بالدىقىنى كۆرسىتىپلا تۇرىدۇ"
+
+#~ msgid "Whether tabs have close buttons"
+#~ msgstr "بەتكۈچتە تاقاش توپچىسىنى كۆرسىتىدۇ"
+
+#~ msgid "Where to open new pages"
+#~ msgstr "يېڭى بەتنى قەيەردە ئاچىدىغانلىقىنى بەلگىلەيدۇ"
+
+#~ msgid "Whether to open new tabs in the background"
+#~ msgstr "يېڭى بەتكۈچنى ئارقىدا تۇرۇپ ئاچىدۇ"
+
+#~ msgid "Open popups in tabs"
+#~ msgstr "بەتكۈچتە قاڭقىشى ئاچ"
+
+#~ msgid "Whether to open popup windows in tabs"
+#~ msgstr "بەتكۈچتە قاڭقىش تىزىملىكى ئاچىدىغان ئاچمايدىغانلىقنى بەلگىلەيدۇ"
+
+#~ msgid "Load and display images automatically"
+#~ msgstr "سۈرەتنى ئۆزلۈكىدىن ئوقۇپ كۆرسىتىدۇ"
+
+#~ msgid "Enable embedded scripting languages"
+#~ msgstr "سىڭدۈرمە قوليازما(script) تىلىنى ئىشلەتكىلى بولىدىغان قىلىدۇ"
+
+#~ msgid "Enable embedded Netscape plugin objects"
+#~ msgstr "سىڭدۈرمە Netscape قىستۇرمىلىرىنى ئىشلەتكىلى بولىدىغان قىلىدۇ"
+
+#~ msgid "Enable spell checking while typing"
+#~ msgstr "كىرگۈزۈۋاتقاندا ئىملا تەكشۈرىدۇ"
+
+#~ msgid "Enable HTML5 database support"
+#~ msgstr "HTML5 ساندانىنى قوللا"
+
+#~ msgid "Whether to enable HTML5 database support"
+#~ msgstr "HTML5 ساندانىنى ئىشلەتكىلى بولىدىغان قىلىدۇ"
+
+#~ msgid "Whether to enable HTML5 local storage support"
+#~ msgstr "HTML5 يەرلىك ساقلىغۇچنى ئىشلەتكىلى بولىدىغان قىلىدۇ"
+
+#~ msgid "Whether to enable offline web application cache"
+#~ msgstr "تورسىز ھالەتتە تور پروگراممىلىرىنىڭ غەملىكىنى ئېچىۋېتىدۇ"
+
+#~ msgid "Flash the browser window if a new tab was opened in the background"
+#~ msgstr "ئارقا تەرەپتە يېڭى بەتكۈچ ئېچىلسا توركۆرگۈ كۆزنىكى چاقنايدۇ"
+
+#~ msgid "Allow websites to use OpenGL rendering"
+#~ msgstr "تورتۇرالارنى OpenGL ئارقىلىق سىزىشقا ئىجازەت"
+
+#~ msgid "Whether to zoom text and images"
+#~ msgstr "تېكىست ۋە سۈرەتلەرنى چوڭايتىدۇ ياكى تارايتىدۇ"
+
+#~ msgid "Find inline while typing"
+#~ msgstr "كىرگۈزگەن ھامان ئىزدە"
+
+#~ msgid "Whether to automatically find inline while typing"
+#~ msgstr "كۇنۇپكا بېسىلغان ھامان ئىزدەش ئېلىپ بارىدۇ"
+
+#~ msgid "The type of proxy server to use"
+#~ msgstr "ئىشلىتىدىغان ۋاكالەتچى مۇلازىمېتىرنىڭ تىپى"
+
+#~ msgid "HTTP Proxy Server"
+#~ msgstr "HTTP ۋاكالەتچى مۇلازىمېتىر"
+
+#~ msgid "The proxy server used for HTTP connections"
+#~ msgstr "HTTP باغلىنىشىدا ئىشلىتىدىغان ۋاكالەتچى مۇلازىمېتىرنى كۆرسىتىدۇ"
+
+#~ msgid "The proxy server port used for HTTP connections"
+#~ msgstr "HTTP باغلىنىشىدا ئىشلىتىدىغان ۋاكالەتچى مۇلازىمېتىرنىڭ ئېغىزى"
+
+#~ msgid "Identification string"
+#~ msgstr "تونۇش ھەرپ تىزمىسى"
+
+#~ msgid "The application identification string"
+#~ msgstr "پروگراممىنىڭ كىملىك تېكىستى"
+
+#~ msgid "Clear private data"
+#~ msgstr "شەخسىي سانلىق-مەلۇماتلارنى تازىلا"
+
+#~ msgid "The private data selected for deletion"
+#~ msgstr "تالانغان شەخسىي سانلىق-مەلۇماتلارنى ئۆچۈرىدۇ"
+
+#~ msgid "Clear data"
+#~ msgstr "شەخسىي سانلىق-مەلۇماتلارنى تازىلا"
+
+#~ msgid "The data selected for deletion"
+#~ msgstr "ئۆچۈرۈش ئۈچۈن تاللانغان سانلىق-مەلۇماتلار"
