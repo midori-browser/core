@@ -28,9 +28,6 @@ for extension in extensions:
             continue
         source = extension
 
-    if bld.env['platform'] == 'win32' and target in ['external-download-manager']:
-        continue
-
     obj = bld.new_task_gen ('cc', 'shlib')
     obj.target = target
     obj.includes = '.. ../katze ../midori'

@@ -16,10 +16,12 @@ using Midori;
 using WebKit;
 
 namespace EDM {
+#if !HAVE_WIN32
     [DBus (name = "net.launchpad.steadyflow.App")]
     interface SteadyflowInterface : GLib.Object {
         public abstract void AddFile (string url) throws IOError;
     }
+#endif
 
     private class DownloadRequest : GLib.Object {
         public string uri;
@@ -132,6 +134,7 @@ namespace EDM {
         public abstract bool download (DownloadRequest dlReq);
     }
 
+#if !HAVE_WIN32
     private class Aria2 : ExternalDownloadManager {
         public override bool download (DownloadRequest dlReq) {
             var url = value_array_new ();
@@ -206,6 +209,7 @@ namespace EDM {
             this.deactivate.connect (deactivated);
         }
     }
+#endif
 
     private class CommandLinePreferences : Dialog {
         protected Entry input;
@@ -287,12 +291,6 @@ namespace EDM {
             return false;
         }
 
-        #if HAVE_WIN32
-        string default_commandline = "\"%s\\FlashGet\\flashget.exe\" {URL}".printf (Environment.get_variable ("ProgramFiles"));
-        #else
-        const string default_commandline = "wget --no-check-certificate --referer={REFERER} --header={COOKIES} {URL}";
-        #endif
-
         static string description_with_command (string commandline) {
             string command;
             try {
@@ -311,6 +309,12 @@ namespace EDM {
         }
 
         internal CommandLine () {
+#if HAVE_WIN32
+            string default_commandline = "\"%s\\FlashGet\\flashget.exe\" {URL}".printf (Environment.get_variable ("ProgramFiles"));
+#else
+            string default_commandline = "wget --no-check-certificate --referer={REFERER} --header={COOKIES} {URL}";
+#endif
+
             GLib.Object (name: _("External Download Manager - CommandLine"),
                          description: description_with_command (default_commandline),
                          version: "0.1" + Midori.VERSION_SUFFIX,
@@ -331,8 +335,10 @@ public Katze.Array extension_init () {
     EDM.manager = new EDM.Manager();
 
     var extensions = new Katze.Array( typeof (Midori.Extension));
+    #if !HAVE_WIN32
     extensions.add_item (new EDM.Aria2 ());
     extensions.add_item (new EDM.SteadyFlow ());
+    #endif
     extensions.add_item (new EDM.CommandLine ());
     return extensions;
 }
