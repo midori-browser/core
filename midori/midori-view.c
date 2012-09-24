@@ -1109,7 +1109,6 @@ midori_view_web_view_resource_request_cb (WebKitWebView*         web_view,
 }
 
 #define HAVE_GTK_INFO_BAR GTK_CHECK_VERSION (2, 18, 0)
-#define HAVE_OFFSCREEN GTK_CHECK_VERSION (2, 20, 0)
 
 #if HAVE_GTK_INFO_BAR
 static void
@@ -1225,6 +1224,9 @@ midori_view_add_info_bar (MidoriView*    view,
     gtk_box_pack_start (GTK_BOX (view), infobar, FALSE, FALSE, 0);
     gtk_box_reorder_child (GTK_BOX (view), infobar, 0);
     g_object_set_data (G_OBJECT (infobar), "midori-infobar-cb", response_cb);
+    if (data_object != NULL)
+        g_object_set_data_full (G_OBJECT (infobar), "midori-infobar-da",
+            g_object_ref (data_object), g_object_unref);
     return infobar;
 }
 
@@ -1287,7 +1289,6 @@ midori_view_location_response_cb (GtkWidget*                       infobar,
         webkit_geolocation_policy_allow (decision);
     else
         webkit_geolocation_policy_deny (decision);
-    g_object_unref (decision);
 }
 
 static gboolean
@@ -1300,9 +1301,8 @@ midori_view_web_view_geolocation_decision_cb (WebKitWebView*                   w
     gchar* hostname = midori_uri_parse_hostname (uri, NULL);
     gchar* message = g_strdup_printf (_("%s wants to know your location."),
                                      hostname && *hostname ? hostname : uri);
-    /* FIXME: decision should be released even if neither buttons's pressed */
     midori_view_add_info_bar (view, GTK_MESSAGE_QUESTION,
-        message, G_CALLBACK (midori_view_location_response_cb), g_object_ref (decision),
+        message, G_CALLBACK (midori_view_location_response_cb), decision,
         _("_Deny"), GTK_RESPONSE_REJECT, _("_Allow"), GTK_RESPONSE_ACCEPT,
         NULL);
     g_free (hostname);
