@@ -11,18 +11,45 @@
 
 #include "midori.h"
 
+static gboolean
+skip_gtk_bugs (const gchar*   log_domain,
+               GLogLevelFlags log_level,
+               const gchar*   message,
+               gpointer       user_data)
+{
+    if (!strcmp (message, "get_column_number: assertion `i < gtk_tree_view_get_n_columns (treeview)' failed"))
+        return FALSE;
+    return TRUE;
+}
+
 static void
 browser_create (void)
 {
     MidoriApp* app;
     MidoriSpeedDial* dial;
+    MidoriWebSettings* settings;
     MidoriBrowser* browser;
+    gint n;
+    gchar* temporary_downloads;
+    GtkWidget* view;
+
+    g_test_log_set_fatal_handler (skip_gtk_bugs, NULL);
 
     app = midori_app_new ();
     dial = midori_speed_dial_new ("/", NULL);
-    g_object_set (app, "speed-dial", dial, NULL);
+    settings = midori_web_settings_new ();
+    g_object_set (app, "speed-dial", dial, "settings", settings, NULL);
     browser = midori_app_create_browser (app);
+    n = midori_browser_add_uri (browser, "about:blank");
+    view = midori_browser_get_nth_tab (browser, n);
+
+    midori_test_set_dialog_response (GTK_RESPONSE_OK);
+    temporary_downloads = g_dir_make_tmp ("saveXXXXXX", NULL);
+    midori_settings_set_download_folder (MIDORI_SETTINGS (settings), temporary_downloads);
+    midori_browser_save_uri (browser, MIDORI_VIEW (view), NULL);
+
     gtk_widget_destroy (GTK_WIDGET (browser));
+    g_object_unref (settings);
     g_object_unref (app);
     g_object_unref (dial);
 }

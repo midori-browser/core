@@ -1224,7 +1224,7 @@ midori_location_action_cert_response_cb (GtkWidget*      dialog,
     {
         /* FIXME: Would be nice if GcrCertificateExporter became public */
         gchar* filename = g_strconcat (peer, ".crt", NULL);
-        GtkWidget* dialog = sokoke_file_chooser_dialog_new (_("Export certificate"),
+        GtkWidget* dialog = (GtkWidget*)midori_file_chooser_dialog_new (_("Export certificate"),
             NULL, GTK_FILE_CHOOSER_ACTION_SAVE);
         gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (dialog), TRUE);
         gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (dialog), filename);

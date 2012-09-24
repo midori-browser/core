@@ -211,7 +211,7 @@ namespace EDM {
     }
 #endif
 
-    private class CommandLinePreferences : Dialog {
+    private class CommandLinePreferences : Gtk.Dialog {
         protected Entry input;
         protected CommandLine commandline;
 
@@ -232,7 +232,7 @@ namespace EDM {
             this.response.connect (response_cb);
         }
 
-        private void response_cb (Dialog source, int response_id) {
+        private void response_cb (Gtk.Dialog source, int response_id) {
             switch (response_id) {
                 case ResponseType.APPLY:
                     this.commandline.set_string ("commandline", this.input.get_text ());

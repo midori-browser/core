@@ -942,7 +942,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     gtk_widget_show_all (content_area);
 
     gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT);
-    if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
+    if (midori_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
     {
         gint64 selected;
 
@@ -1037,7 +1037,7 @@ midori_browser_save_resources (MidoriView*  view,
     g_list_free (resources);
 }
 
-static void
+void
 midori_browser_save_uri (MidoriBrowser* browser,
                          MidoriView*    view,
                          const gchar*   uri)
@@ -1049,10 +1049,7 @@ midori_browser_save_uri (MidoriBrowser* browser,
     gboolean file_only = TRUE;
     GtkWidget* checkbox = NULL;
 
-    if (!gtk_widget_get_visible (GTK_WIDGET (browser)))
-        return;
-
-    dialog = sokoke_file_chooser_dialog_new (_("Save file as"),
+    dialog = (GtkWidget*)midori_file_chooser_dialog_new (_("Save file as"),
         GTK_WINDOW (browser), GTK_FILE_CHOOSER_ACTION_SAVE);
     gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (dialog), TRUE);
 
@@ -1089,7 +1086,7 @@ midori_browser_save_uri (MidoriBrowser* browser,
     gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (dialog), filename);
     g_free (filename);
 
-    if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK)
+    if (midori_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK)
     {
         filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
         if (checkbox != NULL)
@@ -1405,7 +1402,7 @@ midori_view_download_requested_cb (GtkWidget*      view,
             if (!dialog)
             {
                 gchar* folder;
-                dialog = sokoke_file_chooser_dialog_new (_("Save file"),
+                dialog = (GtkWidget*)midori_file_chooser_dialog_new (_("Save file"),
                     GTK_WINDOW (browser), GTK_FILE_CHOOSER_ACTION_SAVE);
                 gtk_file_chooser_set_do_overwrite_confirmation (
                     GTK_FILE_CHOOSER (dialog), TRUE);
@@ -1418,12 +1415,12 @@ midori_view_download_requested_cb (GtkWidget*      view,
                 g_signal_connect (dialog, "destroy",
                                   G_CALLBACK (gtk_widget_destroyed), &dialog);
             }
-            g_object_set_data (G_OBJECT (dialog), "download", download);
+
             filename = midori_download_get_suggested_filename (download);
             gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (dialog), filename);
             g_free (filename);
 
-            if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK)
+            if (midori_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK)
             {
                 gtk_widget_hide (dialog);
                 gchar* uri = gtk_file_chooser_get_uri (GTK_FILE_CHOOSER (dialog));
@@ -2332,7 +2329,7 @@ _action_open_activate (GtkAction*     action,
     if (!gtk_widget_get_visible (GTK_WIDGET (browser)))
         return;
 
-    dialog = sokoke_file_chooser_dialog_new (_("Open file"),
+    dialog = (GtkWidget*)midori_file_chooser_dialog_new (_("Open file"),
         GTK_WINDOW (browser), GTK_FILE_CHOOSER_ACTION_OPEN);
 
      /* base the start folder on the current view's uri if it is local */
@@ -2361,7 +2358,7 @@ _action_open_activate (GtkAction*     action,
          gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), last_dir);
      #endif
 
-     if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK)
+     if (midori_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK)
      {
          #if !GTK_CHECK_VERSION (3, 1, 10)
          gchar* folder;
@@ -3512,7 +3509,7 @@ _action_caret_browsing_activate (GtkAction*     action,
             _("_Enable Caret Browsing"), GTK_RESPONSE_ACCEPT,
             NULL);
 
-        response = gtk_dialog_run (GTK_DIALOG (dialog));
+        response = midori_dialog_run (GTK_DIALOG (dialog));
         gtk_widget_destroy (dialog);
 
         if (response != GTK_RESPONSE_ACCEPT)
@@ -4443,7 +4440,7 @@ _action_bookmarks_import_activate (GtkAction*     action,
     gtk_container_add (GTK_CONTAINER (content_area), combobox_folder);
 
     gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT);
-    if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
+    if (midori_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
     {
         GtkTreeIter iter;
         gchar* path = NULL;
@@ -4460,9 +4457,9 @@ _action_bookmarks_import_activate (GtkAction*     action,
         {
             GtkWidget* file_dialog;
 
-            file_dialog = sokoke_file_chooser_dialog_new (_("Import from a file"),
+            file_dialog = (GtkWidget*)midori_file_chooser_dialog_new (_("Import from a file"),
                 GTK_WINDOW (browser), GTK_FILE_CHOOSER_ACTION_OPEN);
-            if (gtk_dialog_run (GTK_DIALOG (file_dialog)) == GTK_RESPONSE_OK)
+            if (midori_dialog_run (GTK_DIALOG (file_dialog)) == GTK_RESPONSE_OK)
                 path = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (file_dialog));
             gtk_widget_destroy (file_dialog);
         }
@@ -4501,7 +4498,7 @@ _action_bookmarks_export_activate (GtkAction*     action,
         return;
 
 wrong_format:
-    file_dialog = sokoke_file_chooser_dialog_new (_("Save file as"),
+    file_dialog = (GtkWidget*)midori_file_chooser_dialog_new (_("Save file as"),
         GTK_WINDOW (browser), GTK_FILE_CHOOSER_ACTION_SAVE);
     gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (file_dialog),
                                        "bookmarks.xbel");
@@ -4515,7 +4512,7 @@ wrong_format:
     gtk_file_filter_add_mime_type (filter, "text/html");
     gtk_file_filter_add_pattern (filter, "*.html");
     gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (file_dialog), filter);
-    if (gtk_dialog_run (GTK_DIALOG (file_dialog)) == GTK_RESPONSE_OK)
+    if (midori_dialog_run (GTK_DIALOG (file_dialog)) == GTK_RESPONSE_OK)
         path = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (file_dialog));
     gtk_widget_destroy (file_dialog);
     if (g_str_has_suffix (path, ".xbel"))

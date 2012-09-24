@@ -225,7 +225,7 @@ namespace HistoryList {
         }
     }
 
-    private class PreferencesDialog : Dialog {
+    private class PreferencesDialog : Gtk.Dialog {
         protected Manager hl_manager;
         protected ComboBox closing_behavior;
 
@@ -243,7 +243,7 @@ namespace HistoryList {
             this.response.connect (response_cb);
         }
 
-        private void response_cb (Dialog source, int response_id) {
+        private void response_cb (Gtk.Dialog source, int response_id) {
             switch (response_id) {
                 case ResponseType.APPLY:
                     int value;

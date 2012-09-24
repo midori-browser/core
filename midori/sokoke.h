@@ -103,11 +103,6 @@ sokoke_window_activate_key              (GtkWindow*      window,
 guint
 sokoke_gtk_action_count_modifiers       (GtkAction* action);
 
-GtkWidget*
-sokoke_file_chooser_dialog_new          (const gchar*         title,
-                                         GtkWindow*           window,
-                                         GtkFileChooserAction action);
-
 gboolean
 sokoke_prefetch_uri                     (MidoriWebSettings*  settings,
                                          const char*         uri,

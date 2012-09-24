@@ -185,6 +185,11 @@ midori_browser_update_history         (KatzeItem*         item,
                                        const gchar*       type,
                                        const gchar*       event);
 
+void
+midori_browser_save_uri               (MidoriBrowser*     browser,
+                                       MidoriView*        view,
+                                       const gchar*       uri);
+
 G_END_DECLS
 
 #endif /* __MIDORI_BROWSER_H__ */
