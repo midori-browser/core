@@ -65,7 +65,6 @@ namespace Midori {
             string minutes_ = ngettext ("%d minute", "%d minutes", minutes).printf (minutes);
             string seconds_ = ngettext ("%d second", "%d seconds", seconds).printf (seconds);
             double last_time = download.get_data<int> ("last-time");
-            uint64 last_size = download.get_data<uint64> ("last-size");
 
             string eta = "";
             if (estimated > 0) {
@@ -82,7 +81,9 @@ namespace Midori {
                     eta = _(" - %s remaining").printf (eta);
             }
 
-            string speed;
+            string speed = "";
+#if HAVE_GLIB_2_30
+            uint64 last_size = download.get_data<uint64> ("last-size");
             if (elapsed != last_time) {
                 speed = format_size ((uint64)(
                     (current_size - last_size) / (elapsed - last_time)));
@@ -92,6 +93,8 @@ namespace Midori {
                 speed = _("?B");
             /* i18n: Download tooltip (transfer rate): (130KB/s) */
             speed = _(" (%s/s)").printf (speed);
+#endif
+
             if (elapsed - last_time > 5.0) {
                 download.set_data<int> ("last-time", (int)elapsed);
                 download.set_data<uint64> ("last-size", current_size);

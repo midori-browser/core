@@ -242,6 +242,8 @@ def configure (conf):
     check_pkg ('gmodule-2.0', '2.8.0', False)
     check_pkg ('gthread-2.0', '2.8.0', False)
     check_pkg ('gio-2.0', '2.22.0')
+    if check_version (conf.check_cfg (modversion='gio-2.0'), 2, 30, 0):
+        conf.env.append_value ('VALAFLAGS', '-D HAVE_GLIB_2_30')
     args = ''
     if Options.platform == 'win32':
         args = '--define-variable=target=win32'
