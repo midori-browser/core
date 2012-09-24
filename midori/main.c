@@ -1295,7 +1295,9 @@ midori_load_module (MidoriApp*   app,
         katze_array_add_item (extensions, extension);
         g_object_unref (extensions);
     }
-    g_object_unref (extension);
+
+    if (extension != NULL)
+        g_object_unref (extension);
 }
 
 static void
