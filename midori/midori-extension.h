@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2008 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2008-2012 Christian Dywan <christian@twotoasts.de>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -47,6 +47,18 @@ struct _MidoriExtensionClass
 
 GType
 midori_extension_get_type            (void) G_GNUC_CONST;
+
+GObject*
+midori_extension_load_from_file      (const gchar* extension_path,
+                                      const gchar* filename,
+                                      gboolean     activate,
+                                      gboolean     test);
+
+void
+midori_extension_activate           (GObject*     extension,
+                                     const gchar* filename,
+                                     gboolean     activate,
+                                     MidoriApp*   app);
 
 gboolean
 midori_extension_is_prepared         (MidoriExtension* extension);
