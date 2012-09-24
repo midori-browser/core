@@ -384,6 +384,9 @@ katze_item_set_uri (KatzeItem*   item,
 {
     g_return_if_fail (KATZE_IS_ITEM (item));
 
+    if (!g_strcmp0 (item->uri, uri))
+        return;
+
     katze_assign (item->uri, g_strdup (uri));
     g_object_notify (G_OBJECT (item), "uri");
 }

@@ -130,13 +130,12 @@ namespace Midori {
     }
 
     [CCode (cheader_filename = "midori/midori.h")]
-    public class View : Gtk.VBox {
+    public class View : Tab {
         [CCode (type = "GtkWidget*")]
         public View (GLib.Object net);
         public View.with_title (string? title=null, WebSettings? settings=null
             , bool append=false);
         public void set_uri (string uri);
-        public bool is_blank ();
         public unowned string get_display_uri ();
         public unowned string get_display_title ();
         public unowned string get_icon_uri ();
@@ -158,17 +157,11 @@ namespace Midori {
         public void populate_popup (Gtk.Menu menu, bool manual);
         public void reload (bool from_cache);
 
-        public string uri { get; }
         public string title { get; }
-        public int security { get; }
-        public string mime_type { get; }
         public Gdk.Pixbuf icon { get; }
-        public int load_status { get; }
-        public double progress { get; set; }
         public bool minimized { get; }
         public float zoom_level { get; }
         public Katze.Array news_feeds { get; }
-        public string statusbar_text { get; }
         public WebSettings settings { get; set; }
         public GLib.Object net { get; }
 

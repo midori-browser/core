@@ -357,7 +357,7 @@ _midori_browser_update_interface (MidoriBrowser* browser,
 
     action = _action_by_name (browser, "Location");
     midori_location_action_set_security_hint (
-        MIDORI_LOCATION_ACTION (action), midori_view_get_security (view));
+        MIDORI_LOCATION_ACTION (action), midori_tab_get_security (MIDORI_TAB (view)));
     midori_browser_update_secondary_icon (browser, view, action);
 }
 

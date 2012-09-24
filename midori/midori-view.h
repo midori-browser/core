@@ -13,6 +13,7 @@
 #define __MIDORI_VIEW_H__
 
 #include "midori-websettings.h"
+#include "midori-core.h"
 
 #include <katze/katze.h>
 
@@ -22,19 +23,6 @@
 
 G_BEGIN_DECLS
 
-#define MIDORI_LOAD_PROVISIONAL WEBKIT_LOAD_PROVISIONAL
-#define MIDORI_LOAD_COMMITTED WEBKIT_LOAD_COMMITTED
-#define MIDORI_LOAD_FINISHED WEBKIT_LOAD_FINISHED
-#define MidoriLoadStatus WebKitLoadStatus
-#define MIDORI_TYPE_LOAD_STATUS WEBKIT_TYPE_LOAD_STATUS
-
-typedef enum
-{
-    MIDORI_NEW_VIEW_TAB,
-    MIDORI_NEW_VIEW_BACKGROUND,
-    MIDORI_NEW_VIEW_WINDOW
-} MidoriNewView;
-
 typedef enum
 {
     MIDORI_DELAY_UNDELAYED = -1, /* The view is in a regular undelayed state */
@@ -42,27 +30,8 @@ typedef enum
     MIDORI_DELAY_PENDING_UNDELAY = -2 /* The view is delayed and showing a message asking to be undelayed */
 } MidoriDelay;
 
-GType
-midori_new_view_get_type (void) G_GNUC_CONST;
-
-#define MIDORI_TYPE_NEW_VIEW \
-    (midori_new_view_get_type ())
-
 #define MIDORI_TYPE_VIEW \
     (midori_view_get_type ())
-
-typedef enum
-{
-    MIDORI_SECURITY_NONE, /* The connection is neither encrypted nor verified. */
-    MIDORI_SECURITY_UNKNOWN, /* The security is unknown, due to lack of validation. */
-    MIDORI_SECURITY_TRUSTED /* The security is validated and trusted. */
-} MidoriSecurity;
-
-GType
-midori_security_get_type (void) G_GNUC_CONST;
-
-#define MIDORI_TYPE_SECURITY \
-    (midori_security_get_type ())
 
 typedef enum
 {
@@ -270,9 +239,6 @@ midori_view_get_web_view               (MidoriView*        view);
 
 MidoriView*
 midori_view_get_for_widget             (GtkWidget*         web_view);
-
-MidoriSecurity
-midori_view_get_security               (MidoriView*        view);
 
 void
 midori_view_populate_popup             (MidoriView*        view,
