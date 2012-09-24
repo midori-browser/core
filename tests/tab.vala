@@ -45,7 +45,10 @@ const TestCaseEllipsize[] titles = {
       Pango.EllipsizeMode.START, "file:///home/user" },
     { "http://paste.foo/0007-Bump-version-to-0.4.7.patch",
       null,
-      Pango.EllipsizeMode.START, "0007-Bump-version-to-0.4.7.patch" }
+      Pango.EllipsizeMode.START, "0007-Bump-version-to-0.4.7.patch" },
+    { "http://translate.google.com/#en/de/cat%0Adog%0Ahorse",
+      "Google Translator",
+      Pango.EllipsizeMode.END, null }
 };
 
 static void tab_display_title () {

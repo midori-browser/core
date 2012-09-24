@@ -285,6 +285,8 @@ magic_uri_format (void)
      { "http://wiki.c3sl.ufpr.br/multiseat/index.php/Xephyr_Solution", NULL },
      { "http://şøñđëřżēıċħęŋđőmæîņĭśŧşũþėŗ.de/char.jpg", NULL },
      { "http://www.ⓖⓝⓞⓜⓔ.org/", "http://www.gnome.org/" },
+     { "http://translate.google.com/#en/de/cat%0Adog%0Ahorse",
+       "http://translate.google.com/#en/de/cat%0Adog%0Ahorse" },
      };
     guint i;
 

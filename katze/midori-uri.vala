@@ -57,7 +57,7 @@ namespace Midori {
                 string? unescaped = GLib.Uri.unescape_string (uri, "+");
                 if (unescaped == null)
                     return uri;
-                return unescaped.replace (" ", "%20");
+                return unescaped.replace (" ", "%20").replace ("\n", "%0A");
             }
             return uri;
         }
