@@ -84,7 +84,7 @@ void main (string[] args) {
     string temporary_cache = DirUtils.make_tmp ("cacheXXXXXX");
     Environment.set_variable ("XDG_CACHE_HOME", temporary_cache, true);
     Test.init (ref args);
-    Midori.Paths.init (Midori.RuntimeMode.PRIVATE, null);
+    Midori.Paths.init (Midori.RuntimeMode.NORMAL, null);
     Test.add_func ("/speeddial/load", speeddial_load);
     Test.run ();
     DirUtils.remove (temporary_cache);

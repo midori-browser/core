@@ -143,7 +143,7 @@ main (int    argc,
 {
     g_test_init (&argc, &argv, NULL);
     midori_app_setup (&argc, &argv, NULL, NULL);
-    midori_paths_init (MIDORI_RUNTIME_MODE_PRIVATE, NULL);
+    midori_paths_init (MIDORI_RUNTIME_MODE_NORMAL, NULL);
 
     g_object_set_data (G_OBJECT (webkit_get_default_session ()),
                        "midori-session-initialized", (void*)1);

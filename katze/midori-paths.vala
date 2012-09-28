@@ -72,11 +72,6 @@ namespace Midori {
                     exec_path, "profile", "tmp");
             }
             else if (mode == RuntimeMode.PRIVATE || mode == RuntimeMode.APP) {
-                /* Use mock folders in development builds */
-                if ("." in MIDORI_VERSION_SUFFIX)
-                    config_dir = cache_dir = user_data_dir = config_base;
-                else
-                    config_dir = cache_dir = user_data_dir = "/";
                 readonly_dir = config_base ?? Path.build_path (Path.DIR_SEPARATOR_S,
                     Environment.get_user_config_dir (), PACKAGE_NAME);
                 tmp_dir = Path.build_path (Path.DIR_SEPARATOR_S,

@@ -195,7 +195,7 @@ main (int    argc,
 {
     g_test_init (&argc, &argv, NULL);
     midori_app_setup (&argc, &argv, NULL, NULL);
-    midori_paths_init (MIDORI_RUNTIME_MODE_PRIVATE, NULL);
+    midori_paths_init (MIDORI_RUNTIME_MODE_NORMAL, NULL);
     soup_session_add_feature_by_type (webkit_get_default_session (),
         SOUP_TYPE_COOKIE_JAR);
 
@@ -204,7 +204,6 @@ main (int    argc,
 
     if (g_module_supported ())
     {
-        const gchar* filename;
         GDir* extension_dir = g_dir_open (EXTENSION_PATH, 0, NULL);
         g_assert (extension_dir != NULL);
 
