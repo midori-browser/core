@@ -3457,9 +3457,7 @@ _action_source_view_activate (GtkAction*     action,
     gchar* text_editor;
     gchar* filename = NULL;
 
-    if (!(view = midori_browser_get_current_tab (browser)))
-        return;
-
+    view = midori_browser_get_current_tab (browser);
     filename = midori_view_save_source (MIDORI_VIEW (view), NULL, NULL);
     g_object_get (browser->settings, "text-editor", &text_editor, NULL);
     if (!(text_editor && *text_editor))

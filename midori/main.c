@@ -1468,10 +1468,9 @@ midori_prepare_uri (const gchar *uri)
     else if (g_file_test (uri, G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR)
          && !g_path_is_absolute (uri))
     {
-        gchar* current_dir = g_get_current_dir ();
-        uri_ready = g_strconcat ("file://", current_dir,
-                                 G_DIR_SEPARATOR_S, uri, NULL);
-        g_free (current_dir);
+        GFile* file = g_file_new_for_commandline_arg (uri);
+        uri_ready = g_file_get_uri (file);
+        g_object_unref (file);
         return uri_ready;
     }
 

@@ -5174,6 +5174,9 @@ midori_view_save_source (MidoriView* view,
     if (uri == NULL)
         uri = midori_view_get_display_uri (view);
 
+    if (g_str_has_prefix (uri, "file:///"))
+        return g_strdup (uri);
+
     if (!outfile)
     {
         gchar* extension = midori_download_get_extension_for_uri (uri, NULL);

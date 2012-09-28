@@ -32,6 +32,8 @@ browser_create (void)
     gint n;
     gchar* temporary_downloads;
     GtkWidget* view;
+    GFile* file;
+    gchar* uri;
 
     g_test_log_set_fatal_handler (skip_gtk_bugs, NULL);
 
@@ -47,6 +49,15 @@ browser_create (void)
     temporary_downloads = g_dir_make_tmp ("saveXXXXXX", NULL);
     midori_settings_set_download_folder (MIDORI_SETTINGS (settings), temporary_downloads);
     midori_browser_save_uri (browser, MIDORI_VIEW (view), NULL);
+
+    /* View source for local file: should NOT use temporary file */
+    file = g_file_new_for_commandline_arg ("./data/error.html");
+    uri = g_file_get_uri (file);
+    g_object_unref (file);
+    n = midori_browser_add_uri (browser, uri);
+    midori_browser_set_current_page (browser, n);
+    g_assert_cmpstr (uri, ==, midori_browser_get_current_uri (browser));
+    g_free (uri);
 
     gtk_widget_destroy (GTK_WIDGET (browser));
     g_object_unref (settings);
