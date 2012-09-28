@@ -11,19 +11,30 @@
 
 struct TestCase {
     public string data;
-    public string? expected;
+    public string mime_type;
+    public string? expected_filename;
+    public string? expected_extension;
 }
 
 const TestCase[] filenames = {
-    { "/tmp/midori-user/tumblr123.jpg", ".jpg" },
-    { "https://green.cat/8019B6/a.b/500.jpg", ".jpg" },
-    { "http://example.com/file.png", ".png" }
+    { "file:///tmp/midori-user/tumblr123.jpg", "image/jpg", "tumblr123.jpg", ".jpg" },
+    { "https://green.cat/8019B6/a.b/500.jpg", "image/jpg", "500.jpg", ".jpg" },
+    { "http://example.com/file.png", "image/png", "file.png", ".png" },
+    { "http://svn.sf.net/doc/doxy_to_dev.xsl.m4?rev=253", "application/xslt+xml", "doxy_to_dev.xsl.m4", ".m4" }
 };
+
+static void download_suggestion () {
+    foreach (var filename in filenames) {
+        string? result = Midori.Download.get_filename_suggestion_for_uri (
+            filename.mime_type, filename.data);
+        Katze.assert_str_equal (filename.data, result, filename.expected_filename);
+    }
+}
 
 static void download_extension () {
     foreach (var filename in filenames) {
         string? result = Midori.Download.get_extension_for_uri (filename.data);
-        Katze.assert_str_equal (filename.data, result, filename.expected);
+        Katze.assert_str_equal (filename.data, result, filename.expected_extension);
     }
 }
 
@@ -51,6 +62,7 @@ static void download_unique () {
 
 void main (string[] args) {
     Test.init (ref args);
+    Test.add_func ("/download/suggestion", download_suggestion);
     Test.add_func ("/download/extension", download_extension);
     Test.add_func ("/download/unique", download_unique);
     Test.run ();

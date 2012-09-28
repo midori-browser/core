@@ -225,10 +225,9 @@ namespace Midori {
         }
 
         public string get_filename_suggestion_for_uri (string mime_type, string uri) {
-            /* Try to provide a good default filename, UTF-8 encoded */
-            string filename = clean_filename (Soup.URI.decode (uri));
-            /* Take the rest of the URI if needed */
-            if (filename.has_suffix ("/") || uri.index_of_char ('.') == -1)
+            return_if_fail (Midori.URI.is_location (uri));
+            string filename = File.new_for_uri (uri).get_basename ();
+            if (uri.index_of_char ('.') == -1)
                 return Path.build_filename (filename, fallback_extension (null, mime_type));
             return filename;
         }
@@ -244,8 +243,10 @@ namespace Midori {
             int period = uri.last_index_of_char ('.', last_slash);
             if (period == -1)
                 return null;
+            /* Exclude the query: ?query=foobar */
+            int query = uri.last_index_of_char ('?', period);
             /* The extension, or "." if it ended with a period */
-            string extension = uri.substring (period, -1);
+            string extension = uri.substring (period, query - period);
             if (&basename != null)
                 basename = uri.substring (0, period);
             return extension;
