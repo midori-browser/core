@@ -751,7 +751,7 @@ midori_app_create_instance (MidoriApp* app)
 
     {
         #if HAVE_UNIQUE
-        const gchar* config = midori_paths_get_config_dir ();
+        const gchar* config = midori_paths_get_config_dir_for_reading ();
         gchar* name_hash;
         name_hash = g_compute_checksum_for_string (G_CHECKSUM_MD5, config, -1);
         katze_assign (app_name, g_strconcat ("midori", "_", name_hash, NULL));

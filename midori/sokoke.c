@@ -507,7 +507,7 @@ sokoke_spawn_app (const gchar* uri,
     gchar* argument;
     if (private)
     {
-        gchar* config_quoted = g_shell_quote (midori_paths_get_config_dir ());
+        gchar* config_quoted = g_shell_quote (midori_paths_get_config_dir_for_reading ());
         argument = g_strconcat ("-c ", config_quoted,
                                 " -p ", uri_quoted, NULL);
     }

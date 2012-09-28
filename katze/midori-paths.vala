@@ -41,12 +41,14 @@ namespace Midori {
         static string? user_data_dir = null;
         static string? tmp_dir = null;
 
-        public static string get_readonly_config_dir () {
+        public static string get_config_dir_for_reading () {
             assert (mode != RuntimeMode.UNDEFINED);
             return readonly_dir ?? config_dir;
         }
 
-        public static string get_readonly_config_filename (string filename) {
+        /* returns the path to a user configuration file whose contents should not be modified.
+        to get the path to save settings, use get_config_filename() */
+        public static string get_config_filename_for_reading (string filename) {
             assert (mode != RuntimeMode.UNDEFINED);
             return Path.build_path (Path.DIR_SEPARATOR_S,
                 readonly_dir ?? config_dir, filename);
@@ -92,12 +94,15 @@ namespace Midori {
             }
         }
 
-        public static unowned string get_config_dir () {
+        public static unowned string get_config_dir_for_writing () {
             assert (config_dir != null);
             return config_dir;
         }
 
-        public static string get_config_filename (string filename) {
+        /* returns the path to a user configuration file to which it is permitted to write.
+        this is also necessary for files whose state is synchronized to disk by a manager,
+        e.g. cookies. */
+        public static string get_config_filename_for_writing (string filename) {
             assert (mode != RuntimeMode.UNDEFINED);
             assert (config_dir != null);
             return Path.build_path (Path.DIR_SEPARATOR_S, config_dir, filename);
@@ -198,6 +203,8 @@ namespace Midori {
             #endif
         }
 
+        /* returns the path to a file containing read-only data installed with the application
+        if @res is true, looks in the midori resource folder specifically */
         public static string get_data_filename (string filename, bool res) {
             assert (command_line != null);
             string res1 = res ? PACKAGE_NAME : "";
@@ -220,6 +227,7 @@ namespace Midori {
             #endif
         }
 
+        /* returns the path to a file containing system default configuration */
         public static string get_preset_filename (string? folder, string filename) {
             assert (config_dir != null);
 
