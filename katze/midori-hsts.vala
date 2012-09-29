@@ -39,15 +39,13 @@ namespace Midori {
             }
         }
 
-        File file;
         HashTable<string, Directive> whitelist;
         bool debug = false;
 
-        public HSTS (owned string filename) {
+        public HSTS () {
             whitelist = new HashTable<string, Directive> (str_hash, str_equal);
             read_cache (File.new_for_path (Paths.get_preset_filename (null, "hsts")));
-            file = File.new_for_path (filename);
-            read_cache (file);
+            read_cache (File.new_for_path (Paths.get_config_filename_for_reading ("hsts")));
             if (strcmp (Environment.get_variable ("MIDORI_DEBUG"), "hsts") == 0)
                 debug = true;
         }
@@ -111,13 +109,15 @@ namespace Midori {
             if (Midori.Paths.is_readonly ())
                 return;
 
+            string filename = Paths.get_config_filename_for_writing ("hsts");
             try {
+                var file = File.new_for_path (filename);
                 var stream = file.append_to/* FIXME _async*/ (FileCreateFlags.NONE);
                 yield stream.write_async ((host + " " + header + "\n").data);
                 yield stream.flush_async ();
             }
             catch (Error error) {
-                critical ("Failed to update %s: %s", file.get_path (), error.message);
+                critical ("Failed to update %s: %s", filename, error.message);
             }
         }
 

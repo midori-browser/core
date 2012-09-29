@@ -1502,7 +1502,7 @@ katze_load_cached_icon (const gchar* uri,
         filename = g_strdup_printf ("%s%s", checksum, ext ? ext : "");
         g_free (icon_uri);
         g_free (checksum);
-        path = g_build_filename (midori_paths_get_cache_dir (), "icons", filename, NULL);
+        path = g_build_filename (midori_paths_get_cache_dir_for_reading (), "icons", filename, NULL);
         g_free (filename);
         if ((icon = gdk_pixbuf_new_from_file_at_size (path, 16, 16, NULL)))
         {

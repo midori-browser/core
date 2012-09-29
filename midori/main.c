@@ -1007,13 +1007,6 @@ midori_load_soup_session (gpointer settings)
             G_CALLBACK (soup_session_settings_notify_first_party_cb), session);
     #endif
 
-    #if WEBKIT_CHECK_VERSION (1, 8, 0)
-    gchar* cache = g_build_filename (midori_paths_get_user_data_dir (),
-                                     "webkit", "icondatabase", NULL);
-    webkit_favicon_database_set_path (webkit_get_favicon_database (), cache);
-    g_free (cache);
-    #endif
-
     #if defined (HAVE_LIBSOUP_2_34_0)
     g_signal_connect (session, "request-started",
         G_CALLBACK (midori_soup_session_request_started_cb), session);
@@ -1021,8 +1014,7 @@ midori_load_soup_session (gpointer settings)
     g_signal_connect (session, "request-queued",
         G_CALLBACK (midori_soup_session_settings_accept_language_cb), settings);
 
-    soup_session_add_feature (session, SOUP_SESSION_FEATURE (
-        midori_hsts_new (midori_paths_get_config_filename_for_reading ("hsts"))));
+    soup_session_add_feature (session, SOUP_SESSION_FEATURE (midori_hsts_new ()));
 
     midori_soup_session_debug (session);
 
@@ -1194,6 +1186,12 @@ midori_load_soup_session_full (gpointer settings)
     soup_cache_set_max_size (SOUP_CACHE (feature),
         katze_object_get_int (settings, "maximum-cache-size") * 1024 * 1024);
     soup_cache_load (SOUP_CACHE (feature));
+    #endif
+
+    #if WEBKIT_CHECK_VERSION (1, 8, 0)
+    katze_assign (config_file, g_build_filename (midori_paths_get_user_data_dir (),
+                                                 "webkit", "icondatabase", NULL));
+    webkit_favicon_database_set_path (webkit_get_favicon_database (), config_file);
     #endif
     g_free (config_file);
 

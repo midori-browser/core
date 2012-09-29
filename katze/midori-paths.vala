@@ -38,7 +38,9 @@ namespace Midori {
         static string? config_dir = null;
         static string? readonly_dir = null;
         static string? cache_dir = null;
+        static string? cache_dir_for_reading = null;
         static string? user_data_dir = null;
+        static string? user_data_dir_for_reading = null;
         static string? tmp_dir = null;
 
         public static string get_config_dir_for_reading () {
@@ -76,6 +78,9 @@ namespace Midori {
             else if (mode == RuntimeMode.PRIVATE || mode == RuntimeMode.APP) {
                 readonly_dir = config_base ?? Path.build_path (Path.DIR_SEPARATOR_S,
                     Environment.get_user_config_dir (), PACKAGE_NAME);
+                cache_dir_for_reading = Path.build_path (Path.DIR_SEPARATOR_S,
+                    Environment.get_user_cache_dir (), PACKAGE_NAME);
+                user_data_dir_for_reading = Environment.get_user_data_dir ();
                 tmp_dir = Path.build_path (Path.DIR_SEPARATOR_S,
                     Environment.get_tmp_dir (), "midori-" + Environment.get_user_name ());
             }
@@ -116,6 +121,20 @@ namespace Midori {
         public static unowned string get_user_data_dir () {
             assert (user_data_dir != null);
             return user_data_dir;
+        }
+
+        public static unowned string get_user_data_dir_for_reading () {
+            assert (user_data_dir_for_reading != null || user_data_dir != null);
+            if (user_data_dir != null)
+                return user_data_dir;
+            return user_data_dir_for_reading;
+        }
+
+        public static unowned string get_cache_dir_for_reading () {
+            assert (cache_dir_for_reading != null || cache_dir != null);
+            if (cache_dir != null)
+                return cache_dir;
+            return cache_dir_for_reading;
         }
 
         public static unowned string get_tmp_dir () {
@@ -213,7 +232,7 @@ namespace Midori {
             #if HAVE_WIN32
             return Path.build_filename (exec_path, "share", res1, res2, filename);
             #else
-            string path = Path.build_filename (get_user_data_dir (), res1, res2, filename);
+            string path = Path.build_filename (get_user_data_dir_for_reading (), res1, res2, filename);
             if (Posix.access (path, Posix.F_OK) == 0)
                 return path;
 
@@ -229,7 +248,7 @@ namespace Midori {
 
         /* returns the path to a file containing system default configuration */
         public static string get_preset_filename (string? folder, string filename) {
-            assert (config_dir != null);
+            assert (exec_path != null);
 
             #if HAVE_WIN32
             return Path.build_filename (exec_path, "etc", "xdg", PACKAGE_NAME, folder ?? "", filename);
