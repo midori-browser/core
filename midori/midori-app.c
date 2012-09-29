@@ -782,7 +782,7 @@ midori_app_create_instance (MidoriApp* app)
     g_signal_connect (instance, "message-received",
                       G_CALLBACK (midori_browser_message_received_cb), app);
     #else
-    instance = socket_init (instance_name, midori_paths_get_config_dir (), &exists);
+    instance = socket_init (instance_name, midori_paths_get_config_dir_for_writing (), &exists);
     g_object_set_data (G_OBJECT (app), "sock-exists",
         exists ? (gpointer)0xdeadbeef : NULL);
     if (instance != MidoriAppInstanceNull)
