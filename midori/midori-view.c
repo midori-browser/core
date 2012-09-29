@@ -1343,6 +1343,8 @@ midori_view_display_error (MidoriView*     view,
         const gchar* icon;
         gchar* result;
 
+        gboolean show_button_images = katze_object_get_boolean (
+            gtk_widget_get_settings (view->web_view), "gtk-button-images");
         if (uri == NULL)
             uri = midori_tab_get_uri (MIDORI_TAB (view));
         title_escaped = g_markup_escape_text (title ? title : view->title, -1);
@@ -1356,6 +1358,7 @@ midori_view_display_error (MidoriView*     view,
             "{description}", description,
             "{tryagain}", try_again,
             "{uri}", uri,
+            "{hide-button-images}", show_button_images ? "" : "display:none",
             NULL);
         g_free (title_escaped);
         g_free (template);
