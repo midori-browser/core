@@ -6885,7 +6885,7 @@ _midori_browser_set_toolbar_items (MidoriBrowser* browser,
                 if (!g_strcmp0 (*name, "Back"))
                     g_object_set_data (G_OBJECT (gtk_bin_get_child (GTK_BIN (toolitem))),
                         "history-back", (void*) 0xdeadbeef);
-                else if (!g_strcmp0 (*name, "Forward"))
+                else if (g_str_has_suffix (*name, "Forward"))
                     g_object_set_data (G_OBJECT (gtk_bin_get_child (GTK_BIN (toolitem))),
                         "history-forward", (void*) 0xdeadbeef);
 
