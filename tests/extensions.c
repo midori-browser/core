@@ -169,6 +169,7 @@ extension_activate (gconstpointer data)
     MidoriApp* app = midori_app_new ();
     g_object_set (app, "settings", midori_web_settings_new (), NULL);
     midori_extension_activate (G_OBJECT (data), NULL, TRUE, app);
+    /* TODO: MidoriCompletion */
     g_object_unref (app);
 }
 
