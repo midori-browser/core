@@ -31,6 +31,7 @@ browser_create (void)
     MidoriBrowser* browser;
     gint n;
     gchar* temporary_downloads;
+    gchar* temporary_filename;
     GtkWidget* view;
     GFile* file;
     gchar* uri;
@@ -42,22 +43,26 @@ browser_create (void)
     settings = midori_web_settings_new ();
     g_object_set (app, "speed-dial", dial, "settings", settings, NULL);
     browser = midori_app_create_browser (app);
-    n = midori_browser_add_uri (browser, "about:blank");
+    file = g_file_new_for_commandline_arg ("./data/about.css");
+    uri = g_file_get_uri (file);
+    g_object_unref (file);
+    n = midori_browser_add_uri (browser, uri);
     view = midori_browser_get_nth_tab (browser, n);
 
     midori_test_set_dialog_response (GTK_RESPONSE_OK);
     temporary_downloads = g_dir_make_tmp ("saveXXXXXX", NULL);
+    temporary_filename = g_build_filename (temporary_downloads, "test.html", NULL);
+    midori_test_set_file_chooser_filename (temporary_filename);
     midori_settings_set_download_folder (MIDORI_SETTINGS (settings), temporary_downloads);
     midori_browser_save_uri (browser, MIDORI_VIEW (view), NULL);
 
     /* View source for local file: should NOT use temporary file */
-    file = g_file_new_for_commandline_arg ("./data/error.html");
-    uri = g_file_get_uri (file);
-    g_object_unref (file);
     n = midori_browser_add_uri (browser, uri);
     midori_browser_set_current_page (browser, n);
     g_assert_cmpstr (uri, ==, midori_browser_get_current_uri (browser));
     g_free (uri);
+    g_free (temporary_downloads);
+    g_free (temporary_filename);
 
     gtk_widget_destroy (GTK_WIDGET (browser));
     g_object_unref (settings);

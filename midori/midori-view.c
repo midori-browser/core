@@ -2115,14 +2115,20 @@ midori_web_view_menu_image_new_tab_activate_cb (GtkWidget*  widget,
     g_free (uri);
 }
 
-static GString*
-midori_view_get_data_for_uri (MidoriView*  view,
-                              const gchar* uri)
+GList*
+midori_view_get_subresources (MidoriView* view)
 {
     WebKitWebView* web_view = WEBKIT_WEB_VIEW (view->web_view);
     WebKitWebFrame* frame = webkit_web_view_get_main_frame (web_view);
     WebKitWebDataSource* data_source = webkit_web_frame_get_data_source (frame);
-    GList* resources = webkit_web_data_source_get_subresources (data_source);
+    return webkit_web_data_source_get_subresources (data_source);
+}
+
+static GString*
+midori_view_get_data_for_uri (MidoriView*  view,
+                              const gchar* uri)
+{
+    GList* resources = midori_view_get_subresources (view);
     GList* list;
     GString* result;
 

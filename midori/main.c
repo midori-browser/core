@@ -1480,7 +1480,8 @@ static void
 signal_handler (int signal_id)
 {
     signal (signal_id, 0);
-    midori_app_quit_cb (NULL, NULL);
+    if (!midori_paths_is_readonly ())
+        midori_app_quit_cb (NULL, NULL);
     if (kill (getpid (), signal_id))
       exit (1);
 }

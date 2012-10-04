@@ -995,15 +995,10 @@ midori_browser_prepare_download (MidoriBrowser*  browser,
 }
 
 static void
-midori_browser_save_resources (MidoriView*  view,
+midori_browser_save_resources (GList*       resources,
                                const gchar* folder)
 {
-    WebKitWebView* web_view = WEBKIT_WEB_VIEW (midori_view_get_web_view (view));
-    WebKitWebFrame* frame = webkit_web_view_get_main_frame (web_view);
-    WebKitWebDataSource* data_source = webkit_web_frame_get_data_source (frame);
-    GList* resources = webkit_web_data_source_get_subresources (data_source);
     GList* list;
-
     katze_mkdir_with_parents (folder, 0700);
 
     for (list = resources; list; list = g_list_next (list))
@@ -1034,7 +1029,6 @@ midori_browser_save_resources (MidoriView*  view,
         g_free (sub_filename);
         g_free (sub_path);
     }
-    g_list_free (resources);
 }
 
 void
@@ -1046,6 +1040,7 @@ midori_browser_save_uri (MidoriBrowser* browser,
     GtkWidget* dialog;
     const gchar* title = midori_view_get_display_title (view);
     gchar* filename;
+    GList* resources = midori_view_get_subresources (view);
     gboolean file_only = TRUE;
     GtkWidget* checkbox = NULL;
 
@@ -1056,7 +1051,7 @@ midori_browser_save_uri (MidoriBrowser* browser,
     if (uri == NULL)
         uri = midori_view_get_display_uri (view);
 
-    if (midori_view_can_view_source (view))
+    if (resources != NULL && g_list_nth_data (resources, 1) != NULL)
     {
         file_only = FALSE;
         checkbox = gtk_check_button_new_with_mnemonic (_("Save associated _resources"));
@@ -1090,21 +1085,21 @@ midori_browser_save_uri (MidoriBrowser* browser,
     {
         filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
         if (checkbox != NULL)
-            file_only = !file_only && !gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (checkbox));
-        if (!file_only && !g_str_equal (title, uri))
+            file_only = !gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (checkbox));
+        if (!file_only)
         {
             gchar* fullname = g_strconcat (filename, ".html", NULL);
             midori_view_save_source (view, uri, fullname);
             g_free (fullname);
+            midori_browser_save_resources (resources, filename);
         }
         else
             midori_view_save_source (view, uri, filename);
-        if (!file_only)
-            midori_browser_save_resources (view, filename);
         katze_assign (last_dir,
             gtk_file_chooser_get_current_folder (GTK_FILE_CHOOSER (dialog)));
     }
     gtk_widget_destroy (dialog);
+    g_list_free (resources);
 }
 
 static void

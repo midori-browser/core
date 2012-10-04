@@ -96,7 +96,7 @@ katze_net_get_cached_path (KatzeNet*    net,
 
     if (subfolder)
     {
-        gchar* cache_path = g_build_filename (midori_paths_get_cache_dir (), subfolder, NULL);
+        gchar* cache_path = g_build_filename (midori_paths_get_cache_dir_for_reading (), subfolder, NULL);
         katze_mkdir_with_parents (cache_path, 0700);
         cached_path = g_build_filename (cache_path, cached_filename, NULL);
         g_free (cache_path);

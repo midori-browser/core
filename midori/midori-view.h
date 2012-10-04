@@ -258,6 +258,9 @@ const gchar*
 midori_view_fallback_extension         (MidoriView*        view,
                                         const gchar*       extension);
 
+GList*
+midori_view_get_subresources           (MidoriView* view);
+
 G_END_DECLS
 
 #endif /* __MIDORI_VIEW_H__ */

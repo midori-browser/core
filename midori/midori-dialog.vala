@@ -15,6 +15,11 @@ namespace Midori {
         public void set_dialog_response (Gtk.ResponseType response) {
             test_response = response;
         }
+
+        internal static string? test_filename = null;
+        public void set_file_chooser_filename (string filename) {
+            test_filename = filename;
+        }
     }
 
     public class FileChooserDialog : Gtk.FileChooserDialog {
@@ -35,8 +40,11 @@ namespace Midori {
 
     namespace Dialog {
         public static new int run (Gtk.Dialog dialog) {
-            if (Test.test_response != Gtk.ResponseType.NONE)
+            if (Test.test_response != Gtk.ResponseType.NONE) {
+                if (Test.test_filename != null && dialog is Gtk.FileChooser)
+                    (dialog as Gtk.FileChooser).set_filename (Test.test_filename);
                 return Test.test_response;
+            }
             return dialog.run ();
         }
     }
