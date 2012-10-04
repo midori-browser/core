@@ -35,6 +35,8 @@ browser_create (void)
     GtkWidget* view;
     GFile* file;
     gchar* uri;
+    gchar* filename;
+    gchar* filename2;
 
     g_test_log_set_fatal_handler (skip_gtk_bugs, NULL);
 
@@ -55,6 +57,12 @@ browser_create (void)
     midori_test_set_file_chooser_filename (temporary_filename);
     midori_settings_set_download_folder (MIDORI_SETTINGS (settings), temporary_downloads);
     midori_browser_save_uri (browser, MIDORI_VIEW (view), NULL);
+
+    filename = midori_view_save_source (MIDORI_VIEW (view), NULL, NULL);
+    filename2 = g_filename_from_uri (uri, NULL, NULL);
+    g_assert_cmpstr (filename, ==, filename2);
+    g_free (filename);
+    g_free (filename2);
 
     /* View source for local file: should NOT use temporary file */
     n = midori_browser_add_uri (browser, uri);

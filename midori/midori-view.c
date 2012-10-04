@@ -5184,7 +5184,7 @@ midori_view_save_source (MidoriView* view,
         uri = midori_view_get_display_uri (view);
 
     if (g_str_has_prefix (uri, "file:///"))
-        return g_strdup (uri);
+        return g_filename_from_uri (uri, NULL, NULL);
 
     if (!outfile)
     {
