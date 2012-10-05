@@ -54,8 +54,10 @@ const TestCaseEllipsize[] titles = {
 static void tab_display_title () {
     foreach (var title in titles) {
         string result = Midori.Tab.get_display_title (title.title, title.uri);
-        unowned string? expected = title.expected_title ?? "‪" + title.title;
-        Katze.assert_str_equal (title.title, expected, result);
+        string expected = title.expected_title ?? "‪" + title.title;
+        if (result != expected)
+            error ("%s expected for %s but got %s",
+                   expected, title.title, result);
     }
 }
 
@@ -69,11 +71,61 @@ static void tab_display_ellipsize () {
     }
 }
 
+void tab_special () {
+    var browser = new Gtk.Window (Gtk.WindowType.TOPLEVEL);
+    /*
+    var dial = new Midori.SpeedDial ("/", null);
+    var settings = new Midori.WebSettings ();
+    var browser = new Midori.Browser ();
+    browser.set ("speed-dial", dial, "settings", settings);
+    */
+    var tab = new Midori.View.with_title ();
+    browser.add (tab);
+    /* browser.add_tab (tab); */
+    var loop = MainContext.default ();
+
+    /* tab.set_uri ("about:blank"); */
+    do { loop.iteration (true); } while (tab.load_status != Midori.LoadStatus.FINISHED);
+    assert (tab.is_blank ());
+    assert (!tab.can_view_source ());
+    /* FIXME assert (tab.special); */
+
+    tab.set_uri ("error:nodocs file:///some/docs/path");
+    do { loop.iteration (true); } while (tab.load_status != Midori.LoadStatus.FINISHED);
+    assert (!tab.is_blank ());
+    assert (tab.can_view_source ());
+    /* FIXME assert (tab.special); */
+
+    tab.set_uri ("http://.invalid");
+    do { loop.iteration (true); } while (tab.load_status != Midori.LoadStatus.FINISHED);
+    assert (!tab.is_blank ());
+    assert (!tab.can_view_source ());
+    assert (tab.special);
+
+    var item = tab.get_proxy_item ();
+    item.set_meta_integer ("delay", Midori.Delay.UNDELAYED);
+    tab.set_uri ("http://example.com");
+    do { loop.iteration (true); } while (tab.load_status != Midori.LoadStatus.FINISHED);
+    /* FIXME assert (!tab.can_view_source ()); */
+    /* FIXME assert (tab.special); */
+
+    /* FIXME use an HTTP URI that's available even offline */
+    tab.set_uri ("http://example.com");
+    do { loop.iteration (true); } while (tab.load_status != Midori.LoadStatus.FINISHED);
+    assert (!tab.is_blank ());
+    assert (tab.can_view_source ());
+    assert (!tab.special);
+}
+
 void main (string[] args) {
     Test.init (ref args);
+    Midori.App.setup (ref args, null);
+    Midori.Paths.init (Midori.RuntimeMode.NORMAL, null);
+    WebKit.get_default_session ().set_data<bool> ("midori-session-initialized", true);
     Test.add_func ("/tab/load-title", tab_load_title);
     Test.add_func ("/tab/display-title", tab_display_title);
     Test.add_func ("/tab/ellipsize", tab_display_ellipsize);
+    Test.add_func ("/tab/special", tab_special);
     Test.run ();
 }
 

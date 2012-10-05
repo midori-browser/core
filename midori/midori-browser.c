@@ -335,9 +335,9 @@ _midori_browser_update_interface (MidoriBrowser* browser,
     _action_set_sensitive (browser, "ZoomNormal",
         midori_view_get_zoom_level (view) != 1.0f);
     _action_set_sensitive (browser, "Encoding",
-        midori_view_can_view_source (view));
+        midori_tab_can_view_source (MIDORI_TAB (view)));
     _action_set_sensitive (browser, "SourceView",
-        midori_view_can_view_source (view));
+        midori_tab_can_view_source (MIDORI_TAB (view)));
 
     action = _action_by_name (browser, "NextForward");
     if (midori_view_can_go_forward (view))

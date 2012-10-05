@@ -43,6 +43,8 @@ namespace Midori {
         }
         }
 
+        /* Special is an error, blank or delayed page */
+        public bool special { get; protected set; default = false; }
         /* Since: 0.4.8 */
         public string mime_type { get; protected set; default = "text/plain"; }
         /* Since: 0.1.2 */
@@ -72,7 +74,7 @@ namespace Midori {
         }
 
         public bool can_view_source () {
-            if (is_blank ())
+            if (is_blank () || special)
                 return false;
             string content_type = ContentType.from_mime_type (mime_type);
 #if HAVE_WIN32

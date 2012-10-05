@@ -8,6 +8,7 @@ namespace Midori {
     [CCode (cheader_filename = "midori/midori.h")]
     public class App : GLib.Object {
         public App ();
+        public static bool setup ([CCode (array_length_pos = 0.9)] ref unowned string[] args, [CCode (array_length = false)] GLib.OptionEntry[]? entries) throws GLib.Error;
         public Browser create_browser ();
         public GLib.List<weak Browser> get_browsers ();
 
@@ -146,8 +147,7 @@ namespace Midori {
         public Gtk.Menu get_tab_menu ();
         public Pango.EllipsizeMode get_label_ellipsize ();
         public Gtk.Label get_proxy_tab_label ();
-        public Katze.Item get_proxy_item ();
-        public bool can_view_source ();
+        public unowned Katze.Item get_proxy_item ();
         public void search_text (string text, bool case_sensitive, bool forward);
         public void mark_text_matches (string text, bool case_sensitive);
         public void set_highlight_text_matches (bool highlight);

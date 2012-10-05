@@ -61,6 +61,11 @@ namespace Midori {
             return readonly_dir != null;
         }
 
+        public RuntimeMode get_runtime_mode () {
+            assert (mode != RuntimeMode.UNDEFINED);
+            return mode;
+        }
+
         public static void init (RuntimeMode new_mode, string? config_base) {
             assert (mode == RuntimeMode.UNDEFINED);
             assert (new_mode != RuntimeMode.UNDEFINED);

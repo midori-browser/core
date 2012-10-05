@@ -90,7 +90,6 @@ struct _MidoriView
 {
     MidoriTab parent_instance;
 
-    gboolean special;
     gchar* title;
     GdkPixbuf* icon;
     gchar* icon_uri;
@@ -723,7 +722,7 @@ _midori_web_view_load_icon (MidoriView* view)
             g_hash_table_insert (midori_view_get_memory (),
                 g_strdup (view->icon_uri), g_object_ref (pixbuf));
         }
-        else if (!view->special)
+        else if (!midori_tab_get_special (MIDORI_TAB (view)))
         {
             katze_net_load_uri (NULL, view->icon_uri,
                 (KatzeNetStatusCb)katze_net_icon_status_cb,
@@ -753,9 +752,6 @@ midori_view_update_load_status (MidoriView*      view,
 {
     if (midori_tab_get_load_status (MIDORI_TAB (view)) == load_status)
         return;
-
-    if (load_status == MIDORI_LOAD_FINISHED)
-        view->special = FALSE;
 
     midori_tab_set_load_status (MIDORI_TAB (view), load_status);
 
@@ -805,7 +801,7 @@ midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view
         return TRUE;
     }
     #ifdef HAVE_GCR
-    else if (/* view->special && */ !strncmp (uri, "https", 5))
+    else if (/* midori_tab_get_special (MIDORI_TAB (view)) && */ !strncmp (uri, "https", 5))
     {
         /* We show an error page if the certificate is invalid.
            If a "special", unverified page loads a form, it must be that page.
@@ -851,7 +847,7 @@ midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view
         }
     }
     #endif
-    view->special = FALSE;
+    midori_tab_set_special (MIDORI_TAB (view), FALSE);
 
     if (katze_item_get_meta_integer (view->item, "delay") == MIDORI_DELAY_PENDING_UNDELAY)
         katze_item_set_meta_integer (view->item, "delay", MIDORI_DELAY_UNDELAYED);
@@ -947,7 +943,7 @@ webkit_web_view_load_committed_cb (WebKitWebView*  web_view,
          && soup_message_get_flags (message) & SOUP_MESSAGE_CERTIFICATE_TRUSTED)
             midori_tab_set_security (MIDORI_TAB (view), MIDORI_SECURITY_TRUSTED);
         #ifdef HAVE_GCR
-        else if (!view->special && message != NULL)
+        else if (!midori_tab_get_special (MIDORI_TAB (view)) && message != NULL)
         {
             GTlsCertificate* tls_cert;
             GcrCertificate* gcr_cert;
@@ -1011,7 +1007,7 @@ midori_view_web_view_resource_request_cb (WebKitWebView*         web_view,
     const gchar* uri = webkit_network_request_get_uri (request);
 
     /* Only apply custom URIs to special pages for security purposes */
-    if (!view->special && !midori_view_is_blank (view))
+    if (!midori_tab_get_special (MIDORI_TAB (view)))
         return;
 
     if (g_str_has_prefix (uri, "res://"))
@@ -1320,7 +1316,7 @@ midori_view_load_alternate_string (MidoriView*     view,
     WebKitWebView* web_view = WEBKIT_WEB_VIEW (view->web_view);
     if (!web_frame)
         web_frame = webkit_web_view_get_main_frame (web_view);
-    view->special = TRUE;
+    midori_tab_set_special (MIDORI_TAB (view), TRUE);
     webkit_web_frame_load_alternate_string (
         web_frame, data, uri, uri);
 }
@@ -1343,8 +1339,9 @@ midori_view_display_error (MidoriView*     view,
         const gchar* icon;
         gchar* result;
 
-        gboolean show_button_images = katze_object_get_boolean (
-            gtk_widget_get_settings (view->web_view), "gtk-button-images");
+        GtkSettings* gtk_settings = gtk_widget_get_settings (view->web_view);
+        gboolean show_button_images = gtk_settings != NULL
+          && katze_object_get_boolean (gtk_settings, "gtk-button-images");
         if (uri == NULL)
             uri = midori_tab_get_uri (MIDORI_TAB (view));
         title_escaped = g_markup_escape_text (title ? title : view->title, -1);
@@ -3160,7 +3157,7 @@ webkit_web_view_window_object_cleared_cb (GtkWidget*      web_view,
     if (!midori_uri_is_http (page_uri))
         return;
 
-    if (katze_object_get_boolean (view->settings, "enable-private-browsing"))
+    if (midori_paths_get_runtime_mode () == MIDORI_RUNTIME_MODE_PRIVATE)
     {
         /* Mask language, architecture, no plugin list */
         gchar* result = sokoke_js_script_eval (js_context,
@@ -5106,12 +5103,6 @@ midori_view_can_zoom_out (MidoriView* view)
     return view->web_view != NULL
         && (katze_object_get_boolean (view->settings, "zoom-text-and-images")
         || !g_str_has_prefix (midori_tab_get_mime_type (MIDORI_TAB (view)), "image/"));
-}
-
-gboolean
-midori_view_can_view_source (MidoriView* view)
-{
-    return midori_tab_can_view_source (MIDORI_TAB (view));
 }
 
 /**
