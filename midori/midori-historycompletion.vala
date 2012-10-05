@@ -76,17 +76,18 @@ namespace Midori {
                 unowned string uri = stmt.column_text (1);
                 unowned string title = stmt.column_text (2);
                 Gdk.Pixbuf? icon = Katze.load_cached_icon (uri, null);
+                Suggestion suggestion;
 
                 switch (type) {
                     case 1: /* history_view */
-                        var suggestion = new Suggestion (uri, title, false, null, icon);
+                        suggestion = new Suggestion (uri, title, false, null, icon);
                         suggestions.append (suggestion);
                         break;
                     case 2: /* search_view */
                         string desc = _("Search for %s").printf (title) + "\n" + uri;
                         /* FIXME: Theming? Win32? */
                         string background = "gray";
-                        var suggestion = new Suggestion (uri, desc, false, background, icon);
+                        suggestion = new Suggestion (uri, desc, false, background, icon);
                         suggestions.append (suggestion);
                         break;
                     default:

@@ -90,9 +90,9 @@ namespace Midori {
                 current_count = 0;
             }
 
-            uint count = 0;
+            int count = 0;
             foreach (var suggestion in suggestions) {
-                model.insert_with_values (null, completion.position,
+                model.insert_with_values (null, completion.position + count,
                     Columns.URI, suggestion.uri,
                     Columns.MARKUP, suggestion.use_markup
                     ? suggestion.markup : Markup.escape_text (suggestion.markup),

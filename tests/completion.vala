@@ -11,6 +11,7 @@
 
 class TestCompletion : Midori.Completion {
     public bool test_can_complete { get; set; }
+    public uint test_suggestions { get; set; }
 
     public TestCompletion () {
     }
@@ -27,7 +28,18 @@ class TestCompletion : Midori.Completion {
     }
 
     public override async List<Midori.Suggestion>? complete (string text, string? action, Cancellable cancellable) {
-        return null;
+        var suggestions = new List<Midori.Suggestion> ();
+        if (test_suggestions == 0)
+            return null;
+        if (test_suggestions >= 1)
+            suggestions.append (new Midori.Suggestion (null, "First"));
+        if (test_suggestions >= 2)
+            suggestions.append (new Midori.Suggestion (null, "Second"));
+        if (test_suggestions >= 3)
+            suggestions.append (new Midori.Suggestion (null, "Third"));
+        if (cancellable.is_cancelled ())
+            return null;
+        return suggestions;
     }
 }
 
@@ -41,6 +53,40 @@ void completion_autocompleter () {
     assert (!autocompleter.can_complete (""));
     completion.test_can_complete = true;
     assert (autocompleter.can_complete (""));
+
+    completion.test_suggestions = 0;
+    autocompleter.complete ("");
+    var loop = MainContext.default ();
+    do { loop.iteration (true); } while (loop.pending ());
+    assert (autocompleter.model.iter_n_children (null) == 0);
+
+    completion.test_suggestions = 1;
+    autocompleter.complete ("");
+    do { loop.iteration (true); } while (loop.pending ());
+    assert (autocompleter.model.iter_n_children (null) == 1);
+
+    /* Order */
+    completion.test_suggestions = 2;
+    autocompleter.complete ("");
+    do { loop.iteration (true); } while (loop.pending ());
+    assert (autocompleter.model.iter_n_children (null) == 2);
+    Gtk.TreeIter iter_first;
+    autocompleter.model.get_iter_first (out iter_first);
+    string title;
+    autocompleter.model.get (iter_first, Midori.Autocompleter.Columns.MARKUP, out title);
+    if (title != "First")
+        error ("Expected %s but got %s", "First", title);
+
+    /* Cancellation */
+    /*
+    autocompleter.complete ("");
+    completion.test_suggestions = 3;
+    autocompleter.complete ("");
+    do { loop.iteration (true); } while (loop.pending ());
+    int n = autocompleter.model.iter_n_children (null);
+    if (n != 3)
+        error ("Expected %d but got %d", 3, n);
+    */
 }
 
 struct TestCaseCompletion {
