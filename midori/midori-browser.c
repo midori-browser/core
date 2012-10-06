@@ -131,6 +131,7 @@ enum
     PROP_STATUSBAR,
     PROP_STATUSBAR_TEXT,
     PROP_SETTINGS,
+    PROP_PROXY_ITEMS,
     PROP_BOOKMARKS,
     PROP_TRASH,
     PROP_SEARCH_ENGINES,
@@ -2171,6 +2172,22 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
     /**
+    * MidoriBrowser:proxy-items:
+    *
+    * The open views, automatically updated, for session management.
+    *
+    * Since: 0.4.8
+    */
+    g_object_class_install_property (gobject_class,
+                                     PROP_PROXY_ITEMS,
+                                     g_param_spec_object (
+                                     "proxy-items",
+                                     "Proxy Items",
+                                     "The open tabs as an array",
+                                     KATZE_TYPE_ARRAY,
+                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+
+    /**
     * MidoriBrowser:bookmarks:
     *
     * The bookmarks folder, containing all bookmarks.
@@ -3099,16 +3116,7 @@ _action_window_activate_item_alt (GtkAction*     action,
                                   gint           button,
                                   MidoriBrowser* browser)
 {
-    guint i;
-    guint n = katze_array_get_length (browser->proxy_array);
-
-    for (i = 0; i < n; i++)
-    {
-        GtkWidget* view;
-        view = midori_browser_get_nth_tab (browser, i);
-        if (midori_view_get_proxy_item (MIDORI_VIEW (view)) == item)
-            midori_browser_set_current_page (browser, i);
-    }
+    midori_browser_set_current_item (browser, item);
 }
 
 static void
@@ -3845,6 +3853,15 @@ _action_location_submit_uri (GtkAction*     action,
 {
     gchar* new_uri;
     gint n;
+
+    /* Switch to already open tab if possible */
+    KatzeItem* found = katze_array_find_uri (browser->proxy_array, uri);
+    if (found != NULL && !new_tab
+     && !g_str_equal (midori_browser_get_current_uri (browser), uri))
+    {
+        midori_browser_set_current_item (browser, found);
+        return;
+    }
 
     uri = katze_skip_whitespace (uri);
     new_uri = sokoke_magic_uri (uri);
@@ -7441,6 +7458,9 @@ midori_browser_get_property (GObject*    object,
     case PROP_SETTINGS:
         g_value_set_object (value, browser->settings);
         break;
+    case PROP_PROXY_ITEMS:
+        g_value_set_object (value, browser->proxy_array);
+        break;
     case PROP_BOOKMARKS:
         g_value_set_object (value, browser->bookmarks);
         break;
@@ -7834,6 +7854,32 @@ midori_browser_get_current_page (MidoriBrowser* browser)
     #else
     return gtk_notebook_get_current_page (GTK_NOTEBOOK (browser->notebook));
     #endif
+}
+
+/**
+ * midori_browser_set_current_item:
+ * @browser: a #MidoriBrowser
+ * @item: a #KatzeItem
+ *
+ * Switches to the page containing @item, see also midori_browser_set_current_page().
+ *
+ * The widget will also grab the focus automatically.
+ *
+ * Since: 0.4.8
+ **/
+void
+midori_browser_set_current_item (MidoriBrowser* browser,
+                                 KatzeItem*     item)
+{
+    guint i;
+    guint n = katze_array_get_length (browser->proxy_array);
+
+    for (i = 0; i < n; i++)
+    {
+        GtkWidget* view = midori_browser_get_nth_tab (browser, i);
+        if (midori_view_get_proxy_item (MIDORI_VIEW (view)) == item)
+            midori_browser_set_current_page (browser, i);
+    }
 }
 
 /**

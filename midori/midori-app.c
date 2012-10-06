@@ -543,19 +543,10 @@ midori_app_command_received (MidoriApp*   app,
                     else
                     {
                         /* Switch to already open tab if possible */
-                        guint i = 0;
-                        GtkWidget* tab;
-                        gboolean found = FALSE;
-                        while ((tab = midori_browser_get_nth_tab (browser, i++)))
-                            if (g_str_equal (
-                                midori_view_get_display_uri (MIDORI_VIEW (tab)),
-                                fixed_uri))
-                            {
-                                found = TRUE;
-                                break;
-                            }
-                        if (found)
-                            midori_browser_set_current_tab (browser, tab);
+                        KatzeArray* items = midori_browser_get_proxy_array (browser);
+                        KatzeItem* found = katze_array_find_uri (items, fixed_uri);
+                        if (found != NULL)
+                            midori_browser_set_current_item (browser, found);
                         else
                             midori_browser_set_current_page (browser,
                                 midori_browser_add_uri (browser, fixed_uri));
@@ -1204,6 +1195,17 @@ midori_app_add_browser (MidoriApp*     app,
     g_return_if_fail (MIDORI_IS_BROWSER (browser));
 
     g_signal_emit (app, signals[ADD_BROWSER], 0, browser);
+}
+
+void
+midori_app_set_browsers (MidoriApp*     app,
+                         KatzeArray*    browsers,
+                         MidoriBrowser* browser)
+{
+    g_return_if_fail (MIDORI_IS_APP (app));
+    g_return_if_fail (KATZE_IS_ARRAY (browsers));
+    katze_object_assign (app->browsers, g_object_ref (browsers));
+    app->browser = browser;
 }
 
 /**

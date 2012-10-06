@@ -49,7 +49,7 @@ namespace Midori {
         public unowned Gtk.ActionGroup get_action_group ();
         public static unowned Browser get_for_widget (Gtk.Widget widget);
         public unowned string[] get_toolbar_actions ();
-        public unowned Katze.Array get_proxy_items ();
+        public Katze.Array proxy_items { get; }
 
         [NoAccessorMethod]
         public Gtk.MenuBar menubar { owned get; }
