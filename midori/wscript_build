@@ -13,7 +13,9 @@ libs = 'M UNIQUE LIBSOUP GMODULE GTHREAD LIBIDN GIO GTK SQLITE ' \
 
 if Options.commands['build'] or Options.commands['check']:
     blddir = str (bld.bldnode)[6:] # dir:// + absolute path
-    os.remove (blddir  + '/default/midori/midori-core.vapi')
+    duplicate_vapi = blddir + '/default/midori/midori-core.vapi'
+    if os.path.exists (duplicate_vapi):
+      os.remove (duplicate_vapi)
 
 if progressive:
     obj = bld.new_task_gen ('cc', 'staticlib')
