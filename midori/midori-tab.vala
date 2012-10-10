@@ -95,6 +95,29 @@ namespace Midori {
             web_view.load_uri ("");
         }
 
+        public void inject_stylesheet (string stylesheet) {
+            #if HAVE_DOM
+            var dom = web_view.get_dom_document ();
+            var style = dom.create_element ("style");
+            style.set_attribute ("type", "text/css");
+            style.append_child (dom.create_text_node (stylesheet));
+            return_if_fail (dom.head != null);
+            dom.head.append_child (style);
+            #else
+            web_view.execute_script ("""
+                (function () {
+                var style = document.createElement ('style');
+                style.setAttribute ('type', 'text/css');
+                style.appendChild (document.createTextNode ('%s'));
+                var head = document.getElementsByTagName ('head')[0];
+                if (head) head.appendChild (style);
+                else document.documentElement.insertBefore
+                (style, document.documentElement.firstChild);
+                }) ();
+                """.printf (stylesheet));
+            #endif
+        }
+
         public bool can_view_source () {
             if (is_blank () || special)
                 return false;

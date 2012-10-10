@@ -265,6 +265,7 @@ def configure (conf):
             check_pkg ('javascriptcoregtk-3.0', '1.5.1', args=args)
         conf.env.append_value ('VALAFLAGS', '-D HAVE_GTK3')
         conf.env.append_value ('VALAFLAGS', '-D HAVE_OFFSCREEN')
+        conf.env.append_value ('VALAFLAGS', '-D HAVE_DOM')
     else:
         check_pkg ('gtk+-2.0', '2.16.0', var='GTK')
         check_pkg ('webkit-1.0', '1.1.17', args=args)

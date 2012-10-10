@@ -1732,26 +1732,19 @@ handle_link_hints (WebKitWebView* web_view,
     if (view->find_links < 0)
     {
         /* Links are currently off, turn them on */
-        result = sokoke_js_script_eval (js_context,
-            " var style_func = (function (selector, rule) { "
-            " var style = document.createElement ('style');"
-            " style.setAttribute ('type', 'text/css');"
-            " var heads = document.getElementsByTagName ('head');"
-            " heads[0].appendChild (style);"
-            " document.styleSheets[0].insertRule (selector + ' ' + rule);"
-            " } );"
-            " style_func ('.midoriHKD87346', '{ "
+        midori_tab_inject_stylesheet (MIDORI_TAB (view), ".midoriHKD87346 {"
             " font-size:small !important; font-weight:bold !important;"
             " z-index:500; border-radius:0.3em; line-height:1 !important;"
             " background: white !important; color: black !important;"
             " border:1px solid gray; padding:0 0.1em !important;"
-            " position:absolute; display:inline !important; }');"
-            " style_func ('.midori_access_key_fc04de', '{ "
+            " position:absolute; display:inline !important; }");
+        midori_tab_inject_stylesheet (MIDORI_TAB (view), ".midori_access_key_fc04de {"
             " font-size:small !important; font-weight:bold !important;"
             " z-index:500; border-radius:0.3em; line-height:1 !important;"
             " background: black !important; color: white !important;"
             " border:1px solid gray; padding:0 0.1em 0.2em 0.1em !important;"
-            " position:absolute; display:inline !important; }');"
+            " position:absolute; display:inline !important; }");
+        result = sokoke_js_script_eval (js_context,
             " var label_count = 0;"
             " for (i in document.links) {"
             "   if (document.links[i].href && document.links[i].insertBefore) {"

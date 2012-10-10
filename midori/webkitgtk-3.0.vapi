@@ -3,6 +3,153 @@
 [CCode (cprefix = "WebKit", lower_case_cprefix = "webkit_")]
 namespace WebKit {
 	[CCode (cheader_filename = "webkit/webkit.h")]
+	public class DOMDOMTokenList : GLib.Object {
+		[CCode (has_construct_function = false)]
+		protected DOMDOMTokenList ();
+		[CCode (cname = "webkit_dom_dom_token_list_add")]
+		public void add (string token) throws GLib.Error;
+		[CCode (cname = "webkit_dom_dom_token_list_contains")]
+		public bool contains (string token) throws GLib.Error;
+		[CCode (cname = "webkit_dom_dom_token_list_item")]
+		public unowned string item (ulong index);
+		[CCode (cname = "webkit_dom_dom_token_list_remove")]
+		public void remove (string token) throws GLib.Error;
+		[CCode (cname = "webkit_dom_dom_token_list_toggle")]
+		public bool toggle (string token) throws GLib.Error;
+		public ulong length { get; }
+	}
+	[CCode (cheader_filename = "webkit/webkit.h")]
+	public class DOMHTMLElement : WebKit.DOMElement {
+		[CCode (has_construct_function = false)]
+		protected DOMHTMLElement ();
+		[CCode (cname = "webkit_dom_html_element_insert_adjacent_element")]
+		public unowned WebKit.DOMElement insert_adjacent_element (string where, WebKit.DOMElement element) throws GLib.Error;
+		[CCode (cname = "webkit_dom_html_element_insert_adjacent_html")]
+		public void insert_adjacent_html (string where, string html) throws GLib.Error;
+		[CCode (cname = "webkit_dom_html_element_insert_adjacent_text")]
+		public void insert_adjacent_text (string where, string text) throws GLib.Error;
+		[CCode (cname = "webkit_dom_html_element_set_content_editable")]
+		public void set_content_editable (string value) throws GLib.Error;
+		[CCode (cname = "webkit_dom_html_element_set_inner_html")]
+		public void set_inner_html (string value) throws GLib.Error;
+		[CCode (cname = "webkit_dom_html_element_set_inner_text")]
+		public void set_inner_text (string value) throws GLib.Error;
+		[CCode (cname = "webkit_dom_html_element_set_lang")]
+		public void set_lang (string value);
+		[CCode (cname = "webkit_dom_html_element_set_outer_html")]
+		public void set_outer_html (string value) throws GLib.Error;
+		[CCode (cname = "webkit_dom_html_element_set_outer_text")]
+		public void set_outer_text (string value) throws GLib.Error;
+		public void set_webkitdropzone (string value);
+		public WebKit.DOMHTMLCollection children { get; }
+		public WebKit.DOMDOMTokenList class_list { get; }
+		public string class_name { get; set; }
+		public string content_editable { get; set; }
+		public string dir { get; set; }
+		public bool draggable { get; set; }
+		public bool hidden { get; set; }
+		public string id { get; set; }
+		public string inner_html { get; set; }
+		public string inner_text { get; set; }
+		public bool is_content_editable { get; }
+		public string lang { get; set; }
+		public string outer_html { get; set; }
+		public string outer_text { get; set; }
+		public bool spellcheck { get; set; }
+		public long tab_index { get; set; }
+		public string title { get; set; }
+		public string webkitdropzone { get; set; }
+	}
+	[CCode (cheader_filename = "webkit/webkit.h")]
+	public class DOMHTMLCollection : GLib.Object {
+		[CCode (has_construct_function = false)]
+		protected DOMHTMLCollection ();
+		[CCode (cname = "webkit_dom_html_collection_item")]
+		public unowned WebKit.DOMNode item (ulong index);
+		[CCode (cname = "webkit_dom_html_collection_named_item")]
+		public unowned WebKit.DOMNode named_item (string name);
+		public ulong length { get; }
+	}
+	[CCode (cheader_filename = "webkit/webkit.h")]
+	public class DOMText : WebKit.DOMNode {
+		[CCode (has_construct_function = false)]
+		protected DOMText ();
+		public unowned WebKit.DOMText replace_whole_text (string content) throws GLib.Error;
+		public unowned WebKit.DOMText split_text (ulong offset) throws GLib.Error;
+		public string whole_text { get; }
+	}
+	[CCode (cheader_filename = "webkit/webkit.h")]
+	public class DOMDocument : WebKit.DOMNode {
+		[CCode (has_construct_function = false)]
+		protected DOMDocument ();
+		public unowned WebKit.DOMElement create_element (string tag_name) throws GLib.Error;
+		public unowned WebKit.DOMText create_text_node (string data);
+		public unowned WebKit.DOMElement get_element_by_id (string element_id);
+		public unowned WebKit.DOMNodeList get_elements_by_class_name (string tagname);
+		public unowned WebKit.DOMNodeList get_elements_by_name (string element_name);
+		public unowned WebKit.DOMNodeList get_elements_by_tag_name (string tagname);
+		public bool query_command_enabled (string command);
+		public unowned WebKit.DOMElement query_selector (string selectors) throws GLib.Error;
+		public unowned WebKit.DOMNodeList query_selector_all (string selectors) throws GLib.Error;
+		public WebKit.DOMHTMLCollection anchors { get; }
+		public WebKit.DOMHTMLCollection applets { get; }
+		public WebKit.DOMHTMLElement body { get; }
+		public WebKit.DOMHTMLCollection forms { get; }
+		public WebKit.DOMHTMLElement head { get; }
+		public WebKit.DOMHTMLCollection images { get; }
+		public WebKit.DOMHTMLCollection links { get; }
+	}
+	[CCode (cheader_filename = "webkit/webkit.h")]
+	public class DOMElement : WebKit.DOMNode {
+		[CCode (has_construct_function = false)]
+		protected DOMElement ();
+		public void blur ();
+		public void focus ();
+		public unowned string get_attribute (string name);
+		public unowned WebKit.DOMNodeList get_elements_by_class_name (string name);
+		public unowned WebKit.DOMNodeList get_elements_by_tag_name (string name);
+		public bool has_attribute (string name);
+		public unowned WebKit.DOMElement query_selector (string selectors) throws GLib.Error;
+		public unowned WebKit.DOMNodeList query_selector_all (string selectors) throws GLib.Error;
+		public void remove_attribute (string name) throws GLib.Error;
+		public void scroll_into_view (bool align_with_top);
+		public void scroll_into_view_if_needed (bool center_if_needed);
+		public void set_attribute (string name, string value) throws GLib.Error;
+		public bool webkit_matches_selector (string selectors) throws GLib.Error;
+		public WebKit.DOMElement first_element_child { get; }
+		public WebKit.DOMElement last_element_child { get; }
+		public WebKit.DOMElement next_element_sibling { get; }
+		public WebKit.DOMElement previous_element_sibling { get; }
+		public string tag_name { get; }
+	}
+	[CCode (cheader_filename = "webkit/webkit.h")]
+	public class DOMNodeList : GLib.Object {
+		[CCode (has_construct_function = false)]
+		protected DOMNodeList ();
+		public unowned WebKit.DOMNode item (ulong index);
+		public ulong length { get; }
+	}
+	[CCode (cheader_filename = "webkit/webkit.h")]
+	public class DOMNode : GLib.Object {
+		[CCode (has_construct_function = false)]
+		protected DOMNode ();
+		public unowned WebKit.DOMNode append_child (WebKit.DOMNode new_child) throws GLib.Error;
+		public bool contains (WebKit.DOMNode other);
+		public unowned WebKit.DOMNode insert_before (WebKit.DOMNode new_child, WebKit.DOMNode ref_child) throws GLib.Error;
+		public void normalize ();
+		public unowned WebKit.DOMNode remove_child (WebKit.DOMNode old_child) throws GLib.Error;
+		public unowned WebKit.DOMNode replace_child (WebKit.DOMNode new_child, WebKit.DOMNode old_child) throws GLib.Error;
+		public void set_text_content (string value) throws GLib.Error;
+		public WebKit.DOMNodeList child_nodes { get; }
+		public WebKit.DOMNode first_child { get; }
+		public WebKit.DOMNode last_child { get; }
+		public WebKit.DOMNode next_sibling { get; }
+		public WebKit.DOMElement parent_element { get; }
+		public WebKit.DOMNode parent_node { get; }
+		public WebKit.DOMNode previous_sibling { get; }
+		public string text_content { get; }
+	}
+	[CCode (cheader_filename = "webkit/webkit.h")]
 	public class Download : GLib.Object {
 		[CCode (has_construct_function = false)]
 		public Download (WebKit.NetworkRequest request);
@@ -378,6 +525,7 @@ namespace WebKit {
 		public unowned WebKit.WebBackForwardList get_back_forward_list ();
 		public unowned Gtk.TargetList get_copy_target_list ();
 		public unowned string get_custom_encoding ();
+		public unowned WebKit.DOMDocument get_dom_document ();
 		public bool get_editable ();
 		public unowned string get_encoding ();
 		public unowned WebKit.WebFrame get_focused_frame ();

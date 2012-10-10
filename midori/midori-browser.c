@@ -3568,8 +3568,6 @@ _action_readable_activate (GtkAction*     action,
     gchar* filename;
     gchar* stylesheet;
     gint i;
-    gchar* script;
-    gchar* exception;
 
     if (!view)
         return;
@@ -3603,26 +3601,8 @@ _action_readable_activate (GtkAction*     action,
         i++;
     }
 
-    script = g_strdup_printf (
-        "(function () {"
-        "var style = document.createElement ('style');"
-        "style.setAttribute ('type', 'text/css');"
-        "style.appendChild (document.createTextNode ('%s'));"
-        "var head = document.getElementsByTagName ('head')[0];"
-        "if (head) head.appendChild (style);"
-        "else document.documentElement.insertBefore"
-        "(style, document.documentElement.firstChild);"
-        "}) ();", stylesheet);
+    midori_tab_inject_stylesheet (MIDORI_TAB (view), stylesheet);
     g_free (stylesheet);
-    exception = NULL;
-    if (!midori_view_execute_script (MIDORI_VIEW (view), script, &exception))
-    {
-        midori_view_add_info_bar (MIDORI_VIEW (view), GTK_MESSAGE_ERROR,
-            exception, NULL, view,
-            GTK_STOCK_OK, GTK_RESPONSE_ACCEPT, NULL);
-        g_free (exception);
-    }
-    g_free (script);
 }
 
 static gboolean
