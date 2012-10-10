@@ -124,13 +124,7 @@ sokoke_message_dialog (GtkMessageType message_type,
                        gboolean       modal)
 {
     GtkWidget* dialog = gtk_message_dialog_new (
-        NULL, 0, message_type,
-        #if HAVE_HILDON
-        GTK_BUTTONS_NONE,
-        #else
-        GTK_BUTTONS_OK,
-        #endif
-        "%s", short_message);
+        NULL, 0, message_type, GTK_BUTTONS_OK, "%s", short_message);
     gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
                                               "%s", detailed_message);
     if (modal)
@@ -145,83 +139,6 @@ sokoke_message_dialog (GtkMessageType message_type,
         gtk_widget_show (dialog);
     }
 
-}
-
-/**
- * sokoke_show_uri_with_mime_type:
- * @screen: a #GdkScreen, or %NULL
- * @uri: the URI to show
- * @mime_type: a MIME type
- * @timestamp: the timestamp of the event
- * @error: the location of a #GError, or %NULL
- *
- * Shows the specified URI with an appropriate application,
- * as though it had the specified MIME type.
- *
- * On Maemo, hildon_mime_open_file_with_mime_type() is used.
- *
- * See also: sokoke_show_uri().
- *
- * Return value: %TRUE on success, %FALSE if an error occurred
- **/
-gboolean
-sokoke_show_uri_with_mime_type (GdkScreen*   screen,
-                                const gchar* uri,
-                                const gchar* mime_type,
-                                guint32      timestamp,
-                                GError**     error)
-{
-    gboolean success;
-    #if HAVE_HILDON
-    osso_context_t* osso;
-    DBusConnection* dbus;
-
-    osso = osso_initialize (PACKAGE_NAME, PACKAGE_VERSION, FALSE, NULL);
-    if (!osso)
-    {
-        g_print ("Failed to initialize libosso\n");
-        return FALSE;
-    }
-
-    dbus = (DBusConnection *) osso_get_dbus_connection (osso);
-    if (!dbus)
-    {
-        osso_deinitialize (osso);
-        g_print ("Failed to get dbus connection from osso context\n");
-        return FALSE;
-    }
-
-    success = (hildon_mime_open_file_with_mime_type (dbus,
-               uri, mime_type) == 1);
-    osso_deinitialize (osso);
-    #else
-    GFile* file = g_file_new_for_uri (uri);
-    gchar* content_type;
-    GAppInfo* app_info;
-    GList* files;
-    gpointer context;
-
-    content_type = g_content_type_from_mime_type (mime_type);
-    app_info = g_app_info_get_default_for_type (content_type,
-        !g_str_has_prefix (uri, "file://"));
-    g_free (content_type);
-    files = g_list_prepend (NULL, file);
-    #if GTK_CHECK_VERSION (3, 0, 0)
-    context = gdk_display_get_app_launch_context (gdk_screen_get_display (screen));
-    #else
-    context = gdk_app_launch_context_new ();
-    #endif
-    gdk_app_launch_context_set_screen (context, screen);
-    gdk_app_launch_context_set_timestamp (context, timestamp);
-
-    success = g_app_info_launch (app_info, files, context, error);
-
-    g_object_unref (app_info);
-    g_list_free (files);
-    g_object_unref (file);
-    #endif
-
-    return success;
 }
 
 static void
@@ -273,12 +190,8 @@ sokoke_default_for_uri (const gchar* uri,
  * @timestamp: the timestamp of the event
  * @error: the location of a #GError, or %NULL
  *
- * Shows the specified URI with an appropriate application. This
- * supports xdg-open, exo-open and gnome-open as fallbacks if
- * GIO doesn't do the trick.
+ * Shows the specified URI with an application or xdg-open.
  * x-scheme-handler is supported for GLib < 2.28 as of 0.3.3.
- *
- * On Maemo, hildon_uri_open() is used.
  *
  * Return value: %TRUE on success, %FALSE if an error occurred
  **/
@@ -288,11 +201,7 @@ sokoke_show_uri (GdkScreen*   screen,
                  guint32      timestamp,
                  GError**     error)
 {
-    #if HAVE_HILDON
-    HildonURIAction* action = hildon_uri_get_default_action_by_uri (uri, NULL);
-    return hildon_uri_open (uri, action, error);
-
-    #elif defined (G_OS_WIN32)
+    #ifdef G_OS_WIN32
     CoInitializeEx (NULL, COINIT_APARTMENTTHREADED);
     SHELLEXECUTEINFO info = { sizeof (info) };
     info.nShow = SW_SHOWNORMAL;
@@ -305,8 +214,6 @@ sokoke_show_uri (GdkScreen*   screen,
     GAppInfo* info;
     gchar* scheme;
     #endif
-    const gchar* fallbacks [] = { "xdg-open", "exo-open", "gnome-open" };
-    gsize i;
     GtkWidget* dialog;
     GtkWidget* box;
     gchar* filename;
@@ -319,6 +226,7 @@ sokoke_show_uri (GdkScreen*   screen,
 
     sokoke_recursive_fork_protection (uri, TRUE);
 
+    /* g_app_info_launch_default_for_uri, gdk_display_get_app_launch_context */
     if (gtk_show_uri (screen, uri, timestamp, error))
         return TRUE;
 
@@ -341,9 +249,8 @@ sokoke_show_uri (GdkScreen*   screen,
     }
     #endif
 
-    for (i = 0; i < G_N_ELEMENTS (fallbacks); i++)
     {
-        gchar* command = g_strconcat (fallbacks[i], " ", uri, NULL);
+        gchar* command = g_strconcat ("xdg-open ", uri, NULL);
         gboolean result = g_spawn_command_line_async (command, error);
         g_free (command);
         if (result)
