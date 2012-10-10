@@ -34,6 +34,8 @@ namespace Midori {
     }
 
     public class Tab : Gtk.VBox {
+        public WebKit.WebView web_view { get; private set; }
+
         private string current_uri = "about:blank";
         public string uri { get {
             return current_uri;
@@ -69,8 +71,26 @@ namespace Midori {
         }
         }
 
+        public signal void console_message (string message, int line, string source_id);
+        public signal void attach_inspector (WebKit.WebView inspector_view);
+        /* Emitted when an open inspector that was previously
+           attached to the window is now detached again.
+           Since: 0.3.4
+         */
+        public signal void detach_inspector (WebKit.WebView inspector_view);
+
         public bool is_blank () {
             return URI.is_blank (uri);
+        }
+
+        construct {
+            #if HAVE_GTK3
+            orientation = Gtk.Orientation.VERTICAL;
+            #endif
+
+            web_view = new WebKit.WebView ();
+            /* Load something to avoid a bug where WebKit might not set a main frame */
+            web_view.load_uri ("");
         }
 
         public bool can_view_source () {
@@ -120,6 +140,41 @@ namespace Midori {
                 return Pango.EllipsizeMode.START;
 
             return Pango.EllipsizeMode.END;
+        }
+
+        /* Since: 0.4.3 */
+        public bool can_save () {
+            if (is_blank () || special)
+                return false;
+            if (web_view.get_view_source_mode ())
+                return false;
+            if (web_view.get_main_frame ().get_data_source ().get_data () == null)
+                return false;
+            return true;
+        }
+
+        public void stop_loading () {
+            web_view.stop_loading ();
+        }
+
+        public bool can_go_forward () {
+            return web_view.can_go_forward ();
+        }
+
+        public void go_forward () {
+            web_view.go_forward ();
+        }
+
+        public void unmark_text_matches () {
+            web_view.unmark_text_matches ();
+        }
+
+        public void mark_text_matches (string text, bool case_sensitive) {
+            web_view.mark_text_matches (text, case_sensitive, 0);
+        }
+
+        public void set_highlight_text_matches (bool highlight) {
+            web_view.set_highlight_text_matches (highlight);
         }
     }
 }

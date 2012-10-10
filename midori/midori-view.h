@@ -113,15 +113,6 @@ midori_view_has_selection              (MidoriView*        view);
 const gchar*
 midori_view_get_selected_text          (MidoriView*        view);
 
-gboolean
-midori_view_can_cut_clipboard          (MidoriView*        view);
-
-gboolean
-midori_view_can_copy_clipboard         (MidoriView*        view);
-
-gboolean
-midori_view_can_paste_clipboard        (MidoriView*        view);
-
 GtkWidget*
 midori_view_get_proxy_menu_item        (MidoriView*        view);
 
@@ -163,9 +154,6 @@ void
 midori_view_reload                     (MidoriView*        view,
                                         gboolean           from_cache);
 
-void
-midori_view_stop_loading               (MidoriView*        view);
-
 gboolean
 midori_view_can_go_back                (MidoriView*        view);
 
@@ -198,31 +186,16 @@ midori_view_print                      (MidoriView*        view);
 gboolean
 midori_view_can_view_source            (MidoriView*        view);
 
-gboolean
-midori_view_can_save                   (MidoriView*        view);
-
 gchar*
 midori_view_save_source                (MidoriView*        view,
                                         const gchar*       uri,
                                         const gchar*       outfile);
 
 void
-midori_view_unmark_text_matches        (MidoriView*        view);
-
-void
 midori_view_search_text                (MidoriView*        view,
                                         const gchar*       text,
                                         gboolean           case_sensitive,
                                         gboolean           forward);
-
-void
-midori_view_mark_text_matches          (MidoriView*        view,
-                                        const gchar*       text,
-                                        gboolean           case_sensitive);
-
-void
-midori_view_set_highlight_text_matches (MidoriView*        view,
-                                        gboolean           highlight);
 
 gboolean
 midori_view_execute_script             (MidoriView*        view,

@@ -133,7 +133,6 @@ namespace Midori {
     [CCode (cheader_filename = "midori/midori.h")]
     public class View : Tab {
         [CCode (type = "GtkWidget*")]
-        public View (GLib.Object net);
         public View.with_title (string? title=null, WebSettings? settings=null
             , bool append=false);
         public void set_uri (string uri);
@@ -149,11 +148,8 @@ namespace Midori {
         public Gtk.Label get_proxy_tab_label ();
         public unowned Katze.Item get_proxy_item ();
         public void search_text (string text, bool case_sensitive, bool forward);
-        public void mark_text_matches (string text, bool case_sensitive);
-        public void set_highlight_text_matches (bool highlight);
         public bool execute_script (string script, out string exception);
         public Gdk.Pixbuf get_snapshot (int width, int height);
-        public unowned WebKit.WebView get_web_view ();
         public void populate_popup (Gtk.Menu menu, bool manual);
         public void reload (bool from_cache);
 

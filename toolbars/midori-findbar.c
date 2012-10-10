@@ -68,7 +68,7 @@ midori_findbar_done (MidoriFindbar* findbar)
     MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (findbar));
     GtkWidget* view = midori_browser_get_current_tab (browser);
 
-    midori_view_unmark_text_matches (MIDORI_VIEW (view));
+    midori_tab_unmark_text_matches (MIDORI_TAB (view));
     gtk_widget_hide (GTK_WIDGET (findbar));
     findbar->find_typing = FALSE;
     gtk_window_set_focus (GTK_WINDOW (browser), view);
@@ -207,7 +207,7 @@ midori_findbar_preedit_changed_cb (GtkWidget*     entry,
 {
     MidoriBrowser* browser = midori_browser_get_for_widget (entry);
     GtkWidget* view = midori_browser_get_current_tab (browser);
-    midori_view_unmark_text_matches (MIDORI_VIEW (view));
+    midori_tab_unmark_text_matches (MIDORI_TAB (view));
     if (g_utf8_strlen (preedit, -1) >= 1)
     {
         midori_findbar_set_icon (findbar, GTK_ICON_ENTRY_SECONDARY, STOCK_EDIT_CLEAR);
@@ -242,7 +242,7 @@ midori_findbar_highlight_toggled_cb (GtkToggleToolButton* toolitem,
     MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (findbar));
     GtkWidget* view = midori_browser_get_current_tab (browser);
     gboolean highlight = gtk_toggle_tool_button_get_active (toolitem);
-    midori_view_set_highlight_text_matches (MIDORI_VIEW (view), highlight);
+    midori_tab_set_highlight_text_matches (MIDORI_TAB (view), highlight);
 }
 
 static void
@@ -365,10 +365,10 @@ midori_findbar_search_text (MidoriFindbar* findbar,
     {
         text = gtk_entry_get_text (GTK_ENTRY (findbar->find_text));
         case_sensitive = midori_findbar_case_sensitive (findbar);
-        midori_view_mark_text_matches (MIDORI_VIEW (view), text, case_sensitive);
+        midori_tab_mark_text_matches (MIDORI_TAB (view), text, case_sensitive);
         highlight = gtk_toggle_tool_button_get_active (
             GTK_TOGGLE_TOOL_BUTTON (findbar->find_highlight));
-        midori_view_set_highlight_text_matches (MIDORI_VIEW (view), highlight);
+        midori_tab_set_highlight_text_matches (MIDORI_TAB (view), highlight);
     }
 }
 

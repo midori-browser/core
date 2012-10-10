@@ -89,18 +89,21 @@ void tab_special () {
     assert (tab.is_blank ());
     assert (!tab.can_view_source ());
     /* FIXME assert (tab.special); */
+    assert (!tab.can_save ());
 
     tab.set_uri ("error:nodocs file:///some/docs/path");
     do { loop.iteration (true); } while (tab.load_status != Midori.LoadStatus.FINISHED);
     assert (!tab.is_blank ());
     assert (tab.can_view_source ());
     /* FIXME assert (tab.special); */
+    /* FIXME assert (!tab.can_save ()); */
 
     tab.set_uri ("http://.invalid");
     do { loop.iteration (true); } while (tab.load_status != Midori.LoadStatus.FINISHED);
     assert (!tab.is_blank ());
     assert (!tab.can_view_source ());
     assert (tab.special);
+    assert (!tab.can_save ());
 
     var item = tab.get_proxy_item ();
     item.set_meta_integer ("delay", Midori.Delay.UNDELAYED);
@@ -108,6 +111,7 @@ void tab_special () {
     do { loop.iteration (true); } while (tab.load_status != Midori.LoadStatus.FINISHED);
     /* FIXME assert (!tab.can_view_source ()); */
     /* FIXME assert (tab.special); */
+    /* FIXME assert (!tab.can_save ()); */
 
     /* FIXME use an HTTP URI that's available even offline */
     tab.set_uri ("http://example.com");
@@ -115,6 +119,7 @@ void tab_special () {
     assert (!tab.is_blank ());
     assert (tab.can_view_source ());
     assert (!tab.special);
+    assert (tab.can_save ());
 }
 
 void main (string[] args) {

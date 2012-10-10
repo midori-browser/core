@@ -322,7 +322,7 @@ _midori_browser_update_interface (MidoriBrowser* browser,
     GtkAction* action;
 
     _action_set_sensitive (browser, "Back", midori_view_can_go_back (view));
-    _action_set_sensitive (browser, "Forward", midori_view_can_go_forward (view));
+    _action_set_sensitive (browser, "Forward", midori_tab_can_go_forward (MIDORI_TAB (view)));
     _action_set_sensitive (browser, "Previous",
         midori_view_get_previous_page (view) != NULL);
     _action_set_sensitive (browser, "Next",
@@ -330,7 +330,7 @@ _midori_browser_update_interface (MidoriBrowser* browser,
 
     _action_set_sensitive (browser, "AddSpeedDial", !midori_view_is_blank (view));
     _action_set_sensitive (browser, "BookmarkAdd", !midori_view_is_blank (view));
-    _action_set_sensitive (browser, "SaveAs", midori_view_can_save (view));
+    _action_set_sensitive (browser, "SaveAs", midori_tab_can_save (MIDORI_TAB (view)));
     _action_set_sensitive (browser, "ZoomIn", midori_view_can_zoom_in (view));
     _action_set_sensitive (browser, "ZoomOut", midori_view_can_zoom_out (view));
     _action_set_sensitive (browser, "ZoomNormal",
@@ -341,7 +341,7 @@ _midori_browser_update_interface (MidoriBrowser* browser,
         midori_tab_can_view_source (MIDORI_TAB (view)));
 
     action = _action_by_name (browser, "NextForward");
-    if (midori_view_can_go_forward (view))
+    if (midori_tab_can_go_forward (MIDORI_TAB (view)))
     {
         g_object_set (action,
                       "stock-id", GTK_STOCK_GO_FORWARD,
@@ -602,7 +602,7 @@ midori_view_notify_uri_cb (GtkWidget*     widget,
         GtkAction* action = _action_by_name (browser, "Location");
         midori_location_action_set_text (MIDORI_LOCATION_ACTION (action), uri);
         _action_set_sensitive (browser, "Back", midori_view_can_go_back (view));
-        _action_set_sensitive (browser, "Forward", midori_view_can_go_forward (view));
+        _action_set_sensitive (browser, "Forward", midori_tab_can_go_forward (MIDORI_TAB (view)));
     }
 }
 
@@ -1104,15 +1104,6 @@ midori_browser_save_uri (MidoriBrowser* browser,
 }
 
 static void
-midori_view_save_as_cb (GtkWidget*   menuitem,
-                        const gchar* uri,
-                        GtkWidget*   view)
-{
-    MidoriBrowser* browser = midori_browser_get_for_widget (view);
-    midori_browser_save_uri (browser, MIDORI_VIEW (view), uri);
-}
-
-static void
 midori_browser_speed_dial_refresh_cb (MidoriSpeedDial* dial,
                                       MidoriBrowser*   browser)
 {
@@ -1138,19 +1129,6 @@ midori_browser_add_speed_dial (MidoriBrowser* browser)
     }
 }
 
-
-static void
-midori_view_add_speed_dial_cb (GtkWidget*   menuitem,
-                              const gchar* uri,
-                              GtkWidget*   view)
-{
-    MidoriBrowser* browser;
-
-    browser = midori_browser_get_for_widget (menuitem);
-    midori_browser_add_speed_dial (browser);
-}
-
-
 static gboolean
 midori_browser_tab_leave_notify_event_cb (GtkWidget*        widget,
                                           GdkEventCrossing* event,
@@ -1158,14 +1136,6 @@ midori_browser_tab_leave_notify_event_cb (GtkWidget*        widget,
 {
     _midori_browser_set_statusbar_text (browser, MIDORI_VIEW (widget), NULL);
     return TRUE;
-}
-
-static void
-midori_view_activate_action_cb (GtkWidget*     view,
-                                const gchar*   action,
-                                MidoriBrowser* browser)
-{
-    midori_browser_activate_action (browser, action);
 }
 
 static void
@@ -1593,8 +1563,6 @@ midori_browser_connect_tab (MidoriBrowser* browser,
                       midori_view_notify_zoom_level_cb, browser,
                       "signal::notify::statusbar-text",
                       midori_view_notify_statusbar_text_cb, browser,
-                      "signal::activate-action",
-                      midori_view_activate_action_cb, browser,
                       "signal::attach-inspector",
                       midori_view_attach_inspector_cb, browser,
                       "signal::detach-inspector",
@@ -1609,10 +1577,6 @@ midori_browser_connect_tab (MidoriBrowser* browser,
                       midori_view_download_requested_cb, browser,
                       "signal::search-text",
                       midori_view_search_text_cb, browser,
-                      "signal::save-as",
-                      midori_view_save_as_cb, browser,
-                      "signal::add-speed-dial",
-                      midori_view_add_speed_dial_cb, browser,
                       "signal::leave-notify-event",
                       midori_browser_tab_leave_notify_event_cb, browser,
                       "signal::destroy",
@@ -3391,7 +3355,7 @@ _action_reload_stop_activate (GtkAction*     action,
         midori_view_reload (MIDORI_VIEW (view), from_cache);
     }
     else
-        midori_view_stop_loading (MIDORI_VIEW (view));
+        midori_tab_stop_loading (MIDORI_TAB (view));
     g_free (stock_id);
 }
 
@@ -3690,7 +3654,7 @@ _action_navigation_activate (GtkAction*     action,
     name = gtk_action_get_name (action);
 
     if (!strcmp (name, "NextForward"))
-        name = midori_view_can_go_forward (view) ? "Forward" : "Next";
+        name = midori_tab_can_go_forward (MIDORI_TAB (view)) ? "Forward" : "Next";
 
     if (g_str_equal (name, "Back"))
     {
@@ -3738,7 +3702,7 @@ _action_navigation_activate (GtkAction*     action,
             midori_browser_set_current_page_smartly (browser, n);
         }
         else
-          midori_view_go_forward (view);
+          midori_tab_go_forward (MIDORI_TAB (view));
 
         return TRUE;
     }
