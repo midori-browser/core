@@ -2731,21 +2731,23 @@ static void
 _action_find_activate (GtkAction*     action,
                        MidoriBrowser* browser)
 {
-    midori_findbar_invoke (MIDORI_FINDBAR (browser->find));
+    GtkWidget* view = midori_browser_get_current_tab (browser);
+    midori_findbar_invoke (MIDORI_FINDBAR (browser->find),
+        midori_view_get_selected_text (MIDORI_VIEW (view)));
 }
 
 static void
 _action_find_next_activate (GtkAction*     action,
                             MidoriBrowser* browser)
 {
-    midori_findbar_find_text (MIDORI_FINDBAR (browser->find), NULL, TRUE);
+    midori_findbar_continue (MIDORI_FINDBAR (browser->find), TRUE);
 }
 
 static void
 _action_find_previous_activate (GtkAction*     action,
                                 MidoriBrowser* browser)
 {
-    midori_findbar_find_text (MIDORI_FINDBAR (browser->find), NULL, FALSE);
+    midori_findbar_continue (MIDORI_FINDBAR (browser->find), FALSE);
 }
 
 static void

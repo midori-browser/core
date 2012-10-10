@@ -36,15 +36,11 @@ GType
 midori_findbar_get_type               (void);
 
 void
-midori_findbar_invoke                 (MidoriFindbar* findbar);
+midori_findbar_invoke                 (MidoriFindbar* findbar,
+                                       const gchar*   selected_text);
 
 void
-midori_findbar_find                   (MidoriFindbar* findbar,
-                                       gboolean       forward);
-
-void
-midori_findbar_find_text              (MidoriFindbar* findbar,
-                                       const gchar*   text,
+midori_findbar_continue               (MidoriFindbar* findbar,
                                        gboolean       forward);
 
 const gchar*

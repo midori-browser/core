@@ -78,6 +78,8 @@ namespace Midori {
            Since: 0.3.4
          */
         public signal void detach_inspector (WebKit.WebView inspector_view);
+        /* Allow the browser to provide the find bar */
+        public signal void search_text (bool found, string typing);
 
         public bool is_blank () {
             return URI.is_blank (uri);
@@ -169,12 +171,12 @@ namespace Midori {
             web_view.unmark_text_matches ();
         }
 
-        public void mark_text_matches (string text, bool case_sensitive) {
+        public bool find (string text, bool case_sensitive, bool forward) {
+            bool found = false;
+            found = web_view.search_text (text, case_sensitive, forward, true);
             web_view.mark_text_matches (text, case_sensitive, 0);
-        }
-
-        public void set_highlight_text_matches (bool highlight) {
-            web_view.set_highlight_text_matches (highlight);
+            web_view.set_highlight_text_matches (true);
+            return found;
         }
     }
 }

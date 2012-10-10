@@ -153,7 +153,6 @@ enum {
     NEW_WINDOW,
     NEW_VIEW,
     DOWNLOAD_REQUESTED,
-    SEARCH_TEXT,
     ADD_BOOKMARK,
 
     LAST_SIGNAL
@@ -277,30 +276,6 @@ midori_view_class_init (MidoriViewClass* class)
         midori_cclosure_marshal_BOOLEAN__OBJECT,
         G_TYPE_BOOLEAN, 1,
         G_TYPE_OBJECT);
-
-    /**
-     * MidoriView::search-text:
-     * @view: the object on which the signal is emitted
-     * @found: whether the search was successful
-     * @typing: whether the search was initiated by typing
-     *
-     * Emitted when a search is performed. Either manually
-     * invoked or automatically by typing. The value of typing
-     * is actually the text the user typed.
-     *
-     * Note that in 0.1.3 the argument @typing was introduced.
-     */
-    signals[SEARCH_TEXT] = g_signal_new (
-        "search-text",
-        G_TYPE_FROM_CLASS (class),
-        (GSignalFlags)(G_SIGNAL_RUN_LAST),
-        0,
-        0,
-        NULL,
-        midori_cclosure_marshal_VOID__BOOLEAN_STRING,
-        G_TYPE_NONE, 2,
-        G_TYPE_BOOLEAN,
-        G_TYPE_STRING);
 
     /**
      * MidoriView::add-bookmark:
@@ -1939,7 +1914,7 @@ gtk_widget_key_press_event_cb (WebKitWebView* web_view,
         midori_findbar_search_text (MIDORI_FINDBAR (view->overlay_find),
             (GtkWidget*)view, TRUE, katze_str_non_null (text));
         #else
-        g_signal_emit (view, signals[SEARCH_TEXT], 0, TRUE, text ? text : "");
+        g_signal_emit_by_name (view, "search-text", TRUE, katze_str_non_null (text));
         #endif
         g_free (text);
         return TRUE;
@@ -5201,14 +5176,12 @@ midori_view_search_text (MidoriView*  view,
     if (gtk_widget_get_visible (view->overlay_find))
     {
         text = midori_findbar_get_text (MIDORI_FINDBAR (view->overlay_find));
-        webkit_web_view_search_text (WEBKIT_WEB_VIEW (view->web_view),
-            text, case_sensitive, forward, TRUE);
+        midori_tab_find (MIDORI_TAB (view), text, case_sensitive, forward);
         return;
     }
     #endif
-    g_signal_emit (view, signals[SEARCH_TEXT], 0,
-        webkit_web_view_search_text (WEBKIT_WEB_VIEW (view->web_view),
-            text, case_sensitive, forward, TRUE), NULL);
+    g_signal_emit_by_name (view, "search-text",
+        midori_tab_find (MIDORI_TAB (view), text, case_sensitive, forward), NULL);
 }
 
 /**
