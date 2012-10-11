@@ -91,12 +91,19 @@ void tab_special () {
     /* FIXME assert (tab.special); */
     assert (!tab.can_save ());
 
+    tab.set_uri ("about:private");
+    do { loop.iteration (true); } while (tab.load_status != Midori.LoadStatus.FINISHED);
+    assert (tab.is_blank ());
+    assert (!tab.can_view_source ());
+    assert (tab.special);
+    assert (!tab.can_save ());
+
     tab.set_uri ("error:nodocs file:///some/docs/path");
     do { loop.iteration (true); } while (tab.load_status != Midori.LoadStatus.FINISHED);
     assert (!tab.is_blank ());
-    assert (tab.can_view_source ());
-    /* FIXME assert (tab.special); */
-    /* FIXME assert (!tab.can_save ()); */
+    assert (!tab.can_view_source ());
+    assert (tab.special);
+    assert (!tab.can_save ());
 
     tab.set_uri ("http://.invalid");
     do { loop.iteration (true); } while (tab.load_status != Midori.LoadStatus.FINISHED);

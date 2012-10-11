@@ -733,7 +733,6 @@ midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view
         }
     }
     #endif
-    midori_tab_set_special (MIDORI_TAB (view), FALSE);
 
     if (katze_item_get_meta_integer (view->item, "delay") == MIDORI_DELAY_PENDING_UNDELAY)
         katze_item_set_meta_integer (view->item, "delay", MIDORI_DELAY_UNDELAYED);
@@ -805,6 +804,7 @@ webkit_web_view_load_committed_cb (WebKitWebView*  web_view,
     {
         midori_tab_set_uri (MIDORI_TAB (view), uri);
         katze_item_set_uri (view->item, uri);
+        midori_tab_set_special (MIDORI_TAB (view), FALSE);
     }
 
     katze_item_set_added (view->item, time (NULL));
@@ -1248,6 +1248,7 @@ midori_view_display_error (MidoriView*     view,
 
         midori_view_load_alternate_string (view,
             result, uri, web_frame);
+        katze_item_set_uri (view->item, uri);
 
         g_free (result);
         g_free (path);
@@ -4017,6 +4018,7 @@ midori_view_set_uri (MidoriView*  view,
             }
 
             midori_tab_set_uri (MIDORI_TAB (view), uri);
+            midori_tab_set_special (MIDORI_TAB (view), TRUE);
             webkit_web_view_load_html_string (WEBKIT_WEB_VIEW (view->web_view), data, uri);
             g_free (data);
             katze_item_set_meta_integer (view->item, "delay", MIDORI_DELAY_UNDELAYED);
@@ -4025,12 +4027,12 @@ midori_view_set_uri (MidoriView*  view,
         else if (katze_item_get_meta_integer (view->item, "delay") == MIDORI_DELAY_DELAYED)
         {
             midori_tab_set_uri (MIDORI_TAB (view), uri);
+            midori_tab_set_special (MIDORI_TAB (view), TRUE);
             katze_item_set_meta_integer (view->item, "delay", MIDORI_DELAY_PENDING_UNDELAY);
             midori_view_display_error (view, NULL, NULL, _("Page loading delayed"),
                 _("Loading delayed either due to a recent crash or startup preferences."),
                 _("Load Page"),
                 NULL);
-            katze_item_set_uri (view->item, midori_tab_get_uri (MIDORI_TAB (view)));
         }
         else if (g_str_has_prefix (uri, "javascript:"))
         {
