@@ -1554,7 +1554,7 @@ midori_inactivity_timeout (gpointer data)
             GList* data_items = sokoke_register_privacy_item (NULL, NULL, NULL);
 
             while ((view = midori_browser_get_nth_tab (mit->browser, i++)))
-                midori_browser_remove_tab (mit->browser, view);
+                midori_browser_close_tab (mit->browser, view);
             midori_browser_set_current_uri (mit->browser, mit->uri);
             /* Clear all private data */
             if (history != NULL)

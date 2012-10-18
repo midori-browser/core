@@ -86,7 +86,7 @@ midori_browser_add_tab                (MidoriBrowser*     browser,
                                        GtkWidget*         widget);
 
 void
-midori_browser_remove_tab             (MidoriBrowser*     browser,
+midori_browser_close_tab              (MidoriBrowser*     browser,
                                        GtkWidget*         widget);
 
 void

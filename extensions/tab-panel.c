@@ -229,12 +229,12 @@ midori_extension_button_release_event_cb (GtkWidget*       widget,
             if (gtk_tree_view_get_path_at_pos (GTK_TREE_VIEW (widget),
                 event->x, event->y, NULL, &column, NULL, NULL)
                 && column == gtk_tree_view_get_column (GTK_TREE_VIEW (widget), 1))
-                midori_browser_remove_tab (browser, view);
+                midori_browser_close_tab (browser, view);
             else
                 midori_browser_set_current_tab (browser, view);
         }
         else if (event->button == 2)
-            midori_browser_remove_tab (midori_browser_get_for_widget (widget), view);
+            midori_browser_close_tab (midori_browser_get_for_widget (widget), view);
         else
             tab_panel_popup (widget, event, view);
 

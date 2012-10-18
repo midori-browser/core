@@ -4334,7 +4334,7 @@ midori_view_browser_close_tabs_cb (GtkWidget* view,
 {
     GtkWidget* remaining_view = data;
     if (view != remaining_view)
-         midori_browser_remove_tab (midori_browser_get_for_widget (view), view);
+         midori_browser_close_tab (midori_browser_get_for_widget (view), view);
 }
 
 static void
@@ -4356,7 +4356,7 @@ static void
 midori_view_tab_label_menu_close_cb (GtkWidget* menuitem,
                                      GtkWidget* view)
 {
-    midori_browser_remove_tab (midori_browser_get_for_widget (view), view);
+    midori_browser_close_tab (midori_browser_get_for_widget (view), view);
 }
 
 /**
@@ -4457,7 +4457,7 @@ midori_view_tab_label_button_press_event (GtkWidget*      tab_label,
     if (event->button == 2)
     {
         /* Close the widget on middle click */
-        midori_browser_remove_tab (midori_browser_get_for_widget (widget), widget);
+        midori_browser_close_tab (midori_browser_get_for_widget (widget), widget);
         return TRUE;
     }
     else if (MIDORI_EVENT_CONTEXT_MENU (event))
@@ -4477,7 +4477,7 @@ static void
 midori_view_tab_close_clicked (GtkWidget* tab_close,
                                GtkWidget* widget)
 {
-    midori_browser_remove_tab (midori_browser_get_for_widget (widget), widget);
+    midori_browser_close_tab (midori_browser_get_for_widget (widget), widget);
 }
 
 #if !GTK_CHECK_VERSION (3, 0, 0)
