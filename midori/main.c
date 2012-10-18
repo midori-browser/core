@@ -2151,7 +2151,6 @@ main (int    argc,
             g_object_set (settings,
                           "show-menubar", FALSE,
                           "show-navigationbar", FALSE,
-                          "always-show-tabbar", FALSE,
                           "toolbar-items", "Back,Forward,ReloadStop,Location,Homepage",
                           "show-statusbar", FALSE,
                           "enable-developer-extras", FALSE,
@@ -2163,6 +2162,7 @@ main (int    argc,
                       NULL);
         midori_browser_set_action_visible (browser, "Panel", FALSE);
         g_object_set (browser, "settings", settings, NULL);
+        g_object_set (browser, "show-tabs", FALSE, NULL);
         midori_startup_timer ("Setup config: \t%f");
         g_object_unref (settings);
         g_signal_connect (browser, "quit",

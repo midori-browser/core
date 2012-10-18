@@ -264,17 +264,15 @@ _toggle_tabbar_smartly (MidoriBrowser* browser,
                         gboolean       ignore_fullscreen)
 {
     gboolean has_tabs = midori_browser_get_n_pages (browser) > 1;
-#ifdef HAVE_GRANITE
     gboolean show_tabs = !midori_browser_is_fullscreen (browser) || ignore_fullscreen;
+    if (!browser->show_tabs)
+        show_tabs = FALSE;
+#ifdef HAVE_GRANITE
     granite_widgets_dynamic_notebook_set_show_tabs (
         GRANITE_WIDGETS_DYNAMIC_NOTEBOOK (browser->notebook), show_tabs);
 #else
-    gboolean show_tabs =
-        browser->show_tabs
-     && (!midori_browser_is_fullscreen (browser) || ignore_fullscreen)
-     && (has_tabs
-      || katze_object_get_boolean (browser->settings, "always-show-tabbar"));
-
+    if (!(has_tabs || katze_object_get_boolean (browser->settings, "always-show-tabbar")))
+        show_tabs = FALSE;
     gtk_notebook_set_show_tabs (GTK_NOTEBOOK (browser->notebook), show_tabs);
     gtk_notebook_set_show_border (GTK_NOTEBOOK (browser->notebook), show_tabs);
 #endif
