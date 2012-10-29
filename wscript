@@ -237,7 +237,8 @@ def configure (conf):
         granite = 'no '
         conf.define ('GRANITE_VERSION', 'No')
 
-    check_pkg ('zeitgeist-1.0', '0.3.14', mandatory=False)
+    if option_enabled ('zeitgeist'):
+        check_pkg ('zeitgeist-1.0', '0.3.14', mandatory=True)
     conf.check (lib='m', mandatory=True)
     check_pkg ('gmodule-2.0', '2.8.0', False)
     check_pkg ('gthread-2.0', '2.8.0', False)
@@ -445,6 +446,7 @@ def set_options (opt):
     add_enable_option ('tests', 'building of tests', group, disable=True)
     add_enable_option ('hildon', 'Maemo integration', group, disable=not is_maemo ())
     add_enable_option ('gtk3', 'GTK+3 and WebKitGTK+3 support', group, disable=True)
+    add_enable_option ('zeitgeist', 'Zeitgeist history integration', group, disable=is_win32 (os.environ))
 
     # Provided for compatibility
     opt.add_option ('--build', help='Ignored')
