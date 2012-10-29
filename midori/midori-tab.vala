@@ -36,6 +36,10 @@ namespace Midori {
     public class Tab : Gtk.VBox {
         public WebKit.WebView web_view { get; private set; }
 
+        #if HAVE_GRANITE
+        public Granite.Widgets.NavigationBox navigation_box { get; private set; }
+        #endif
+
         private string current_uri = "about:blank";
         public string uri { get {
             return current_uri;
@@ -88,6 +92,10 @@ namespace Midori {
         construct {
             #if HAVE_GTK3
             orientation = Gtk.Orientation.VERTICAL;
+            #endif
+
+            #if HAVE_GRANITE
+            navigation_box = new Granite.Widgets.NavigationBox ();
             #endif
 
             web_view = new WebKit.WebView ();
@@ -187,6 +195,9 @@ namespace Midori {
         }
 
         public void go_forward () {
+            #if HAVE_GRANITE
+            navigation_box.forward ();
+            #endif
             web_view.go_forward ();
         }
 

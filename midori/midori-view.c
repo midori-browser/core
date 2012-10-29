@@ -787,6 +787,10 @@ webkit_web_view_load_committed_cb (WebKitWebView*  web_view,
     if (web_frame != webkit_web_view_get_main_frame (web_view))
         return;
 
+    #ifdef HAVE_GRANITE
+    GraniteWidgetsNavigationBox* navigation_box = midori_tab_get_navigation_box (MIDORI_TAB (view));
+    granite_widgets_navigation_box_transition_ready (navigation_box);
+    #endif
     g_object_freeze_notify (G_OBJECT (view));
 
     uri = webkit_web_frame_get_uri (web_frame);
@@ -3071,32 +3075,6 @@ midori_view_init (MidoriView* view)
     gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (view->scrolled_window),
                                          GTK_SHADOW_NONE);
 
-    #if GTK_CHECK_VERSION(3, 2, 0)
-    view->overlay = gtk_overlay_new ();
-    gtk_widget_show (view->overlay);
-    gtk_container_add (GTK_CONTAINER (view->overlay), view->scrolled_window);
-    gtk_box_pack_start (GTK_BOX (view), view->overlay, TRUE, TRUE, 0);
-
-    /* Overlays must be created before showing GtkOverlay as of GTK+ 3.2 */
-    {
-    GtkWidget* frame = gtk_frame_new (NULL);
-    view->overlay_label = gtk_label_new (NULL);
-    gtk_widget_show (view->overlay_label);
-    gtk_container_add (GTK_CONTAINER (frame), view->overlay_label);
-    gtk_widget_set_halign (frame, GTK_ALIGN_START);
-    gtk_widget_set_valign (frame, GTK_ALIGN_END);
-    gtk_overlay_add_overlay (GTK_OVERLAY (view->overlay), frame);
-    }
-    view->overlay_find = g_object_new (MIDORI_TYPE_FINDBAR, NULL);
-    gtk_widget_set_halign (view->overlay_find, GTK_ALIGN_END);
-    gtk_widget_set_valign (view->overlay_find, GTK_ALIGN_START);
-    gtk_overlay_add_overlay (GTK_OVERLAY (view->overlay),
-                             view->overlay_find);
-    gtk_widget_set_no_show_all (view->overlay_find, TRUE);
-    #else
-    gtk_box_pack_start (GTK_BOX (view), view->scrolled_window, TRUE, TRUE, 0);
-    #endif
-
     g_signal_connect (view->item, "meta-data-changed",
         G_CALLBACK (midori_view_item_meta_data_changed), view);
     g_signal_connect (view->scrolled_window, "notify::hadjustment",
@@ -3552,6 +3530,41 @@ midori_view_constructor (GType                  type,
     GObject* object = G_OBJECT_CLASS (midori_view_parent_class)->constructor (
         type, n_construct_properties, construct_properties);
     MidoriView* view = MIDORI_VIEW (object);
+
+    #if GTK_CHECK_VERSION(3, 2, 0)
+    view->overlay = gtk_overlay_new ();
+    gtk_widget_show (view->overlay);
+    #ifdef HAVE_GRANITE
+    {
+    GraniteWidgetsNavigationBox* navigation_box = midori_tab_get_navigation_box (MIDORI_TAB (view));
+    granite_widgets_navigation_box_add (navigation_box, GTK_WIDGET (view->scrolled_window));
+    gtk_widget_show (GTK_WIDGET (view->scrolled_window));
+    gtk_container_add (GTK_CONTAINER (view->overlay), GTK_WIDGET (navigation_box));
+    }
+    #else
+    gtk_container_add (GTK_CONTAINER (view->overlay), view->scrolled_window);
+    #endif
+    gtk_box_pack_start (GTK_BOX (view), view->overlay, TRUE, TRUE, 0);
+
+    /* Overlays must be created before showing GtkOverlay as of GTK+ 3.2 */
+    {
+    GtkWidget* frame = gtk_frame_new (NULL);
+    view->overlay_label = gtk_label_new (NULL);
+    gtk_widget_show (view->overlay_label);
+    gtk_container_add (GTK_CONTAINER (frame), view->overlay_label);
+    gtk_widget_set_halign (frame, GTK_ALIGN_START);
+    gtk_widget_set_valign (frame, GTK_ALIGN_END);
+    gtk_overlay_add_overlay (GTK_OVERLAY (view->overlay), frame);
+    }
+    view->overlay_find = g_object_new (MIDORI_TYPE_FINDBAR, NULL);
+    gtk_widget_set_halign (view->overlay_find, GTK_ALIGN_END);
+    gtk_widget_set_valign (view->overlay_find, GTK_ALIGN_START);
+    gtk_overlay_add_overlay (GTK_OVERLAY (view->overlay),
+                             view->overlay_find);
+    gtk_widget_set_no_show_all (view->overlay_find, TRUE);
+    #else
+    gtk_box_pack_start (GTK_BOX (view), view->scrolled_window, TRUE, TRUE, 0);
+    #endif
 
     view->web_view = GTK_WIDGET (midori_tab_get_web_view (MIDORI_TAB (view)));
     g_object_connect (view->web_view,
@@ -4962,6 +4975,11 @@ void
 midori_view_go_back (MidoriView* view)
 {
     g_return_if_fail (MIDORI_IS_VIEW (view));
+
+    #ifdef HAVE_GRANITE
+    GraniteWidgetsNavigationBox* navigation_box = midori_tab_get_navigation_box (MIDORI_TAB (view));
+    granite_widgets_navigation_box_back (navigation_box);
+    #endif
 
     webkit_web_view_go_back (WEBKIT_WEB_VIEW (view->web_view));
     /* Force the speed dial to kick in if going back to a blank page */
