@@ -119,7 +119,7 @@ namespace Midori {
         }
 
         public bool can_view_source () {
-            if (is_blank () || special)
+            if (is_blank () || special || web_view.get_view_source_mode ())
                 return false;
             string content_type = ContentType.from_mime_type (mime_type);
 #if HAVE_WIN32

@@ -2767,13 +2767,6 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
 {
     if (webkit_web_view_can_show_mime_type (WEBKIT_WEB_VIEW (web_view), mime_type))
     {
-        gboolean view_source = FALSE;
-        /* Dedicated source code views are always pseudo-blank pages */
-        if (midori_view_is_blank (view))
-            view_source = webkit_web_view_get_view_source_mode (WEBKIT_WEB_VIEW (web_view));
-
-        webkit_web_view_set_view_source_mode (WEBKIT_WEB_VIEW (web_view), view_source);
-
         if (web_frame == webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view)))
         {
             g_warn_if_fail (mime_type != NULL);
@@ -4061,6 +4054,7 @@ midori_view_set_uri (MidoriView*  view,
             midori_tab_set_uri (MIDORI_TAB (view), uri);
             katze_item_set_uri (view->item, midori_tab_get_uri (MIDORI_TAB (view)));
             katze_assign (view->title, NULL);
+            webkit_web_view_set_view_source_mode (WEBKIT_WEB_VIEW (view->web_view), FALSE);
             webkit_web_view_load_uri (WEBKIT_WEB_VIEW (view->web_view), uri);
         }
     }

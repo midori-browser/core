@@ -127,6 +127,27 @@ void tab_special () {
     assert (tab.can_view_source ());
     assert (!tab.special);
     assert (tab.can_save ());
+    tab.destroy ();
+
+    /* Mimic browser: SourceView with no external editor */
+    var source = new Midori.View.with_title ();
+    browser.add (source);
+    source.web_view.set_view_source_mode (true);
+    source.web_view.load_uri ("http://example.com");
+    do { loop.iteration (true); } while (source.load_status != Midori.LoadStatus.FINISHED);
+    assert (!source.is_blank ());
+    assert (!source.can_view_source ());
+    /* FIXME assert (!source.special); */
+    /* FIXME assert (source.can_save ()); */
+    assert (source.web_view.get_view_source_mode ());
+
+    source.set_uri ("http://.invalid");
+    do { loop.iteration (true); } while (source.load_status != Midori.LoadStatus.FINISHED);
+    assert (!source.is_blank ());
+    assert (!source.can_view_source ());
+    assert (source.special);
+    assert (!source.can_save ());
+    assert (!source.web_view.get_view_source_mode ());
 }
 
 void main (string[] args) {
