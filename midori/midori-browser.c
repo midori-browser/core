@@ -1039,7 +1039,7 @@ midori_browser_save_uri (MidoriBrowser* browser,
     GtkWidget* dialog;
     const gchar* title = midori_view_get_display_title (view);
     gchar* filename;
-    GList* resources = midori_view_get_subresources (view);
+    GList* resources = midori_view_get_resources (view);
     gboolean file_only = TRUE;
     GtkWidget* checkbox = NULL;
 

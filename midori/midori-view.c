@@ -1993,21 +1993,22 @@ midori_web_view_menu_image_new_tab_activate_cb (GtkWidget*  widget,
 }
 
 GList*
-midori_view_get_subresources (MidoriView* view)
+midori_view_get_resources (MidoriView* view)
 {
     WebKitWebView* web_view = WEBKIT_WEB_VIEW (view->web_view);
     WebKitWebFrame* frame = webkit_web_view_get_main_frame (web_view);
     WebKitWebDataSource* data_source = webkit_web_frame_get_data_source (frame);
-    return webkit_web_data_source_get_subresources (data_source);
+    GList* resources = webkit_web_data_source_get_subresources (data_source);
+    return g_list_prepend (resources, webkit_web_data_source_get_main_resource (data_source));
 }
 
 static GString*
 midori_view_get_data_for_uri (MidoriView*  view,
                               const gchar* uri)
 {
-    GList* resources = midori_view_get_subresources (view);
+    GList* resources = midori_view_get_resources (view);
     GList* list;
-    GString* result;
+    GString* result = NULL;
 
     for (list = resources; list; list = g_list_next (list))
     {
@@ -2032,7 +2033,9 @@ midori_view_clipboard_get_image_cb (GtkClipboard*     clipboard,
     MidoriView* view = MIDORI_VIEW (g_object_get_data (user_data, "view"));
     WebKitHitTestResult* hit_test = user_data;
     gchar* uri = katze_object_get_string (hit_test, "image-uri");
+    GdkAtom target = gtk_selection_data_get_target (selection_data);
     /* if (gtk_selection_data_targets_include_image (selection_data, TRUE)) */
+    if (gtk_targets_include_image (&target, 1, TRUE))
     {
         GString* data = midori_view_get_data_for_uri (view, uri);
         if (data != NULL)
@@ -2053,6 +2056,7 @@ midori_view_clipboard_get_image_cb (GtkClipboard*     clipboard,
             g_warn_if_reached ();
     }
     /* if (gtk_selection_data_targets_include_text (selection_data)) */
+    if (gtk_targets_include_text (&target, 1))
         gtk_selection_data_set_text (selection_data, uri, -1);
     g_free (uri);
 }
