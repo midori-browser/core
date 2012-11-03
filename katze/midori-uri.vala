@@ -18,6 +18,8 @@ namespace Midori {
     public class URI : Object {
         public static string? parse_hostname (string? uri, out string path) {
             /* path may be null. */
+            if (&path != null)
+                path = null;
             if (uri == null)
                 return uri;
             unowned string? hostname = uri.chr (-1, '/');

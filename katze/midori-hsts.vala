@@ -44,8 +44,8 @@ namespace Midori {
 
         public HSTS () {
             whitelist = new HashTable<string, Directive> (str_hash, str_equal);
-            read_cache (File.new_for_path (Paths.get_preset_filename (null, "hsts")));
-            read_cache (File.new_for_path (Paths.get_config_filename_for_reading ("hsts")));
+            read_cache.begin (File.new_for_path (Paths.get_preset_filename (null, "hsts")));
+            read_cache.begin (File.new_for_path (Paths.get_config_filename_for_reading ("hsts")));
             if (strcmp (Environment.get_variable ("MIDORI_DEBUG"), "hsts") == 0)
                 debug = true;
         }
@@ -132,7 +132,7 @@ namespace Midori {
             var directive = new Directive.from_header (hsts);
             if (directive.is_valid ()) {
                 append_to_whitelist (message.uri.host, directive);
-                append_to_cache (message.uri.host, hsts);
+                append_to_cache.begin (message.uri.host, hsts);
             }
             if (debug)
                 stdout.printf ("HSTS: '%s' sets '%s' valid? %s\n",

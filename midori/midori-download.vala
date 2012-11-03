@@ -225,7 +225,7 @@ namespace Midori {
         }
 
         public string get_filename_suggestion_for_uri (string mime_type, string uri) {
-            return_if_fail (Midori.URI.is_location (uri));
+            return_val_if_fail (Midori.URI.is_location (uri), uri);
             string filename = File.new_for_uri (uri).get_basename ();
             if (uri.index_of_char ('.') == -1)
                 return Path.build_filename (filename, fallback_extension (null, mime_type));

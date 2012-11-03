@@ -185,7 +185,7 @@ namespace Midori {
 
         public static string get_command_line_str () {
             assert (command_line != null);
-            return "".joinv (" ", command_line).replace (Environment.get_home_dir (), "~");
+            return string.joinv (" ", command_line).replace (Environment.get_home_dir (), "~");
         }
 
         public static string get_lib_path (string package) {
