@@ -12,9 +12,7 @@ for extension in extensions:
         target = extension
         source = ''
         for fila in files:
-            if fila[-2:] == '.c':
-                source += ' ' + extension + os.sep + fila
-            elif 'VALAC' in bld.env and fila[-5:] == '.vala':
+            if fila[-2:] == '.c' or fila[-5:] == '.vala':
                 source += ' ' + extension + os.sep + fila
         if not source:
             Utils.pprint ('RED', folder + ': No source files found')
@@ -22,7 +20,7 @@ for extension in extensions:
     else:
         if extension[-2:] == '.c':
             target = extension[:-2]
-        elif 'VALAC' in bld.env and extension[-5:] == '.vala':
+        elif extension[-5:] == '.vala':
             target = extension[:-5]
         else:
             continue
@@ -33,14 +31,16 @@ for extension in extensions:
     obj.includes = '.. ../katze ../midori'
     obj.source = source
     obj.uselib = 'UNIQUE LIBSOUP GIO GTK SQLITE WEBKIT LIBXML HILDON CLUTTER GRANITE'
-    obj.vapi_dirs = '../midori ../katze'
-    obj.packages = 'glib-2.0 gio-2.0 libsoup-2.4 sqlite3 midori midori-core katze'
-    if bld.env['HAVE_GTK3']:
-        obj.packages += ' gtk+-3.0 webkitgtk-3.0'
-    else:
-        obj.packages += ' gtk+-2.0 webkit-1.0 unique-1.0'
-    if bld.env['HAVE_GRANITE']:
-        obj.packages += ' clutter-gtk-1.0 granite'
+    if 'vala' in source:
+        obj.env.append_value ('CCFLAGS', '-w')
+        obj.vapi_dirs = '../midori ../katze'
+        obj.packages = 'glib-2.0 gio-2.0 libsoup-2.4 sqlite3 midori midori-core katze'
+        if bld.env['HAVE_GTK3']:
+            obj.packages += ' gtk+-3.0 webkitgtk-3.0'
+        else:
+            obj.packages += ' gtk+-2.0 webkit-1.0 unique-1.0'
+        if bld.env['HAVE_GRANITE']:
+            obj.packages += ' clutter-gtk-1.0 granite'
     obj.install_path = '${LIBDIR}/midori'
     if bld.env['platform'] == 'win32':
         obj.uselib_local = 'midori'

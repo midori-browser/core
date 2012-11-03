@@ -339,11 +339,6 @@ def configure (conf):
     conf.env.append_value ('CCFLAGS', '-DHAVE_CONFIG_H -include config.h'.split ())
     debug_level = Options.options.debug_level
     compiler = conf.env['CC_NAME']
-    if debug_level != '' and compiler != 'gcc':
-        Utils.pprint ('RED', 'No debugging level support for ' + compiler)
-        sys.exit (1)
-    elif debug_level == '':
-        debug_level = 'debug'
 
     if debug_level == 'full':
         conf.define ('PACKAGE_VERSION', '%s (debug)' % VERSION_FULL)
@@ -353,39 +348,24 @@ def configure (conf):
         conf.env.append_value ('CCFLAGS', '-DMIDORI_VERSION_SUFFIX="%s"' % VERSION_SUFFIX)
     conf.write_config_header ('config.h')
 
-    if compiler == 'gcc':
-        if debug_level == 'none':
-            if 'CCFLAGS' in os.environ:
-                conf.env.append_value ('CCFLAGS', os.environ['CCFLAGS'].split ())
-            else:
-                conf.env.append_value ('CCFLAGS', '-DG_DISABLE_CHECKS -DG_DISABLE_CAST_CHECKS -DG_DISABLE_ASSERT'.split ())
-        elif debug_level == 'debug':
-            conf.env.append_value ('CCFLAGS', '-Wall -O0 -g'.split ())
-        elif debug_level == 'full':
-            # -Wdeclaration-after-statement
-            # -Wmissing-declarations -Wmissing-prototypes
-            # -Wwrite-strings -Wunsafe-loop-optimizations -Wmissing-include-dirs
+    if debug_level == 'debug':
+        conf.env.append_value ('VALAFLAGS', '--debug --enable-deprecated'.split ())
+        if compiler == 'gcc':
+            conf.env.append_value ('CCFLAGS', '-O2 -g -Wall -Wno-deprecated-declarations'.split ())
+    elif debug_level == 'full':
+        conf.env.append_value ('VALAFLAGS', '--debug --enable-checking'.split ())
+        if compiler == 'gcc':
             conf.env.append_value ('CCFLAGS',
-                '-Wall -Wextra -O1 -g '
+                '-O2 -g -Wall -Wextra -DG_ENABLE_DEBUG '
                 '-Waggregate-return -Wno-unused-parameter '
                 '-Wno-missing-field-initializers '
                 '-Wredundant-decls -Wmissing-noreturn '
                 '-Wshadow -Wpointer-arith -Wcast-align '
                 '-Winline -Wformat-security -fno-common '
                 '-Winit-self -Wundef -Wdeclaration-after-statement '
-                '-Wmissing-format-attribute -Wnested-externs '
-            # -DGSEAL_ENABLE
-                '-DG_ENABLE_DEBUG -DG_DISABLE_DEPRECATED '
-                '-DGDK_PIXBUF_DISABLE_DEPRECATED -DGDK_DISABLE_DEPRECATED '
-                '-DGTK_DISABLE_DEPRECATED -DPANGO_DISABLE_DEPRECATED '
-                '-DGDK_MULTIHEAD_SAFE -DGTK_MULTIHEAD_SAFE'.split ())
-    if debug_level == 'full':
-        conf.env.append_value ('VALAFLAGS', '--debug --enable-checking'.split ())
-    elif debug_level == 'debug':
-        conf.env.append_value ('VALAFLAGS', '--debug'.split ())
-    elif debug_level == 'none':
-        conf.env.append_value ('VALAFLAGS', '--disable-assert')
-    conf.env.append_value ('VALAFLAGS', '--enable-deprecated')
+                '-Wmissing-format-attribute -Wnested-externs'.split ())
+    conf.env.append_value ('CCFLAGS', '-Wno-unused-but-set-variable -Wno-unused-variable -Wno-comment'.split ())
+
     print ('''
         Localization:        %(nls)s (intltool)
         Icon optimizations:  %(icons)s (rsvg-convert)
@@ -420,9 +400,9 @@ def set_options (opt):
 
     opt.tool_options ('compiler_cc')
     opt.get_option_group ('--check-c-compiler').add_option('-d', '--debug-level',
-        action = 'store', default = '',
+        action = 'store', default = 'debug',
         help = 'Specify the debugging level. [\'none\', \'debug\', \'full\']',
-        choices = ['', 'none', 'debug', 'full'], dest = 'debug_level')
+        choices = ['none', 'debug', 'full'], dest = 'debug_level')
     opt.tool_options ('gnu_dirs')
     opt.parser.remove_option ('--oldincludedir')
     opt.parser.remove_option ('--htmldir')

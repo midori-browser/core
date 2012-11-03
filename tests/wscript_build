@@ -12,9 +12,7 @@ for test in tests:
         target = test
         source = ''
         for fila in files:
-            if fila[-2:] == '.c':
-                source += ' ' + test + os.sep + fila
-            elif file[-5:] == '.vala':
+            if fila[-2:] == '.c' or fila[-5:] == '.vala':
                 source += ' ' + test + os.sep + fila
         if not source:
             Utils.pprint ('RED', folder + ': No source files found')
@@ -33,12 +31,14 @@ for test in tests:
     obj.includes = '.. ../midori ../panels'
     obj.cflags = ['-DEXTENSION_PATH="' + os.path.abspath ('_build/default/extensions') + '"']
     obj.source = source
-    obj.vapi_dirs = '../midori ../katze'
-    obj.packages = 'glib-2.0 gio-2.0 libsoup-2.4 sqlite3 katze midori midori-core'
-    if bld.env['HAVE_GTK3']:
-        obj.packages += ' gtk+-3.0 webkitgtk-3.0'
-    else:
-        obj.packages += ' gtk+-2.0 webkit-1.0'
+    if 'vala' in source:
+        obj.env.append_value ('CCFLAGS', '-w')
+        obj.vapi_dirs = '../midori ../katze'
+        obj.packages = 'glib-2.0 gio-2.0 libsoup-2.4 sqlite3 katze midori midori-core'
+        if bld.env['HAVE_GTK3']:
+            obj.packages += ' gtk+-3.0 webkitgtk-3.0'
+        else:
+            obj.packages += ' gtk+-2.0 webkit-1.0'
     obj.uselib = 'UNIQUE LIBSOUP GIO GTK SQLITE WEBKIT LIBXML GRANITE ZEITGEIST'
     obj.uselib_local = 'midori-core'
     obj.unit_test = 1
