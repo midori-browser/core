@@ -219,7 +219,6 @@ def configure (conf):
     conf.define ('HAVE_LIBNOTIFY', [0,1][libnotify == 'yes'])
 
     if option_enabled ('granite'):
-        check_pkg ('clutter-gtk-1.0', '1.0')
         if not option_enabled ('gtk3'):
             if getattr (Options.options, 'enable_granite'):
                 Utils.pprint ('RED', 'Granite requires --enable-gtk3')
@@ -233,6 +232,7 @@ def configure (conf):
             option_checkfatal ('granite', 'new notebook, pop-overs')
             conf.define ('GRANITE_VERSION', 'No')
         else:
+            check_pkg ('clutter-gtk-1.0', '1.0')
             conf.define ('GRANITE_VERSION', conf.check_cfg (modversion='granite'))
             conf.env.append_value ('VALAFLAGS', '-D HAVE_GRANITE')
     else:
