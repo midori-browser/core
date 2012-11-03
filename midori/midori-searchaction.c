@@ -951,7 +951,7 @@ midori_search_action_get_engine_for_form (WebKitWebView*     web_view,
     gchar** parts;
 
     #if WEBKIT_CHECK_VERSION (1, 9, 5)
-    doc = webkit_web_frame_get_dom_document (web_view);
+    doc = webkit_web_frame_get_dom_document (webkit_web_view_get_focused_frame (web_view));
     #else
     if (webkit_web_view_get_focused_frame (web_view) != webkit_web_view_get_main_frame (web_view))
         return NULL;

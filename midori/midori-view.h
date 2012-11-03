@@ -232,7 +232,7 @@ midori_view_fallback_extension         (MidoriView*        view,
                                         const gchar*       extension);
 
 GList*
-midori_view_get_subresources           (MidoriView* view);
+midori_view_get_resources              (MidoriView*        view);
 
 G_END_DECLS
 
