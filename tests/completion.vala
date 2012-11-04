@@ -55,19 +55,19 @@ void completion_autocompleter () {
     assert (autocompleter.can_complete (""));
 
     completion.test_suggestions = 0;
-    autocompleter.complete ("");
+    autocompleter.complete.begin ("");
     var loop = MainContext.default ();
     do { loop.iteration (true); } while (loop.pending ());
     assert (autocompleter.model.iter_n_children (null) == 0);
 
     completion.test_suggestions = 1;
-    autocompleter.complete ("");
+    autocompleter.complete.begin ("");
     do { loop.iteration (true); } while (loop.pending ());
     assert (autocompleter.model.iter_n_children (null) == 1);
 
     /* Order */
     completion.test_suggestions = 2;
-    autocompleter.complete ("");
+    autocompleter.complete.begin ("");
     do { loop.iteration (true); } while (loop.pending ());
     assert (autocompleter.model.iter_n_children (null) == 2);
     Gtk.TreeIter iter_first;
@@ -79,9 +79,9 @@ void completion_autocompleter () {
 
     /* Cancellation */
     /*
-    autocompleter.complete ("");
+    autocompleter.complete.begin ("");
     completion.test_suggestions = 3;
-    autocompleter.complete ("");
+    autocompleter.complete.begin ("");
     do { loop.iteration (true); } while (loop.pending ());
     int n = autocompleter.model.iter_n_children (null);
     if (n != 3)
@@ -109,17 +109,19 @@ async void complete_spec (Midori.Completion completion, TestCaseCompletion spec)
 }
 
 void completion_history () {
-    /* TODO: mock history database
     var completion = new Midori.HistoryCompletion ();
     var app = new Midori.App ();
     var history = new Katze.Array (typeof (Katze.Item));
     app.set ("history", history);
     Sqlite.Database db;
     Sqlite.Database.open_v2 (":memory:", out db);
+    db.exec ("CREATE TABLE history (uri TEXT, title TEXT);");
+    db.exec ("CREATE TABLE search (uri TEXT, keywords TEXT);");
+    db.exec ("CREATE TABLE bookmarks (uri TEXT, title TEXT);");
     history.set_data<unowned Sqlite.Database?> ("db", db);
     completion.prepare (app);
     foreach (var spec in completions)
-        complete_spec (completion, spec); */
+        complete_spec.begin (completion, spec);
 }
 
 void main (string[] args) {
