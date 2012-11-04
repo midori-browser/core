@@ -42,6 +42,12 @@ namespace Midori {
             return download.progress;
         }
 
+#if !HAVE_GLIB_2_30
+        private static string format_size (uint64 size) {
+            return format_size_for_display ((int64)size);
+        }
+#endif
+
         public static string get_tooltip (WebKit.Download download) {
             string filename = Path.get_basename (download.destination_uri);
             /* i18n: Download tooltip (size): 4KB of 43MB */
@@ -82,7 +88,6 @@ namespace Midori {
             }
 
             string speed = "";
-#if HAVE_GLIB_2_30
             uint64 last_size = download.get_data<uint64> ("last-size");
             if (elapsed != last_time) {
                 speed = format_size ((uint64)(
@@ -93,7 +98,6 @@ namespace Midori {
                 speed = _("?B");
             /* i18n: Download tooltip (transfer rate): (130KB/s) */
             speed = _(" (%s/s)").printf (speed);
-#endif
 
             if (elapsed - last_time > 5.0) {
                 download.set_data<int> ("last-time", (int)elapsed);
