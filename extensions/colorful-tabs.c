@@ -16,8 +16,7 @@ static void
 colorful_tabs_modify_fg (GtkWidget* label,
                          GdkColor*  color)
 {
-    GtkWidget* box = gtk_bin_get_child (GTK_BIN (label));
-    GList* children = gtk_container_get_children (GTK_CONTAINER (box));
+    GList* children = gtk_container_get_children (GTK_CONTAINER (label));
     for (; children != NULL; children = g_list_next (children))
     {
         if (GTK_IS_LABEL (children->data))

@@ -129,10 +129,10 @@ midori_view_get_tab                    (MidoriView*        view);
 void
 midori_view_set_tab                    (MidoriView*        view,
                                         GraniteWidgetsTab* tab);
-#else
+#endif
+
 GtkWidget*
 midori_view_get_proxy_tab_label        (MidoriView*        view);
-#endif
 
 KatzeItem*
 midori_view_get_proxy_item             (MidoriView*        view);

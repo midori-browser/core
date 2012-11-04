@@ -4459,6 +4459,21 @@ midori_view_set_tab (MidoriView*        view,
         "page", GTK_WIDGET (view),
         NULL);
 }
+
+GtkWidget*
+midori_view_get_proxy_tab_label (MidoriView* view)
+{
+    GtkWidget* tab = GTK_WIDGET (midori_view_get_tab (view));
+    GList* children = gtk_container_get_children (GTK_CONTAINER (tab));
+    GtkWidget* label = NULL;
+    for (; children; children = g_list_next (children))
+        if (GTK_IS_EVENT_BOX (children->data))
+            label = children->data;
+    g_list_free (children);
+    g_warn_if_fail (label != NULL);
+    return label;
+}
+
 #else
 static gboolean
 midori_view_tab_label_button_press_event (GtkWidget*      tab_label,
