@@ -36,7 +36,7 @@ namespace Midori {
     public class Tab : Gtk.VBox {
         public WebKit.WebView web_view { get; private set; }
 
-        #if HAVE_GRANITE
+        #if HAVE_GRANITE_CLUTTER
         public Granite.Widgets.NavigationBox navigation_box { get; private set; }
         #endif
 
@@ -94,7 +94,7 @@ namespace Midori {
             orientation = Gtk.Orientation.VERTICAL;
             #endif
 
-            #if HAVE_GRANITE
+            #if HAVE_GRANITE_CLUTTER
             navigation_box = new Granite.Widgets.NavigationBox ();
             #endif
 
@@ -200,7 +200,7 @@ namespace Midori {
         }
 
         public void go_forward () {
-            #if HAVE_GRANITE
+            #if HAVE_GRANITE_CLUTTER
             navigation_box.forward ();
             #endif
             web_view.go_forward ();

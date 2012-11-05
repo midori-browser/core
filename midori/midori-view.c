@@ -787,7 +787,7 @@ webkit_web_view_load_committed_cb (WebKitWebView*  web_view,
     if (web_frame != webkit_web_view_get_main_frame (web_view))
         return;
 
-    #ifdef HAVE_GRANITE
+    #ifdef HAVE_GRANITE_CLUTTER
     GraniteWidgetsNavigationBox* navigation_box = midori_tab_get_navigation_box (MIDORI_TAB (view));
     granite_widgets_navigation_box_transition_ready (navigation_box);
     #endif
@@ -3535,7 +3535,7 @@ midori_view_constructor (GType                  type,
     #if GTK_CHECK_VERSION(3, 2, 0)
     view->overlay = gtk_overlay_new ();
     gtk_widget_show (view->overlay);
-    #ifdef HAVE_GRANITE
+    #ifdef HAVE_GRANITE_CLUTTER
     {
     GraniteWidgetsNavigationBox* navigation_box = midori_tab_get_navigation_box (MIDORI_TAB (view));
     granite_widgets_navigation_box_add (navigation_box, GTK_WIDGET (view->scrolled_window));
@@ -4996,7 +4996,7 @@ midori_view_go_back (MidoriView* view)
 {
     g_return_if_fail (MIDORI_IS_VIEW (view));
 
-    #ifdef HAVE_GRANITE
+    #ifdef HAVE_GRANITE_CLUTTER
     GraniteWidgetsNavigationBox* navigation_box = midori_tab_get_navigation_box (MIDORI_TAB (view));
     granite_widgets_navigation_box_back (navigation_box);
     #endif
