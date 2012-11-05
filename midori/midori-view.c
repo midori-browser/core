@@ -3135,9 +3135,10 @@ midori_view_set_property (GObject*      object,
             midori_view_item_meta_data_changed, view);
         #ifdef HAVE_GRANITE
         if (view->tab)
-            g_object_set (view->tab, "label",
-                "fixed", view->minimized, NULL);
-            //view->minimized ? NULL : midori_view_get_display_title(view), NULL);
+            g_object_set (view->tab,
+                "fixed", view->minimized,
+                "label", midori_view_get_display_title (view),
+                NULL);
         #else
         if (view->tab_label)
             sokoke_widget_set_visible (view->tab_title, !view->minimized);
@@ -4441,8 +4442,11 @@ GraniteWidgetsTab*
 midori_view_get_tab (MidoriView* view)
 {
     if (view->tab == NULL)
+    {
         view->tab = granite_widgets_tab_new (
             midori_view_get_display_title (view), G_ICON (view->icon), GTK_WIDGET (view));
+        g_object_set (view->tab, "fixed", view->minimized, NULL);
+    }
     return view->tab;
 }
 
@@ -4457,6 +4461,7 @@ midori_view_set_tab (MidoriView*        view,
         "label", midori_view_get_display_title (view),
         "icon", G_ICON (view->icon),
         "page", GTK_WIDGET (view),
+        "fixed", view->minimized,
         NULL);
 }
 
