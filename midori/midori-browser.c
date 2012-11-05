@@ -4844,12 +4844,7 @@ _action_tab_duplicate_activate (GtkAction*     action,
                                 MidoriBrowser* browser)
 {
     GtkWidget* view = midori_browser_get_current_tab (browser);
-    MidoriNewView where = MIDORI_NEW_VIEW_TAB;
-    GtkWidget* new_view = midori_view_new_with_item (
-        midori_view_get_proxy_item (MIDORI_VIEW (view)), browser->settings);
-    const gchar* uri = midori_view_get_display_uri (MIDORI_VIEW (view));
-    g_signal_emit_by_name (view, "new-view", new_view, where, TRUE);
-    midori_view_set_uri (MIDORI_VIEW (new_view), uri);
+    midori_view_duplicate (MIDORI_VIEW (view));
 }
 
 static void
@@ -5271,6 +5266,16 @@ midori_browser_notebook_tab_moved_cb (GtkWidget*         notebook,
             MIDORI_VIEW (view), new_pos, browser);
     }
 }
+
+static void
+midori_browser_notebook_tab_duplicated_cb (GtkWidget*         notebook,
+                                           GraniteWidgetsTab* tab,
+                                           MidoriBrowser*     browser)
+{
+    GtkWidget* view = granite_widgets_tab_get_page (tab);
+    midori_view_duplicate (MIDORI_VIEW (view));
+}
+
 #else
 static void
 midori_browser_notebook_page_added_cb (GtkNotebook*   notebook,
@@ -6495,6 +6500,8 @@ midori_browser_init (MidoriBrowser* browser)
     browser->notebook = (GtkWidget*)granite_widgets_dynamic_notebook_new ();
     granite_widgets_dynamic_notebook_set_allow_new_window (
         GRANITE_WIDGETS_DYNAMIC_NOTEBOOK (browser->notebook), TRUE);
+    granite_widgets_dynamic_notebook_set_allow_duplication (
+        GRANITE_WIDGETS_DYNAMIC_NOTEBOOK (browser->notebook), TRUE);
     /* FIXME: work-around a bug */
     gtk_widget_show_all (browser->notebook);
     granite_widgets_dynamic_notebook_set_group_name (
@@ -6532,6 +6539,9 @@ midori_browser_init (MidoriBrowser* browser)
                       browser);
     g_signal_connect (browser->notebook, "tab-moved",
                       G_CALLBACK (midori_browser_notebook_tab_moved_cb),
+                      browser);
+    g_signal_connect (browser->notebook, "tab-duplicated",
+                      G_CALLBACK (midori_browser_notebook_tab_duplicated_cb),
                       browser);
     #else
     g_signal_connect (browser->notebook, "switch-page",

@@ -143,6 +143,7 @@ namespace Midori {
         public bool has_selection ();
         public string get_selected_text ();
         public Gtk.MenuItem get_proxy_menu_item ();
+        public Gtk.Widget duplicate ();
         public Gtk.Menu get_tab_menu ();
         public Pango.EllipsizeMode get_label_ellipsize ();
         public Gtk.Label get_proxy_tab_label ();

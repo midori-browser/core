@@ -4334,10 +4334,17 @@ static void
 midori_view_tab_label_menu_duplicate_tab_cb (GtkWidget*  menuitem,
                                              MidoriView* view)
 {
+    midori_view_duplicate (view);
+}
+
+GtkWidget*
+midori_view_duplicate (MidoriView* view)
+{
     MidoriNewView where = MIDORI_NEW_VIEW_TAB;
     GtkWidget* new_view = midori_view_new_with_item (view->item, view->settings);
     g_signal_emit (view, signals[NEW_VIEW], 0, new_view, where, TRUE);
     midori_view_set_uri (MIDORI_VIEW (new_view), midori_tab_get_uri (MIDORI_TAB (view)));
+    return new_view;
 }
 
 static void
