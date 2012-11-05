@@ -1108,6 +1108,7 @@ adblock_app_add_browser_cb (MidoriApp*       app,
 {
     GtkWidget* statusbar;
     GtkWidget* image;
+    GList* children;
     GtkWidget* view;
     gint i;
 
@@ -1119,9 +1120,10 @@ adblock_app_add_browser_cb (MidoriApp*       app,
     g_object_set_data_full (G_OBJECT (browser), "status-image", image,
                             (GDestroyNotify)gtk_widget_destroy);
 
-    i = 0;
-    while((view = midori_browser_get_nth_tab(browser, i++)))
-        adblock_add_tab_cb (browser, MIDORI_VIEW (view), extension);
+    children = midori_browser_get_tabs (MIDORI_BROWSER (browser));
+    for (; children; children = g_list_next (children))
+        adblock_add_tab_cb (browser, children->data, extension);
+    g_list_free (children);
 
     g_signal_connect (browser, "add-tab",
         G_CALLBACK (adblock_add_tab_cb), extension);
@@ -1726,7 +1728,7 @@ static void
 adblock_deactivate_cb (MidoriExtension* extension,
                        MidoriBrowser*   browser)
 {
-    gint i;
+    GList* children;
     GtkWidget* view;
     MidoriApp* app = midori_extension_get_app (extension);
     MidoriWebSettings* settings = katze_object_get_object (app, "settings");
@@ -1742,9 +1744,10 @@ adblock_deactivate_cb (MidoriExtension* extension,
     g_signal_handlers_disconnect_by_func (
         browser, adblock_remove_tab_cb, extension);
 
-    i = 0;
-    while((view = midori_browser_get_nth_tab(browser, i++)))
-        adblock_deactivate_tabs (MIDORI_VIEW (view), browser, extension);
+    children = midori_browser_get_tabs (MIDORI_BROWSER (browser));
+    for (; children; children = g_list_next (children))
+        adblock_deactivate_tabs (children->data, browser, extension);
+    g_list_free (children);
 
     adblock_destroy_db ();
     midori_web_settings_remove_style (settings, "adblock-blockcss");

@@ -1547,14 +1547,16 @@ midori_inactivity_timeout (gpointer data)
         XScreenSaverQueryInfo (xdisplay, RootWindow (xdisplay, 0), mit_info);
         if (mit_info->idle / 1000 > mit->timeout)
         {
-            guint i = 0;
+            GList* children;
             GtkWidget* view;
             KatzeArray* history = katze_object_get_object (mit->browser, "history");
             KatzeArray* trash = katze_object_get_object (mit->browser, "trash");
             GList* data_items = sokoke_register_privacy_item (NULL, NULL, NULL);
 
-            while ((view = midori_browser_get_nth_tab (mit->browser, i++)))
-                midori_browser_close_tab (mit->browser, view);
+            children = midori_browser_get_tabs (mit->browser);
+            for (; children; children = g_list_next (children))
+                midori_browser_close_tab (mit->browser, children->data);
+            g_list_free (children);
             midori_browser_set_current_uri (mit->browser, mit->uri);
             /* Clear all private data */
             if (history != NULL)

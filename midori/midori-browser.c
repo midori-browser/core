@@ -8025,7 +8025,12 @@ midori_browser_get_tabs (MidoriBrowser* browser)
 {
     g_return_val_if_fail (MIDORI_IS_BROWSER (browser), NULL);
 
+    #ifdef HAVE_GRANITE
+    /* FIXME: granite doesn't correctly implemented gtk.container */
+    return granite_widgets_dynamic_notebook_get_children (GRANITE_WIDGETS_DYNAMIC_NOTEBOOK (browser->notebook));
+    #else
     return gtk_container_get_children (GTK_CONTAINER (browser->notebook));
+    #endif
 }
 
 /**

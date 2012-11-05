@@ -136,7 +136,7 @@ static void
 colorful_tabs_deactivate_cb (MidoriExtension* extension,
                              MidoriBrowser*   browser)
 {
-    guint i;
+    GList* children;
     GtkWidget* view;
     MidoriApp* app = midori_extension_get_app (extension);
 
@@ -146,17 +146,19 @@ colorful_tabs_deactivate_cb (MidoriExtension* extension,
         browser, colorful_tabs_browser_add_tab_cb, extension);
     g_signal_handlers_disconnect_by_func (
         extension, colorful_tabs_deactivate_cb, browser);
-    i = 0;
-    while ((view = midori_browser_get_nth_tab (browser, i++)))
+
+    children = midori_browser_get_tabs (MIDORI_BROWSER (browser));
+    for (; children; children = g_list_next (children))
     {
-        GtkWidget* label = midori_view_get_proxy_tab_label (MIDORI_VIEW (view));
+        GtkWidget* label = midori_view_get_proxy_tab_label (children->data);
         gtk_event_box_set_visible_window (GTK_EVENT_BOX (label), FALSE);
         gtk_widget_modify_bg (label, GTK_STATE_NORMAL, NULL);
         gtk_widget_modify_bg (label, GTK_STATE_ACTIVE, NULL);
         colorful_tabs_modify_fg (label, NULL);
         g_signal_handlers_disconnect_by_func (
-            view, colorful_tabs_view_notify_uri_cb, extension);
+            children->data, colorful_tabs_view_notify_uri_cb, extension);
     }
+    g_list_free (children);
 }
 
 static void
@@ -164,12 +166,13 @@ colorful_tabs_app_add_browser_cb (MidoriApp*       app,
                                   MidoriBrowser*   browser,
                                   MidoriExtension* extension)
 {
-    guint i;
-    GtkWidget* view;
+    GList* children;
 
-    i = 0;
-    while ((view = midori_browser_get_nth_tab (browser, i++)))
-        colorful_tabs_browser_add_tab_cb (browser, view, extension);
+    children = midori_browser_get_tabs (MIDORI_BROWSER (browser));
+    for (; children; children = g_list_next (children))
+        colorful_tabs_browser_add_tab_cb (browser, children->data, extension);
+    g_list_free (children);
+
     g_signal_connect (browser, "add-tab",
         G_CALLBACK (colorful_tabs_browser_add_tab_cb), extension);
     g_signal_connect (extension, "deactivate",

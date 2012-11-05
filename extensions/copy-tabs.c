@@ -28,6 +28,7 @@ copy_tabs_apply_cb (GtkWidget*     menuitem,
     }
     gtk_clipboard_set_text (clipboard, text->str, -1);
     g_string_free (text, TRUE);
+    g_list_free (children);
 }
 
 static void
