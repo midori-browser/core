@@ -300,6 +300,33 @@ magic_uri_format (void)
 }
 
 static void
+magic_uri_prefix (void)
+{
+
+    typedef struct
+    {
+        const gchar* before;
+        const gchar* after;
+    } URIItem;
+
+    static const URIItem items[] = {
+        { "http://www.example.com", "example.com" },
+        { "http://example.com", "example.com" },
+        { "https://example.com", "example.com" },
+        { "file:///path/to/my/heart", "/path/to/my/heart" },
+     };
+    guint i;
+
+    for (i = 0; i < G_N_ELEMENTS (items); i++)
+    {
+        gchar* result = midori_uri_strip_prefix_for_display (items[i].before);
+        const gchar* after = items[i].after ? items[i].after : items[i].before;
+        katze_assert_str_equal (items[i].before, result, after);
+        g_free (result);
+    }
+}
+
+static void
 magic_uri_prefetch (void)
 {
     g_assert (!sokoke_prefetch_uri (NULL, NULL, NULL, NULL));
@@ -374,6 +401,7 @@ main (int    argc,
     g_test_add_func ("/magic-uri/fingerprint", magic_uri_fingerprint);
     g_test_add_func ("/magic-uri/ip", magic_uri_ip);
     g_test_add_func ("/magic-uri/format", magic_uri_format);
+    g_test_add_func ("/magic-uri/prefix", magic_uri_prefix);
     g_test_add_func ("/magic-uri/prefetch", magic_uri_prefetch);
     g_test_add_func ("/magic-uri/commands", magic_uri_commands);
 

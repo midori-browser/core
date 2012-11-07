@@ -42,7 +42,7 @@ const TestCaseEllipsize[] titles = {
       Pango.EllipsizeMode.START, null },
     { "file:///home/user",
       "OMG!",
-      Pango.EllipsizeMode.START, "file:///home/user" },
+      Pango.EllipsizeMode.START, "/home/user" },
     { "http://paste.foo/0007-Bump-version-to-0.4.7.patch",
       null,
       Pango.EllipsizeMode.START, "0007-Bump-version-to-0.4.7.patch" },

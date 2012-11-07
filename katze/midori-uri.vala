@@ -63,6 +63,18 @@ namespace Midori {
             }
             return uri;
         }
+
+        /* Strip http(s), file and www. for tab titles or completion */
+        public static string strip_prefix_for_display (string uri) {
+            if (is_http (uri) || uri.has_prefix ("file://")) {
+                string stripped_uri = uri.split ("://")[1];
+                if (is_http (uri) && stripped_uri.has_prefix ("www."))
+                    return stripped_uri.substring (4, -1);
+                return stripped_uri;
+            }
+            return uri;
+        }
+
         public static string format_for_display (string? uri) {
             /* Percent-decode and decode puniycode for user display */
             if (uri != null && uri.has_prefix ("http://")) {

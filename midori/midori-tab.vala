@@ -151,7 +151,7 @@ namespace Midori {
 
             /* Work-around libSoup not setting a proper directory title */
             if (title == null || (title == "OMG!" && uri.has_prefix ("file://")))
-                return uri;
+                return Midori.URI.strip_prefix_for_display (uri);
 
 #if !HAVE_WIN32
             /* If left-to-right text is combined with right-to-left text the default
