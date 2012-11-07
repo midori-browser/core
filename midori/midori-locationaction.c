@@ -1231,8 +1231,10 @@ midori_location_action_icon_released_cb (GtkWidget*           widget,
         GtkWidget* content_area;
         GtkWidget* hbox;
         #ifdef HAVE_GRANITE
-        gint root_x, root_y;
+        gint wx, wy;
+        GtkAllocation allocation;
         GdkRectangle icon_rect;
+
         /* FIXME: granite: should return GtkWidget* like GTK+ */
         dialog = (GtkWidget*)granite_widgets_pop_over_new ();
         gchar* markup = g_strdup_printf ("<b>%s</b>", title);
@@ -1241,12 +1243,15 @@ midori_location_action_icon_released_cb (GtkWidget*           widget,
         g_free (markup);
         gtk_label_set_use_markup (GTK_LABEL (label), TRUE);
         gtk_box_pack_start (GTK_BOX (content_area), label, FALSE, FALSE, 0);
+
+        gtk_widget_get_allocation (widget, &allocation);
+        gdk_window_get_origin (gtk_widget_get_window (widget), &wx, &wy);
+        wx += allocation.x;
         gtk_entry_get_icon_area (GTK_ENTRY (widget), icon_pos, &icon_rect);
-        gdk_window_get_root_coords (gtk_widget_get_window (widget),
-            icon_rect.x + icon_rect.width / 2, icon_rect.y + icon_rect.height,
-            &root_x, &root_y);
+        wx += (icon_rect.x + icon_rect.width / 2);
+        wy += (icon_rect.y + icon_rect.height);
         granite_widgets_pop_over_move_to_coords (GRANITE_WIDGETS_POP_OVER (dialog),
-            root_x, root_y, TRUE);
+            wx, wy, TRUE);
         #else
         dialog = gtk_dialog_new_with_buttons (title, GTK_WINDOW (gtk_widget_get_toplevel (widget)),
             GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR, NULL, NULL);
