@@ -1590,6 +1590,9 @@ GtkWidget*
 katze_uri_entry_new (GtkWidget* other_widget)
 {
     GtkWidget* entry = gtk_entry_new ();
+    #if GTK_CHECK_VERSION (3, 6, 0)
+    gtk_entry_set_input_purpose (GTK_ENTRY (entry), GTK_INPUT_PURPOSE_URL);
+    #endif
 
     gtk_entry_set_icon_from_gicon (GTK_ENTRY (entry), GTK_ENTRY_ICON_PRIMARY,
         g_themed_icon_new_with_default_fallbacks ("text-html-symbolic"));

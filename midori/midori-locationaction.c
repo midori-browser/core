@@ -713,6 +713,9 @@ midori_location_action_create_tool_item (GtkAction* action)
     gtk_container_add (GTK_CONTAINER (toolitem), alignment);
 
     entry = gtk_icon_entry_new ();
+    #if GTK_CHECK_VERSION (3, 6, 0)
+    gtk_entry_set_input_purpose (GTK_ENTRY (entry), GTK_INPUT_PURPOSE_URL);
+    #endif
     gtk_icon_entry_set_icon_highlight (GTK_ICON_ENTRY (entry),
          GTK_ICON_ENTRY_PRIMARY, TRUE);
     gtk_icon_entry_set_icon_highlight (GTK_ICON_ENTRY (entry),
