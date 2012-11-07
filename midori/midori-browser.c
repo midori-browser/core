@@ -5456,7 +5456,7 @@ static const GtkActionEntry entries[] =
     #ifdef HAVE_GRANITE
     { "Print", "document-export",
         N_("_Share"), "<Ctrl>p",
-        NULL, G_CALLBACK (_action_print_activate) },
+        N_("Share this page"), G_CALLBACK (_action_print_activate) },
     #else
     { "Print", GTK_STOCK_PRINT,
         NULL, "<Ctrl>p",
