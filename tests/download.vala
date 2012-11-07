@@ -41,20 +41,23 @@ static void download_extension () {
 static void download_unique () {
     string folder = DirUtils.make_tmp ("cacheXXXXXX");
     string filename = Path.build_path (Path.DIR_SEPARATOR_S, folder, "foo.png");
-    string unique = Midori.Download.get_unique_filename (filename);
+    string org_filename = Path.build_path (Path.DIR_SEPARATOR_S, folder, "foo.png");
+    string unique = Midori.Download.get_unique_filename (org_filename);
     Katze.assert_str_equal (folder, unique, filename);
     FileUtils.set_contents (filename, "12345");
-    unique = Midori.Download.get_unique_filename (filename);
+    unique = Midori.Download.get_unique_filename (org_filename);
     filename = Path.build_path (Path.DIR_SEPARATOR_S, folder, "foo-0.png");
     Katze.assert_str_equal (folder, unique, filename);
     FileUtils.set_contents (filename, "12345");
-    unique = Midori.Download.get_unique_filename (filename);
+    unique = Midori.Download.get_unique_filename (org_filename);
     filename = Path.build_path (Path.DIR_SEPARATOR_S, folder, "foo-1.png");
     Katze.assert_str_equal (folder, unique, filename);
 
-    filename = Path.build_path (Path.DIR_SEPARATOR_S, folder, "foo-9.png");
-    FileUtils.set_contents (filename, "12345");
-    unique = Midori.Download.get_unique_filename (filename);
+    for (var i = 0; i < 10; i++) {
+        filename = Path.build_path (Path.DIR_SEPARATOR_S, folder, "foo-%d.png".printf (i));
+        FileUtils.set_contents (filename, "12345");
+    }
+    unique = Midori.Download.get_unique_filename (org_filename);
     filename = Path.build_path (Path.DIR_SEPARATOR_S, folder, "foo-10.png");
     Katze.assert_str_equal (folder, unique, filename);
     DirUtils.remove (folder);
