@@ -112,19 +112,16 @@ def configure (conf):
 
     if option_enabled ('nls'):
         conf.check_tool ('intltool')
-        if conf.env['INTLTOOL'] and conf.env['POCOM']:
-            nls = 'yes'
-        else:
+        if not conf.env['INTLTOOL'] and conf.env['POCOM']:
             option_checkfatal ('nls', 'localization')
-            nls = 'N/A'
+            conf.define ('ENABLE_NLS', 0)
+        else:
+            conf.define ('ENABLE_NLS', 1)
     else:
-        nls = 'no '
-    conf.define ('ENABLE_NLS', [0,1][nls == 'yes'])
+        conf.define ('ENABLE_NLS', 0)
+        conf.check_message_custom ('nls', '', 'disabled')
 
-    if conf.find_program ('rsvg-convert', var='RSVG_CONVERT'):
-        icons = 'yes'
-    else:
-        icons = 'no '
+    conf.find_program ('rsvg-convert', var='RSVG_CONVERT')
 
     if is_win32 (conf.env):
         conf.find_program ('windres', var='WINRC')
@@ -169,54 +166,43 @@ def configure (conf):
         conf.find_program ('gtkdoc-mkhtml', var='GTKDOC_MKHTML')
         if conf.env['GTKDOC_SCAN'] and conf.env['GTKDOC_MKTMPL'] \
             and conf.env['GTKDOC_MKDB'] and conf.env['GTKDOC_MKHTML']:
-            api_docs = 'yes'
+            pass
         else:
             option_checkfatal ('apidocs', 'API documentation')
-            api_docs = 'N/A'
     else:
-        api_docs = 'no '
+        conf.check_message_custom ('gtk-doc', '', 'disabled')
 
     def check_pkg (name, version='', mandatory=True, var=None, args=''):
         if not var:
             var = name.split ('-')[0].upper ()
         conf.check_cfg (package=name, uselib_store=var, args='--cflags --libs ' + args,
             atleast_version=version, mandatory=mandatory)
-        return conf.env['HAVE_' + var]
+        have = conf.env['HAVE_' + var] == 1
+        conf.define (var + '_VERSION', ['No', conf.check_cfg (modversion=name, uselib_store=var)][have])
+        return have
 
     if option_enabled ('gtk3'):
-        gcr_pkg = 'gcr-3'
+        check_pkg ('gcr-3', '2.32', mandatory=False)
     else:
-        gcr_pkg = 'gcr-3-gtk2'
-    check_pkg (gcr_pkg, '2.32', mandatory=False)
-    conf.define ('GCR_VERSION', ['No',conf.check_cfg(modversion=gcr_pkg)][conf.env['HAVE_GCR'] == 1])
+        check_pkg ('gcr-3-gtk2', '2.32', mandatory=False)
 
     if option_enabled ('unique'):
         if option_enabled('gtk3'): unique_pkg = 'unique-3.0'
         else: unique_pkg = 'unique-1.0'
-        check_pkg (unique_pkg, '0.9', False)
-        unique = ['N/A', 'yes'][conf.env['HAVE_UNIQUE'] == 1]
-        if unique != 'yes':
+        if not check_pkg (unique_pkg, '0.9', mandatory=False):
             option_checkfatal ('unique', 'single instance')
-            conf.define ('UNIQUE_VERSION', 'No')
-        else:
-            conf.define ('UNIQUE_VERSION', conf.check_cfg (modversion=unique_pkg))
     else:
-        unique = 'no '
         conf.define ('UNIQUE_VERSION', 'No')
-    conf.define ('HAVE_UNIQUE', [0,1][unique == 'yes'])
+        conf.check_message_custom ('unique', '', 'disabled')
+    conf.define ('HAVE_UNIQUE', [0,1][conf.env['LIBUNIQUE_VERSION'] != 'No'])
 
     if option_enabled ('libnotify'):
-        check_pkg ('libnotify', mandatory=False)
-        libnotify = ['N/A','yes'][conf.env['HAVE_LIBNOTIFY'] == 1]
-        if libnotify != 'yes':
+        if not check_pkg ('libnotify', mandatory=False):
             option_checkfatal ('libnotify', 'notifications')
-            conf.define ('LIBNOTIFY_VERSION', 'No')
-        else:
-            conf.define ('LIBNOTIFY_VERSION', conf.check_cfg (modversion='libnotify'))
     else:
-        libnotify = 'no '
         conf.define ('LIBNOTIFY_VERSION', 'No')
-    conf.define ('HAVE_LIBNOTIFY', [0,1][libnotify == 'yes'])
+        conf.check_message_custom ('libnotify', '', 'disabled')
+    conf.define ('HAVE_LIBNOTIFY', [0,1][conf.env['LIBNOTIFY_VERSION'] != 'No'])
 
     if option_enabled ('granite'):
         if not option_enabled ('gtk3'):
@@ -226,27 +212,30 @@ def configure (conf):
             else:
                 granite = 'no (requires --enable-gtk3)'
         else:
-            check_pkg ('granite', '0.1', False)
+            check_pkg ('granite', '0.1', mandatory=False)
             granite = ['N/A', 'yes'][conf.env['HAVE_GRANITE'] == 1]
         if granite != 'yes':
             option_checkfatal ('granite', 'new notebook, pop-overs')
             conf.define ('GRANITE_VERSION', 'No')
         else:
             check_pkg ('clutter-gtk-1.0', '1.0')
-            conf.define ('GRANITE_VERSION', conf.check_cfg (modversion='granite'))
             conf.env.append_value ('VALAFLAGS', '-D HAVE_GRANITE')
     else:
-        granite = 'no '
         conf.define ('GRANITE_VERSION', 'No')
+        conf.check_message_custom ('granite', '', 'disabled')
 
     if option_enabled ('zeitgeist'):
-        check_pkg ('zeitgeist-1.0', '0.3.14', mandatory=True)
-    conf.check (lib='m', mandatory=True)
-    check_pkg ('gmodule-2.0', '2.8.0', False)
-    check_pkg ('gthread-2.0', '2.8.0', False)
-    check_pkg ('gio-2.0', '2.26.0')
-    if check_version (conf.check_cfg (modversion='gio-2.0'), 2, 30, 0):
+        check_pkg ('zeitgeist-1.0', '0.3.14')
+    else:
+        conf.check_message_custom ('zeitgeist', '', 'disabled')
+
+    conf.check (lib='m')
+    check_pkg ('gmodule-2.0')
+    check_pkg ('gthread-2.0')
+    check_pkg ('gio-2.0', '2.22.0')
+    if check_version (conf.env['GIO_VERSION'], 2, 30, 0):
         conf.env.append_value ('VALAFLAGS', '-D HAVE_GLIB_2_30')
+
     args = ''
     if Options.platform == 'win32':
         args = '--define-variable=target=win32'
@@ -264,7 +253,7 @@ def configure (conf):
             Utils.pprint ('RED', 'GTK+3 was not found.\n' \
                 'Pass --disable-gtk3 to build without GTK+3.')
             sys.exit (1)
-        if check_version (conf.check_cfg (modversion='webkitgtk-3.0'), 1, 5, 1):
+        if check_version (conf.env['WEBKIT_VERSION'], 1, 5, 1):
             check_pkg ('javascriptcoregtk-3.0', '1.5.1', args=args)
         conf.env.append_value ('VALAFLAGS', '-D HAVE_GTK3')
         conf.env.append_value ('VALAFLAGS', '-D HAVE_OFFSCREEN')
@@ -272,13 +261,13 @@ def configure (conf):
     else:
         check_pkg ('gtk+-2.0', '2.16.0', var='GTK')
         check_pkg ('webkit-1.0', '1.1.17', args=args)
-        if check_version (conf.check_cfg (modversion='webkit-1.0'), 1, 5, 1):
+        if check_version (conf.env['WEBKIT_VERSION'], 1, 5, 1):
             check_pkg ('javascriptcoregtk-1.0', '1.5.1', args=args)
-        if check_version (conf.check_cfg (modversion='gtk+-2.0'), 2, 20, 0):
+        if check_version (conf.env['GTK_VERSION'], 2, 20, 0):
             conf.env.append_value ('VALAFLAGS', '-D HAVE_OFFSCREEN')
     conf.env['HAVE_GTK3'] = option_enabled ('gtk3')
-    check_pkg ('libsoup-2.4', '2.27.90')
-    conf.define ('LIBSOUP_VERSION', conf.check_cfg (modversion='libsoup-2.4'))
+
+    check_pkg ('libsoup-2.4', '2.27.90', var='LIBSOUP')
     if check_version (conf.env['LIBSOUP_VERSION'], 2, 29, 3):
         conf.define ('HAVE_LIBSOUP_2_29_3', 1)
     if check_version (conf.env['LIBSOUP_VERSION'], 2, 29, 91):
@@ -290,19 +279,8 @@ def configure (conf):
     if check_version (conf.env['LIBSOUP_VERSION'], 2, 37, 1):
         conf.define ('HAVE_LIBSOUP_2_37_1', 1)
     check_pkg ('libxml-2.0', '2.6')
-    check_pkg ('sqlite3', '3.6.19', True, var='SQLITE')
-
-    if option_enabled ('hildon'):
-        if check_pkg ('hildon-1', mandatory=False, var='HILDON'):
-            check_pkg ('libosso', var='HILDON')
-            check_pkg ('hildon-1', '2.2', var='HILDON_2_2')
-            check_pkg ('hildon-fm-2', var='HILDON_FM')
-        hildon = ['N/A','yes'][conf.env['HAVE_HILDON'] == 1]
-        if hildon != 'yes':
-            option_checkfatal ('hildon', 'Maemo integration')
-    else:
-        hildon = 'no '
-    conf.define ('HAVE_HILDON', [0,1][hildon == 'yes'])
+    conf.undefine ('LIBXML_VERSION') # Defined in xmlversion.h
+    check_pkg ('sqlite3', '3.6.19', var='SQLITE')
 
     # Store options in env, since 'Options' is not persistent
     if 'CC' in os.environ: conf.env['CC'] = os.environ['CC'].split()
@@ -366,28 +344,19 @@ def configure (conf):
                 '-Wmissing-format-attribute -Wnested-externs'.split ())
     conf.env.append_value ('CCFLAGS', '-Wno-unused-but-set-variable -Wno-unused-variable -Wno-comment'.split ())
 
-    print ('''
-        Localization:        %(nls)s (intltool)
-        Icon optimizations:  %(icons)s (rsvg-convert)
-        Notifications:       %(libnotify)s (libnotify)
-
-        API documentation:   %(api_docs)s (gtk-doc)
-        ''' % locals ())
-    if unique == 'yes' and conf.check_cfg (modversion='unique-1.0') == '1.0.4':
+    if conf.env['UNIQUE_VERSION'] == '1.0.4':
         Utils.pprint ('RED', 'unique 1.0.4 found, this version is erroneous.')
         Utils.pprint ('RED', 'Please use an older or newer version.')
         sys.exit (1)
     if check_version (conf.env['LIBSOUP_VERSION'], 2, 33, 4) \
-        and check_version (conf.check_cfg (modversion='gio-2.0'), 2, 32, 1) \
-        and not check_version (conf.check_cfg (modversion='gio-2.0'), 2, 32, 3):
+        and check_version (conf.env['GIO_VERSION'], 2, 32, 1) \
+        and not check_version (conf.env['GIO_VERSION'], 2, 32, 3):
         Utils.pprint ('RED', 'libsoup >= 2.33.4 found with glib >= 2.32.1 < 2.32.3:')
         Utils.pprint ('RED', 'This combination breaks the download GUI.')
         Utils.pprint ('RED', 'See https://bugs.launchpad.net/midori/+bug/780133/comments/14')
         sys.exit (1)
 
 def set_options (opt):
-    def is_maemo (): return os.path.exists ('/etc/osso-af-init/')
-
     def add_enable_option (option, desc, group=None, disable=False):
         if group == None:
             group = opt
@@ -426,7 +395,6 @@ def set_options (opt):
     add_enable_option ('granite', 'new notebook, pop-overs', group)
     add_enable_option ('addons', 'building of extensions', group)
     add_enable_option ('tests', 'building of tests', group, disable=True)
-    add_enable_option ('hildon', 'Maemo integration', group, disable=not is_maemo ())
     add_enable_option ('gtk3', 'GTK+3 and WebKitGTK+3 support', group, disable=True)
     add_enable_option ('zeitgeist', 'Zeitgeist history integration', group, disable=is_win32 (os.environ))
 
@@ -486,12 +454,7 @@ def build (bld):
     for desktop in [APPNAME + '.desktop', APPNAME + '-private.desktop']:
         if is_win32 (bld.env):
             break
-        if bld.env['HAVE_HILDON']:
-            appdir = '${MDATADIR}/applications/hildon'
-            bld.install_files ('${MDATADIR}/dbus-1/services',
-                               'data/com.nokia.' + APPNAME + '.service')
-        else:
-            appdir = '${MDATADIR}/applications'
+        appdir = '${MDATADIR}/applications'
         if bld.env['INTLTOOL']:
             obj = bld.new_task_gen ('intltool_in')
             obj.source = 'data/' + desktop + '.in'
