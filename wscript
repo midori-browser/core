@@ -289,6 +289,10 @@ def configure (conf):
     conf.env['docs'] = option_enabled ('docs')
     if 'LINGUAS' in os.environ: conf.env['LINGUAS'] = os.environ['LINGUAS']
 
+    if not check_version (conf.env['GIO_VERSION'], 2, 26, 0):
+        conf.env['addons'] = False
+        Utils.pprint ('YELLOW', 'Glib < 2.26.0, disabling addons')
+
     conf.check (header_name='unistd.h')
     if not conf.env['HAVE_UNIQUE']:
         if Options.platform == 'win32':
