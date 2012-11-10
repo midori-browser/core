@@ -1344,7 +1344,12 @@ webkit_web_view_load_finished_cb (WebKitWebView*  web_view,
         #if !WEBKIT_CHECK_VERSION (1, 1, 18)
         "else if (r && r.indexOf ('icon') != -1) f.push (l[i].href); "
         #endif
-        "} return f; })("
+        "} if (document.location.href.indexOf ('twitter') != -1)"
+        "{ var s = document.location.href.split('/'); "
+        "var u = 'https://api.twitter.com/1/statuses/user_timeline.rss"
+        "?include_rts=true&screen_name=' + s[3] + '&count=25'; "
+        "f.push ('$' + u + '|' + 'Twitter / ' + s[3]); } "
+        "return f; })("
         "document.getElementsByTagName ('link'));", NULL);
 
         /* FIXME: If URI or title contains , parsing will break */
