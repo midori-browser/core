@@ -20,7 +20,6 @@ typedef struct
 
 typedef struct
 {
-    char *dbfile;           /* usually ":memory:" */
     gboolean verbose;       /* print debug stuff if TRUE */
     char* infile;           /* (e.g. to test import), usually NULL */
     char* outfile;          /* (e.g. to test export), if it can be avoided it's
@@ -40,8 +39,7 @@ fixture_setup (BookmarksFixture* fixture,
     gchar *errmsg = NULL;
 
     fixture->db_bookmarks = katze_array_new (KATZE_TYPE_ARRAY);
-    db = NULL; /* FIXME midori_bookmarks_initialize (fixture->db_bookmarks, params->dbfile, &errmsg); */
-    if (db == NULL)
+    if ((db = midori_bookmarks_initialize (fixture->db_bookmarks, &errmsg)) == NULL)
         g_error ("Bookmarks couldn't be loaded: %s\n", errmsg);
     g_assert (errmsg == NULL);
     g_object_set_data ( G_OBJECT (fixture->db_bookmarks), "db", db);
@@ -190,13 +188,12 @@ int
 main (int    argc,
       char** argv)
 {
-    //TestParameters default_params = {"/a/path/unlikely/to/exists/bookmarks.db", TRUE, NULL, NULL};
-    //TestParameters default_params = {"/tmp/bookmarks.db", TRUE, NULL, NULL};
-    //TestParameters default_params = {":memory:", TRUE, NULL, NULL};
-    TestParameters default_params = {":memory:", FALSE, NULL, NULL};
+    /* TestParameters default_params = { TRUE, NULL, NULL }; */
+    TestParameters default_params = { FALSE, NULL, NULL };
 
     g_test_init (&argc, &argv, NULL);
     midori_app_setup (&argc, &argv, NULL, NULL);
+    midori_paths_init (MIDORI_RUNTIME_MODE_NORMAL, NULL);
 
     g_test_add ("/bookmarks/simple test",
                     BookmarksFixture, &default_params,

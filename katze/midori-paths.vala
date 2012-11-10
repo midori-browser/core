@@ -104,8 +104,28 @@ namespace Midori {
             }
         }
 
+        public static void mkdir_with_parents (string path, int mode = 0700) {
+            /* Use g_access instead of g_file_test for better performance */
+            if (Posix.access (path, Posix.F_OK) == 0)
+                return;
+            int i = path.index_of_char (Path.DIR_SEPARATOR, 0);
+            do {
+                string fn = path.substring (i, -1);
+                if (Posix.access (fn, Posix.F_OK) != 0) {
+                    if (DirUtils.create (fn, mode) == -1)
+                        return; /* Failed */
+                }
+                else if (!FileUtils.test (fn, FileTest.IS_SYMLINK))
+                    return; /* Failed */
+
+                i = path.index_of_char (Path.DIR_SEPARATOR, i);
+            }
+            while (i != -1);
+        }
+
         public static unowned string get_config_dir_for_writing () {
             assert (config_dir != null);
+            mkdir_with_parents (config_dir);
             return config_dir;
         }
 

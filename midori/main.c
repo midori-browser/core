@@ -2259,7 +2259,6 @@ main (int    argc,
     }
 
     katze_assign (config, g_strdup (midori_paths_get_config_dir_for_writing ()));
-    katze_mkdir_with_parents (config, 0700);
     /* Load configuration file */
     error_messages = g_string_new (NULL);
     error = NULL;

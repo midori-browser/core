@@ -546,6 +546,12 @@ def shutdown ():
             Utils.pprint ('YELLOW', "gtk-update-icon-cache -q -f -t %s" % dir)
 
     elif Options.commands['check']:
+        import tempfile, shutil
+        base = os.path.join (tempfile.gettempdir (), 'midori-test', '%s')
+        shutil.rmtree (base % '')
+        for x in ['XDG_CONFIG_HOME', 'XDG_CACHE_HOME', 'XDG_DATA_HOME', 'TMPDIR']:
+            os.environ[x] = (base % x).lower ()
+            Utils.check_dir (os.environ[x])
         test = UnitTest.unit_test ()
         test.change_to_testfile_dir = True
         test.want_to_see_test_output = True
