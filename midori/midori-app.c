@@ -1436,12 +1436,15 @@ midori_app_setup (gint               *argc,
     textdomain (GETTEXT_PACKAGE);
     #endif
 
-    #ifdef HAVE_GRANITE
+    #ifdef HAVE_GRANITE_CLUTTER
     success = gtk_clutter_init_with_args (argc, argument_vector, _("[Addresses]"),
                                           (GOptionEntry*)entries, GETTEXT_PACKAGE, error);
-    #else
+    #elif GTK_CHECK_VERSION (3, 0, 0)
     success = gtk_init_with_args (argc, argument_vector, _("[Addresses]"),
                                   entries, GETTEXT_PACKAGE, error);
+    #else
+    success = gtk_init_with_args (argc, argument_vector, _("[Addresses]"),
+                                  (GOptionEntry*)entries, GETTEXT_PACKAGE, error);
     #endif
 
     factory = gtk_icon_factory_new ();

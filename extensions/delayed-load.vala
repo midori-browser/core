@@ -106,7 +106,6 @@ namespace DelayedLoad {
 
     private class Manager : Midori.Extension {
         private int timeout = 0;
-        private bool timeout_handler = false;
         private HashTable<Midori.Browser, TabShaker> tasks;
 
         public signal void preferences_changed ();
