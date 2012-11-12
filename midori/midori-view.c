@@ -1229,6 +1229,11 @@ midori_view_display_error (MidoriView*     view,
         const gchar* icon;
         gchar* result;
 
+        #if !GTK_CHECK_VERSION (3, 0, 0)
+        /* g_object_get_valist: object class `GtkSettings' has no property named `gtk-button-images' */
+        g_type_class_unref (g_type_class_ref (GTK_TYPE_BUTTON));
+        #endif
+
         GtkSettings* gtk_settings = gtk_widget_get_settings (view->web_view);
         gboolean show_button_images = gtk_settings != NULL
           && katze_object_get_boolean (gtk_settings, "gtk-button-images");
