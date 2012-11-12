@@ -975,7 +975,7 @@ katze_item_set_value_from_column (sqlite3_stmt* stmt,
         title = sqlite3_column_text (stmt, column);
         item->name = g_strdup ((gchar*)title);
     }
-    else if (g_str_equal (name, "date"))
+    else if (g_str_equal (name, "date") || g_str_equal (name, "created"))
     {
         gint date;
         date = sqlite3_column_int64 (stmt, column);
@@ -984,6 +984,7 @@ katze_item_set_value_from_column (sqlite3_stmt* stmt,
     else if (g_str_equal (name, "day") || g_str_equal (name, "app")
           || g_str_equal (name, "toolbar") || g_str_equal (name, "id")
           || g_str_equal (name, "parentid") || g_str_equal (name, "seq")
+          || g_str_equal (name, "last_visit") || g_str_equal (name, "visit_count")
           || g_str_equal (name, "pos_panel") || g_str_equal (name, "pos_bar"))
     {
         gint value;
@@ -996,14 +997,14 @@ katze_item_set_value_from_column (sqlite3_stmt* stmt,
         text = sqlite3_column_text (stmt, column);
         item->text =  g_strdup ((gchar*)text);
     }
-    else if (g_str_equal (name, "sql"))
+    else if (g_str_equal (name, "nick"))
     {
         const unsigned char* sql;
         sql = sqlite3_column_text (stmt, column);
         katze_item_set_meta_string (item, name, (gchar*)sql);
     }
     else
-        g_warn_if_reached ();
+        g_critical ("%s: Unexpected column '%s'", G_STRFUNC, name);
 }
 
 /**
