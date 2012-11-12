@@ -548,7 +548,8 @@ def shutdown ():
     elif Options.commands['check']:
         import tempfile, shutil
         base = os.path.join (tempfile.gettempdir (), 'midori-test', '%s')
-        shutil.rmtree (base % '')
+        if os.path.exists (base):
+            shutil.rmtree (base % '')
         for x in ['XDG_CONFIG_HOME', 'XDG_CACHE_HOME', 'XDG_DATA_HOME', 'TMPDIR']:
             os.environ[x] = (base % x).lower ()
             Utils.check_dir (os.environ[x])
