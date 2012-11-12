@@ -194,7 +194,7 @@ def configure (conf):
     else:
         conf.define ('UNIQUE_VERSION', 'No')
         conf.check_message_custom ('unique', '', 'disabled')
-    conf.define ('HAVE_UNIQUE', [0,1][conf.env['LIBUNIQUE_VERSION'] != 'No'])
+    conf.define ('HAVE_UNIQUE', [0,1][conf.env['UNIQUE_VERSION'] != 'No'])
 
     if option_enabled ('libnotify'):
         if not check_pkg ('libnotify', mandatory=False):
