@@ -52,7 +52,7 @@ browser_create (void)
     view = midori_browser_get_nth_tab (browser, n);
 
     midori_test_set_dialog_response (GTK_RESPONSE_OK);
-    temporary_downloads = g_dir_make_tmp ("saveXXXXXX", NULL);
+    temporary_downloads = mkdtemp (g_strdup ("saveXXXXXX"));
     temporary_filename = g_build_filename (temporary_downloads, "test.html", NULL);
     midori_test_set_file_chooser_filename (temporary_filename);
     midori_settings_set_download_folder (MIDORI_SETTINGS (settings), temporary_downloads);

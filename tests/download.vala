@@ -39,7 +39,7 @@ static void download_extension () {
 }
 
 static void download_unique () {
-    string folder = DirUtils.make_tmp ("cacheXXXXXX");
+    string folder = "cacheXXXXXX"; DirUtils.mkdtemp (folder);
     string filename = Path.build_path (Path.DIR_SEPARATOR_S, folder, "foo.png");
     string org_filename = Path.build_path (Path.DIR_SEPARATOR_S, folder, "foo.png");
     string unique = Midori.Download.get_unique_filename (org_filename);
