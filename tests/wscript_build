@@ -3,6 +3,8 @@
 # This file is licensed under the terms of the expat license, see the file EXPAT.
 
 import os
+import sys
+import Utils
 
 tests = os.listdir ('tests')
 for test in tests:
@@ -16,15 +18,24 @@ for test in tests:
                 source += ' ' + test + os.sep + fila
         if not source:
             Utils.pprint ('RED', folder + ': No source files found')
-            continue
-    else:
-        if test[-2:] == '.c':
-            target = test[:-2]
-        elif test[-5:] == '.vala':
-            target = test[:-5]
-        else:
-            continue
+            sys.exit (1)
+
+    elif test[-3:] == '.py' or test[-3:] == '.sh':
+        obj = bld.new_task_gen ('command-output')
+        obj.no_inputs = obj.no_outputs = obj.command_is_external = True
+        obj.command = ['python', 'sh'][test[-3:] == '.sh']
+        os.environ['SRCDIR'] = os.getcwd ()
+        obj.argv = [os.path.join (os.getcwd (), folder)]
+        continue
+    elif test[-2:] == '.c':
+        target = test[:-2]
         source = test
+    elif test[-5:] == '.vala':
+        target = test[:-5]
+        source = test
+    else:
+        Utils.pprint ('YELLOW', folder + ': Skipped')
+        continue
 
     obj = bld.new_task_gen ('cc', 'program')
     obj.target = 'test-' + target

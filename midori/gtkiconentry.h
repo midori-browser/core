@@ -36,10 +36,6 @@ G_BEGIN_DECLS
     #define gtk_icon_entry_set_icon_from_stock gtk_entry_set_icon_from_stock
     #define gtk_icon_entry_set_icon_from_icon_name gtk_entry_set_icon_from_icon_name
 
-    void
-    gtk_icon_entry_set_icon_from_pixbuf (GtkEntry*            entry,
-                                         GtkEntryIconPosition position,
-                                         GdkPixbuf*           pixbuf);
     #define gtk_icon_entry_set_tooltip gtk_entry_set_icon_tooltip_text
     #define gtk_icon_entry_get_tooltip gtk_entry_get_icon_tooltip_text
     #define gtk_icon_entry_set_icon_highlight gtk_entry_set_icon_activatable

@@ -529,8 +529,7 @@ midori_search_action_set_entry_icon (MidoriSearchAction* search_action,
                                               entry, &icon_name, TRUE);
         if (icon)
         {
-            gtk_icon_entry_set_icon_from_pixbuf (GTK_ICON_ENTRY (entry),
-                                                 GTK_ICON_ENTRY_PRIMARY, icon);
+            gtk_entry_set_icon_from_pixbuf (GTK_ENTRY (entry), GTK_ENTRY_ICON_PRIMARY, icon);
             g_object_unref (icon);
         }
         else
