@@ -1597,7 +1597,7 @@ adblock_file_is_up_to_date (gchar* path)
                 found_meta = TRUE;
             }
 
-            if (strncmp ("! Last modified", line, 15) == 0
+            if (strncmp ("! Last mod", line, 10) == 0
             ||  strncmp ("! Updated", line, 9) == 0)
             {
                 gchar** parts = g_strsplit (line, ":", 2);
@@ -1646,22 +1646,39 @@ adblock_file_is_up_to_date (gchar* path)
             gboolean use_dots = FALSE;
 
             /* Common dates are 20 Mar 2012, 20.08.2012 */
-            if (g_strrstr (timestamp, "."))
+            if (strrchr (timestamp, '.'))
             {
                 use_dots = TRUE;
-                parts = g_strsplit (timestamp, ".", 4);
+                /* In case of date like '20.08.2012 12:34'
+                 * we should also nuke the time part */
+                if (strrchr (timestamp, ' '))
+                {
+                    gchar** part = g_strsplit (timestamp, " ", 2);
+                    parts = g_strsplit (part[0], ".", 4);
+                    g_strfreev (part);
+                }
+                else
+                    parts = g_strsplit (timestamp, ".", 4);
             }
             else
                 parts = g_strsplit (timestamp, " ", 4);
-
-            g_date_set_day (mod_date, atoi (parts[0]));
 
             if (use_dots)
                 g_date_set_month (mod_date, atoi (parts[1]));
             else
                 g_date_set_month (mod_date, str_month_name_to_gdate (parts[1]));
 
-            g_date_set_year (mod_date, atoi (parts[2]));
+            /* check if first part is year 201(2) or day */
+            if (strncmp (parts[0], "201", 3) == 0)
+            {
+                g_date_set_day (mod_date, atoi (parts[2]));
+                g_date_set_year (mod_date, atoi (parts[0]));
+            }
+            else
+            {
+                g_date_set_day (mod_date, atoi (parts[0]));
+                g_date_set_year (mod_date, atoi (parts[2]));
+            }
             g_strfreev (parts);
 
             g_date_set_time_t (current, time (NULL));
@@ -1839,6 +1856,21 @@ test_subscription_update (void)
         "|http://b*.mookie1.com/\n",
         -1, NULL);
     g_assert (adblock_file_is_up_to_date (filename));
+
+    g_file_set_contents (filename,
+        "[Adblock Plus 2.0]\n"
+        "! Checksum: S4reE8XaYTtAFxe2RjgBPg\n"
+        "! Last modification time (GMT): 2012.11.05 13:33\n"
+        "! Expires: 5 days (update frequency)\n",
+        -1, NULL);
+    g_assert (!adblock_file_is_up_to_date (filename));
+
+    g_file_set_contents (filename,
+        "[Adblock Plus 2.0]\n"
+        "! Checksum: S4reE8XaYTtAFxe2RjgBPg\n"
+        "! Last modification time (GMT): 2012.11.05 13:33\n",
+        -1, NULL);
+    g_assert (!adblock_file_is_up_to_date (filename));
 
     g_unlink (filename);
     g_free (filename);
