@@ -558,7 +558,17 @@ def shutdown ():
         test.want_to_see_test_output = True
         test.want_to_see_test_error = True
         test.run ()
-        test.print_results ()
+
+        for label in test.unit_tests.allkeys:
+            if not test.unit_test_results[label]:
+                Utils.pprint ('YELLOW', label + '...FAILED')
+                file_and_src = test.unit_tests[label]
+                try:
+                    subprocess.Popen (['gdb', '--batch', '-ex', 'run', '-ex', 'bt', file_and_src[0]]).wait()
+                except:
+                    Utils.pprint ('RED', 'Install gdb to see backtraces')
+            else:
+                Utils.pprint ('GREEN', label + '.......OK')
 
     elif Options.options.update_po:
         os.chdir('./po')
