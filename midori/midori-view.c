@@ -464,8 +464,11 @@ midori_view_unset_icon (MidoriView* view)
     g_themed_icon_append_name (G_THEMED_ICON (icon), "text-html");
 
     icon_info = gtk_icon_theme_lookup_by_gicon (icon_theme, icon, 16, 0);
-    pixbuf = gtk_icon_info_load_icon (icon_info, NULL);
     g_object_unref (icon);
+    if (icon_info == NULL)
+        return;
+
+    pixbuf = gtk_icon_info_load_icon (icon_info, NULL);
 
     midori_view_apply_icon (view, pixbuf, "stock://gtk-file");
 }
