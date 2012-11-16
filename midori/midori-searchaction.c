@@ -1012,7 +1012,8 @@ midori_search_action_get_engine_for_form (WebKitWebView*     web_view,
         }
     }
 
-    title = webkit_web_view_get_title (web_view);
+    if (!(title = webkit_web_view_get_title (web_view)))
+        title = webkit_web_view_get_uri (web_view);
 
     item = katze_item_new ();
     item->uri = g_string_free (uri_str, FALSE);
