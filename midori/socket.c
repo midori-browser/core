@@ -55,12 +55,6 @@
 
 #include "socket.h"
 
-#ifdef G_ENABLE_DEBUG
-#  define debug_print g_debug
-#else
-# define debug_print(...) ;
-#endif
-
 #define BUFFSIZE	8192
 
 #ifdef G_OS_WIN32
@@ -246,7 +240,7 @@ gint socket_init(const gchar *instance_name, const gchar *config_dir, gboolean *
 	hmutex = CreateMutexA(NULL, FALSE, instance_name);
 	if (! hmutex)
 	{
-		debug_print("cannot create Mutex\n");
+		g_debug ("cannot create Mutex\n");
 		return -1;
 	}
 	if (GetLastError() != ERROR_ALREADY_EXISTS)
@@ -486,7 +480,7 @@ static gint set_nonblocking_mode(gint fd, gboolean nonblock)
 	sock = sock_find_from_fd(fd);
 	if (sock)
 		sock->nonblock = nonblock;
-	debug_print("set nonblocking mode to %d\n", nonblock);
+	g_debug ("set nonblocking mode to %d\n", nonblock);
 
 	return 0;
 #else
@@ -915,7 +909,7 @@ static gboolean sock_connect_async_cb(GIOChannel *source,
 	g_io_channel_unref(source);
 
 	if (condition & (G_IO_ERR | G_IO_HUP)) {
-		debug_print("sock_connect_async_cb: condition = %d\n",
+		g_debug ("sock_connect_async_cb: condition = %d\n",
 			    condition);
 		fd_close(fd);
 		sock_connect_address_list_async(conn_data);
@@ -1072,7 +1066,7 @@ static gint sock_connect_address_list_async(SockConnectData *conn_data)
 		return -1;
 	}
 
-	debug_print("sock_connect_address_list_async: waiting for connect\n");
+	g_debug ("sock_connect_address_list_async: waiting for connect\n");
 
 	conn_data->cur_addr = conn_data->cur_addr->next;
 
@@ -1328,7 +1322,7 @@ static void sock_set_errno_from_last_error(gint error)
 		errno = EAGAIN;
 		break;
 	default:
-		debug_print("last error = %d\n", error);
+		g_debug ("last error = %d\n", error);
 		errno = 0;
 		break;
 	}
