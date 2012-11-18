@@ -24,12 +24,12 @@
     #include <unistd.h>
 #endif
 
-#ifdef G_ENABLE_DEBUG
-void midori_bookmarks_dbtracer(void* dummy, const char* query)
+void
+midori_bookmarks_dbtracer (void*       dummy,
+                           const char* query)
 {
     g_printerr ("%s\n", query);
 }
-#endif
 
 void
 midori_bookmarks_add_item_cb (KatzeArray* array,
@@ -160,10 +160,8 @@ midori_bookmarks_initialize (KatzeArray*  array,
         goto init_failed;
     }
 
-#ifdef G_ENABLE_DEBUG
     if (midori_debug ("bookmarks"))
         sqlite3_trace (db, midori_bookmarks_dbtracer, NULL);
-#endif
 
     create_stmt =     /* Table structure */
         "CREATE TABLE IF NOT EXISTS bookmarks "

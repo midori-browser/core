@@ -1470,8 +1470,8 @@ midori_debug (const gchar* token)
 {
     static const gchar* debug_token = NULL;
     const gchar* debug = g_getenv ("MIDORI_DEBUG");
-    const gchar* debug_tokens = "headers body referer cookies paths hsts unarmed ";
-    const gchar* full_debug_tokens = "adblock:match adblock:time startup bookmarks ";
+    const gchar* debug_tokens = "headers body referer cookies paths hsts unarmed bookmarks ";
+    const gchar* full_debug_tokens = "adblock:match adblock:time startup ";
     if (debug_token == NULL)
     {
         gchar* found_token;
