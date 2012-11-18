@@ -6,6 +6,8 @@
 # License as published by the Free Software Foundation; either
 # version 2.1 of the License, or (at your option) any later version.
 echo Running 'licensecheck'
+test -z $(which licensecheck) && echo ...SKIPPED: not installed && return 0
 test -n "$SRCDIR" && cd $SRCDIR
-find . \! -path './.waf*/*' -a \! -path './_build/*' | xargs licensecheck | grep UNKNOWN && exit 1
+test -z "$BLDDIR" && BLDDIR=_build
+find . \! -path './.waf*/*' -a \! -path "./$BLDDIR/*" | xargs licensecheck | grep UNKNOWN && exit 1
 echo ...OK

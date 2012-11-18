@@ -25,6 +25,7 @@ for test in tests:
         obj.no_inputs = obj.no_outputs = obj.command_is_external = True
         obj.command = ['python', 'sh'][test[-3:] == '.sh']
         os.environ['SRCDIR'] = os.getcwd ()
+        os.environ['BLDDIR'] = '_build'
         obj.argv = [os.path.join (os.getcwd (), folder)]
         continue
     elif test[-2:] == '.c':
