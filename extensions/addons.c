@@ -1857,7 +1857,6 @@ addons_activate_cb (MidoriExtension* extension,
         G_CALLBACK (addons_deactivate_cb), app);
 }
 
-#ifdef G_ENABLE_DEBUG
 static void
 test_addons_simple_regexp (void)
 {
@@ -1896,7 +1895,6 @@ extension_test (void)
 {
     g_test_add_func ("/extensions/addons/simple_regexp", test_addons_simple_regexp);
 }
-#endif
 
 MidoriExtension*
 extension_init (void)
