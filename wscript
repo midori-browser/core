@@ -41,6 +41,11 @@ try:
         if git:
             VERSION_FULL = git.strip ()
             VERSION_SUFFIX = VERSION_FULL.replace (VERSION, '')
+    elif os.path.isdir ('.bzr'):
+        bzr = Utils.cmd_output (['bzr', 'revno'], silent=True)
+        if bzr:
+            VERSION_FULL = '%s~r%s' % (VERSION, bzr.strip ())
+            VERSION_SUFFIX = VERSION_FULL.replace (VERSION, '')
 except:
     pass
 
@@ -102,6 +107,8 @@ def configure (conf):
         return int(given_major) >  major or \
                int(given_major) == major and int(given_minor) >  minor or \
                int(given_major) == major and int(given_minor) == minor and int(given_micro) >= micro
+
+    conf.check_message_custom ('release version', '', VERSION_FULL)
 
     conf.check_tool ('compiler_cc')
     conf.check_tool ('vala')
