@@ -120,24 +120,6 @@ midori_location_action_class_init (MidoriLocationActionClass* class)
     GtkActionClass* action_class;
 
     /**
-     * MidoriLocationAction:active-changed:
-     * @row: the active row
-     *
-     * The active-changed signal is emitted when the active row changes.
-     *
-     * Deprecated: 0.3.4
-     */
-    signals[ACTIVE_CHANGED] = g_signal_new ("active-changed",
-                                            G_TYPE_FROM_CLASS (class),
-                                            (GSignalFlags) (G_SIGNAL_RUN_LAST),
-                                            0,
-                                            0,
-                                            NULL,
-                                            g_cclosure_marshal_VOID__INT,
-                                            G_TYPE_NONE, 1,
-                                            G_TYPE_INT);
-
-    /**
      * MidoriLocationAction:focus-in:
      *
      * The focus-in signal is emitted when the entry obtains the focus.
@@ -567,8 +549,7 @@ midori_location_action_popdown_completion (MidoriLocationAction* location_action
     location_action->completion_index = -1;
 }
 
-/* Allow this to be used in tests, it's otherwise private */
-/*static*/ GtkWidget*
+static GtkWidget*
 midori_location_action_entry_for_proxy (GtkWidget* proxy)
 {
     GtkWidget* alignment = gtk_bin_get_child (GTK_BIN (proxy));
@@ -712,7 +693,7 @@ midori_location_action_create_tool_item (GtkAction* action)
     gtk_widget_show (alignment);
     gtk_container_add (GTK_CONTAINER (toolitem), alignment);
 
-    entry = gtk_icon_entry_new ();
+    entry = gtk_entry_new ();
     #if GTK_CHECK_VERSION (3, 6, 0)
     gtk_entry_set_input_purpose (GTK_ENTRY (entry), GTK_INPUT_PURPOSE_URL);
     #endif
@@ -1215,7 +1196,7 @@ midori_location_action_dialog_focus_out_cb (GtkWidget* dialog,
 
 static void
 midori_location_action_icon_released_cb (GtkWidget*           widget,
-                                         GtkIconEntryPosition icon_pos,
+                                         GtkEntryIconPosition icon_pos,
                                          gint                 button,
                                          GtkAction*           action)
 {
@@ -1265,7 +1246,7 @@ midori_location_action_icon_released_cb (GtkWidget*           widget,
         gtk_box_pack_start (GTK_BOX (hbox), gtk_image_new_from_gicon (
             gtk_entry_get_icon_gicon (GTK_ENTRY (widget), icon_pos), GTK_ICON_SIZE_DIALOG), FALSE, FALSE, 0);
         gtk_box_pack_start (GTK_BOX (hbox),
-            gtk_label_new (gtk_icon_entry_get_tooltip (GTK_ICON_ENTRY (widget), icon_pos)), FALSE, FALSE, 0);
+            gtk_label_new (gtk_entry_get_icon_tooltip_text (GTK_ENTRY (widget), icon_pos)), FALSE, FALSE, 0);
         gtk_box_pack_start (GTK_BOX (content_area), hbox, FALSE, FALSE, 0);
         #if defined (HAVE_LIBSOUP_2_34_0)
         midori_location_action_show_page_info (widget, GTK_BOX (content_area), dialog);
@@ -1530,7 +1511,7 @@ midori_location_action_connect_proxy (GtkAction* action,
     if (GTK_IS_TOOL_ITEM (proxy))
     {
         GtkWidget* entry = midori_location_action_entry_for_proxy (proxy);
-        gtk_icon_entry_set_progress_fraction (GTK_ICON_ENTRY (entry),
+        gtk_entry_set_progress_fraction (GTK_ENTRY (entry),
             MIDORI_LOCATION_ACTION (action)->progress);
 
         g_object_connect (entry,
@@ -1572,22 +1553,6 @@ midori_location_action_disconnect_proxy (GtkAction* action,
 
     GTK_ACTION_CLASS (midori_location_action_parent_class)->disconnect_proxy
         (action, proxy);
-}
-
-/**
- * midori_location_action_get_uri:
- * @location_action: a #MidoriLocationAction
- *
- * Return value: the current URI
- *
- * Deprecated: 0.4.8: Use @midori_location_action_get_text.
- **/
-const gchar*
-midori_location_action_get_uri (MidoriLocationAction* location_action)
-{
-    g_return_val_if_fail (MIDORI_IS_LOCATION_ACTION (location_action), NULL);
-
-    return location_action->text;
 }
 
 /**
@@ -1643,65 +1608,6 @@ midori_location_action_set_text (MidoriLocationAction* location_action,
 }
 
 /**
- * midori_location_action_set_icon:
- * @location_action: a #MidoriLocationAction
- * @icon: a #GdkPixbuf or %NULL
- *
- * Sets the icon shown on the left hand side.
- *
- * Deprecated: 0.4.6: The left hand icon only shows security status.
- **/
-void
-midori_location_action_set_icon (MidoriLocationAction* location_action,
-                                 GdkPixbuf*            icon)
-{
-}
-
-void
-midori_location_action_add_uri (MidoriLocationAction* location_action,
-                                const gchar*          uri)
-{
-}
-
-/**
- * midori_location_action_add_item:
- * @location_action: a #MidoriLocationAction
- * @icon: a #GdkPixbuf or %NULL
- * @title: a string
- *
- * Adds the item to the location, historically this added it to
- * completion suggestions and updated the left side icon.
- *
- * Deprecated: 0.4.6: The left hand icon only shows security status.
- **/
-
-void
-midori_location_action_add_item (MidoriLocationAction* location_action,
-                                 const gchar*          uri,
-                                 GdkPixbuf*            icon,
-                                 const gchar*          title)
-{
-}
-
-/**
- * midori_location_action_set_icon_for_uri:
- * @location_action: a #MidoriLocationAction
- * @icon: a #GdkPixbuf
- * @uri: an URI string
- *
- * Sets the icon for the specified URI.
- *
- * Deprecated: 0.4.4
- **/
-void
-midori_location_action_set_icon_for_uri (MidoriLocationAction* location_action,
-                                         GdkPixbuf*            icon,
-                                         const gchar*          uri)
-{
-    midori_location_action_set_icon (location_action, icon);
-}
-
-/**
  * midori_location_action_set_search_engines:
  * @location_action: a #MidoriLocationAction
  * @search_engines: a #KatzeArray
@@ -1747,8 +1653,7 @@ midori_location_action_set_progress (MidoriLocationAction* location_action,
     if (GTK_IS_TOOL_ITEM (proxies->data))
     {
         GtkWidget* entry = midori_location_action_entry_for_proxy (proxies->data);
-        gtk_icon_entry_set_progress_fraction (GTK_ICON_ENTRY (entry),
-                                              location_action->progress);
+        gtk_entry_set_progress_fraction (GTK_ENTRY (entry), location_action->progress);
     }
 }
 
@@ -1765,16 +1670,13 @@ void
 midori_location_action_set_secondary_icon (MidoriLocationAction* location_action,
                                            const gchar*          stock_id)
 {
-    #if !HAVE_HILDON
     GSList* proxies;
-    #endif
     GtkStockItem stock_item;
 
     g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
 
     katze_assign (location_action->secondary_icon, g_strdup (stock_id));
 
-    #if !HAVE_HILDON
     proxies = gtk_action_get_proxies (GTK_ACTION (location_action));
 
     for (; proxies != NULL; proxies = g_slist_next (proxies))
@@ -1788,7 +1690,6 @@ midori_location_action_set_secondary_icon (MidoriLocationAction* location_action
             gtk_icon_entry_set_icon_from_icon_name (GTK_ICON_ENTRY (entry),
                 GTK_ICON_ENTRY_SECONDARY, stock_id);
     }
-    #endif
 }
 
 /**

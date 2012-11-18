@@ -43,28 +43,6 @@ void
 midori_location_action_set_text             (MidoriLocationAction* location_action,
                                              const gchar*          text);
 
-const gchar*
-midori_location_action_get_uri              (MidoriLocationAction* location_action);
-
-void
-midori_location_action_set_icon             (MidoriLocationAction* location_action,
-                                             GdkPixbuf*            icon);
-
-void
-midori_location_action_add_uri              (MidoriLocationAction* location_action,
-                                             const gchar*          uri);
-
-void
-midori_location_action_add_item             (MidoriLocationAction* location_action,
-                                             const gchar*          uri,
-                                             GdkPixbuf*            icon,
-                                             const gchar*          title);
-
-void
-midori_location_action_set_icon_for_uri     (MidoriLocationAction* location_action,
-                                             GdkPixbuf*            icon,
-                                             const gchar*          text);
-
 void
 midori_location_action_set_title_for_uri    (MidoriLocationAction* location_action,
                                              const gchar*          title,

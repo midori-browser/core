@@ -26,20 +26,15 @@
 
 G_BEGIN_DECLS
 
-    #define GtkIconEntry GtkEntry
     #define GtkIconEntryPosition GtkEntryIconPosition
     #define GTK_ICON_ENTRY_PRIMARY GTK_ENTRY_ICON_PRIMARY
     #define GTK_ICON_ENTRY_SECONDARY GTK_ENTRY_ICON_SECONDARY
     #define GTK_ICON_ENTRY GTK_ENTRY
-    #define GTK_TYPE_ICON_ENTRY GTK_TYPE_ENTRY
-    #define gtk_icon_entry_new gtk_entry_new
     #define gtk_icon_entry_set_icon_from_stock gtk_entry_set_icon_from_stock
     #define gtk_icon_entry_set_icon_from_icon_name gtk_entry_set_icon_from_icon_name
 
     #define gtk_icon_entry_set_tooltip gtk_entry_set_icon_tooltip_text
-    #define gtk_icon_entry_get_tooltip gtk_entry_get_icon_tooltip_text
     #define gtk_icon_entry_set_icon_highlight gtk_entry_set_icon_activatable
-    #define gtk_icon_entry_set_progress_fraction gtk_entry_set_progress_fraction
 
 G_END_DECLS
 
