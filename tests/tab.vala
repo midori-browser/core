@@ -123,7 +123,7 @@ void tab_special () {
     /* FIXME assert (!tab.can_save ()); */
 
     var test_address = new Soup.Address ("127.0.0.1", Soup.ADDRESS_ANY_PORT);
-    test_address.resolve_sync ();
+    test_address.resolve_sync (null);
     var test_server = new Soup.Server ("interface", test_address, null);
     string test_url = "http://%s:%u".printf (test_address.get_physical (), test_server.get_port ());
     test_server.run_async ();
