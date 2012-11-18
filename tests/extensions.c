@@ -195,7 +195,7 @@ main (int    argc,
       char** argv)
 {
     g_test_init (&argc, &argv, NULL);
-    midori_app_setup (&argc, &argv, NULL, NULL);
+    midori_app_setup (&argc, &argv, NULL);
     midori_paths_init (MIDORI_RUNTIME_MODE_NORMAL, NULL);
     soup_session_add_feature_by_type (webkit_get_default_session (),
         SOUP_TYPE_COOKIE_JAR);

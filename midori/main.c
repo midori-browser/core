@@ -1846,12 +1846,7 @@ main (int    argc,
     block_uris = NULL;
     inactivity_reset = 0;
     error = NULL;
-    if (!midori_app_setup (&argc, &argv, entries, &error))
-    {
-        g_print ("%s - %s\n", _("Midori"), error->message);
-        g_error_free (error);
-        return 1;
-    }
+    midori_app_setup (&argc, &argv, entries);
 
     /* Relative config path */
     if (config && !g_path_is_absolute (config))

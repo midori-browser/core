@@ -82,11 +82,10 @@ midori_app_send_notification      (MidoriApp*         app,
                                    const gchar*       title,
                                    const gchar*       message);
 
-gboolean
+void
 midori_app_setup                  (gint               *argc,
                                    gchar**            *argument_vector,
-                                   const GOptionEntry *entries,
-                                   GError*            *error);
+                                   const GOptionEntry *entries);
 
 gboolean
 midori_debug                      (const gchar*       token);

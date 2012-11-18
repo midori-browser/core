@@ -391,7 +391,7 @@ main (int    argc,
       char** argv)
 {
     g_test_init (&argc, &argv, NULL);
-    midori_app_setup (&argc, &argv, NULL, NULL);
+    midori_app_setup (&argc, &argv, NULL);
 
     g_test_add_func ("/magic-uri/uri", magic_uri_uri);
     g_test_add_func ("/magic-uri/idn", magic_uri_idn);

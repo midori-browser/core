@@ -1352,16 +1352,16 @@ midori_app_send_notification (MidoriApp*   app,
  *
  * Since: 0.4.2
  **/
-gboolean
+void
 midori_app_setup (gint               *argc,
                   gchar**            *argument_vector,
-                  const GOptionEntry *entries,
-                  GError*            *error)
+                  const GOptionEntry *entries)
 {
     GtkIconSource* icon_source;
     GtkIconSet* icon_set;
     GtkIconFactory* factory;
     gsize i;
+    GError* error = NULL;
     gboolean success;
 
     static GtkStockItem items[] =
@@ -1438,13 +1438,13 @@ midori_app_setup (gint               *argc,
 
     #ifdef HAVE_GRANITE_CLUTTER
     success = gtk_clutter_init_with_args (argc, argument_vector, _("[Addresses]"),
-                                          (GOptionEntry*)entries, GETTEXT_PACKAGE, error);
+                                          (GOptionEntry*)entries, GETTEXT_PACKAGE, &error);
     #elif GTK_CHECK_VERSION (3, 0, 0)
     success = gtk_init_with_args (argc, argument_vector, _("[Addresses]"),
-                                  entries, GETTEXT_PACKAGE, error);
+                                  entries, GETTEXT_PACKAGE, &error);
     #else
     success = gtk_init_with_args (argc, argument_vector, _("[Addresses]"),
-                                  (GOptionEntry*)entries, GETTEXT_PACKAGE, error);
+                                  (GOptionEntry*)entries, GETTEXT_PACKAGE, &error);
     #endif
 
     factory = gtk_icon_factory_new ();
@@ -1462,7 +1462,8 @@ midori_app_setup (gint               *argc,
     gtk_icon_factory_add_default (factory);
     g_object_unref (factory);
 
-    return success;
+    if (!success)
+        g_error ("%s - %s", _("Midori"), error->message);
 }
 
 gboolean

@@ -192,7 +192,7 @@ main (int    argc,
     TestParameters default_params = { FALSE, NULL, NULL };
 
     g_test_init (&argc, &argv, NULL);
-    midori_app_setup (&argc, &argv, NULL, NULL);
+    midori_app_setup (&argc, &argv, NULL);
     midori_paths_init (MIDORI_RUNTIME_MODE_NORMAL, NULL);
 
     g_test_add ("/bookmarks/simple test",

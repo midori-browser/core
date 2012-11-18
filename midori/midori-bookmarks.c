@@ -12,6 +12,7 @@
 
 #include "midori-bookmarks.h"
 #include "panels/midori-bookmarks.h"
+#include "midori-app.h"
 #include "midori-array.h"
 #include "sokoke.h"
 #include "midori-core.h"
