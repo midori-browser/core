@@ -695,9 +695,7 @@ adblock_check_rule (GRegex*      regex,
             return FALSE;
     }
     /* TODO: Domain opt check */
-    #ifdef G_ENABLE_DEBUG
     adblock_debug ("blocked by pattern regexp=%s -- %s", g_regex_get_pattern (regex), req_uri);
-    #endif
     return TRUE;
 }
 
@@ -1226,9 +1224,7 @@ adblock_compile_regexp (GString* gpatt,
             if (!g_regex_match_simple ("[\\*]", sig, G_REGEX_UNGREEDY, G_REGEX_MATCH_NOTEMPTY) &&
                 !g_hash_table_lookup (keys, sig))
             {
-                #ifdef G_ENABLE_DEBUG
                 adblock_debug ("sig: %s %s", sig, patt);
-                #endif
                 g_hash_table_insert (keys, sig, regex);
                 g_hash_table_insert (optslist, sig, g_strdup (opts));
                 signature_count++;
@@ -1238,9 +1234,7 @@ adblock_compile_regexp (GString* gpatt,
                 if (g_regex_match_simple ("^\\*", sig, G_REGEX_UNGREEDY, G_REGEX_MATCH_NOTEMPTY) &&
                     !g_hash_table_lookup (pattern, patt))
                 {
-                    #ifdef G_ENABLE_DEBUG
                     adblock_debug ("patt2: %s %s", sig, patt);
-                    #endif
                     g_hash_table_insert (pattern, patt, regex);
                     g_hash_table_insert (optslist, patt, g_strdup (opts));
                 }
@@ -1256,9 +1250,7 @@ adblock_compile_regexp (GString* gpatt,
     }
     else
     {
-        #ifdef G_ENABLE_DEBUG
         adblock_debug ("patt: %s%s", patt, "");
-        #endif
         /* Pattern is a regexp chars */
         g_hash_table_insert (pattern, patt, regex);
         g_hash_table_insert (optslist, patt, g_strdup (opts));
@@ -1313,9 +1305,7 @@ adblock_add_url_pattern (gchar* prefix,
 
     format_patt = adblock_fixup_regexp (prefix, patt);
 
-    #ifdef G_ENABLE_DEBUG
     adblock_debug ("got: %s opts %s", format_patt->str, opts);
-    #endif
     should_free = adblock_compile_regexp (format_patt, opts);
 
     if (data[1] && data[2])
@@ -1789,7 +1779,6 @@ adblock_activate_cb (MidoriExtension* extension,
     g_object_unref (browsers);
 }
 
-#if G_ENABLE_DEBUG
 static void
 test_adblock_parse (void)
 {
@@ -1941,7 +1930,6 @@ extension_test (void)
     g_test_add_func ("/extensions/adblock/pattern", test_adblock_pattern);
     g_test_add_func ("/extensions/adblock/update", test_subscription_update);
 }
-#endif
 
 MidoriExtension*
 extension_init (void)
