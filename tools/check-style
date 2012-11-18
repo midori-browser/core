@@ -44,9 +44,9 @@ violations = [
     # ['(if)( \([^ ].*[^ ]\))$', 'Good if style'],
     ['^#\s+(if(n?def)?|define|else|elif)[ ].*$', 'Space between # and cpp'],
     [r'^\s*\*\w+(\+\+|--);', 'Invalid increment, use (*i)++ or *i += 1'],
-    ['asctime|ctime|getgrgid|getprgnam|getlogin \
+    ['[^a-z](asctime|ctime|getgrgid|getprgnam|getlogin \
      |getpwnam|getpwuid|gmtime|localtime \
-     |rand|readdir|strtok|ttyname', 'Not thread-safe posix, use _r variant'],
+     |rand|readdir|strtok|ttyname)[^a-z]', 'Not thread-safe posix, use _r variant'],
     ['while.*g_list_nth', 'Use g_list_next() instead of g_list_nth'],
     ['[^a-z]g_new.*1[^0-9]', 'Use g_slice_new() instead of g_new()'],
 ]
