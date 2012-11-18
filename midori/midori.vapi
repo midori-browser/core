@@ -68,6 +68,7 @@ namespace Midori {
         public Gtk.Statusbar statusbar { owned get; }
         [NoAccessorMethod]
         public string statusbar_text { owned get; set; }
+        [NoAccessorMethod]
         public Midori.WebSettings settings { get; set; }
         [NoAccessorMethod]
         public Katze.Array? bookmarks { owned get; set; }
@@ -159,7 +160,8 @@ namespace Midori {
         public bool minimized { get; }
         public float zoom_level { get; }
         public Katze.Array news_feeds { get; }
-        public WebSettings settings { get; set; }
+        [NoAccessorMethod]
+        public WebSettings settings { owned get; set; }
         public GLib.Object net { get; }
 
         [HasEmitter]

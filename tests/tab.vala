@@ -80,6 +80,8 @@ void tab_special () {
     browser.set ("speed-dial", dial, "settings", settings);
     */
     var tab = new Midori.View.with_title ();
+    tab.settings = new Midori.WebSettings ();
+    tab.settings.set ("enable-plugins", false);
     browser.add (tab);
     /* browser.add_tab (tab); */
     var loop = MainContext.default ();
@@ -120,8 +122,17 @@ void tab_special () {
     /* FIXME assert (tab.special); */
     /* FIXME assert (!tab.can_save ()); */
 
-    /* FIXME use an HTTP URI that's available even offline */
-    tab.set_uri ("http://example.com");
+    var test_address = new Soup.Address ("127.0.0.1", Soup.ADDRESS_ANY_PORT);
+    test_address.resolve_sync ();
+    var test_server = new Soup.Server ("interface", test_address, null);
+    string test_url = "http://%s:%u".printf (test_address.get_physical (), test_server.get_port ());
+    test_server.run_async ();
+    test_server.add_handler ("/", (server, msg, path, query, client)=>{
+        msg.set_status_full (200, "OK");
+        msg.response_body.append_take ("<body></body>".data);
+        });
+
+    tab.set_uri (test_url);
     do { loop.iteration (true); } while (tab.load_status != Midori.LoadStatus.FINISHED);
     assert (!tab.is_blank ());
     assert (tab.can_view_source ());
