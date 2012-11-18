@@ -86,6 +86,8 @@ for filename_or_glob in sys.argv[1:]:
     for handle in handles:
         previous = ''
         i = 0
+        previous_i = 0
+        previous_violation = ''
         mode = ''
         filename = handle.name
         comment = False
@@ -103,6 +105,7 @@ for filename_or_glob in sys.argv[1:]:
                     filename = line[6:]
                     comment = False
                     curly = []
+                    previous_violation = ''
                     continue
                 if line[:2] == '@@':
                     i = int (line.split (' ')[2].split (',')[0][1:]) - 1
@@ -110,6 +113,7 @@ for filename_or_glob in sys.argv[1:]:
                 if line[0] == '-':
                     i = i -1
                 if line[0] != '+':
+                    previous_violation = ''
                     continue
                 line = line[1:]
 
@@ -117,6 +121,7 @@ for filename_or_glob in sys.argv[1:]:
             if previous == line == '':
                 print (fmt % (filename, i, 'Spurious blank line'))
                 previous = line
+                previous_violation = ''
                 continue
             previous = line
 
@@ -126,6 +131,7 @@ for filename_or_glob in sys.argv[1:]:
             if comment:
                 if '*/' in line and not '/*' in line:
                     comment = False
+                previous_violation = ''
                 continue
 
             cleaned = line
@@ -141,6 +147,7 @@ for filename_or_glob in sys.argv[1:]:
                     print (curly[-1][1])
                     print (line)
                     curly.pop()
+                    previous_violation = ''
                     continue
                 curly.pop()
 
@@ -157,6 +164,9 @@ for filename_or_glob in sys.argv[1:]:
             for violation in violations:
                 if violation[0].search (cleaned):
                     violated = True
+                    if previous_violation != '' and violation == previous_violation:
+                        continue
+                    previous_violation = violation
                     print (fmt % (filename, i, violation[1]))
             if violated:
                 print (line)
