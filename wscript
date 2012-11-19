@@ -40,12 +40,16 @@ try:
         git = Utils.cmd_output (['git', 'describe'], silent=True)
         if git:
             VERSION_FULL = git.strip ()
-            VERSION_SUFFIX = VERSION_FULL.replace (VERSION, '')
     elif os.path.isdir ('.bzr'):
         bzr = Utils.cmd_output (['bzr', 'revno'], silent=True)
         if bzr:
             VERSION_FULL = '%s~r%s' % (VERSION, bzr.strip ())
-            VERSION_SUFFIX = VERSION_FULL.replace (VERSION, '')
+    else:
+        folder = os.getcwd ()
+        if VERSION in folder:
+            VERSION_FULL = os.path.basename (folder)
+    if VERSION in VERSION_FULL:
+        VERSION_SUFFIX = VERSION_FULL.replace (VERSION, '')
 except:
     pass
 
