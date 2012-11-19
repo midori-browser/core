@@ -119,8 +119,7 @@ adblock_fixup_regexp (const gchar* prefix,
 static void
 adblock_destroy_db ()
 {
-    if (blockcss)
-        g_string_free (blockcss, TRUE);
+    g_string_free (blockcss, TRUE);
     blockcss = NULL;
 
     g_hash_table_destroy (pattern);
@@ -157,8 +156,6 @@ adblock_init_db ()
                    NULL,
                    (GDestroyNotify)g_free);
 
-    if (blockcss && blockcss->len > 0)
-        g_string_free (blockcss, TRUE);
     blockcss = g_string_new ("z-non-exist");
 }
 
@@ -1797,6 +1794,7 @@ test_adblock_parse (void)
 
     g_assert_cmpstr (adblock_parse_line (".*foo/bar"), ==, "..*foo/bar");
     g_assert_cmpstr (adblock_parse_line ("http://bla.blub/*"), ==, "http://bla.blub/");
+    adblock_destroy_db ();
 }
 
 static void
@@ -1805,6 +1803,7 @@ test_subscription_update (void)
     gint temp;
     gchar* filename;
 
+    adblock_init_db ();
     temp = g_file_open_tmp ("midori_adblock_update_test_XXXXXX", &filename, NULL);
     close (temp);
 
@@ -1863,6 +1862,7 @@ test_subscription_update (void)
 
     g_unlink (filename);
     g_free (filename);
+    adblock_destroy_db ();
 }
 
 static void
@@ -1871,6 +1871,7 @@ test_adblock_pattern (void)
     gint temp;
     gchar* filename;
 
+    adblock_init_db ();
     temp = g_file_open_tmp ("midori_adblock_match_test_XXXXXX", &filename, NULL);
 
     /* TODO: Update some tests and add new ones. */
@@ -1919,8 +1920,7 @@ test_adblock_pattern (void)
 
     close (temp);
     g_unlink (filename);
-
-    g_hash_table_destroy (pattern);
+    adblock_destroy_db ();
 }
 
 void
