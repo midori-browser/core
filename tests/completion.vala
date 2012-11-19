@@ -78,7 +78,6 @@ void completion_autocompleter () {
         error ("Expected %s but got %s", "First", title);
 
     /* Cancellation */
-    /*
     autocompleter.complete.begin ("");
     completion.test_suggestions = 3;
     autocompleter.complete.begin ("");
@@ -86,7 +85,6 @@ void completion_autocompleter () {
     int n = autocompleter.model.iter_n_children (null);
     if (n != 3)
         error ("Expected %d but got %d", 3, n);
-    */
 }
 
 struct TestCaseCompletion {

@@ -78,12 +78,7 @@ namespace Midori {
             return false;
         }
 
-        private void fill_model (GLib.Object? object, AsyncResult result) {
-            var completion = object as Completion;
-            List<Suggestion>? suggestions = completion.complete.end (result);
-            if (suggestions == null)
-                return;
-
+        private void fill_model (Midori.Completion completion, List<Midori.Suggestion>? suggestions) {
             if (need_to_clear) {
                 model.clear ();
                 need_to_clear = false;
@@ -111,6 +106,12 @@ namespace Midori {
 
         public signal void populated (uint count);
 
+        private async void complete_wrapped (Completion completion, string text, string? action, Cancellable cancellable) {
+            List<Midori.Suggestion>? suggestions = yield completion.complete (text, action, cancellable);
+            if (!cancellable.is_cancelled () && suggestions != null)
+                fill_model (completion, suggestions);
+        }
+
         public async void complete (string text) {
             if (cancellable != null)
                 cancellable.cancel ();
@@ -119,14 +120,7 @@ namespace Midori {
 
             foreach (var completion in completions) {
                 if (completion.can_complete (text))
-                    completion.complete.begin (text, null, cancellable, fill_model);
-
-                uint src = Idle.add (complete.callback);
-                yield;
-                Source.remove (src);
-
-                if (cancellable.is_cancelled ())
-                    break;
+                    complete_wrapped.begin (completion, text, null, cancellable);
             }
         }
 
@@ -145,7 +139,7 @@ namespace Midori {
 
             foreach (var completion in completions) {
                 if (completion.can_action (action))
-                    completion.complete.begin (text, action, cancellable, fill_model);
+                    complete_wrapped.begin (completion, text, action, cancellable);
             }
         }
     }
