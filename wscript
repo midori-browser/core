@@ -566,19 +566,52 @@ def shutdown ():
             os.environ[x] = (base % x).lower ()
             Utils.check_dir (os.environ[x])
         test = UnitTest.unit_test ()
-        test.change_to_testfile_dir = True
-        test.want_to_see_test_output = True
-        test.want_to_see_test_error = True
-        test.run ()
+
+        if True:
+            test.unit_test_results = {}
+            for obj in Build.bld.all_task_gen:
+                if getattr (obj, 'unit_test', '') and 'cprogram' in obj.features:
+                    output = obj.path
+                    filename = os.path.join (output.abspath (obj.env), obj.target)
+                    srcdir = output.abspath ()
+                    label = os.path.join (output.bldpath (obj.env), obj.target)
+                    test.unit_tests[label] = (filename, srcdir)
+
+            Utils.pprint ('GREEN', 'Running the unit tests')
+            for label in test.unit_tests.allkeys:
+                file_and_src = test.unit_tests[label]
+                test.unit_test_results[label] = 0
+                try:
+                    args = [file_and_src[0]]
+                    if is_mingw (Build.bld.env):
+                        args.insert (0, 'wine')
+                    pp = Utils.pproc.Popen (args)
+                    (out, err) = pp.communicate ()
+                    test.unit_test_results[label] = int (pp.returncode == 0)
+                except OSError:
+                    msg = sys.exc_info()[1] # Python 2/3 compatibility
+                    Utils.pprint ('RED', '%s: %s' % (args, msg))
+                except KeyboardInterrupt:
+                    pass
+        else:
+            test.want_to_see_test_output = True
+            test.want_to_see_test_error = True
+            test.run ()
 
         for label in test.unit_tests.allkeys:
             if not test.unit_test_results[label]:
                 Utils.pprint ('YELLOW', label + '...FAILED')
                 file_and_src = test.unit_tests[label]
                 try:
-                    subprocess.Popen (['gdb', '--batch', '-ex', 'run', '-ex', 'bt', file_and_src[0]]).wait()
-                except:
+                    args = ['gdb', '--batch', '-ex', 'run', '-ex', 'bt', file_and_src[0]]
+                    if is_mingw (Build.bld.env):
+                        args.insert (0, 'wine')
+                    pp = Utils.pproc.Popen (args)
+                    (out, err) = pp.communicate ()
+                except OSError:
                     Utils.pprint ('RED', 'Install gdb to see backtraces')
+                except KeyboardInterrupt:
+                    pass
             else:
                 Utils.pprint ('GREEN', label + '.......OK')
 
