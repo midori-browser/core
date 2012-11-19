@@ -39,7 +39,7 @@ static void download_extension () {
 }
 
 static void download_unique () {
-    string folder = Environment.get_tmp_dir () + "/cacheXXXXXX"; DirUtils.mkdtemp (folder);
+    string folder = Midori.Paths.make_tmp_dir ("cacheXXXXXX");
     string filename = Path.build_path (Path.DIR_SEPARATOR_S, folder, "foo.png");
     string org_filename = Path.build_path (Path.DIR_SEPARATOR_S, folder, "foo.png");
     string unique = Midori.Download.get_unique_filename (org_filename);
@@ -65,6 +65,7 @@ static void download_unique () {
 
 void main (string[] args) {
     Test.init (ref args);
+    Midori.Paths.init (Midori.RuntimeMode.NORMAL, null);
     Test.add_func ("/download/suggestion", download_suggestion);
     Test.add_func ("/download/extension", download_extension);
     Test.add_func ("/download/unique", download_unique);

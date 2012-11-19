@@ -167,6 +167,22 @@ namespace Midori {
             return tmp_dir;
         }
 
+        public static string make_tmp_dir (string tmpl) {
+            assert (tmp_dir != null);
+#if HAVE_GLIB_2_30
+            try {
+                return DirUtils.make_tmp (tmpl);
+            }
+            catch (Error error) {
+                GLib.error (error.message);
+            }
+#else
+            string folder = Path.build_path (Path.DIR_SEPARATOR_S, tmp_dir, tmpl);
+            DirUtils.mkdtemp (folder);
+            return folder;
+#endif
+        }
+
         public static void init_exec_path (string[] new_command_line) {
             assert (command_line == null);
             command_line = new_command_line;
