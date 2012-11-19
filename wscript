@@ -582,6 +582,9 @@ def shutdown ():
             else:
                 Utils.pprint ('GREEN', label + '.......OK')
 
+        if test.num_tests_failed > 0 or test.num_tests_err > 0:
+            sys.exit (1)
+
     elif Options.options.update_po:
         os.chdir('./po')
         try:
