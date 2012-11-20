@@ -25,6 +25,7 @@ static void http_hsts () {
 
 void main (string[] args) {
     Test.init (ref args);
+    Midori.App.setup (ref args, null);
     Test.add_func ("/http/hsts", http_hsts);
     Test.run ();
 }

@@ -40,6 +40,7 @@ void searchaction_form () {
 
 void main (string[] args) {
     Test.init (ref args);
+    Midori.App.setup (ref args, null);
     Test.add_func ("/searchaction/form", searchaction_form);
     Test.run ();
 }

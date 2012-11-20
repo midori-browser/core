@@ -124,6 +124,7 @@ void completion_history () {
 
 void main (string[] args) {
     Test.init (ref args);
+    Midori.App.setup (ref args, null);
     Test.add_func ("/completion/autocompleter", completion_autocompleter);
     Test.add_func ("/completion/history", completion_history);
     Test.run ();

@@ -82,6 +82,7 @@ static void speeddial_load () {
 
 void main (string[] args) {
     Test.init (ref args);
+    Midori.App.setup (ref args, null);
     Midori.Paths.init (Midori.RuntimeMode.NORMAL, null);
     Test.add_func ("/speeddial/load", speeddial_load);
     Test.run ();

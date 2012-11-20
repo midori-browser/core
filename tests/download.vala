@@ -65,6 +65,7 @@ static void download_unique () {
 
 void main (string[] args) {
     Test.init (ref args);
+    Midori.App.setup (ref args, null);
     Midori.Paths.init (Midori.RuntimeMode.NORMAL, null);
     Test.add_func ("/download/suggestion", download_suggestion);
     Test.add_func ("/download/extension", download_extension);
