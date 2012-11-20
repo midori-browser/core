@@ -579,13 +579,15 @@ def shutdown ():
 
             Utils.pprint ('GREEN', 'Running the unit tests')
             for label in test.unit_tests.allkeys:
-                file_and_src = test.unit_tests[label]
+                filename = test.unit_tests[label][0]
                 test.unit_test_results[label] = 0
                 try:
-                    args = [file_and_src[0]]
+                    if is_mingw (Build.bld.env):
+                        filename += '.exe'
+                    args = [filename]
                     if is_mingw (Build.bld.env):
                         args.insert (0, 'wine')
-                    pp = Utils.pproc.Popen (args)
+                    pp = Utils.pproc.Popen (args, cwd=Build.bld.env['PREFIX'] + os.sep + 'bin')
                     (out, err) = pp.communicate ()
                     test.unit_test_results[label] = int (pp.returncode == 0)
                 except OSError:
@@ -601,12 +603,14 @@ def shutdown ():
         for label in test.unit_tests.allkeys:
             if not test.unit_test_results[label]:
                 Utils.pprint ('YELLOW', label + '...FAILED')
-                file_and_src = test.unit_tests[label]
+                filename = test.unit_tests[label][0]
                 try:
-                    args = ['gdb', '--batch', '-ex', 'run', '-ex', 'bt', file_and_src[0]]
+                    if is_mingw (Build.bld.env):
+                        filename += '.exe'
+                    args = ['gdb', '--batch', '-ex', 'run', '-ex', 'bt', filename]
                     if is_mingw (Build.bld.env):
                         args.insert (0, 'wine')
-                    pp = Utils.pproc.Popen (args)
+                    pp = Utils.pproc.Popen (args, cwd=Build.bld.env['PREFIX'] + os.sep + 'bin')
                     (out, err) = pp.communicate ()
                 except OSError:
                     Utils.pprint ('RED', 'Install gdb to see backtraces')
