@@ -1695,48 +1695,6 @@ midori_clear_page_icons_cb (void)
     #endif
 }
 
-static void
-midori_log_to_file (const gchar*   log_domain,
-                    GLogLevelFlags log_level,
-                    const gchar*   message,
-                    gpointer       user_data)
-{
-    FILE* logfile = fopen ((const char*)user_data, "a");
-    gchar* level_name = "";
-    time_t timestamp = time (NULL);
-
-    switch (log_level)
-    {
-        /* skip irrelevant flags */
-        case G_LOG_LEVEL_MASK:
-        case G_LOG_FLAG_FATAL:
-        case G_LOG_FLAG_RECURSION:
-
-        case G_LOG_LEVEL_ERROR:
-            level_name = "ERROR";
-            break;
-        case G_LOG_LEVEL_CRITICAL:
-            level_name = "CRITICAL";
-            break;
-        case G_LOG_LEVEL_WARNING:
-            level_name = "WARNING";
-            break;
-        case G_LOG_LEVEL_MESSAGE:
-            level_name = "MESSAGE";
-            break;
-        case G_LOG_LEVEL_INFO:
-            level_name = "INFO";
-            break;
-        case G_LOG_LEVEL_DEBUG:
-            level_name = "DEBUG";
-            break;
-    }
-
-    fprintf (logfile, "%s%s-%s **: %s\n", asctime (localtime (&timestamp)),
-        log_domain ? log_domain : "Midori", level_name, message);
-    fclose (logfile);
-}
-
 int
 main (int    argc,
       char** argv)
@@ -1750,7 +1708,6 @@ main (int    argc,
     gboolean back_from_crash;
     gboolean run;
     gchar* snapshot;
-    gchar* logfile;
     gboolean execute;
     gboolean help_execute;
     gboolean version;
@@ -1797,8 +1754,6 @@ main (int    argc,
        /* i18n: CLI: Close tabs, clear private data, open starting page */
        N_("Reset Midori after SECONDS seconds of inactivity"), N_("SECONDS") },
        #endif
-       { "log-file", 'l', 0, G_OPTION_ARG_FILENAME, &logfile,
-       N_("Redirects console warnings to the specified FILENAME"), N_("FILENAME")},
      { NULL }
     };
     GString* error_messages;
@@ -1838,7 +1793,6 @@ main (int    argc,
     diagnostic_dialog = FALSE;
     run = FALSE;
     snapshot = NULL;
-    logfile = NULL;
     execute = FALSE;
     help_execute = FALSE;
     version = FALSE;
@@ -1964,11 +1918,6 @@ main (int    argc,
         gtk_main ();
         g_free (filename);
         return 0;
-    }
-
-    if (logfile)
-    {
-        g_log_set_default_handler (midori_log_to_file, (gpointer)logfile);
     }
 
     if (plain)
