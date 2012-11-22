@@ -21,6 +21,7 @@
 #include "midori-panel.h"
 #include "midori-platform.h"
 #include "midori-preferences.h"
+#include "midori-searchaction.h"
 #include <midori/midori-core.h>
 
 #include <config.h>
@@ -287,119 +288,6 @@ settings_save_to_file (MidoriWebSettings* settings,
     return saved;
 }
 
-static KatzeArray*
-search_engines_new_from_file (const gchar* filename,
-                              GError**     error)
-{
-    KatzeArray* search_engines;
-    GKeyFile* key_file;
-    gchar** engines;
-    guint i, j, n_properties;
-    KatzeItem* item;
-    GParamSpec** pspecs;
-    const gchar* property;
-    gchar* value;
-
-    search_engines = katze_array_new (KATZE_TYPE_ITEM);
-    key_file = g_key_file_new ();
-    g_key_file_load_from_file (key_file, filename,
-                               G_KEY_FILE_KEEP_COMMENTS, error);
-    engines = g_key_file_get_groups (key_file, NULL);
-    pspecs = g_object_class_list_properties (G_OBJECT_GET_CLASS (search_engines),
-	                                     &n_properties);
-    for (i = 0; engines[i] != NULL; i++)
-    {
-        item = katze_item_new ();
-        for (j = 0; j < n_properties; j++)
-        {
-            if (!G_IS_PARAM_SPEC_STRING (pspecs[j]))
-                continue;
-            property = g_param_spec_get_name (pspecs[j]);
-            value = g_key_file_get_string (key_file, engines[i],
-	                                   property, NULL);
-            g_object_set (item, property, value, NULL);
-            g_free (value);
-        }
-        katze_array_add_item (search_engines, item);
-    }
-    g_free (pspecs);
-    g_strfreev (engines);
-    g_key_file_free (key_file);
-    return search_engines;
-}
-
-static KatzeArray*
-search_engines_new_from_folder (GString* error_messages)
-{
-    gchar* config_file = midori_paths_get_config_filename_for_reading ("search");
-    GError* error = NULL;
-    KatzeArray* search_engines;
-
-    search_engines = search_engines_new_from_file (config_file, &error);
-    /* We ignore for instance empty files */
-    if (error && (error->code == G_KEY_FILE_ERROR_PARSE
-        || error->code == G_FILE_ERROR_NOENT))
-    {
-        g_error_free (error);
-        error = NULL;
-    }
-    if (!error && katze_array_is_empty (search_engines))
-    {
-        katze_assign (config_file,
-            midori_paths_get_preset_filename (NULL, "search"));
-        katze_object_assign (search_engines,
-            search_engines_new_from_file (config_file, NULL));
-    }
-    else if (error)
-    {
-        if (error->code != G_FILE_ERROR_NOENT && error_messages)
-            g_string_append_printf (error_messages,
-                _("The search engines couldn't be loaded. %s\n"),
-                error->message);
-        g_error_free (error);
-    }
-    g_free (config_file);
-    return search_engines;
-}
-
-static gboolean
-search_engines_save_to_file (KatzeArray*  search_engines,
-                             const gchar* filename,
-                             GError**     error)
-{
-    GKeyFile* key_file;
-    guint j, n_properties;
-    KatzeItem* item;
-    const gchar* name;
-    GParamSpec** pspecs;
-    const gchar* property;
-    gchar* value;
-    gboolean saved;
-
-    key_file = g_key_file_new ();
-    pspecs = g_object_class_list_properties (G_OBJECT_GET_CLASS (search_engines),
-                                             &n_properties);
-    KATZE_ARRAY_FOREACH_ITEM (item, search_engines)
-    {
-        name = katze_item_get_name (item);
-        for (j = 0; j < n_properties; j++)
-        {
-            if (!G_IS_PARAM_SPEC_STRING (pspecs[j]))
-                continue;
-            property = g_param_spec_get_name (pspecs[j]);
-            g_object_get (item, property, &value, NULL);
-            if (value)
-                g_key_file_set_string (key_file, name, property, value);
-            g_free (value);
-        }
-    }
-    g_free (pspecs);
-    saved = sokoke_key_file_save_to_file (key_file, filename, error);
-    g_key_file_free (key_file);
-
-    return saved;
-}
-
 static void
 midori_history_clear_cb (KatzeArray* array,
                          sqlite3*    db)
@@ -539,31 +427,6 @@ accel_map_changed_cb (GtkAccelMap*    accel_map,
     gchar* config_file = midori_paths_get_config_filename_for_writing ("accels");
     gtk_accel_map_save (config_file);
     g_free (config_file);
-}
-
-static void
-midori_search_engines_modify_cb (KatzeArray* array,
-                                 gpointer    item,
-                                 KatzeArray* search_engines)
-{
-    gchar* config_file = midori_paths_get_config_filename_for_writing ("search");
-    GError* error = NULL;
-    if (!search_engines_save_to_file (search_engines, config_file, &error))
-    {
-        g_warning (_("The search engines couldn't be saved. %s"),
-                   error->message);
-        g_error_free (error);
-    }
-    g_free (config_file);
-}
-
-static void
-midori_search_engines_move_item_cb (KatzeArray* array,
-                                    gpointer    item,
-                                    gint        position,
-                                    KatzeArray* search_engines)
-{
-    midori_search_engines_modify_cb (array, item, search_engines);
 }
 
 static void
@@ -1997,7 +1860,7 @@ main (int    argc,
         {
             settings = settings_and_accels_new (&extensions);
             g_strfreev (extensions);
-            search_engines = search_engines_new_from_folder (NULL);
+            search_engines = midori_search_engines_new_from_folder (NULL);
             g_object_set (browser, "search-engines", search_engines, NULL);
             g_object_unref (search_engines);
         }
@@ -2212,7 +2075,7 @@ main (int    argc,
     midori_startup_timer ("Config and accels read: \t%f");
 
     /* Load search engines */
-    search_engines = search_engines_new_from_folder (error_messages);
+    search_engines = midori_search_engines_new_from_folder (error_messages);
     /* Pick first search engine as default if not set */
     g_object_get (settings, "location-entry-search", &uri, NULL);
     if (!(uri && *uri) && !katze_array_is_empty (search_engines))
@@ -2349,21 +2212,9 @@ main (int    argc,
     }
     }
 
-    if (1)
-    {
-        g_signal_connect_after (search_engines, "add-item",
-            G_CALLBACK (midori_search_engines_modify_cb), search_engines);
-        g_signal_connect_after (search_engines, "remove-item",
-            G_CALLBACK (midori_search_engines_modify_cb), search_engines);
-        if (!katze_array_is_empty (search_engines))
-        {
-            KATZE_ARRAY_FOREACH_ITEM (item, search_engines)
-                g_signal_connect_after (item, "notify",
-                    G_CALLBACK (midori_search_engines_modify_cb), search_engines);
-            g_signal_connect_after (search_engines, "move-item",
-                G_CALLBACK (midori_search_engines_move_item_cb), search_engines);
-        }
-    }
+    katze_assign (config_file, g_build_filename (config, "search", NULL));
+    midori_search_engines_set_filename (search_engines, config_file);
+
     g_signal_connect_after (trash, "add-item",
         G_CALLBACK (midori_trash_add_item_cb), NULL);
     g_signal_connect_after (trash, "remove-item",
