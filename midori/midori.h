@@ -20,6 +20,7 @@
 #include "midori-locationaction.h"
 #include "midori-panel.h"
 #include "midori-preferences.h"
+#include "midori-privatedata.h"
 #include "midori-searchaction.h"
 #include "midori-view.h"
 #include "midori-websettings.h"

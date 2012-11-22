@@ -23,7 +23,9 @@
 #include "midori-findbar.h"
 #include "midori-transferbar.h"
 #include "midori-platform.h"
+#include "midori-privatedata.h"
 #include "midori-core.h"
+#include "midori-privatedata.h"
 
 #include "marshal.h"
 
@@ -91,8 +93,6 @@ struct _MidoriBrowser
     guint alloc_timeout;
     gint last_tab_size;
     guint panel_timeout;
-
-    gint clear_private_data;
 
     MidoriWebSettings* settings;
     KatzeArray* proxy_array;
@@ -280,6 +280,15 @@ _toggle_tabbar_smartly (MidoriBrowser* browser,
 }
 
 static void
+midori_browser_trash_clear_cb (KatzeArray*    trash,
+                               MidoriBrowser* browser)
+{
+    gboolean trash_empty = katze_array_is_empty (browser->trash);
+    _action_set_sensitive (browser, "UndoTabClose", !trash_empty);
+    _action_set_sensitive (browser, "Trash", !trash_empty);
+}
+
+static void
 _midori_browser_update_actions (MidoriBrowser* browser)
 {
     gboolean has_tabs = _toggle_tabbar_smartly (browser, FALSE);
@@ -287,11 +296,7 @@ _midori_browser_update_actions (MidoriBrowser* browser)
     _action_set_sensitive (browser, "TabNext", has_tabs);
 
     if (browser->trash)
-    {
-        gboolean trash_empty = katze_array_is_empty (browser->trash);
-        _action_set_sensitive (browser, "UndoTabClose", !trash_empty);
-        _action_set_sensitive (browser, "Trash", !trash_empty);
-    }
+        midori_browser_trash_clear_cb (browser->trash, browser);
 }
 
 static void
@@ -4575,72 +4580,6 @@ _action_manage_search_engines_activate (GtkAction*     action,
 }
 
 static void
-midori_browser_clear_private_data_response_cb (GtkWidget*     dialog,
-                                               gint           response_id,
-                                               MidoriBrowser* browser)
-{
-    if (response_id == GTK_RESPONSE_ACCEPT)
-    {
-        GtkToggleButton* button;
-        gint clear_prefs = MIDORI_CLEAR_NONE;
-        gint saved_prefs = MIDORI_CLEAR_NONE;
-        GList* data_items = sokoke_register_privacy_item (NULL, NULL, NULL);
-        GString* clear_data = g_string_new (NULL);
-        g_object_get (browser->settings, "clear-private-data", &saved_prefs, NULL);
-
-        button = g_object_get_data (G_OBJECT (dialog), "session");
-        if (gtk_toggle_button_get_active (button))
-        {
-            GList* tabs = gtk_container_get_children (GTK_CONTAINER (browser->notebook));
-            for (; tabs != NULL; tabs = g_list_next (tabs))
-                gtk_widget_destroy (tabs->data);
-            g_list_free (tabs);
-            clear_prefs |= MIDORI_CLEAR_SESSION;
-        }
-        button = g_object_get_data (G_OBJECT (dialog), "history");
-        if (gtk_toggle_button_get_active (button))
-        {
-            katze_array_clear (browser->history);
-            katze_array_clear (browser->trash);
-            _midori_browser_update_actions (browser);
-            clear_prefs |= MIDORI_CLEAR_HISTORY;
-            clear_prefs |= MIDORI_CLEAR_TRASH; /* For backward-compatibility */
-        }
-        if (clear_prefs != saved_prefs)
-        {
-            clear_prefs |= (saved_prefs & MIDORI_CLEAR_ON_QUIT);
-            g_object_set (browser->settings, "clear-private-data", clear_prefs, NULL);
-        }
-        for (; data_items != NULL; data_items = g_list_next (data_items))
-        {
-            SokokePrivacyItem* privacy = data_items->data;
-            button = g_object_get_data (G_OBJECT (dialog), privacy->name);
-            g_return_if_fail (button != NULL && GTK_IS_TOGGLE_BUTTON (button));
-            if (gtk_toggle_button_get_active (button))
-            {
-                privacy->clear ();
-                g_string_append (clear_data, privacy->name);
-                g_string_append_c (clear_data, ',');
-            }
-        }
-        g_object_set (browser->settings, "clear-data", clear_data->str, NULL);
-        g_string_free (clear_data, TRUE);
-    }
-    if (response_id != GTK_RESPONSE_DELETE_EVENT)
-        gtk_widget_destroy (dialog);
-}
-
-static void
-midori_browser_clear_on_quit_toggled_cb (GtkToggleButton*   button,
-                                         MidoriWebSettings* settings)
-{
-    gint clear_prefs = MIDORI_CLEAR_NONE;
-    g_object_get (settings, "clear-private-data", &clear_prefs, NULL);
-    clear_prefs ^= MIDORI_CLEAR_ON_QUIT;
-    g_object_set (settings, "clear-private-data", clear_prefs, NULL);
-}
-
-static void
 _action_clear_private_data_activate (GtkAction*     action,
                                      MidoriBrowser* browser)
 {
@@ -4651,94 +4590,10 @@ _action_clear_private_data_activate (GtkAction*     action,
 
     if (!dialog)
     {
-        GtkWidget* content_area;
-        GdkScreen* screen;
-        GtkSizeGroup* sizegroup;
-        GtkWidget* hbox;
-        GtkWidget* alignment;
-        GtkWidget* vbox;
-        GtkWidget* icon;
-        GtkWidget* label;
-        GtkWidget* button;
-        GList* data_items;
-        gchar* clear_data = katze_object_get_string (browser->settings, "clear-data");
-
-        gint clear_prefs = MIDORI_CLEAR_NONE;
-        g_object_get (browser->settings, "clear-private-data", &clear_prefs, NULL);
-
-        /* i18n: Dialog: Clear Private Data, in the Tools menu */
-        dialog = gtk_dialog_new_with_buttons (_("Clear Private Data"),
-            GTK_WINDOW (browser),
-            GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR,
-            GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-            _("_Clear private data"), GTK_RESPONSE_ACCEPT, NULL);
-        katze_widget_add_class (gtk_dialog_get_widget_for_response (
-            GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT), "noundo");
-        content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
-        gtk_window_set_skip_taskbar_hint (GTK_WINDOW (dialog), FALSE);
-        screen = gtk_widget_get_screen (GTK_WIDGET (browser));
-        if (screen)
-        {
-            gtk_window_set_icon_name (GTK_WINDOW (dialog), GTK_STOCK_CLEAR);
-        }
-        sizegroup = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
-        hbox = gtk_hbox_new (FALSE, 4);
-        icon = gtk_image_new_from_stock (GTK_STOCK_CLEAR, GTK_ICON_SIZE_DIALOG);
-        gtk_size_group_add_widget (sizegroup, icon);
-        gtk_box_pack_start (GTK_BOX (hbox), icon, FALSE, FALSE, 0);
-        label = gtk_label_new (_("Clear the following data:"));
-        gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, TRUE, 0);
-        gtk_box_pack_start (GTK_BOX (content_area), hbox, FALSE, FALSE, 0);
-        hbox = gtk_hbox_new (FALSE, 4);
-        icon = gtk_image_new ();
-        gtk_size_group_add_widget (sizegroup, icon);
-        gtk_box_pack_start (GTK_BOX (hbox), icon, FALSE, FALSE, 0);
-        vbox = gtk_vbox_new (TRUE, 4);
-        alignment = gtk_alignment_new (0, 0, 1, 1);
-        gtk_alignment_set_padding (GTK_ALIGNMENT (alignment), 0, 6, 12, 0);
-        button = gtk_check_button_new_with_mnemonic (_("Last open _tabs"));
-        if ((clear_prefs & MIDORI_CLEAR_SESSION) == MIDORI_CLEAR_SESSION)
-            gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
-        g_object_set_data (G_OBJECT (dialog), "session", button);
-        gtk_box_pack_start (GTK_BOX (vbox), button, TRUE, TRUE, 0);
-        /* i18n: Browsing history, visited web pages, closed tabs */
-        button = gtk_check_button_new_with_mnemonic (_("_History"));
-        if ((clear_prefs & MIDORI_CLEAR_HISTORY) == MIDORI_CLEAR_HISTORY)
-            gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
-        g_object_set_data (G_OBJECT (dialog), "history", button);
-        gtk_box_pack_start (GTK_BOX (vbox), button, TRUE, TRUE, 0);
-
-        data_items = sokoke_register_privacy_item (NULL, NULL, NULL);
-        for (; data_items != NULL; data_items = g_list_next (data_items))
-        {
-            SokokePrivacyItem* privacy = data_items->data;
-            button = gtk_check_button_new_with_mnemonic (privacy->label);
-            gtk_box_pack_start (GTK_BOX (vbox), button, TRUE, TRUE, 0);
-            g_object_set_data (G_OBJECT (dialog), privacy->name, button);
-            if (clear_data && strstr (clear_data, privacy->name))
-                gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
-        }
-        g_free (clear_data);
-        gtk_container_add (GTK_CONTAINER (alignment), vbox);
-        gtk_box_pack_start (GTK_BOX (hbox), alignment, TRUE, TRUE, 0);
-        gtk_box_pack_start (GTK_BOX (content_area), hbox, FALSE, FALSE, 0);
-        button = gtk_check_button_new_with_mnemonic (_("Clear private data when _quitting Midori"));
-        if ((clear_prefs & MIDORI_CLEAR_ON_QUIT) == MIDORI_CLEAR_ON_QUIT)
-            gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
-        g_signal_connect (button, "toggled",
-            G_CALLBACK (midori_browser_clear_on_quit_toggled_cb), browser->settings);
-        alignment = gtk_alignment_new (0, 0, 1, 1);
-        gtk_alignment_set_padding (GTK_ALIGNMENT (alignment), 0, 0, 2, 0);
-        gtk_container_add (GTK_CONTAINER (alignment), button);
-        gtk_box_pack_start (GTK_BOX (content_area), alignment, FALSE, FALSE, 0);
-        gtk_widget_show_all (content_area);
-
-        g_signal_connect (dialog, "response",
-            G_CALLBACK (midori_browser_clear_private_data_response_cb), browser);
+        dialog = midori_private_data_get_dialog (browser);
         g_signal_connect (dialog, "destroy",
             G_CALLBACK (gtk_widget_destroyed), &dialog);
         gtk_widget_show (dialog);
-        gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT);
     }
     else
         gtk_window_present (GTK_WINDOW (dialog));
@@ -5407,10 +5262,7 @@ _action_trash_empty_activate (GtkAction*     action,
                               MidoriBrowser* browser)
 {
     if (browser->trash)
-    {
         katze_array_clear (browser->trash);
-        _midori_browser_update_actions (browser);
-    }
 }
 
 static const GtkActionEntry entries[] =
@@ -7405,8 +7257,9 @@ midori_browser_set_property (GObject*      object,
                       NULL);
         _action_set_visible (browser, "Trash", browser->trash != NULL);
         _action_set_visible (browser, "UndoTabClose", browser->trash != NULL);
-        /* FIXME: Connect to updates */
-        _midori_browser_update_actions (browser);
+        g_signal_connect (browser->trash, "clear",
+            G_CALLBACK (midori_browser_trash_clear_cb), browser);
+        midori_browser_trash_clear_cb (browser->trash, browser);
         break;
     case PROP_SEARCH_ENGINES:
     {

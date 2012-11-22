@@ -21,6 +21,7 @@
 #include "midori-panel.h"
 #include "midori-platform.h"
 #include "midori-preferences.h"
+#include "midori-privatedata.h"
 #include "midori-searchaction.h"
 #include <midori/midori-core.h>
 
@@ -1306,19 +1307,6 @@ midori_web_app_browser_new_window_cb (MidoriBrowser* browser,
     return new_browser;
 }
 
-static void
-midori_remove_config_file (gint         clear_prefs,
-                           gint         flag,
-                           const gchar* filename)
-{
-    if ((clear_prefs & flag) == flag)
-    {
-        gchar* config_file = midori_paths_get_config_filename_for_writing (filename);
-        g_unlink (config_file);
-        g_free (config_file);
-    }
-}
-
 static gchar*
 midori_prepare_uri (const gchar *uri)
 {
@@ -1410,24 +1398,9 @@ midori_inactivity_timeout (gpointer data)
         XScreenSaverQueryInfo (xdisplay, RootWindow (xdisplay, 0), mit_info);
         if (mit_info->idle / 1000 > mit->timeout)
         {
-            GList* children;
             GtkWidget* view;
-            KatzeArray* history = katze_object_get_object (mit->browser, "history");
-            KatzeArray* trash = katze_object_get_object (mit->browser, "trash");
-            GList* data_items = sokoke_register_privacy_item (NULL, NULL, NULL);
-
-            children = midori_browser_get_tabs (mit->browser);
-            for (; children; children = g_list_next (children))
-                midori_browser_close_tab (mit->browser, children->data);
-            g_list_free (children);
             midori_browser_set_current_uri (mit->browser, mit->uri);
-            /* Clear all private data */
-            if (history != NULL)
-                katze_array_clear (history);
-            if (trash != NULL)
-                katze_array_clear (trash);
-            for (; data_items != NULL; data_items = g_list_next (data_items))
-                ((SokokePrivacyItem*)(data_items->data))->clear ();
+            midori_private_data_clear_all (mit->browser);
         }
     }
     #else
@@ -1451,111 +1424,6 @@ midori_setup_inactivity_reset (MidoriBrowser* browser,
         g_timeout_add_seconds (inactivity_reset, midori_inactivity_timeout,
                                mit);
     }
-}
-
-static void
-midori_clear_web_cookies_cb (void)
-{
-    SoupSession* session = webkit_get_default_session ();
-    MidoriWebSettings* settings = g_object_get_data (G_OBJECT (session), "midori-settings");
-    SoupSessionFeature* jar = soup_session_get_feature (session, SOUP_TYPE_COOKIE_JAR);
-    GSList* cookies = soup_cookie_jar_all_cookies (SOUP_COOKIE_JAR (jar));
-    SoupSessionFeature* feature;
-    gchar* cache;
-
-    /* HTTP Cookies/ Web Cookies */
-    for (; cookies != NULL; cookies = g_slist_next (cookies))
-    {
-        const gchar* domain = ((SoupCookie*)cookies->data)->domain;
-        if (midori_web_settings_get_site_data_policy (settings, domain)
-         == MIDORI_SITE_DATA_PRESERVE)
-            continue;
-        soup_cookie_jar_delete_cookie ((SoupCookieJar*)jar, cookies->data);
-    }
-    soup_cookies_free (cookies);
-    /* Removing KatzeHttpCookies makes it save outstanding changes */
-    if ((feature = soup_session_get_feature (session, KATZE_TYPE_HTTP_COOKIES)))
-    {
-        g_object_ref (feature);
-        soup_session_remove_feature (session, feature);
-        soup_session_add_feature (session, feature);
-        g_object_unref (feature);
-    }
-
-    /* Local shared objects/ Flash cookies */
-    if (midori_web_settings_has_plugin_support ())
-    {
-    #ifdef GDK_WINDOWING_X11
-    cache = g_build_filename (g_get_home_dir (), ".macromedia", "Flash_Player", NULL);
-    sokoke_remove_path (cache, TRUE);
-    g_free (cache);
-    #elif defined(GDK_WINDOWING_WIN32)
-    cache = g_build_filename (g_get_user_data_dir (), "Macromedia", "Flash Player", NULL);
-    sokoke_remove_path (cache, TRUE);
-    g_free (cache);
-    #elif defined(GDK_WINDOWING_QUARTZ)
-    cache = g_build_filename (g_get_home_dir (), "Library", "Preferences",
-                              "Macromedia", "Flash Player", NULL);
-    sokoke_remove_path (cache, TRUE);
-    g_free (cache);
-    #endif
-    }
-
-    /* HTML5 databases */
-    webkit_remove_all_web_databases ();
-
-    /* HTML5 offline application caches */
-    #if WEBKIT_CHECK_VERSION (1, 3, 13)
-    /* Changing the size implies clearing the cache */
-    webkit_application_cache_set_maximum_size (
-        webkit_application_cache_get_maximum_size () - 1);
-    #endif
-}
-
-static void
-midori_clear_saved_logins_cb (void)
-{
-    sqlite3* db;
-    gchar* path = g_build_filename (midori_paths_get_config_dir_for_writing (), "logins", NULL);
-    g_unlink (path);
-    /* Form History database, written by the extension */
-    katze_assign (path, g_build_filename (midori_paths_get_config_dir_for_writing (),
-        "extensions", MIDORI_MODULE_PREFIX "formhistory." G_MODULE_SUFFIX, "forms.db", NULL));
-    if (sqlite3_open (path, &db) == SQLITE_OK)
-    {
-        sqlite3_exec (db, "DELETE FROM forms", NULL, NULL, NULL);
-        sqlite3_close (db);
-    }
-    g_free (path);
-}
-
-#if WEBKIT_CHECK_VERSION (1, 3, 11)
-static void
-midori_clear_web_cache_cb (void)
-{
-    SoupSession* session = webkit_get_default_session ();
-    SoupSessionFeature* feature = soup_session_get_feature (session, SOUP_TYPE_CACHE);
-    gchar* cache = g_build_filename (midori_paths_get_cache_dir (), "web", NULL);
-    soup_cache_clear (SOUP_CACHE (feature));
-    soup_cache_flush (SOUP_CACHE (feature));
-    sokoke_remove_path (cache, TRUE);
-    g_free (cache);
-}
-#endif
-
-static void
-midori_clear_page_icons_cb (void)
-{
-    gchar* cache = g_build_filename (midori_paths_get_cache_dir (), "icons", NULL);
-    /* FIXME: Exclude search engine icons */
-    sokoke_remove_path (cache, TRUE);
-    g_free (cache);
-    cache = g_build_filename (midori_paths_get_user_data_dir (), "webkit", "icondatabase", NULL);
-    sokoke_remove_path (cache, TRUE);
-    g_free (cache);
-    #if WEBKIT_CHECK_VERSION (1, 8, 0)
-    webkit_favicon_database_clear (webkit_get_favicon_database ());
-    #endif
 }
 
 int
@@ -1824,18 +1692,7 @@ main (int    argc,
     #endif
     #endif
 
-    /* i18n: Logins and passwords in websites and web forms */
-    sokoke_register_privacy_item ("formhistory", _("Saved logins and _passwords"),
-        G_CALLBACK (midori_clear_saved_logins_cb));
-    sokoke_register_privacy_item ("web-cookies", _("Cookies and Website data"),
-        G_CALLBACK (midori_clear_web_cookies_cb));
-    #if WEBKIT_CHECK_VERSION (1, 3, 11)
-    /* TODO: Preserve page icons of search engines and merge privacy items */
-    sokoke_register_privacy_item ("web-cache", _("Web Cache"),
-        G_CALLBACK (midori_clear_web_cache_cb));
-    #endif
-    sokoke_register_privacy_item ("page-icons", _("Website icons"),
-        G_CALLBACK (midori_clear_page_icons_cb));
+    midori_private_data_register_built_ins ();
 
     /* Web Application or Private Browsing support */
     if (webapp || private || run)
@@ -2279,26 +2136,7 @@ main (int    argc,
 
     g_object_get (settings, "maximum-history-age", &max_history_age, NULL);
     midori_history_terminate (history, max_history_age);
-
-    /* Clear data on quit, according to the Clear private data dialog */
-    g_object_get (settings, "clear-private-data", &clear_prefs, NULL);
-    if (clear_prefs & MIDORI_CLEAR_ON_QUIT)
-    {
-        GList* data_items = sokoke_register_privacy_item (NULL, NULL, NULL);
-        gchar* clear_data = katze_object_get_string (settings, "clear-data");
-
-        midori_remove_config_file (clear_prefs, MIDORI_CLEAR_SESSION, "session.xbel");
-        midori_remove_config_file (clear_prefs, MIDORI_CLEAR_HISTORY, "history.db");
-        midori_remove_config_file (clear_prefs, MIDORI_CLEAR_HISTORY, "tabtrash.xbel");
-
-        for (; data_items != NULL; data_items = g_list_next (data_items))
-        {
-            SokokePrivacyItem* privacy = data_items->data;
-            if (clear_data && strstr (clear_data, privacy->name))
-                privacy->clear ();
-        }
-        g_free (clear_data);
-    }
+    midori_private_data_on_quit (settings);
 
     /* Removing KatzeHttpCookies makes it save outstanding changes */
     soup_session_remove_feature_by_type (webkit_get_default_session (),

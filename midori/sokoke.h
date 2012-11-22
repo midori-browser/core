@@ -89,10 +89,6 @@ sokoke_action_create_popup_menu_item    (GtkAction*      action);
 gint64
 sokoke_time_t_to_julian                 (const time_t*   timestamp);
 
-gboolean
-sokoke_remove_path                      (const gchar*    path,
-                                         gboolean        ignore_errors);
-
 gchar*
 sokoke_replace_variables                (const gchar* template,
                                          const gchar* variable_first, ...);
@@ -115,18 +111,6 @@ sokoke_resolve_hostname                 (const gchar*        hostname);
 gboolean
 sokoke_recursive_fork_protection        (const gchar*         uri,
                                          gboolean             set_uri);
-
-typedef struct
-{
-    gchar* name;
-    gchar* label;
-    GCallback clear;
-} SokokePrivacyItem;
-
-GList*
-sokoke_register_privacy_item (const gchar* name,
-                              const gchar* label,
-                              GCallback    clear);
 
 void
 sokoke_widget_copy_clipboard (GtkWidget*          widget,

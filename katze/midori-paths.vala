@@ -123,6 +123,22 @@ namespace Midori {
             while (i != -1);
         }
 
+        public static void remove_path (string path) {
+            try {
+                var dir = Dir.open (path, 0);
+                string? name;
+                while (true) {
+                    name = dir.read_name ();
+                    if (name == null)
+                        break;
+                    remove_path (Path.build_filename (path, name));
+                }
+            }
+            catch (Error error) {
+                FileUtils.remove (path);
+            }
+        }
+
         public static unowned string get_config_dir_for_writing () {
             assert (config_dir != null);
             mkdir_with_parents (config_dir);

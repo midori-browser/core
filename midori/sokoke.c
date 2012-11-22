@@ -824,45 +824,6 @@ sokoke_time_t_to_julian (const time_t* timestamp)
     return julian;
 }
 
-/**
- * sokoke_remove_path:
- * @path: an absolute path
- * @ignore_errors: keep removing even if an error occurred
- *
- * Removes the file at @path or the folder including any
- * child folders and files if @path is a folder.
- *
- * If @ignore_errors is %TRUE and @path is a folder with
- * children, one of which can't be removed, remaining
- * children will be deleted nevertheless
- * If @ignore_errors is %FALSE and @path is a folder, the
- * removal process will cancel immediately.
- *
- * Return value: %TRUE on success, %FALSE if an error occurred
- **/
-gboolean
-sokoke_remove_path (const gchar* path,
-                    gboolean     ignore_errors)
-{
-    GDir* dir = g_dir_open (path, 0, NULL);
-    const gchar* name;
-
-    if (!dir)
-        return g_remove (path) == 0;
-
-    while ((name = g_dir_read_name (dir)))
-    {
-        gchar* sub_path = g_build_filename (path, name, NULL);
-        if (!sokoke_remove_path (sub_path, ignore_errors) && !ignore_errors)
-            return FALSE;
-        g_free (sub_path);
-    }
-
-    g_dir_close (dir);
-    g_rmdir (path);
-    return TRUE;
-}
-
 gchar*
 sokoke_replace_variables (const gchar* template,
                           const gchar* variable_first, ...)
@@ -1049,40 +1010,6 @@ sokoke_recursive_fork_protection (const gchar* uri,
     if (set_uri)
         katze_assign (fork_uri, g_strdup (uri));
     return g_strcmp0 (fork_uri, uri) == 0 ? FALSE : TRUE;
-}
-
-/**
- * sokoke_register_privacy_item:
- * @name: the name of the privacy item
- * @label: a user visible, localized label
- * @clear: a callback clearing data
- *
- * Registers an item to clear data, either via the
- * Clear Private Data dialogue or when Midori quits.
- *
- * Return value: a #GList if all arguments are %NULL
- **/
-GList*
-sokoke_register_privacy_item (const gchar* name,
-                              const gchar* label,
-                              GCallback    clear)
-{
-    static GList* items = NULL;
-    SokokePrivacyItem* item;
-
-    if (name == NULL && label == NULL && clear == NULL)
-        return items;
-
-    g_return_val_if_fail (name != NULL, NULL);
-    g_return_val_if_fail (label != NULL, NULL);
-    g_return_val_if_fail (clear != NULL, NULL);
-
-    item = g_new (SokokePrivacyItem, 1);
-    item->name = g_strdup (name);
-    item->label = g_strdup (label);
-    item->clear = clear;
-    items = g_list_append (items, item);
-    return NULL;
 }
 
 static void
