@@ -564,6 +564,33 @@ midori_extension_load_from_file (const gchar* extension_path,
     return NULL;
 }
 
+void
+midori_extension_activate_gracefully (MidoriApp*   app,
+                                      const gchar* extension_path,
+                                      const gchar* filename,
+                                      gboolean     activate)
+{
+    GObject* extension = midori_extension_load_from_file (extension_path, filename, activate, FALSE);
+    if (extension == NULL)
+        return;
+
+    midori_extension_activate (extension, filename, activate, app);
+    if (!extension && g_module_error () != NULL)
+    {
+        KatzeArray* extensions = katze_object_get_object (app, "extensions");
+        extension = g_object_new (MIDORI_TYPE_EXTENSION,
+                                  "name", filename,
+                                  "description", g_module_error (),
+                                  NULL);
+        g_warning ("%s", g_module_error ());
+        katze_array_add_item (extensions, extension);
+        g_object_unref (extensions);
+    }
+
+    if (extension != NULL)
+        g_object_unref (extension);
+}
+
 static void
 midori_load_extension (MidoriApp*       app,
                        MidoriExtension* extension,

@@ -60,6 +60,12 @@ midori_extension_activate           (GObject*     extension,
                                      gboolean     activate,
                                      MidoriApp*   app);
 
+void
+midori_extension_activate_gracefully (MidoriApp*   app,
+                                      const gchar* extension_path,
+                                      const gchar* filename,
+                                      gboolean     activate);
+
 gboolean
 midori_extension_is_prepared         (MidoriExtension* extension);
 

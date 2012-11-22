@@ -13,6 +13,8 @@
 
 #include "midori-app.h"
 #include "midori-core.h"
+#include "midori-extension.h"
+#include "panels/midori-extensions.h"
 #include "midori-platform.h"
 
 #include <string.h>
@@ -521,3 +523,108 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     button = katze_property_proxy (settings, "identify-as", "custom-user-agent");
     SPANNED_ADD (button);
 }
+
+void
+midori_preferences_add_privacy_category (KatzePreferences*  preferences,
+                                         MidoriWebSettings* settings)
+{
+    GtkWidget* button;
+    GtkWidget* label;
+    gchar* markup;
+
+    katze_preferences_add_category (preferences, _("Privacy"), GTK_STOCK_INDEX);
+    katze_preferences_add_group (preferences, NULL);
+    button = gtk_label_new (_("Delete old Cookies after:"));
+    gtk_misc_set_alignment (GTK_MISC (button), 0.0, 0.5);
+    gtk_widget_set_tooltip_text (button, _("The maximum number of days to save cookies for"));
+    katze_preferences_add_widget (preferences, button, "indented");
+    button = katze_property_proxy (settings, "maximum-cookie-age", "days");
+    gtk_widget_set_tooltip_text (button, _("The maximum number of days to save cookies for"));
+    katze_preferences_add_widget (preferences, button, "spanned");
+    #ifdef HAVE_LIBSOUP_2_29_91
+    button = katze_property_proxy (settings, "first-party-cookies-only", NULL);
+    gtk_button_set_label (GTK_BUTTON (button), _("Only accept Cookies from sites you visit"));
+    gtk_widget_set_tooltip_text (button, _("Block cookies sent by third-party websites"));
+    katze_preferences_add_widget (preferences, button, "filled");
+    #endif
+
+    markup = g_strdup_printf ("<span size=\"smaller\">%s</span>",
+        _("Cookies store login data, saved games, "
+          "or user profiles for advertisement purposes."));
+    label = gtk_label_new (NULL);
+    gtk_label_set_markup (GTK_LABEL (label), markup);
+    g_free (markup);
+    katze_preferences_add_widget (preferences, label, "filled");
+    button = katze_property_proxy (settings, "enable-offline-web-application-cache", NULL);
+    gtk_button_set_label (GTK_BUTTON (button), _("Enable offline web application cache"));
+    katze_preferences_add_widget (preferences, button, "indented");
+    button = katze_property_proxy (settings, "enable-html5-local-storage", NULL);
+    gtk_button_set_label (GTK_BUTTON (button), _("Enable HTML5 local storage support"));
+    katze_preferences_add_widget (preferences, button, "spanned");
+    button = katze_property_proxy (settings, "strip-referer", NULL);
+    /* i18n: Reworded: Shorten details propagated when going to another page */
+    gtk_button_set_label (GTK_BUTTON (button), _("Strip referrer details sent to websites"));
+    /* i18n: Referer here is not a typo but a technical term */
+    gtk_widget_set_tooltip_text (button, _("Whether the \"Referer\" header should be shortened to the hostname"));
+    katze_preferences_add_widget (preferences, button, "indented");
+    katze_preferences_add_widget (preferences, gtk_label_new (NULL), "indented");
+    button = gtk_label_new (_("Delete pages from history after:"));
+    gtk_misc_set_alignment (GTK_MISC (button), 0.0, 0.5);
+    gtk_widget_set_tooltip_text (button, _("The maximum number of days to save the history for"));
+    katze_preferences_add_widget (preferences, button, "indented");
+    button = katze_property_proxy (settings, "maximum-history-age", "days");
+    gtk_widget_set_tooltip_text (button, _("The maximum number of days to save the history for"));
+    katze_preferences_add_widget (preferences, button, "spanned");
+}
+
+void
+midori_preferences_add_extension_category (KatzePreferences*  preferences,
+                                           MidoriApp*         app)
+{
+    KatzeArray* array;
+    gchar* extension_path;
+    GtkWidget* scrolled;
+    GtkWidget* addon;
+    GList* children;
+    GtkWidget* page;
+
+    if (!g_module_supported ())
+        return;
+
+    array = katze_object_get_object (app, "extensions");
+    if ((extension_path = midori_paths_get_lib_path (PACKAGE_NAME)))
+    {
+        GDir* extension_dir = NULL;
+        if ((extension_dir = g_dir_open (extension_path, 0, NULL)))
+        {
+            const gchar* filename;
+            while ((filename = g_dir_read_name (extension_dir)))
+                midori_extension_activate_gracefully (app, extension_path, filename, FALSE);
+            g_dir_close (extension_dir);
+        }
+        g_free (extension_path);
+    }
+
+    /* Reset frozen list: allow active extensions to be saved */
+    g_object_set_data (G_OBJECT (app), "extensions", NULL);
+
+    /* Hide if there are no extensions at all */
+    if (!katze_array_get_nth_item (array, 0))
+    {
+        g_object_unref (array);
+        return;
+    }
+    g_object_unref (array);
+
+    scrolled = g_object_new (KATZE_TYPE_SCROLLED, "visible", TRUE, NULL);
+    /* For lack of a better way of keeping descriptions visible */
+    g_object_set (scrolled, "hscrollbar-policy", GTK_POLICY_NEVER, NULL);
+    addon = g_object_new (MIDORI_TYPE_EXTENSIONS, "app", app, NULL);
+    children = gtk_container_get_children (GTK_CONTAINER (addon));
+    gtk_widget_reparent (g_list_nth_data (children, 0), scrolled);
+    g_list_free (children);
+    page = katze_preferences_add_category (preferences,
+                                           _("Extensions"), STOCK_EXTENSION);
+    gtk_box_pack_start (GTK_BOX (page), scrolled, TRUE, TRUE, 4);
+}
+

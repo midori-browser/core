@@ -12,6 +12,7 @@
 #ifndef __MIDORI_PREFERENCES_H__
 #define __MIDORI_PREFERENCES_H__
 
+#include "midori-app.h"
 #include "midori-websettings.h"
 
 #include <katze/katze.h>
@@ -49,6 +50,14 @@ midori_preferences_new              (GtkWindow*         parent,
 void
 midori_preferences_set_settings     (MidoriPreferences* preferences,
                                      MidoriWebSettings* settings);
+
+void
+midori_preferences_add_privacy_category (KatzePreferences*  preferences,
+                                         MidoriWebSettings* settings);
+
+void
+midori_preferences_add_extension_category (KatzePreferences*  preferences,
+                                           MidoriApp*         app);
 
 G_END_DECLS
 
