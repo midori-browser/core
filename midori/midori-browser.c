@@ -7257,9 +7257,12 @@ midori_browser_set_property (GObject*      object,
                       NULL);
         _action_set_visible (browser, "Trash", browser->trash != NULL);
         _action_set_visible (browser, "UndoTabClose", browser->trash != NULL);
-        g_signal_connect (browser->trash, "clear",
-            G_CALLBACK (midori_browser_trash_clear_cb), browser);
-        midori_browser_trash_clear_cb (browser->trash, browser);
+        if (browser->trash != NULL)
+        {
+            g_signal_connect (browser->trash, "clear",
+                G_CALLBACK (midori_browser_trash_clear_cb), browser);
+            midori_browser_trash_clear_cb (browser->trash, browser);
+        }
         break;
     case PROP_SEARCH_ENGINES:
     {
