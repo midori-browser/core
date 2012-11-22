@@ -1200,15 +1200,18 @@ midori_view_web_view_geolocation_decision_cb (WebKitWebView*                   w
 }
 #endif
 
-static void
-midori_view_load_alternate_string (MidoriView*     view,
-                                   const gchar*    data,
-                                   const gchar*    uri,
-                                   WebKitWebFrame* web_frame)
+void
+midori_view_set_html (MidoriView*     view,
+                      const gchar*    data,
+                      const gchar*    uri,
+                      WebKitWebFrame* web_frame)
 {
     WebKitWebView* web_view = WEBKIT_WEB_VIEW (view->web_view);
+    if (!uri)
+        uri = "about:blank";
     if (!web_frame)
         web_frame = webkit_web_view_get_main_frame (web_view);
+    katze_item_set_uri (view->item, uri);
     midori_tab_set_special (MIDORI_TAB (view), TRUE);
     webkit_web_frame_load_alternate_string (
         web_frame, data, uri, uri);
@@ -1258,9 +1261,7 @@ midori_view_display_error (MidoriView*     view,
         g_free (title_escaped);
         g_free (template);
 
-        midori_view_load_alternate_string (view,
-            result, uri, web_frame);
-        katze_item_set_uri (view->item, uri);
+        midori_view_set_html (view, result, uri, web_frame);
 
         g_free (result);
         g_free (path);
@@ -2915,7 +2916,7 @@ webkit_web_view_download_requested_cb (GtkWidget*      web_view,
         GTK_STOCK_OPEN, MIDORI_DOWNLOAD_OPEN,
         NULL);
 
-    response = gtk_dialog_run (GTK_DIALOG (dialog));
+    response = midori_dialog_run (GTK_DIALOG (dialog));
     gtk_widget_destroy (dialog);
     if (response == GTK_RESPONSE_DELETE_EVENT)
         response = MIDORI_DOWNLOAD_CANCEL;
@@ -3826,7 +3827,7 @@ midori_view_set_uri (MidoriView*  view,
             katze_item_set_meta_integer (view->item, "delay", MIDORI_DELAY_UNDELAYED);
 
             html = midori_speed_dial_get_html (dial, NULL);
-            midori_view_load_alternate_string (view, html, "about:blank", NULL);
+            midori_view_set_html (view, html, NULL, NULL);
 
             #ifdef G_ENABLE_DEBUG
             if (midori_debug ("startup"))

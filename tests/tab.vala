@@ -161,6 +161,24 @@ void tab_special () {
     assert (!source.web_view.get_view_source_mode ());
 }
 
+void tab_download_dialog () {
+    var loop = MainContext.default ();
+    var browser = new Gtk.Window (Gtk.WindowType.TOPLEVEL);
+    var tab = new Midori.View.with_title ();
+    browser.add (tab);
+    /* An embedded plugin shouldn't cause a download dialog */
+    Midori.Test.set_dialog_response (Gtk.ResponseType.DELETE_EVENT);
+    bool did_request_download = false;
+    tab.download_requested.connect ((download) => {
+        did_request_download = true;
+        return true;
+        });
+    /* png2swf -z -j 1 -o data/midori.swf ./icons/16x16/midori.png */
+    tab.set_html ("<embed src=\"res:///midori.swf\">");
+    do { loop.iteration (true); } while (tab.load_status != Midori.LoadStatus.FINISHED);
+    assert (!did_request_download);
+}
+
 void main (string[] args) {
     Test.init (ref args);
     Midori.App.setup (ref args, null);
@@ -170,6 +188,7 @@ void main (string[] args) {
     Test.add_func ("/tab/display-title", tab_display_title);
     Test.add_func ("/tab/ellipsize", tab_display_ellipsize);
     Test.add_func ("/tab/special", tab_special);
+    Test.add_func ("/tab/download", tab_download_dialog);
     Test.run ();
 }
 

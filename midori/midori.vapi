@@ -137,6 +137,7 @@ namespace Midori {
         public View.with_title (string? title=null, WebSettings? settings=null
             , bool append=false);
         public void set_uri (string uri);
+        public void set_html (string data, string? uri=null, WebKit.WebFrame? frame=null);
         public unowned string get_display_uri ();
         public unowned string get_display_title ();
         public unowned string get_icon_uri ();
