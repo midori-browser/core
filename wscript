@@ -244,7 +244,9 @@ def configure (conf):
     check_pkg ('gmodule-2.0')
     check_pkg ('gthread-2.0')
     check_pkg ('gio-2.0', '2.22.0')
-    if check_version (conf.env['GIO_VERSION'], 2, 30, 0):
+    if check_version (conf.env['GIO_VERSION'], 2, 30, 0) \
+        and check_version (conf.env['VALAC_VERSION'], 0, 16, 0):
+        # Older Vala doesn't have GLib 2.30 bindings
         conf.env.append_value ('VALAFLAGS', '-D HAVE_GLIB_2_30')
 
     args = ''
