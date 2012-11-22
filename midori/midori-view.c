@@ -3489,7 +3489,10 @@ midori_view_web_inspector_show_window_cb (WebKitWebInspector* inspector,
     if (!window)
         return FALSE;
     if (katze_object_get_boolean (view->settings, "last-inspector-attached"))
-        g_signal_emit_by_name (inspector, "attach-window");
+    {
+        gboolean handled = FALSE;
+        g_signal_emit_by_name (inspector, "attach-window", inspector, &handled);
+    }
     else
     {
         gtk_widget_show (window);
