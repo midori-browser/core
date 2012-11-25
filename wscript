@@ -612,7 +612,7 @@ def shutdown ():
                 try:
                     if is_mingw (Build.bld.env):
                         filename += '.exe'
-                    args = ['gdb', '--batch', '-ex', 'run', '-ex', 'bt', filename]
+                    args = ['gdb', '--batch', '-ex', 'set print thread-events off', '-ex', 'run', '-ex', 'bt', filename]
                     if is_mingw (Build.bld.env):
                         args.insert (0, 'wine')
                     pp = Utils.pproc.Popen (args, cwd=Build.bld.env['PREFIX'] + os.sep + 'bin')
