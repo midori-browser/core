@@ -1325,7 +1325,7 @@ main (int    argc,
     {
         g_string_append_printf (error_messages,
             _("Bookmarks couldn't be loaded: %s\n"), errmsg);
-        errmsg = NULL;
+        katze_assign (errmsg, NULL);
     }
     midori_startup_timer ("Bookmarks read: \t%f");
 
@@ -1363,7 +1363,6 @@ main (int    argc,
 
     midori_startup_timer ("Trash read: \t%f");
 
-    errmsg = NULL;
     if (!(history = midori_history_new (&errmsg)))
     {
         g_string_append_printf (error_messages,
@@ -1476,6 +1475,7 @@ main (int    argc,
     gtk_main ();
 
     settings_notify_cb (settings, NULL, app);
+    midori_bookmarks_on_quit (bookmarks);
     midori_history_on_quit (history, settings);
     midori_private_data_on_quit (settings);
     /* Removing KatzeHttpCookies makes it save outstanding changes */

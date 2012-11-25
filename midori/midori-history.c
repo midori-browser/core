@@ -44,12 +44,11 @@ midori_history_new (char** errmsg)
     filename = midori_paths_get_config_filename_for_writing ("history.db");
     if (sqlite3_open (filename, &db) != SQLITE_OK)
     {
-        if (errmsg)
-            *errmsg = g_strdup_printf (_("Failed to open database: %s\n"),
-                                       sqlite3_errmsg (db));
+        *errmsg = g_strdup_printf (_("Failed to open database: %s\n"),
+            db ? sqlite3_errmsg (db) : "(db = NULL)");
         g_free (filename);
         sqlite3_close (db);
-        return FALSE;
+        return NULL;
     }
     g_free (filename);
 

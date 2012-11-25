@@ -153,6 +153,7 @@ namespace Midori {
         public static string get_config_filename_for_writing (string filename) {
             assert (mode != RuntimeMode.UNDEFINED);
             assert (config_dir != null);
+            mkdir_with_parents (config_dir);
             return Path.build_path (Path.DIR_SEPARATOR_S, config_dir, filename);
         }
 

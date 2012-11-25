@@ -84,6 +84,7 @@ static void
 fixture_teardown (BookmarksFixture* fixture,
                   const TestParameters *params)
 {
+    midori_bookmarks_on_quit (fixture->db_bookmarks);
     g_object_unref (fixture->db_bookmarks);
     g_object_unref (fixture->test_bookmarks);
 }

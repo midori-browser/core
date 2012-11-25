@@ -30,6 +30,9 @@ KatzeArray*
 midori_bookmarks_new (char** errmsg);
 
 void
+midori_bookmarks_on_quit (KatzeArray* array);
+
+void
 midori_bookmarks_import (const gchar* filename,
                          sqlite3*     db);
 

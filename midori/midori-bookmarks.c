@@ -152,12 +152,8 @@ midori_bookmarks_new (char** errmsg)
     /* sqlite3_open will create the file if it did not exists already */
     if (sqlite3_open (newfile, &db) != SQLITE_OK)
     {
-        if (db)
-            *errmsg = g_strdup_printf (_("failed to open database: %s\n"),
-                    sqlite3_errmsg (db));
-        else
-            *errmsg = g_strdup (_("failed to open database\n"));
-
+        *errmsg = g_strdup_printf (_("Failed to open database: %s\n"),
+            db ? sqlite3_errmsg (db) : "(db = NULL)");
         goto init_failed;
     }
 
@@ -260,17 +256,9 @@ midori_bookmarks_new (char** errmsg)
         /* initial creation */
         if (sqlite3_exec (db, create_stmt, NULL, NULL, &sql_errmsg) != SQLITE_OK)
         {
-
-            if (errmsg)
-            {
-                if (sql_errmsg)
-                {
-                    *errmsg = g_strdup_printf (_("could not create bookmarks table: %s\n"), sql_errmsg);
-                    sqlite3_free (sql_errmsg);
-                }
-                else
-                    *errmsg = g_strdup (_("could not create bookmarks table"));
-            }
+            *errmsg = g_strdup_printf (_("Couldn't create bookmarks table: %s\n"),
+                sql_errmsg ? sql_errmsg : "(err = NULL)");
+            sqlite3_free (sql_errmsg);
 
             /* we can as well remove the new file */
             g_unlink (newfile);
@@ -283,16 +271,9 @@ midori_bookmarks_new (char** errmsg)
         /* import from old db */
         if (!midori_bookmarks_import_from_old_db (db, oldfile, &import_errmsg))
         {
-            if (errmsg)
-            {
-                if (import_errmsg)
-                {
-                    *errmsg = g_strdup_printf (_("could not import from old database: %s\n"), import_errmsg);
-                    g_free (import_errmsg);
-                }
-                else
-                    *errmsg = g_strdup_printf (_("could not import from old database"));
-            }
+            *errmsg = g_strdup_printf (_("Couldn't import from old database: %s\n"),
+                import_errmsg ? import_errmsg : "(err = NULL)");
+            g_free (import_errmsg);
         }
 
     init_success:
@@ -333,3 +314,14 @@ midori_bookmarks_import (const gchar* filename,
     }
     midori_bookmarks_import_array_db (db, bookmarks, 0);
 }
+
+void
+midori_bookmarks_on_quit (KatzeArray* array)
+{
+    g_return_if_fail (KATZE_IS_ARRAY (array));
+
+    sqlite3* db = g_object_get_data (G_OBJECT (array), "db");
+    g_return_if_fail (db != NULL);
+    sqlite3_close (db);
+}
+
