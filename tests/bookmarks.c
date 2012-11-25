@@ -35,15 +35,12 @@ fixture_setup (BookmarksFixture* fixture,
 {
     KatzeItem* item;
     KatzeArray* folder;
-    sqlite3* db;
     gchar *errmsg = NULL;
 
-    fixture->db_bookmarks = katze_array_new (KATZE_TYPE_ARRAY);
-    if ((db = midori_bookmarks_initialize (fixture->db_bookmarks, &errmsg)) == NULL)
+    if (!(fixture->db_bookmarks = midori_bookmarks_new (&errmsg)))
         g_error ("Bookmarks couldn't be loaded: %s\n", errmsg);
     g_assert (errmsg == NULL);
-    g_object_set_data ( G_OBJECT (fixture->db_bookmarks), "db", db);
-
+    g_assert (g_object_get_data (G_OBJECT (fixture->db_bookmarks), "db"));
 
     fixture->test_bookmarks = katze_array_new (KATZE_TYPE_ARRAY);
 
@@ -87,8 +84,6 @@ static void
 fixture_teardown (BookmarksFixture* fixture,
                   const TestParameters *params)
 {
-    sqlite3* db = g_object_get_data (G_OBJECT (fixture->db_bookmarks), "db");
-    sqlite3_close (db);
     g_object_unref (fixture->db_bookmarks);
     g_object_unref (fixture->test_bookmarks);
 }

@@ -9,8 +9,8 @@
  See the file COPYING for the full license text.
 */
 
-#ifndef __MIDORI_BOOKMARKS_H__
-#define __MIDORI_BOOKMARKS_H__
+#ifndef __MIDORI_BOOKMARKS_PANEL_H__
+#define __MIDORI_BOOKMARKS_PANEL_H__
 
 #include <sqlite3.h>
 #include <gtk/gtk.h>
@@ -37,9 +37,6 @@ typedef struct _MidoriBookmarksClass           MidoriBookmarksClass;
 GType
 midori_bookmarks_get_type               (void);
 
-GtkWidget*
-midori_bookmarks_new                    (void);
-
 gint64
 midori_bookmarks_insert_item_db (sqlite3*   db,
                                  KatzeItem* item,
@@ -56,4 +53,4 @@ midori_bookmarks_update_item_db (sqlite3*   db,
 
 G_END_DECLS
 
-#endif /* __MIDORI_BOOKMARKS_H__ */
+#endif /* __MIDORI_BOOKMARKS_PANEL_H__ */

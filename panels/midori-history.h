@@ -9,8 +9,8 @@
  See the file COPYING for the full license text.
 */
 
-#ifndef __MIDORI_HISTORY_H__
-#define __MIDORI_HISTORY_H__
+#ifndef __MIDORI_HISTORY_PANEL_H__
+#define __MIDORI_HISTORY_PANEL_H__
 
 #include <gtk/gtk.h>
 
@@ -35,9 +35,6 @@ typedef struct _MidoriHistoryClass           MidoriHistoryClass;
 GType
 midori_history_get_type               (void);
 
-GtkWidget*
-midori_history_new                    (void);
-
 G_END_DECLS
 
-#endif /* __MIDORI_HISTORY_H__ */
+#endif /* __MIDORI_HISTORY_PANEL_H__ */

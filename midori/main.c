@@ -16,6 +16,7 @@
 #include "panels/midori-bookmarks.h"
 #include "midori-extension.h"
 #include "midori-history.h"
+#include "panels/midori-history.h"
 #include "midori-transfers.h"
 #include "midori-panel.h"
 #include "midori-platform.h"
@@ -45,115 +46,6 @@
 #ifdef HAVE_SIGNAL_H
     #include <signal.h>
 #endif
-
-static void
-midori_history_clear_cb (KatzeArray* array,
-                         sqlite3*    db)
-{
-    char* errmsg = NULL;
-    if (sqlite3_exec (db, "DELETE FROM history; DELETE FROM search",
-                      NULL, NULL, &errmsg) != SQLITE_OK)
-    {
-        g_printerr (_("Failed to clear history: %s\n"), errmsg);
-        sqlite3_free (errmsg);
-    }
-}
-
-static gboolean
-midori_history_initialize (KatzeArray*  array,
-                           const gchar* filename,
-                           char**       errmsg)
-{
-    sqlite3* db;
-    gboolean has_day = FALSE;
-    sqlite3_stmt* stmt;
-    gint result;
-    gchar* sql;
-    gchar* bookmarks_filename;
-
-    g_return_val_if_fail (errmsg != NULL, FALSE);
-
-    if (sqlite3_open (filename, &db) != SQLITE_OK)
-    {
-        if (errmsg)
-            *errmsg = g_strdup_printf (_("Failed to open database: %s\n"),
-                                       sqlite3_errmsg (db));
-        sqlite3_close (db);
-        return FALSE;
-    }
-
-    if (sqlite3_exec (db,
-        "PRAGMA journal_mode = WAL; PRAGMA cache_size = 32100;",
-        NULL, NULL, errmsg) != SQLITE_OK)
-        sqlite3_exec (db, "PRAGMA journal_mode = TRUNCATE;", NULL, NULL, errmsg);
-    sqlite3_exec (db,
-        "PRAGMA synchronous = NORMAL; PRAGMA temp_store = MEMORY;",
-        NULL, NULL, errmsg);
-    if (*errmsg)
-    {
-        g_warning ("Failed to set journal mode: %s", *errmsg);
-        sqlite3_free (*errmsg);
-    }
-    if (sqlite3_exec (db,
-                      "CREATE TABLE IF NOT EXISTS "
-                      "history (uri text, title text, date integer, day integer);"
-                      "CREATE TABLE IF NOT EXISTS "
-                      "search (keywords text, uri text, day integer);",
-                      NULL, NULL, errmsg) != SQLITE_OK)
-        return FALSE;
-
-    sqlite3_prepare_v2 (db, "SELECT day FROM history LIMIT 1", -1, &stmt, NULL);
-    result = sqlite3_step (stmt);
-    if (result == SQLITE_ROW)
-        has_day = TRUE;
-    sqlite3_finalize (stmt);
-
-    if (!has_day)
-        sqlite3_exec (db,
-                      "BEGIN TRANSACTION;"
-                      "CREATE TEMPORARY TABLE backup (uri text, title text, date integer);"
-                      "INSERT INTO backup SELECT uri,title,date FROM history;"
-                      "DROP TABLE history;"
-                      "CREATE TABLE history (uri text, title text, date integer, day integer);"
-                      "INSERT INTO history SELECT uri,title,date,"
-                      "julianday(date(date,'unixepoch','start of day','+1 day'))"
-                      " - julianday('0001-01-01','start of day')"
-                      "FROM backup;"
-                      "DROP TABLE backup;"
-                      "COMMIT;",
-                      NULL, NULL, errmsg);
-
-    bookmarks_filename = midori_paths_get_config_filename_for_writing ("bookmarks_v2.db");
-    sql = g_strdup_printf ("ATTACH DATABASE '%s' AS bookmarks", bookmarks_filename);
-    g_free (bookmarks_filename);
-    sqlite3_exec (db, sql, NULL, NULL, errmsg);
-    g_free (sql);
-    g_object_set_data (G_OBJECT (array), "db", db);
-    g_signal_connect (array, "clear",
-                      G_CALLBACK (midori_history_clear_cb), db);
-
-    return TRUE;
-}
-
-static void
-midori_history_terminate (KatzeArray* array,
-                          gint        max_history_age)
-{
-    sqlite3* db = g_object_get_data (G_OBJECT (array), "db");
-    char* errmsg = NULL;
-    gchar* sqlcmd = g_strdup_printf (
-        "DELETE FROM history WHERE "
-        "(julianday(date('now')) - julianday(date(date,'unixepoch')))"
-        " >= %d", max_history_age);
-    if (sqlite3_exec (db, sqlcmd, NULL, NULL, &errmsg) != SQLITE_OK)
-    {
-        /* i18n: Couldn't remove items that are older than n days */
-        g_printerr (_("Failed to remove old history items: %s\n"), errmsg);
-        sqlite3_free (errmsg);
-    }
-    g_free (sqlcmd);
-    sqlite3_close (db);
-}
 
 static void
 settings_notify_cb (MidoriWebSettings* settings,
@@ -1019,8 +911,6 @@ main (int    argc,
     gchar* uri_ready;
     gchar* errmsg;
     sqlite3* db;
-    gint max_history_age;
-    gint clear_prefs = MIDORI_CLEAR_NONE;
     #ifdef G_ENABLE_DEBUG
         gboolean startup_timer = midori_debug ("startup");
         #define midori_startup_timer(tmrmsg) if (startup_timer) \
@@ -1430,15 +1320,13 @@ main (int    argc,
     g_free (uri);
     midori_startup_timer ("Search read: \t%f");
 
-    bookmarks = katze_array_new (KATZE_TYPE_ARRAY);
     errmsg = NULL;
-    if ((db = midori_bookmarks_initialize (bookmarks, &errmsg)) == NULL)
+    if (!(bookmarks = midori_bookmarks_new (&errmsg)))
     {
         g_string_append_printf (error_messages,
             _("Bookmarks couldn't be loaded: %s\n"), errmsg);
         errmsg = NULL;
     }
-    g_object_set_data (G_OBJECT (bookmarks), "db", db);
     midori_startup_timer ("Bookmarks read: \t%f");
 
     config_file = NULL;
@@ -1474,15 +1362,13 @@ main (int    argc,
     #endif
 
     midori_startup_timer ("Trash read: \t%f");
-    history = katze_array_new (KATZE_TYPE_ARRAY);
-    katze_assign (config_file, g_build_filename (config, "history.db", NULL));
 
     errmsg = NULL;
-    if (!midori_history_initialize (history, config_file, &errmsg))
+    if (!(history = midori_history_new (&errmsg)))
     {
         g_string_append_printf (error_messages,
             _("The history couldn't be loaded: %s\n"), errmsg);
-        errmsg = NULL;
+        katze_assign (errmsg, NULL);
     }
     midori_startup_timer ("History read: \t%f");
 
@@ -1590,8 +1476,7 @@ main (int    argc,
     gtk_main ();
 
     settings_notify_cb (settings, NULL, app);
-    g_object_get (settings, "maximum-history-age", &max_history_age, NULL);
-    midori_history_terminate (history, max_history_age);
+    midori_history_on_quit (history, settings);
     midori_private_data_on_quit (settings);
     /* Removing KatzeHttpCookies makes it save outstanding changes */
     soup_session_remove_feature_by_type (webkit_get_default_session (),

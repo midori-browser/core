@@ -130,9 +130,8 @@ midori_bookmarks_import_from_old_db (sqlite3*     db,
 }
 #undef _APPEND_TO_SQL_ERRORMSG
 
-sqlite3*
-midori_bookmarks_initialize (KatzeArray*  array,
-                             char**       errmsg)
+KatzeArray*
+midori_bookmarks_new (char** errmsg)
 {
     sqlite3* db;
     gchar* oldfile;
@@ -141,12 +140,13 @@ midori_bookmarks_initialize (KatzeArray*  array,
     const gchar* create_stmt;
     gchar* sql_errmsg = NULL;
     gchar* import_errmsg = NULL;
+    KatzeArray* array;
 
     g_return_val_if_fail (errmsg != NULL, NULL);
 
-    oldfile = g_build_filename (midori_paths_get_config_dir_for_writing (), "bookmarks.db", NULL);
+    oldfile = midori_paths_get_config_filename_for_writing ("bookmarks.db");
     oldfile_exists = g_access (oldfile, F_OK) == 0;
-    newfile = g_build_filename (midori_paths_get_config_dir_for_writing (), "bookmarks_v2.db", NULL);
+    newfile = midori_paths_get_config_filename_for_writing ("bookmarks_v2.db");
     newfile_did_exist = g_access (newfile, F_OK) == 0;
 
     /* sqlite3_open will create the file if it did not exists already */
@@ -298,12 +298,13 @@ midori_bookmarks_initialize (KatzeArray*  array,
     init_success:
         g_free (newfile);
         g_free (oldfile);
+        array = katze_array_new (KATZE_TYPE_ARRAY);
         g_signal_connect (array, "add-item",
                           G_CALLBACK (midori_bookmarks_add_item_cb), db);
         g_signal_connect (array, "remove-item",
                           G_CALLBACK (midori_bookmarks_remove_item_cb), db);
-
-        return db;
+        g_object_set_data (G_OBJECT (array), "db", db);
+        return array;
 
     init_failed:
         g_free (newfile);

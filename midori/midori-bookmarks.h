@@ -10,6 +10,9 @@
  See the file COPYING for the full license text.
 */
 
+#ifndef __MIDORI_BOOKMARKS_H__
+#define __MIDORI_BOOKMARKS_H__ 1
+
 #include <sqlite3.h>
 #include <katze/katze.h>
 
@@ -23,10 +26,12 @@ midori_bookmarks_remove_item_cb (KatzeArray* array,
                                  KatzeItem*  item,
                                  sqlite3*    db);
 
-sqlite3*
-midori_bookmarks_initialize (KatzeArray*  array,
-                             char**       errmsg);
+KatzeArray*
+midori_bookmarks_new (char** errmsg);
 
 void
 midori_bookmarks_import (const gchar* filename,
                          sqlite3*     db);
+
+#endif /* !__MIDORI_BOOKMARKS_H__ */
+
