@@ -196,7 +196,7 @@ namespace Midori {
                 GLib.error (error.message);
             }
 #else
-            string folder = Path.build_path (Path.DIR_SEPARATOR_S, tmp_dir, tmpl);
+            string folder = Path.build_path (Path.DIR_SEPARATOR_S, Environment.get_tmp_dir (), tmpl);
             DirUtils.mkdtemp (folder);
             return folder;
 #endif
