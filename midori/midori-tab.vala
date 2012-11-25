@@ -114,7 +114,7 @@ namespace Midori {
                 dom.head.append_child (style);
             }
             catch (Error error) {
-                critical (_("Failed to injet stylesheet: %s"), error.message);
+                critical (_("Failed to inject stylesheet: %s"), error.message);
             }
             #else
             web_view.execute_script ("""
