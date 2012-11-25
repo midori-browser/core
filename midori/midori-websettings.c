@@ -1333,7 +1333,7 @@ midori_settings_new_full (gchar*** extensions)
             g_object_set (settings, property, str, NULL);
             g_free (str);
         }
-        else if (type == G_TYPE_PARAM_INT)
+        else if (type == G_TYPE_PARAM_INT || type == G_TYPE_PARAM_UINT)
         {
             integer = g_key_file_get_integer (key_file, "settings", property, NULL);
             g_object_set (settings, property, integer, NULL);

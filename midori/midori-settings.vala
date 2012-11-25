@@ -35,6 +35,27 @@ namespace Midori {
         /* Since: 0.1.3 */
         public WindowState last_window_state { get; set; default = WindowState.NORMAL; }
 
+        /* Since: 0.4.8 */
+        public uint inactivity_reset { get; set; default = 0; }
+
+        GLib.Regex block_uris_regex;
+        /* Since: 0.4.8 */
+        public string? block_uris { get {
+            return block_uris_regex.get_pattern ();
+        } set {
+            if (block_uris_regex == null)
+                WebKit.get_default_session ().request_queued.connect ((msg) => {
+                    if (block_uris_regex.match (msg.uri.to_string (false)))
+                        msg.uri = new Soup.URI ("http://.invalid");
+                });
+            try {
+                block_uris_regex = new GLib.Regex (value);
+            }
+            catch (Error error) {
+                critical ("block-uris: %s", error.message);
+            }
+        } default = null; }
+
         public string? location_entry_search { get; set; default = null; }
         /* Since: 0.1.7 */
         public int clear_private_data { get; set; default = 0; }

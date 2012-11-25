@@ -62,6 +62,13 @@
 
 #include <sqlite3.h>
 
+#ifdef HAVE_X11_EXTENSIONS_SCRNSAVER_H
+    #include <X11/Xlib.h>
+    #include <X11/Xutil.h>
+    #include <X11/extensions/scrnsaver.h>
+    #include <gdk/gdkx.h>
+#endif
+
 struct _MidoriBrowser
 {
     #if HAVE_HILDON
@@ -5553,6 +5560,65 @@ static const GtkRadioActionEntry encoding_entries[] =
 };
 static const guint encoding_entries_n = G_N_ELEMENTS (encoding_entries);
 
+typedef struct {
+     MidoriBrowser* browser;
+     guint timeout;
+} MidoriInactivityTimeout;
+
+static gboolean
+midori_inactivity_timeout (gpointer data)
+{
+    #ifdef HAVE_X11_EXTENSIONS_SCRNSAVER_H
+    MidoriInactivityTimeout* mit = data;
+    static Display* xdisplay = NULL;
+    static XScreenSaverInfo* mit_info = NULL;
+    static int has_extension = -1;
+    int event_base, error_base;
+
+    if (has_extension == -1)
+    {
+        GdkDisplay* display = gtk_widget_get_display (GTK_WIDGET (mit->browser));
+        if (GDK_IS_X11_DISPLAY (display))
+        {
+            xdisplay = GDK_DISPLAY_XDISPLAY (display);
+            has_extension = XScreenSaverQueryExtension (xdisplay, &event_base, &error_base);
+        }
+        else
+            has_extension = 0;
+    }
+
+    if (has_extension)
+    {
+        if (!mit_info)
+            mit_info = XScreenSaverAllocInfo ();
+        XScreenSaverQueryInfo (xdisplay, RootWindow (xdisplay, 0), mit_info);
+        if (mit_info->idle / 1000 > mit->timeout)
+        {
+            GtkWidget* view;
+            midori_private_data_clear_all (mit->browser);
+            midori_browser_activate_action (mit->browser, "Homepage");
+        }
+    }
+    #else
+    /* TODO: Implement for other windowing systems */
+    #endif
+
+    return TRUE;
+}
+
+void
+midori_browser_set_inactivity_reset (MidoriBrowser* browser,
+                                     gint           inactivity_reset)
+{
+    if (inactivity_reset > 0)
+    {
+        MidoriInactivityTimeout* mit = g_new (MidoriInactivityTimeout, 1);
+        mit->browser = browser;
+        mit->timeout = inactivity_reset;
+        g_timeout_add_seconds (inactivity_reset, midori_inactivity_timeout, mit);
+    }
+}
+
 static void
 midori_browser_window_state_event_cb (MidoriBrowser*       browser,
                                       GdkEventWindowState* event)
@@ -6841,6 +6907,7 @@ _midori_browser_update_settings (MidoriBrowser* browser)
 {
     gboolean remember_last_window_size;
     MidoriWindowState last_window_state;
+    guint inactivity_reset;
     gboolean compact_sidepanel;
     gboolean right_align_sidepanel, open_panels_in_windows;
     gint last_panel_position, last_panel_page;
@@ -6859,6 +6926,7 @@ _midori_browser_update_settings (MidoriBrowser* browser)
                   "last-window-width", &browser->last_window_width,
                   "last-window-height", &browser->last_window_height,
                   "last-window-state", &last_window_state,
+                  "inactivity-reset", &inactivity_reset,
                   "compact-sidepanel", &compact_sidepanel,
                   "right-align-sidepanel", &right_align_sidepanel,
                   "open-panels-in-windows", &open_panels_in_windows,
@@ -6886,6 +6954,8 @@ _midori_browser_update_settings (MidoriBrowser* browser)
     if (browser->dial != NULL)
         midori_speed_dial_set_close_buttons_left (browser->dial,
             katze_object_get_boolean (browser->settings, "close-buttons-left"));
+
+    midori_browser_set_inactivity_reset (browser, inactivity_reset);
 
     if (remember_last_window_size)
     {
@@ -7030,6 +7100,8 @@ midori_browser_settings_notify (MidoriWebSettings* web_settings,
         midori_speed_dial_set_close_buttons_left (browser->dial,
             katze_object_get_boolean (browser->settings, "close-buttons-left"));
     }
+    else if (name == g_intern_string ("inactivity-reset"))
+        midori_browser_set_inactivity_reset (browser, g_value_get_uint (&value));
     else if (!g_object_class_find_property (G_OBJECT_GET_CLASS (web_settings),
                                              name))
          g_warning (_("Unexpected setting '%s'"), name);

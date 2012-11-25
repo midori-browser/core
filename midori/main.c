@@ -46,13 +46,6 @@
     #include <signal.h>
 #endif
 
-#ifdef HAVE_X11_EXTENSIONS_SCRNSAVER_H
-    #include <X11/Xlib.h>
-    #include <X11/Xutil.h>
-    #include <X11/extensions/scrnsaver.h>
-    #include <gdk/gdkx.h>
-#endif
-
 static void
 midori_history_clear_cb (KatzeArray* array,
                          sqlite3*    db)
@@ -948,94 +941,6 @@ signal_handler (int signal_id)
 }
 #endif
 
-static void
-midori_soup_session_block_uris_cb (SoupSession* session,
-                                   SoupMessage* msg,
-                                   gchar*       blocked_uris)
-{
-    static GRegex* regex = NULL;
-    SoupURI* soup_uri;
-    gchar* uri;
-    if (!regex)
-        regex = g_regex_new (blocked_uris, 0, 0, NULL);
-    soup_uri = soup_message_get_uri (msg);
-    uri = soup_uri_to_string (soup_uri, FALSE);
-    if (g_regex_match (regex, uri, 0, 0))
-    {
-        soup_uri = soup_uri_new ("http://.invalid");
-        soup_message_set_uri (msg, soup_uri);
-        soup_uri_free (soup_uri);
-    }
-    g_free (uri);
-}
-
-typedef struct {
-     MidoriBrowser* browser;
-     guint timeout;
-     gchar* uri;
-} MidoriInactivityTimeout;
-
-static gboolean
-midori_inactivity_timeout (gpointer data)
-{
-    #ifdef HAVE_X11_EXTENSIONS_SCRNSAVER_H
-    MidoriInactivityTimeout* mit = data;
-    static Display* xdisplay = NULL;
-    static XScreenSaverInfo* mit_info = NULL;
-    static int has_extension = -1;
-    int event_base, error_base;
-
-    if (has_extension == -1)
-    {
-        GdkDisplay* display = gtk_widget_get_display (GTK_WIDGET (mit->browser));
-        if (GDK_IS_X11_DISPLAY (display))
-        {
-            xdisplay = GDK_DISPLAY_XDISPLAY (display);
-            has_extension = XScreenSaverQueryExtension (xdisplay,
-                                                        &event_base, &error_base);
-        }
-        else
-        {
-            has_extension = 0;
-        }
-    }
-
-    if (has_extension)
-    {
-        if (!mit_info)
-            mit_info = XScreenSaverAllocInfo ();
-
-        XScreenSaverQueryInfo (xdisplay, RootWindow (xdisplay, 0), mit_info);
-        if (mit_info->idle / 1000 > mit->timeout)
-        {
-            GtkWidget* view;
-            midori_browser_set_current_uri (mit->browser, mit->uri);
-            midori_private_data_clear_all (mit->browser);
-        }
-    }
-    #else
-    /* TODO: Implement for other windowing systems */
-    #endif
-
-    return TRUE;
-}
-
-static void
-midori_setup_inactivity_reset (MidoriBrowser* browser,
-                               gint           inactivity_reset,
-                               const gchar*   uri)
-{
-    if (inactivity_reset > 0)
-    {
-        MidoriInactivityTimeout* mit = g_new (MidoriInactivityTimeout, 1);
-        mit->browser = browser;
-        mit->timeout = inactivity_reset;
-        mit->uri = g_strdup (uri);
-        g_timeout_add_seconds (inactivity_reset, midori_inactivity_timeout,
-                               mit);
-    }
-}
-
 int
 main (int    argc,
       char** argv)
@@ -1372,10 +1277,6 @@ main (int    argc,
         }
 
         midori_load_soup_session (settings);
-        if (block_uris)
-            g_signal_connect (session, "request-queued",
-                G_CALLBACK (midori_soup_session_block_uris_cb),
-                g_strdup (block_uris));
 
         if (run)
         {
@@ -1436,6 +1337,8 @@ main (int    argc,
 
        g_object_set (settings, "show-panel", FALSE,
                       "last-window-state", MIDORI_WINDOW_NORMAL,
+                      "inactivity-reset", inactivity_reset,
+                      "block-uris", block_uris,
                       NULL);
         midori_browser_set_action_visible (browser, "Panel", FALSE);
         g_object_set (browser, "settings", settings, NULL);
@@ -1472,15 +1375,11 @@ main (int    argc,
         if (midori_browser_get_current_uri (browser) == NULL)
             midori_browser_add_uri (browser, "about:blank");
 
-        midori_setup_inactivity_reset (browser, inactivity_reset, webapp);
         midori_startup_timer ("App created: \t%f");
         gtk_main ();
         return 0;
     }
 
-    /* FIXME: Inactivity reset is only supported for app mode */
-    if (inactivity_reset > 0)
-        g_error ("--inactivity-reset is currently only supported with --app.");
 
     if (portable)
     {
@@ -1522,8 +1421,13 @@ main (int    argc,
     error_messages = g_string_new (NULL);
     error = NULL;
     settings = midori_settings_new_full (&extensions);
-    g_object_set (settings, "enable-developer-extras", TRUE, NULL);
-    g_object_set (settings, "enable-html5-database", TRUE, NULL);
+    g_object_set (settings,
+                  "enable-developer-extras", TRUE,
+                  "enable-html5-database", TRUE,
+                  "block-uris", block_uris,
+                  NULL);
+    if (inactivity_reset > 0)
+        g_object_set (settings, "inactivity-reset", inactivity_reset, NULL);
     midori_startup_timer ("Config and accels read: \t%f");
 
     /* Load search engines */
@@ -1695,11 +1599,6 @@ main (int    argc,
 
     if (execute)
         g_object_set_data (G_OBJECT (app), "execute-command", uris);
-    if (block_uris)
-            g_signal_connect (webkit_get_default_session (), "request-queued",
-                G_CALLBACK (midori_soup_session_block_uris_cb),
-                g_strdup (block_uris));
-
 
     gtk_main ();
 
