@@ -38,11 +38,13 @@ namespace Midori {
         /* Since: 0.4.8 */
         public uint inactivity_reset { get; set; default = 0; }
 
-        GLib.Regex block_uris_regex;
+        GLib.Regex? block_uris_regex = null;
         /* Since: 0.4.8 */
         public string? block_uris { get {
             return block_uris_regex.get_pattern ();
         } set {
+            if (value == null || value == "")
+                return;
             if (block_uris_regex == null)
                 WebKit.get_default_session ().request_queued.connect ((msg) => {
                     if (block_uris_regex.match (msg.uri.to_string (false)))
@@ -54,7 +56,7 @@ namespace Midori {
             catch (Error error) {
                 critical ("block-uris: %s", error.message);
             }
-        } default = null; }
+        } }
 
         public string? location_entry_search { get; set; default = null; }
         /* Since: 0.1.7 */
