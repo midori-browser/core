@@ -2783,6 +2783,11 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
                                        WebKitWebPolicyDecision* decision,
                                        MidoriView*              view)
 {
+    /* FIXME: Never download plugins from sub resources */
+    if (!strcmp (mime_type, "application/x-shockwave-flash"))
+        if (strcmp (midori_tab_get_uri (MIDORI_TAB (view)), webkit_network_request_get_uri (request)))
+            return FALSE;
+
     if (webkit_web_view_can_show_mime_type (WEBKIT_WEB_VIEW (web_view), mime_type))
     {
         if (web_frame == webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view)))
