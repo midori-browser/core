@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2008-2010 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2008-2012 Christian Dywan <christian@twotoasts.de>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -176,6 +176,15 @@ midori_web_settings_get_site_data_policy   (MidoriWebSettings* settings,
 
 const gchar*
 midori_web_settings_get_accept_language    (MidoriWebSettings* settings);
+
+MidoriWebSettings*
+midori_settings_new_full                   (gchar***           extensions);
+
+gboolean
+midori_settings_save_to_file               (MidoriWebSettings* settings,
+                                            GObject*           app,
+                                            const gchar*       filename,
+                                            GError**           error);
 
 G_END_DECLS
 

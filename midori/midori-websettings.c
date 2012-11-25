@@ -13,6 +13,7 @@
 #include "midori-websettings.h"
 
 #include "midori-app.h"
+#include "midori-extension.h"
 #include "sokoke.h"
 #include <midori/midori-core.h> /* Vala API */
 
@@ -1272,3 +1273,240 @@ midori_web_settings_remove_style (MidoriWebSettings* settings,
         }
     }
 }
+
+MidoriWebSettings*
+midori_settings_new_full (gchar*** extensions)
+{
+    MidoriWebSettings* settings = midori_web_settings_new ();
+    gchar* config_file = midori_paths_get_config_filename_for_reading ("config");
+    GKeyFile* key_file = g_key_file_new ();
+    GError* error = NULL;
+    GObjectClass* class;
+    guint i, n_properties;
+    GParamSpec** pspecs;
+    GParamSpec* pspec;
+    GType type;
+    const gchar* property;
+    gchar* str;
+    gint integer;
+    gfloat number;
+    gboolean boolean;
+
+    if (!g_key_file_load_from_file (key_file, config_file,
+                                    G_KEY_FILE_KEEP_COMMENTS, &error))
+    {
+        if (error->code == G_FILE_ERROR_NOENT)
+        {
+            GError* inner_error = NULL;
+            katze_assign (config_file, midori_paths_get_preset_filename (NULL, "config"));
+            g_key_file_load_from_file (key_file, config_file,
+                                       G_KEY_FILE_KEEP_COMMENTS, &inner_error);
+            if (inner_error != NULL)
+            {
+                printf (_("The configuration couldn't be loaded: %s\n"),
+                        inner_error->message);
+                g_error_free (inner_error);
+            }
+        }
+        else
+            printf (_("The configuration couldn't be loaded: %s\n"),
+                    error->message);
+        g_error_free (error);
+    }
+
+    class = G_OBJECT_GET_CLASS (settings);
+    pspecs = g_object_class_list_properties (class, &n_properties);
+    for (i = 0; i < n_properties; i++)
+    {
+        pspec = pspecs[i];
+        if (!(pspec->flags & G_PARAM_WRITABLE))
+            continue;
+
+        type = G_PARAM_SPEC_TYPE (pspec);
+        property = g_param_spec_get_name (pspec);
+        if (!g_key_file_has_key (key_file, "settings", property, NULL))
+            continue;
+
+        if (type == G_TYPE_PARAM_STRING)
+        {
+            str = g_key_file_get_string (key_file, "settings", property, NULL);
+            g_object_set (settings, property, str, NULL);
+            g_free (str);
+        }
+        else if (type == G_TYPE_PARAM_INT)
+        {
+            integer = g_key_file_get_integer (key_file, "settings", property, NULL);
+            g_object_set (settings, property, integer, NULL);
+        }
+        else if (type == G_TYPE_PARAM_FLOAT)
+        {
+            number = g_key_file_get_double (key_file, "settings", property, NULL);
+            g_object_set (settings, property, number, NULL);
+        }
+        else if (type == G_TYPE_PARAM_BOOLEAN)
+        {
+            boolean = g_key_file_get_boolean (key_file, "settings", property, NULL);
+            g_object_set (settings, property, boolean, NULL);
+        }
+        else if (type == G_TYPE_PARAM_ENUM)
+        {
+            GEnumClass* enum_class = G_ENUM_CLASS (
+                g_type_class_peek (pspec->value_type));
+            GEnumValue* enum_value;
+            str = g_key_file_get_string (key_file, "settings", property, NULL);
+            enum_value = g_enum_get_value_by_name (enum_class, str);
+            if (enum_value)
+                g_object_set (settings, property, enum_value->value, NULL);
+            else
+                g_warning (_("Value '%s' is invalid for %s"),
+                           str, property);
+            g_free (str);
+        }
+        else
+            g_warning (_("Invalid configuration value '%s'"), property);
+    }
+    g_free (pspecs);
+
+    *extensions = g_key_file_get_keys (key_file, "extensions", NULL, NULL);
+
+    g_key_file_free (key_file);
+
+    /* Load accelerators */
+    katze_assign (config_file, midori_paths_get_config_filename_for_reading ("accels"));
+    if (g_access (config_file, F_OK) != 0)
+        katze_assign (config_file, midori_paths_get_preset_filename (NULL, "accels"));
+    gtk_accel_map_load (config_file);
+    g_free (config_file);
+
+    return settings;
+}
+
+gboolean
+midori_settings_save_to_file (MidoriWebSettings* settings,
+                              GObject*           app,
+                              const gchar*       filename,
+                              GError**           error)
+{
+    GKeyFile* key_file;
+    GObjectClass* class;
+    guint i, n_properties;
+    GParamSpec** pspecs;
+    GParamSpec* pspec;
+    GType type;
+    const gchar* property;
+    gboolean saved;
+    KatzeArray* extensions = katze_object_get_object (app, "extensions");
+    MidoriExtension* extension;
+    gchar** _extensions;
+
+    key_file = g_key_file_new ();
+    class = G_OBJECT_GET_CLASS (settings);
+    pspecs = g_object_class_list_properties (class, &n_properties);
+    for (i = 0; i < n_properties; i++)
+    {
+        pspec = pspecs[i];
+        type = G_PARAM_SPEC_TYPE (pspec);
+        property = g_param_spec_get_name (pspec);
+        if (!(pspec->flags & G_PARAM_WRITABLE))
+            continue;
+        if (type == G_TYPE_PARAM_STRING)
+        {
+            gchar* string;
+            const gchar* def_string = G_PARAM_SPEC_STRING (pspec)->default_value;
+            if (!strcmp (property, "user-stylesheet-uri"))
+            {
+                const gchar* user_stylesheet_uri = g_object_get_data (G_OBJECT (settings), property);
+                if (user_stylesheet_uri)
+                {
+                    g_key_file_set_string (key_file, "settings", property,
+                        user_stylesheet_uri);
+                }
+                else
+                    g_key_file_remove_key (key_file, "settings", property, NULL);
+                continue;
+            }
+
+            g_object_get (settings, property, &string, NULL);
+            if (!def_string)
+                def_string = "";
+            if (strcmp (string ? string : "", def_string))
+                g_key_file_set_string (key_file, "settings", property, string ? string : "");
+            g_free (string);
+        }
+        else if (type == G_TYPE_PARAM_INT)
+        {
+            gint integer;
+            g_object_get (settings, property, &integer, NULL);
+            if (integer != G_PARAM_SPEC_INT (pspec)->default_value)
+                g_key_file_set_integer (key_file, "settings", property, integer);
+        }
+        else if (type == G_TYPE_PARAM_FLOAT)
+        {
+            gfloat number;
+            g_object_get (settings, property, &number, NULL);
+            if (number != G_PARAM_SPEC_FLOAT (pspec)->default_value)
+                g_key_file_set_double (key_file, "settings", property, number);
+        }
+        else if (type == G_TYPE_PARAM_BOOLEAN)
+        {
+            gboolean truth;
+            g_object_get (settings, property, &truth, NULL);
+            if (truth != G_PARAM_SPEC_BOOLEAN (pspec)->default_value)
+                g_key_file_set_boolean (key_file, "settings", property, truth);
+        }
+        else if (type == G_TYPE_PARAM_ENUM)
+        {
+            GEnumClass* enum_class = G_ENUM_CLASS (
+                g_type_class_peek (pspec->value_type));
+            gint integer;
+            GEnumValue* enum_value;
+            g_object_get (settings, property, &integer, NULL);
+            enum_value = g_enum_get_value (enum_class, integer);
+            if (integer != G_PARAM_SPEC_ENUM (pspec)->default_value)
+                g_key_file_set_string (key_file, "settings", property,
+                                       enum_value->value_name);
+        }
+        else
+            g_warning (_("Invalid configuration value '%s'"), property);
+    }
+    g_free (pspecs);
+
+    /* Take frozen list of active extensions until preferences reset it */
+    if ((_extensions = g_object_get_data (G_OBJECT (app), "extensions")))
+    {
+        i = 0;
+        while (_extensions[i])
+        {
+            g_key_file_set_boolean (key_file, "extensions", _extensions[i], TRUE);
+            i++;
+        }
+    }
+    else if (extensions)
+    {
+        KATZE_ARRAY_FOREACH_ITEM (extension, extensions)
+            if (midori_extension_is_active (extension))
+            {
+                const gchar* filename = g_object_get_data (
+                    G_OBJECT (extension), "filename");
+
+                gchar* key;
+                gchar* term;
+
+                key = katze_object_get_string (extension, "key");
+                if (key && *key)
+                    term = g_strdup_printf ("%s/%s", filename, key);
+                else
+                    term = g_strdup (filename);
+
+                g_key_file_set_boolean (key_file, "extensions", term, TRUE);
+
+                g_free (key);
+                g_free (term);
+            }
+        g_object_unref (extensions);
+    }
+    saved = sokoke_key_file_save_to_file (key_file, filename, error);
+    g_key_file_free (key_file);
+    return saved;
+}
+
