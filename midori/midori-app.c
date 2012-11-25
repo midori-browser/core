@@ -1083,15 +1083,24 @@ midori_app_instance_send_uris (MidoriApp* app,
     UniqueResponse response;
     #endif
 
-    /* g_return_val_if_fail (MIDORI_IS_APP (app), FALSE); */
+    g_return_val_if_fail (MIDORI_IS_APP (app), FALSE);
     g_return_val_if_fail (midori_app_instance_is_running (app), FALSE);
     g_return_val_if_fail (uris != NULL, FALSE);
 
-    #if HAVE_HILDON
-    /* FIXME: Implement */
-    #elif HAVE_UNIQUE
+    #if HAVE_UNIQUE
     if (app->instance)
     {
+        /* Encode any IDN addresses because libUnique doesn't like them */
+        int i = 0;
+        while (uris[i] != NULL)
+        {
+            gchar* new_uri = sokoke_prepare_uri (uris[i]);
+            gchar* escaped_uri = g_uri_escape_string (new_uri ? new_uri : uris[i], NULL, FALSE);
+            g_free (new_uri);
+            katze_assign (uris[i], escaped_uri);
+            i++;
+        }
+
         message = unique_message_data_new ();
         unique_message_data_set_uris (message, uris);
         response = unique_app_send_message (app->instance, UNIQUE_OPEN, message);

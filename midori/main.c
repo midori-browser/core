@@ -580,8 +580,6 @@ midori_show_diagnostic_dialog (MidoriWebSettings* settings,
 {
     GtkWidget* dialog;
     GtkWidget* content_area;
-    GdkScreen* screen;
-    GtkIconTheme* icon_theme;
     GtkWidget* align;
     GtkWidget* box;
     GtkWidget* button;
@@ -597,15 +595,6 @@ midori_show_diagnostic_dialog (MidoriWebSettings* settings,
     gtk_window_set_skip_taskbar_hint (GTK_WINDOW (dialog), FALSE);
     gtk_window_set_title (GTK_WINDOW (dialog), g_get_application_name ());
     content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
-    screen = gtk_widget_get_screen (dialog);
-    if (screen)
-    {
-        icon_theme = gtk_icon_theme_get_for_screen (screen);
-        if (gtk_icon_theme_has_icon (icon_theme, "midori"))
-            gtk_window_set_icon_name (GTK_WINDOW (dialog), "midori");
-        else
-            gtk_window_set_icon_name (GTK_WINDOW (dialog), "web-browser");
-    }
     align = gtk_alignment_new (0.5, 0.5, 0.5, 0.5);
     gtk_container_add (GTK_CONTAINER (content_area), align);
     box = gtk_hbox_new (FALSE, 0);
@@ -947,25 +936,6 @@ midori_web_app_browser_new_window_cb (MidoriBrowser* browser,
     return new_browser;
 }
 
-static gchar*
-midori_prepare_uri (const gchar *uri)
-{
-    gchar* uri_ready;
-
-    if (g_str_has_prefix(uri, "javascript:"))
-        return NULL;
-    else if (g_file_test (uri, G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR)
-         && !g_path_is_absolute (uri))
-    {
-        GFile* file = g_file_new_for_commandline_arg (uri);
-        uri_ready = g_file_get_uri (file);
-        g_object_unref (file);
-        return uri_ready;
-    }
-
-    return sokoke_magic_uri (uri);
-}
-
 #ifdef HAVE_SIGNAL_H
 static void
 signal_handler (int signal_id)
@@ -1283,7 +1253,7 @@ main (int    argc,
         #endif
         g_signal_connect (web_view, "load-finished",
             G_CALLBACK (snapshot_load_finished_cb), filename);
-        uri = midori_prepare_uri (snapshot);
+        uri = sokoke_prepare_uri (snapshot);
         webkit_web_view_load_uri (WEBKIT_WEB_VIEW (web_view), uri);
         g_free (uri);
         gtk_main ();
@@ -1296,7 +1266,7 @@ main (int    argc,
         GtkWidget* window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
         GtkWidget* scrolled = gtk_scrolled_window_new (NULL, NULL);
         GtkWidget* web_view = webkit_web_view_new ();
-        gchar* uri = midori_prepare_uri (
+        gchar* uri = sokoke_prepare_uri (
             (uris != NULL && uris[0]) ? uris[0] : "http://www.example.com");
 
         gint width, height;
@@ -1447,7 +1417,7 @@ main (int    argc,
 
         if (webapp)
         {
-            gchar* tmp_uri = midori_prepare_uri (webapp);
+            gchar* tmp_uri = sokoke_prepare_uri (webapp);
             midori_browser_set_action_visible (browser, "Menubar", FALSE);
             midori_browser_set_action_visible (browser, "CompactMenu", FALSE);
             midori_browser_add_uri (browser, tmp_uri ? tmp_uri : webapp);
@@ -1489,7 +1459,7 @@ main (int    argc,
         {
             for (i = 0; uris[i] != NULL; i++)
             {
-                gchar* new_uri = midori_prepare_uri (uris[i]);
+                gchar* new_uri = sokoke_prepare_uri (uris[i]);
                 midori_browser_add_uri (browser, new_uri);
                 g_free (new_uri);
             }
@@ -1533,31 +1503,16 @@ main (int    argc,
         if (execute)
             result = midori_app_send_command (app, uris);
         else if (uris)
-        {
-            /* Encode any IDN addresses because libUnique doesn't like them */
-            i = 0;
-            while (uris[i] != NULL)
-            {
-                gchar* new_uri = midori_prepare_uri (uris[i]);
-                gchar* escaped_uri = g_uri_escape_string (
-                    new_uri ? new_uri : uris[i], NULL, FALSE);
-                g_free (new_uri);
-                katze_assign (uris[i], escaped_uri);
-                i++;
-            }
             result = midori_app_instance_send_uris (app, uris);
-        }
         else
             result = midori_app_instance_send_new_browser (app);
 
         if (result)
             return 0;
 
-        dialog = gtk_message_dialog_new (NULL,
-            0, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, "%s",
-            _("An instance of Midori is already running but not responding.\n"));
-        if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_DELETE_EVENT)
-            gtk_widget_destroy (dialog);
+        sokoke_message_dialog (GTK_MESSAGE_INFO,
+            _("An instance of Midori is already running but not responding.\n"),
+            "", TRUE);
         /* FIXME: Allow killing the existing instance */
         return 1;
     }
@@ -1646,22 +1601,9 @@ main (int    argc,
     /* In case of errors */
     if (error_messages->len)
     {
-        GdkScreen* screen;
-        GtkIconTheme* icon_theme;
         GtkWidget* dialog = gtk_message_dialog_new (
             NULL, 0, GTK_MESSAGE_ERROR, GTK_BUTTONS_NONE,
             _("The following errors occured:"));
-        gtk_window_set_skip_taskbar_hint (GTK_WINDOW (dialog), FALSE);
-        gtk_window_set_title (GTK_WINDOW (dialog), g_get_application_name ());
-        screen = gtk_widget_get_screen (dialog);
-        if (screen)
-        {
-            icon_theme = gtk_icon_theme_get_for_screen (screen);
-            if (gtk_icon_theme_has_icon (icon_theme, "midori"))
-                gtk_window_set_icon_name (GTK_WINDOW (dialog), "midori");
-            else
-                gtk_window_set_icon_name (GTK_WINDOW (dialog), "web-browser");
-        }
         gtk_message_dialog_format_secondary_text (
             GTK_MESSAGE_DIALOG (dialog), "%s", error_messages->str);
         gtk_dialog_add_buttons (GTK_DIALOG (dialog),
@@ -1669,16 +1611,7 @@ main (int    argc,
                                 _("_Ignore"), GTK_RESPONSE_ACCEPT,
                                 NULL);
         if (gtk_dialog_run (GTK_DIALOG (dialog)) != GTK_RESPONSE_ACCEPT)
-        {
-            g_object_unref (settings);
-            g_object_unref (search_engines);
-            g_object_unref (bookmarks);
-            g_object_unref (_session);
-            g_object_unref (trash);
-            g_object_unref (history);
-            g_string_free (error_messages, TRUE);
             return 0;
-        }
         gtk_widget_destroy (dialog);
         /* FIXME: Since we will overwrite files that could not be loaded
                   , would we want to make backups? */
@@ -1696,7 +1629,7 @@ main (int    argc,
         while (uri != NULL)
         {
             item = katze_item_new ();
-            uri_ready = midori_prepare_uri (uri);
+            uri_ready = sokoke_prepare_uri (uri);
             katze_item_set_uri (item, uri_ready ? uri_ready : uri);
             g_free (uri_ready);
             /* Never delay command line arguments */
@@ -1785,9 +1718,5 @@ main (int    argc,
         g_unlink (config_file);
     }
 
-    g_object_unref (settings);
-    g_object_unref (dial);
-    g_object_unref (app);
-    g_free (config_file);
     return 0;
 }

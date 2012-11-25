@@ -481,6 +481,25 @@ sokoke_external_uri (const gchar* uri)
     return info != NULL;
 }
 
+gchar*
+sokoke_prepare_uri (const gchar *uri)
+{
+    gchar* uri_ready;
+
+    if (g_str_has_prefix(uri, "javascript:"))
+        return NULL;
+    else if (g_file_test (uri, G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR)
+         && !g_path_is_absolute (uri))
+    {
+        GFile* file = g_file_new_for_commandline_arg (uri);
+        uri_ready = g_file_get_uri (file);
+        g_object_unref (file);
+        return uri_ready;
+    }
+
+    return sokoke_magic_uri (uri);
+}
+
 /**
  * sokoke_magic_uri:
  * @uri: a string typed by a user

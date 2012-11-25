@@ -62,6 +62,9 @@ gboolean
 sokoke_external_uri                     (const gchar*    uri);
 
 gchar*
+sokoke_prepare_uri                      (const gchar*    uri);
+
+gchar*
 sokoke_magic_uri                        (const gchar*    uri);
 
 void
