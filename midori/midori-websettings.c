@@ -1367,8 +1367,8 @@ midori_settings_new_full (gchar*** extensions)
     }
     g_free (pspecs);
 
-    *extensions = g_key_file_get_keys (key_file, "extensions", NULL, NULL);
-
+    if (extensions != NULL)
+        *extensions = g_key_file_get_keys (key_file, "extensions", NULL, NULL);
     g_key_file_free (key_file);
 
     /* Load accelerators */

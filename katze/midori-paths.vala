@@ -70,6 +70,8 @@ namespace Midori {
             assert (mode == RuntimeMode.UNDEFINED);
             assert (new_mode != RuntimeMode.UNDEFINED);
             mode = new_mode;
+            if (mode == RuntimeMode.PORTABLE || mode == RuntimeMode.PRIVATE)
+                Gtk.Settings.get_default ().gtk_recent_files_max_age = 0;
             if (mode == RuntimeMode.PORTABLE) {
                 config_dir = Path.build_path (Path.DIR_SEPARATOR_S,
                     exec_path, "profile", "config");

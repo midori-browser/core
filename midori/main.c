@@ -1209,31 +1209,33 @@ main (int    argc,
 
     midori_private_data_register_built_ins ();
 
+    if (private)
+        midori_paths_init (MIDORI_RUNTIME_MODE_PRIVATE, config);
+    else if (webapp)
+        midori_paths_init (MIDORI_RUNTIME_MODE_APP, config);
+    else if (portable)
+        midori_paths_init (MIDORI_RUNTIME_MODE_PORTABLE, config);
+    else
+        midori_paths_init (MIDORI_RUNTIME_MODE_NORMAL, config);
+
     /* Web Application or Private Browsing support */
     if (webapp || private || run)
     {
-        SoupSession* session = webkit_get_default_session ();
         MidoriBrowser* browser = midori_browser_new ();
         g_signal_connect (browser, "new-window",
             G_CALLBACK (midori_web_app_browser_new_window_cb), NULL);
         g_object_set_data (G_OBJECT (webkit_get_default_session ()),
                            "pass-through-console", (void*)1);
-
         midori_startup_timer ("Browser: \t%f");
-
-        if (private)
-            midori_paths_init (MIDORI_RUNTIME_MODE_PRIVATE, config);
-        else if (webapp)
-            midori_paths_init (MIDORI_RUNTIME_MODE_APP, config);
-        else
-            midori_paths_init (MIDORI_RUNTIME_MODE_NORMAL, config);
 
         if (private || !webapp)
         {
-            settings = midori_settings_new_full (&extensions);
-            g_strfreev (extensions);
+            settings = midori_settings_new_full (NULL);
             search_engines = midori_search_engines_new_from_folder (NULL);
-            g_object_set (browser, "search-engines", search_engines, NULL);
+            g_object_set (browser,
+                          "search-engines", search_engines,
+                          "settings", settings,
+                          NULL);
             g_object_unref (search_engines);
         }
         else
@@ -1272,8 +1274,9 @@ main (int    argc,
                           NULL);
             #endif
 
-            g_object_set (gtk_settings_get_default (),
-                "gtk-recent-files-max-age", 0, NULL);
+            /* Informative text unless we have a URI */
+            if (webapp == NULL && uris == NULL)
+                midori_browser_add_uri (browser, "about:private");
         }
 
         midori_load_soup_session (settings);
@@ -1322,28 +1325,26 @@ main (int    argc,
             midori_browser_set_action_visible (browser, "Menubar", FALSE);
             midori_browser_set_action_visible (browser, "CompactMenu", FALSE);
             midori_browser_add_uri (browser, tmp_uri ? tmp_uri : webapp);
-            g_object_set (settings, "homepage", tmp_uri, NULL);
-            g_free (tmp_uri);
-
             g_object_set (settings,
                           "show-menubar", FALSE,
                           "show-navigationbar", FALSE,
                           "toolbar-items", "Back,Forward,ReloadStop,Location,Homepage",
                           "show-statusbar", FALSE,
                           "enable-developer-extras", FALSE,
+                          "homepage", tmp_uri,
                           NULL);
             g_object_set (browser, "show-tabs", FALSE, NULL);
+            g_free (tmp_uri);
         }
 
-       g_object_set (settings, "show-panel", FALSE,
+        g_object_set (settings,
+                      "show-panel", FALSE,
                       "last-window-state", MIDORI_WINDOW_NORMAL,
                       "inactivity-reset", inactivity_reset,
                       "block-uris", block_uris,
                       NULL);
         midori_browser_set_action_visible (browser, "Panel", FALSE);
-        g_object_set (browser, "settings", settings, NULL);
         midori_startup_timer ("Setup config: \t%f");
-        g_object_unref (settings);
         g_signal_connect (browser, "quit",
             G_CALLBACK (gtk_main_quit), NULL);
         g_signal_connect (browser, "destroy",
@@ -1368,10 +1369,6 @@ main (int    argc,
             }
         }
 
-        /* Informative text for private browsing unless we have a URI */
-        if (private && webapp == NULL && uris == NULL)
-            midori_browser_add_uri (browser, "about:private");
-
         if (midori_browser_get_current_uri (browser) == NULL)
             midori_browser_add_uri (browser, "about:blank");
 
@@ -1379,16 +1376,6 @@ main (int    argc,
         gtk_main ();
         return 0;
     }
-
-
-    if (portable)
-    {
-        g_object_set (gtk_settings_get_default (),
-            "gtk-recent-files-max-age", 0, NULL);
-        midori_paths_init (MIDORI_RUNTIME_MODE_PORTABLE, config);
-    }
-    else
-        midori_paths_init (MIDORI_RUNTIME_MODE_NORMAL, config);
 
     app = midori_app_new ();
     midori_startup_timer ("App created: \t%f");
