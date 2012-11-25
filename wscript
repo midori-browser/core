@@ -592,9 +592,12 @@ def shutdown ():
                     pp = Utils.pproc.Popen (args, cwd=Build.bld.env['PREFIX'] + os.sep + 'bin')
                     (out, err) = pp.communicate ()
                     test.unit_test_results[label] = int (pp.returncode == 0)
+                    if not test.unit_test_results[label]:
+                        test.num_tests_failed += 1
                 except OSError:
                     msg = sys.exc_info()[1] # Python 2/3 compatibility
                     Utils.pprint ('RED', '%s: %s' % (args, msg))
+                    test.num_tests_err += 1
                 except KeyboardInterrupt:
                     pass
         else:
