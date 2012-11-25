@@ -45,6 +45,9 @@ const gchar*
 midori_app_get_name               (MidoriApp*         app);
 
 gboolean
+midori_app_get_crashed            (MidoriApp*         app);
+
+gboolean
 midori_app_instance_is_running    (MidoriApp*         app);
 
 gboolean

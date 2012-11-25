@@ -43,10 +43,6 @@
     #include <libsoup/soup-cache.h>
 #endif
 
-#ifdef HAVE_SIGNAL_H
-    #include <signal.h>
-#endif
-
 static void
 settings_notify_cb (MidoriWebSettings* settings,
                     GParamSpec*        pspec,
@@ -195,12 +191,7 @@ static void
 midori_app_quit_cb (MidoriBrowser* browser,
                     KatzeArray*    session)
 {
-    gchar* config_file = midori_paths_get_config_filename_for_writing ("running");
-    g_unlink (config_file);
-    g_free (config_file);
-
-    if (session)
-        midori_session_save_timeout_cb (session);
+    midori_session_save_timeout_cb (session);
 }
 
 static void
@@ -821,18 +812,6 @@ midori_web_app_browser_new_window_cb (MidoriBrowser* browser,
     return new_browser;
 }
 
-#ifdef HAVE_SIGNAL_H
-static void
-signal_handler (int signal_id)
-{
-    signal (signal_id, 0);
-    if (!midori_paths_is_readonly ())
-        midori_app_quit_cb (NULL, NULL);
-    if (kill (getpid (), signal_id))
-      exit (1);
-}
-#endif
-
 int
 main (int    argc,
       char** argv)
@@ -1081,21 +1060,6 @@ main (int    argc,
         gtk_main ();
         return 0;
     }
-
-    #ifdef HAVE_SIGNAL_H
-    #ifdef SIGHUP
-    signal (SIGHUP, &signal_handler);
-    #endif
-    #ifdef SIGINT
-    signal (SIGINT, &signal_handler);
-    #endif
-    #ifdef SIGTERM
-    signal (SIGTERM, &signal_handler);
-    #endif
-    #ifdef SIGQUIT
-    signal (SIGQUIT, &signal_handler);
-    #endif
-    #endif
 
     midori_private_data_register_built_ins ();
 
@@ -1428,15 +1392,9 @@ main (int    argc,
 
     katze_item_set_parent (KATZE_ITEM (_session), app);
     g_object_set_data_full (G_OBJECT (app), "extensions", extensions, (GDestroyNotify)g_strfreev);
-    /* We test for the presence of a dummy file which is created once
-       and deleted during normal runtime, but persists in case of a crash. */
-    katze_assign (config_file, g_build_filename (config, "running", NULL));
-    if (g_access (config_file, F_OK) == 0)
-        back_from_crash = TRUE;
-    else
-        g_file_set_contents (config_file, "RUNNING", -1, NULL);
 
-    if (back_from_crash
+
+    if (midori_app_get_crashed (app)
      && katze_object_get_boolean (settings, "show-crash-dialog")
      && !katze_array_is_empty (_session))
         diagnostic_dialog = TRUE;

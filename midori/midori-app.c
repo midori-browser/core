@@ -66,6 +66,10 @@
     #endif
 #endif
 
+#ifdef HAVE_SIGNAL_H
+    #include <signal.h>
+#endif
+
 struct _MidoriApp
 {
     GObject parent_instance;
@@ -264,9 +268,28 @@ _midori_app_add_browser (MidoriApp*     app,
     #endif
 }
 
+#ifdef HAVE_SIGNAL_H
+static MidoriApp* app_singleton;
+static void
+midori_app_signal_handler (int signal_id)
+{
+    signal (signal_id, 0);
+    if (!midori_paths_is_readonly ())
+        midori_app_quit (app_singleton);
+    if (kill (getpid (), signal_id))
+      exit (1);
+}
+#endif
+
 static void
 _midori_app_quit (MidoriApp* app)
 {
+    if (!midori_paths_is_readonly ())
+    {
+        gchar* config_file = midori_paths_get_config_filename_for_writing ("running");
+        g_unlink (config_file);
+        g_free (config_file);
+    }
     gtk_main_quit ();
 }
 
@@ -793,9 +816,43 @@ midori_app_get_name (MidoriApp* app)
     return app_name;
 }
 
+gboolean
+midori_app_get_crashed (MidoriApp* app)
+{
+    if (!midori_paths_is_readonly ())
+    {
+        /* We test for the presence of a dummy file which is created once
+           and deleted during normal runtime, but persists in case of a crash. */
+        gchar* config_file = midori_paths_get_config_filename_for_writing ("running");
+        gboolean crashed = (g_access (config_file, F_OK) == 0);
+        g_free (config_file);
+        if (crashed)
+            return TRUE;
+        g_file_set_contents (config_file, "RUNNING", -1, NULL);
+    }
+
+    return FALSE;
+}
+
 static void
 midori_app_init (MidoriApp* app)
 {
+    #ifdef HAVE_SIGNAL_H
+    app_singleton = app;
+    #ifdef SIGHUP
+    signal (SIGHUP, &midori_app_signal_handler);
+    #endif
+    #ifdef SIGINT
+    signal (SIGINT, &midori_app_signal_handler);
+    #endif
+    #ifdef SIGTERM
+    signal (SIGTERM, &midori_app_signal_handler);
+    #endif
+    #ifdef SIGQUIT
+    signal (SIGQUIT, &midori_app_signal_handler);
+    #endif
+    #endif
+
     app->settings = NULL;
     app->bookmarks = NULL;
     app->trash = NULL;
