@@ -161,6 +161,16 @@ browser_site_data (void)
     g_object_unref (settings);
 }
 
+static void
+browser_block_uris (void)
+{
+    MidoriWebSettings* settings = g_object_new (MIDORI_TYPE_WEB_SETTINGS, NULL);
+    g_object_set (settings, "block-uris", NULL, NULL);
+    g_object_set (settings, "block-uris", "", NULL);
+    g_object_set (settings, "block-uris", "^(?!.*?(gmail|mail\\.google|accounts\\.google)).*", NULL);
+    g_object_unref (settings);
+}
+
 int
 main (int    argc,
       char** argv)
@@ -175,6 +185,7 @@ main (int    argc,
     g_test_add_func ("/browser/create", browser_create);
     g_test_add_func ("/browser/tooltips", browser_tooltips);
     g_test_add_func ("/browser/site_data", browser_site_data);
+    g_test_add_func ("/browser/block_uris", browser_block_uris);
 
     return g_test_run ();
 }
