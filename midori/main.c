@@ -761,6 +761,10 @@ main (int    argc,
     midori_startup_timer ("Session read: \t%f");
 
     trash = katze_array_new (KATZE_TYPE_ITEM);
+    g_signal_connect_after (trash, "add-item",
+        G_CALLBACK (midori_trash_add_item_cb), NULL);
+    g_signal_connect_after (trash, "remove-item",
+        G_CALLBACK (midori_trash_remove_item_cb), NULL);
     katze_assign (config_file, g_build_filename (config, "tabtrash.xbel", NULL));
     error = NULL;
     if (!midori_array_from_file (trash, config_file, "xbel", &error))
@@ -804,36 +808,20 @@ main (int    argc,
     g_string_free (error_messages, TRUE);
 
     /* If -e or --execute was specified, "uris" refers to the command. */
-    if (!execute)
-    {
-        i = 0;
-        while (uris && uris[i])
-        {
-            item = katze_item_new ();
-            item->uri = sokoke_prepare_uri (uris[i]);
-            /* Never delay command line arguments */
-            katze_item_set_meta_integer (item, "delay", 0);
-            katze_array_add_item (session, item);
-        }
-        i++;
-    }
+    if (execute)
+        g_object_set_data (G_OBJECT (app), "execute-commands", uris);
+    else
+        g_object_set_data (G_OBJECT (app), "open-uris", uris);
+    g_object_set_data_full (G_OBJECT (app), "extensions", extensions, (GDestroyNotify)g_strfreev);
+    katze_item_set_parent (KATZE_ITEM (session), app);
 
     katze_assign (config_file, g_build_filename (config, "search", NULL));
     midori_search_engines_set_filename (search_engines, config_file);
 
-    g_signal_connect_after (trash, "add-item",
-        G_CALLBACK (midori_trash_add_item_cb), NULL);
-    g_signal_connect_after (trash, "remove-item",
-        G_CALLBACK (midori_trash_remove_item_cb), NULL);
-
-    katze_item_set_parent (KATZE_ITEM (session), app);
-    g_object_set_data_full (G_OBJECT (app), "extensions", extensions, (GDestroyNotify)g_strfreev);
-
     if (midori_app_get_crashed (app)
      && katze_object_get_boolean (settings, "show-crash-dialog")
-     && !katze_array_is_empty (session))
+     && uris && *uris && !execute)
         diagnostic_dialog = TRUE;
-
     if (diagnostic_dialog)
     {
         load_on_startup = midori_show_diagnostic_dialog (settings, session);
@@ -861,9 +849,6 @@ main (int    argc,
     g_idle_add (midori_load_soup_session_full, settings);
     g_idle_add (midori_load_extensions, app);
     g_idle_add (midori_load_session, session);
-
-    if (execute)
-        g_object_set_data (G_OBJECT (app), "execute-command", uris);
 
     gtk_main ();
 

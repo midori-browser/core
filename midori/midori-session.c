@@ -16,6 +16,7 @@
 #include "midori-array.h"
 #include "midori-websettings.h"
 #include "midori-extension.h"
+#include "sokoke.h"
 
 #include <glib/gi18n-lib.h>
 
@@ -458,16 +459,17 @@ midori_browser_weak_notify_cb (MidoriBrowser* browser,
 gboolean
 midori_load_session (gpointer data)
 {
-    KatzeArray* _session = KATZE_ARRAY (data);
+    KatzeArray* saved_session = KATZE_ARRAY (data);
     MidoriBrowser* browser;
-    MidoriApp* app = katze_item_get_parent (KATZE_ITEM (_session));
+    MidoriApp* app = katze_item_get_parent (KATZE_ITEM (saved_session));
     MidoriWebSettings* settings = katze_object_get_object (app, "settings");
     MidoriStartup load_on_startup;
     gchar* config_file;
     KatzeArray* session;
     KatzeItem* item;
     gint64 current;
-    gchar** command = g_object_get_data (G_OBJECT (app), "execute-command");
+    gchar** open_uris = g_object_get_data (G_OBJECT (app), "open-uris");
+    gchar** execute_commands = g_object_get_data (G_OBJECT (app), "execute-commands");
     #ifdef G_ENABLE_DEBUG
     gboolean startup_timer = midori_debug ("startup");
     GTimer* timer = startup_timer ? g_timer_new () : NULL;
@@ -493,19 +495,19 @@ midori_load_session (gpointer data)
         G_CALLBACK (midori_session_accel_map_changed_cb), NULL);
 
     load_on_startup = (MidoriStartup)g_object_get_data (G_OBJECT (settings), "load-on-startup");
-    if (katze_array_is_empty (_session))
+    if (katze_array_is_empty (saved_session))
     {
         item = katze_item_new ();
         if (load_on_startup == MIDORI_STARTUP_BLANK_PAGE)
             katze_item_set_uri (item, "about:blank");
         else
             item->uri = katze_object_get_string (settings, "homepage");
-        katze_array_add_item (_session, item);
+        katze_array_add_item (saved_session, item);
         g_object_unref (item);
     }
 
     session = midori_browser_get_proxy_array (browser);
-    KATZE_ARRAY_FOREACH_ITEM (item, _session)
+    KATZE_ARRAY_FOREACH_ITEM (item, saved_session)
     {
         katze_item_set_meta_integer (item, "append", 1);
         katze_item_set_meta_integer (item, "dont-write-history", 1);
@@ -514,18 +516,31 @@ midori_load_session (gpointer data)
             katze_item_set_meta_integer (item, "delay", MIDORI_DELAY_DELAYED);
         midori_browser_add_item (browser, item);
     }
-    current = katze_item_get_meta_integer (KATZE_ITEM (_session), "current");
-    if (!(item = katze_array_get_nth_item (_session, current)))
+
+    current = katze_item_get_meta_integer (KATZE_ITEM (saved_session), "current");
+    if (!(item = katze_array_get_nth_item (saved_session, current)))
     {
         current = 0;
-        item = katze_array_get_nth_item (_session, 0);
+        item = katze_array_get_nth_item (saved_session, 0);
     }
     midori_browser_set_current_page (browser, current);
     if (midori_uri_is_blank (katze_item_get_uri (item)))
         midori_browser_activate_action (browser, "Location");
 
+    if (open_uris != NULL)
+    {
+        guint i = 0;
+        while (open_uris[i])
+        {
+            gchar* uri = sokoke_prepare_uri (open_uris[i]);
+            midori_browser_add_uri (browser, uri);
+            g_free (uri);
+            i++;
+        }
+    }
+
     g_object_unref (settings);
-    g_object_unref (_session);
+    g_object_unref (saved_session);
     g_free (config_file);
 
     g_signal_connect_after (browser, "add-tab",
@@ -537,8 +552,8 @@ midori_load_session (gpointer data)
     g_object_weak_ref (G_OBJECT (session),
         (GWeakNotify)(midori_browser_weak_notify_cb), browser);
 
-    if (command)
-        midori_app_send_command (app, command);
+    if (execute_commands != NULL)
+        midori_app_send_command (app, execute_commands);
 
     #ifdef G_ENABLE_DEBUG
     if (startup_timer)
