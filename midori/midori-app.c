@@ -1152,7 +1152,7 @@ midori_app_instance_send_uris (MidoriApp* app,
         while (uris[i] != NULL)
         {
             gchar* new_uri = sokoke_prepare_uri (uris[i]);
-            gchar* escaped_uri = g_uri_escape_string (new_uri ? new_uri : uris[i], NULL, FALSE);
+            gchar* escaped_uri = g_uri_escape_string (new_uri, NULL, FALSE);
             g_free (new_uri);
             katze_assign (uris[i], escaped_uri);
             i++;
