@@ -738,7 +738,10 @@ midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view
     #endif
 
     if (katze_item_get_meta_integer (view->item, "delay") == MIDORI_DELAY_PENDING_UNDELAY)
+    {
+        midori_tab_set_special (MIDORI_TAB (view), FALSE);
         katze_item_set_meta_integer (view->item, "delay", MIDORI_DELAY_UNDELAYED);
+    }
 
     /* Remove link labels */
     js_context = webkit_web_frame_get_global_context (web_frame);

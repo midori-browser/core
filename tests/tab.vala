@@ -118,9 +118,9 @@ void tab_special () {
     item.set_meta_integer ("delay", Midori.Delay.UNDELAYED);
     tab.set_uri ("http://example.com");
     do { loop.iteration (true); } while (tab.load_status != Midori.LoadStatus.FINISHED);
-    /* FIXME assert (!tab.can_view_source ()); */
-    /* FIXME assert (tab.special); */
-    /* FIXME assert (!tab.can_save ()); */
+    assert (tab.can_view_source ());
+    assert (!tab.special);
+    assert (tab.can_save ());
 
     var test_address = new Soup.Address ("127.0.0.1", Soup.ADDRESS_ANY_PORT);
     test_address.resolve_sync (null);
