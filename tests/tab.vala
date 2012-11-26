@@ -54,7 +54,11 @@ const TestCaseEllipsize[] titles = {
 static void tab_display_title () {
     foreach (var title in titles) {
         string result = Midori.Tab.get_display_title (title.title, title.uri);
+#if HAVE_WIN32
+        string expected = title.expected_title ?? title.title;
+#else
         string expected = title.expected_title ?? "‪" + title.title;
+#endif
         if (result != expected)
             error ("%s expected for %s but got %s",
                    expected, title.title, result);
