@@ -72,6 +72,16 @@ static void tab_display_ellipsize () {
 }
 
 void tab_special () {
+    var test_address = new Soup.Address ("127.0.0.1", Soup.ADDRESS_ANY_PORT);
+    test_address.resolve_sync (null);
+    var test_server = new Soup.Server ("interface", test_address, null);
+    string test_url = "http://%s:%u".printf (test_address.get_physical (), test_server.get_port ());
+    test_server.run_async ();
+    test_server.add_handler ("/", (server, msg, path, query, client)=>{
+        msg.set_status_full (200, "OK");
+        msg.response_body.append_take ("<body></body>".data);
+        });
+
     var browser = new Gtk.Window (Gtk.WindowType.TOPLEVEL);
     /*
     var dial = new Midori.SpeedDial ("/", null);
@@ -116,21 +126,11 @@ void tab_special () {
 
     var item = tab.get_proxy_item ();
     item.set_meta_integer ("delay", Midori.Delay.UNDELAYED);
-    tab.set_uri ("http://example.com");
+    tab.set_uri (test_url);
     do { loop.iteration (true); } while (tab.load_status != Midori.LoadStatus.FINISHED);
     assert (tab.can_view_source ());
     assert (!tab.special);
     assert (tab.can_save ());
-
-    var test_address = new Soup.Address ("127.0.0.1", Soup.ADDRESS_ANY_PORT);
-    test_address.resolve_sync (null);
-    var test_server = new Soup.Server ("interface", test_address, null);
-    string test_url = "http://%s:%u".printf (test_address.get_physical (), test_server.get_port ());
-    test_server.run_async ();
-    test_server.add_handler ("/", (server, msg, path, query, client)=>{
-        msg.set_status_full (200, "OK");
-        msg.response_body.append_take ("<body></body>".data);
-        });
 
     tab.set_uri (test_url);
     do { loop.iteration (true); } while (tab.load_status != Midori.LoadStatus.FINISHED);
@@ -144,7 +144,7 @@ void tab_special () {
     var source = new Midori.View.with_title ();
     browser.add (source);
     source.web_view.set_view_source_mode (true);
-    source.web_view.load_uri ("http://example.com");
+    source.web_view.load_uri (test_url);
     do { loop.iteration (true); } while (source.load_status != Midori.LoadStatus.FINISHED);
     assert (!source.is_blank ());
     assert (!source.can_view_source ());
