@@ -8,11 +8,13 @@
 
  See the file COPYING for the full license text.
 */
+static string? tmp_folder = null;
 string get_test_file (string contents) {
-    string file;
-    int fd = FileUtils.open_tmp ("speeddialXXXXXX", out file);
+    if (tmp_folder == null)
+        tmp_folder = Midori.Paths.make_tmp_dir ("speeddialXXXXXX");
+    string checksum = Checksum.compute_for_string (ChecksumType.MD5, contents);
+    string file = Path.build_path (Path.DIR_SEPARATOR_S, tmp_folder, checksum);
     FileUtils.set_contents (file, contents, -1);
-    FileUtils.close (fd);
     return file;
 }
 
