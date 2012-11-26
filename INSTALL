@@ -14,10 +14,10 @@ Run './waf build'
 
 You can now run Midori from the build folder like so
 
-'./waf build --run'
+'_build/default/midori/midori'
 
-Using --run as shown above will make sure extensions as well as
-localizations are used from the build folder.
+Midori will pick up extensions and resources from the build folder;
+it will NOT use localizations.
 
 You can install it with './waf install'
 
@@ -29,15 +29,16 @@ For further options run './waf --help'
 
 +++ Debugging Midori +++
 
-Run './waf configure -d full' from the Midori folder.
+Midori is by default built with debugging symbols, make sure you have
+installed 'gdb', the GNU Debugger.
 
-Run './waf build'
+It's a good idea to execute all unit test cases and see that they pass.
 
-Midori is now built with debugging symbols.
+'xvfb-run ./waf check'
 
-Make sure you have installed 'gdb', the GNU Debugger.
+In this example, Xvfb is used to avoid relying on the local user setup.
 
-Run Midori as 'gdb _build/default/midori/midori'.
+You can also run Midori proper as 'gdb _build/default/midori/midori'.
 
 Inside gdb, type 'run'.
 
