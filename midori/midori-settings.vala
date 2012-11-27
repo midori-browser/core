@@ -41,7 +41,7 @@ namespace Midori {
         GLib.Regex? block_uris_regex = null;
         /* Since: 0.4.8 */
         public string? block_uris { get {
-            return block_uris_regex.get_pattern ();
+            return block_uris_regex != null ? block_uris_regex.get_pattern () : null;
         } set {
             if (value == null || value == "")
                 return;

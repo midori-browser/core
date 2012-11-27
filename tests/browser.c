@@ -162,9 +162,11 @@ static void
 browser_block_uris (void)
 {
     MidoriWebSettings* settings = g_object_new (MIDORI_TYPE_WEB_SETTINGS, NULL);
+    gchar* pattern = katze_object_get_string (settings, "block-uris");
     g_object_set (settings, "block-uris", NULL, NULL);
     g_object_set (settings, "block-uris", "", NULL);
     g_object_set (settings, "block-uris", "^(?!.*?(gmail|mail\\.google|accounts\\.google)).*", NULL);
+    g_free (pattern);
     g_object_unref (settings);
 }
 
