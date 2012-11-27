@@ -2304,10 +2304,11 @@ midori_browser_class_init (MidoriBrowserClass* class)
     */
     g_object_class_install_property (gobject_class,
                                      PROP_SPEED_DIAL,
-                                     g_param_spec_pointer (
+                                     g_param_spec_object (
                                      "speed-dial",
                                      "Speeddial",
                                      "Speed dial",
+                                     MIDORI_TYPE_SPEED_DIAL,
                                      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
     /**
@@ -6574,7 +6575,7 @@ midori_browser_finalize (GObject* object)
     katze_object_assign (browser->trash, NULL);
     katze_object_assign (browser->search_engines, NULL);
     katze_object_assign (browser->history, NULL);
-    browser->dial = NULL;
+    katze_object_assign (browser->dial, NULL);
 
     katze_assign (browser->news_aggregator, NULL);
 
@@ -7356,9 +7357,13 @@ midori_browser_set_property (GObject*      object,
         midori_browser_set_history (browser, g_value_get_object (value));
         break;
     case PROP_SPEED_DIAL:
-        browser->dial = g_value_get_pointer (value);
-        g_signal_connect (browser->dial, "refresh",
-            G_CALLBACK (midori_browser_speed_dial_refresh_cb), browser);
+        if (browser->dial != NULL)
+            g_signal_handlers_disconnect_by_func (browser->dial,
+                midori_browser_speed_dial_refresh_cb, browser);
+        katze_object_assign (browser->dial, g_value_dup_object (value));
+        if (browser->dial != NULL)
+            g_signal_connect (browser->dial, "refresh",
+                G_CALLBACK (midori_browser_speed_dial_refresh_cb), browser);
         break;
     case PROP_SHOW_TABS:
         browser->show_tabs = g_value_get_boolean (value);
@@ -7433,7 +7438,7 @@ midori_browser_get_property (GObject*    object,
         g_value_set_object (value, browser->history);
         break;
     case PROP_SPEED_DIAL:
-        g_value_set_pointer (value, browser->dial);
+        g_value_set_object (value, browser->dial);
         break;
     case PROP_SHOW_TABS:
         g_value_set_boolean (value, browser->show_tabs);

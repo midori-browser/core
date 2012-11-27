@@ -26,7 +26,6 @@ static void
 browser_create (void)
 {
     MidoriApp* app;
-    MidoriSpeedDial* dial;
     MidoriWebSettings* settings;
     MidoriBrowser* browser;
     gint n;
@@ -41,9 +40,8 @@ browser_create (void)
     g_test_log_set_fatal_handler (skip_gtk_bugs, NULL);
 
     app = midori_app_new ();
-    dial = midori_speed_dial_new ("/", NULL);
     settings = midori_web_settings_new ();
-    g_object_set (app, "speed-dial", dial, "settings", settings, NULL);
+    g_object_set (app, "settings", settings, NULL);
     browser = midori_app_create_browser (app);
     file = g_file_new_for_commandline_arg ("./data/about.css");
     uri = g_file_get_uri (file);
@@ -75,7 +73,6 @@ browser_create (void)
     gtk_widget_destroy (GTK_WIDGET (browser));
     g_object_unref (settings);
     g_object_unref (app);
-    g_object_unref (dial);
 }
 
 static void

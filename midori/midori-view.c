@@ -3834,7 +3834,7 @@ midori_view_set_uri (MidoriView*  view,
             katze_item_set_meta_string (view->item, "mime-type", "text/html");
             katze_item_set_meta_integer (view->item, "delay", MIDORI_DELAY_UNDELAYED);
 
-            html = midori_speed_dial_get_html (dial, NULL);
+            html = dial != NULL ? midori_speed_dial_get_html (dial, NULL) : "";
             midori_view_set_html (view, html, NULL, NULL);
 
             #ifdef G_ENABLE_DEBUG

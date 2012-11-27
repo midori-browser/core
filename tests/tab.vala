@@ -86,25 +86,20 @@ void tab_special () {
         msg.response_body.append_take ("<body></body>".data);
         });
 
-    var browser = new Gtk.Window (Gtk.WindowType.TOPLEVEL);
-    /*
-    var dial = new Midori.SpeedDial ("/", null);
-    var settings = new Midori.WebSettings ();
     var browser = new Midori.Browser ();
-    browser.set ("speed-dial", dial, "settings", settings);
-    */
+    var settings = new Midori.WebSettings ();
+    browser.set ("settings", settings);
     var tab = new Midori.View.with_title ();
     tab.settings = new Midori.WebSettings ();
     tab.settings.set ("enable-plugins", false);
-    browser.add (tab);
-    /* browser.add_tab (tab); */
+    browser.add_tab (tab);
     var loop = MainContext.default ();
 
-    /* tab.set_uri ("about:blank"); */
+    tab.set_uri ("about:blank");
     do { loop.iteration (true); } while (tab.load_status != Midori.LoadStatus.FINISHED);
     assert (tab.is_blank ());
     assert (!tab.can_view_source ());
-    /* FIXME assert (tab.special); */
+    assert (tab.special);
     assert (!tab.can_save ());
 
     tab.set_uri ("about:private");
@@ -146,13 +141,13 @@ void tab_special () {
 
     /* Mimic browser: SourceView with no external editor */
     var source = new Midori.View.with_title ();
-    browser.add (source);
+    browser.add_tab (source);
     source.web_view.set_view_source_mode (true);
     source.web_view.load_uri (test_url);
     do { loop.iteration (true); } while (source.load_status != Midori.LoadStatus.FINISHED);
     assert (!source.is_blank ());
     assert (!source.can_view_source ());
-    /* FIXME assert (!source.special); */
+    assert (!source.special);
     /* FIXME assert (source.can_save ()); */
     assert (source.web_view.get_view_source_mode ());
 
