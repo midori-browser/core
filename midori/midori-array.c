@@ -1101,8 +1101,7 @@ midori_array_query_recursive (KatzeArray*  bookmarks,
     g_return_val_if_fail (fields, NULL);
     g_return_val_if_fail (condition, NULL);
     db = g_object_get_data (G_OBJECT (bookmarks), "db");
-    if (db == NULL)
-        return NULL;
+    g_return_val_if_fail (db != NULL, NULL);
 
     sqlcmd = g_strdup_printf ("SELECT %s FROM bookmarks WHERE %s "
                               "ORDER BY (uri='') ASC, title DESC", fields, condition);

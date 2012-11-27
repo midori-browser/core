@@ -3070,10 +3070,7 @@ _action_bookmarks_populate_folder (GtkAction*     action,
     {
         if (!(bookmarks = midori_array_query (browser->bookmarks,
           "id, title, parentid, uri, app, pos_panel, pos_bar", "parentid is NULL", NULL)))
-        {
-            g_warning ("midori_array_query returned NULL)");
             return FALSE;
-        }
     }
     else
     {
@@ -3082,7 +3079,6 @@ _action_bookmarks_populate_folder (GtkAction*     action,
         if (!(bookmarks = midori_array_query (browser->bookmarks,
               "id, title, parentid, uri, app, pos_panel, pos_bar", "parentid = %q", parentid)))
         {
-            g_warning ("midori_array_query returned NULL (id='%s')", parentid);
             g_free (parentid);
             return FALSE;
         }
@@ -7185,7 +7181,6 @@ midori_bookmarkbar_populate (MidoriBrowser* browser)
         "id, parentid, title, uri, desc, app, toolbar, pos_panel, pos_bar", "toolbar = 1", NULL);
     if (!array)
     {
-        g_warning ("midori_array_query returned NULL");
         _action_set_sensitive (browser, "BookmarkAdd", FALSE);
         _action_set_sensitive (browser, "BookmarkFolderAdd", FALSE);
         return;
@@ -7203,15 +7198,9 @@ midori_bookmarkbar_populate (MidoriBrowser* browser)
                 "id, parentid, title, uri, desc, app, toolbar, pos_panel, pos_bar", "parentid = %q AND uri != ''",
                 parentid);
 
-            if (subfolder)
-            {
                 katze_item_set_name (KATZE_ITEM (subfolder), katze_item_get_name (item));
                 katze_item_set_meta_integer (KATZE_ITEM (subfolder), "id", id);
                 midori_bookmarkbar_insert_item (browser->bookmarkbar, KATZE_ITEM (subfolder));
-            }
-            else
-                g_warning ("midori_array_query returned NULL (id='%s')", parentid);
-
             g_free (parentid);
         }
     }
