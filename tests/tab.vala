@@ -76,6 +76,10 @@ static void tab_display_ellipsize () {
 }
 
 void tab_special () {
+    Test.log_set_fatal_handler ((domain, log_levels, message)=> {
+        return !message.contains("Error loading theme icon");
+        });
+
     var test_address = new Soup.Address ("127.0.0.1", Soup.ADDRESS_ANY_PORT);
     test_address.resolve_sync (null);
     var test_server = new Soup.Server ("interface", test_address, null);
