@@ -505,6 +505,11 @@ namespace HistoryList {
             list.remove (view);
             list_new.remove (view);
 
+            Midori.View? current_view = browser.tab as Midori.View;
+
+            if (current_view != view)
+                return;
+
             if (this.closing_behavior == TabClosingBehavior.LAST || this.closing_behavior == TabClosingBehavior.NEW) {
                 browser.set_data<Midori.View?> ("history-list-last-change", null);
 
