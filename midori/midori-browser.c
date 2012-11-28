@@ -3866,7 +3866,10 @@ _action_location_submit_uri (GtkAction*     action,
     if (found != NULL && !new_tab
      && !g_str_equal (midori_browser_get_current_uri (browser), uri))
     {
+        GtkWidget* view = midori_browser_get_current_tab (browser);
         midori_browser_set_current_item (browser, found);
+        if (midori_view_is_blank (MIDORI_VIEW (view)))
+            midori_browser_close_tab (browser, view);
         return;
     }
 
