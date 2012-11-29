@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2008-2010 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2008-2012 Christian Dywan <christian@twotoasts.de>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -22,6 +22,8 @@
 #include "midori-app.h"
 #include "midori-platform.h"
 #include "midori-core.h"
+#include "midori-session.h"
+#include "midori-searchaction.h"
 
 #include <string.h>
 #include <gtk/gtk.h>
@@ -1006,6 +1008,183 @@ midori_app_new (void)
                                    NULL);
 
     return app;
+}
+
+static MidoriBrowser*
+midori_web_app_browser_new_window_cb (MidoriBrowser* browser,
+                                      MidoriBrowser* new_browser,
+                                      gpointer       user_data)
+{
+    if (new_browser == NULL)
+        new_browser = midori_browser_new ();
+    g_object_set (new_browser,
+        "settings", midori_browser_get_settings (browser),
+        NULL);
+    gtk_widget_show (GTK_WIDGET (new_browser));
+    return new_browser;
+}
+
+void
+midori_web_app_new (const gchar* config,
+                    const gchar* webapp,
+                    gchar**      open_uris,
+                    gchar**      execute_commands,
+                    gint         inactivity_reset,
+                    const gchar* block_uris)
+{
+    midori_paths_init (MIDORI_RUNTIME_MODE_APP, config);
+    g_object_set_data (G_OBJECT (webkit_get_default_session ()), "pass-through-console", (void*)1);
+
+    MidoriBrowser* browser = midori_browser_new ();
+    g_signal_connect (browser, "new-window",
+        G_CALLBACK (midori_web_app_browser_new_window_cb), NULL);
+
+    gchar* tmp_uri = sokoke_prepare_uri (webapp);
+    midori_browser_set_action_visible (browser, "Menubar", FALSE);
+    midori_browser_set_action_visible (browser, "CompactMenu", FALSE);
+
+    MidoriWebSettings* settings = midori_browser_get_settings (browser);
+    g_object_set (settings,
+                  "show-menubar", FALSE,
+                  "show-navigationbar", FALSE,
+                  "toolbar-items", "Back,Forward,ReloadStop,Location,Homepage",
+                  "show-statusbar", FALSE,
+                  "homepage", tmp_uri,
+                  "show-panel", FALSE,
+                  "last-window-state", MIDORI_WINDOW_NORMAL,
+                  "inactivity-reset", inactivity_reset,
+                  "block-uris", block_uris,
+                  NULL);
+    midori_load_soup_session (settings);
+
+    KatzeArray* search_engines = midori_search_engines_new_from_folder (NULL);
+    g_object_set (browser,
+                  "show-tabs", open_uris != NULL,
+                  NULL);
+    midori_browser_set_action_visible (browser, "Panel", FALSE);
+    g_object_unref (search_engines);
+
+    midori_browser_add_uri (browser, tmp_uri);
+    g_free (tmp_uri);
+    g_signal_connect (browser, "quit", G_CALLBACK (gtk_main_quit), NULL);
+    g_signal_connect (browser, "destroy", G_CALLBACK (gtk_main_quit), NULL);
+    gtk_widget_show (GTK_WIDGET (browser));
+
+    guint i;
+    if (open_uris != NULL)
+        for (i = 0; open_uris[i] != NULL; i++)
+        {
+            gchar* new_uri = sokoke_prepare_uri (open_uris[i]);
+            midori_browser_add_uri (browser, new_uri);
+            g_free (new_uri);
+        }
+
+    if (execute_commands != NULL)
+        for (i = 0; execute_commands[i] != NULL; i++)
+            midori_browser_activate_action (browser, execute_commands[i]);
+}
+
+static void
+midori_trash_add_item_no_save_cb (KatzeArray* trash,
+                                  GObject*    item)
+{
+    if (katze_array_get_nth_item (trash, 10))
+    {
+        KatzeItem* obsolete_item = katze_array_get_nth_item (trash, 0);
+        katze_array_remove_item (trash, obsolete_item);
+    }
+}
+
+void
+midori_private_app_new (const gchar* config,
+                        const gchar* webapp,
+                        gchar**      open_uris,
+                        gchar**      execute_commands,
+                        gint         inactivity_reset,
+                        const gchar* block_uris)
+{
+    midori_paths_init (MIDORI_RUNTIME_MODE_PRIVATE, config);
+    g_object_set_data (G_OBJECT (webkit_get_default_session ()), "pass-through-console", (void*)1);
+
+    /* Mask the timezone, which can be read by Javascript */
+    g_setenv ("TZ", "UTC", TRUE);
+
+    MidoriBrowser* browser = midori_browser_new ();
+    g_signal_connect (browser, "new-window",
+        G_CALLBACK (midori_web_app_browser_new_window_cb), NULL);
+
+    MidoriWebSettings* settings = midori_settings_new_full (NULL);
+    g_object_set (settings,
+                  "preferred-languages", "en",
+                  "enable-private-browsing", TRUE,
+    #ifdef HAVE_LIBSOUP_2_29_91
+                  "first-party-cookies-only", TRUE,
+    #endif
+                  "enable-html5-database", FALSE,
+                  "enable-html5-local-storage", FALSE,
+                  "enable-offline-web-application-cache", FALSE,
+    /* Arguably DNS prefetching is or isn't a privacy concern. For the
+     * lack of more fine-grained control we'll go the safe route. */
+    #if WEBKIT_CHECK_VERSION (1, 3, 11)
+                  "enable-dns-prefetching", FALSE,
+    #endif
+                  "strip-referer", TRUE,
+                  "show-panel", FALSE,
+                  "last-window-state", MIDORI_WINDOW_NORMAL,
+                  "inactivity-reset", inactivity_reset,
+                  "block-uris", block_uris,
+                  NULL);
+    midori_load_soup_session (settings);
+
+    /* In-memory trash for re-opening closed tabs */
+    KatzeArray* trash = katze_array_new (KATZE_TYPE_ITEM);
+    g_signal_connect_after (trash, "add-item",
+      G_CALLBACK (midori_trash_add_item_no_save_cb), NULL);
+
+    KatzeArray* search_engines = midori_search_engines_new_from_folder (NULL);
+    g_object_set (browser,
+                  "settings", settings,
+                  "trash", trash,
+                  "search-engines", search_engines,
+                  NULL);
+    g_object_unref (settings);
+    g_object_unref (trash);
+    g_object_unref (search_engines);
+
+    midori_browser_set_action_visible (browser, "Tools", FALSE);
+    midori_browser_set_action_visible (browser, "ClearPrivateData", FALSE);
+    midori_browser_set_action_visible (browser, "Panel", FALSE);
+    #if GTK_CHECK_VERSION (3, 0, 0)
+    g_object_set (gtk_widget_get_settings (GTK_WIDGET (browser)),
+                  "gtk-application-prefer-dark-theme", TRUE,
+                  NULL);
+    #endif
+
+    if (webapp != NULL)
+    {
+        gchar* tmp_uri = sokoke_prepare_uri (webapp);
+        midori_browser_add_uri (browser, tmp_uri);
+        g_free (tmp_uri);
+    }
+    else if (open_uris == NULL)
+        midori_browser_add_uri (browser, "about:private");
+
+    g_signal_connect (browser, "quit", G_CALLBACK (gtk_main_quit), NULL);
+    g_signal_connect (browser, "destroy", G_CALLBACK (gtk_main_quit), NULL);
+    gtk_widget_show (GTK_WIDGET (browser));
+
+    guint i;
+    if (open_uris != NULL)
+        for (i = 0; open_uris[i] != NULL; i++)
+        {
+            gchar* new_uri = sokoke_prepare_uri (open_uris[i]);
+            midori_browser_add_uri (browser, new_uri);
+            g_free (new_uri);
+        }
+
+    if (execute_commands != NULL)
+        for (i = 0; execute_commands[i] != NULL; i++)
+            midori_browser_activate_action (browser, execute_commands[i]);
 }
 
 /**
