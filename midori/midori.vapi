@@ -113,9 +113,13 @@ namespace Midori {
         public void set_string (string name, string value);
 
         [NoAccessorMethod]
+        public string? stock_id { get; set; }
+        [NoAccessorMethod]
         public string name { get; set; }
         [NoAccessorMethod]
         public string description { get; set; }
+        [NoAccessorMethod]
+        public bool use_markup { get; set; }
         [NoAccessorMethod]
         public string version { get; set; }
         [NoAccessorMethod]

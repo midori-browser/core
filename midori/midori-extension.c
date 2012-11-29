@@ -21,8 +21,10 @@ G_DEFINE_TYPE (MidoriExtension, midori_extension, G_TYPE_OBJECT);
 
 struct _MidoriExtensionPrivate
 {
+    gchar* stock_id;
     gchar* name;
     gchar* description;
+    gboolean use_markup;
     gchar* version;
     gchar* authors;
     gchar* website;
@@ -125,8 +127,10 @@ enum
 {
     PROP_0,
 
+    PROP_STOCK_ID,
     PROP_NAME,
     PROP_DESCRIPTION,
+    PROP_USE_MARKUP,
     PROP_VERSION,
     PROP_AUTHORS,
     PROP_WEBSITE,
@@ -212,6 +216,15 @@ midori_extension_class_init (MidoriExtensionClass* class)
     flags = G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_STATIC_STRINGS;
 
     g_object_class_install_property (gobject_class,
+                                     PROP_STOCK_ID,
+                                     g_param_spec_string (
+                                     "stock-id",
+                                     "Stock ID",
+                                     "An optional icon stock ID",
+                                     NULL,
+                                     flags));
+
+    g_object_class_install_property (gobject_class,
                                      PROP_NAME,
                                      g_param_spec_string (
                                      "name",
@@ -227,6 +240,15 @@ midori_extension_class_init (MidoriExtensionClass* class)
                                      "Description",
                                      "The description of the extension",
                                      NULL,
+                                     flags));
+
+    g_object_class_install_property (gobject_class,
+                                     PROP_USE_MARKUP,
+                                     g_param_spec_boolean (
+                                     "use-markup",
+                                     "Use Markup",
+                                     "Whether to use Pango markup",
+                                     FALSE,
                                      flags));
 
     g_object_class_install_property (gobject_class,
@@ -418,6 +440,7 @@ midori_extension_finalize (GObject* object)
     MidoriExtension* extension = MIDORI_EXTENSION (object);
 
     katze_object_assign (extension->priv->app, NULL);
+    katze_assign (extension->priv->stock_id, NULL);
     katze_assign (extension->priv->name, NULL);
     katze_assign (extension->priv->description, NULL);
     katze_assign (extension->priv->version, NULL);
@@ -442,11 +465,17 @@ midori_extension_set_property (GObject*      object,
 
     switch (prop_id)
     {
+    case PROP_STOCK_ID:
+        katze_assign (extension->priv->stock_id, g_value_dup_string (value));
+        break;
     case PROP_NAME:
         katze_assign (extension->priv->name, g_value_dup_string (value));
         break;
     case PROP_DESCRIPTION:
         katze_assign (extension->priv->description, g_value_dup_string (value));
+        break;
+    case PROP_USE_MARKUP:
+        extension->priv->use_markup = g_value_get_boolean (value);
         break;
     case PROP_VERSION:
     {
@@ -489,11 +518,17 @@ midori_extension_get_property (GObject*    object,
 
     switch (prop_id)
     {
+    case PROP_STOCK_ID:
+        g_value_set_string (value, extension->priv->stock_id);
+        break;
     case PROP_NAME:
         g_value_set_string (value, extension->priv->name);
         break;
     case PROP_DESCRIPTION:
         g_value_set_string (value, extension->priv->description);
+        break;
+    case PROP_USE_MARKUP:
+        g_value_set_boolean (value, extension->priv->use_markup);
         break;
     case PROP_VERSION:
         g_value_set_string (value, extension->priv->version);

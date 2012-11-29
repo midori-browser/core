@@ -231,12 +231,15 @@ midori_extensions_treeview_render_icon_cb (GtkTreeViewColumn* column,
                                            GtkWidget*         treeview)
 {
     MidoriExtension* extension;
+    gchar* stock_id;
     gtk_tree_model_get (model, iter, 0, &extension, -1);
 
-    g_object_set (renderer, "stock-id", STOCK_EXTENSION,
+    stock_id = katze_object_get_object (extension, "stock-id");
+    g_object_set (renderer, "stock-id", stock_id ? stock_id : STOCK_EXTENSION,
                             "stock-size", GTK_ICON_SIZE_BUTTON,
                             "sensitive", midori_extension_is_prepared (extension),
                             "xpad", 4, NULL);
+    g_free (stock_id);
     g_object_unref (extension);
 }
 
@@ -276,8 +279,12 @@ midori_extensions_treeview_render_text_cb (GtkTreeViewColumn* column,
     name = katze_object_get_string (extension, "name");
     version = katze_object_get_string (extension, "version");
     desc = katze_object_get_string (extension, "description");
-    text = g_markup_printf_escaped ("<b>%s</b> %s\n%s",
-        name, version && *version ? version : "", desc);
+    if (katze_object_get_boolean (extension, "use-markup"))
+        text = g_strdup_printf ("<b>%s</b> %s\n%s",
+            name, version && *version ? version : "", desc);
+    else
+        text = g_markup_printf_escaped ("<b>%s</b> %s\n%s",
+            name, version && *version ? version : "", desc);
     g_free (name);
     g_free (version);
     g_free (desc);
