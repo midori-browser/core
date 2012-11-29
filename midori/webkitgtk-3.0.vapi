@@ -390,6 +390,25 @@ namespace WebKit {
 		public WebKit.WebNavigationReason reason { get; set construct; }
 		public string target_frame { get; construct; }
 	}
+	[CCode (cheader_filename = "webkit/webkit.h", type_id = "webkit_web_plugin_get_type ()")]
+	public class WebPlugin : GLib.Object {
+		[CCode (has_construct_function = false)]
+		protected WebPlugin ();
+		public unowned string get_description ();
+		public bool get_enabled ();
+		public unowned string get_name ();
+		public unowned string get_path ();
+		public void set_enabled (bool enabled);
+		public bool enabled { get; set; }
+	}
+	[CCode (cheader_filename = "webkit/webkit.h", type_id = "webkit_web_plugin_database_get_type ()")]
+	public class WebPluginDatabase : GLib.Object {
+		[CCode (has_construct_function = false)]
+		protected WebPluginDatabase ();
+		public WebKit.WebPlugin get_plugin_for_mimetype (string mime_type);
+		public GLib.SList<WebKit.WebPlugin> get_plugins ();
+		public void refresh ();
+	}
 	[CCode (cheader_filename = "webkit/webkit.h")]
 	public class WebPolicyDecision : GLib.Object {
 		[CCode (has_construct_function = false)]
@@ -778,6 +797,8 @@ namespace WebKit {
 	public static uint64 get_default_web_database_quota ();
 	[CCode (cheader_filename = "webkit/webkit.h")]
 	public static unowned string get_web_database_directory_path ();
+	[CCode (cheader_filename = "webkit/webkit.h")]
+	public static unowned WebKit.WebPluginDatabase get_web_plugin_database ();
 	[CCode (cheader_filename = "webkit/webkit.h")]
 	public static uint major_version ();
 	[CCode (cheader_filename = "webkit/webkit.h")]

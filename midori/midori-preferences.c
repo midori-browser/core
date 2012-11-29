@@ -327,7 +327,6 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     /* Page "Appearance" */
     PAGE_NEW (GTK_STOCK_SELECT_FONT, _("Fonts"));
     FRAME_NEW (NULL);
-    #if !HAVE_HILDON
     label = gtk_label_new (_("Proportional Font Family"));
     gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
     INDENTED_ADD (label);
@@ -354,7 +353,6 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     SPANNED_ADD (entry);
     button = katze_property_proxy (settings, "enforce-font-family", NULL);
     INDENTED_ADD (button);
-    #endif
     label = gtk_label_new (_("Preferred Encoding"));
     gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
     INDENTED_ADD (label);
@@ -364,7 +362,6 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     /* Page "Behavior" */
     PAGE_NEW (GTK_STOCK_SELECT_COLOR, _("Behavior"));
     FRAME_NEW (NULL);
-    #if !HAVE_HILDON
     button = katze_property_proxy (settings, "auto-load-images", NULL);
     gtk_button_set_label (GTK_BUTTON (button), _("Load images automatically"));
     INDENTED_ADD (button);
@@ -385,11 +382,15 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     button = katze_property_proxy (settings, "enable-scripts", NULL);
     gtk_button_set_label (GTK_BUTTON (button), _("Enable scripts"));
     INDENTED_ADD (button);
+    #if WEBKIT_CHECK_VERSION (1, 3, 8)
+    button = katze_property_proxy (settings, "enable-webgl", NULL);
+    gtk_button_set_label (GTK_BUTTON (button), _("Enable WebGL support"));
+    #else
     button = katze_property_proxy (settings, "enable-plugins", NULL);
     gtk_button_set_label (GTK_BUTTON (button), _("Enable Netscape plugins"));
     gtk_widget_set_sensitive (button, midori_web_settings_has_plugin_support ());
-    SPANNED_ADD (button);
     #endif
+    SPANNED_ADD (button);
     button = katze_property_proxy (settings, "zoom-text-and-images", NULL);
     gtk_button_set_label (GTK_BUTTON (button), _("Zoom Text and Images"));
     INDENTED_ADD (button);
@@ -411,16 +412,10 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
         gtk_widget_set_tooltip_text (button, _("Load an address from the selection via middle click"));
     }
     INDENTED_ADD (button);
-    if (katze_object_has_property (settings, "enable-webgl"))
-    {
-        button = katze_property_proxy (settings, "enable-webgl", NULL);
-        gtk_button_set_label (GTK_BUTTON (button), _("Enable WebGL support"));
-        SPANNED_ADD (button);
-    }
     #ifndef G_OS_WIN32
     button = katze_property_proxy (settings, "flash-window-on-new-bg-tabs", NULL);
     gtk_button_set_label (GTK_BUTTON (button), _("Flash window on background tabs"));
-    INDENTED_ADD (button);
+    SPANNED_ADD (button);
     #endif
 
     FRAME_NEW (NULL);

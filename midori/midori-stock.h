@@ -21,7 +21,7 @@
 #define STOCK_NEWS_FEED          "internet-news-reader"
 #define STOCK_STYLE              "preferences-desktop-theme"
 #define STOCK_TRANSFER           "package"
-#define STOCK_PLUGINS            "application-x-shockwave-flash"
+#define MIDORI_STOCK_PLUGINS     "application-x-shockwave-flash"
 #define STOCK_BOOKMARK_ADD       "bookmark-new"
 #define STOCK_IMAGE              "image-x-generic"
 #define STOCK_NETWORK_OFFLINE    "network-offline"

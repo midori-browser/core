@@ -172,7 +172,7 @@ statusbar_features_property_proxy (MidoriWebSettings* settings,
         if (!midori_web_settings_has_plugin_support ())
             gtk_widget_hide (button);
         g_object_set_data (G_OBJECT (button), "feature-label", _("Netscape plugins"));
-        image = gtk_image_new_from_stock (STOCK_PLUGINS, GTK_ICON_SIZE_MENU);
+        image = gtk_image_new_from_stock (MIDORI_STOCK_PLUGINS, GTK_ICON_SIZE_MENU);
         gtk_button_set_image (GTK_BUTTON (button), image);
         gtk_widget_set_tooltip_text (button, _("Enable Netscape plugins"));
         statusbar_features_toolbar_notify_toolbar_style_cb (toolbar, NULL, button);
@@ -220,8 +220,10 @@ statusbar_features_app_add_browser_cb (MidoriApp*       app,
         gtk_box_pack_start (GTK_BOX (bbox), button, FALSE, FALSE, 2);
         button = statusbar_features_property_proxy (settings, "enable-scripts", toolbar);
         gtk_box_pack_start (GTK_BOX (bbox), button, FALSE, FALSE, 2);
+        #if !WEBKIT_CHECK_VERSION (1, 3, 8)
         button = statusbar_features_property_proxy (settings, "enable-plugins", toolbar);
         gtk_box_pack_start (GTK_BOX (bbox), button, FALSE, FALSE, 2);
+        #endif
         button = statusbar_features_property_proxy (settings, "identify-as", toolbar);
         gtk_box_pack_start (GTK_BOX (bbox), button, FALSE, FALSE, 2);
         button = statusbar_features_property_proxy (settings, "zoom-level", toolbar);
