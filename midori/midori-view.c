@@ -2354,7 +2354,6 @@ midori_view_populate_popup (MidoriView* view,
                     _("Add _search engine..."), NULL,
                     G_CALLBACK (midori_view_menu_add_search_engine_cb), widget);
                 g_object_set_data (G_OBJECT (menuitem), "item", item);
-                gtk_menu_shell_append (menu_shell, menuitem);
                 gtk_widget_show (menuitem);
             }
         }
