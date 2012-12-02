@@ -825,10 +825,11 @@ midori_app_get_crashed (MidoriApp* app)
            and deleted during normal runtime, but persists in case of a crash. */
         gchar* config_file = midori_paths_get_config_filename_for_writing ("running");
         gboolean crashed = (g_access (config_file, F_OK) == 0);
+        if (!crashed)
+            g_file_set_contents (config_file, "RUNNING", -1, NULL);
         g_free (config_file);
         if (crashed)
             return TRUE;
-        g_file_set_contents (config_file, "RUNNING", -1, NULL);
     }
 
     return FALSE;
