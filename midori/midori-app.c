@@ -33,16 +33,7 @@
     #include <locale.h>
 #endif
 
-#if HAVE_HILDON
-    #include <libosso.h>
-    #ifdef HAVE_HILDON_2_2
-        #include <dbus/dbus.h>
-        #include <mce/mode-names.h>
-        #include <mce/dbus-names.h>
-    #endif
-    typedef osso_context_t* MidoriAppInstance;
-    #define MidoriAppInstanceNull NULL
-#elif HAVE_UNIQUE
+#if HAVE_UNIQUE
     typedef gpointer MidoriAppInstance;
     #define MidoriAppInstanceNull NULL
     #if defined(G_DISABLE_DEPRECATED) && !defined(G_CONST_RETURN)
@@ -86,7 +77,7 @@ struct _MidoriApp
     MidoriBrowser* browser;
     MidoriAppInstance instance;
 
-    #if !HAVE_HILDON || !HAVE_LIBNOTIFY
+    #if !HAVE_LIBNOTIFY
     gchar* program_notify_send;
     #endif
 };
@@ -598,36 +589,7 @@ midori_app_command_received (MidoriApp*   app,
     return FALSE;
 }
 
-#if HAVE_HILDON
-static osso_return_t
-midori_app_osso_rpc_handler_cb (const gchar* interface,
-                                const gchar* method,
-                                GArray*      arguments,
-                                gpointer     data,
-                                osso_rpc_t * retval)
-{
-    MidoriApp* app = MIDORI_APP (data);
-    GdkScreen* screen = NULL;
-    gboolean success;
-
-    if (!g_strcmp0 (method, "top_application"))
-        success = midori_app_command_received (app, "activate", NULL, screen);
-    else if (!g_strcmp0 (method, "new"))
-        success = midori_app_command_received (app, "new", NULL, screen);
-    else if (!g_strcmp0 (method, "open"))
-    {
-        /* FIXME: Handle arguments */
-        success = midori_app_command_received (app, "open", NULL, screen);
-    }
-    else if (!g_strcmp0 (method, "command"))
-    {
-        /* FIXME: Handle arguments */
-        success = midori_app_command_received (app, "command", NULL, screen);
-    }
-
-    return success ? OSSO_OK : OSSO_INVALID;
-}
-#elif HAVE_UNIQUE
+#if HAVE_UNIQUE
 static UniqueResponse
 midori_browser_message_received_cb (UniqueApp*         instance,
                                     gint               command,
@@ -727,30 +689,6 @@ static MidoriAppInstance
 midori_app_create_instance (MidoriApp* app)
 {
     MidoriAppInstance instance;
-
-    #if HAVE_HILDON
-    instance = osso_initialize (PACKAGE_NAME, PACKAGE_VERSION, FALSE, NULL);
-
-    if (!instance)
-    {
-        g_critical ("Error initializing OSSO D-Bus context - Midori");
-        return NULL;
-    }
-
-    if (osso_rpc_set_default_cb_f (instance, midori_app_osso_rpc_handler_cb,
-                                   app) != OSSO_OK)
-    {
-        g_critical ("Error initializing remote procedure call handler - Midori");
-        osso_deinitialize (instance);
-        return NULL;
-    }
-
-    #ifdef HAVE_HILDON_2_2
-    if (OSSO_OK == osso_rpc_run_system (instance, MCE_SERVICE, MCE_REQUEST_PATH,
-        MCE_REQUEST_IF, MCE_ACCELEROMETER_ENABLE_REQ, NULL, DBUS_TYPE_INVALID))
-        /* Accelerometer enabled */;
-    #endif
-    #else
     GdkDisplay* display;
     gchar* display_name;
     gchar* instance_name;
@@ -805,7 +743,6 @@ midori_app_create_instance (MidoriApp* app)
         g_io_add_watch (channel, G_IO_IN | G_IO_PRI | G_IO_ERR,
             (GIOFunc)midori_app_io_channel_watch_cb, app);
     }
-    #endif
     #endif
     return instance;
 }
@@ -888,10 +825,7 @@ midori_app_finalize (GObject* object)
     katze_object_assign (app->extensions, NULL);
     katze_object_assign (app->browsers, NULL);
 
-    #if HAVE_HILDON
-    osso_deinitialize (app->instance);
-    app->instance = NULL;
-    #elif HAVE_UNIQUE
+    #if HAVE_UNIQUE
     katze_object_assign (app->instance, NULL);
     #else
     sock_cleanup ();
@@ -1029,11 +963,7 @@ midori_app_instance_is_running (MidoriApp* app)
     if (app->instance == MidoriAppInstanceNull)
         app->instance = midori_app_create_instance (app);
 
-    #if HAVE_HILDON
-    /* FIXME: Determine if application is running already */
-    if (app->instance)
-        return FALSE;
-    #elif HAVE_UNIQUE
+    #if HAVE_UNIQUE
     if (app->instance)
         return unique_app_is_running (app->instance);
     #else
@@ -1063,9 +993,7 @@ midori_app_instance_send_activate (MidoriApp* app)
     /* g_return_val_if_fail (MIDORI_IS_APP (app), FALSE); */
     g_return_val_if_fail (midori_app_instance_is_running (app), FALSE);
 
-    #if HAVE_HILDON
-    osso_application_top (app->instance, PACKAGE_NAME, NULL);
-    #elif HAVE_UNIQUE
+    #if HAVE_UNIQUE
     if (app->instance)
     {
         response = unique_app_send_message (app->instance, UNIQUE_ACTIVATE, NULL);
@@ -1101,9 +1029,7 @@ midori_app_instance_send_new_browser (MidoriApp* app)
     /* g_return_val_if_fail (MIDORI_IS_APP (app), FALSE); */
     g_return_val_if_fail (midori_app_instance_is_running (app), FALSE);
 
-    #if HAVE_HILDON
-    osso_application_top (app->instance, PACKAGE_NAME, "new");
-    #elif HAVE_UNIQUE
+    #if HAVE_UNIQUE
     if (app->instance)
     {
         response = unique_app_send_message (app->instance, UNIQUE_NEW, NULL);
@@ -1218,9 +1144,7 @@ midori_app_send_command (MidoriApp* app,
     else
         return midori_app_command_received (app, "command", command, NULL);
 
-    #if HAVE_HILDON
-    /* FIXME: Implement */
-    #elif HAVE_UNIQUE
+    #if HAVE_UNIQUE
     if (app->instance)
     {
         message = unique_message_data_new ();
@@ -1378,10 +1302,7 @@ midori_app_send_notification (MidoriApp*   app,
     g_return_if_fail (MIDORI_IS_APP (app));
     g_return_if_fail (title);
 
-    #if HAVE_HILDON
-    hildon_banner_show_information_with_markup (GTK_WIDGET (app->browser),
-                                                "midori", message);
-    #elif HAVE_LIBNOTIFY
+    #if HAVE_LIBNOTIFY
     if (notify_is_initted ())
     {
         NotifyNotification* note;
