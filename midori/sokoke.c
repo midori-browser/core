@@ -795,7 +795,7 @@ sokoke_action_create_popup_menu_item (GtkAction* action)
         if (label)
         {
             menuitem = gtk_image_menu_item_new_with_mnemonic (label);
-            icon = gtk_image_new_from_stock (stock_id, GTK_ICON_SIZE_MENU);
+            icon = gtk_action_create_icon (action, GTK_ICON_SIZE_MENU);
             gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), icon);
         }
         else
