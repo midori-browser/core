@@ -144,7 +144,7 @@ void tab_special () {
     tab.destroy ();
 
     /* Mimic browser: SourceView with no external editor */
-    var source = new Midori.View.with_title ();
+    var source = new Midori.View.with_title (null, tab.settings);
     browser.add_tab (source);
     source.web_view.set_view_source_mode (true);
     source.web_view.load_uri (test_url);
