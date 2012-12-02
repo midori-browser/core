@@ -48,18 +48,6 @@
     #include <unistd.h>
 #endif
 
-#ifdef HAVE_HILDON_2_2
-    #include <dbus/dbus.h>
-    #include <mce/mode-names.h>
-    #include <mce/dbus-names.h>
-    #define MCE_SIGNAL_MATCH "type='signal'," \
-        "sender='"    MCE_SERVICE     "',"    \
-        "path='"      MCE_SIGNAL_PATH "',"    \
-        "interface='" MCE_SIGNAL_IF   "'"
-    #include <gdk/gdkx.h>
-    #include <X11/Xatom.h>
-#endif
-
 #include <sqlite3.h>
 
 #ifdef HAVE_X11_EXTENSIONS_SCRNSAVER_H
@@ -71,12 +59,7 @@
 
 struct _MidoriBrowser
 {
-    #if HAVE_HILDON
-    HildonWindow parent_instance;
-    #else
     GtkWindow parent_instance;
-    #endif
-
     GtkActionGroup* action_group;
     GtkWidget* menubar;
     GtkWidget* throbber;
@@ -118,11 +101,7 @@ struct _MidoriBrowser
     gchar* news_aggregator;
 };
 
-#if HAVE_HILDON
-G_DEFINE_TYPE (MidoriBrowser, midori_browser, HILDON_TYPE_WINDOW)
-#else
 G_DEFINE_TYPE (MidoriBrowser, midori_browser, GTK_TYPE_WINDOW)
-#endif
 
 enum
 {
@@ -907,11 +886,6 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
             gtk_dialog_get_widget_for_response (GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT));
         #else
             NULL);
-        #endif
-        #if HAVE_HILDON
-        HildonGtkInputMode mode = hildon_gtk_entry_get_input_mode (GTK_ENTRY (entry_uri));
-        mode &= ~HILDON_GTK_INPUT_MODE_AUTOCAP;
-        hildon_gtk_entry_set_input_mode (GTK_ENTRY (entry_uri), mode);
         #endif
         gtk_entry_set_activates_default (GTK_ENTRY (entry_uri), TRUE);
         gtk_entry_set_text (GTK_ENTRY (entry_uri), katze_item_get_uri (bookmark));
@@ -2432,9 +2406,7 @@ static void
 _action_add_desktop_shortcut_activate (GtkAction*     action,
                                        MidoriBrowser* browser)
 {
-    #if HAVE_HILDON
-    /* TODO: Implement */
-    #elif defined (GDK_WINDOWING_X11)
+    #if defined (GDK_WINDOWING_X11)
     GtkWidget* tab = midori_browser_get_current_tab (browser);
     KatzeItem* item = midori_view_get_proxy_item (MIDORI_VIEW (tab));
     const gchar* app_name = katze_item_get_name (item);
@@ -3132,12 +3104,9 @@ _action_compact_menu_populate_popup (GtkAction*     action,
       { "PrivateBrowsing" },
       { NULL },
       { "Find" },
-      #if !HAVE_HILDON
       { "Print" },
-      #endif
       { "Fullscreen" },
       { NULL },
-      #if !HAVE_HILDON
       { "p" },
       { NULL },
       { "BookmarksImport" },
@@ -3147,51 +3116,19 @@ _action_compact_menu_populate_popup (GtkAction*     action,
       { "AddDesktopShortcut" },
       #endif
       { "-" },
-      #endif
       { NULL },
-      #if !HAVE_HILDON
       #ifndef HAVE_GRANITE
       { "HelpFAQ" },
       { "HelpBugs"},
       #endif
-      #endif
       { "About" },
       { "Preferences" },
-      #if HAVE_HILDON
-      { NULL },
-      { "auto-load-images" },
-      { "enable-scripts" },
-      { "enable-plugins" },
-      #endif
     };
 
     guint i;
 
     for (i = 0; i < G_N_ELEMENTS (actions); i++)
     {
-        #ifdef HAVE_HILDON_2_2
-        GtkAction* _action;
-        gchar* label;
-        GtkWidget* button;
-
-        if (!actions[i].name)
-            continue;
-        _action = _action_by_name (browser, actions[i].name);
-        if (_action)
-        {
-            label = katze_object_get_string (_action, "label");
-            button = hildon_gtk_button_new (HILDON_SIZE_FINGER_HEIGHT | HILDON_SIZE_AUTO_WIDTH);
-            gtk_button_set_label (GTK_BUTTON (button), label);
-            gtk_button_set_use_underline (GTK_BUTTON (button), TRUE);
-            g_free (label);
-            g_signal_connect_swapped (button, "clicked",
-                G_CALLBACK (gtk_action_activate), _action);
-        }
-        else
-            button = katze_property_proxy (browser->settings, actions[i].name, NULL);
-        gtk_widget_show (button);
-        hildon_app_menu_append (HILDON_APP_MENU (menu), GTK_BUTTON (button));
-        #else
         GtkWidget* menuitem;
         if (actions[i].name != NULL)
         {
@@ -3224,7 +3161,6 @@ _action_compact_menu_populate_popup (GtkAction*     action,
             gtk_widget_show (menuitem);
         }
         gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-        #endif
     }
 }
 
@@ -3263,14 +3199,10 @@ _action_preferences_activate (GtkAction*     action,
 static gboolean
 midori_browser_has_native_menubar (void)
 {
-    #if HAVE_HILDON
-    return TRUE;
-    #else
     static const gchar* ubuntu_menuproxy = NULL;
     if (ubuntu_menuproxy == NULL)
         ubuntu_menuproxy = g_getenv ("UBUNTU_MENUPROXY");
     return ubuntu_menuproxy && strstr (ubuntu_menuproxy, ".so") != NULL;
-    #endif
 }
 
 static void
@@ -5263,11 +5195,8 @@ static const GtkActionEntry entries[] =
         N_("Add to Speed _dial"), "<Ctrl>h",
         NULL, G_CALLBACK (_action_add_speed_dial_activate) },
     { "AddDesktopShortcut", NULL,
-    #if HAVE_HILDON
-        N_("Add Shortcut to the _desktop"), "",
-    #else
+        /* N_("Add Shortcut to the _desktop"), "", */
         N_("Create _Launcher"), "",
-    #endif
         NULL, G_CALLBACK (_action_add_desktop_shortcut_activate) },
     { "AddNewsFeed", NULL,
         N_("Subscribe to News _feed"), NULL,
@@ -5808,22 +5737,10 @@ static void
 midori_browser_realize_cb (GtkStyle*      style,
                            MidoriBrowser* browser)
 {
-    GdkScreen* screen;
-    GtkIconTheme* icon_theme;
-    #ifdef HAVE_HILDON_2_2
-    /* hildon_gtk_window_enable_zoom_keys */
-    guint32 set = 1;
-    gdk_property_change (gtk_widget_get_window (GTK_WIDGET (browser)),
-                         gdk_atom_intern ("_HILDON_ZOOM_KEY_ATOM", FALSE),
-                         gdk_x11_xatom_to_atom (XA_INTEGER),
-                         32, GDK_PROP_MODE_REPLACE,
-                         (const guchar *) &set, 1);
-    #endif
-
-    screen = gtk_widget_get_screen (GTK_WIDGET (browser));
+    GdkScreen* screen = gtk_widget_get_screen (GTK_WIDGET (browser));
     if (screen)
     {
-        icon_theme = gtk_icon_theme_get_for_screen (screen);
+        GtkIconTheme* icon_theme = gtk_icon_theme_get_for_screen (screen);
         if (gtk_icon_theme_has_icon (icon_theme, "midori"))
             gtk_window_set_icon_name (GTK_WINDOW (browser), "midori");
         else
@@ -5911,58 +5828,6 @@ midori_browser_accel_switch_tab_activate_cb (GtkAccelGroup*  accel_group,
     }
 }
 
-#ifdef HAVE_HILDON_2_2
-static void
-midori_browser_set_portrait_mode (MidoriBrowser* browser,
-                                  gboolean       portrait)
-{
-    if (portrait)
-        hildon_gtk_window_set_portrait_flags (GTK_WINDOW (browser),
-                                              HILDON_PORTRAIT_MODE_REQUEST);
-    else
-        hildon_gtk_window_set_portrait_flags (GTK_WINDOW (browser),
-                                              ~HILDON_PORTRAIT_MODE_REQUEST);
-    _action_set_visible (browser, "Tools", !portrait);
-    _action_set_visible (browser, "CompactAdd", !portrait);
-    _action_set_visible (browser, "Back", !portrait);
-    _action_set_visible (browser, "SourceView", !portrait);
-    _action_set_visible (browser, "Fullscreen", !portrait);
-}
-
-static DBusHandlerResult
-midori_browser_mce_filter_cb (DBusConnection* connection,
-                              DBusMessage*    message,
-                              gpointer        data)
-{
-    if (dbus_message_is_signal (message, MCE_SIGNAL_IF, MCE_DEVICE_ORIENTATION_SIG))
-    {
-        DBusError error;
-        char *rotation, *stand, *face;
-        int x, y, z;
-
-        dbus_error_init (&error);
-        if (dbus_message_get_args (message,
-                                   &error,
-                                   DBUS_TYPE_STRING, &rotation,
-                                   DBUS_TYPE_STRING, &stand,
-                                   DBUS_TYPE_STRING, &face,
-                                   DBUS_TYPE_INT32,  &x,
-                                   DBUS_TYPE_INT32,  &y,
-                                   DBUS_TYPE_INT32,  &z, DBUS_TYPE_INVALID))
-        {
-            gboolean portrait = !strcmp (rotation, MCE_ORIENTATION_PORTRAIT);
-            midori_browser_set_portrait_mode (MIDORI_BROWSER (data), portrait);
-        }
-        else
-        {
-            g_warning ("%s: %s\n", error.name, error.message);
-            dbus_error_free (&error);
-        }
-    }
-    return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
-}
-#endif
-
 static void
 midori_browser_add_actions (MidoriBrowser* browser)
 {
@@ -6023,9 +5888,7 @@ midori_browser_init (MidoriBrowser* browser)
     GClosure* accel_closure;
     GError* error;
     GtkAction* action;
-    #if !HAVE_HILDON
     GtkWidget* menuitem;
-    #endif
     GtkWidget* homepage;
     GtkWidget* back;
     GtkWidget* forward;
@@ -6236,19 +6099,6 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_box_pack_start (GTK_BOX (vbox), browser->menubar, FALSE, FALSE, 0);
     gtk_widget_hide (browser->menubar);
     _action_set_visible (browser, "Menubar", !midori_browser_has_native_menubar ());
-    #if HAVE_HILDON
-    #if HILDON_CHECK_VERSION (2, 2, 0)
-    browser->menubar = hildon_app_menu_new ();
-    _action_compact_menu_populate_popup (NULL, browser->menubar, browser);
-    hildon_window_set_app_menu (HILDON_WINDOW (browser), HILDON_APP_MENU (browser->menubar));
-    #else
-    browser->menubar = gtk_menu_new ();
-    _action_compact_menu_populate_popup (NULL, browser->menubar, browser);
-    hildon_window_set_menu (HILDON_WINDOW (browser), GTK_MENU (browser->menubar));
-    #endif
-    hildon_program_add_window (hildon_program_get_instance (),
-                               HILDON_WINDOW (browser));
-    #else
     g_signal_connect (browser->menubar, "button-press-event",
         G_CALLBACK (midori_browser_menu_button_press_event_cb), browser);
 
@@ -6266,7 +6116,6 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_menu_item_set_right_justified (GTK_MENU_ITEM (menuitem), TRUE);
     #endif
     gtk_menu_shell_append (GTK_MENU_SHELL (browser->menubar), menuitem);
-    #endif
 
     gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (
         gtk_ui_manager_get_widget (ui_manager, "/menubar/File/WindowNew")), NULL);
@@ -6291,7 +6140,7 @@ midori_browser_init (MidoriBrowser* browser)
 
     _action_set_sensitive (browser, "EncodingCustom", FALSE);
     _action_set_visible (browser, "LastSession", FALSE);
-    #if !HAVE_HILDON && !defined (GDK_WINDOWING_X11)
+    #if !defined (GDK_WINDOWING_X11)
     _action_set_visible (browser, "AddDesktopShortcut", FALSE);
     #endif
 
@@ -6317,24 +6166,7 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_widget_hide (browser->navigationbar);
     g_signal_connect (browser->navigationbar, "popup-context-menu",
         G_CALLBACK (midori_browser_toolbar_popup_context_menu_cb), browser);
-    #if HAVE_HILDON
-    hildon_window_add_toolbar (HILDON_WINDOW (browser),
-                               GTK_TOOLBAR (browser->navigationbar));
-    #else
     gtk_box_pack_start (GTK_BOX (vbox), browser->navigationbar, FALSE, FALSE, 0);
-    #endif
-
-    #ifdef HAVE_HILDON_2_2
-    DBusConnection* system_bus = dbus_bus_get (DBUS_BUS_SYSTEM, NULL);
-    if (system_bus)
-    {
-        dbus_bus_add_match (system_bus, MCE_SIGNAL_MATCH, NULL);
-        dbus_connection_add_filter (system_bus,
-            midori_browser_mce_filter_cb, browser, NULL);
-        hildon_gtk_window_set_portrait_flags (GTK_WINDOW (browser),
-                                              HILDON_PORTRAIT_MODE_SUPPORT);
-    }
-    #endif
 
     /* Bookmarkbar */
     browser->bookmarkbar = gtk_toolbar_new ();
@@ -6344,12 +6176,7 @@ midori_browser_init (MidoriBrowser* browser)
                                GTK_ICON_SIZE_MENU);
     gtk_toolbar_set_style (GTK_TOOLBAR (browser->bookmarkbar),
                            GTK_TOOLBAR_BOTH_HORIZ);
-    #if HAVE_HILDON
-    hildon_window_add_toolbar (HILDON_WINDOW (browser),
-                               GTK_TOOLBAR (browser->bookmarkbar));
-    #else
     gtk_box_pack_start (GTK_BOX (vbox), browser->bookmarkbar, FALSE, FALSE, 0);
-    #endif
     g_signal_connect (browser->bookmarkbar, "popup-context-menu",
         G_CALLBACK (midori_browser_toolbar_popup_context_menu_cb), browser);
 
@@ -6471,12 +6298,7 @@ midori_browser_init (MidoriBrowser* browser)
 
     /* Incremental findbar */
     browser->find = g_object_new (MIDORI_TYPE_FINDBAR, NULL);
-    #if HAVE_HILDON
-    hildon_window_add_toolbar (HILDON_WINDOW (browser),
-                               GTK_TOOLBAR (browser->find));
-    #else
     gtk_box_pack_start (GTK_BOX (vbox), browser->find, FALSE, FALSE, 0);
-    #endif
 
     /* Statusbar */
     browser->statusbar = gtk_statusbar_new ();
