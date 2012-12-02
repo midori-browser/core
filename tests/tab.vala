@@ -141,7 +141,6 @@ void tab_special () {
     assert (tab.can_view_source ());
     assert (!tab.special);
     assert (tab.can_save ());
-    tab.destroy ();
 
     /* Mimic browser: SourceView with no external editor */
     var source = new Midori.View.with_title (null, tab.settings);
@@ -162,6 +161,11 @@ void tab_special () {
     assert (source.special);
     assert (!source.can_save ());
     assert (!source.web_view.get_view_source_mode ());
+
+    browser.activate_action ("TabMoveForward");
+    browser.activate_action ("TabMoveBackward");
+    browser.activate_action ("TabDuplicate");
+    browser.activate_action ("TabCloseOther");
 }
 
 void tab_download_dialog () {

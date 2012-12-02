@@ -167,9 +167,6 @@ gint
 midori_browser_get_n_pages            (MidoriBrowser*     browser);
 
 KatzeArray*
-midori_browser_get_proxy_items        (MidoriBrowser*     browser);
-
-KatzeArray*
 midori_browser_get_proxy_array        (MidoriBrowser*     browser);
 
 MidoriBrowser*

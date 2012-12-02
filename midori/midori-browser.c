@@ -2110,11 +2110,7 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      "notebook",
                                      "Notebook",
                                      "The notebook containing the views",
-                                     #ifdef HAVE_GRANITE
-                                     GRANITE_WIDGETS_TYPE_DYNAMIC_NOTEBOOK,
-                                     #else
-                                     GTK_TYPE_NOTEBOOK,
-                                     #endif
+                                     GTK_TYPE_CONTAINER,
                                      G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
     g_object_class_install_property (gobject_class,
@@ -7959,38 +7955,13 @@ midori_browser_get_tabs (MidoriBrowser* browser)
 }
 
 /**
- * midori_browser_get_proxy_items:
- * @browser: a #MidoriBrowser
- *
- * Retrieves a proxy array representing the respective proxy items
- * of the present views that can be used for session management.
- *
- * The array is updated automatically.
- *
- * Note: Calling this function doesn't add a reference and the browser
- *       may release its reference at some point.
- *
- * Return value: the proxy #KatzeArray
- *
- * Since: 0.2.5
- **/
-KatzeArray*
-midori_browser_get_proxy_items (MidoriBrowser* browser)
-{
-    g_return_val_if_fail (MIDORI_IS_BROWSER (browser), NULL);
-
-    return browser->proxy_array;
-}
-
-/**
  * midori_browser_get_proxy_array:
  * @browser: a #MidoriBrowser
  *
  * Retrieves a proxy array representing the respective proxy items.
+ * The array is updated automatically.
  *
  * Return value: the proxy #KatzeArray
- *
- * Deprecated: 0.2.5: Use midori_browser_get_proxy_item instead.
  **/
 KatzeArray*
 midori_browser_get_proxy_array (MidoriBrowser* browser)

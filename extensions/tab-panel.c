@@ -39,11 +39,10 @@ tab_panel_browser_notify_tab_cb (MidoriBrowser* browser,
                                  GtkTreeView*   treeview);
 static void
 tab_panel_browser_move_tab_cb (MidoriBrowser* browser,
-                               GtkNotebook*   notebook,
+                               GtkWidget*     notebook,
                                gint           cur_pos,
                                gint           new_pos,
                                gpointer       user_data);
-
 
 static void
 tab_panel_view_notify_minimized_cb (GtkWidget*       view,
@@ -623,7 +622,7 @@ tab_panel_activate_cb (MidoriExtension* extension,
 
 static void
 tab_panel_browser_move_tab_cb (MidoriBrowser* browser,
-                               GtkNotebook*   notebook,
+                               GtkWidget*     notebook,
                                gint           cur_pos,
                                gint           new_pos,
                                gpointer       user_data)
@@ -632,7 +631,7 @@ tab_panel_browser_move_tab_cb (MidoriBrowser* browser,
     gint last_page;
     GtkTreeModel *model;
 
-    last_page = gtk_notebook_get_n_pages (notebook) - 1;
+    last_page = midori_browser_get_n_pages (browser) - 1;
     model = tab_panel_get_model_for_browser (browser);
 
     gtk_tree_model_iter_nth_child (model, &cur, NULL, cur_pos);
