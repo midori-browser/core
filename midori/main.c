@@ -353,16 +353,6 @@ main (int    argc,
     error = NULL;
     midori_app_setup (&argc, &argv, entries);
 
-    /* Relative config path */
-    if (config && !g_path_is_absolute (config))
-    {
-        gchar* old_config = config;
-        gchar* current_dir = g_get_current_dir ();
-        config = g_build_filename (current_dir, old_config, NULL);
-        g_free (current_dir);
-        g_free (old_config);
-    }
-
     g_set_application_name (_("Midori"));
     /* Versioned prgname to override menuproxy blacklist */
     g_set_prgname (PACKAGE_NAME "4");

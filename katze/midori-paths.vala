@@ -66,7 +66,7 @@ namespace Midori {
             return mode;
         }
 
-        public static void init (RuntimeMode new_mode, string? config_base) {
+        public static void init (RuntimeMode new_mode, string? config) {
             assert (mode == RuntimeMode.UNDEFINED);
             assert (new_mode != RuntimeMode.UNDEFINED);
             mode = new_mode;
@@ -83,7 +83,9 @@ namespace Midori {
                     exec_path, "profile", "tmp");
             }
             else if (mode == RuntimeMode.PRIVATE || mode == RuntimeMode.APP) {
-                readonly_dir = config_base ?? Path.build_path (Path.DIR_SEPARATOR_S,
+                string? real_config = config != null && !Path.is_absolute (config)
+                    ? Path.build_filename (Environment.get_current_dir (), config) : config;
+                readonly_dir = real_config ?? Path.build_path (Path.DIR_SEPARATOR_S,
                     Environment.get_user_config_dir (), PACKAGE_NAME);
                 cache_dir_for_reading = Path.build_path (Path.DIR_SEPARATOR_S,
                     Environment.get_user_cache_dir (), PACKAGE_NAME);
@@ -92,7 +94,9 @@ namespace Midori {
                     Environment.get_tmp_dir (), "midori-" + Environment.get_user_name ());
             }
             else {
-                config_dir = config_base ?? Path.build_path (Path.DIR_SEPARATOR_S,
+                string? real_config = config != null && !Path.is_absolute (config)
+                    ? Path.build_filename (Environment.get_current_dir (), config) : config;
+                config_dir = real_config ?? Path.build_path (Path.DIR_SEPARATOR_S,
                     Environment.get_user_config_dir (), PACKAGE_NAME);
                 cache_dir = Path.build_path (Path.DIR_SEPARATOR_S,
                     Environment.get_user_cache_dir (), PACKAGE_NAME);
