@@ -823,13 +823,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     GtkWidget* check_toolbar;
     GtkWidget* check_app;
     gboolean return_status = FALSE;
-    sqlite3* db;
-
-    if (!browser->bookmarks || !gtk_widget_get_visible (GTK_WIDGET (browser)))
-        return FALSE;
-
-    db = g_object_get_data (G_OBJECT (browser->bookmarks), "db");
-
+    sqlite3* db = g_object_get_data (G_OBJECT (browser->bookmarks), "db");
     if (!db)
         return FALSE;
 
@@ -3057,31 +3051,16 @@ _action_bookmarks_populate_folder (GtkAction*     action,
                                    KatzeArray*    folder,
                                    MidoriBrowser* browser)
 {
-    gint64 id;
     KatzeArray* bookmarks;
-    GtkWidget* menuitem;
-
-    id = katze_item_get_meta_integer (KATZE_ITEM (folder), "id");
-
-    if (id == -1)
-    {
-        if (!(bookmarks = midori_array_query (browser->bookmarks,
-          "id, title, parentid, uri, app, pos_panel, pos_bar", "parentid is NULL", NULL)))
+    const gchar* id = katze_item_get_meta_string (KATZE_ITEM (folder), "id");
+    if (browser->bookmarks == NULL)
+        return FALSE;
+    else if (id == NULL && !(bookmarks = midori_array_query (browser->bookmarks,
+        "id, title, parentid, uri, app, pos_panel, pos_bar", "parentid is NULL", NULL)))
             return FALSE;
-    }
-    else
-    {
-        gchar *parentid = g_strdup_printf ("%" G_GINT64_FORMAT, id);
-
-        if (!(bookmarks = midori_array_query (browser->bookmarks,
-              "id, title, parentid, uri, app, pos_panel, pos_bar", "parentid = %q", parentid)))
-        {
-            g_free (parentid);
+    else if (!(bookmarks = midori_array_query (browser->bookmarks,
+        "id, title, parentid, uri, app, pos_panel, pos_bar", "parentid = %q", id)))
             return FALSE;
-        }
-
-        g_free (parentid);
-    }
 
     /* Clear items from dummy array here */
     gtk_container_foreach (GTK_CONTAINER (menu),
@@ -3089,7 +3068,7 @@ _action_bookmarks_populate_folder (GtkAction*     action,
 
     if (katze_array_is_empty (bookmarks))
     {
-        menuitem = gtk_image_menu_item_new_with_label (_("Empty"));
+        GtkWidget* menuitem = gtk_image_menu_item_new_with_label (_("Empty"));
         gtk_widget_set_sensitive (menuitem, FALSE);
         gtk_menu_shell_append (menu, menuitem);
         gtk_widget_show (menuitem);
@@ -4362,9 +4341,6 @@ _action_bookmarks_import_activate (GtkAction*     action,
     guint i;
     KatzeArray* bookmarks;
 
-    if (!browser->bookmarks || !gtk_widget_get_visible (GTK_WIDGET (browser)))
-        return;
-
     dialog = gtk_dialog_new_with_buttons (
         _("Import bookmarks…"), GTK_WINDOW (browser),
         GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR,
@@ -4509,9 +4485,6 @@ _action_bookmarks_export_activate (GtkAction*     action,
     gchar* path = NULL;
     GError* error;
     KatzeArray* bookmarks;
-
-    if (!browser->bookmarks || !gtk_widget_get_visible (GTK_WIDGET (browser)))
-        return;
 
 wrong_format:
     file_dialog = (GtkWidget*)midori_file_chooser_dialog_new (_("Save file as"),
