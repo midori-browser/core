@@ -1440,6 +1440,13 @@ midori_settings_save_to_file (MidoriWebSettings* settings,
             if (integer != G_PARAM_SPEC_INT (pspec)->default_value)
                 g_key_file_set_integer (key_file, "settings", property, integer);
         }
+        else if (type == G_TYPE_PARAM_UINT)
+        {
+            gint integer;
+            g_object_get (settings, property, &integer, NULL);
+            if (integer != G_PARAM_SPEC_UINT (pspec)->default_value)
+                g_key_file_set_integer (key_file, "settings", property, integer);
+        }
         else if (type == G_TYPE_PARAM_FLOAT)
         {
             gfloat number;
