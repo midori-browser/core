@@ -1913,7 +1913,7 @@ midori_browser_class_init (MidoriBrowserClass* class)
         NULL,
         midori_cclosure_marshal_VOID__OBJECT_INT_INT,
         G_TYPE_NONE, 3,
-        GTK_TYPE_NOTEBOOK, G_TYPE_INT, G_TYPE_INT);
+        GTK_TYPE_WIDGET, G_TYPE_INT, G_TYPE_INT);
 
     /**
      * MidoriBrowser::switch-tab:
