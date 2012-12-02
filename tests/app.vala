@@ -10,6 +10,10 @@
 */
 
 void app_normal () {
+    Test.log_set_fatal_handler ((domain, log_levels, message)=> {
+        return !message.contains("Error loading theme icon");
+        });
+
     Midori.Paths.Test.reset_runtime_mode ();
     var app = Midori.normal_app_new (null, false, false, null, null, null, -1, null);
     var loop = MainContext.default ();
