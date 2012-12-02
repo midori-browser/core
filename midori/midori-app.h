@@ -41,22 +41,6 @@ midori_app_get_type               (void) G_GNUC_CONST;
 MidoriApp*
 midori_app_new                    (void);
 
-void
-midori_web_app_new (const gchar* config,
-                    const gchar* webapp,
-                    gchar**      open_uris,
-                    gchar**      execute_commands,
-                    gint         inactivity_reset,
-                    const gchar* block_uris);
-
-void
-midori_private_app_new (const gchar* config,
-                        const gchar* webapp,
-                        gchar**      open_uris,
-                        gchar**      execute_commands,
-                        gint         inactivity_reset,
-                        const gchar* block_uris);
-
 const gchar*
 midori_app_get_name               (MidoriApp*         app);
 

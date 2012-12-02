@@ -43,6 +43,12 @@ namespace Midori {
         static string? user_data_dir_for_reading = null;
         static string? tmp_dir = null;
 
+        namespace Test {
+            public void reset_runtime_mode () {
+                mode = RuntimeMode.UNDEFINED;
+            }
+        }
+
         public static string get_config_dir_for_reading () {
             assert (mode != RuntimeMode.UNDEFINED);
             return readonly_dir ?? config_dir;

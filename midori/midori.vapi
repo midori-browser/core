@@ -9,6 +9,15 @@ namespace Midori {
     }
 
     [CCode (cheader_filename = "midori/midori.h")]
+    public static void web_app_new (string? config,
+        string? webapp, [CCode (array_length = false)] string[]? uris, [CCode (array_length = false)] string[]? commands, int reset, string? block);
+    public static void private_app_new (string? config,
+        string? webapp, [CCode (array_length = false)] string[]? uris, [CCode (array_length = false)] string[]? commands, int reset, string? block);
+    public static App normal_app_new (string? config, bool portable, bool diagnostic,
+        string? webapp, [CCode (array_length = false)] string[]? uris, [CCode (array_length = false)] string[]? commands, int reset, string? block);
+    public static void normal_app_on_quit (App app);
+
+    [CCode (cheader_filename = "midori/midori.h")]
     public class App : GLib.Object {
         public App ();
         public static void setup ([CCode (array_length_pos = 0.9)] ref unowned string[] args, [CCode (array_length = false)] GLib.OptionEntry[]? entries);
