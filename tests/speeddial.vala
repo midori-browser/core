@@ -59,6 +59,8 @@ static void speeddial_load () {
 
     dial_data.save_message ("speed_dial-save-rename 1 Lorem");
     Katze.assert_str_equal (data, dial_data.keyfile.get_string ("Dial 1", "title"), "Lorem");
+    dial_data.save_message ("speed_dial-save-rename 1 Lorem Ipsum Dolomit");
+    Katze.assert_str_equal (data, dial_data.keyfile.get_string ("Dial 1", "title"), "Lorem Ipsum Dolomit");
     dial_data.save_message ("speed_dial-save-delete 1");
     Katze.assert_str_equal (data, dial_data.get_next_free_slot (), "Dial 1");
 

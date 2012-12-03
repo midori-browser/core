@@ -273,7 +273,7 @@ namespace Midori {
                 throw new SpeedDialError.INVALID_MESSAGE ("Invalid message '%s'", message);
 
             string msg = message.substring (16, -1);
-            string[] parts = msg.split (" ", 4);
+            string[] parts = msg.split (" ", 3);
             if (parts[0] == null)
                 throw new SpeedDialError.NO_ACTION ("No action.");
             string action = parts[0];
