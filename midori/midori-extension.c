@@ -332,19 +332,8 @@ midori_extension_activate_cb (MidoriExtension* extension,
             if (error->code == G_FILE_ERROR_NOENT)
             {
                 gchar* filename = g_object_get_data (G_OBJECT (extension), "filename");
-                gchar* folder;
-                if (g_str_has_prefix (filename, MIDORI_MODULE_PREFIX))
-                    filename = &filename[strlen (MIDORI_MODULE_PREFIX)];
-                if (g_str_has_suffix (filename, G_MODULE_SUFFIX))
-                    filename = g_strndup (filename,
-                        strlen (filename) - strlen ("." G_MODULE_SUFFIX));
-                else
-                    filename = g_strdup (filename);
-                folder = g_build_filename ("extensions", filename, NULL);
-                g_free (filename);
                 katze_assign (config_file,
-                    midori_paths_get_preset_filename (folder, "config"));
-                g_free (folder);
+                    midori_paths_get_extension_preset_filename (filename, "config"));
                 g_key_file_load_from_file (extension->priv->key_file, config_file,
                                            G_KEY_FILE_KEEP_COMMENTS, NULL);
             }
@@ -812,8 +801,7 @@ midori_extension_get_config_dir (MidoriExtension* extension)
     {
         gchar* filename = g_object_get_data (G_OBJECT (extension), "filename");
         if (filename != NULL)
-            extension->priv->config_dir = g_build_filename (
-                midori_paths_get_config_dir_for_writing (), "extensions", filename, NULL);
+            extension->priv->config_dir = midori_paths_get_extension_config_dir (filename);
         else
             extension->priv->config_dir = NULL;
     }

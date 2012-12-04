@@ -38,6 +38,4 @@
        && MIDORI_MOD_NEW_TAB(((GdkEventButton*)evt)->state)) \
      || (((GdkEventButton*)evt)->button == 2)))
 
-#define MIDORI_MODULE_PREFIX "lib"
-
 #endif /* !__MIDORI_PLATFORM_H__ */

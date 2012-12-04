@@ -263,17 +263,18 @@ static void
 midori_clear_saved_logins_cb (void)
 {
     sqlite3* db;
-    gchar* path = g_build_filename (midori_paths_get_config_dir_for_writing (), "logins", NULL);
-    g_unlink (path);
+    gchar* filename = midori_paths_get_config_filename_for_writing ("logins");
+    g_unlink (filename);
     /* Form History database, written by the extension */
-    katze_assign (path, g_build_filename (midori_paths_get_config_dir_for_writing (),
-        "extensions", MIDORI_MODULE_PREFIX "formhistory." G_MODULE_SUFFIX, "forms.db", NULL));
-    if (sqlite3_open (path, &db) == SQLITE_OK)
+    gchar* path = midori_paths_get_extension_config_dir ("formhistory");
+    katze_assign (filename, g_build_filename (path, "forms.db", NULL));
+    g_free (path);
+    if (sqlite3_open (filename, &db) == SQLITE_OK)
     {
         sqlite3_exec (db, "DELETE FROM forms", NULL, NULL, NULL);
         sqlite3_close (db);
     }
-    g_free (path);
+    g_free (filename);
 }
 
 #if WEBKIT_CHECK_VERSION (1, 3, 11)

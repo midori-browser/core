@@ -19,6 +19,9 @@ void app_normal () {
     var loop = MainContext.default ();
     do { loop.iteration (true); } while (loop.pending ());
     Midori.normal_app_on_quit (app);
+
+    string filename = Midori.Paths.get_extension_config_dir ("adblock");
+    assert (Posix.access (filename, Posix.F_OK) == 0);
 }
 
 void app_custom_config () {

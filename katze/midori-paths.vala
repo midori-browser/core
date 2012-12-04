@@ -20,6 +20,8 @@ extern const string MDATADIR;
 extern const string PACKAGE_NAME;
 extern const string SYSCONFDIR;
 extern const string MIDORI_VERSION_SUFFIX;
+const string MODULE_PREFIX = "lib";
+const string MODULE_SUFFIX = "." + GLib.Module.SUFFIX;
 
 namespace Midori {
     public enum RuntimeMode {
@@ -124,8 +126,11 @@ namespace Midori {
             do {
                 string fn = path.substring (i, -1);
                 if (Posix.access (fn, Posix.F_OK) != 0) {
-                    if (DirUtils.create (fn, mode) == -1)
-                        return; /* Failed */
+                    if (DirUtils.create (fn, mode) == -1) {
+                        /* Slow fallback; if this fails we fail */
+                        DirUtils.create_with_parents (path, mode);
+                        return;
+                    }
                 }
                 else if (!FileUtils.test (fn, FileTest.IS_SYMLINK))
                     return; /* Failed */
@@ -155,6 +160,28 @@ namespace Midori {
             assert (config_dir != null);
             mkdir_with_parents (config_dir);
             return config_dir;
+        }
+
+        public static string get_extension_config_dir (string extension) {
+            assert (config_dir != null);
+            string folder;
+            if ("." in extension)
+                folder = Path.build_filename (config_dir, "extensions", extension);
+            else
+                folder = Path.build_filename (config_dir, "extensions",
+                    MODULE_PREFIX + extension + "." + GLib.Module.SUFFIX);
+            mkdir_with_parents (folder);
+            return folder;
+        }
+
+        public static string get_extension_preset_filename (string extension, string filename) {
+            assert (exec_path != null);
+            string preset_filename = extension;
+            if (extension.has_prefix (MODULE_PREFIX))
+                preset_filename = extension.split (MODULE_PREFIX)[1];
+            if (extension.has_suffix (MODULE_SUFFIX))
+                preset_filename = preset_filename.split (MODULE_SUFFIX)[0];
+            return get_preset_filename (Path.build_filename ("extensions", preset_filename), filename);
         }
 
         /* returns the path to a user configuration file to which it is permitted to write.

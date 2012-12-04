@@ -207,7 +207,7 @@ namespace Midori {
         PENDING_UNDELAY,
     }
 
-    public class WebSettings : WebKit.WebSettings {
+    public class WebSettings : Midori.Settings {
         public WebSettings ();
         [NoAccessorMethod]
         public MidoriStartup load_on_startup { get; set; }

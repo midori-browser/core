@@ -26,7 +26,7 @@ if progressive:
     obj.add_marshal_file ('marshal.list', 'midori_cclosure_marshal')
     obj.install_path = None
     obj.vapi_dirs = '../midori ../katze'
-    obj.packages = 'glib-2.0 gio-2.0 libsoup-2.4 webkitgtk-3.0 posix sqlite3'
+    obj.packages = 'glib-2.0 gmodule-2.0 gio-2.0 libsoup-2.4 webkitgtk-3.0 posix sqlite3'
     if bld.env['HAVE_GTK3']:
         obj.packages += ' gtk+-3.0'
     else:
