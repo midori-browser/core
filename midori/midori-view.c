@@ -3852,7 +3852,6 @@ midori_view_set_uri (MidoriView*  view,
             if (!strncmp (uri, "error:nodocs ", 13))
             {
                 gchar* title = g_strdup_printf (_("No documentation installed"));
-                uri = &uri[13];
                 data = g_strdup_printf (
                     "<html><head><title>%s</title></head>"
                     "<body><h1>%s</h1>"

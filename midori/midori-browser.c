@@ -4668,26 +4668,17 @@ midori_browser_get_docs (gboolean error)
 {
     #ifdef G_OS_WIN32
     gchar* path = midori_paths_get_data_filename ("doc/midori/faq.html", FALSE);
-    if (g_access (path, F_OK) == 0)
-        return g_filename_to_uri (path, NULL, NULL);
-    else
-    {
-        #ifdef DOCDIR
-        if (g_access (DOCDIR "/faq.html", F_OK) == 0)
-            return g_strdup ("file://" DOCDIR "/faq.html");
-        else
-        #endif
-            return error ? g_strdup ("error:nodocs share/doc/midori/faq.html") : NULL;
-    }
+    gboolean found = (g_access (path, F_OK) == 0);
     g_free (path);
-    #else
+    if (found)
+        return g_filename_to_uri (path, NULL, NULL);
+    #endif
     #ifdef DOCDIR
     if (g_access (DOCDIR "/faq.html", F_OK) == 0)
         return g_strdup ("file://" DOCDIR "/faq.html");
     else
     #endif
-        return error ? g_strdup ("error:nodocs " DOCDIR "/faq.html") : NULL;
-    #endif
+        return error ? g_strdup_printf ("error:nodocs %s/faq.html", DOCDIR) : NULL;
 }
 
 static void
