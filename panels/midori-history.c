@@ -165,6 +165,8 @@ midori_history_format_date (KatzeItem *item)
         sdate = g_strdup (_("A week ago"));
     else
         sdate = g_date_time_format (then, "%x");
+    g_date_time_unref (now);
+    g_date_time_unref (then);
     #else
     gchar token[50];
     time_t current_time;

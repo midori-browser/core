@@ -43,23 +43,26 @@ clock_set_timeout (MidoriBrowser* browser,
 static gboolean
 clock_set_current_time (MidoriBrowser* browser)
 {
-    MidoriExtension* extension;
-    GtkWidget* label;
-    const gchar* format;
-    struct tm *tm;
-    time_t rawtime;
-    char datestring[60];
     guint interval;
+    MidoriExtension* extension = g_object_get_data (G_OBJECT (browser), "clock-extension");
+    GtkWidget* label = g_object_get_data (G_OBJECT (browser), "clock-label");
+    const gchar* format = midori_extension_get_string (extension, "format");
 
-    extension = g_object_get_data (G_OBJECT (browser), "clock-extension");
-    label = g_object_get_data (G_OBJECT (browser), "clock-label");
-    format = midori_extension_get_string (extension, "format");
-
-    rawtime = time (NULL);
-    tm = localtime (&rawtime);
-
-    strftime (datestring, 60, format, tm);
-    gtk_label_set_label (GTK_LABEL (label), datestring);
+    #if GLIB_CHECK_VERSION (2, 26, 0)
+    GDateTime* date = g_date_time_new_now_local ();
+    gint seconds = g_date_time_get_seconds (date);
+    gchar* pretty = g_date_time_format (date, format);
+    gtk_label_set_label (GTK_LABEL (label), pretty);
+    g_free (pretty);
+    g_date_time_unref (date);
+    #else
+    time_t rawtime = time (NULL);
+    struct tm *tm = localtime (&rawtime);
+    gint seconds = tm->tm_sec;
+    char date_fmt[512];
+    strftime (date_fmt, sizeof (date_fmt), format, tm);
+    gtk_label_set_label (GTK_LABEL (label), date_fmt);
+    #endif
 
     if (g_strstr_len (format, -1, "%c")
      || g_strstr_len (format, -1, "%N")
@@ -71,7 +74,7 @@ clock_set_current_time (MidoriBrowser* browser)
         interval = 1;
     else
         /* FIXME: Occasionally there are more than 60 seconds in a minute. */
-        interval = MAX (60 - tm->tm_sec, 1);
+        interval = MAX (60 - seconds, 1);
 
     clock_set_timeout (browser, interval);
 

@@ -358,45 +358,42 @@ feed_panel_cursor_or_row_changed_cb (GtkTreeView* treeview,
 
         if (KATZE_IS_ARRAY (item))
         {
-            gint64 date;
-
             text = NULL;
             if (!uri)
                 text = g_strdup (katze_item_get_text (KATZE_ITEM (item)));
             else
             {
-                KatzeItem* parent;
-                const gchar* puri;
-
-                parent = katze_item_get_parent (item);
+                KatzeItem* parent = katze_item_get_parent (item);
+                gint64 added = katze_item_get_added (item);
                 g_assert (KATZE_IS_ARRAY (parent));
-                date = katze_item_get_added (item);
-                puri = katze_item_get_uri (parent);
-                if (date)
+                if (added)
                 {
-                    time_t date_t;
-                    const struct tm* tm;
-                    static gchar date_format[512];
-                    gchar* last_updated;
+                    #if GLIB_CHECK_VERSION (2, 26, 0)
+                    GDateTime* date = g_date_time_new_from_unix_local (added);
+                    gchar* pretty = g_date_time_format (date, "%c");
+                    g_date_time_unref (date);
+                    #else
+                    static gchar date_fmt[512];
+                    const struct tm *tm = localtime (&added);
+                    /* Some GCC versions falsely complain about "%c" */
+                    strftime (date_fmt, sizeof (date_fmt), "%c", tm);
+                    gchar* pretty = g_strdup (date_fmt);
+                    #endif
 
-                    date_t = (time_t)date;
-                    tm = localtime (&date_t);
-                    /* Some gcc versions complain about "%c" for no reason */
-                    strftime (date_format, sizeof (date_format), "%c", tm);
     /* i18n: The local date a feed was last updated */
-                    last_updated = g_strdup_printf (C_("Feed", "Last updated: %s."),
-                                                    date_format);
+                    gchar* last_updated = g_strdup_printf (C_("Feed", "Last updated: %s."), pretty);
                     text = g_strdup_printf (
                             "<html><head><title>feed</title></head>"
                             "<body><h3>%s</h3><p />%s</body></html>",
-                            puri, last_updated);
+                            parent->uri, last_updated);
+                    g_free (pretty);
                     g_free (last_updated);
                 }
                 else
                 {
                     text = g_strdup_printf (
                             "<html><head><title>feed</title></head>"
-                            "<body><h3>%s</h3></body></html>", puri);
+                            "<body><h3>%s</h3></body></html>", parent->uri);
                 }
             }
             webkit_web_view_load_html_string (

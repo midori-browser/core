@@ -650,25 +650,28 @@ static void cm_tree_drag_data_get_cb(GtkWidget *widget, GdkDragContext *drag_con
 
 static gchar *cm_get_cookie_description_text(SoupCookie *cookie)
 {
-	static gchar date_fmt[512];
 	gchar *expires;
 	gchar *text;
-	time_t expiration_time;
-	const struct tm *tm;
 
 	g_return_val_if_fail(cookie != NULL, NULL);
 
 	if (cookie->expires != NULL)
 	{
-		expiration_time = soup_date_to_time_t(cookie->expires);
-		tm = localtime(&expiration_time);
-		/* even if some gcc versions complain about "%c", there is nothing wrong with and here we
-		 * want to use it */
+		time_t expiration_time = soup_date_to_time_t(cookie->expires);
+		#if GLIB_CHECK_VERSION (2, 26, 0)
+		GDateTime* date = g_date_time_new_from_unix_local(expiration_time);
+		expires = g_date_time_format(date, "%c");
+		g_date_time_unref(date);
+		#else
+		static gchar date_fmt[512];
+		const struct tm *tm = localtime(&expiration_time);
+		/* Some GCC versions falsely complain about "%c" */
 		strftime(date_fmt, sizeof(date_fmt), "%c", tm);
-		expires = date_fmt;
+		expires = g_strdup(date_fmt);
+		#endif
 	}
 	else
-		expires = _("At the end of the session");
+		expires = g_strdup(_("At the end of the session"));
 
 	text = g_markup_printf_escaped(
 			_("<b>Host</b>: %s\n<b>Name</b>: %s\n<b>Value</b>: %s\n<b>Path</b>: %s\n"
@@ -677,8 +680,10 @@ static gchar *cm_get_cookie_description_text(SoupCookie *cookie)
 			cookie->name,
 			cookie->value,
 			cookie->path,
+	/* i18n: is this cookie secure (SSL)? yes/ no */
 			cookie->secure ? _("Yes") : _("No"),
 			expires);
+	g_free(expires);
 
 	return text;
 }
