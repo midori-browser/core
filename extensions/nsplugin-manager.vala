@@ -41,7 +41,7 @@ namespace NSPlugins {
                          description: desc,
                          use_markup: true,
                          key: GLib.Path.get_basename (plugin.get_path ()),
-                         version: "",
+                         version: "(%s)".printf ("Netscape plugins"),
                          authors: "");
 
             this.plugin = plugin;
