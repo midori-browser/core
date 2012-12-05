@@ -104,13 +104,6 @@ midori_location_action_disconnect_proxy (GtkAction* action,
                                          GtkWidget* proxy);
 
 static void
-midori_location_entry_render_text_cb (GtkCellLayout*   layout,
-                                      GtkCellRenderer* renderer,
-                                      GtkTreeModel*    model,
-                                      GtkTreeIter*     iter,
-                                      gpointer         data);
-
-static void
 midori_location_action_popdown_completion (MidoriLocationAction* location_action);
 
 static void
@@ -230,6 +223,239 @@ midori_location_action_class_init (MidoriLocationActionClass* class)
                                      KATZE_TYPE_ARRAY,
                                      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 }
+
+static gchar*
+midori_location_entry_render_uri (gchar**      keys,
+                                  const gchar* uri_escaped)
+{
+    gchar* uri_unescaped = midori_uri_unescape (uri_escaped);
+    gchar* uri = g_strescape (uri_unescaped, NULL);
+    g_free (uri_unescaped);
+
+    gchar* stripped_uri = midori_uri_strip_prefix_for_display (uri);
+    gchar* temp;
+    gchar* temp_iter = temp = g_utf8_strdown (stripped_uri, -1);
+    gchar* desc_iter = stripped_uri;
+    gint key_idx = 0;
+    gchar* key = keys[key_idx];
+    gint offset = 0;
+    gchar* start;
+    gchar* desc_uri = NULL;
+    while (key && (start = strstr (temp_iter, key)) && start)
+    {
+        gsize len = strlen (key);
+        if (len)
+        {
+            offset = (start - temp_iter);
+            gchar* skey = g_strndup (desc_iter + offset, len);
+            gchar** parts = g_strsplit (desc_iter, skey, 2);
+            if (parts[0] && parts[1])
+                desc_uri = g_markup_printf_escaped ("%s<b>%s</b>", parts[0], skey);
+            g_strfreev (parts);
+            g_free (skey);
+
+            offset += len;
+            temp_iter += offset;
+            desc_iter += offset;
+        }
+        key_idx++;
+        key = keys[key_idx];
+        if (key == NULL)
+            break;
+    }
+    if (key)
+        katze_assign (desc_uri, NULL);
+    if (desc_uri)
+    {
+        gchar* temp_markup = g_markup_escape_text (desc_iter, -1);
+        gchar* temp_concat = g_strconcat (desc_uri, temp_markup, NULL);
+        g_free (temp_markup);
+        katze_assign (desc_uri, temp_concat);
+    }
+    else
+        desc_uri = g_markup_escape_text (stripped_uri, -1);
+    g_free (temp);
+    g_free (stripped_uri);
+    return desc_uri;
+}
+
+static gchar*
+midori_location_entry_render_title (gchar**      keys,
+                                    const gchar* title)
+{
+    gchar* temp;
+    gchar* temp_iter = temp = g_utf8_strdown (title, -1);
+    const gchar* desc_iter = title;
+    gint key_idx = 0;
+    gchar* key = keys[key_idx];
+    gint offset = 0;
+    gchar* start;
+    gchar* desc_title = NULL;
+    while (key && (start = strstr (temp_iter, key)) && start)
+    {
+        gsize len = strlen (key);
+        if (len)
+        {
+            offset = (start - temp_iter);
+            gchar* skey = g_strndup (desc_iter + offset, len);
+            gchar** parts = g_strsplit (desc_iter, skey, 2);
+            if (parts[0] && parts[1])
+                desc_title = g_markup_printf_escaped ("%s<b>%s</b>", parts[0], skey);
+            g_strfreev (parts);
+            g_free (skey);
+
+            offset += len;
+            temp_iter += offset;
+            desc_iter += offset;
+        }
+        key_idx++;
+        key = keys[key_idx];
+        if (key == NULL)
+            break;
+    }
+    if (key)
+        katze_assign (desc_title, NULL);
+    if (desc_title)
+    {
+        gchar* temp_markup = g_markup_escape_text (desc_iter, -1);
+        gchar* temp_concat = g_strconcat (desc_title, temp_markup, NULL);
+        g_free (temp_markup);
+        katze_assign (desc_title, temp_concat);
+    }
+    else
+        desc_title = g_markup_escape_text (title, -1);
+    g_free (temp);
+    return desc_title;
+}
+
+#ifdef HAVE_GRANITE
+static void
+midori_location_entry_render_title_cb (GtkCellLayout*   layout,
+                                       GtkCellRenderer* renderer,
+                                       GtkTreeModel*    model,
+                                       GtkTreeIter*     iter,
+                                       gpointer         data)
+{
+    MidoriLocationAction* action = data;
+    gchar* title;
+    gchar* background;
+    gchar* desc;
+
+    gtk_tree_model_get (model, iter,
+        MIDORI_AUTOCOMPLETER_COLUMNS_MARKUP, &title,
+        MIDORI_AUTOCOMPLETER_COLUMNS_BACKGROUND, &background,
+        -1);
+
+    if (strchr (title, '\n')) /* A search engine or action suggestion */
+    {
+        gchar** parts = g_strsplit (title, "\n", 2);
+        desc = g_strdup (parts[0]);
+        g_strfreev (parts);
+        g_free (background);
+    }
+    else
+    {
+        gchar* key = g_utf8_strdown (action->key ? action->key : "", -1);
+        gchar** keys = g_strsplit_set (key, " %", -1);
+        g_free (key);
+        desc = midori_location_entry_render_title (keys, title);
+        g_strfreev (keys);
+    }
+
+    g_object_set (renderer, "markup", desc,
+        "ellipsize-set", TRUE, "ellipsize", PANGO_ELLIPSIZE_END, NULL);
+    g_free (desc);
+    g_free (title);
+}
+
+static void
+midori_location_entry_render_uri_cb (GtkCellLayout*   layout,
+                                     GtkCellRenderer* renderer,
+                                     GtkTreeModel*    model,
+                                     GtkTreeIter*     iter,
+                                     gpointer         data)
+{
+    MidoriLocationAction* action = data;
+    gchar* title;
+    gchar* uri_escaped;
+    gchar* background;
+    gchar* desc;
+
+    gtk_tree_model_get (model, iter,
+        MIDORI_AUTOCOMPLETER_COLUMNS_MARKUP, &title,
+        MIDORI_AUTOCOMPLETER_COLUMNS_URI, &uri_escaped,
+        MIDORI_AUTOCOMPLETER_COLUMNS_BACKGROUND, &background,
+        -1);
+
+    if (strchr (title, '\n')) /* A search engine or action suggestion */
+    {
+        gchar** parts = g_strsplit (title, "\n", 2);
+        desc = g_strdup (parts[1]);
+        g_strfreev (parts);
+        g_free (background);
+    }
+    else
+    {
+        gchar* key = g_utf8_strdown (action->key ? action->key : "", -1);
+        gchar** keys = g_strsplit_set (key, " %", -1);
+        g_free (key);
+        desc = midori_location_entry_render_uri (keys, uri_escaped);
+        g_strfreev (keys);
+        g_free (uri_escaped);
+    }
+
+    g_object_set (renderer, "markup", desc,
+        "ellipsize-set", TRUE, "ellipsize", PANGO_ELLIPSIZE_END, NULL);
+    g_free (desc);
+    g_free (title);
+}
+#else
+static void
+midori_location_entry_render_text_cb (GtkCellLayout*   layout,
+                                      GtkCellRenderer* renderer,
+                                      GtkTreeModel*    model,
+                                      GtkTreeIter*     iter,
+                                      gpointer         data)
+{
+    MidoriLocationAction* action = data;
+    gchar* uri_escaped;
+    gchar* title;
+    gchar* background;
+    gchar* desc;
+
+    gtk_tree_model_get (model, iter,
+        MIDORI_AUTOCOMPLETER_COLUMNS_URI, &uri_escaped,
+        MIDORI_AUTOCOMPLETER_COLUMNS_MARKUP, &title,
+        MIDORI_AUTOCOMPLETER_COLUMNS_BACKGROUND, &background,
+        -1);
+
+    if (strchr (title, '\n')) /* A search engine or action suggestion */
+    {
+        desc = title;
+        g_free (uri_escaped);
+        g_free (background);
+    }
+    else
+    {
+        gchar* key = g_utf8_strdown (action->key ? action->key : "", -1);
+        gchar** keys = g_strsplit_set (key, " %", -1);
+        g_free (key);
+        gchar* desc_uri = midori_location_entry_render_uri (keys, uri_escaped);
+        gchar* desc_title = midori_location_entry_render_title (keys, title);
+        desc = g_strdup_printf ("%s\n<span color='gray45'>%s</span>", desc_title, desc_uri);
+        g_free (uri_escaped);
+        g_free (title);
+        g_strfreev (keys);
+        g_free (desc_uri);
+        g_free (desc_title);
+    }
+
+    g_object_set (renderer, "markup", desc,
+        "ellipsize-set", TRUE, "ellipsize", PANGO_ELLIPSIZE_END, NULL);
+    g_free (desc);
+}
+#endif
+
 
 static void
 midori_location_action_popup_position (MidoriLocationAction* action,
@@ -488,16 +714,33 @@ midori_location_action_popup_timeout_cb (gpointer data)
             "cell-background", MIDORI_AUTOCOMPLETER_COLUMNS_BACKGROUND,
             NULL);
         renderer = gtk_cell_renderer_text_new ();
-        gtk_cell_renderer_set_fixed_size (renderer, 1, -1);
-        gtk_cell_renderer_text_set_fixed_height_from_font (
-            GTK_CELL_RENDERER_TEXT (renderer), 2);
+        #if HAVE_GRANITE
+        gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (column), renderer, FALSE);
+        #else
         gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (column), renderer, TRUE);
+        #endif
         gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (column), renderer,
             "cell-background", MIDORI_AUTOCOMPLETER_COLUMNS_BACKGROUND,
             NULL);
+        #if HAVE_GRANITE
+        gtk_tree_view_column_set_expand (column, TRUE);
+        gtk_cell_layout_set_cell_data_func (GTK_CELL_LAYOUT (column), renderer,
+            midori_location_entry_render_title_cb, action, NULL);
+
+        renderer = gtk_cell_renderer_text_new ();
+        gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (column), renderer, TRUE);
+        gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (column), renderer,
+            "cell-background", MIDORI_AUTOCOMPLETER_COLUMNS_BACKGROUND, NULL);
+        gtk_cell_layout_set_cell_data_func (GTK_CELL_LAYOUT (column), renderer,
+            midori_location_entry_render_uri_cb, action, NULL);
+        #else
+        gtk_cell_renderer_set_fixed_size (renderer, 1, -1);
+        gtk_cell_renderer_text_set_fixed_height_from_font (
+            GTK_CELL_RENDERER_TEXT (renderer), 2);
         gtk_cell_layout_set_cell_data_func (GTK_CELL_LAYOUT (column), renderer,
                                             midori_location_entry_render_text_cb,
                                             action, NULL);
+        #endif
         gtk_tree_view_append_column (GTK_TREE_VIEW (treeview), column);
 
         action->popup = popup;
@@ -1260,202 +1503,6 @@ midori_location_action_icon_released_cb (GtkWidget*           widget,
         g_signal_emit (action, signals[SECONDARY_ICON_RELEASED], 0,
                        widget, &result);
     }
-}
-
-static void
-midori_location_entry_render_text_cb (GtkCellLayout*   layout,
-                                      GtkCellRenderer* renderer,
-                                      GtkTreeModel*    model,
-                                      GtkTreeIter*     iter,
-                                      gpointer         data)
-{
-    MidoriLocationAction* action = data;
-    gchar* uri_escaped;
-    gchar* uri_temp;
-    gchar* uri;
-    gchar* title;
-    gchar* background;
-    gchar* desc;
-    gchar* desc_uri;
-    gchar* desc_iter;
-    gchar* temp_iter;
-    gchar* desc_title;
-    const gchar* str;
-    gchar* key;
-    gchar** keys;
-    gint key_idx;
-    gchar* start;
-    gchar* skey;
-    gchar* temp;
-    gchar* temp_concat;
-    gchar* temp_markup;
-    gchar** parts;
-    size_t offset;
-
-    gtk_tree_model_get (model, iter,
-        MIDORI_AUTOCOMPLETER_COLUMNS_URI, &uri_escaped,
-        MIDORI_AUTOCOMPLETER_COLUMNS_MARKUP, &title,
-        MIDORI_AUTOCOMPLETER_COLUMNS_BACKGROUND, &background,
-        -1);
-
-    if (background != NULL) /* A search engine or action suggestion */
-    {
-        g_object_set (renderer, "markup", title,
-            "ellipsize-set", TRUE, "ellipsize", PANGO_ELLIPSIZE_END, NULL);
-        g_free (uri_escaped);
-        g_free (title);
-        g_free (background);
-        return;
-    }
-
-    desc = desc_uri = desc_title = key = NULL;
-    if (action->key)
-        str = action->key;
-    else
-        str = "";
-
-    key = g_utf8_strdown (str, -1);
-    keys = g_strsplit_set (key, " %", -1);
-    g_free (key);
-
-    uri_temp = midori_uri_unescape (uri_escaped);
-    g_free (uri_escaped);
-    uri = g_strescape (uri_temp, NULL);
-    g_free (uri_temp);
-
-    if (G_LIKELY (uri))
-    {
-        gchar* stripped_uri = midori_uri_strip_prefix_for_display (uri);
-        temp_iter = temp = g_utf8_strdown (stripped_uri, -1);
-        desc_iter = stripped_uri;
-        key_idx = 0;
-        key = keys[key_idx];
-        offset = 0;
-        while (key && (start = strstr (temp_iter, key)) && start)
-        {
-            gsize len = strlen (key);
-            if (len)
-            {
-                offset = (start - temp_iter);
-                skey = g_strndup (desc_iter + offset, len);
-                parts = g_strsplit (desc_iter, skey, 2);
-                if (parts[0] && parts[1])
-                {
-                    if (desc_uri)
-                    {
-                        temp_markup = g_markup_printf_escaped ("%s<b>%s</b>",
-                            parts[0], skey);
-                        temp_concat = g_strconcat (desc_uri, temp_markup, NULL);
-                        g_free (temp_markup);
-                        katze_assign (desc_uri, temp_concat);
-                    }
-                    else
-                    {
-                        desc_uri = g_markup_printf_escaped ("%s<b>%s</b>",
-                            parts[0], skey);
-                    }
-                }
-                g_strfreev (parts);
-                g_free (skey);
-
-                offset += len;
-                temp_iter += offset;
-                desc_iter += offset;
-            }
-            key_idx++;
-            key = keys[key_idx];
-            if (key == NULL)
-                break;
-        }
-        if (key)
-            katze_assign (desc_uri, NULL);
-        if (desc_uri)
-        {
-            temp_markup = g_markup_escape_text (desc_iter, -1);
-            temp_concat = g_strconcat (desc_uri, temp_markup, NULL);
-            g_free (temp_markup);
-            katze_assign (desc_uri, temp_concat);
-        }
-        else
-            desc_uri = g_markup_escape_text (stripped_uri, -1);
-        g_free (temp);
-        g_free (stripped_uri);
-    }
-
-    if (G_LIKELY (title))
-    {
-        temp_iter = temp = g_utf8_strdown (title, -1);
-        desc_iter = title;
-        key_idx = 0;
-        key = keys[key_idx];
-        offset = 0;
-        while (key && (start = strstr (temp_iter, key)) && start)
-        {
-            gsize len = strlen (key);
-            if (len)
-            {
-                offset = (start - temp_iter);
-                skey = g_strndup (desc_iter + offset, len);
-                parts = g_strsplit (desc_iter, skey, 2);
-                if (parts[0] && parts[1])
-                {
-                    if (desc_title)
-                    {
-                        temp_markup = g_markup_printf_escaped ("%s<b>%s</b>",
-                            parts[0], skey);
-                        temp_concat = g_strconcat (desc_title, temp_markup, NULL);
-                        g_free (temp_markup);
-                        katze_assign (desc_title, temp_concat);
-                    }
-                    else
-                    {
-                        desc_title = g_markup_printf_escaped ("%s<b>%s</b>",
-                            parts[0], skey);
-                    }
-                }
-                g_strfreev (parts);
-                g_free (skey);
-
-                offset += len;
-                temp_iter += offset;
-                desc_iter += offset;
-            }
-            key_idx++;
-            key = keys[key_idx];
-            if (key == NULL)
-                break;
-        }
-        if (key)
-            katze_assign (desc_title, NULL);
-        if (desc_title)
-        {
-            temp_markup = g_markup_escape_text (desc_iter, -1);
-            temp_concat = g_strconcat (desc_title, temp_markup, NULL);
-            g_free (temp_markup);
-            katze_assign (desc_title, temp_concat);
-        }
-        else
-            desc_title = g_markup_escape_text (title, -1);
-        g_free (temp);
-    }
-
-    if (desc_title)
-    {
-        desc = g_strdup_printf ("%s\n<span color='gray45'>%s</span>",
-                                desc_title, desc_uri);
-        g_free (desc_uri);
-        g_free (desc_title);
-    }
-    else
-        desc = desc_uri;
-
-    g_object_set (renderer, "markup", desc,
-        "ellipsize-set", TRUE, "ellipsize", PANGO_ELLIPSIZE_END, NULL);
-
-    g_free (uri);
-    g_free (title);
-    g_strfreev (keys);
-    g_free (desc);
 }
 
 static void

@@ -20,7 +20,7 @@ namespace Midori {
         GLib.Object search_engines;
 
         public SearchCompletion () {
-            GLib.Object (description: "Search engines");
+            GLib.Object (description: _("Search with…"));
         }
 
         public override void prepare (GLib.Object app) {

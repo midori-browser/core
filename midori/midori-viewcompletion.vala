@@ -15,7 +15,7 @@ namespace Midori {
         GLib.Object browsers;
 
         public ViewCompletion () {
-            GLib.Object (description: "Open tabs");
+            GLib.Object (description: _("Open tabs"));
         }
 
         public override void prepare (GLib.Object app) {

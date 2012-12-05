@@ -85,7 +85,18 @@ namespace Midori {
                 current_count = 0;
             }
 
-            int count = 0;
+#if HAVE_GRANITE
+            if (completion.description != null) {
+                model.insert_with_values (null, completion.position,
+                    Columns.URI, "about:completion-description",
+                    Columns.MARKUP, "<b>%s</b>\n".printf (Markup.escape_text (completion.description)),
+                    Columns.ICON, null,
+                    Columns.BACKGROUND, null,
+                    Columns.YALIGN, 0.25);
+            }
+#endif
+
+            int count = 1;
             foreach (var suggestion in suggestions) {
                 model.insert_with_values (null, completion.position + count,
                     Columns.URI, suggestion.uri,
@@ -125,6 +136,8 @@ namespace Midori {
         }
 
         public bool can_action (string action) {
+            if (action == "about:completion-description")
+                return true;
             foreach (var completion in completions)
                 if (completion.can_action (action))
                     return true;
@@ -132,6 +145,9 @@ namespace Midori {
         }
 
         public async void action (string action, string text) {
+            if (action == "about:completion-description")
+                return;
+
             if (cancellable != null)
                 cancellable.cancel ();
             cancellable = new Cancellable ();
