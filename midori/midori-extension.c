@@ -837,6 +837,23 @@ midori_extension_install_boolean (MidoriExtension* extension,
                         default_value, FALSE);
 }
 
+static void
+midori_extension_save_settings (MidoriExtension *extension)
+{
+    GError* error = NULL;
+    gchar* config_file = g_build_filename (extension->priv->config_dir,
+                                           "config", NULL);
+    katze_mkdir_with_parents (extension->priv->config_dir, 0700);
+    sokoke_key_file_save_to_file (extension->priv->key_file, config_file, &error);
+    if (error)
+    {
+        printf (_("The configuration of the extension '%s' couldn't be saved: %s\n"),
+                extension->priv->name, error->message);
+        g_error_free (error);
+    }
+    g_free (config_file);
+}
+
 /**
  * midori_extension_get_boolean:
  * @extension: a #MidoriExtension
@@ -889,22 +906,13 @@ midori_extension_set_boolean (MidoriExtension* extension,
     setting->value = value;
     if (extension->priv->key_file)
     {
-        GError* error = NULL;
-        /* FIXME: Handle readonly folder/ file */
-        gchar* config_file = g_build_filename (extension->priv->config_dir,
-                                               "config", NULL);
-        katze_mkdir_with_parents (extension->priv->config_dir, 0700);
         g_key_file_set_boolean (extension->priv->key_file,
                                 "settings", name, value);
-        sokoke_key_file_save_to_file (extension->priv->key_file, config_file, &error);
-        if (error)
-        {
-            printf (_("The configuration of the extension '%s' couldn't be saved: %s\n"),
-                    extension->priv->name, error->message);
-            g_error_free (error);
-        }
+        midori_extension_save_settings (extension);
     }
 }
+
+
 
 /**
  * midori_extension_install_integer:
@@ -986,20 +994,9 @@ midori_extension_set_integer (MidoriExtension* extension,
     setting->value = value;
     if (extension->priv->key_file)
     {
-        GError* error = NULL;
-        /* FIXME: Handle readonly folder/ file */
-        gchar* config_file = g_build_filename (extension->priv->config_dir,
-                                               "config", NULL);
-        katze_mkdir_with_parents (extension->priv->config_dir, 0700);
         g_key_file_set_integer (extension->priv->key_file,
                                 "settings", name, value);
-        sokoke_key_file_save_to_file (extension->priv->key_file, config_file, &error);
-        if (error)
-        {
-            printf (_("The configuration of the extension '%s' couldn't be saved: %s\n"),
-                    extension->priv->name, error->message);
-            g_error_free (error);
-        }
+        midori_extension_save_settings (extension);
     }
 }
 
@@ -1083,20 +1080,9 @@ midori_extension_set_string (MidoriExtension* extension,
     katze_assign (setting->value, g_strdup (value));
     if (extension->priv->key_file)
     {
-        GError* error = NULL;
-        /* FIXME: Handle readonly folder/ file */
-        gchar* config_file = g_build_filename (extension->priv->config_dir,
-                                               "config", NULL);
-        katze_mkdir_with_parents (extension->priv->config_dir, 0700);
         g_key_file_set_string (extension->priv->key_file,
                                 "settings", name, value);
-        sokoke_key_file_save_to_file (extension->priv->key_file, config_file, &error);
-        if (error)
-        {
-            printf (_("The configuration of the extension '%s' couldn't be saved: %s\n"),
-                    extension->priv->name, error->message);
-            g_error_free (error);
-        }
+        midori_extension_save_settings (extension);
     }
 }
 
@@ -1195,19 +1181,8 @@ midori_extension_set_string_list (MidoriExtension* extension,
 
     if (extension->priv->key_file)
     {
-        GError* error = NULL;
-        /* FIXME: Handle readonly folder/ file */
-        gchar* config_file = g_build_filename (extension->priv->config_dir,
-                                               "config", NULL);
-        katze_mkdir_with_parents (extension->priv->config_dir, 0700);
         g_key_file_set_string_list (extension->priv->key_file,
                                     "settings", name, (const gchar**)value, length);
-        sokoke_key_file_save_to_file (extension->priv->key_file, config_file, &error);
-        if (error)
-        {
-            printf (_("The configuration of the extension '%s' couldn't be saved: %s\n"),
-                    extension->priv->name, error->message);
-            g_error_free (error);
-        }
+        midori_extension_save_settings (extension);
     }
 }
