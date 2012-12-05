@@ -247,14 +247,15 @@ midori_web_settings_low_memory_profile ()
 #else
     gchar* contents;
     const gchar* total;
-    if (!g_file_get_contents ("/proc/meminfo", &contents, NULL, NULL))
-        return FALSE;
-    if (contents && (total = strstr (contents, "MemTotal:")) && *total)
+    if (g_file_get_contents ("/proc/meminfo", &contents, NULL, NULL)
+     && contents && (total = strstr (contents, "MemTotal:")) && *total)
     {
         const gchar* value = katze_skip_whitespace (total + 9);
         gdouble mem_total = g_ascii_strtoll (value, NULL, 0);
+        g_free (contents);
         return mem_total / 1024.0 < 352 + 1;
     }
+    g_free (contents);
 #endif
     return FALSE;
 }
