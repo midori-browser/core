@@ -15,6 +15,10 @@ namespace GLib {
     #endif
 }
 
+namespace Katze {
+    extern static Gdk.Pixbuf? load_cached_icon (string uri, Gtk.Widget? proxy);
+}
+
 extern const string LIBDIR;
 extern const string MDATADIR;
 extern const string PACKAGE_NAME;
@@ -358,6 +362,19 @@ namespace Midori {
 
             return Path.build_filename (SYSCONFDIR, "xdg", PACKAGE_NAME, folder ?? "", filename);
             #endif
+        }
+
+        public static Gdk.Pixbuf? get_icon (string? uri, Gtk.Widget? widget) {
+            if (!Midori.URI.is_resource (uri))
+                return null;
+#if HAVE_WEBKIT_1_8_0
+            /* FIXME: Don't hard-code icon size */
+            Gdk.Pixbuf? pixbuf = WebKit.get_favicon_database ()
+                .try_get_favicon_pixbuf (uri, 16, 16);
+            if (pixbuf != null)
+                return pixbuf;
+#endif
+            return Katze.load_cached_icon (uri, widget);
         }
     }
 }

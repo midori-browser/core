@@ -1413,6 +1413,7 @@ katze_widget_has_touchscreen_mode (GtkWidget* widget)
  * Returns: a #GdkPixbuf, or %NULL
  *
  * Since: 0.2.2
+ * Deprecated: 0.4.8
  */
 GdkPixbuf*
 katze_load_cached_icon (const gchar* uri,

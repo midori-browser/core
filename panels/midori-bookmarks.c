@@ -658,22 +658,12 @@ midori_bookmarks_treeview_render_icon_cb (GtkTreeViewColumn* column,
 
     gtk_tree_model_get (model, iter, 0, &item, -1);
 
-    /* TODO: Would it be better to not do this on every redraw? */
-    pixbuf = NULL;
-    if (KATZE_ITEM_IS_FOLDER (item))
-        pixbuf = gtk_widget_render_icon (treeview, GTK_STOCK_DIRECTORY,
-                                         GTK_ICON_SIZE_MENU, NULL);
-    else if ((pixbuf = katze_item_get_pixbuf (item, treeview)))
-        ;
-    else if (KATZE_ITEM_IS_BOOKMARK (item))
-        pixbuf = katze_load_cached_icon (katze_item_get_uri (item), treeview);
+    pixbuf = katze_item_get_pixbuf (item, treeview);
     g_object_set (renderer, "pixbuf", pixbuf, NULL);
 
     if (pixbuf)
         g_object_unref (pixbuf);
-
-    if (item)
-        g_object_unref (item);
+    g_object_unref (item);
 }
 
 static void

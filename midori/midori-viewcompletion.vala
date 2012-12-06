@@ -56,7 +56,7 @@ namespace Midori {
                     if (!(key in uri.casefold () || key in title.casefold ()))
                         continue;
 
-                    Gdk.Pixbuf? icon = Katze.load_cached_icon (uri, null);
+                    Gdk.Pixbuf? icon = Midori.Paths.get_icon (uri, null);
                     /* FIXME: Theming? Win32? */
                     string background = "gray";
                     var suggestion = new Suggestion (uri, title + "\n" + uri, false, background, icon);

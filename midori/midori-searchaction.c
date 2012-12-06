@@ -406,24 +406,18 @@ midori_search_action_get_icon (KatzeItem*    item,
                                const gchar** icon_name,
                                gboolean      in_entry)
 {
-    const gchar* icon = katze_item_get_uri (item);
-    GdkScreen* screen;
-    GtkIconTheme* icon_theme;
+    GdkPixbuf* pixbuf = katze_item_get_pixbuf (item, widget);
+    if (widget == NULL)
+        return pixbuf;
 
-    if (midori_uri_is_resource (icon))
-        return katze_load_cached_icon (icon, widget);
-
-    if (icon_name == NULL)
-        return NULL;
-
-    screen = gtk_widget_get_screen (widget);
-    icon_theme = gtk_icon_theme_get_for_screen (screen);
-    if ((icon = katze_item_get_icon (item)) && *icon)
+    GdkScreen* screen = gtk_widget_get_screen (widget);
+    GtkIconTheme* icon_theme = gtk_icon_theme_get_for_screen (screen);
+    if (katze_item_get_icon (item))
     {
-        if (gtk_icon_theme_has_icon (icon_theme, icon))
+        if (gtk_icon_theme_has_icon (icon_theme, katze_item_get_icon (item)))
         {
-            *icon_name = icon;
-            return NULL;
+            *icon_name = katze_item_get_icon (item);
+            return pixbuf;
         }
     }
 
@@ -433,7 +427,7 @@ midori_search_action_get_icon (KatzeItem*    item,
         *icon_name = "edit-find-option";
     else
         *icon_name = STOCK_EDIT_FIND;
-    return NULL;
+    return pixbuf;
 }
 
 static void

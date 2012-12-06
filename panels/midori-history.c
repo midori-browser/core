@@ -594,23 +594,12 @@ midori_history_treeview_render_icon_cb (GtkTreeViewColumn* column,
 
     gtk_tree_model_get (model, iter, 0, &item, -1);
 
-    if (!item)
-        pixbuf = NULL;
-    else if ((pixbuf = katze_item_get_pixbuf (item, treeview)))
-        ;
-    else if (katze_item_get_uri (item))
-        pixbuf = katze_load_cached_icon (katze_item_get_uri (item), treeview);
-    else
-        pixbuf = gtk_widget_render_icon (treeview, GTK_STOCK_DIRECTORY,
-                                         GTK_ICON_SIZE_MENU, NULL);
-
+    pixbuf = katze_item_get_pixbuf (item, treeview);
     g_object_set (renderer, "pixbuf", pixbuf, NULL);
 
     if (pixbuf)
-    {
         g_object_unref (pixbuf);
-        g_object_unref (item);
-    }
+    g_object_unref (item);
 }
 
 static void

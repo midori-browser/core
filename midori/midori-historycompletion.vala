@@ -9,10 +9,6 @@
  See the file COPYING for the full license text.
 */
 
-namespace Katze {
-    extern static Gdk.Pixbuf? load_cached_icon (string uri, Gtk.Widget? proxy);
-}
-
 namespace Midori {
     public class HistoryCompletion : Completion {
         unowned Sqlite.Database db;
@@ -75,7 +71,7 @@ namespace Midori {
                 int64 type = stmt.column_int64 (0);
                 unowned string uri = stmt.column_text (1);
                 unowned string title = stmt.column_text (2);
-                Gdk.Pixbuf? icon = Katze.load_cached_icon (uri, null);
+                Gdk.Pixbuf? icon = Midori.Paths.get_icon (uri, null);
                 Suggestion suggestion;
 
                 switch (type) {

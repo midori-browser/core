@@ -3,6 +3,12 @@
 [CCode (cprefix = "WebKit", lower_case_cprefix = "webkit_")]
 namespace WebKit {
 	[CCode (cheader_filename = "webkit/webkit.h")]
+	public class FaviconDatabase : GLib.Object {
+		public Gdk.Pixbuf? try_get_favicon_pixbuf (string page_uri, uint width, uint height);
+		public void set_path (string? path);
+		public void clear ();
+	}
+	[CCode (cheader_filename = "webkit/webkit.h")]
 	public class DOMDOMTokenList : GLib.Object {
 		[CCode (has_construct_function = false)]
 		protected DOMDOMTokenList ();
@@ -795,6 +801,8 @@ namespace WebKit {
 	public static unowned Soup.Session get_default_session ();
 	[CCode (cheader_filename = "webkit/webkit.h")]
 	public static uint64 get_default_web_database_quota ();
+	[CCode (cheader_filename = "webkit/webkit.h")]
+	public static unowned WebKit.FaviconDatabase get_favicon_database ();
 	[CCode (cheader_filename = "webkit/webkit.h")]
 	public static unowned string get_web_database_directory_path ();
 	[CCode (cheader_filename = "webkit/webkit.h")]
