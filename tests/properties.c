@@ -63,6 +63,7 @@ properties_type_test (gconstpointer type)
 {
     GObject* object;
 
+    midori_test_log_set_fatal_handler_for_icons ();
     object = g_object_new ((GType)type, NULL);
     properties_object_test ((gconstpointer)object);
 }

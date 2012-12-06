@@ -11,17 +11,6 @@
 
 #include "midori.h"
 
-static gboolean
-skip_gtk_bugs (const gchar*   log_domain,
-               GLogLevelFlags log_level,
-               const gchar*   message,
-               gpointer       user_data)
-{
-    if (!strcmp (message, "get_column_number: assertion `i < gtk_tree_view_get_n_columns (treeview)' failed"))
-        return FALSE;
-    return TRUE;
-}
-
 static void
 browser_create (void)
 {
@@ -37,7 +26,7 @@ browser_create (void)
     gchar* filename;
     gchar* filename2;
 
-    g_test_log_set_fatal_handler (skip_gtk_bugs, NULL);
+    midori_test_log_set_fatal_handler_for_icons ();
 
     app = midori_app_new ();
     settings = midori_web_settings_new ();

@@ -10,10 +10,7 @@
 */
 
 void app_normal () {
-    Test.log_set_fatal_handler ((domain, log_levels, message)=> {
-        return !message.contains("Error loading theme icon");
-        });
-
+    Midori.Test.log_set_fatal_handler_for_icons ();
     Midori.Paths.Test.reset_runtime_mode ();
     var app = Midori.normal_app_new (null, false, false, null, null, null, -1, null);
     var loop = MainContext.default ();
@@ -25,11 +22,8 @@ void app_normal () {
 }
 
 void app_custom_config () {
+    Midori.Test.log_set_fatal_handler_for_icons ();
     /*
-    Test.log_set_fatal_handler ((domain, log_levels, message)=> {
-        return !message.contains("Error loading theme icon");
-        });
-
     Midori.Paths.Test.reset_runtime_mode ();
     var app = Midori.normal_app_new ("/tmp/mylittlepony", false, false, null, null, null, -1, null);
     var loop = MainContext.default ();
@@ -38,6 +32,7 @@ void app_custom_config () {
     */
 }
 void app_private () {
+    Midori.Test.log_set_fatal_handler_for_icons ();
     Midori.Paths.Test.reset_runtime_mode ();
     Midori.private_app_new (null, null, null, null, -1, null);
     var loop = MainContext.default ();

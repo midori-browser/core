@@ -11,6 +11,15 @@
 
 namespace Midori {
     namespace Test {
+        public void log_set_fatal_handler_for_icons () {
+            GLib.Test.log_set_fatal_handler ((domain, log_levels, message)=> {
+                return !message.contains ("Error loading theme icon")
+                    && !message.contains ("Could not find the icon")
+                    && !message.contains ("get_column_number: assertion `i < gtk_tree_view_get_n_columns (treeview)' failed");
+            });
+
+        }
+
         internal static Gtk.ResponseType test_response = Gtk.ResponseType.NONE;
         public void set_dialog_response (Gtk.ResponseType response) {
             test_response = response;

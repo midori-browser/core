@@ -76,9 +76,7 @@ static void tab_display_ellipsize () {
 }
 
 void tab_special () {
-    Test.log_set_fatal_handler ((domain, log_levels, message)=> {
-        return !message.contains("Error loading theme icon");
-        });
+    Midori.Test.log_set_fatal_handler_for_icons ();
 
     var test_address = new Soup.Address ("127.0.0.1", Soup.ADDRESS_ANY_PORT);
     test_address.resolve_sync (null);
