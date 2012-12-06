@@ -88,6 +88,9 @@ katze_net_get_cached_path (KatzeNet*    net,
     gchar* cached_filename;
     gchar* cached_path;
 
+    if (uri == NULL)
+        return NULL;
+
     checksum = g_compute_checksum_for_string (G_CHECKSUM_MD5, uri, -1);
     extension = g_strrstr (uri, ".");
     cached_filename = g_strdup_printf ("%s%s", checksum,

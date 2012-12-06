@@ -529,15 +529,12 @@ katze_net_icon_transfer_cb (KatzeNetRequest*  request,
     if (request->data)
     {
         gchar* icon_file = katze_net_get_cached_path (NULL, view->icon_uri, "icons");
-        if ((fp = fopen (icon_file, "wb")))
+        if (icon_file && (fp = fopen (icon_file, "wb")))
         {
-            ret  = fwrite (request->data, 1, request->length, fp);
+            ret = fwrite (request->data, 1, request->length, fp);
             fclose (fp);
             if ((ret - request->length != 0))
-            {
-                g_warning ("Error writing to file %s "
-                           "in  katze_net_icon_transfer_cb()", icon_file);
-            }
+                g_warning ("Error writing to file %s in %s", icon_file, G_STRFUNC);
         }
         g_free (icon_file);
 
