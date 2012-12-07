@@ -224,9 +224,9 @@ midori_location_action_class_init (MidoriLocationActionClass* class)
                                      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 }
 
-static gchar*
-midori_location_entry_render_uri (gchar**      keys,
-                                  const gchar* uri_escaped)
+gchar*
+midori_location_action_render_uri (gchar**      keys,
+                                   const gchar* uri_escaped)
 {
     gchar* uri_unescaped = midori_uri_unescape (uri_escaped);
     gchar* uri = g_strescape (uri_unescaped, NULL);
@@ -238,19 +238,28 @@ midori_location_entry_render_uri (gchar**      keys,
     gchar* desc_iter = stripped_uri;
     gint key_idx = 0;
     gchar* key = keys[key_idx];
-    gint offset = 0;
     gchar* start;
     gchar* desc_uri = NULL;
-    while (key && (start = strstr (temp_iter, key)) && start)
+    while (key && (start = strstr (temp_iter, key)))
     {
         gsize len = strlen (key);
         if (len)
         {
-            offset = (start - temp_iter);
+            gint offset = (start - temp_iter);
             gchar* skey = g_strndup (desc_iter + offset, len);
             gchar** parts = g_strsplit (desc_iter, skey, 2);
             if (parts[0] && parts[1])
-                desc_uri = g_markup_printf_escaped ("%s<b>%s</b>", parts[0], skey);
+            {
+                if (desc_uri)
+                {
+                    gchar* temp_markup = g_markup_printf_escaped ("%s<b>%s</b>", parts[0], skey);
+                    gchar* temp_concat = g_strconcat (desc_uri, temp_markup, NULL);
+                    g_free (temp_markup);
+                    katze_assign (desc_uri, temp_concat);
+                }
+                else
+                    desc_uri = g_markup_printf_escaped ("%s<b>%s</b>", parts[0], skey);
+            }
             g_strfreev (parts);
             g_free (skey);
 
@@ -264,43 +273,50 @@ midori_location_entry_render_uri (gchar**      keys,
             break;
     }
     if (key)
-        katze_assign (desc_uri, NULL);
-    if (desc_uri)
+        katze_assign (desc_uri,g_markup_escape_text (stripped_uri, -1));
+    else
     {
         gchar* temp_markup = g_markup_escape_text (desc_iter, -1);
         gchar* temp_concat = g_strconcat (desc_uri, temp_markup, NULL);
         g_free (temp_markup);
         katze_assign (desc_uri, temp_concat);
     }
-    else
-        desc_uri = g_markup_escape_text (stripped_uri, -1);
     g_free (temp);
     g_free (stripped_uri);
     return desc_uri;
 }
 
-static gchar*
-midori_location_entry_render_title (gchar**      keys,
-                                    const gchar* title)
+gchar*
+midori_location_action_render_title (gchar**      keys,
+                                     const gchar* title)
 {
     gchar* temp;
     gchar* temp_iter = temp = g_utf8_strdown (title, -1);
     const gchar* desc_iter = title;
     gint key_idx = 0;
     gchar* key = keys[key_idx];
-    gint offset = 0;
     gchar* start;
     gchar* desc_title = NULL;
-    while (key && (start = strstr (temp_iter, key)) && start)
+    while (key && (start = strstr (temp_iter, key)))
     {
         gsize len = strlen (key);
         if (len)
         {
-            offset = (start - temp_iter);
+            gint offset = (start - temp_iter);
             gchar* skey = g_strndup (desc_iter + offset, len);
             gchar** parts = g_strsplit (desc_iter, skey, 2);
             if (parts[0] && parts[1])
-                desc_title = g_markup_printf_escaped ("%s<b>%s</b>", parts[0], skey);
+            {
+                if (desc_title)
+                {
+                    gchar* temp_markup = g_markup_printf_escaped ("%s<b>%s</b>", parts[0], skey);
+                    gchar* temp_concat = g_strconcat (desc_title, temp_markup, NULL);
+                    g_free (temp_markup);
+                    katze_assign (desc_title, temp_concat);
+                }
+                else
+                    desc_title = g_markup_printf_escaped ("%s<b>%s</b>", parts[0], skey);
+            }
             g_strfreev (parts);
             g_free (skey);
 
@@ -314,16 +330,14 @@ midori_location_entry_render_title (gchar**      keys,
             break;
     }
     if (key)
-        katze_assign (desc_title, NULL);
-    if (desc_title)
+        katze_assign (desc_title, g_markup_escape_text (title, -1));
+    else
     {
         gchar* temp_markup = g_markup_escape_text (desc_iter, -1);
         gchar* temp_concat = g_strconcat (desc_title, temp_markup, NULL);
         g_free (temp_markup);
         katze_assign (desc_title, temp_concat);
     }
-    else
-        desc_title = g_markup_escape_text (title, -1);
     g_free (temp);
     return desc_title;
 }
@@ -358,7 +372,7 @@ midori_location_entry_render_title_cb (GtkCellLayout*   layout,
         gchar* key = g_utf8_strdown (action->key ? action->key : "", -1);
         gchar** keys = g_strsplit_set (key, " %", -1);
         g_free (key);
-        desc = midori_location_entry_render_title (keys, title);
+        desc = midori_location_action_render_title (keys, title);
         g_strfreev (keys);
     }
 
@@ -399,7 +413,7 @@ midori_location_entry_render_uri_cb (GtkCellLayout*   layout,
         gchar* key = g_utf8_strdown (action->key ? action->key : "", -1);
         gchar** keys = g_strsplit_set (key, " %", -1);
         g_free (key);
-        desc = midori_location_entry_render_uri (keys, uri_escaped);
+        desc = midori_location_action_render_uri (keys, uri_escaped);
         g_strfreev (keys);
         g_free (uri_escaped);
     }
@@ -440,8 +454,8 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
         gchar* key = g_utf8_strdown (action->key ? action->key : "", -1);
         gchar** keys = g_strsplit_set (key, " %", -1);
         g_free (key);
-        gchar* desc_uri = midori_location_entry_render_uri (keys, uri_escaped);
-        gchar* desc_title = midori_location_entry_render_title (keys, title);
+        gchar* desc_uri = midori_location_action_render_uri (keys, uri_escaped);
+        gchar* desc_title = midori_location_action_render_title (keys, title);
         desc = g_strdup_printf ("%s\n<span color='gray45'>%s</span>", desc_title, desc_uri);
         g_free (uri_escaped);
         g_free (title);

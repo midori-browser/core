@@ -187,6 +187,12 @@ namespace Midori {
     }
 
     [CCode (cheader_filename = "midori/midori.h")]
+    public class LocationAction : Gtk.Action {
+        public static string render_uri ([CCode (array_length = false)] string[] keys, string uri_escaped);
+        public static string render_title ([CCode (array_length = false)] string[] keys, string title);
+    }
+
+    [CCode (cheader_filename = "midori/midori.h")]
     public class SearchAction : Gtk.Action {
         public static Katze.Item? get_engine_for_form (WebKit.WebView web_view, Pango.EllipsizeMode ellipsize);
     }

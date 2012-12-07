@@ -74,6 +74,14 @@ void
 midori_location_action_set_security_hint    (MidoriLocationAction* location_action,
                                              MidoriSecurity        hint);
 
+gchar*
+midori_location_action_render_uri           (gchar**      keys,
+                                             const gchar* uri_escaped);
+
+gchar*
+midori_location_action_render_title         (gchar**      keys,
+                                             const gchar* title);
+
 G_END_DECLS
 
 #endif /* __MIDORI_LOCATION_ACTION_H__ */
