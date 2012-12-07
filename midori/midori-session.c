@@ -427,8 +427,6 @@ midori_session_save_timeout_cb (KatzeArray* session)
     g_free (config_file);
 
     save_timeout = 0;
-    g_object_unref (session);
-
     return FALSE;
 }
 
@@ -438,7 +436,8 @@ midori_browser_session_cb (MidoriBrowser* browser,
                            KatzeArray*    session)
 {
     if (!save_timeout)
-        save_timeout = g_timeout_add_seconds (5, (GSourceFunc)midori_session_save_timeout_cb, session);
+        save_timeout = midori_timeout_add_seconds (
+            5, (GSourceFunc)midori_session_save_timeout_cb, session, NULL);
 }
 
 static void

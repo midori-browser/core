@@ -10,11 +10,17 @@
 */
 
 void app_normal () {
+    Midori.Test.idle_timeouts ();
     Midori.Test.log_set_fatal_handler_for_icons ();
     Midori.Paths.Test.reset_runtime_mode ();
     var app = Midori.normal_app_new (null, false, false, null, null, null, -1, null);
     var loop = MainContext.default ();
     do { loop.iteration (true); } while (loop.pending ());
+    for (var i = 0 ; i < 7; i++) {
+        var tab = app.browser.get_nth_tab (app.browser.add_uri ("about:blank"));
+        app.browser.close_tab (tab);
+        do { loop.iteration (true); } while (loop.pending ());
+    }
     Midori.normal_app_on_quit (app);
 
     string filename = Midori.Paths.get_extension_config_dir ("adblock");

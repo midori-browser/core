@@ -10,7 +10,20 @@
 */
 
 namespace Midori {
+    namespace Timeout {
+        public uint add_seconds (uint interval, owned SourceFunc function) {
+            if (Test.test_idle_timeouts)
+                return GLib.Idle.add (function);
+            return GLib.Timeout.add_seconds (interval, function);
+        }
+    }
+
     namespace Test {
+        internal static bool test_idle_timeouts = false;
+        public void idle_timeouts () {
+            test_idle_timeouts = true;
+        }
+
         public void log_set_fatal_handler_for_icons () {
             GLib.Test.log_set_fatal_handler ((domain, log_levels, message)=> {
                 return !message.contains ("Error loading theme icon")

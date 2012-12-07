@@ -234,7 +234,8 @@ static void cookie_manager_jar_changed_cb(SoupCookieJar *jar, SoupCookie *old, S
 	/* We delay these events a little bit to avoid too many rebuilds of the tree.
 	 * Some websites (like Flyspray bugtrackers sent a whole bunch of cookies at once. */
 	if (priv->timer_id == 0)
-		priv->timer_id = g_timeout_add_seconds(1, (GSourceFunc) cookie_manager_delayed_refresh, cm);
+		priv->timer_id = midori_timeout_add_seconds(
+			1, (GSourceFunc) cookie_manager_delayed_refresh, cm, NULL);
 }
 
 

@@ -16,7 +16,6 @@
 #include <midori/midori.h>
 
 #define EXTENSION_NAME "Feed Panel"
-#define UPDATE_FREQ 10
 
 #define feed_get_flags(feed) \
     GPOINTER_TO_INT (g_object_get_data (G_OBJECT ((feed)), "flags"))
@@ -488,8 +487,8 @@ feed_app_add_browser_cb (MidoriApp*       app,
     g_signal_connect (extension, "deactivate",
         G_CALLBACK (feed_deactivate_cb), priv);
 
-    priv->source_id = g_timeout_add_seconds (UPDATE_FREQ * 60,
-                            (GSourceFunc) update_feeds, priv);
+    priv->source_id = midori_timeout_add_seconds (
+        600, (GSourceFunc) update_feeds, priv, NULL);
 }
 
 static void

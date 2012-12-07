@@ -5502,7 +5502,8 @@ midori_browser_set_inactivity_reset (MidoriBrowser* browser,
         MidoriInactivityTimeout* mit = g_new (MidoriInactivityTimeout, 1);
         mit->browser = browser;
         mit->timeout = inactivity_reset;
-        g_timeout_add_seconds (inactivity_reset, midori_inactivity_timeout, mit);
+        midori_timeout_add_seconds (
+            inactivity_reset, midori_inactivity_timeout, mit, NULL);
     }
 }
 
