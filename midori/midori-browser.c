@@ -4673,12 +4673,10 @@ midori_browser_get_docs (gboolean error)
     if (found)
         return g_filename_to_uri (path, NULL, NULL);
     #endif
-    #ifdef DOCDIR
     if (g_access (DOCDIR "/faq.html", F_OK) == 0)
         return g_strdup ("file://" DOCDIR "/faq.html");
     else
-    #endif
-        return error ? g_strdup_printf ("error:nodocs %s/faq.html", DOCDIR) : NULL;
+        return error ? g_strdup ("about:nodocs") : NULL;
 }
 
 static void

@@ -3772,7 +3772,7 @@ list_video_formats (JSContextRef js_context)
 static const gchar* valid_about_uris[] = {
     "about:widgets",
     "about:private",
-    "error:nodocs",
+    "about:nodocs",
     "http://.invalid",
     "about:geolocation",
     "about:paths",
@@ -3841,12 +3841,10 @@ midori_view_set_uri (MidoriView*  view,
             }
             #endif
         }
-        /* This is not prefectly elegant, but creating
-           special pages inline is the simplest solution. */
-        else if (g_str_has_prefix (uri, "error:") || midori_uri_is_blank (uri))
+        else if (midori_uri_is_blank (uri))
         {
             data = NULL;
-            if (!strncmp (uri, "error:nodocs ", 13))
+            if (!strcmp (uri, "about:nodocs"))
             {
                 gchar* title = g_strdup_printf (_("No documentation installed"));
                 data = g_strdup_printf (
@@ -3860,7 +3858,7 @@ midori_view_set_uri (MidoriView*  view,
                     "verify that the build is setup properly. "
                     "<a href=\"http://wiki.xfce.org/midori/faq\">View the FAQ online</a>"
                     "</body></html>",
-                    title, title, &uri[13]);
+                    title, title, DOCDIR);
                 g_free (title);
             }
             else if (!strcmp (uri, "about:widgets"))
