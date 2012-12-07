@@ -14,9 +14,7 @@
 FormHistoryPriv*
 formhistory_private_new ()
 {
-    FormHistoryPriv* priv;
-
-    priv = g_slice_new (FormHistoryPriv);
+    FormHistoryPriv* priv = g_slice_new (FormHistoryPriv);
     priv->oldkeyword = g_strdup ("");
     priv->selection_index = -1;
     return priv;

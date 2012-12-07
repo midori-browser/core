@@ -13,9 +13,7 @@
 FormHistoryPriv*
 formhistory_private_new ()
 {
-    FormHistoryPriv* priv;
-
-    priv = g_slice_new (FormHistoryPriv);
+    FormHistoryPriv* priv = g_slice_new (FormHistoryPriv);
     return priv;
 }
 

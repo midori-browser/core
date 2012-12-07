@@ -29,8 +29,7 @@ formhistory_update_database (gpointer     db,
     if (!(value && *value))
         return;
 
-    sqlcmd = sqlite3_mprintf ("INSERT INTO forms VALUES"
-                              "('%q', '%q', '%q')",
+    sqlcmd = sqlite3_mprintf ("INSERT INTO forms VALUES('%q', '%q', '%q')",
                               host, key, value);
     success = sqlite3_exec (db, sqlcmd, NULL, NULL, &errmsg);
     sqlite3_free (sqlcmd);
@@ -44,16 +43,21 @@ formhistory_update_database (gpointer     db,
 
 static gchar*
 formhistory_get_login_data (gpointer     db,
-                            const gchar* domain)
+                            const gchar* uri)
 {
+    gchar* domain;
     static sqlite3_stmt* stmt;
-    const char* sqlcmd;
     gint result;
     gchar* value = NULL;
 
+    g_return_val_if_fail (db != NULL, NULL);
+    g_return_val_if_fail (uri != NULL, NULL);
+    domain = midori_uri_parse_hostname (uri, NULL);
+    g_return_val_if_fail (domain != NULL, NULL);
+
     if (!stmt)
     {
-        sqlcmd = "SELECT value FROM forms WHERE domain = ?1 and field = 'MidoriPasswordManager' limit 1";
+        const gchar* sqlcmd = "SELECT value FROM forms WHERE domain = ?1 and field = 'MidoriPasswordManager' limit 1";
         sqlite3_prepare_v2 (db, sqlcmd, strlen (sqlcmd) + 1, &stmt, NULL);
     }
     sqlite3_bind_text (stmt, 1, domain, -1, NULL);
@@ -62,6 +66,7 @@ formhistory_get_login_data (gpointer     db,
         value = g_strdup ((gchar*)sqlite3_column_text (stmt, 0));
     sqlite3_reset (stmt);
     sqlite3_clear_bindings (stmt);
+    g_free (domain);
     return value;
 }
 
@@ -233,18 +238,13 @@ formhistory_navigation_decision_cb (WebKitWebView*             web_view,
                 #if WEBKIT_CHECK_VERSION (1, 3, 8)
                 else
                 {
-                    gchar* data;
-                    gchar* domain;
                     #if 0
                     FormhistoryPasswordEntry* entry;
                     #endif
-
-                    domain = midori_uri_parse_hostname (webkit_web_frame_get_uri (web_frame), NULL);
-                    data = formhistory_get_login_data (priv->db, domain);
+                    gchar* data = formhistory_get_login_data (priv->db, webkit_web_frame_get_uri (web_frame));
                     if (data)
                     {
                         g_free (data);
-                        g_free (domain);
                         break;
                     }
                     #if 0
@@ -367,7 +367,6 @@ formhistory_frame_loaded_cb (WebKitWebView*   web_view,
     FormHistoryPriv* priv;
     JSContextRef js_context;
     gchar* data;
-    gchar* domain;
     gchar* count;
 
     page_uri = webkit_web_frame_get_uri (web_frame);
@@ -385,9 +384,7 @@ formhistory_frame_loaded_cb (WebKitWebView*   web_view,
     g_free (count);
 
     priv = g_object_get_data (G_OBJECT (extension), "priv");
-    domain = midori_uri_parse_hostname (webkit_web_frame_get_uri (web_frame), NULL);
-    data = formhistory_get_login_data (priv->db, domain);
-    g_free (domain);
+    data = formhistory_get_login_data (priv->db, webkit_web_frame_get_uri (web_frame));
 
     if (!data)
         return;
@@ -504,31 +501,21 @@ formhistory_deactivate_cb (MidoriExtension* extension,
     formhistory_private_destroy (priv);
 }
 
-static void
-formhistory_activate_cb (MidoriExtension* extension,
-                         MidoriApp*       app)
+static FormHistoryPriv*
+formhistory_new (const gchar* config_dir)
 {
-    const gchar* config_dir;
     gchar* filename;
     sqlite3* db;
     char* errmsg = NULL, *errmsg2 = NULL;
-    KatzeArray* browsers;
-    MidoriBrowser* browser;
-    FormHistoryPriv* priv;
-
-    priv = formhistory_private_new ();
+    FormHistoryPriv* priv = formhistory_private_new ();
     priv->master_password = NULL;
     priv->master_password_canceled = 0;
     formhistory_construct_popup_gui (priv);
 
-    config_dir = midori_extension_get_config_dir (extension);
-    if (config_dir != NULL)
-        katze_mkdir_with_parents (config_dir, 0700);
     filename = g_build_filename (config_dir, "forms.db", NULL);
     if (sqlite3_open (filename, &db) != SQLITE_OK)
     {
-        if (config_dir != NULL)
-            g_warning (_("Failed to open database: %s\n"), sqlite3_errmsg (db));
+        g_warning (_("Failed to open database: %s\n"), sqlite3_errmsg (db));
         sqlite3_close (db);
     }
     g_free (filename);
@@ -556,14 +543,23 @@ formhistory_activate_cb (MidoriExtension* extension,
         }
         sqlite3_close (db);
     }
+    return priv;
+}
 
+static void
+formhistory_activate_cb (MidoriExtension* extension,
+                         MidoriApp*       app)
+{
+    const gchar* config_dir = midori_extension_get_config_dir (extension);
+    FormHistoryPriv* priv = formhistory_new (config_dir);
+    KatzeArray* browsers = katze_object_get_object (app, "browsers");
+    MidoriBrowser* browser;
     g_object_set_data (G_OBJECT (extension), "priv", priv);
-    browsers = katze_object_get_object (app, "browsers");
+
     KATZE_ARRAY_FOREACH_ITEM (browser, browsers)
         formhistory_app_add_browser_cb (app, browser, extension);
     g_signal_connect (app, "add-browser",
         G_CALLBACK (formhistory_app_add_browser_cb), extension);
-
     g_object_unref (browsers);
 }
 
@@ -658,13 +654,31 @@ formhistory_toggle_state_cb (GtkAction*     action,
         formhistory_add_tab_cb (browser, view, extension);
 }
 
+static void
+test_formhistory_login (void)
+{
+    gchar* config_dir = midori_paths_get_extension_config_dir ("formhistory");
+    FormHistoryPriv* priv = formhistory_new (config_dir);
+    g_free (formhistory_get_login_data (priv->db, "http://example.com"));
+    g_free (formhistory_get_login_data (priv->db, "http://beispiel.de"));
+    formhistory_update_database (priv->db, "http://example.com", "MidoriPasswordManager", "lalelu");
+    formhistory_update_database (priv->db, NULL, "spam", "eggs");
+    g_free (formhistory_get_login_data (priv->db, "http://example.com"));
+    g_free (formhistory_get_login_data (priv->db, "http://beispiel.de"));
+    g_free (config_dir);
+    formhistory_private_destroy (priv);
+}
+
+void
+extension_test (void)
+{
+    g_test_add_func ("/extensions/formhistory/login", test_formhistory_login);
+}
+
 MidoriExtension*
 extension_init (void)
 {
-    MidoriExtension* extension;
-
-
-    extension = g_object_new (MIDORI_TYPE_EXTENSION,
+    MidoriExtension* extension = g_object_new (MIDORI_TYPE_EXTENSION,
         "name", _("Form history filler"),
         "description", _("Stores history of entered form data"),
         "version", "2.0" MIDORI_VERSION_SUFFIX,

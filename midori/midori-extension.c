@@ -841,8 +841,7 @@ static void
 midori_extension_save_settings (MidoriExtension *extension)
 {
     GError* error = NULL;
-    gchar* config_file = g_build_filename (extension->priv->config_dir,
-                                           "config", NULL);
+    gchar* config_file = g_build_filename (extension->priv->config_dir, "config", NULL);
     katze_mkdir_with_parents (extension->priv->config_dir, 0700);
     sokoke_key_file_save_to_file (extension->priv->key_file, config_file, &error);
     if (error)
