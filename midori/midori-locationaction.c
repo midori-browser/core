@@ -714,7 +714,7 @@ midori_location_action_popup_timeout_cb (gpointer data)
             "cell-background", MIDORI_AUTOCOMPLETER_COLUMNS_BACKGROUND,
             NULL);
         renderer = gtk_cell_renderer_text_new ();
-        #if HAVE_GRANITE
+        #ifdef HAVE_GRANITE
         gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (column), renderer, FALSE);
         #else
         gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (column), renderer, TRUE);
@@ -722,7 +722,7 @@ midori_location_action_popup_timeout_cb (gpointer data)
         gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (column), renderer,
             "cell-background", MIDORI_AUTOCOMPLETER_COLUMNS_BACKGROUND,
             NULL);
-        #if HAVE_GRANITE
+        #ifdef HAVE_GRANITE
         gtk_tree_view_column_set_expand (column, TRUE);
         gtk_cell_layout_set_cell_data_func (GTK_CELL_LAYOUT (column), renderer,
             midori_location_entry_render_title_cb, action, NULL);
