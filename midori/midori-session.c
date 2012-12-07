@@ -298,12 +298,6 @@ midori_load_soup_session_full (gpointer settings)
         katze_object_get_int (settings, "maximum-cache-size") * 1024 * 1024);
     soup_cache_load (SOUP_CACHE (feature));
     #endif
-
-    #if WEBKIT_CHECK_VERSION (1, 8, 0)
-    katze_assign (config_file, g_build_filename (midori_paths_get_user_data_dir (),
-                                                 "webkit", "icondatabase", NULL));
-    webkit_favicon_database_set_path (webkit_get_favicon_database (), config_file);
-    #endif
     g_free (config_file);
 
     return FALSE;

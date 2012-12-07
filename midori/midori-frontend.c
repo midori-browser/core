@@ -250,7 +250,7 @@ midori_browser_privacy_preferences_cb (MidoriBrowser*    browser,
 static void
 midori_app_add_browser_cb (MidoriApp*     app,
                            MidoriBrowser* browser,
-                           KatzeNet*      net)
+                           gpointer       user_data)
 {
     GtkWidget* panel;
     GtkWidget* addon;

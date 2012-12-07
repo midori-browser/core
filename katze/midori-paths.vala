@@ -116,6 +116,10 @@ namespace Midori {
                 tmp_dir = Path.build_path (Path.DIR_SEPARATOR_S,
                     Environment.get_tmp_dir (), "midori-" + Environment.get_user_name ());
             }
+#if HAVE_WEBKIT_1_8_0
+            if (user_data_dir != null)
+                WebKit.get_favicon_database ().set_path (Path.build_filename (user_data_dir, "webkit", "icondatabase"));
+#endif
             if (strcmp (Environment.get_variable ("MIDORI_DEBUG"), "paths") == 0) {
                 stdout.printf ("config: %s\ncache: %s\nuser_data: %s\ntmp: %s\n",
                                config_dir, cache_dir, user_data_dir, tmp_dir);
@@ -362,6 +366,17 @@ namespace Midori {
 
             return Path.build_filename (SYSCONFDIR, "xdg", PACKAGE_NAME, folder ?? "", filename);
             #endif
+        }
+
+        public static void clear_icons () {
+            assert (cache_dir != null);
+            assert (user_data_dir != null);
+#if HAVE_WEBKIT_1_8_0
+            WebKit.get_favicon_database ().clear ();
+#endif
+            /* FIXME: Exclude search engine icons */
+            remove_path (Path.build_filename (cache_dir, "icons"));
+            remove_path (Path.build_filename (user_data_dir, "webkit", "icondatabase"));
         }
 
         public static Gdk.Pixbuf? get_icon (string? uri, Gtk.Widget? widget) {

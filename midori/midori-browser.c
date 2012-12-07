@@ -2411,23 +2411,18 @@ _action_add_desktop_shortcut_activate (GtkAction*     action,
     KatzeItem* item = midori_view_get_proxy_item (MIDORI_VIEW (tab));
     const gchar* app_name = katze_item_get_name (item);
     gchar* app_exec = g_strconcat ("midori -a ", katze_item_get_uri (item), NULL);
-    const gchar* icon_uri = midori_view_get_icon_uri (MIDORI_VIEW (tab));
-    gchar* app_icon;
     GKeyFile* keyfile = g_key_file_new ();
-    gchar* filename = g_strconcat (app_name, ".desktop", NULL);
-    gchar* app_dir;
-    int i = 0;
-    while (filename[i] != '\0')
-    {
-        if (filename[i] == '/')
-            filename[i] = '_';
-        i++;
-    }
-    app_dir = g_build_filename (g_get_user_data_dir (),
-                                "applications", filename, NULL);
-    app_icon = katze_net_get_cached_path (NULL, icon_uri, "icons");
+    gchar* filename = g_strdelimit (g_strconcat (app_name, ".desktop", NULL), "/", '_');
+    gchar* app_dir = g_build_filename (g_get_user_data_dir (), "applications", filename, NULL);
+    #if WEBKIT_CHECK_VERSION (1, 8, 0)
+    /* FIXME: midori_paths_get_icon */
+    gchar* app_icon = g_strdup (STOCK_WEB_BROWSER);
+    #else
+    const gchar* icon_uri = midori_view_get_icon_uri (MIDORI_VIEW (tab));
+    gchar* app_icon = katze_net_get_cached_path (NULL, icon_uri, "icons");
     if (!g_file_test (app_icon, G_FILE_TEST_EXISTS))
         katze_assign (app_icon, g_strdup (STOCK_WEB_BROWSER));
+    #endif
     g_key_file_set_string (keyfile, "Desktop Entry", "Version", "1.0");
     g_key_file_set_string (keyfile, "Desktop Entry", "Type", "Application");
     g_key_file_set_string (keyfile, "Desktop Entry", "Name", app_name);
@@ -2439,6 +2434,7 @@ _action_add_desktop_shortcut_activate (GtkAction*     action,
     g_free (app_dir);
     g_free (filename);
     g_free (app_exec);
+    g_free (app_icon);
     g_key_file_free (keyfile);
     #elif defined(GDK_WINDOWING_QUARTZ)
     /* TODO: Implement */
@@ -6422,7 +6418,6 @@ midori_browser_toolbar_popup_context_menu_history (MidoriBrowser* browser,
     const gint step = back ? -1 : 1;
     gint steps = step;
     GtkWidget* menu;
-    GtkWidget* menu_item;
     WebKitWebBackForwardList* list;
     WebKitWebHistoryItem* current_item;
     WebKitWebHistoryItem* history_item;
@@ -6448,36 +6443,17 @@ midori_browser_toolbar_popup_context_menu_history (MidoriBrowser* browser,
 
     for (; (history_item = history_next (list)); history_action (list), steps += step)
     {
-        #if WEBKIT_CHECK_VERSION (1, 3, 13)
-        gchar* icon_uri;
-        gchar* icon_path;
-        GdkPixbuf* pixbuf;
-        GdkPixbuf* pixbuf_scaled = NULL;
-        #endif
-
-        menu_item = gtk_image_menu_item_new_with_label (
+        const gchar* uri = webkit_web_history_item_get_uri (history_item);
+        GtkWidget* menu_item = gtk_image_menu_item_new_with_label (
             webkit_web_history_item_get_title (history_item));
-        #if WEBKIT_CHECK_VERSION (1, 3, 13)
-        icon_uri = webkit_icon_database_get_icon_uri (webkit_get_icon_database (),
-            webkit_web_history_item_get_uri (history_item));
-        icon_path = katze_net_get_cached_path (NULL, icon_uri, "icons");
-        if ((pixbuf = gdk_pixbuf_new_from_file (icon_path, NULL)))
+        GdkPixbuf* pixbuf;
+        if ((pixbuf = midori_paths_get_icon (uri, widget)))
         {
-            gint w = 16, h = 16;
-            gtk_icon_size_lookup_for_settings (gtk_widget_get_settings (widget),
-                GTK_ICON_SIZE_MENU, &w, &h);
-            pixbuf_scaled = gdk_pixbuf_scale_simple (pixbuf,
-                w, h, GDK_INTERP_BILINEAR);
+            gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menu_item),
+                gtk_image_new_from_pixbuf (pixbuf));
+            g_object_unref (pixbuf);
         }
-        gtk_image_menu_item_set_image (
-            GTK_IMAGE_MENU_ITEM (menu_item),
-            pixbuf_scaled ? gtk_image_new_from_pixbuf (pixbuf_scaled) :
-            gtk_image_new_from_stock (GTK_STOCK_FILE, GTK_ICON_SIZE_MENU));
-        g_free (icon_uri);
-        g_free (icon_path);
-        #endif
-        g_object_set_data (G_OBJECT (menu_item), "uri",
-            (gpointer) webkit_web_history_item_get_uri (history_item));
+        g_object_set_data (G_OBJECT (menu_item), "uri", (gpointer)uri);
         g_object_set_data (G_OBJECT (menu_item), "steps", GINT_TO_POINTER (steps));
         gtk_menu_shell_append (GTK_MENU_SHELL (menu), menu_item);
         g_signal_connect (G_OBJECT (menu_item), "activate",

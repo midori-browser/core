@@ -561,13 +561,7 @@ static void
 _midori_web_view_load_icon (MidoriView* view)
 {
     GdkPixbuf* pixbuf = NULL;
-    gint icon_width, icon_height;
-    GtkSettings* settings;
-
     #if WEBKIT_CHECK_VERSION (1, 8, 0)
-    settings = gtk_widget_get_settings (view->web_view);
-    gtk_icon_size_lookup_for_settings (settings, GTK_ICON_SIZE_MENU,
-                                       &icon_width, &icon_height);
     if ((pixbuf = webkit_web_view_try_get_favicon_pixbuf (
         WEBKIT_WEB_VIEW (view->web_view), 16, 16)))
         midori_view_apply_icon (view, pixbuf, view->icon_uri);
@@ -620,7 +614,8 @@ _midori_web_view_load_icon (MidoriView* view)
 
     if (pixbuf)
     {
-        settings = gtk_widget_get_settings (view->web_view);
+        gint icon_width, icon_height;
+        GtkSettings* settings = gtk_widget_get_settings (view->web_view);
         gtk_icon_size_lookup_for_settings (settings, GTK_ICON_SIZE_MENU,
                                            &icon_width, &icon_height);
         pixbuf_scaled = gdk_pixbuf_scale_simple (pixbuf, icon_width,

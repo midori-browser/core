@@ -60,9 +60,6 @@ GType
 midori_view_get_type                   (void) G_GNUC_CONST;
 
 GtkWidget*
-midori_view_new                        (KatzeNet*          net);
-
-GtkWidget*
 midori_view_new_with_title             (const gchar*       title,
                                         MidoriWebSettings* settings,
                                         gboolean           append);

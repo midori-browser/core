@@ -291,21 +291,6 @@ midori_clear_web_cache_cb (void)
 }
 #endif
 
-static void
-midori_clear_page_icons_cb (void)
-{
-    gchar* cache = g_build_filename (midori_paths_get_cache_dir (), "icons", NULL);
-    /* FIXME: Exclude search engine icons */
-    midori_paths_remove_path (cache);
-    g_free (cache);
-    cache = g_build_filename (midori_paths_get_user_data_dir (), "webkit", "icondatabase", NULL);
-    midori_paths_remove_path (cache);
-    g_free (cache);
-    #if WEBKIT_CHECK_VERSION (1, 8, 0)
-    webkit_favicon_database_clear (webkit_get_favicon_database ());
-    #endif
-}
-
 void
 midori_private_data_register_built_ins ()
 {
@@ -320,7 +305,7 @@ midori_private_data_register_built_ins ()
         G_CALLBACK (midori_clear_web_cache_cb));
     #endif
     midori_private_data_register_item ("page-icons", _("Website icons"),
-        G_CALLBACK (midori_clear_page_icons_cb));
+        G_CALLBACK (midori_paths_clear_icons));
 }
 
 void

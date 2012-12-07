@@ -22,7 +22,6 @@
 
 #include <glib/gstdio.h>
 #include <libsoup/soup.h>
-#include <webkit/webkit.h>
 
 struct _KatzeNet
 {
@@ -78,6 +77,7 @@ katze_net_priv_free (KatzeNetPriv* priv)
     g_slice_free (KatzeNetPriv, priv);
 }
 
+#if !WEBKIT_CHECK_VERSION (1, 8, 0)
 gchar*
 katze_net_get_cached_path (KatzeNet*    net,
                            const gchar* uri,
@@ -110,6 +110,7 @@ katze_net_get_cached_path (KatzeNet*    net,
     g_free (cached_filename);
     return cached_path;
 }
+#endif
 
 static void
 katze_net_got_body_cb (SoupMessage*  msg,

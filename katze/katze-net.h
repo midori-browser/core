@@ -12,6 +12,7 @@
 #ifndef __KATZE_NET_H__
 #define __KATZE_NET_H__
 
+#include <webkit/webkit.h>
 #include "katze-utils.h"
 
 G_BEGIN_DECLS
@@ -66,10 +67,12 @@ katze_net_load_uri                       (KatzeNet*          net,
                                           KatzeNetTransferCb transfer_cb,
                                           gpointer           user_data);
 
+#if !WEBKIT_CHECK_VERSION (1, 8, 0)
 gchar*
 katze_net_get_cached_path                (KatzeNet*          net,
                                           const gchar*       uri,
                                           const gchar*       subfolder);
+#endif
 
 G_END_DECLS
 
