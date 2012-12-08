@@ -146,6 +146,11 @@ midori_extension_set_string_list     (MidoriExtension* extension,
                                       gchar**          value,
                                       gsize            length);
 
+void
+midori_extension_load_from_folder    (MidoriApp*       app,
+                                      gchar**          keys,
+                                      gboolean         activate);
+
 G_END_DECLS
 
 #endif /* __MIDORI_EXTENSION_H__ */

@@ -537,6 +537,38 @@ midori_extension_get_property (GObject*    object,
     }
 }
 
+void
+midori_extension_load_from_folder (MidoriApp* app,
+                                   gchar**    keys,
+                                   gboolean   activate)
+{
+    if (!g_module_supported ())
+        return;
+
+    gchar* extension_path = midori_paths_get_lib_path (PACKAGE_NAME);
+    if (!extension_path)
+        return;
+
+    if (keys)
+    {
+        gint i = 0;
+        const gchar* filename;
+        while ((filename = keys[i++]))
+            midori_extension_activate_gracefully (app, extension_path, filename, activate);
+    }
+    else
+    {
+        GDir* extension_dir = g_dir_open (extension_path, 0, NULL);
+        g_return_if_fail (extension_dir != NULL);
+        const gchar* filename;
+        while ((filename = g_dir_read_name (extension_dir)))
+            midori_extension_activate_gracefully (app, extension_path, filename, activate);
+        g_dir_close (extension_dir);
+    }
+
+    g_free (extension_path);
+}
+
 GObject*
 midori_extension_load_from_file (const gchar* extension_path,
                                  const gchar* filename,

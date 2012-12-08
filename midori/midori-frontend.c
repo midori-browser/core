@@ -83,7 +83,7 @@ midori_web_app_new (const gchar* config,
         g_free (tmp_uri);
     }
     else if (open_uris == NULL)
-        midori_browser_add_uri (browser, "about:private");
+        midori_browser_add_uri (browser, "about:blank");
 
     g_signal_connect (browser, "quit", G_CALLBACK (gtk_main_quit), NULL);
     g_signal_connect (browser, "destroy", G_CALLBACK (gtk_main_quit), NULL);

@@ -583,23 +583,9 @@ midori_preferences_add_extension_category (KatzePreferences*  preferences,
     GList* children;
     GtkWidget* page;
 
-    if (!g_module_supported ())
-        return;
-
     array = katze_object_get_object (app, "extensions");
-    if ((extension_path = midori_paths_get_lib_path (PACKAGE_NAME)))
-    {
-        GDir* extension_dir = NULL;
-        if ((extension_dir = g_dir_open (extension_path, 0, NULL)))
-        {
-            const gchar* filename;
-            while ((filename = g_dir_read_name (extension_dir)))
-                midori_extension_activate_gracefully (app, extension_path, filename, FALSE);
-            g_dir_close (extension_dir);
-        }
-        g_free (extension_path);
-    }
 
+    midori_extension_load_from_folder (app, NULL, FALSE);
     /* Reset frozen list: allow active extensions to be saved */
     g_object_set_data (G_OBJECT (app), "extensions", NULL);
 

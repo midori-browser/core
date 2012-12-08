@@ -145,6 +145,8 @@ namespace Midori {
         public signal bool is_prepared ();
         public signal void deactivate ();
         public signal void open_preferences ();
+
+        public static void load_from_folder (Midori.App app, [CCode (array_length = false)] string[]? keys, bool activate);
     }
 
     [CCode (cheader_filename = "midori/midori.h")]

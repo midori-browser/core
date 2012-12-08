@@ -52,6 +52,23 @@ void app_web () {
     do { loop.iteration (true); } while (loop.pending ());
 }
 
+void app_extensions () {
+    /*
+    Midori.Test.idle_timeouts ();
+    Midori.Test.log_set_fatal_handler_for_icons ();
+    Midori.Paths.Test.reset_runtime_mode ();
+    var app = Midori.normal_app_new (null, false, false, null, null, null, -1, null);
+    var loop = MainContext.default ();
+    do { loop.iteration (true); } while (loop.pending ());
+    Midori.Extension.load_from_folder (app, null, true);
+    for (var i = 0 ; i < 7; i++) {
+        var tab = app.browser.get_nth_tab (app.browser.add_uri ("about:blank"));
+        app.browser.close_tab (tab);
+        do { loop.iteration (true); } while (loop.pending ());
+    }
+    */
+}
+
 void main (string[] args) {
     Test.init (ref args);
     Midori.App.setup (ref args, null);
@@ -59,6 +76,7 @@ void main (string[] args) {
     Test.add_func ("/app/custom-config", app_custom_config);
     Test.add_func ("/app/private", app_private);
     Test.add_func ("/app/web", app_web);
+    Test.add_func ("/app/extensions", app_extensions);
     Test.run ();
 }
 
