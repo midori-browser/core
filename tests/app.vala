@@ -11,7 +11,7 @@
 
 void app_normal () {
     uint test_timeout = GLib.Timeout.add_seconds (10, ()=>{
-        stdout.printf ("Timed out\n"); Process.exit (0); return false; });
+        stdout.printf ("Timed out\n"); Process.exit (0); });
 
     Midori.Test.idle_timeouts ();
     Midori.Test.log_set_fatal_handler_for_icons ();

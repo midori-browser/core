@@ -4515,37 +4515,35 @@ _action_inspect_page_activate (GtkAction*     action,
 }
 
 static void
-_action_tab_move_backward_activate (GtkAction*     action,
-                                    MidoriBrowser* browser)
+_action_tab_move_activate (GtkAction*     action,
+                           MidoriBrowser* browser)
 {
+    const gchar* name = gtk_action_get_name (action);
     gint new_pos;
     gint cur_pos = midori_browser_get_current_page (browser);
     GtkWidget* widget = midori_browser_get_nth_tab (browser, cur_pos);
-    if (cur_pos > 0)
-        new_pos = cur_pos - 1;
-    else
-        new_pos = midori_browser_get_n_pages (browser) - 1;
-    #ifdef HAVE_GRANITE
-    granite_widgets_dynamic_notebook_set_tab_position (
-        GRANITE_WIDGETS_DYNAMIC_NOTEBOOK (browser->notebook),
-        midori_view_get_tab (MIDORI_VIEW (widget)), new_pos);
-    #else
-    gtk_notebook_reorder_child (GTK_NOTEBOOK (browser->notebook), widget, new_pos);
-    #endif
-    g_signal_emit (browser, signals[MOVE_TAB], 0, browser->notebook, cur_pos, new_pos);
-}
 
-static void
-_action_tab_move_forward_activate (GtkAction*     action,
-                                   MidoriBrowser* browser)
-{
-    gint new_pos;
-    gint cur_pos = midori_browser_get_current_page (browser);
-    GtkWidget* widget = midori_browser_get_nth_tab (browser, cur_pos);
-    if (cur_pos == (midori_browser_get_n_pages (browser) - 1))
+    if (!strcmp (name, "TabMoveFirst"))
         new_pos = 0;
+    else if (!strcmp (name, "TabMoveBackward"))
+    {
+        if (cur_pos > 0)
+            new_pos = cur_pos - 1;
+        else
+            new_pos = midori_browser_get_n_pages (browser) - 1;
+    }
+    else if (!strcmp (name, "TabMoveForward"))
+    {
+        if (cur_pos == (midori_browser_get_n_pages (browser) - 1))
+            new_pos = 0;
+        else
+            new_pos = cur_pos + 1;
+    }
+    else if (!strcmp (name, "TabMoveLast"))
+        new_pos = midori_browser_get_n_pages (browser) - 1;
     else
-        new_pos = cur_pos + 1;
+        g_assert_not_reached ();
+
     #ifdef HAVE_GRANITE
     granite_widgets_dynamic_notebook_set_tab_position (
         GRANITE_WIDGETS_DYNAMIC_NOTEBOOK (browser->notebook),
@@ -5349,10 +5347,14 @@ static const GtkActionEntry entries[] =
     { "TabNext", GTK_STOCK_GO_FORWARD,
         N_("_Next Tab"), "<Ctrl>Page_Down",
         NULL, G_CALLBACK (_action_tab_next_activate) },
+    { "TabMoveFirst", NULL, N_("Move Tab to _first position"), "<Ctrl><Shift>Home",
+       NULL, G_CALLBACK (_action_tab_move_activate) },
     { "TabMoveBackward", NULL, N_("Move Tab _Backward"), "<Ctrl><Shift>Page_Up",
-       NULL, G_CALLBACK (_action_tab_move_backward_activate) },
+       NULL, G_CALLBACK (_action_tab_move_activate) },
     { "TabMoveForward", NULL, N_("_Move Tab Forward"), "<Ctrl><Shift>Page_Down",
-       NULL, G_CALLBACK (_action_tab_move_forward_activate) },
+       NULL, G_CALLBACK (_action_tab_move_activate) },
+    { "TabMoveLast", NULL, N_("Move Tab to _last position"), "<Ctrl><Shift>End",
+       NULL, G_CALLBACK (_action_tab_move_activate) },
     { "TabCurrent", NULL,
         N_("Focus _Current Tab"), "<Ctrl><Alt>Home",
         NULL, G_CALLBACK (_action_tab_current_activate) },
@@ -5689,8 +5691,10 @@ static const gchar* ui_markup =
            *somewhere* in the UI definition */
         /* These also show up in Unity's HUD */
         "<menu action='Dummy'>"
+            "<menuitem action='TabMoveFirst'/>"
             "<menuitem action='TabMoveBackward'/>"
             "<menuitem action='TabMoveForward'/>"
+            "<menuitem action='TabMoveLast'/>"
             "<menuitem action='ScrollLeft'/>"
             "<menuitem action='ScrollDown'/>"
             "<menuitem action='ScrollUp'/>"

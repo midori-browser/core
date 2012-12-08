@@ -77,7 +77,7 @@ static void tab_display_ellipsize () {
 
 void tab_special () {
     uint test_timeout = GLib.Timeout.add_seconds (10, ()=>{
-        stdout.printf ("Timed out\n"); Process.exit (0); return false; });
+        stdout.printf ("Timed out\n"); Process.exit (0); });
 
     Midori.Test.log_set_fatal_handler_for_icons ();
     var test_address = new Soup.Address ("127.0.0.1", Soup.ADDRESS_ANY_PORT);
@@ -164,6 +164,8 @@ void tab_special () {
 
     browser.activate_action ("TabMoveForward");
     browser.activate_action ("TabMoveBackward");
+    browser.activate_action ("TabMoveFirst");
+    browser.activate_action ("TabMoveLast");
     browser.activate_action ("TabDuplicate");
     browser.activate_action ("TabCloseOther");
 
