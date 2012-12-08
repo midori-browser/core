@@ -371,7 +371,7 @@ midori_frontend_diagnostic_dialog (MidoriApp*         app,
 
 MidoriApp*
 midori_normal_app_new (const gchar* config,
-                       gboolean     portable,
+                       gchar*       nickname,
                        gboolean     diagnostic_dialog,
                        const gchar* webapp,
                        gchar**      open_uris,
@@ -379,12 +379,14 @@ midori_normal_app_new (const gchar* config,
                        gint         inactivity_reset,
                        const gchar* block_uris)
 {
-    if (portable)
+    if (g_str_has_suffix (nickname, "portable"))
         midori_paths_init (MIDORI_RUNTIME_MODE_PORTABLE, config);
-    else
+    else if (g_str_has_suffix (nickname, "normal"))
         midori_paths_init (MIDORI_RUNTIME_MODE_NORMAL, config);
+    else
+        g_assert_not_reached ();
 
-    MidoriApp* app = midori_app_new ();
+    MidoriApp* app = midori_app_new (nickname);
     if (midori_app_instance_is_running (app))
     {
         gboolean result = FALSE;

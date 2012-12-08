@@ -13,13 +13,13 @@ namespace Midori {
         string? webapp, [CCode (array_length = false)] string[]? uris, [CCode (array_length = false)] string[]? commands, int reset, string? block);
     public static void private_app_new (string? config,
         string? webapp, [CCode (array_length = false)] string[]? uris, [CCode (array_length = false)] string[]? commands, int reset, string? block);
-    public static App normal_app_new (string? config, bool portable, bool diagnostic,
+    public static App normal_app_new (string? config, string nickname, bool diagnostic,
         string? webapp, [CCode (array_length = false)] string[]? uris, [CCode (array_length = false)] string[]? commands, int reset, string? block);
     public static void normal_app_on_quit (App app);
 
     [CCode (cheader_filename = "midori/midori.h")]
     public class App : GLib.Object {
-        public App ();
+        public App (string? name=null);
         public static void setup ([CCode (array_length_pos = 0.9)] ref unowned string[] args, [CCode (array_length = false)] GLib.OptionEntry[]? entries);
         public Browser create_browser ();
         public GLib.List<weak Browser> get_browsers ();

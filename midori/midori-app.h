@@ -39,7 +39,7 @@ GType
 midori_app_get_type               (void) G_GNUC_CONST;
 
 MidoriApp*
-midori_app_new                    (void);
+midori_app_new                    (const gchar*       name);
 
 const gchar*
 midori_app_get_name               (MidoriApp*         app);

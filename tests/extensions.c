@@ -32,7 +32,7 @@ extension_create (void)
     MidoriApp* app;
     MidoriExtension* extension;
 
-    app = midori_app_new ();
+    app = midori_app_new (NULL);
     extension = g_object_new (MIDORI_TYPE_EXTENSION, NULL);
     g_assert (!midori_extension_is_prepared (extension));
     g_object_set (extension, "name", "TestExtension",
@@ -98,7 +98,7 @@ extension_settings (void)
     gchar** names;
     gsize names_n;
 
-    app = midori_app_new ();
+    app = midori_app_new (NULL);
     extension = extension_mock_object ();
     midori_extension_install_boolean (extension, "nihilist", TRUE);
     nihilist = midori_extension_get_boolean (extension, "nihilist");
@@ -166,7 +166,7 @@ extension_settings (void)
 static void
 extension_activate (gconstpointer data)
 {
-    MidoriApp* app = midori_app_new ();
+    MidoriApp* app = midori_app_new (NULL);
     g_object_set (app, "settings", midori_web_settings_new (), NULL);
     midori_extension_activate (G_OBJECT (data), NULL, TRUE, app);
     /* TODO: MidoriCompletion */

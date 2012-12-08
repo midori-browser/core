@@ -32,7 +32,7 @@ midori_private_app_new (const gchar* config,
 
 MidoriApp*
 midori_normal_app_new (const gchar* config,
-                       gboolean     portable,
+                       gchar*       nickname,
                        gboolean     diagnostic_dialog,
                        const gchar* webapp,
                        gchar**      open_uris,

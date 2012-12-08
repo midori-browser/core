@@ -221,7 +221,6 @@ _midori_app_add_browser (MidoriApp*     app,
         NULL);
     g_signal_connect_swapped (browser, "send-notification",
         G_CALLBACK (midori_app_send_notification), app);
-
     katze_array_add_item (app->browsers, browser);
 
     #if GTK_CHECK_VERSION (3, 0, 0)
@@ -692,7 +691,6 @@ midori_app_create_instance (MidoriApp* app)
     GdkDisplay* display;
     gchar* display_name;
     gchar* instance_name;
-    guint i, n;
     #if !HAVE_UNIQUE
     gboolean exists;
     GIOChannel* channel;
@@ -704,14 +702,16 @@ midori_app_create_instance (MidoriApp* app)
     {
         #if HAVE_UNIQUE
         const gchar* config = midori_paths_get_config_dir_for_reading ();
-        gchar* name_hash;
-        name_hash = g_compute_checksum_for_string (G_CHECKSUM_MD5, config, -1);
-        katze_assign (app_name, g_strconcat ("midori", "_", name_hash, NULL));
+        gchar* config_hash = g_compute_checksum_for_string (G_CHECKSUM_MD5, config, -1);
+        gchar* name_hash = g_compute_checksum_for_string (G_CHECKSUM_MD5, app_name, -1);
+        katze_assign (app_name, g_strconcat (PACKAGE_NAME,
+            "_", config_hash, "_", name_hash, NULL));
+        g_free (config_hash);
         g_free (name_hash);
-        g_object_notify (G_OBJECT (app), "name");
         #else
         katze_assign (app_name, g_strdup (PACKAGE_NAME));
         #endif
+        g_object_notify (G_OBJECT (app), "name");
     }
 
     #ifdef GDK_WINDOWING_X11
@@ -720,10 +720,7 @@ midori_app_create_instance (MidoriApp* app)
     #else
     display_name = g_strdup (gdk_display_get_name (display));
     #endif
-    n = strlen (display_name);
-    for (i = 0; i < n; i++)
-        if (strchr (":.\\/", display_name[i]))
-            display_name[i] = '_';
+    g_strdelimit (display_name, ":.\\/", '_');
     instance_name = g_strdup_printf ("de.twotoasts.%s_%s", app_name, display_name);
     g_free (display_name);
     katze_assign (app_name, instance_name);
@@ -807,7 +804,6 @@ midori_app_init (MidoriApp* app)
     #else
     app->program_notify_send = g_find_program_in_path ("notify-send");
     #endif
-
 }
 
 static void
@@ -935,12 +931,9 @@ midori_app_get_property (GObject*    object,
  * Return value: a new #MidoriApp
  **/
 MidoriApp*
-midori_app_new (void)
+midori_app_new (const gchar* name)
 {
-    MidoriApp* app = g_object_new (MIDORI_TYPE_APP,
-                                   NULL);
-
-    return app;
+    return g_object_new (MIDORI_TYPE_APP, "name", name, NULL);
 }
 
 /**
@@ -964,12 +957,10 @@ midori_app_instance_is_running (MidoriApp* app)
         app->instance = midori_app_create_instance (app);
 
     #if HAVE_UNIQUE
-    if (app->instance)
-        return unique_app_is_running (app->instance);
+    return app->instance && unique_app_is_running (app->instance);
     #else
-        return g_object_get_data (G_OBJECT (app), "sock-exists") != NULL;
+    return g_object_get_data (G_OBJECT (app), "sock-exists") != NULL;
     #endif
-    return FALSE;
 }
 
 /**
@@ -986,17 +977,13 @@ midori_app_instance_is_running (MidoriApp* app)
 gboolean
 midori_app_instance_send_activate (MidoriApp* app)
 {
-    #if HAVE_UNIQUE
-    UniqueResponse response;
-    #endif
-
-    /* g_return_val_if_fail (MIDORI_IS_APP (app), FALSE); */
+    g_return_val_if_fail (MIDORI_IS_APP (app), FALSE);
     g_return_val_if_fail (midori_app_instance_is_running (app), FALSE);
 
     #if HAVE_UNIQUE
     if (app->instance)
     {
-        response = unique_app_send_message (app->instance, UNIQUE_ACTIVATE, NULL);
+        UniqueResponse response = unique_app_send_message (app->instance, UNIQUE_ACTIVATE, NULL);
         if (response == UNIQUE_RESPONSE_OK)
             return TRUE;
     }
@@ -1022,17 +1009,13 @@ midori_app_instance_send_activate (MidoriApp* app)
 gboolean
 midori_app_instance_send_new_browser (MidoriApp* app)
 {
-    #if HAVE_UNIQUE
-    UniqueResponse response;
-    #endif
-
-    /* g_return_val_if_fail (MIDORI_IS_APP (app), FALSE); */
+    g_return_val_if_fail (MIDORI_IS_APP (app), FALSE);
     g_return_val_if_fail (midori_app_instance_is_running (app), FALSE);
 
     #if HAVE_UNIQUE
     if (app->instance)
     {
-        response = unique_app_send_message (app->instance, UNIQUE_NEW, NULL);
+        UniqueResponse response = unique_app_send_message (app->instance, UNIQUE_NEW, NULL);
         if (response == UNIQUE_RESPONSE_OK)
             return TRUE;
     }
@@ -1062,11 +1045,6 @@ gboolean
 midori_app_instance_send_uris (MidoriApp* app,
                                gchar**    uris)
 {
-    #if HAVE_UNIQUE
-    UniqueMessageData* message;
-    UniqueResponse response;
-    #endif
-
     g_return_val_if_fail (MIDORI_IS_APP (app), FALSE);
     g_return_val_if_fail (midori_app_instance_is_running (app), FALSE);
     g_return_val_if_fail (uris != NULL, FALSE);
@@ -1074,6 +1052,8 @@ midori_app_instance_send_uris (MidoriApp* app,
     #if HAVE_UNIQUE
     if (app->instance)
     {
+        UniqueMessageData* message;
+        UniqueResponse response;
         /* Encode any IDN addresses because libUnique doesn't like them */
         int i = 0;
         while (uris[i] != NULL)
@@ -1121,11 +1101,6 @@ gboolean
 midori_app_send_command (MidoriApp* app,
                          gchar**    command)
 {
-    #if HAVE_UNIQUE
-    UniqueMessageData* message;
-    UniqueResponse response;
-    #endif
-
     g_return_val_if_fail (MIDORI_IS_APP (app), FALSE);
     g_return_val_if_fail (command != NULL, FALSE);
 
@@ -1147,7 +1122,8 @@ midori_app_send_command (MidoriApp* app,
     #if HAVE_UNIQUE
     if (app->instance)
     {
-        message = unique_message_data_new ();
+        UniqueResponse response;
+        UniqueMessageData* message = unique_message_data_new ();
         unique_message_data_set_uris (message, command);
         response = unique_app_send_message (app->instance,
             MIDORI_UNIQUE_COMMAND, message);
@@ -1305,11 +1281,10 @@ midori_app_send_notification (MidoriApp*   app,
     #if HAVE_LIBNOTIFY
     if (notify_is_initted ())
     {
-        NotifyNotification* note;
         #if NOTIFY_CHECK_VERSION (0, 7, 0)
-        note = notify_notification_new (title, message, "midori");
+        NotifyNotification* note = notify_notification_new (title, message, "midori");
         #else
-        note = notify_notification_new (title, message, "midori", NULL);
+        NotifyNotification* note = notify_notification_new (title, message, "midori", NULL);
         #endif
         notify_notification_show (note, NULL);
         g_object_unref (note);

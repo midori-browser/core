@@ -323,7 +323,8 @@ main (int    argc,
         return 0;
     }
 
-    MidoriApp* app = midori_normal_app_new (config, portable, diagnostic_dialog, webapp,
+    MidoriApp* app = midori_normal_app_new (config,
+        portable ? "portable" : "normal", diagnostic_dialog, webapp,
         execute ? NULL : uris, execute ? uris : NULL, inactivity_reset, block_uris);
     if (app == NULL)
         return 0;

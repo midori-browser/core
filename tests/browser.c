@@ -28,7 +28,7 @@ browser_create (void)
 
     midori_test_log_set_fatal_handler_for_icons ();
 
-    app = midori_app_new ();
+    app = midori_app_new (NULL);
     settings = midori_web_settings_new ();
     g_object_set (app, "settings", settings, NULL);
     browser = midori_app_create_browser (app);
