@@ -24,7 +24,6 @@ struct _FeedPanel
     GtkWidget* treeview;
     GtkWidget* webview;
     GtkWidget* delete;
-    GdkPixbuf* pixbuf;
 };
 
 struct _FeedPanelClass
@@ -82,22 +81,17 @@ feed_panel_treeview_render_icon_cb (GtkTreeViewColumn* column,
     else
         pitem = item;
 
-    uri = katze_item_get_uri (pitem);
-    if (uri)
+    if ((uri = katze_item_get_uri (pitem)))
     {
-        pixbuf = midori_paths_get_icon (uri, panel->treeview);
-        if (!pixbuf)
-            pixbuf = panel->pixbuf;
+        if (!(pixbuf = midori_paths_get_icon (uri, NULL)))
+            pixbuf = gtk_widget_render_icon (panel->treeview, STOCK_NEWS_FEED, GTK_ICON_SIZE_MENU, NULL);
     }
     else
-    {
-        pixbuf = gtk_widget_render_icon (panel->treeview,
-                     GTK_STOCK_DIALOG_ERROR, GTK_ICON_SIZE_MENU, NULL);
-    }
+        pixbuf = gtk_widget_render_icon (panel->treeview, GTK_STOCK_DIALOG_ERROR, GTK_ICON_SIZE_MENU, NULL);
 
     g_object_set (renderer, "pixbuf", pixbuf, NULL);
 
-    if (pixbuf != panel->pixbuf)
+    if (pixbuf)
         g_object_unref (pixbuf);
 }
 
@@ -727,8 +721,6 @@ static void
 feed_panel_finalize (GObject* object)
 {
     FeedPanel* panel = FEED_PANEL (object);
-
-    g_object_unref (panel->pixbuf);
 }
 
 static void
@@ -873,9 +865,6 @@ feed_panel_init (FeedPanel* panel)
     gtk_box_pack_start (GTK_BOX (panel), paned, TRUE, TRUE, 0);
     gtk_widget_show (webview);
     gtk_widget_show (paned);
-
-    panel->pixbuf = gtk_widget_render_icon (treeview,
-                     STOCK_NEWS_FEED, GTK_ICON_SIZE_MENU, NULL);
 }
 
 GtkWidget*
