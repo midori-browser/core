@@ -10,6 +10,9 @@
 */
 
 void app_normal () {
+    uint test_timeout = GLib.Timeout.add_seconds (10, ()=>{
+        stdout.printf ("Timed out\n"); Process.exit (0); return false; });
+
     Midori.Test.idle_timeouts ();
     Midori.Test.log_set_fatal_handler_for_icons ();
     Midori.Paths.Test.reset_runtime_mode ();
@@ -22,9 +25,12 @@ void app_normal () {
         do { loop.iteration (true); } while (loop.pending ());
     }
     Midori.normal_app_on_quit (app);
+    for (var i = 0 ; i < 7; i++) {
+        app.settings.maximum_cache_size++;
+        do { loop.iteration (true); } while (loop.pending ());
+    }
 
-    string filename = Midori.Paths.get_extension_config_dir ("adblock");
-    assert (Posix.access (filename, Posix.F_OK) == 0);
+    GLib.Source.remove (test_timeout);
 }
 
 void app_custom_config () {

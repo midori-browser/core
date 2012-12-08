@@ -190,6 +190,13 @@ extension_load (const gchar* extension_path,
     }
 }
 
+static void
+extension_config (void)
+{
+    gchar* filename = midori_paths_get_extension_config_dir ("adblock");
+    g_assert (g_access (filename, F_OK) == 0);
+}
+
 int
 main (int    argc,
       char** argv)
@@ -202,6 +209,7 @@ main (int    argc,
 
     g_test_add_func ("/extensions/create", extension_create);
     g_test_add_func ("/extensions/settings", extension_settings);
+    g_test_add_func ("/extensions/config", extension_config);
 
     if (g_module_supported ())
     {

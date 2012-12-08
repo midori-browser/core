@@ -76,8 +76,10 @@ static void tab_display_ellipsize () {
 }
 
 void tab_special () {
-    Midori.Test.log_set_fatal_handler_for_icons ();
+    uint test_timeout = GLib.Timeout.add_seconds (10, ()=>{
+        stdout.printf ("Timed out\n"); Process.exit (0); return false; });
 
+    Midori.Test.log_set_fatal_handler_for_icons ();
     var test_address = new Soup.Address ("127.0.0.1", Soup.ADDRESS_ANY_PORT);
     test_address.resolve_sync (null);
     var test_server = new Soup.Server ("interface", test_address, null);
@@ -164,6 +166,8 @@ void tab_special () {
     browser.activate_action ("TabMoveBackward");
     browser.activate_action ("TabDuplicate");
     browser.activate_action ("TabCloseOther");
+
+    GLib.Source.remove (test_timeout);
 }
 
 void tab_download_dialog () {
