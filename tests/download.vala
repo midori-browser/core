@@ -44,23 +44,55 @@ static void download_unique () {
     string org_filename = Path.build_path (Path.DIR_SEPARATOR_S, folder, "foo.png");
     string unique = Midori.Download.get_unique_filename (org_filename);
     Katze.assert_str_equal (folder, unique, filename);
-    FileUtils.set_contents (filename, "12345");
-    unique = Midori.Download.get_unique_filename (org_filename);
-    filename = Path.build_path (Path.DIR_SEPARATOR_S, folder, "foo-0.png");
-    Katze.assert_str_equal (folder, unique, filename);
-    FileUtils.set_contents (filename, "12345");
-    unique = Midori.Download.get_unique_filename (org_filename);
-    filename = Path.build_path (Path.DIR_SEPARATOR_S, folder, "foo-1.png");
-    Katze.assert_str_equal (folder, unique, filename);
-
-    for (var i = 0; i < 10; i++) {
-        filename = Path.build_path (Path.DIR_SEPARATOR_S, folder, "foo-%d.png".printf (i));
+    try {
         FileUtils.set_contents (filename, "12345");
+        unique = Midori.Download.get_unique_filename (org_filename);
+        filename = Path.build_path (Path.DIR_SEPARATOR_S, folder, "foo-0.png");
+        Katze.assert_str_equal (folder, unique, filename);
+        FileUtils.set_contents (filename, "12345");
+        unique = Midori.Download.get_unique_filename (org_filename);
+        filename = Path.build_path (Path.DIR_SEPARATOR_S, folder, "foo-1.png");
+        Katze.assert_str_equal (folder, unique, filename);
+
+        for (var i = 0; i < 10; i++) {
+            filename = Path.build_path (Path.DIR_SEPARATOR_S, folder, "foo-%d.png".printf (i));
+            FileUtils.set_contents (filename, "12345");
+        }
+    }
+    catch (Error error) {
+        GLib.error (error.message);
     }
     unique = Midori.Download.get_unique_filename (org_filename);
     filename = Path.build_path (Path.DIR_SEPARATOR_S, folder, "foo-10.png");
     Katze.assert_str_equal (folder, unique, filename);
     DirUtils.remove (folder);
+}
+
+void download_properties () {
+    var download = new WebKit.Download (new WebKit.NetworkRequest ("file:///klaatu/barada/nikto.ogg"));
+    assert (Midori.Download.get_type (download) == 0);
+    Midori.Download.set_type (download, Midori.DownloadType.OPEN);
+    assert (Midori.Download.get_type (download) == Midori.DownloadType.OPEN);
+    assert (Midori.Download.get_progress (download) == 0.0);
+    /* FIXME: Hangs in GTK+2, runs in GTK+3
+    try {
+        string filename;
+        FileUtils.close (FileUtils.open_tmp ("XXXXXX", out filename));
+        download.destination_uri = Filename.to_uri (filename, null);
+        string tee = Midori.Download.get_tooltip (download);
+        download.start ();
+        assert (Midori.Download.get_progress (download) == 0.0);
+        var loop = MainContext.default ();
+        do { loop.iteration (true); } while (loop.pending ());
+        string tee2 = Midori.Download.get_tooltip (download);
+        assert (tee2.contains (tee));
+        do { loop.iteration (true); } while (!Midori.Download.is_finished (download));
+        assert (download.status == WebKit.DownloadStatus.ERROR);
+    }
+    catch (Error error) {
+        GLib.error (error.message);
+    }
+    */
 }
 
 void main (string[] args) {
@@ -70,6 +102,7 @@ void main (string[] args) {
     Test.add_func ("/download/suggestion", download_suggestion);
     Test.add_func ("/download/extension", download_extension);
     Test.add_func ("/download/unique", download_unique);
+    Test.add_func ("/download/properties", download_properties);
     Test.run ();
 }
 
