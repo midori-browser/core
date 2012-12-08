@@ -576,6 +576,8 @@ def shutdown ():
         for x in ['XDG_CONFIG_HOME', 'XDG_CACHE_HOME', 'XDG_DATA_HOME', 'TMPDIR']:
             os.environ[x] = (base % x).lower ()
             Utils.check_dir (os.environ[x])
+        # Avoid i18n-related false failures
+        os.environ['LC_ALL'] = 'C'
         test = UnitTest.unit_test ()
 
         if True:
