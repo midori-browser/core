@@ -24,6 +24,26 @@ namespace Midori {
     }
 
     namespace Test {
+        internal static uint test_max_timeout = 0;
+        internal static string? test_first_try = null;
+        public void grab_max_timeout () {
+            test_first_try = "once";
+            test_max_timeout = GLib.Timeout.add_seconds (3, ()=>{
+                stdout.printf ("Timed out %s%s\n", test_first_try,
+                    MainContext.default ().pending () ? " (loop)" : "");
+                if (test_first_try == "twice")
+                    Process.exit (0);
+                test_first_try = "twice";
+                MainContext.default ().wakeup ();
+                return true;
+                });
+        }
+        public void release_max_timeout () {
+            assert (test_max_timeout > 0);
+            GLib.Source.remove (test_max_timeout);
+            test_max_timeout = 0;
+        }
+
         internal static bool test_idle_timeouts = false;
         public void idle_timeouts () {
             test_idle_timeouts = true;

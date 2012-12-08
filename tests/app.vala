@@ -10,8 +10,7 @@
 */
 
 void app_normal () {
-    uint test_timeout = GLib.Timeout.add_seconds (10, ()=>{
-        stdout.printf ("Timed out\n"); Process.exit (0); });
+    Midori.Test.grab_max_timeout ();
 
     Midori.Test.idle_timeouts ();
     Midori.Test.log_set_fatal_handler_for_icons ();
@@ -30,18 +29,16 @@ void app_normal () {
         do { loop.iteration (true); } while (loop.pending ());
     }
 
-    GLib.Source.remove (test_timeout);
+    Midori.Test.release_max_timeout ();
 }
 
 void app_custom_config () {
     Midori.Test.log_set_fatal_handler_for_icons ();
-    /*
     Midori.Paths.Test.reset_runtime_mode ();
     var app = Midori.normal_app_new ("/tmp/mylittlepony", false, false, null, null, null, -1, null);
     var loop = MainContext.default ();
     do { loop.iteration (true); } while (loop.pending ());
     Midori.normal_app_on_quit (app);
-    */
 }
 void app_private () {
     Midori.Test.log_set_fatal_handler_for_icons ();
@@ -59,7 +56,8 @@ void app_web () {
 }
 
 void app_extensions () {
-    /*
+    Midori.Test.grab_max_timeout ();
+
     Midori.Test.idle_timeouts ();
     Midori.Test.log_set_fatal_handler_for_icons ();
     Midori.Paths.Test.reset_runtime_mode ();
@@ -72,7 +70,8 @@ void app_extensions () {
         app.browser.close_tab (tab);
         do { loop.iteration (true); } while (loop.pending ());
     }
-    */
+
+    Midori.Test.release_max_timeout ();
 }
 
 void main (string[] args) {

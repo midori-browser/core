@@ -76,9 +76,7 @@ static void tab_display_ellipsize () {
 }
 
 void tab_special () {
-    uint test_timeout = GLib.Timeout.add_seconds (10, ()=>{
-        stdout.printf ("Timed out\n"); Process.exit (0); });
-
+    Midori.Test.grab_max_timeout ();
     Midori.Test.log_set_fatal_handler_for_icons ();
     var test_address = new Soup.Address ("127.0.0.1", Soup.ADDRESS_ANY_PORT);
     test_address.resolve_sync (null);
@@ -169,7 +167,7 @@ void tab_special () {
     browser.activate_action ("TabDuplicate");
     browser.activate_action ("TabCloseOther");
 
-    GLib.Source.remove (test_timeout);
+    Midori.Test.release_max_timeout ();
 }
 
 void tab_download_dialog () {

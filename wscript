@@ -577,6 +577,7 @@ def shutdown ():
             Utils.check_dir (os.environ[x])
         # Avoid i18n-related false failures
         os.environ['LC_ALL'] = 'C'
+        os.environ['UNIQUE_BACKEND'] = 'bacon'
         test = UnitTest.unit_test ()
 
         if True:
