@@ -186,10 +186,15 @@ def configure (conf):
     def check_pkg (name, version='', mandatory=True, var=None, args=''):
         if not var:
             var = name.split ('-')[0].upper ()
-        conf.check_cfg (package=name, uselib_store=var, args='--cflags --libs ' + args,
+        ver_str = ['',' >= ' + version][version != '']
+        def okmsg_ver (kw):
+            return conf.check_cfg (modversion=name, uselibstore=var)
+        conf.check_cfg (msg='Checking for ' + name + ver_str, okmsg=okmsg_ver,
+            package=name, uselib_store=var, args='--cflags --libs ' + args,
             atleast_version=version, mandatory=mandatory)
         have = conf.env['HAVE_' + var] == 1
-        conf.define (var + '_VERSION', ['No', conf.check_cfg (modversion=name, uselib_store=var)][have])
+        conf.define (var + '_VERSION', ['No', conf.check_cfg (modversion=name,
+            uselib_store=var, errmsg=name + ver_str + ' not found')][have])
         return have
 
     if option_enabled ('gtk3'):
