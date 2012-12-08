@@ -126,7 +126,7 @@ namespace DelayedLoad {
                 unowned TabShaker shaker = tasks.get (browser);
                 if (shaker != null) {
                     shaker.tasks.add (view);
-                    Timeout.add (this.timeout, shaker.reload_tab);
+                    Midori.Timeout.add (this.timeout, shaker.reload_tab);
                 }
             }
         }
@@ -189,7 +189,7 @@ namespace DelayedLoad {
 
             Midori.Browser? focused_browser = app.browser;
             if (focused_browser == null)
-                Timeout.add (50, this.reload_first_tab);
+                Midori.Timeout.add (50, this.reload_first_tab);
 
             foreach (Midori.Browser browser in app.get_browsers ()) {
                 browser_added (browser);

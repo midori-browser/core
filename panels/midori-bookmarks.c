@@ -997,8 +997,8 @@ midori_bookmarks_filter_entry_changed_cb (GtkEntry*        entry,
     else
         katze_assign (bookmarks->filter, NULL);
 
-    bookmarks->filter_timeout = g_timeout_add (COMPLETION_DELAY,
-        midori_bookmarks_filter_timeout_cb, bookmarks);
+    bookmarks->filter_timeout = midori_timeout_add (COMPLETION_DELAY,
+        midori_bookmarks_filter_timeout_cb, bookmarks, NULL);
 }
 
 static void

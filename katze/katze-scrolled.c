@@ -17,6 +17,7 @@
 
 #include "katze-scrolled.h"
 #include "katze-utils.h"
+#include "midori/midori-core.h"
 
 #define DEFAULT_INTERVAL 50
 #define DEFAULT_DECELERATION 0.7
@@ -531,7 +532,8 @@ button_release_event (GtkWidget*      widget,
             priv->horizontal_deceleration = priv->deceleration;
             priv->vertical_deceleration = priv->deceleration * ABS (priv->vertical_speed / priv->horizontal_speed);
         }
-        priv->scrolling_timeout_id = g_timeout_add (priv->interval, timeout_scroll, scrolled);
+        priv->scrolling_timeout_id = midori_timeout_add (priv->interval,
+            timeout_scroll, scrolled, NULL);
 
         do_timeout_scroll (scrolled);
     }

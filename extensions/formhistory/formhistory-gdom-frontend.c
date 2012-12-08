@@ -365,8 +365,8 @@ formhistory_editbox_key_pressed_cb (WebKitDOMElement* element,
     if (gtk_widget_get_visible (priv->popup) &&
         !g_strcmp0 (keyword, priv->oldkeyword))
         goto free_data;
-    priv->completion_timeout = g_timeout_add (COMPLETION_DELAY,
-                               (GSourceFunc)formhistory_suggestions_show, priv);
+    priv->completion_timeout = midori_timeout_add (COMPLETION_DELAY,
+        (GSourceFunc)formhistory_suggestions_show, priv, NULL);
 free_data:
     g_free (keyword);
 }

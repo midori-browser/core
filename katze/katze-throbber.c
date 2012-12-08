@@ -490,11 +490,9 @@ katze_throbber_set_animated (KatzeThrobber*  throbber,
     g_object_set (throbber, "active", animated, NULL);
     #else
     if (animated && (throbber->timer_id < 0))
-        throbber->timer_id = g_timeout_add_full (
-                         G_PRIORITY_LOW, 50,
-                         (GSourceFunc)katze_throbber_timeout,
-                         throbber,
-                         (GDestroyNotify)katze_throbber_timeout_destroy);
+        throbber->timer_id = midori_timeout_add (50,
+            (GSourceFunc)katze_throbber_timeout, throbber,
+            (GDestroyNotify)katze_throbber_timeout_destroy);
     #endif
     gtk_widget_queue_draw (GTK_WIDGET (throbber));
 

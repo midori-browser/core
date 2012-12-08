@@ -1195,7 +1195,8 @@ midori_browser_notify_new_tab (MidoriBrowser* browser)
         #ifndef G_OS_WIN32
         gtk_window_set_opacity (GTK_WINDOW (browser), 0.8);
         #endif
-        g_timeout_add (100, (GSourceFunc) midori_browser_notify_new_tab_timeout_cb, browser);
+        midori_timeout_add (100,
+            (GSourceFunc) midori_browser_notify_new_tab_timeout_cb, browser, NULL);
     }
 }
 
@@ -4768,7 +4769,7 @@ midori_panel_notify_position_cb (GObject*       hpaned,
                                  MidoriBrowser* browser)
 {
     if (!browser->panel_timeout)
-        browser->panel_timeout = g_timeout_add_full (G_PRIORITY_LOW, 5000,
+        browser->panel_timeout = midori_timeout_add_seconds (5,
             (GSourceFunc)midori_browser_panel_timeout, hpaned, NULL);
 }
 
@@ -5563,7 +5564,7 @@ midori_browser_size_allocate_cb (MidoriBrowser* browser,
             g_object_set_data (G_OBJECT (browser), "last-page", NULL);
         }
 
-        browser->alloc_timeout = g_timeout_add_full (G_PRIORITY_LOW, 5000,
+        browser->alloc_timeout = midori_timeout_add_seconds (5,
             (GSourceFunc)midori_browser_alloc_timeout, browser, NULL);
     }
 }

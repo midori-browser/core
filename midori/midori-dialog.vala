@@ -16,6 +16,11 @@ namespace Midori {
                 return GLib.Idle.add (function);
             return GLib.Timeout.add_seconds (interval, function);
         }
+        public uint add (uint interval, owned SourceFunc function) {
+            if (Test.test_idle_timeouts)
+                return GLib.Idle.add (function);
+            return GLib.Timeout.add (interval, function);
+        }
     }
 
     namespace Test {
