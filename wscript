@@ -228,7 +228,7 @@ def configure (conf):
             else:
                 granite = 'no (requires --enable-gtk3)'
         else:
-            check_pkg ('granite', '0.1', mandatory=False)
+            check_pkg ('granite', '0.2', mandatory=False)
             granite = ['N/A', 'yes'][conf.env['HAVE_GRANITE'] == 1]
         if granite != 'yes':
             option_checkfatal ('granite', 'new notebook, pop-overs')
@@ -247,7 +247,6 @@ def configure (conf):
 
     conf.check (lib='m')
     check_pkg ('gmodule-2.0')
-    check_pkg ('gthread-2.0')
     check_pkg ('gio-2.0', '2.22.0')
     if check_version (conf.env['GIO_VERSION'], 2, 30, 0) \
         and check_version (conf.env['VALAC_VERSION'], 0, 16, 0):
@@ -421,7 +420,7 @@ def set_options (opt):
     add_enable_option ('libnotify', 'notification support', group)
     add_enable_option ('granite', 'new notebook, pop-overs', group)
     add_enable_option ('addons', 'building of extensions', group)
-    add_enable_option ('tests', 'building of tests', group, disable=True)
+    add_enable_option ('tests', 'install tests', group, disable=True)
     add_enable_option ('gtk3', 'GTK+3 and WebKitGTK+3 support', group, disable=True)
     add_enable_option ('zeitgeist', 'Zeitgeist history integration', group, disable=is_win32 (os.environ))
 
