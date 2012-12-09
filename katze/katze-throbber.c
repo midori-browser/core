@@ -424,10 +424,13 @@ katze_throbber_set_icon_name (KatzeThrobber*  throbber,
 {
     g_return_if_fail (KATZE_IS_THROBBER (throbber));
 
+    if (!g_strcmp0 (throbber->icon_name, icon_name))
+        return;
+
     katze_assign (throbber->icon_name, g_strdup (icon_name));
 
     if (icon_name)
-        icon_theme_changed (throbber);
+        katze_object_assign (throbber->pixbuf, NULL);
 
     g_object_notify (G_OBJECT (throbber), "icon-name");
 }
@@ -521,10 +524,8 @@ katze_throbber_set_static_icon_name (KatzeThrobber*  throbber,
     if (icon_name)
     {
         katze_assign (throbber->static_stock_id, NULL);
+        katze_object_assign (throbber->static_pixbuf, NULL);
 
-        icon_theme_changed (throbber);
-
-        g_object_notify (G_OBJECT (throbber), "static-pixbuf");
         g_object_notify (G_OBJECT (throbber), "static-stock-id");
     }
 
@@ -594,13 +595,10 @@ katze_throbber_set_static_stock_id (KatzeThrobber* throbber,
         g_return_if_fail (gtk_stock_lookup (stock_id, &stock_item));
 
         g_object_notify (G_OBJECT (throbber), "static-icon-name");
-        g_object_notify (G_OBJECT (throbber), "static-pixbuf");
     }
 
     katze_assign (throbber->static_stock_id, g_strdup (stock_id));
-
-    if (stock_id)
-        icon_theme_changed (throbber);
+    katze_object_assign (throbber->static_pixbuf, NULL);
 
     g_object_notify (G_OBJECT (throbber), "static-stock-id");
     g_object_thaw_notify (G_OBJECT (throbber));
@@ -728,8 +726,6 @@ static void
 katze_throbber_realize (GtkWidget* widget)
 {
     (*GTK_WIDGET_CLASS (katze_throbber_parent_class)->realize) (widget);
-
-    icon_theme_changed (KATZE_THROBBER (widget));
 }
 
 static void
@@ -819,23 +815,45 @@ static void
 katze_throbber_style_set (GtkWidget* widget,
                           GtkStyle*  prev_style)
 {
+    KatzeThrobber* throbber = KATZE_THROBBER (widget);
+
     if (GTK_WIDGET_CLASS (katze_throbber_parent_class)->style_set)
         GTK_WIDGET_CLASS (katze_throbber_parent_class)->style_set (widget,
                                                                    prev_style);
 
-    icon_theme_changed (KATZE_THROBBER (widget));
+    if (throbber->pixbuf)
+    {
+        katze_object_assign (throbber->pixbuf, NULL);
+        g_object_notify (G_OBJECT (throbber), "pixbuf");
+    }
+    if (throbber->static_pixbuf)
+    {
+        katze_object_assign (throbber->static_pixbuf, NULL);
+        g_object_notify (G_OBJECT (throbber), "static-pixbuf");
+    }
 }
 
 static void
 katze_throbber_screen_changed (GtkWidget* widget,
                                GdkScreen* prev_screen)
 {
+    KatzeThrobber* throbber = KATZE_THROBBER (widget);
+
     if (GTK_WIDGET_CLASS (katze_throbber_parent_class)->screen_changed)
         GTK_WIDGET_CLASS (katze_throbber_parent_class)->screen_changed (
                                                         widget,
                                                         prev_screen);
 
-    icon_theme_changed (KATZE_THROBBER (widget));
+    if (throbber->pixbuf)
+    {
+        katze_object_assign (throbber->pixbuf, NULL);
+        g_object_notify (G_OBJECT (throbber), "pixbuf");
+    }
+    if (throbber->static_pixbuf)
+    {
+        katze_object_assign (throbber->static_pixbuf, NULL);
+        g_object_notify (G_OBJECT (throbber), "static-pixbuf");
+    }
 }
 
 static void
