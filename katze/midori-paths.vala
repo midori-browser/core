@@ -15,10 +15,6 @@ namespace GLib {
     #endif
 }
 
-namespace Katze {
-    extern static Gdk.Pixbuf? load_cached_icon (string uri, Gtk.Widget? proxy);
-}
-
 extern const string LIBDIR;
 extern const string MDATADIR;
 extern const string PACKAGE_NAME;
@@ -387,25 +383,41 @@ namespace Midori {
         public static Gdk.Pixbuf? get_icon (string? uri, Gtk.Widget? widget) {
             if (!Midori.URI.is_resource (uri))
                 return null;
-#if HAVE_WEBKIT_1_8_0
             int icon_width = 16, icon_height = 16;
             if (widget != null)
                 Gtk.icon_size_lookup_for_settings (widget.get_settings (),
                     Gtk.IconSize.MENU, out icon_width, out icon_height);
+#if HAVE_WEBKIT_1_8_0
             Gdk.Pixbuf? pixbuf = WebKit.get_favicon_database ()
                 .try_get_favicon_pixbuf (uri, icon_width, icon_height);
             if (pixbuf != null)
                 return pixbuf;
 #elif HAVE_WEBKIT_1_3_13
-            int icon_width = 16, icon_height = 16;
-            if (widget != null)
-                Gtk.icon_size_lookup_for_settings (widget.get_settings (),
-                    Gtk.IconSize.MENU, out icon_width, out icon_height);
             Gdk.Pixbuf? pixbuf = WebKit.get_icon_database ().get_icon_pixbuf (uri);
             if (pixbuf != null)
                 return pixbuf.scale_simple (icon_width, icon_height, Gdk.InterpType.BILINEAR);
+#else
+            if (Midori.URI.is_http (uri)) {
+                try {
+                    uint i = 8;
+                    while (uri[i] != '\0' && uri[i] != '/')
+                        i++;
+                    string icon_uri = (uri[i] == '/')
+                        ? uri.substring (0, i) + "/favicon.ico"
+                        : uri + "/favicon.ico";
+                    string checksum = Checksum.compute_for_string (ChecksumType.MD5, icon_uri, -1);
+                    string filename = checksum + Midori.Download.get_extension_for_uri (icon_uri) ?? "";
+                    string path = Path.build_filename (get_cache_dir_for_reading (), "icons", filename);
+                    Gdk.Pixbuf? pixbuf = new Gdk.Pixbuf.from_file_at_size (path, icon_width, icon_height);
+                    if (pixbuf != null)
+                        return pixbuf;
+                }
+                catch (GLib.Error error) { }
+            }
 #endif
-            return Katze.load_cached_icon (uri, widget);
+            if (widget != null)
+                return widget.render_icon (Gtk.STOCK_FILE, Gtk.IconSize.MENU, null);
+            return null;
         }
     }
 }

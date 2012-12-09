@@ -1402,68 +1402,6 @@ katze_widget_has_touchscreen_mode (GtkWidget* widget)
     }
 }
 
-/**
- * katze_load_cached_icon:
- * @uri: an URI string
- * @widget: a #GtkWidget, or %NULL
- *
- * Loads a cached icon for the specified @uri. If there is no
- * icon and @widget is specified, a default will be returned.
- *
- * Returns: a #GdkPixbuf, or %NULL
- *
- * Since: 0.2.2
- * Deprecated: 0.4.8
- */
-GdkPixbuf*
-katze_load_cached_icon (const gchar* uri,
-                        GtkWidget*   widget)
-{
-    GdkPixbuf* icon = NULL;
-
-    g_return_val_if_fail (uri != NULL, NULL);
-
-    if (midori_uri_is_http (uri))
-    {
-        guint i;
-        gchar* icon_uri;
-        gchar* checksum;
-        gchar* ext;
-        gchar* filename;
-        gchar* path;
-
-        i = 8;
-        while (uri[i] != '\0' && uri[i] != '/')
-            i++;
-        if (uri[i] == '/')
-        {
-            gchar* ticon_uri = g_strdup (uri);
-            ticon_uri[i] = '\0';
-            icon_uri = g_strdup_printf ("%s/favicon.ico", ticon_uri);
-            g_free (ticon_uri);
-        }
-        else
-            icon_uri = g_strdup_printf ("%s/favicon.ico", uri);
-
-        checksum = g_compute_checksum_for_string (G_CHECKSUM_MD5, icon_uri, -1);
-        ext = g_strrstr (icon_uri, ".");
-        filename = g_strdup_printf ("%s%s", checksum, ext ? ext : "");
-        g_free (icon_uri);
-        g_free (checksum);
-        path = g_build_filename (midori_paths_get_cache_dir_for_reading (), "icons", filename, NULL);
-        g_free (filename);
-        if ((icon = gdk_pixbuf_new_from_file_at_size (path, 16, 16, NULL)))
-        {
-            g_free (path);
-            return icon;
-        }
-        g_free (path);
-    }
-
-    return icon || !widget ? icon : gtk_widget_render_icon (widget,
-        GTK_STOCK_FILE, GTK_ICON_SIZE_MENU, NULL);
-}
-
 static void
 katze_uri_entry_changed_cb (GtkWidget* entry,
                             GtkWidget* other_widget)

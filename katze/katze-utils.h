@@ -153,10 +153,6 @@ katze_mkdir_with_parents             (const gchar* pathname,
 gboolean
 katze_widget_has_touchscreen_mode    (GtkWidget*      widget);
 
-GdkPixbuf*
-katze_load_cached_icon               (const gchar*    uri,
-                                      GtkWidget*      widget);
-
 GtkWidget*
 katze_uri_entry_new                  (GtkWidget*      other_widget);
 
