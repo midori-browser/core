@@ -1201,6 +1201,9 @@ midori_view_set_html (MidoriView*     view,
                       const gchar*    uri,
                       WebKitWebFrame* web_frame)
 {
+    g_return_if_fail (MIDORI_IS_VIEW (view));
+    g_return_if_fail (data != NULL);
+
     WebKitWebView* web_view = WEBKIT_WEB_VIEW (view->web_view);
     if (!uri)
         uri = "about:blank";
@@ -1516,7 +1519,7 @@ midori_view_ensure_link_uri (MidoriView* view,
 {
     g_return_if_fail (MIDORI_IS_VIEW (view));
 
-    if (view->web_view && gtk_widget_get_window (view->web_view))
+    if (gtk_widget_get_window (view->web_view))
     {
         GdkEventButton ev;
 
@@ -2008,6 +2011,8 @@ midori_web_view_menu_image_new_tab_activate_cb (GtkWidget*  widget,
 GList*
 midori_view_get_resources (MidoriView* view)
 {
+    g_return_val_if_fail (MIDORI_IS_VIEW (view), NULL);
+
     WebKitWebView* web_view = WEBKIT_WEB_VIEW (view->web_view);
     WebKitWebFrame* frame = webkit_web_view_get_main_frame (web_view);
     WebKitWebDataSource* data_source = webkit_web_frame_get_data_source (frame);
@@ -2288,6 +2293,9 @@ midori_view_populate_popup (MidoriView* view,
                             GtkWidget*  menu,
                             gboolean    manual)
 {
+    g_return_if_fail (MIDORI_IS_VIEW (view));
+    g_return_if_fail (GTK_IS_MENU_SHELL (menu));
+
     WebKitWebView* web_view = WEBKIT_WEB_VIEW (view->web_view);
     GtkWidget* widget = GTK_WIDGET (view);
     MidoriBrowser* browser = midori_browser_get_for_widget (widget);
@@ -3099,9 +3107,7 @@ midori_view_init (MidoriView* view)
 static void
 midori_view_finalize (GObject* object)
 {
-    MidoriView* view;
-
-    view = MIDORI_VIEW (object);
+    MidoriView* view = MIDORI_VIEW (object);
 
     if (view->settings)
         g_signal_handlers_disconnect_by_func (view->settings,
@@ -3129,9 +3135,7 @@ midori_view_set_property (GObject*      object,
                           const GValue* value,
                           GParamSpec*   pspec)
 {
-    MidoriView* view;
-
-    view = MIDORI_VIEW (object);
+    MidoriView* view = MIDORI_VIEW (object);
 
     switch (prop_id)
     {
@@ -3230,8 +3234,6 @@ _midori_view_set_settings (MidoriView*        view,
     g_signal_connect (settings, "notify",
                       G_CALLBACK (midori_view_settings_notify_cb), view);
 
-    g_object_set (view->web_view, "settings", settings, NULL);
-
     g_object_get (view->settings,
         "zoom-text-and-images", &zoom_text_and_images,
         "kinetic-scrolling", &kinetic_scrolling,
@@ -3241,8 +3243,10 @@ _midori_view_set_settings (MidoriView*        view,
         "open-tabs-in-the-background", &view->open_tabs_in_the_background,
         NULL);
 
-        g_object_set (view->web_view,
-                      "full-content-zoom", zoom_text_and_images, NULL);
+    g_object_set (view->web_view,
+                  "settings", settings,
+                  "full-content-zoom", zoom_text_and_images,
+                  NULL);
     g_object_set (view->scrolled_window, "kinetic-scrolling", kinetic_scrolling, NULL);
 }
 
@@ -4353,6 +4357,8 @@ midori_view_tab_label_menu_duplicate_tab_cb (GtkWidget*  menuitem,
 GtkWidget*
 midori_view_duplicate (MidoriView* view)
 {
+    g_return_val_if_fail (MIDORI_IS_VIEW (view), NULL);
+
     MidoriNewView where = MIDORI_NEW_VIEW_TAB;
     GtkWidget* new_view = midori_view_new_with_item (view->item, view->settings);
     g_signal_emit (view, signals[NEW_VIEW], 0, new_view, where, TRUE);
@@ -4474,6 +4480,7 @@ void
 midori_view_set_tab (MidoriView*        view,
                      GraniteWidgetsTab* tab)
 {
+    g_return_if_fail (MIDORI_IS_VIEW (view));
     g_return_if_fail (view->tab == NULL);
 
     view->tab = tab;
@@ -4488,6 +4495,8 @@ midori_view_set_tab (MidoriView*        view,
 GtkWidget*
 midori_view_get_proxy_tab_label (MidoriView* view)
 {
+    g_return_val_if_fail (MIDORI_IS_VIEW (view), NULL);
+
     GtkWidget* tab = GTK_WIDGET (midori_view_get_tab (view));
     GList* children = gtk_container_get_children (GTK_CONTAINER (tab));
     GtkWidget* label = NULL;
@@ -4649,10 +4658,7 @@ static void midori_view_tab_label_data_received (GtkWidget* widget,
                                                  guint timestamp,
                                                  MidoriView* view)
 {
-    gchar **uri;
-    gchar* text;
-
-    uri = gtk_selection_data_get_uris (data);
+    gchar** uri = gtk_selection_data_get_uris (data);
     if (uri != NULL)
     {
         midori_view_set_uri (view, uri[0]);
@@ -4660,7 +4666,7 @@ static void midori_view_tab_label_data_received (GtkWidget* widget,
     }
     else
     {
-        text = (gchar*) gtk_selection_data_get_text (data);
+        gchar* text = (gchar*) gtk_selection_data_get_text (data);
         midori_view_set_uri (view, text);
         g_free (text);
     }
@@ -4921,6 +4927,8 @@ midori_view_save_source (MidoriView* view,
     gint fd;
     FILE* fp;
     size_t ret;
+
+    g_return_val_if_fail (MIDORI_IS_VIEW (view), NULL);
 
     frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view));
     data_source = webkit_web_frame_get_data_source (frame);
@@ -5296,6 +5304,7 @@ midori_view_get_snapshot (MidoriView* view,
                           gint        height)
 {
     g_return_val_if_fail (MIDORI_IS_VIEW (view), NULL);
+
     return midori_view_web_view_get_snapshot ((GtkWidget*)view->web_view, width, height);
 }
 
@@ -5426,6 +5435,8 @@ midori_view_get_web_view        (MidoriView*        view)
 MidoriView*
 midori_view_get_for_widget (GtkWidget* web_view)
 {
+    g_return_val_if_fail (GTK_IS_WIDGET (web_view), NULL);
+
     GtkWidget* scrolled = gtk_widget_get_parent (web_view);
     #if GTK_CHECK_VERSION(3, 2, 0)
     GtkWidget* overlay = gtk_widget_get_parent (scrolled);
