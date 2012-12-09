@@ -473,7 +473,7 @@ midori_view_unset_icon (MidoriView* view)
     midori_view_apply_icon (view, pixbuf, "stock://gtk-file");
 }
 
-#if !WEBKIT_CHECK_VERSION (1, 8, 0)
+#if !WEBKIT_CHECK_VERSION (1, 3, 13)
 static void
 katze_net_object_maybe_unref (gpointer object)
 {
@@ -560,11 +560,23 @@ katze_net_icon_transfer_cb (KatzeNetRequest*  request,
 static void
 _midori_web_view_load_icon (MidoriView* view)
 {
+    gint icon_width = 16, icon_height = 16;
+    GtkSettings* settings = gtk_widget_get_settings (view->web_view);
+    gtk_icon_size_lookup_for_settings (settings, GTK_ICON_SIZE_MENU, &icon_width, &icon_height);
     GdkPixbuf* pixbuf = NULL;
     #if WEBKIT_CHECK_VERSION (1, 8, 0)
     if ((pixbuf = webkit_web_view_try_get_favicon_pixbuf (
-        WEBKIT_WEB_VIEW (view->web_view), 16, 16)))
+        WEBKIT_WEB_VIEW (view->web_view), icon_width, icon_height)))
         midori_view_apply_icon (view, pixbuf, view->icon_uri);
+    #elif WEBKIT_CHECK_VERSION (1, 3, 13)
+    if ((pixbuf = webkit_web_view_get_icon_pixbuf (
+        WEBKIT_WEB_VIEW (view->web_view))))
+    {
+        GdkPixbuf* pixbuf_scaled = gdk_pixbuf_scale_simple (pixbuf,
+            icon_width, icon_height, GDK_INTERP_BILINEAR);
+        g_object_unref (pixbuf);
+        midori_view_apply_icon (view, pixbuf_scaled, view->icon_uri);
+    }
     #else
     GdkPixbuf* pixbuf_scaled;
     const gchar* uri = midori_tab_get_uri (MIDORI_TAB (view));
@@ -614,12 +626,8 @@ _midori_web_view_load_icon (MidoriView* view)
 
     if (pixbuf)
     {
-        gint icon_width, icon_height;
-        GtkSettings* settings = gtk_widget_get_settings (view->web_view);
-        gtk_icon_size_lookup_for_settings (settings, GTK_ICON_SIZE_MENU,
-                                           &icon_width, &icon_height);
-        pixbuf_scaled = gdk_pixbuf_scale_simple (pixbuf, icon_width,
-            icon_height, GDK_INTERP_BILINEAR);
+        pixbuf_scaled = gdk_pixbuf_scale_simple (pixbuf,
+            icon_width,  icon_height, GDK_INTERP_BILINEAR);
         g_object_unref (pixbuf);
         pixbuf = pixbuf_scaled;
         midori_view_apply_icon (view, pixbuf, view->icon_uri);

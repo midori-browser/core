@@ -119,6 +119,9 @@ namespace Midori {
 #if HAVE_WEBKIT_1_8_0
             if (user_data_dir != null)
                 WebKit.get_favicon_database ().set_path (Path.build_filename (user_data_dir, "webkit", "icondatabase"));
+#elif HAVE_WEBKIT_1_3_13
+            if (user_data_dir != null)
+                WebKit.get_icon_database ().set_path (Path.build_filename (user_data_dir, "webkit", "icondatabase"));
 #endif
             if (strcmp (Environment.get_variable ("MIDORI_DEBUG"), "paths") == 0) {
                 stdout.printf ("config: %s\ncache: %s\nuser_data: %s\ntmp: %s\n",
@@ -373,6 +376,8 @@ namespace Midori {
             assert (user_data_dir != null);
 #if HAVE_WEBKIT_1_8_0
             WebKit.get_favicon_database ().clear ();
+#elif HAVE_WEBKIT_1_3_13
+            WebKit.get_icon_database ().clear ();
 #endif
             /* FIXME: Exclude search engine icons */
             remove_path (Path.build_filename (cache_dir, "icons"));
@@ -383,11 +388,22 @@ namespace Midori {
             if (!Midori.URI.is_resource (uri))
                 return null;
 #if HAVE_WEBKIT_1_8_0
-            /* FIXME: Don't hard-code icon size */
+            int icon_width = 16, icon_height = 16;
+            if (widget != null)
+                Gtk.icon_size_lookup_for_settings (widget.get_settings (),
+                    Gtk.IconSize.MENU, out icon_width, out icon_height);
             Gdk.Pixbuf? pixbuf = WebKit.get_favicon_database ()
-                .try_get_favicon_pixbuf (uri, 16, 16);
+                .try_get_favicon_pixbuf (uri, icon_width, icon_height);
             if (pixbuf != null)
                 return pixbuf;
+#elif HAVE_WEBKIT_1_3_13
+            int icon_width = 16, icon_height = 16;
+            if (widget != null)
+                Gtk.icon_size_lookup_for_settings (widget.get_settings (),
+                    Gtk.IconSize.MENU, out icon_width, out icon_height);
+            Gdk.Pixbuf? pixbuf = WebKit.get_icon_database ().get_icon_pixbuf (uri);
+            if (pixbuf != null)
+                return pixbuf.scale_simple (icon_width, icon_height, Gdk.InterpType.BILINEAR);
 #endif
             return Katze.load_cached_icon (uri, widget);
         }

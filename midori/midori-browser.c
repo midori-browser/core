@@ -2415,7 +2415,7 @@ _action_add_desktop_shortcut_activate (GtkAction*     action,
     GKeyFile* keyfile = g_key_file_new ();
     gchar* filename = g_strdelimit (g_strconcat (app_name, ".desktop", NULL), "/", '_');
     gchar* app_dir = g_build_filename (g_get_user_data_dir (), "applications", filename, NULL);
-    #if WEBKIT_CHECK_VERSION (1, 8, 0)
+    #if WEBKIT_CHECK_VERSION (1, 3, 13)
     /* FIXME: midori_paths_get_icon */
     gchar* app_icon = g_strdup (STOCK_WEB_BROWSER);
     #else

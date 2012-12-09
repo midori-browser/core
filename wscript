@@ -298,6 +298,8 @@ def configure (conf):
         conf.define ('HAVE_LIBSOUP_2_37_1', 1)
     if check_version (conf.env['WEBKIT_VERSION'], 1, 3, 8):
         conf.env.append_value ('VALAFLAGS', '-D HAVE_WEBKIT_1_3_8')
+    if check_version (conf.env['WEBKIT_VERSION'], 1, 3, 13):
+        conf.env.append_value ('VALAFLAGS', '-D HAVE_WEBKIT_1_3_13')
     if check_version (conf.env['WEBKIT_VERSION'], 1, 8, 0):
         conf.env.append_value ('VALAFLAGS', '-D HAVE_WEBKIT_1_8_0')
     check_pkg ('libxml-2.0', '2.6')

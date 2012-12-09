@@ -9,6 +9,12 @@ namespace WebKit {
 		public void clear ();
 	}
 	[CCode (cheader_filename = "webkit/webkit.h")]
+	public class IconDatabase : GLib.Object {
+		public Gdk.Pixbuf? get_icon_pixbuf (string page_uri);
+		public void set_path (string? path);
+		public void clear ();
+	}
+	[CCode (cheader_filename = "webkit/webkit.h")]
 	public class DOMDOMTokenList : GLib.Object {
 		[CCode (has_construct_function = false)]
 		protected DOMDOMTokenList ();
@@ -803,6 +809,8 @@ namespace WebKit {
 	public static uint64 get_default_web_database_quota ();
 	[CCode (cheader_filename = "webkit/webkit.h")]
 	public static unowned WebKit.FaviconDatabase get_favicon_database ();
+	[CCode (cheader_filename = "webkit/webkit.h")]
+	public static unowned WebKit.IconDatabase get_icon_database ();
 	[CCode (cheader_filename = "webkit/webkit.h")]
 	public static unowned string get_web_database_directory_path ();
 	[CCode (cheader_filename = "webkit/webkit.h")]
