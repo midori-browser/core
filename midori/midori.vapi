@@ -37,7 +37,7 @@ namespace Midori {
         [NoAccessorMethod]
         public Katze.Array history { get; set; }
         [NoAccessorMethod]
-        public Katze.Array extensions { get; set; }
+        public Katze.Array extensions { owned get; set; }
         [NoAccessorMethod]
         public Katze.Array browsers { get; }
         public Browser? browser { get; }
@@ -142,7 +142,8 @@ namespace Midori {
         public string key { get; set; }
 
         public signal void activate (Midori.App app);
-        public signal bool is_prepared ();
+        public bool is_prepared ();
+        public bool is_active ();
         public signal void deactivate ();
         public signal void open_preferences ();
 

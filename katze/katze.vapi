@@ -9,6 +9,8 @@ namespace Katze {
     public class Array : Katze.Item {
         public Array (GLib.Type type);
         public void add_item (GLib.Object item);
+        public uint get_length ();
+        public GLib.List<unowned Item> get_items ();
     }
 
     [CCode (cheader_filename = "katze/katze.h")]

@@ -67,7 +67,14 @@ void app_extensions () {
     var app = Midori.normal_app_new (null, "test-extensions-normal", false, null, null, null, -1, null);
     var loop = MainContext.default ();
     do { loop.iteration (true); } while (loop.pending ());
-    Midori.Extension.load_from_folder (app, null, true);
+    /* No extensions loaded */
+    assert (app.extensions.get_length () == 0);
+    Midori.Extension.load_from_folder (app, null, false);
+    /* All extensions loaded, inactive */
+    assert (app.extensions.get_length () > 0);
+    foreach (var item in app.extensions.get_items ())
+        assert (!(item as Midori.Extension).is_active ());
+
     for (var i = 0 ; i < 7; i++) {
         var tab = app.browser.get_nth_tab (app.browser.add_uri ("about:blank"));
         app.browser.close_tab (tab);

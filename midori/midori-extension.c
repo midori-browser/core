@@ -549,11 +549,11 @@ midori_extension_load_from_folder (MidoriApp* app,
     if (!extension_path)
         return;
 
-    if (keys)
+    if (activate)
     {
         gint i = 0;
         const gchar* filename;
-        while ((filename = keys[i++]))
+        while (keys && (filename = keys[i++]))
             midori_extension_activate_gracefully (app, extension_path, filename, activate);
     }
     else
