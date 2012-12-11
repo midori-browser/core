@@ -43,4 +43,4 @@ for extension in extensions:
             obj.packages += ' clutter-gtk-1.0 granite'
     obj.install_path = '${LIBDIR}/midori'
     if bld.env['platform'] == 'win32':
-        obj.uselib_local = 'midori'
+        obj.uselib_local = 'midori-core'
