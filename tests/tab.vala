@@ -160,14 +160,25 @@ void tab_special () {
     assert (!source.can_save ());
     assert (!source.web_view.get_view_source_mode ());
 
+    Midori.Test.release_max_timeout ();
+}
+
+void tab_movement () {
+    Midori.Test.log_set_fatal_handler_for_icons ();
+    var browser = new Midori.Browser ();
+    var settings = new Midori.WebSettings ();
+    browser.set ("settings", settings);
+    var tab = new Midori.View.with_title ();
+    tab.settings = new Midori.WebSettings ();
+    for (var i = 0 ; i < 7; i++)
+        browser.add_uri ("about:blank");
+
     browser.activate_action ("TabMoveForward");
     browser.activate_action ("TabMoveBackward");
     browser.activate_action ("TabMoveFirst");
     browser.activate_action ("TabMoveLast");
     browser.activate_action ("TabDuplicate");
     browser.activate_action ("TabCloseOther");
-
-    Midori.Test.release_max_timeout ();
 }
 
 void tab_download_dialog () {
@@ -197,6 +208,7 @@ void main (string[] args) {
     Test.add_func ("/tab/display-title", tab_display_title);
     Test.add_func ("/tab/ellipsize", tab_display_ellipsize);
     Test.add_func ("/tab/special", tab_special);
+    Test.add_func ("/tab/movement", tab_movement);
     Test.add_func ("/tab/download", tab_download_dialog);
     Test.run ();
 }
