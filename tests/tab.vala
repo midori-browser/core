@@ -182,6 +182,7 @@ void tab_movement () {
 }
 
 void tab_download_dialog () {
+    Midori.Test.log_set_fatal_handler_for_icons ();
     var loop = MainContext.default ();
     var browser = new Gtk.Window (Gtk.WindowType.TOPLEVEL);
     var tab = new Midori.View.with_title ();
