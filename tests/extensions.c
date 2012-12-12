@@ -10,6 +10,7 @@
 */
 
 #include "midori.h"
+#include <glib/gstdio.h>
 
 const gpointer magic = (gpointer)0xdeadbeef;
 
@@ -213,12 +214,14 @@ main (int    argc,
 
     if (g_module_supported ())
     {
-        GDir* extension_dir = g_dir_open (EXTENSION_PATH, 0, NULL);
+        gchar* extension_path = midori_paths_get_lib_path (PACKAGE_NAME);
+        GDir* extension_dir = g_dir_open (extension_path, 0, NULL);
+        g_free (extension_path);
         g_assert (extension_dir != NULL);
 
         /* We require that extensions can be loaded repeatedly */
-        extension_load (EXTENSION_PATH, extension_dir);
-        extension_load (EXTENSION_PATH, extension_dir);
+        extension_load (extension_path, extension_dir);
+        extension_load (extension_path, extension_dir);
 
         g_dir_close (extension_dir);
     }

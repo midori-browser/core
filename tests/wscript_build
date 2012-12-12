@@ -41,7 +41,6 @@ for test in tests:
     obj = bld.new_task_gen ('cc', 'program')
     obj.target = 'test-' + target
     obj.includes = '.. ../midori ../panels'
-    obj.cflags = ['-DEXTENSION_PATH="' + os.path.abspath ('_build/default/extensions') + '"']
     obj.source = source
     if 'vala' in source:
         obj.env.append_value ('CCFLAGS', '-w')
