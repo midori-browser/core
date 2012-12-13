@@ -77,17 +77,8 @@ static void tab_display_ellipsize () {
 
 void tab_special () {
     Midori.Test.grab_max_timeout ();
-    Midori.Test.log_set_fatal_handler_for_icons ();
-    var test_address = new Soup.Address ("127.0.0.1", Soup.ADDRESS_ANY_PORT);
-    test_address.resolve_sync (null);
-    var test_server = new Soup.Server ("interface", test_address, null);
-    string test_url = "http://%s:%u".printf (test_address.get_physical (), test_server.get_port ());
-    test_server.run_async ();
-    test_server.add_handler ("/", (server, msg, path, query, client)=>{
-        msg.set_status_full (200, "OK");
-        msg.response_body.append_take ("<body></body>".data);
-        });
 
+    Midori.Test.log_set_fatal_handler_for_icons ();
     var browser = new Midori.Browser ();
     var settings = new Midori.WebSettings ();
     browser.set ("settings", settings);
@@ -125,6 +116,32 @@ void tab_special () {
     assert (tab.special);
     assert (!tab.can_save ());
 
+    Midori.Test.release_max_timeout ();
+}
+
+void tab_http () {
+    Midori.Test.grab_max_timeout ();
+
+    Midori.Test.log_set_fatal_handler_for_icons ();
+    var browser = new Midori.Browser ();
+    var settings = new Midori.WebSettings ();
+    browser.set ("settings", settings);
+    var tab = new Midori.View.with_title ();
+    tab.settings = new Midori.WebSettings ();
+    tab.settings.set ("enable-plugins", false);
+    browser.add_tab (tab);
+    var loop = MainContext.default ();
+
+    var test_address = new Soup.Address ("127.0.0.1", Soup.ADDRESS_ANY_PORT);
+    test_address.resolve_sync (null);
+    var test_server = new Soup.Server ("interface", test_address, null);
+    string test_url = "http://%s:%u".printf (test_address.get_physical (), test_server.get_port ());
+    test_server.run_async ();
+    test_server.add_handler ("/", (server, msg, path, query, client)=>{
+        msg.set_status_full (200, "OK");
+        msg.response_body.append_take ("<body></body>".data);
+        });
+
     var item = tab.get_proxy_item ();
     item.set_meta_integer ("delay", Midori.Delay.UNDELAYED);
     tab.set_uri (test_url);
@@ -140,7 +157,6 @@ void tab_special () {
     assert (!tab.special);
     assert (tab.can_save ());
 
-    /* Mimic browser: SourceView with no external editor */
     var source = new Midori.View.with_title (null, tab.settings);
     browser.add_tab (source);
     source.web_view.set_view_source_mode (true);
@@ -209,6 +225,7 @@ void main (string[] args) {
     Test.add_func ("/tab/display-title", tab_display_title);
     Test.add_func ("/tab/ellipsize", tab_display_ellipsize);
     Test.add_func ("/tab/special", tab_special);
+    Test.add_func ("/tab/http", tab_http);
     Test.add_func ("/tab/movement", tab_movement);
     Test.add_func ("/tab/download", tab_download_dialog);
     Test.run ();
