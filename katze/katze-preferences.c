@@ -22,23 +22,11 @@
     #include <granite.h>
 #endif
 
-#if HAVE_HILDON
-    #include "katze-scrolled.h"
-    #include <hildon/hildon.h>
-#endif
-
 #include <string.h>
 #include <glib/gi18n.h>
 
 struct _KatzePreferencesPrivate
 {
-    #if HAVE_HILDON
-    GtkWidget* scrolled;
-    GtkSizeGroup* sizegroup;
-    GtkSizeGroup* sizegroup2;
-    GtkWidget* box;
-    GtkWidget* hbox;
-    #else
     GtkWidget* notebook;
     GtkWidget* toolbar;
     GtkWidget* toolbutton;
@@ -48,7 +36,6 @@ struct _KatzePreferencesPrivate
     GtkWidget* frame;
     GtkWidget* box;
     GtkWidget* hbox;
-    #endif
 };
 
 G_DEFINE_TYPE (KatzePreferences, katze_preferences, GTK_TYPE_DIALOG);
@@ -72,19 +59,6 @@ katze_preferences_response_cb (KatzePreferences* preferences,
     if (response == GTK_RESPONSE_CLOSE || response == GTK_RESPONSE_APPLY)
         gtk_widget_destroy (GTK_WIDGET (preferences));
 }
-
-#ifdef HAVE_HILDON_2_2
-static void
-katze_preferences_size_request_cb (KatzePreferences* preferences,
-                                   GtkRequisition*   requisition)
-{
-    GdkScreen* screen = gtk_widget_get_screen (GTK_WIDGET (preferences));
-    if (gdk_screen_get_height (screen) > gdk_screen_get_width (screen))
-        gtk_widget_hide (gtk_dialog_get_action_area (GTK_DIALOG (preferences)));
-    else
-        gtk_widget_show (gtk_dialog_get_action_area (GTK_DIALOG (preferences)));
-}
-#endif
 
 static void
 katze_preferences_init (KatzePreferences* preferences)
@@ -114,11 +88,7 @@ katze_preferences_init (KatzePreferences* preferences)
         GTK_DIALOG (preferences), GTK_RESPONSE_HELP), "help_button");
 
     gtk_dialog_add_buttons (GTK_DIALOG (preferences),
-        #if HAVE_HILDON
-        GTK_STOCK_SAVE, GTK_RESPONSE_APPLY,
-        #else
         GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE,
-        #endif
         NULL);
     #endif
 
@@ -126,12 +96,6 @@ katze_preferences_init (KatzePreferences* preferences)
         "signal::response", katze_preferences_response_cb, NULL,
         NULL);
 
-    #ifdef HAVE_HILDON_2_2
-    katze_preferences_size_request_cb (preferences, NULL);
-    g_object_connect (preferences,
-        "signal::size-request", katze_preferences_size_request_cb, NULL,
-        NULL);
-    #endif
 }
 
 static void
@@ -187,25 +151,6 @@ katze_preferences_prepare (KatzePreferences* preferences)
 {
     KatzePreferencesPrivate* priv = preferences->priv;
 
-    #if HAVE_HILDON
-    GtkWidget* viewport;
-
-    priv->scrolled = katze_scrolled_new (NULL, NULL);
-    gtk_box_pack_end (GTK_BOX (gtk_dialog_get_content_area (GTK_DIALOG (preferences))),
-                      priv->scrolled, TRUE, TRUE, 4);
-    viewport = gtk_viewport_new (NULL, NULL);
-    gtk_viewport_set_shadow_type (GTK_VIEWPORT (viewport), GTK_SHADOW_NONE);
-    gtk_container_add (GTK_CONTAINER (priv->scrolled), viewport);
-    priv->box = gtk_vbox_new (FALSE, 0);
-    gtk_container_add (GTK_CONTAINER (viewport), priv->box);
-
-    priv->hbox = NULL;
-    priv->sizegroup = NULL;
-    priv->sizegroup2 = NULL;
-
-    g_signal_connect (priv->scrolled, "destroy",
-                      G_CALLBACK (gtk_widget_destroyed), &priv->scrolled);
-    #else
     #ifdef HAVE_GRANITE
     /* FIXME: granite: should return GtkWidget* like GTK+ */
     priv->notebook = (GtkWidget*)granite_widgets_static_notebook_new (FALSE);
@@ -238,7 +183,6 @@ katze_preferences_prepare (KatzePreferences* preferences)
 
     g_signal_connect (priv->notebook, "destroy",
                       G_CALLBACK (gtk_widget_destroyed), &priv->notebook);
-    #endif
 
     #if HAVE_OSX
     GtkWidget* icon;
@@ -280,24 +224,6 @@ katze_preferences_add_category (KatzePreferences* preferences,
 
     priv = preferences->priv;
 
-    #if HAVE_HILDON
-    GtkWidget* widget;
-    gchar* markup;
-
-    if (!priv->scrolled)
-        katze_preferences_prepare (preferences);
-
-    widget = gtk_label_new (NULL);
-    gtk_widget_show (widget);
-    markup = g_markup_printf_escaped ("<b>%s</b>", label);
-    gtk_label_set_markup (GTK_LABEL (widget), markup);
-    g_free (markup);
-    gtk_box_pack_start (GTK_BOX (priv->box), widget, TRUE, TRUE, 0);
-
-    priv->sizegroup = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
-    priv->sizegroup2 = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
-    priv->hbox = NULL;
-    #else
     if (!priv->notebook)
         katze_preferences_prepare (preferences);
 
@@ -328,12 +254,10 @@ katze_preferences_add_category (KatzePreferences* preferences,
     if (priv->toolbutton)
         g_object_set_data (G_OBJECT (priv->toolbutton), "notebook", priv->notebook);
     #endif
-    #endif
 
     return priv->page;
 }
 
-#if !HAVE_HILDON
 static GtkWidget*
 katze_hig_frame_new (const gchar* title)
 {
@@ -351,7 +275,6 @@ katze_hig_frame_new (const gchar* title)
     #endif
     return frame;
 }
-#endif
 
 /**
  * katze_preferences_add_group:
@@ -368,7 +291,6 @@ void
 katze_preferences_add_group (KatzePreferences* preferences,
                              const gchar*      label)
 {
-    #if !HAVE_HILDON
     KatzePreferencesPrivate* priv;
 
     g_return_if_fail (KATZE_IS_PREFERENCES (preferences));
@@ -383,7 +305,6 @@ katze_preferences_add_group (KatzePreferences* preferences,
     gtk_container_set_border_width (GTK_CONTAINER (priv->box), 4);
     gtk_container_add (GTK_CONTAINER (priv->frame), priv->box);
     gtk_widget_show_all (priv->frame);
-    #endif
 }
 
 /**
@@ -417,10 +338,6 @@ katze_preferences_add_widget (KatzePreferences* preferences,
 
     if (!priv->hbox)
         _type = g_intern_string ("indented");
-    #ifdef HAVE_HILDON_2_2
-    else if (HILDON_IS_CHECK_BUTTON (widget) || HILDON_IS_PICKER_BUTTON (widget))
-        _type = g_intern_string ("indented");
-    #endif
 
     if (_type != g_intern_static_string ("spanned"))
     {
@@ -436,11 +353,7 @@ katze_preferences_add_widget (KatzePreferences* preferences,
         GtkWidget* align = gtk_alignment_new (0, 0.5, 0, 0);
         gtk_widget_show (align);
         gtk_container_add (GTK_CONTAINER (align), priv->hbox);
-        #if HAVE_HILDON
-        if (!GTK_IS_SPIN_BUTTON (widget) && !GTK_IS_LABEL (widget))
-        #else
         if (!GTK_IS_SPIN_BUTTON (widget))
-        #endif
             gtk_size_group_add_widget (priv->sizegroup, widget);
         gtk_box_pack_start (GTK_BOX (priv->box), align, TRUE, FALSE, 0);
     }
@@ -454,9 +367,4 @@ katze_preferences_add_widget (KatzePreferences* preferences,
             gtk_size_group_add_widget (priv->sizegroup2, widget);
         gtk_box_pack_start (GTK_BOX (priv->hbox), align, TRUE, FALSE, 0);
     }
-
-    #if HAVE_HILDON
-    if (GTK_IS_BUTTON (widget) && !GTK_WIDGET_IS_SENSITIVE (widget))
-        gtk_widget_hide (widget);
-    #endif
 }

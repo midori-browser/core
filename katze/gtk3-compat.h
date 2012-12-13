@@ -79,10 +79,7 @@ G_BEGIN_DECLS
     #define GTK_DIALOG_NO_SEPARATOR 0
 #endif
 
-#if !GTK_CHECK_VERSION (3, 2, 0) && defined (HAVE_HILDON_2_2)
-    #define gtk_entry_set_placeholder_text hildon_gtk_entry_set_placeholder_text
-    #define gtk_entry_get_placeholder_text hildon_gtk_entry_get_placeholder_text
-#elif !GTK_CHECK_VERSION (3, 2, 0)
+#if !GTK_CHECK_VERSION (3, 2, 0)
     void gtk_entry_set_placeholder_text (GtkEntry* entry, const gchar* text);
     const gchar* gtk_entry_get_placeholder_text (GtkEntry* entry);
 #endif

@@ -511,14 +511,8 @@ katze_array_action_proxy_clicked_cb (GtkWidget*        proxy,
             g_signal_emit (array_action, signals[POPULATE_POPUP], 0, menu);
     }
 
-    #if HAVE_HILDON
-    /* Avoid a bug in GTK+ messing up the initial scrolling position */
-    katze_widget_popup (NULL, GTK_MENU (menu),
-                        NULL, KATZE_MENU_POSITION_LEFT);
-    #else
     katze_widget_popup (GTK_WIDGET (proxy), GTK_MENU (menu),
                         NULL, KATZE_MENU_POSITION_LEFT);
-    #endif
     gtk_menu_shell_select_first (GTK_MENU_SHELL (menu), TRUE);
     g_object_set_data (G_OBJECT (menu), "KatzeArrayAction", array_action);
     g_signal_connect (menu, "deactivate",
