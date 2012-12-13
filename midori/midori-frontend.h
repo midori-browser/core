@@ -14,7 +14,7 @@
 
 #include "midori/midori-app.h"
 
-void
+MidoriBrowser*
 midori_web_app_new (const gchar* config,
                     const gchar* webapp,
                     gchar**      open_uris,
@@ -22,7 +22,7 @@ midori_web_app_new (const gchar* config,
                     gint         inactivity_reset,
                     const gchar* block_uris);
 
-void
+MidoriBrowser*
 midori_private_app_new (const gchar* config,
                         const gchar* webapp,
                         gchar**      open_uris,

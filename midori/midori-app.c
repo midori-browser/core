@@ -280,7 +280,6 @@ _midori_app_quit (MidoriApp* app)
         g_unlink (config_file);
         g_free (config_file);
     }
-    gtk_main_quit ();
 }
 
 static void

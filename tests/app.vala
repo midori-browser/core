@@ -43,17 +43,18 @@ void app_custom_config () {
     do { loop.iteration (true); } while (loop.pending ());
     Midori.normal_app_on_quit (app);
 }
+
 void app_private () {
     Midori.Test.log_set_fatal_handler_for_icons ();
     Midori.Paths.Test.reset_runtime_mode ();
-    Midori.private_app_new (null, null, null, null, -1, null);
+    var browser = Midori.private_app_new (null, null, null, null, -1, null);
     var loop = MainContext.default ();
     do { loop.iteration (true); } while (loop.pending ());
 }
 
 void app_web () {
     Midori.Paths.Test.reset_runtime_mode ();
-    Midori.web_app_new (null, null, null, null, -1, null);
+    var browser = Midori.web_app_new (null, null, null, null, -1, null);
     var loop = MainContext.default ();
     do { loop.iteration (true); } while (loop.pending ());
 }

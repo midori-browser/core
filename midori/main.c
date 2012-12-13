@@ -309,16 +309,20 @@ main (int    argc,
 
     if (private)
     {
-        midori_private_app_new (config, webapp,
+        MidoriBrowser* browser = midori_private_app_new (config, webapp,
             execute ? NULL : uris, execute ? uris : NULL, inactivity_reset, block_uris);
+        g_signal_connect (browser, "destroy", G_CALLBACK (gtk_main_quit), NULL);
+        g_signal_connect (browser, "quit", G_CALLBACK (gtk_main_quit), NULL);
         gtk_main ();
         return 0;
     }
 
     if (webapp)
     {
-        midori_web_app_new (config, webapp,
+        MidoriBrowser* browser = midori_web_app_new (config, webapp,
             execute ? NULL : uris, execute ? uris : NULL, inactivity_reset, block_uris);
+        g_signal_connect (browser, "destroy", G_CALLBACK (gtk_main_quit), NULL);
+        g_signal_connect (browser, "quit", G_CALLBACK (gtk_main_quit), NULL);
         gtk_main ();
         return 0;
     }
@@ -331,6 +335,7 @@ main (int    argc,
     if (app == (void*)0xdeadbeef)
         return 1;
 
+    g_signal_connect (app, "quit", G_CALLBACK (gtk_main_quit), NULL);
     gtk_main ();
     midori_normal_app_on_quit (app);
     return 0;

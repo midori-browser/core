@@ -37,7 +37,7 @@ midori_frontend_browser_new_window_cb (MidoriBrowser* browser,
     return new_browser;
 }
 
-void
+MidoriBrowser*
 midori_web_app_new (const gchar* config,
                     const gchar* webapp,
                     gchar**      open_uris,
@@ -84,9 +84,6 @@ midori_web_app_new (const gchar* config,
     }
     else if (open_uris == NULL)
         midori_browser_add_uri (browser, "about:blank");
-
-    g_signal_connect (browser, "quit", G_CALLBACK (gtk_main_quit), NULL);
-    g_signal_connect (browser, "destroy", G_CALLBACK (gtk_main_quit), NULL);
     gtk_widget_show (GTK_WIDGET (browser));
 
     guint i;
@@ -101,6 +98,7 @@ midori_web_app_new (const gchar* config,
     if (execute_commands != NULL)
         for (i = 0; execute_commands[i] != NULL; i++)
             midori_browser_activate_action (browser, execute_commands[i]);
+    return browser;
 }
 
 static void
@@ -137,7 +135,7 @@ midori_trash_add_item_cb (KatzeArray* trash,
     midori_trash_remove_item_cb (trash, item);
 }
 
-void
+MidoriBrowser*
 midori_private_app_new (const gchar* config,
                         const gchar* webapp,
                         gchar**      open_uris,
@@ -211,9 +209,6 @@ midori_private_app_new (const gchar* config,
     }
     else if (open_uris == NULL)
         midori_browser_add_uri (browser, "about:private");
-
-    g_signal_connect (browser, "quit", G_CALLBACK (gtk_main_quit), NULL);
-    g_signal_connect (browser, "destroy", G_CALLBACK (gtk_main_quit), NULL);
     gtk_widget_show (GTK_WIDGET (browser));
 
     guint i;
@@ -228,6 +223,7 @@ midori_private_app_new (const gchar* config,
     if (execute_commands != NULL)
         for (i = 0; execute_commands[i] != NULL; i++)
             midori_browser_activate_action (browser, execute_commands[i]);
+    return browser;
 }
 
 static void
