@@ -30,7 +30,7 @@ for extension in extensions:
     obj.target = target
     obj.includes = '.. ../katze ../midori'
     obj.source = source
-    obj.uselib = 'UNIQUE LIBSOUP GIO GTK SQLITE WEBKIT LIBXML HILDON CLUTTER GRANITE'
+    obj.uselib = 'UNIQUE LIBSOUP GIO GTK SQLITE WEBKIT LIBXML CLUTTER GRANITE'
     if 'vala' in source:
         obj.env.append_value ('CCFLAGS', '-w')
         obj.vapi_dirs = '../midori ../katze'

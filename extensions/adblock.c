@@ -493,9 +493,7 @@ adblock_get_preferences_dialog (MidoriExtension* extension)
     dialog = gtk_dialog_new_with_buttons (dialog_title, GTK_WINDOW (browser),
         GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR,
         #if !HAVE_OSX
-        #if !HAVE_HILDON
         GTK_STOCK_HELP, GTK_RESPONSE_HELP,
-        #endif
         GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE,
         #endif
         NULL);
