@@ -20,9 +20,6 @@
 #include <glib/gi18n.h>
 
 #include "config.h"
-#ifdef HAVE_HILDON_2_2
-    #include <hildon/hildon.h>
-#endif
 
 struct _MidoriPanel
 {

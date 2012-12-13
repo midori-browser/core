@@ -13,9 +13,6 @@
 #define __MIDORI_BROWSER_H__
 
 #include <webkit/webkit.h>
-#if defined(HAVE_HILDON) && HAVE_HILDON
-    #include <hildon/hildon.h>
-#endif
 
 #include <katze/katze.h>
 #include "midori-view.h"
@@ -40,11 +37,7 @@ typedef struct _MidoriBrowserClass           MidoriBrowserClass;
 
 struct _MidoriBrowserClass
 {
-    #if defined(HAVE_HILDON) && HAVE_HILDON
-    HildonWindowClass parent_class;
-    #else
     GtkWindowClass parent_class;
-    #endif
 
     /* Signals */
     void
