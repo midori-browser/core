@@ -34,17 +34,6 @@
 #include <glib/gstdio.h>
 #include <webkit/webkit.h>
 
-#ifdef HAVE_HILDON_FM
-    #include <hildon/hildon-file-chooser-dialog.h>
-#endif
-
-#if HAVE_HILDON
-    #include <libosso.h>
-    #include <hildon/hildon.h>
-    #include <hildon-mime.h>
-    #include <hildon-uri.h>
-#endif
-
 static gchar*
 sokoke_js_string_utf8 (JSStringRef js_string)
 {
