@@ -688,9 +688,7 @@ midori_web_settings_get_system_name (gchar** architecture,
 
     if (platform != NULL)
         *platform =
-    #if HAVE_HILDON
-    "Maemo;"
-    #elif defined (G_OS_WIN32)
+    #if defined (G_OS_WIN32)
     "Windows";
     #elif defined(GDK_WINDOWING_QUARTZ)
     "Macintosh;";

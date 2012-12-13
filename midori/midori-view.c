@@ -2639,14 +2639,12 @@ midori_view_populate_popup (MidoriView* view,
         g_signal_connect (menuitem, "activate",
             G_CALLBACK (midori_view_tab_label_menu_window_new_cb), view);
 
-        #if !HAVE_HILDON
         menuitem = sokoke_action_create_popup_menu_item (
                 gtk_action_group_get_action (actions, "ZoomIn"));
         gtk_menu_shell_append (menu_shell, menuitem);
         menuitem = sokoke_action_create_popup_menu_item (
                 gtk_action_group_get_action (actions, "ZoomOut"));
         gtk_menu_shell_append (menu_shell, menuitem);
-        #endif
 
         menuitem = sokoke_action_create_popup_menu_item (
                 gtk_action_group_get_action (actions, "Encoding"));
@@ -3990,11 +3988,7 @@ midori_view_set_uri (MidoriView*  view,
                     GCR_VERSION,
                     GRANITE_VERSION,
                     LIBNOTIFY_VERSION,
-                    #ifdef HAVE_HILDON_2_2
-                    "Hildon 2.2",
-                    #elif HAVE_HILDON
-                    "Hildon",
-                    #elif HAVE_UNIQUE
+                    #if HAVE_UNIQUE
                     "libunique " UNIQUE_VERSION,
                     #else
                     "Sockets",
