@@ -182,7 +182,6 @@ midori_preferences_homepage_current_clicked_cb (GtkWidget*         button,
     }
 }
 
-#if !HAVE_HILDON
 static void
 midori_preferences_notify_proxy_type_cb (MidoriWebSettings* settings,
                                          GParamSpec*        pspec,
@@ -192,7 +191,6 @@ midori_preferences_notify_proxy_type_cb (MidoriWebSettings* settings,
 
     gtk_widget_set_sensitive (entry, proxy_type == MIDORI_PROXY_HTTP);
 }
-#endif
 
 #if HAVE_OSX
 static void
@@ -433,7 +431,6 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
 
     /* Page "Interface" */
     PAGE_NEW (GTK_STOCK_CONVERT, _("Browsing"));
-    #if !HAVE_HILDON
     if (!g_getenv ("DESKTOP_SESSION"))
     {
         FRAME_NEW (NULL);
@@ -441,7 +438,6 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
         button = katze_property_proxy (settings, "toolbar-style", NULL);
         SPANNED_ADD (button);
     }
-    #endif
     FRAME_NEW (NULL);
     label = katze_property_label (settings, "open-new-pages-in");
     INDENTED_ADD (label);
