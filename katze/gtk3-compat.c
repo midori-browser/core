@@ -11,7 +11,7 @@
 
 #include "katze/gtk3-compat.h"
 
-#if !GTK_CHECK_VERSION (3, 2, 0) && !defined (HAVE_HILDON_2_2)
+#if !GTK_CHECK_VERSION (3, 2, 0)
 static void
 sokoke_widget_set_pango_font_style (GtkWidget* widget,
                                     PangoStyle style)
