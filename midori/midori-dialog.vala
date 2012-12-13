@@ -53,6 +53,7 @@ namespace Midori {
             GLib.Test.log_set_fatal_handler ((domain, log_levels, message)=> {
                 return !message.contains ("Error loading theme icon")
                     && !message.contains ("Could not find the icon")
+                    && !message.contains ("Junk at end of value")
                     && !message.contains ("get_column_number: assertion `i < gtk_tree_view_get_n_columns (treeview)' failed");
             });
 
