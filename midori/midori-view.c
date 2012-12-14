@@ -3439,14 +3439,7 @@ midori_view_web_inspector_construct_window (gpointer       inspector,
 
     toplevel = gtk_widget_get_toplevel (GTK_WIDGET (view));
     if (gtk_widget_is_toplevel (toplevel))
-    {
-        screen = gtk_window_get_screen (GTK_WINDOW (toplevel));
-        width = gdk_screen_get_width (screen) / 1.7;
-        height = gdk_screen_get_height (screen) / 1.7;
-        gtk_window_set_default_size (GTK_WINDOW (window), width, height);
-        /* 700x100 is the approximate useful minimum dimensions */
-        gtk_widget_set_size_request (inspector_view, 700, 100);
-    }
+        katze_window_set_sensible_default_size (GTK_WINDOW (toplevel));
 
     /* Attempt to make a gray version of the icon on the fly */
     icon_name = gtk_window_get_icon_name (GTK_WINDOW (toplevel));

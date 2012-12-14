@@ -165,6 +165,9 @@ katze_assert_str_equal               (const gchar*    input,
                                       const gchar*    result,
                                       const gchar*    expected);
 
+void
+katze_window_set_sensible_default_size (GtkWindow*    window);
+
 G_END_DECLS
 
 #endif /* __KATZE_UTILS_H__ */

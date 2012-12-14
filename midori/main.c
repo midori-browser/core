@@ -249,13 +249,7 @@ main (int    argc,
         GtkWidget* web_view = webkit_web_view_new ();
         gchar* uri = sokoke_prepare_uri (
             (uris != NULL && uris[0]) ? uris[0] : "http://www.example.com");
-
-        gint width, height;
-        GdkRectangle monitor;
-        GdkScreen* screen = gtk_window_get_screen (GTK_WINDOW (window));
-        gdk_screen_get_monitor_geometry (screen, 0, &monitor);
-        width = monitor.width / 1.7; height = monitor.height / 1.7;
-        gtk_window_set_default_size (GTK_WINDOW (window), width, height);
+        katze_window_set_sensible_default_size (GTK_WINDOW (window));
 
         gtk_container_add (GTK_CONTAINER (window), scrolled);
         gtk_container_add (GTK_CONTAINER (scrolled), web_view);

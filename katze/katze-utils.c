@@ -1470,3 +1470,21 @@ katze_assert_str_equal (const gchar* input,
     }
 }
 
+void
+katze_window_set_sensible_default_size (GtkWindow* window)
+{
+    GdkScreen* screen;
+    GdkRectangle monitor;
+    gint width, height;
+
+    g_return_if_fail (GTK_IS_WINDOW (window));
+
+    screen = gtk_window_get_screen (window);
+    gdk_screen_get_monitor_geometry (screen, 0, &monitor);
+    width = monitor.width / 1.7;
+    height = monitor.height / 1.7;
+    gtk_window_set_default_size (window, width, height);
+    /* 700x100 is the approximate useful minimum dimensions */
+    gtk_widget_set_size_request (GTK_WIDGET (window), 700, 100);
+}
+

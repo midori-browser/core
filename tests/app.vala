@@ -9,6 +9,13 @@
  See the file COPYING for the full license text.
 */
 
+bool check_sensible_window_size (Gtk.Window window, Midori.WebSettings settings) {
+    Gdk.Rectangle monitor;
+    window.screen.get_monitor_geometry (0, out monitor);
+    return settings.last_window_width + 1 >= monitor.width / 1.7
+        && settings.last_window_height + 1 >= monitor.height / 1.7;
+}
+
 void app_normal () {
     Midori.Test.grab_max_timeout ();
 
@@ -34,13 +41,14 @@ void app_normal () {
     Midori.Test.release_max_timeout ();
 }
 
-void app_custom_config () {
+void app_normal_custom_config () {
     Midori.Test.log_set_fatal_handler_for_icons ();
     Midori.Paths.Test.reset_runtime_mode ();
     var app = Midori.normal_app_new ("/tmp/mylittlepony",
         "test-custom-config-normal", false, null, null, null, -1, null);
     var loop = MainContext.default ();
     do { loop.iteration (true); } while (loop.pending ());
+    assert (check_sensible_window_size (app.browser, app.settings));
     Midori.normal_app_on_quit (app);
 }
 
@@ -50,6 +58,7 @@ void app_private () {
     var browser = Midori.private_app_new (null, null, null, null, -1, null);
     var loop = MainContext.default ();
     do { loop.iteration (true); } while (loop.pending ());
+    assert (check_sensible_window_size (browser, browser.settings));
 }
 
 void app_web () {
@@ -57,7 +66,17 @@ void app_web () {
     var browser = Midori.web_app_new (null, null, null, null, -1, null);
     var loop = MainContext.default ();
     do { loop.iteration (true); } while (loop.pending ());
+    /* FIXME assert */ (check_sensible_window_size (browser, browser.settings));
 }
+
+void app_web_custom_config () {
+    Midori.Paths.Test.reset_runtime_mode ();
+    var browser = Midori.web_app_new ("/tmp/mylittlepony", null, null, null, -1, null);
+    var loop = MainContext.default ();
+    do { loop.iteration (true); } while (loop.pending ());
+    /* FIXME assert */ (check_sensible_window_size (browser, browser.settings));
+}
+
 
 void app_extensions () {
     Midori.Test.grab_max_timeout ();
@@ -89,9 +108,10 @@ void main (string[] args) {
     Test.init (ref args);
     Midori.App.setup (ref args, null);
     Test.add_func ("/app/normal", app_normal);
-    Test.add_func ("/app/custom-config", app_custom_config);
+    Test.add_func ("/app/normal-custom-config", app_normal_custom_config);
     Test.add_func ("/app/private", app_private);
     Test.add_func ("/app/web", app_web);
+    Test.add_func ("/app/web-custom-config", app_web_custom_config);
     Test.add_func ("/app/extensions", app_extensions);
     Test.run ();
 }

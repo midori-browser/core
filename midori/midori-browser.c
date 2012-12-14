@@ -6725,18 +6725,7 @@ _midori_browser_update_settings (MidoriBrowser* browser)
             gtk_window_set_default_size (GTK_WINDOW (browser),
                 browser->last_window_width, browser->last_window_height);
         else
-        {
-            GdkScreen* screen;
-            GdkRectangle monitor;
-            gint default_width, default_height;
-
-            screen = gtk_window_get_screen (GTK_WINDOW (browser));
-            gdk_screen_get_monitor_geometry (screen, 0, &monitor);
-            default_width = monitor.width / 1.7;
-            default_height = monitor.height / 1.7;
-            gtk_window_set_default_size (GTK_WINDOW (browser),
-                                         default_width, default_height);
-        }
+            katze_window_set_sensible_default_size (GTK_WINDOW (browser));
         switch (last_window_state)
         {
             case MIDORI_WINDOW_MINIMIZED:
