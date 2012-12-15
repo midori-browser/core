@@ -71,7 +71,7 @@ void app_web () {
 
 void app_web_custom_config () {
     Midori.Paths.Test.reset_runtime_mode ();
-    var browser = Midori.web_app_new ("/tmp/mylittlepony", null, null, null, -1, null);
+    var browser = Midori.web_app_new (Midori.Paths.make_tmp_dir ("custom-configXXXXXX"), null, null, null, -1, null);
     var loop = MainContext.default ();
     do { loop.iteration (true); } while (loop.pending ());
     /* FIXME assert */ (check_sensible_window_size (browser, browser.settings));
