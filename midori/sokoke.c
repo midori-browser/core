@@ -152,8 +152,6 @@ sokoke_default_for_uri (const gchar* uri,
     GAppInfo* info;
 
     scheme = g_uri_parse_scheme (uri);
-    if (scheme_ptr != NULL)
-        *scheme_ptr = scheme;
     if (!scheme)
         return NULL;
 
@@ -166,7 +164,9 @@ sokoke_default_for_uri (const gchar* uri,
         g_free (type);
     }
     #endif
-    if (info != NULL && scheme_ptr != NULL)
+    if (scheme_ptr != NULL)
+        *scheme_ptr = scheme;
+    else
         g_free (scheme);
     return info;
 
