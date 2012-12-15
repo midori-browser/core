@@ -44,7 +44,7 @@ void app_normal () {
 void app_normal_custom_config () {
     Midori.Test.log_set_fatal_handler_for_icons ();
     Midori.Paths.Test.reset_runtime_mode ();
-    var app = Midori.normal_app_new ("/tmp/mylittlepony",
+    var app = Midori.normal_app_new (Midori.Paths.make_tmp_dir ("custom-configXXXXXX"),
         "test-custom-config-normal", false, null, null, null, -1, null);
     var loop = MainContext.default ();
     do { loop.iteration (true); } while (loop.pending ());
