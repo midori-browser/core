@@ -74,7 +74,9 @@ void download_properties () {
     Midori.Download.set_type (download, Midori.DownloadType.OPEN);
     assert (Midori.Download.get_type (download) == Midori.DownloadType.OPEN);
     assert (Midori.Download.get_progress (download) == 0.0);
-    /* FIXME: Hangs in GTK+2, runs in GTK+3
+
+    if (Environment.get_variable ("MIDORI_TEST_UNDEFINED") != "1") return;
+
     try {
         string filename;
         FileUtils.close (FileUtils.open_tmp ("XXXXXX", out filename));
@@ -92,7 +94,6 @@ void download_properties () {
     catch (Error error) {
         GLib.error (error.message);
     }
-    */
 }
 
 void main (string[] args) {

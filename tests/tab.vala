@@ -120,6 +120,8 @@ void tab_special () {
 }
 
 void tab_http () {
+    if (Environment.get_variable ("MIDORI_TEST_UNDEFINED") != "1") return;
+
     Midori.Test.grab_max_timeout ();
 
     Midori.Test.log_set_fatal_handler_for_icons ();
@@ -135,7 +137,7 @@ void tab_http () {
     var test_address = new Soup.Address ("127.0.0.1", Soup.ADDRESS_ANY_PORT);
     test_address.resolve_sync (null);
     var test_server = new Soup.Server ("interface", test_address, null);
-    string test_url = "http://%s:%u".printf (test_address.get_physical (), test_server.get_port ());
+    string test_url = "http://127.0.0.1:%u".printf (test_server.get_port ());
     test_server.run_async ();
     test_server.add_handler ("/", (server, msg, path, query, client)=>{
         msg.set_status_full (200, "OK");
