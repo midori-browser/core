@@ -216,7 +216,6 @@ main (int    argc,
     {
         gchar* extension_path = midori_paths_get_lib_path (PACKAGE_NAME);
         GDir* extension_dir = g_dir_open (extension_path, 0, NULL);
-        g_free (extension_path);
         g_assert (extension_dir != NULL);
 
         /* We require that extensions can be loaded repeatedly */
@@ -224,6 +223,7 @@ main (int    argc,
         extension_load (extension_path, extension_dir);
 
         g_dir_close (extension_dir);
+        g_free (extension_path);
     }
 
     return g_test_run ();
