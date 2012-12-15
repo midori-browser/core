@@ -21,6 +21,7 @@ namespace Midori {
     public class App : GLib.Object {
         public App (string? name=null);
         public static void setup ([CCode (array_length_pos = 0.9)] ref unowned string[] args, [CCode (array_length = false)] GLib.OptionEntry[]? entries);
+        public static void set_instance_is_running (bool is_running);
         public Browser create_browser ();
         public GLib.List<weak Browser> get_browsers ();
 

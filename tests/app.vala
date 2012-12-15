@@ -22,6 +22,7 @@ void app_normal () {
     Midori.Test.idle_timeouts ();
     Midori.Test.log_set_fatal_handler_for_icons ();
     Midori.Paths.Test.reset_runtime_mode ();
+    Midori.App.set_instance_is_running (false);
     var app = Midori.normal_app_new (null, "test-normal", false, null, null, null, -1, null);
     var loop = MainContext.default ();
     do { loop.iteration (true); } while (loop.pending ());
@@ -44,6 +45,7 @@ void app_normal () {
 void app_normal_custom_config () {
     Midori.Test.log_set_fatal_handler_for_icons ();
     Midori.Paths.Test.reset_runtime_mode ();
+    Midori.App.set_instance_is_running (false);
     var app = Midori.normal_app_new (Midori.Paths.make_tmp_dir ("custom-configXXXXXX"),
         "test-custom-config-normal", false, null, null, null, -1, null);
     var loop = MainContext.default ();
@@ -55,6 +57,7 @@ void app_normal_custom_config () {
 void app_private () {
     Midori.Test.log_set_fatal_handler_for_icons ();
     Midori.Paths.Test.reset_runtime_mode ();
+    Midori.App.set_instance_is_running (false);
     var browser = Midori.private_app_new (null, null, null, null, -1, null);
     var loop = MainContext.default ();
     do { loop.iteration (true); } while (loop.pending ());
@@ -63,6 +66,7 @@ void app_private () {
 
 void app_web () {
     Midori.Paths.Test.reset_runtime_mode ();
+    Midori.App.set_instance_is_running (false);
     var browser = Midori.web_app_new (null, null, null, null, -1, null);
     var loop = MainContext.default ();
     do { loop.iteration (true); } while (loop.pending ());
@@ -71,6 +75,7 @@ void app_web () {
 
 void app_web_custom_config () {
     Midori.Paths.Test.reset_runtime_mode ();
+    Midori.App.set_instance_is_running (false);
     var browser = Midori.web_app_new (Midori.Paths.make_tmp_dir ("custom-configXXXXXX"), null, null, null, -1, null);
     var loop = MainContext.default ();
     do { loop.iteration (true); } while (loop.pending ());
@@ -84,6 +89,7 @@ void app_extensions () {
     Midori.Test.idle_timeouts ();
     Midori.Test.log_set_fatal_handler_for_icons ();
     Midori.Paths.Test.reset_runtime_mode ();
+    Midori.App.set_instance_is_running (false);
     var app = Midori.normal_app_new (null, "test-extensions-normal", false, null, null, null, -1, null);
     var loop = MainContext.default ();
     do { loop.iteration (true); } while (loop.pending ());

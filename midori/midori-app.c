@@ -935,6 +935,16 @@ midori_app_new (const gchar* name)
     return g_object_new (MIDORI_TYPE_APP, "name", name, NULL);
 }
 
+static gboolean instance_is_not_running = FALSE;
+static gboolean instance_is_running = FALSE;
+
+void
+midori_app_set_instance_is_running (gboolean is_running)
+{
+    instance_is_not_running = !is_running;
+    instance_is_running = is_running;
+}
+
 /**
  * midori_app_instance_is_running:
  * @app: a #MidoriApp
@@ -951,6 +961,11 @@ gboolean
 midori_app_instance_is_running (MidoriApp* app)
 {
     g_return_val_if_fail (MIDORI_IS_APP (app), FALSE);
+
+    if (instance_is_not_running)
+        return FALSE;
+    else if (instance_is_running)
+        return TRUE;
 
     if (app->instance == MidoriAppInstanceNull)
         app->instance = midori_app_create_instance (app);

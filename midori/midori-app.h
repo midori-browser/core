@@ -47,6 +47,9 @@ midori_app_get_name               (MidoriApp*         app);
 gboolean
 midori_app_get_crashed            (MidoriApp*         app);
 
+void
+midori_app_set_instance_is_running(gboolean           is_running);
+
 gboolean
 midori_app_instance_is_running    (MidoriApp*         app);
 
