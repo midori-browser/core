@@ -586,6 +586,8 @@ def shutdown ():
             test.unit_test_results = {}
             for obj in Build.bld.all_task_gen:
                 if getattr (obj, 'unit_test', '') and 'cprogram' in obj.features:
+                    if 'MIDORI_UNITS' in os.environ and not obj.target.split('-')[1] in os.environ['MIDORI_UNITS']:
+                        continue
                     output = obj.path
                     filename = os.path.join (output.abspath (obj.env), obj.target)
                     srcdir = output.abspath ()
@@ -637,8 +639,6 @@ def shutdown ():
             else:
                 Utils.pprint ('GREEN', label + '.......OK')
                 filename = test.unit_tests[label][0]
-                if not 'extension' in filename:
-                    continue
                 if is_mingw (Build.bld.env):
                     filename += '.exe'
                 if os.environ.get ('MIDORI_TEST') == 'valgrind':
@@ -668,6 +668,8 @@ def shutdown ():
                 except KeyboardInterrupt:
                     pass
 
+        if not 'MIDORI_UNITS' in os.environ:
+            Utils.pprint ('BLUE', 'Set MIDORI_UNITS to select a subset of test cases')
         if not 'MIDORI_TEST' in os.environ:
             Utils.pprint ('BLUE', 'Set MIDORI_TEST to "valgrind" or "callgrind" to perform memory checks')
         # if test.num_tests_failed > 0 or test.num_tests_err > 0:
