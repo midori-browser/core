@@ -636,7 +636,40 @@ def shutdown ():
                     pass
             else:
                 Utils.pprint ('GREEN', label + '.......OK')
+                filename = test.unit_tests[label][0]
+                if not 'extension' in filename:
+                    continue
+                if is_mingw (Build.bld.env):
+                    filename += '.exe'
+                if os.environ.get ('MIDORI_TEST') == 'valgrind':
+                    args = ['valgrind', '-q', '--leak-check=no', '--num-callers=4', '--show-possibly-lost=no', '--undef-value-errors=yes', '--track-origins=yes', filename]
+                elif os.environ.get ('MIDORI_TEST') == 'callgrind':
+                    args = ['valgrind', '--tool=callgrind', '--callgrind-out-file=%s.callgrind' % filename, filename]
+                else:
+                    continue
+                try:
+                    if is_mingw (Build.bld.env):
+                        args.insert (0, 'wine')
+                    pp = subprocess.Popen (args, cwd=Build.bld.env['PREFIX'] + os.sep + 'bin', stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                    skip = False
+                    for line in iter(pp.stdout.readline, ''):
+                        if line[:2] != '==':
+                            continue
+                        if line == '':
+                            skip = False
+                        elif 'Conditional jump or move' in line:
+                            skip = True
+                        elif 'Uninitialised value was created by a stack allocation' in line:
+                            skip = True
+                        elif not skip:
+                            sys.stdout.write (line[9:])
+                except OSError:
+                    Utils.pprint ('YELLOW', 'Install valgrind to perform memory checks')
+                except KeyboardInterrupt:
+                    pass
 
+        if not 'MIDORI_TEST' in os.environ:
+            Utils.pprint ('BLUE', 'Set MIDORI_TEST to "valgrind" or "callgrind" to perform memory checks')
         # if test.num_tests_failed > 0 or test.num_tests_err > 0:
         #     sys.exit (1)
 
