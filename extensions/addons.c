@@ -1518,29 +1518,18 @@ addons_add_tab_cb (MidoriBrowser* browser,
 }
 
 static void
-addons_add_tab_foreach_cb (MidoriView*      view,
-                           MidoriBrowser*   browser,
-                           MidoriExtension* extension)
-{
-    addons_add_tab_cb (browser, view, extension);
-}
-
-static void
-addons_deactivate_tabs (MidoriView*      view,
-                        MidoriExtension* extension)
-{
-    GtkWidget* web_view = midori_view_get_web_view (view);
-    g_signal_handlers_disconnect_by_func (
-        web_view, addons_context_ready_cb, extension);
-}
-
-static void
 addons_browser_destroy (MidoriBrowser*   browser,
                         MidoriExtension* extension)
 {
     GtkWidget* scripts, *styles;
-
-    midori_browser_foreach (browser, (GtkCallback)addons_deactivate_tabs, extension);
+    GList* tabs = midori_browser_get_tabs (browser);
+    for (; tabs; tabs = g_list_next (tabs))
+    {
+        GtkWidget* web_view = midori_view_get_web_view (tabs->data);
+        g_signal_handlers_disconnect_by_func (
+            web_view, addons_context_ready_cb, extension);
+    }
+    g_list_free (tabs);
     g_signal_handlers_disconnect_by_func (browser, addons_add_tab_cb, extension);
 
     scripts = (GtkWidget*)g_object_get_data (G_OBJECT (browser), "scripts-addons");
@@ -1620,9 +1609,10 @@ addons_app_add_browser_cb (MidoriApp*       app,
 {
     GtkWidget* panel;
     GtkWidget* scripts, *styles;
-
-    midori_browser_foreach (browser,
-          (GtkCallback)addons_add_tab_foreach_cb, extension);
+    GList* tabs = midori_browser_get_tabs (browser);
+    for (; tabs; tabs = g_list_next (tabs))
+        addons_add_tab_cb (browser, tabs->data, extension);
+    g_list_free (tabs);
     g_signal_connect (browser, "add-tab",
         G_CALLBACK (addons_add_tab_cb), extension);
     panel = katze_object_get_object (browser, "panel");

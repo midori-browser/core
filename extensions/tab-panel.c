@@ -467,14 +467,6 @@ tab_panel_browser_add_tab_cb (MidoriBrowser*   browser,
 }
 
 static void
-tab_panel_browser_foreach_cb (GtkWidget*       view,
-                              MidoriExtension* extension)
-{
-    tab_panel_browser_add_tab_cb (midori_browser_get_for_widget (view),
-                                  view, extension);
-}
-
-static void
 tab_panel_browser_remove_tab_cb (MidoriBrowser*   browser,
                                  GtkWidget*       view,
                                  MidoriExtension* extension)
@@ -590,8 +582,10 @@ tab_panel_app_add_browser_cb (MidoriApp*       app,
         midori_panel_set_current_page (MIDORI_PANEL (panel), i);
     g_object_unref (panel);
 
-    midori_browser_foreach (browser,
-        (GtkCallback)tab_panel_browser_foreach_cb, treeview);
+    GList* tabs = midori_browser_get_tabs (browser);
+    for (; tabs; tabs = g_list_next (tabs))
+        tab_panel_browser_add_tab_cb (browser, tabs->data, extension);
+    g_list_free (tabs);
 
     g_signal_connect_after (browser, "add-tab",
         G_CALLBACK (tab_panel_browser_add_tab_cb), extension);

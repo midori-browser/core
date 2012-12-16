@@ -4362,20 +4362,17 @@ midori_view_duplicate (MidoriView* view)
 }
 
 static void
-midori_view_browser_close_tabs_cb (GtkWidget* view,
-                                   gpointer   data)
-{
-    GtkWidget* remaining_view = data;
-    if (view != remaining_view)
-         midori_browser_close_tab (midori_browser_get_for_widget (view), view);
-}
-
-static void
 midori_view_tab_label_menu_close_other_tabs_cb (GtkWidget* menuitem,
                                                 GtkWidget* view)
 {
     MidoriBrowser* browser = midori_browser_get_for_widget (view);
-    midori_browser_foreach (browser, midori_view_browser_close_tabs_cb, view);
+    GList* tabs = midori_browser_get_tabs (browser);
+    for (; tabs; tabs = g_list_next (tabs))
+    {
+        if (tabs->data != view)
+            gtk_widget_destroy (tabs->data);
+    }
+    g_list_free (tabs);
 }
 
 static void

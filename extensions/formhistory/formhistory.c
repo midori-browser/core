@@ -416,13 +416,6 @@ formhistory_add_tab_cb (MidoriBrowser*   browser,
 }
 
 static void
-formhistory_add_tab_foreach_cb (MidoriView*      view,
-                                MidoriExtension* extension)
-{
-    formhistory_add_tab_cb (NULL, view, extension);
-}
-
-static void
 formhistory_app_add_browser_cb (MidoriApp*       app,
                                 MidoriBrowser*   browser,
                                 MidoriExtension* extension)
@@ -446,8 +439,10 @@ formhistory_app_add_browser_cb (MidoriApp*       app,
 
     if (midori_extension_get_boolean (extension, "always-load"))
     {
-        midori_browser_foreach (browser,
-            (GtkCallback)formhistory_add_tab_foreach_cb, extension);
+        GList* tabs = midori_browser_get_tabs (browser);
+        for (; tabs; tabs = g_list_next (tabs))
+            formhistory_add_tab_cb (browser, tabs->data, extension);
+        g_list_free (tabs);
         g_signal_connect (browser, "add-tab",
             G_CALLBACK (formhistory_add_tab_cb), extension);
     }
@@ -487,8 +482,10 @@ formhistory_deactivate_cb (MidoriExtension* extension,
         extension, formhistory_deactivate_cb, browser);
     g_signal_handlers_disconnect_by_func (
         app, formhistory_app_add_browser_cb, extension);
-    midori_browser_foreach (browser,
-        (GtkCallback)formhistory_deactivate_tab, extension);
+    GList* tabs = midori_browser_get_tabs (browser);
+    for (; tabs; tabs = g_list_next (tabs))
+        formhistory_deactivate_tab (tabs->data, extension);
+    g_list_free (tabs);
 
     g_object_set_data (G_OBJECT (browser), "FormHistoryExtension", NULL);
     action = gtk_action_group_get_action (action_group, "FormHistoryToggleState");
@@ -589,18 +586,20 @@ formhistory_preferences_response_cb (GtkWidget*       dialog,
             browsers = katze_object_get_object (app, "browsers");
             KATZE_ARRAY_FOREACH_ITEM (browser, browsers)
             {
-                midori_browser_foreach (browser,
-                    (GtkCallback)formhistory_deactivate_tab, extension);
+                GList* tabs = midori_browser_get_tabs (browser);
+                for (; tabs; tabs = g_list_next (tabs))
+                    formhistory_deactivate_tab (tabs->data, extension);
                 g_signal_handlers_disconnect_by_func (
                     browser, formhistory_add_tab_cb, extension);
 
                 if (new_state)
                 {
-                    midori_browser_foreach (browser,
-                        (GtkCallback)formhistory_add_tab_foreach_cb, extension);
+                    for (; tabs; tabs = g_list_next (tabs))
+                        formhistory_add_tab_cb (browser, tabs->data, extension);
                     g_signal_connect (browser, "add-tab",
                         G_CALLBACK (formhistory_add_tab_cb), extension);
                 }
+                g_list_free (tabs);
             }
         }
     }

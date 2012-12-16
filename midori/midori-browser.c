@@ -1668,35 +1668,6 @@ _midori_browser_add_tab (MidoriBrowser* browser,
     _midori_browser_update_actions (browser);
 }
 
-/**
- * midori_browser_foreach:
- * @browser: a #MidoriBrowser
- * @callback: a #GtkCallback
- * @callback_data: custom data
- *
- * Calls the specified callback for each view contained
- * in the browser.
- *
- * Since: 0.1.7
- **/
-void
-midori_browser_foreach (MidoriBrowser* browser,
-                        GtkCallback    callback,
-                        gpointer       callback_data)
-{
-    g_return_if_fail (MIDORI_IS_BROWSER (browser));
-
-    #ifdef HAVE_GRANITE
-    /* FIXME */
-    if (GTK_IS_BIN (browser->notebook))
-        gtk_container_foreach (GTK_CONTAINER (gtk_bin_get_child (GTK_BIN (
-            browser->notebook))), callback, callback_data);
-    else
-    #endif
-    gtk_container_foreach (GTK_CONTAINER (browser->notebook),
-                           callback, callback_data);
-}
-
 static void
 _midori_browser_quit (MidoriBrowser* browser)
 {
@@ -4606,20 +4577,17 @@ _action_tab_duplicate_activate (GtkAction*     action,
 }
 
 static void
-midori_browser_close_other_tabs_cb (GtkWidget* view,
-                                    gpointer   data)
-{
-    GtkWidget* remaining_view = data;
-    if (view != remaining_view)
-        gtk_widget_destroy (view);
-}
-
-static void
 _action_tab_close_other_activate (GtkAction*     action,
                                   MidoriBrowser* browser)
 {
     GtkWidget* view = midori_browser_get_current_tab (browser);
-    midori_browser_foreach (browser, midori_browser_close_other_tabs_cb, view);
+    GList* tabs = midori_browser_get_tabs (browser);
+    for (; tabs; tabs = g_list_next (tabs))
+    {
+        if (tabs->data != view)
+            gtk_widget_destroy (tabs->data);
+    }
+    g_list_free (tabs);
 }
 
 static const gchar* credits_authors[] =
@@ -5100,7 +5068,7 @@ midori_browser_notebook_button_press_event_after_cb (GtkNotebook*    notebook,
     else if (event->type == GDK_BUTTON_PRESS && MIDORI_EVENT_CONTEXT_MENU (event))
     {
         GtkWidget* menu = gtk_menu_new ();
-        GList* tabs = gtk_container_get_children (GTK_CONTAINER (notebook));
+        GList* tabs = midori_browser_get_tabs (browser);
         GtkWidget* menuitem = sokoke_action_create_popup_menu_item (
             gtk_action_group_get_action (browser->action_group, "TabNew"));
         gint i = 0;
@@ -7059,8 +7027,10 @@ midori_browser_set_property (GObject*      object,
         _midori_browser_update_settings (browser);
         g_signal_connect (browser->settings, "notify",
             G_CALLBACK (midori_browser_settings_notify), browser);
-        midori_browser_foreach (browser,
-            (GtkCallback) midori_view_set_settings, browser->settings);
+        GList* tabs = midori_browser_get_tabs (browser);
+        for (; tabs; tabs = g_list_next (tabs))
+            midori_view_set_settings (tabs->data, browser->settings);
+        g_list_free (tabs);
         break;
     case PROP_BOOKMARKS:
         midori_browser_set_bookmarks (browser, g_value_get_object (value));

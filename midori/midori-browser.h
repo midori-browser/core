@@ -82,11 +82,6 @@ void
 midori_browser_close_tab              (MidoriBrowser*     browser,
                                        GtkWidget*         widget);
 
-void
-midori_browser_foreach                (MidoriBrowser*     browser,
-                                       GtkCallback        callback,
-                                       gpointer           callback_data);
-
 gint
 midori_browser_add_item               (MidoriBrowser*     browser,
                                        KatzeItem*         item);

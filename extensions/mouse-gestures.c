@@ -221,20 +221,14 @@ mouse_gestures_deactivate_cb (MidoriExtension* extension,
                               MidoriBrowser*   browser);
 
 static void
-mouse_gestures_add_tab_foreach_cb (MidoriView*      view,
-                                   MidoriBrowser*   browser,
-                                   MidoriExtension* extension)
-{
-    mouse_gestures_add_tab_cb (browser, view, extension);
-}
-
-static void
 mouse_gestures_app_add_browser_cb (MidoriApp*       app,
                                    MidoriBrowser*   browser,
                                    MidoriExtension* extension)
 {
-    midori_browser_foreach (browser,
-          (GtkCallback)mouse_gestures_add_tab_foreach_cb, extension);
+    GList* tabs = midori_browser_get_tabs (browser);
+    for (; tabs; tabs = g_list_next (tabs))
+        mouse_gestures_add_tab_cb (browser, tabs->data, extension);
+    g_list_free (tabs);
     g_signal_connect (browser, "add-tab",
         G_CALLBACK (mouse_gestures_add_tab_cb), extension);
     g_signal_connect (extension, "deactivate",
@@ -269,9 +263,11 @@ mouse_gestures_deactivate_cb (MidoriExtension* extension,
         app, mouse_gestures_app_add_browser_cb, extension);
     g_signal_handlers_disconnect_by_func (
        browser, mouse_gestures_add_tab_cb, extension);
-    midori_browser_foreach (browser,
-        (GtkCallback)mouse_gestures_deactivate_tabs, browser);
 
+    GList* tabs = midori_browser_get_tabs (browser);
+    for (; tabs; tabs = g_list_next (tabs))
+        mouse_gestures_deactivate_tabs (tabs->data, browser);
+    g_list_free (tabs);
     g_free (gesture);
 }
 
