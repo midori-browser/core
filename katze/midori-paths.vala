@@ -250,7 +250,8 @@ namespace Midori {
             assert (command_line == null);
             command_line = new_command_line;
             #if HAVE_WIN32
-            exec_path = win32_get_package_installation_directory_of_module ();
+            exec_path = Environment.get_variable ("MIDORI_EXEC_PATH") ??
+                win32_get_package_installation_directory_of_module ();
             #else
             string? executable;
             try {

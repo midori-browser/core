@@ -581,6 +581,8 @@ def shutdown ():
         # Avoid i18n-related false failures
         os.environ['LC_ALL'] = 'C'
         os.environ['UNIQUE_BACKEND'] = 'bacon'
+        if is_mingw (Build.bld.env):
+            os.environ['MIDORI_EXEC_PATH'] = Build.bld.env['PREFIX']
         test = UnitTest.unit_test ()
 
         reset_xdg_dirs ()
