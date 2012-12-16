@@ -438,7 +438,7 @@ midori_view_apply_icon (MidoriView*  view,
     #endif
     if (view->menu_item)
     {
-        GtkWidget* image = katze_item_get_image (view->item);
+        GtkWidget* image = katze_item_get_image (view->item, view->web_view);
         gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (view->menu_item), image);
     }
 }

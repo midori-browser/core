@@ -461,29 +461,29 @@ katze_item_get_pixbuf (KatzeItem* item,
 /**
  * katze_item_get_image:
  * @item: a #KatzeItem
+ * @widget: a #GtkWidget, or %NULL
  *
  * Retrieves a #GtkImage fit to display @item.
  *
  * Return value: the icon of the item
  *
  * Since: 0.4.4
+ * Since 0.4.8 a @widget was added and the image is visible.
  **/
 GtkWidget*
-katze_item_get_image (KatzeItem* item)
+katze_item_get_image (KatzeItem* item,
+                      GtkWidget* widget)
 {
     GtkWidget* image;
     GdkPixbuf* pixbuf;
-    const gchar* icon;
 
     g_return_val_if_fail (KATZE_IS_ITEM (item), NULL);
 
-    if (KATZE_ITEM_IS_FOLDER (item))
-        image = gtk_image_new_from_stock (GTK_STOCK_DIRECTORY, GTK_ICON_SIZE_MENU);
-    /* FIXME: Pass widget for icon size */
-    else if ((pixbuf = katze_item_get_pixbuf (item, NULL)))
-        image = gtk_image_new_from_pixbuf (pixbuf);
-    else
-        image = gtk_image_new_from_stock (GTK_STOCK_FILE, GTK_ICON_SIZE_MENU);
+    pixbuf = katze_item_get_pixbuf (item, widget);
+    image = gtk_image_new_from_pixbuf (pixbuf);
+    gtk_widget_show (image);
+    if (pixbuf != NULL)
+        g_object_unref (pixbuf);
     return image;
 }
 

@@ -390,7 +390,7 @@ katze_array_action_generate_menu (KatzeArrayAction* array_action,
         }
         menuitem = katze_image_menu_item_new_ellipsized (
             katze_item_get_name (item));
-        image = katze_item_get_image (item);
+        image = katze_item_get_image (item, menuitem);
         gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), image);
         gtk_image_menu_item_set_always_show_image (
             GTK_IMAGE_MENU_ITEM (menuitem), TRUE);
@@ -590,14 +590,12 @@ katze_array_action_item_notify_cb (KatzeItem*   item,
     }
     else if (KATZE_ITEM_IS_BOOKMARK (item) && !strcmp (property, "uri"))
     {
-        image = katze_item_get_image (item);
-        gtk_widget_show (image);
+        image = katze_item_get_image (item, GTK_WIDGET (toolitem));
         gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (toolitem), image);
     }
     else if (!strcmp (property, "icon"))
     {
-        image = katze_item_get_image (item);
-        gtk_widget_show (image);
+        image = katze_item_get_image (item, GTK_WIDGET (toolitem));
         gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (toolitem), image);
     }
 }
@@ -613,7 +611,7 @@ katze_array_action_proxy_create_menu_proxy_cb (GtkWidget* proxy,
     array_action = g_object_get_data (G_OBJECT (proxy), "KatzeArrayAction");
     menuitem = katze_image_menu_item_new_ellipsized (
         katze_item_get_name (item));
-    image = katze_item_get_image (item);
+    image = katze_item_get_image (item, menuitem);
     gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), image);
     gtk_image_menu_item_set_always_show_image (
         GTK_IMAGE_MENU_ITEM (menuitem), TRUE);
@@ -685,8 +683,7 @@ katze_array_action_create_tool_item_for (KatzeArrayAction* array_action,
         toolitem = gtk_tool_button_new (NULL, "");
     g_signal_connect (toolitem, "create-menu-proxy",
         G_CALLBACK (katze_array_action_proxy_create_menu_proxy_cb), item);
-    image = katze_item_get_image (item);
-    gtk_widget_show (image);
+    image = katze_item_get_image (item, GTK_WIDGET (toolitem));
     gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (toolitem), image);
     label = gtk_label_new (NULL);
     /* FIXME: Should text direction be respected here? */

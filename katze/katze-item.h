@@ -96,7 +96,8 @@ katze_item_get_pixbuf             (KatzeItem*      item,
                                    GtkWidget*      widget);
 
 GtkWidget*
-katze_item_get_image              (KatzeItem*      item);
+katze_item_get_image              (KatzeItem*      item,
+                                   GtkWidget*      widget);
 
 const gchar*
 katze_item_get_token              (KatzeItem*      item);
