@@ -458,6 +458,38 @@ katze_item_get_pixbuf (KatzeItem* item,
     return NULL;
 }
 
+#if WEBKIT_CHECK_VERSION (1, 3, 13)
+static void
+#if WEBKIT_CHECK_VERSION (1, 8, 0)
+katze_item_icon_loaded_cb (WebKitFaviconDatabase* database,
+#elif WEBKIT_CHECK_VERSION (1, 3, 13)
+katze_item_icon_loaded_cb (WebKitFaviconDatabase* database,
+                           WebKitWebFrame*        web_frame,
+#endif
+                           const gchar*           frame_uri,
+                           GtkWidget*             image)
+{
+    KatzeItem* item = g_object_get_data (G_OBJECT (image), "KatzeItem");
+    GdkPixbuf* pixbuf = katze_item_get_pixbuf (item, image);
+    gtk_image_set_from_pixbuf (GTK_IMAGE (image), pixbuf);
+    g_object_unref (pixbuf);
+}
+#endif
+
+static void
+katze_item_image_destroyed_cb (GtkWidget* image,
+                               KatzeItem* item)
+{
+    #if WEBKIT_CHECK_VERSION (1, 8, 0)
+    g_signal_handlers_disconnect_by_func (webkit_get_favicon_database (),
+        katze_item_icon_loaded_cb, image);
+    #elif WEBKIT_CHECK_VERSION (1, 3, 13)
+    g_signal_handlers_disconnect_by_func (webkit_get_icon_database (),
+        katze_item_icon_loaded_cb, image);
+    #endif
+    g_object_unref (item);
+}
+
 /**
  * katze_item_get_image:
  * @item: a #KatzeItem
@@ -481,9 +513,19 @@ katze_item_get_image (KatzeItem* item,
 
     pixbuf = katze_item_get_pixbuf (item, widget);
     image = gtk_image_new_from_pixbuf (pixbuf);
+    g_object_set_data (G_OBJECT (image), "KatzeItem", g_object_ref (item));
+    g_signal_connect (image, "destroy",
+        G_CALLBACK (katze_item_image_destroyed_cb), item);
     gtk_widget_show (image);
     if (pixbuf != NULL)
         g_object_unref (pixbuf);
+    #if WEBKIT_CHECK_VERSION (1, 8, 0)
+    g_signal_connect (webkit_get_favicon_database (), "icon-loaded",
+        G_CALLBACK (katze_item_icon_loaded_cb), image);
+    #elif WEBKIT_CHECK_VERSION (1, 3, 13)
+    g_signal_connect (webkit_get_icon_database (), "icon-loaded",
+        G_CALLBACK (katze_item_icon_loaded_cb), image);
+    #endif
     return image;
 }
 

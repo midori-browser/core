@@ -4,12 +4,14 @@
 namespace WebKit {
 	[CCode (cheader_filename = "webkit/webkit.h")]
 	public class FaviconDatabase : GLib.Object {
+		public signal void icon_loaded (string frame_uri);
 		public Gdk.Pixbuf? try_get_favicon_pixbuf (string page_uri, uint width, uint height);
 		public void set_path (string? path);
 		public void clear ();
 	}
 	[CCode (cheader_filename = "webkit/webkit.h")]
 	public class IconDatabase : GLib.Object {
+		public signal void icon_loaded (WebKit.WebFrame web_frame, string frame_uri);
 		public Gdk.Pixbuf? get_icon_pixbuf (string page_uri);
 		public void set_path (string? path);
 		public void clear ();
