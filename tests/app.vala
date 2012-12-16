@@ -83,7 +83,7 @@ void app_web_custom_config () {
 }
 
 
-void app_extensions () {
+void app_extensions_load () {
     Midori.Test.grab_max_timeout ();
 
     Midori.Test.idle_timeouts ();
@@ -96,6 +96,7 @@ void app_extensions () {
     /* No extensions loaded */
     assert (app.extensions.get_length () == 0);
     Midori.Extension.load_from_folder (app, null, false);
+
     /* All extensions loaded, inactive */
     assert (app.extensions.get_length () > 0);
     foreach (var item in app.extensions.get_items ())
@@ -107,8 +108,49 @@ void app_extensions () {
         do { loop.iteration (true); } while (loop.pending ());
     }
 
+    /*
     Midori.Test.release_max_timeout ();
 }
+
+void app_extensions_activate () {
+    Midori.Test.grab_max_timeout ();
+
+    Midori.Test.idle_timeouts ();
+    Midori.Test.log_set_fatal_handler_for_icons ();
+    Midori.Paths.Test.reset_runtime_mode ();
+    Midori.App.set_instance_is_running (false);
+    var app = Midori.normal_app_new (null, "test-extensions-normal", false, null, null, null, -1, null);
+    var loop = MainContext.default ();
+    do { loop.iteration (true); } while (loop.pending ());
+    Midori.Extension.load_from_folder (app, null, false);
+
+    assert (app.extensions.get_length () > 0);
+    */
+
+    foreach (var item in app.extensions.get_items ()) {
+        stdout.printf ("- %s\n", (item as Midori.Extension).name);
+        (item as Midori.Extension).activate (app);
+    }
+
+    for (var i = 0 ; i < 7; i++) {
+        var tab = app.browser.get_nth_tab (app.browser.add_uri ("about:blank"));
+        app.browser.close_tab (tab);
+        do { loop.iteration (true); } while (loop.pending ());
+    }
+
+    foreach (var item in app.extensions.get_items ()) {
+        (item as Midori.Extension).deactivate ();
+    }
+
+    for (var i = 0 ; i < 7; i++) {
+        var tab = app.browser.get_nth_tab (app.browser.add_uri ("about:blank"));
+        app.browser.close_tab (tab);
+        do { loop.iteration (true); } while (loop.pending ());
+    }
+
+    Midori.Test.release_max_timeout ();
+}
+
 
 void main (string[] args) {
     Test.init (ref args);
@@ -118,7 +160,8 @@ void main (string[] args) {
     Test.add_func ("/app/private", app_private);
     Test.add_func ("/app/web", app_web);
     Test.add_func ("/app/web-custom-config", app_web_custom_config);
-    Test.add_func ("/app/extensions", app_extensions);
+    Test.add_func ("/app/extensions-load", app_extensions_load);
+    /* Test.add_func ("/app/extensions-activate", app_extensions_activate); */
     Test.run ();
 }
 

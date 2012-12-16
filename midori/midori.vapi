@@ -128,19 +128,19 @@ namespace Midori {
         [NoAccessorMethod]
         public string? stock_id { get; set; }
         [NoAccessorMethod]
-        public string name { get; set; }
+        public string name { owned get; set; }
         [NoAccessorMethod]
-        public string description { get; set; }
+        public string description { owned get; set; }
         [NoAccessorMethod]
         public bool use_markup { get; set; }
         [NoAccessorMethod]
-        public string version { get; set; }
+        public string version { owned get; set; }
         [NoAccessorMethod]
-        public string authors { get; set; }
+        public string authors { owned get; set; }
         [NoAccessorMethod]
-        public string website { get; set; }
+        public string website { owned get; set; }
         [NoAccessorMethod]
-        public string key { get; set; }
+        public string key { owned get; set; }
 
         public signal void activate (Midori.App app);
         public bool is_prepared ();
