@@ -105,8 +105,8 @@ void app_extensions_load () {
     for (var i = 0 ; i < 7; i++) {
         var tab = app.browser.get_nth_tab (app.browser.add_uri ("about:blank"));
         app.browser.close_tab (tab);
-        do { loop.iteration (true); } while (loop.pending ());
     }
+    do { loop.iteration (true); } while (loop.pending ());
 
     /*
     Midori.Test.release_max_timeout ();
@@ -131,16 +131,17 @@ void app_extensions_activate () {
         stdout.printf ("- %s\n", (item as Midori.Extension).name);
         (item as Midori.Extension).activate (app);
     }
+    do { loop.iteration (true); } while (loop.pending ());
 
     for (var i = 0 ; i < 7; i++) {
         var tab = app.browser.get_nth_tab (app.browser.add_uri ("about:blank"));
         app.browser.close_tab (tab);
-        do { loop.iteration (true); } while (loop.pending ());
     }
+    do { loop.iteration (true); } while (loop.pending ());
 
-    foreach (var item in app.extensions.get_items ()) {
+    foreach (var item in app.extensions.get_items ())
         (item as Midori.Extension).deactivate ();
-    }
+    do { loop.iteration (true); } while (loop.pending ());
 
     for (var i = 0 ; i < 7; i++) {
         var tab = app.browser.get_nth_tab (app.browser.add_uri ("about:blank"));
