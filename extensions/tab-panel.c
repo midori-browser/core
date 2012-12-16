@@ -103,13 +103,19 @@ tab_panel_deactivate_cb (MidoriExtension* extension,
                          GtkWidget*       treeview)
 {
     MidoriApp* app = midori_extension_get_app (extension);
-    GtkTreeModel* model;
-    MidoriBrowser* browser;
-
-    browser = midori_browser_get_for_widget (treeview);
-    g_object_set (browser, "show-tabs", TRUE, NULL);
-    model = tab_panel_get_model_for_browser (browser);
-    g_object_unref (model);
+    MidoriBrowser* browser = midori_browser_get_for_widget (treeview);
+    GtkTreeModel* model = tab_panel_get_model_for_browser (browser);
+    GList* tabs = midori_browser_get_tabs (browser);
+    for (; tabs; tabs = g_list_next (tabs))
+    {
+        g_signal_handlers_disconnect_by_func (
+            tabs->data, tab_panel_view_notify_minimized_cb, extension);
+        g_signal_handlers_disconnect_by_func (
+            tabs->data, tab_panel_view_notify_icon_cb, extension);
+        g_signal_handlers_disconnect_by_func (
+            tabs->data, tab_panel_view_notify_title_cb, extension);
+    }
+    g_list_free (tabs);
 
     g_signal_handlers_disconnect_by_func (
         extension, tab_panel_deactivate_cb, treeview);
@@ -124,15 +130,13 @@ tab_panel_deactivate_cb (MidoriExtension* extension,
     g_signal_handlers_disconnect_by_func (
         browser, tab_panel_settings_notify_cb, model);
     g_signal_handlers_disconnect_by_func (
-        browser, tab_panel_view_notify_minimized_cb, extension);
-    g_signal_handlers_disconnect_by_func (
-        browser, tab_panel_view_notify_icon_cb, extension);
-    g_signal_handlers_disconnect_by_func (
-        browser, tab_panel_view_notify_title_cb, extension);
-    g_signal_handlers_disconnect_by_func (
         browser, tab_panel_browser_move_tab_cb, NULL);
 
     gtk_widget_destroy (treeview);
+    g_object_unref (model);
+    g_object_set_data (G_OBJECT (browser), "tab-panel-ext-model", NULL);
+    g_object_set (browser, "show-tabs", TRUE, NULL);
+
 }
 
 static void
