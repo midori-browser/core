@@ -570,18 +570,20 @@ def shutdown ():
             Utils.pprint ('YELLOW', "gtk-update-icon-cache -q -f -t %s" % dir)
 
     elif Options.commands['check']:
-        import tempfile, shutil
-        base = os.path.join (tempfile.gettempdir (), 'midori-test', '%s')
-        if os.path.exists (base):
-            shutil.rmtree (base % '')
-        for x in ['XDG_CONFIG_HOME', 'XDG_CACHE_HOME', 'XDG_DATA_HOME', 'TMPDIR']:
-            os.environ[x] = (base % x).lower ()
-            Utils.check_dir (os.environ[x])
+        def reset_xdg_dirs ():
+            import tempfile, shutil
+            base = os.path.join (tempfile.gettempdir (), 'midori-test', '%s')
+            if os.path.exists (base % ''):
+                shutil.rmtree (base % '')
+            for x in ['XDG_CONFIG_HOME', 'XDG_CACHE_HOME', 'XDG_DATA_HOME', 'TMPDIR']:
+                os.environ[x] = (base % x).lower ()
+                Utils.check_dir (os.environ[x])
         # Avoid i18n-related false failures
         os.environ['LC_ALL'] = 'C'
         os.environ['UNIQUE_BACKEND'] = 'bacon'
         test = UnitTest.unit_test ()
 
+        reset_xdg_dirs ()
         if True:
             test.unit_test_results = {}
             for obj in Build.bld.all_task_gen:
@@ -620,6 +622,7 @@ def shutdown ():
             test.want_to_see_test_error = True
             test.run ()
 
+        reset_xdg_dirs ()
         for label in test.unit_tests.allkeys:
             if not test.unit_test_results[label]:
                 Utils.pprint ('YELLOW', label + '...FAILED')
