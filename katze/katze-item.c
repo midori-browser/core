@@ -463,7 +463,7 @@ static void
 #if WEBKIT_CHECK_VERSION (1, 8, 0)
 katze_item_icon_loaded_cb (WebKitFaviconDatabase* database,
 #elif WEBKIT_CHECK_VERSION (1, 3, 13)
-katze_item_icon_loaded_cb (WebKitFaviconDatabase* database,
+katze_item_icon_loaded_cb (WebKitIconDatabase*    database,
                            WebKitWebFrame*        web_frame,
 #endif
                            const gchar*           frame_uri,
