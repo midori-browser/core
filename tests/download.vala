@@ -75,8 +75,6 @@ void download_properties () {
     assert (Midori.Download.get_type (download) == Midori.DownloadType.OPEN);
     assert (Midori.Download.get_progress (download) == 0.0);
 
-    if (Environment.get_variable ("MIDORI_TEST_UNDEFINED") != "1") return;
-
     try {
         string filename;
         FileUtils.close (FileUtils.open_tmp ("XXXXXX", out filename));

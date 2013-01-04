@@ -120,8 +120,6 @@ void tab_special () {
 }
 
 void tab_http () {
-    if (Environment.get_variable ("MIDORI_TEST_UNDEFINED") != "1") return;
-
     Midori.Test.grab_max_timeout ();
 
     Midori.Test.log_set_fatal_handler_for_icons ();

@@ -578,6 +578,23 @@ def shutdown ():
             for x in ['XDG_CONFIG_HOME', 'XDG_CACHE_HOME', 'XDG_DATA_HOME', 'TMPDIR']:
                 os.environ[x] = (base % x).lower ()
                 Utils.check_dir (os.environ[x])
+
+        def subprocess_popen_timeout (args, stdout=None, stderr=None):
+            import threading
+            def t_kill ():
+                Utils.pprint ('RED', 'timed out')
+                os.kill (pp.pid, 0)
+            t = threading.Timer (42, t_kill)
+            t.start ()
+            if is_mingw (Build.bld.env):
+                args.insert (0, 'wine')
+            cwd = Build.bld.env['PREFIX'] + os.sep + 'bin'
+            pp = subprocess.Popen (args, cwd=cwd, stdout=stdout, stderr=stderr)
+            if stdout is None:
+                (out, err) = pp.communicate ()
+                t.cancel ()
+            return pp
+
         # Avoid i18n-related false failures
         os.environ['LC_ALL'] = 'C'
         os.environ['UNIQUE_BACKEND'] = 'bacon'
@@ -606,10 +623,7 @@ def shutdown ():
                     if is_mingw (Build.bld.env):
                         filename += '.exe'
                     args = [filename]
-                    if is_mingw (Build.bld.env):
-                        args.insert (0, 'wine')
-                    pp = Utils.pproc.Popen (args, cwd=Build.bld.env['PREFIX'] + os.sep + 'bin')
-                    (out, err) = pp.communicate ()
+                    pp = subprocess_popen_timeout (args)
                     test.unit_test_results[label] = int (pp.returncode == 0)
                     if not test.unit_test_results[label]:
                         test.num_tests_failed += 1
@@ -633,10 +647,7 @@ def shutdown ():
                     if is_mingw (Build.bld.env):
                         filename += '.exe'
                     args = ['gdb', '--batch', '-ex', 'set print thread-events off', '-ex', 'run', '-ex', 'bt', filename]
-                    if is_mingw (Build.bld.env):
-                        args.insert (0, 'wine')
-                    pp = Utils.pproc.Popen (args, cwd=Build.bld.env['PREFIX'] + os.sep + 'bin')
-                    (out, err) = pp.communicate ()
+                    pp = subprocess_popen_timeout (args)
                 except OSError:
                     Utils.pprint ('RED', 'Install gdb to see backtraces')
                 except KeyboardInterrupt:
@@ -653,9 +664,7 @@ def shutdown ():
                 else:
                     continue
                 try:
-                    if is_mingw (Build.bld.env):
-                        args.insert (0, 'wine')
-                    pp = subprocess.Popen (args, cwd=Build.bld.env['PREFIX'] + os.sep + 'bin', stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                    pp = subprocess_popen_timeout (args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
                     skip = False
                     for line in iter(pp.stdout.readline, ''):
                         if line[:2] != '==':
