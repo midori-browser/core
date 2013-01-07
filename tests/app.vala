@@ -9,6 +9,8 @@
  See the file COPYING for the full license text.
 */
 
+extern const string PACKAGE_NAME;
+
 bool check_sensible_window_size (Gtk.Window window, Midori.WebSettings settings) {
     Gdk.Rectangle monitor;
     window.screen.get_monitor_geometry (0, out monitor);
@@ -96,9 +98,26 @@ void app_extensions_load () {
     /* No extensions loaded */
     assert (app.extensions.get_length () == 0);
     Midori.Extension.load_from_folder (app, null, false);
-
     /* All extensions loaded, inactive */
     assert (app.extensions.get_length () > 0);
+
+    /* Number of expected extensions matches */
+    /* FIXME Counting .so/dll doesn't see multiple extensions in one binary
+    Dir dir;
+    try {
+        dir = Dir.open (Midori.Paths.get_lib_path (PACKAGE_NAME), 0);
+    }
+    catch (Error error) {
+        GLib.error (error.message);
+    }
+    uint count = 0;
+    string? name;
+    while ((name = dir.read_name ()) != null) {
+        if (name.has_suffix (GLib.Module.SUFFIX))
+            count++;
+    }
+    assert (app.extensions.get_length () == count); */
+
     foreach (var item in app.extensions.get_items ())
         assert (!(item as Midori.Extension).is_active ());
 

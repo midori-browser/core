@@ -627,8 +627,6 @@ midori_extension_activate_gracefully (MidoriApp*   app,
                                       gboolean     activate)
 {
     GObject* extension = midori_extension_load_from_file (extension_path, filename, activate, FALSE);
-    if (extension == NULL)
-        return;
 
     midori_extension_activate (extension, filename, activate, app);
     if (!extension && g_module_error () != NULL)

@@ -3092,6 +3092,10 @@ midori_view_init (MidoriView* view)
     view->find_links = -1;
     view->alerts = 0;
 
+    /* Force the compiler to not optimize out katze_net_load_uri */
+    if (!g_strcmp0 (view->icon_uri, ""))
+        katze_net_load_uri (NULL, NULL, (KatzeNetStatusCb)NULL, (KatzeNetTransferCb)NULL, view);
+
     view->item = katze_item_new ();
 
     view->scrollh = view->scrollv = -2;
