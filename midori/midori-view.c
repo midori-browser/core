@@ -3439,7 +3439,10 @@ midori_view_web_inspector_construct_window (gpointer       inspector,
 
     toplevel = gtk_widget_get_toplevel (GTK_WIDGET (view));
     if (gtk_widget_is_toplevel (toplevel))
-        katze_window_set_sensible_default_size (GTK_WINDOW (toplevel));
+    {
+        gtk_window_set_screen (GTK_WINDOW (window), gtk_window_get_screen (GTK_WINDOW (toplevel)));
+        katze_window_set_sensible_default_size (GTK_WINDOW (window));
+    }
 
     /* Attempt to make a gray version of the icon on the fly */
     icon_name = gtk_window_get_icon_name (GTK_WINDOW (toplevel));
