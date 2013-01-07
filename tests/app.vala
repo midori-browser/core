@@ -70,7 +70,7 @@ void app_web () {
     var browser = Midori.web_app_new (null, null, null, null, -1, null);
     var loop = MainContext.default ();
     do { loop.iteration (true); } while (loop.pending ());
-    /* FIXME assert */ (check_sensible_window_size (browser, browser.settings));
+    assert (check_sensible_window_size (browser, browser.settings));
 }
 
 void app_web_custom_config () {
@@ -79,7 +79,7 @@ void app_web_custom_config () {
     var browser = Midori.web_app_new (Midori.Paths.make_tmp_dir ("custom-configXXXXXX"), null, null, null, -1, null);
     var loop = MainContext.default ();
     do { loop.iteration (true); } while (loop.pending ());
-    /* FIXME assert */ (check_sensible_window_size (browser, browser.settings));
+    assert (check_sensible_window_size (browser, browser.settings));
 }
 
 

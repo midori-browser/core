@@ -71,6 +71,7 @@ midori_web_app_new (const gchar* config,
     KatzeArray* search_engines = midori_search_engines_new_from_folder (NULL);
     g_object_set (browser,
                   "show-tabs", open_uris != NULL,
+                  "settings", settings,
                   NULL);
     midori_browser_set_action_visible (browser, "Panel", FALSE);
     g_object_unref (search_engines);
