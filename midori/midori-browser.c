@@ -742,7 +742,7 @@ midori_bookmark_folder_button_new (KatzeArray* array,
 static gint64
 midori_bookmark_folder_button_get_active (GtkWidget* combo)
 {
-    gint64 id;
+    gint64 id = 0;
     GtkTreeIter iter;
 
     g_return_val_if_fail (GTK_IS_COMBO_BOX (combo), 0);
