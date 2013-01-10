@@ -2993,14 +2993,20 @@ _action_bookmarks_populate_folder (GtkAction*     action,
 {
     KatzeArray* bookmarks;
     const gchar* id = katze_item_get_meta_string (KATZE_ITEM (folder), "id");
+    gchar* condition;
+
     if (browser->bookmarks == NULL)
         return FALSE;
-    else if (id == NULL && !(bookmarks = midori_array_query (browser->bookmarks,
-        "id, title, parentid, uri, app, pos_panel, pos_bar", "parentid is NULL", NULL)))
-            return FALSE;
-    else if (!(bookmarks = midori_array_query (browser->bookmarks,
-        "id, title, parentid, uri, app, pos_panel, pos_bar", "parentid = %q", id)))
-            return FALSE;
+
+    if (id == NULL)
+        condition = "parentid is NULL";
+    else
+        condition = "parentid = %q";
+
+    bookmarks = midori_array_query (browser->bookmarks,
+        "id, title, parentid, uri, app, pos_panel, pos_bar", condition, id);
+    if (!bookmarks)
+        return FALSE;
 
     /* Clear items from dummy array here */
     gtk_container_foreach (GTK_CONTAINER (menu),
