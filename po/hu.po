@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: midori master\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-11-19 19:00+0000\n"
+"POT-Creation-Date: 2013-01-16 12:39+0000\n"
 "PO-Revision-Date: 2012-11-20 00:59+0100\n"
 "Last-Translator: Imre Benedek <nucleo at indamail dot hu>\n"
 "Language-Team: Magyar <gnome-hu-list at gnome dot org>\n"
@@ -27,11 +27,8 @@ msgstr "A világháló böngészése"
 msgid "Internet;WWW;Explorer"
 msgstr "Internet;WWW;Explorer"
 
-#: ../data/midori.desktop.in.h:3
-#: ../midori/main.c:1861
-#: ../midori/main.c:1874
-#: ../midori/midori-app.c:1466
-#: ../midori/midori-websettings.c:200
+#: ../data/midori.desktop.in.h:3 ../midori/main.c:138 ../midori/main.c:151
+#: ../midori/midori-app.c:1443 ../midori/midori-websettings.c:201
 msgid "Midori"
 msgstr "Midori"
 
@@ -43,13 +40,11 @@ msgstr "Midori webböngésző"
 msgid "New Private Browsing Window"
 msgstr "Új privát böngészési ablak megnyitása"
 
-#: ../data/midori.desktop.in.h:6
-#: ../midori/midori-browser.c:1287
+#: ../data/midori.desktop.in.h:6 ../midori/midori-browser.c:1268
 msgid "New Tab"
 msgstr "Új lap"
 
-#: ../data/midori.desktop.in.h:7
-#: ../midori/midori-browser.c:1284
+#: ../data/midori.desktop.in.h:7 ../midori/midori-browser.c:1265
 msgid "New Window"
 msgstr "Új ablak"
 
@@ -65,375 +60,228 @@ msgstr "Midori privát böngészés"
 msgid "Open a new private browsing window"
 msgstr "Új privát böngészési ablak megnyitása"
 
-#: ../data/midori-private.desktop.in.h:3
-#: ../midori/midori-view.c:3919
+#: ../data/midori-private.desktop.in.h:3 ../midori/midori-view.c:3929
 msgid "Private Browsing"
 msgstr "Privát böngészés"
 
-#: ../midori/main.c:84
-#: ../midori/main.c:90
-#, c-format
-msgid "The configuration couldn't be loaded: %s\n"
-msgstr "A beállítások nem tölthetők be: %s\n"
-
-#: ../midori/main.c:138
-#, c-format
-msgid "Value '%s' is invalid for %s"
-msgstr "A(z) „%s” érték érvénytelen ehhez: %s"
-
-#: ../midori/main.c:143
-#: ../midori/main.c:247
-#, c-format
-msgid "Invalid configuration value '%s'"
-msgstr "Érvénytelen beállításérték: „%s”"
-
-#: ../midori/main.c:357
-#, c-format
-msgid "The search engines couldn't be loaded. %s\n"
-msgstr "A keresőmotorok nem tölthetők be. %s\n"
-
-#: ../midori/main.c:411
-#, c-format
-msgid "Failed to clear history: %s\n"
-msgstr "Az előzmények törlése meghiúsult: %s\n"
-
-#: ../midori/main.c:433
-#: ../extensions/formhistory/formhistory.c:531
-#, c-format
-msgid "Failed to open database: %s\n"
-msgstr "Az adatbázis nem nyitható meg: %s\n"
-
-#. i18n: Couldn't remove items that are older than n days
-#: ../midori/main.c:505
-#, c-format
-msgid "Failed to remove old history items: %s\n"
-msgstr "A régi előzményelemek eltávolítása meghiúsult: %s\n"
-
-#: ../midori/main.c:527
-#, c-format
-msgid "The configuration couldn't be saved. %s"
-msgstr "A beállítások nem menthetők. %s"
-
-#: ../midori/main.c:553
-#, c-format
-msgid "The search engines couldn't be saved. %s"
-msgstr "A keresőmotorok nem menthetők. %s"
-
 #. i18n: Trash, or wastebin, containing closed tabs
-#: ../midori/main.c:590
+#: ../midori/main.c:62
 #, c-format
 msgid "The trash couldn't be saved. %s"
 msgstr "A Kuka nem menthető. %s"
 
-#: ../midori/main.c:657
-#: ../panels/midori-extensions.c:90
-msgid "Extensions"
-msgstr "Kiterjesztések"
+#: ../midori/main.c:154
+msgid ""
+"Midori seems to have crashed the last time it was opened. If this happened "
+"repeatedly, try one of the following options to solve the problem."
+msgstr ""
+"Úgy tűnik, hogy a Midori összeomlott az utolsó futásakor. Ha ez ismételten "
+"előfordul, a probléma megoldása érdekében próbálja ki a következő "
+"lehetőségeket."
 
-#: ../midori/main.c:671
-msgid "Privacy"
-msgstr "Adatvédelem"
-
-#: ../midori/main.c:673
-msgid "Delete old Cookies after:"
-msgstr "Régi sütik törlése ennyi után:"
-
-#: ../midori/main.c:675
-#: ../midori/main.c:678
-msgid "The maximum number of days to save cookies for"
-msgstr "Sütik tárolása legfeljebb ennyi napig"
-
-#: ../midori/main.c:682
-msgid "Only accept Cookies from sites you visit"
-msgstr "Sütik elfogadása csak az Ön által meglátogatott webhelyekről"
-
-#: ../midori/main.c:683
-msgid "Block cookies sent by third-party websites"
-msgstr "Külső weboldalak sütijeinek blokkolása"
-
-#: ../midori/main.c:688
-msgid "Cookies store login data, saved games, or user profiles for advertisement purposes."
-msgstr "A sütik bejelentkezési adatokat, mentett játékállásokat vagy reklámcéllal felhasználói profilokat tárolnak."
-
-#: ../midori/main.c:695
-msgid "Enable offline web application cache"
-msgstr "Webalkalmazások kapcsolat nélküli gyorsítótárának engedélyezése"
-
-#: ../midori/main.c:698
-msgid "Enable HTML5 local storage support"
-msgstr "HTML5 helyi tárolás támogatásának engedélyezése"
-
-#. i18n: Reworded: Shorten details propagated when going to another page
-#: ../midori/main.c:702
-msgid "Strip referrer details sent to websites"
-msgstr "Weboldalaknak küldött hivatkozási részletek rövidítése"
-
-#. i18n: Referer here is not a typo but a technical term
-#: ../midori/main.c:704
-msgid "Whether the \"Referer\" header should be shortened to the hostname"
-msgstr "A „Referer” fejlécet rövidíteni kell-e a gépnévre"
-
-#: ../midori/main.c:707
-msgid "Delete pages from history after:"
-msgstr "Oldalak törlése az előzményekből ennyi után:"
-
-#: ../midori/main.c:709
-#: ../midori/main.c:712
-msgid "The maximum number of days to save the history for"
-msgstr "Előzmények tárolása legfeljebb ennyi napig"
-
-#: ../midori/main.c:753
-#, c-format
-msgid "The session couldn't be saved. %s"
-msgstr "A munkamenet nem menthető. %s"
-
-#: ../midori/main.c:975
-msgid "No root certificate file is available. SSL certificates cannot be verified."
-msgstr "Nem érhető el gyökértanúsítvány-fájl. Az SSL-tanúsítványok nem ellenőrizhetők."
-
-#: ../midori/main.c:1062
-msgid "Midori seems to have crashed the last time it was opened. If this happened repeatedly, try one of the following options to solve the problem."
-msgstr "Úgy tűnik, hogy a Midori összeomlott az utolsó futásakor. Ha ez ismételten előfordul, a probléma megoldása érdekében próbálja ki a következő lehetőségeket."
-
-#: ../midori/main.c:1081
+#: ../midori/main.c:164
 msgid "Modify _preferences"
 msgstr "Beállítások _módosítása"
 
-#: ../midori/main.c:1085
+#: ../midori/main.c:168
 msgid "Disable all _extensions"
 msgstr "Minden _kiterjesztés letiltása"
 
-#: ../midori/main.c:1094
+#: ../midori/main.c:177
 msgid "Show a dialog after Midori crashed"
 msgstr "Párbeszédablak megjelenítése a Midori összeomlása után"
 
-#: ../midori/main.c:1099
+#: ../midori/main.c:182
 msgid "Discard old tabs"
 msgstr "Régi lapok eldobása"
 
-#: ../midori/main.c:1100
-#: ../midori/midori-websettings.c:108
+#: ../midori/main.c:183 ../midori/midori-websettings.c:109
 msgid "Show last tabs without loading"
 msgstr "A legutóbbi lapok megjelenítése betöltés nélkül"
 
-#: ../midori/main.c:1101
-#: ../midori/midori-websettings.c:107
+#: ../midori/main.c:184 ../midori/midori-websettings.c:108
 msgid "Show last open tabs"
 msgstr "A legutóbbi lapok megjelenítése"
 
-#: ../midori/main.c:1289
-#: ../midori/main.c:2301
-#, c-format
-msgid "The session couldn't be loaded: %s\n"
-msgstr "A munkamenet nem tölthető be: %s\n"
-
-#: ../midori/main.c:1428
+#: ../midori/main.c:250
 #, c-format
 msgid "Snapshot saved to: %s\n"
 msgstr "Pillanatkép mentve ide: %s\n"
 
-#: ../midori/main.c:1766
+#: ../midori/main.c:87
 msgid "Run ADDRESS as a web application"
 msgstr "A CÍM futtatása webalkalmazásként"
 
-#: ../midori/main.c:1766
+#: ../midori/main.c:87
 msgid "ADDRESS"
 msgstr "CÍM"
 
-#: ../midori/main.c:1769
+#: ../midori/main.c:89
 msgid "Use FOLDER as configuration folder"
 msgstr "A MAPPA használata konfigurációs mappaként"
 
-#: ../midori/main.c:1769
+#: ../midori/main.c:89
 msgid "FOLDER"
 msgstr "MAPPA"
 
-#: ../midori/main.c:1772
+#: ../midori/main.c:91
 msgid "Private browsing, no changes are saved"
 msgstr "Privát böngészés, nem lesznek mentve változtatások"
 
-#: ../midori/main.c:1775
+#: ../midori/main.c:94
 msgid "Portable mode, all runtime files are stored in one place"
-msgstr "Hordozható mód, a futtatáshoz szükséges minden fájl egy helyen tárolódik"
+msgstr ""
+"Hordozható mód, a futtatáshoz szükséges minden fájl egy helyen tárolódik"
 
-#: ../midori/main.c:1778
+#: ../midori/main.c:97
 msgid "Plain GTK+ window with WebKit, akin to GtkLauncher"
 msgstr "Egyszerű GTK+ ablak WebKit-tel, a GtkLauncher-hez hasonló"
 
-#: ../midori/main.c:1780
+#: ../midori/main.c:99
 msgid "Show a diagnostic dialog"
 msgstr "Diagnosztikai ablak megjelenítése"
 
-#: ../midori/main.c:1782
+#: ../midori/main.c:101
 msgid "Run the specified filename as javascript"
 msgstr "A megadott fájl futtatása javascriptként"
 
-#: ../midori/main.c:1784
+#: ../midori/main.c:103
 msgid "Take a snapshot of the specified URI"
 msgstr "Pillanatkép készítése a megadott URI-ről"
 
-#: ../midori/main.c:1786
+#: ../midori/main.c:105
 msgid "Execute the specified command"
 msgstr "A megadott parancs futtatása"
 
-#: ../midori/main.c:1788
+#: ../midori/main.c:107
 msgid "List available commands to execute with -e/ --execute"
 msgstr "A -e/--execute segítségével végrehajtható parancsok felsorolása"
 
-#: ../midori/main.c:1790
+#: ../midori/main.c:109
 msgid "Display program version"
 msgstr "A program verziójának megjelenítése"
 
-#: ../midori/main.c:1792
+#: ../midori/main.c:111
 msgid "Addresses"
 msgstr "Címek"
 
-#: ../midori/main.c:1794
+#: ../midori/main.c:113
 msgid "Block URIs according to regular expression PATTERN"
 msgstr "URI-címek blokkolása a MINTA reguláris kifejezés alapján"
 
-#: ../midori/main.c:1794
+#: ../midori/main.c:113
 msgid "PATTERN"
 msgstr "MINTA"
 
 #. i18n: CLI: Close tabs, clear private data, open starting page
-#: ../midori/main.c:1798
+#: ../midori/main.c:117
 msgid "Reset Midori after SECONDS seconds of inactivity"
 msgstr "A Midori visszaállítása ennyi MÁSODPERC inaktivitás után"
 
-#: ../midori/main.c:1798
+#: ../midori/main.c:117
 msgid "SECONDS"
 msgstr "MÁSODPERC"
 
-#: ../midori/main.c:1801
-msgid "Redirects console warnings to the specified FILENAME"
-msgstr "Konzolos figyelmeztetések átirányítása a megadott FÁJLNÉVBE"
-
-#: ../midori/main.c:1801
-msgid "FILENAME"
-msgstr "FÁJLNÉV"
-
-#: ../midori/main.c:1875
+#: ../midori/main.c:152
 msgid "Please report comments, suggestions and bugs to:"
 msgstr "A megjegyzéseit, javaslatait és a hibákat ide küldje:"
 
-#: ../midori/main.c:1877
+#: ../midori/main.c:154
 msgid "Check for new versions at:"
 msgstr "Új verziókért lásd:"
 
-#. i18n: Logins and passwords in websites and web forms
-#: ../midori/main.c:2016
-msgid "Saved logins and _passwords"
-msgstr "Mentett felhasználónevek és _jelszavak"
-
-#: ../midori/main.c:2018
-msgid "Cookies and Website data"
-msgstr "Sütik és weboldaladatok"
-
-#. TODO: Preserve page icons of search engines and merge privacy items
-#: ../midori/main.c:2022
-#: ../midori/midori-preferences.c:508
-#: ../extensions/web-cache.c:461
-#: ../extensions/web-cache.c:470
-msgid "Web Cache"
-msgstr "Webes gyorsítótár"
-
-#: ../midori/main.c:2025
-msgid "Website icons"
-msgstr "Weboldalikonok"
-
-#: ../midori/main.c:2135
+#: ../midori/main.c:299
 msgid "An unknown error occured"
 msgstr "Ismeretlen hiba történt"
 
-#: ../midori/main.c:2249
+#: ../midori/main.c:704
 msgid "An instance of Midori is already running but not responding.\n"
 msgstr "A Midori egy példánya már fut, de nem válaszol.\n"
 
-#: ../midori/main.c:2283
+#: ../midori/main.c:741
 #, c-format
 msgid "Bookmarks couldn't be loaded: %s\n"
 msgstr "A könyvjelzők nem tölthetők be: %s\n"
 
-#: ../midori/main.c:2316
+#: ../midori/main.c:757 ../midori/midori-session.c:394
+#, c-format
+msgid "The session couldn't be loaded: %s\n"
+msgstr "A munkamenet nem tölthető be: %s\n"
+
+#: ../midori/main.c:774
 #, c-format
 msgid "The trash couldn't be loaded: %s\n"
 msgstr "A Kuka nem tölthető be: %s\n"
 
-#: ../midori/main.c:2329
+#: ../midori/main.c:782
 #, c-format
 msgid "The history couldn't be loaded: %s\n"
 msgstr "Az előzmények nem tölthetők be: %s\n"
 
-#: ../midori/main.c:2344
+#: ../midori/main.c:795
 msgid "The following errors occured:"
 msgstr "A következő hibák történtek:"
 
-#: ../midori/main.c:2360
+#: ../midori/main.c:800
 msgid "_Ignore"
 msgstr "_Kihagyás"
 
-#: ../midori/midori-app.c:1147
-#: ../midori/midori-browser.c:533
+#: ../midori/midori-app.c:1213 ../midori/midori-browser.c:545
 #, c-format
 msgid "Unexpected action '%s'."
 msgstr "Váratlan művelet: „%s”."
 
-#: ../midori/midori-app.c:1374
-#: ../midori/midori-browser.c:6284
+#: ../midori/midori-app.c:1351 ../midori/midori-browser.c:5999
 msgid "_Bookmarks"
 msgstr "_Könyvjelzők"
 
-#: ../midori/midori-app.c:1375
+#: ../midori/midori-app.c:1352
 msgid "Add Boo_kmark"
 msgstr "Köny_vjelző hozzáadása"
 
-#: ../midori/midori-app.c:1376
+#: ../midori/midori-app.c:1353
 msgid "_Extensions"
 msgstr "Kit_erjesztések"
 
 #. i18n: Browsing history, visited web pages, closed tabs
-#: ../midori/midori-app.c:1377
-#: ../midori/midori-browser.c:4705
+#: ../midori/midori-app.c:1354 ../midori/midori-privatedata.c:153
 msgid "_History"
 msgstr "_Előzmények"
 
-#: ../midori/midori-app.c:1378
+#: ../midori/midori-app.c:1355
 msgid "_Userscripts"
 msgstr "_Felhasználói parancsfájlok"
 
-#: ../midori/midori-app.c:1379
+#: ../midori/midori-app.c:1356
 msgid "User_styles"
 msgstr "Felhasználói _stílusok"
 
-#: ../midori/midori-app.c:1380
+#: ../midori/midori-app.c:1357
 msgid "New _Tab"
 msgstr "Új _lap"
 
-#: ../midori/midori-app.c:1381
+#: ../midori/midori-app.c:1358
 msgid "_Transfers"
 msgstr "Á_tvitelek"
 
-#: ../midori/midori-app.c:1382
+#: ../midori/midori-app.c:1359
 msgid "Netscape p_lugins"
 msgstr "_Netscape bővítmények"
 
-#: ../midori/midori-app.c:1383
+#: ../midori/midori-app.c:1360
 msgid "_Closed Tabs"
 msgstr "_Bezárt lapok"
 
-#: ../midori/midori-app.c:1384
-#: ../midori/midori-browser.c:5420
+#: ../midori/midori-app.c:1361 ../midori/midori-browser.c:5138
 msgid "New _Window"
 msgstr "Új _ablak"
 
-#: ../midori/midori-app.c:1385
+#: ../midori/midori-app.c:1362
 msgid "New _Folder"
 msgstr "Új _mappa"
 
-#: ../midori/midori-app.c:1440
-#: ../midori/midori-app.c:1443
-#: ../midori/midori-app.c:1446
+#: ../midori/midori-app.c:1417 ../midori/midori-app.c:1420
+#: ../midori/midori-app.c:1423
 msgid "[Addresses]"
 msgstr "[Címek]"
 
@@ -441,10 +289,8 @@ msgstr "[Címek]"
 msgid "File not found."
 msgstr "A fájl nem található."
 
-#: ../midori/midori-array.c:547
-#: ../midori/midori-array.c:586
-#: ../midori/midori-array.c:609
-#: ../midori/midori-array.c:619
+#: ../midori/midori-array.c:547 ../midori/midori-array.c:586
+#: ../midori/midori-array.c:609 ../midori/midori-array.c:619
 msgid "Malformed document."
 msgstr "Rosszul formált dokumentum."
 
@@ -456,1145 +302,1148 @@ msgstr "Ismeretlen könyvjelzőformátum."
 msgid "Writing failed."
 msgstr "Az írás meghiúsult."
 
-#: ../midori/midori-browser.c:346
-#: ../midori/midori-browser.c:5559
+#: ../midori/midori-browser.c:337 ../midori/midori-browser.c:5274
 msgid "Go forward to the next page"
 msgstr "Ugrás a következő oldalra"
 
 #. i18n: Visit the following logical page, ie. in a forum or blog
-#: ../midori/midori-browser.c:353
-#: ../midori/midori-browser.c:5567
-#: ../midori/midori-browser.c:5570
+#: ../midori/midori-browser.c:344 ../midori/midori-browser.c:5282
+#: ../midori/midori-browser.c:5285
 msgid "Go to the next sub-page"
 msgstr "Ugrás a következő aloldalra"
 
-#: ../midori/midori-browser.c:440
-#: ../midori/midori-browser.c:5508
-#: ../midori/midori-browser.c:5517
+#: ../midori/midori-browser.c:431 ../midori/midori-browser.c:5223
+#: ../midori/midori-browser.c:5232
 msgid "Reload the current page"
 msgstr "Az aktuális oldal újratöltése"
 
-#: ../midori/midori-browser.c:448
-#: ../midori/midori-browser.c:5514
+#: ../midori/midori-browser.c:439 ../midori/midori-browser.c:5229
 msgid "Stop loading the current page"
 msgstr "Az aktuális oldal betöltésének leállítása"
 
-#: ../midori/midori-browser.c:518
+#: ../midori/midori-browser.c:509
 #, c-format
 msgid "Failed to update title: %s\n"
 msgstr "A cím frissítése meghiúsult: %s\n"
 
-#: ../midori/midori-browser.c:613
+#: ../midori/midori-browser.c:604
 #, c-format
 msgid "%s (Private Browsing)"
 msgstr "%s (privát böngészés)"
 
-#: ../midori/midori-browser.c:723
-#: ../midori/midori-browser.c:765
+#: ../midori/midori-browser.c:714 ../midori/midori-browser.c:756
 #: ../panels/midori-bookmarks.c:114
 msgid "Bookmarks"
 msgstr "Könyvjelzők"
 
-#: ../midori/midori-browser.c:825
+#: ../midori/midori-browser.c:810
 msgid "New folder"
 msgstr "Új mappa"
 
-#: ../midori/midori-browser.c:825
+#: ../midori/midori-browser.c:810
 msgid "Edit folder"
 msgstr "Mappa szerkesztése"
 
-#: ../midori/midori-browser.c:827
+#: ../midori/midori-browser.c:812
 msgid "New bookmark"
 msgstr "Új könyvjelző"
 
-#: ../midori/midori-browser.c:827
+#: ../midori/midori-browser.c:812
 msgid "Edit bookmark"
 msgstr "Könyvjelző szerkesztése"
 
-#: ../midori/midori-browser.c:861
+#: ../midori/midori-browser.c:846
 msgid "Type a name for this bookmark and choose where to keep it."
 msgstr "Adjon nevet a könyvjelzőnek, és válassza ki hol tárolódjon."
 
-#: ../midori/midori-browser.c:922
+#: ../midori/midori-browser.c:902
 msgid "Add to _Speed Dial"
 msgstr "Felvétel a _gyorstárcsázásba"
 
-#: ../midori/midori-browser.c:928
+#: ../midori/midori-browser.c:908
 msgid "Show in the tool_bar"
 msgstr "M_egjelenítés az eszköztáron"
 
-#: ../midori/midori-browser.c:936
+#: ../midori/midori-browser.c:916
 msgid "Run as _web application"
 msgstr "_Futtatás webalkalmazásként"
 
-#: ../midori/midori-browser.c:1046
-#: ../midori/midori-browser.c:4509
+#: ../midori/midori-browser.c:1026 ../midori/midori-browser.c:4396
 msgid "Save file as"
 msgstr "Fájl mentése másként"
 
-#: ../midori/midori-browser.c:1056
+#: ../midori/midori-browser.c:1036
 msgid "Save associated _resources"
 msgstr "Társított e_rőforrások mentése"
 
-#: ../midori/midori-browser.c:1284
+#: ../midori/midori-browser.c:1265
 msgid "A new window has been opened"
 msgstr "Új ablak nyílt meg"
 
-#: ../midori/midori-browser.c:1287
+#: ../midori/midori-browser.c:1268
 msgid "A new tab has been opened"
 msgstr "Új lap nyílt meg"
 
-#: ../midori/midori-browser.c:1304
+#: ../midori/midori-browser.c:1285
 msgid "Error opening the image!"
 msgstr "Hiba a kép megnyitásakor"
 
-#: ../midori/midori-browser.c:1305
+#: ../midori/midori-browser.c:1286
 msgid "Can not open selected image in a default viewer."
 msgstr "Nem nyitható meg a kiválasztott kép az alapértelmezett megjelenítőben."
 
-#: ../midori/midori-browser.c:1311
+#: ../midori/midori-browser.c:1292
 msgid "Error downloading the image!"
 msgstr "Hiba a kép letöltésekor"
 
-#: ../midori/midori-browser.c:1312
+#: ../midori/midori-browser.c:1293
 msgid "Can not download selected image."
 msgstr "A kijelölt kép nem tölthető le."
 
-#: ../midori/midori-browser.c:1369
+#: ../midori/midori-browser.c:1350
 msgid "Save file"
 msgstr "Fájl mentése"
 
-#: ../midori/midori-browser.c:2369
+#: ../midori/midori-browser.c:2318
 msgid "Open file"
 msgstr "Fájl megnyitása"
 
-#: ../midori/midori-browser.c:2501
+#: ../midori/midori-browser.c:2444
 msgid ""
-"To use the above URI open a news aggregator. There is usually a menu or button \"New Subscription\", \"New News Feed\" or similar.\n"
-"Alternatively go to Preferences, Applications in Midori, and select a News Aggregator. Next time you click the news feed icon, it will be added automatically."
+"To use the above URI open a news aggregator. There is usually a menu or "
+"button \"New Subscription\", \"New News Feed\" or similar.\n"
+"Alternatively go to Preferences, Applications in Midori, and select a News "
+"Aggregator. Next time you click the news feed icon, it will be added "
+"automatically."
 msgstr ""
-"A fenti URI használatához nyisson meg egy hírforrásolvasót. Általában találhat egy „Új feliratkozás”, „Új hírforrás” vagy hasonló menüt vagy gombot.\n"
-"Ennek alternatívájaként nyissa meg a Beállítások -> Alkalmazások fület, és válasszon egy hírforrásolvasót. A hírforrások ikonjára kattintva ezután az automatikusan felvételre kerül."
+"A fenti URI használatához nyisson meg egy hírforrásolvasót. Általában "
+"találhat egy „Új feliratkozás”, „Új hírforrás” vagy hasonló menüt vagy "
+"gombot.\n"
+"Ennek alternatívájaként nyissa meg a Beállítások -> Alkalmazások fület, és "
+"válasszon egy hírforrásolvasót. A hírforrások ikonjára kattintva ezután az "
+"automatikusan felvételre kerül."
 
-#: ../midori/midori-browser.c:2507
-#: ../extensions/feed-panel/main.c:365
+#: ../midori/midori-browser.c:2450 ../extensions/feed-panel/main.c:364
 msgid "New feed"
 msgstr "Új hírforrás"
 
-#: ../midori/midori-browser.c:2550
-#: ../midori/midori-browser.c:5583
+#: ../midori/midori-browser.c:2493 ../midori/midori-browser.c:5298
 #: ../panels/midori-bookmarks.c:527
 msgid "Add a new bookmark"
 msgstr "Új könyvjelző hozzáadása"
 
-#: ../midori/midori-browser.c:3087
-#: ../midori/midori-searchaction.c:487
+#: ../midori/midori-browser.c:3017 ../midori/midori-searchaction.c:481
 msgid "Empty"
 msgstr "Üres"
 
-#: ../midori/midori-browser.c:3522
-#: ../midori/midori-browser.c:3523
+#: ../midori/midori-browser.c:3412 ../midori/midori-browser.c:3413
 msgid "Toggle text cursor navigation"
 msgstr "Kurzoros szövegnavigáció átváltása"
 
-#: ../midori/midori-browser.c:3525
-msgid "Pressing F7 toggles Caret Browsing. When active, a text cursor appears in all websites."
-msgstr "Az F7 megnyomása ki/bekapcsolja a kurzoros böngészést. Ha ez aktív, szöveges kurzor jelenik meg minden weboldalon."
+#: ../midori/midori-browser.c:3415
+msgid ""
+"Pressing F7 toggles Caret Browsing. When active, a text cursor appears in "
+"all websites."
+msgstr ""
+"Az F7 megnyomása ki/bekapcsolja a kurzoros böngészést. Ha ez aktív, szöveges "
+"kurzor jelenik meg minden weboldalon."
 
-#: ../midori/midori-browser.c:3528
+#: ../midori/midori-browser.c:3418
 msgid "_Enable Caret Browsing"
 msgstr "_Kurzoros böngészés bekapcsolása"
 
-#: ../midori/midori-browser.c:3909
-#: ../midori/midori-browser.c:5977
+#: ../midori/midori-browser.c:3802 ../midori/midori-browser.c:5746
 #, c-format
 msgid "Failed to insert new history item: %s\n"
 msgstr "Az új előzményelem beszúrása meghiúsult: %s\n"
 
-#: ../midori/midori-browser.c:4235
-#: ../panels/midori-bookmarks.c:850
-#: ../panels/midori-history.c:806
+#: ../midori/midori-browser.c:4128 ../panels/midori-bookmarks.c:840
+#: ../panels/midori-history.c:797
 msgid "Open all in _Tabs"
 msgstr "Összes _megnyitása lapokon"
 
-#: ../midori/midori-browser.c:4242
-#: ../panels/midori-bookmarks.c:856
-#: ../panels/midori-history.c:812
-#: ../extensions/feed-panel/feed-panel.c:528
+#: ../midori/midori-browser.c:4135 ../panels/midori-bookmarks.c:846
+#: ../panels/midori-history.c:803 ../extensions/feed-panel/feed-panel.c:519
 msgid "Open in New _Tab"
 msgstr "Megnyi_tás új lapon"
 
-#: ../midori/midori-browser.c:4245
-#: ../midori/midori-view.c:2626
-#: ../midori/midori-view.c:4430
-#: ../panels/midori-bookmarks.c:858
-#: ../panels/midori-history.c:814
-#: ../extensions/feed-panel/feed-panel.c:530
+#: ../midori/midori-browser.c:4138 ../midori/midori-view.c:2637
+#: ../midori/midori-view.c:4435 ../panels/midori-bookmarks.c:848
+#: ../panels/midori-history.c:805 ../extensions/feed-panel/feed-panel.c:521
 msgid "Open in New _Window"
 msgstr "Megnyitás új _ablakban"
 
-#: ../midori/midori-browser.c:4334
+#: ../midori/midori-browser.c:4227
 msgid "Arora"
 msgstr "Arora"
 
-#: ../midori/midori-browser.c:4335
+#: ../midori/midori-browser.c:4228
 msgid "Kazehakase"
 msgstr "Kazehakase"
 
-#: ../midori/midori-browser.c:4336
+#: ../midori/midori-browser.c:4229
 msgid "Opera"
 msgstr "Opera"
 
-#: ../midori/midori-browser.c:4337
+#: ../midori/midori-browser.c:4230
 msgid "Konqueror"
 msgstr "Konqueror"
 
-#: ../midori/midori-browser.c:4338
+#: ../midori/midori-browser.c:4231
 msgid "Epiphany"
 msgstr "Epiphany"
 
-#: ../midori/midori-browser.c:4339
+#: ../midori/midori-browser.c:4232
 #, c-format
 msgid "Firefox (%s)"
 msgstr "Firefox (%s)"
 
-#: ../midori/midori-browser.c:4340
+#: ../midori/midori-browser.c:4233
 msgid "Midori 0.2.6"
 msgstr "Midori 0.2.6"
 
-#: ../midori/midori-browser.c:4361
+#: ../midori/midori-browser.c:4251
 msgid "Import bookmarks…"
 msgstr "Könyvjelzők importálása…"
 
-#: ../midori/midori-browser.c:4364
-#: ../midori/midori-browser.c:5588
+#: ../midori/midori-browser.c:4254 ../midori/midori-browser.c:5303
 msgid "_Import bookmarks"
 msgstr "_Könyvjelzők importálása"
 
-#: ../midori/midori-browser.c:4375
+#: ../midori/midori-browser.c:4265
 msgid "_Application:"
 msgstr "_Alkalmazás:"
 
-#: ../midori/midori-browser.c:4440
+#: ../midori/midori-browser.c:4330
 msgid "Import from XBEL or HTML file"
 msgstr "Importálás XBEL vagy HTML fájlból"
 
-#: ../midori/midori-browser.c:4468
+#: ../midori/midori-browser.c:4358
 msgid "Import from a file"
 msgstr "Importálás fájlból"
 
-#: ../midori/midori-browser.c:4480
+#: ../midori/midori-browser.c:4370
 msgid "Failed to import bookmarks"
 msgstr "A könyvjelzők importálása sikertelen"
 
-#: ../midori/midori-browser.c:4514
+#: ../midori/midori-browser.c:4401
 msgid "XBEL Bookmarks"
 msgstr "XBEL-könyvjelzők"
 
-#: ../midori/midori-browser.c:4519
+#: ../midori/midori-browser.c:4406
 msgid "Netscape Bookmarks"
 msgstr "Netscape könyvjelzők"
 
-#: ../midori/midori-browser.c:4533
+#: ../midori/midori-browser.c:4420
 msgid "Midori can only export to XBEL (*.xbel) and Netscape (*.html)"
-msgstr "A Midori csak XBEL (*.xbel) és Netscape (*.html) formátumba tud exportálni"
+msgstr ""
+"A Midori csak XBEL (*.xbel) és Netscape (*.html) formátumba tud exportálni"
 
-#: ../midori/midori-browser.c:4548
+#: ../midori/midori-browser.c:4435
 msgid "Failed to export bookmarks"
 msgstr "A könyvjelzők exportálása sikertelen"
 
-#. i18n: Dialog: Clear Private Data, in the Tools menu
-#: ../midori/midori-browser.c:4670
-msgid "Clear Private Data"
-msgstr "Privát adatok törlése"
-
-#: ../midori/midori-browser.c:4674
-msgid "_Clear private data"
-msgstr "_Privát adatok törlése"
-
-#: ../midori/midori-browser.c:4689
-msgid "Clear the following data:"
-msgstr "A következő adatok törlése:"
-
-#: ../midori/midori-browser.c:4699
-msgid "Last open _tabs"
-msgstr "_Legutóbb nyitott lapok"
-
-#: ../midori/midori-browser.c:4725
-msgid "Clear private data when _quitting Midori"
-msgstr "Privát adatok törlése a Mi_doriból kilépéskor"
-
-#: ../midori/midori-browser.c:4935
+#: ../midori/midori-browser.c:4656
 msgid "A lightweight web browser."
 msgstr "Könnyűsúlyú webböngésző."
 
-#: ../midori/midori-browser.c:4936
+#: ../midori/midori-browser.c:4657
 msgid "See about:version for version info."
 msgstr "Verzióinformációkért lásd az about:version oldalt."
 
-#: ../midori/midori-browser.c:4938
-msgid "This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 of the License, or (at your option) any later version."
-msgstr "A Midori szabad szoftver, terjesztheti és/vagy módosíthatja a Free Software Foundation által kiadott GNU Lesser General Public License 2.1 (vagy bármely későbbi) változatában foglaltak alapján."
+#: ../midori/midori-browser.c:4659
+msgid ""
+"This library is free software; you can redistribute it and/or modify it "
+"under the terms of the GNU Lesser General Public License as published by the "
+"Free Software Foundation; either version 2.1 of the License, or (at your "
+"option) any later version."
+msgstr ""
+"A Midori szabad szoftver, terjesztheti és/vagy módosíthatja a Free Software "
+"Foundation által kiadott GNU Lesser General Public License 2.1 (vagy bármely "
+"későbbi) változatában foglaltak alapján."
 
-#: ../midori/midori-browser.c:4968
+#: ../midori/midori-browser.c:4689
 msgid "translator-credits"
 msgstr ""
 "Benedek Imre <nucleo at indamail dot hu>\n"
 "Kelemen Gábor <kelemeng at gnome dot hu>"
 
-
-#: ../midori/midori-browser.c:5418
+#: ../midori/midori-browser.c:5136
 msgid "_File"
 msgstr "_Fájl"
 
-#: ../midori/midori-browser.c:5421
+#: ../midori/midori-browser.c:5139
 msgid "Open a new window"
 msgstr "Új ablak megnyitása"
 
-#: ../midori/midori-browser.c:5424
+#: ../midori/midori-browser.c:5142
 msgid "Open a new tab"
 msgstr "Új lap megnyitása"
 
-#: ../midori/midori-browser.c:5426
+#: ../midori/midori-browser.c:5144
 msgid "New P_rivate Browsing Window"
 msgstr "Új _privát böngészési ablak megnyitása"
 
-#: ../midori/midori-browser.c:5430
+#: ../midori/midori-browser.c:5148
 msgid "Open a file"
 msgstr "Fájl megnyitása"
 
-#: ../midori/midori-browser.c:5432
+#: ../midori/midori-browser.c:5150
 msgid "_Save Page As…"
 msgstr "Oldal _mentése másként…"
 
-#: ../midori/midori-browser.c:5433
+#: ../midori/midori-browser.c:5151
 msgid "Save to a file"
 msgstr "Mentés fájlba"
 
-#: ../midori/midori-browser.c:5435
+#: ../midori/midori-browser.c:5153
 msgid "Add to Speed _dial"
 msgstr "Hozzáadás _gyorstárcsázáshoz"
 
-#: ../midori/midori-browser.c:5439
+#: ../midori/midori-browser.c:5298
 msgid "Add Shortcut to the _desktop"
 msgstr "Parancsikon hozzáadása az _asztalhoz"
 
-#: ../midori/midori-browser.c:5441
+#: ../midori/midori-browser.c:5300
 msgid "Create _Launcher"
 msgstr "_Parancsikon létrehozása"
 
-#: ../midori/midori-browser.c:5445
+#: ../midori/midori-browser.c:5160
 msgid "Subscribe to News _feed"
 msgstr "_Feliratkozás hírforrásra"
 
-#: ../midori/midori-browser.c:5451
+#: ../midori/midori-browser.c:5166
 msgid "_Close Tab"
 msgstr "Lap _bezárása"
 
-#: ../midori/midori-browser.c:5452
+#: ../midori/midori-browser.c:5167
 msgid "Close the current tab"
 msgstr "A jelenlegi lap bezárása"
 
-#: ../midori/midori-browser.c:5454
+#: ../midori/midori-browser.c:5169
 msgid "C_lose Window"
 msgstr "_Ablak bezárása"
 
-#: ../midori/midori-browser.c:5458
+#: ../midori/midori-browser.c:5173
 msgid "_Share"
 msgstr "_Megosztás"
 
-#: ../midori/midori-browser.c:5459
+#: ../midori/midori-browser.c:5174
 msgid "Share this page"
 msgstr "Az oldal megosztása"
 
-#: ../midori/midori-browser.c:5463
+#: ../midori/midori-browser.c:5178
 msgid "Print the current page"
 msgstr "A jelenlegi oldal nyomtatása"
 
-#: ../midori/midori-browser.c:5466
+#: ../midori/midori-browser.c:5181
 msgid "Close a_ll Windows"
 msgstr "Minden _ablak bezárása"
 
-#: ../midori/midori-browser.c:5469
+#: ../midori/midori-browser.c:5184
 msgid "_Edit"
 msgstr "S_zerkesztés"
 
-#: ../midori/midori-browser.c:5492
+#: ../midori/midori-browser.c:5207
 msgid "_Find…"
 msgstr "_Keresés…"
 
-#: ../midori/midori-browser.c:5493
+#: ../midori/midori-browser.c:5208
 msgid "Find a word or phrase in the page"
 msgstr "Szó vagy kifejezés keresése az oldalon"
 
-#: ../midori/midori-browser.c:5495
+#: ../midori/midori-browser.c:5210
 msgid "Find _Next"
 msgstr "_Következő találat"
 
-#: ../midori/midori-browser.c:5498
+#: ../midori/midori-browser.c:5213
 msgid "Find _Previous"
 msgstr "_Előző találat"
 
-#: ../midori/midori-browser.c:5502
+#: ../midori/midori-browser.c:5217
 msgid "Configure the application preferences"
 msgstr "Az alkalmazás beállításainak megadása"
 
-#: ../midori/midori-browser.c:5504
+#: ../midori/midori-browser.c:5219
 msgid "_View"
 msgstr "_Nézet"
 
-#: ../midori/midori-browser.c:5505
+#: ../midori/midori-browser.c:5220
 msgid "_Toolbars"
 msgstr "_Eszköztárak"
 
-#: ../midori/midori-browser.c:5510
+#: ../midori/midori-browser.c:5225
 msgid "Reload page without caching"
 msgstr "Oldal újratöltése gyorsítótárazás nélkül"
 
-#: ../midori/midori-browser.c:5520
+#: ../midori/midori-browser.c:5235
 msgid "Increase the zoom level"
 msgstr "Nagyítási szint növelése"
 
-#: ../midori/midori-browser.c:5523
+#: ../midori/midori-browser.c:5238
 msgid "Decrease the zoom level"
 msgstr "Nagyítási szint csökkentése"
 
-#: ../midori/midori-browser.c:5527
+#: ../midori/midori-browser.c:5242
 msgid "_Encoding"
 msgstr "_Kódolás"
 
-#: ../midori/midori-browser.c:5529
+#: ../midori/midori-browser.c:5244
 msgid "View So_urce"
 msgstr "_Forrás megjelenítése"
 
-#: ../midori/midori-browser.c:5532
+#: ../midori/midori-browser.c:5247
 msgid "Ca_ret Browsing"
 msgstr "_Kurzoros böngészés"
 
-#: ../midori/midori-browser.c:5536
+#: ../midori/midori-browser.c:5251
 msgid "Toggle fullscreen view"
 msgstr "Teljes képernyős nézet be- illetve kikapcsolása"
 
-#: ../midori/midori-browser.c:5538
+#: ../midori/midori-browser.c:5253
 msgid "Scroll _Left"
 msgstr "Görgetés _balra"
 
-#: ../midori/midori-browser.c:5541
+#: ../midori/midori-browser.c:5256
 msgid "Scroll _Down"
 msgstr "Görgetés l_e"
 
-#: ../midori/midori-browser.c:5544
+#: ../midori/midori-browser.c:5259
 msgid "Scroll _Up"
 msgstr "Görgetés _fel"
 
-#: ../midori/midori-browser.c:5547
+#: ../midori/midori-browser.c:5262
 msgid "Scroll _Right"
 msgstr "Görgetés j_obbra"
 
-#: ../midori/midori-browser.c:5550
+#: ../midori/midori-browser.c:5265
 msgid "_Readable"
 msgstr "_Olvasható"
 
-#: ../midori/midori-browser.c:5553
+#: ../midori/midori-browser.c:5268
 msgid "_Go"
 msgstr "_Ugrás"
 
-#: ../midori/midori-browser.c:5556
+#: ../midori/midori-browser.c:5271
 msgid "Go back to the previous page"
 msgstr "Ugrás az előző oldalra"
 
 #. i18n: Visit the previous logical page, ie. in a forum or blog
-#: ../midori/midori-browser.c:5563
+#: ../midori/midori-browser.c:5278
 msgid "Go to the previous sub-page"
 msgstr "Ugrás az előző aloldalra"
 
-#: ../midori/midori-browser.c:5572
+#: ../midori/midori-browser.c:5287
 msgid "_Homepage"
 msgstr "Kez_dőlap"
 
-#: ../midori/midori-browser.c:5573
+#: ../midori/midori-browser.c:5288
 msgid "Go to your homepage"
 msgstr "Ugrás a kezdőlapra"
 
-#: ../midori/midori-browser.c:5575
+#: ../midori/midori-browser.c:5290
 msgid "Empty Trash"
 msgstr "Kuka ürítése"
 
-#: ../midori/midori-browser.c:5578
+#: ../midori/midori-browser.c:5293
 msgid "Undo _Close Tab"
 msgstr "Lapbezárás _visszavonása"
 
-#: ../midori/midori-browser.c:5585
+#: ../midori/midori-browser.c:5300
 msgid "Add a new _folder"
 msgstr "Új mappa _hozzáadása"
 
-#: ../midori/midori-browser.c:5591
+#: ../midori/midori-browser.c:5306
 msgid "_Export bookmarks"
 msgstr "Könyvjelzők e_xportálása"
 
-#: ../midori/midori-browser.c:5594
-#: ../midori/midori-searchaction.c:496
+#: ../midori/midori-browser.c:5309 ../midori/midori-searchaction.c:490
 msgid "_Manage Search Engines"
 msgstr "_Keresőszolgáltatások kezelése"
 
-#: ../midori/midori-browser.c:5597
+#: ../midori/midori-browser.c:5312
 msgid "_Clear Private Data"
 msgstr "_Privát adatok törlése"
 
-#: ../midori/midori-browser.c:5600
+#: ../midori/midori-browser.c:5315
 msgid "_Inspect Page"
 msgstr "_Oldal vizsgálata"
 
-#: ../midori/midori-browser.c:5604
+#: ../midori/midori-browser.c:5319
 msgid "_Previous Tab"
 msgstr "_Előző lap"
 
-#: ../midori/midori-browser.c:5607
+#: ../midori/midori-browser.c:5322
 msgid "_Next Tab"
 msgstr "_Következő lap"
 
-#: ../midori/midori-browser.c:5609
+#: ../midori/midori-browser.c:5324
+msgid "Move Tab to _first position"
+msgstr ""
+
+#: ../midori/midori-browser.c:5326
 msgid "Move Tab _Backward"
 msgstr "Lap mozgatása _hátra"
 
-#: ../midori/midori-browser.c:5611
+#: ../midori/midori-browser.c:5328
 msgid "_Move Tab Forward"
 msgstr "Lap mozgatása _előre"
 
-#: ../midori/midori-browser.c:5614
+#: ../midori/midori-browser.c:5330
+msgid "Move Tab to _last position"
+msgstr ""
+
+#: ../midori/midori-browser.c:5333
 msgid "Focus _Current Tab"
 msgstr "_Aktuális lap előtérbe"
 
-#: ../midori/midori-browser.c:5617
+#: ../midori/midori-browser.c:5336
 msgid "Focus _Next view"
 msgstr "_Következő nézet előtérbe"
 
-#: ../midori/midori-browser.c:5620
+#: ../midori/midori-browser.c:5339
 msgid "Only show the Icon of the _Current Tab"
 msgstr "Csak _a jelenlegi lap ikonjának megjelenítése"
 
-#: ../midori/midori-browser.c:5623
+#: ../midori/midori-browser.c:5342
 msgid "_Duplicate Current Tab"
 msgstr "Jelenlegi lap _kettőzése"
 
-#: ../midori/midori-browser.c:5626
+#: ../midori/midori-browser.c:5345
 msgid "Close Ot_her Tabs"
 msgstr "_Többi lap bezárása"
 
-#: ../midori/midori-browser.c:5629
+#: ../midori/midori-browser.c:5348
 msgid "Open last _session"
 msgstr "_Utolsó munkamenet megnyitása"
 
-#: ../midori/midori-browser.c:5632
+#: ../midori/midori-browser.c:5351
 msgid "_Help"
 msgstr "_Súgó"
 
-#: ../midori/midori-browser.c:5634
+#: ../midori/midori-browser.c:5353
 msgid "_Frequent Questions"
 msgstr "_Gyakori kérdések"
 
-#: ../midori/midori-browser.c:5637
+#: ../midori/midori-browser.c:5356
 msgid "_Report a Problem…"
 msgstr "_Hiba jelentése…"
 
-#: ../midori/midori-browser.c:5642
-#: ../midori/midori-browser.c:6303
+#: ../midori/midori-browser.c:5361 ../midori/midori-browser.c:6018
 msgid "_Tools"
 msgstr "_Eszközök"
 
-#: ../midori/midori-browser.c:5649
+#: ../midori/midori-browser.c:5368
 msgid "_Menubar"
 msgstr "_Menüsáv"
 
-#: ../midori/midori-browser.c:5653
+#: ../midori/midori-browser.c:5372
 msgid "_Navigationbar"
 msgstr "_Navigációs sáv"
 
-#: ../midori/midori-browser.c:5657
+#: ../midori/midori-browser.c:5376
 msgid "Side_panel"
 msgstr "_Oldalsáv"
 
-#: ../midori/midori-browser.c:5658
+#: ../midori/midori-browser.c:5377
 msgid "Sidepanel"
 msgstr "Oldalsáv"
 
-#: ../midori/midori-browser.c:5661
+#: ../midori/midori-browser.c:5380
 msgid "_Bookmarkbar"
 msgstr "_Könyvjelzősáv"
 
-#: ../midori/midori-browser.c:5665
+#: ../midori/midori-browser.c:5384
 msgid "_Statusbar"
 msgstr "Á_llapotsor"
 
-#: ../midori/midori-browser.c:5674
-#: ../midori/midori-websettings.c:199
+#: ../midori/midori-browser.c:5393 ../midori/midori-websettings.c:200
 msgid "_Automatic"
 msgstr "_Automatikus"
 
-#: ../midori/midori-browser.c:5677
-#: ../midori/midori-websettings.c:123
+#: ../midori/midori-browser.c:5396 ../midori/midori-websettings.c:124
 msgid "Chinese Traditional (BIG5)"
 msgstr "Kínai ‒ hagyományos (BIG5)"
 
-#: ../midori/midori-browser.c:5680
-#: ../midori/midori-websettings.c:124
+#: ../midori/midori-browser.c:5399 ../midori/midori-websettings.c:125
 msgid "Chinese Simplified (GB18030)"
 msgstr "Kínai ‒ egyszerűsített (GB18030)"
 
 #. i18n: A double underscore "__" is used to prevent the mnemonic
-#: ../midori/midori-browser.c:5684
+#: ../midori/midori-browser.c:5403
 msgid "Japanese (SHIFT__JIS)"
 msgstr "Japán (SHIFT__JIS)"
 
-#: ../midori/midori-browser.c:5687
-#: ../midori/midori-websettings.c:126
+#: ../midori/midori-browser.c:5406 ../midori/midori-websettings.c:127
 msgid "Korean (EUC-KR)"
 msgstr "Koreai (EUC-KR)"
 
-#: ../midori/midori-browser.c:5690
-#: ../midori/midori-websettings.c:127
+#: ../midori/midori-browser.c:5409 ../midori/midori-websettings.c:128
 msgid "Russian (KOI8-R)"
 msgstr "Orosz (KOI8-R)"
 
-#: ../midori/midori-browser.c:5693
-#: ../midori/midori-websettings.c:128
+#: ../midori/midori-browser.c:5412 ../midori/midori-websettings.c:129
 msgid "Unicode (UTF-8)"
 msgstr "Unicode (UTF-8)"
 
-#: ../midori/midori-browser.c:5696
-#: ../midori/midori-websettings.c:129
+#: ../midori/midori-browser.c:5415 ../midori/midori-websettings.c:130
 msgid "Western (ISO-8859-1)"
 msgstr "Nyugati (ISO-8859-1)"
 
-#: ../midori/midori-browser.c:5699
+#: ../midori/midori-browser.c:5418
 msgid "Custom…"
 msgstr "Egyéni…"
 
-#: ../midori/midori-browser.c:6209
+#: ../midori/midori-browser.c:5924
 msgid "_Separator"
 msgstr "_Elválasztó"
 
-#: ../midori/midori-browser.c:6216
+#: ../midori/midori-browser.c:5931
 msgid "_Location…"
 msgstr "He_ly…"
 
-#: ../midori/midori-browser.c:6218
+#: ../midori/midori-browser.c:5933
 msgid "Open a particular location"
 msgstr "Adott hely megnyitása"
 
-#: ../midori/midori-browser.c:6240
+#: ../midori/midori-browser.c:5955
 msgid "_Web Search…"
 msgstr "_Webkeresés…"
 
-#: ../midori/midori-browser.c:6242
+#: ../midori/midori-browser.c:5957
 msgid "Run a web search"
 msgstr "Webkeresés futtatása "
 
-#: ../midori/midori-browser.c:6269
+#: ../midori/midori-browser.c:5984
 msgid "Reopen a previously closed tab or window"
 msgstr "Korábban bezárt lap vagy ablak ismételt megnyitása"
 
-#: ../midori/midori-browser.c:6286
+#: ../midori/midori-browser.c:6001
 msgid "Show the saved bookmarks"
 msgstr "A mentett könyvjelzők megjelenítése"
 
-#: ../midori/midori-browser.c:6319
+#: ../midori/midori-browser.c:6034
 msgid "_Window"
 msgstr "_Ablak"
 
-#: ../midori/midori-browser.c:6321
+#: ../midori/midori-browser.c:6036
 msgid "Show a list of all open tabs"
 msgstr "Az összes megnyitott lap listájának megjelenítése"
 
-#: ../midori/midori-browser.c:6335
+#: ../midori/midori-browser.c:6050
 msgid "_Menu"
 msgstr "_Menü"
 
-#: ../midori/midori-browser.c:6337
+#: ../midori/midori-browser.c:6052
 msgid "Menu"
 msgstr "Menü"
 
-#: ../midori/midori-browser.c:7183
+#: ../midori/midori-browser.c:6832
 #, c-format
 msgid "Unexpected setting '%s'"
 msgstr "Váratlan beállítás: „%s”"
 
-#: ../midori/midori-extension.c:330
+#: ../midori/midori-extension.c:341
 #, c-format
 msgid "The configuration of the extension '%s' couldn't be loaded: %s\n"
 msgstr "A(z) „%s” kiterjesztés beállításai nem tölthetők be: %s\n"
 
-#: ../midori/midori-extension.c:852
-#: ../midori/midori-extension.c:949
-#: ../midori/midori-extension.c:1046
-#: ../midori/midori-extension.c:1158
-#: ../extensions/addons.c:1686
+#: ../midori/midori-extension.c:879 ../extensions/addons.c:1676
 #, c-format
 msgid "The configuration of the extension '%s' couldn't be saved: %s\n"
 msgstr "A(z) „%s” kiterjesztés beállításai nem menthetők: %s\n"
 
-#: ../midori/midori-locationaction.c:1071
+#: ../midori/midori-locationaction.c:1328
 msgid "Export certificate"
 msgstr "Tanúsítvány exportálása"
 
-#: ../midori/midori-locationaction.c:1103
+#: ../midori/midori-locationaction.c:1360
 msgid "The signing certificate authority is not known."
 msgstr "Az aláíró hitelesítésszolgáltató ismeretlen."
 
-#: ../midori/midori-locationaction.c:1105
-msgid "The certificate does not match the expected identity of the site that it was retrieved from."
-msgstr "A tanúsítvány nem egyezik az oldal várt azonosítójával, ahonnan származik."
+#: ../midori/midori-locationaction.c:1362
+msgid ""
+"The certificate does not match the expected identity of the site that it was "
+"retrieved from."
+msgstr ""
+"A tanúsítvány nem egyezik az oldal várt azonosítójával, ahonnan származik."
 
-#: ../midori/midori-locationaction.c:1107
+#: ../midori/midori-locationaction.c:1364
 msgid "The certificate's activation time is still in the future."
 msgstr "A tanúsítvány aktiválási ideje még jövőbeli."
 
-#: ../midori/midori-locationaction.c:1109
+#: ../midori/midori-locationaction.c:1366
 msgid "The certificate has expired"
 msgstr "A tanúsítvány lejárt"
 
-#: ../midori/midori-locationaction.c:1111
-msgid "The certificate has been revoked according to the GTlsConnection's certificate revocation list."
-msgstr "A tanúsítvány visszavonásra került a GTlsConnection tanúsítvány-visszavonási listájának megfelelően."
+#: ../midori/midori-locationaction.c:1368
+msgid ""
+"The certificate has been revoked according to the GTlsConnection's "
+"certificate revocation list."
+msgstr ""
+"A tanúsítvány visszavonásra került a GTlsConnection tanúsítvány-visszavonási "
+"listájának megfelelően."
 
-#: ../midori/midori-locationaction.c:1113
+#: ../midori/midori-locationaction.c:1370
 msgid "The certificate's algorithm is considered insecure."
 msgstr "A tanúsítvány algoritmusa megbízhatatlan."
 
-#: ../midori/midori-locationaction.c:1115
+#: ../midori/midori-locationaction.c:1372
 msgid "Some other error occurred validating the certificate."
 msgstr "Valamilyen más hiba történt a tanúsítvány érvényesítésekor."
 
-#: ../midori/midori-locationaction.c:1162
+#: ../midori/midori-locationaction.c:1419
 msgid "_Export certificate"
 msgstr "Tanúsítvány _exportálása"
 
-#: ../midori/midori-locationaction.c:1177
+#: ../midori/midori-locationaction.c:1434
 msgid "Self-signed"
 msgstr "Önaláírt"
 
-#: ../midori/midori-locationaction.c:1211
+#: ../midori/midori-locationaction.c:1468
 msgid "Security details"
 msgstr "Biztonsági részletek"
 
 #. i18n: Right-click on Location, Open an URL from the clipboard
-#: ../midori/midori-locationaction.c:1494
+#: ../midori/midori-locationaction.c:1555
 msgid "Paste and p_roceed"
 msgstr "Beillesztés és _folytatás"
 
-#: ../midori/midori-locationaction.c:1726
+#: ../midori/midori-locationaction.c:1787
 msgid "Not verified"
 msgstr "Nem ellenőrzött"
 
-#: ../midori/midori-locationaction.c:1734
+#: ../midori/midori-locationaction.c:1795
 msgid "Verified and encrypted connection"
 msgstr "Ellenőrzött és titkosított kapcsolat"
 
-#: ../midori/midori-locationaction.c:1741
+#: ../midori/midori-locationaction.c:1802
 msgid "Open, unencrypted connection"
 msgstr "Nyílt, titkosítás nélküli kapcsolat"
 
-#: ../midori/midori-panel.c:317
-#: ../midori/midori-panel.c:319
-#: ../midori/midori-panel.c:483
-#: ../midori/midori-panel.c:486
+#: ../midori/midori-panel.c:314 ../midori/midori-panel.c:316
+#: ../midori/midori-panel.c:480 ../midori/midori-panel.c:483
 msgid "Align sidepanel to the right"
 msgstr "Az oldalsáv jobbra igazítása"
 
-#: ../midori/midori-panel.c:329
-#: ../midori/midori-panel.c:330
+#: ../midori/midori-panel.c:326 ../midori/midori-panel.c:327
 msgid "Close panel"
 msgstr "Panel bezárása"
 
-#: ../midori/midori-panel.c:484
-#: ../midori/midori-panel.c:487
+#: ../midori/midori-panel.c:481 ../midori/midori-panel.c:484
 msgid "Align sidepanel to the left"
 msgstr "Az oldalsáv balra igazítása"
 
-#: ../midori/midori-websettings.c:105
+#: ../midori/midori-websettings.c:106
 msgid "Show Speed Dial"
 msgstr "Gyorstárcsázó megjelenítése"
 
-#: ../midori/midori-websettings.c:106
+#: ../midori/midori-websettings.c:107
 msgid "Show Homepage"
 msgstr "Kezdőlap megjelenítése"
 
-#: ../midori/midori-websettings.c:125
+#: ../midori/midori-websettings.c:108 ../midori/midori-frontend.c:339
+msgid "Show last open tabs"
+msgstr "A legutóbbi lapok megjelenítése"
+
+#: ../midori/midori-websettings.c:109 ../midori/midori-frontend.c:338
+msgid "Show last tabs without loading"
+msgstr "A legutóbbi lapok megjelenítése betöltés nélkül"
+
+#: ../midori/midori-websettings.c:126
 msgid "Japanese (SHIFT_JIS)"
 msgstr "Japán (SHIFT_JIS)"
 
-#: ../midori/midori-websettings.c:130
-#: ../midori/midori-websettings.c:206
-#: ../katze/katze-utils.c:633
+#: ../midori/midori-websettings.c:131 ../midori/midori-websettings.c:207
+#: ../katze/katze-utils.c:603
 msgid "Custom..."
 msgstr "Egyéni…"
 
-#: ../midori/midori-websettings.c:145
+#: ../midori/midori-websettings.c:146
 msgid "New tab"
 msgstr "Új lap"
 
-#: ../midori/midori-websettings.c:146
+#: ../midori/midori-websettings.c:147
 msgid "New window"
 msgstr "Új ablak"
 
-#: ../midori/midori-websettings.c:147
+#: ../midori/midori-websettings.c:148
 msgid "Current tab"
 msgstr "Aktuális lap"
 
-#: ../midori/midori-websettings.c:162
+#: ../midori/midori-websettings.c:163
 msgid "Default"
 msgstr "Alapértelmezett"
 
-#: ../midori/midori-websettings.c:163
+#: ../midori/midori-websettings.c:164
 msgid "Icons"
 msgstr "Ikonok"
 
-#: ../midori/midori-websettings.c:164
+#: ../midori/midori-websettings.c:165
 msgid "Small icons"
 msgstr "Kis ikonok"
 
-#: ../midori/midori-websettings.c:165
+#: ../midori/midori-websettings.c:166
 msgid "Text"
 msgstr "Szöveg"
 
-#: ../midori/midori-websettings.c:166
+#: ../midori/midori-websettings.c:167
 msgid "Icons and text"
 msgstr "Ikonok és szöveg"
 
-#: ../midori/midori-websettings.c:167
+#: ../midori/midori-websettings.c:168
 msgid "Text beside icons"
 msgstr "Szöveg az ikonok mellett"
 
-#: ../midori/midori-websettings.c:182
+#: ../midori/midori-websettings.c:183
 msgid "Automatic (GNOME or environment)"
 msgstr "Automatikus (GNOME vagy környezet)"
 
-#: ../midori/midori-websettings.c:183
+#: ../midori/midori-websettings.c:184
 msgid "HTTP proxy server"
 msgstr "HTTP proxykiszolgáló"
 
-#: ../midori/midori-websettings.c:184
+#: ../midori/midori-websettings.c:185
 msgid "No proxy server"
 msgstr "Nincs proxykiszolgáló"
 
-#: ../midori/midori-websettings.c:201
+#: ../midori/midori-websettings.c:202
 msgid "Chrome"
 msgstr "Chrome"
 
-#: ../midori/midori-websettings.c:202
+#: ../midori/midori-websettings.c:203
 msgid "Safari"
 msgstr "Safari"
 
-#: ../midori/midori-websettings.c:203
+#: ../midori/midori-websettings.c:204
 msgid "iPhone"
 msgstr "iPhone"
 
-#: ../midori/midori-websettings.c:204
+#: ../midori/midori-websettings.c:205
 msgid "Firefox"
 msgstr "Firefox"
 
-#: ../midori/midori-websettings.c:205
+#: ../midori/midori-websettings.c:206
 msgid "Internet Explorer"
 msgstr "Internet Explorer"
 
-#: ../midori/midori-websettings.c:278
+#: ../midori/midori-websettings.c:280
 msgid "Toolbar Style:"
 msgstr "Eszköztár stílusa:"
 
-#: ../midori/midori-websettings.c:279
+#: ../midori/midori-websettings.c:281
 msgid "The style of the toolbar"
 msgstr "Az eszköztár stílusa"
 
-#: ../midori/midori-websettings.c:288
+#: ../midori/midori-websettings.c:290
 msgid "When Midori starts:"
 msgstr "A Midori indulásakor:"
 
-#: ../midori/midori-websettings.c:325
+#: ../midori/midori-websettings.c:327
 msgid "Open new pages in:"
 msgstr "Új oldalak megnyitása:"
 
 #. i18n: This refers to an application, not the 'user agent' string
-#: ../midori/midori-websettings.c:388
+#: ../midori/midori-websettings.c:390
 msgid "Identify as"
 msgstr "Azonosítás mint"
 
-#: ../midori/midori-websettings.c:389
+#: ../midori/midori-websettings.c:391
 msgid "What to identify as to web pages"
 msgstr "Miként mutatkozzon be a weboldalaknak"
 
-#: ../midori/midori-websettings.c:472
+#: ../midori/midori-websettings.c:474
 msgid "Always use my font choices"
 msgstr "Mindig a saját betűkészletek használata"
 
-#: ../midori/midori-websettings.c:473
+#: ../midori/midori-websettings.c:475
 msgid "Override fonts picked by websites with user preferences"
-msgstr "A weboldalak által választott betűkészletek felülbírálása felhasználói beállításokkal"
+msgstr ""
+"A weboldalak által választott betűkészletek felülbírálása felhasználói "
+"beállításokkal"
+
+#: ../midori/midori-websettings.c:1305 ../midori/midori-websettings.c:1311
+#, c-format
+msgid "The configuration couldn't be loaded: %s\n"
+msgstr "A beállítások nem tölthetők be: %s\n"
+
+#: ../midori/midori-websettings.c:1360
+#, c-format
+msgid "Value '%s' is invalid for %s"
+msgstr "A(z) „%s” érték érvénytelen ehhez: %s"
+
+#: ../midori/midori-websettings.c:1365 ../midori/midori-websettings.c:1476
+#, c-format
+msgid "Invalid configuration value '%s'"
+msgstr "Érvénytelen beállításérték: „%s”"
 
 #: ../midori/midori-tab.vala:117
 #, c-format
 msgid "Failed to inject stylesheet: %s"
 msgstr "A stíluslap beillesztése meghiúsult: %s"
 
-#: ../midori/midori-view.c:725
-#: ../midori/midori-view.c:863
+#: ../midori/midori-view.c:725 ../midori/midori-view.c:866
 msgid "Trust this website"
 msgstr "Ez a weboldal megbízható"
 
-#: ../midori/midori-view.c:861
+#: ../midori/midori-view.c:864
 msgid "Security unknown"
 msgstr "Ismeretlen biztonság"
 
-#: ../midori/midori-view.c:1159
+#: ../midori/midori-view.c:1162
 #, c-format
 msgid "%s wants to save an HTML5 database."
 msgstr "%s HTML5 adatbázist szeretne menteni."
 
-#: ../midori/midori-view.c:1163
-#: ../midori/midori-view.c:1195
+#: ../midori/midori-view.c:1166 ../midori/midori-view.c:1198
 msgid "_Deny"
 msgstr "_Megtagadás"
 
-#: ../midori/midori-view.c:1163
-#: ../midori/midori-view.c:1195
+#: ../midori/midori-view.c:1166 ../midori/midori-view.c:1198
 msgid "_Allow"
 msgstr "_Engedélyezés"
 
-#: ../midori/midori-view.c:1191
+#: ../midori/midori-view.c:1194
 #, c-format
 msgid "%s wants to know your location."
 msgstr "%s tudni szeretné az Ön tartózkodási helyét."
 
-#: ../midori/midori-view.c:1298
+#: ../midori/midori-view.c:1305
 #, c-format
 msgid "Error - %s"
 msgstr "Hiba - %s"
 
-#: ../midori/midori-view.c:1299
+#: ../midori/midori-view.c:1306
 #, c-format
 msgid "The page '%s' couldn't be loaded."
 msgstr "A(z) „%s” oldal nem tölthető be."
 
-#: ../midori/midori-view.c:1301
+#: ../midori/midori-view.c:1308
 msgid "Try again"
 msgstr "Próbálja újra"
 
-#: ../midori/midori-view.c:1500
-#: ../midori/midori-view.c:2567
+#: ../midori/midori-view.c:1507 ../midori/midori-view.c:2578
 #, c-format
 msgid "Send a message to %s"
 msgstr "Üzenet küldése a következőnek: %s"
 
-#: ../midori/midori-view.c:2350
+#: ../midori/midori-view.c:2362
 msgid "Add _search engine..."
 msgstr "Keresőszolgáltatás h_ozzáadása…"
 
-#: ../midori/midori-view.c:2394
-#: ../midori/midori-view.c:2704
+#: ../midori/midori-view.c:2405 ../midori/midori-view.c:2713
 msgid "Inspect _Element"
 msgstr "Elem _vizsgálata"
 
-#: ../midori/midori-view.c:2446
+#: ../midori/midori-view.c:2457
 msgid "Open Link in New _Tab"
 msgstr "Hivatkozás megnyitása új _lapon"
 
-#: ../midori/midori-view.c:2450
+#: ../midori/midori-view.c:2461
 msgid "Open Link in _Foreground Tab"
 msgstr "Hi_vatkozás megnyitása az előtérben lévő lapon"
 
-#: ../midori/midori-view.c:2451
+#: ../midori/midori-view.c:2462
 msgid "Open Link in _Background Tab"
 msgstr "_Hivatkozás megnyitása a háttérben lévő lapon"
 
-#: ../midori/midori-view.c:2454
+#: ../midori/midori-view.c:2465
 msgid "Open Link in New _Window"
 msgstr "Hivatkozás megnyitása új _ablakban"
 
-#: ../midori/midori-view.c:2457
+#: ../midori/midori-view.c:2468
 msgid "Open Link as Web A_pplication"
 msgstr "Hivatkozás megnyitása _webes alkalmazásként"
 
-#: ../midori/midori-view.c:2462
+#: ../midori/midori-view.c:2473
 msgid "Copy Link de_stination"
 msgstr "Hivatkozás _címének másolása"
 
-#: ../midori/midori-view.c:2478
+#: ../midori/midori-view.c:2489
 msgid "Open _Image in New Tab"
 msgstr "Ké_p megnyitása új lapon"
 
-#: ../midori/midori-view.c:2481
+#: ../midori/midori-view.c:2492
 msgid "Copy Im_age"
 msgstr "Kép _másolása"
 
-#: ../midori/midori-view.c:2484
+#: ../midori/midori-view.c:2495
 msgid "Save I_mage"
 msgstr "Kép me_ntése"
 
-#: ../midori/midori-view.c:2487
+#: ../midori/midori-view.c:2498
 msgid "Open in Image _Viewer"
 msgstr "Megnyitás a _képmegjelenítőben"
 
-#: ../midori/midori-view.c:2494
+#: ../midori/midori-view.c:2505
 msgid "Copy Video _Address"
 msgstr "Videó _címének másolása"
 
-#: ../midori/midori-view.c:2497
+#: ../midori/midori-view.c:2508
 msgid "Save _Video"
 msgstr "Videó me_ntése"
 
-#: ../midori/midori-view.c:2497
+#: ../midori/midori-view.c:2508
 msgid "Download _Video"
 msgstr "_Videó letöltése"
 
-#: ../midori/midori-view.c:2523
+#: ../midori/midori-view.c:2534
 msgid "Search _with"
 msgstr "_Keresés ezzel"
 
-#: ../midori/midori-view.c:2555
+#: ../midori/midori-view.c:2566
 msgid "_Search the Web"
 msgstr "Keresés a _weben"
 
-#: ../midori/midori-view.c:2575
+#: ../midori/midori-view.c:2586
 msgid "Open Address in New _Tab"
 msgstr "Cím meg_nyitása új lapon"
 
-#: ../midori/midori-view.c:2622
+#: ../midori/midori-view.c:2633
 msgid "Open _Frame in New Tab"
 msgstr "_Keret megnyitása új lapon"
 
-#: ../midori/midori-view.c:2831
+#: ../midori/midori-view.c:2845
 #, c-format
 msgid "Open or download file from %s"
 msgstr "Fájl megnyitása vagy letöltése innen: %s"
 
-#: ../midori/midori-view.c:2844
+#: ../midori/midori-view.c:2858
 #, c-format
 msgid "File Name: %s"
 msgstr "Fájlnév: %s"
 
-#: ../midori/midori-view.c:2849
+#: ../midori/midori-view.c:2863
 #, c-format
 msgid "File Type: '%s'"
 msgstr "Fájltípus: „%s”"
 
-#: ../midori/midori-view.c:2851
+#: ../midori/midori-view.c:2865
 #, c-format
 msgid "File Type: %s ('%s')"
 msgstr "Fájltípus: %s („%s”)"
 
-#: ../midori/midori-view.c:2888
+#: ../midori/midori-view.c:2902
 #, c-format
 msgid "Size: %s"
 msgstr "Méret: %s"
 
 #. i18n: A file open dialog title, ie. "Open http://fila.com/manual.tgz"
-#: ../midori/midori-view.c:2899
+#: ../midori/midori-view.c:2913
 #, c-format
 msgid "Open %s"
 msgstr "%s megnyitása"
 
-#: ../midori/midori-view.c:3425
+#: ../midori/midori-view.c:3439
 #, c-format
 msgid "Inspect page - %s"
 msgstr "Oldal vizsgálata - %s"
 
-#: ../midori/midori-view.c:3843
+#: ../midori/midori-view.c:3854
 #, c-format
 msgid "No documentation installed"
 msgstr "Nincs telepítve dokumentáció"
 
-#: ../midori/midori-view.c:3920
+#: ../midori/midori-view.c:3930
 msgid "Midori doesn't store any personal data:"
 msgstr "A Midori nem tárol személyes adatokat:"
 
-#: ../midori/midori-view.c:3921
+#: ../midori/midori-view.c:3931
 msgid "No history or web cookies are being saved."
 msgstr "Nem kerülnek mentésre előzmények vagy webes sütik."
 
-#: ../midori/midori-view.c:3922
+#: ../midori/midori-view.c:3932
 msgid "Extensions are disabled."
 msgstr "Kiterjesztések letiltva."
 
-#: ../midori/midori-view.c:3923
+#: ../midori/midori-view.c:3933
 msgid "HTML5 storage, local database and application caches are disabled."
-msgstr "HTML5 tárolás, a helyi adatbázis- és alkalmazás-gyorsítótárak le vannak tiltva."
+msgstr ""
+"HTML5 tárolás, a helyi adatbázis- és alkalmazás-gyorsítótárak le vannak "
+"tiltva."
 
-#: ../midori/midori-view.c:3924
+#: ../midori/midori-view.c:3934
 msgid "Midori prevents websites from tracking the user:"
 msgstr "A Midori megakadályozza, hogy a weboldalak kövessék a felhasználót:"
 
-#: ../midori/midori-view.c:3925
+#: ../midori/midori-view.c:3935
 msgid "Referrer URLs are stripped down to the hostname."
 msgstr "A hivatkozó URL-címek le lesznek csupaszítva a gépnévig."
 
-#: ../midori/midori-view.c:3926
+#: ../midori/midori-view.c:3936
 msgid "DNS prefetching is disabled."
 msgstr "A DNS-előtöltés letiltva."
 
-#: ../midori/midori-view.c:3927
+#: ../midori/midori-view.c:3937
 msgid "The language and timezone are not revealed to websites."
 msgstr "A nyelv és időzóna nem kerül megadásra a weboldalaknak."
 
-#: ../midori/midori-view.c:3928
+#: ../midori/midori-view.c:3938
 msgid "Flash and other Netscape plugins cannot be listed by websites."
-msgstr "A Flash és más Netscape bővítmények nem sorolhatók fel a weboldalak által."
+msgstr ""
+"A Flash és más Netscape bővítmények nem sorolhatók fel a weboldalak által."
 
-#: ../midori/midori-view.c:4011
+#: ../midori/midori-view.c:4017
 msgid "Version numbers in brackets show the version used at runtime."
-msgstr "A szögletes zárójelben lévő verziószámok megjelenítik a futás közben használt verziót."
+msgstr ""
+"A szögletes zárójelben lévő verziószámok megjelenítik a futás közben "
+"használt verziót."
 
-#: ../midori/midori-view.c:4057
+#: ../midori/midori-view.c:4063
 msgid "Page loading delayed"
 msgstr "Oldalbetöltés késleltetve"
 
-#: ../midori/midori-view.c:4058
+#: ../midori/midori-view.c:4064
 msgid "Loading delayed either due to a recent crash or startup preferences."
-msgstr "A betöltés késleltetve egy nem régi összeomlás vagy az indítási beállítások miatt."
+msgstr ""
+"A betöltés késleltetve egy nem régi összeomlás vagy az indítási beállítások "
+"miatt."
 
-#: ../midori/midori-view.c:4059
+#: ../midori/midori-view.c:4065
 msgid "Load Page"
 msgstr "Oldal betöltése"
 
-#: ../midori/midori-view.c:4223
+#: ../midori/midori-view.c:4229
 msgid "Blank page"
 msgstr "Üres oldal"
 
-#: ../midori/midori-view.c:4434
+#: ../midori/midori-view.c:4439
 msgid "_Duplicate Tab"
 msgstr "_Lap kettőzése"
 
-#: ../midori/midori-view.c:4439
+#: ../midori/midori-view.c:4444
 msgid "Show Tab _Label"
 msgstr "Lap_címke megjelenítése"
 
-#: ../midori/midori-view.c:4439
+#: ../midori/midori-view.c:4444
 msgid "Show Tab _Icon Only"
 msgstr "Csak l_apikon megjelenítése"
 
-#: ../midori/midori-view.c:4446
+#: ../midori/midori-view.c:4451
 msgid "Close Ot_her Tab"
 msgid_plural "Close Ot_her Tabs"
 msgstr[0] "_Másik lap bezárása"
 msgstr[1] "_Többi lap bezárása"
 
 #. i18n: word stem of "previous page" type links, case is not important
-#: ../midori/midori-view.c:5119
+#: ../midori/midori-view.c:5126
 msgid "previous"
 msgstr "előző"
 
 #. i18n: word stem of "next page" type links, case is not important
-#: ../midori/midori-view.c:5138
+#: ../midori/midori-view.c:5145
 msgid "next"
 msgstr "következő"
 
-#: ../midori/midori-view.c:5151
+#: ../midori/midori-view.c:5158
 msgid "Print background images"
 msgstr "Háttérképek nyomtatása"
 
-#: ../midori/midori-view.c:5152
+#: ../midori/midori-view.c:5159
 msgid "Whether background images should be printed"
 msgstr "A háttérképeket ki kell-e nyomtatni"
 
-#: ../midori/midori-view.c:5184
+#: ../midori/midori-view.c:5191
 msgid "Features"
 msgstr "Szolgáltatások"
 
@@ -1647,8 +1496,12 @@ msgid "The downloaded file is erroneous."
 msgstr "A letöltött fájl hibás."
 
 #: ../midori/midori-download.vala:198
-msgid "The checksum provided with the link did not match. This means the file is probably incomplete or was modified afterwards."
-msgstr "A hivatkozáshoz tartozó ellenőrzőösszeg nem egyezik. Ez azt jelenti, hogy a fájl valószínűleg nem teljes, vagy megváltozott."
+msgid ""
+"The checksum provided with the link did not match. This means the file is "
+"probably incomplete or was modified afterwards."
+msgstr ""
+"A hivatkozáshoz tartozó ellenőrzőösszeg nem egyezik. Ez azt jelenti, hogy a "
+"fájl valószínűleg nem teljes, vagy megváltozott."
 
 #: ../midori/midori-download.vala:312
 #, c-format
@@ -1673,8 +1526,7 @@ msgstr "A fájl %s helyet igényel, de csak %s maradt."
 msgid "Speed Dial"
 msgstr "Gyorstárcsázó"
 
-#: ../midori/midori-speeddial.vala:181
-#: ../midori/midori-speeddial.vala:261
+#: ../midori/midori-speeddial.vala:181 ../midori/midori-speeddial.vala:261
 msgid "Click to add a shortcut"
 msgstr "Kattintson gyorsindító hozzáadásához"
 
@@ -1711,244 +1563,324 @@ msgstr "Jelenlegi oldal használata kezdőlapként"
 msgid "Fonts"
 msgstr "Betűkészletek"
 
-#: ../midori/midori-preferences.c:329
+#: ../midori/midori-preferences.c:328
 msgid "Proportional Font Family"
 msgstr "Proporcionális betűkészletcsalád"
 
-#: ../midori/midori-preferences.c:333
+#: ../midori/midori-preferences.c:332
 msgid "The default font family used to display text"
-msgstr "A szöveg megjelenítésére alapértelmezésben használandó betűkészletcsalád"
+msgstr ""
+"A szöveg megjelenítésére alapértelmezésben használandó betűkészletcsalád"
 
-#: ../midori/midori-preferences.c:336
+#: ../midori/midori-preferences.c:335
 msgid "The default font size used to display text"
 msgstr "A szöveg megjelenítésére alapértelmezésben használandó betűméret"
 
-#: ../midori/midori-preferences.c:338
+#: ../midori/midori-preferences.c:337
 msgid "Fixed-width Font Family"
 msgstr "Rögzített szélességű betűkészletcsalád"
 
-#: ../midori/midori-preferences.c:342
+#: ../midori/midori-preferences.c:341
 msgid "The font family used to display fixed-width text"
-msgstr "A rögzített szélességű szöveg megjelenítésére használt betűkészletcsalád"
+msgstr ""
+"A rögzített szélességű szöveg megjelenítésére használt betűkészletcsalád"
 
-#: ../midori/midori-preferences.c:345
+#: ../midori/midori-preferences.c:344
 msgid "The font size used to display fixed-width text"
 msgstr "A rögzített szélességű szöveg megjelenítésére használt betűméret"
 
-#: ../midori/midori-preferences.c:347
+#: ../midori/midori-preferences.c:346
 msgid "Minimum Font Size"
 msgstr "Minimális betűméret"
 
-#: ../midori/midori-preferences.c:351
+#: ../midori/midori-preferences.c:350
 msgid "The minimum font size used to display text"
 msgstr "A szöveg megjelenítésére használt minimális betűméret"
 
-#: ../midori/midori-preferences.c:356
+#: ../midori/midori-preferences.c:354
 msgid "Preferred Encoding"
 msgstr "Előnyben részesített kódolás"
 
 #. Page "Behavior"
-#: ../midori/midori-preferences.c:363
+#: ../midori/midori-preferences.c:361
 msgid "Behavior"
 msgstr "Viselkedés"
 
-#: ../midori/midori-preferences.c:367
-#: ../extensions/statusbar-features.c:155
+#: ../midori/midori-preferences.c:364 ../extensions/statusbar-features.c:155
 msgid "Load images automatically"
 msgstr "Képek automatikus betöltése"
 
-#: ../midori/midori-preferences.c:370
+#: ../midori/midori-preferences.c:367
 msgid "Enable Spell Checking"
 msgstr "Helyesírás-ellenőrzés engedélyezése"
 
-#: ../midori/midori-preferences.c:384
-#: ../extensions/statusbar-features.c:165
+#: ../midori/midori-preferences.c:381 ../extensions/statusbar-features.c:165
 msgid "Enable scripts"
 msgstr "Parancsfájlok engedélyezése"
 
-#: ../midori/midori-preferences.c:387
-#: ../extensions/statusbar-features.c:177
+#: ../midori/midori-preferences.c:385
+msgid "Enable WebGL support"
+msgstr "WebGL-támogatás engedélyezése"
+
+#: ../midori/midori-preferences.c:388 ../extensions/statusbar-features.c:177
 msgid "Enable Netscape plugins"
 msgstr "Netscape bővítmények engedélyezése"
 
-#: ../midori/midori-preferences.c:392
+#: ../midori/midori-preferences.c:393
 msgid "Zoom Text and Images"
 msgstr "Szöveg és képek nagyítása"
 
-#: ../midori/midori-preferences.c:395
+#: ../midori/midori-preferences.c:396
 msgid "Allow scripts to open popups"
 msgstr "A parancsfájlok megnyithatnak felugró ablakokat"
 
-#: ../midori/midori-preferences.c:396
+#: ../midori/midori-preferences.c:397
 msgid "Whether scripts are allowed to open popup windows automatically"
 msgstr "A parancsfájlok megnyithatnak-e automatikusan felugró ablakokat"
 
 # Fixme: ez mi?
-#: ../midori/midori-preferences.c:402
+#: ../midori/midori-preferences.c:403
 msgid "Kinetic scrolling"
 msgstr "Kinetikus görgetés"
 
 # Fixme: ez mi?
-#: ../midori/midori-preferences.c:403
+#: ../midori/midori-preferences.c:404
 msgid "Whether scrolling should kinetically move according to speed"
 msgstr "A görgetés kinetikusan mozogjon-e a sebességnek megfelelően"
 
-#: ../midori/midori-preferences.c:408
+#: ../midori/midori-preferences.c:409
 msgid "Middle click opens Selection"
 msgstr "A középső kattintás megnyitja a kijelölést"
 
-#: ../midori/midori-preferences.c:409
+#: ../midori/midori-preferences.c:410
 msgid "Load an address from the selection via middle click"
 msgstr "Cím betöltése a kijelölésből középső kattintásra"
 
 #: ../midori/midori-preferences.c:415
-msgid "Enable WebGL support"
-msgstr "WebGL-támogatás engedélyezése"
-
-#: ../midori/midori-preferences.c:420
 msgid "Flash window on background tabs"
 msgstr "Ablak megvillantása háttérben lévő lapok nyitásakor"
 
-#: ../midori/midori-preferences.c:425
+#: ../midori/midori-preferences.c:420
 msgid "Preferred languages"
 msgstr "Előnyben részesített nyelvek"
 
-#: ../midori/midori-preferences.c:429
-msgid "A comma separated list of languages preferred for rendering multilingual webpages, for example \"de\", \"ru,nl\" or \"en-us;q=1.0, fr-fr;q=0.667\""
-msgstr "Többnyelvű weboldalak megjelenítésekor előnyben részesített nyelvek vesszővel elválasztott listája. Például: „hu”, „hu,en” vagy „en-us;q=1.0, fr-fr;q=0.667”"
+#: ../midori/midori-preferences.c:424
+msgid ""
+"A comma separated list of languages preferred for rendering multilingual "
+"webpages, for example \"de\", \"ru,nl\" or \"en-us;q=1.0, fr-fr;q=0.667\""
+msgstr ""
+"Többnyelvű weboldalak megjelenítésekor előnyben részesített nyelvek "
+"vesszővel elválasztott listája. Például: „hu”, „hu,en” vagy „en-us;q=1.0, fr-"
+"fr;q=0.667”"
 
-#: ../midori/midori-preferences.c:431
+#: ../midori/midori-preferences.c:426
 msgid "Save downloaded files to:"
 msgstr "Letöltött fájlok mentése ide:"
 
 #. Page "Interface"
-#: ../midori/midori-preferences.c:438
+#: ../midori/midori-preferences.c:433
 msgid "Browsing"
 msgstr "Böngészés"
 
-#: ../midori/midori-preferences.c:454
+#: ../midori/midori-preferences.c:447
 msgid "Close Buttons on Tabs"
 msgstr "Bezárás gombok a lapokon"
 
-#: ../midori/midori-preferences.c:458
+#: ../midori/midori-preferences.c:451
 msgid "Always Show Tabbar"
 msgstr "Mindig jelenjen meg a lapsáv"
 
-#: ../midori/midori-preferences.c:462
+#: ../midori/midori-preferences.c:455
 msgid "Open Tabs next to Current"
 msgstr "Lapok megnyitása az aktuális mellett"
 
-#: ../midori/midori-preferences.c:463
+#: ../midori/midori-preferences.c:456
 msgid "Whether to open new tabs next to the current tab or after the last one"
 msgstr "Az új lapok az aktuális mellett vagy az utolsó után nyíljanak-e meg"
 
-#: ../midori/midori-preferences.c:466
+#: ../midori/midori-preferences.c:459
 msgid "Open tabs in the background"
 msgstr "Lapok megnyitása a háttérben"
 
-#: ../midori/midori-preferences.c:470
+#: ../midori/midori-preferences.c:463
 msgid "Text Editor"
 msgstr "Szövegszerkesztő"
 
-#: ../midori/midori-preferences.c:475
+#: ../midori/midori-preferences.c:468
 msgid "News Aggregator"
 msgstr "Hírforrásolvasó"
 
 #. Page "Network"
-#: ../midori/midori-preferences.c:482
+#: ../midori/midori-preferences.c:475
 msgid "Network"
 msgstr "Hálózat"
 
-#: ../midori/midori-preferences.c:484
+#: ../midori/midori-preferences.c:477
 msgid "Proxy server"
 msgstr "Proxykiszolgáló"
 
-#: ../midori/midori-preferences.c:489
+#: ../midori/midori-preferences.c:482
 msgid "Hostname"
 msgstr "Gépnév"
 
-#: ../midori/midori-preferences.c:497
+#: ../midori/midori-preferences.c:490
 msgid "Port"
 msgstr "Port"
 
-#: ../midori/midori-preferences.c:509
-#: ../midori/midori-preferences.c:512
+#. TODO: Preserve page icons of search engines and merge privacy items
+#: ../midori/midori-preferences.c:501 ../extensions/web-cache.c:461
+#: ../extensions/web-cache.c:470 ../midori/midori-privatedata.c:304
+msgid "Web Cache"
+msgstr "Webes gyorsítótár"
+
+#: ../midori/midori-preferences.c:502 ../midori/midori-preferences.c:505
 msgid "The maximum size of cached pages on disk"
 msgstr "Gyorsítótárazott oldalak legnagyobb mérete a lemezen"
 
-#: ../midori/midori-preferences.c:514
+#: ../midori/midori-preferences.c:507
 msgid "MB"
 msgstr "MB"
 
-#: ../midori/midori-searchaction.c:1074
+#: ../midori/midori-preferences.c:526
+msgid "Privacy"
+msgstr "Adatvédelem"
+
+#: ../midori/midori-preferences.c:528
+msgid "Delete old Cookies after:"
+msgstr "Régi sütik törlése ennyi után:"
+
+#: ../midori/midori-preferences.c:530 ../midori/midori-preferences.c:533
+msgid "The maximum number of days to save cookies for"
+msgstr "Sütik tárolása legfeljebb ennyi napig"
+
+#: ../midori/midori-preferences.c:537
+msgid "Only accept Cookies from sites you visit"
+msgstr "Sütik elfogadása csak az Ön által meglátogatott webhelyekről"
+
+#: ../midori/midori-preferences.c:538
+msgid "Block cookies sent by third-party websites"
+msgstr "Külső weboldalak sütijeinek blokkolása"
+
+#: ../midori/midori-preferences.c:543
+msgid ""
+"Cookies store login data, saved games, or user profiles for advertisement "
+"purposes."
+msgstr ""
+"A sütik bejelentkezési adatokat, mentett játékállásokat vagy reklámcéllal "
+"felhasználói profilokat tárolnak."
+
+#: ../midori/midori-preferences.c:550
+msgid "Enable offline web application cache"
+msgstr "Webalkalmazások kapcsolat nélküli gyorsítótárának engedélyezése"
+
+#: ../midori/midori-preferences.c:553
+msgid "Enable HTML5 local storage support"
+msgstr "HTML5 helyi tárolás támogatásának engedélyezése"
+
+#. i18n: Reworded: Shorten details propagated when going to another page
+#: ../midori/midori-preferences.c:557
+msgid "Strip referrer details sent to websites"
+msgstr "Weboldalaknak küldött hivatkozási részletek rövidítése"
+
+#. i18n: Referer here is not a typo but a technical term
+#: ../midori/midori-preferences.c:559
+msgid "Whether the \"Referer\" header should be shortened to the hostname"
+msgstr "A „Referer” fejlécet rövidíteni kell-e a gépnévre"
+
+#: ../midori/midori-preferences.c:562
+msgid "Delete pages from history after:"
+msgstr "Oldalak törlése az előzményekből ennyi után:"
+
+#: ../midori/midori-preferences.c:564 ../midori/midori-preferences.c:567
+msgid "The maximum number of days to save the history for"
+msgstr "Előzmények tárolása legfeljebb ennyi napig"
+
+#: ../midori/midori-preferences.c:604 ../panels/midori-extensions.c:90
+msgid "Extensions"
+msgstr "Kiterjesztések"
+
+#: ../midori/midori-searchaction.c:1068
 msgid "Add search engine"
 msgstr "Keresőszolgáltatás hozzáadása"
 
-#: ../midori/midori-searchaction.c:1074
+#: ../midori/midori-searchaction.c:1068
 msgid "Edit search engine"
 msgstr "Keresőszolgáltatás szerkesztése"
 
-#: ../midori/midori-searchaction.c:1102
+#: ../midori/midori-searchaction.c:1096
 msgid "_Name:"
 msgstr "_Név:"
 
-#: ../midori/midori-searchaction.c:1117
+#: ../midori/midori-searchaction.c:1111
 msgid "_Description:"
 msgstr "_Leírás:"
 
-#: ../midori/midori-searchaction.c:1130
-#: ../extensions/feed-panel/main.c:377
+#: ../midori/midori-searchaction.c:1124 ../extensions/feed-panel/main.c:376
 msgid "_Address:"
 msgstr "_Webcím:"
 
-#: ../midori/midori-searchaction.c:1149
+#: ../midori/midori-searchaction.c:1143
 msgid "_Token:"
 msgstr "_Jelsor:"
 
-#: ../midori/midori-searchaction.c:1447
+#: ../midori/midori-searchaction.c:1441
 msgid "Manage Search Engines"
 msgstr "Keresőszolgáltatások kezelése"
 
-#: ../midori/midori-searchaction.c:1549
+#: ../midori/midori-searchaction.c:1541
 msgid "Use as _default"
 msgstr "_Alapértelmezett"
 
-#: ../midori/midori-historycompletion.vala:58
+#: ../midori/midori-searchaction.c:1652
+#, c-format
+msgid "The search engines couldn't be loaded. %s\n"
+msgstr "A keresőmotorok nem tölthetők be. %s\n"
+
+#: ../midori/midori-searchaction.c:1707
+#, c-format
+msgid "The search engines couldn't be saved. %s"
+msgstr "A keresőmotorok nem menthetők. %s"
+
+#: ../midori/midori-historycompletion.vala:17 ../panels/midori-history.c:111
+msgid "History"
+msgstr "Előzmények"
+
+#: ../midori/midori-historycompletion.vala:54
 #, c-format
 msgid "Failed to initialize history: %s"
 msgstr "Az előzmények inicializálása meghiúsult: %s"
 
-#: ../midori/midori-historycompletion.vala:69
+#: ../midori/midori-historycompletion.vala:65
 #, c-format
 msgid "Failed to select from history: %s"
 msgstr "Az előzményekből választás meghiúsult: %s"
 
 #. search_view
-#: ../midori/midori-historycompletion.vala:87
+#: ../midori/midori-historycompletion.vala:83
 #, c-format
 msgid "Search for %s"
 msgstr "%s keresése"
+
+#: ../midori/midori-searchcompletion.vala:23
+#: ../midori/midori-searchcompletion.vala:60
+msgid "Search with…"
+msgstr "Keresés ezzel…"
 
 #: ../midori/midori-searchcompletion.vala:50
 #, c-format
 msgid "Search with %s"
 msgstr "Keresés ezzel: %s"
 
-#: ../midori/midori-searchcompletion.vala:60
-msgid "Search with…"
-msgstr "Keresés ezzel…"
-
-#: ../midori/sokoke.c:262
+#: ../midori/sokoke.c:251
 msgid "Open with"
 msgstr "Megnyitás ezzel"
 
-#: ../midori/sokoke.c:270
+#: ../midori/sokoke.c:259
 #, c-format
 msgid "Choose an application or command to open \"%s\":"
 msgstr "Válasszon egy alkalmazást vagy parancsot „%s” megnyitásához:"
 
-#: ../midori/sokoke.c:385
-#: ../midori/sokoke.c:399
+#: ../midori/sokoke.c:374 ../midori/sokoke.c:388
 msgid "Could not run external program."
 msgstr "A külső program nem futtatható."
 
@@ -1982,13 +1914,11 @@ msgstr "A(z) „<b>%s</b>” fájl letöltve."
 msgid "Transfer completed"
 msgstr "Átvitel kész"
 
-#: ../toolbars/midori-transferbar.c:239
-#: ../panels/midori-transfers.c:139
+#: ../toolbars/midori-transferbar.c:239 ../panels/midori-transfers.c:139
 msgid "Clear All"
 msgstr "Minden mező törlése"
 
-#: ../toolbars/midori-transferbar.c:272
-#: ../toolbars/midori-transferbar.c:274
+#: ../toolbars/midori-transferbar.c:272 ../toolbars/midori-transferbar.c:274
 msgid "Some files are being downloaded"
 msgstr "Néhány fájl letöltése folyamatban"
 
@@ -2022,13 +1952,12 @@ msgstr "A kijelölt könyvjelző törlése"
 msgid "Add a new folder"
 msgstr "Új mappa hozzáadása"
 
-#: ../panels/midori-bookmarks.c:697
-#: ../panels/midori-history.c:638
+#: ../panels/midori-bookmarks.c:687 ../panels/midori-history.c:629
 msgid "<i>Separator</i>"
 msgstr "<i>Elválasztó</i>"
 
 #. Create the filter entry
-#: ../panels/midori-bookmarks.c:1027
+#: ../panels/midori-bookmarks.c:1017
 msgid "Search Bookmarks"
 msgstr "Keresés a könyvjelzőkben"
 
@@ -2036,52 +1965,48 @@ msgstr "Keresés a könyvjelzőkben"
 msgid "History"
 msgstr "Előzmények"
 
-#: ../panels/midori-history.c:158
-#: ../panels/midori-history.c:189
+#: ../panels/midori-history.c:158 ../panels/midori-history.c:189
 msgid "Today"
 msgstr "Ma"
 
-#: ../panels/midori-history.c:160
-#: ../panels/midori-history.c:191
+#: ../panels/midori-history.c:160 ../panels/midori-history.c:193
 msgid "Yesterday"
 msgstr "Tegnap"
 
-#: ../panels/midori-history.c:162
-#: ../panels/midori-history.c:186
+#: ../panels/midori-history.c:162 ../panels/midori-history.c:188
 #, c-format
 msgid "%d day ago"
 msgid_plural "%d days ago"
 msgstr[0] "%d napja"
 msgstr[1] "%d napja"
 
-#: ../panels/midori-history.c:165
-#: ../panels/midori-history.c:184
+#: ../panels/midori-history.c:165 ../panels/midori-history.c:186
 msgid "A week ago"
 msgstr "Egy hete"
 
-#: ../panels/midori-history.c:232
+#: ../panels/midori-history.c:234 ../midori/midori-bookmarks.c:59
 #, c-format
 msgid "Failed to remove history item: %s\n"
 msgstr "Az előzményelem eltávolítása meghiúsult: %s\n"
 
-#: ../panels/midori-history.c:360
+#: ../panels/midori-history.c:362
 msgid "Are you sure you want to remove all history items?"
 msgstr "Biztos benne, hogy minden előzményelemet el akar távolítani?"
 
-#: ../panels/midori-history.c:407
+#: ../panels/midori-history.c:409
 msgid "Bookmark the selected history item"
 msgstr "A kijelölt előzményelem könyvjelzőzése"
 
-#: ../panels/midori-history.c:416
+#: ../panels/midori-history.c:418
 msgid "Delete the selected history item"
 msgstr "A kijelölt előzményelem törlése"
 
-#: ../panels/midori-history.c:424
+#: ../panels/midori-history.c:426
 msgid "Clear the entire history"
 msgstr "Minden előzmény törlése"
 
 #. Create the filter entry
-#: ../panels/midori-history.c:997
+#: ../panels/midori-history.c:988
 msgid "Search History"
 msgstr "Keresési előzmények"
 
@@ -2121,62 +2046,59 @@ msgstr "Jelszó"
 msgid "_Remember password"
 msgstr "Jelszó _megjegyzése"
 
-#: ../katze/katze-throbber.c:949
+#: ../katze/katze-throbber.c:947
 #, c-format
 msgid "Named icon '%s' couldn't be loaded"
 msgstr "A(z) „%s” nevű ikon nem tölthető be"
 
-#: ../katze/katze-throbber.c:962
+#: ../katze/katze-throbber.c:960
 #, c-format
 msgid "Stock icon '%s' couldn't be loaded"
 msgstr "A(z) „%s” alapértelmezett ikon nem tölthető be"
 
-#: ../katze/katze-throbber.c:1042
+#: ../katze/katze-throbber.c:1040
 msgid "Animation frames are broken"
 msgstr "Az animációs képkockák sérültek"
 
-#: ../katze/katze-utils.c:443
-#: ../katze/katze-utils.c:866
+#: ../katze/katze-utils.c:422 ../katze/katze-utils.c:811
 #, c-format
 msgid "Property '%s' is invalid for %s"
 msgstr "A(z) „%s” tulajdonság érvénytelen a következőhöz: %s"
 
-#: ../katze/katze-utils.c:489
-#: ../katze/katze-utils.c:518
+#: ../katze/katze-utils.c:459 ../katze/katze-utils.c:488
 #: ../extensions/addons.c:309
 msgid "Choose file"
 msgstr "Válasszon fájlt"
 
-#: ../katze/katze-utils.c:504
+#: ../katze/katze-utils.c:474
 msgid "Choose folder"
 msgstr "Válasszon mappát"
 
-#: ../katze/katze-utils.c:602
+#: ../katze/katze-utils.c:572
 msgid "None"
 msgstr "Nincs"
 
-#: ../katze/katze-utils.c:717
+#: ../katze/katze-utils.c:687
 msgid "1 hour"
 msgstr "1 óra"
 
-#: ../katze/katze-utils.c:718
+#: ../katze/katze-utils.c:688
 msgid "1 day"
 msgstr "1 nap"
 
-#: ../katze/katze-utils.c:719
+#: ../katze/katze-utils.c:689
 msgid "1 week"
 msgstr "1 hét"
 
-#: ../katze/katze-utils.c:720
+#: ../katze/katze-utils.c:690
 msgid "1 month"
 msgstr "1 hónap"
 
-#: ../katze/katze-utils.c:721
+#: ../katze/katze-utils.c:691
 msgid "1 year"
 msgstr "1 év"
 
-#: ../katze/katze-preferences.c:98
-#: ../extensions/delayed-load.vala:24
+#: ../katze/katze-preferences.c:72 ../extensions/delayed-load.vala:24
 #: ../extensions/external-download-manager.vala:224
 #: ../extensions/history-list.vala:235
 #, c-format
@@ -2195,32 +2117,36 @@ msgstr "SHA1 ellenőrzőösszeg:"
 msgid "Configure Advertisement filters"
 msgstr "Reklámszűrők beállítása"
 
-#: ../extensions/adblock.c:525
+#: ../extensions/adblock.c:523
 #, c-format
-msgid "Type the address of a preconfigured filter list in the text entry and click \"Add\" to add it to the list. You can find more lists at %s."
-msgstr "Írja be az előre beállított szűrőlista címét a szövegmezőben, és a listához adáshoz nyomja meg a „Hozzáadás” gombot. További listákat itt találhat: %s."
+msgid ""
+"Type the address of a preconfigured filter list in the text entry and click "
+"\"Add\" to add it to the list. You can find more lists at %s."
+msgstr ""
+"Írja be az előre beállított szűrőlista címét a szövegmezőben, és a listához "
+"adáshoz nyomja meg a „Hozzáadás” gombot. További listákat itt találhat: %s."
 
-#: ../extensions/adblock.c:939
+#: ../extensions/adblock.c:937
 msgid "Edit rule"
 msgstr "Szabály szerkesztése"
 
-#: ../extensions/adblock.c:953
+#: ../extensions/adblock.c:951
 msgid "_Rule:"
 msgstr "S_zabály:"
 
-#: ../extensions/adblock.c:1007
+#: ../extensions/adblock.c:1005
 msgid "Bl_ock image"
 msgstr "Kép _blokkolása"
 
-#: ../extensions/adblock.c:1012
+#: ../extensions/adblock.c:1010
 msgid "Bl_ock link"
 msgstr "_Hivatkozás blokkolása"
 
-#: ../extensions/adblock.c:1938
+#: ../extensions/adblock.c:1936
 msgid "Advertisement blocker"
 msgstr "Reklámblokkoló"
 
-#: ../extensions/adblock.c:1939
+#: ../extensions/adblock.c:1937
 msgid "Block advertisements according to a filter list"
 msgstr "Reklámok blokkolása szűrőlista alapján"
 
@@ -2246,19 +2172,16 @@ msgstr "Felhasználói _stílus telepítése"
 msgid "Don't install"
 msgstr "Ne telepítse"
 
-#: ../extensions/addons.c:320
-#: ../extensions/addons.c:675
+#: ../extensions/addons.c:320 ../extensions/addons.c:675
 msgid "Userscripts"
 msgstr "Felhasználói parancsfájlok"
 
-#: ../extensions/addons.c:325
-#: ../extensions/addons.c:677
+#: ../extensions/addons.c:325 ../extensions/addons.c:677
 msgid "Userstyles"
 msgstr "Felhasználói stílusok"
 
-#: ../extensions/addons.c:371
-#: ../extensions/addons.c:450
-#: ../extensions/feed-panel/main.c:129
+#: ../extensions/addons.c:371 ../extensions/addons.c:450
+#: ../extensions/feed-panel/main.c:128
 msgid "Error"
 msgstr "Hiba"
 
@@ -2280,13 +2203,11 @@ msgstr "Felhasználói stílus törlése"
 msgid "The file <b>%s</b> will be permanently deleted."
 msgstr "A(z) „<b>%s</b>” fájl véglegesen törlésre kerül."
 
-#: ../extensions/addons.c:564
-#: ../extensions/addons.c:641
+#: ../extensions/addons.c:564 ../extensions/addons.c:641
 msgid "Open in Text Editor"
 msgstr "Megnyitás szövegszerkesztőben"
 
-#: ../extensions/addons.c:566
-#: ../extensions/addons.c:650
+#: ../extensions/addons.c:566 ../extensions/addons.c:650
 msgid "Open Target Folder"
 msgstr "Célmappa megnyitása"
 
@@ -2298,17 +2219,16 @@ msgstr "Új bővítmény hozzáadása"
 msgid "Remove selected addon"
 msgstr "Kijelölt bővítmény eltávolítása"
 
-#: ../extensions/addons.c:1687
-#: ../extensions/addons.c:1903
+#: ../extensions/addons.c:1677 ../extensions/addons.c:1893
 msgid "User addons"
 msgstr "Felhasználói bővítmények"
 
-#: ../extensions/addons.c:1817
+#: ../extensions/addons.c:1807
 #, c-format
 msgid "Can't monitor folder '%s': %s"
 msgstr "„%s” mappa nem figyelhető meg: %s"
 
-#: ../extensions/addons.c:1904
+#: ../extensions/addons.c:1894
 msgid "Support for userscripts and userstyles"
 msgstr "Felhasználói parancsfájlok és stílusok támogatása"
 
@@ -2330,8 +2250,12 @@ msgid "Delete All"
 msgstr "Összes törlése"
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:105
-msgid "Deletes all shown cookies. If a filter is set, only those cookies are deleted which match the filter."
-msgstr "Minden megjelenített süti törlése. Ha be van állítva szűrő, akkor csak az annak megfelelő sütiket törli."
+msgid ""
+"Deletes all shown cookies. If a filter is set, only those cookies are "
+"deleted which match the filter."
+msgstr ""
+"Minden megjelenített süti törlése. Ha be van állítva szűrő, akkor csak az "
+"annak megfelelő sütiket törli."
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:120
 msgid "Expand All"
@@ -2353,11 +2277,11 @@ msgstr "Kérdés"
 msgid "Only cookies which match the filter will be deleted."
 msgstr "Csak a szűrőnek megfelelő sütik kerülnek törlésre."
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:671
+#: ../extensions/cookie-manager/cookie-manager-page.c:674
 msgid "At the end of the session"
 msgstr "A munkamenet végén"
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:674
+#: ../extensions/cookie-manager/cookie-manager-page.c:677
 #, c-format
 msgid ""
 "<b>Host</b>: %s\n"
@@ -2374,15 +2298,16 @@ msgstr ""
 "<b>Biztonságos</b>: %s\n"
 "<b>Lejár</b>: %s"
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:680
+#. i18n: is this cookie secure (SSL)? yes/ no
+#: ../extensions/cookie-manager/cookie-manager-page.c:684
 msgid "Yes"
 msgstr "Igen"
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:680
+#: ../extensions/cookie-manager/cookie-manager-page.c:684
 msgid "No"
 msgstr "Nem"
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:694
+#: ../extensions/cookie-manager/cookie-manager-page.c:699
 #, c-format
 msgid ""
 "<b>Domain</b>: %s\n"
@@ -2391,19 +2316,19 @@ msgstr ""
 "<b>Tartomány</b>: %s\n"
 "<b>Sütik</b>: %d"
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:1017
+#: ../extensions/cookie-manager/cookie-manager-page.c:1022
 msgid "Name"
 msgstr "Név"
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:1069
+#: ../extensions/cookie-manager/cookie-manager-page.c:1074
 msgid "_Expand All"
 msgstr "Összes _kibontása"
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:1077
+#: ../extensions/cookie-manager/cookie-manager-page.c:1082
 msgid "_Collapse All"
 msgstr "Összes össze_csukása"
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:1129
+#: ../extensions/cookie-manager/cookie-manager-page.c:1134
 msgid "Search Cookies by Name or Domain"
 msgstr "Sütik keresése név vagy tartomány szerint"
 
@@ -2423,8 +2348,7 @@ msgstr "Lapok címeinek másolása"
 msgid "Copy the addresses of all tabs to the clipboard"
 msgstr "Az összes lap címeinek vágólapra másolása"
 
-#: ../extensions/delayed-load.vala:24
-#: ../extensions/delayed-load.vala:209
+#: ../extensions/delayed-load.vala:24 ../extensions/delayed-load.vala:209
 #, c-format
 msgid "Delayed load"
 msgstr "Késleltetett betöltés"
@@ -2438,8 +2362,11 @@ msgid "Delay page load until you actually use the tab."
 msgstr "Oldalbetöltés késleltetése a lapra váltásig."
 
 #: ../extensions/external-download-manager.vala:124
-msgid "An error occurred when attempting to download a file with the following plugin:\n"
-msgstr "Hiba történt, amikor a következő bővítmény megpróbálta letölteni a fájlt:\n"
+msgid ""
+"An error occurred when attempting to download a file with the following "
+"plugin:\n"
+msgstr ""
+"Hiba történt, amikor a következő bővítmény megpróbálta letölteni a fájlt:\n"
 
 #: ../extensions/external-download-manager.vala:175
 msgid "External Download Manager - Aria2"
@@ -2479,25 +2406,25 @@ msgid "Failed to find required Atom \"feed\" elements in XML data."
 msgstr "Nem találhatók a szükséges Atom „feed” bejegyzések az XML adatokban."
 
 #. i18n: The local date a feed was last updated
-#: ../extensions/feed-panel/feed-panel.c:387
+#: ../extensions/feed-panel/feed-panel.c:378
 #, c-format
 msgctxt "Feed"
 msgid "Last updated: %s."
 msgstr "Utolsó frissítés: %s."
 
-#: ../extensions/feed-panel/feed-panel.c:653
+#: ../extensions/feed-panel/feed-panel.c:644
 msgid "Feeds"
 msgstr "Hírforrások"
 
-#: ../extensions/feed-panel/feed-panel.c:706
+#: ../extensions/feed-panel/feed-panel.c:697
 msgid "Add new feed"
 msgstr "Új hírforrás hozzáadása"
 
-#: ../extensions/feed-panel/feed-panel.c:713
+#: ../extensions/feed-panel/feed-panel.c:704
 msgid "Delete feed"
 msgstr "Hírforrás törlése"
 
-#: ../extensions/feed-panel/feed-panel.c:795
+#: ../extensions/feed-panel/feed-panel.c:784
 msgid "_Feeds"
 msgstr "_Hírforrások"
 
@@ -2532,34 +2459,34 @@ msgstr "Nem találhatók a szükséges RSS „item” elemek az XML adatokban."
 msgid "Failed to find required RSS \"channel\" elements in XML data."
 msgstr "Nem találhatók a szükséges RSS „channel” elemek az XML adatokban."
 
-#: ../extensions/feed-panel/main.c:131
+#: ../extensions/feed-panel/main.c:130
 #, c-format
 msgid "Feed '%s' already exists"
 msgstr "A(z) „%s” hírforrás már létezik"
 
-#: ../extensions/feed-panel/main.c:208
+#: ../extensions/feed-panel/main.c:207
 #, c-format
 msgid "Error loading feed '%s'"
 msgstr "Hiba a(z) „%s” hírforrás betöltésekor"
 
-#: ../extensions/feed-panel/main.c:518
+#: ../extensions/feed-panel/main.c:517
 msgid "Feed Panel"
 msgstr "Hírforráspanel"
 
-#: ../extensions/feed-panel/main.c:519
+#: ../extensions/feed-panel/main.c:518
 msgid "Read Atom/ RSS feeds"
 msgstr "Atom/ RSS hírforrások olvasása"
 
-#: ../extensions/formhistory/formhistory.c:39
+#: ../extensions/formhistory/formhistory.c:38
 #, c-format
 msgid "Failed to add form value: %s\n"
 msgstr "Az űrlapérték hozzáadása meghiúsult: %s\n"
 
-#: ../extensions/formhistory/formhistory.c:95
+#: ../extensions/formhistory/formhistory.c:100
 msgid "Form history"
 msgstr "Űrlapelőzmények"
 
-#: ../extensions/formhistory/formhistory.c:112
+#: ../extensions/formhistory/formhistory.c:117
 msgid ""
 "Master password required\n"
 "to open password database"
@@ -2583,34 +2510,42 @@ msgstr "Most nem"
 msgid "Never for this page"
 msgstr "Soha ezen az oldalon"
 
-#: ../extensions/formhistory/formhistory.c:437
+#: ../extensions/formhistory/formhistory.c:427
 msgid "Toggle form history state"
 msgstr "Űrlapelőzmény-állapot átváltása"
 
-#: ../extensions/formhistory/formhistory.c:438
+#: ../extensions/formhistory/formhistory.c:428
 msgid "Activate or deactivate form history for the current tab."
 msgstr "Az űrlapelőzmények be- vagy kikapcsolása a jelenlegi lapon."
 
-#: ../extensions/formhistory/formhistory.c:549
-#: ../extensions/formhistory/formhistory.c:553
+#: ../extensions/formhistory/formhistory.c:515 ../midori/midori-history.c:47
+#: ../midori/midori-bookmarks.c:155
+#, c-format
+msgid "Failed to open database: %s\n"
+msgstr "Az adatbázis nem nyitható meg: %s\n"
+
+#: ../extensions/formhistory/formhistory.c:533
+#: ../extensions/formhistory/formhistory.c:537
 #, c-format
 msgid "Failed to execute database statement: %s\n"
 msgstr "Az adatbázis-utasítás végrehajtása meghiúsult: %s\n"
 
-#: ../extensions/formhistory/formhistory.c:629
+#: ../extensions/formhistory/formhistory.c:624
 msgid "Only activate form history via hotkey (Ctrl+Shift+F) per tab"
-msgstr "Az űrlapelőzmények aktiválása laponként, csak gyorsbillentyűvel (Ctrl+Shift+F)"
+msgstr ""
+"Az űrlapelőzmények aktiválása laponként, csak gyorsbillentyűvel (Ctrl+Shift"
+"+F)"
 
-#: ../extensions/formhistory/formhistory.c:668
+#: ../extensions/formhistory/formhistory.c:681
 msgid "Form history filler"
 msgstr "Űrlap-előzmények kitöltése"
 
-#: ../extensions/formhistory/formhistory.c:669
+#: ../extensions/formhistory/formhistory.c:682
 msgid "Stores history of entered form data"
 msgstr "A bevitt űrlapadatok előzményeit tárolja"
 
-#: ../extensions/formhistory/formhistory-gdom-frontend.c:225
-#: ../extensions/formhistory/formhistory-js-frontend.c:106
+#: ../extensions/formhistory/formhistory-gdom-frontend.c:223
+#: ../extensions/formhistory/formhistory-js-frontend.c:104
 #, c-format
 msgid "Failed to select suggestions\n"
 msgstr "A javaslatok kiválasztása meghiúsult\n"
@@ -2664,19 +2599,19 @@ msgstr "Lap megjelenítése a háttérben (előzménylista)"
 msgid "Display the current selected tab in background"
 msgstr "A jelenleg kijelölt lap megjelenítése a háttérben"
 
-#: ../extensions/history-list.vala:566
+#: ../extensions/history-list.vala:571
 msgid "History List"
 msgstr "Előzménylista"
 
-#: ../extensions/history-list.vala:567
+#: ../extensions/history-list.vala:572
 msgid "Move to the last used tab when switching or closing tabs"
 msgstr "Az utoljára használt lapra lépés lapok váltásakor vagy bezárásakor"
 
-#: ../extensions/mouse-gestures.c:301
+#: ../extensions/mouse-gestures.c:297
 msgid "Mouse Gestures"
 msgstr "Egérgesztusok"
 
-#: ../extensions/mouse-gestures.c:302
+#: ../extensions/mouse-gestures.c:298
 msgid "Control Midori by moving the mouse"
 msgstr "A Midori irányítása az egér mozgatásával"
 
@@ -2700,11 +2635,11 @@ msgstr "Gyorsbillentyűk"
 msgid "View and edit keyboard shortcuts"
 msgstr "Gyorsbillentyűk megjelenítése és szerkesztése"
 
-#: ../extensions/status-clock.c:174
+#: ../extensions/status-clock.c:177
 msgid "Statusbar Clock"
 msgstr "Állapotsor-óra"
 
-#: ../extensions/status-clock.c:175
+#: ../extensions/status-clock.c:178
 msgid "Display date and time in the statusbar"
 msgstr "Dátum és idő megjelenítése az állapotsorban"
 
@@ -2728,16 +2663,15 @@ msgstr "Állapotsor-összetevők"
 msgid "Easily toggle features on web pages on and off"
 msgstr "Weboldalak összetevőinek egyszerű be- és kikapcsolása"
 
-#: ../extensions/tab-panel.c:589
-#: ../extensions/tab-panel.c:676
+#: ../extensions/tab-panel.c:584 ../extensions/tab-panel.c:673
 msgid "Tab Panel"
 msgstr "Lappanel"
 
-#: ../extensions/tab-panel.c:659
+#: ../extensions/tab-panel.c:656
 msgid "T_ab Panel"
 msgstr "_Lappanel"
 
-#: ../extensions/tab-panel.c:677
+#: ../extensions/tab-panel.c:674
 msgid "Show tabs in a vertical panel"
 msgstr "Lapok megjelenítése függőleges panelen"
 
@@ -2754,8 +2688,12 @@ msgid "Customize Toolbar"
 msgstr "Eszköztár testreszabása"
 
 #: ../extensions/toolbar-editor.c:411
-msgid "Select items to be displayed on the toolbar. Items can be reordered by drag and drop."
-msgstr "Válassza ki az eszköztáron megjelenítendő elemeket. Az elemek fogd és vidd módszerrel átrendezhetők."
+msgid ""
+"Select items to be displayed on the toolbar. Items can be reordered by drag "
+"and drop."
+msgstr ""
+"Válassza ki az eszköztáron megjelenítendő elemeket. Az elemek fogd és vidd "
+"módszerrel átrendezhetők."
 
 #: ../extensions/toolbar-editor.c:427
 msgid "Available Items"
@@ -2781,8 +2719,183 @@ msgstr "Az eszköztár elrendezésének egyszerű szerkesztése"
 msgid "Cache HTTP communication on disk"
 msgstr "HTTP kommunikáció gyorsítótárazása a lemezen"
 
-#~ msgid "The bookmarks couldn't be saved. %s"
-#~ msgstr "A könyvjelzők nem menthetők. %s"
+#: ../katze/katze-http-cookies-sqlite.c:129
+#, c-format
+msgid "Failed to load cookies\n"
+msgstr "A sütik betöltése meghiúsult\n"
+
+#. i18n: Dialog: Clear Private Data, in the Tools menu
+#: ../midori/midori-privatedata.c:120
+msgid "Clear Private Data"
+msgstr "Privát adatok törlése"
+
+#: ../midori/midori-privatedata.c:124
+msgid "_Clear private data"
+msgstr "_Privát adatok törlése"
+
+#: ../midori/midori-privatedata.c:137
+msgid "Clear the following data:"
+msgstr "A következő adatok törlése:"
+
+#: ../midori/midori-privatedata.c:147
+msgid "Last open _tabs"
+msgstr "_Legutóbb nyitott lapok"
+
+#: ../midori/midori-privatedata.c:173
+msgid "Clear private data when _quitting Midori"
+msgstr "Privát adatok törlése a Mi_doriból kilépéskor"
+
+#. i18n: Logins and passwords in websites and web forms
+#: ../midori/midori-privatedata.c:298
+msgid "Saved logins and _passwords"
+msgstr "Mentett felhasználónevek és _jelszavak"
+
+#: ../midori/midori-privatedata.c:300
+msgid "Cookies and Website data"
+msgstr "Sütik és weboldaladatok"
+
+#: ../midori/midori-privatedata.c:307
+msgid "Website icons"
+msgstr "Weboldalikonok"
+
+#: ../midori/midori-viewcompletion.vala:18
+msgid "Open tabs"
+msgstr "Lapok megnyitása"
+
+#: ../midori/midori-viewcompletion.vala:67
+msgid "More open tabs…"
+msgstr "Több nyitott lap…"
+
+#: ../midori/midori-history.c:25
+#, c-format
+msgid "Failed to clear history: %s\n"
+msgstr "Az előzmények törlése meghiúsult: %s\n"
+
+#. i18n: Couldn't remove items that are older than n days
+#: ../midori/midori-history.c:122
+#, c-format
+msgid "Failed to remove old history items: %s\n"
+msgstr "A régi előzményelemek eltávolítása meghiúsult: %s\n"
+
+#: ../midori/midori-bookmarks.c:104
+msgid "failed to ATTACH old db"
+msgstr "a régi adatbázis CSATOLÁSA meghiúsult"
+
+#: ../midori/midori-bookmarks.c:111
+msgid "failed to import from old db"
+msgstr "a régi adatbázisból történő importálás meghiúsult"
+
+#: ../midori/midori-bookmarks.c:115
+msgid "failed to rollback the transaction"
+msgstr "a tranzakció visszavonása sikertelen"
+
+#: ../midori/midori-bookmarks.c:119
+msgid "failed to DETACH "
+msgstr "sikertelen LEVÁLASZTÁS"
+
+#: ../midori/midori-bookmarks.c:259
+#, c-format
+msgid "Couldn't create bookmarks table: %s\n"
+msgstr "Nem sikerült létrehozni a könyvjelzőtáblát: %s\n"
+
+#: ../midori/midori-bookmarks.c:274
+#, c-format
+msgid "Couldn't import from old database: %s\n"
+msgstr "Nem sikerült importálni a régi adatbázisból: %s\n"
+
+#: ../midori/midori-bookmarks.c:311
+#, c-format
+msgid "The bookmarks couldn't be saved. %s"
+msgstr "A könyvjelzők nem menthetők. %s"
+
+#: ../midori/midori-session.c:187
+msgid ""
+"No root certificate file is available. SSL certificates cannot be verified."
+msgstr ""
+"Nem érhető el gyökértanúsítvány-fájl. Az SSL-tanúsítványok nem "
+"ellenőrizhetők."
+
+#: ../midori/midori-session.c:355
+#, c-format
+msgid "The configuration couldn't be saved. %s"
+msgstr "A beállítások nem menthetők. %s"
+
+#: ../midori/midori-session.c:376 ../midori/midori-frontend.c:448
+#, c-format
+msgid "The session couldn't be loaded: %s\n"
+msgstr "A munkamenet nem tölthető be: %s\n"
+
+#: ../midori/midori-session.c:406
+#, c-format
+msgid "The session couldn't be saved. %s"
+msgstr "A munkamenet nem menthető. %s"
+
+#. i18n: Trash, or wastebin, containing closed tabs
+#: ../midori/midori-frontend.c:126
+#, c-format
+msgid "The trash couldn't be saved. %s"
+msgstr "A Kuka nem menthető. %s"
+
+#: ../midori/midori-frontend.c:309
+msgid ""
+"Midori seems to have crashed the last time it was opened. If this happened "
+"repeatedly, try one of the following options to solve the problem."
+msgstr ""
+"Úgy tűnik, hogy a Midori összeomlott az utolsó futásakor. Ha ez ismételten "
+"előfordul, a probléma megoldása érdekében próbálja ki a következő "
+"lehetőségeket."
+
+#: ../midori/midori-frontend.c:319
+msgid "Modify _preferences"
+msgstr "Beállítások _módosítása"
+
+#: ../midori/midori-frontend.c:323
+msgid "Disable all _extensions"
+msgstr "Minden _kiterjesztés letiltása"
+
+#: ../midori/midori-frontend.c:332
+msgid "Show a dialog after Midori crashed"
+msgstr "Párbeszédablak megjelenítése a Midori összeomlása után"
+
+#: ../midori/midori-frontend.c:337
+msgid "Discard old tabs"
+msgstr "Régi lapok eldobása"
+
+#: ../midori/midori-frontend.c:400
+msgid "An instance of Midori is already running but not responding.\n"
+msgstr "A Midori egy példánya már fut, de nem válaszol.\n"
+
+#: ../midori/midori-frontend.c:433
+#, c-format
+msgid "Bookmarks couldn't be loaded: %s\n"
+msgstr "A könyvjelzők nem tölthetők be: %s\n"
+
+#: ../midori/midori-frontend.c:464
+#, c-format
+msgid "The trash couldn't be loaded: %s\n"
+msgstr "A Kuka nem tölthető be: %s\n"
+
+#: ../midori/midori-frontend.c:472
+#, c-format
+msgid "The history couldn't be loaded: %s\n"
+msgstr "Az előzmények nem tölthetők be: %s\n"
+
+#: ../midori/midori-frontend.c:483
+msgid "The following errors occured:"
+msgstr "A következő hibák történtek:"
+
+#: ../midori/midori-frontend.c:488
+msgid "_Ignore"
+msgstr "_Kihagyás"
+
+#~ msgid "Redirects console warnings to the specified FILENAME"
+#~ msgstr "Konzolos figyelmeztetések átirányítása a megadott FÁJLNÉVBE"
+
+#~ msgid "FILENAME"
+#~ msgstr "FÁJLNÉV"
+
+#~ msgid "Add Shortcut to the _desktop"
+#~ msgstr "Parancsikon hozzáadása az _asztalhoz"
 
 #~ msgid "_Bookmark"
 #~ msgstr "_Könyvjelző"
