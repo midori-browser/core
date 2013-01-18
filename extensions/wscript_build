@@ -42,5 +42,6 @@ for extension in extensions:
         if bld.env['HAVE_GRANITE']:
             obj.packages += ' clutter-gtk-1.0 granite'
     obj.install_path = '${LIBDIR}/midori'
+    # See LINKFLAGS in wscript: w/ o it we get several "undefined reference" errors
     if bld.env['platform'] == 'win32':
-        obj.uselib_local = 'midori-core'
+        obj.uselib_local = 'midori'
