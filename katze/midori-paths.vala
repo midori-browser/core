@@ -112,12 +112,15 @@ namespace Midori {
                 tmp_dir = Path.build_path (Path.DIR_SEPARATOR_S,
                     Environment.get_tmp_dir (), "midori-" + Environment.get_user_name ());
             }
+#if HAVE_WEBKIT_1_3_13
+            if (user_data_dir != null) {
+                string folder = Path.build_filename (user_data_dir, "webkit", "icondatabase");
 #if HAVE_WEBKIT_1_8_0
-            if (user_data_dir != null)
-                WebKit.get_favicon_database ().set_path (Path.build_filename (user_data_dir, "webkit", "icondatabase"));
+                WebKit.get_favicon_database ().set_path (folder);
 #elif HAVE_WEBKIT_1_3_13
-            if (user_data_dir != null)
-                WebKit.get_icon_database ().set_path (Path.build_filename (user_data_dir, "webkit", "icondatabase"));
+                WebKit.get_icon_database ().set_path (folder);
+#endif
+            }
 #endif
             if (strcmp (Environment.get_variable ("MIDORI_DEBUG"), "paths") == 0) {
                 stdout.printf ("config: %s\ncache: %s\nuser_data: %s\ntmp: %s\n",
