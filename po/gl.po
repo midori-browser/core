@@ -1,5 +1,5 @@
 # Galician translation of midori
-# Copyright (C) 2008, 2009 Miguel Anxo Bouzada.
+# Copyright (C) 2008, 2013 Miguel Anxo Bouzada.
 # Copyright (C) 2009, 2010 Leandro Regueiro.
 # This file is distributed under the same license as the Xfce package.
 # 
@@ -14,7 +14,7 @@ msgstr ""
 "Project-Id-Version: midori-0.1.7\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-01-28 13:33+0000\n"
-"PO-Revision-Date: 2013-01-28 17:47+0200\n"
+"PO-Revision-Date: 2013-01-28 18:21+0200\n"
 "Last-Translator: Miguel Anxo Bouzada <mbouzada@gmail.com>\n"
 "Language-Team: Proxecto Trasno proxecto@trasno.net\n"
 "Language: gl\n"
@@ -27,7 +27,7 @@ msgstr ""
 
 #: ../data/midori.desktop.in.h:1
 msgid "Browse the Web"
-msgstr "Buscar na rede"
+msgstr "Navegar pola Rede"
 
 #: ../data/midori.desktop.in.h:2
 msgid "Internet;WWW;Explorer"
@@ -98,14 +98,16 @@ msgstr "Navegación privada, non se garda ningún cambio"
 #: ../midori/main.c:94
 msgid "Portable mode, all runtime files are stored in one place"
 msgstr ""
+"Mo do portábel, todos os ficheiros en tempo de execución almacénanse no "
+"mesmo lugar"
 
 #: ../midori/main.c:97
 msgid "Plain GTK+ window with WebKit, akin to GtkLauncher"
-msgstr ""
+msgstr "Xanela sinxela GTK+ con WebKit, semellante a GtkLauncher"
 
 #: ../midori/main.c:99
 msgid "Show a diagnostic dialog"
-msgstr "Mostrar un diálogo de diagnóstico"
+msgstr "Amosar un diálogo de diagnóstico"
 
 #: ../midori/main.c:101
 msgid "Run the specified filename as javascript"
@@ -125,7 +127,7 @@ msgstr "Liste as ordes dispoñíbeis para executar con -e/ --execute"
 
 #: ../midori/main.c:109
 msgid "Display program version"
-msgstr "Mostrar a versión do programa"
+msgstr "Amosar a versión do programa"
 
 #: ../midori/main.c:111
 msgid "Addresses"
@@ -296,7 +298,7 @@ msgstr "Enga_dir a marcación rápida"
 
 #: ../midori/midori-browser.c:908
 msgid "Show in the tool_bar"
-msgstr "Mostrar na _barra de ferramentas"
+msgstr "Amosar na _barra de ferramentas"
 
 #: ../midori/midori-browser.c:916
 msgid "Run as _web application"
@@ -736,7 +738,7 @@ msgstr "Enfocar a _seguinte vista"
 
 #: ../midori/midori-browser.c:5339
 msgid "Only show the Icon of the _Current Tab"
-msgstr "Mostrar só a icona da lapela a_ctual"
+msgstr "Amosar só a icona da lapela a_ctual"
 
 #: ../midori/midori-browser.c:5342
 msgid "_Duplicate Current Tab"
@@ -853,7 +855,7 @@ msgstr "Volver abrir xanelas ou lapelas pechadas"
 
 #: ../midori/midori-browser.c:6001
 msgid "Show the saved bookmarks"
-msgstr "Mostrar os marcadores gardados"
+msgstr "Amosar os marcadores gardados"
 
 #: ../midori/midori-browser.c:6034
 msgid "_Window"
@@ -861,7 +863,7 @@ msgstr "_Xanela"
 
 #: ../midori/midori-browser.c:6036
 msgid "Show a list of all open tabs"
-msgstr "Mostrar unha lista de todas as lapelas abertas"
+msgstr "Amosar unha lista de todas as lapelas abertas"
 
 #: ../midori/midori-browser.c:6050
 msgid "_Menu"
@@ -899,6 +901,8 @@ msgid ""
 "The certificate does not match the expected identity of the site that it was "
 "retrieved from."
 msgstr ""
+"O certificado non coincide coa identidade agardada do sitio do que foi "
+"obtido."
 
 #: ../midori/midori-locationaction.c:1364
 msgid "The certificate's activation time is still in the future."
@@ -913,6 +917,8 @@ msgid ""
 "The certificate has been revoked according to the GTlsConnection's "
 "certificate revocation list."
 msgstr ""
+"O certificado foi revogado conforma a lista de revogación de certificados "
+"GTlsConnection"
 
 #: ../midori/midori-locationaction.c:1370
 msgid "The certificate's algorithm is considered insecure."
@@ -966,19 +972,19 @@ msgstr "Aliñar o panel lateral á esquerda"
 
 #: ../midori/midori-websettings.c:106
 msgid "Show Speed Dial"
-msgstr "Mostrar a marcación rápida"
+msgstr "Amosar a marcación rápida"
 
 #: ../midori/midori-websettings.c:107
 msgid "Show Homepage"
-msgstr "Mostrar a páxina inicial"
+msgstr "Amosar a páxina inicial"
 
 #: ../midori/midori-websettings.c:108 ../midori/midori-frontend.c:339
 msgid "Show last open tabs"
-msgstr "Mostrar as últimas lapelas abertas"
+msgstr "Amosar as últimas lapelas abertas"
 
 #: ../midori/midori-websettings.c:109 ../midori/midori-frontend.c:338
 msgid "Show last tabs without loading"
-msgstr "Mostrar as últimas lapelas sen cargalas"
+msgstr "Amosar as últimas lapelas sen cargalas"
 
 #: ../midori/midori-websettings.c:126
 msgid "Japanese (SHIFT_JIS)"
@@ -1288,6 +1294,8 @@ msgstr "Os complementos están desactivados."
 #: ../midori/midori-view.c:3933
 msgid "HTML5 storage, local database and application caches are disabled."
 msgstr ""
+"Caché de almacenamento HTML5, a base de datos local e o aplicativo están "
+"desactivados."
 
 #: ../midori/midori-view.c:3934
 msgid "Midori prevents websites from tracking the user:"
@@ -1295,7 +1303,7 @@ msgstr "Midori evita que os sitios web fagan un seguimento do usuario:"
 
 #: ../midori/midori-view.c:3935
 msgid "Referrer URLs are stripped down to the hostname."
-msgstr ""
+msgstr "Os URL de referencia foron despoxados do nome de máquina."
 
 #: ../midori/midori-view.c:3936
 msgid "DNS prefetching is disabled."
@@ -1313,7 +1321,7 @@ msgstr ""
 #: ../midori/midori-view.c:4017
 msgid "Version numbers in brackets show the version used at runtime."
 msgstr ""
-"Os números de versión entre os corchetes mostran a versión en tempo de "
+"Os números de versión entre os corchetes amosan a versión en tempo de "
 "execución."
 
 #: ../midori/midori-view.c:4063
@@ -1339,11 +1347,11 @@ msgstr "_Duplicar a lapela"
 
 #: ../midori/midori-view.c:4444
 msgid "Show Tab _Label"
-msgstr "Mostrar a _etiqueta da lapela"
+msgstr "Amosar a _etiqueta da lapela"
 
 #: ../midori/midori-view.c:4444
 msgid "Show Tab _Icon Only"
-msgstr "Só mostrar a _icona da lapela"
+msgstr "Amosar só a _icona da lapela"
 
 #: ../midori/midori-view.c:4451
 msgid "Close Ot_her Tab"
@@ -1496,23 +1504,23 @@ msgstr "Familia de letras proporcionais"
 
 #: ../midori/midori-preferences.c:332
 msgid "The default font family used to display text"
-msgstr "Tipo de letra predeterminado utilizada para mostrar o texto"
+msgstr "Tipo de letra predeterminado utilizada para amosar o texto"
 
 #: ../midori/midori-preferences.c:335
 msgid "The default font size used to display text"
-msgstr "Tamaño predeterminado do tipo de letra usado para mostrar o texto"
+msgstr "Tamaño predeterminado do tipo de letra usado para amosar o texto"
 
 #: ../midori/midori-preferences.c:337
 msgid "Fixed-width Font Family"
-msgstr "Tipo de letra de ancho fixo"
+msgstr "Tipo de letra de largo fixo"
 
 #: ../midori/midori-preferences.c:341
 msgid "The font family used to display fixed-width text"
-msgstr "Tipo de letra que se usa para mostrar texto de ancho fixo"
+msgstr "Tipo de letra que se usa para amosar texto de largo fixo"
 
 #: ../midori/midori-preferences.c:344
 msgid "The font size used to display fixed-width text"
-msgstr "O tamaño do tipo de letra que se usa para mostrar texto de ancho fixo"
+msgstr "O tamaño do tipo de letra que se usa para amosar texto de largo fixo"
 
 #: ../midori/midori-preferences.c:346
 msgid "Minimum Font Size"
@@ -1520,7 +1528,7 @@ msgstr "Tamaño mínimo do tipo de letra"
 
 #: ../midori/midori-preferences.c:350
 msgid "The minimum font size used to display text"
-msgstr "Tamaño mínimo do tipo de letra para mostrar texto"
+msgstr "Tamaño mínimo do tipo de letra para amosar texto"
 
 #: ../midori/midori-preferences.c:354
 msgid "Preferred Encoding"
@@ -1594,7 +1602,7 @@ msgid ""
 "A comma separated list of languages preferred for rendering multilingual "
 "webpages, for example \"de\", \"ru,nl\" or \"en-us;q=1.0, fr-fr;q=0.667\""
 msgstr ""
-"Un lista separada por comas de idiomas preferidos para mostrar páxinas web "
+"Un lista separada por comas de idiomas preferidos para amosar páxinas web "
 "multiidioma, por exemplo «de», «ru,nl» ou «en-us;q=1.0, fr-fr;q=0.667»"
 
 #: ../midori/midori-preferences.c:426
@@ -1612,7 +1620,7 @@ msgstr "Botón de pechar nas lapelas"
 
 #: ../midori/midori-preferences.c:451
 msgid "Always Show Tabbar"
-msgstr "Mostrar sempre a barra de lapelas"
+msgstr "Amosar sempre a barra de lapelas"
 
 #: ../midori/midori-preferences.c:455
 msgid "Open Tabs next to Current"
@@ -2177,7 +2185,7 @@ msgid ""
 "Deletes all shown cookies. If a filter is set, only those cookies are "
 "deleted which match the filter."
 msgstr ""
-"Elimina todas as cookies mostradas. Se se define un filtro, só se eliminarán "
+"Elimina todas as cookies amosadas. Se se define un filtro, só se eliminarán "
 "as cookies que coincidan co filtro."
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:120
@@ -2288,7 +2296,8 @@ msgstr "Atraso na carga da páxina ata que realmente utilice a lapela."
 msgid ""
 "An error occurred when attempting to download a file with the following "
 "plugin:\n"
-msgstr ""
+msgstr "Produciuse un erro cando se tentaba descargar un ficheiro co seguinte "
+"engadido:\n"
 
 #: ../extensions/external-download-manager.vala:175
 msgid "External Download Manager - Aria2"
@@ -2520,11 +2529,11 @@ msgstr "Lapela nova anterior do historial"
 
 #: ../extensions/history-list.vala:443
 msgid "Display tab in background (History List)"
-msgstr "Mostrar a lapela en segundo plano (lista do historial)"
+msgstr "Amosar a lapela en segundo plano (lista do historial)"
 
 #: ../extensions/history-list.vala:444
 msgid "Display the current selected tab in background"
-msgstr "Mostrar a lapela actual en segundo plano"
+msgstr "Amosar a lapela actual en segundo plano"
 
 #: ../extensions/history-list.vala:571
 msgid "History List"
@@ -2568,7 +2577,7 @@ msgstr "Reloxo na barra de estado"
 
 #: ../extensions/status-clock.c:178
 msgid "Display date and time in the statusbar"
-msgstr "Mostrar data e hora na barra de estado"
+msgstr "Amosar a data e a hora na barra de estado"
 
 #: ../extensions/statusbar-features.c:152
 msgid "Images"
@@ -2600,11 +2609,11 @@ msgstr "Panel de _lapelas"
 
 #: ../extensions/tab-panel.c:674
 msgid "Show tabs in a vertical panel"
-msgstr "Mostrar as lapelas nun panel vertical"
+msgstr "Amosar as lapelas nun panel vertical"
 
 #: ../extensions/tabs-minimized.c:76
 msgid "Only Icons on Tabs by default"
-msgstr "De xeito predeterminado só se mostran as iconas nas lapelas"
+msgstr "De xeito predeterminado só se amosan as iconas nas lapelas"
 
 #: ../extensions/tabs-minimized.c:77
 msgid "New tabs have no label by default"
@@ -2619,7 +2628,7 @@ msgid ""
 "Select items to be displayed on the toolbar. Items can be reordered by drag "
 "and drop."
 msgstr ""
-"Seleccionar os elementos que se van mostrar na barra de ferramentas. Os "
+"Seleccionar os elementos que van amosarse na barra de ferramentas. Os "
 "elementos poden reordenarse arrastrando e soltando."
 
 #: ../extensions/toolbar-editor.c:427
@@ -2628,7 +2637,7 @@ msgstr "Elementos dispoñíbeis"
 
 #: ../extensions/toolbar-editor.c:448
 msgid "Displayed Items"
-msgstr "Elementos mostrados"
+msgstr "Elementos amosados"
 
 #: ../extensions/toolbar-editor.c:588
 msgid "_Customize Toolbar…"
@@ -2647,9 +2656,9 @@ msgid "Cache HTTP communication on disk"
 msgstr "Gardar unha caché da comunicación HTTP no disco"
 
 #: ../katze/katze-http-cookies-sqlite.c:129
-#, fuzzy, c-format
+#, c-format
 msgid "Failed to load cookies\n"
-msgstr "Produciuse un erro engadir o elemento ao marcadores: %s\n"
+msgstr "Produciuse un erro cargar as cookies\n"
 
 #. i18n: Dialog: Clear Private Data, in the Tools menu
 #: ../midori/midori-privatedata.c:120
@@ -2686,14 +2695,12 @@ msgid "Website icons"
 msgstr "Iconas de sitios web"
 
 #: ../midori/midori-viewcompletion.vala:18
-#, fuzzy
 msgid "Open tabs"
-msgstr "Abrir %s"
+msgstr "Abrir lapelas"
 
 #: ../midori/midori-viewcompletion.vala:67
-#, fuzzy
 msgid "More open tabs…"
-msgstr "Últimas lapelas abertas"
+msgstr "Máis lapelas abertas…"
 
 #: ../midori/midori-history.c:25
 #, c-format
@@ -2708,30 +2715,29 @@ msgstr "Produciuse un fallo ao eliminar elementos antigos do historial: %s\n"
 
 #: ../midori/midori-bookmarks.c:104
 msgid "failed to ATTACH old db"
-msgstr ""
+msgstr "produciuse un erro ao ANEXAR a antiga base de datos"
 
 #: ../midori/midori-bookmarks.c:111
-#, fuzzy
 msgid "failed to import from old db"
-msgstr "Produciuse un erro ao importar os marcadores"
+msgstr "produciuse un erro ao importar desde a antiga base de datos"
 
 #: ../midori/midori-bookmarks.c:115
 msgid "failed to rollback the transaction"
-msgstr ""
+msgstr "produciuse un erro ao desfacer a transacción"
 
 #: ../midori/midori-bookmarks.c:119
 msgid "failed to DETACH "
-msgstr ""
+msgstr "produciuse un erro ao SEPARAR"
 
 #: ../midori/midori-bookmarks.c:259
-#, fuzzy, c-format
+#, c-format
 msgid "Couldn't create bookmarks table: %s\n"
-msgstr "Non foi posíbel actualizar o marcador: %s\n"
+msgstr "Non foi posíbel crear a táboa de marcadores: %s\n"
 
 #: ../midori/midori-bookmarks.c:274
-#, fuzzy, c-format
+#, c-format
 msgid "Couldn't import from old database: %s\n"
-msgstr "Produciuse un fallo ao abrir a base de datos: %s\n"
+msgstr "Non foi posíbel importar desde a antiga base de datos: %s\n"
 
 #: ../midori/midori-bookmarks.c:311
 #, c-format
@@ -2784,7 +2790,7 @@ msgstr "Desactivar todas as _extensións"
 
 #: ../midori/midori-frontend.c:332
 msgid "Show a dialog after Midori crashed"
-msgstr "Mostrar un cadro de dialogo despois de que Midori falle"
+msgstr "Amosar un cadro de dialogo despois de que Midori falle"
 
 #: ../midori/midori-frontend.c:337
 msgid "Discard old tabs"
