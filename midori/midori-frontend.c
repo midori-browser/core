@@ -396,9 +396,10 @@ midori_normal_app_new (const gchar* config,
         if (!execute_commands && !open_uris && midori_app_instance_send_new_browser (app))
             return NULL;
 
+        /* FIXME: We mustn't lose the URL here; either instance is freezing or inside a crash dialog */
         sokoke_message_dialog (GTK_MESSAGE_INFO,
             _("An instance of Midori is already running but not responding.\n"),
-            "", TRUE);
+            open_uris ? *open_uris : "", TRUE);
         return (void*)0xdeadbeef;
     }
 
