@@ -445,7 +445,7 @@ katze_item_get_pixbuf (KatzeItem* item,
 
     g_return_val_if_fail (KATZE_IS_ITEM (item), NULL);
 
-    if (KATZE_ITEM_IS_FOLDER (item))
+    if (widget && KATZE_ITEM_IS_FOLDER (item))
         return gtk_widget_render_icon (widget, GTK_STOCK_DIRECTORY, GTK_ICON_SIZE_MENU, NULL);
     if ((pixbuf = midori_paths_get_icon (item->uri, widget)))
         return pixbuf;
@@ -453,6 +453,10 @@ katze_item_get_pixbuf (KatzeItem* item,
         return pixbuf;
     return NULL;
 }
+
+static void
+katze_item_image_destroyed_cb (GtkWidget* image,
+                               KatzeItem* item);
 
 #if WEBKIT_CHECK_VERSION (1, 3, 13)
 static void
@@ -465,17 +469,15 @@ katze_item_icon_loaded_cb (WebKitIconDatabase*    database,
                            const gchar*           frame_uri,
                            GtkWidget*             image)
 {
-    /* This signal fires extremely often (WebKit bug?), we must throttle it */
-    if (g_object_get_data (G_OBJECT (image), "midori-icon-loaded"))
-        return;
-
     KatzeItem* item = g_object_get_data (G_OBJECT (image), "KatzeItem");
     GdkPixbuf* pixbuf = midori_paths_get_icon (frame_uri, image);
     if (pixbuf != NULL)
     {
         gtk_image_set_from_pixbuf (GTK_IMAGE (image), pixbuf);
         g_object_unref (pixbuf);
-        g_object_set_data (G_OBJECT (image), "midori-icon-loaded", (void*)1);
+        /* This signal fires extremely often (WebKit bug?)
+           we must throttle it (disconnect) once we have an icon */
+        katze_item_image_destroyed_cb (image, g_object_ref (item));
     }
 }
 #endif
@@ -517,14 +519,14 @@ katze_item_get_image (KatzeItem* item,
 
     pixbuf = katze_item_get_pixbuf (item, widget);
     image = gtk_image_new_from_pixbuf (pixbuf);
-    g_object_set_data (G_OBJECT (image), "KatzeItem", g_object_ref (item));
-    g_signal_connect (image, "destroy",
-        G_CALLBACK (katze_item_image_destroyed_cb), item);
     gtk_widget_show (image);
     if (pixbuf != NULL)
         g_object_unref (pixbuf);
     if (KATZE_ITEM_IS_FOLDER (item))
         return image;
+    g_object_set_data (G_OBJECT (image), "KatzeItem", g_object_ref (item));
+    g_signal_connect (image, "destroy",
+        G_CALLBACK (katze_item_image_destroyed_cb), item);
     #if WEBKIT_CHECK_VERSION (1, 8, 0)
     g_signal_connect (webkit_get_favicon_database (), "icon-loaded",
         G_CALLBACK (katze_item_icon_loaded_cb), image);
