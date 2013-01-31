@@ -585,7 +585,7 @@ def shutdown ():
             import threading
             def t_kill ():
                 Utils.pprint ('RED', 'timed out')
-                os.kill (pp.pid, 0)
+                os.kill (pp.pid, 9) # SIGKILL
             t = threading.Timer (42, t_kill)
             t.start ()
             if is_mingw (Build.bld.env):
