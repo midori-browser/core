@@ -2538,18 +2538,15 @@ midori_view_populate_popup (MidoriView* view,
             KATZE_ARRAY_FOREACH_ITEM (item, search_engines)
             {
                 GdkPixbuf* pixbuf;
-                const gchar* icon_name;
 
                 menuitem = gtk_image_menu_item_new_with_mnemonic (katze_item_get_name (item));
-                pixbuf = midori_search_action_get_icon (item,
-                    GTK_WIDGET (web_view), &icon_name, FALSE);
-                if (pixbuf)
+                if ((pixbuf = katze_item_get_pixbuf (item, GTK_WIDGET (web_view))))
                 {
                     icon = gtk_image_new_from_pixbuf (pixbuf);
                     g_object_unref (pixbuf);
                 }
                 else
-                    icon = gtk_image_new_from_icon_name (icon_name, GTK_ICON_SIZE_MENU);
+                    icon = gtk_image_new_from_icon_name (STOCK_EDIT_FIND, GTK_ICON_SIZE_MENU);
                 gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), icon);
                 gtk_image_menu_item_set_always_show_image (
                     GTK_IMAGE_MENU_ITEM (menuitem), TRUE);

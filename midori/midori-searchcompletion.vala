@@ -13,9 +13,6 @@ namespace Katze {
 }
 
 namespace Midori {
-    extern static Gdk.Pixbuf? search_action_get_icon (GLib.Object item,
-        Gtk.Widget? widget, out string[] icon_name, bool in_entry);
-
     public class SearchCompletion : Completion {
         GLib.Object search_engines;
 
@@ -42,17 +39,20 @@ namespace Midori {
             var suggestions = new List<Suggestion> ();
             uint n = 0;
             foreach (var item in items) {
-                string uri, title, desc;
+                string icon, uri, title, desc;
+                item.get ("icon", out icon);
                 item.get ("uri", out uri);
                 item.get ("name", out title);
                 item.get ("text", out desc);
                 string search_uri = URI.for_search (uri, text);
                 string search_title = _("Search with %s").printf (title);
-                var icon = Midori.search_action_get_icon (item, null, null, false);
+                Gdk.Pixbuf? pixbuf = Midori.Paths.get_icon (icon, null);
+                if (pixbuf == null)
+                    pixbuf = Midori.Paths.get_icon (uri, null);
                 string search_desc = search_title + "\n" + desc ?? uri;
                 /* FIXME: Theming? Win32? */
                 string background = "gray";
-                var suggestion = new Suggestion (search_uri, search_desc, false, background, icon);
+                var suggestion = new Suggestion (search_uri, search_desc, false, background, pixbuf);
                 suggestions.append (suggestion);
 
                 n++;

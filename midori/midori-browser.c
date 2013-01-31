@@ -3732,6 +3732,60 @@ _action_location_reset_uri (GtkAction*     action,
     }
 }
 
+#if WEBKIT_CHECK_VERSION (1, 3, 13)
+static void
+#if WEBKIT_CHECK_VERSION (1, 8, 0)
+midori_browser_item_icon_loaded_cb (WebKitFaviconDatabase* database,
+#elif WEBKIT_CHECK_VERSION (1, 3, 13)
+midori_browser_item_icon_loaded_cb (WebKitIconDatabase*    database,
+                                    WebKitWebFrame*        web_frame,
+#endif
+                                    const gchar*           frame_uri,
+                                    KatzeItem*             item)
+{
+    gchar* uri = g_object_get_data (G_OBJECT (item), "browser-queue-icon");
+    if (strcmp (frame_uri, uri))
+        return;
+
+    #if WEBKIT_CHECK_VERSION (1, 8, 0)
+    gchar* icon_uri = webkit_favicon_database_get_favicon_uri (
+        webkit_get_favicon_database (), frame_uri);
+    #elif WEBKIT_CHECK_VERSION (1, 3, 13)
+    gchar* icon_uri = webkit_icon_database_get_icon_uri (
+        webkit_get_icon_database (), frame_uri);
+    #endif
+    if (icon_uri != NULL)
+    {
+        g_free (icon_uri);
+        katze_item_set_icon (item, frame_uri);
+        /* This signal fires extremely often (WebKit bug?)
+           we must throttle it (disconnect) once we have an icon */
+        #if WEBKIT_CHECK_VERSION (1, 8, 0)
+        g_signal_handlers_disconnect_by_func (webkit_get_favicon_database (),
+            midori_browser_item_icon_loaded_cb, item);
+        #elif WEBKIT_CHECK_VERSION (1, 3, 13)
+        g_signal_handlers_disconnect_by_func (webkit_get_icon_database (),
+            midori_browser_item_icon_loaded_cb, item);
+        #endif
+    }
+}
+#endif
+
+static void
+midori_browser_queue_item_for_icon (KatzeItem*     item,
+                                    const gchar*   uri)
+{
+    if (katze_item_get_icon (item) != NULL)
+        return;
+    g_object_set_data_full (G_OBJECT (item), "browser-queue-icon", g_strdup (uri), g_free);
+    #if WEBKIT_CHECK_VERSION (1, 8, 0)
+    g_signal_connect (webkit_get_favicon_database (), "icon-loaded",
+        G_CALLBACK (midori_browser_item_icon_loaded_cb), item);
+    #elif WEBKIT_CHECK_VERSION (1, 3, 13)
+    g_signal_connect (webkit_get_icon_database (), "icon-loaded",
+        G_CALLBACK (midori_browser_item_icon_loaded_cb), item);
+    #endif
+}
 
 static void
 _action_location_submit_uri (GtkAction*     action,
@@ -3780,6 +3834,9 @@ _action_location_submit_uri (GtkAction*     action,
             search_uri = browser->location_entry_search;
         }
         new_uri = midori_uri_for_search (search_uri, keywords);
+
+        if (browser->search_engines && item != NULL)
+            midori_browser_queue_item_for_icon (item, new_uri);
 
         if (browser->history != NULL)
         {
@@ -3926,6 +3983,8 @@ _action_search_submit (GtkAction*     action,
         url = browser->location_entry_search;
 
     search = midori_uri_for_search (url, keywords);
+    if (item != NULL)
+        midori_browser_queue_item_for_icon (item, search);
 
     if (new_tab)
     {

@@ -447,9 +447,9 @@ katze_item_get_pixbuf (KatzeItem* item,
 
     if (widget && KATZE_ITEM_IS_FOLDER (item))
         return gtk_widget_render_icon (widget, GTK_STOCK_DIRECTORY, GTK_ICON_SIZE_MENU, NULL);
-    if ((pixbuf = midori_paths_get_icon (item->uri, widget)))
-        return pixbuf;
     if ((pixbuf = midori_paths_get_icon (katze_item_get_icon (item), widget)))
+        return pixbuf;
+    if ((pixbuf = midori_paths_get_icon (item->uri, widget)))
         return pixbuf;
     return NULL;
 }

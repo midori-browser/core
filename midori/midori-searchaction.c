@@ -400,36 +400,6 @@ midori_search_action_manage_activate_cb (GtkWidget*          menuitem,
         gtk_widget_show (dialog);
 }
 
-GdkPixbuf*
-midori_search_action_get_icon (KatzeItem*    item,
-                               GtkWidget*    widget,
-                               const gchar** icon_name,
-                               gboolean      in_entry)
-{
-    GdkPixbuf* pixbuf = katze_item_get_pixbuf (item, widget);
-    if (widget == NULL)
-        return pixbuf;
-
-    GdkScreen* screen = gtk_widget_get_screen (widget);
-    GtkIconTheme* icon_theme = gtk_icon_theme_get_for_screen (screen);
-    if (katze_item_get_icon (item))
-    {
-        if (gtk_icon_theme_has_icon (icon_theme, katze_item_get_icon (item)))
-        {
-            *icon_name = katze_item_get_icon (item);
-            return pixbuf;
-        }
-    }
-
-    if (in_entry && gtk_icon_theme_has_icon (icon_theme, "edit-find-option-symbolic"))
-        *icon_name = "edit-find-option-symbolic";
-    else if (gtk_icon_theme_has_icon (icon_theme, "edit-find-option"))
-        *icon_name = "edit-find-option";
-    else
-        *icon_name = STOCK_EDIT_FIND;
-    return pixbuf;
-}
-
 static void
 midori_search_action_icon_released_cb (GtkWidget*           entry,
                                        GtkIconEntryPosition icon_pos,
@@ -457,14 +427,13 @@ midori_search_action_icon_released_cb (GtkWidget*           entry,
             menuitem = gtk_image_menu_item_new_with_label (
                 katze_item_get_name (item));
             image = gtk_image_new ();
-            icon = midori_search_action_get_icon (item, entry, &icon_name, FALSE);
-            if (icon)
+            if ((icon = katze_item_get_pixbuf (item, entry)))
             {
                 gtk_image_set_from_pixbuf (GTK_IMAGE (image), icon);
                 g_object_unref (icon);
             }
             else
-                gtk_image_set_from_icon_name (GTK_IMAGE (image), icon_name,
+                gtk_image_set_from_icon_name (GTK_IMAGE (image), STOCK_EDIT_FIND,
                                               GTK_ICON_SIZE_MENU);
             gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), image);
             gtk_image_menu_item_set_always_show_image (
@@ -519,16 +488,25 @@ midori_search_action_set_entry_icon (MidoriSearchAction* search_action,
     {
         const gchar* icon_name;
 
-        icon = midori_search_action_get_icon (search_action->current_item,
-                                              entry, &icon_name, TRUE);
-        if (icon)
+        if ((icon = katze_item_get_pixbuf (search_action->current_item, entry)))
         {
             gtk_entry_set_icon_from_pixbuf (GTK_ENTRY (entry), GTK_ENTRY_ICON_PRIMARY, icon);
             g_object_unref (icon);
         }
         else
+        {
+            GdkScreen* screen = gtk_widget_get_screen (entry);
+            GtkIconTheme* icon_theme = gtk_icon_theme_get_for_screen (screen);
+            gchar* icon_name;
+            if (gtk_icon_theme_has_icon (icon_theme, "edit-find-option-symbolic"))
+                icon_name = "edit-find-option-symbolic";
+            else if (gtk_icon_theme_has_icon (icon_theme, "edit-find-option"))
+                icon_name = "edit-find-option";
+            else
+                icon_name = STOCK_EDIT_FIND;
             gtk_icon_entry_set_icon_from_icon_name (GTK_ICON_ENTRY (entry),
                 GTK_ICON_ENTRY_PRIMARY, icon_name);
+        }
         gtk_entry_set_placeholder_text (GTK_ENTRY (entry),
             katze_item_get_name (search_action->current_item));
     }
@@ -806,17 +784,16 @@ midori_search_action_dialog_render_icon_cb (GtkTreeViewColumn* column,
 {
     KatzeItem* item;
     GdkPixbuf* icon;
-    const gchar* icon_name;
 
     gtk_tree_model_get (model, iter, 0, &item, -1);
 
-    if ((icon = midori_search_action_get_icon (item, treeview, &icon_name, FALSE)))
+    if ((icon = katze_item_get_pixbuf (item, treeview)))
     {
         g_object_set (renderer, "pixbuf", icon, "yalign", 0.25, NULL);
         g_object_unref (icon);
     }
     else
-        g_object_set (renderer, "icon-name", icon_name, "yalign", 0.25, NULL);
+        g_object_set (renderer, "icon-name", STOCK_EDIT_FIND, "yalign", 0.25, NULL);
     g_object_unref (item);
 }
 
