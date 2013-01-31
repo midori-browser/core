@@ -582,10 +582,10 @@ def shutdown ():
                 Utils.check_dir (os.environ[x])
 
         def subprocess_popen_timeout (args, stdout=None, stderr=None):
-            import threading
+            import threading, signal
             def t_kill ():
                 Utils.pprint ('RED', 'timed out')
-                os.kill (pp.pid, 9) # SIGKILL
+                os.kill (pp.pid, signal.SIGABRT)
             t = threading.Timer (42, t_kill)
             t.start ()
             if is_mingw (Build.bld.env):
