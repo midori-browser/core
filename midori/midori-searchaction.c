@@ -486,8 +486,6 @@ midori_search_action_set_entry_icon (MidoriSearchAction* search_action,
 
     if (search_action->current_item)
     {
-        const gchar* icon_name;
-
         if ((icon = katze_item_get_pixbuf (search_action->current_item, entry)))
         {
             gtk_entry_set_icon_from_pixbuf (GTK_ENTRY (entry), GTK_ENTRY_ICON_PRIMARY, icon);
