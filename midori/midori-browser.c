@@ -2468,14 +2468,6 @@ _action_add_news_feed_activate (GtkAction*     action,
 }
 
 static void
-_action_compact_add_response_cb (GtkWidget* dialog,
-                                 gint       response,
-                                 gpointer   data)
-{
-    gtk_widget_destroy (dialog);
-}
-
-static void
 _action_compact_add_activate (GtkAction*     action,
                               MidoriBrowser* browser)
 {
@@ -2510,8 +2502,8 @@ _action_compact_add_activate (GtkAction*     action,
     }
 
     gtk_widget_show (dialog);
-    g_signal_connect (dialog, "response",
-                              G_CALLBACK (_action_compact_add_response_cb), NULL);
+    g_signal_connect_swapped (dialog, "response",
+                              G_CALLBACK (gtk_widget_destroy), dialog);
 }
 
 static void
@@ -4726,16 +4718,21 @@ _action_about_activate (GtkAction*     action,
 #endif
 #ifdef HAVE_GRANITE
     gchar* docs = midori_browser_get_docs (FALSE);
-    granite_widgets_show_about_dialog (GTK_WINDOW (browser),
+    /* Avoid granite_widgets_show_about_dialog for invalid memory and crashes */
+    /* FIXME: granite: should return GtkWidget* like GTK+ */
+    GtkWidget* dialog = (GtkWidget*)granite_widgets_about_dialog_new ();
+    g_object_set (dialog,
         "translate", "https://translations.xfce.org/projects/p/midori/",
         "bug", PACKAGE_BUGREPORT,
         "help", docs,
         "copyright", "2007-2012 Christian Dywan",
 #else
-    gtk_show_about_dialog (GTK_WINDOW (browser),
+    GtkWidget* dialog = gtk_about_dialog_new ();
+    g_object_set (dialog,
         "wrap-license", TRUE,
         "copyright", "Copyright © 2007-2012 Christian Dywan",
 #endif
+        "transient-for", browser,
         "logo-icon-name", gtk_window_get_icon_name (GTK_WINDOW (browser)),
         "program-name", PACKAGE_NAME,
         "version", PACKAGE_VERSION,
@@ -4751,6 +4748,9 @@ _action_about_activate (GtkAction*     action,
     #ifdef HAVE_GRANITE
     g_free (docs);
     #endif
+    gtk_widget_show (dialog);
+    g_signal_connect_swapped (dialog, "response",
+                              G_CALLBACK (gtk_widget_destroy), dialog);
 }
 
 static void
