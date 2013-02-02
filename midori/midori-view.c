@@ -2474,11 +2474,10 @@ midori_view_populate_popup (MidoriView* view,
             G_CALLBACK (midori_web_view_menu_link_copy_activate_cb), widget);
 
         if (!midori_view_always_same_tab (view->link_uri))
-        {
-        midori_view_insert_menu_item (menu_shell, -1,
-            NULL, GTK_STOCK_SAVE_AS,
-            G_CALLBACK (midori_web_view_menu_save_activate_cb), widget);
-        }
+            /* GTK_STOCK_SAVE_AS is lacking the underline */
+            midori_view_insert_menu_item (menu_shell, -1,
+                _("Save _As…"), GTK_STOCK_SAVE_AS,
+                G_CALLBACK (midori_web_view_menu_save_activate_cb), widget);
     }
 
     if (is_image)
