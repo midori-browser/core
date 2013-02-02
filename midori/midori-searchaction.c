@@ -1364,14 +1364,6 @@ midori_search_action_treeview_destroy_cb (GtkWidget*          treeview,
     }
 }
 
-static void
-midori_search_action_dialog_respnse_cb (GtkWidget* dialog,
-                                        gint       response,
-                                        gpointer   data)
-{
-    gtk_widget_destroy (dialog);
-}
-
 /**
  * midori_search_action_get_dialog:
  * @search_action: a #MidoriSearchAction
@@ -1435,8 +1427,8 @@ midori_search_action_get_dialog (MidoriSearchAction* search_action)
                                        GTK_RESPONSE_HELP, FALSE);
     sokoke_widget_get_text_size (dialog, "M", &width, &height);
     gtk_window_set_default_size (GTK_WINDOW (dialog), width * 52, -1);
-    g_signal_connect (dialog, "response",
-                      G_CALLBACK (midori_search_action_dialog_respnse_cb), NULL);
+    g_signal_connect_swapped (dialog, "response",
+        G_CALLBACK (gtk_widget_destroy), dialog);
     /* TODO: Do we want tooltips for explainations or can we omit that?
              We need mnemonics */
     if ((xfce_heading = sokoke_xfce_header_new (

@@ -137,14 +137,6 @@ shortcuts_hotkey_for_action (GtkAction*   action,
     return FALSE;
 }
 
-static void
-shortcuts_preferences_response_cb (GtkWidget* dialog,
-                                   gint       response,
-                                   gpointer   data)
-{
-    gtk_widget_destroy (dialog);
-}
-
 static GtkWidget*
 shortcuts_get_preferences_dialog (MidoriExtension* extension)
 {
@@ -183,8 +175,8 @@ shortcuts_get_preferences_dialog (MidoriExtension* extension)
     gtk_window_set_icon_name (GTK_WINDOW (dialog), GTK_STOCK_PROPERTIES);
     sokoke_widget_get_text_size (dialog, "M", &width, &height);
     gtk_window_set_default_size (GTK_WINDOW (dialog), width * 52, height * 24);
-    g_signal_connect (dialog, "response",
-                      G_CALLBACK (shortcuts_preferences_response_cb), NULL);
+    g_signal_connect_swapped (dialog, "response",
+        G_CALLBACK (gtk_widget_destroy), dialog);
 
     dialog_vbox = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
     if ((xfce_heading = sokoke_xfce_header_new (

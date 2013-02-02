@@ -5160,14 +5160,6 @@ midori_view_print_create_custom_widget_cb (GtkPrintOperation* operation,
     return box;
 }
 
-static void
-midori_view_print_response_cb (GtkWidget* dialog,
-                               gint       response,
-                               gpointer   data)
-{
-    gtk_widget_destroy (dialog);
-}
-
 /**
  * midori_view_print
  * @view: a #MidoriView
@@ -5205,8 +5197,8 @@ midori_view_print (MidoriView* view)
             GTK_BUTTONS_CLOSE, "%s", error->message);
         g_error_free (error);
 
-        g_signal_connect (dialog, "response",
-                          G_CALLBACK (midori_view_print_response_cb), NULL);
+        g_signal_connect_swapped (dialog, "response",
+            G_CALLBACK (gtk_widget_destroy), dialog);
         gtk_widget_show (dialog);
     }
 }
