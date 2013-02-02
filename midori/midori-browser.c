@@ -4972,12 +4972,17 @@ midori_browser_notebook_tab_added_cb (GtkWidget*         notebook,
                                       GraniteWidgetsTab* tab,
                                       MidoriBrowser*     browser)
 {
+    gint n = granite_widgets_dynamic_notebook_get_tab_position (
+        GRANITE_WIDGETS_DYNAMIC_NOTEBOOK (notebook), tab);
+    midori_browser_set_current_page (browser, n);
     GtkWidget* view = midori_view_new_with_item (NULL, browser->settings);
     midori_view_set_tab (MIDORI_VIEW (view), tab);
     midori_browser_connect_tab (browser, view);
+    midori_view_set_uri (MIDORI_VIEW (view), "");
     /* FIXME: signal add-tab */
     _midori_browser_update_actions (browser);
-    midori_view_set_uri (MIDORI_VIEW (view), "");
+    midori_browser_notebook_page_reordered_cb (GTK_WIDGET (notebook),
+        MIDORI_VIEW (view), n, browser);
 }
 
 static gboolean
@@ -4988,6 +4993,13 @@ midori_browser_notebook_tab_removed_cb (GtkWidget*         notebook,
     MidoriView* view = MIDORI_VIEW (granite_widgets_tab_get_page (tab));
     if (midori_browser_tab_connected (browser, MIDORI_VIEW (view)))
         midori_browser_disconnect_tab (browser, MIDORI_VIEW (view));
+
+    GraniteWidgetsTab* new_tab = granite_widgets_dynamic_notebook_get_current (
+        GRANITE_WIDGETS_DYNAMIC_NOTEBOOK (notebook));
+    gint new_pos = granite_widgets_dynamic_notebook_get_tab_position (
+        GRANITE_WIDGETS_DYNAMIC_NOTEBOOK (notebook), new_tab);
+    midori_browser_switched_tab (browser, granite_widgets_tab_get_page (tab),
+        MIDORI_VIEW (granite_widgets_tab_get_page (new_tab)), new_pos);
     return TRUE;
 }
 
