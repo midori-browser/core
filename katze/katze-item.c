@@ -447,7 +447,7 @@ katze_item_get_pixbuf (KatzeItem* item,
 
     if (widget && KATZE_ITEM_IS_FOLDER (item))
         return gtk_widget_render_icon (widget, GTK_STOCK_DIRECTORY, GTK_ICON_SIZE_MENU, NULL);
-    if ((pixbuf = midori_paths_get_icon (katze_item_get_icon (item), widget)))
+    if ((pixbuf = midori_paths_get_icon (katze_item_get_icon (item), NULL)))
         return pixbuf;
     if ((pixbuf = midori_paths_get_icon (item->uri, widget)))
         return pixbuf;
@@ -470,8 +470,9 @@ katze_item_icon_loaded_cb (WebKitIconDatabase*    database,
                            GtkWidget*             image)
 {
     KatzeItem* item = g_object_get_data (G_OBJECT (image), "KatzeItem");
-    GdkPixbuf* pixbuf = midori_paths_get_icon (frame_uri, image);
-    if (pixbuf != NULL)
+    GdkPixbuf* pixbuf;
+    if (!strcmp (frame_uri, item->uri)
+      && (pixbuf = midori_paths_get_icon (frame_uri, image)))
     {
         gtk_image_set_from_pixbuf (GTK_IMAGE (image), pixbuf);
         g_object_unref (pixbuf);
