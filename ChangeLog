@@ -1,5 +1,36 @@
 This file is licensed under the terms of the expat license, see the file EXPAT.
 
+v0.4.8:
+ Fix un-delaying of tabs
+ Support downloads with FlashGet on Win32
+ Fix compilation with GLib 2.30
+ Fix error handling in extensions
+ Retain selection in urlbar when switching tabs
+ Fix missing right-click menu on NextForward button
+ Hide error page button if buttons have no images
+ Rework URL completion: suggest open tabs
+ Always highlight matches in inline search
+ Pantheon: Only show private launcher in search
+ Granite: Fix notebook, require 0.2, drop _about_dialog_new
+ Don't include http(s), file or www. in page title
+ Autodetect Twitter RSS feeds
+ Adblock: Improve date parsing
+ Unit test rework: backtraces, regardless of debugging, wine
+ More accurate version numbers in about:version
+ Drop obsolete --log-file command line switch
+ Emit inspector attach-window with correct signature
+ Fix Netscape plugins opening download dialogs
+ Rework path handling and setup in different modes (fix segfaults)
+ Manage Netscape plugins are individual extensions
+ Address gtk_icon_set_render_icon_pixbuf assertions
+ Fix renaming in speed dial with spaces in title
+ Render completion title/ URL side by side with Granite
+ Transparently use Favicon-/ IconDatabase/ file store per WebKit
+ Add TabMoveFirst/ Last hotkeys (without defaults)
+ Drop Hildon support
+ Show URI in 'not responding' dialog
+ Query search engine icons when loading, rather than stupid guesses
+
 v0.4.7:
  Unify download behavior: link fingerprints, space check, clearing, tooltips
  GIO-based check for enough space and permissions, GIO-based themed icons
