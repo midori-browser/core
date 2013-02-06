@@ -21,7 +21,7 @@ RequestExecutionLevel user ; set execution level for Windows Vista
 ; helper defines  ;
 ;;;;;;;;;;;;;;;;;;;
 !define PRODUCT_NAME "Midori"
-!define PRODUCT_VERSION "0.3.3"
+!define PRODUCT_VERSION "0.4.8"
 !define PRODUCT_BUILD "0"
 !define PRODUCT_VERSION_ID "${PRODUCT_VERSION}.${PRODUCT_BUILD}"
 !define PRODUCT_PUBLISHER "Christian Dywan"
@@ -262,7 +262,7 @@ Section "!Program Files" SEC01
 	!insertmacro InstallIconTheme "places\user-trash"
 
 	!insertmacro InstallIconTheme "status\dialog-password"
-	#!insertmacro InstallIconTheme "status\locked"
+	!insertmacro InstallIconTheme "status\locked"
 
 SectionEnd
 
