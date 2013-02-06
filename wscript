@@ -371,8 +371,6 @@ def configure (conf):
                 '-Winit-self -Wundef -Wdeclaration-after-statement '
                 '-Wmissing-format-attribute -Wnested-externs'.split ())
     conf.env.append_value ('CCFLAGS', '-Wno-unused-variable -Wno-comment'.split ())
-    if compiler == 'gcc':
-        conf.env.append_value ('CCFLAGS', '-Wno-unused-but-set-variable'.split ())
 
     if conf.env['UNIQUE_VERSION'] == '1.0.4':
         Utils.pprint ('RED', 'unique 1.0.4 found, this version is erroneous.')
