@@ -311,6 +311,8 @@ namespace EDM {
         internal CommandLine () {
 #if HAVE_WIN32
             string default_commandline = "\"%s\\FlashGet\\flashget.exe\" {URL}".printf (Environment.get_variable ("ProgramFiles"));
+#elif HAVE_FREEBSD
+            string default_commandline = "fetch HTTP_REFERER={REFERER} {URL}";
 #else
             string default_commandline = "wget --no-check-certificate --referer={REFERER} --header={COOKIES} {URL}";
 #endif

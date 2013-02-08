@@ -258,6 +258,9 @@ def configure (conf):
         args = '--define-variable=target=win32'
         conf.env.append_value ('VALAFLAGS', '-D HAVE_WIN32')
     elif sys.platform != 'darwin':
+        if sys.platform.startswith ('freebsd'):
+            conf.env.append_value ('VALAFLAGS', '-D HAVE_FREEBSD')
+
         check_pkg ('x11')
         # Pass /usr/X11R6/include for OpenBSD
         conf.check (header_name='X11/extensions/scrnsaver.h',
