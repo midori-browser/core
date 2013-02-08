@@ -166,12 +166,15 @@ static void cookie_manager_page_cookies_changed_cb(CookieManager *cm, CookieMana
 	gtk_tree_view_set_model(GTK_TREE_VIEW(priv->treeview), GTK_TREE_MODEL(priv->filter));
 	g_object_unref(priv->filter);
 
-	/* if a filter is set, apply it again */
-	filter_text = gtk_entry_get_text(GTK_ENTRY(priv->filter_entry));
-	if (*filter_text != '\0')
+	/* if a filter is set, apply it again but ignore the place holder text */
+	if (!g_object_get_data (G_OBJECT (priv->filter_entry), "sokoke_has_default"))
 	{
-		cm_filter_tree(cmp, filter_text);
-		gtk_tree_view_expand_all(GTK_TREE_VIEW(priv->treeview));
+		filter_text = gtk_entry_get_text(GTK_ENTRY(priv->filter_entry));
+		if (*filter_text != '\0')
+		{
+			cm_filter_tree(cmp, filter_text);
+			gtk_tree_view_expand_all(GTK_TREE_VIEW(priv->treeview));
+		}
 	}
 }
 
@@ -576,11 +579,14 @@ static void cm_button_delete_all_clicked_cb(GtkToolButton *button, CookieManager
 	if (toplevel != NULL)
 		gtk_window_set_icon_name(GTK_WINDOW(dialog), gtk_window_get_icon_name(GTK_WINDOW(toplevel)));
 
-	filter_text = gtk_entry_get_text(GTK_ENTRY(priv->filter_entry));
-	if (*filter_text != '\0')
+	if (!g_object_get_data (G_OBJECT (priv->filter_entry), "sokoke_has_default"))
 	{
-		gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog),
-			_("Only cookies which match the filter will be deleted."));
+		filter_text = gtk_entry_get_text(GTK_ENTRY(priv->filter_entry));
+		if (*filter_text != '\0')
+		{
+			gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog),
+				_("Only cookies which match the filter will be deleted."));
+		}
 	}
 
 	if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_YES)
