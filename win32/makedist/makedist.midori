@@ -94,6 +94,9 @@ grab_files ()
    shift
    while [ "$1" ]; do
        find $dir "(" -name "$1" ")" -prune -exec mkdir -p $workdir/{} ";" -exec rmdir --ignore-fail-on-non-empty $workdir/{} ";" -exec cp -Lr {} $workdir/{} ";"
+       if [ "$?" -ne "0" ]; then
+           exit
+       fi
        shift
    done
    popd > /dev/null
