@@ -131,6 +131,13 @@ cp -L $files $workdir/bin
 popd > /dev/null
 
 mkdir -p $workdir/bin/Plugins
+cat > $workdir/bin/portable.bat << _EOF
+@ECHO OFF
+echo Starting Midori in portable mode!
+start midori.exe --portable
+pause
+_EOF
+
 echo -n .
 
 # copy etc
