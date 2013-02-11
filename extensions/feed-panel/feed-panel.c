@@ -861,7 +861,7 @@ feed_panel_init (FeedPanel* panel)
 
     paned = gtk_vpaned_new ();
     gtk_paned_pack1 (GTK_PANED (paned), treewin, TRUE, FALSE);
-    gtk_paned_pack2 (GTK_PANED (paned), webview, TRUE, FALSE);
+    gtk_paned_pack2 (GTK_PANED (paned), webview, TRUE, TRUE);
     gtk_box_pack_start (GTK_BOX (panel), paned, TRUE, TRUE, 0);
     gtk_widget_show (webview);
     gtk_widget_show (paned);
