@@ -25,8 +25,8 @@
 root_dir=$MINGW_PREFIX
 
 if [ "$MINGW_PREFIX" == "" ]; then
-   echo "Warning! MINGW_PREFIX variable is empty!"
-   sleep 5s
+   echo "Error: MINGW_PREFIX variable is empty!"
+   exit
 fi
 
 # create temporary working directory
