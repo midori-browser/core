@@ -142,8 +142,6 @@ grab_files etc pango
 # copy configuration, otherwise webkit will crash
 grab_files etc fonts
 
-# We need to ship our CA bundle for now
-cp /etc/pki/tls/certs/ca-bundle.crt $workdir/share/midori/res/
 
 echo -n .
 
@@ -173,6 +171,9 @@ grab_files share midori
 grab_files share icons
 grab_files share mime
 grab_files share midori.mo
+
+# We need to ship our CA bundle for now
+cp /etc/pki/tls/certs/ca-bundle.crt $workdir/share/midori/res/
 
 if [ "$GTK3_BUILD" == "1" ]; then
     grab_files share webkitgtk-3.0
