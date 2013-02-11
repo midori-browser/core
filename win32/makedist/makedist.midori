@@ -46,7 +46,7 @@ if [ "$1" != "" ]; then
    version_tag="$1"
 fi
 
-if [ $version_tag != "" ]; then
+if [ "$version_tag" != "" ]; then
     version_tag=$version_tag-$version
 else
     version_tag=$version
