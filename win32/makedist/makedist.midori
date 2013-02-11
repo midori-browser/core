@@ -102,13 +102,13 @@ grab_files ()
    popd > /dev/null
 }
 
-echo -n "Creating $ARCHIVE ."
+echo "Creating $ARCHIVE"
 
 # create destination folder
 workdir=$temp_dir/midori-$version_tag
 mkdir $workdir
 
-echo -n .
+echo "<*> Generating dll list..."
 
 # auto generate dll list, only of existing files
 pushd $root_dir/bin > /dev/null
@@ -125,12 +125,12 @@ files=`ls | cat - $temp_dir/midori.exe.lst | sort | uniq -d`
 rm $temp_dir/midori.exe.lst
 popd > /dev/null
 
-echo -n .
+echo "<*> Copying dlls..."
 
 # copy auto generate dll list
 pushd $root_dir/bin > /dev/null
 mkdir $workdir/bin
-cp -L $files $workdir/bin
+cp -L $files $workdir/bin 2>/dev/null
 popd > /dev/null
 
 mkdir -p $workdir/bin/Plugins
@@ -141,7 +141,7 @@ start midori.exe --portable
 pause
 _EOF
 
-echo -n .
+echo "<*> Copying configuration files..."
 
 # copy etc
 grab_files etc midori
@@ -154,7 +154,7 @@ grab_files etc pango
 grab_files etc fonts
 
 
-echo -n .
+echo "<*> Copying modules and libraries..."
 
 # copy lib
 if [ "$GTK3_BUILD" == "1" ]; then
@@ -175,7 +175,7 @@ grab_files lib pango
 
 grab_files lib gstreamer-0.10
 
-echo -n .
+echo "<*> Copying resources and translations..."
 
 # copy share
 grab_files share midori
@@ -225,6 +225,7 @@ for LOCALE in $(cat $temp_dir/locale.list); do
 done
 rm $temp_dir/locale.list
 
+echo "<*> Setting up default gtk settings..."
 # we want to override default gtk settings
 if [ "$GTK3_BUILD" == "1" ]; then
     gtk_etc_dir="$workdir/etc/gtk-3.0/"
@@ -261,31 +262,28 @@ _EOF
 
 popd > /dev/null
 
-echo -n .
+echo "<*> Copying docs..."
 
 # copy doc files to root
 cp -L $workdir/share/doc/midori/{COPYING,AUTHORS} $workdir
 
-echo -n .
 
 #drop a/la files, we don't do static builds anyway
 find $workdir -iname *.*a -exec rm {} \;
 
+echo "<*> Compressing archive (slow)..."
 ARCHIVE=`pwd`/$ARCHIVE
 
 # store as zip/7z file
 pushd $temp_dir > /dev/null
 if [ "$have_7zip" != "" ]; then
-    7za a -m0=lzma $ARCHIVE midori-$version_tag
+    7za a -m0=lzma $ARCHIVE midori-$version_tag > /dev/null
 else
     zip -rq $ARCHIVE midori-$version_tag
 fi
 popd > /dev/null
 
-echo -n .
+echo "<*> Cleaning up..."
 
 # remove working directory
 rm -r $temp_dir
-
-echo " ready"
-
