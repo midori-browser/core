@@ -772,7 +772,6 @@ midori_bookmarks_open_in_tab_activate_cb (GtkWidget*       menuitem,
 {
     KatzeItem* item;
     const gchar* uri;
-    guint n;
 
     item = (KatzeItem*)g_object_get_data (G_OBJECT (menuitem), "KatzeItem");
     if (KATZE_ITEM_IS_FOLDER (item))
@@ -788,21 +787,17 @@ midori_bookmarks_open_in_tab_activate_cb (GtkWidget*       menuitem,
         {
             if ((uri = katze_item_get_uri (child)) && *uri)
             {
-                MidoriBrowser* browser;
-
-                browser = midori_browser_get_for_widget (GTK_WIDGET (bookmarks));
-                n = midori_browser_add_item (browser, child);
-                midori_browser_set_current_page_smartly (browser, n);
+                MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (bookmarks));
+                GtkWidget* view = midori_browser_add_item (browser, child);
+                midori_browser_set_current_tab_smartly (browser, view);
             }
         }
     }
     else if ((uri = katze_item_get_uri (item)) && *uri)
     {
-        MidoriBrowser* browser;
-
-        browser = midori_browser_get_for_widget (GTK_WIDGET (bookmarks));
-        n = midori_browser_add_item (browser, item);
-        midori_browser_set_current_page_smartly (browser, n);
+        MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (bookmarks));
+        GtkWidget* view = midori_browser_add_item (browser, item);
+        midori_browser_set_current_tab_smartly (browser, view);
     }
 }
 
@@ -881,12 +876,9 @@ midori_bookmarks_button_release_event_cb (GtkWidget*       widget,
             const gchar* uri;
             if (KATZE_ITEM_IS_BOOKMARK (item) && (uri = katze_item_get_uri (item)) && *uri)
             {
-                MidoriBrowser* browser;
-                gint n;
-
-                browser = midori_browser_get_for_widget (widget);
-                n = midori_browser_add_uri (browser, uri);
-                midori_browser_set_current_page (browser, n);
+                MidoriBrowser* browser = midori_browser_get_for_widget (widget);
+                GtkWidget* view = midori_browser_add_uri (browser, uri);
+                midori_browser_set_current_tab (browser, view);
             }
         }
         else

@@ -409,6 +409,24 @@ midori_browser_set_current_page_smartly (MidoriBrowser* browser,
         midori_browser_set_current_page (browser, n);
 }
 
+/**
+ * midori_browser_set_current_tab_smartly:
+ * @browser: a #MidoriBrowser
+ * @view: a #GtkWidget
+ *
+ * Switches to the tab containing @view iff open-tabs-in-the-background is %FALSE.
+ *
+ * Since: 0.4.9
+ **/
+void
+midori_browser_set_current_tab_smartly (MidoriBrowser* browser,
+                                        GtkWidget*     view)
+{
+    if (!katze_object_get_boolean (browser->settings,
+        "open-tabs-in-the-background"))
+        midori_browser_set_current_tab (browser, view);
+}
+
 static void
 _midori_browser_update_progress (MidoriBrowser* browser,
                                  MidoriView*    view)
@@ -1206,12 +1224,11 @@ midori_view_new_tab_cb (GtkWidget*     view,
                         gboolean       background,
                         MidoriBrowser* browser)
 {
-    gint n = midori_browser_add_uri (browser, uri);
-    midori_browser_view_copy_history (midori_browser_get_nth_tab (browser, n),
-                                      view, FALSE);
+    GtkWidget* new_view = midori_browser_add_uri (browser, uri);
+    midori_browser_view_copy_history (new_view, view, FALSE);
 
     if (!background)
-        midori_browser_set_current_page (browser, n);
+        midori_browser_set_current_tab (browser, new_view);
     else
         midori_browser_notify_new_tab (browser);
 }
@@ -1246,9 +1263,9 @@ midori_view_new_view_cb (GtkWidget*     view,
     }
     else if (gtk_widget_get_parent (new_view) != browser->notebook)
     {
-        gint n = midori_browser_add_tab (browser, new_view);
+        midori_browser_add_tab (browser, new_view);
         if (where != MIDORI_NEW_VIEW_BACKGROUND)
-            midori_browser_set_current_page (browser, n);
+            midori_browser_set_current_tab (browser, new_view);
     }
     else
         midori_browser_notify_new_tab (browser);
@@ -2289,8 +2306,8 @@ static void
 _action_tab_new_activate (GtkAction*     action,
                           MidoriBrowser* browser)
 {
-    gint n = midori_browser_add_uri (browser, "");
-    midori_browser_set_current_page (browser, n);
+    GtkWidget* view = midori_browser_add_uri (browser, "");
+    midori_browser_set_current_tab (browser, view);
 }
 
 static void
@@ -2831,8 +2848,8 @@ midori_bookmarkbar_activate_item_alt (GtkAction*     action,
 {
     if (MIDORI_EVENT_NEW_TAB (gtk_get_current_event ()))
     {
-        gint n = midori_browser_add_uri (browser, katze_item_get_uri (item));
-        midori_browser_set_current_page_smartly (browser, n);
+        GtkWidget* view = midori_browser_add_item (browser, item);
+        midori_browser_set_current_tab_smartly (browser, view);
     }
     else if (button == 1)
     {
@@ -2858,17 +2875,17 @@ _action_trash_populate_popup (GtkAction*     action,
     gtk_widget_show (menuitem);
 }
 
-static gint
+static GtkWidget*
 midori_browser_restore_tab (MidoriBrowser* browser,
                             KatzeItem*     item)
 {
-    gint n;
+    GtkWidget* view;
 
     g_object_ref (item);
     katze_array_remove_item (browser->trash, item);
-    n = midori_browser_add_item (browser, item);
+    view = midori_browser_add_item (browser, item);
     g_object_unref (item);
-    return n;
+    return view;
 }
 
 static gboolean
@@ -2879,12 +2896,12 @@ _action_trash_activate_item_alt (GtkAction*     action,
 {
     if (MIDORI_EVENT_NEW_TAB (gtk_get_current_event ()))
     {
-        midori_browser_set_current_page_smartly (browser,
+        midori_browser_set_current_tab_smartly (browser,
             midori_browser_restore_tab (browser, item));
     }
     else if (button == 1)
     {
-        midori_browser_set_current_page (browser,
+        midori_browser_set_current_tab (browser,
             midori_browser_restore_tab (browser, item));
     }
 
@@ -3576,21 +3593,13 @@ _action_navigation_activate (GtkAction*     action,
     {
         if (middle_click)
         {
-            GtkWidget* web_view;
-            WebKitWebBackForwardList* back_forward_list;
-            WebKitWebHistoryItem* back_item;
-            const gchar* back_uri;
-            gint n;
-
-            web_view = midori_view_get_web_view (view);
-
-            back_forward_list =
+            GtkWidget* web_view = midori_view_get_web_view (view);
+            WebKitWebBackForwardList* back_forward_list =
                 webkit_web_view_get_back_forward_list (WEBKIT_WEB_VIEW (web_view));
-            back_item = webkit_web_back_forward_list_get_back_item (back_forward_list);
-            back_uri = webkit_web_history_item_get_uri (back_item);
-
-            n = midori_browser_add_uri (browser, back_uri);
-            midori_browser_set_current_page_smartly (browser, n);
+            WebKitWebHistoryItem* back_item = webkit_web_back_forward_list_get_back_item (back_forward_list);
+            const gchar* back_uri = webkit_web_history_item_get_uri (back_item);
+            GtkWidget* view = midori_browser_add_uri (browser, back_uri);
+            midori_browser_set_current_tab_smartly (browser, view);
         }
         else
             midori_view_go_back (view);
@@ -3601,21 +3610,13 @@ _action_navigation_activate (GtkAction*     action,
     {
         if (middle_click)
         {
-            GtkWidget* web_view;
-            WebKitWebBackForwardList* back_forward_list;
-            WebKitWebHistoryItem* forward_item;
-            const gchar* forward_uri;
-            gint n;
-
-            web_view = midori_view_get_web_view (view);
-
-            back_forward_list =
+            GtkWidget* web_view = midori_view_get_web_view (view);
+            WebKitWebBackForwardList* back_forward_list =
                 webkit_web_view_get_back_forward_list (WEBKIT_WEB_VIEW (web_view));
-            forward_item = webkit_web_back_forward_list_get_forward_item (back_forward_list);
-            forward_uri = webkit_web_history_item_get_uri (forward_item);
-
-            n = midori_browser_add_uri (browser, forward_uri);
-            midori_browser_set_current_page_smartly (browser, n);
+            WebKitWebHistoryItem* forward_item = webkit_web_back_forward_list_get_forward_item (back_forward_list);
+            const gchar* forward_uri = webkit_web_history_item_get_uri (forward_item);
+            GtkWidget* view = midori_browser_add_uri (browser, forward_uri);
+            midori_browser_set_current_tab_smartly (browser, view);
         }
         else
           midori_tab_go_forward (MIDORI_TAB (view));
@@ -3629,10 +3630,8 @@ _action_navigation_activate (GtkAction*     action,
 
         if (middle_click)
         {
-            gint n;
-
-            n = midori_browser_add_uri (browser, uri);
-            midori_browser_set_current_page_smartly (browser, n);
+            GtkWidget* view = midori_browser_add_uri (browser, uri);
+            midori_browser_set_current_tab_smartly (browser, view);
         }
         else
             midori_view_set_uri (view, uri);
@@ -3647,10 +3646,8 @@ _action_navigation_activate (GtkAction*     action,
 
         if (middle_click)
         {
-            gint n;
-
-            n = midori_browser_add_uri (browser, uri);
-            midori_browser_set_current_page_smartly (browser, n);
+            GtkWidget* view = midori_browser_add_uri (browser, uri);
+            midori_browser_set_current_tab_smartly (browser, view);
         }
         else
             midori_view_set_uri (view, uri);
@@ -3664,10 +3661,8 @@ _action_navigation_activate (GtkAction*     action,
 
         if (middle_click)
         {
-          gint n;
-
-          n = midori_browser_add_uri (browser, uri);
-          midori_browser_set_current_page_smartly (browser, n);
+            GtkWidget* view = midori_browser_add_uri (browser, uri);
+            midori_browser_set_current_tab_smartly (browser, view);
         }
         else
             midori_view_set_uri (view, uri);
@@ -3858,8 +3853,8 @@ _action_location_submit_uri (GtkAction*     action,
 
     if (new_tab)
     {
-        n = midori_browser_add_uri (browser, new_uri);
-        midori_browser_set_current_page (browser, n);
+        GtkWidget* view = midori_browser_add_uri (browser, new_uri);
+        midori_browser_set_current_tab (browser, view);
     }
     else
         midori_browser_set_current_uri (browser, new_uri);
@@ -3980,8 +3975,8 @@ _action_search_submit (GtkAction*     action,
 
     if (new_tab)
     {
-        int n = midori_browser_add_uri (browser, search);
-        midori_browser_set_current_page_smartly (browser, n);
+        GtkWidget* view = midori_browser_add_uri (browser, search);
+        midori_browser_set_current_tab_smartly (browser, view);
     }
     else
         midori_browser_set_current_uri (browser, search);
@@ -4113,8 +4108,8 @@ midori_browser_bookmark_open_in_tab_activate_cb (GtkWidget*     menuitem,
         {
             if ((uri = katze_item_get_uri (child)) && *uri)
             {
-                n = midori_browser_add_item (browser, child);
-                midori_browser_set_current_page_smartly (browser, n);
+                GtkWidget* view = midori_browser_add_item (browser, child);
+                midori_browser_set_current_tab_smartly (browser, view);
             }
         }
     }
@@ -4122,8 +4117,8 @@ midori_browser_bookmark_open_in_tab_activate_cb (GtkWidget*     menuitem,
     {
         if ((uri = katze_item_get_uri (item)) && *uri)
         {
-            n = midori_browser_add_item (browser, item);
-            midori_browser_set_current_page_smartly (browser, n);
+            GtkWidget* view = midori_browser_add_item (browser, item);
+            midori_browser_set_current_tab_smartly (browser, view);
         }
     }
 }
@@ -4660,12 +4655,9 @@ _action_about_activate_link (GtkAboutDialog* about,
                              const gchar*    uri,
                              gpointer        user_data)
 {
-    MidoriBrowser* browser;
-    gint n;
-
-    browser = MIDORI_BROWSER (user_data);
-    n = midori_browser_add_uri (browser, uri);
-    midori_browser_set_current_page (browser, n);
+    MidoriBrowser* browser = MIDORI_BROWSER (user_data);
+    GtkWidget* view = midori_browser_add_uri (browser, uri);
+    midori_browser_set_current_tab (browser, view);
 }
 
 static void
@@ -4769,8 +4761,8 @@ _action_help_link_activate (GtkAction*     action,
 
     if (uri)
     {
-        gint n = midori_browser_add_uri (browser, uri);
-        midori_browser_set_current_page (browser, n);
+        GtkWidget* view = midori_browser_add_uri (browser, uri);
+        midori_browser_set_current_tab (browser, view);
         g_free (uri);
     }
 }
@@ -5137,8 +5129,8 @@ midori_browser_notebook_button_press_event_after_cb (GtkNotebook*    notebook,
     if (/*(event->type == GDK_2BUTTON_PRESS && event->button == 1)
     || */(event->type == GDK_BUTTON_PRESS && MIDORI_EVENT_NEW_TAB (event)))
     {
-        gint n = midori_browser_add_uri (browser, "");
-        midori_browser_set_current_page (browser, n);
+        GtkWidget* view = midori_browser_add_uri (browser, "");
+        midori_browser_set_current_tab (browser, view);
 
         return TRUE;
     }
@@ -5190,7 +5182,7 @@ _action_undo_tab_close_activate (GtkAction*     action,
     /* Reopen the most recent trash item */
     last = katze_array_get_length (browser->trash) - 1;
     item = katze_array_get_nth_item (browser->trash, last);
-    midori_browser_set_current_page (browser,
+    midori_browser_set_current_tab (browser,
         midori_browser_restore_tab (browser, item));
 }
 
@@ -6909,16 +6901,13 @@ midori_bookmarkbar_item_button_press_event_cb (GtkWidget*      toolitem,
                                                GdkEventButton* event,
                                                MidoriBrowser*  browser)
 {
-    KatzeItem* item;
-    gint n;
-
-    item = (KatzeItem*)g_object_get_data (G_OBJECT (toolitem), "KatzeItem");
+    KatzeItem* item = (KatzeItem*)g_object_get_data (G_OBJECT (toolitem), "KatzeItem");
     if (MIDORI_EVENT_NEW_TAB (event))
     {
         if (KATZE_ITEM_IS_BOOKMARK (item))
         {
-            n = midori_browser_add_uri (browser, katze_item_get_uri (item));
-            midori_browser_set_current_page_smartly (browser, n);
+            GtkWidget* view = midori_browser_add_uri (browser, katze_item_get_uri (item));
+            midori_browser_set_current_tab_smartly (browser, view);
             return TRUE;
         }
     }
@@ -7277,21 +7266,20 @@ midori_browser_new (void)
  * Appends a view in the form of a new tab and creates an
  * according item in the Window menu.
  *
- * Return value: the index of the new tab, or -1 in case of an error
+ * Since: 0.4.9: Return type is void
  **/
-gint
+void
 midori_browser_add_tab (MidoriBrowser* browser,
                         GtkWidget*     view)
 {
-    g_return_val_if_fail (MIDORI_IS_BROWSER (browser), -1);
-    g_return_val_if_fail (GTK_IS_WIDGET (view), -1);
+    g_return_if_fail (MIDORI_IS_BROWSER (browser));
+    g_return_if_fail (GTK_IS_WIDGET (view));
 
     if (!g_object_get_data (G_OBJECT (webkit_get_default_session ()),
                             "midori-session-initialized"))
         g_critical ("midori_load_soup_session was not called!");
 
     g_signal_emit (browser, signals[ADD_TAB], 0, view);
-    return midori_browser_page_num (browser, view);
 }
 
 /**
@@ -7349,26 +7337,25 @@ midori_browser_close_tab (MidoriBrowser* browser,
  * @browser: a #MidoriBrowser
  * @item: an item
  *
- * Appends a new view as described by @item.
+ * Return value: a #GtkWidget
  *
- * Return value: the index of the new tab, or -1 in case of an error
+ * Since: 0.4.9: Return type is GtkWidget*
  **/
-gint
+GtkWidget*
 midori_browser_add_item (MidoriBrowser* browser,
                          KatzeItem*     item)
 {
     const gchar* uri;
     GtkWidget* view;
-    gint page;
 
-    g_return_val_if_fail (MIDORI_IS_BROWSER (browser), -1);
-    g_return_val_if_fail (KATZE_IS_ITEM (item), -1);
+    g_return_val_if_fail (MIDORI_IS_BROWSER (browser), NULL);
+    g_return_val_if_fail (KATZE_IS_ITEM (item), NULL);
 
     uri = katze_item_get_uri (item);
     view = midori_view_new_with_item (item, browser->settings);
-    page = midori_browser_add_tab (browser, view);
+    midori_browser_add_tab (browser, view);
     midori_view_set_uri (MIDORI_VIEW (view), uri);
-    return page;
+    return view;
 }
 
 /**
@@ -7378,16 +7365,18 @@ midori_browser_add_item (MidoriBrowser* browser,
  *
  * Appends an uri in the form of a new view.
  *
- * Return value: the index of the new view, or -1
+ * Return value: a #GtkWidget
+ *
+ * Since: 0.4.9: Return type is GtkWidget*
  **/
-gint
+GtkWidget*
 midori_browser_add_uri (MidoriBrowser* browser,
                         const gchar*   uri)
 {
     KatzeItem* item;
 
-    g_return_val_if_fail (MIDORI_IS_BROWSER (browser), -1);
-    g_return_val_if_fail (uri != NULL, -1);
+    g_return_val_if_fail (MIDORI_IS_BROWSER (browser), NULL);
+    g_return_val_if_fail (uri != NULL, NULL);
 
     item = katze_item_new ();
     item->uri = g_strdup (uri);

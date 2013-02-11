@@ -74,7 +74,7 @@ midori_browser_get_type               (void) G_GNUC_CONST;
 MidoriBrowser*
 midori_browser_new                    (void);
 
-gint
+void
 midori_browser_add_tab                (MidoriBrowser*     browser,
                                        GtkWidget*         widget);
 
@@ -82,11 +82,11 @@ void
 midori_browser_close_tab              (MidoriBrowser*     browser,
                                        GtkWidget*         widget);
 
-gint
+GtkWidget*
 midori_browser_add_item               (MidoriBrowser*     browser,
                                        KatzeItem*         item);
 
-gint
+GtkWidget*
 midori_browser_add_uri                (MidoriBrowser*     browser,
                                        const gchar*       uri);
 
@@ -120,6 +120,11 @@ midori_browser_get_current_uri        (MidoriBrowser*     browser);
 void
 midori_browser_set_current_page_smartly (MidoriBrowser* browser,
                                          gint           n);
+
+void
+midori_browser_set_current_tab_smartly (MidoriBrowser* browser,
+                                        GtkWidget*     view);
+
 void
 midori_browser_set_current_page       (MidoriBrowser*     browser,
                                        gint               n);

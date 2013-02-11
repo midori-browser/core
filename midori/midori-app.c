@@ -560,7 +560,7 @@ midori_app_command_received (MidoriApp*   app,
                         if (found != NULL)
                             midori_browser_set_current_item (browser, found);
                         else
-                            midori_browser_set_current_page (browser,
+                            midori_browser_set_current_tab (browser,
                                 midori_browser_add_uri (browser, fixed_uri));
                     }
                 }

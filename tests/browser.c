@@ -17,7 +17,6 @@ browser_create (void)
     MidoriApp* app;
     MidoriWebSettings* settings;
     MidoriBrowser* browser;
-    gint n;
     gchar* temporary_downloads;
     gchar* temporary_filename;
     GtkWidget* view;
@@ -35,8 +34,7 @@ browser_create (void)
     file = g_file_new_for_commandline_arg ("./data/about.css");
     uri = g_file_get_uri (file);
     g_object_unref (file);
-    n = midori_browser_add_uri (browser, uri);
-    view = midori_browser_get_nth_tab (browser, n);
+    view = midori_browser_add_uri (browser, uri);
 
     midori_test_set_dialog_response (GTK_RESPONSE_OK);
     temporary_downloads = midori_paths_make_tmp_dir ("saveXXXXXX");
@@ -52,8 +50,8 @@ browser_create (void)
     g_free (filename2);
 
     /* View source for local file: should NOT use temporary file */
-    n = midori_browser_add_uri (browser, uri);
-    midori_browser_set_current_page (browser, n);
+    view = midori_browser_add_uri (browser, uri);
+    midori_browser_set_current_tab (browser, view);
     g_assert_cmpstr (uri, ==, midori_browser_get_current_uri (browser));
     g_free (uri);
     g_free (temporary_downloads);

@@ -445,10 +445,9 @@ adblock_activate_link_cb (GtkWidget*   label,
                           const gchar* uri)
 {
     MidoriBrowser* browser = midori_browser_get_for_widget (label);
-    gint n = midori_browser_add_uri (browser, uri);
-    if (n > -1)
-        midori_browser_set_current_page (browser, n);
-    return n > -1;
+    GtkWidget* view = midori_browser_add_uri (browser, uri);
+    midori_browser_set_current_tab (browser, view);
+    return TRUE;
 }
 #endif
 
