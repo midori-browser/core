@@ -6094,7 +6094,7 @@ midori_browser_init (MidoriBrowser* browser)
 
     action = g_object_new (KATZE_TYPE_ARRAY_ACTION,
         "name", "Window",
-        "label", _("_Window"),
+        "label", _("_Tabs"),
         "stock-id", GTK_STOCK_INDEX,
         "tooltip", _("Show a list of all open tabs"),
         "array", browser->proxy_array,
