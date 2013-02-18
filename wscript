@@ -268,7 +268,15 @@ def configure (conf):
         conf.check (lib='Xss', libpath='/usr/X11R6/lib', mandatory=False)
     if option_enabled ('gtk3'):
         check_pkg ('gtk+-3.0', '3.0.0', var='GTK', mandatory=False)
-        check_pkg ('webkitgtk-3.0', '1.1.17', var='WEBKIT', mandatory=False)
+        if option_enabled ('webkit2'):
+            check_pkg ('webkit2gtk-3.0', '1.10.1', var='WEBKIT', mandatory=False)
+            if not conf.env['HAVE_WEBKIT']:
+                Utils.pprint ('RED', 'WebKit2/ GTK+3 was not found.\n' \
+                    'Pass --disable-webkit2 to build without WebKit2.')
+                sys.exit (1)
+            conf.env.append_value ('VALAFLAGS', '-D HAVE_WEBKIT2')
+        else:
+            check_pkg ('webkitgtk-3.0', '1.1.17', var='WEBKIT', mandatory=False)
         if not conf.env['HAVE_GTK'] or not conf.env['HAVE_WEBKIT']:
             Utils.pprint ('RED', 'GTK+3 was not found.\n' \
                 'Pass --disable-gtk3 to build without GTK+3.')
@@ -286,6 +294,7 @@ def configure (conf):
         if check_version (conf.env['GTK_VERSION'], 2, 20, 0):
             conf.env.append_value ('VALAFLAGS', '-D HAVE_OFFSCREEN')
     conf.env['HAVE_GTK3'] = option_enabled ('gtk3')
+    conf.env['HAVE_WEBKIT2'] = option_enabled ('webkit2')
 
     check_pkg ('libsoup-2.4', '2.27.90', var='LIBSOUP')
     if check_version (conf.env['LIBSOUP_VERSION'], 2, 29, 3):
@@ -427,6 +436,7 @@ def set_options (opt):
     add_enable_option ('addons', 'building of extensions', group)
     add_enable_option ('tests', 'install tests', group, disable=True)
     add_enable_option ('gtk3', 'GTK+3 and WebKitGTK+3 support', group, disable=True)
+    add_enable_option ('webkit2', 'WebKit2 support', group, disable=True)
     add_enable_option ('zeitgeist', 'Zeitgeist history integration', group, disable=is_win32 (os.environ))
 
     # Provided for compatibility
