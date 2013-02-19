@@ -3,51 +3,52 @@
 # This file is distributed under the same license as the midori package.
 # Seo Sanghyeon <sanxiyn@gmail.com> 2009
 # Kim Boram <boramism@gmail.com> 2009-2012
-# 
+#
 # Note:  Report-Mstid-Bugs-To에는 xfce-i18n <xfce-i18n@xfce.org> 를 넣습니다.
 #        Lauguage에는 소문자로 ko를 넣습니다.
-# 
+#
 # Please write your name and e-mail into header description and
 # "translator-credits" if you update this translation script.
-# 
+#
 # ex ) msgstr ""
 #      "Gil-dong Hong <gdhong0101@gmail.com>\n"
 #      "YourName Kim <ynkim@gmail.com>"
-# 
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: midori 0.2.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-02-15 09:33+0000\n"
-"PO-Revision-Date: 2012-12-14 12:25+0900\n"
+"POT-Creation-Date: 2013-02-19 20:01+0900\n"
+"PO-Revision-Date: 2013-02-19 20:18+0900\n"
 "Last-Translator: Kim Boram <boramism@gmail.com>\n"
 "Language-Team: Kim Boram <boramism@gmail.com>\n"
+"Language: ko\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: ko\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Poedit 1.5.4\n"
 
-#: ../data/midori.desktop.in.h:1
-msgid "Browse the Web"
-msgstr "웹 찾아보기"
-
-#: ../data/midori.desktop.in.h:2
-msgid "Internet;WWW;Explorer"
-msgstr "인터넷;WWW;익스플로러"
-
-#: ../data/midori.desktop.in.h:3 ../midori/main.c:138 ../midori/main.c:151
+#: ../data/midori.desktop.in.h:1 ../midori/main.c:138 ../midori/main.c:151
 #: ../midori/midori-app.c:1443 ../midori/midori-websettings.c:201
 msgid "Midori"
 msgstr "미도리"
 
-#: ../data/midori.desktop.in.h:4
+#: ../data/midori.desktop.in.h:2
+msgid "Web Browser"
+msgstr "웹 브라우저"
+
+#: ../data/midori.desktop.in.h:3
 msgid "Midori Web Browser"
 msgstr "미도리 웹 브라우저"
 
+#: ../data/midori.desktop.in.h:4
+msgid "Browse the Web"
+msgstr "웹 찾아보기"
+
 #: ../data/midori.desktop.in.h:5
-msgid "New Private Browsing Window"
-msgstr "새 사생활 보호 모드 창"
+msgid "Internet;WWW;Explorer"
+msgstr "인터넷;WWW;익스플로러"
 
 #: ../data/midori.desktop.in.h:6 ../midori/midori-browser.c:1285
 msgid "New Tab"
@@ -58,20 +59,20 @@ msgid "New Window"
 msgstr "새 창"
 
 #: ../data/midori.desktop.in.h:8
-msgid "Web Browser"
-msgstr "웹 브라우저"
+msgid "New Private Browsing Window"
+msgstr "새 사생활 보호 모드 창"
 
 #: ../data/midori-private.desktop.in.h:1
 msgid "Midori Private Browsing"
 msgstr "미도리 개인 정보 보호 모드"
 
-#: ../data/midori-private.desktop.in.h:2
-msgid "Open a new private browsing window"
-msgstr "새 사생활 보호 모드 창 열기"
-
-#: ../data/midori-private.desktop.in.h:3 ../midori/midori-view.c:3925
+#: ../data/midori-private.desktop.in.h:2 ../midori/midori-view.c:3925
 msgid "Private Browsing"
 msgstr "사생활 보호 모드"
+
+#: ../data/midori-private.desktop.in.h:3
+msgid "Open a new private browsing window"
+msgstr "새 사생활 보호 모드 창 열기"
 
 #: ../midori/main.c:62
 #, c-format
@@ -2026,11 +2027,11 @@ msgstr "MD5 체크섬:"
 msgid "SHA1-Checksum:"
 msgstr "SHA1 체크섬:"
 
-#: ../extensions/adblock.c:483
+#: ../extensions/adblock.c:473
 msgid "Configure Advertisement filters"
 msgstr "광고 필터 설정"
 
-#: ../extensions/adblock.c:514
+#: ../extensions/adblock.c:504
 #, c-format
 msgid ""
 "Type the address of a preconfigured filter list in the text entry and click "
@@ -2039,27 +2040,27 @@ msgstr ""
 "텍스트 항목에 미리 설정한 필터 목록의 주소를 입력하시고, \"추가\"를 눌러 목록"
 "에 추가해주십시오. 더 많은 목록은 %s에서 찾을 수 있습니다."
 
-#: ../extensions/adblock.c:928
+#: ../extensions/adblock.c:882
 msgid "Edit rule"
 msgstr "규칙 편집"
 
-#: ../extensions/adblock.c:942
+#: ../extensions/adblock.c:896
 msgid "_Rule:"
 msgstr "규칙(_R):"
 
-#: ../extensions/adblock.c:996
+#: ../extensions/adblock.c:950
 msgid "Bl_ock image"
 msgstr "그림 막기(_O)"
 
-#: ../extensions/adblock.c:1001
+#: ../extensions/adblock.c:955
 msgid "Bl_ock link"
 msgstr "링크 막기(_O)"
 
-#: ../extensions/adblock.c:1927
+#: ../extensions/adblock.c:1670
 msgid "Advertisement blocker"
 msgstr "광고 막기"
 
-#: ../extensions/adblock.c:1928
+#: ../extensions/adblock.c:1671
 msgid "Block advertisements according to a filter list"
 msgstr "필터 목록에 따라 광고를 막습니다"
 
@@ -2230,6 +2231,7 @@ msgstr ""
 "<b>쿠키</b>: %d"
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:1028
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:503
 msgid "Name"
 msgstr "이름"
 
@@ -2796,6 +2798,246 @@ msgstr "다음의 오류가 발생했습니다:"
 #: ../midori/midori-frontend.c:489
 msgid "_Ignore"
 msgstr "무시(_I)"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:127
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:273
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:235
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:279
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:584
+#, c-format
+msgid "SQL fails: %s"
+msgstr "SQL 실패: %s"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:246
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:672
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:984
+msgid "Accept"
+msgstr "허용"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:250
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:674
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:985
+msgid "Accept for session"
+msgstr "이번 세션에서만 허용"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:254
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:676
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:986
+msgid "Block"
+msgstr "차단"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:302
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:145
+#, c-format
+msgid "Could not open database of extenstion: %s"
+msgstr "확장 기능의 데이터베이스를 열 수 없습니다: %s"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:405
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:408
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:459
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:187
+#, c-format
+msgid "Failed to execute database statement: %s"
+msgstr "데이터 베이스 문(statement)을 실행할 수 없습니다: %s"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:434
+msgid "Do you really want to delete all cookie permissions?"
+msgstr "정말 모든 쿠키 권한 설정을 삭제하시겠습니까?"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:436
+msgid "Delete all cookie permissions?"
+msgstr "모든 쿠키 권한 설정을 삭제하시겠습니까?"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:440
+msgid ""
+"This action will delete all cookie permissions. You will be asked for "
+"permissions again for each web site visited."
+msgstr ""
+"이 동작을 수행하면 모든 쿠키 권한을 삭제합니다. 각 웹 페이지를 방문하면 권한"
+"을 다시 요구합니다."
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:587
+msgid "Cookie permission manager"
+msgstr "쿠키 권한 관리자"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:588
+msgid "Instance of current cookie permission manager"
+msgstr "현재 쿠키 권한 관리자의 인스턴스"
+
+#. Set up dialog
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:628
+msgid "Configure cookie permission"
+msgstr "쿠키 권한 설정"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:643
+#, c-format
+msgid ""
+"Below is a list of all web sites and the policy set for them. You can delete "
+"policies by marking the entries and clicking on <i>Delete</i>.You can also "
+"add a policy for a domain manually by entering the domain below, choosing "
+"the policy and clicking on <i>Add</i>."
+msgstr ""
+"아래는 모든 웹 사이트와 해당 웹 사이트의 정책 설정 목록입니다. 삭제하고 싶은 "
+"정책을 선택한 후 <i>삭제</i>를 누르면 해당 정책을 삭제할 수 있습니다. 또한 정"
+"책을 선택한 후 <i>추가</i>를 눌러 아래에 정책을 추가하고 싶은 도메인을 직접 "
+"입력할 수도 있습니다."
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:705
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:489
+msgid "Domain"
+msgstr "도메인"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:712
+msgid "Policy"
+msgstr "정책"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:740
+msgid "Delete _all"
+msgstr "모두 삭제(_A)"
+
+#. Add "ask-for-unknown-policy" checkbox
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:749
+msgid "A_sk for policy if unknown for a domain"
+msgstr "알 수 없는 도메인인 경우 권한 물어보기(_S)"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:83
+msgid ""
+"A fatal error occurred which prevents the cookie permission manager "
+"extension to continue. You should disable it."
+msgstr ""
+"쿠키 권한 관리자 확장 기능을 계속 사용하지 않도록 하는 과정에서 치명적인 오류"
+"가 발생했습니다. 사용하지 않도록 설정하십시오."
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:87
+msgid "Error in cookie permission manager extension"
+msgstr "쿠키 권한 관리자 확장 기능에 오류가 발생했습니다."
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:92
+msgid "Reason"
+msgstr "이유"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:125
+msgid "Could not get path to configuration of extension: path is NULL"
+msgstr ""
+"확장 기능의 설정 파일 경로를 찾을 수 없습니다: 경로를 설정하지 않았습니다."
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:127
+msgid "Could not get path to configuration of extension."
+msgstr "확장 기능의 설정 파일 경로를 찾을 수 없습니다."
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:133
+#, c-format
+msgid "Could not create configuration folder for extension: %s"
+msgstr "확장 기능이 사용할 설정 폴더를 만들 수 없습니다: %s"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:135
+msgid "Could not create configuration folder for extension."
+msgstr "확장 기능이 사용할 설정 폴더를 만들 수 없습니다."
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:150
+msgid "Could not open database of extension."
+msgstr "확장 기능의 데이터베이스를 열 수 없습니다."
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:183
+msgid "Could not set up database structure of extension."
+msgstr "확장 기능의 데이터베이스를 설정할 수 없습니다."
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:300
+#, c-format
+msgid "Could not determine global cookie policy to set for domain: %s"
+msgstr "도메인에 대한 전체 쿠키 정책을 확인할 수 없습니다: %s"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:430
+msgid "Confirm storing cookie"
+msgstr "쿠키 보존 확인"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:461
+#, c-format
+msgid "The website %s wants to store %d cookies."
+msgstr "웹사이트 %s이(가) %d개의 쿠키를 보관하려 합니다."
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:463
+#, c-format
+msgid "The website %s wants to store a cookie."
+msgstr "웹사이트 %s이(가) 쿠키를 보관하려 합니다."
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:467
+#, c-format
+msgid "Multiple websites want to store %d cookies in total."
+msgstr "여러 웹 사이트가 모두 %d개의 쿠키를 보관하려 합니다."
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:496
+msgid "Path"
+msgstr "경로"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:510
+msgid "Value"
+msgstr "값"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:521
+msgid "Expire date"
+msgstr "만료 날짜"
+
+#. Create buttons for dialog
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:545
+msgid "_Accept"
+msgstr "허용(_A)"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:548
+msgid "Accept for this _session"
+msgstr "이번 세션에서만 허용(_S)"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:550
+msgid "De_ny"
+msgstr "차단(_N)"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:881
+msgid "Extension instance"
+msgstr "확장 기능 인스턴스"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:882
+msgid "The Midori extension instance for this extension"
+msgstr "이 확장 기능의 미도리 확장 기능 인스턴스"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:888
+msgid "Application instance"
+msgstr "프로그램 인스턴스"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:889
+msgid "The Midori application instance this extension belongs to"
+msgstr "이 확장 기능에 해당하는 미도리 프로그램 인스턴스"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:895
+msgid "Database instance"
+msgstr "데이터베이스 인스턴스"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:896
+msgid "Pointer to sqlite database instance used by this extension"
+msgstr "이 확장 기능이 사용하는 SQLite 데이터베이스 인스턴스 포인터"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:901
+msgid "Ask for unknown policy"
+msgstr "알 수 없는 정책 물어보기"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:902
+msgid ""
+"If true this extension ask for policy for every unknown domain.If false this "
+"extension uses the global cookie policy set in midori settings."
+msgstr ""
+"참으로 설정하면 이 확장 기능은 모든 알 수 없는 도메인의 권한을 물어봅니다."
+"거짓으로 설정하는 경우 미도리 설정에 있는 전체 쿠키 설정을 사용합니다."
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:983
+msgid "Undetermined"
+msgstr "분명하지 않음"
+
+#: ../extensions/cookie-permissions/main.c:62
+msgid "Cookie Security Manager"
+msgstr "쿠키 보안 관리자"
+
+#: ../extensions/cookie-permissions/main.c:63
+msgid "Manage cookie permission per site"
+msgstr "사이트 별로 쿠키 권한을 관리합니다."
 
 #~ msgid "_Window"
 #~ msgstr "창(_W)"
