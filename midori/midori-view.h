@@ -234,6 +234,10 @@ midori_view_fallback_extension         (MidoriView*        view,
 GList*
 midori_view_get_resources              (MidoriView*        view);
 
+void
+midori_view_list_versions              (GString*           markup,
+                                        gboolean           html);
+
 G_END_DECLS
 
 #endif /* __MIDORI_VIEW_H__ */

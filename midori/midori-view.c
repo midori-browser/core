@@ -3678,6 +3678,47 @@ midori_view_constructor (GType                  type,
 }
 
 static void
+midori_view_add_version (GString* markup,
+                         gboolean html,
+                         gchar*   text)
+{
+    if (html)
+        g_string_append (markup, "<tr><td>");
+    g_string_append (markup, text);
+    if (html)
+        g_string_append (markup, "</td></tr>");
+    else
+        g_string_append_c (markup, '\n');
+    g_free (text);
+}
+
+void
+midori_view_list_versions (GString* markup,
+                           gboolean html)
+{
+    midori_view_add_version (markup, html, g_strdup_printf ("%s %s (%s)",
+        _("Midori"), PACKAGE_VERSION, midori_app_get_name (NULL)));
+    midori_view_add_version (markup, html, g_strdup_printf ("GTK+ %s (%u.%u.%u)\tGlib %s (%u.%u.%u)",
+        GTK_VERSION, gtk_major_version, gtk_minor_version, gtk_micro_version,
+        GIO_VERSION, glib_major_version, glib_minor_version, glib_micro_version));
+    midori_view_add_version (markup, html, g_strdup_printf ("WebKitGTK+ %s (%u.%u.%u)\tlibSoup %s",
+        WEBKIT_VERSION, webkit_major_version (), webkit_minor_version (), webkit_micro_version (),
+        LIBSOUP_VERSION));
+    midori_view_add_version (markup, html, g_strdup_printf ("cairo %s (%s)\tlibnotify %s",
+        CAIRO_VERSION_STRING, cairo_version_string (),
+        LIBNOTIFY_VERSION));
+    midori_view_add_version (markup, html, g_strdup_printf ("gcr %s\tgranite %s",
+        GCR_VERSION, GRANITE_VERSION));
+    midori_view_add_version (markup, html, g_strdup_printf ("single instance %s",
+        #if HAVE_UNIQUE
+        "libunique " UNIQUE_VERSION
+        #else
+        "Sockets"
+        #endif
+        ));
+}
+
+static void
 list_netscape_plugins (GString*     ns_plugins,
                        JSContextRef js_context)
 {
@@ -3964,39 +4005,7 @@ midori_view_set_uri (MidoriView*  view,
                 gchar* ident = katze_object_get_string (view->settings, "user-agent");
                 WebKitWebFrame* web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view));
                 JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
-                gchar* video_formats = list_video_formats (js_context);
-
-                /* FIXME: This is for workarounding a crash deeper down the callstack on some systems. */
-                static char const * const version_format_strings[] = {
-                    " &nbsp; libsoup %s</td></tr>",
-                    "<tr><td>cairo</td><td>%s ", "(%s)</td></tr>",
-                    "<tr><td>gcr</td><td>%s</td></tr>",
-                    "<tr><td>granite</td><td>%s</td></tr>",
-                    "<tr><td>libnotify</td><td>%s</td></tr>",
-                    "<tr><td>single instance</td><td>%s</td></tr>",
-                    "<tr><td>Platform</td><td>%s ", "%s ", "%s</td></tr>",
-                    "<tr><td>Identification</td><td><code>%s</code></td></tr>",
-                    "<tr><td>Video&nbsp;Formats</td><td>%s</td></tr>",
-                };
-                gchar const* version_strings[] = {
-                    LIBSOUP_VERSION,
-                    CAIRO_VERSION_STRING, cairo_version_string (),
-                    GCR_VERSION,
-                    GRANITE_VERSION,
-                    LIBNOTIFY_VERSION,
-                    #if HAVE_UNIQUE
-                    "libunique " UNIQUE_VERSION,
-                    #else
-                    "Sockets",
-                    #endif
-                    platform, sys_name, architecture ? architecture : "", ident,
-                    video_formats,
-                };
-                gsize i = 0;
                 GString * tmp = g_string_new ("");
-                GString* more = g_string_new ("");
-                list_netscape_plugins (more, js_context);
-                list_about_uris (more);
 
                 g_string_append_printf (tmp,
                     "<html><head><title>about:version</title></head>"
@@ -4004,36 +4013,28 @@ midori_view_set_uri (MidoriView*  view,
                     "<p>%s</p>"
                     "<img src=\"res://logo-shade.png\" "
                     "style=\"position: absolute; right: 15px; bottom: 15px; z-index: -9;\">"
-                    "<table>"
-                    "<tr><td>Command&nbsp;line</td><td><code>%s</code></td></tr>"
-                    "<tr><td>Midori</td><td>%s (%s)</td></tr>"
-                    "<tr><td>GTK+</td><td>%d.%d.%d (%d.%d.%d)"
-                    " &nbsp; Glib %d.%d.%d (%d.%d.%d)</td></tr>"
-                    "<tr><td>WebKitGTK+</td><td>%d.%d.%d (%d.%d.%d)",
-                    _("Version numbers in brackets show the version used at runtime."),
-                    command_line,
-                    PACKAGE_VERSION, midori_app_get_name (NULL),
-                    GTK_MAJOR_VERSION, GTK_MINOR_VERSION, GTK_MICRO_VERSION,
-                    gtk_major_version, gtk_minor_version, gtk_micro_version,
-                    GLIB_MAJOR_VERSION, GLIB_MINOR_VERSION, GLIB_MICRO_VERSION,
-                    glib_major_version, glib_minor_version, glib_micro_version,
-                    WEBKIT_MAJOR_VERSION, WEBKIT_MINOR_VERSION, WEBKIT_MICRO_VERSION,
-                    webkit_major_version (), webkit_minor_version (), webkit_micro_version ());
+                    "<table>",
+                    _("Version numbers in brackets show the version used at runtime."));
+                midori_view_add_version (tmp, TRUE, g_strdup_printf ("Command line %s",
+                    command_line));
+                midori_view_list_versions (tmp, TRUE);
+                midori_view_add_version (tmp, TRUE, g_strdup_printf ("Platform %s %s %s",
+                    platform, sys_name, architecture ? architecture : ""));
+                midori_view_add_version (tmp, TRUE, g_strdup_printf ("Identification %s",
+                    ident));
+                midori_view_add_version (tmp, TRUE, g_strdup_printf ("Video Formats %s",
+                    list_video_formats (js_context)));
+                g_string_append (tmp, "</table>");
 
-                for (i = 0;
-                     i < sizeof (version_format_strings) / sizeof (version_format_strings[0]);
-                     ++i)
-                    g_string_append_printf (tmp, version_format_strings[i], version_strings[i]);
+                list_netscape_plugins (tmp, js_context);
+                list_about_uris (tmp);
+                /* TODO: list active extensions */
 
-                g_string_append_printf (
-                    tmp, "</table>%s</body></html>", (gchar*)(more->str));
-
+                g_string_append (tmp, "</body></html>");
                 data = g_string_free (tmp, FALSE);
 
                 g_free (command_line);
                 g_free (ident);
-                g_free (video_formats);
-                g_string_free (more, TRUE);
            }
             else
             {

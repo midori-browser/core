@@ -141,14 +141,17 @@ main (int    argc,
 
     if (version)
     {
+        GString* versions = g_string_new ("");
+        midori_view_list_versions (versions, FALSE);
+        g_print ("%s\n", versions->str);
+        g_string_free (versions, TRUE);
+
         g_print (
-          "%s %s\n\n"
           "Copyright (c) 2007-2012 Christian Dywan\n\n"
           "%s\n"
           "\t%s\n\n"
           "%s\n"
           "\thttp://www.midori-browser.org\n",
-          _("Midori"), PACKAGE_VERSION,
           _("Please report comments, suggestions and bugs to:"),
           PACKAGE_BUGREPORT,
           _("Check for new versions at:")
