@@ -34,6 +34,7 @@ namespace NSPlugins {
             try {
                 var regex = new Regex ("<a.+href.+>(.+)</a>");
                 desc = regex.replace (desc, -1, 0, "<u>\\1</u>");
+                desc = desc.replace ("<br>", "\n");
             }
             catch (Error error) { }
             GLib.Object (stock_id: Midori.Stock.PLUGINS,
