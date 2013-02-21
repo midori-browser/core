@@ -238,6 +238,11 @@ void
 midori_view_list_versions              (GString*           markup,
                                         gboolean           html);
 
+void
+midori_view_list_plugins               (MidoriView*        view,
+                                        GString*           markup,
+                                        gboolean           html);
+
 G_END_DECLS
 
 #endif /* __MIDORI_VIEW_H__ */

@@ -161,7 +161,9 @@ main (int    argc,
     if (version)
     {
         GString* versions = g_string_new ("");
+        g_string_append_c (versions, '\n');
         midori_view_list_versions (versions, FALSE);
+        midori_view_list_plugins (NULL, versions, FALSE);
         g_print ("%s\n", versions->str);
         g_string_free (versions, TRUE);
 

@@ -3786,13 +3786,39 @@ midori_view_list_versions (GString* markup,
         ));
 }
 
-static void
-list_netscape_plugins (GString*     ns_plugins,
-                       JSContextRef js_context)
+void
+midori_view_list_plugins (MidoriView* view,
+                          GString*    ns_plugins,
+                          gboolean    html)
 {
     if (!midori_web_settings_has_plugin_support ())
         return;
 
+    if (html)
+        g_string_append (ns_plugins, "<br><h2>Netscape Plugins:</h2>");
+    else
+        g_string_append_c (ns_plugins, '\n');
+
+    #if WEBKIT_CHECK_VERSION (1, 3, 8)
+    WebKitWebPluginDatabase* pdb = webkit_get_web_plugin_database ();
+    GSList* plugins = webkit_web_plugin_database_get_plugins (pdb);
+    GSList* plugin = plugins;
+    for (; plugin != NULL; plugin = g_slist_next (plugin))
+    {
+        const gchar* path = webkit_web_plugin_get_path (plugin->data);
+        if (!path || strstr (path, "npwrapper.") || strstr (path, "plugins-wrapped"))
+            continue;
+        midori_view_add_version (ns_plugins, html, g_strdup_printf ("%s\t%s",
+            webkit_web_plugin_get_name (plugin->data),
+            html ? webkit_web_plugin_get_description (plugin->data) : ""));
+    }
+    webkit_web_plugin_database_plugins_list_free (plugins);
+    #else
+    if (view == NULL)
+        return;
+
+    WebKitWebFrame* web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view));
+    JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
     /* Joins available plugins like this: URI1|title1,URI2|title2 */
     gchar* value = sokoke_js_script_eval (js_context,
         "function plugins (l) { var f = new Array (); for (var i in l) "
@@ -3801,27 +3827,24 @@ list_netscape_plugins (GString*     ns_plugins,
         "plugins (navigator.plugins)", NULL);
     gchar** items = g_strsplit (value, ",", 0);
     guint i = 0;
-    g_string_append (ns_plugins, "<h2>Netscape Plugins:</h2><table>");
     if (items != NULL)
         while (items[i] != NULL)
         {
             gchar** parts = g_strsplit (items[i], "|", 2);
-            if (parts && *parts && !g_str_equal (parts[1], "undefined"))
-            {
-                g_string_append (ns_plugins, "<tr><td>");
-                g_string_append (ns_plugins, parts[1]);
-                g_string_append (ns_plugins, "</td><td>");
-                g_string_append (ns_plugins, parts[0]);
-                g_string_append (ns_plugins, "</tr>");
-            }
+            if (parts[0]
+             && !strstr (parts[1], "npwrapper.") && !strstr (parts[1], "plugins-wrapped")
+             && !g_str_equal (parts[1], "undefined"))
+                midori_view_add_version (ns_plugins, html, g_strdup_printf ("%s\t%s",
+                    parts[1], html ? parts[0] : ""));
             g_strfreev (parts);
             i++;
         }
         if (g_str_has_prefix (value, "undefined"))
-            g_string_append (ns_plugins, "<tr><td>No plugins found</td></tr>");
-        g_string_append (ns_plugins, "</table>");
+            midori_view_add_version (ns_plugins, html, g_strdup_printf ("%s",
+                "No plugins found"));
         g_strfreev (items);
         g_free (value);
+    #endif
 }
 
 static void
@@ -3862,8 +3885,10 @@ list_geolocation (GString* markup)
 }
 
 static gchar*
-list_video_formats (JSContextRef js_context)
+list_video_formats (MidoriView* view)
 {
+    WebKitWebFrame* web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view));
+    JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
     gchar* value = sokoke_js_script_eval (js_context,
         "var supported = function (format) { "
         "var video = document.createElement('video');"
@@ -4072,8 +4097,6 @@ midori_view_set_uri (MidoriView*  view,
                 const gchar* sys_name = midori_web_settings_get_system_name (
                     &architecture, &platform);
                 gchar* ident = katze_object_get_string (view->settings, "user-agent");
-                WebKitWebFrame* web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view));
-                JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
                 GString * tmp = g_string_new ("");
 
                 g_string_append_printf (tmp,
@@ -4092,10 +4115,11 @@ midori_view_set_uri (MidoriView*  view,
                 midori_view_add_version (tmp, TRUE, g_strdup_printf ("Identification %s",
                     ident));
                 midori_view_add_version (tmp, TRUE, g_strdup_printf ("Video Formats %s",
-                    list_video_formats (js_context)));
-                g_string_append (tmp, "</table>");
+                    list_video_formats (view)));
+                g_string_append (tmp, "</table><table>");
 
-                list_netscape_plugins (tmp, js_context);
+                midori_view_list_plugins (view, tmp, TRUE);
+                g_string_append (tmp, "</table>");
                 list_about_uris (tmp);
                 /* TODO: list active extensions */
 
