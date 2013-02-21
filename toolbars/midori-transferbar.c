@@ -88,6 +88,7 @@ midori_transferbar_download_notify_status_cb (WebKitDownload* download,
                                               GParamSpec*     pspec,
                                               TransferInfo*   info)
 {
+#ifndef HAVE_WEBKIT2
     GtkWidget* button = info->button;
 
     const gchar* stock_id = midori_download_action_stock_id (download);
@@ -123,6 +124,7 @@ midori_transferbar_download_notify_status_cb (WebKitDownload* download,
                  gtk_recent_manager_add_item (gtk_recent_manager_get_default (),
                     webkit_download_get_destination_uri (download));
     }
+#endif
 }
 
 static void
@@ -138,6 +140,7 @@ void
 midori_transferbar_check_size (GtkWidget* statusbar,
                                MidoriTransferbar* transferbar)
 {
+#ifndef HAVE_WEBKIT2
   GtkWidget* window;
   GtkRequisition req;
   gint reqwidth, winwidth;
@@ -157,12 +160,14 @@ midori_transferbar_check_size (GtkWidget* statusbar,
           gtk_widget_destroy (info->button);
     }
   }
+#endif
 }
 
 void
 midori_transferbar_add_download_item (MidoriTransferbar* transferbar,
                                       WebKitDownload*    download)
 {
+#ifndef HAVE_WEBKIT2
     GtkWidget* box;
     GtkWidget* icon;
     GtkToolItem* toolitem;
@@ -213,6 +218,7 @@ midori_transferbar_add_download_item (MidoriTransferbar* transferbar,
         G_CALLBACK (midori_transferbar_download_notify_status_cb), info);
     g_signal_connect (button, "clicked",
         G_CALLBACK (midori_transferbar_download_button_clicked_cb), info);
+#endif
 }
 
 static void

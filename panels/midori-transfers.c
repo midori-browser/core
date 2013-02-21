@@ -362,6 +362,7 @@ static void
 midori_transfers_open_activate_cb (GtkWidget*       menuitem,
                                    MidoriTransfers* transfers)
 {
+#ifndef HAVE_WEBKIT2
     WebKitDownload* download;
     const gchar* uri;
 
@@ -371,12 +372,14 @@ midori_transfers_open_activate_cb (GtkWidget*       menuitem,
     uri = webkit_download_get_destination_uri (download);
     sokoke_show_uri (gtk_widget_get_screen (GTK_WIDGET (transfers->treeview)),
                      uri, gtk_get_current_event_time (), NULL);
+#endif
 }
 
 static void
 midori_transfers_open_folder_activate_cb (GtkWidget*       menuitem,
                                           MidoriTransfers* transfers)
 {
+#ifndef HAVE_WEBKIT2
     WebKitDownload* download;
     const gchar* uri;
     GFile* file;
@@ -396,12 +399,14 @@ midori_transfers_open_folder_activate_cb (GtkWidget*       menuitem,
         g_object_unref (folder);
     }
     g_object_unref (file);
+#endif
 }
 
 static void
 midori_transfers_copy_address_activate_cb (GtkWidget*       menuitem,
                                            MidoriTransfers* transfers)
 {
+#ifndef HAVE_WEBKIT2
     WebKitDownload* download;
     const gchar* uri;
     GtkClipboard* clipboard;
@@ -414,6 +419,7 @@ midori_transfers_copy_address_activate_cb (GtkWidget*       menuitem,
         gtk_widget_get_display (GTK_WIDGET (menuitem)),
         GDK_SELECTION_CLIPBOARD);
     gtk_clipboard_set_text (clipboard, uri, -1);
+#endif
 }
 
 static void
@@ -422,6 +428,7 @@ midori_transfers_popup (GtkWidget*       widget,
                         WebKitDownload*  download,
                         MidoriTransfers* transfers)
 {
+#ifndef HAVE_WEBKIT2
     GtkWidget* menu;
     gboolean finished = FALSE;
 
@@ -439,6 +446,7 @@ midori_transfers_popup (GtkWidget*       widget,
         midori_transfers_copy_address_activate_cb, TRUE, transfers);
 
     katze_widget_popup (widget, GTK_MENU (menu), event, KATZE_MENU_POSITION_CURSOR);
+#endif
 }
 
 static gboolean

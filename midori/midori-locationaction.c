@@ -1380,6 +1380,7 @@ midori_location_action_show_page_info (GtkWidget* widget,
                                        GtkBox*    box,
                                        GtkWidget* dialog)
 {
+#ifndef HAVE_WEBKIT2
     MidoriBrowser* browser = midori_browser_get_for_widget (widget);
     MidoriView* view = MIDORI_VIEW (midori_browser_get_current_tab (browser));
     WebKitWebView* web_view = WEBKIT_WEB_VIEW (midori_view_get_web_view (view));
@@ -1437,6 +1438,7 @@ midori_location_action_show_page_info (GtkWidget* widget,
     #endif
 
     g_object_unref (tls_cert);
+#endif
 }
 #endif
 

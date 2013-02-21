@@ -981,6 +981,7 @@ midori_browser_prepare_download (MidoriBrowser*  browser,
                                  const gchar*    uri)
 
 {
+#ifndef HAVE_WEBKIT2
     if (!midori_download_has_enough_space (download, uri))
         return FALSE;
     webkit_download_set_destination_uri (download, uri);
@@ -989,12 +990,16 @@ midori_browser_prepare_download (MidoriBrowser*  browser,
     midori_transferbar_check_size (browser->statusbar,
         MIDORI_TRANSFERBAR (browser->transferbar));
     return TRUE;
+#else
+    return FALSE;
+#endif
 }
 
 static void
 midori_browser_save_resources (GList*       resources,
                                const gchar* folder)
 {
+#ifndef HAVE_WEBKIT2
     GList* list;
     katze_mkdir_with_parents (folder, 0700);
 
@@ -1026,6 +1031,7 @@ midori_browser_save_resources (GList*       resources,
         g_free (sub_filename);
         g_free (sub_path);
     }
+#endif
 }
 
 void
@@ -1174,6 +1180,7 @@ midori_browser_view_copy_history (GtkWidget* view_to,
                                   GtkWidget* view_from,
                                   gboolean   omit_last)
 {
+#ifndef HAVE_WEBKIT2
     WebKitWebView* copy_from;
     WebKitWebBackForwardList* list_from;
     WebKitWebView* copy_to;
@@ -1194,6 +1201,7 @@ midori_browser_view_copy_history (GtkWidget* view_to,
         webkit_web_back_forward_list_add_item (list_to,
             webkit_web_back_forward_list_get_nth_item (list_from, i));
     }
+#endif
 }
 
 static gboolean
@@ -1292,6 +1300,7 @@ midori_browser_download_status_cb (WebKitDownload*  download,
                                    GParamSpec*      pspec,
                                    GtkWidget*       widget)
 {
+#ifndef HAVE_WEBKIT2
     const gchar* uri = webkit_download_get_destination_uri (download);
     switch (webkit_download_get_status (download))
     {
@@ -1314,6 +1323,7 @@ midori_browser_download_status_cb (WebKitDownload*  download,
         case WEBKIT_DOWNLOAD_STATUS_CANCELLED:
             break;
     }
+#endif
 }
 
 static gboolean
@@ -1332,6 +1342,7 @@ midori_view_download_requested_cb (GtkWidget*      view,
                                    WebKitDownload* download,
                                    MidoriBrowser*  browser)
 {
+#ifndef HAVE_WEBKIT2
     MidoriDownloadType type = midori_download_get_type (download);
     GtkWidget* web_view;
     WebKitWebFrame* web_frame;
@@ -1418,6 +1429,9 @@ midori_view_download_requested_cb (GtkWidget*      view,
     if (midori_view_is_blank (MIDORI_VIEW (view)) && webkit_web_data_source_get_data (datasource) == NULL)
         g_idle_add (midori_browser_close_tab_idle, view);
     return handled;
+#else
+    return FALSE;
+#endif
 }
 
 static void
@@ -1730,6 +1744,7 @@ midori_browser_key_press_event (GtkWidget*   widget,
         return TRUE;
     }
 
+#ifndef HAVE_WEBKIT2
     focus = gtk_window_get_focus (GTK_WINDOW (widget));
     if (focus == NULL)
         gtk_widget_grab_focus (midori_browser_get_current_tab (MIDORI_BROWSER (widget)));
@@ -1756,6 +1771,7 @@ midori_browser_key_press_event (GtkWidget*   widget,
             }
         }
     }
+#endif
 
     if (event->state & (GDK_CONTROL_MASK | GDK_MOD1_MASK))
         if (sokoke_window_activate_key (window, event))
@@ -2597,6 +2613,7 @@ _action_edit_activate (GtkAction*     action,
 
     if (WEBKIT_IS_WEB_VIEW (widget))
     {
+#ifndef HAVE_WEBKIT2
         WebKitWebView* view = WEBKIT_WEB_VIEW (widget);
         can_undo = webkit_web_view_can_undo (view);
         can_redo = webkit_web_view_can_redo (view);
@@ -2604,6 +2621,7 @@ _action_edit_activate (GtkAction*     action,
         can_copy = webkit_web_view_can_copy_clipboard (view);
         can_paste = webkit_web_view_can_paste_clipboard (view);
         can_select_all = TRUE;
+#endif
     }
     else if (GTK_IS_EDITABLE (widget))
     {
@@ -2638,18 +2656,22 @@ static void
 _action_undo_activate (GtkAction*     action,
                        MidoriBrowser* browser)
 {
+#ifndef HAVE_WEBKIT2
     GtkWidget* widget = gtk_window_get_focus (GTK_WINDOW (browser));
     if (WEBKIT_IS_WEB_VIEW (widget))
         webkit_web_view_undo (WEBKIT_WEB_VIEW (widget));
+#endif
 }
 
 static void
 _action_redo_activate (GtkAction*     action,
                        MidoriBrowser* browser)
 {
+#ifndef HAVE_WEBKIT2
     GtkWidget* widget = gtk_window_get_focus (GTK_WINDOW (browser));
     if (WEBKIT_IS_WEB_VIEW (widget))
         webkit_web_view_redo (WEBKIT_WEB_VIEW (widget));
+#endif
 }
 
 static void
@@ -2694,6 +2716,7 @@ static void
 _action_delete_activate (GtkAction*     action,
                          MidoriBrowser* browser)
 {
+#ifndef HAVE_WEBKIT2
     GtkWidget* widget = gtk_window_get_focus (GTK_WINDOW (browser));
     if (G_LIKELY (widget))
     {
@@ -2705,6 +2728,7 @@ _action_delete_activate (GtkAction*     action,
             gtk_text_buffer_delete_selection (
                 gtk_text_view_get_buffer (GTK_TEXT_VIEW (widget)), TRUE, FALSE);
     }
+#endif
 }
 
 static void
@@ -3391,7 +3415,9 @@ _action_source_view_activate (GtkAction*     action,
 
         source = midori_view_new_with_item (NULL, browser->settings);
         source_view = midori_view_get_web_view (MIDORI_VIEW (source));
+#ifndef HAVE_WEBKIT2
         webkit_web_view_set_view_source_mode (WEBKIT_WEB_VIEW (source_view), TRUE);
+#endif
         webkit_web_view_load_uri (WEBKIT_WEB_VIEW (source_view), source_uri);
         midori_browser_add_tab (browser, source);
     }
@@ -3500,7 +3526,7 @@ _action_scroll_somewhere_activate (GtkAction*     action,
         return;
     web_view = WEBKIT_WEB_VIEW (midori_view_get_web_view (MIDORI_VIEW (view)));
     name = gtk_action_get_name (action);
-
+#ifndef HAVE_WEBKIT2
     if (g_str_equal (name, "ScrollLeft"))
         webkit_web_view_move_cursor (web_view, GTK_MOVEMENT_VISUAL_POSITIONS, -1);
     else if (g_str_equal (name, "ScrollDown"))
@@ -3509,6 +3535,7 @@ _action_scroll_somewhere_activate (GtkAction*     action,
         webkit_web_view_move_cursor (web_view, GTK_MOVEMENT_DISPLAY_LINES, -1);
     else if (g_str_equal (name, "ScrollRight"))
         webkit_web_view_move_cursor (web_view, GTK_MOVEMENT_VISUAL_POSITIONS, 1);
+#endif
 }
 
 static void
@@ -3560,6 +3587,7 @@ static gboolean
 _action_navigation_activate (GtkAction*     action,
                              MidoriBrowser* browser)
 {
+#ifndef HAVE_WEBKIT2
     MidoriView* view;
     GtkWidget* tab;
     gchar* uri;
@@ -3670,6 +3698,7 @@ _action_navigation_activate (GtkAction*     action,
         g_free (uri);
         return TRUE;
     }
+#endif
     return FALSE;
 }
 
@@ -3719,6 +3748,7 @@ _action_location_reset_uri (GtkAction*     action,
     }
 }
 
+#ifndef HAVE_WEBKIT2
 #if WEBKIT_CHECK_VERSION (1, 3, 13)
 static void
 #if WEBKIT_CHECK_VERSION (1, 8, 0)
@@ -3757,11 +3787,13 @@ midori_browser_item_icon_loaded_cb (WebKitIconDatabase*    database,
     }
 }
 #endif
+#endif
 
 static void
 midori_browser_queue_item_for_icon (KatzeItem*     item,
                                     const gchar*   uri)
 {
+#ifndef HAVE_WEBKIT2
     if (katze_item_get_icon (item) != NULL)
         return;
     g_object_set_data_full (G_OBJECT (item), "browser-queue-icon", g_strdup (uri), g_free);
@@ -3772,6 +3804,7 @@ midori_browser_queue_item_for_icon (KatzeItem*     item,
     g_signal_connect (webkit_get_icon_database (), "icon-loaded",
         G_CALLBACK (midori_browser_item_icon_loaded_cb), item);
     #endif
+#endif
 }
 
 static void
@@ -6457,6 +6490,7 @@ midori_browser_toolbar_popup_context_menu_history (MidoriBrowser* browser,
                                                    gint x,
                                                    gint y)
 {
+#ifndef HAVE_WEBKIT2
     const gint step = back ? -1 : 1;
     gint steps = step;
     GtkWidget* menu;
@@ -6510,6 +6544,7 @@ midori_browser_toolbar_popup_context_menu_history (MidoriBrowser* browser,
 
     katze_widget_popup (widget, GTK_MENU (menu), NULL,
         KATZE_MENU_POSITION_LEFT);
+#endif
 }
 
 static gboolean
@@ -7275,10 +7310,11 @@ midori_browser_add_tab (MidoriBrowser* browser,
     g_return_if_fail (MIDORI_IS_BROWSER (browser));
     g_return_if_fail (GTK_IS_WIDGET (view));
 
+#ifndef HAVE_WEBKIT2
     if (!g_object_get_data (G_OBJECT (webkit_get_default_session ()),
                             "midori-session-initialized"))
         g_critical ("midori_load_soup_session was not called!");
-
+#endif
     g_signal_emit (browser, signals[ADD_TAB], 0, view);
 }
 

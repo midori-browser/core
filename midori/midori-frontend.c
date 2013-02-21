@@ -46,8 +46,9 @@ midori_web_app_new (const gchar* config,
                     const gchar* block_uris)
 {
     midori_paths_init (MIDORI_RUNTIME_MODE_APP, config);
+#ifndef HAVE_WEBKIT2
     g_object_set_data (G_OBJECT (webkit_get_default_session ()), "pass-through-console", (void*)1);
-
+#endif
     MidoriBrowser* browser = midori_browser_new ();
     g_signal_connect (browser, "new-window",
         G_CALLBACK (midori_frontend_browser_new_window_cb), NULL);
@@ -145,7 +146,9 @@ midori_private_app_new (const gchar* config,
                         const gchar* block_uris)
 {
     midori_paths_init (MIDORI_RUNTIME_MODE_PRIVATE, config);
+#ifndef HAVE_WEBKIT2
     g_object_set_data (G_OBJECT (webkit_get_default_session ()), "pass-through-console", (void*)1);
+#endif
 
     /* Mask the timezone, which can be read by Javascript */
     g_setenv ("TZ", "UTC", TRUE);
@@ -541,8 +544,10 @@ midori_normal_app_on_quit (MidoriApp* app)
     midori_history_on_quit (history, settings);
     midori_private_data_on_quit (settings);
     /* Removing KatzeHttpCookies makes it save outstanding changes */
+#ifndef HAVE_WEBKIT2
     soup_session_remove_feature_by_type (webkit_get_default_session (),
                                          KATZE_TYPE_HTTP_COOKIES);
+#endif
 
     MidoriStartup load_on_startup = katze_object_get_int (settings, "load-on-startup");
     if (load_on_startup < MIDORI_STARTUP_LAST_OPEN_PAGES)

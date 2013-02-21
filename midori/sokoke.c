@@ -945,7 +945,11 @@ sokoke_gtk_action_count_modifiers (GtkAction* action)
 gboolean
 sokoke_prefetch_uri (MidoriWebSettings*  settings,
                      const char*         uri,
+#ifndef HAVE_WEBKIT2
                      SoupAddressCallback callback,
+#else
+                     void*               callback,
+#endif
                      gpointer            user_data)
 {
     #define MAXHOSTS 50
@@ -984,10 +988,15 @@ sokoke_prefetch_uri (MidoriWebSettings*  settings,
         new_hosts = g_strdup_printf ("%s|%s", hosts, hostname);
         katze_assign (hosts, new_hosts);
     }
+#ifndef HAVE_WEBKIT2
     else if (callback)
         callback (NULL, SOUP_STATUS_OK, user_data);
     g_free (hostname);
     return TRUE;
+#else
+    g_free (hostname);
+    return FALSE;
+#endif
 }
 
 /**

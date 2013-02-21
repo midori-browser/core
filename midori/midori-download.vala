@@ -17,6 +17,7 @@ namespace Sokoke {
 namespace Midori {
     namespace Download {
         public static bool is_finished (WebKit.Download download) {
+#if !HAVE_WEBKIT2
             switch (download.status) {
                 case WebKit.DownloadStatus.FINISHED:
                 case WebKit.DownloadStatus.CANCELLED:
@@ -25,6 +26,9 @@ namespace Midori {
                 default:
                     return false;
             }
+#else
+            return false;
+#endif
         }
 
         public static int get_type (WebKit.Download download) {
@@ -36,10 +40,14 @@ namespace Midori {
         }
 
         public static double get_progress (WebKit.Download download) {
+#if !HAVE_WEBKIT2
             /* Avoid a bug in WebKit */
             if (download.status == WebKit.DownloadStatus.CREATED)
                 return 0.0;
             return download.progress;
+#else
+            return 0.0;
+#endif
         }
 
 #if !HAVE_GLIB_2_30
@@ -49,6 +57,7 @@ namespace Midori {
 #endif
 
         public static string get_tooltip (WebKit.Download download) {
+#if !HAVE_WEBKIT2
             string filename = Path.get_basename (download.destination_uri);
             /* i18n: Download tooltip (size): 4KB of 43MB */
             string size = _("%s of %s").printf (
@@ -105,9 +114,13 @@ namespace Midori {
             }
 
             return "%s\n%s %s%s".printf (filename, size, speed, eta);
+#else
+            return "";
+#endif
         }
 
         public static string get_content_type (WebKit.Download download, string? mime_type) {
+#if !HAVE_WEBKIT2
             string? content_type = ContentType.guess (download.suggested_filename, null, null);
             if (content_type == null) {
                 content_type = ContentType.from_mime_type (mime_type);
@@ -115,9 +128,13 @@ namespace Midori {
                     content_type = ContentType.from_mime_type ("application/octet-stream");
             }
             return content_type;
+#else
+            return ContentType.from_mime_type ("application/octet-stream");
+#endif
         }
 
         public static bool has_wrong_checksum (WebKit.Download download) {
+#if !HAVE_WEBKIT2
             int status = download.get_data<int> ("checksum-status");
             if (status == 0) {
                 /* Link Fingerprint */
@@ -146,9 +163,13 @@ namespace Midori {
                 download.set_data<int> ("checksum-status", status);
             }
             return status == 1;
+#else
+            return false;
+#endif
         }
 
         public static bool action_clear (WebKit.Download download, Gtk.Widget widget) throws Error {
+#if !HAVE_WEBKIT2
             switch (download.status) {
                 case WebKit.DownloadStatus.CREATED:
                 case WebKit.DownloadStatus.STARTED:
@@ -165,10 +186,12 @@ namespace Midori {
                     warn_if_reached ();
                     break;
             }
+#endif
             return false;
         }
 
         public static string action_stock_id (WebKit.Download download) {
+#if !HAVE_WEBKIT2
             switch (download.status) {
                 case WebKit.DownloadStatus.CREATED:
                 case WebKit.DownloadStatus.STARTED:
@@ -186,9 +209,13 @@ namespace Midori {
                     warn_if_reached ();
                     return Gtk.Stock.MISSING_IMAGE;
             }
+#else
+            return Gtk.Stock.MISSING_IMAGE;
+#endif
         }
 
         public static bool open (WebKit.Download download, Gtk.Widget widget) throws Error {
+#if !HAVE_WEBKIT2
             if (!has_wrong_checksum (download))
                 return Sokoke.show_uri (widget.get_screen (),
                     download.destination_uri, Gtk.get_current_event_time ());
@@ -197,6 +224,7 @@ namespace Midori {
                 _("The downloaded file is erroneous."),
     _("The checksum provided with the link did not match. This means the file is probably incomplete or was modified afterwards."),
                 true);
+#endif
             return false;
         }
 
@@ -223,9 +251,13 @@ namespace Midori {
         }
 
         public string get_suggested_filename (WebKit.Download download) {
+#if !HAVE_WEBKIT2
             /* https://bugs.webkit.org/show_bug.cgi?id=83161
                https://d19vezwu8eufl6.cloudfront.net/nlp/slides%2F03-01-FormalizingNB.pdf */
             return clean_filename (download.get_suggested_filename ());
+#else
+            return "";
+#endif
         }
 
         public string get_filename_suggestion_for_uri (string mime_type, string uri) {
@@ -291,6 +323,7 @@ namespace Midori {
         }
 
         public static bool has_enough_space (WebKit.Download download, string uri) {
+#if !HAVE_WEBKIT2
             var folder = File.new_for_uri (uri).get_parent ();
             bool can_write;
             uint64 free_space;
@@ -324,6 +357,7 @@ namespace Midori {
                 Sokoke.message_dialog (Gtk.MessageType.ERROR, message, detailed_message, false);
                 return false;
             }
+#endif
             return true;
         }
     }

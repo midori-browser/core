@@ -42,7 +42,11 @@ struct _MidoriBrowserClass
     /* Signals */
     void
     (*window_object_cleared)   (MidoriBrowser*       browser,
+#ifndef HAVE_WEBKIT2
                                 WebKitWebFrame*      web_frame,
+#else
+                                void*                web_frame,
+#endif
                                 JSContextRef*        context,
                                 JSObjectRef*         window_object);
     void

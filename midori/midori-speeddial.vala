@@ -334,6 +334,7 @@ namespace Midori {
         }
 
         void load_status (GLib.Object thumb_view_, ParamSpec pspec) {
+#if !HAVE_WEBKIT2
             if (thumb_view.load_status != WebKit.LoadStatus.FINISHED)
                 return;
 
@@ -356,9 +357,11 @@ namespace Midori {
             }
             else
                 /* disconnect_by_func (thumb_view, load_status) */;
+#endif
         }
 
         void get_thumb (string dial_id, string uri) {
+#if !HAVE_WEBKIT2
             if (thumb_view == null) {
                 thumb_view = new WebKit.WebView ();
                 var settings = new WebKit.WebSettings ();
@@ -395,6 +398,7 @@ namespace Midori {
             spec = thumb_queue.data;
             thumb_view.notify["load-status"].connect (load_status);
             thumb_view.load_uri (spec.uri);
+#endif
         }
     }
 }

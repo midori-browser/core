@@ -104,6 +104,7 @@ namespace Midori {
         }
 
         public void inject_stylesheet (string stylesheet) {
+#if !HAVE_WEBKIT2
             #if HAVE_DOM
             var dom = web_view.get_dom_document ();
             try {
@@ -129,9 +130,11 @@ namespace Midori {
                 }) ();
                 """.printf (stylesheet));
             #endif
+#endif
         }
 
         public bool can_view_source () {
+#if !HAVE_WEBKIT2
             if (is_blank () || special || web_view.get_view_source_mode ())
                 return false;
             string content_type = ContentType.from_mime_type (mime_type);
@@ -142,6 +145,9 @@ namespace Midori {
             string text_type = ContentType.from_mime_type ("text/plain");
 #endif
             return ContentType.is_a (content_type, text_type);
+#else
+            return true;
+#endif
         }
 
         public static string get_display_title (string? title, string uri) {
@@ -182,12 +188,14 @@ namespace Midori {
 
         /* Since: 0.4.3 */
         public bool can_save () {
+#if !HAVE_WEBKIT2
             if (is_blank () || special)
                 return false;
             if (web_view.get_view_source_mode ())
                 return false;
             if (web_view.get_main_frame ().get_data_source ().get_data () == null)
                 return false;
+#endif
             return true;
         }
 
@@ -207,15 +215,21 @@ namespace Midori {
         }
 
         public void unmark_text_matches () {
+#if !HAVE_WEBKIT2
             web_view.unmark_text_matches ();
+#endif
         }
 
         public bool find (string text, bool case_sensitive, bool forward) {
+#if !HAVE_WEBKIT2
             bool found = false;
             found = web_view.search_text (text, case_sensitive, forward, true);
             web_view.mark_text_matches (text, case_sensitive, 0);
             web_view.set_highlight_text_matches (true);
             return found;
+#else
+            return false;
+#endif
         }
     }
 }

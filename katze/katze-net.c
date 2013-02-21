@@ -120,6 +120,7 @@ static void
 katze_net_got_headers_cb (SoupMessage*  msg,
                           KatzeNetPriv* priv)
 {
+#ifndef HAVE_WEBKIT2
     KatzeNetRequest* request = priv->request;
 
     switch (msg->status_code)
@@ -140,6 +141,7 @@ katze_net_got_headers_cb (SoupMessage*  msg,
         g_signal_handlers_disconnect_by_func (msg, katze_net_got_body_cb, priv);
         soup_session_cancel_message (webkit_get_default_session (), msg, 1);
     }
+#endif
 }
 
 static void
@@ -241,6 +243,7 @@ katze_net_load_uri (KatzeNet*          net,
                     KatzeNetTransferCb transfer_cb,
                     gpointer           user_data)
 {
+#ifndef HAVE_WEBKIT2
     KatzeNetRequest* request;
     KatzeNetPriv* priv;
     SoupMessage* msg;
@@ -280,5 +283,6 @@ katze_net_load_uri (KatzeNet*          net,
         g_idle_add ((GSourceFunc)katze_net_local_cb, priv);
     else
         g_idle_add ((GSourceFunc)katze_net_default_cb, priv);
+#endif
 }
 

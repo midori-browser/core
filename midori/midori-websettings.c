@@ -720,8 +720,13 @@ generate_ident_string (MidoriWebSettings* web_settings,
     gchar* platform;
     const gchar* os = midori_web_settings_get_system_name (NULL, &platform);
 
+    #ifndef HAVE_WEBKIT2
     const int webcore_major = WEBKIT_USER_AGENT_MAJOR_VERSION;
     const int webcore_minor = WEBKIT_USER_AGENT_MINOR_VERSION;
+    #else
+    const int webcore_major = WEBKIT_MAJOR_VERSION;
+    const int webcore_minor = WEBKIT_MINOR_VERSION;
+    #endif
 
     #if WEBKIT_CHECK_VERSION (1, 1, 18)
     g_object_set (web_settings, "enable-site-specific-quirks",

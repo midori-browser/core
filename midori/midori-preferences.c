@@ -496,6 +496,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
         G_CALLBACK (midori_preferences_notify_proxy_type_cb), entry);
     midori_preferences_notify_proxy_type_cb (settings, NULL, entry);
     #if WEBKIT_CHECK_VERSION (1, 3, 11)
+#ifndef HAVE_WEBKIT2
     if (soup_session_get_feature (webkit_get_default_session (), SOUP_TYPE_CACHE))
     {
         label = gtk_label_new (_("Web Cache"));
@@ -508,6 +509,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
         gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
         SPANNED_ADD (label);
     }
+#endif
     #endif
     label = katze_property_label (settings, "identify-as");
     INDENTED_ADD (label);

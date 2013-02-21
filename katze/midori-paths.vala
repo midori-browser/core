@@ -112,6 +112,7 @@ namespace Midori {
                 tmp_dir = Path.build_path (Path.DIR_SEPARATOR_S,
                     Environment.get_tmp_dir (), "midori-" + Environment.get_user_name ());
             }
+#if !HAVE_WEBKIT2
 #if HAVE_WEBKIT_1_3_13
             if (user_data_dir != null) {
                 string folder = Path.build_filename (user_data_dir, "webkit", "icondatabase");
@@ -121,6 +122,7 @@ namespace Midori {
                 WebKit.get_icon_database ().set_path (folder);
 #endif
             }
+#endif
 #endif
             if (strcmp (Environment.get_variable ("MIDORI_DEBUG"), "paths") == 0) {
                 stdout.printf ("config: %s\ncache: %s\nuser_data: %s\ntmp: %s\n",
@@ -376,10 +378,12 @@ namespace Midori {
         public static void clear_icons () {
             assert (cache_dir != null);
             assert (user_data_dir != null);
+#if !HAVE_WEBKIT2
 #if HAVE_WEBKIT_1_8_0
             WebKit.get_favicon_database ().clear ();
 #elif HAVE_WEBKIT_1_3_13
             WebKit.get_icon_database ().clear ();
+#endif
 #endif
             /* FIXME: Exclude search engine icons */
             remove_path (Path.build_filename (cache_dir, "icons"));
@@ -393,6 +397,7 @@ namespace Midori {
             if (widget != null)
                 Gtk.icon_size_lookup_for_settings (widget.get_settings (),
                     Gtk.IconSize.MENU, out icon_width, out icon_height);
+#if !HAVE_WEBKIT2
 #if HAVE_WEBKIT_1_8_0
             Gdk.Pixbuf? pixbuf = WebKit.get_favicon_database ()
                 .try_get_favicon_pixbuf (uri, icon_width, icon_height);
@@ -420,6 +425,7 @@ namespace Midori {
                 }
                 catch (GLib.Error error) { }
             }
+#endif
 #endif
             if (widget != null)
                 return widget.render_icon (Gtk.STOCK_FILE, Gtk.IconSize.MENU, null);

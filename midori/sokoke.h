@@ -106,7 +106,11 @@ sokoke_gtk_action_count_modifiers       (GtkAction* action);
 gboolean
 sokoke_prefetch_uri                     (MidoriWebSettings*  settings,
                                          const char*         uri,
+#ifndef HAVE_WEBKIT2
                                          SoupAddressCallback callback,
+#else
+                                         void*               callback,
+#endif
                                          gpointer            user_data);
 
 gboolean

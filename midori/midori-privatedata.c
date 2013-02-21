@@ -203,6 +203,7 @@ midori_remove_config_file (gint         clear_prefs,
 static void
 midori_clear_web_cookies_cb (void)
 {
+#ifndef HAVE_WEBKIT2
     SoupSession* session = webkit_get_default_session ();
     MidoriWebSettings* settings = g_object_get_data (G_OBJECT (session), "midori-settings");
     SoupSessionFeature* jar = soup_session_get_feature (session, SOUP_TYPE_COOKIE_JAR);
@@ -257,6 +258,7 @@ midori_clear_web_cookies_cb (void)
     webkit_application_cache_set_maximum_size (
         webkit_application_cache_get_maximum_size () - 1);
     #endif
+#endif
 }
 
 static void
@@ -281,6 +283,7 @@ midori_clear_saved_logins_cb (void)
 static void
 midori_clear_web_cache_cb (void)
 {
+#ifndef HAVE_WEBKIT2
     SoupSession* session = webkit_get_default_session ();
     SoupSessionFeature* feature = soup_session_get_feature (session, SOUP_TYPE_CACHE);
     gchar* cache = g_build_filename (midori_paths_get_cache_dir (), "web", NULL);
@@ -288,6 +291,7 @@ midori_clear_web_cache_cb (void)
     soup_cache_flush (SOUP_CACHE (feature));
     midori_paths_remove_path (cache);
     g_free (cache);
+#endif
 }
 #endif
 

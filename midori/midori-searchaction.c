@@ -904,6 +904,7 @@ KatzeItem*
 midori_search_action_get_engine_for_form (WebKitWebView*     web_view,
                                           PangoEllipsizeMode ellipsize)
 {
+#ifndef HAVE_WEBKIT2
     #if WEBKIT_CHECK_VERSION (1, 5, 0)
     WebKitDOMDocument* doc;
     WebKitDOMHTMLFormElement* active_form;
@@ -1017,6 +1018,9 @@ midori_search_action_get_engine_for_form (WebKitWebView*     web_view,
     #else
     return NULL;
     #endif
+#else
+    return NULL;
+#endif
 }
 
 void

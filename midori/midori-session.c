@@ -154,6 +154,7 @@ midori_soup_session_settings_accept_language_cb (SoupSession*       session,
 gboolean
 midori_load_soup_session (gpointer settings)
 {
+#ifndef HAVE_WEBKIT2
     SoupSession* session = webkit_get_default_session ();
 
     #ifndef G_OS_WIN32
@@ -242,13 +243,14 @@ midori_load_soup_session (gpointer settings)
     }
 
     g_object_set_data (G_OBJECT (session), "midori-session-initialized", (void*)1);
-
+#endif
     return FALSE;
 }
 
 gboolean
 midori_load_soup_session_full (gpointer settings)
 {
+#ifndef HAVE_WEBKIT2
     SoupSession* session = webkit_get_default_session ();
     SoupCookieJar* jar;
     gchar* config_file;
@@ -299,7 +301,7 @@ midori_load_soup_session_full (gpointer settings)
     soup_cache_load (SOUP_CACHE (feature));
     #endif
     g_free (config_file);
-
+#endif
     return FALSE;
 }
 

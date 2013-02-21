@@ -32,6 +32,7 @@
 
 #define HAVE_OFFSCREEN GTK_CHECK_VERSION (2, 20, 0)
 
+#ifndef HAVE_WEBKIT2
 static void
 snapshot_load_finished_cb (GtkWidget*      web_view,
                            WebKitWebFrame* web_frame,
@@ -62,6 +63,7 @@ snapshot_load_finished_cb (GtkWidget*      web_view,
     g_print (_("Snapshot saved to: %s\n"), filename);
     gtk_main_quit ();
 }
+#endif
 
 int
 main (int    argc,
@@ -252,8 +254,10 @@ main (int    argc,
             gtk_widget_set_size_request (web_view, 800, 600);
         gtk_widget_show_all (offscreen);
         #endif
+        #ifndef HAVE_WEBKIT2
         g_signal_connect (web_view, "load-finished",
             G_CALLBACK (snapshot_load_finished_cb), filename);
+        #endif
         uri = sokoke_prepare_uri (snapshot);
         webkit_web_view_load_uri (WEBKIT_WEB_VIEW (web_view), uri);
         g_free (uri);
@@ -293,7 +297,9 @@ main (int    argc,
         {
             MidoriBrowser* browser = midori_browser_new ();
             MidoriWebSettings* settings = midori_browser_get_settings (browser);
+#ifndef HAVE_WEBKIT2
             g_object_set_data (G_OBJECT (webkit_get_default_session ()), "pass-through-console", (void*)1);
+#endif
             midori_load_soup_session (settings);
 
             gchar* msg = NULL;

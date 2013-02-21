@@ -19,8 +19,11 @@ namespace Midori {
         FULLSCREEN
     }
     /* Since: 0.1.3 */
-
+#if !HAVE_WEBKIT2
     public class Settings : WebKit.WebSettings {
+#else
+    public class Settings : WebKit.Settings {
+#endif
         public bool remember_last_window_size { get; set; default = true; }
         public int last_window_width { get; set; default = 0; }
         public int last_window_height { get; set; default = 0; }
@@ -43,6 +46,7 @@ namespace Midori {
         public string? block_uris { get {
             return block_uris_regex != null ? block_uris_regex.get_pattern () : null;
         } set {
+#if !HAVE_WEBKIT2
             if (value == null || value == "")
                 return;
             if (block_uris_regex == null)
@@ -56,6 +60,7 @@ namespace Midori {
             catch (Error error) {
                 critical ("block-uris: %s", error.message);
             }
+#endif
         } }
 
         public string? location_entry_search { get; set; default = null; }
