@@ -73,6 +73,7 @@ main (int    argc,
     gboolean portable;
     gboolean plain;
     gboolean diagnostic_dialog = FALSE;
+    gboolean debug = FALSE;
     gboolean run;
     gchar* snapshot;
     gboolean execute;
@@ -97,6 +98,8 @@ main (int    argc,
        N_("Plain GTK+ window with WebKit, akin to GtkLauncher"), NULL },
        { "diagnostic-dialog", 'd', 0, G_OPTION_ARG_NONE, &diagnostic_dialog,
        N_("Show a diagnostic dialog"), NULL },
+       { "debug", 'g', 0, G_OPTION_ARG_NONE, &debug,
+       N_("Run within gdb and save a backtrace on crash"), NULL },
        { "run", 'r', 0, G_OPTION_ARG_NONE, &run,
        N_("Run the specified filename as javascript"), NULL },
        { "snapshot", 's', 0, G_OPTION_ARG_STRING, &snapshot,
@@ -134,6 +137,20 @@ main (int    argc,
     block_uris = NULL;
     inactivity_reset = 0;
     midori_app_setup (&argc, &argv, entries);
+
+    if (debug)
+    {
+        gchar* args = midori_paths_get_command_line_str (FALSE);
+        gchar* cmd = g_strdup_printf (
+            "--batch -ex 'set print thread-events off' -ex run "
+            "-ex bt -ex 'set logging on %s' --return-child-result "
+            "--args %s",
+            "/tmp/midori-gdb.bt", args);
+        sokoke_spawn_program ("gdb", TRUE, cmd, FALSE, TRUE);
+        g_free (cmd);
+        g_free (args);
+        return 0;
+    }
 
     g_set_application_name (_("Midori"));
     /* Versioned prgname to override menuproxy blacklist */

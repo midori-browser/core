@@ -131,7 +131,7 @@ sokoke_open_with_response_cb (GtkWidget* dialog,
     {
         const gchar* command = gtk_entry_get_text (entry);
         const gchar* uri = g_object_get_data (G_OBJECT (dialog), "uri");
-        sokoke_spawn_program (command, FALSE, uri, TRUE);
+        sokoke_spawn_program (command, FALSE, uri, TRUE, FALSE);
     }
     gtk_widget_destroy (dialog);
 }
@@ -337,6 +337,7 @@ sokoke_prepare_command (const gchar* command,
  * @argument: any arguments, properly quoted
  * @quote_command: if %TRUE, @command will be quoted
  * @quote_argument: if %TRUE, @argument will be quoted, ie. a URI or filename
+ * @sync: spawn synchronously and wait for command to exit
  *
  * If @command contains %s, @argument will be quoted and inserted into
  * @command, which is left unquoted regardless of @quote_command.
@@ -347,7 +348,8 @@ gboolean
 sokoke_spawn_program (const gchar* command,
                       gboolean     quote_command,
                       const gchar* argument,
-                      gboolean     quote_argument)
+                      gboolean     quote_argument,
+                      gboolean     sync)
 {
     GError* error;
     gchar* command_ready;
@@ -372,9 +374,15 @@ sokoke_spawn_program (const gchar* command,
     g_free (command_ready);
 
     error = NULL;
-    if (!g_spawn_async (NULL, argv, NULL,
-        (GSpawnFlags)G_SPAWN_SEARCH_PATH | G_SPAWN_DO_NOT_REAP_CHILD,
-        NULL, NULL, NULL, &error))
+    if (sync)
+        g_spawn_sync (NULL, argv, NULL,
+            (GSpawnFlags)G_SPAWN_SEARCH_PATH,
+            NULL, NULL, NULL, NULL, NULL, &error);
+    else
+        g_spawn_async (NULL, argv, NULL,
+            (GSpawnFlags)G_SPAWN_SEARCH_PATH | G_SPAWN_DO_NOT_REAP_CHILD,
+            NULL, NULL, NULL, &error);
+    if (error != NULL)
     {
         sokoke_message_dialog (GTK_MESSAGE_ERROR,
                                _("Could not run external program."),
@@ -402,7 +410,7 @@ sokoke_spawn_app (const gchar* uri,
     else
         argument = g_strconcat ("-a ", uri_quoted, NULL);
     g_free (uri_quoted);
-    sokoke_spawn_program (executable, TRUE, argument, FALSE);
+    sokoke_spawn_program (executable, TRUE, argument, FALSE, FALSE);
     g_free (argument);
 }
 

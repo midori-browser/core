@@ -3998,7 +3998,7 @@ midori_view_set_uri (MidoriView*  view,
             }
             else if (!strcmp (uri, "about:") || !strcmp (uri, "about:version"))
             {
-                gchar* command_line = midori_paths_get_command_line_str ();
+                gchar* command_line = midori_paths_get_command_line_str (TRUE);
                 gchar* architecture, *platform;
                 const gchar* sys_name = midori_web_settings_get_system_name (
                     &architecture, &platform);

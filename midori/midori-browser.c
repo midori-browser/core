@@ -2450,9 +2450,9 @@ midori_browser_subscribe_to_news_feed (MidoriBrowser* browser,
         /* Special-case Liferea because a helper script may be required */
         if (g_str_equal (browser->news_aggregator, "liferea")
          && g_find_program_in_path ("liferea-add-feed"))
-            sokoke_spawn_program ("liferea-add-feed", FALSE, feed, TRUE);
+            sokoke_spawn_program ("liferea-add-feed", FALSE, feed, TRUE, FALSE);
         else
-            sokoke_spawn_program (browser->news_aggregator, TRUE, feed, TRUE);
+            sokoke_spawn_program (browser->news_aggregator, TRUE, feed, TRUE, FALSE);
         g_free (feed);
     }
     else
@@ -3397,7 +3397,7 @@ _action_source_view_activate (GtkAction*     action,
     }
     else
     {
-        sokoke_spawn_program (text_editor, TRUE, filename, TRUE);
+        sokoke_spawn_program (text_editor, TRUE, filename, TRUE, FALSE);
         g_free (filename);
     }
     g_free (text_editor);

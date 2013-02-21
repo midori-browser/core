@@ -52,7 +52,8 @@ gboolean
 sokoke_spawn_program                    (const gchar* command,
                                          gboolean        quote_command,
                                          const gchar*    argument,
-                                         gboolean        quote_argument);
+                                         gboolean        quote_argument,
+                                         gboolean        sync);
 
 void
 sokoke_spawn_app                        (const gchar*    uri,
