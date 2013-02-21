@@ -54,6 +54,7 @@ namespace Midori {
                 return !message.contains ("Error loading theme icon")
                     && !message.contains ("Could not find the icon")
                     && !message.contains ("Junk at end of value")
+                    && !message.contains ("gtk_notebook_get_tab_label: assertion `GTK_IS_WIDGET (child)' failed")
                     && !message.contains ("get_column_number: assertion `i < gtk_tree_view_get_n_columns (treeview)' failed");
             });
 
