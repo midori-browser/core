@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: midori\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-02-19 09:51+0000\n"
+"POT-Creation-Date: 2013-02-21 10:00+0000\n"
 "PO-Revision-Date: 2012-07-25 12:02+0200\n"
 "Last-Translator: Emmo (assisted by Pjotr)\n"
 "Language-Team: Dutch (Flemish)\n"
@@ -26,8 +26,9 @@ msgstr "Blader door het Web"
 msgid "Internet;WWW;Explorer"
 msgstr "Internet;WWW;Verkenner"
 
-#: ../data/midori.desktop.in.h:3 ../midori/main.c:138 ../midori/main.c:151
+#: ../data/midori.desktop.in.h:3 ../midori/main.c:155
 #: ../midori/midori-app.c:1443 ../midori/midori-websettings.c:201
+#: ../midori/midori-view.c:3700
 msgid "Midori"
 msgstr "Midori"
 
@@ -59,7 +60,7 @@ msgstr "Midori Privé-surfen"
 msgid "Open a new private browsing window"
 msgstr "Open een nieuw privé-surfvenster"
 
-#: ../data/midori-private.desktop.in.h:3 ../midori/midori-view.c:3925
+#: ../data/midori-private.desktop.in.h:3 ../midori/midori-view.c:3966
 msgid "Private Browsing"
 msgstr "Privé-surfen"
 
@@ -68,91 +69,95 @@ msgstr "Privé-surfen"
 msgid "Snapshot saved to: %s\n"
 msgstr "Momentopname opgeslagen in: %s\n"
 
-#: ../midori/main.c:87
+#: ../midori/main.c:88
 msgid "Run ADDRESS as a web application"
 msgstr "ADRES uitvoeren als een webtoepassing"
 
-#: ../midori/main.c:87
+#: ../midori/main.c:88
 msgid "ADDRESS"
 msgstr "ADRES"
 
-#: ../midori/main.c:89
+#: ../midori/main.c:90
 msgid "Use FOLDER as configuration folder"
 msgstr "Gebruik MAP als configuratiemap"
 
-#: ../midori/main.c:89
+#: ../midori/main.c:90
 msgid "FOLDER"
 msgstr "MAP"
 
-#: ../midori/main.c:91
+#: ../midori/main.c:92
 msgid "Private browsing, no changes are saved"
 msgstr "Privé-surfen, veranderingen worden niet opgeslagen."
 
-#: ../midori/main.c:94
+#: ../midori/main.c:95
 msgid "Portable mode, all runtime files are stored in one place"
 msgstr ""
 "Draagbare modus, alle uitvoeringsbestanden worden opgeslagen op één plek"
 
-#: ../midori/main.c:97
+#: ../midori/main.c:98
 msgid "Plain GTK+ window with WebKit, akin to GtkLauncher"
 msgstr "Standaardvenster van GTK+ met WebKit, lijkend op GtkLauncher"
 
-#: ../midori/main.c:99
+#: ../midori/main.c:100
 msgid "Show a diagnostic dialog"
 msgstr "Toon een diagnostisch venster"
 
-#: ../midori/main.c:101
+#: ../midori/main.c:102
+msgid "Run within gdb and save a backtrace on crash"
+msgstr "Draai binnen gdb en bewaar achtergrondinformatie bij een vastloper"
+
+#: ../midori/main.c:104
 msgid "Run the specified filename as javascript"
 msgstr "Voer de opgegeven bestandnaam uit als javascript"
 
-#: ../midori/main.c:103
+#: ../midori/main.c:106
 msgid "Take a snapshot of the specified URI"
 msgstr "Maak een momentopname van de opgegeven URI"
 
-#: ../midori/main.c:105
+#: ../midori/main.c:108
 msgid "Execute the specified command"
 msgstr "Voer de opgegeven opdracht uit"
 
-#: ../midori/main.c:107
+#: ../midori/main.c:110
 msgid "List available commands to execute with -e/ --execute"
 msgstr "Lijst beschikbare opdrachten uit te voeren met -e/ --execute"
 
-#: ../midori/main.c:109
+#: ../midori/main.c:112
 msgid "Display program version"
 msgstr "Versie-informatie weergeven"
 
-#: ../midori/main.c:111
+#: ../midori/main.c:114
 msgid "Addresses"
 msgstr "Adressen"
 
-#: ../midori/main.c:113
+#: ../midori/main.c:116
 msgid "Block URIs according to regular expression PATTERN"
 msgstr "Blokkeer URIs die overeenstemmen met reguliere expressie PATROON"
 
-#: ../midori/main.c:113
+#: ../midori/main.c:116
 msgid "PATTERN"
 msgstr "PATROON"
 
 #. i18n: CLI: Close tabs, clear private data, open starting page
-#: ../midori/main.c:117
+#: ../midori/main.c:120
 msgid "Reset Midori after SECONDS seconds of inactivity"
 msgstr ""
 "Zet Midori na SECONDEN seconden van inactiviteit, terug op de "
 "standaardwaarden"
 
-#: ../midori/main.c:117
+#: ../midori/main.c:120
 msgid "SECONDS"
 msgstr "SECONDEN"
 
-#: ../midori/main.c:152
+#: ../midori/main.c:172
 msgid "Please report comments, suggestions and bugs to:"
 msgstr "Gelieve commentaar, suggesties en fouten te melden bij:"
 
-#: ../midori/main.c:154
+#: ../midori/main.c:174
 msgid "Check for new versions at:"
 msgstr "Controleer op nieuwe versies op:"
 
-#: ../midori/main.c:299
+#: ../midori/main.c:319
 msgid "An unknown error occured"
 msgstr "Er is een onbekende fout opgetreden"
 
@@ -399,7 +404,7 @@ msgid "Open in New _Tab"
 msgstr "In nieuw _tabblad openen"
 
 #: ../midori/midori-browser.c:4184 ../midori/midori-view.c:2633
-#: ../midori/midori-view.c:4431 ../panels/midori-bookmarks.c:843
+#: ../midori/midori-view.c:4432 ../panels/midori-bookmarks.c:843
 #: ../panels/midori-history.c:801 ../extensions/feed-panel/feed-panel.c:515
 msgid "Open in New _Window"
 msgstr "In nieuw _venster openen"
@@ -1271,112 +1276,112 @@ msgstr "Openen %s"
 msgid "Inspect page - %s"
 msgstr "Pagina analyseren - %s"
 
-#: ../midori/midori-view.c:3850
+#: ../midori/midori-view.c:3891
 #, c-format
 msgid "No documentation installed"
 msgstr "Geen documentatie geïnstalleerd"
 
-#: ../midori/midori-view.c:3926
+#: ../midori/midori-view.c:3967
 msgid "Midori doesn't store any personal data:"
 msgstr "Midori slaat geen persoonlijke gegevens op:"
 
-#: ../midori/midori-view.c:3927
+#: ../midori/midori-view.c:3968
 msgid "No history or web cookies are being saved."
 msgstr "Webgeschiedenis en webkoekjes worden niet opgeslagen."
 
-#: ../midori/midori-view.c:3928
+#: ../midori/midori-view.c:3969
 msgid "Extensions are disabled."
 msgstr "Extensies zijn uitgeschakeld."
 
-#: ../midori/midori-view.c:3929
+#: ../midori/midori-view.c:3970
 msgid "HTML5 storage, local database and application caches are disabled."
 msgstr ""
 "HTML5-opslag, plaatselijke gegevensbank en toepassingopslag zijn "
 "uitgeschakeld."
 
-#: ../midori/midori-view.c:3930
+#: ../midori/midori-view.c:3971
 msgid "Midori prevents websites from tracking the user:"
 msgstr "Midori verhindert websites om de gebruiker te volgen:"
 
-#: ../midori/midori-view.c:3931
+#: ../midori/midori-view.c:3972
 msgid "Referrer URLs are stripped down to the hostname."
 msgstr "Verwijzingskoppelingen worden teruggebracht tot de hostnaam."
 
-#: ../midori/midori-view.c:3932
+#: ../midori/midori-view.c:3973
 msgid "DNS prefetching is disabled."
 msgstr "Vooraf DNS binnenhalen is uitgeschakeld."
 
-#: ../midori/midori-view.c:3933
+#: ../midori/midori-view.c:3974
 msgid "The language and timezone are not revealed to websites."
 msgstr "De taal en de tijdzone worden niet bekendgemaakt aan websites."
 
-#: ../midori/midori-view.c:3934
+#: ../midori/midori-view.c:3975
 msgid "Flash and other Netscape plugins cannot be listed by websites."
 msgstr ""
 "Flash en andere Netscape (Firefox)-plugins, kunnen niet worden geregistreerd "
 "door websites."
 
-#: ../midori/midori-view.c:4013
+#: ../midori/midori-view.c:4017
 msgid "Version numbers in brackets show the version used at runtime."
 msgstr ""
 "Versienummers tussen haakjes tonen de versie die tijdens de runtime wordt "
 "gebruikt"
 
-#: ../midori/midori-view.c:4059
+#: ../midori/midori-view.c:4060
 msgid "Page loading delayed"
 msgstr "Het laden van de pagina is vertraagd"
 
-#: ../midori/midori-view.c:4060
+#: ../midori/midori-view.c:4061
 msgid "Loading delayed either due to a recent crash or startup preferences."
 msgstr ""
 "Het laden is vertraagd ofwel door een recente crash ofwel door "
 "opstartvoorkeuren."
 
-#: ../midori/midori-view.c:4061
+#: ../midori/midori-view.c:4062
 msgid "Load Page"
 msgstr "Pagina laden"
 
-#: ../midori/midori-view.c:4225
+#: ../midori/midori-view.c:4226
 msgid "Blank page"
 msgstr "Blanco pagina"
 
-#: ../midori/midori-view.c:4435
+#: ../midori/midori-view.c:4436
 msgid "_Duplicate Tab"
 msgstr "Tabblad _dupliceren"
 
-#: ../midori/midori-view.c:4440
+#: ../midori/midori-view.c:4441
 msgid "Show Tab _Label"
 msgstr "Toon tabblad_etiket"
 
-#: ../midori/midori-view.c:4440
+#: ../midori/midori-view.c:4441
 msgid "Show Tab _Icon Only"
 msgstr "Toon alleen tabblad_pictogram"
 
-#: ../midori/midori-view.c:4447
+#: ../midori/midori-view.c:4448
 msgid "Close Ot_her Tab"
 msgid_plural "Close Ot_her Tabs"
 msgstr[0] "Andere tabblad sluiten"
 msgstr[1] "Andere tabbladen sluiten"
 
 #. i18n: word stem of "previous page" type links, case is not important
-#: ../midori/midori-view.c:5122
+#: ../midori/midori-view.c:5123
 msgid "previous"
 msgstr "vorige"
 
 #. i18n: word stem of "next page" type links, case is not important
-#: ../midori/midori-view.c:5141
+#: ../midori/midori-view.c:5142
 msgid "next"
 msgstr "volgende"
 
-#: ../midori/midori-view.c:5154
+#: ../midori/midori-view.c:5155
 msgid "Print background images"
 msgstr "Achtergrondafbeeldingen meenemen in afdrukken"
 
-#: ../midori/midori-view.c:5155
+#: ../midori/midori-view.c:5156
 msgid "Whether background images should be printed"
 msgstr "Of achtergrondafbeeldingen dienen te worden afgedrukt"
 
-#: ../midori/midori-view.c:5179
+#: ../midori/midori-view.c:5180
 msgid "Features"
 msgstr "Opties"
 
@@ -1813,7 +1818,7 @@ msgstr "Openen met"
 msgid "Choose an application or command to open \"%s\":"
 msgstr "Kies een toepassing of opdracht om \"%s\" te openen:"
 
-#: ../midori/sokoke.c:366 ../midori/sokoke.c:380
+#: ../midori/sokoke.c:368 ../midori/sokoke.c:388
 msgid "Could not run external program."
 msgstr "Kon extern programma niet uitvoeren."
 
@@ -2878,7 +2883,9 @@ msgstr "Alle koekjespermissies verwijderen?"
 msgid ""
 "This action will delete all cookie permissions. You will be asked for "
 "permissions again for each web site visited."
-msgstr "Deze actie zal alle koekjespermissies verwijderen. U zult opnieuw gevraagd worden naar permissies bij elke webstek die u bezoekt."
+msgstr ""
+"Deze actie zal alle koekjespermissies verwijderen. U zult opnieuw gevraagd "
+"worden naar permissies bij elke webstek die u bezoekt."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:587
 msgid "Cookie permission manager"
@@ -2886,12 +2893,12 @@ msgstr "Koekjespermissiebeheerder"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:588
 msgid "Instance of current cookie permission manager"
-msgstr ""
+msgstr "Thans draaiende koekjespermissiebeheerder"
 
 #. Set up dialog
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:628
 msgid "Configure cookie permission"
-msgstr ""
+msgstr "Koekjespermissie instellen"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:643
 #, c-format
@@ -2900,130 +2907,125 @@ msgid ""
 "policies by marking the entries and clicking on <i>Delete</i>.You can also "
 "add a policy for a domain manually by entering the domain below, choosing "
 "the policy and clicking on <i>Add</i>."
-msgstr ""
+msgstr "Onderstaand is een lijst van alle websites en het beleid dat voor hen is ingesteld. U kunt beleid verwijderen door de velden te markeren en te klikken op <i>Verwijderen</i>. U kunt ook handmatig een beleid toevoegen voor een domein, door hieronder het domein in te voeren, het beleid te kiezen en te klikken op <i>Toevoegen</i>."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:705
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:489
 msgid "Domain"
-msgstr ""
+msgstr "Domein"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:712
 msgid "Policy"
-msgstr ""
+msgstr "Beleid"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:740
-#, fuzzy
 msgid "Delete _all"
-msgstr "Alles wissen"
+msgstr "_Alles wissen"
 
 #. Add "ask-for-unknown-policy" checkbox
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:749
 msgid "A_sk for policy if unknown for a domain"
-msgstr ""
+msgstr "Vraag naar beleid indien onbekend voor een domein"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:83
 msgid ""
 "A fatal error occurred which prevents the cookie permission manager "
 "extension to continue. You should disable it."
-msgstr ""
+msgstr "Er is een fatale fout opgetreden die de koekjespermissiebeheerder verhindert om door te gaan. U zou hem moeten uitschakelen."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:87
 msgid "Error in cookie permission manager extension"
-msgstr ""
+msgstr "Fout in extensie van koekjespermissiebeheerder"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:92
 msgid "Reason"
-msgstr ""
+msgstr "Reden"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:125
 msgid "Could not get path to configuration of extension: path is NULL"
-msgstr ""
+msgstr "Kon geen pad verkrijgen naar instellingen van extensie: pad is NULL"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:127
 msgid "Could not get path to configuration of extension."
-msgstr ""
+msgstr "Kon geen pad verkrijgen naar instellingen van extensie"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:133
 #, c-format
 msgid "Could not create configuration folder for extension: %s"
-msgstr ""
+msgstr "Kon geen instellingenmap aanmaken voor extensie: %s"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:135
 msgid "Could not create configuration folder for extension."
-msgstr ""
+msgstr "Kon geen instellingenmap aanmaken voor extensie."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:150
-#, fuzzy
 msgid "Could not open database of extension."
-msgstr "Kon gegevensbank niet openen: %s\n"
+msgstr "Kon gegevensbank van extensie niet openen."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:183
 msgid "Could not set up database structure of extension."
-msgstr ""
+msgstr "Kon geen gegevensbankstructuur opzetten van extensie."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:300
 #, c-format
 msgid "Could not determine global cookie policy to set for domain: %s"
-msgstr ""
+msgstr "Kon de algemene koekjespolitiek niet bepalen die ingesteld moet worden voor het domein: %s"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:430
 msgid "Confirm storing cookie"
-msgstr ""
+msgstr "Bevestig opslaan van koekje"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:461
 #, c-format
 msgid "The website %s wants to store %d cookies."
-msgstr ""
+msgstr "De webstek %s wil %d koekjes opslaan."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:463
 #, c-format
 msgid "The website %s wants to store a cookie."
-msgstr ""
+msgstr "De webstek %s wil een koekje opslaan."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:467
 #, c-format
 msgid "Multiple websites want to store %d cookies in total."
-msgstr ""
+msgstr "Meerdere webstekken willen in totaal %d koekjes opslaan."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:496
 msgid "Path"
-msgstr ""
+msgstr "Pad"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:510
 msgid "Value"
-msgstr ""
+msgstr "Waarde"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:521
 msgid "Expire date"
-msgstr ""
+msgstr "Verloopdatum"
 
 #. Create buttons for dialog
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:545
 msgid "_Accept"
-msgstr ""
+msgstr "_Aanvaarden"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:548
-#, fuzzy
 msgid "Accept for this _session"
-msgstr "Zet de laatste _sessie terug op de standaardwaarden"
+msgstr "Aanvaard voor deze sessie"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:550
 msgid "De_ny"
-msgstr ""
+msgstr "_Weigeren"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:881
-#, fuzzy
 msgid "Extension instance"
-msgstr "Extensies"
+msgstr ""
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:882
 msgid "The Midori extension instance for this extension"
 msgstr ""
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:888
-#, fuzzy
 msgid "Application instance"
-msgstr "Toepassingen"
+msgstr ""
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:889
 msgid "The Midori application instance this extension belongs to"
@@ -3039,26 +3041,25 @@ msgstr ""
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:901
 msgid "Ask for unknown policy"
-msgstr ""
+msgstr "Vraag naar onbekend beleid"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:902
 msgid ""
 "If true this extension ask for policy for every unknown domain.If false this "
 "extension uses the global cookie policy set in midori settings."
-msgstr ""
+msgstr "Indien waar, zal deze extensie vragen naar beleid voor elk onbekend domein. Indien onwaar, zal deze extensie het algemene koekjesbeleid hanteren dat is vastgelegd in de instellingen van Midori."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:983
 msgid "Undetermined"
-msgstr ""
+msgstr "Onbepaald"
 
 #: ../extensions/cookie-permissions/main.c:62
-#, fuzzy
 msgid "Cookie Security Manager"
-msgstr "Koekjesbeheerder"
+msgstr "Koekjesveiligheidbeheerder"
 
 #: ../extensions/cookie-permissions/main.c:63
 msgid "Manage cookie permission per site"
-msgstr ""
+msgstr "Beheer koekjespermissie per webstek"
 
 #~ msgid "_Window"
 #~ msgstr "_Venster"
