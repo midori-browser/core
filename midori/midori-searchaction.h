@@ -13,7 +13,6 @@
 #define __MIDORI_SEARCH_ACTION_H__
 
 #include <katze/katze.h>
-#include <webkit/webkit.h>
 
 G_BEGIN_DECLS
 

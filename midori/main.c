@@ -27,7 +27,7 @@
 #include <string.h>
 #include <glib/gstdio.h>
 #include <glib/gi18n-lib.h>
-#include <webkit/webkit.h>
+#include "katze/katze.h"
 #include <sqlite3.h>
 
 #define HAVE_OFFSCREEN GTK_CHECK_VERSION (2, 20, 0)

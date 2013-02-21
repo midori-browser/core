@@ -32,7 +32,7 @@
 #include <glib/gi18n.h>
 #include <glib/gprintf.h>
 #include <glib/gstdio.h>
-#include <webkit/webkit.h>
+#include "katze/katze.h"
 
 static gchar*
 sokoke_js_string_utf8 (JSStringRef js_string)

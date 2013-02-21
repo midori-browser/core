@@ -12,8 +12,6 @@
 #ifndef __MIDORI_WEB_SETTINGS_H__
 #define __MIDORI_WEB_SETTINGS_H__
 
-#include <webkit/webkit.h>
-
 #include <katze/katze.h>
 
 G_BEGIN_DECLS

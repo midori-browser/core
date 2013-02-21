@@ -15,7 +15,7 @@
 
 #include <glib/gi18n.h>
 
-#include <webkit/webkit.h>
+#include "katze/katze.h"
 
 /**
  * SECTION:katze-item

@@ -12,8 +12,6 @@
 #ifndef __MIDORI_BROWSER_H__
 #define __MIDORI_BROWSER_H__
 
-#include <webkit/webkit.h>
-
 #include <katze/katze.h>
 #include "midori-view.h"
 

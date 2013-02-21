@@ -14,7 +14,7 @@
 #define __SOKOKE_H__ 1
 
 #include <JavaScriptCore/JavaScript.h>
-#include <webkit/webkit.h>
+#include "katze/katze.h"
 #include <midori/midori-websettings.h>
 #include <katze/gtk3-compat.h>
 

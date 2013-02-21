@@ -13,7 +13,7 @@
 #define __PRIVATE_DATA_H__ 1
 
 #include <midori/midori-browser.h>
-#include <webkit/webkit.h>
+#include "katze/katze.h"
 
 GtkWidget*
 midori_private_data_get_dialog (MidoriBrowser* browser);

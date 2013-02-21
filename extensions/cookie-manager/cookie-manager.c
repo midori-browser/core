@@ -11,7 +11,7 @@
 
 #include "config.h"
 #include <midori/midori.h>
-#include <webkit/webkit.h>
+#include "katze/katze.h"
 
 #include "cookie-manager.h"
 #include "cookie-manager-page.h"

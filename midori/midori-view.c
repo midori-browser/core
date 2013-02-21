@@ -40,7 +40,7 @@ midori_map_get_message (SoupMessage* message);
 #include <glib/gprintf.h>
 #include <glib/gstdio.h>
 #include <gdk/gdkkeysyms.h>
-#include <webkit/webkit.h>
+#include "katze/katze.h"
 
 #if HAVE_UNISTD_H
     #include <unistd.h>
