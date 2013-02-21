@@ -13,7 +13,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: midori 0.2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-02-20 12:36+0000\n"
+"POT-Creation-Date: 2013-02-21 10:00+0000\n"
 "PO-Revision-Date: 2012-12-07 14:55+0100\n"
 "Last-Translator: \n"
 "Language-Team: French <fr@li.org>\n"
@@ -31,8 +31,9 @@ msgstr "Rechercher sur Internet"
 msgid "Internet;WWW;Explorer"
 msgstr "Internet;WWW;Explorer"
 
-#: ../data/midori.desktop.in.h:3 ../midori/main.c:138 ../midori/main.c:151
+#: ../data/midori.desktop.in.h:3 ../midori/main.c:155
 #: ../midori/midori-app.c:1443 ../midori/midori-websettings.c:201
+#: ../midori/midori-view.c:3700
 msgid "Midori"
 msgstr "Midori"
 
@@ -64,7 +65,7 @@ msgstr "Midori (Navigation privée)"
 msgid "Open a new private browsing window"
 msgstr "Ouvrir une nouvelle fenêtre (Navigation privée)"
 
-#: ../data/midori-private.desktop.in.h:3 ../midori/midori-view.c:3925
+#: ../data/midori-private.desktop.in.h:3 ../midori/midori-view.c:3966
 msgid "Private Browsing"
 msgstr "Navigation privée"
 
@@ -73,90 +74,94 @@ msgstr "Navigation privée"
 msgid "Snapshot saved to: %s\n"
 msgstr "Capture enregistrée sous : %s\n"
 
-#: ../midori/main.c:87
+#: ../midori/main.c:88
 msgid "Run ADDRESS as a web application"
 msgstr "Lancer l'ADRESSE comme une application internet"
 
-#: ../midori/main.c:87
+#: ../midori/main.c:88
 msgid "ADDRESS"
 msgstr "ADRESSE"
 
-#: ../midori/main.c:89
+#: ../midori/main.c:90
 msgid "Use FOLDER as configuration folder"
 msgstr "Utiliser DOSSIER comme dossier de configuration"
 
-#: ../midori/main.c:89
+#: ../midori/main.c:90
 msgid "FOLDER"
 msgstr "DOSSIER"
 
-#: ../midori/main.c:91
+#: ../midori/main.c:92
 msgid "Private browsing, no changes are saved"
 msgstr "Navigation privée, les modifications ne sont pas enregistrées"
 
-#: ../midori/main.c:94
+#: ../midori/main.c:95
 msgid "Portable mode, all runtime files are stored in one place"
 msgstr ""
 "Mode portable, tous les fichiers exécutables sont stockés dans un endroit"
 
-#: ../midori/main.c:97
+#: ../midori/main.c:98
 msgid "Plain GTK+ window with WebKit, akin to GtkLauncher"
 msgstr "Fenêtre GTK+ simple avec WebKit, semblable à GtkLauncher"
 
-#: ../midori/main.c:99
+#: ../midori/main.c:100
 msgid "Show a diagnostic dialog"
 msgstr "Afficher une fenêtre de diagnostic"
 
-#: ../midori/main.c:101
+#: ../midori/main.c:102
+msgid "Run within gdb and save a backtrace on crash"
+msgstr "Exécuter à l'intérieur de gdb et enregistrer une trace du crash"
+
+#: ../midori/main.c:104
 msgid "Run the specified filename as javascript"
 msgstr "Lancer le fichier spécifié en tant que javascript"
 
-#: ../midori/main.c:103
+#: ../midori/main.c:106
 msgid "Take a snapshot of the specified URI"
 msgstr "Prendre une capture de l'URI spécifiée"
 
-#: ../midori/main.c:105
+#: ../midori/main.c:108
 msgid "Execute the specified command"
 msgstr "Exécuter la commande spécifiée"
 
-#: ../midori/main.c:107
+#: ../midori/main.c:110
 msgid "List available commands to execute with -e/ --execute"
 msgstr "Lister les commandes disponibles avec l'option -e/ --execute"
 
-#: ../midori/main.c:109
+#: ../midori/main.c:112
 msgid "Display program version"
 msgstr "Afficher la version du programme"
 
-#: ../midori/main.c:111
+#: ../midori/main.c:114
 msgid "Addresses"
 msgstr "Adresses"
 
-#: ../midori/main.c:113
+#: ../midori/main.c:116
 msgid "Block URIs according to regular expression PATTERN"
 msgstr "Bloquer les URIs conformément au MODÈLE d'expression régulière"
 
-#: ../midori/main.c:113
+#: ../midori/main.c:116
 msgid "PATTERN"
 msgstr "MODÈLE"
 
 #. i18n: CLI: Close tabs, clear private data, open starting page
-#: ../midori/main.c:117
+#: ../midori/main.c:120
 msgid "Reset Midori after SECONDS seconds of inactivity"
 msgstr "Réinitialiser Midori après SECONDES secondes d'inactivité"
 
-#: ../midori/main.c:117
+#: ../midori/main.c:120
 msgid "SECONDS"
 msgstr "SECONDES"
 
-#: ../midori/main.c:152
+#: ../midori/main.c:172
 msgid "Please report comments, suggestions and bugs to:"
 msgstr ""
 "Merci d'envoyer vos commentaires, suggestions et rapports d'anomalies à :"
 
-#: ../midori/main.c:154
+#: ../midori/main.c:174
 msgid "Check for new versions at:"
 msgstr "Vérifier l'existence de nouvelles versions à :"
 
-#: ../midori/main.c:299
+#: ../midori/main.c:319
 msgid "An unknown error occured"
 msgstr "Une erreur inconnue est survenue."
 
@@ -402,7 +407,7 @@ msgid "Open in New _Tab"
 msgstr "Ouvrir dans un nouvel _onglet"
 
 #: ../midori/midori-browser.c:4184 ../midori/midori-view.c:2633
-#: ../midori/midori-view.c:4431 ../panels/midori-bookmarks.c:843
+#: ../midori/midori-view.c:4432 ../panels/midori-bookmarks.c:843
 #: ../panels/midori-history.c:801 ../extensions/feed-panel/feed-panel.c:515
 msgid "Open in New _Window"
 msgstr "Ouvrir dans une nouvelle _fenêtre"
@@ -1281,112 +1286,112 @@ msgstr "Ouvrir %s"
 msgid "Inspect page - %s"
 msgstr "Analyser la page - %s"
 
-#: ../midori/midori-view.c:3850
+#: ../midori/midori-view.c:3891
 #, c-format
 msgid "No documentation installed"
 msgstr "Pas de documentation installée"
 
-#: ../midori/midori-view.c:3926
+#: ../midori/midori-view.c:3967
 msgid "Midori doesn't store any personal data:"
 msgstr "Midori ne stocke aucune donnée personnelle :"
 
-#: ../midori/midori-view.c:3927
+#: ../midori/midori-view.c:3968
 msgid "No history or web cookies are being saved."
 msgstr "Aucun historique ou cookie n'est enregistré."
 
-#: ../midori/midori-view.c:3928
+#: ../midori/midori-view.c:3969
 msgid "Extensions are disabled."
 msgstr "Les extensions sont désactivées."
 
-#: ../midori/midori-view.c:3929
+#: ../midori/midori-view.c:3970
 msgid "HTML5 storage, local database and application caches are disabled."
 msgstr ""
 "Le stockage HTML5, la base de donnée locale et le cache de l'application "
 "sont désactivés."
 
-#: ../midori/midori-view.c:3930
+#: ../midori/midori-view.c:3971
 msgid "Midori prevents websites from tracking the user:"
 msgstr "Midori empêche les sites web de traquer l'utilisateur :"
 
-#: ../midori/midori-view.c:3931
+#: ../midori/midori-view.c:3972
 msgid "Referrer URLs are stripped down to the hostname."
 msgstr "Les URL référantes sont réduites au nom d'hôte."
 
-#: ../midori/midori-view.c:3932
+#: ../midori/midori-view.c:3973
 msgid "DNS prefetching is disabled."
 msgstr "Le DNS préchargé est désactivé."
 
-#: ../midori/midori-view.c:3933
+#: ../midori/midori-view.c:3974
 msgid "The language and timezone are not revealed to websites."
 msgstr "La langue et le fuseau horaire ne sont pas révélés aux sites web."
 
-#: ../midori/midori-view.c:3934
+#: ../midori/midori-view.c:3975
 msgid "Flash and other Netscape plugins cannot be listed by websites."
 msgstr ""
 "Les sites web ne peuvent pas connaître les greffons Netscape (tels que "
 "Flash) installés."
 
-#: ../midori/midori-view.c:4013
+#: ../midori/midori-view.c:4017
 msgid "Version numbers in brackets show the version used at runtime."
 msgstr ""
 "Les numéros de version entre parenthèses montrent la version que vous "
 "utilisez."
 
-#: ../midori/midori-view.c:4059
+#: ../midori/midori-view.c:4060
 msgid "Page loading delayed"
 msgstr "Chargement de la page différé"
 
-#: ../midori/midori-view.c:4060
+#: ../midori/midori-view.c:4061
 msgid "Loading delayed either due to a recent crash or startup preferences."
 msgstr ""
 "Chargement différé, soit en raison d'un incident récent soit des préférences "
 "de démarrage."
 
-#: ../midori/midori-view.c:4061
+#: ../midori/midori-view.c:4062
 msgid "Load Page"
 msgstr "Charger la page"
 
-#: ../midori/midori-view.c:4225
+#: ../midori/midori-view.c:4226
 msgid "Blank page"
 msgstr "Page vierge"
 
-#: ../midori/midori-view.c:4435
+#: ../midori/midori-view.c:4436
 msgid "_Duplicate Tab"
 msgstr "_Dupliquer l'onglet"
 
-#: ../midori/midori-view.c:4440
+#: ../midori/midori-view.c:4441
 msgid "Show Tab _Label"
 msgstr "Afficher l'intitulé de l'onglet"
 
-#: ../midori/midori-view.c:4440
+#: ../midori/midori-view.c:4441
 msgid "Show Tab _Icon Only"
 msgstr "Afficher l'icône de l'onglet uniquement"
 
-#: ../midori/midori-view.c:4447
+#: ../midori/midori-view.c:4448
 msgid "Close Ot_her Tab"
 msgid_plural "Close Ot_her Tabs"
 msgstr[0] "Fermer l'_autre onglet"
 msgstr[1] "Fermer les _autres onglets"
 
 #. i18n: word stem of "previous page" type links, case is not important
-#: ../midori/midori-view.c:5122
+#: ../midori/midori-view.c:5123
 msgid "previous"
 msgstr "précedent"
 
 #. i18n: word stem of "next page" type links, case is not important
-#: ../midori/midori-view.c:5141
+#: ../midori/midori-view.c:5142
 msgid "next"
 msgstr "suivant"
 
-#: ../midori/midori-view.c:5154
+#: ../midori/midori-view.c:5155
 msgid "Print background images"
 msgstr "Imprimer les images d'arrière-plan"
 
-#: ../midori/midori-view.c:5155
+#: ../midori/midori-view.c:5156
 msgid "Whether background images should be printed"
 msgstr "Indique s'il faut imprimer les images d'arrière-plan"
 
-#: ../midori/midori-view.c:5179
+#: ../midori/midori-view.c:5180
 msgid "Features"
 msgstr "Fonctionnalités"
 
@@ -1832,7 +1837,7 @@ msgstr "Ouvrir avec"
 msgid "Choose an application or command to open \"%s\":"
 msgstr "Choisir une application ou une commande pour ouvrir \"%s\":"
 
-#: ../midori/sokoke.c:366 ../midori/sokoke.c:380
+#: ../midori/sokoke.c:368 ../midori/sokoke.c:388
 msgid "Could not run external program."
 msgstr "Impossible de lancer le programme externe."
 
@@ -2928,7 +2933,12 @@ msgid ""
 "policies by marking the entries and clicking on <i>Delete</i>.You can also "
 "add a policy for a domain manually by entering the domain below, choosing "
 "the policy and clicking on <i>Add</i>."
-msgstr "Ci-dessous est une liste de tous les sites Web et l'ensemble de la politique pour eux. Vous pouvez supprimer des stratégies en marquant les entrées et en cliquant sur <i>Supprimer</i>. Vous pouvez également ajouter une stratégie pour un domaine manuellement en entrant le nom de domaine ci-dessous, en choisissant la politique et en cliquant sur <i>Ajouter</i>."
+msgstr ""
+"Ci-dessous est une liste de tous les sites Web et l'ensemble de la politique "
+"pour eux. Vous pouvez supprimer des stratégies en marquant les entrées et en "
+"cliquant sur <i>Supprimer</i>. Vous pouvez également ajouter une stratégie "
+"pour un domaine manuellement en entrant le nom de domaine ci-dessous, en "
+"choisissant la politique et en cliquant sur <i>Ajouter</i>."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:705
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:489
@@ -2966,7 +2976,9 @@ msgstr "Raison"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:125
 msgid "Could not get path to configuration of extension: path is NULL"
-msgstr "Impossible d'obtenir le chemin d'accès à la configuration d'extension : chemin est VIDE"
+msgstr ""
+"Impossible d'obtenir le chemin d'accès à la configuration d'extension : "
+"chemin est VIDE"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:127
 msgid "Could not get path to configuration of extension."
@@ -2992,7 +3004,9 @@ msgstr "Impossible de configurer la structure de la base de données extension."
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:300
 #, c-format
 msgid "Could not determine global cookie policy to set for domain: %s"
-msgstr "Impossible de déterminer la politique cookie globale à définir pour le domaine : %s"
+msgstr ""
+"Impossible de déterminer la politique cookie globale à définir pour le "
+"domaine : %s"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:430
 msgid "Confirm storing cookie"
@@ -3072,7 +3086,10 @@ msgstr "Interroger pour une politique inconnue"
 msgid ""
 "If true this extension ask for policy for every unknown domain.If false this "
 "extension uses the global cookie policy set in midori settings."
-msgstr "Si vrai cette extension demande la politique pour chaque domaine inconnu. Si  faux cette extension utilise la politique cookie globale  définie dans les paramètres midori."
+msgstr ""
+"Si vrai cette extension demande la politique pour chaque domaine inconnu. "
+"Si  faux cette extension utilise la politique cookie globale  définie dans "
+"les paramètres midori."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:983
 msgid "Undetermined"
