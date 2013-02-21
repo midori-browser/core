@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: midori 0.2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-02-16 06:57+0000\n"
+"POT-Creation-Date: 2013-02-21 04:39+0000\n"
 "PO-Revision-Date: 2012-02-24 01:20+0100\n"
 "Last-Translator: Michal Várady <miko.vaji@gmail.com>\n"
 "Language-Team: Czech < >\n"
@@ -28,8 +28,9 @@ msgstr "Prohlížet internet"
 msgid "Internet;WWW;Explorer"
 msgstr "Internet;WWW;Explorer"
 
-#: ../data/midori.desktop.in.h:3 ../midori/main.c:138 ../midori/main.c:151
+#: ../data/midori.desktop.in.h:3 ../midori/main.c:155
 #: ../midori/midori-app.c:1443 ../midori/midori-websettings.c:201
+#: ../midori/midori-view.c:3700
 msgid "Midori"
 msgstr "Midori"
 
@@ -61,7 +62,7 @@ msgstr "Midori - soukromé prohlížení"
 msgid "Open a new private browsing window"
 msgstr "Nové okno soukromého prohlížení"
 
-#: ../data/midori-private.desktop.in.h:3 ../midori/midori-view.c:3925
+#: ../data/midori-private.desktop.in.h:3 ../midori/midori-view.c:3966
 msgid "Private Browsing"
 msgstr "Soukromé prohlížení"
 
@@ -70,88 +71,92 @@ msgstr "Soukromé prohlížení"
 msgid "Snapshot saved to: %s\n"
 msgstr "Snímek uložen do: %s\n"
 
-#: ../midori/main.c:87
+#: ../midori/main.c:88
 msgid "Run ADDRESS as a web application"
 msgstr "Spustit řetězec ADRESA jako webovou aplikaci"
 
-#: ../midori/main.c:87
+#: ../midori/main.c:88
 msgid "ADDRESS"
 msgstr "ADRESA"
 
-#: ../midori/main.c:89
+#: ../midori/main.c:90
 msgid "Use FOLDER as configuration folder"
 msgstr "Použít řetězec SLOŽKA jako složku konfigurace"
 
-#: ../midori/main.c:89
+#: ../midori/main.c:90
 msgid "FOLDER"
 msgstr "SLOŽKA"
 
-#: ../midori/main.c:91
+#: ../midori/main.c:92
 msgid "Private browsing, no changes are saved"
 msgstr "Soukromé prohlížení, bez uložení změn"
 
-#: ../midori/main.c:94
+#: ../midori/main.c:95
 msgid "Portable mode, all runtime files are stored in one place"
 msgstr "Přenosný mód, všechny soubory jsou na jednom místě"
 
-#: ../midori/main.c:97
+#: ../midori/main.c:98
 msgid "Plain GTK+ window with WebKit, akin to GtkLauncher"
 msgstr "Obyčejné okno s jádrem WebKit, obdoba GtkLauncher"
 
-#: ../midori/main.c:99
+#: ../midori/main.c:100
 msgid "Show a diagnostic dialog"
 msgstr "Zobrazit diagnostické dialogové okno"
 
-#: ../midori/main.c:101
+#: ../midori/main.c:102
+msgid "Run within gdb and save a backtrace on crash"
+msgstr "Spustit v gdb a uložit ladicí informace v případě pádu"
+
+#: ../midori/main.c:104
 msgid "Run the specified filename as javascript"
 msgstr "Spustit zadaný soubor jako javascript"
 
-#: ../midori/main.c:103
+#: ../midori/main.c:106
 msgid "Take a snapshot of the specified URI"
 msgstr "Získat snímek zadané adresy URI"
 
-#: ../midori/main.c:105
+#: ../midori/main.c:108
 msgid "Execute the specified command"
 msgstr "Spustit zadaný příkaz"
 
-#: ../midori/main.c:107
+#: ../midori/main.c:110
 msgid "List available commands to execute with -e/ --execute"
 msgstr "Seznam dostupných příkazů spustitelných s parametrem -e / --execute"
 
-#: ../midori/main.c:109
+#: ../midori/main.c:112
 msgid "Display program version"
 msgstr "Zobrazit verzi programu"
 
-#: ../midori/main.c:111
+#: ../midori/main.c:114
 msgid "Addresses"
 msgstr "Adresy"
 
-#: ../midori/main.c:113
+#: ../midori/main.c:116
 msgid "Block URIs according to regular expression PATTERN"
 msgstr "Blokovat adresy URI pomocí regulárního výrazu REGVÝRAZ"
 
-#: ../midori/main.c:113
+#: ../midori/main.c:116
 msgid "PATTERN"
 msgstr "REGVÝRAZ"
 
 #. i18n: CLI: Close tabs, clear private data, open starting page
-#: ../midori/main.c:117
+#: ../midori/main.c:120
 msgid "Reset Midori after SECONDS seconds of inactivity"
 msgstr "Restartovat aplikaci Midori po SEKUNDY sekund neaktivity"
 
-#: ../midori/main.c:117
+#: ../midori/main.c:120
 msgid "SECONDS"
 msgstr "SEKUNDY"
 
-#: ../midori/main.c:152
+#: ../midori/main.c:172
 msgid "Please report comments, suggestions and bugs to:"
 msgstr "Komentáře, požadavky a hlášení o chybách posílejte na:"
 
-#: ../midori/main.c:154
+#: ../midori/main.c:174
 msgid "Check for new versions at:"
 msgstr "Zjistěte dostupnost nové verze na:"
 
-#: ../midori/main.c:299
+#: ../midori/main.c:319
 msgid "An unknown error occured"
 msgstr "Došlo k neznámé chybě"
 
@@ -396,7 +401,7 @@ msgid "Open in New _Tab"
 msgstr "Otevřít v nové _kartě"
 
 #: ../midori/midori-browser.c:4184 ../midori/midori-view.c:2633
-#: ../midori/midori-view.c:4431 ../panels/midori-bookmarks.c:843
+#: ../midori/midori-view.c:4432 ../panels/midori-bookmarks.c:843
 #: ../panels/midori-history.c:801 ../extensions/feed-panel/feed-panel.c:515
 msgid "Open in New _Window"
 msgstr "Otevřít v novém _okně"
@@ -1266,84 +1271,84 @@ msgstr "Otevřít %s"
 msgid "Inspect page - %s"
 msgstr "Prohlížení stránky - %s"
 
-#: ../midori/midori-view.c:3850
+#: ../midori/midori-view.c:3891
 #, c-format
 msgid "No documentation installed"
 msgstr "Dokumentace není nainstalována"
 
-#: ../midori/midori-view.c:3926
+#: ../midori/midori-view.c:3967
 msgid "Midori doesn't store any personal data:"
 msgstr "Aplikace Midori neukládá žádné osobní údaje:"
 
-#: ../midori/midori-view.c:3927
+#: ../midori/midori-view.c:3968
 msgid "No history or web cookies are being saved."
 msgstr "Neukládá se historie, ani cookies."
 
-#: ../midori/midori-view.c:3928
+#: ../midori/midori-view.c:3969
 msgid "Extensions are disabled."
 msgstr "Rozšíření jsou zakázána."
 
-#: ../midori/midori-view.c:3929
+#: ../midori/midori-view.c:3970
 msgid "HTML5 storage, local database and application caches are disabled."
 msgstr "Zakázáno úložiště HTML5, lokální databáze a aplikační mezipaměťi."
 
-#: ../midori/midori-view.c:3930
+#: ../midori/midori-view.c:3971
 msgid "Midori prevents websites from tracking the user:"
 msgstr "Aplikace Midori zabraňuje webovým stránkám sledovat uživatele:"
 
-#: ../midori/midori-view.c:3931
+#: ../midori/midori-view.c:3972
 msgid "Referrer URLs are stripped down to the hostname."
 msgstr "Adresy URL referentů jsou zkráceny na pouhý název hostitele."
 
-#: ../midori/midori-view.c:3932
+#: ../midori/midori-view.c:3973
 msgid "DNS prefetching is disabled."
 msgstr "Přednačítání DNS záznamů je zakázáno."
 
-#: ../midori/midori-view.c:3933
+#: ../midori/midori-view.c:3974
 msgid "The language and timezone are not revealed to websites."
 msgstr "Stránkám nejsou poskytovány údaje o jazyku a časovém pásmu."
 
-#: ../midori/midori-view.c:3934
+#: ../midori/midori-view.c:3975
 msgid "Flash and other Netscape plugins cannot be listed by websites."
 msgstr ""
 "Stránky nemohou získat seznam zásuvných modulů Flash ani modulů aplikace "
 "Netscape."
 
-#: ../midori/midori-view.c:4013
+#: ../midori/midori-view.c:4017
 msgid "Version numbers in brackets show the version used at runtime."
 msgstr "Čísla verzí v závorce jsou verze použité při běhu programu."
 
-#: ../midori/midori-view.c:4059
+#: ../midori/midori-view.c:4060
 msgid "Page loading delayed"
 msgstr "Načítání stránky pozdrženo"
 
-#: ../midori/midori-view.c:4060
+#: ../midori/midori-view.c:4061
 msgid "Loading delayed either due to a recent crash or startup preferences."
 msgstr ""
 "Načtení stránky bylo pozdrženo kvůli nedávnému pádu aplikace, nebo kvůli "
 "nastavení po spuštění."
 
-#: ../midori/midori-view.c:4061
+#: ../midori/midori-view.c:4062
 msgid "Load Page"
 msgstr "Načíst stránku"
 
-#: ../midori/midori-view.c:4225
+#: ../midori/midori-view.c:4226
 msgid "Blank page"
 msgstr "Prázdná stránka"
 
-#: ../midori/midori-view.c:4435
+#: ../midori/midori-view.c:4436
 msgid "_Duplicate Tab"
 msgstr "Z_dvojit kartu"
 
-#: ../midori/midori-view.c:4440
+#: ../midori/midori-view.c:4441
 msgid "Show Tab _Label"
 msgstr "Zobrazit _popisek karty"
 
-#: ../midori/midori-view.c:4440
+#: ../midori/midori-view.c:4441
 msgid "Show Tab _Icon Only"
 msgstr "Zobrazit jen _ikonu karty"
 
-#: ../midori/midori-view.c:4447
+#: ../midori/midori-view.c:4448
 msgid "Close Ot_her Tab"
 msgid_plural "Close Ot_her Tabs"
 msgstr[0] "_Zavřít druhou kartu"
@@ -1351,24 +1356,24 @@ msgstr[1] "_Zavřít ostatní karty"
 msgstr[2] "_Zavřít ostatní karty"
 
 #. i18n: word stem of "previous page" type links, case is not important
-#: ../midori/midori-view.c:5122
+#: ../midori/midori-view.c:5123
 msgid "previous"
 msgstr "předchozí"
 
 #. i18n: word stem of "next page" type links, case is not important
-#: ../midori/midori-view.c:5141
+#: ../midori/midori-view.c:5142
 msgid "next"
 msgstr "následující"
 
-#: ../midori/midori-view.c:5154
+#: ../midori/midori-view.c:5155
 msgid "Print background images"
 msgstr "Tisknout obrázky na pozadí"
 
-#: ../midori/midori-view.c:5155
+#: ../midori/midori-view.c:5156
 msgid "Whether background images should be printed"
 msgstr "Určuje, zda se vytisknou obrázky na pozadí"
 
-#: ../midori/midori-view.c:5179
+#: ../midori/midori-view.c:5180
 msgid "Features"
 msgstr "Rozšíření"
 
@@ -1809,7 +1814,7 @@ msgstr "Otevřít s"
 msgid "Choose an application or command to open \"%s\":"
 msgstr "Vyberte aplikaci, nebo příkaz k otevření \"%s\":"
 
-#: ../midori/sokoke.c:366 ../midori/sokoke.c:380
+#: ../midori/sokoke.c:368 ../midori/sokoke.c:388
 msgid "Could not run external program."
 msgstr "Nelze spustit externí program."
 
@@ -2244,6 +2249,7 @@ msgstr ""
 "<b>Cookies</b>: %d"
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:1028
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:503
 msgid "Name"
 msgstr "Název"
 
@@ -2810,6 +2816,235 @@ msgstr "Došlo k následujícím chybám:"
 msgid "_Ignore"
 msgstr "_Ignorovat"
 
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:127
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:273
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:235
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:279
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:584
+#, c-format
+msgid "SQL fails: %s"
+msgstr "SQL selhalo: %s"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:246
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:672
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:984
+msgid "Accept"
+msgstr "Přijmout"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:250
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:674
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:985
+msgid "Accept for session"
+msgstr "Přijmout pro sezení"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:254
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:676
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:986
+msgid "Block"
+msgstr "Odmítnout"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:302
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:145
+#, c-format
+msgid "Could not open database of extenstion: %s"
+msgstr "Nepodařilo se otevřít databázi pro rozšíření: %s"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:405
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:408
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:459
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:187
+#, c-format
+msgid "Failed to execute database statement: %s"
+msgstr "Nepodařilo se spustit databázový příkaz: %s"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:434
+msgid "Do you really want to delete all cookie permissions?"
+msgstr "Opravdu chcete smazat všechna oprávnění cookies?"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:436
+msgid "Delete all cookie permissions?"
+msgstr "Smazat všechna oprávnění cookies?"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:440
+msgid ""
+"This action will delete all cookie permissions. You will be asked for "
+"permissions again for each web site visited."
+msgstr "Tato akce smaže všechna oprávnění k cookies. Při další návštěvě stránek bude znovu vyžadován souhlas s oprávněními."
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:587
+msgid "Cookie permission manager"
+msgstr "Správce oprávnění cookies"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:588
+msgid "Instance of current cookie permission manager"
+msgstr "Instance správce oprávnění cookies"
+
+#. Set up dialog
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:628
+msgid "Configure cookie permission"
+msgstr "Nastavení oprávnění cookies"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:643
+#, c-format
+msgid ""
+"Below is a list of all web sites and the policy set for them. You can delete "
+"policies by marking the entries and clicking on <i>Delete</i>.You can also "
+"add a policy for a domain manually by entering the domain below, choosing "
+"the policy and clicking on <i>Add</i>."
+msgstr "Níže je uveden seznam stránek a oprávnění k nim. Po označení smažete oprávnění po kliknutí na <i>Smazat</i>. Také můžete přidat oprávnění ručně zadáním domény, výběrem oprávnění a kliknutím na <i>Přidat</i>."
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:705
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:489
+msgid "Domain"
+msgstr "Doména"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:712
+msgid "Policy"
+msgstr "Oprávnění"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:740
+msgid "Delete _all"
+msgstr "Smazat _vše"
+
+#. Add "ask-for-unknown-policy" checkbox
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:749
+msgid "A_sk for policy if unknown for a domain"
+msgstr "Ze_ptat se na oprávnění u neznámé domény"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:83
+msgid ""
+"A fatal error occurred which prevents the cookie permission manager "
+"extension to continue. You should disable it."
+msgstr "Došlo k chybě, která zabraňuje správci oprávnění cookies v práci. Bylo by vhodné správce vypnout."
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:87
+msgid "Error in cookie permission manager extension"
+msgstr "Chyba ve správci oprávnění cookies"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:92
+msgid "Reason"
+msgstr "Důvod"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:125
+msgid "Could not get path to configuration of extension: path is NULL"
+msgstr "Nelze zjistit cestu k nastavení rozšíření: cesta je NULL"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:127
+msgid "Could not get path to configuration of extension."
+msgstr "Nelze zjistit cestu k nastavení rozšíření."
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:133
+#, c-format
+msgid "Could not create configuration folder for extension: %s"
+msgstr "Nelze vytvořit složku pro uložení nastavení rozšíření: %s"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:135
+msgid "Could not create configuration folder for extension."
+msgstr "Nelze vytvořit složku pro uložení nastavení rozšíření."
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:150
+msgid "Could not open database of extension."
+msgstr "Nepodařilo se otevřít databázi pro rozšíření."
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:183
+msgid "Could not set up database structure of extension."
+msgstr "Nelze vytvořit databázovou strukturu pro rozšíření."
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:300
+#, c-format
+msgid "Could not determine global cookie policy to set for domain: %s"
+msgstr "Nelze zjistit výchozí nastavení oprávnění cookies pro doménu: %s"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:430
+msgid "Confirm storing cookie"
+msgstr "Potvrzení uložení cookie"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:461
+#, c-format
+msgid "The website %s wants to store %d cookies."
+msgstr "Stránky %s potřebují uložit %d cookies."
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:463
+#, c-format
+msgid "The website %s wants to store a cookie."
+msgstr "Stránky %s vyžadují uložit cookie."
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:467
+#, c-format
+msgid "Multiple websites want to store %d cookies in total."
+msgstr "Několik stránek vyžaduje uložit celkem %d cookies."
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:496
+msgid "Path"
+msgstr "Cesta"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:510
+msgid "Value"
+msgstr "Hodnota"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:521
+msgid "Expire date"
+msgstr "Vyprší dne"
+
+#. Create buttons for dialog
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:545
+msgid "_Accept"
+msgstr "_Přijmout"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:548
+msgid "Accept for this _session"
+msgstr "Přijmout pro toto _sezení"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:550
+msgid "De_ny"
+msgstr "Odmít_nout"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:881
+msgid "Extension instance"
+msgstr "Instance rozšíření"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:882
+msgid "The Midori extension instance for this extension"
+msgstr "Instance rozšíření pro toto rozšíření"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:888
+msgid "Application instance"
+msgstr "Instance aplikace"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:889
+msgid "The Midori application instance this extension belongs to"
+msgstr "Instance aplikace Midori tohoto rozšíření náleží"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:895
+msgid "Database instance"
+msgstr "Instance databáze"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:896
+msgid "Pointer to sqlite database instance used by this extension"
+msgstr "Ukazatel na instanci databáze sqlite používaný tímto rozšířením"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:901
+msgid "Ask for unknown policy"
+msgstr "Zeptat se v případě neznámého oprávnění"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:902
+msgid ""
+"If true this extension ask for policy for every unknown domain.If false this "
+"extension uses the global cookie policy set in midori settings."
+msgstr "Pokud je povoleno, bude se toto rozšíření dotazovat na oprávnění při návštěvě neznámých stránek. Pokud je zakázáno, použije se výchozí nastavení."
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:983
+msgid "Undetermined"
+msgstr "Neurčeno"
+
+#: ../extensions/cookie-permissions/main.c:62
+msgid "Cookie Security Manager"
+msgstr "Správce oprávnění cookies"
+
+#: ../extensions/cookie-permissions/main.c:63
+msgid "Manage cookie permission per site"
+msgstr "Spravovat oprávnění cookies pro stránky jednotlivě"
+
 #~ msgid "_Window"
 #~ msgstr "_Okno"
 
@@ -3250,9 +3485,6 @@ msgstr "_Ignorovat"
 #~ msgid "Big"
 #~ msgstr "velká"
 
-#~ msgid "Reset the last _session"
-#~ msgstr "Vymazat poslední _sezení"
-
 #~ msgid "Configure _Advertisement filters…"
 #~ msgstr "_Blokování reklamy"
 
@@ -3276,9 +3508,6 @@ msgstr "_Ignorovat"
 
 #~ msgid "Delete old cookies after 1 week"
 #~ msgstr "Smazat stará cookies po týdnu"
-
-#~ msgid "Delete old cookies after 1 month"
-#~ msgstr "Smazat stará cookies po měsíci"
 
 #~ msgid "Delete old cookies after 1 year"
 #~ msgstr "Smazat stará cookies po roce"
@@ -3322,9 +3551,6 @@ msgstr "_Ignorovat"
 #~ msgid "Where to open externally opened pages"
 #~ msgstr "Kde se budou otevírat externí stránky"
 
-#~ msgid "Accept cookies"
-#~ msgstr "Přijímat cookies:"
-
 #~ msgid "What type of cookies to accept"
 #~ msgstr "Který typ cookies přijímat"
 
@@ -3342,9 +3568,6 @@ msgstr "_Ignorovat"
 
 #~ msgid "Appearance"
 #~ msgstr "Vzhled"
-
-#~ msgid "Applications"
-#~ msgstr "Aplikace"
 
 #~ msgid "Web Cookies"
 #~ msgstr "Web cookies"
