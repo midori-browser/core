@@ -274,6 +274,7 @@ def configure (conf):
                 Utils.pprint ('RED', 'WebKit2/ GTK+3 was not found.\n' \
                     'Pass --disable-webkit2 to build without WebKit2.')
                 sys.exit (1)
+            conf.define ('HAVE_WEBKIT2', 1)
             conf.env.append_value ('VALAFLAGS', '-D HAVE_WEBKIT2')
         else:
             check_pkg ('webkitgtk-3.0', '1.1.17', var='WEBKIT', mandatory=False)
