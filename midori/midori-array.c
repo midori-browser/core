@@ -901,7 +901,7 @@ midori_array_to_file_format (KatzeArray*  array,
                              GError**     error)
 {
     gchar* data;
-    FILE* fp;
+    gboolean success;
 
     if (!g_strcmp0 (format, "xbel"))
         data = katze_array_to_xbel (array, error);
@@ -909,16 +909,10 @@ midori_array_to_file_format (KatzeArray*  array,
         data = katze_array_to_netscape_html (array, error);
     else
         return FALSE;
-    if (!(fp = fopen (filename, "w")))
-    {
-        *error = g_error_new_literal (G_FILE_ERROR, G_FILE_ERROR_ACCES,
-                                      _("Writing failed."));
-        return FALSE;
-    }
-    fputs (data, fp);
-    fclose (fp);
+
+    success = g_file_set_contents (filename, data, -1, error);
     g_free (data);
-    return TRUE;
+    return success;
 }
 
 /**
