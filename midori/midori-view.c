@@ -890,10 +890,12 @@ webkit_web_view_load_committed_cb (WebKitWebView*  web_view,
 
 static void
 webkit_web_view_progress_changed_cb (WebKitWebView* web_view,
-                                     gint           progress,
+                                     GParamSpec*    pspec,
                                      MidoriView*    view)
 {
-    midori_tab_set_progress (MIDORI_TAB (view), progress ? progress / 100.0 : 0.0);
+    gdouble progress = 1.0;
+    g_object_get (web_view, pspec->name, &progress, NULL);
+    midori_tab_set_progress (MIDORI_TAB (view), progress);
 }
 
 #ifndef HAVE_WEBKIT2
@@ -3619,12 +3621,15 @@ midori_view_constructor (GType                  type,
                       webkit_web_view_load_started_cb, view,
                       "signal::load-committed",
                       webkit_web_view_load_committed_cb, view,
-                      #endif
-                      "signal::load-progress-changed",
-                      webkit_web_view_progress_changed_cb, view,
-                      #ifndef HAVE_WEBKIT2
                       "signal::load-finished",
                       webkit_web_view_load_finished_cb, view,
+                      #endif
+                      #ifndef HAVE_WEBKIT2
+                      "signal::notify::progress",
+                      webkit_web_view_progress_changed_cb, view,
+                      #else
+                      "signal::notify::estimated-load-progress",
+                      webkit_web_view_progress_changed_cb, view,
                       #endif
                       #if WEBKIT_CHECK_VERSION (1, 1, 18)
                       "signal::notify::icon-uri",
