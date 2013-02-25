@@ -1332,7 +1332,6 @@ webkit_web_view_load_error_cb (WebKitWebView*  web_view,
     g_free (title);
     return result;
 }
-#endif
 
 static void
 midori_view_apply_scroll_position (MidoriView* view)
@@ -1359,7 +1358,6 @@ midori_view_apply_scroll_position (MidoriView* view)
     }
 }
 
-#ifndef HAVE_WEBKIT2
 static void
 webkit_web_view_load_finished_cb (WebKitWebView*  web_view,
                                   WebKitWebFrame* web_frame,
@@ -3091,7 +3089,6 @@ webkit_web_view_window_object_cleared_cb (GtkWidget*      web_view,
         g_free (result);
     }
 }
-#endif
 
 static void
 midori_view_hadjustment_notify_value_cb (GtkAdjustment* hadjustment,
@@ -3132,6 +3129,7 @@ midori_view_notify_vadjustment_cb (MidoriView* view,
     g_signal_connect (vadjustment, "notify::value",
         G_CALLBACK (midori_view_vadjustment_notify_value_cb), view);
 }
+#endif
 
 static void
 midori_view_init (MidoriView* view)
@@ -3154,17 +3152,19 @@ midori_view_init (MidoriView* view)
     view->item = katze_item_new ();
 
     view->scrollh = view->scrollv = -2;
+    #ifndef HAVE_WEBKIT2
     /* Adjustments are not created initially, but overwritten later */
     view->scrolled_window = gtk_scrolled_window_new (NULL, NULL);
     gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (view->scrolled_window),
                                          GTK_SHADOW_NONE);
-
-    g_signal_connect (view->item, "meta-data-changed",
-        G_CALLBACK (midori_view_item_meta_data_changed), view);
     g_signal_connect (view->scrolled_window, "notify::hadjustment",
         G_CALLBACK (midori_view_notify_hadjustment_cb), view);
     g_signal_connect (view->scrolled_window, "notify::vadjustment",
         G_CALLBACK (midori_view_notify_vadjustment_cb), view);
+    #endif
+
+    g_signal_connect (view->item, "meta-data-changed",
+        G_CALLBACK (midori_view_item_meta_data_changed), view);
 }
 
 static void
@@ -3604,41 +3604,6 @@ midori_view_constructor (GType                  type,
         type, n_construct_properties, construct_properties);
     MidoriView* view = MIDORI_VIEW (object);
 
-    #if GTK_CHECK_VERSION(3, 2, 0)
-    view->overlay = gtk_overlay_new ();
-    gtk_widget_show (view->overlay);
-    #ifdef HAVE_GRANITE_CLUTTER
-    {
-    GraniteWidgetsNavigationBox* navigation_box = midori_tab_get_navigation_box (MIDORI_TAB (view));
-    granite_widgets_navigation_box_add (navigation_box, GTK_WIDGET (view->scrolled_window));
-    gtk_widget_show (GTK_WIDGET (view->scrolled_window));
-    gtk_container_add (GTK_CONTAINER (view->overlay), GTK_WIDGET (navigation_box));
-    }
-    #else
-    gtk_container_add (GTK_CONTAINER (view->overlay), view->scrolled_window);
-    #endif
-    gtk_box_pack_start (GTK_BOX (view), view->overlay, TRUE, TRUE, 0);
-
-    /* Overlays must be created before showing GtkOverlay as of GTK+ 3.2 */
-    {
-    GtkWidget* frame = gtk_frame_new (NULL);
-    view->overlay_label = gtk_label_new (NULL);
-    gtk_widget_show (view->overlay_label);
-    gtk_container_add (GTK_CONTAINER (frame), view->overlay_label);
-    gtk_widget_set_halign (frame, GTK_ALIGN_START);
-    gtk_widget_set_valign (frame, GTK_ALIGN_END);
-    gtk_overlay_add_overlay (GTK_OVERLAY (view->overlay), frame);
-    }
-    view->overlay_find = g_object_new (MIDORI_TYPE_FINDBAR, NULL);
-    gtk_widget_set_halign (view->overlay_find, GTK_ALIGN_END);
-    gtk_widget_set_valign (view->overlay_find, GTK_ALIGN_START);
-    gtk_overlay_add_overlay (GTK_OVERLAY (view->overlay),
-                             view->overlay_find);
-    gtk_widget_set_no_show_all (view->overlay_find, TRUE);
-    #else
-    gtk_box_pack_start (GTK_BOX (view), view->scrolled_window, TRUE, TRUE, 0);
-    #endif
-
     view->web_view = GTK_WIDGET (midori_tab_get_web_view (MIDORI_TAB (view)));
     g_object_connect (view->web_view,
                       #ifndef HAVE_WEBKIT2
@@ -3716,7 +3681,48 @@ midori_view_constructor (GType                  type,
                 "zoom-text-and-images"), NULL);
     }
 
+    #ifdef HAVE_WEBKIT2
+    view->scrolled_window = view->web_view;
+    #endif
+
+    #if GTK_CHECK_VERSION(3, 2, 0)
+    view->overlay = gtk_overlay_new ();
+    gtk_widget_show (view->overlay);
+    #ifdef HAVE_GRANITE_CLUTTER
+    {
+    GraniteWidgetsNavigationBox* navigation_box = midori_tab_get_navigation_box (MIDORI_TAB (view));
+    granite_widgets_navigation_box_add (navigation_box, GTK_WIDGET (view->scrolled_window));
+    gtk_widget_show (GTK_WIDGET (view->scrolled_window));
+    gtk_container_add (GTK_CONTAINER (view->overlay), GTK_WIDGET (navigation_box));
+    }
+    #else
+    gtk_container_add (GTK_CONTAINER (view->overlay), view->scrolled_window);
+    #endif
+    gtk_box_pack_start (GTK_BOX (view), view->overlay, TRUE, TRUE, 0);
+
+    /* Overlays must be created before showing GtkOverlay as of GTK+ 3.2 */
+    {
+    GtkWidget* frame = gtk_frame_new (NULL);
+    view->overlay_label = gtk_label_new (NULL);
+    gtk_widget_show (view->overlay_label);
+    gtk_container_add (GTK_CONTAINER (frame), view->overlay_label);
+    gtk_widget_set_halign (frame, GTK_ALIGN_START);
+    gtk_widget_set_valign (frame, GTK_ALIGN_END);
+    gtk_overlay_add_overlay (GTK_OVERLAY (view->overlay), frame);
+    }
+    view->overlay_find = g_object_new (MIDORI_TYPE_FINDBAR, NULL);
+    gtk_widget_set_halign (view->overlay_find, GTK_ALIGN_END);
+    gtk_widget_set_valign (view->overlay_find, GTK_ALIGN_START);
+    gtk_overlay_add_overlay (GTK_OVERLAY (view->overlay),
+                             view->overlay_find);
+    gtk_widget_set_no_show_all (view->overlay_find, TRUE);
+    #else
+    gtk_box_pack_start (GTK_BOX (view), view->scrolled_window, TRUE, TRUE, 0);
+    #endif
+
+    #ifndef HAVE_WEBKIT2
     gtk_container_add (GTK_CONTAINER (view->scrolled_window), view->web_view);
+    #endif
     gtk_widget_show_all (view->scrolled_window);
 
     inspector = webkit_web_view_get_inspector ((WebKitWebView*)view->web_view);
