@@ -123,7 +123,6 @@ struct _MidoriView
     #endif
     KatzeItem* item;
     gint scrollh, scrollv;
-    gboolean back_forward_set;
     GtkWidget* scrolled_window;
 
     #if GTK_CHECK_VERSION (3, 2, 0)
@@ -3155,10 +3154,8 @@ midori_view_init (MidoriView* view)
     view->item = katze_item_new ();
 
     view->scrollh = view->scrollv = -2;
-    view->back_forward_set = FALSE;
-
     /* Adjustments are not created initially, but overwritten later */
-    view->scrolled_window = katze_scrolled_new (NULL, NULL);
+    view->scrolled_window = gtk_scrolled_window_new (NULL, NULL);
     gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (view->scrolled_window),
                                          GTK_SHADOW_NONE);
 
@@ -3286,7 +3283,7 @@ static void
 _midori_view_set_settings (MidoriView*        view,
                            MidoriWebSettings* settings)
 {
-    gboolean zoom_text_and_images, kinetic_scrolling;
+    gboolean zoom_text_and_images;
 
     if (view->settings)
         g_signal_handlers_disconnect_by_func (view->settings,
@@ -3302,7 +3299,6 @@ _midori_view_set_settings (MidoriView*        view,
 
     g_object_get (view->settings,
         "zoom-text-and-images", &zoom_text_and_images,
-        "kinetic-scrolling", &kinetic_scrolling,
         "close-buttons-on-tabs", &view->close_buttons_on_tabs,
         "open-new-pages-in", &view->open_new_pages_in,
         "middle-click-opens-selection", &view->middle_click_opens_selection,
@@ -3313,7 +3309,6 @@ _midori_view_set_settings (MidoriView*        view,
                   "settings", settings,
                   "full-content-zoom", zoom_text_and_images,
                   NULL);
-    g_object_set (view->scrolled_window, "kinetic-scrolling", kinetic_scrolling, NULL);
 }
 
 /**
@@ -3389,11 +3384,6 @@ midori_view_settings_notify_cb (MidoriWebSettings* settings,
         if (view->web_view)
             g_object_set (view->web_view, "full-content-zoom",
                           g_value_get_boolean (&value), NULL);
-    }
-    else if (name == g_intern_string ("kinetic-scrolling"))
-    {
-        g_object_set (view, "kinetic-scrolling",
-                      g_value_get_boolean (&value), NULL);
     }
     else if (name == g_intern_string ("close-buttons-on-tabs"))
     {

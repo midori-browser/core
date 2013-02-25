@@ -1314,39 +1314,6 @@ katze_mkdir_with_parents (const gchar* pathname,
     return 0;
 }
 
-/**
- * katze_widget_has_touchscreen_mode:
- * @widget: a #GtkWidget, or %NULL
- *
- * Determines whether @widget should operate in touchscreen
- * mode, as determined by GtkSettings or the environment
- * variable MIDORI_TOUCHSCREEN.
- *
- * If @widget is %NULL, the default screen will be used.
- *
- * Returns: %TRUE if touchscreen mode should be used
- *
- * Since: 0.2.1
- */
-gboolean
-katze_widget_has_touchscreen_mode (GtkWidget* widget)
-{
-    const gchar* touchscreen = g_getenv ("MIDORI_TOUCHSCREEN");
-    if (touchscreen && touchscreen[0] == '1')
-        return TRUE;
-    else if (touchscreen && touchscreen[0] == '0')
-        return FALSE;
-    else
-    {
-        GdkScreen* screen = widget && gtk_widget_has_screen (widget)
-            ? gtk_widget_get_screen (widget) : gdk_screen_get_default ();
-        GtkSettings* gtk_settings = gtk_settings_get_for_screen (screen);
-        gboolean enabled;
-        g_object_get (gtk_settings, "gtk-touchscreen-mode", &enabled, NULL);
-        return enabled;
-    }
-}
-
 static void
 katze_uri_entry_changed_cb (GtkWidget* entry,
                             GtkWidget* other_widget)

@@ -1447,12 +1447,17 @@ gboolean
 midori_debug (const gchar* token)
 {
     static const gchar* debug_token = NULL;
-    const gchar* debug = g_getenv ("MIDORI_DEBUG");
     const gchar* debug_tokens = "headers body referer cookies paths hsts unarmed bookmarks ";
     const gchar* full_debug_tokens = "adblock:match adblock:time startup ";
     if (debug_token == NULL)
     {
         gchar* found_token;
+        const gchar* debug = g_getenv ("MIDORI_DEBUG");
+        const gchar* legacy_touchscreen = g_getenv ("MIDORI_TOUCHSCREEN");
+        if (legacy_touchscreen && *legacy_touchscreen)
+            g_warning ("MIDORI_TOUCHSCREEN is obsolete: "
+                "GTK+ 3.4 enables touchscreens automatically, "
+                "older GTK+ versions aren't supported as of Midori 0.4.9");
         if (debug && (found_token = strstr (full_debug_tokens, debug)) && *(found_token + strlen (debug)) == ' ')
         {
             #ifdef G_ENABLE_DEBUG

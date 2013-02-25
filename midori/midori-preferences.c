@@ -396,19 +396,9 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     gtk_button_set_label (GTK_BUTTON (button), _("Allow scripts to open popups"));
     gtk_widget_set_tooltip_text (button, _("Whether scripts are allowed to open popup windows automatically"));
     SPANNED_ADD (button);
-    if (katze_widget_has_touchscreen_mode (parent ?
-        GTK_WIDGET (parent) : GTK_WIDGET (preferences)))
-    {
-        button = katze_property_proxy (settings, "kinetic-scrolling", NULL);
-        gtk_button_set_label (GTK_BUTTON (button), _("Kinetic scrolling"));
-        gtk_widget_set_tooltip_text (button, _("Whether scrolling should kinetically move according to speed"));
-    }
-    else
-    {
-        button = katze_property_proxy (settings, "middle-click-opens-selection", NULL);
-        gtk_button_set_label (GTK_BUTTON (button), _("Middle click opens Selection"));
-        gtk_widget_set_tooltip_text (button, _("Load an address from the selection via middle click"));
-    }
+    button = katze_property_proxy (settings, "middle-click-opens-selection", NULL);
+    gtk_button_set_label (GTK_BUTTON (button), _("Middle click opens Selection"));
+    gtk_widget_set_tooltip_text (button, _("Load an address from the selection via middle click"));
     INDENTED_ADD (button);
     #ifndef G_OS_WIN32
     button = katze_property_proxy (settings, "flash-window-on-new-bg-tabs", NULL);
@@ -595,9 +585,9 @@ midori_preferences_add_extension_category (KatzePreferences*  preferences,
     }
     g_object_unref (array);
 
-    scrolled = g_object_new (KATZE_TYPE_SCROLLED, "visible", TRUE, NULL);
+    scrolled = gtk_scrolled_window_new (NULL, NULL);
     /* For lack of a better way of keeping descriptions visible */
-    g_object_set (scrolled, "hscrollbar-policy", GTK_POLICY_NEVER, NULL);
+    g_object_set (scrolled, "visible", TRUE, "hscrollbar-policy", GTK_POLICY_NEVER, NULL);
     addon = g_object_new (MIDORI_TYPE_EXTENSIONS, "app", app, NULL);
     children = gtk_container_get_children (GTK_CONTAINER (addon));
     gtk_widget_reparent (g_list_nth_data (children, 0), scrolled);
