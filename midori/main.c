@@ -271,14 +271,20 @@ main (int    argc,
     if (plain)
     {
         GtkWidget* window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+#ifndef HAVE_WEBKIT2
         GtkWidget* scrolled = gtk_scrolled_window_new (NULL, NULL);
+#endif
         GtkWidget* web_view = webkit_web_view_new ();
         gchar* uri = sokoke_prepare_uri (
             (uris != NULL && uris[0]) ? uris[0] : "http://www.example.com");
         katze_window_set_sensible_default_size (GTK_WINDOW (window));
 
+#ifndef HAVE_WEBKIT2
         gtk_container_add (GTK_CONTAINER (window), scrolled);
         gtk_container_add (GTK_CONTAINER (scrolled), web_view);
+#else
+        gtk_container_add (GTK_CONTAINER (window), web_view);
+#endif
         g_signal_connect (window, "delete-event",
             G_CALLBACK (gtk_main_quit), window);
         gtk_widget_show_all (window);
