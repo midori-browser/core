@@ -1259,6 +1259,7 @@ midori_view_display_error (MidoriView*     view,
     {
         gchar* title_escaped;
         const gchar* icon;
+        gchar* favicon;
         gchar* result;
 
         #if !GTK_CHECK_VERSION (3, 0, 0)
@@ -1273,17 +1274,20 @@ midori_view_display_error (MidoriView*     view,
             uri = midori_tab_get_uri (MIDORI_TAB (view));
         title_escaped = g_markup_escape_text (title ? title : view->title, -1);
         icon = katze_item_get_icon (view->item);
+        favicon = icon && !g_str_has_prefix (icon, "stock://")
+          ? g_strdup_printf ("<link rel=\"shortcut icon\" href=\"%s\" />", icon) : NULL;
         result = sokoke_replace_variables (template,
             "{dir}", gtk_widget_get_default_direction () == GTK_TEXT_DIR_RTL ?
                 "rtl" : "ltr",
             "{title}", title_escaped,
-            "{icon}", icon && strcmp (&icon[8], "stock://") ? icon : "",
+            "{favicon}", katze_str_non_null (favicon),
             "{message}", message,
             "{description}", description,
             "{tryagain}", try_again,
             "{uri}", uri,
             "{hide-button-images}", show_button_images ? "" : "display:none",
             NULL);
+        g_free (favicon);
         g_free (title_escaped);
         g_free (template);
 
