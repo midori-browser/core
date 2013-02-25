@@ -469,7 +469,7 @@ midori_view_unset_icon (MidoriView* view)
             pixbuf = gtk_icon_info_load_icon (icon_info, NULL);
     }
 
-    midori_view_apply_icon (view, pixbuf, "stock://gtk-file");
+    midori_view_apply_icon (view, pixbuf, NULL);
     g_object_unref (icon);
 }
 
@@ -1275,7 +1275,7 @@ midori_view_display_error (MidoriView*     view,
             "{dir}", gtk_widget_get_default_direction () == GTK_TEXT_DIR_RTL ?
                 "rtl" : "ltr",
             "{title}", title_escaped,
-            "{icon}", icon ? icon : "",
+            "{icon}", icon && strcmp (&icon[8], "stock://") ? icon : "",
             "{message}", message,
             "{description}", description,
             "{tryagain}", try_again,
