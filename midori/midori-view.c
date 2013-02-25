@@ -3769,8 +3769,13 @@ midori_view_list_versions (GString* markup,
     midori_view_add_version (markup, html, g_strdup_printf ("GTK+ %s (%u.%u.%u)\tGlib %s (%u.%u.%u)",
         GTK_VERSION, gtk_major_version, gtk_minor_version, gtk_micro_version,
         GIO_VERSION, glib_major_version, glib_minor_version, glib_micro_version));
+#ifndef HAVE_WEBKIT2
     midori_view_add_version (markup, html, g_strdup_printf ("WebKitGTK+ %s (%u.%u.%u)\tlibSoup %s",
         WEBKIT_VERSION, webkit_major_version (), webkit_minor_version (), webkit_micro_version (),
+#else
+    midori_view_add_version (markup, html, g_strdup_printf ("WebKit2GTK+ %s (%u.%u.%u)\tlibSoup %s",
+        WEBKIT_VERSION, webkit_get_major_version (), webkit_get_minor_version (), webkit_get_micro_version (),
+#endif
         LIBSOUP_VERSION));
     midori_view_add_version (markup, html, g_strdup_printf ("cairo %s (%s)\tlibnotify %s",
         CAIRO_VERSION_STRING, cairo_version_string (),
@@ -3791,6 +3796,7 @@ midori_view_list_plugins (MidoriView* view,
                           GString*    ns_plugins,
                           gboolean    html)
 {
+    #ifndef HAVE_WEBKIT2
     if (!midori_web_settings_has_plugin_support ())
         return;
 
@@ -3845,6 +3851,9 @@ midori_view_list_plugins (MidoriView* view,
         g_strfreev (items);
         g_free (value);
     #endif
+    #else
+    return;
+    #endif
 }
 
 static void
@@ -3887,6 +3896,7 @@ list_geolocation (GString* markup)
 static gchar*
 list_video_formats (MidoriView* view)
 {
+#ifndef HAVE_WEBKIT2
     WebKitWebFrame* web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view));
     JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
     gchar* value = sokoke_js_script_eval (js_context,
@@ -3902,6 +3912,9 @@ list_video_formats (MidoriView* view)
         "supported('video/webm; codecs=\"vp8, vorbis\"') + ']' "
         "", NULL);
     return value;
+#else
+    return NULL;
+#endif
 }
 
 static const gchar* valid_about_uris[] = {
