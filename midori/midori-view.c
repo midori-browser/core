@@ -456,24 +456,21 @@ midori_view_unset_icon (MidoriView* view)
     GtkIconInfo* icon_info;
     GdkPixbuf* pixbuf = NULL;
 
-    if (!((screen = gtk_widget_get_screen (view->web_view))
-        && (icon_theme = gtk_icon_theme_get_for_screen (screen))))
-        return;
-
     content_type = g_content_type_from_mime_type (
         midori_tab_get_mime_type (MIDORI_TAB (view)));
     icon = g_content_type_get_icon (content_type);
     g_free (content_type);
     g_themed_icon_append_name (G_THEMED_ICON (icon), "text-html");
 
-    icon_info = gtk_icon_theme_lookup_by_gicon (icon_theme, icon, 16, 0);
-    g_object_unref (icon);
-    if (icon_info == NULL)
-        return;
-
-    pixbuf = gtk_icon_info_load_icon (icon_info, NULL);
+    if ((screen = gtk_widget_get_screen (view->web_view))
+        && (icon_theme = gtk_icon_theme_get_for_screen (screen)))
+    {
+        if ((icon_info = gtk_icon_theme_lookup_by_gicon (icon_theme, icon, 16, 0)))
+            pixbuf = gtk_icon_info_load_icon (icon_info, NULL);
+    }
 
     midori_view_apply_icon (view, pixbuf, "stock://gtk-file");
+    g_object_unref (icon);
 }
 
 #if !WEBKIT_CHECK_VERSION (1, 3, 13)
@@ -2845,7 +2842,8 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
             g_warn_if_fail (mime_type != NULL);
             midori_tab_set_mime_type (MIDORI_TAB (view), mime_type);
             katze_item_set_meta_string (view->item, "mime-type", mime_type);
-            midori_view_unset_icon (view);
+            if (view->icon == NULL)
+                midori_view_unset_icon (view);
         }
 
         return FALSE;
