@@ -197,21 +197,6 @@ def configure (conf):
             uselib_store=var, errmsg=name + ver_str + ' not found')][have])
         return have
 
-    if option_enabled ('gtk3'):
-        check_pkg ('gcr-3', '2.32', mandatory=False)
-    else:
-        check_pkg ('gcr-3-gtk2', '2.32', mandatory=False)
-
-    if option_enabled ('unique'):
-        if option_enabled('gtk3'): unique_pkg = 'unique-3.0'
-        else: unique_pkg = 'unique-1.0'
-        if not check_pkg (unique_pkg, '0.9', mandatory=False):
-            option_checkfatal ('unique', 'single instance')
-    else:
-        conf.define ('UNIQUE_VERSION', 'No')
-        conf.check_message_custom ('unique', '', 'disabled')
-    conf.define ('HAVE_UNIQUE', [0,1][conf.env['UNIQUE_VERSION'] != 'No'])
-
     if option_enabled ('libnotify'):
         if not check_pkg ('libnotify', mandatory=False):
             option_checkfatal ('libnotify', 'notifications')
@@ -221,15 +206,8 @@ def configure (conf):
     conf.define ('HAVE_LIBNOTIFY', [0,1][conf.env['LIBNOTIFY_VERSION'] != 'No'])
 
     if option_enabled ('granite'):
-        if not option_enabled ('gtk3'):
-            if getattr (Options.options, 'enable_granite'):
-                Utils.pprint ('RED', 'Granite requires --enable-gtk3')
-                sys.exit (1)
-            else:
-                granite = 'no (requires --enable-gtk3)'
-        else:
-            check_pkg ('granite', '0.2', mandatory=False)
-            granite = ['N/A', 'yes'][conf.env['HAVE_GRANITE'] == 1]
+        check_pkg ('granite', '0.2', mandatory=False)
+        granite = ['N/A', 'yes'][conf.env['HAVE_GRANITE'] == 1]
         if granite != 'yes':
             option_checkfatal ('granite', 'new notebook, pop-overs')
             conf.define ('GRANITE_VERSION', 'No')
@@ -266,8 +244,11 @@ def configure (conf):
         conf.check (header_name='X11/extensions/scrnsaver.h',
                     includes='/usr/X11R6/include', mandatory=False)
         conf.check (lib='Xss', libpath='/usr/X11R6/lib', mandatory=False)
-    if option_enabled ('gtk3'):
+
+    have_gtk3 = option_enabled ('gtk3') or option_enabled ('webkit2') or option_enabled ('granite')
+    if have_gtk3:
         check_pkg ('gtk+-3.0', '3.0.0', var='GTK', mandatory=False)
+        check_pkg ('gcr-3', '2.32', mandatory=False)
         if option_enabled ('webkit2'):
             check_pkg ('webkit2gtk-3.0', '1.10.1', var='WEBKIT', mandatory=False)
             if not conf.env['HAVE_WEBKIT']:
@@ -290,12 +271,23 @@ def configure (conf):
     else:
         check_pkg ('gtk+-2.0', '2.16.0', var='GTK')
         check_pkg ('webkit-1.0', '1.1.17', args=args)
+        check_pkg ('gcr-3-gtk2', '2.32', mandatory=False)
         if check_version (conf.env['WEBKIT_VERSION'], 1, 5, 1):
             check_pkg ('javascriptcoregtk-1.0', '1.5.1', args=args)
         if check_version (conf.env['GTK_VERSION'], 2, 20, 0):
             conf.env.append_value ('VALAFLAGS', '-D HAVE_OFFSCREEN')
-    conf.env['HAVE_GTK3'] = option_enabled ('gtk3')
+    conf.env['HAVE_GTK3'] = have_gtk3
     conf.env['HAVE_WEBKIT2'] = option_enabled ('webkit2')
+
+    if option_enabled ('unique'):
+        if have_gtk3: unique_pkg = 'unique-3.0'
+        else: unique_pkg = 'unique-1.0'
+        if not check_pkg (unique_pkg, '0.9', mandatory=False):
+            option_checkfatal ('unique', 'single instance')
+    else:
+        conf.define ('UNIQUE_VERSION', 'No')
+        conf.check_message_custom ('unique', '', 'disabled')
+    conf.define ('HAVE_UNIQUE', [0,1][conf.env['UNIQUE_VERSION'] != 'No'])
 
     check_pkg ('libsoup-2.4', '2.27.90', var='LIBSOUP')
     if check_version (conf.env['LIBSOUP_VERSION'], 2, 29, 3):
