@@ -1,0 +1,20 @@
+#! /bin/sh
+
+# Copyright (C) 2013 Christian Dywan <christian@twotoasts.de>
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# See the file COPYING for the full license text.
+
+curl http://wiki.xfce.org/_export/xhtml/midori/faq | \
+    sed 's@This is a list of frequently asked questions@This is <a href="http://wiki.xfce.org/midori/faq">a snapshot of the online FAQ</a>@g' | \
+    sed 's@<link rel="style.*>@<link rel="stylesheet" href="faq.css" />@g' > data/faq.html
+git log --pretty=format:%s $(git describe --abbrev=0)..HEAD | grep -v l10n
+if [ -n $(which bugreleaser 1>/dev/null) ]; then
+    bugreleaser midori
+else
+    bzr branch lp:~mgiuca/+junk/launchpad-tools
+fi
