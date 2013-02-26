@@ -1223,19 +1223,23 @@ midori_view_set_html (MidoriView*     view,
                       void*           web_frame)
 #endif
 {
-#ifndef HAVE_WEBKIT2
     g_return_if_fail (MIDORI_IS_VIEW (view));
     g_return_if_fail (data != NULL);
 
     WebKitWebView* web_view = WEBKIT_WEB_VIEW (view->web_view);
     if (!uri)
         uri = "about:blank";
+#ifndef HAVE_WEBKIT2
     if (!web_frame)
         web_frame = webkit_web_view_get_main_frame (web_view);
+#endif
     katze_item_set_uri (view->item, uri);
     midori_tab_set_special (MIDORI_TAB (view), TRUE);
+#ifndef HAVE_WEBKIT2
     webkit_web_frame_load_alternate_string (
         web_frame, data, uri, uri);
+#else
+    webkit_web_view_load_alternate_html (web_view, data, uri, uri);
 #endif
 }
 
@@ -3954,7 +3958,6 @@ void
 midori_view_set_uri (MidoriView*  view,
                      const gchar* uri)
 {
-#ifndef HAVE_WEBKIT2
     gchar* data;
 
     g_return_if_fail (MIDORI_IS_VIEW (view));
@@ -4156,7 +4159,11 @@ midori_view_set_uri (MidoriView*  view,
 
             midori_tab_set_uri (MIDORI_TAB (view), uri);
             midori_tab_set_special (MIDORI_TAB (view), TRUE);
+#ifndef HAVE_WEBKIT2
             webkit_web_view_load_html_string (WEBKIT_WEB_VIEW (view->web_view), data, uri);
+#else
+            webkit_web_view_load_html (WEBKIT_WEB_VIEW (view->web_view), data, uri);
+#endif
             g_free (data);
             katze_item_set_meta_integer (view->item, "delay", MIDORI_DELAY_UNDELAYED);
             katze_item_set_uri (view->item, midori_tab_get_uri (MIDORI_TAB (view)));
@@ -4193,11 +4200,12 @@ midori_view_set_uri (MidoriView*  view,
             midori_tab_set_uri (MIDORI_TAB (view), uri);
             katze_item_set_uri (view->item, midori_tab_get_uri (MIDORI_TAB (view)));
             katze_assign (view->title, NULL);
+#ifndef HAVE_WEBKIT2
             webkit_web_view_set_view_source_mode (WEBKIT_WEB_VIEW (view->web_view), FALSE);
+#endif
             webkit_web_view_load_uri (WEBKIT_WEB_VIEW (view->web_view), uri);
         }
     }
-#endif
 }
 
 /**
