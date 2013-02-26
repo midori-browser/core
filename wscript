@@ -27,12 +27,8 @@ from TaskGen import extension, feature, taskgen
 import misc
 from Configure import find_program_impl
 
-major = 0
-minor = 4
-micro = 8
-
 APPNAME = 'midori'
-VERSION = VERSION_FULL = str (major) + '.' + str (minor) + '.' + str (micro)
+VERSION = VERSION_FULL = '0.4.8'
 VERSION_SUFFIX = ' (%s)' % VERSION
 
 try:
@@ -343,6 +339,7 @@ def configure (conf):
     conf.define ('GETTEXT_PACKAGE', APPNAME)
 
     conf.define ('MIDORI_VERSION', VERSION)
+    major, minor, micro = VERSION.split ('.', 2)
     conf.define ('MIDORI_MAJOR_VERSION', major)
     conf.define ('MIDORI_MINOR_VERSION', minor)
     conf.define ('MIDORI_MICRO_VERSION', micro)
