@@ -422,7 +422,7 @@ def set_options (opt):
     group = opt.add_option_group ('Optional features', '')
     add_enable_option ('unique', 'single instance support', group, disable=is_win32 (os.environ))
     add_enable_option ('libnotify', 'notification support', group)
-    add_enable_option ('granite', 'new notebook, pop-overs', group)
+    add_enable_option ('granite', 'new notebook, pop-overs', group, disable=True)
     add_enable_option ('addons', 'building of extensions', group)
     add_enable_option ('tests', 'install tests', group, disable=True)
     add_enable_option ('gtk3', 'GTK+3 and WebKitGTK+3 support', group, disable=True)
