@@ -146,7 +146,7 @@ main (int    argc,
         gchar* args = midori_paths_get_command_line_str (FALSE);
         gchar* cmd = g_strdup_printf (
             "--batch -ex 'set print thread-events off' -ex run "
-            "-ex bt -ex 'set logging on %s' --return-child-result "
+            "-ex 'set logging on %s' -ex 'bt' --return-child-result "
             "--args %s",
             "/tmp/midori-gdb.bt", args);
         if (gdb != NULL)
