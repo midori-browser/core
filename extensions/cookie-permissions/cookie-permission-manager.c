@@ -476,7 +476,7 @@ static gint _cookie_permission_manager_ask_for_policy(CookiePermissionManager *s
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 4);
 
 	/* Create expander for details */
-	expander=gtk_expander_new_with_mnemonic("_Details");
+	expander=gtk_expander_new_with_mnemonic(_("_Details"));
 	gtk_box_pack_start(GTK_BOX(vbox), expander, TRUE, TRUE, 5);
 
 	/* Create list and set up columns of list */
@@ -900,7 +900,7 @@ static void cookie_permission_manager_class_init(CookiePermissionManagerClass *k
 		g_param_spec_boolean("ask-for-unknown-policy",
 								_("Ask for unknown policy"),
 								_("If true this extension ask for policy for every unknown domain."
-								  "If false this extension uses the global cookie policy set in midori settings."),
+								  "If false this extension uses the global cookie policy set in Midori settings."),
 								TRUE,
 								G_PARAM_READWRITE | G_PARAM_CONSTRUCT);
 
