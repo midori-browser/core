@@ -420,7 +420,9 @@ midori_view_apply_icon (MidoriView*  view,
 {
     katze_item_set_icon (view->item, icon_name);
     /* katze_item_get_image knows about this pixbuf */
-    g_object_set_data_full (G_OBJECT (view->item), "pixbuf", g_object_ref (icon),
+    if (icon != NULL)
+        g_object_ref (icon);
+    g_object_set_data_full (G_OBJECT (view->item), "pixbuf", icon,
                             (GDestroyNotify)g_object_unref);
     katze_object_assign (view->icon, icon);
     g_object_notify (G_OBJECT (view), "icon");
