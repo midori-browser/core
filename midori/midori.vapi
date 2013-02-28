@@ -53,8 +53,8 @@ namespace Midori {
     [CCode (cheader_filename = "midori/midori.h")]
     public class Browser : Gtk.Window {
         public Browser ();
-        public int add_item (Katze.Item item);
-        public int add_uri (string uri);
+        public unowned Gtk.Widget add_item (Katze.Item item);
+        public unowned Gtk.Widget add_uri (string uri);
         public unowned View get_nth_tab (int n);
         public GLib.List<weak View> get_tabs ();
         public void block_action (Gtk.Action action);

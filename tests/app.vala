@@ -29,7 +29,7 @@ void app_normal () {
     var loop = MainContext.default ();
     do { loop.iteration (true); } while (loop.pending ());
     for (var i = 0 ; i < 7; i++) {
-        var tab = app.browser.get_nth_tab (app.browser.add_uri ("about:blank"));
+        var tab = app.browser.add_uri ("about:blank") as Midori.View;
         app.browser.close_tab (tab);
         do { loop.iteration (true); } while (loop.pending ());
     }
@@ -122,7 +122,7 @@ void app_extensions_load () {
         assert (!(item as Midori.Extension).is_active ());
 
     for (var i = 0 ; i < 7; i++) {
-        var tab = app.browser.get_nth_tab (app.browser.add_uri ("about:blank"));
+        var tab = app.browser.add_uri ("about:blank") as Midori.View;
         app.browser.close_tab (tab);
     }
     do { loop.iteration (true); } while (loop.pending ());
@@ -153,7 +153,7 @@ void app_extensions_activate () {
     do { loop.iteration (true); } while (loop.pending ());
 
     for (var i = 0 ; i < 7; i++) {
-        var tab = app.browser.get_nth_tab (app.browser.add_uri ("about:blank"));
+        var tab = app.browser.add_uri ("about:blank") as Midori.View;
         app.browser.close_tab (tab);
     }
     do { loop.iteration (true); } while (loop.pending ());
@@ -163,7 +163,7 @@ void app_extensions_activate () {
     do { loop.iteration (true); } while (loop.pending ());
 
     for (var i = 0 ; i < 7; i++) {
-        var tab = app.browser.get_nth_tab (app.browser.add_uri ("about:blank"));
+        var tab = app.browser.add_uri ("about:blank") as Midori.View;
         app.browser.close_tab (tab);
         do { loop.iteration (true); } while (loop.pending ());
     }
