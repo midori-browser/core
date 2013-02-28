@@ -50,9 +50,17 @@ namespace Midori {
                 unowned List<GLib.Object> items_list = Katze.array_peek_items (items);
 
                 foreach (var item in items_list) {
-                    string uri, title;
+                    string? uri, title;
                     item.get ("uri", out uri);
                     item.get ("name", out title);
+                    if (uri == null) {
+                        warning ("item.uri != null");
+                        continue;
+                    }
+                    if (title == null) {
+                        warning ("item.name != null");
+                        continue;
+                    }
                     if (!(key in uri.casefold () || key in title.casefold ()))
                         continue;
 

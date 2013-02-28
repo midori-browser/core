@@ -98,6 +98,14 @@ namespace Midori {
 
             int count = 1;
             foreach (var suggestion in suggestions) {
+                if (suggestion.uri == null) {
+                    warning ("suggestion.uri != null");
+                    continue;
+                }
+                if (suggestion.markup == null) {
+                    warning ("suggestion.markup != null");
+                    continue;
+                }
                 model.insert_with_values (null, completion.position + count,
                     Columns.URI, suggestion.uri,
                     Columns.MARKUP, suggestion.use_markup
