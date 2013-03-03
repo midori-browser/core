@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: midori 0.1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-03-02 18:42+0000\n"
+"POT-Creation-Date: 2013-03-03 00:03+0000\n"
 "PO-Revision-Date: 2012-05-13 11:54-0600\n"
 "Last-Translator: Sergio García <oigres200@gmail.com>\n"
 "Language-Team: Spanish/es <xfce-i18n@xfce.org>\n"
@@ -2873,17 +2873,17 @@ msgstr "Bloquear"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:302
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:145
-#, fuzzy, c-format
+#, c-format
 msgid "Could not open database of extenstion: %s"
-msgstr "No se pudo abrir la base de datos: %s\n"
+msgstr "No se pudo abrir la base de datos para la extención: %s"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:405
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:408
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:459
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:187
-#, fuzzy, c-format
+#, c-format
 msgid "Failed to execute database statement: %s"
-msgstr "No se ha podido ejecutar sentencia en base de datos: %s\n"
+msgstr "No se ha podido ejecutar sentencia en base de datos: %s"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:434
 msgid "Do you really want to delete all cookie permissions?"
@@ -2897,7 +2897,9 @@ msgstr "¿Eliminar todos los permisos de cookies?"
 msgid ""
 "This action will delete all cookie permissions. You will be asked for "
 "permissions again for each web site visited."
-msgstr "Esta acción eliminará todos los permisos de cookies. Se le preguntarán los permisos de nuevo para cada sitio que visite."
+msgstr ""
+"Esta acción eliminará todos los permisos de cookies. Se le preguntarán los "
+"permisos de nuevo para cada sitio que visite."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:587
 msgid "Cookie permission manager"
@@ -2919,7 +2921,11 @@ msgid ""
 "policies by marking the entries and clicking on <i>Delete</i>.You can also "
 "add a policy for a domain manually by entering the domain below, choosing "
 "the policy and clicking on <i>Add</i>."
-msgstr "A continuación figura una lista de todos los sitios web y la política fijada para ellos. Puede eliminar políticas marcando las entradas y pulsando en <i>Eliminar</i>.También puede añadir una política de dominio escribiendo el dominio a continuación, eligiendo la política y pulsando en <i>Añadir</i>."
+msgstr ""
+"A continuación figura una lista de todos los sitios web y la política fijada "
+"para ellos. Puede eliminar políticas marcando las entradas y pulsando en "
+"<i>Eliminar</i>.También puede añadir una política de dominio escribiendo el "
+"dominio a continuación, eligiendo la política y pulsando en <i>Añadir</i>."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:705
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:489
@@ -2943,7 +2949,9 @@ msgstr "_Pedir política para un dominio si se desconoce"
 msgid ""
 "A fatal error occurred which prevents the cookie permission manager "
 "extension to continue. You should disable it."
-msgstr "Ocurrió un error grave que evita que continúe la extensión del gestor de permisos de cookies. Debería desactivarla."
+msgstr ""
+"Ocurrió un error grave que evita que continúe la extensión del gestor de "
+"permisos de cookies. Debería desactivarla."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:87
 msgid "Error in cookie permission manager extension"
@@ -2955,7 +2963,9 @@ msgstr "Motivo"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:125
 msgid "Could not get path to configuration of extension: path is NULL"
-msgstr "No se pudo obtener la ruta a la configuración de la extensión: la ruta es NULL"
+msgstr ""
+"No se pudo obtener la ruta a la configuración de la extensión: la ruta es "
+"NULL"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:127
 msgid "Could not get path to configuration of extension."
@@ -2976,12 +2986,15 @@ msgstr "No se pudo abrir la base de datos de la extensión."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:183
 msgid "Could not set up database structure of extension."
-msgstr "No se pudo configurar la estructura de la base de datos para la extensión."
+msgstr ""
+"No se pudo configurar la estructura de la base de datos para la extensión."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:300
 #, c-format
 msgid "Could not determine global cookie policy to set for domain: %s"
-msgstr "No se pudo determinar la política de cookies global a fijar para el dominio: %s"
+msgstr ""
+"No se pudo determinar la política de cookies global a fijar para el dominio: "
+"%s"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:430
 msgid "Confirm storing cookie"
@@ -3046,7 +3059,8 @@ msgstr "Instancia de aplicación"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:889
 msgid "The Midori application instance this extension belongs to"
-msgstr "La instancia de la aplicación de Midori a la que esta extensión pertenece"
+msgstr ""
+"La instancia de la aplicación de Midori a la que esta extensión pertenece"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:895
 msgid "Database instance"
@@ -3054,7 +3068,8 @@ msgstr "Instancia de base de datos"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:896
 msgid "Pointer to sqlite database instance used by this extension"
-msgstr "Puntero a la instancia de base de datos sqlite usada para esta extensión"
+msgstr ""
+"Puntero a la instancia de base de datos sqlite usada para esta extensión"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:901
 msgid "Ask for unknown policy"
@@ -3064,7 +3079,10 @@ msgstr "Preguntar política desconocida"
 msgid ""
 "If true this extension ask for policy for every unknown domain.If false this "
 "extension uses the global cookie policy set in Midori settings."
-msgstr "Si se activa esta extensión preguntará la política para cada dominio desconocido.Si se desactiva esta extensión usa la configuración de cookies global de Midori."
+msgstr ""
+"Si se activa esta extensión preguntará la política para cada dominio "
+"desconocido.Si se desactiva esta extensión usa la configuración de cookies "
+"global de Midori."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:983
 msgid "Undetermined"
