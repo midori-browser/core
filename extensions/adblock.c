@@ -491,8 +491,6 @@ adblock_get_preferences_dialog (MidoriExtension* extension)
     katze_widget_add_class (gtk_dialog_get_widget_for_response (
         GTK_DIALOG (dialog), GTK_RESPONSE_HELP), "help_button");
     content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
-    g_signal_connect (dialog, "destroy",
-                      G_CALLBACK (gtk_widget_destroyed), &dialog);
     gtk_window_set_icon_name (GTK_WINDOW (dialog), GTK_STOCK_PROPERTIES);
     /* TODO: Implement some kind of help function */
     gtk_dialog_set_response_sensitive (GTK_DIALOG (dialog),
