@@ -32,11 +32,11 @@ class TestCompletion : Midori.Completion {
         if (test_suggestions == 0)
             return null;
         if (test_suggestions >= 1)
-            suggestions.append (new Midori.Suggestion (null, "First"));
+            suggestions.append (new Midori.Suggestion ("about:first", "First"));
         if (test_suggestions >= 2)
-            suggestions.append (new Midori.Suggestion (null, "Second"));
+            suggestions.append (new Midori.Suggestion ("about:second", "Second"));
         if (test_suggestions >= 3)
-            suggestions.append (new Midori.Suggestion (null, "Third"));
+            suggestions.append (new Midori.Suggestion ("about:third", "Third"));
         if (cancellable.is_cancelled ())
             return null;
         return suggestions;
