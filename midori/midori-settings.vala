@@ -120,7 +120,7 @@ namespace Midori {
         // [IntegerType (min = 0, int.max)]
         public int maximum_cache_size { get; set; default = 100; }
         /* Since: 0.3.4 */
-        public bool strip_referer { get; set; default = false; }
+        public bool strip_referer { get; set; default = true; }
         /* Since: 0.4.2 */
         public bool first_party_cookies_only { get; set; default = true; }
         // [IntegerType (min = 0, int.max)]
