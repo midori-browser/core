@@ -730,7 +730,7 @@ string_append_item (GString*   string,
         string_append_escaped (string, katze_item_get_uri (item));
         g_string_append (string, "\">\n");
         /* Strip LRE leading character */
-        if (g_str_has_prefix (item->name, "‪"))
+        if (item->name != NULL && g_str_has_prefix (item->name, "‪"))
             string_append_xml_element (string, "title",
                 g_utf8_next_char (strstr (item->name, "‪")));
         else
