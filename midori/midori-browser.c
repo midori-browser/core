@@ -1474,6 +1474,8 @@ _midori_browser_remove_tab (MidoriBrowser* browser,
 #ifdef HAVE_GRANITE
     granite_widgets_dynamic_notebook_remove_tab (
         GRANITE_WIDGETS_DYNAMIC_NOTEBOOK (browser->notebook), midori_view_get_tab (view));
+#else
+    gtk_widget_destroy (widget);
 #endif
     if (midori_browser_tab_connected (browser, view))
         midori_browser_disconnect_tab (browser, view);
@@ -4671,7 +4673,7 @@ _action_tab_close_other_activate (GtkAction*     action,
     for (; tabs; tabs = g_list_next (tabs))
     {
         if (tabs->data != view)
-            gtk_widget_destroy (tabs->data);
+            midori_browser_close_tab (browser, tabs->data);
     }
     g_list_free (tabs);
 }
@@ -7366,7 +7368,6 @@ midori_browser_close_tab (MidoriBrowser* browser,
 
     midori_browser_add_tab_to_trash (browser, MIDORI_VIEW (view));
     g_signal_emit (browser, signals[REMOVE_TAB], 0, view);
-    gtk_widget_destroy (view);
 }
 
 /**
