@@ -4107,7 +4107,7 @@ midori_view_set_uri (MidoriView*  view,
                     "<p>tmp: <code>%s</code></p>"
                     "</body>",
                     uri, midori_paths_get_config_dir_for_reading (), res_dir,
-                    lib_dir, midori_paths_get_cache_dir (), midori_paths_get_tmp_dir ());
+                    lib_dir, midori_paths_get_cache_dir_for_reading (), midori_paths_get_tmp_dir ());
                 g_free (res_dir);
                 g_free (lib_dir);
             }
