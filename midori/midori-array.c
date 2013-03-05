@@ -729,7 +729,12 @@ string_append_item (GString*   string,
         g_string_append (string, "<bookmark href=\"");
         string_append_escaped (string, katze_item_get_uri (item));
         g_string_append (string, "\">\n");
-        string_append_xml_element (string, "title", katze_item_get_name (item));
+        /* Strip LRE leading character */
+        if (g_str_has_prefix (item->name, "‪"))
+            string_append_xml_element (string, "title",
+                g_utf8_next_char (strstr (item->name, "‪")));
+        else
+            string_append_xml_element (string, "title", item->name);
         string_append_xml_element (string, "desc", katze_item_get_text (item));
         g_string_append (string, metadata);
         g_string_append (string, "</bookmark>\n");

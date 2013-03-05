@@ -2417,7 +2417,8 @@ _action_add_desktop_shortcut_activate (GtkAction*     action,
     const gchar* app_name = katze_item_get_name (item);
     gchar* app_exec = g_strconcat ("midori -a ", katze_item_get_uri (item), NULL);
     GKeyFile* keyfile = g_key_file_new ();
-    gchar* filename = g_strdelimit (g_strconcat (app_name, ".desktop", NULL), "/", '_');
+    /* Strip LRE leading character and / */
+    gchar* filename = g_strdelimit (g_strconcat (app_name, ".desktop", NULL), "‪/", ' ');
     gchar* app_dir = g_build_filename (g_get_user_data_dir (), "applications", filename, NULL);
     #if WEBKIT_CHECK_VERSION (1, 3, 13)
     /* FIXME: midori_paths_get_icon */
