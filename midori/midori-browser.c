@@ -1145,12 +1145,12 @@ midori_view_attach_inspector_cb (GtkWidget*     view,
                                  GtkWidget*     inspector_view,
                                  MidoriBrowser* browser)
 {
-    GtkWidget* toplevel;
-    GtkWidget* scrolled;
+    GtkWidget* toplevel = gtk_widget_get_toplevel (inspector_view);
+    GtkWidget* scrolled = gtk_widget_get_parent (browser->inspector_view);
+    if (browser->inspector_view == inspector_view)
+        return;
 
-    toplevel = gtk_widget_get_toplevel (inspector_view);
     gtk_widget_hide (toplevel);
-    scrolled = gtk_widget_get_parent (browser->inspector_view);
     gtk_widget_destroy (browser->inspector_view);
     gtk_widget_reparent (inspector_view, scrolled);
     gtk_widget_show_all (browser->inspector);
