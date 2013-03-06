@@ -3557,7 +3557,11 @@ _action_readable_activate (GtkAction*     action,
     stylesheet = NULL;
     if (!g_file_get_contents (filename, &stylesheet, NULL, NULL))
     {
+        #ifdef G_OS_WIN32
         katze_assign (filename, midori_paths_get_data_filename ("doc/midori/faq.css", FALSE));
+        #else
+        katze_assign (filename, g_build_filename (DOCDIR, "faq.css", NULL));
+        #endif
         g_file_get_contents (filename, &stylesheet, NULL, NULL);
     }
     if (!(stylesheet && *stylesheet))
@@ -4720,9 +4724,10 @@ midori_browser_get_docs (gboolean error)
     g_free (path);
     if (found)
         return g_filename_to_uri (path, NULL, NULL);
-    #endif
+    #else
     if (g_access (DOCDIR "/faq.html", F_OK) == 0)
         return g_strdup ("file://" DOCDIR "/faq.html");
+    #endif
     else
         return error ? g_strdup ("about:nodocs") : NULL;
 }
