@@ -2569,7 +2569,7 @@ _action_print_activate (GtkAction*     action,
     if (!(view = midori_browser_get_current_tab (browser)))
         return;
 
-    #ifdef HAVE_GRANITE
+    #if 0 // def HAVE_GRANITE
     /* FIXME: Blacklist/ custom contract doesn't work
     gchar* blacklisted_contracts[] = { "print", NULL }; */
     /* FIXME: granite: should return GtkWidget* like GTK+ */
@@ -5267,7 +5267,7 @@ static const GtkActionEntry entries[] =
     { "WindowClose", NULL,
         N_("C_lose Window"), "<Ctrl><Shift>w",
         NULL, G_CALLBACK (_action_window_close_activate) },
-    #ifdef HAVE_GRANITE
+    #if 0 // def HAVE_GRANITE
     { "Print", "document-export",
         N_("_Share"), "<Ctrl>p",
         N_("Share this page"), G_CALLBACK (_action_print_activate) },
