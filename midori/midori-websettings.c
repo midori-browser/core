@@ -277,7 +277,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      PROP_TOOLBAR_STYLE,
                                      g_param_spec_enum (
                                      "toolbar-style",
-                                     _("Toolbar Style:"),
+                                     "Toolbar Style:",
                                      _("The style of the toolbar"),
                                      MIDORI_TYPE_TOOLBAR_STYLE,
                                      MIDORI_TOOLBAR_DEFAULT,
@@ -287,7 +287,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      PROP_LOAD_ON_STARTUP,
                                      g_param_spec_enum (
                                      "load-on-startup",
-                                     _("When Midori starts:"),
+                                     "When Midori starts:",
                                      "What to do when Midori starts",
                                      MIDORI_TYPE_STARTUP,
                                      MIDORI_STARTUP_LAST_OPEN_PAGES,
@@ -324,7 +324,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      PROP_OPEN_NEW_PAGES_IN,
                                      g_param_spec_enum (
                                      "open-new-pages-in",
-                                     _("Open new pages in:"),
+                                     "Open new pages in:",
                                      "Where to open new pages",
                                      MIDORI_TYPE_NEW_PAGE,
                                      MIDORI_NEW_PAGE_TAB,
@@ -386,9 +386,8 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      PROP_IDENTIFY_AS,
                                      g_param_spec_enum (
                                      "identify-as",
-        /* i18n: This refers to an application, not the 'user agent' string */
-                                     _("Identify as"),
-                                     _("What to identify as to web pages"),
+                                     "Identify as",
+                                     "What to identify as to web pages",
                                      MIDORI_TYPE_IDENTITY,
                                      MIDORI_IDENT_MIDORI,
                                      flags));

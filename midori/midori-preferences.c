@@ -298,7 +298,8 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     {
     PAGE_NEW (GTK_STOCK_HOME, _("Startup"));
     FRAME_NEW (NULL);
-    label = katze_property_label (settings, "load-on-startup");
+    label = gtk_label_new (_("When Midori starts:"));
+    gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
     INDENTED_ADD (label);
     button = katze_property_proxy (settings, "load-on-startup", NULL);
     SPANNED_ADD (button);
@@ -424,12 +425,12 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     if (!g_getenv ("DESKTOP_SESSION"))
     {
         FRAME_NEW (NULL);
-        INDENTED_ADD (katze_property_label (settings, "toolbar-style"));
+        INDENTED_ADD (gtk_label_new (_("Toolbar Style:")));
         button = katze_property_proxy (settings, "toolbar-style", NULL);
         SPANNED_ADD (button);
     }
     FRAME_NEW (NULL);
-    label = katze_property_label (settings, "open-new-pages-in");
+    label = gtk_label_new (_("Open new pages in:"));
     INDENTED_ADD (label);
     button = katze_property_proxy (settings, "open-new-pages-in", NULL);
     SPANNED_ADD (button);
@@ -501,7 +502,9 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     }
 #endif
     #endif
-    label = katze_property_label (settings, "identify-as");
+    /* i18n: This refers to an application, not the 'user agent' string */
+    label = gtk_label_new (_("Identify as"));
+    gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
     INDENTED_ADD (label);
     button = katze_property_proxy (settings, "identify-as", "custom-user-agent");
     SPANNED_ADD (button);

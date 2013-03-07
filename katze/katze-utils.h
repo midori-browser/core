@@ -77,10 +77,6 @@ katze_property_proxy                (gpointer     object,
                                      const gchar* property,
                                      const gchar* hint);
 
-GtkWidget*
-katze_property_label                (gpointer     object,
-                                     const gchar* property);
-
 typedef enum {
     KATZE_MENU_POSITION_CURSOR = 0,
     KATZE_MENU_POSITION_LEFT,

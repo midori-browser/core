@@ -781,45 +781,6 @@ katze_property_proxy (gpointer     object,
     return widget;
 }
 
-/**
- * katze_property_label:
- * @object: a #GObject
- * @property: the name of a property
- *
- * Create a label widget displaying the name of the specified object's property.
- *
- * Return value: a new label widget
- *
- * Since 0.2.1 the label will be empty if the property proxy for the
- *    same property would contain a label already.
- **/
-GtkWidget*
-katze_property_label (gpointer     object,
-                      const gchar* property)
-{
-    GObjectClass* class;
-    GParamSpec* pspec;
-    const gchar* nick;
-    GtkWidget* widget;
-
-    g_return_val_if_fail (G_IS_OBJECT (object), NULL);
-
-    class = G_OBJECT_GET_CLASS (object);
-    pspec = g_object_class_find_property (class, property);
-    if (!pspec)
-    {
-        g_warning (_("Property '%s' is invalid for %s"),
-                   property, G_OBJECT_CLASS_NAME (class));
-        return gtk_label_new (property);
-    }
-
-    nick = g_param_spec_get_nick (pspec);
-    widget = gtk_label_new (nick);
-    gtk_misc_set_alignment (GTK_MISC (widget), 0.0, 0.5);
-
-    return widget;
-}
-
 typedef struct
 {
      GtkWidget* widget;
