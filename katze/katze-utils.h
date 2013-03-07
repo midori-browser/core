@@ -96,12 +96,6 @@ katze_widget_popup                   (GtkWidget*      widget,
 GtkWidget*
 katze_image_menu_item_new_ellipsized (const gchar*   label);
 
-GdkPixbuf*
-katze_pixbuf_new_from_buffer         (const guchar* buffer,
-                                      gsize         length,
-                                      const gchar*  mime_type,
-                                      GError**      error);
-
 gboolean
 katze_tree_view_get_selected_iter    (GtkTreeView*   treeview,
                                       GtkTreeModel** model,

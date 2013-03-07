@@ -476,6 +476,45 @@ midori_view_unset_icon (MidoriView* view)
 }
 
 #if !WEBKIT_CHECK_VERSION (1, 3, 13)
+static GdkPixbuf*
+katze_pixbuf_new_from_buffer (const guchar* buffer,
+                              gsize         length,
+                              const gchar*  mime_type,
+                              GError**      error)
+{
+    /* Proposed for inclusion in GdkPixbuf
+       See http://bugzilla.gnome.org/show_bug.cgi?id=74291 */
+    GdkPixbufLoader* loader;
+    GdkPixbuf* pixbuf;
+
+    g_return_val_if_fail (buffer != NULL, NULL);
+    g_return_val_if_fail (length > 0, NULL);
+
+    if (mime_type)
+    {
+        loader = gdk_pixbuf_loader_new_with_mime_type (mime_type, error);
+        if (!loader)
+            return NULL;
+    }
+    else
+        loader = gdk_pixbuf_loader_new ();
+    if (!gdk_pixbuf_loader_write (loader, buffer, length, error))
+    {
+        g_object_unref (loader);
+        return NULL;
+    }
+    if (!gdk_pixbuf_loader_close (loader, error))
+    {
+        g_object_unref (loader);
+        return NULL;
+    }
+
+    pixbuf = gdk_pixbuf_loader_get_pixbuf (loader);
+    g_object_ref (pixbuf);
+    g_object_unref (loader);
+    return pixbuf;
+}
+
 static void
 katze_net_object_maybe_unref (gpointer object)
 {
