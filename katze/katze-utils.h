@@ -20,15 +20,6 @@
 G_BEGIN_DECLS
 
 /**
- * KATZE_OBJECT_NAME:
- * @object: an object
- *
- * Return the name of an object's class structure's type.
- **/
-#define KATZE_OBJECT_NAME(object) \
-    G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (object))
-
-/**
  * katze_assign:
  * @lvalue: a pointer
  * @rvalue: the new value
@@ -116,10 +107,6 @@ gint
 katze_object_get_int                 (gpointer     object,
                                       const gchar* property);
 
-gfloat
-katze_object_get_float               (gpointer     object,
-                                      const gchar* property);
-
 gint
 katze_object_get_enum                (gpointer     object,
                                       const gchar* property);
@@ -135,9 +122,6 @@ katze_object_get_object              (gpointer     object,
 int
 katze_mkdir_with_parents             (const gchar* pathname,
                                       int          mode);
-
-gboolean
-katze_widget_has_touchscreen_mode    (GtkWidget*      widget);
 
 GtkWidget*
 katze_uri_entry_new                  (GtkWidget*      other_widget);

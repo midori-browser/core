@@ -667,7 +667,8 @@ katze_property_proxy (gpointer     object,
     }
     else if (type == G_TYPE_PARAM_FLOAT)
     {
-        gfloat value = katze_object_get_float (object, property);
+        gfloat value;
+        g_object_get (object, property, &value, NULL);
 
         widget = gtk_spin_button_new_with_range (
             G_PARAM_SPEC_FLOAT (pspec)->minimum,
@@ -1084,28 +1085,6 @@ katze_object_get_int (gpointer     object,
     gint value = -1;
 
     g_return_val_if_fail (G_IS_OBJECT (object), -1);
-    /* FIXME: Check value type */
-
-    g_object_get (object, property, &value, NULL);
-    return value;
-}
-
-/**
- * katze_object_get_float:
- * @object: a #GObject
- * @property: the name of the property to get
- *
- * Retrieve the float value of the specified property.
- *
- * Return value: a float
- **/
-gfloat
-katze_object_get_float (gpointer     object,
-                        const gchar* property)
-{
-    gfloat value = -1.0f;
-
-    g_return_val_if_fail (G_IS_OBJECT (object), -1.0f);
     /* FIXME: Check value type */
 
     g_object_get (object, property, &value, NULL);
