@@ -1086,29 +1086,6 @@ katze_skip_whitespace (const gchar* str)
 }
 
 /**
- * katze_object_has_property:
- * @object: a #GObject
- * @property: the name of the property
- *
- * Determine if @object has a property with the specified name.
- *
- * Return value: a boolean
- *
- * Since: 0.1.2
- **/
-gboolean
-katze_object_has_property (gpointer     object,
-                           const gchar* property)
-{
-    GObjectClass* class;
-
-    g_return_val_if_fail (G_IS_OBJECT (object), FALSE);
-
-    class = G_OBJECT_GET_CLASS (object);
-    return g_object_class_find_property (class, property) != NULL;
-}
-
-/**
  * katze_object_get_boolean:
  * @object: a #GObject
  * @property: the name of the property to get

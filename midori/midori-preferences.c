@@ -307,7 +307,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     INDENTED_ADD (label);
     entry = katze_property_proxy (settings, "homepage", "address");
     SPANNED_ADD (entry);
-    if (parent && katze_object_has_property (parent, "uri"))
+    if (parent && MIDORI_IS_BROWSER (parent))
     {
         #if 0
         button = gtk_button_new_with_mnemonic (_("Use _current page"));

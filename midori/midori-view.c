@@ -2614,7 +2614,7 @@ midori_view_populate_popup (MidoriView* view,
 
         window = gtk_widget_get_toplevel (GTK_WIDGET (web_view));
         i = 0;
-        if (katze_object_has_property (window, "search-engines"))
+        if (MIDORI_IS_BROWSER (window))
             search_engines = katze_object_get_object (window, "search-engines");
 
         if (search_engines != NULL)

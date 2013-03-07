@@ -112,10 +112,6 @@ katze_strip_mnemonics                (const gchar*    original);
 const gchar*
 katze_skip_whitespace                (const gchar*    str);
 
-gboolean
-katze_object_has_property            (gpointer     object,
-                                      const gchar* property);
-
 gint
 katze_object_get_boolean             (gpointer     object,
                                       const gchar* property);
