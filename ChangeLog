@@ -1,5 +1,31 @@
 This file is licensed under the terms of the expat license, see the file EXPAT.
 
+v0.4.9:
+ Let non-Granite security window behave like a window
+ Disable Contractor support in Granite for now
+ Use cache_dir_for_reading in about:paths
+ Strip LRE to prevent it from begin saved to disk
+ Enable stripping 'referer' by default
+ Fix crash on closing Adlock preferences dialog
+ Bail on unset title in completion, fixing strchr urlbar crash
+ Manage cookies accept policy per domain - not installed by default
+ Don't store/ load stock:// icons for special pages
+ Drop KatzeScrolled in favour of GTK+ 3.4 touchscreen support
+ Write XBEL safely to prevent loss on eg. full disk
+ Omit nspluginwrapper Netscape plugins from extensions
+ Add --debug/ -g switch to run Midori in gdb
+ List versions from about:version in --version
+ Work in progress --enable-webkit2 option enabling WebKit2/ GTK+3
+ Rename menu _Window to _Tabs
+ Update Easylist subscription URL for Adblock
+ Stop redundant tab numbering when adding
+ Allow feed panel webview widget to shrink.
+ Don't search for place holder text on cookie list rebuild
+ Add 'Google Translate (gt)' as a search engine
+ Default external Download Manager to "fetch" on FreeBSD
+ Drop GCC-version specific -Wno-unused-but-set-variable
+ Change X-Ayatana-Desktop-Shortcuts to Actions
+
 v0.4.8:
  Fix un-delaying of tabs
  Support downloads with FlashGet on Win32
