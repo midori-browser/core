@@ -4721,15 +4721,18 @@ midori_browser_get_docs (gboolean error)
     #ifdef G_OS_WIN32
     gchar* path = midori_paths_get_data_filename ("doc/midori/faq.html", FALSE);
     gboolean found = (g_access (path, F_OK) == 0);
-    g_free (path);
     if (found)
-        return g_filename_to_uri (path, NULL, NULL);
+    {
+        gchar* uri = g_filename_to_uri (path, NULL, NULL);
+        g_free (path);
+        return uri;
+    }
+    g_free (path);
     #else
     if (g_access (DOCDIR "/faq.html", F_OK) == 0)
         return g_strdup ("file://" DOCDIR "/faq.html");
     #endif
-    else
-        return error ? g_strdup ("about:nodocs") : NULL;
+    return error ? g_strdup ("about:nodocs") : NULL;
 }
 
 static void
