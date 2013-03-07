@@ -508,8 +508,7 @@ midori_app_command_received (MidoriApp*   app,
     {
         MidoriBrowser* browser = midori_app_create_browser (app);
         midori_app_add_browser (app, browser);
-        /* FIXME: Should open the homepage according to settings */
-        midori_browser_add_uri (browser, "");
+        midori_browser_add_uri (browser, "about:home");
         midori_browser_activate_action (browser, "Location");
         gtk_widget_show (GTK_WIDGET (browser));
         midori_app_raise_window (GTK_WINDOW (browser), screen);

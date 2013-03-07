@@ -3966,12 +3966,12 @@ list_video_formats (MidoriView* view)
 }
 
 static const gchar* valid_about_uris[] = {
-    "about:widgets",
-    "about:private",
-    "about:nodocs",
-    "http://.invalid",
     "about:geolocation",
+    "about:home",
+    "about:nodocs",
     "about:paths",
+    "about:private",
+    "about:widgets",
 };
 
 static void
@@ -4009,6 +4009,9 @@ midori_view_set_uri (MidoriView*  view,
 
     if (!midori_debug ("unarmed"))
     {
+        if (uri && !strcmp (uri, "about:home"))
+            uri = midori_settings_get_homepage (MIDORI_SETTINGS (view->settings));
+
         if (!uri || !strcmp (uri, "") || !strcmp (uri, "about:blank"))
         {
             MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (view));

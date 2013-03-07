@@ -3692,17 +3692,14 @@ _action_navigation_activate (GtkAction*     action,
     }
     else if (g_str_equal (name, "Homepage"))
     {
-        g_object_get (browser->settings, "homepage", &uri, NULL);
-
         if (middle_click)
         {
-            GtkWidget* view = midori_browser_add_uri (browser, uri);
+            GtkWidget* view = midori_browser_add_uri (browser, "about:home");
             midori_browser_set_current_tab_smartly (browser, view);
         }
         else
-            midori_view_set_uri (view, uri);
+            midori_view_set_uri (view, "about:home");
 
-        g_free (uri);
         return TRUE;
     }
 #endif
