@@ -810,51 +810,36 @@ midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view
 }
 #endif
 
-#ifndef HAVE_WEBKIT2
 static void
-webkit_web_view_load_started_cb (WebKitWebView*  web_view,
-                                 WebKitWebFrame* web_frame,
-                                 MidoriView*     view)
+midori_view_load_started (MidoriView* view)
 {
     midori_view_update_load_status (view, MIDORI_LOAD_PROVISIONAL);
     midori_tab_set_progress (MIDORI_TAB (view), 0.0);
 }
-#endif
 
 #ifdef HAVE_GCR
 const gchar*
 midori_location_action_tls_flags_to_string (GTlsCertificateFlags flags);
 #endif
 
-#ifndef HAVE_WEBKIT2
 static void
-webkit_web_view_load_committed_cb (WebKitWebView*  web_view,
-                                   WebKitWebFrame* web_frame,
-                                   MidoriView*     view)
+midori_view_load_committed (MidoriView* view)
 {
-    const gchar* uri;
-    GList* children;
-
-    if (web_frame != webkit_web_view_get_main_frame (web_view))
-        return;
-
     #ifdef HAVE_GRANITE_CLUTTER
     GraniteWidgetsNavigationBox* navigation_box = midori_tab_get_navigation_box (MIDORI_TAB (view));
     granite_widgets_navigation_box_transition_ready (navigation_box);
     #endif
-    g_object_freeze_notify (G_OBJECT (view));
 
-    uri = webkit_web_frame_get_uri (web_frame);
-    g_return_if_fail (uri != NULL);
     katze_assign (view->icon_uri, NULL);
 
-    children = gtk_container_get_children (GTK_CONTAINER (view));
+    GList* children = gtk_container_get_children (GTK_CONTAINER (view));
     for (; children; children = g_list_next (children))
         if (g_object_get_data (G_OBJECT (children->data), "midori-infobar-cb"))
             gtk_widget_destroy (children->data);
     g_list_free (children);
     view->alerts = 0;
 
+    const gchar* uri = webkit_web_view_get_uri (WEBKIT_WEB_VIEW  (view->web_view));
     if (g_strcmp0 (uri, katze_item_get_uri (view->item)))
     {
         midori_tab_set_uri (MIDORI_TAB (view), uri);
@@ -871,14 +856,13 @@ webkit_web_view_load_committed_cb (WebKitWebView*  web_view,
 
     if (!strncmp (uri, "https", 5))
     {
-        #if defined (HAVE_LIBSOUP_2_29_91)
-        WebKitWebDataSource *source;
-        WebKitNetworkRequest *request;
-        SoupMessage *message;
-
-        source = webkit_web_frame_get_data_source (web_frame);
-        request = webkit_web_data_source_get_request (source);
-        message = webkit_network_request_get_message (request);
+        #ifdef HAVE_WEBKIT2
+        /* Not implemented */
+        #elif defined (HAVE_LIBSOUP_2_29_91)
+        WebKitWebFrame* web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view));
+        WebKitWebDataSource* source = webkit_web_frame_get_data_source (web_frame);
+        WebKitNetworkRequest* request = webkit_web_data_source_get_request (source);
+        SoupMessage* message = webkit_network_request_get_message (request);
 
         if (message
          && soup_message_get_flags (message) & SOUP_MESSAGE_CERTIFICATE_TRUSTED)
@@ -925,9 +909,7 @@ webkit_web_view_load_committed_cb (WebKitWebView*  web_view,
     view->find_links = -1;
     midori_view_update_load_status (view, MIDORI_LOAD_COMMITTED);
 
-    g_object_thaw_notify (G_OBJECT (view));
 }
-#endif
 
 static void
 webkit_web_view_progress_changed_cb (WebKitWebView* web_view,
@@ -1405,18 +1387,16 @@ midori_view_apply_scroll_position (MidoriView* view)
         view->scrollv = -3;
     }
 }
+#endif
 
 static void
-webkit_web_view_load_finished_cb (WebKitWebView*  web_view,
-                                  WebKitWebFrame* web_frame,
-                                  MidoriView*     view)
+midori_view_load_finished (MidoriView* view)
 {
-    g_object_freeze_notify (G_OBJECT (view));
-
+    #ifndef HAVE_WEBKIT2
     midori_view_apply_scroll_position (view);
 
-    if (web_frame == webkit_web_view_get_main_frame (web_view))
     {
+        WebKitWebFrame* web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view));
         JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
         /* Icon: URI, News Feed: $URI|title, Search: :URI|title */
         gchar* value = sokoke_js_script_eval (js_context,
@@ -1507,13 +1487,73 @@ webkit_web_view_load_finished_cb (WebKitWebView*  web_view,
         _midori_web_view_load_icon (view);
         #endif
     }
+    #endif
 
     midori_tab_set_progress (MIDORI_TAB (view), 1.0);
     midori_view_update_load_status (view, MIDORI_LOAD_FINISHED);
+}
+
+#ifdef HAVE_WEBKIT2
+static void
+midori_view_web_view_load_changed_cb (WebKitWebView*  web_view,
+                                      WebKitLoadEvent load_event,
+                                      MidoriView*     view)
+{
+    g_object_freeze_notify (G_OBJECT (view));
+
+    switch (load_event)
+    {
+    case WEBKIT_LOAD_STARTED:
+        midori_view_load_started (view);
+        break;
+    case WEBKIT_LOAD_REDIRECTED:
+        /* Not implemented */
+        break;
+    case WEBKIT_LOAD_COMMITTED:
+        midori_view_load_committed (view);
+        break;
+    case WEBKIT_LOAD_FINISHED:
+        midori_view_load_finished (view);
+        break;
+    default:
+        g_warn_if_reached ();
+    }
+
+    g_object_thaw_notify (G_OBJECT (view));
+}
+#else
+static void
+midori_view_web_view_notify_load_status_cb (WebKitWebView* web_view,
+                                            GParamSpec*    pspec,
+                                            MidoriView*    view)
+{
+    g_object_freeze_notify (G_OBJECT (view));
+
+    switch (webkit_web_view_get_load_status (web_view))
+    {
+    case WEBKIT_LOAD_PROVISIONAL:
+        midori_view_load_started (view);
+        break;
+    case WEBKIT_LOAD_COMMITTED:
+        midori_view_load_committed (view);
+        break;
+    case WEBKIT_LOAD_FIRST_VISUALLY_NON_EMPTY_LAYOUT:
+        /* Not implemented */
+        break;
+    case WEBKIT_LOAD_FINISHED:
+        midori_view_load_finished (view);
+        break;
+    case WEBKIT_LOAD_FAILED:
+        /* Not implemented */
+        break;
+    default:
+        g_warn_if_reached ();
+    }
 
     g_object_thaw_notify (G_OBJECT (view));
 }
 #endif
+
 
 #if WEBKIT_CHECK_VERSION (1, 1, 18)
 static void
@@ -3655,7 +3695,28 @@ midori_view_constructor (GType                  type,
 
     view->web_view = GTK_WIDGET (midori_tab_get_web_view (MIDORI_TAB (view)));
     g_object_connect (view->web_view,
-                      #ifndef HAVE_WEBKIT2
+                      #ifdef HAVE_WEBKIT2
+                      "signal::load-changed",
+                      midori_view_web_view_load_changed_cb, view,
+                      "signal::notify::estimated-load-progress",
+                      webkit_web_view_progress_changed_cb, view,
+                      #else
+                      "signal::notify::load-status",
+                      midori_view_web_view_notify_load_status_cb, view,
+                      "signal::notify::progress",
+                      webkit_web_view_progress_changed_cb, view,
+                      "signal::script-alert",
+                      midori_view_web_view_script_alert_cb, view,
+                      "signal::window-object-cleared",
+                      webkit_web_view_window_object_cleared_cb, view,
+                      "signal::create-web-view",
+                      webkit_web_view_create_web_view_cb, view,
+                      "signal-after::mime-type-policy-decision-requested",
+                      webkit_web_view_mime_type_decision_cb, view,
+                      "signal::print-requested",
+                      midori_view_web_view_print_requested_cb, view,
+                      "signal-after::load-error",
+                      webkit_web_view_load_error_cb, view,
                       "signal::navigation-policy-decision-requested",
                       midori_view_web_view_navigation_decision_cb, view,
                       "signal::resource-request-starting",
@@ -3666,20 +3727,8 @@ midori_view_constructor (GType                  type,
                       "signal::geolocation-policy-decision-requested",
                       midori_view_web_view_geolocation_decision_cb, view,
                       #endif
-                      "signal::load-started",
-                      webkit_web_view_load_started_cb, view,
-                      "signal::load-committed",
-                      webkit_web_view_load_committed_cb, view,
-                      "signal::load-finished",
-                      webkit_web_view_load_finished_cb, view,
                       #endif
-                      #ifndef HAVE_WEBKIT2
-                      "signal::notify::progress",
-                      webkit_web_view_progress_changed_cb, view,
-                      #else
-                      "signal::notify::estimated-load-progress",
-                      webkit_web_view_progress_changed_cb, view,
-                      #endif
+
                       #if WEBKIT_CHECK_VERSION (1, 1, 18)
                       "signal::notify::icon-uri",
                       midori_web_view_notify_icon_uri_cb, view,
@@ -3706,24 +3755,8 @@ midori_view_constructor (GType                  type,
                       webkit_web_view_populate_popup_cb, view,
                       "signal::console-message",
                       webkit_web_view_console_message_cb, view,
-                      #ifndef HAVE_WEBKIT2
-                      "signal::script-alert",
-                      midori_view_web_view_script_alert_cb, view,
-                      "signal::window-object-cleared",
-                      webkit_web_view_window_object_cleared_cb, view,
-                      "signal::create-web-view",
-                      webkit_web_view_create_web_view_cb, view,
-                      "signal-after::mime-type-policy-decision-requested",
-                      webkit_web_view_mime_type_decision_cb, view,
-                      #endif
                       "signal::download-requested",
                       webkit_web_view_download_requested_cb, view,
-                      #ifndef HAVE_WEBKIT2
-                      "signal::print-requested",
-                      midori_view_web_view_print_requested_cb, view,
-                      "signal-after::load-error",
-                      webkit_web_view_load_error_cb, view,
-                      #endif
                       NULL);
 
     if (view->settings)
