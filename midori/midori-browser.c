@@ -557,18 +557,15 @@ midori_view_notify_load_status_cb (GtkWidget*      widget,
                                    GParamSpec*     pspec,
                                    MidoriBrowser*  browser)
 {
-    MidoriView* view = MIDORI_VIEW (widget);
-    MidoriLoadStatus load_status = midori_view_get_load_status (view);
-    const gchar* uri;
-    GtkAction* action;
-
-    uri = midori_view_get_display_uri (view);
-    action = _action_by_name (browser, "Location");
-
     if (widget == midori_browser_get_current_tab (browser))
     {
+        MidoriView* view = MIDORI_VIEW (widget);
+        MidoriLoadStatus load_status = midori_view_get_load_status (view);
+
         if (load_status == MIDORI_LOAD_COMMITTED)
         {
+            const gchar* uri = midori_view_get_display_uri (view);
+            GtkAction* action = _action_by_name (browser, "Location");
             midori_location_action_set_text (
                 MIDORI_LOCATION_ACTION (action), uri);
             g_object_notify (G_OBJECT (browser), "uri");
@@ -2344,9 +2341,6 @@ _action_open_activate (GtkAction*     action,
     GtkWidget* dialog;
     GtkWidget* view;
 
-    if (!gtk_widget_get_visible (GTK_WIDGET (browser)))
-        return;
-
     dialog = (GtkWidget*)midori_file_chooser_dialog_new (_("Open file"),
         GTK_WINDOW (browser), GTK_FILE_CHOOSER_ACTION_OPEN);
 
@@ -2511,9 +2505,6 @@ _action_compact_add_activate (GtkAction*     action,
                                "AddDesktopShortcut", "AddNewsFeed" };
     guint i;
 
-    if (!gtk_widget_get_visible (GTK_WIDGET (browser)))
-        return;
-
     dialog = g_object_new (GTK_TYPE_DIALOG,
         "transient-for", browser,
         "title", _("Add a new bookmark"), NULL);
@@ -2559,13 +2550,7 @@ static void
 _action_print_activate (GtkAction*     action,
                         MidoriBrowser* browser)
 {
-    GtkWidget* view;
-
-    if (!gtk_widget_get_visible (GTK_WIDGET (browser)))
-        return;
-
-    if (!(view = midori_browser_get_current_tab (browser)))
-        return;
+    GtkWidget* view = midori_browser_get_current_tab (browser);
 
     #if 0 // def HAVE_GRANITE
     /* FIXME: Blacklist/ custom contract doesn't work
@@ -3187,9 +3172,6 @@ _action_preferences_activate (GtkAction*     action,
 {
     static GtkWidget* dialog = NULL;
 
-    if (!gtk_widget_get_visible (GTK_WIDGET (browser)))
-        return;
-
     if (!dialog)
     {
         dialog = midori_preferences_new (GTK_WINDOW (browser), browser->settings);
@@ -3306,12 +3288,8 @@ static void
 _action_reload_stop_activate (GtkAction*     action,
                               MidoriBrowser* browser)
 {
+    GtkWidget* view = midori_browser_get_current_tab (browser);
     gchar* stock_id;
-    GtkWidget* view;
-
-    if (!(view = midori_browser_get_current_tab (browser)))
-        return;
-
     g_object_get (action, "stock-id", &stock_id, NULL);
 
     /* Refresh or stop, depending on the stock id */
@@ -3342,8 +3320,6 @@ _action_zoom_activate (GtkAction*     action,
                        MidoriBrowser* browser)
 {
     GtkWidget* view = midori_browser_get_current_tab (browser);
-    if (!view)
-        return;
 
     if (g_str_equal (gtk_action_get_name (action), "ZoomIn"))
         midori_view_set_zoom_level (MIDORI_VIEW (view),
@@ -3361,8 +3337,6 @@ _action_view_encoding_activate (GtkAction*     action,
                                 MidoriBrowser* browser)
 {
     GtkWidget* view = midori_browser_get_current_tab (browser);
-    if (view)
-    {
         const gchar* name;
         GtkWidget* web_view;
 
@@ -3391,7 +3365,6 @@ _action_view_encoding_activate (GtkAction*     action,
                 g_assert_not_reached ();
             g_object_set (web_view, "custom-encoding", encoding, NULL);
         }
-    }
 }
 
 static void
@@ -3436,9 +3409,6 @@ _action_caret_browsing_activate (GtkAction*     action,
 {
     gint response;
     GtkWidget* dialog;
-
-    if (!gtk_widget_get_visible (GTK_WIDGET (browser)))
-        return;
 
     if (!katze_object_get_boolean (browser->settings, "enable-caret-browsing"))
     {
@@ -3523,8 +3493,6 @@ _action_scroll_somewhere_activate (GtkAction*     action,
     const gchar* name;
 
     view = midori_browser_get_current_tab (browser);
-    if (!view)
-        return;
     web_view = WEBKIT_WEB_VIEW (midori_view_get_web_view (MIDORI_VIEW (view)));
     name = gtk_action_get_name (action);
 #ifndef HAVE_WEBKIT2
@@ -3547,9 +3515,6 @@ _action_readable_activate (GtkAction*     action,
     gchar* filename;
     gchar* stylesheet;
     gint i;
-
-    if (!view)
-        return;
 
     filename = midori_paths_get_res_filename ("faq.css");
     stylesheet = NULL;
@@ -3613,9 +3578,6 @@ _action_navigation_activate (GtkAction*     action,
         middle_click = FALSE;
 
     tab = midori_browser_get_current_tab (browser);
-    if (!tab)
-        return FALSE;
-
     view = MIDORI_VIEW (tab);
     name = gtk_action_get_name (action);
 
@@ -3742,12 +3704,8 @@ static void
 _action_location_reset_uri (GtkAction*     action,
                             MidoriBrowser* browser)
 {
-    GtkWidget* view;
-    if ((view = midori_browser_get_current_tab (browser)))
-    {
-        midori_location_action_set_text (MIDORI_LOCATION_ACTION (action),
-            midori_view_get_display_uri (MIDORI_VIEW (view)));
-    }
+    midori_location_action_set_text (MIDORI_LOCATION_ACTION (action),
+        midori_browser_get_current_uri (browser));
 }
 
 #ifndef HAVE_WEBKIT2
@@ -3911,10 +3869,7 @@ _action_location_secondary_icon_released (GtkAction*     action,
                                           GtkWidget*     widget,
                                           MidoriBrowser* browser)
 {
-    GtkWidget* view;
-
-    if ((view = midori_browser_get_current_tab (browser)))
-    {
+    GtkWidget* view = midori_browser_get_current_tab (browser);
         const gchar* uri = midori_view_get_display_uri (MIDORI_VIEW (view));
         const gchar* feed;
         /* Clicking icon on blank is equal to Paste and Proceed */
@@ -3984,9 +3939,6 @@ _action_location_secondary_icon_released (GtkAction*     action,
         else
             _action_location_submit_uri (action, uri, FALSE, browser);
         return TRUE;
-    }
-
-    return FALSE;
 }
 
 static void
@@ -4521,9 +4473,6 @@ _action_manage_search_engines_activate (GtkAction*     action,
 {
     static GtkWidget* dialog = NULL;
 
-    if (!gtk_widget_get_visible (GTK_WIDGET (browser)))
-        return;
-
     if (!dialog)
     {
         dialog = midori_search_action_get_dialog (
@@ -4541,9 +4490,6 @@ _action_clear_private_data_activate (GtkAction*     action,
                                      MidoriBrowser* browser)
 {
     static GtkWidget* dialog = NULL;
-
-    if (!gtk_widget_get_visible (GTK_WIDGET (browser)))
-        return;
 
     if (!dialog)
     {
@@ -7533,15 +7479,10 @@ void
 midori_browser_set_current_uri (MidoriBrowser* browser,
                                 const gchar*   uri)
 {
-    GtkWidget* view;
-
     g_return_if_fail (MIDORI_IS_BROWSER (browser));
     g_return_if_fail (uri != NULL);
 
-    if ((view = midori_browser_get_current_tab (browser)))
-        midori_view_set_uri (MIDORI_VIEW (view), uri);
-    else
-        midori_browser_add_uri (browser, uri);
+    midori_view_set_uri (MIDORI_VIEW (midori_browser_get_current_tab (browser)), uri);
 }
 
 /**
@@ -7557,13 +7498,10 @@ midori_browser_set_current_uri (MidoriBrowser* browser,
 const gchar*
 midori_browser_get_current_uri (MidoriBrowser* browser)
 {
-    GtkWidget* view;
-
     g_return_val_if_fail (MIDORI_IS_BROWSER (browser), NULL);
 
-    if ((view = midori_browser_get_current_tab (browser)))
-        return midori_view_get_display_uri (MIDORI_VIEW (view));
-    return NULL;
+    return midori_view_get_display_uri (MIDORI_VIEW (
+        midori_browser_get_current_tab (browser)));
 }
 
 /**
