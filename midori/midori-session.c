@@ -32,8 +32,12 @@ midori_soup_session_set_proxy_uri (SoupSession* session,
     SoupURI* proxy_uri;
 
     /* soup_uri_new expects a non-NULL string with a protocol */
-    if (midori_uri_is_http (uri))
+    gchar* scheme = uri ? g_uri_parse_scheme (uri): NULL;
+    if (scheme)
+    {
         proxy_uri = soup_uri_new (uri);
+        g_free (scheme);
+    }
     else if (uri && *uri)
     {
         gchar* fixed_uri = g_strconcat ("http://", uri, NULL);
