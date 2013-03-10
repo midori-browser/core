@@ -4188,7 +4188,7 @@ midori_view_set_uri (MidoriView*  view,
             {
                 gchar* res_dir = midori_paths_get_res_filename ("");
                 gchar* lib_dir = midori_paths_get_lib_path (PACKAGE_NAME);
-                data = g_strdup_printf ("<body><h1>%s</h1>"
+                data = g_markup_printf_escaped ("<body><h1>%s</h1>"
                     "<p>config: <code>%s</code></p>"
                     "<p>res: <code>%s</code></p>"
                     "<p>lib: <code>%s</code></p>"
@@ -4217,12 +4217,12 @@ midori_view_set_uri (MidoriView*  view,
                     "style=\"position: absolute; right: 15px; bottom: 15px; z-index: -9;\">"
                     "<table>",
                     _("Version numbers in brackets show the version used at runtime."));
-                midori_view_add_version (tmp, TRUE, g_strdup_printf ("Command line %s",
+                midori_view_add_version (tmp, TRUE, g_markup_printf_escaped ("Command line %s",
                     command_line));
                 midori_view_list_versions (tmp, TRUE);
-                midori_view_add_version (tmp, TRUE, g_strdup_printf ("Platform %s %s %s",
+                midori_view_add_version (tmp, TRUE, g_markup_printf_escaped ("Platform %s %s %s",
                     platform, sys_name, architecture ? architecture : ""));
-                midori_view_add_version (tmp, TRUE, g_strdup_printf ("Identification %s",
+                midori_view_add_version (tmp, TRUE, g_markup_printf_escaped ("Identification %s",
                     ident));
                 midori_view_add_version (tmp, TRUE, g_strdup_printf ("Video Formats %s",
                     list_video_formats (view)));
