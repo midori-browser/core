@@ -47,27 +47,26 @@ typedef struct
 } TransferInfo;
 
 static gboolean
-midori_transferbar_info_free (gpointer data)
+midori_transferbar_info_free (TransferInfo* info)
 {
-    TransferInfo* info = data;
     MidoriTransferbar* transferbar = info->transferbar;
 
     transferbar->infos = g_list_remove (transferbar->infos, info);
     g_object_unref (info->download);
-    gtk_widget_destroy (info->toolitem);
     g_slice_free (TransferInfo, info);
-
-    if (!transferbar->infos || !g_list_nth_data (transferbar->infos, 0))
-        gtk_widget_hide (GTK_WIDGET (transferbar->clear));
 
     return FALSE;
 }
 
 static void
-midori_transferbar_button_destroy_cb (GtkWidget*    button,
-                                      TransferInfo* info)
+midori_transferbar_info_destroy (TransferInfo* info)
 {
-    g_idle_add (midori_transferbar_info_free, info);
+    MidoriTransferbar* transferbar = info->transferbar;
+
+    gtk_widget_destroy (info->toolitem);
+
+    if (!transferbar->infos || !g_list_nth_data (transferbar->infos, 0))
+        gtk_widget_hide (GTK_WIDGET (transferbar->clear));
 }
 
 static void
@@ -133,7 +132,7 @@ midori_transferbar_download_button_clicked_cb (GtkWidget*    button,
 {
     WebKitDownload* download = info->download;
     if (midori_download_action_clear (download, button, NULL))
-        gtk_widget_destroy (button);
+        midori_transferbar_info_destroy (info);
 }
 
 void
@@ -157,7 +156,7 @@ midori_transferbar_check_size (GtkWidget* statusbar,
       TransferInfo* info = list->data;
       if (midori_download_is_finished (info->download)
        || webkit_download_get_status (info->download) == WEBKIT_DOWNLOAD_STATUS_STARTED)
-          gtk_widget_destroy (info->button);
+          midori_transferbar_info_destroy (info);
     }
   }
 #endif
@@ -208,8 +207,8 @@ midori_transferbar_add_download_item (MidoriTransferbar* transferbar,
     info->button = button;
     info->toolitem = GTK_WIDGET (toolitem);
     info->transferbar = transferbar;
-    g_signal_connect (button, "destroy",
-                      G_CALLBACK (midori_transferbar_button_destroy_cb), info);
+    g_signal_connect_swapped (button, "destroy",
+                      G_CALLBACK (midori_transferbar_info_free), info);
     transferbar->infos = g_list_prepend (transferbar->infos, info);
 
     g_signal_connect (download, "notify::progress",
@@ -231,7 +230,7 @@ midori_transferbar_clear_clicked_cb (GtkWidget*         button,
     {
         TransferInfo* info = list->data;
         if (midori_download_is_finished (info->download))
-            gtk_widget_destroy (info->button);
+            midori_transferbar_info_destroy (info);
     }
 }
 
