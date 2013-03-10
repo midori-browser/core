@@ -180,7 +180,7 @@ namespace Midori {
                 return Pango.EllipsizeMode.START;
 
             string[] parts = title.split (" ");
-            if (uri.has_suffix (parts[parts.length - 1].down ()))
+            if (parts[0] != null && uri.has_suffix (parts[parts.length - 1].down ()))
                 return Pango.EllipsizeMode.START;
 
             return Pango.EllipsizeMode.END;
