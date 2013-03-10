@@ -482,7 +482,7 @@ midori_load_session (gpointer data)
     {
         item = katze_item_new ();
         if (load_on_startup == MIDORI_STARTUP_BLANK_PAGE)
-            katze_item_set_uri (item, "about:blank");
+            katze_item_set_uri (item, "about:new");
         else
             item->uri = g_strdup ("about:home");
         katze_array_add_item (saved_session, item);

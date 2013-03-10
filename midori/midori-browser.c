@@ -96,9 +96,7 @@ struct _MidoriBrowser
     gboolean show_navigationbar;
     gboolean show_statusbar;
     guint maximum_history_age;
-    gchar* location_entry_search;
     guint last_web_search;
-    gchar* news_aggregator;
 };
 
 G_DEFINE_TYPE (MidoriBrowser, midori_browser, GTK_TYPE_WINDOW)
@@ -579,8 +577,7 @@ midori_view_notify_load_status_cb (GtkWidget*      widget,
         _midori_browser_update_interface (browser, view);
         _midori_browser_set_statusbar_text (browser, view, NULL);
 
-        /* This is a hack to ensure that the address entry is focussed
-           with speed dial open. */
+        /* Focus the urlbar on blank pages */
         if (midori_view_is_blank (view))
             midori_browser_activate_action (browser, "Location");
     }
@@ -1617,7 +1614,7 @@ midori_browser_disconnect_tab (MidoriBrowser* browser,
        which is indicated by the proxy array having been unset. */
     if (katze_array_is_empty (browser->proxy_array))
     {
-        midori_browser_add_uri (browser, "");
+        midori_browser_add_uri (browser, "about:new");
         midori_browser_set_current_page (browser, 0);
     }
 
@@ -2317,14 +2314,14 @@ static void
 _action_window_new_activate (GtkAction*     action,
                              MidoriBrowser* browser)
 {
-    midori_view_new_window_cb (NULL, "", browser);
+    midori_view_new_window_cb (NULL, "about:home", browser);
 }
 
 static void
 _action_tab_new_activate (GtkAction*     action,
                           MidoriBrowser* browser)
 {
-    GtkWidget* view = midori_browser_add_uri (browser, "");
+    GtkWidget* view = midori_browser_add_uri (browser, "about:new");
     midori_browser_set_current_tab (browser, view);
 }
 
@@ -2455,7 +2452,8 @@ static void
 midori_browser_subscribe_to_news_feed (MidoriBrowser* browser,
                                        const gchar*   uri)
 {
-    if (browser->news_aggregator && *browser->news_aggregator)
+    const gchar* news_aggregator = midori_settings_get_news_aggregator (MIDORI_SETTINGS (browser->settings));
+    if (news_aggregator && *news_aggregator)
     {
         /* Thunderbird only accepts feed://, Liferea doesn't mind */
         gchar* feed = g_strdup (uri);
@@ -2467,11 +2465,11 @@ midori_browser_subscribe_to_news_feed (MidoriBrowser* browser,
             feed[3] = 'd';
         }
         /* Special-case Liferea because a helper script may be required */
-        if (g_str_equal (browser->news_aggregator, "liferea")
+        if (g_str_equal (news_aggregator, "liferea")
          && g_find_program_in_path ("liferea-add-feed"))
             sokoke_spawn_program ("liferea-add-feed", FALSE, feed, TRUE, FALSE);
         else
-            sokoke_spawn_program (browser->news_aggregator, TRUE, feed, TRUE, FALSE);
+            sokoke_spawn_program (news_aggregator, TRUE, feed, TRUE, FALSE);
         g_free (feed);
     }
     else
@@ -3855,7 +3853,8 @@ _action_location_submit_uri (GtkAction*     action,
         if (keywords == NULL)
         {
             keywords = uri;
-            search_uri = browser->location_entry_search;
+            search_uri = midori_settings_get_location_entry_search (
+                MIDORI_SETTINGS (browser->settings));
         }
         new_uri = midori_uri_for_search (search_uri, keywords);
 
@@ -4004,7 +4003,7 @@ _action_search_submit (GtkAction*     action,
     if (item)
         url = katze_item_get_uri (item);
     else /* The location entry search is our fallback */
-        url = browser->location_entry_search;
+        url = midori_settings_get_location_entry_search (MIDORI_SETTINGS (browser->settings));
 
     search = midori_uri_for_search (url, keywords);
     if (item != NULL)
@@ -4026,9 +4025,6 @@ _action_search_activate (GtkAction*     action,
                          MidoriBrowser* browser)
 {
     GSList* proxies = gtk_action_get_proxies (action);
-    const gchar* uri;
-    gchar* search;
-
     for (; proxies != NULL; proxies = g_slist_next (proxies))
         if (GTK_IS_TOOL_ITEM (proxies->data))
         {
@@ -4037,12 +4033,8 @@ _action_search_activate (GtkAction*     action,
             return;
         }
 
-    /* Load default search engine in current tab */
-    uri = browser->location_entry_search;
-    search = midori_uri_for_search (uri ? uri : "", "");
-    midori_browser_set_current_uri (browser, search);
+    midori_browser_set_current_uri (browser, "about:search");
     gtk_widget_grab_focus (midori_browser_get_current_tab (browser));
-    g_free (search);
 }
 
 static void
@@ -5011,7 +5003,7 @@ midori_browser_notebook_tab_added_cb (GtkWidget*         notebook,
     GtkWidget* view = midori_view_new_with_item (NULL, browser->settings);
     midori_view_set_tab (MIDORI_VIEW (view), tab);
     midori_browser_connect_tab (browser, view);
-    midori_view_set_uri (MIDORI_VIEW (view), "");
+    midori_view_set_uri (MIDORI_VIEW (view), "about:new");
     /* FIXME: signal add-tab */
     _midori_browser_update_actions (browser);
     midori_browser_notebook_page_reordered_cb (GTK_WIDGET (notebook),
@@ -5170,7 +5162,7 @@ midori_browser_notebook_button_press_event_after_cb (GtkNotebook*    notebook,
     if (/*(event->type == GDK_2BUTTON_PRESS && event->button == 1)
     || */(event->type == GDK_BUTTON_PRESS && MIDORI_EVENT_NEW_TAB (event)))
     {
-        GtkWidget* view = midori_browser_add_uri (browser, "");
+        GtkWidget* view = midori_browser_add_uri (browser, "about:new");
         midori_browser_set_current_tab (browser, view);
 
         return TRUE;
@@ -6440,8 +6432,6 @@ midori_browser_finalize (GObject* object)
     katze_object_assign (browser->history, NULL);
     katze_object_assign (browser->dial, NULL);
 
-    katze_assign (browser->news_aggregator, NULL);
-
     G_OBJECT_CLASS (midori_browser_parent_class)->finalize (object);
 }
 
@@ -6760,9 +6750,6 @@ _midori_browser_update_settings (MidoriBrowser* browser)
     gboolean close_buttons_on_tabs;
     KatzeItem* item;
 
-    g_free (browser->location_entry_search);
-    g_free (browser->news_aggregator);
-
     g_object_get (browser->settings,
                   "remember-last-window-size", &remember_last_window_size,
                   "last-window-width", &browser->last_window_width,
@@ -6781,10 +6768,8 @@ _midori_browser_update_settings (MidoriBrowser* browser)
                   "show-statusbar", &browser->show_statusbar,
                   "toolbar-style", &toolbar_style,
                   "toolbar-items", &toolbar_items,
-                  "location-entry-search", &browser->location_entry_search,
                   "close-buttons-on-tabs", &close_buttons_on_tabs,
                   "maximum-history-age", &browser->maximum_history_age,
-                  "news-aggregator", &browser->news_aggregator,
                   NULL);
 
     #ifdef HAVE_GRANITE
@@ -6828,6 +6813,8 @@ _midori_browser_update_settings (MidoriBrowser* browser)
 
     if (browser->search_engines)
     {
+        const gchar* default_search = midori_settings_get_location_entry_search (
+            MIDORI_SETTINGS (browser->settings));
         item = katze_array_get_nth_item (browser->search_engines,
                                          browser->last_web_search);
         if (item)
@@ -6835,7 +6822,7 @@ _midori_browser_update_settings (MidoriBrowser* browser)
                 _action_by_name (browser, "Search")), item);
 
         KATZE_ARRAY_FOREACH_ITEM (item, browser->search_engines)
-            if (!g_strcmp0 (katze_item_get_uri (item), browser->location_entry_search))
+            if (!g_strcmp0 (item->uri, default_search))
             {
                 midori_search_action_set_default_item (MIDORI_SEARCH_ACTION (
                 _action_by_name (browser, "Search")), item);
@@ -6914,16 +6901,8 @@ midori_browser_settings_notify (MidoriWebSettings* web_settings,
         browser->show_statusbar = g_value_get_boolean (&value);
         _action_set_active (browser, "Statusbar", g_value_get_boolean (&value));
     }
-    else if (name == g_intern_string ("location-entry-search"))
-    {
-        katze_assign (browser->location_entry_search, g_value_dup_string (&value));
-    }
     else if (name == g_intern_string ("maximum-history-age"))
         browser->maximum_history_age = g_value_get_int (&value);
-    else if (name == g_intern_string ("news-aggregator"))
-    {
-        katze_assign (browser->news_aggregator, g_value_dup_string (&value));
-    }
     else if (name == g_intern_string ("close-buttons-left"))
     {
         midori_findbar_set_close_button_left (MIDORI_FINDBAR (browser->find),
@@ -7171,13 +7150,15 @@ midori_browser_set_property (GObject*      object,
 
         if (browser->search_engines)
         {
+            const gchar* default_search = midori_settings_get_location_entry_search (
+                MIDORI_SETTINGS (browser->settings));
             g_object_get (browser->settings, "last-web-search", &browser->last_web_search, NULL);
             item = katze_array_get_nth_item (browser->search_engines, browser->last_web_search);
             midori_search_action_set_current_item (MIDORI_SEARCH_ACTION (
                 _action_by_name (browser, "Search")), item);
 
             KATZE_ARRAY_FOREACH_ITEM (item, browser->search_engines)
-                if (!g_strcmp0 (katze_item_get_uri (item), browser->location_entry_search))
+                if (!g_strcmp0 (item->uri, default_search))
                 {
                     midori_search_action_set_default_item (MIDORI_SEARCH_ACTION (
                     _action_by_name (browser, "Search")), item);

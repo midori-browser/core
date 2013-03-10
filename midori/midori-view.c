@@ -3999,11 +3999,14 @@ list_video_formats (MidoriView* view)
 }
 
 static const gchar* valid_about_uris[] = {
+    "about:dial",
     "about:geolocation",
     "about:home",
+    "about:new",
     "about:nodocs",
     "about:paths",
     "about:private",
+    "about:search",
     "about:widgets",
 };
 
@@ -4042,10 +4045,21 @@ midori_view_set_uri (MidoriView*  view,
 
     if (!midori_debug ("unarmed"))
     {
-        if (uri && !strcmp (uri, "about:home"))
+        gchar* temporary_uri = NULL;
+        if (uri == NULL || !strcmp (uri, ""))
+            uri = "about:blank";
+        else if (!strcmp (uri, "about:new"))
+            uri = midori_settings_get_tabhome (MIDORI_SETTINGS (view->settings));
+        if (!strcmp (uri, "about:home"))
             uri = midori_settings_get_homepage (MIDORI_SETTINGS (view->settings));
+        if (!strcmp (uri, "about:search"))
+        {
+            uri = midori_settings_get_location_entry_search (MIDORI_SETTINGS (view->settings));
+            temporary_uri = midori_uri_for_search (uri, "");
+            uri = temporary_uri;
+        }
 
-        if (!uri || !strcmp (uri, "") || !strcmp (uri, "about:blank"))
+        if (!strcmp (uri, "about:dial"))
         {
             MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (view));
             MidoriSpeedDial* dial = katze_object_get_object (browser, "speed-dial");
@@ -4282,6 +4296,7 @@ midori_view_set_uri (MidoriView*  view,
 #endif
             webkit_web_view_load_uri (WEBKIT_WEB_VIEW (view->web_view), uri);
         }
+        g_free (temporary_uri);
     }
 }
 
@@ -4376,7 +4391,7 @@ midori_view_get_icon_uri (MidoriView* view)
  *
  * Retrieves a string that is suitable for displaying.
  *
- * Note that "about:blank" is represented as "".
+ * Note that "about:blank" and "about:dial" are represented as "".
  *
  * You can assume that the string is not %NULL.
  *

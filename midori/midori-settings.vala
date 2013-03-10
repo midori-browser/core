@@ -102,7 +102,8 @@ namespace Midori {
         public bool open_tabs_next_to_current { get; set; default = true; }
         public bool always_show_tabbar { get; set; default = true; }
 
-        public string homepage { get; set; default = "http://www.google.com"; }
+        public string homepage { get; set; default = "about:search"; }
+        public string tabhome { get; set; default = "about:dial"; }
         static string default_download_folder () {
             return Environment.get_user_special_dir (UserDirectory.DOWNLOAD)
                 ?? Environment.get_home_dir ();
