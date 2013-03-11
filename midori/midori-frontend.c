@@ -122,7 +122,7 @@ midori_trash_remove_item_cb (KatzeArray* trash,
     gchar* config_file = midori_paths_get_config_filename_for_writing ("tabtrash.xbel");
     GError* error = NULL;
     midori_trash_add_item_no_save_cb (trash, item);
-    if (!midori_array_to_file (trash, config_file, "xbel", &error))
+    if (!midori_array_to_file (trash, config_file, "xbel-tiny", &error))
     {
         /* i18n: Trash, or wastebin, containing closed tabs */
         g_warning (_("The trash couldn't be saved. %s"), error->message);

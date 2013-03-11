@@ -35,7 +35,8 @@ katze_xbel_parse_info (KatzeItem* item,
                        xmlNodePtr cur);
 
 static gchar*
-katze_item_metadata_to_xbel (KatzeItem* item);
+katze_item_metadata_to_xbel (KatzeItem* item,
+                             gboolean   tiny_xbel);
 
 #if HAVE_LIBXML
 static KatzeItem*
@@ -187,6 +188,7 @@ katze_xbel_parse_info (KatzeItem* item,
 /* Loads the contents from an xmlNodePtr into an array. */
 static gboolean
 katze_array_from_xmlDocPtr (KatzeArray* array,
+                            gboolean    tiny_xbel,
                             xmlDocPtr   doc)
 {
     xmlNodePtr cur;
@@ -205,7 +207,7 @@ katze_array_from_xmlDocPtr (KatzeArray* array,
         gchar* value;
 
         value = (gchar*)xmlGetProp (cur, (xmlChar*)"version");
-        if (!value || !katze_str_equal (value, "1.0"))
+        if (!tiny_xbel && (!value || !katze_str_equal (value, "1.0")))
             g_warning ("XBEL version is not 1.0.");
         g_free (value);
 
@@ -597,6 +599,7 @@ midori_array_from_file (KatzeArray*  array,
 
     /* XBEL */
     if (katze_str_equal (format, "xbel")
+     || katze_str_equal (format, "xbel-tiny")
      || !*format)
     {
         xmlDocPtr doc;
@@ -610,7 +613,7 @@ midori_array_from_file (KatzeArray*  array,
             return FALSE;
         }
 
-        if (!katze_array_from_xmlDocPtr (array, doc))
+        if (!katze_array_from_xmlDocPtr (array, katze_str_equal (format, "xbel-tiny"), doc))
         {
             /* Parsing failed */
             xmlFreeDoc (doc);
@@ -701,13 +704,14 @@ string_append_xml_element (GString*     string,
 
 static void
 string_append_item (GString*   string,
-                    KatzeItem* item)
+                    KatzeItem* item,
+                    gboolean   tiny_xbel)
 {
     gchar* metadata;
 
     g_return_if_fail (KATZE_IS_ITEM (item));
 
-    metadata = katze_item_metadata_to_xbel (item);
+    metadata = katze_item_metadata_to_xbel (item, tiny_xbel);
     if (KATZE_IS_ARRAY (item))
     {
         KatzeItem* _item;
@@ -719,7 +723,7 @@ string_append_item (GString*   string,
         string_append_xml_element (string, "title", katze_item_get_name (item));
         string_append_xml_element (string, "desc", katze_item_get_text (item));
         KATZE_ARRAY_FOREACH_ITEM_L (_item, array, list)
-            string_append_item (string, _item);
+            string_append_item (string, _item, tiny_xbel);
         g_string_append (string, metadata);
         g_string_append (string, "</folder>\n");
         g_list_free (list);
@@ -787,7 +791,8 @@ string_append_netscape_item (GString*   string,
 }
 
 static gchar*
-katze_item_metadata_to_xbel (KatzeItem* item)
+katze_item_metadata_to_xbel (KatzeItem* item,
+                             gboolean   tiny_xbel)
 {
     GList* keys = katze_item_get_meta_keys (item);
     GString* markup;
@@ -817,7 +822,7 @@ katze_item_metadata_to_xbel (KatzeItem* item)
                 string_append_escaped (markdown, value);
                 g_string_append_printf (markdown, "</%s>\n", key);
             }
-            else if (namespace)
+            else if (namespace || tiny_xbel)
             {
                 g_string_append_printf (markup, " %s=\"", key);
                 string_append_escaped (markup, value);
@@ -830,7 +835,7 @@ katze_item_metadata_to_xbel (KatzeItem* item)
                 g_string_append_c (markup, '\"');
             }
         }
-    if (!namespace)
+    if (!namespace && !tiny_xbel)
     {
         namespace_uri = "http://www.twotoasts.de";
         g_string_append_printf (markup, " owner=\"%s\"", namespace_uri);
@@ -845,25 +850,27 @@ katze_item_metadata_to_xbel (KatzeItem* item)
 
 static gchar*
 katze_array_to_xbel (KatzeArray* array,
+                     gboolean    tiny_xbel,
                      GError**    error)
 {
-    gchar* metadata = katze_item_metadata_to_xbel (KATZE_ITEM (array));
+    gchar* metadata = katze_item_metadata_to_xbel (KATZE_ITEM (array), tiny_xbel);
     KatzeItem* item;
     GList* list;
 
-    GString* markup = g_string_new (
-        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-        "<!DOCTYPE xbel PUBLIC \"+//IDN python.org//DTD "
-        "XML Bookmark Exchange Language 1.0//EN//XML\" "
-        "\"http://www.python.org/topics/xml/dtds/xbel-1.0.dtd\">\n"
-        "<xbel version=\"1.0\""
-        " xmlns:midori=\"http://www.twotoasts.de\""
-        ">\n");
+    GString* markup = g_string_new ("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+    if (tiny_xbel)
+        g_string_append (markup, "<xbel>\n");
+    else
+        g_string_append (markup,
+            "<!DOCTYPE xbel PUBLIC \"+//IDN python.org//DTD "
+            "XML Bookmark Exchange Language 1.0//EN//XML\" "
+            "\"http://www.python.org/topics/xml/dtds/xbel-1.0.dtd\">\n"
+            "<xbel version=\"1.0\" xmlns:midori=\"http://www.twotoasts.de\">\n");
     string_append_xml_element (markup, "title", katze_item_get_name (KATZE_ITEM (array)));
     string_append_xml_element (markup, "desc", katze_item_get_text (KATZE_ITEM (array)));
     g_string_append (markup, metadata ? metadata : "");
     KATZE_ARRAY_FOREACH_ITEM_L (item, array, list)
-        string_append_item (markup, item);
+        string_append_item (markup, item, tiny_xbel);
     g_string_append (markup, "</xbel>\n");
 
     g_free (metadata);
@@ -909,7 +916,9 @@ midori_array_to_file_format (KatzeArray*  array,
     gboolean success;
 
     if (!g_strcmp0 (format, "xbel"))
-        data = katze_array_to_xbel (array, error);
+        data = katze_array_to_xbel (array, FALSE, error);
+    else if (!g_strcmp0 (format, "xbel-tiny"))
+        data = katze_array_to_xbel (array, TRUE, error);
     else if (!g_strcmp0 (format, "netscape"))
         data = katze_array_to_netscape_html (array, error);
     else
@@ -944,6 +953,7 @@ midori_array_to_file (KatzeArray*  array,
     g_return_val_if_fail (!error || !*error, FALSE);
 
     if (!g_strcmp0 (format, "xbel")
+    ||  !g_strcmp0 (format, "xbel-tiny")
     ||  !g_strcmp0 (format, "netscape"))
         return midori_array_to_file_format (array, filename, format, error);
 

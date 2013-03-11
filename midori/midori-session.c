@@ -407,7 +407,7 @@ midori_session_save_timeout_cb (KatzeArray* session)
 {
     gchar* config_file = midori_paths_get_config_filename_for_writing ("session.xbel");
     GError* error = NULL;
-    if (!midori_array_to_file (session, config_file, "xbel", &error))
+    if (!midori_array_to_file (session, config_file, "xbel-tiny", &error))
     {
         g_warning (_("The session couldn't be saved. %s"), error->message);
         g_error_free (error);
