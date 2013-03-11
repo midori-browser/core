@@ -710,7 +710,7 @@ midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view
     const gchar* uri = webkit_network_request_get_uri (request);
     if (g_str_has_prefix (uri, "geo:") && strstr (uri, ","))
     {
-        gchar* new_uri = sokoke_magic_uri (uri);
+        gchar* new_uri = sokoke_magic_uri (uri, TRUE, FALSE);
         midori_view_set_uri (view, new_uri);
         g_free (new_uri);
         return TRUE;
@@ -1755,7 +1755,7 @@ midori_view_web_view_button_press_event_cb (WebKitWebView*  web_view,
                     /* Hold Alt to search for the selected word */
                     if (event->state & GDK_MOD1_MASK)
                     {
-                        new_uri = sokoke_magic_uri (uri);
+                        new_uri = sokoke_magic_uri (uri, TRUE, FALSE);
                         if (!new_uri)
                         {
                             gchar* search = katze_object_get_string (
@@ -2280,7 +2280,7 @@ midori_web_view_menu_new_tab_activate_cb (GtkWidget*  widget,
         }
         else
         {
-            gchar* uri = sokoke_magic_uri (data);
+            gchar* uri = sokoke_magic_uri (data, TRUE, FALSE);
             if (!uri)
                 uri = g_strdup (data);
             g_signal_emit (view, signals[NEW_TAB], 0, uri,

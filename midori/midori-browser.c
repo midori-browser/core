@@ -2929,7 +2929,7 @@ midori_browser_open_bookmark (MidoriBrowser* browser,
         return;
 
     /* Imported bookmarks may lack a protocol */
-    uri_fixed = sokoke_magic_uri (uri);
+    uri_fixed = sokoke_magic_uri (uri, TRUE, FALSE);
     if (!uri_fixed)
         uri_fixed = g_strdup (uri);
 
@@ -3789,7 +3789,7 @@ _action_location_submit_uri (GtkAction*     action,
     }
 
     uri = katze_skip_whitespace (uri);
-    new_uri = sokoke_magic_uri (uri);
+    new_uri = sokoke_magic_uri (uri, TRUE, FALSE);
     if (!new_uri)
     {
         const gchar* keywords = NULL;

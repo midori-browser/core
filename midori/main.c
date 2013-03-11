@@ -266,7 +266,7 @@ main (int    argc,
         g_signal_connect (web_view, "load-finished",
             G_CALLBACK (snapshot_load_finished_cb), filename);
         #endif
-        uri = sokoke_prepare_uri (snapshot);
+        uri = sokoke_magic_uri (snapshot, FALSE, TRUE);
         webkit_web_view_load_uri (WEBKIT_WEB_VIEW (web_view), uri);
         g_free (uri);
         gtk_main ();
@@ -281,8 +281,8 @@ main (int    argc,
         GtkWidget* scrolled = gtk_scrolled_window_new (NULL, NULL);
 #endif
         GtkWidget* web_view = webkit_web_view_new ();
-        gchar* uri = sokoke_prepare_uri (
-            (uris != NULL && uris[0]) ? uris[0] : "http://www.example.com");
+        gchar* uri = sokoke_magic_uri (
+            (uris != NULL && uris[0]) ? uris[0] : "http://www.example.com", FALSE, TRUE);
         katze_window_set_sensible_default_size (GTK_WINDOW (window));
 
 #ifndef HAVE_WEBKIT2

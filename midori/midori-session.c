@@ -519,7 +519,7 @@ midori_load_session (gpointer data)
         guint i = 0;
         while (open_uris[i])
         {
-            gchar* uri = sokoke_prepare_uri (open_uris[i]);
+            gchar* uri = sokoke_magic_uri (open_uris[i], TRUE, TRUE);
             midori_browser_add_uri (browser, uri);
             g_free (uri);
             i++;

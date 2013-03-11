@@ -63,10 +63,9 @@ gboolean
 sokoke_external_uri                     (const gchar*    uri);
 
 gchar*
-sokoke_prepare_uri                      (const gchar*    uri);
-
-gchar*
-sokoke_magic_uri                        (const gchar*    uri);
+sokoke_magic_uri                        (const gchar*    uri,
+                                         gboolean        allow_search,
+                                         gboolean        allow_realtive);
 
 void
 sokoke_widget_set_visible               (GtkWidget*      widget,

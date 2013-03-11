@@ -79,7 +79,7 @@ midori_web_app_new (const gchar* config,
 
     if (webapp != NULL)
     {
-        gchar* tmp_uri = sokoke_prepare_uri (webapp);
+        gchar* tmp_uri = sokoke_magic_uri (webapp, FALSE, TRUE);
         g_object_set (settings, "homepage", tmp_uri, NULL);
         midori_browser_add_uri (browser, tmp_uri);
         g_free (tmp_uri);
@@ -92,7 +92,7 @@ midori_web_app_new (const gchar* config,
     if (open_uris != NULL)
         for (i = 0; open_uris[i] != NULL; i++)
         {
-            gchar* new_uri = sokoke_prepare_uri (open_uris[i]);
+            gchar* new_uri = sokoke_magic_uri (open_uris[i], FALSE, TRUE);
             midori_browser_add_uri (browser, new_uri);
             g_free (new_uri);
         }
@@ -206,7 +206,7 @@ midori_private_app_new (const gchar* config,
 
     if (webapp != NULL)
     {
-        gchar* tmp_uri = sokoke_prepare_uri (webapp);
+        gchar* tmp_uri = sokoke_magic_uri (webapp, FALSE, TRUE);
         g_object_set (settings, "homepage", tmp_uri, NULL);
         midori_browser_add_uri (browser, tmp_uri);
         g_free (tmp_uri);
@@ -219,7 +219,7 @@ midori_private_app_new (const gchar* config,
     if (open_uris != NULL)
         for (i = 0; open_uris[i] != NULL; i++)
         {
-            gchar* new_uri = sokoke_prepare_uri (open_uris[i]);
+            gchar* new_uri = sokoke_magic_uri (open_uris[i], FALSE, TRUE);
             midori_browser_add_uri (browser, new_uri);
             g_free (new_uri);
         }

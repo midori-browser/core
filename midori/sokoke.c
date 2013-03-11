@@ -470,25 +470,6 @@ sokoke_external_uri (const gchar* uri)
     return info != NULL;
 }
 
-gchar*
-sokoke_prepare_uri (const gchar *uri)
-{
-    gchar* uri_ready;
-
-    if (g_str_has_prefix (uri, "javascript:"))
-        return g_strdup (uri);
-    else if (g_file_test (uri, G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR)
-         && !g_path_is_absolute (uri))
-    {
-        GFile* file = g_file_new_for_commandline_arg (uri);
-        uri_ready = g_file_get_uri (file);
-        g_object_unref (file);
-        return uri_ready;
-    }
-
-    return sokoke_magic_uri (uri);
-}
-
 /**
  * sokoke_magic_uri:
  * @uri: a string typed by a user
@@ -501,7 +482,9 @@ sokoke_prepare_uri (const gchar *uri)
  * Return value: a newly allocated URI, or %NULL
  **/
 gchar*
-sokoke_magic_uri (const gchar* uri)
+sokoke_magic_uri (const gchar* uri,
+                  gboolean     allow_search,
+                  gboolean     allow_relative)
 {
     gchar** parts;
     gchar* search;
@@ -511,6 +494,14 @@ sokoke_magic_uri (const gchar* uri)
     /* Add file:// if we have a local path */
     if (g_path_is_absolute (uri))
         return g_filename_to_uri (uri, NULL, NULL);
+    if (allow_relative
+     && g_file_test (uri, G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR))
+    {
+        GFile* file = g_file_new_for_commandline_arg (uri);
+        gchar* uri_ready = g_file_get_uri (file);
+        g_object_unref (file);
+        return uri_ready;
+    }
     /* Parse geo URI geo:48.202778,16.368472;crs=wgs84;u=40 as a location */
     if (!strncmp (uri, "geo:", 4))
     {
@@ -564,6 +555,11 @@ sokoke_magic_uri (const gchar* uri)
                 }
         }
         g_strfreev (parts);
+    }
+    if (!allow_search)
+    {
+        g_printerr ("%s - %s\n", _("Midori"), _("Invalid URI"));
+        exit (1);
     }
     return NULL;
 }
