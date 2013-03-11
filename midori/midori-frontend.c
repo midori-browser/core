@@ -45,6 +45,8 @@ midori_web_app_new (const gchar* config,
                     gint         inactivity_reset,
                     const gchar* block_uris)
 {
+    guint i;
+
     midori_paths_init (MIDORI_RUNTIME_MODE_APP, config);
 #ifndef HAVE_WEBKIT2
     g_object_set_data (G_OBJECT (webkit_get_default_session ()), "pass-through-console", (void*)1);
@@ -84,11 +86,7 @@ midori_web_app_new (const gchar* config,
         midori_browser_add_uri (browser, tmp_uri);
         g_free (tmp_uri);
     }
-    else if (open_uris == NULL)
-        midori_browser_add_uri (browser, "about:blank");
-    gtk_widget_show (GTK_WIDGET (browser));
 
-    guint i;
     if (open_uris != NULL)
         for (i = 0; open_uris[i] != NULL; i++)
         {
@@ -96,6 +94,9 @@ midori_web_app_new (const gchar* config,
             midori_browser_add_uri (browser, new_uri);
             g_free (new_uri);
         }
+    if (midori_browser_get_n_pages (browser) == 0)
+        midori_browser_add_uri (browser, "about:blank");
+    gtk_widget_show (GTK_WIDGET (browser));
 
     if (execute_commands != NULL)
         for (i = 0; execute_commands[i] != NULL; i++)
@@ -145,6 +146,8 @@ midori_private_app_new (const gchar* config,
                         gint         inactivity_reset,
                         const gchar* block_uris)
 {
+    guint i;
+
     midori_paths_init (MIDORI_RUNTIME_MODE_PRIVATE, config);
 #ifndef HAVE_WEBKIT2
     g_object_set_data (G_OBJECT (webkit_get_default_session ()), "pass-through-console", (void*)1);
@@ -211,11 +214,7 @@ midori_private_app_new (const gchar* config,
         midori_browser_add_uri (browser, tmp_uri);
         g_free (tmp_uri);
     }
-    else if (open_uris == NULL)
-        midori_browser_add_uri (browser, "about:private");
-    gtk_widget_show (GTK_WIDGET (browser));
 
-    guint i;
     if (open_uris != NULL)
         for (i = 0; open_uris[i] != NULL; i++)
         {
@@ -223,6 +222,9 @@ midori_private_app_new (const gchar* config,
             midori_browser_add_uri (browser, new_uri);
             g_free (new_uri);
         }
+    if (midori_browser_get_n_pages (browser) == 0)
+        midori_browser_add_uri (browser, "about:private");
+    gtk_widget_show (GTK_WIDGET (browser));
 
     if (execute_commands != NULL)
         for (i = 0; execute_commands[i] != NULL; i++)
