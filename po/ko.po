@@ -18,7 +18,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: midori 0.2.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-03-11 11:21+0000\n"
+"POT-Creation-Date: 2013-03-12 19:27+0000\n"
 "PO-Revision-Date: 2013-02-28 09:39+0900\n"
 "Last-Translator: Kim Boram <boramism@gmail.com>\n"
 "Language-Team: Kim Boram <boramism@gmail.com>\n"
@@ -38,7 +38,7 @@ msgid "Internet;WWW;Explorer"
 msgstr "인터넷;WWW;익스플로러"
 
 #: ../data/midori.desktop.in.h:3 ../midori/main.c:162
-#: ../midori/midori-app.c:1443 ../midori/midori-websettings.c:201
+#: ../midori/midori-app.c:1443 ../midori/midori-websettings.c:222
 #: ../midori/midori-view.c:3849 ../midori/sokoke.c:561
 msgid "Midori"
 msgstr "미도리"
@@ -796,15 +796,15 @@ msgstr "책갈피 모음(_B)"
 msgid "_Statusbar"
 msgstr "상태 표시줄(_S)"
 
-#: ../midori/midori-browser.c:5435 ../midori/midori-websettings.c:200
+#: ../midori/midori-browser.c:5435 ../midori/midori-websettings.c:221
 msgid "_Automatic"
 msgstr "자동(_A)"
 
-#: ../midori/midori-browser.c:5438 ../midori/midori-websettings.c:124
+#: ../midori/midori-browser.c:5438 ../midori/midori-websettings.c:145
 msgid "Chinese Traditional (BIG5)"
 msgstr "중국어 번체(BIG5)"
 
-#: ../midori/midori-browser.c:5441 ../midori/midori-websettings.c:125
+#: ../midori/midori-browser.c:5441 ../midori/midori-websettings.c:146
 msgid "Chinese Simplified (GB18030)"
 msgstr "중국어 간체(GB18030)"
 
@@ -813,19 +813,19 @@ msgstr "중국어 간체(GB18030)"
 msgid "Japanese (SHIFT__JIS)"
 msgstr "일본어(Shift_JIS)"
 
-#: ../midori/midori-browser.c:5448 ../midori/midori-websettings.c:127
+#: ../midori/midori-browser.c:5448 ../midori/midori-websettings.c:148
 msgid "Korean (EUC-KR)"
 msgstr "한국어(EUC-KR)"
 
-#: ../midori/midori-browser.c:5451 ../midori/midori-websettings.c:128
+#: ../midori/midori-browser.c:5451 ../midori/midori-websettings.c:149
 msgid "Russian (KOI8-R)"
 msgstr "키릴어(KOI8-R)"
 
-#: ../midori/midori-browser.c:5454 ../midori/midori-websettings.c:129
+#: ../midori/midori-browser.c:5454 ../midori/midori-websettings.c:150
 msgid "Unicode (UTF-8)"
 msgstr "유니코드(UTF-8)"
 
-#: ../midori/midori-browser.c:5457 ../midori/midori-websettings.c:130
+#: ../midori/midori-browser.c:5457 ../midori/midori-websettings.c:151
 msgid "Western (ISO-8859-1)"
 msgstr "서양어(ISO-8859-1)"
 
@@ -970,122 +970,134 @@ msgstr "패널 닫기"
 msgid "Align sidepanel to the left"
 msgstr "창을 왼쪽으로 이동"
 
-#: ../midori/midori-websettings.c:106
+#: ../midori/midori-websettings.c:108 ../midori/midori-websettings.c:129
 msgid "Show Speed Dial"
 msgstr "단축 번호 보이기"
 
-#: ../midori/midori-websettings.c:107
+#: ../midori/midori-websettings.c:109 ../midori/midori-websettings.c:127
 msgid "Show Homepage"
 msgstr "홈 페이지 표시"
 
-#: ../midori/midori-websettings.c:108 ../midori/midori-frontend.c:344
+#: ../midori/midori-websettings.c:110 ../midori/midori-frontend.c:344
 msgid "Show last open tabs"
 msgstr "마지막에 연 탭 표시"
 
-#: ../midori/midori-websettings.c:109 ../midori/midori-frontend.c:343
+#: ../midori/midori-websettings.c:111 ../midori/midori-frontend.c:343
 msgid "Show last tabs without loading"
 msgstr "마지막 탭을 불러오지는 않고 표시"
 
 #: ../midori/midori-websettings.c:126
+msgid "Show Blank Page"
+msgstr "빈 페이지 보이기"
+
+#: ../midori/midori-websettings.c:128
+msgid "Show default Search Engine"
+msgstr "기본 검색 엔진 보이기"
+
+#: ../midori/midori-websettings.c:130
+msgid "Show custom page"
+msgstr "현재 홈 페이지 보이기"
+
+#: ../midori/midori-websettings.c:147
 msgid "Japanese (SHIFT_JIS)"
 msgstr "일본어(Shift_JIS)"
 
-#: ../midori/midori-websettings.c:131 ../midori/midori-websettings.c:207
+#: ../midori/midori-websettings.c:152 ../midori/midori-websettings.c:228
 #: ../katze/katze-utils.c:603
 msgid "Custom..."
 msgstr "사용자 지정..."
 
-#: ../midori/midori-websettings.c:146
+#: ../midori/midori-websettings.c:167
 msgid "New tab"
 msgstr "새 탭"
 
-#: ../midori/midori-websettings.c:147
+#: ../midori/midori-websettings.c:168
 msgid "New window"
 msgstr "새 창"
 
-#: ../midori/midori-websettings.c:148
+#: ../midori/midori-websettings.c:169
 msgid "Current tab"
 msgstr "현재 탭"
 
-#: ../midori/midori-websettings.c:163
+#: ../midori/midori-websettings.c:184
 msgid "Default"
 msgstr "기본 값"
 
-#: ../midori/midori-websettings.c:164
+#: ../midori/midori-websettings.c:185
 msgid "Icons"
 msgstr "아이콘"
 
-#: ../midori/midori-websettings.c:165
+#: ../midori/midori-websettings.c:186
 msgid "Small icons"
 msgstr "작은 아이콘"
 
-#: ../midori/midori-websettings.c:166
+#: ../midori/midori-websettings.c:187
 msgid "Text"
 msgstr "텍스트"
 
-#: ../midori/midori-websettings.c:167
+#: ../midori/midori-websettings.c:188
 msgid "Icons and text"
 msgstr "아이콘 및 텍스트"
 
-#: ../midori/midori-websettings.c:168
+#: ../midori/midori-websettings.c:189
 msgid "Text beside icons"
 msgstr "아이콘 옆에 글자"
 
-#: ../midori/midori-websettings.c:183
+#: ../midori/midori-websettings.c:204
 msgid "Automatic (GNOME or environment)"
 msgstr "자동(그놈 또는 환경 변수)"
 
-#: ../midori/midori-websettings.c:184
+#: ../midori/midori-websettings.c:205
 msgid "HTTP proxy server"
 msgstr "HTTP 프록시 서버"
 
-#: ../midori/midori-websettings.c:185
+#: ../midori/midori-websettings.c:206
 msgid "No proxy server"
 msgstr "프록시 서버 없음"
 
-#: ../midori/midori-websettings.c:202
+#: ../midori/midori-websettings.c:223
 msgid "Chrome"
 msgstr "크롬"
 
-#: ../midori/midori-websettings.c:203
+#: ../midori/midori-websettings.c:224
 msgid "Safari"
 msgstr "사파리"
 
-#: ../midori/midori-websettings.c:204
+#: ../midori/midori-websettings.c:225
 msgid "iPhone"
 msgstr "아이폰"
 
-#: ../midori/midori-websettings.c:205
+#: ../midori/midori-websettings.c:226
 msgid "Firefox"
 msgstr "파이어폭스"
 
-#: ../midori/midori-websettings.c:206
+#: ../midori/midori-websettings.c:227
 msgid "Internet Explorer"
 msgstr "인터넷 익스플로러"
 
-#: ../midori/midori-websettings.c:281
+#: ../midori/midori-websettings.c:302
 msgid "The style of the toolbar"
 msgstr "도구 모음 유형:"
 
-#: ../midori/midori-websettings.c:473
+#: ../midori/midori-websettings.c:504
 msgid "Always use my font choices"
 msgstr "항상 사용자가 선택한 글꼴을 사용"
 
-#: ../midori/midori-websettings.c:474
+#: ../midori/midori-websettings.c:505
 msgid "Override fonts picked by websites with user preferences"
 msgstr "웹 사이트에 설정된 글꼴을 사용자 기본 설정으로 대체"
 
-#: ../midori/midori-websettings.c:1309 ../midori/midori-websettings.c:1315
+#: ../midori/midori-websettings.c:1369 ../midori/midori-websettings.c:1375
 #, c-format
 msgid "The configuration couldn't be loaded: %s\n"
 msgstr "설정을 읽을 수 없습니다: %s\n"
 
-#: ../midori/midori-websettings.c:1364
+#: ../midori/midori-websettings.c:1424
 #, c-format
 msgid "Value '%s' is invalid for %s"
 msgstr "값 '%s'은(는) %s의 잘못된 값입니다"
 
-#: ../midori/midori-websettings.c:1369 ../midori/midori-websettings.c:1480
+#: ../midori/midori-websettings.c:1429 ../midori/midori-websettings.c:1540
 #, c-format
 msgid "Invalid configuration value '%s'"
 msgstr " '%s'은(는) 잘못된 설정 값입니다."
@@ -1590,91 +1602,95 @@ msgstr "도구 모음 유형:"
 msgid "Open new pages in:"
 msgstr "새 페이지 다음에 열기:"
 
-#: ../midori/midori-preferences.c:438
+#: ../midori/midori-preferences.c:437
+msgid "New tab behavior:"
+msgstr "새 탭 행동:"
+
+#: ../midori/midori-preferences.c:442
 msgid "Close Buttons on Tabs"
 msgstr "탭에 닫기 단추 표시"
 
-#: ../midori/midori-preferences.c:442
+#: ../midori/midori-preferences.c:446
 msgid "Always Show Tabbar"
 msgstr "탭 모음 항상 보기"
 
-#: ../midori/midori-preferences.c:446
+#: ../midori/midori-preferences.c:450
 msgid "Open Tabs next to Current"
 msgstr "탭을 현재 탭 옆에 열기"
 
-#: ../midori/midori-preferences.c:447
+#: ../midori/midori-preferences.c:451
 msgid "Whether to open new tabs next to the current tab or after the last one"
 msgstr "새 탭을 현재 탭의 옆에 열지 마지막 탭 다음에 열지 결정합니다."
 
-#: ../midori/midori-preferences.c:450
+#: ../midori/midori-preferences.c:454
 msgid "Open tabs in the background"
 msgstr "탭을 연 후 바로 전환하지 않음"
 
-#: ../midori/midori-preferences.c:454
+#: ../midori/midori-preferences.c:458
 msgid "Text Editor"
 msgstr "텍스트 편집기"
 
-#: ../midori/midori-preferences.c:459
+#: ../midori/midori-preferences.c:463
 msgid "News Aggregator"
 msgstr "뉴스 수집기"
 
 #. Page "Network"
-#: ../midori/midori-preferences.c:466
+#: ../midori/midori-preferences.c:470
 msgid "Network"
 msgstr "네트워크"
 
-#: ../midori/midori-preferences.c:468
+#: ../midori/midori-preferences.c:472
 msgid "Proxy server"
 msgstr "프록시 서버"
 
-#: ../midori/midori-preferences.c:473
+#: ../midori/midori-preferences.c:477
 msgid "Hostname"
 msgstr "호스트 이름"
 
-#: ../midori/midori-preferences.c:481
+#: ../midori/midori-preferences.c:485
 msgid "Port"
 msgstr "포트"
 
 #. TODO: Preserve page icons of search engines and merge privacy items
-#: ../midori/midori-preferences.c:493 ../extensions/web-cache.c:461
+#: ../midori/midori-preferences.c:497 ../extensions/web-cache.c:461
 #: ../extensions/web-cache.c:470 ../midori/midori-privatedata.c:308
 msgid "Web Cache"
 msgstr "웹 캐시"
 
-#: ../midori/midori-preferences.c:494 ../midori/midori-preferences.c:497
+#: ../midori/midori-preferences.c:498 ../midori/midori-preferences.c:501
 msgid "The maximum size of cached pages on disk"
 msgstr "디스크에 페이지를 저장할 최대 공간"
 
-#: ../midori/midori-preferences.c:499
+#: ../midori/midori-preferences.c:503
 msgid "MB"
 msgstr "MB"
 
 #. i18n: This refers to an application, not the 'user agent' string
-#: ../midori/midori-preferences.c:506
+#: ../midori/midori-preferences.c:510
 msgid "Identify as"
 msgstr "식별 명"
 
-#: ../midori/midori-preferences.c:521
+#: ../midori/midori-preferences.c:525
 msgid "Privacy"
 msgstr "개인 정보"
 
-#: ../midori/midori-preferences.c:523
+#: ../midori/midori-preferences.c:527
 msgid "Delete old Cookies after:"
 msgstr "쿠키를 보존할 기간:"
 
-#: ../midori/midori-preferences.c:525 ../midori/midori-preferences.c:528
+#: ../midori/midori-preferences.c:529 ../midori/midori-preferences.c:532
 msgid "The maximum number of days to save cookies for"
 msgstr "쿠키를 저장할 최장 기간을 설정합니다"
 
-#: ../midori/midori-preferences.c:532
+#: ../midori/midori-preferences.c:536
 msgid "Only accept Cookies from sites you visit"
 msgstr "방문한 사이트의 쿠키 만을 허용"
 
-#: ../midori/midori-preferences.c:533
+#: ../midori/midori-preferences.c:537
 msgid "Block cookies sent by third-party websites"
 msgstr "서드 파티 웹 사이트가 보낸 쿠키 막기"
 
-#: ../midori/midori-preferences.c:538
+#: ../midori/midori-preferences.c:542
 msgid ""
 "Cookies store login data, saved games, or user profiles for advertisement "
 "purposes."
@@ -1682,33 +1698,33 @@ msgstr ""
 "쿠키는 로그인 데이터, 게임 기록 또는 광고 목적의 사용자 프로필을 보관하고 있"
 "습니다."
 
-#: ../midori/midori-preferences.c:545
+#: ../midori/midori-preferences.c:549
 msgid "Enable offline web application cache"
 msgstr "오프라인 웹 응용 프로그램 캐시 사용"
 
-#: ../midori/midori-preferences.c:548
+#: ../midori/midori-preferences.c:552
 msgid "Enable HTML5 local storage support"
 msgstr "HTML5 로컬 기억 장치 지원 사용"
 
 #. i18n: Reworded: Shorten details propagated when going to another page
-#: ../midori/midori-preferences.c:552
+#: ../midori/midori-preferences.c:556
 msgid "Strip referrer details sent to websites"
 msgstr "외부 사이트에 보낼 리퍼러의 자세한 내용을 제거"
 
 #. i18n: Referer here is not a typo but a technical term
-#: ../midori/midori-preferences.c:554
+#: ../midori/midori-preferences.c:558
 msgid "Whether the \"Referer\" header should be shortened to the hostname"
 msgstr "\"리퍼러\" 헤더를 호스트 이름으로 줄이기"
 
-#: ../midori/midori-preferences.c:557
+#: ../midori/midori-preferences.c:561
 msgid "Delete pages from history after:"
 msgstr "기록에 페이지를 보존할 기간:"
 
-#: ../midori/midori-preferences.c:559 ../midori/midori-preferences.c:562
+#: ../midori/midori-preferences.c:563 ../midori/midori-preferences.c:566
 msgid "The maximum number of days to save the history for"
 msgstr "방문 기록을 저장할 최대 기간을 설정합니다"
 
-#: ../midori/midori-preferences.c:599 ../panels/midori-extensions.c:90
+#: ../midori/midori-preferences.c:603 ../panels/midori-extensions.c:90
 msgid "Extensions"
 msgstr "확장 기능"
 
