@@ -432,6 +432,29 @@ midori_extensions_treeview_button_pressed_cb (GtkWidget*      view,
     return ret;
 }
 
+static gboolean
+extensions_column_search_equal_func (GtkTreeModel* model,
+                                     gint          column,
+                                     const gchar*  key,
+                                     GtkTreeIter*  iter,
+                                     gpointer      search_data)
+{
+    MidoriExtension* extension;
+    gchar* name;
+    gchar* lower;
+    gboolean match;
+
+    gtk_tree_model_get (model, iter, 0, &extension, -1);
+    name = katze_object_get_string (extension, "name");
+    lower = g_utf8_strdown (name, -1);
+    match = !strstr (lower, key);
+
+    g_free (lower);
+    g_free (name);
+
+    return match;
+}
+
 static void
 midori_extensions_init (MidoriExtensions* extensions)
 {
@@ -494,6 +517,9 @@ midori_extensions_init (MidoriExtensions* extensions)
         "signal::row-activated",
         midori_extensions_treeview_row_activated_cb, extensions,
         NULL);
+    gtk_tree_view_set_search_column (GTK_TREE_VIEW (extensions->treeview), 0);
+    gtk_tree_view_set_search_equal_func (GTK_TREE_VIEW (extensions->treeview),
+                                         extensions_column_search_equal_func, NULL, NULL);
     gtk_widget_show (extensions->treeview);
     gtk_box_pack_start (GTK_BOX (extensions), extensions->treeview, TRUE, TRUE, 0);
 }
