@@ -39,6 +39,7 @@ struct _MidoriWebSettings
 
     MidoriToolbarStyle toolbar_style : 3;
     MidoriStartup load_on_startup : 2;
+    MidoriNewTabType new_tab_type: 3;
     MidoriPreferredEncoding preferred_encoding : 3;
     gint close_buttons_left;
     MidoriNewPage open_new_pages_in : 2;
@@ -76,6 +77,7 @@ enum
     PROP_TOOLBAR_STYLE,
 
     PROP_LOAD_ON_STARTUP,
+    PROP_NEW_TAB,
     PROP_PREFERRED_ENCODING,
 
     PROP_CLOSE_BUTTONS_LEFT,
@@ -111,6 +113,25 @@ midori_startup_get_type (void)
         };
         type = g_enum_register_static ("MidoriStartup", values);
     }
+    return type;
+}
+
+GType
+midori_newtab_get_type (void)
+{
+    static GType type = 0;
+    if (!type)
+    {
+        static const GEnumValue values[] = {
+         { MIDORI_NEWTAB_BLANK_PAGE, "MIDORI_NEWTAB_BLANK_PAGE", N_("Show Blank Page") },
+         { MIDORI_NEWTAB_HOMEPAGE, "MIDORI_NEWTAB_HOMEPAGE", N_("Show Homepage") },
+         { MIDORI_NEWTAB_SEARCH, "MIDORI_NEWTAB_SEARCH", N_("Show default Search Engine") },
+         { MIDORI_NEWTAB_SPEED_DIAL, "MIDORI_NEWTAB_SPEED_DIAL", N_("Show Speed Dial") },
+         { MIDORI_NEWTAB_CUSTOM, "MIDORI_NEWTAB_CUSTOM", N_("Show custom page") },
+         { 0, NULL, NULL }
+        };
+        type = g_enum_register_static ("MidoriNewTabType", values);
+    };
     return type;
 }
 
@@ -291,6 +312,16 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      "What to do when Midori starts",
                                      MIDORI_TYPE_STARTUP,
                                      MIDORI_STARTUP_LAST_OPEN_PAGES,
+                                     flags));
+
+    g_object_class_install_property (gobject_class,
+                                     PROP_NEW_TAB,
+                                     g_param_spec_enum (
+                                     "new-tab-type",
+                                     "New tab behavior:",
+                                     "What to show in newly opened tabs",
+                                     MIDORI_TYPE_NEWTAB,
+                                     MIDORI_NEWTAB_SPEED_DIAL,
                                      flags));
 
     g_object_class_install_property (gobject_class,
@@ -707,6 +738,27 @@ midori_web_settings_get_system_name (gchar** architecture,
     #endif
 }
 
+static const gchar*
+get_uri_for_new_tab (MidoriWebSettings* web_settings,
+                     MidoriNewTabType   new_tab_type)
+{
+    switch (new_tab_type)
+    {
+        case MIDORI_NEWTAB_BLANK_PAGE:
+            return "about:blank";
+        case MIDORI_NEWTAB_HOMEPAGE:
+            return "about:home";
+        case MIDORI_NEWTAB_SEARCH:
+            return "about:search";
+        case MIDORI_NEWTAB_CUSTOM:
+            return midori_settings_get_tabhome (MIDORI_SETTINGS (web_settings));
+        case MIDORI_NEWTAB_SPEED_DIAL:
+            return "about:dial";
+        default:
+            g_assert_not_reached ();
+    }
+}
+
 static gchar*
 generate_ident_string (MidoriWebSettings* web_settings,
                        MidoriIdentity     identify_as)
@@ -968,6 +1020,11 @@ midori_web_settings_set_property (GObject*      object,
         g_object_set (web_settings, "WebKitWebSettings::user-agent",
                                     web_settings->ident_string, NULL);
         break;
+    case PROP_NEW_TAB:
+        web_settings->new_tab_type = g_value_get_enum (value);
+        const gchar* tabhome = get_uri_for_new_tab (web_settings, web_settings->new_tab_type);
+        midori_settings_set_tabhome (MIDORI_SETTINGS (web_settings), tabhome);
+        break;
     case PROP_PREFERRED_LANGUAGES:
         katze_assign (web_settings->http_accept_language, g_value_dup_string (value));
         g_object_set (web_settings, "spell-checking-languages",
@@ -1119,6 +1176,9 @@ midori_web_settings_get_property (GObject*    object,
             katze_assign (web_settings->ident_string, string);
         }
         g_value_set_string (value, web_settings->ident_string);
+        break;
+    case PROP_NEW_TAB:
+        g_value_set_enum (value, web_settings->new_tab_type);
         break;
     case PROP_PREFERRED_LANGUAGES:
         g_value_set_string (value, web_settings->http_accept_language);

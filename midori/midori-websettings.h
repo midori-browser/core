@@ -62,6 +62,21 @@ midori_startup_get_type (void) G_GNUC_CONST;
 
 typedef enum
 {
+    MIDORI_NEWTAB_BLANK_PAGE,
+    MIDORI_NEWTAB_HOMEPAGE,
+    MIDORI_NEWTAB_SEARCH,
+    MIDORI_NEWTAB_SPEED_DIAL,
+    MIDORI_NEWTAB_CUSTOM,
+} MidoriNewTabType;
+
+GType
+midori_newtab_get_type (void) G_GNUC_CONST;
+
+#define MIDORI_TYPE_NEWTAB \
+    (midori_newtab_get_type ())
+
+typedef enum
+{
     MIDORI_ENCODING_CHINESE /* Traditional */,
     MIDORI_ENCODING_CHINESE_SIMPLIFIED,
     MIDORI_ENCODING_JAPANESE,

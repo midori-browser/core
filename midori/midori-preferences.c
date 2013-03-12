@@ -434,6 +434,10 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     INDENTED_ADD (label);
     button = katze_property_proxy (settings, "open-new-pages-in", NULL);
     SPANNED_ADD (button);
+    label = gtk_label_new (_("New tab behavior:"));
+    INDENTED_ADD (label);
+    button = katze_property_proxy (settings, "new-tab-type", "custom-tabhome");
+    SPANNED_ADD (button);
     button = katze_property_proxy (settings, "close-buttons-on-tabs", NULL);
     gtk_button_set_label (GTK_BUTTON (button), _("Close Buttons on Tabs"));
     INDENTED_ADD (button);
