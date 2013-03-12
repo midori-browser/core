@@ -394,7 +394,7 @@ midori_normal_app_new (const gchar* config,
         gboolean result = FALSE;
         GtkWidget* dialog;
 
-        if (execute_commands != NULL && midori_app_send_command (app, open_uris))
+        if (execute_commands != NULL && midori_app_send_command (app, execute_commands))
             return NULL;
         if (open_uris != NULL && midori_app_instance_send_uris (app, open_uris))
             return NULL;
