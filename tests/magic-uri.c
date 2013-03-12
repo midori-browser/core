@@ -50,7 +50,7 @@ test_input (const gchar* input,
         g_object_unref (item);
     }
 
-    uri = sokoke_magic_uri (input);
+    uri = sokoke_magic_uri (input, TRUE, FALSE);
     if (!uri)
     {
         const gchar* keywords = NULL;
