@@ -2,19 +2,19 @@
 # Copyright (C) 2008 THE midori'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the midori package.
 # Sérgio Marques <smarquespt@gmail.com> 2008-2010
-#
+# 
 msgid ""
 msgstr ""
 "Project-Id-Version: midori\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-03-11 00:39+0000\n"
+"POT-Creation-Date: 2013-03-13 16:51+0000\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Sérgio Marques <smarquespt@gmail.com>\n"
 "Language-Team: Portuguese\n"
-"Language: pt_PT\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: pt_PT\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 1.5.4\n"
 
@@ -27,7 +27,7 @@ msgid "Internet;WWW;Explorer"
 msgstr "Internet;WWW;Explorador"
 
 #: ../data/midori.desktop.in.h:3 ../midori/main.c:162
-#: ../midori/midori-app.c:1443 ../midori/midori-websettings.c:201
+#: ../midori/midori-app.c:1443 ../midori/midori-websettings.c:222
 #: ../midori/midori-view.c:3849 ../midori/sokoke.c:561
 msgid "Midori"
 msgstr "Midori"
@@ -784,15 +784,15 @@ msgstr "_Barra de marcadores"
 msgid "_Statusbar"
 msgstr "Barra de _estado"
 
-#: ../midori/midori-browser.c:5435 ../midori/midori-websettings.c:200
+#: ../midori/midori-browser.c:5435 ../midori/midori-websettings.c:221
 msgid "_Automatic"
 msgstr "_Automático"
 
-#: ../midori/midori-browser.c:5438 ../midori/midori-websettings.c:124
+#: ../midori/midori-browser.c:5438 ../midori/midori-websettings.c:145
 msgid "Chinese Traditional (BIG5)"
 msgstr "Mandarim tradicional (BIG5)"
 
-#: ../midori/midori-browser.c:5441 ../midori/midori-websettings.c:125
+#: ../midori/midori-browser.c:5441 ../midori/midori-websettings.c:146
 msgid "Chinese Simplified (GB18030)"
 msgstr "mandarim simplificado (GB18030)"
 
@@ -801,19 +801,19 @@ msgstr "mandarim simplificado (GB18030)"
 msgid "Japanese (SHIFT__JIS)"
 msgstr "Japonês (SHIFT__JIS)"
 
-#: ../midori/midori-browser.c:5448 ../midori/midori-websettings.c:127
+#: ../midori/midori-browser.c:5448 ../midori/midori-websettings.c:148
 msgid "Korean (EUC-KR)"
 msgstr "Coreano (EUC-KR)"
 
-#: ../midori/midori-browser.c:5451 ../midori/midori-websettings.c:128
+#: ../midori/midori-browser.c:5451 ../midori/midori-websettings.c:149
 msgid "Russian (KOI8-R)"
 msgstr "Russo (KOI8-R)"
 
-#: ../midori/midori-browser.c:5454 ../midori/midori-websettings.c:129
+#: ../midori/midori-browser.c:5454 ../midori/midori-websettings.c:150
 msgid "Unicode (UTF-8)"
 msgstr "Unicode (UTF-8)"
 
-#: ../midori/midori-browser.c:5457 ../midori/midori-websettings.c:130
+#: ../midori/midori-browser.c:5457 ../midori/midori-websettings.c:151
 msgid "Western (ISO-8859-1)"
 msgstr "Ocidental (ISO-8859-1)"
 
@@ -961,124 +961,136 @@ msgstr "Fechar painel"
 msgid "Align sidepanel to the left"
 msgstr "Alinhar painel lateral à esquerda"
 
-#: ../midori/midori-websettings.c:106
+#: ../midori/midori-websettings.c:108 ../midori/midori-websettings.c:129
 msgid "Show Speed Dial"
 msgstr "Mostrar ligação rápida"
 
-#: ../midori/midori-websettings.c:107
+#: ../midori/midori-websettings.c:109 ../midori/midori-websettings.c:127
 msgid "Show Homepage"
 msgstr "Mostrar página inicial"
 
-#: ../midori/midori-websettings.c:108 ../midori/midori-frontend.c:344
+#: ../midori/midori-websettings.c:110 ../midori/midori-frontend.c:344
 msgid "Show last open tabs"
 msgstr "Mostrar últimos separadores abertos"
 
-#: ../midori/midori-websettings.c:109 ../midori/midori-frontend.c:343
+#: ../midori/midori-websettings.c:111 ../midori/midori-frontend.c:343
 msgid "Show last tabs without loading"
 msgstr "Mostrar últimos separadores sem os carregar"
 
 #: ../midori/midori-websettings.c:126
+msgid "Show Blank Page"
+msgstr "Mostrar página em branco"
+
+#: ../midori/midori-websettings.c:128
+msgid "Show default Search Engine"
+msgstr "Mostrar motor de pesquisa padrão"
+
+#: ../midori/midori-websettings.c:130
+msgid "Show custom page"
+msgstr "Mostrar página personalizada"
+
+#: ../midori/midori-websettings.c:147
 msgid "Japanese (SHIFT_JIS)"
 msgstr "Japonês (SHIFT_JIS)"
 
-#: ../midori/midori-websettings.c:131 ../midori/midori-websettings.c:207
+#: ../midori/midori-websettings.c:152 ../midori/midori-websettings.c:228
 #: ../katze/katze-utils.c:603
 msgid "Custom..."
 msgstr "Personalizar…"
 
-#: ../midori/midori-websettings.c:146
+#: ../midori/midori-websettings.c:167
 msgid "New tab"
 msgstr "Novo separador"
 
-#: ../midori/midori-websettings.c:147
+#: ../midori/midori-websettings.c:168
 msgid "New window"
 msgstr "Nova janela"
 
-#: ../midori/midori-websettings.c:148
+#: ../midori/midori-websettings.c:169
 msgid "Current tab"
 msgstr "Separador atual"
 
-#: ../midori/midori-websettings.c:163
+#: ../midori/midori-websettings.c:184
 msgid "Default"
 msgstr "Omissão"
 
-#: ../midori/midori-websettings.c:164
+#: ../midori/midori-websettings.c:185
 msgid "Icons"
 msgstr "Ícones"
 
-#: ../midori/midori-websettings.c:165
+#: ../midori/midori-websettings.c:186
 msgid "Small icons"
 msgstr "Ícones pequenos"
 
-#: ../midori/midori-websettings.c:166
+#: ../midori/midori-websettings.c:187
 msgid "Text"
 msgstr "Texto"
 
-#: ../midori/midori-websettings.c:167
+#: ../midori/midori-websettings.c:188
 msgid "Icons and text"
 msgstr "Ícones e texto"
 
-#: ../midori/midori-websettings.c:168
+#: ../midori/midori-websettings.c:189
 msgid "Text beside icons"
 msgstr "Texto ao lado dos ícones"
 
-#: ../midori/midori-websettings.c:183
+#: ../midori/midori-websettings.c:204
 msgid "Automatic (GNOME or environment)"
 msgstr "Automático (GNOME ou ambiente)"
 
-#: ../midori/midori-websettings.c:184
+#: ../midori/midori-websettings.c:205
 msgid "HTTP proxy server"
 msgstr "Servidor proxy HTTP"
 
-#: ../midori/midori-websettings.c:185
+#: ../midori/midori-websettings.c:206
 msgid "No proxy server"
 msgstr "Sem servidor proxy"
 
-#: ../midori/midori-websettings.c:202
+#: ../midori/midori-websettings.c:223
 msgid "Chrome"
 msgstr "Chrome"
 
-#: ../midori/midori-websettings.c:203
+#: ../midori/midori-websettings.c:224
 msgid "Safari"
 msgstr "Safari"
 
-#: ../midori/midori-websettings.c:204
+#: ../midori/midori-websettings.c:225
 msgid "iPhone"
 msgstr "iPhone"
 
-#: ../midori/midori-websettings.c:205
+#: ../midori/midori-websettings.c:226
 msgid "Firefox"
 msgstr "Firefox"
 
-#: ../midori/midori-websettings.c:206
+#: ../midori/midori-websettings.c:227
 msgid "Internet Explorer"
 msgstr "Internet Explorer"
 
-#: ../midori/midori-websettings.c:281
+#: ../midori/midori-websettings.c:302
 msgid "The style of the toolbar"
 msgstr "O estilo da barra de ferramentas"
 
-#: ../midori/midori-websettings.c:473
+#: ../midori/midori-websettings.c:504
 msgid "Always use my font choices"
 msgstr "Utilizar sempre as minhas escolhas de tipo de letras"
 
-#: ../midori/midori-websettings.c:474
+#: ../midori/midori-websettings.c:505
 msgid "Override fonts picked by websites with user preferences"
 msgstr ""
 "Substituir tipo de letra dos sítios web pelas que forem definidas pelo "
 "utilizador"
 
-#: ../midori/midori-websettings.c:1309 ../midori/midori-websettings.c:1315
+#: ../midori/midori-websettings.c:1369 ../midori/midori-websettings.c:1375
 #, c-format
 msgid "The configuration couldn't be loaded: %s\n"
 msgstr "A configuração não foi carregada: %s\n"
 
-#: ../midori/midori-websettings.c:1364
+#: ../midori/midori-websettings.c:1424
 #, c-format
 msgid "Value '%s' is invalid for %s"
 msgstr "O valor \"%s\" é inválido para %s"
 
-#: ../midori/midori-websettings.c:1369 ../midori/midori-websettings.c:1480
+#: ../midori/midori-websettings.c:1429 ../midori/midori-websettings.c:1540
 #, c-format
 msgid "Invalid configuration value '%s'"
 msgstr "O valor de configuração \"%s\" é inválido "
@@ -1592,92 +1604,96 @@ msgstr "Estilo da barra de ferramentas:"
 msgid "Open new pages in:"
 msgstr "Abrir novas páginas em:"
 
-#: ../midori/midori-preferences.c:438
+#: ../midori/midori-preferences.c:437
+msgid "New tab behavior:"
+msgstr "Comportamento dos novos separadores:"
+
+#: ../midori/midori-preferences.c:442
 msgid "Close Buttons on Tabs"
 msgstr "Botão Fechar nos separadores"
 
-#: ../midori/midori-preferences.c:442
+#: ../midori/midori-preferences.c:446
 msgid "Always Show Tabbar"
 msgstr "Mostrar sempre barra de separadores"
 
-#: ../midori/midori-preferences.c:446
+#: ../midori/midori-preferences.c:450
 msgid "Open Tabs next to Current"
 msgstr "Abrir separadores perto do atual"
 
-#: ../midori/midori-preferences.c:447
+#: ../midori/midori-preferences.c:451
 msgid "Whether to open new tabs next to the current tab or after the last one"
 msgstr ""
 "Marque se quiser abrir os novos separadores perto do atual ou após o último "
 
-#: ../midori/midori-preferences.c:450
+#: ../midori/midori-preferences.c:454
 msgid "Open tabs in the background"
 msgstr "Abrir separadores em segundo plano"
 
-#: ../midori/midori-preferences.c:454
+#: ../midori/midori-preferences.c:458
 msgid "Text Editor"
 msgstr "Editor de texto"
 
-#: ../midori/midori-preferences.c:459
+#: ../midori/midori-preferences.c:463
 msgid "News Aggregator"
 msgstr "Agregador de notícias"
 
 #. Page "Network"
-#: ../midori/midori-preferences.c:466
+#: ../midori/midori-preferences.c:470
 msgid "Network"
 msgstr "Rede"
 
-#: ../midori/midori-preferences.c:468
+#: ../midori/midori-preferences.c:472
 msgid "Proxy server"
 msgstr "Servidor proxy"
 
-#: ../midori/midori-preferences.c:473
+#: ../midori/midori-preferences.c:477
 msgid "Hostname"
 msgstr "Nome de anfitrião"
 
-#: ../midori/midori-preferences.c:481
+#: ../midori/midori-preferences.c:485
 msgid "Port"
 msgstr "Porta"
 
 #. TODO: Preserve page icons of search engines and merge privacy items
-#: ../midori/midori-preferences.c:493 ../extensions/web-cache.c:461
+#: ../midori/midori-preferences.c:497 ../extensions/web-cache.c:461
 #: ../extensions/web-cache.c:470 ../midori/midori-privatedata.c:308
 msgid "Web Cache"
 msgstr "\"Web cache\""
 
-#: ../midori/midori-preferences.c:494 ../midori/midori-preferences.c:497
+#: ../midori/midori-preferences.c:498 ../midori/midori-preferences.c:501
 msgid "The maximum size of cached pages on disk"
 msgstr "O tamanho máximo, no disco, das páginas em cache"
 
-#: ../midori/midori-preferences.c:499
+#: ../midori/midori-preferences.c:503
 msgid "MB"
 msgstr "MB"
 
 #. i18n: This refers to an application, not the 'user agent' string
-#: ../midori/midori-preferences.c:506
+#: ../midori/midori-preferences.c:510
 msgid "Identify as"
 msgstr "Identificar como"
 
-#: ../midori/midori-preferences.c:521
+#: ../midori/midori-preferences.c:525
 msgid "Privacy"
 msgstr "Privacidade"
 
-#: ../midori/midori-preferences.c:523
+#: ../midori/midori-preferences.c:527
 msgid "Delete old Cookies after:"
 msgstr "Apagar cookies após:"
 
-#: ../midori/midori-preferences.c:525 ../midori/midori-preferences.c:528
+#: ../midori/midori-preferences.c:529 ../midori/midori-preferences.c:532
 msgid "The maximum number of days to save cookies for"
 msgstr "O número máximo de dias para guardar os cookies"
 
-#: ../midori/midori-preferences.c:532
+#: ../midori/midori-preferences.c:536
 msgid "Only accept Cookies from sites you visit"
 msgstr "Aceitar cookies dos sítios que eu visitar"
 
-#: ../midori/midori-preferences.c:533
+#: ../midori/midori-preferences.c:537
 msgid "Block cookies sent by third-party websites"
 msgstr "Bloquear cookies de sítios de terceiros"
 
-#: ../midori/midori-preferences.c:538
+#: ../midori/midori-preferences.c:542
 msgid ""
 "Cookies store login data, saved games, or user profiles for advertisement "
 "purposes."
@@ -1685,33 +1701,33 @@ msgstr ""
 "Os \"cookies\" guardam dados ou perfis de utilizador para publicitar "
 "produtos."
 
-#: ../midori/midori-preferences.c:545
+#: ../midori/midori-preferences.c:549
 msgid "Enable offline web application cache"
 msgstr "Ativar \"cache\" de aplicações web \"offline\""
 
-#: ../midori/midori-preferences.c:548
+#: ../midori/midori-preferences.c:552
 msgid "Enable HTML5 local storage support"
 msgstr "Ativar suporte a armazenagem local HTML5"
 
 #. i18n: Reworded: Shorten details propagated when going to another page
-#: ../midori/midori-preferences.c:552
+#: ../midori/midori-preferences.c:556
 msgid "Strip referrer details sent to websites"
 msgstr "Detalhes enviados para sítios externos"
 
 #. i18n: Referer here is not a typo but a technical term
-#: ../midori/midori-preferences.c:554
+#: ../midori/midori-preferences.c:558
 msgid "Whether the \"Referer\" header should be shortened to the hostname"
 msgstr "Se o cabeçalho \"Referer\" deve ser abreviado no nome do servidor"
 
-#: ../midori/midori-preferences.c:557
+#: ../midori/midori-preferences.c:561
 msgid "Delete pages from history after:"
 msgstr "Apagar páginas no histórico após:"
 
-#: ../midori/midori-preferences.c:559 ../midori/midori-preferences.c:562
+#: ../midori/midori-preferences.c:563 ../midori/midori-preferences.c:566
 msgid "The maximum number of days to save the history for"
 msgstr "O número máximo de dias para guardar o histórico"
 
-#: ../midori/midori-preferences.c:599 ../panels/midori-extensions.c:90
+#: ../midori/midori-preferences.c:603 ../panels/midori-extensions.c:90
 msgid "Extensions"
 msgstr "Extensões"
 
