@@ -119,6 +119,48 @@ void tab_special () {
     Midori.Test.release_max_timeout ();
 }
 
+void tab_alias () {
+    Midori.Test.log_set_fatal_handler_for_icons ();
+    var browser = new Midori.Browser ();
+    var settings = new Midori.WebSettings ();
+    browser.set ("settings", settings);
+    var tab = new Midori.View.with_title ();
+    tab.settings = new Midori.WebSettings ();
+    tab.settings.set ("enable-plugins", false);
+    browser.add_tab (tab);
+    var loop = MainContext.default ();
+
+    tab.settings.tabhome = "http://.invalid/";
+    tab.set_uri ("about:new");
+    do { loop.iteration (true); } while (tab.load_status != Midori.LoadStatus.FINISHED);
+    assert (tab.uri == tab.settings.tabhome);
+    // Check that this is the real page, not white page with a URL
+    assert (!tab.web_view.search_text ("about:", true, false, false));
+
+    tab.settings.tabhome = "about:blank";
+    tab.set_uri ("about:new");
+    do { loop.iteration (true); } while (tab.load_status != Midori.LoadStatus.FINISHED);
+    assert (tab.uri == tab.settings.tabhome);
+    // Check that this is the real page, not white page with a URL
+    assert (!tab.web_view.search_text ("about:", true, false, false));
+
+    tab.settings.tabhome = "about:search";
+    tab.settings.location_entry_search = "http://.invalid/";
+    tab.set_uri ("about:new");
+    do { loop.iteration (true); } while (tab.load_status != Midori.LoadStatus.FINISHED);
+    assert (tab.uri == tab.settings.location_entry_search);
+    // Check that this is the real page, not white page with a URL
+    assert (!tab.web_view.search_text ("about:", true, false, false));
+
+    tab.settings.tabhome = "about:home";
+    tab.settings.homepage = "http://.invalid/";
+    tab.set_uri ("about:new");
+    do { loop.iteration (true); } while (tab.load_status != Midori.LoadStatus.FINISHED);
+    assert (tab.uri == tab.settings.homepage);
+    // Check that this is the real page, not white page with a URL
+    assert (!tab.web_view.search_text ("about:", true, false, false));
+}
+
 void tab_http () {
     Midori.Test.grab_max_timeout ();
 
@@ -225,6 +267,7 @@ void main (string[] args) {
     Test.add_func ("/tab/display-title", tab_display_title);
     Test.add_func ("/tab/ellipsize", tab_display_ellipsize);
     Test.add_func ("/tab/special", tab_special);
+    Test.add_func ("/tab/alias", tab_alias);
     Test.add_func ("/tab/http", tab_http);
     Test.add_func ("/tab/movement", tab_movement);
     Test.add_func ("/tab/download", tab_download_dialog);

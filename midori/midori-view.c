@@ -4038,6 +4038,7 @@ midori_view_set_uri (MidoriView*  view,
     gchar* data;
 
     g_return_if_fail (MIDORI_IS_VIEW (view));
+    g_return_if_fail (uri != NULL);
 
     if (!gtk_widget_get_parent (GTK_WIDGET (view)))
         g_warning ("Calling %s() before adding the view to a browser. This "
@@ -4046,9 +4047,7 @@ midori_view_set_uri (MidoriView*  view,
     if (!midori_debug ("unarmed"))
     {
         gchar* temporary_uri = NULL;
-        if (uri == NULL || !strcmp (uri, ""))
-            uri = "about:blank";
-        else if (!strcmp (uri, "about:new"))
+        if (!strcmp (uri, "about:new"))
             uri = midori_settings_get_tabhome (MIDORI_SETTINGS (view->settings));
         if (!strcmp (uri, "about:home"))
             uri = midori_settings_get_homepage (MIDORI_SETTINGS (view->settings));
@@ -4238,7 +4237,9 @@ midori_view_set_uri (MidoriView*  view,
 
                 g_free (command_line);
                 g_free (ident);
-           }
+            }
+            else if (!strcmp (uri, "about:blank"))
+                data = g_strdup ("<body></body>");
             else
             {
                 data = g_strdup_printf (
