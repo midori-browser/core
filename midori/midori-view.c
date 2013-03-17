@@ -3488,7 +3488,7 @@ midori_view_settings_notify_cb (MidoriWebSettings* settings,
         view->middle_click_opens_selection = g_value_get_boolean (&value);
     else if (name == g_intern_string ("open-tabs-in-the-background"))
         view->open_tabs_in_the_background = g_value_get_boolean (&value);
-    else if (name == g_intern_string ("enable-scripts"))
+    else if (name == g_intern_string ("enable-javascript"))
     {
         /* Speed dial is only editable with scripts, so regenerate it */
         if (midori_view_is_blank (view))

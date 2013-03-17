@@ -21,6 +21,12 @@ namespace Midori {
     /* Since: 0.1.3 */
 #if !HAVE_WEBKIT2
     public class Settings : WebKit.WebSettings {
+        /* Since: 0.5.0 */
+        public bool enable_javascript { get {
+            return enable_scripts;
+        } set {
+            enable_scripts = value;
+        } default = true; }
 #else
     public class Settings : WebKit.Settings {
 #endif

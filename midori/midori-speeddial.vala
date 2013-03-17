@@ -365,7 +365,7 @@ namespace Midori {
             if (thumb_view == null) {
                 thumb_view = new WebKit.WebView ();
                 var settings = new WebKit.WebSettings ();
-                settings. set ("enable-scripts", false,
+                settings. set ("enable-javascript", false,
                                "enable-plugins", false,
                                "auto-load-images", true,
                                "enable-html5-database", false,

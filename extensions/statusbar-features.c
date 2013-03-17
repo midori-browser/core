@@ -116,7 +116,7 @@ statusbar_features_property_proxy (MidoriWebSettings* settings,
     GtkWidget* button;
     GtkWidget* image;
     if (!strcmp (property, "auto-load-images")
-     || !strcmp (property, "enable-scripts")
+     || !strcmp (property, "enable-javascript")
      || !strcmp (property, "enable-plugins"))
         kind = "toggle";
     else if (!strcmp (property, "identify-as"))
@@ -157,7 +157,7 @@ statusbar_features_property_proxy (MidoriWebSettings* settings,
         g_signal_connect (toolbar, "notify::toolbar-style",
             G_CALLBACK (statusbar_features_toolbar_notify_toolbar_style_cb), button);
     }
-    if (!strcmp (property, "enable-scripts"))
+    if (!strcmp (property, "enable-javascript"))
     {
         g_object_set_data (G_OBJECT (button), "feature-label", _("Scripts"));
         image = gtk_image_new_from_stock (STOCK_SCRIPT, GTK_ICON_SIZE_MENU);
@@ -218,7 +218,7 @@ statusbar_features_app_add_browser_cb (MidoriApp*       app,
     {
         button = statusbar_features_property_proxy (settings, "auto-load-images", toolbar);
         gtk_box_pack_start (GTK_BOX (bbox), button, FALSE, FALSE, 2);
-        button = statusbar_features_property_proxy (settings, "enable-scripts", toolbar);
+        button = statusbar_features_property_proxy (settings, "enable-javascript", toolbar);
         gtk_box_pack_start (GTK_BOX (bbox), button, FALSE, FALSE, 2);
         button = statusbar_features_property_proxy (settings, "enable-plugins", toolbar);
         gtk_box_pack_start (GTK_BOX (bbox), button, FALSE, FALSE, 2);

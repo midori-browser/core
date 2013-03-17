@@ -378,7 +378,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
         else
             g_free (enchant_path);
     }
-    button = katze_property_proxy (settings, "enable-scripts", NULL);
+    button = katze_property_proxy (settings, "enable-javascript", NULL);
     gtk_button_set_label (GTK_BUTTON (button), _("Enable scripts"));
     INDENTED_ADD (button);
     #if WEBKIT_CHECK_VERSION (1, 3, 8)
