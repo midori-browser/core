@@ -2132,8 +2132,11 @@ midori_web_view_menu_image_new_tab_activate_cb (GtkWidget*  widget,
                                                 MidoriView* view)
 {
     gchar* uri = katze_object_get_string (view->hit_test, "image-uri");
-    g_signal_emit (view, signals[NEW_TAB], 0, uri,
-                   view->open_tabs_in_the_background);
+    if (view->open_new_pages_in == MIDORI_NEW_PAGE_WINDOW)
+        g_signal_emit (view, signals[NEW_WINDOW], 0, uri);
+    else
+        g_signal_emit (view, signals[NEW_TAB], 0, uri,
+            view->open_tabs_in_the_background);
     g_free (uri);
 }
 
@@ -2302,19 +2305,19 @@ static void
 midori_web_view_menu_search_web_activate_cb (GtkWidget*  widget,
                                              MidoriView* view)
 {
-    gchar* search;
-    gchar* uri;
+    const gchar* search = g_object_get_data (G_OBJECT (widget), "search");
+    if (search == NULL)
+        search = midori_settings_get_location_entry_search (MIDORI_SETTINGS (view->settings));
+    gchar* uri = midori_uri_for_search (search, view->selected_text);
 
-    if ((search = g_object_get_data (G_OBJECT (widget), "search")))
-        search = g_strdup (search);
+    if (view->open_new_pages_in == MIDORI_NEW_PAGE_WINDOW)
+        g_signal_emit (view, signals[NEW_WINDOW], 0, uri);
+    /* FIXME: need a way to override behavior (middle click)
+    else if (view->open_new_pages_in == MIDORI_NEW_PAGE_CURRENT)
+        midori_view_set_uri (view, uri); */
     else
-        g_object_get (view->settings, "location-entry-search",
-                      &search, NULL);
-    uri = midori_uri_for_search (search, view->selected_text);
-    g_free (search);
-
-    g_signal_emit (view, signals[NEW_TAB], 0, uri,
-        view->open_tabs_in_the_background);
+        g_signal_emit (view, signals[NEW_TAB], 0, uri,
+            view->open_tabs_in_the_background);
 
     g_free (uri);
 }
@@ -2617,7 +2620,10 @@ midori_view_populate_popup (MidoriView* view,
         if (view->link_uri)
             gtk_menu_shell_append (menu_shell, gtk_separator_menu_item_new ());
         midori_view_insert_menu_item (menu_shell, -1,
-            _("Open _Image in New Tab"), STOCK_TAB_NEW,
+            view->open_new_pages_in == MIDORI_NEW_PAGE_WINDOW
+            ? _("Open _Image in New Window")
+            : _("Open _Image in New Tab")
+            , STOCK_TAB_NEW,
             G_CALLBACK (midori_web_view_menu_image_new_tab_activate_cb), widget);
         midori_view_insert_menu_item (menu_shell, -1,
             _("Copy Im_age"), NULL,
