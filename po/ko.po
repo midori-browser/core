@@ -3,77 +3,83 @@
 # This file is distributed under the same license as the midori package.
 # Seo Sanghyeon <sanxiyn@gmail.com> 2009
 # Kim Boram <boramism@gmail.com> 2009-2012
-# 
+#
 # Note:  Report-Mstid-Bugs-To에는 xfce-i18n <xfce-i18n@xfce.org> 를 넣습니다.
 #        Lauguage에는 소문자로 ko를 넣습니다.
-# 
+#
 # Please write your name and e-mail into header description and
 # "translator-credits" if you update this translation script.
-# 
+#
 # ex ) msgstr ""
 #      "Gil-dong Hong <gdhong0101@gmail.com>\n"
 #      "YourName Kim <ynkim@gmail.com>"
-# 
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: midori 0.2.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-03-12 19:27+0000\n"
-"PO-Revision-Date: 2013-02-28 09:39+0900\n"
+"POT-Creation-Date: 2013-03-18 01:01+0900\n"
+"PO-Revision-Date: 2013-03-18 01:02+0900\n"
 "Last-Translator: Kim Boram <boramism@gmail.com>\n"
 "Language-Team: Kim Boram <boramism@gmail.com>\n"
+"Language: ko\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: ko\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: Poedit 1.5.4\n"
 
 #: ../data/midori.desktop.in.h:1
-msgid "Browse the Web"
-msgstr "웹 찾아보기"
-
-#: ../data/midori.desktop.in.h:2
-msgid "Internet;WWW;Explorer"
-msgstr "인터넷;WWW;익스플로러"
-
-#: ../data/midori.desktop.in.h:3 ../midori/main.c:162
-#: ../midori/midori-app.c:1443 ../midori/midori-websettings.c:222
-#: ../midori/midori-view.c:3849 ../midori/sokoke.c:561
+#: ../midori/main.c:162
+#: ../midori/midori-app.c:1443
+#: ../midori/midori-websettings.c:228
+#: ../midori/midori-view.c:3855
+#: ../midori/sokoke.c:561
 msgid "Midori"
 msgstr "미도리"
 
-#: ../data/midori.desktop.in.h:4
+#: ../data/midori.desktop.in.h:2
+msgid "Web Browser"
+msgstr "웹 브라우저"
+
+#: ../data/midori.desktop.in.h:3
 msgid "Midori Web Browser"
 msgstr "미도리 웹 브라우저"
 
-#: ../data/midori.desktop.in.h:5
-msgid "New Private Browsing Window"
-msgstr "새 사생활 보호 모드 창"
+#: ../data/midori.desktop.in.h:4
+msgid "Browse the Web"
+msgstr "웹 찾아보기"
 
-#: ../data/midori.desktop.in.h:6 ../midori/midori-browser.c:1287
+#: ../data/midori.desktop.in.h:5
+msgid "Internet;WWW;Explorer"
+msgstr "인터넷;WWW;익스플로러"
+
+#: ../data/midori.desktop.in.h:6
+#: ../midori/midori-browser.c:1287
 msgid "New Tab"
 msgstr "새 탭"
 
-#: ../data/midori.desktop.in.h:7 ../midori/midori-browser.c:1284
+#: ../data/midori.desktop.in.h:7
+#: ../midori/midori-browser.c:1284
 msgid "New Window"
 msgstr "새 창"
 
 #: ../data/midori.desktop.in.h:8
-msgid "Web Browser"
-msgstr "웹 브라우저"
+msgid "New Private Browsing Window"
+msgstr "새 사생활 보호 모드 창"
 
 #: ../data/midori-private.desktop.in.h:1
 msgid "Midori Private Browsing"
 msgstr "미도리 개인 정보 보호 모드"
 
 #: ../data/midori-private.desktop.in.h:2
-msgid "Open a new private browsing window"
-msgstr "새 사생활 보호 모드 창 열기"
-
-#: ../data/midori-private.desktop.in.h:3 ../midori/midori-view.c:4170
+#: ../midori/midori-view.c:4175
 msgid "Private Browsing"
 msgstr "사생활 보호 모드"
+
+#: ../data/midori-private.desktop.in.h:3
+msgid "Open a new private browsing window"
+msgstr "새 사생활 보호 모드 창 열기"
 
 #: ../midori/main.c:63
 #, c-format
@@ -174,12 +180,14 @@ msgstr "다음에서 새 버전 검색:"
 msgid "An unknown error occured"
 msgstr "알 수 없는 오류가 발생했습니다."
 
-#: ../midori/midori-app.c:1128 ../midori/midori-browser.c:540
+#: ../midori/midori-app.c:1128
+#: ../midori/midori-browser.c:540
 #, c-format
 msgid "Unexpected action '%s'."
 msgstr "기대하지 않은 동작 '%s'."
 
-#: ../midori/midori-app.c:1350 ../midori/midori-browser.c:6041
+#: ../midori/midori-app.c:1350
+#: ../midori/midori-browser.c:6041
 msgid "_Bookmarks"
 msgstr "책갈피(_B)"
 
@@ -192,7 +200,8 @@ msgid "_Extensions"
 msgstr "확장 기능(_E)"
 
 #. i18n: Browsing history, visited web pages, closed tabs
-#: ../midori/midori-app.c:1353 ../midori/midori-privatedata.c:153
+#: ../midori/midori-app.c:1353
+#: ../midori/midori-privatedata.c:153
 msgid "_History"
 msgstr "기록(_H)"
 
@@ -220,7 +229,8 @@ msgstr "넷스케이프 플러그인(_L)"
 msgid "_Closed Tabs"
 msgstr "닫은 탭(_C)"
 
-#: ../midori/midori-app.c:1360 ../midori/midori-browser.c:5180
+#: ../midori/midori-app.c:1360
+#: ../midori/midori-browser.c:5180
 msgid "New _Window"
 msgstr "새 창(_W)"
 
@@ -228,7 +238,8 @@ msgstr "새 창(_W)"
 msgid "New _Folder"
 msgstr "새 폴더(_F)"
 
-#: ../midori/midori-app.c:1416 ../midori/midori-app.c:1419
+#: ../midori/midori-app.c:1416
+#: ../midori/midori-app.c:1419
 #: ../midori/midori-app.c:1422
 msgid "[Addresses]"
 msgstr "[주소]"
@@ -237,8 +248,10 @@ msgstr "[주소]"
 msgid "File not found."
 msgstr "파일이 없습니다."
 
-#: ../midori/midori-array.c:549 ../midori/midori-array.c:588
-#: ../midori/midori-array.c:612 ../midori/midori-array.c:622
+#: ../midori/midori-array.c:549
+#: ../midori/midori-array.c:588
+#: ../midori/midori-array.c:612
+#: ../midori/midori-array.c:622
 msgid "Malformed document."
 msgstr "잘못된 문서."
 
@@ -246,22 +259,26 @@ msgstr "잘못된 문서."
 msgid "Unrecognized bookmark format."
 msgstr "책갈피 형식을 알 수 없습니다."
 
-#: ../midori/midori-browser.c:335 ../midori/midori-browser.c:5316
+#: ../midori/midori-browser.c:335
+#: ../midori/midori-browser.c:5316
 msgid "Go forward to the next page"
 msgstr "다음 들렀던 페이지로 갑니다"
 
 #. i18n: Visit the following logical page, ie. in a forum or blog
-#: ../midori/midori-browser.c:342 ../midori/midori-browser.c:5324
+#: ../midori/midori-browser.c:342
+#: ../midori/midori-browser.c:5324
 #: ../midori/midori-browser.c:5327
 msgid "Go to the next sub-page"
 msgstr "다음 들렀던 하위 페이지로 갑니다"
 
-#: ../midori/midori-browser.c:447 ../midori/midori-browser.c:5265
+#: ../midori/midori-browser.c:447
+#: ../midori/midori-browser.c:5265
 #: ../midori/midori-browser.c:5274
 msgid "Reload the current page"
 msgstr "현재 페이지 다시 불러오기"
 
-#: ../midori/midori-browser.c:455 ../midori/midori-browser.c:5271
+#: ../midori/midori-browser.c:455
+#: ../midori/midori-browser.c:5271
 msgid "Stop loading the current page"
 msgstr "현재 페이지 불러오기 중지"
 
@@ -275,7 +292,8 @@ msgstr "제목 업데이트 실패: %s\n"
 msgid "%s (Private Browsing)"
 msgstr "%s (사생활 보호 모드)"
 
-#: ../midori/midori-browser.c:726 ../midori/midori-browser.c:768
+#: ../midori/midori-browser.c:726
+#: ../midori/midori-browser.c:768
 #: ../panels/midori-bookmarks.c:114
 msgid "Bookmarks"
 msgstr "책갈피"
@@ -312,7 +330,8 @@ msgstr "도구 모음에 보이기(_B)"
 msgid "Run as _web application"
 msgstr "웹 응용 프로그램으로 실행(_W)"
 
-#: ../midori/midori-browser.c:1044 ../midori/midori-browser.c:4423
+#: ../midori/midori-browser.c:1044
+#: ../midori/midori-browser.c:4423
 msgid "Save file as"
 msgstr "다른 이름으로 저장"
 
@@ -354,65 +373,66 @@ msgstr "파일 열기"
 
 #: ../midori/midori-browser.c:2472
 msgid ""
-"To use the above URI open a news aggregator. There is usually a menu or "
-"button \"New Subscription\", \"New News Feed\" or similar.\n"
-"Alternatively go to Preferences, Applications in Midori, and select a News "
-"Aggregator. Next time you click the news feed icon, it will be added "
-"automatically."
+"To use the above URI open a news aggregator. There is usually a menu or button \"New Subscription\", \"New News Feed\" or similar.\n"
+"Alternatively go to Preferences, Applications in Midori, and select a News Aggregator. Next time you click the news feed icon, it will be added automatically."
 msgstr ""
-"위 주소를 뉴스 수집기로 열어 보려면 보통 메뉴나 \"새 구독\", \"새 뉴스 피드"
-"\"또는 이와 비슷한 단추를 찾을 수 있습니다.\n"
-"이 외에 미도리 기본 설정 안 프로그램 탭으로 이동하여 뉴스 수집기를 선택하면 "
-"다음 뉴스 피드 아이콘을 누를 때 자동으로 추가합니다."
+"위 주소를 뉴스 수집기로 열어 보려면 보통 메뉴나 \"새 구독\", \"새 뉴스 피드\"또는 이와 비슷한 단추를 찾을 수 있습니다.\n"
+"이 외에 미도리 기본 설정 안 프로그램 탭으로 이동하여 뉴스 수집기를 선택하면 다음 뉴스 피드 아이콘을 누를 때 자동으로 추가합니다."
 
-#: ../midori/midori-browser.c:2478 ../extensions/feed-panel/main.c:356
+#: ../midori/midori-browser.c:2478
+#: ../extensions/feed-panel/main.c:356
 msgid "New feed"
 msgstr "새 피드"
 
-#: ../midori/midori-browser.c:2510 ../midori/midori-browser.c:5340
+#: ../midori/midori-browser.c:2510
+#: ../midori/midori-browser.c:5340
 #: ../panels/midori-bookmarks.c:527
 msgid "Add a new bookmark"
 msgstr "새 책갈피 더하기"
 
-#: ../midori/midori-browser.c:3036 ../midori/midori-searchaction.c:450
+#: ../midori/midori-browser.c:3036
+#: ../midori/midori-searchaction.c:450
 msgid "Empty"
 msgstr "비어있음"
 
-#: ../midori/midori-browser.c:3418 ../midori/midori-browser.c:3419
+#: ../midori/midori-browser.c:3418
+#: ../midori/midori-browser.c:3419
 msgid "Toggle text cursor navigation"
-msgstr ""
-"키보드로 커서를 조작하여 페이지의 텍스트 사이를 이동하는 기능을 켜고 끄기"
+msgstr "키보드로 커서를 조작하여 페이지의 텍스트 사이를 이동하는 기능을 켜고 끄기"
 
 #: ../midori/midori-browser.c:3421
-msgid ""
-"Pressing F7 toggles Caret Browsing. When active, a text cursor appears in "
-"all websites."
-msgstr ""
-"캐럿 브라우징을 켜고 끄려면 F7 키를 눌러주십시오. 사용하게 되면 모든 웹사이트"
-"에 텍스트 커서가 표시됩니다."
+msgid "Pressing F7 toggles Caret Browsing. When active, a text cursor appears in all websites."
+msgstr "캐럿 브라우징을 켜고 끄려면 F7 키를 눌러주십시오. 사용하게 되면 모든 웹사이트에 텍스트 커서가 표시됩니다."
 
 #: ../midori/midori-browser.c:3424
 msgid "_Enable Caret Browsing"
 msgstr "캐럿 브라우징 사용(_E)"
 
-#: ../midori/midori-browser.c:3840 ../midori/midori-browser.c:5788
+#: ../midori/midori-browser.c:3840
+#: ../midori/midori-browser.c:5788
 #, c-format
 msgid "Failed to insert new history item: %s\n"
 msgstr "새 기록 항목 삽입 실패: %s\n"
 
-#: ../midori/midori-browser.c:4155 ../panels/midori-bookmarks.c:835
+#: ../midori/midori-browser.c:4155
+#: ../panels/midori-bookmarks.c:835
 #: ../panels/midori-history.c:793
 msgid "Open all in _Tabs"
 msgstr "전부 탭으로 열기(_T)"
 
-#: ../midori/midori-browser.c:4162 ../panels/midori-bookmarks.c:841
-#: ../panels/midori-history.c:799 ../extensions/feed-panel/feed-panel.c:513
+#: ../midori/midori-browser.c:4162
+#: ../panels/midori-bookmarks.c:841
+#: ../panels/midori-history.c:799
+#: ../extensions/feed-panel/feed-panel.c:513
 msgid "Open in New _Tab"
 msgstr "새 탭에서 열기(_T)"
 
-#: ../midori/midori-browser.c:4165 ../midori/midori-view.c:2765
-#: ../midori/midori-view.c:4646 ../panels/midori-bookmarks.c:843
-#: ../panels/midori-history.c:801 ../extensions/feed-panel/feed-panel.c:515
+#: ../midori/midori-browser.c:4165
+#: ../midori/midori-view.c:2771
+#: ../midori/midori-view.c:4653
+#: ../panels/midori-bookmarks.c:843
+#: ../panels/midori-history.c:801
+#: ../extensions/feed-panel/feed-panel.c:515
 msgid "Open in New _Window"
 msgstr "새 창에서 열기(_W)"
 
@@ -449,7 +469,8 @@ msgstr "미도리 0.2.6"
 msgid "Import bookmarks…"
 msgstr "책갈피 가져오기…"
 
-#: ../midori/midori-browser.c:4281 ../midori/midori-browser.c:5345
+#: ../midori/midori-browser.c:4281
+#: ../midori/midori-browser.c:5345
 msgid "_Import bookmarks"
 msgstr "책갈피 가져오기(_I)"
 
@@ -494,15 +515,8 @@ msgid "See about:version for version info."
 msgstr "버전 정보를 보려면 about:version 페이지를 확인하십시오."
 
 #: ../midori/midori-browser.c:4681
-msgid ""
-"This library is free software; you can redistribute it and/or modify it "
-"under the terms of the GNU Lesser General Public License as published by the "
-"Free Software Foundation; either version 2.1 of the License, or (at your "
-"option) any later version."
-msgstr ""
-"이 라이브러리는 자유 소프트웨어입니다; 이 프로그램은 자유 소프트웨어 재단에"
-"서 발표한 GNU 약소 일반 공중 사용 허가서 버전 2.1 또는 이후 버전(선택적)에 따"
-"라 재배포하거나 수정할 수 있습니다."
+msgid "This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 of the License, or (at your option) any later version."
+msgstr "이 라이브러리는 자유 소프트웨어입니다; 이 프로그램은 자유 소프트웨어 재단에서 발표한 GNU 약소 일반 공중 사용 허가서 버전 2.1 또는 이후 버전(선택적)에 따라 재배포하거나 수정할 수 있습니다."
 
 #: ../midori/midori-browser.c:4716
 msgid "translator-credits"
@@ -696,7 +710,8 @@ msgstr "새 폴더 더하기(_F)"
 msgid "_Export bookmarks"
 msgstr "책갈피 내보내기(_E)"
 
-#: ../midori/midori-browser.c:5351 ../midori/midori-searchaction.c:459
+#: ../midori/midori-browser.c:5351
+#: ../midori/midori-searchaction.c:459
 msgid "_Manage Search Engines"
 msgstr "검색 엔진 관리(_M)"
 
@@ -768,7 +783,8 @@ msgstr "일반적인 질문(_F)"
 msgid "_Report a Problem…"
 msgstr "버그 보고(_R)…"
 
-#: ../midori/midori-browser.c:5403 ../midori/midori-browser.c:6060
+#: ../midori/midori-browser.c:5403
+#: ../midori/midori-browser.c:6060
 msgid "_Tools"
 msgstr "도구(_T)"
 
@@ -796,15 +812,18 @@ msgstr "책갈피 모음(_B)"
 msgid "_Statusbar"
 msgstr "상태 표시줄(_S)"
 
-#: ../midori/midori-browser.c:5435 ../midori/midori-websettings.c:221
+#: ../midori/midori-browser.c:5435
+#: ../midori/midori-websettings.c:227
 msgid "_Automatic"
 msgstr "자동(_A)"
 
-#: ../midori/midori-browser.c:5438 ../midori/midori-websettings.c:145
+#: ../midori/midori-browser.c:5438
+#: ../midori/midori-websettings.c:151
 msgid "Chinese Traditional (BIG5)"
 msgstr "중국어 번체(BIG5)"
 
-#: ../midori/midori-browser.c:5441 ../midori/midori-websettings.c:146
+#: ../midori/midori-browser.c:5441
+#: ../midori/midori-websettings.c:152
 msgid "Chinese Simplified (GB18030)"
 msgstr "중국어 간체(GB18030)"
 
@@ -813,19 +832,23 @@ msgstr "중국어 간체(GB18030)"
 msgid "Japanese (SHIFT__JIS)"
 msgstr "일본어(Shift_JIS)"
 
-#: ../midori/midori-browser.c:5448 ../midori/midori-websettings.c:148
+#: ../midori/midori-browser.c:5448
+#: ../midori/midori-websettings.c:154
 msgid "Korean (EUC-KR)"
 msgstr "한국어(EUC-KR)"
 
-#: ../midori/midori-browser.c:5451 ../midori/midori-websettings.c:149
+#: ../midori/midori-browser.c:5451
+#: ../midori/midori-websettings.c:155
 msgid "Russian (KOI8-R)"
 msgstr "키릴어(KOI8-R)"
 
-#: ../midori/midori-browser.c:5454 ../midori/midori-websettings.c:150
+#: ../midori/midori-browser.c:5454
+#: ../midori/midori-websettings.c:156
 msgid "Unicode (UTF-8)"
 msgstr "유니코드(UTF-8)"
 
-#: ../midori/midori-browser.c:5457 ../midori/midori-websettings.c:151
+#: ../midori/midori-browser.c:5457
+#: ../midori/midori-websettings.c:157
 msgid "Western (ISO-8859-1)"
 msgstr "서양어(ISO-8859-1)"
 
@@ -887,7 +910,8 @@ msgstr "기대하지 않은 설정 '%s'"
 msgid "The configuration of the extension '%s' couldn't be loaded: %s\n"
 msgstr "확장 기능 '%s'의 설정을 불러올 수 없습니다: %s\n"
 
-#: ../midori/midori-extension.c:879 ../extensions/addons.c:1676
+#: ../midori/midori-extension.c:879
+#: ../extensions/addons.c:1676
 #, c-format
 msgid "The configuration of the extension '%s' couldn't be saved: %s\n"
 msgstr "확장 기능 '%s'의 설정을 저장할 수 없습니다: %s\n"
@@ -901,9 +925,7 @@ msgid "The signing certificate authority is not known."
 msgstr "서명 인증 기관을 알 수 없습니다."
 
 #: ../midori/midori-locationaction.c:1362
-msgid ""
-"The certificate does not match the expected identity of the site that it was "
-"retrieved from."
+msgid "The certificate does not match the expected identity of the site that it was retrieved from."
 msgstr "인증서가 사이트에서 가져온 신원 기대값과 일치하지 않습니다."
 
 #: ../midori/midori-locationaction.c:1364
@@ -915,9 +937,7 @@ msgid "The certificate has expired"
 msgstr "인증서가 만료되었습니다."
 
 #: ../midori/midori-locationaction.c:1368
-msgid ""
-"The certificate has been revoked according to the GTlsConnection's "
-"certificate revocation list."
+msgid "The certificate has been revoked according to the GTlsConnection's certificate revocation list."
 msgstr "GTlsConnection의 인증 철회 목록에 따라 인증서를 취소합니다."
 
 #: ../midori/midori-locationaction.c:1370
@@ -957,147 +977,158 @@ msgstr "확인하였고 암호화 한 연결"
 msgid "Open, unencrypted connection"
 msgstr "열린, 암호화하지 않은 연결"
 
-#: ../midori/midori-panel.c:314 ../midori/midori-panel.c:316
-#: ../midori/midori-panel.c:480 ../midori/midori-panel.c:483
+#: ../midori/midori-panel.c:314
+#: ../midori/midori-panel.c:316
+#: ../midori/midori-panel.c:480
+#: ../midori/midori-panel.c:483
 msgid "Align sidepanel to the right"
 msgstr "창을 오른쪽으로 이동"
 
-#: ../midori/midori-panel.c:326 ../midori/midori-panel.c:327
+#: ../midori/midori-panel.c:326
+#: ../midori/midori-panel.c:327
 msgid "Close panel"
 msgstr "패널 닫기"
 
-#: ../midori/midori-panel.c:481 ../midori/midori-panel.c:484
+#: ../midori/midori-panel.c:481
+#: ../midori/midori-panel.c:484
 msgid "Align sidepanel to the left"
 msgstr "창을 왼쪽으로 이동"
 
-#: ../midori/midori-websettings.c:108 ../midori/midori-websettings.c:129
+#: ../midori/midori-websettings.c:114
+#: ../midori/midori-websettings.c:135
 msgid "Show Speed Dial"
 msgstr "단축 번호 보이기"
 
-#: ../midori/midori-websettings.c:109 ../midori/midori-websettings.c:127
+#: ../midori/midori-websettings.c:115
+#: ../midori/midori-websettings.c:133
 msgid "Show Homepage"
 msgstr "홈 페이지 표시"
 
-#: ../midori/midori-websettings.c:110 ../midori/midori-frontend.c:344
+#: ../midori/midori-websettings.c:116
+#: ../midori/midori-frontend.c:344
 msgid "Show last open tabs"
 msgstr "마지막에 연 탭 표시"
 
-#: ../midori/midori-websettings.c:111 ../midori/midori-frontend.c:343
+#: ../midori/midori-websettings.c:117
+#: ../midori/midori-frontend.c:343
 msgid "Show last tabs without loading"
 msgstr "마지막 탭을 불러오지는 않고 표시"
 
-#: ../midori/midori-websettings.c:126
+#: ../midori/midori-websettings.c:132
 msgid "Show Blank Page"
 msgstr "빈 페이지 보이기"
 
-#: ../midori/midori-websettings.c:128
+#: ../midori/midori-websettings.c:134
 msgid "Show default Search Engine"
 msgstr "기본 검색 엔진 보이기"
 
-#: ../midori/midori-websettings.c:130
+#: ../midori/midori-websettings.c:136
 msgid "Show custom page"
 msgstr "현재 홈 페이지 보이기"
 
-#: ../midori/midori-websettings.c:147
+#: ../midori/midori-websettings.c:153
 msgid "Japanese (SHIFT_JIS)"
 msgstr "일본어(Shift_JIS)"
 
-#: ../midori/midori-websettings.c:152 ../midori/midori-websettings.c:228
+#: ../midori/midori-websettings.c:158
+#: ../midori/midori-websettings.c:234
 #: ../katze/katze-utils.c:603
 msgid "Custom..."
 msgstr "사용자 지정..."
 
-#: ../midori/midori-websettings.c:167
+#: ../midori/midori-websettings.c:173
 msgid "New tab"
 msgstr "새 탭"
 
-#: ../midori/midori-websettings.c:168
+#: ../midori/midori-websettings.c:174
 msgid "New window"
 msgstr "새 창"
 
-#: ../midori/midori-websettings.c:169
+#: ../midori/midori-websettings.c:175
 msgid "Current tab"
 msgstr "현재 탭"
 
-#: ../midori/midori-websettings.c:184
+#: ../midori/midori-websettings.c:190
 msgid "Default"
 msgstr "기본 값"
 
-#: ../midori/midori-websettings.c:185
+#: ../midori/midori-websettings.c:191
 msgid "Icons"
 msgstr "아이콘"
 
-#: ../midori/midori-websettings.c:186
+#: ../midori/midori-websettings.c:192
 msgid "Small icons"
 msgstr "작은 아이콘"
 
-#: ../midori/midori-websettings.c:187
+#: ../midori/midori-websettings.c:193
 msgid "Text"
 msgstr "텍스트"
 
-#: ../midori/midori-websettings.c:188
+#: ../midori/midori-websettings.c:194
 msgid "Icons and text"
 msgstr "아이콘 및 텍스트"
 
-#: ../midori/midori-websettings.c:189
+#: ../midori/midori-websettings.c:195
 msgid "Text beside icons"
 msgstr "아이콘 옆에 글자"
 
-#: ../midori/midori-websettings.c:204
+#: ../midori/midori-websettings.c:210
 msgid "Automatic (GNOME or environment)"
 msgstr "자동(그놈 또는 환경 변수)"
 
-#: ../midori/midori-websettings.c:205
+#: ../midori/midori-websettings.c:211
 msgid "HTTP proxy server"
 msgstr "HTTP 프록시 서버"
 
-#: ../midori/midori-websettings.c:206
+#: ../midori/midori-websettings.c:212
 msgid "No proxy server"
 msgstr "프록시 서버 없음"
 
-#: ../midori/midori-websettings.c:223
+#: ../midori/midori-websettings.c:229
 msgid "Chrome"
 msgstr "크롬"
 
-#: ../midori/midori-websettings.c:224
+#: ../midori/midori-websettings.c:230
 msgid "Safari"
 msgstr "사파리"
 
-#: ../midori/midori-websettings.c:225
+#: ../midori/midori-websettings.c:231
 msgid "iPhone"
 msgstr "아이폰"
 
-#: ../midori/midori-websettings.c:226
+#: ../midori/midori-websettings.c:232
 msgid "Firefox"
 msgstr "파이어폭스"
 
-#: ../midori/midori-websettings.c:227
+#: ../midori/midori-websettings.c:233
 msgid "Internet Explorer"
 msgstr "인터넷 익스플로러"
 
-#: ../midori/midori-websettings.c:302
+#: ../midori/midori-websettings.c:308
 msgid "The style of the toolbar"
 msgstr "도구 모음 유형:"
 
-#: ../midori/midori-websettings.c:504
+#: ../midori/midori-websettings.c:510
 msgid "Always use my font choices"
 msgstr "항상 사용자가 선택한 글꼴을 사용"
 
-#: ../midori/midori-websettings.c:505
+#: ../midori/midori-websettings.c:511
 msgid "Override fonts picked by websites with user preferences"
 msgstr "웹 사이트에 설정된 글꼴을 사용자 기본 설정으로 대체"
 
-#: ../midori/midori-websettings.c:1369 ../midori/midori-websettings.c:1375
+#: ../midori/midori-websettings.c:1375
+#: ../midori/midori-websettings.c:1381
 #, c-format
 msgid "The configuration couldn't be loaded: %s\n"
 msgstr "설정을 읽을 수 없습니다: %s\n"
 
-#: ../midori/midori-websettings.c:1424
+#: ../midori/midori-websettings.c:1430
 #, c-format
 msgid "Value '%s' is invalid for %s"
 msgstr "값 '%s'은(는) %s의 잘못된 값입니다"
 
-#: ../midori/midori-websettings.c:1429 ../midori/midori-websettings.c:1540
+#: ../midori/midori-websettings.c:1435
+#: ../midori/midori-websettings.c:1546
 #, c-format
 msgid "Invalid configuration value '%s'"
 msgstr " '%s'은(는) 잘못된 설정 값입니다."
@@ -1107,7 +1138,8 @@ msgstr " '%s'은(는) 잘못된 설정 값입니다."
 msgid "Failed to inject stylesheet: %s"
 msgstr "스타일 시트를 삽입할 수 없습니다: %s"
 
-#: ../midori/midori-view.c:767 ../midori/midori-view.c:895
+#: ../midori/midori-view.c:767
+#: ../midori/midori-view.c:895
 msgid "Trust this website"
 msgstr "이 웹사이트를 신뢰"
 
@@ -1120,11 +1152,13 @@ msgstr "보안 상태 알 수 없음"
 msgid "%s wants to save an HTML5 database."
 msgstr "%s이(가) HTML5 데이터 베이스를 저장하려 합니다."
 
-#: ../midori/midori-view.c:1198 ../midori/midori-view.c:1230
+#: ../midori/midori-view.c:1198
+#: ../midori/midori-view.c:1230
 msgid "_Deny"
 msgstr "거부(_D)"
 
-#: ../midori/midori-view.c:1198 ../midori/midori-view.c:1230
+#: ../midori/midori-view.c:1198
+#: ../midori/midori-view.c:1230
 msgid "_Allow"
 msgstr "허용(_A)"
 
@@ -1147,227 +1181,230 @@ msgstr "페이지 '%s'을(를) 불러올 수 없습니다."
 msgid "Try again"
 msgstr "다시 시도하십시오"
 
-#: ../midori/midori-view.c:1620 ../midori/midori-view.c:2706
+#: ../midori/midori-view.c:1620
+#: ../midori/midori-view.c:2712
 #, c-format
 msgid "Send a message to %s"
 msgstr "%s에 메시지 보내기"
 
-#: ../midori/midori-view.c:2494
+#: ../midori/midori-view.c:2497
 msgid "Add _search engine..."
 msgstr "검색 엔진 추가(_S)..."
 
-#: ../midori/midori-view.c:2537 ../midori/midori-view.c:2841
+#: ../midori/midori-view.c:2540
+#: ../midori/midori-view.c:2847
 msgid "Inspect _Element"
 msgstr "요소 검사(_E)"
 
-#: ../midori/midori-view.c:2589
+#: ../midori/midori-view.c:2592
 msgid "Open Link in New _Tab"
 msgstr "새 탭에 링크 열기(_T)"
 
-#: ../midori/midori-view.c:2593
+#: ../midori/midori-view.c:2596
 msgid "Open Link in _Foreground Tab"
 msgstr "새 탭에 링크 열고 전환(_F)"
 
-#: ../midori/midori-view.c:2594
+#: ../midori/midori-view.c:2597
 msgid "Open Link in _Background Tab"
 msgstr "새 탭에 링크 열고 전환 안 함(_B)"
 
-#: ../midori/midori-view.c:2597
+#: ../midori/midori-view.c:2600
 msgid "Open Link in New _Window"
 msgstr "새 창에 링크 열기(_W)"
 
-#: ../midori/midori-view.c:2600
+#: ../midori/midori-view.c:2603
 msgid "Open Link as Web A_pplication"
 msgstr "웹 응용 프로그램으로 링크 열기(_P)"
 
-#: ../midori/midori-view.c:2605
+#: ../midori/midori-view.c:2608
 msgid "Copy Link de_stination"
 msgstr "링크 위치 복사(_S)"
 
-#: ../midori/midori-view.c:2611
+#: ../midori/midori-view.c:2614
 msgid "Save _As…"
 msgstr "다른 이름으로 저장(_A)…"
 
-#: ../midori/midori-view.c:2620
+#: ../midori/midori-view.c:2624
+msgid "Open _Image in New Window"
+msgstr "이미지를 새 창에서 열기(_I)"
+
+#: ../midori/midori-view.c:2625
 msgid "Open _Image in New Tab"
 msgstr "그림 새 탭에서 열기(_I)"
 
-#: ../midori/midori-view.c:2623
+#: ../midori/midori-view.c:2629
 msgid "Copy Im_age"
 msgstr "그림 복사(_A)"
 
-#: ../midori/midori-view.c:2626
+#: ../midori/midori-view.c:2632
 msgid "Save I_mage"
 msgstr "그림 저장(_M)"
 
-#: ../midori/midori-view.c:2629
+#: ../midori/midori-view.c:2635
 msgid "Open in Image _Viewer"
 msgstr "그림 보기 프로그램으로 열기(_V)"
 
-#: ../midori/midori-view.c:2636
+#: ../midori/midori-view.c:2642
 msgid "Copy Video _Address"
 msgstr "비디오 주소 복사(_A)"
 
-#: ../midori/midori-view.c:2639
+#: ../midori/midori-view.c:2645
 msgid "Save _Video"
 msgstr "비디오 저장(_V)"
 
-#: ../midori/midori-view.c:2639
+#: ../midori/midori-view.c:2645
 msgid "Download _Video"
 msgstr "비디오 다운로드(_V)"
 
-#: ../midori/midori-view.c:2665
+#: ../midori/midori-view.c:2671
 msgid "Search _with"
 msgstr "다음으로 검색(_W)"
 
-#: ../midori/midori-view.c:2694
+#: ../midori/midori-view.c:2700
 msgid "_Search the Web"
 msgstr "웹 검색(_S)"
 
-#: ../midori/midori-view.c:2714
+#: ../midori/midori-view.c:2720
 msgid "Open Address in New _Tab"
 msgstr "주소 새 탭에서 열기(_T)"
 
-#: ../midori/midori-view.c:2761
+#: ../midori/midori-view.c:2767
 msgid "Open _Frame in New Tab"
 msgstr "프레임 새 탭에서 열기(_F)"
 
-#: ../midori/midori-view.c:2978
+#: ../midori/midori-view.c:2984
 #, c-format
 msgid "Open or download file from %s"
 msgstr "%s에서 파일을 열거나 다운로드"
 
-#: ../midori/midori-view.c:2991
+#: ../midori/midori-view.c:2997
 #, c-format
 msgid "File Name: %s"
 msgstr "파일 이름: %s"
 
-#: ../midori/midori-view.c:2996
+#: ../midori/midori-view.c:3002
 #, c-format
 msgid "File Type: '%s'"
 msgstr "파일 종류: '%s'"
 
-#: ../midori/midori-view.c:2998
+#: ../midori/midori-view.c:3004
 #, c-format
 msgid "File Type: %s ('%s')"
 msgstr "파일 종류: %s ('%s')"
 
-#: ../midori/midori-view.c:3035
+#: ../midori/midori-view.c:3041
 #, c-format
 msgid "Size: %s"
 msgstr "크기: %s"
 
 #. i18n: A file open dialog title, ie. "Open http://fila.com/manual.tgz"
-#: ../midori/midori-view.c:3046
+#: ../midori/midori-view.c:3052
 #, c-format
 msgid "Open %s"
 msgstr "%s 열기"
 
-#: ../midori/midori-view.c:3574
+#: ../midori/midori-view.c:3580
 #, c-format
 msgid "Inspect page - %s"
 msgstr "페이지 살피기 - %s"
 
-#: ../midori/midori-view.c:4095
+#: ../midori/midori-view.c:4100
 #, c-format
 msgid "No documentation installed"
 msgstr "설치한 문서 도구가 없습니다"
 
-#: ../midori/midori-view.c:4171
+#: ../midori/midori-view.c:4176
 msgid "Midori doesn't store any personal data:"
 msgstr "미도리는 어떤 개인 정보도 보존하지 않습니다:"
 
-#: ../midori/midori-view.c:4172
+#: ../midori/midori-view.c:4177
 msgid "No history or web cookies are being saved."
 msgstr "기록 또는 웹 쿠키를 저장하지 않습니다."
 
-#: ../midori/midori-view.c:4173
+#: ../midori/midori-view.c:4178
 msgid "Extensions are disabled."
 msgstr "확장 기능을 사용하지 않습니다."
 
-#: ../midori/midori-view.c:4174
+#: ../midori/midori-view.c:4179
 msgid "HTML5 storage, local database and application caches are disabled."
-msgstr ""
-"HTML5 저장소, 로컬 데이터베이스 그리고 프로그램 캐시를 사용하지 않습니다."
+msgstr "HTML5 저장소, 로컬 데이터베이스 그리고 프로그램 캐시를 사용하지 않습니다."
 
-#: ../midori/midori-view.c:4175
+#: ../midori/midori-view.c:4180
 msgid "Midori prevents websites from tracking the user:"
 msgstr "미도리가 사용자를 추적할 수 없게 합니다.:"
 
-#: ../midori/midori-view.c:4176
+#: ../midori/midori-view.c:4181
 msgid "Referrer URLs are stripped down to the hostname."
 msgstr "리퍼러 웹 주소는 호스트 이름에서 기본적인 것만 남깁니다."
 
-#: ../midori/midori-view.c:4177
+#: ../midori/midori-view.c:4182
 msgid "DNS prefetching is disabled."
 msgstr "DNS 사전 판독을 사용하지 않습니다."
 
-#: ../midori/midori-view.c:4178
+#: ../midori/midori-view.c:4183
 msgid "The language and timezone are not revealed to websites."
 msgstr "언어와 시간대를 웹 사이트가 알 수 없도록 합니다."
 
-#: ../midori/midori-view.c:4179
+#: ../midori/midori-view.c:4184
 msgid "Flash and other Netscape plugins cannot be listed by websites."
 msgstr "플래시와 넷스캐이프 플러그인을 웹 사이트가 알 수 없게 합니다."
 
-#: ../midori/midori-view.c:4219
+#: ../midori/midori-view.c:4224
 msgid "Version numbers in brackets show the version used at runtime."
 msgstr "괄호 안의 버전 번호는 실행 중인 미도리가 사용하고 있는 버전입니다."
 
-#: ../midori/midori-view.c:4267
+#: ../midori/midori-view.c:4274
 msgid "Page loading delayed"
 msgstr "페이지 불러오기 연기"
 
-#: ../midori/midori-view.c:4268
+#: ../midori/midori-view.c:4275
 msgid "Loading delayed either due to a recent crash or startup preferences."
-msgstr ""
-"최근 발생한 충돌이나 기본 설정 내 시작 페이지 설정으로 인해 페이지 불러오기"
-"를 연기합니다."
+msgstr "최근 발생한 충돌이나 기본 설정 내 시작 페이지 설정으로 인해 페이지 불러오기를 연기합니다."
 
-#: ../midori/midori-view.c:4269
+#: ../midori/midori-view.c:4276
 msgid "Load Page"
 msgstr "페이지 불러오기"
 
-#: ../midori/midori-view.c:4436
+#: ../midori/midori-view.c:4443
 msgid "Blank page"
 msgstr "빈 페이지"
 
-#: ../midori/midori-view.c:4650
+#: ../midori/midori-view.c:4657
 msgid "_Duplicate Tab"
 msgstr "탭 복제(_D)"
 
-#: ../midori/midori-view.c:4655
+#: ../midori/midori-view.c:4662
 msgid "Show Tab _Label"
 msgstr "탭 이름 보이기(_L)"
 
-#: ../midori/midori-view.c:4655
+#: ../midori/midori-view.c:4662
 msgid "Show Tab _Icon Only"
 msgstr "탭 아이콘만 보이기(_I)"
 
-#: ../midori/midori-view.c:4662
+#: ../midori/midori-view.c:4669
 msgid "Close Ot_her Tab"
 msgid_plural "Close Ot_her Tabs"
 msgstr[0] "다른 탭 닫기(_H)"
 
 #. i18n: word stem of "previous page" type links, case is not important
-#: ../midori/midori-view.c:5351
+#: ../midori/midori-view.c:5358
 msgid "previous"
 msgstr "이전"
 
 #. i18n: word stem of "next page" type links, case is not important
-#: ../midori/midori-view.c:5370
+#: ../midori/midori-view.c:5377
 msgid "next"
 msgstr "다음"
 
-#: ../midori/midori-view.c:5383
+#: ../midori/midori-view.c:5390
 msgid "Print background images"
 msgstr "배경 그림 인쇄"
 
-#: ../midori/midori-view.c:5384
+#: ../midori/midori-view.c:5391
 msgid "Whether background images should be printed"
 msgstr "배경 그림을 인쇄할 지 결정합니다"
 
-#: ../midori/midori-view.c:5409
+#: ../midori/midori-view.c:5416
 msgid "Features"
 msgstr "기능"
 
@@ -1417,12 +1454,8 @@ msgid "The downloaded file is erroneous."
 msgstr "다운로드한 파일에 오류가 있습니다."
 
 #: ../midori/midori-download.vala:225
-msgid ""
-"The checksum provided with the link did not match. This means the file is "
-"probably incomplete or was modified afterwards."
-msgstr ""
-"링크가 가리키고 있는 체크섬과 일치하지 않습니다. 이 것은 파일을 온전하게 다운"
-"로드하지 못했거나 다운로드한 후 수정했다는 것을 의미합니다."
+msgid "The checksum provided with the link did not match. This means the file is probably incomplete or was modified afterwards."
+msgstr "링크가 가리키고 있는 체크섬과 일치하지 않습니다. 이 것은 파일을 온전하게 다운로드하지 못했거나 다운로드한 후 수정했다는 것을 의미합니다."
 
 #: ../midori/midori-download.vala:345
 #, c-format
@@ -1447,7 +1480,8 @@ msgstr "파일 다운로드에는 %s이(가) 필요합니다 만 %s 만이 남�
 msgid "Speed Dial"
 msgstr "단축 번호"
 
-#: ../midori/midori-speeddial.vala:181 ../midori/midori-speeddial.vala:261
+#: ../midori/midori-speeddial.vala:181
+#: ../midori/midori-speeddial.vala:261
 msgid "Click to add a shortcut"
 msgstr "바로 가기를 더하려면 누르십시오"
 
@@ -1529,7 +1563,8 @@ msgstr "우선할 인코딩"
 msgid "Behavior"
 msgstr "행동"
 
-#: ../midori/midori-preferences.c:365 ../extensions/statusbar-features.c:155
+#: ../midori/midori-preferences.c:365
+#: ../extensions/statusbar-features.c:155
 msgid "Load images automatically"
 msgstr "자동으로 그림 읽기"
 
@@ -1537,7 +1572,8 @@ msgstr "자동으로 그림 읽기"
 msgid "Enable Spell Checking"
 msgstr "맞춤법 검사 사용"
 
-#: ../midori/midori-preferences.c:382 ../extensions/statusbar-features.c:165
+#: ../midori/midori-preferences.c:382
+#: ../extensions/statusbar-features.c:165
 msgid "Enable scripts"
 msgstr "스크립트 사용"
 
@@ -1545,7 +1581,8 @@ msgstr "스크립트 사용"
 msgid "Enable WebGL support"
 msgstr "웹GL 지원 사용"
 
-#: ../midori/midori-preferences.c:389 ../extensions/statusbar-features.c:177
+#: ../midori/midori-preferences.c:389
+#: ../extensions/statusbar-features.c:177
 msgid "Enable Netscape plugins"
 msgstr "넷스케이프 플러그인 사용"
 
@@ -1578,12 +1615,8 @@ msgid "Preferred languages"
 msgstr "우선할 인코딩"
 
 #: ../midori/midori-preferences.c:415
-msgid ""
-"A comma separated list of languages preferred for rendering multilingual "
-"webpages, for example \"de\", \"ru,nl\" or \"en-us;q=1.0, fr-fr;q=0.667\""
-msgstr ""
-"복수의 언어로 작성한 웹 페이지를 읽을 때 사용할 언어의 우선순위를 쉼표로 구분"
-"해 지정합니다. 예) \"de\", \"ru,nl\" 또는 \"en-us;q=1.0, fr-fr;q=0.667\""
+msgid "A comma separated list of languages preferred for rendering multilingual webpages, for example \"de\", \"ru,nl\" or \"en-us;q=1.0, fr-fr;q=0.667\""
+msgstr "복수의 언어로 작성한 웹 페이지를 읽을 때 사용할 언어의 우선순위를 쉼표로 구분해 지정합니다. 예) \"de\", \"ru,nl\" 또는 \"en-us;q=1.0, fr-fr;q=0.667\""
 
 #: ../midori/midori-preferences.c:417
 msgid "Save downloaded files to:"
@@ -1651,80 +1684,86 @@ msgstr "호스트 이름"
 msgid "Port"
 msgstr "포트"
 
+#: ../midori/midori-preferences.c:498
+msgid "Supported proxy types:"
+msgstr "지원하는 프록시 형식:"
+
 #. TODO: Preserve page icons of search engines and merge privacy items
-#: ../midori/midori-preferences.c:497 ../extensions/web-cache.c:461
-#: ../extensions/web-cache.c:470 ../midori/midori-privatedata.c:308
+#: ../midori/midori-preferences.c:518
+#: ../extensions/web-cache.c:461
+#: ../extensions/web-cache.c:470
+#: ../midori/midori-privatedata.c:308
 msgid "Web Cache"
 msgstr "웹 캐시"
 
-#: ../midori/midori-preferences.c:498 ../midori/midori-preferences.c:501
+#: ../midori/midori-preferences.c:519
+#: ../midori/midori-preferences.c:522
 msgid "The maximum size of cached pages on disk"
 msgstr "디스크에 페이지를 저장할 최대 공간"
 
-#: ../midori/midori-preferences.c:503
+#: ../midori/midori-preferences.c:524
 msgid "MB"
 msgstr "MB"
 
 #. i18n: This refers to an application, not the 'user agent' string
-#: ../midori/midori-preferences.c:510
+#: ../midori/midori-preferences.c:531
 msgid "Identify as"
 msgstr "식별 명"
 
-#: ../midori/midori-preferences.c:525
+#: ../midori/midori-preferences.c:546
 msgid "Privacy"
 msgstr "개인 정보"
 
-#: ../midori/midori-preferences.c:527
+#: ../midori/midori-preferences.c:548
 msgid "Delete old Cookies after:"
 msgstr "쿠키를 보존할 기간:"
 
-#: ../midori/midori-preferences.c:529 ../midori/midori-preferences.c:532
+#: ../midori/midori-preferences.c:550
+#: ../midori/midori-preferences.c:553
 msgid "The maximum number of days to save cookies for"
 msgstr "쿠키를 저장할 최장 기간을 설정합니다"
 
-#: ../midori/midori-preferences.c:536
+#: ../midori/midori-preferences.c:557
 msgid "Only accept Cookies from sites you visit"
 msgstr "방문한 사이트의 쿠키 만을 허용"
 
-#: ../midori/midori-preferences.c:537
+#: ../midori/midori-preferences.c:558
 msgid "Block cookies sent by third-party websites"
 msgstr "서드 파티 웹 사이트가 보낸 쿠키 막기"
 
-#: ../midori/midori-preferences.c:542
-msgid ""
-"Cookies store login data, saved games, or user profiles for advertisement "
-"purposes."
-msgstr ""
-"쿠키는 로그인 데이터, 게임 기록 또는 광고 목적의 사용자 프로필을 보관하고 있"
-"습니다."
+#: ../midori/midori-preferences.c:563
+msgid "Cookies store login data, saved games, or user profiles for advertisement purposes."
+msgstr "쿠키는 로그인 데이터, 게임 기록 또는 광고 목적의 사용자 프로필을 보관하고 있습니다."
 
-#: ../midori/midori-preferences.c:549
+#: ../midori/midori-preferences.c:570
 msgid "Enable offline web application cache"
 msgstr "오프라인 웹 응용 프로그램 캐시 사용"
 
-#: ../midori/midori-preferences.c:552
+#: ../midori/midori-preferences.c:573
 msgid "Enable HTML5 local storage support"
 msgstr "HTML5 로컬 기억 장치 지원 사용"
 
 #. i18n: Reworded: Shorten details propagated when going to another page
-#: ../midori/midori-preferences.c:556
+#: ../midori/midori-preferences.c:577
 msgid "Strip referrer details sent to websites"
 msgstr "외부 사이트에 보낼 리퍼러의 자세한 내용을 제거"
 
 #. i18n: Referer here is not a typo but a technical term
-#: ../midori/midori-preferences.c:558
+#: ../midori/midori-preferences.c:579
 msgid "Whether the \"Referer\" header should be shortened to the hostname"
 msgstr "\"리퍼러\" 헤더를 호스트 이름으로 줄이기"
 
-#: ../midori/midori-preferences.c:561
+#: ../midori/midori-preferences.c:582
 msgid "Delete pages from history after:"
 msgstr "기록에 페이지를 보존할 기간:"
 
-#: ../midori/midori-preferences.c:563 ../midori/midori-preferences.c:566
+#: ../midori/midori-preferences.c:584
+#: ../midori/midori-preferences.c:587
 msgid "The maximum number of days to save the history for"
 msgstr "방문 기록을 저장할 최대 기간을 설정합니다"
 
-#: ../midori/midori-preferences.c:603 ../panels/midori-extensions.c:90
+#: ../midori/midori-preferences.c:624
+#: ../panels/midori-extensions.c:90
 msgid "Extensions"
 msgstr "확장 기능"
 
@@ -1744,7 +1783,8 @@ msgstr "이름(_N):"
 msgid "_Description:"
 msgstr "설명(_D):"
 
-#: ../midori/midori-searchaction.c:1103 ../extensions/feed-panel/main.c:368
+#: ../midori/midori-searchaction.c:1103
+#: ../extensions/feed-panel/main.c:368
 msgid "_Address:"
 msgstr "주소(_A):"
 
@@ -1770,7 +1810,8 @@ msgstr "검색 엔진을 불러올 수 없습니다. %s\n"
 msgid "The search engines couldn't be saved. %s"
 msgstr "검색 엔진을 저장할 수 없습니다. %s"
 
-#: ../midori/midori-historycompletion.vala:17 ../panels/midori-history.c:111
+#: ../midori/midori-historycompletion.vala:17
+#: ../panels/midori-history.c:111
 msgid "History"
 msgstr "기록"
 
@@ -1809,7 +1850,8 @@ msgstr "다음으로 열기"
 msgid "Choose an application or command to open \"%s\":"
 msgstr "\"%s\"을(를) 열기 위한 응용 프로그램 또는 명령어를 선택해 주십시오:"
 
-#: ../midori/sokoke.c:368 ../midori/sokoke.c:388
+#: ../midori/sokoke.c:368
+#: ../midori/sokoke.c:388
 msgid "Could not run external program."
 msgstr "외부  프로그램을 실행할 수 없습니다."
 
@@ -1847,11 +1889,13 @@ msgstr "파일 '<b>%s</b>'을(를) 다운로드 했습니다."
 msgid "Transfer completed"
 msgstr "전송이 끝났습니다"
 
-#: ../toolbars/midori-transferbar.c:244 ../panels/midori-transfers.c:139
+#: ../toolbars/midori-transferbar.c:244
+#: ../panels/midori-transfers.c:139
 msgid "Clear All"
 msgstr "모두 지우기"
 
-#: ../toolbars/midori-transferbar.c:277 ../toolbars/midori-transferbar.c:279
+#: ../toolbars/midori-transferbar.c:277
+#: ../toolbars/midori-transferbar.c:279
 msgid "Some files are being downloaded"
 msgstr "파일을 다운로드 하고 있습니다"
 
@@ -1885,7 +1929,8 @@ msgstr "선택한 책갈피를 지웁니다"
 msgid "Add a new folder"
 msgstr "새 폴더를 더합니다"
 
-#: ../panels/midori-bookmarks.c:687 ../panels/midori-history.c:629
+#: ../panels/midori-bookmarks.c:687
+#: ../panels/midori-history.c:629
 msgid "<i>Separator</i>"
 msgstr "<i>구분선</i>"
 
@@ -1894,25 +1939,30 @@ msgstr "<i>구분선</i>"
 msgid "Search Bookmarks"
 msgstr "책갈피 검색"
 
-#: ../panels/midori-history.c:158 ../panels/midori-history.c:191
+#: ../panels/midori-history.c:158
+#: ../panels/midori-history.c:191
 msgid "Today"
 msgstr "오늘"
 
-#: ../panels/midori-history.c:160 ../panels/midori-history.c:193
+#: ../panels/midori-history.c:160
+#: ../panels/midori-history.c:193
 msgid "Yesterday"
 msgstr "어제"
 
-#: ../panels/midori-history.c:162 ../panels/midori-history.c:188
+#: ../panels/midori-history.c:162
+#: ../panels/midori-history.c:188
 #, c-format
 msgid "%d day ago"
 msgid_plural "%d days ago"
 msgstr[0] "%d 일 전"
 
-#: ../panels/midori-history.c:165 ../panels/midori-history.c:186
+#: ../panels/midori-history.c:165
+#: ../panels/midori-history.c:186
 msgid "A week ago"
 msgstr "일 주 전"
 
-#: ../panels/midori-history.c:234 ../midori/midori-bookmarks.c:59
+#: ../panels/midori-history.c:234
+#: ../midori/midori-bookmarks.c:59
 #, c-format
 msgid "Failed to remove history item: %s\n"
 msgstr "기록 항목을 제거할 수 없습니다: %s\n"
@@ -1993,7 +2043,8 @@ msgstr "애니메이션 프레임이 망가졌습니다"
 msgid "Property '%s' is invalid for %s"
 msgstr "속성 '%s'은(는) %s에 적당하지 않음"
 
-#: ../katze/katze-utils.c:459 ../katze/katze-utils.c:488
+#: ../katze/katze-utils.c:459
+#: ../katze/katze-utils.c:488
 #: ../extensions/addons.c:309
 msgid "Choose file"
 msgstr "파일 선택"
@@ -2026,7 +2077,8 @@ msgstr "한 달"
 msgid "1 year"
 msgstr "일 년"
 
-#: ../katze/katze-preferences.c:72 ../extensions/delayed-load.vala:24
+#: ../katze/katze-preferences.c:72
+#: ../extensions/delayed-load.vala:24
 #: ../extensions/external-download-manager.vala:224
 #: ../extensions/history-list.vala:235
 #, c-format
@@ -2041,40 +2093,36 @@ msgstr "MD5 체크섬:"
 msgid "SHA1-Checksum:"
 msgstr "SHA1 체크섬:"
 
-#: ../extensions/adblock.c:483
+#: ../extensions/adblock.c:473
 msgid "Configure Advertisement filters"
 msgstr "광고 필터 설정"
 
-#: ../extensions/adblock.c:512
+#: ../extensions/adblock.c:504
 #, c-format
-msgid ""
-"Type the address of a preconfigured filter list in the text entry and click "
-"\"Add\" to add it to the list. You can find more lists at %s."
-msgstr ""
-"텍스트 항목에 미리 설정한 필터 목록의 주소를 입력하시고, \"추가\"를 눌러 목록"
-"에 추가해주십시오. 더 많은 목록은 %s에서 찾을 수 있습니다."
+msgid "Type the address of a preconfigured filter list in the text entry and click \"Add\" to add it to the list. You can find more lists at %s."
+msgstr "텍스트 항목에 미리 설정한 필터 목록의 주소를 입력하시고, \"추가\"를 눌러 목록에 추가해주십시오. 더 많은 목록은 %s에서 찾을 수 있습니다."
 
-#: ../extensions/adblock.c:926
+#: ../extensions/adblock.c:882
 msgid "Edit rule"
 msgstr "규칙 편집"
 
-#: ../extensions/adblock.c:940
+#: ../extensions/adblock.c:896
 msgid "_Rule:"
 msgstr "규칙(_R):"
 
-#: ../extensions/adblock.c:994
+#: ../extensions/adblock.c:950
 msgid "Bl_ock image"
 msgstr "그림 막기(_O)"
 
-#: ../extensions/adblock.c:999
+#: ../extensions/adblock.c:955
 msgid "Bl_ock link"
 msgstr "링크 막기(_O)"
 
-#: ../extensions/adblock.c:1925
+#: ../extensions/adblock.c:1670
 msgid "Advertisement blocker"
 msgstr "광고 막기"
 
-#: ../extensions/adblock.c:1926
+#: ../extensions/adblock.c:1671
 msgid "Block advertisements according to a filter list"
 msgstr "필터 목록에 따라 광고를 막습니다"
 
@@ -2100,15 +2148,18 @@ msgstr "사용자 스타일 설치(_I)"
 msgid "Don't install"
 msgstr "설치 안 함"
 
-#: ../extensions/addons.c:320 ../extensions/addons.c:675
+#: ../extensions/addons.c:320
+#: ../extensions/addons.c:675
 msgid "Userscripts"
 msgstr "사용자 스크립트"
 
-#: ../extensions/addons.c:325 ../extensions/addons.c:677
+#: ../extensions/addons.c:325
+#: ../extensions/addons.c:677
 msgid "Userstyles"
 msgstr "사용자 스타일"
 
-#: ../extensions/addons.c:371 ../extensions/addons.c:450
+#: ../extensions/addons.c:371
+#: ../extensions/addons.c:450
 #: ../extensions/feed-panel/main.c:120
 msgid "Error"
 msgstr "오류"
@@ -2131,11 +2182,13 @@ msgstr "사용자 스타일 삭제"
 msgid "The file <b>%s</b> will be permanently deleted."
 msgstr "파일 '<b>%s</b>'을(를) 영구적으로 삭제합니다."
 
-#: ../extensions/addons.c:564 ../extensions/addons.c:641
+#: ../extensions/addons.c:564
+#: ../extensions/addons.c:641
 msgid "Open in Text Editor"
 msgstr "텍스트 편집기로 열기"
 
-#: ../extensions/addons.c:566 ../extensions/addons.c:650
+#: ../extensions/addons.c:566
+#: ../extensions/addons.c:650
 msgid "Open Target Folder"
 msgstr "대상 폴더 열기"
 
@@ -2147,7 +2200,8 @@ msgstr "새 추가 기능 추가"
 msgid "Remove selected addon"
 msgstr "선택한 추가 기능 제거"
 
-#: ../extensions/addons.c:1677 ../extensions/addons.c:1893
+#: ../extensions/addons.c:1677
+#: ../extensions/addons.c:1893
 msgid "User addons"
 msgstr "사용자 추가 기능"
 
@@ -2178,12 +2232,8 @@ msgid "Delete All"
 msgstr "모두 삭제"
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:105
-msgid ""
-"Deletes all shown cookies. If a filter is set, only those cookies are "
-"deleted which match the filter."
-msgstr ""
-"보이는 모든 쿠키를 지웁니다. 필터를 설정한 경우 필터와 일치하는 쿠키만 지웁니"
-"다."
+msgid "Deletes all shown cookies. If a filter is set, only those cookies are deleted which match the filter."
+msgstr "보이는 모든 쿠키를 지웁니다. 필터를 설정한 경우 필터와 일치하는 쿠키만 지웁니다."
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:120
 msgid "Expand All"
@@ -2277,7 +2327,8 @@ msgstr "탭 주소를 복사합니다"
 msgid "Copy the addresses of all tabs to the clipboard"
 msgstr "모든 탭의 주소를 클립보드로 복사합니다"
 
-#: ../extensions/delayed-load.vala:24 ../extensions/delayed-load.vala:209
+#: ../extensions/delayed-load.vala:24
+#: ../extensions/delayed-load.vala:209
 #, c-format
 msgid "Delayed load"
 msgstr "불러오기 지연"
@@ -2291,9 +2342,7 @@ msgid "Delay page load until you actually use the tab."
 msgstr "실제 탭을 사용하지 전 페이지 불러오기를 지원합니다."
 
 #: ../extensions/external-download-manager.vala:124
-msgid ""
-"An error occurred when attempting to download a file with the following "
-"plugin:\n"
+msgid "An error occurred when attempting to download a file with the following plugin:\n"
 msgstr "다음 플러그인으로 파일 다운로드를 사도 하는 중 오류가 발생했습니다:\n"
 
 #: ../extensions/external-download-manager.vala:175
@@ -2446,7 +2495,8 @@ msgstr "폼 기록 상태 켜고 끄기"
 msgid "Activate or deactivate form history for the current tab."
 msgstr "현재 탭의 폼 기록을 사용하거나 사용하지 않습니다."
 
-#: ../extensions/formhistory/formhistory.c:515 ../midori/midori-history.c:47
+#: ../extensions/formhistory/formhistory.c:515
+#: ../midori/midori-history.c:47
 #: ../midori/midori-bookmarks.c:155
 #, c-format
 msgid "Failed to open database: %s\n"
@@ -2460,8 +2510,7 @@ msgstr "데이터 베이스 문(statement)을 실행할 수 없습니다: %s\n"
 
 #: ../extensions/formhistory/formhistory.c:624
 msgid "Only activate form history via hotkey (Ctrl+Shift+F) per tab"
-msgstr ""
-"폼 기록을 탭 별로 키보드 바로 가기(컨트롤 + 시프트 + F)로만 활성화합니다."
+msgstr "폼 기록을 탭 별로 키보드 바로 가기(컨트롤 + 시프트 + F)로만 활성화합니다."
 
 #: ../extensions/formhistory/formhistory.c:681
 msgid "Form history filler"
@@ -2590,7 +2639,8 @@ msgstr "상태 표시줄 기능"
 msgid "Easily toggle features on web pages on and off"
 msgstr "웹 페이지의 기능을 쉽게 켜고 끕니다"
 
-#: ../extensions/tab-panel.c:584 ../extensions/tab-panel.c:673
+#: ../extensions/tab-panel.c:584
+#: ../extensions/tab-panel.c:673
 msgid "Tab Panel"
 msgstr "탭 패널"
 
@@ -2615,12 +2665,8 @@ msgid "Customize Toolbar"
 msgstr "도구 모음 사용자 설정"
 
 #: ../extensions/toolbar-editor.c:411
-msgid ""
-"Select items to be displayed on the toolbar. Items can be reordered by drag "
-"and drop."
-msgstr ""
-"도구 모음에 표시할 항목을 설정합니다. 끌어다 놓기로 항목을 다시 배치할 수 있"
-"습니다."
+msgid "Select items to be displayed on the toolbar. Items can be reordered by drag and drop."
+msgstr "도구 모음에 표시할 항목을 설정합니다. 끌어다 놓기로 항목을 다시 배치할 수 있습니다."
 
 #: ../extensions/toolbar-editor.c:427
 msgid "Available Items"
@@ -2736,17 +2782,16 @@ msgid "The bookmarks couldn't be saved. %s"
 msgstr "책갈피를 저장할 수 없습니다.%s"
 
 #: ../midori/midori-session.c:192
-msgid ""
-"No root certificate file is available. SSL certificates cannot be verified."
-msgstr ""
-"사용 가능한 루트 인증서 파일이 없습니다. SSL 인증서를 검증할 수 없습니다."
+msgid "No root certificate file is available. SSL certificates cannot be verified."
+msgstr "사용 가능한 루트 인증서 파일이 없습니다. SSL 인증서를 검증할 수 없습니다."
 
 #: ../midori/midori-session.c:361
 #, c-format
 msgid "The configuration couldn't be saved. %s"
 msgstr "설정을 저장할 수 없습니다. %s"
 
-#: ../midori/midori-session.c:382 ../midori/midori-frontend.c:454
+#: ../midori/midori-session.c:382
+#: ../midori/midori-frontend.c:454
 #, c-format
 msgid "The session couldn't be loaded: %s\n"
 msgstr "세션을 열 수 없습니다: %s\n"
@@ -2763,12 +2808,8 @@ msgid "The trash couldn't be saved. %s"
 msgstr "휴지통을 저장할 수 없습니다.%s"
 
 #: ../midori/midori-frontend.c:314
-msgid ""
-"Midori seems to have crashed the last time it was opened. If this happened "
-"repeatedly, try one of the following options to solve the problem."
-msgstr ""
-"미도리를 마지막으로 실행했을 때 비 정상적으로 끝난 것 같습니다. 이런 일이 계"
-"속된다면, 문제 해결을 위해 다음 중 하나를 선택하십시오."
+msgid "Midori seems to have crashed the last time it was opened. If this happened repeatedly, try one of the following options to solve the problem."
+msgstr "미도리를 마지막으로 실행했을 때 비 정상적으로 끝난 것 같습니다. 이런 일이 계속된다면, 문제 해결을 위해 다음 중 하나를 선택하십시오."
 
 #: ../midori/midori-frontend.c:324
 msgid "Modify _preferences"
@@ -2863,12 +2904,8 @@ msgid "Delete all cookie permissions?"
 msgstr "모든 쿠키 권한 설정을 삭제하시겠습니까?"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:440
-msgid ""
-"This action will delete all cookie permissions. You will be asked for "
-"permissions again for each web site visited."
-msgstr ""
-"이 동작을 수행하면 모든 쿠키 권한을 삭제합니다. 각 웹 페이지를 방문하면 권한"
-"을 다시 요구합니다."
+msgid "This action will delete all cookie permissions. You will be asked for permissions again for each web site visited."
+msgstr "이 동작을 수행하면 모든 쿠키 권한을 삭제합니다. 각 웹 페이지를 방문하면 권한을 다시 요구합니다."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:587
 msgid "Cookie permission manager"
@@ -2885,16 +2922,8 @@ msgstr "쿠키 권한 설정"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:643
 #, c-format
-msgid ""
-"Below is a list of all web sites and the policy set for them. You can delete "
-"policies by marking the entries and clicking on <i>Delete</i>.You can also "
-"add a policy for a domain manually by entering the domain below, choosing "
-"the policy and clicking on <i>Add</i>."
-msgstr ""
-"아래는 모든 웹 사이트와 해당 웹 사이트의 정책 설정 목록입니다. 삭제하고 싶은 "
-"정책을 선택한 후 <i>삭제</i>를 누르면 해당 정책을 삭제할 수 있습니다. 또한 정"
-"책을 선택한 후 <i>추가</i>를 눌러 아래에 정책을 추가하고 싶은 도메인을 직접 "
-"입력할 수도 있습니다."
+msgid "Below is a list of all web sites and the policy set for them. You can delete policies by marking the entries and clicking on <i>Delete</i>.You can also add a policy for a domain manually by entering the domain below, choosing the policy and clicking on <i>Add</i>."
+msgstr "아래는 모든 웹 사이트와 해당 웹 사이트의 정책 설정 목록입니다. 삭제하고 싶은 정책을 선택한 후 <i>삭제</i>를 누르면 해당 정책을 삭제할 수 있습니다. 또한 정책을 선택한 후 <i>추가</i>를 눌러 아래에 정책을 추가하고 싶은 도메인을 직접 입력할 수도 있습니다."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:705
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:489
@@ -2915,12 +2944,8 @@ msgid "A_sk for policy if unknown for a domain"
 msgstr "알 수 없는 도메인인 경우 권한 물어보기(_S)"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:83
-msgid ""
-"A fatal error occurred which prevents the cookie permission manager "
-"extension to continue. You should disable it."
-msgstr ""
-"쿠키 권한 관리자 확장 기능을 계속 사용하지 않도록 하는 과정에서 치명적인 오류"
-"가 발생했습니다. 사용하지 않도록 설정하십시오."
+msgid "A fatal error occurred which prevents the cookie permission manager extension to continue. You should disable it."
+msgstr "쿠키 권한 관리자 확장 기능을 계속 사용하지 않도록 하는 과정에서 치명적인 오류가 발생했습니다. 사용하지 않도록 설정하십시오."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:87
 msgid "Error in cookie permission manager extension"
@@ -2932,8 +2957,7 @@ msgstr "이유"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:125
 msgid "Could not get path to configuration of extension: path is NULL"
-msgstr ""
-"확장 기능의 설정 파일 경로를 찾을 수 없습니다: 경로를 설정하지 않았습니다."
+msgstr "확장 기능의 설정 파일 경로를 찾을 수 없습니다: 경로를 설정하지 않았습니다."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:127
 msgid "Could not get path to configuration of extension."
@@ -3039,12 +3063,8 @@ msgid "Ask for unknown policy"
 msgstr "알 수 없는 정책 물어보기"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:902
-msgid ""
-"If true this extension ask for policy for every unknown domain.If false this "
-"extension uses the global cookie policy set in Midori settings."
-msgstr ""
-"참으로 설정하면 이 확장 기능은 모든 알 수 없는 도메인의 권한을 물어봅니다.거"
-"짓으로 설정하는 경우 미도리 설정에 있는 전체 쿠키 설정을 사용합니다."
+msgid "If true this extension ask for policy for every unknown domain.If false this extension uses the global cookie policy set in Midori settings."
+msgstr "참으로 설정하면 이 확장 기능은 모든 알 수 없는 도메인의 권한을 물어봅니다.거짓으로 설정하는 경우 미도리 설정에 있는 전체 쿠키 설정을 사용합니다."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:983
 msgid "Undetermined"
