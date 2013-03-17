@@ -33,6 +33,12 @@
     #include <sys/sysctl.h>
 #endif
 
+#ifdef HAVE_WEBKIT2
+#define WEB_SETTINGS_STRING(x) "WebKitSettings::"x""
+#else
+#define WEB_SETTINGS_STRING(x) "WebKitWebSettings::"x""
+#endif
+
 struct _MidoriWebSettings
 {
     MidoriSettings parent_instance;
@@ -989,7 +995,7 @@ midori_web_settings_set_property (GObject*      object,
 
     case PROP_ENABLE_PLUGINS:
         g_object_set (web_settings,
-            "WebKitWebSettings::enable-plugins", g_value_get_boolean (value),
+           WEB_SETTINGS_STRING ("enable-plugins"), g_value_get_boolean (value),
         #if WEBKIT_CHECK_VERSION (1, 1, 22)
             "enable-java-applet", g_value_get_boolean (value),
         #endif
@@ -997,7 +1003,7 @@ midori_web_settings_set_property (GObject*      object,
         break;
     #if WEBKIT_CHECK_VERSION (1, 1, 18)
     case PROP_ENABLE_PAGE_CACHE:
-        g_object_set (web_settings, "WebKitWebSettings::enable-page-cache",
+        g_object_set (web_settings, WEB_SETTINGS_STRING ("enable-page-cache"),
                       g_value_get_boolean (value), NULL);
         break;
     #endif
@@ -1017,7 +1023,7 @@ midori_web_settings_set_property (GObject*      object,
     case PROP_USER_AGENT:
         if (web_settings->identify_as == MIDORI_IDENT_CUSTOM)
             katze_assign (web_settings->ident_string, g_value_dup_string (value));
-        g_object_set (web_settings, "WebKitWebSettings::user-agent",
+        g_object_set (web_settings, WEB_SETTINGS_STRING ("user-agent"),
                                     web_settings->ident_string, NULL);
         break;
     case PROP_NEW_TAB:
@@ -1059,7 +1065,7 @@ midori_web_settings_set_property (GObject*      object,
             midori_web_settings_remove_style (web_settings, "enforce-font-family");
         break;
     case PROP_ENABLE_FULLSCREEN:
-        g_object_set (web_settings, "WebKitWebSettings::enable-fullscreen",
+        g_object_set (web_settings, WEB_SETTINGS_STRING ("enable-fullscreen"),
                       g_value_get_boolean (value), NULL);
         break;
     case PROP_USER_STYLESHEET_URI:
@@ -1154,12 +1160,12 @@ midori_web_settings_get_property (GObject*    object,
 
     case PROP_ENABLE_PLUGINS:
         g_value_set_boolean (value, katze_object_get_boolean (web_settings,
-                             "WebKitWebSettings::enable-plugins"));
+                             WEB_SETTINGS_STRING ("enable-plugins")));
         break;
     #if WEBKIT_CHECK_VERSION (1, 1, 18)
     case PROP_ENABLE_PAGE_CACHE:
         g_value_set_boolean (value, katze_object_get_boolean (web_settings,
-                             "WebKitWebSettings::enable-page-cache"));
+                             WEB_SETTINGS_STRING ("enable-page-cache")));
         break;
     #endif
 
@@ -1196,11 +1202,11 @@ midori_web_settings_get_property (GObject*    object,
         break;
     case PROP_ENABLE_FULLSCREEN:
         g_value_set_boolean (value, katze_object_get_boolean (web_settings,
-            "WebKitWebSettings::enable-fullscreen"));
+            WEB_SETTINGS_STRING ("enable-fullscreen")));
         break;
     case PROP_USER_STYLESHEET_URI:
         g_value_take_string (value, katze_object_get_string (web_settings,
-            "WebKitWebSettings::user-stylesheet-uri"));
+            WEB_SETTINGS_STRING ("user-stylesheet-uri")));
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -1255,7 +1261,7 @@ midori_web_settings_process_stylesheets (MidoriWebSettings* settings,
 
     /* data: uri prefix from Source/WebCore/page/Page.cpp:700 in WebKit */
     encoded = g_strconcat ("data:text/css;charset=utf-8;base64,", css->str, NULL);
-    g_object_set (G_OBJECT (settings), "WebKitWebSettings::user-stylesheet-uri", encoded, NULL);
+    g_object_set (settings, WEB_SETTINGS_STRING ("user-stylesheet-uri"), encoded, NULL);
     g_free (encoded);
     g_string_free (css, TRUE);
 }
