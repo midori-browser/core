@@ -490,6 +490,27 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     g_signal_connect (settings, "notify::proxy-type",
         G_CALLBACK (midori_preferences_notify_proxy_type_cb), entry);
     midori_preferences_notify_proxy_type_cb (settings, NULL, entry);
+    #if GLIB_CHECK_VERSION (2, 26, 0)
+    INDENTED_ADD (gtk_event_box_new ());
+    label = gtk_label_new (NULL);
+    GString* proxy_types = g_string_new (NULL);
+    g_string_append (proxy_types, "<span size=\"smaller\">");
+    g_string_append (proxy_types, _("Supported proxy types:"));
+    g_string_append_c (proxy_types, ' ');
+    /* http is not implemented as a GIO extension */
+    g_string_append (proxy_types, "http:// https://");
+    GIOExtensionPoint* proxy_extension = g_io_extension_point_lookup ("gio-proxy");
+    GList* proxies = g_io_extension_point_get_extensions (proxy_extension);
+    for (; proxies; proxies = g_list_next (proxies))
+        g_string_append_printf (proxy_types, " %s://", g_io_extension_get_name (proxies->data));
+    g_string_append (proxy_types, "</span>");
+    gtk_label_set_markup (GTK_LABEL (label), proxy_types->str);
+    g_string_free (proxy_types, TRUE);
+    SPANNED_ADD (label);
+    g_signal_connect (settings, "notify::proxy-type",
+        G_CALLBACK (midori_preferences_notify_proxy_type_cb), label);
+    midori_preferences_notify_proxy_type_cb (settings, NULL, label);
+    #endif
     #if WEBKIT_CHECK_VERSION (1, 3, 11)
 #ifndef HAVE_WEBKIT2
     if (soup_session_get_feature (webkit_get_default_session (), SOUP_TYPE_CACHE))
