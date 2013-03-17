@@ -338,9 +338,9 @@ def configure (conf):
 
     conf.define ('MIDORI_VERSION', VERSION)
     major, minor, micro = VERSION.split ('.', 2)
-    conf.define ('MIDORI_MAJOR_VERSION', major)
-    conf.define ('MIDORI_MINOR_VERSION', minor)
-    conf.define ('MIDORI_MICRO_VERSION', micro)
+    conf.define ('MIDORI_MAJOR_VERSION', int (major))
+    conf.define ('MIDORI_MINOR_VERSION', int (minor))
+    conf.define ('MIDORI_MICRO_VERSION', int (micro))
 
     conf.env.append_value ('CCFLAGS', '-DHAVE_CONFIG_H -include config.h'.split ())
     debug_level = Options.options.debug_level
