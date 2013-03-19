@@ -26,7 +26,7 @@ namespace Midori {
             return enable_scripts;
         } set {
             enable_scripts = value;
-        } default = true; }
+        } }
 #else
     public class Settings : WebKit.Settings {
 #endif
