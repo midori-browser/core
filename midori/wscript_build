@@ -20,11 +20,9 @@ if Options.commands['build'] or Options.commands['check']:
 if progressive:
     obj = bld.new_task_gen ('cc', 'staticlib')
     obj.target = 'midori-core'
-    obj.includes = '.. ../katze . ../toolbars'
-    obj.find_sources_in_dirs ('../katze . ../panels ../toolbars', excludes=['main.c'])
+    obj.find_sources_in_dirs ('../katze . ../panels ../toolbars', exts=['.vala'])
+    obj.env.append_value ('CCFLAGS', '-w')
     obj.uselib = libs
-    obj.add_marshal_file ('marshal.list', 'midori_cclosure_marshal')
-    obj.install_path = None
     obj.vapi_dirs = '../midori ../katze'
     obj.packages = 'glib-2.0 gmodule-2.0 gio-2.0 libsoup-2.4 posix sqlite3'
     if bld.env['HAVE_WEBKIT2']:
@@ -37,6 +35,17 @@ if progressive:
         obj.packages += ' gtk+-2.0'
     if bld.env['HAVE_GRANITE']:
         obj.packages += ' clutter-gtk-1.0 granite'
+    obj.install_path = None
+    bld.add_group ()
+
+    obj = bld.new_task_gen ('cc', 'staticlib')
+    obj.target = 'midori-c'
+    obj.includes = '.. ../katze . ../toolbars'
+    obj.find_sources_in_dirs ('../katze . ../panels ../toolbars', exts=['.c'], excludes=['main.c'])
+    obj.uselib = libs
+    obj.uselib_local = 'midori-core'
+    obj.add_marshal_file ('marshal.list', 'midori_cclosure_marshal')
+    obj.install_path = None
     bld.add_group ()
 
     obj = bld.new_task_gen ('cc', 'program')
@@ -44,6 +53,6 @@ if progressive:
     obj.includes = '.. ../katze . ../panels'
     obj.source = './main.c'
     obj.uselib = libs
-    obj.uselib_local = 'midori-core'
+    obj.uselib_local = 'midori-c'
     if bld.env['WINRC']:
         obj.source += ' ../data/midori.rc'
