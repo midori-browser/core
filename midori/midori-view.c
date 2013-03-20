@@ -3250,6 +3250,7 @@ midori_view_init (MidoriView* view)
     #ifndef HAVE_WEBKIT2
     /* Adjustments are not created initially, but overwritten later */
     view->scrolled_window = gtk_scrolled_window_new (NULL, NULL);
+    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (view->scrolled_window), GTK_POLICY_NEVER, GTK_POLICY_NEVER);
     gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (view->scrolled_window),
                                          GTK_SHADOW_NONE);
     g_signal_connect (view->scrolled_window, "notify::hadjustment",
