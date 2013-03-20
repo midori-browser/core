@@ -55,5 +55,5 @@ for test in tests:
         else:
             obj.packages += ' webkitgtk-3.0'
     obj.uselib = 'UNIQUE LIBSOUP GIO GTK SQLITE WEBKIT LIBXML GRANITE ZEITGEIST'
-    obj.uselib_local = 'midori-core'
+    obj.uselib_local = 'midori-c'
     obj.unit_test = 1
