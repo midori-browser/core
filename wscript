@@ -576,7 +576,7 @@ def shutdown ():
             base = os.path.join (tempfile.gettempdir (), 'midori-test', '%s')
             if os.path.exists (base % ''):
                 shutil.rmtree (base % '')
-            for x in ['XDG_CONFIG_HOME', 'XDG_CACHE_HOME', 'XDG_DATA_HOME', 'TMPDIR']:
+            for x in ['XDG_CONFIG_HOME', 'XDG_CACHE_HOME', 'XDG_DATA_HOME', 'XDG_RUNTIME_DIR', 'TMPDIR']:
                 os.environ[x] = (base % x).lower ()
                 Utils.check_dir (os.environ[x])
 

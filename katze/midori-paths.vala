@@ -74,6 +74,20 @@ namespace Midori {
             return mode;
         }
 
+        private static string get_runtime_dir () {
+            #if HAVE_WIN32
+            string? runtime_dir = Environment.get_variable ("XDG_RUNTIME_DIR");
+            if (runtime_dir == null || runtime_dir == "")
+                runtime_dir = Environment.get_user_data_dir ();
+            #else
+            string? runtime_dir = Environment.get_variable ("XDG_RUNTIME_DIR");
+            if (runtime_dir == null || runtime_dir == "")
+                return Path.build_path (Path.DIR_SEPARATOR_S,
+                    Environment.get_tmp_dir (), PACKAGE_NAME + "-" + Environment.get_user_name ());
+            #endif
+            return Path.build_path (Path.DIR_SEPARATOR_S, runtime_dir, PACKAGE_NAME);
+        }
+
         public static void init (RuntimeMode new_mode, string? config) {
             assert (mode == RuntimeMode.UNDEFINED);
             assert (new_mode != RuntimeMode.UNDEFINED);
@@ -98,8 +112,7 @@ namespace Midori {
                 cache_dir_for_reading = Path.build_path (Path.DIR_SEPARATOR_S,
                     Environment.get_user_cache_dir (), PACKAGE_NAME);
                 user_data_dir_for_reading = Environment.get_user_data_dir ();
-                tmp_dir = Path.build_path (Path.DIR_SEPARATOR_S,
-                    Environment.get_tmp_dir (), "midori-" + Environment.get_user_name ());
+                tmp_dir = get_runtime_dir ();
             }
             else {
                 string? real_config = config != null && !Path.is_absolute (config)
@@ -109,8 +122,7 @@ namespace Midori {
                 cache_dir = Path.build_path (Path.DIR_SEPARATOR_S,
                     Environment.get_user_cache_dir (), PACKAGE_NAME);
                 user_data_dir = Environment.get_user_data_dir ();
-                tmp_dir = Path.build_path (Path.DIR_SEPARATOR_S,
-                    Environment.get_tmp_dir (), "midori-" + Environment.get_user_name ());
+                tmp_dir = get_runtime_dir ();
             }
 #if !HAVE_WEBKIT2
 #if HAVE_WEBKIT_1_3_13
