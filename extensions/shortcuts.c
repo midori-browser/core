@@ -272,7 +272,7 @@ shortcuts_browser_populate_tool_menu_cb (MidoriBrowser*   browser,
 {
     GtkWidget* menuitem;
 
-    menuitem = gtk_menu_item_new_with_mnemonic (_("Customize Sh_ortcuts..."));
+    menuitem = gtk_menu_item_new_with_mnemonic (_("Customize Sh_ortcuts…"));
     g_signal_connect (menuitem, "activate",
         G_CALLBACK (shortcuts_menu_configure_shortcuts_activate_cb), extension);
     gtk_widget_show (menuitem);

@@ -600,7 +600,7 @@ katze_property_proxy (gpointer     object,
             info = g_app_info_create_from_commandline ("",
                 "", G_APP_INFO_CREATE_NONE, NULL);
             gtk_list_store_insert_with_values (model, NULL, G_MAXINT,
-                0, info, 1, NULL, 2, _("Custom..."), 3, icon_width, -1);
+                0, info, 1, NULL, 2, _("Custom…"), 3, icon_width, -1);
             g_object_unref (info);
 
             if (gtk_combo_box_get_active (combo) == -1)
