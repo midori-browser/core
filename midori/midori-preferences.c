@@ -384,6 +384,20 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     #if WEBKIT_CHECK_VERSION (1, 3, 8)
     button = katze_property_proxy (settings, "enable-webgl", NULL);
     gtk_button_set_label (GTK_BUTTON (button), _("Enable WebGL support"));
+    #ifndef HAVE_WEBKIT2
+    if (parent && MIDORI_IS_BROWSER (parent))
+    {
+        GtkWidget* tab = midori_browser_get_current_tab (MIDORI_BROWSER (parent));
+        WebKitWebView* web_view = midori_tab_get_web_view (MIDORI_TAB (tab));
+        WebKitWebFrame* web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view));
+        JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
+        gchar* supports_web_gl = sokoke_js_script_eval (js_context,
+            "!!window.WebGLRenderingContext", NULL);
+        if (g_strcmp0 (supports_web_gl, "true"))
+            gtk_widget_set_sensitive (button, FALSE);
+        g_free (supports_web_gl);
+    }
+    #endif
     #else
     button = katze_property_proxy (settings, "enable-plugins", NULL);
     gtk_button_set_label (GTK_BUTTON (button), _("Enable Netscape plugins"));
