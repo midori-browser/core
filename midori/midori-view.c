@@ -4596,7 +4596,7 @@ midori_view_tab_label_menu_close_other_tabs_cb (GtkWidget* menuitem,
     for (; tabs; tabs = g_list_next (tabs))
     {
         if (tabs->data != view)
-            gtk_widget_destroy (tabs->data);
+            midori_browser_close_tab (browser, tabs->data);
     }
     g_list_free (tabs);
 }
