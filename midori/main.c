@@ -192,14 +192,16 @@ main (int    argc,
         GtkActionGroup* action_group = midori_browser_get_action_group (browser);
         GList* actions = gtk_action_group_list_actions (action_group);
         GList* temp = actions;
+        GObjectClass* class = G_OBJECT_GET_CLASS (midori_browser_get_settings (browser));
+        guint i, n_properties;
+        GParamSpec** pspecs = g_object_class_list_properties (class, &n_properties);
         guint length = 1;
         gchar* space;
 
         for (; temp; temp = g_list_next (temp))
-        {
-            GtkAction* action = temp->data;
-            length = MAX (length, 1 + strlen (gtk_action_get_name (action)));
-        }
+            length = MAX (length, 1 + strlen (gtk_action_get_name (temp->data)));
+        for (i = 0; i < n_properties; i++)
+            length = MAX (length, 1 + strlen (g_param_spec_get_name (pspecs[i])));
 
         space = g_strnfill (length, ' ');
         for (; actions; actions = g_list_next (actions))
@@ -217,8 +219,45 @@ main (int    argc,
             g_free (label);
             g_free (stripped);
         }
-        g_free (space);
         g_list_free (actions);
+        g_print ("\n");
+
+        for (i = 0; i < n_properties; i++)
+        {
+            GParamSpec* pspec = pspecs[i];
+            if (!(pspec->flags & G_PARAM_WRITABLE))
+                continue;
+            const gchar* property = g_param_spec_get_name (pspec);
+            gchar* padding = g_strndup (space, strlen (space) - strlen (property));
+            GType type = G_PARAM_SPEC_TYPE (pspec);
+            const gchar* tname;
+            GString* tname_string = NULL;
+            if (type == G_TYPE_PARAM_STRING)
+                tname = "string";
+            else if (type == G_TYPE_PARAM_BOOLEAN)
+                tname = "true/ false";
+            else if (type == G_TYPE_PARAM_ENUM)
+            {
+                GEnumClass* enum_class = G_ENUM_CLASS (g_type_class_peek (pspec->value_type));
+                gint j = 0;
+                tname_string = g_string_new ("");
+                for (j = 0; j < enum_class->n_values; j++)
+                {
+                    g_string_append (tname_string, enum_class->values[j].value_name);
+                    g_string_append (tname_string, j == 2 ? "\n    " : " ");
+                }
+                tname = tname_string->str;
+            }
+            else
+                tname = "number";
+            g_print ("%s%s%s\n", property, padding, tname);
+            if (tname_string != NULL)
+                g_string_free (tname_string, TRUE);
+            g_free (padding);
+        }
+        g_free (pspecs);
+
+        g_free (space);
         gtk_widget_destroy (GTK_WIDGET (browser));
         return 0;
     }

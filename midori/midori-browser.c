@@ -536,6 +536,35 @@ _midori_browser_activate_action (MidoriBrowser* browser,
     GtkAction* action = _action_by_name (browser, name);
     if (action)
         gtk_action_activate (action);
+    else if (strchr (name, '='))
+    {
+        gchar** parts = g_strsplit (name, "=", 0);
+        GObjectClass* class = G_OBJECT_GET_CLASS (browser->settings);
+        GParamSpec* pspec = g_object_class_find_property (class, parts[0]);
+        GType type = pspec ? G_PARAM_SPEC_TYPE (pspec) : G_TYPE_INVALID;
+        if (type == G_TYPE_PARAM_BOOLEAN && !strcmp ("true", parts[1]))
+            g_object_set (browser->settings, parts[0], TRUE, NULL);
+        else if (type == G_TYPE_PARAM_BOOLEAN && !strcmp ("false", parts[1]))
+            g_object_set (browser->settings, parts[0], FALSE, NULL);
+        else if (type == G_TYPE_PARAM_STRING)
+            g_object_set (browser->settings, parts[0], parts[1], NULL);
+        else if (type == G_TYPE_PARAM_INT || type == G_TYPE_PARAM_UINT)
+            g_object_set (browser->settings, parts[0], atoi (parts[1]), NULL);
+        else if (type == G_TYPE_PARAM_FLOAT)
+            g_object_set (browser->settings, parts[0], g_ascii_strtod (parts[1], NULL), NULL);
+        else if (type == G_TYPE_PARAM_ENUM)
+        {
+            GEnumClass* enum_class = G_ENUM_CLASS (g_type_class_peek (pspec->value_type));
+            GEnumValue* enum_value = g_enum_get_value_by_name (enum_class, parts[1]);
+            if (enum_value != NULL)
+                g_object_set (browser->settings, parts[0], enum_value->value, NULL);
+            else
+                g_warning (_("Value '%s' is invalid for %s"), parts[1], parts[0]);
+        }
+        else if (pspec != NULL)
+            g_warning (_("Value '%s' is invalid for %s"), parts[1], parts[0]);
+        g_strfreev (parts);
+    }
     else
         g_warning (_("Unexpected action '%s'."), name);
 }
