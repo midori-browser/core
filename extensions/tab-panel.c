@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2008-2009 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2008-2013 Christian Dywan <christian@twotoasts.de>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -354,13 +354,14 @@ tab_panel_view_notify_icon_cb (GtkWidget*       view,
     {
         GtkTreeModel* model = tab_panel_get_model_for_browser (browser);
         GtkTreeIter iter;
-        GtkWidget* label = midori_view_get_proxy_tab_label (MIDORI_VIEW (view));
-        GtkStyle* style = gtk_widget_get_style (label);
+        GdkColor* fg = midori_tab_get_fg_color (MIDORI_TAB (view));
+        GdkColor* bg = midori_tab_get_bg_color (MIDORI_TAB (view));
+
         if (tab_panel_get_iter_for_view (model, &iter, view))
             gtk_tree_store_set (GTK_TREE_STORE (model), &iter,
                 3, icon,
-                6, &style->bg[GTK_STATE_NORMAL],
-                7, &style->fg[GTK_STATE_NORMAL],
+                6, bg,
+                7, fg,
                 -1);
     }
 }
@@ -383,11 +384,15 @@ tab_panel_view_notify_title_cb (GtkWidget*       view,
     {
         GtkTreeModel* model = tab_panel_get_model_for_browser (browser);
         GtkTreeIter iter;
+        GdkColor* fg = midori_tab_get_fg_color (MIDORI_TAB (view));
+        GdkColor* bg = midori_tab_get_bg_color (MIDORI_TAB (view));
         if (tab_panel_get_iter_for_view (model, &iter, view))
         {
             gtk_tree_store_set (GTK_TREE_STORE (model), &iter,
                 4, title,
                 5, midori_view_get_label_ellipsize (MIDORI_VIEW (view)),
+                6, bg,
+                7, fg,
                 -1);
         }
     }
@@ -449,10 +454,12 @@ tab_panel_browser_add_tab_cb (MidoriBrowser*   browser,
         GtkTreeIter iter;
         gboolean buttons = katze_object_get_boolean (settings, "close-buttons-on-tabs");
         gint ellipsize = midori_view_get_label_ellipsize (MIDORI_VIEW (view));
+        GdkColor* fg = midori_tab_get_fg_color (MIDORI_TAB (view));
+        GdkColor* bg = midori_tab_get_bg_color (MIDORI_TAB (view));
 
         gtk_tree_store_insert_with_values (GTK_TREE_STORE (model),
             &iter, NULL, page, 0, view, 1, GTK_STOCK_CLOSE, 2, buttons,
-            3, icon, 4, title, 5, ellipsize, 6, NULL, 7, NULL, -1);
+            3, icon, 4, title, 5, ellipsize, 6, bg, 7, fg, -1);
     }
 
     if (!g_signal_handler_find (view, G_SIGNAL_MATCH_FUNC,

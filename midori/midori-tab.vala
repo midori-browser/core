@@ -57,6 +57,9 @@ namespace Midori {
         public Security security { get; protected set; default = Security.NONE; }
         public LoadStatus load_status { get; protected set; default = LoadStatus.FINISHED; }
         public string? statusbar_text { get; protected set; default = null; }
+        /* Since: 0.5.0 */
+        public Gdk.Color? fg_color { get; protected set; default = null; }
+        public Gdk.Color? bg_color { get; protected set; default = null; }
 
         private double current_progress = 0.0;
         public double progress { get {

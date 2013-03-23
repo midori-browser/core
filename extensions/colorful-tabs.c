@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2009 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2009-2013 Christian Dywan <christian@twotoasts.de>
  Copyright (C) 2010 Samuel Creshal <creshal@arcor.de>
 
  This library is free software; you can redistribute it and/or
@@ -13,37 +13,15 @@
 #include <midori/midori.h>
 
 static void
-colorful_tabs_modify_fg (GtkWidget* label,
-                         GdkColor*  color)
-{
-    GList* children = gtk_container_get_children (GTK_CONTAINER (label));
-    for (; children != NULL; children = g_list_next (children))
-    {
-        if (GTK_IS_LABEL (children->data))
-        {
-            gtk_widget_modify_fg (children->data, GTK_STATE_ACTIVE, color);
-            gtk_widget_modify_fg (children->data, GTK_STATE_NORMAL, color);
-            /* Also modify the label itself, for Tab Panel */
-            gtk_widget_modify_fg (label, GTK_STATE_NORMAL, color);
-            break;
-        }
-    }
-    g_list_free (children);
-}
-
-static void
 colorful_tabs_view_notify_uri_cb (MidoriView*      view,
                                   GParamSpec*      pspec,
                                   MidoriExtension* extension)
 {
-    GtkWidget* label;
     gchar* hostname;
     gchar* colorstr;
     GdkColor color;
     GdkColor fgcolor;
     GdkPixbuf* icon;
-
-    label = midori_view_get_proxy_tab_label (view);
 
     if (!midori_uri_is_blank (midori_view_get_display_uri (view))
       && (hostname = midori_uri_parse_hostname (midori_view_get_display_uri (view), NULL))
@@ -89,11 +67,6 @@ colorful_tabs_view_notify_uri_cb (MidoriView*      view,
         else
             gdk_color_parse ("#000", &fgcolor);
 
-        gtk_event_box_set_visible_window (GTK_EVENT_BOX (label), TRUE);
-
-        colorful_tabs_modify_fg (label, &fgcolor);
-        gtk_widget_modify_bg (label, GTK_STATE_NORMAL, &color);
-
         if (color.red < 10000)
             color.red = 5000;
         else
@@ -107,14 +80,10 @@ colorful_tabs_view_notify_uri_cb (MidoriView*      view,
         else
             color.green -= 5000;
 
-        gtk_widget_modify_bg (label, GTK_STATE_ACTIVE, &color);
+        midori_view_set_colors (view, &fgcolor, &color);
     }
     else
-    {
-        gtk_widget_modify_bg (label, GTK_STATE_NORMAL, NULL);
-        gtk_widget_modify_bg (label, GTK_STATE_ACTIVE, NULL);
-        colorful_tabs_modify_fg (label, NULL);
-    }
+        midori_view_set_colors (view, NULL, NULL);
 }
 
 static void
@@ -150,11 +119,7 @@ colorful_tabs_deactivate_cb (MidoriExtension* extension,
     children = midori_browser_get_tabs (MIDORI_BROWSER (browser));
     for (; children; children = g_list_next (children))
     {
-        GtkWidget* label = midori_view_get_proxy_tab_label (children->data);
-        gtk_event_box_set_visible_window (GTK_EVENT_BOX (label), FALSE);
-        gtk_widget_modify_bg (label, GTK_STATE_NORMAL, NULL);
-        gtk_widget_modify_bg (label, GTK_STATE_ACTIVE, NULL);
-        colorful_tabs_modify_fg (label, NULL);
+        midori_view_set_colors (children->data, NULL, NULL);
         g_signal_handlers_disconnect_by_func (
             children->data, colorful_tabs_view_notify_uri_cb, extension);
     }

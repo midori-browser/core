@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2007-2010 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2007-2013 Christian Dywan <christian@twotoasts.de>
  Copyright (C) 2009 Jean-François Guchens <zcx000@gmail.com>
 
  This library is free software; you can redistribute it and/or
@@ -5675,5 +5675,22 @@ midori_view_get_for_widget (GtkWidget* web_view)
     GtkWidget* view = gtk_widget_get_parent (scrolled);
     #endif
     return MIDORI_VIEW (view);
+}
+
+void
+midori_view_set_colors (MidoriView* view,
+                        GdkColor*   fg_color,
+                        GdkColor*   bg_color)
+{
+    midori_tab_set_fg_color (MIDORI_TAB (view), fg_color);
+    midori_tab_set_bg_color (MIDORI_TAB (view), bg_color);
+
+    GtkWidget* label = midori_view_get_proxy_tab_label (view);
+    gtk_event_box_set_visible_window (GTK_EVENT_BOX (label),
+        fg_color != NULL || bg_color != NULL);
+    gtk_widget_modify_fg (label, GTK_STATE_NORMAL, fg_color);
+    gtk_widget_modify_fg (label, GTK_STATE_ACTIVE, fg_color);
+    gtk_widget_modify_bg (label, GTK_STATE_NORMAL, bg_color);
+    gtk_widget_modify_bg (label, GTK_STATE_ACTIVE, bg_color);
 }
 
