@@ -18,6 +18,8 @@ namespace HistoryList {
     enum TabTreeCells {
         TREE_CELL_PIXBUF,
         TREE_CELL_STRING,
+        TREE_CELL_FG,
+        TREE_CELL_BG,
         TREE_CELL_POINTER,
         TREE_CELL_COUNT
     }
@@ -83,6 +85,8 @@ namespace HistoryList {
                 store.append (out iter);
                 store.set (iter, TabTreeCells.TREE_CELL_PIXBUF, icon,
                                  TabTreeCells.TREE_CELL_STRING, title,
+                                 TabTreeCells.TREE_CELL_FG, view.fg_color,
+                                 TabTreeCells.TREE_CELL_BG, view.bg_color,
                                  TabTreeCells.TREE_CELL_POINTER, view);
             }
         }
@@ -109,7 +113,8 @@ namespace HistoryList {
             this.hbox.pack_start (sw, true, true, 0);
 
             var store = new Gtk.ListStore (TabTreeCells.TREE_CELL_COUNT,
-                typeof (Gdk.Pixbuf), typeof (string), typeof (void*));
+                typeof (Gdk.Pixbuf), typeof (string),
+                typeof (Gdk.Color), typeof (Gdk.Color), typeof (void*));
 
             this.insert_rows (store);
 
@@ -126,7 +131,9 @@ namespace HistoryList {
                 new CellRendererPixbuf (), "pixbuf", TabTreeCells.TREE_CELL_PIXBUF);
             this.treeview.insert_column_with_attributes (
                 -1, "Title",
-                new CellRendererText (), "text", TabTreeCells.TREE_CELL_STRING);
+                new CellRendererText (), "text", TabTreeCells.TREE_CELL_STRING,
+                "foreground-gdk", TabTreeCells.TREE_CELL_FG,
+                "cell-background-gdk", TabTreeCells.TREE_CELL_BG);
 
             Requisition requisition;
             int height;
