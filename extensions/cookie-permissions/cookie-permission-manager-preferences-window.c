@@ -189,7 +189,7 @@ static void _cookie_permission_manager_preferences_on_add_domain_entry_changed(C
 		checkAsciiDomain++;
 	}
 
-	/* If we have not reached the trimmed end of string something must have gone wrong
+	/* If we have not reached the trimmed end of string something must have gone wrong 
 	 * and domain entered is invalid. If domain name entered excluding dots is longer
 	 * than 255 character it is also invalid.
 	 */
@@ -282,21 +282,19 @@ static void _cookie_permission_manager_preferences_window_manager_database_chang
 {
 	CookiePermissionManagerPreferencesWindowPrivate	*priv=self->priv;
 	CookiePermissionManager							*manager=COOKIE_PERMISSION_MANAGER(inUserData);
-	sqlite3											*database;
+	const gchar										*databaseFilename;
 
 	/* Close connection to any open database */
 	if(priv->database) sqlite3_close(priv->database);
 	priv->database=NULL;
 
 	/* Get pointer to new database and open database */
-	g_object_get(manager, "database", &database, NULL);
-	if(database)
+	g_object_get(manager, "database-filename", &databaseFilename, NULL);
+	if(databaseFilename)
 	{
-		const gchar									*databaseFile;
 		gint										success;
 
-		databaseFile=sqlite3_db_filename(database, NULL);
-		success=sqlite3_open(databaseFile, &priv->database);
+		success=sqlite3_open(databaseFilename, &priv->database);
 		if(success!=SQLITE_OK)
 		{
 			g_warning(_("Could not open database of extenstion: %s"), sqlite3_errmsg(priv->database));
@@ -465,6 +463,27 @@ void _cookie_permission_manager_preferences_on_delete_all(CookiePermissionManage
 	_cookie_permission_manager_preferences_window_fill(self);
 }
 
+/* Sorting callbacks */
+static gint _cookie_permission_manager_preferences_sort_string_callback(GtkTreeModel *inModel,
+																		GtkTreeIter *inLeft,
+																		GtkTreeIter *inRight,
+																		gpointer inUserData)
+{
+	gchar		*left, *right;
+	gint		column=GPOINTER_TO_INT(inUserData);
+	gint		result;
+
+	gtk_tree_model_get(inModel, inLeft, column, &left, -1);
+	gtk_tree_model_get(inModel, inRight, column, &right, -1);
+
+	result=g_strcmp0(left, right);
+
+	g_free(left);
+	g_free(right);
+
+	return(result);
+}
+
 /* IMPLEMENTATION: GObject */
 
 /* Finalize this object */
@@ -527,16 +546,18 @@ static void cookie_permission_manager_preferences_window_set_property(GObject *i
 			{
 				priv->manager=g_object_ref(manager);
 
-				priv->signalManagerChangedDatabaseID=g_signal_connect_swapped(priv->manager,
-																					"notify::database",
-																					G_CALLBACK(_cookie_permission_manager_preferences_window_manager_database_changed),
-																					self);
-				priv->signalManagerAskForUnknownPolicyID=g_signal_connect_swapped(priv->manager,
-																					"notify::ask-for-unknown-policy",
-																					G_CALLBACK(_cookie_permission_manager_preferences_window_manager_ask_for_unknown_policy_changed),
-																					self);
-
+				priv->signalManagerChangedDatabaseID=
+					g_signal_connect_swapped(priv->manager,
+												"notify::database-filename",
+												G_CALLBACK(_cookie_permission_manager_preferences_window_manager_database_changed),
+												self);
 				_cookie_permission_manager_preferences_window_manager_database_changed(self, NULL, priv->manager);
+
+				priv->signalManagerAskForUnknownPolicyID=
+					g_signal_connect_swapped(priv->manager,
+												"notify::ask-for-unknown-policy",
+												G_CALLBACK(_cookie_permission_manager_preferences_window_manager_ask_for_unknown_policy_changed),
+												self);
 				_cookie_permission_manager_preferences_window_manager_ask_for_unknown_policy_changed(self, NULL, priv->manager);
 			}
 			break;
@@ -598,6 +619,7 @@ static void cookie_permission_manager_preferences_window_class_init(CookiePermis
 static void cookie_permission_manager_preferences_window_init(CookiePermissionManagerPreferencesWindow *self)
 {
 	CookiePermissionManagerPreferencesWindowPrivate		*priv;
+	GtkTreeSortable										*sortableList;
 	GtkCellRenderer										*renderer;
 	GtkTreeViewColumn									*column;
 	GtkWidget											*widget;
@@ -654,6 +676,19 @@ static void cookie_permission_manager_preferences_window_init(CookiePermissionMa
 										G_TYPE_STRING,	/* DOMAIN_COLUMN */
 										G_TYPE_STRING	/* POLICY_COLUMN */);
 
+	sortableList=GTK_TREE_SORTABLE(priv->listStore);
+	gtk_tree_sortable_set_sort_func(sortableList,
+										DOMAIN_COLUMN,
+										(GtkTreeIterCompareFunc)_cookie_permission_manager_preferences_sort_string_callback,
+										GINT_TO_POINTER(DOMAIN_COLUMN),
+										NULL);
+	gtk_tree_sortable_set_sort_func(sortableList,
+										POLICY_COLUMN,
+										(GtkTreeIterCompareFunc)_cookie_permission_manager_preferences_sort_string_callback,
+										GINT_TO_POINTER(POLICY_COLUMN),
+										NULL);
+	gtk_tree_sortable_set_sort_column_id(sortableList, DOMAIN_COLUMN, GTK_SORT_ASCENDING);
+
 	/* Set up domain addition widgets */
 #ifdef HAVE_GTK3
 	hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
@@ -706,6 +741,7 @@ static void cookie_permission_manager_preferences_window_init(CookiePermissionMa
 													renderer,
 													"text", DOMAIN_COLUMN,
 													NULL);
+	gtk_tree_view_column_set_sort_column_id(column, DOMAIN_COLUMN);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(priv->list), column);
 
 	renderer=gtk_cell_renderer_text_new();
@@ -713,6 +749,7 @@ static void cookie_permission_manager_preferences_window_init(CookiePermissionMa
 													renderer,
 													"text", POLICY_COLUMN,
 													NULL);
+	gtk_tree_view_column_set_sort_column_id(column, POLICY_COLUMN);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(priv->list), column);
 
 	scrolled=gtk_scrolled_window_new(NULL, NULL);
