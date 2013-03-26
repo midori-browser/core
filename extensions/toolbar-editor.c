@@ -276,16 +276,15 @@ static void tb_editor_drag_data_rcvd_cb(GtkWidget *widget, GdkDragContext *conte
 										gint x, gint y, GtkSelectionData *data, guint info,
 										guint ltime, TBEditorWidget *tbw)
 {
-#if !GTK_CHECK_VERSION(3,0,0) /* TODO */
 	GtkTreeView *tree = GTK_TREE_VIEW(widget);
 	gboolean del = FALSE;
 
-	if (data->length >= 0 && data->format == 8)
+	if (gtk_selection_data_get_length (data) >= 0 && gtk_selection_data_get_format (data) == 8)
 	{
 		gboolean is_sep;
 		gchar *text = NULL;
 
-		text = (gchar*) data->data;
+		text = (gchar*) gtk_selection_data_get_data (data);
 
 		/* We allow re-ordering the Location item but not removing it from the list. */
 		if (g_strcmp0(text, "Location") == 0 && widget != tbw->drag_source)
@@ -334,7 +333,6 @@ static void tb_editor_drag_data_rcvd_cb(GtkWidget *widget, GdkDragContext *conte
 	tbw->drag_source = NULL; /* reset the value just to be sure */
 	tb_editor_free_path(tbw);
 	gtk_drag_finish(context, TRUE, del, ltime);
-#endif
 }
 
 
