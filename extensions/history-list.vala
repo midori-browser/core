@@ -339,15 +339,27 @@ namespace HistoryList {
             this.closing_behavior = this.get_integer ("TabClosingBehavior");
         }
 
+        public bool is_key_a_modifier (Gdk.EventKey event_key) {
+#if HAVE_WIN32
+            /* On win is_modifier check does not seem to work */
+            if (event_key.keyval == Gdk.keyval_from_name("Control_L"))
+                return true;
+#else
+            if (event_key.is_modifier > 0)
+                return true;
+#endif
+            return false;
+        }
+
         public bool key_press (Gdk.EventKey event_key) {
-            if (event_key.is_modifier > 0) {
+            if (is_key_a_modifier (event_key)) {
                 this.modifier_count++;
             }
             return false;
         }
 
         public bool key_release (Gdk.EventKey event_key, Browser browser) {
-            if (event_key.is_modifier > 0) {
+            if (is_key_a_modifier (event_key)) {
                 this.modifier_count--;
             }
             if (this.modifier_count == 0 || event_key.keyval == this.escKeyval) {
