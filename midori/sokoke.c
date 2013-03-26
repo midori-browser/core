@@ -395,6 +395,22 @@ sokoke_spawn_program (const gchar* command,
 }
 
 void
+sokoke_spawn_gdb (const gchar* gdb,
+                  gboolean     sync)
+{
+    gchar* args = midori_paths_get_command_line_str (FALSE);
+    const gchar* runtime_dir = midori_paths_get_runtime_dir ();
+    gchar* cmd = g_strdup_printf (
+        "--batch -ex 'set print thread-events off' -ex run "
+        "-ex 'set logging on %s/%s' -ex 'bt' --return-child-result "
+        "--args %s",
+        runtime_dir, "gdb.bt", args);
+    sokoke_spawn_program (gdb, TRUE, cmd, FALSE, sync);
+    g_free (cmd);
+    g_free (args);
+}
+
+void
 sokoke_spawn_app (const gchar* uri,
                   gboolean     private)
 {

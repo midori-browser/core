@@ -304,7 +304,19 @@ midori_frontend_crash_log_cb (GtkWidget* button,
 {
     GError* error = NULL;
     if (!sokoke_show_uri (gtk_widget_get_screen (button), crash_log, 0, &error))
-        midori_error (error->message);
+    {
+        sokoke_message_dialog (GTK_MESSAGE_ERROR,
+                               _("Could not run external program."),
+                               error->message, FALSE);
+        g_error_free (error);
+    }
+}
+
+static void
+midori_frontend_debugger_cb (GtkWidget* button,
+                             GtkDialog* dialog)
+{
+    gtk_dialog_response (dialog, GTK_RESPONSE_HELP);
 }
 
 static MidoriStartup
@@ -367,6 +379,16 @@ midori_frontend_diagnostic_dialog (MidoriApp*         app,
     }
     else
         g_free (crash_log);
+
+    gchar* gdb = g_find_program_in_path ("gdb");
+    if (gdb != NULL)
+    {
+        GtkWidget* button = gtk_button_new_with_mnemonic (_("Run in _debugger"));
+        g_signal_connect (button, "clicked",
+            G_CALLBACK (midori_frontend_debugger_cb), dialog);
+        gtk_widget_show (button);
+        gtk_box_pack_start (GTK_BOX (box), button, FALSE, FALSE, 4);
+    }
     gtk_dialog_set_default_response (GTK_DIALOG (dialog),
         load_on_startup == MIDORI_STARTUP_HOMEPAGE
         ? MIDORI_STARTUP_BLANK_PAGE : load_on_startup);
@@ -390,6 +412,11 @@ midori_frontend_diagnostic_dialog (MidoriApp*         app,
     gtk_widget_destroy (dialog);
     if (response == GTK_RESPONSE_DELETE_EVENT)
         response = G_MAXINT;
+    else if (response == GTK_RESPONSE_HELP)
+    {
+        sokoke_spawn_gdb (gdb, FALSE);
+        response = G_MAXINT;
+    }
     else if (response == MIDORI_STARTUP_BLANK_PAGE)
         katze_array_clear (session);
     return response;

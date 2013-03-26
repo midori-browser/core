@@ -313,7 +313,8 @@ namespace Midori {
             assert (command_line != null);
             if (for_display)
                 return string.joinv (" ", command_line).replace (Environment.get_home_dir (), "~");
-            return string.joinv (" ", command_line).replace ("--debug", "").replace ("-g", "");
+            return string.joinv (" ", command_line).replace ("--debug", "").replace ("-g", "")
+                .replace ("--diagnostic-dialog", "").replace ("-d", "");
         }
 
         public static string get_lib_path (string package) {

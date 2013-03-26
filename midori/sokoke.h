@@ -56,6 +56,10 @@ sokoke_spawn_program                    (const gchar* command,
                                          gboolean        sync);
 
 void
+sokoke_spawn_gdb                        (const gchar*    gdb,
+                                         gboolean        sync);
+
+void
 sokoke_spawn_app                        (const gchar*    uri,
                                          gboolean        inherit_config);
 
