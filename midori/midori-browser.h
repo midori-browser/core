@@ -96,8 +96,8 @@ void
 midori_browser_activate_action        (MidoriBrowser*     browser,
                                        const gchar*       name);
 
-gboolean
-midori_browser_is_action              (MidoriBrowser*     browser,
+void
+midori_browser_assert_action          (MidoriBrowser*     browser,
                                        const gchar*       name);
 
 void

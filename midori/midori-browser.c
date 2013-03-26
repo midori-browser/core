@@ -529,34 +529,54 @@ midori_browser_update_history_title (MidoriBrowser* browser,
     midori_browser_update_history (item, "website", "access");
 }
 
-gboolean
-midori_browser_is_action (MidoriBrowser* browser,
-                          const gchar*   name)
+/**
+ * midori_browser_assert_action:
+ * @browser: a #MidoriBrowser
+ * @name: name of the action or setting=value expression
+ *
+ * Assert that @name is a valid action or setting expression,
+ * if it fails the program will terminate with an error.
+ * To be used with command line interfaces.
+ *
+ * Since: 0.5.0
+ **/
+void
+midori_browser_assert_action (MidoriBrowser* browser,
+                              const gchar*   name)
 {
-    g_return_val_if_fail (MIDORI_IS_BROWSER (browser), FALSE);
+    g_return_if_fail (MIDORI_IS_BROWSER (browser));
+    g_return_if_fail (name != NULL);
 
-    GtkAction* action = _action_by_name (browser, name);
-    if (action)
-        return TRUE;
-    else if (strchr (name, '='))
+    if (strchr (name, '='))
     {
         gchar** parts = g_strsplit (name, "=", 0);
         GObjectClass* class = G_OBJECT_GET_CLASS (browser->settings);
         GParamSpec* pspec = g_object_class_find_property (class, parts[0]);
+        GType type = pspec ? G_PARAM_SPEC_TYPE (pspec) : G_TYPE_INVALID;
+        if (!(
+            (type == G_TYPE_PARAM_BOOLEAN && (!strcmp (parts[1], "true") || !strcmp (parts[1], "false")))
+         || type == G_TYPE_PARAM_STRING
+         || type == G_TYPE_PARAM_INT
+         || type == G_TYPE_PARAM_FLOAT
+         || type == G_TYPE_PARAM_ENUM))
+            midori_error (_("Value '%s' is invalid for %s"), parts[1], parts[0]);
         g_strfreev (parts);
-        return pspec != NULL;
     }
-    return FALSE;
+    else
+    {
+        GtkAction* action = _action_by_name (browser, name);
+        if (!action)
+            midori_error (_("Unexpected action '%s'."), name);
+    }
 }
 
 static void
 _midori_browser_activate_action (MidoriBrowser* browser,
                                  const gchar*   name)
 {
-    GtkAction* action = _action_by_name (browser, name);
-    if (action)
-        gtk_action_activate (action);
-    else if (strchr (name, '='))
+    g_return_if_fail (name != NULL);
+
+    if (strchr (name, '='))
     {
         gchar** parts = g_strsplit (name, "=", 0);
         GObjectClass* class = G_OBJECT_GET_CLASS (browser->settings);
@@ -586,7 +606,13 @@ _midori_browser_activate_action (MidoriBrowser* browser,
         g_strfreev (parts);
     }
     else
-        g_warning (_("Unexpected action '%s'."), name);
+    {
+        GtkAction* action = _action_by_name (browser, name);
+        if (action)
+            gtk_action_activate (action);
+        else
+            g_warning (_("Unexpected action '%s'."), name);
+    }
 }
 
 static void
@@ -7397,9 +7423,9 @@ midori_browser_add_uri (MidoriBrowser* browser,
 /**
  * midori_browser_activate_action:
  * @browser: a #MidoriBrowser
- * @name: name of the action
+ * @name: name of the action or setting=value expression
  *
- * Activates the specified action.
+ * Activates the specified action. See also midori_browser_assert_action().
  **/
 void
 midori_browser_activate_action (MidoriBrowser* browser,

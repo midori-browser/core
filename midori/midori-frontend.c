@@ -87,20 +87,21 @@ midori_web_app_new (const gchar* config,
         g_free (tmp_uri);
     }
 
-    if (open_uris != NULL)
-        for (i = 0; open_uris[i] != NULL; i++)
-        {
-            gchar* new_uri = sokoke_magic_uri (open_uris[i], FALSE, TRUE);
-            midori_browser_add_uri (browser, new_uri);
-            g_free (new_uri);
-        }
+    for (i = 0; open_uris && open_uris[i]; i++)
+    {
+        gchar* new_uri = sokoke_magic_uri (open_uris[i], FALSE, TRUE);
+        midori_browser_add_uri (browser, new_uri);
+        g_free (new_uri);
+    }
     if (midori_browser_get_n_pages (browser) == 0)
         midori_browser_add_uri (browser, "about:blank");
     gtk_widget_show (GTK_WIDGET (browser));
 
-    if (execute_commands != NULL)
-        for (i = 0; execute_commands[i] != NULL; i++)
-            midori_browser_activate_action (browser, execute_commands[i]);
+    for (i = 0; execute_commands && execute_commands[i]; i++)
+    {
+        midori_browser_assert_action (browser, execute_commands[i]);
+        midori_browser_activate_action (browser, execute_commands[i]);
+    }
     return browser;
 }
 
@@ -215,20 +216,21 @@ midori_private_app_new (const gchar* config,
         g_free (tmp_uri);
     }
 
-    if (open_uris != NULL)
-        for (i = 0; open_uris[i] != NULL; i++)
-        {
-            gchar* new_uri = sokoke_magic_uri (open_uris[i], FALSE, TRUE);
-            midori_browser_add_uri (browser, new_uri);
-            g_free (new_uri);
-        }
+    for (i = 0; open_uris && open_uris[i]; i++)
+    {
+        gchar* new_uri = sokoke_magic_uri (open_uris[i], FALSE, TRUE);
+        midori_browser_add_uri (browser, new_uri);
+        g_free (new_uri);
+    }
     if (midori_browser_get_n_pages (browser) == 0)
         midori_browser_add_uri (browser, "about:private");
     gtk_widget_show (GTK_WIDGET (browser));
 
-    if (execute_commands != NULL)
-        for (i = 0; execute_commands[i] != NULL; i++)
-            midori_browser_activate_action (browser, execute_commands[i]);
+    for (i = 0; execute_commands && execute_commands[i]; i++)
+    {
+        midori_browser_assert_action (browser, execute_commands[i]);
+        midori_browser_activate_action (browser, execute_commands[i]);
+    }
     return browser;
 }
 

@@ -571,15 +571,11 @@ midori_app_command_received (MidoriApp*   app,
     }
     else if (g_str_equal (command, "command"))
     {
-        guint i = 0;
-
         if (!uris || !app->browser)
             return FALSE;
-        while (uris[i] != NULL)
-        {
+        gint i;
+        for (i = 0; uris && uris[i]; i++)
             midori_browser_activate_action (app->browser, uris[i]);
-            i++;
-        }
         return TRUE;
     }
 
@@ -1117,19 +1113,15 @@ midori_app_send_command (MidoriApp* app,
     g_return_val_if_fail (MIDORI_IS_APP (app), FALSE);
     g_return_val_if_fail (command != NULL, FALSE);
 
-    if (midori_app_instance_is_running (app))
+    if (!midori_app_instance_is_running (app))
     {
         MidoriBrowser* browser = midori_browser_new ();
         int i;
         for (i=0; command && command[i]; i++)
-        {
-            if (!midori_browser_is_action (browser, command[i]))
-                midori_error (_("Unexpected action '%s'."), command[i]);
-        }
+            midori_browser_assert_action (browser, command[i]);
         gtk_widget_destroy (GTK_WIDGET (browser));
-    }
-    else
         return midori_app_command_received (app, "command", command, NULL);
+    }
 
     #if HAVE_UNIQUE
     if (app->instance)
