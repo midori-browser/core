@@ -1332,10 +1332,13 @@ midori_view_display_error (MidoriView*     view,
     return FALSE;
 }
 
-#ifndef HAVE_WEBKIT2
 static gboolean
 webkit_web_view_load_error_cb (WebKitWebView*  web_view,
+#ifdef HAVE_WEBKIT2
+                               WebKitLoadEvent load_event,
+#else
                                WebKitWebFrame* web_frame,
+#endif
                                const gchar*    uri,
                                GError*         error,
                                MidoriView*     view)
@@ -1389,7 +1392,6 @@ midori_view_apply_scroll_position (MidoriView* view)
         view->scrollv = -3;
     }
 }
-#endif
 
 static void
 midori_view_load_finished (MidoriView* view)
@@ -1497,6 +1499,18 @@ midori_view_load_finished (MidoriView* view)
 
 #ifdef HAVE_WEBKIT2
 static void
+midori_view_web_view_crashed_cb (WebKitWebView* web_view,
+                                 MidoriView*    view)
+{
+    title = g_strdup_printf (_("Oops - %s"), uri);
+    message = g_strdup_printf (_("Something went wrong with '%s'."), uri);
+    result = midori_view_display_error (view, uri, title,
+        message, error->message, _("Try again"), web_frame);
+    g_free (message);
+    g_free (title);
+}
+
+static void
 midori_view_web_view_load_changed_cb (WebKitWebView*  web_view,
                                       WebKitLoadEvent load_event,
                                       MidoriView*     view)
@@ -1563,7 +1577,9 @@ midori_web_view_notify_icon_uri_cb (WebKitWebView* web_view,
                                     GParamSpec*    pspec,
                                     MidoriView*    view)
 {
-#ifndef HAVE_WEBKIT2
+#ifdef HAVE_WEBKIT2
+    /* TODO */
+#else
     const gchar* icon_uri = webkit_web_view_get_icon_uri (web_view);
     katze_assign (view->icon_uri, g_strdup (icon_uri));
     _midori_web_view_load_icon (view);
@@ -1607,11 +1623,22 @@ midori_view_web_view_leave_notify_event_cb (WebKitWebView*    web_view,
 }
 
 static void
-webkit_web_view_hovering_over_link_cb (WebKitWebView* web_view,
-                                       const gchar*   tooltip,
-                                       const gchar*   link_uri,
-                                       MidoriView*    view)
+webkit_web_view_hovering_over_link_cb (WebKitWebView*       web_view,
+                                       #ifdef HAVE_WEBKIT2
+                                       WebKitHitTestResult* hit_test_result,
+                                       guint                modifiers,
+                                       #else
+                                       const gchar*         tooltip,
+                                       const gchar*         link_uri,
+                                       #endif
+                                       MidoriView*          view)
 {
+    #ifdef HAVE_WEBKIT2
+    if (!webkit_hit_test_result_context_is_link (hit_test_result))
+        return;
+    const gchar* message = webkit_hit_test_result_get_link_uri (hit_test_result);
+    #endif
+
     #if !(WEBKIT_CHECK_VERSION (1, 3, 1) && defined (HAVE_LIBSOUP_2_29_91))
     sokoke_prefetch_uri (view->settings, link_uri, NULL, NULL);
     #endif
@@ -3705,10 +3732,18 @@ midori_view_constructor (GType                  type,
     view->web_view = GTK_WIDGET (midori_tab_get_web_view (MIDORI_TAB (view)));
     g_object_connect (view->web_view,
                       #ifdef HAVE_WEBKIT2
+                      "signal::web-process-crashed",
+                      midori_view_web_view_crashed_cb, view,
+                      "signal::load-failed",
+                      webkit_web_view_load_error_cb, view,
                       "signal::load-changed",
                       midori_view_web_view_load_changed_cb, view,
                       "signal::notify::estimated-load-progress",
                       webkit_web_view_progress_changed_cb, view,
+                      "signal::notify::favicon",
+                      midori_web_view_notify_favicon_uri_cb, view,
+                      "signal::mouse-target-changed",
+                      webkit_web_view_hovering_over_link_cb, view,
                       #else
                       "signal::notify::load-status",
                       midori_view_web_view_notify_load_status_cb, view,
@@ -3736,12 +3771,14 @@ midori_view_constructor (GType                  type,
                       "signal::geolocation-policy-decision-requested",
                       midori_view_web_view_geolocation_decision_cb, view,
                       #endif
-                      #endif
-
                       #if WEBKIT_CHECK_VERSION (1, 1, 18)
                       "signal::notify::icon-uri",
                       midori_web_view_notify_icon_uri_cb, view,
                       #endif
+                      "signal::hovering-over-link",
+                      webkit_web_view_hovering_over_link_cb, view,
+                      #endif
+
                       "signal::notify::uri",
                       webkit_web_view_notify_uri_cb, view,
                       "signal::notify::title",
@@ -3750,8 +3787,6 @@ midori_view_constructor (GType                  type,
                       webkit_web_view_statusbar_text_changed_cb, view,
                       "signal::leave-notify-event",
                       midori_view_web_view_leave_notify_event_cb, view,
-                      "signal::hovering-over-link",
-                      webkit_web_view_hovering_over_link_cb, view,
                       "signal::button-press-event",
                       midori_view_web_view_button_press_event_cb, view,
                       "signal::button-release-event",
