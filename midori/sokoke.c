@@ -557,10 +557,7 @@ sokoke_magic_uri (const gchar* uri,
         g_strfreev (parts);
     }
     if (!allow_search)
-    {
-        g_printerr ("%s - %s\n", _("Midori"), _("Invalid URI"));
-        exit (1);
-    }
+        midori_error (_("Invalid URI"));
     return NULL;
 }
 

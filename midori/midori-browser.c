@@ -559,14 +559,14 @@ _midori_browser_activate_action (MidoriBrowser* browser,
             if (enum_value != NULL)
                 g_object_set (browser->settings, parts[0], enum_value->value, NULL);
             else
-                g_warning (_("Value '%s' is invalid for %s"), parts[1], parts[0]);
+                midori_error (_("Value '%s' is invalid for %s"), parts[1], parts[0]);
         }
-        else if (pspec != NULL)
-            g_warning (_("Value '%s' is invalid for %s"), parts[1], parts[0]);
+        else
+            midori_error (_("Value '%s' is invalid for %s"), parts[1], parts[0]);
         g_strfreev (parts);
     }
     else
-        g_warning (_("Unexpected action '%s'."), name);
+        midori_error (_("Unexpected action '%s'."), name);
 }
 
 static void

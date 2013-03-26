@@ -96,6 +96,10 @@ midori_app_setup                  (gint               *argc,
 gboolean
 midori_debug                      (const gchar*       token);
 
+void
+midori_error                      (const gchar*       format,
+                                   ...);
+
 G_END_DECLS
 
 #endif /* __MIDORI_APP_H__ */

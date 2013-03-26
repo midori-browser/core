@@ -1439,10 +1439,20 @@ midori_app_setup (gint               *argc,
     g_object_unref (factory);
 
     if (!success)
-    {
-        g_printerr ("%s - %s\n", _("Midori"), error->message);
-        exit (1);
-    }
+        midori_error (error->message);
+}
+
+void
+midori_error (const gchar* format,
+              ...)
+{
+    g_printerr ("%s - ", _("Midori"));
+    va_list args;
+    va_start (args, format);
+    g_vfprintf (stderr, format, args);
+    va_end (args);
+    g_printerr ("\n");
+    exit (1);
 }
 
 gboolean
