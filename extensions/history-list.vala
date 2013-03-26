@@ -128,7 +128,8 @@ namespace HistoryList {
 
             this.treeview.insert_column_with_attributes (
                 -1, "Icon",
-                new CellRendererPixbuf (), "pixbuf", TabTreeCells.TREE_CELL_PIXBUF);
+                new CellRendererPixbuf (), "pixbuf", TabTreeCells.TREE_CELL_PIXBUF,
+                "cell-background-gdk", TabTreeCells.TREE_CELL_BG);
             this.treeview.insert_column_with_attributes (
                 -1, "Title",
                 new CellRendererText (), "text", TabTreeCells.TREE_CELL_STRING,
