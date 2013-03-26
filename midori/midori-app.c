@@ -1123,9 +1123,8 @@ midori_app_send_command (MidoriApp* app,
         int i;
         for (i=0; command && command[i]; i++)
         {
-            gboolean action_known = (gtk_action_group_get_action (midori_browser_get_action_group (browser), command[i]) != NULL);
-            if (!action_known)
-                g_warning (_("Unexpected action '%s'."), command[i]);
+            if (!midori_browser_is_action (browser, command[i]))
+                midori_error (_("Unexpected action '%s'."), command[i]);
         }
         gtk_widget_destroy (GTK_WIDGET (browser));
     }

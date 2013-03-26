@@ -529,6 +529,26 @@ midori_browser_update_history_title (MidoriBrowser* browser,
     midori_browser_update_history (item, "website", "access");
 }
 
+gboolean
+midori_browser_is_action (MidoriBrowser* browser,
+                          const gchar*   name)
+{
+    g_return_val_if_fail (MIDORI_IS_BROWSER (browser), FALSE);
+
+    GtkAction* action = _action_by_name (browser, name);
+    if (action)
+        return TRUE;
+    else if (strchr (name, '='))
+    {
+        gchar** parts = g_strsplit (name, "=", 0);
+        GObjectClass* class = G_OBJECT_GET_CLASS (browser->settings);
+        GParamSpec* pspec = g_object_class_find_property (class, parts[0]);
+        g_strfreev (parts);
+        return pspec != NULL;
+    }
+    return FALSE;
+}
+
 static void
 _midori_browser_activate_action (MidoriBrowser* browser,
                                  const gchar*   name)
@@ -559,14 +579,14 @@ _midori_browser_activate_action (MidoriBrowser* browser,
             if (enum_value != NULL)
                 g_object_set (browser->settings, parts[0], enum_value->value, NULL);
             else
-                midori_error (_("Value '%s' is invalid for %s"), parts[1], parts[0]);
+                g_warning (_("Value '%s' is invalid for %s"), parts[1], parts[0]);
         }
         else
-            midori_error (_("Value '%s' is invalid for %s"), parts[1], parts[0]);
+            g_warning (_("Value '%s' is invalid for %s"), parts[1], parts[0]);
         g_strfreev (parts);
     }
     else
-        midori_error (_("Unexpected action '%s'."), name);
+        g_warning (_("Unexpected action '%s'."), name);
 }
 
 static void
