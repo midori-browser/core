@@ -928,8 +928,10 @@ midori_search_action_get_engine_for_form (WebKitWebView*     web_view,
     #endif
 
     active_element = webkit_dom_html_document_get_active_element ((WebKitDOMHTMLDocument*)doc);
-    active_form = webkit_dom_html_input_element_get_form ((WebKitDOMHTMLInputElement*)active_element);
+    if (!WEBKIT_DOM_IS_HTML_INPUT_ELEMENT (active_element))
+        return NULL;
 
+    active_form = webkit_dom_html_input_element_get_form ((WebKitDOMHTMLInputElement*)active_element);
     if (!active_form)
         return NULL;
 
