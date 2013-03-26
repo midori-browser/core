@@ -605,7 +605,9 @@ _midori_web_view_load_icon (MidoriView* view)
     GtkSettings* settings = gtk_widget_get_settings (view->web_view);
     gtk_icon_size_lookup_for_settings (settings, GTK_ICON_SIZE_MENU, &icon_width, &icon_height);
     GdkPixbuf* pixbuf = NULL;
-    #if WEBKIT_CHECK_VERSION (1, 8, 0)
+    #ifdef HAVE_WEBKIT2
+    /* FIXME */
+    #elif WEBKIT_CHECK_VERSION (1, 8, 0)
     if ((pixbuf = webkit_web_view_try_get_favicon_pixbuf (
         WEBKIT_WEB_VIEW (view->web_view), icon_width, icon_height)))
         midori_view_apply_icon (view, pixbuf, view->icon_uri);
