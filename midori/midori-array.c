@@ -51,9 +51,17 @@ katze_item_from_xmlNodePtr (xmlNodePtr cur)
     while (cur)
     {
         if (katze_str_equal ((gchar*)cur->name, "title"))
-            item->name = g_strstrip ((gchar*)xmlNodeGetContent (cur));
+        {
+            gchar* value = g_strstrip ((gchar*)xmlNodeGetContent (cur));
+            katze_item_set_name (item, value);
+            xmlFree (value);
+        }
         else if (katze_str_equal ((gchar*)cur->name, "desc"))
-            item->text = g_strstrip ((gchar*)xmlNodeGetContent (cur));
+        {
+            gchar* value = g_strstrip ((gchar*)xmlNodeGetContent (cur));
+            katze_item_set_text (item, value);
+            xmlFree (value);
+        }
         else if (katze_str_equal ((gchar*)cur->name, "info"))
             katze_xbel_parse_info (item, cur);
         cur = cur->next;
@@ -87,9 +95,17 @@ katze_array_from_xmlNodePtr (xmlNodePtr cur)
     while (cur)
     {
         if (katze_str_equal ((gchar*)cur->name, "title"))
-            ((KatzeItem*)array)->name = g_strstrip ((gchar*)xmlNodeGetContent (cur));
+        {
+            gchar* value = g_strstrip ((gchar*)xmlNodeGetContent (cur));
+            katze_item_set_text (KATZE_ITEM (array), value);
+            xmlFree (value);
+        }
         else if (katze_str_equal ((gchar*)cur->name, "desc"))
-            ((KatzeItem*)array)->text = g_strstrip ((gchar*)xmlNodeGetContent (cur));
+        {
+            gchar* value = g_strstrip ((gchar*)xmlNodeGetContent (cur));
+            katze_item_set_name (KATZE_ITEM (array), value);
+            xmlFree (value);
+        }
         else if (katze_str_equal ((gchar*)cur->name, "info"))
             katze_xbel_parse_info ((KatzeItem*)array, cur);
         else if (katze_str_equal ((gchar*)cur->name, "folder"))
@@ -209,15 +225,15 @@ katze_array_from_xmlDocPtr (KatzeArray* array,
         value = (gchar*)xmlGetProp (cur, (xmlChar*)"version");
         if (!tiny_xbel && (!value || !katze_str_equal (value, "1.0")))
             g_warning ("XBEL version is not 1.0.");
-        g_free (value);
+        xmlFree (value);
 
         value = (gchar*)xmlGetProp (cur, (xmlChar*)"title");
         katze_item_set_name (KATZE_ITEM (array), value);
-        g_free (value);
+        xmlFree (value);
 
         value = (gchar*)xmlGetProp (cur, (xmlChar*)"desc");
         katze_item_set_text (KATZE_ITEM (array), value);
-        g_free (value);
+        xmlFree (value);
     }
     else if (katze_str_equal ((gchar*)cur->name, "RDF"))
     {
@@ -229,21 +245,28 @@ katze_array_from_xmlDocPtr (KatzeArray* array,
             if (katze_str_equal ((gchar*)cur->name, "item"))
             {
                 xmlNodePtr cur_item;
-
                 item = katze_item_new ();
 
                 cur_item = cur->xmlChildrenNode;
                 while (cur_item)
                 {
                     if (katze_str_equal ((gchar*)cur_item->name, "title"))
-                        item->name = g_strstrip ((gchar*)xmlNodeGetContent (cur_item));
+                    {
+                        gchar* value = g_strstrip ((gchar*)xmlNodeGetContent (cur_item));
+                        katze_item_set_name (item, value);
+                        xmlFree (value);
+                    }
                     else if (katze_str_equal ((gchar*)cur_item->name, "link"))
-                        item->uri = g_strstrip ((gchar*)xmlNodeGetContent (cur_item));
+                    {
+                        gchar* value = g_strstrip ((gchar*)xmlNodeGetContent (cur_item));
+                        katze_item_set_uri (item, value);
+                        xmlFree (value);
+                    }
                     else if (katze_str_equal ((gchar*)cur_item->name, "subject"))
                     {
                         gchar* value = g_strstrip ((gchar*)xmlNodeGetContent (cur_item));
                         /* FIXME: Create a folder according to the tag */
-                        g_free (value);
+                        xmlFree (value);
                     }
                     cur_item = cur_item->next;
                 }
@@ -380,7 +403,11 @@ katze_array_from_netscape_file (KatzeArray* array,
             if (item && katze_str_equal (element[1], "DD"))
             {
                 if (element[2])
-                    item->text = katze_unescape_html (element[2]);
+                {
+                    gchar* text = katze_unescape_html (element[2]);
+                    katze_item_set_text (item, text);
+                    g_free (text);
+                }
                 item = NULL;
             }
             /* end of current folder, level-up */
@@ -461,16 +488,16 @@ katze_array_from_opera_file (KatzeArray* array,
             if (parts && parts[0] && parts[1])
             {
                 if (katze_str_equal (parts[0], "NAME"))
-                    item->name = g_strdup (parts[1]);
+                    katze_item_set_name (item, parts[1]);
                 else if (katze_str_equal (parts[0], "URL"))
-                    item->uri = g_strdup (parts[1]);
+                    katze_item_set_uri (item, parts[1]);
                 else if (katze_str_equal (parts[0], "DESCRIPTION"))
-                    item->text = g_strdup (parts[1]);
+                    katze_item_set_text (item, parts[1]);
                 else if (katze_str_equal (parts[0], "CREATED"))
-                    item->added = g_ascii_strtoull (parts[1], NULL, 10);
+                    katze_item_set_added (item, g_ascii_strtoull (parts[1], NULL, 10));
                 /* FIXME: Implement visited time
                 else if (katze_str_equal (parts[0], "VISITED"))
-                    item->visited = g_ascii_strtoull (parts[1], NULL, 10); */
+                    katze_item_set_visited (item, g_ascii_strtoull (parts[1], NULL, 10)); */
                 else if (katze_str_equal (parts[0], "ON PERSONALBAR"))
                     katze_item_set_meta_integer (item, "toolbar",
                         katze_str_equal (parts[1], "YES") ? 1 : -1);
@@ -781,7 +808,7 @@ string_append_netscape_item (GString*   string,
         string_append_escaped (string, katze_item_get_name (item));
         g_string_append (string, "</A>\n");
 
-        if (item->text && g_strcmp0 (item->text, ""))
+        if (g_strcmp0 (katze_str_non_null (katze_item_get_text (item)), ""))
         {
             g_string_append (string, "\t<DD>");
             string_append_escaped (string, katze_item_get_text (item));
@@ -976,19 +1003,19 @@ katze_item_set_value_from_column (sqlite3_stmt* stmt,
         const unsigned char* uri;
         uri = sqlite3_column_text (stmt, column);
         if (uri && uri[0] && uri[0] != '(')
-            item->uri = g_strdup ((gchar*)uri);
+            katze_item_set_uri (item, (gchar*)uri);
     }
     else if (g_str_equal (name, "title") || g_str_equal (name, "name"))
     {
         const unsigned char* title;
         title = sqlite3_column_text (stmt, column);
-        item->name = g_strdup ((gchar*)title);
+        katze_item_set_name (item, (gchar*)title);
     }
     else if (g_str_equal (name, "date") || g_str_equal (name, "created"))
     {
         gint date;
         date = sqlite3_column_int64 (stmt, column);
-        item->added = date;
+        katze_item_set_added (item, date);
     }
     else if (g_str_equal (name, "day") || g_str_equal (name, "app")
           || g_str_equal (name, "toolbar") || g_str_equal (name, "id")
@@ -1004,7 +1031,7 @@ katze_item_set_value_from_column (sqlite3_stmt* stmt,
     {
         const unsigned char* text;
         text = sqlite3_column_text (stmt, column);
-        item->text =  g_strdup ((gchar*)text);
+        katze_item_set_text (item, (gchar*)text);
     }
     else if (g_str_equal (name, "nick"))
     {
@@ -1135,7 +1162,7 @@ midori_array_query_recursive (KatzeArray*  bookmarks,
                 katze_item_get_meta_integer (item, "id"));
             KatzeArray* subarray = midori_array_query_recursive (bookmarks,
                 fields, "parentid=%q", parentid, TRUE);
-            katze_item_set_name (KATZE_ITEM (subarray), item->name);
+            katze_item_set_name (KATZE_ITEM (subarray), katze_item_get_name (item));
             katze_array_add_item (array, subarray);
 
             g_free (parentid);

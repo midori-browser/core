@@ -1000,18 +1000,18 @@ midori_search_action_get_engine_for_form (WebKitWebView*     web_view,
         /* See midori_view_set_title: title can be first or last */
         if (ellipsize == PANGO_ELLIPSIZE_END)
         {
-            item->name = g_strdup (parts[0]);
-            item->text = g_strdup (parts[1]);
+            katze_item_set_name (item, parts[0]);
+            katze_item_set_text (item, parts[1]);
         }
         else
         {
-            item->name = g_strdup (parts[1]);
-            item->text = g_strdup (parts[2]);
+            katze_item_set_name (item, parts[1]);
+            katze_item_set_text (item, parts[2]);
         }
         g_strfreev (parts);
     }
     else
-        item->name = g_strdup (title);
+        katze_item_set_name (item, title);
 
     g_free (token_element);
     return item;

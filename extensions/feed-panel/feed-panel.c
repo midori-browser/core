@@ -376,15 +376,15 @@ feed_panel_cursor_or_row_changed_cb (GtkTreeView* treeview,
                     text = g_strdup_printf (
                             "<html><head><title>feed</title></head>"
                             "<body><h3>%s</h3><p />%s</body></html>",
-                            parent->uri, last_updated);
+                            katze_item_get_uri (KATZE_ITEM (parent)), last_updated);
                     g_free (pretty);
                     g_free (last_updated);
                 }
                 else
                 {
                     text = g_strdup_printf (
-                            "<html><head><title>feed</title></head>"
-                            "<body><h3>%s</h3></body></html>", parent->uri);
+                        "<html><head><title>feed</title></head>"
+                        "<body><h3>%s</h3></body></html>", katze_item_get_uri (KATZE_ITEM (parent)));
                 }
             }
             webkit_web_view_load_html_string (

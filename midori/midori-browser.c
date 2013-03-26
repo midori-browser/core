@@ -490,10 +490,10 @@ midori_browser_update_history (KatzeItem*   item,
         zeitgeist_event_new_full (inter, ZEITGEIST_ZG_USER_ACTIVITY,
                                   "application://midori.desktop",
                                   zeitgeist_subject_new_full (
-            item->uri,
+            katze_item_get_uri (item),
             strstr (type, "bookmark") ? ZEITGEIST_NFO_BOOKMARK : ZEITGEIST_NFO_WEBSITE,
-            zeitgeist_manifestation_for_uri (item->uri),
-            katze_item_get_meta_string (item, "mime-type"), NULL, item->name, NULL),
+            zeitgeist_manifestation_for_uri (katze_item_get_uri (item)),
+            katze_item_get_meta_string (item, "mime-type"), NULL, katze_item_get_name (item), NULL),
                                   NULL),
         NULL);
     #endif
@@ -912,7 +912,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     entry_title = gtk_entry_new ();
     gtk_entry_set_activates_default (GTK_ENTRY (entry_title), TRUE);
     value = katze_item_get_name (bookmark);
-    gtk_entry_set_text (GTK_ENTRY (entry_title), value ? value : "");
+    gtk_entry_set_text (GTK_ENTRY (entry_title), katze_str_non_null (value));
     midori_browser_edit_bookmark_title_changed_cb (GTK_ENTRY (entry_title),
                                                    GTK_DIALOG (dialog));
     g_signal_connect (entry_title, "changed",
@@ -6796,13 +6796,9 @@ _midori_browser_update_settings (MidoriBrowser* browser)
             midori_search_action_set_current_item (MIDORI_SEARCH_ACTION (
                 _action_by_name (browser, "Search")), item);
 
-        KATZE_ARRAY_FOREACH_ITEM (item, browser->search_engines)
-            if (!g_strcmp0 (item->uri, default_search))
-            {
-                midori_search_action_set_default_item (MIDORI_SEARCH_ACTION (
+        if ((item = katze_array_find_uri (browser->search_engines, default_search)))
+            midori_search_action_set_default_item (MIDORI_SEARCH_ACTION (
                 _action_by_name (browser, "Search")), item);
-                break;
-            }
     }
 
     g_object_set (browser->panel, "show-titles", !compact_sidepanel,
@@ -7132,13 +7128,9 @@ midori_browser_set_property (GObject*      object,
             midori_search_action_set_current_item (MIDORI_SEARCH_ACTION (
                 _action_by_name (browser, "Search")), item);
 
-            KATZE_ARRAY_FOREACH_ITEM (item, browser->search_engines)
-                if (!g_strcmp0 (item->uri, default_search))
-                {
-                    midori_search_action_set_default_item (MIDORI_SEARCH_ACTION (
+            if ((item = katze_array_find_uri (browser->search_engines, default_search)))
+                midori_search_action_set_default_item (MIDORI_SEARCH_ACTION (
                     _action_by_name (browser, "Search")), item);
-                    break;
-                }
         }
         break;
     }

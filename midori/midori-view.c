@@ -3451,7 +3451,7 @@ midori_view_new_with_item (KatzeItem*         item,
                            MidoriWebSettings* settings)
 {
     MidoriView* view = g_object_new (MIDORI_TYPE_VIEW,
-                                     "title", item ? item->name : NULL,
+                                     "title", item ? katze_item_get_name (item) : NULL,
                                      NULL);
     if (settings)
         _midori_view_set_settings (view, settings);
