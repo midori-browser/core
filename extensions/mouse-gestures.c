@@ -11,49 +11,207 @@
 */
 
 #include <midori/midori.h>
+#include <math.h>
 
 typedef struct _MouseGesture MouseGesture;
 typedef enum _MouseButton MouseButton;
 
-enum _MouseButton {
+enum _MouseButton
+{
     MOUSE_BUTTON_LEFT = 1,
     MOUSE_BUTTON_RIGHT = 3,
     MOUSE_BUTTON_MIDDLE = 2,
     MOUSE_BUTTON_UNSET = 0
 };
 
-struct MouseGestureNode {
+/* equivalent to the angle measured anticlockwise from east, divided by 45 or pi/4 */
+typedef enum
+{
+    STROKE_EAST = 0,
+    STROKE_NORTHEAST,
+    STROKE_NORTH,
+    STROKE_NORTHWEST,
+    STROKE_WEST,
+    STROKE_SOUTHWEST,
+    STROKE_SOUTH,
+    STROKE_SOUTHEAST,
+    STROKE_NONE,
+} MouseGestureDirection;
+
+static const gchar* direction_names[]=
+{
+    "E",
+    "NE",
+    "N",
+    "NW",
+    "W",
+    "SW",
+    "S",
+    "SE",
+    "NONE",
+};
+
+#define N_DIRECTIONS 8
+
+#define DEVIANCE (15 * M_PI / 180)
+#define MINLENGTH 30
+
+char** config_actions = NULL;
+MouseGestureDirection** config_gestures = NULL;
+
+const char* default_actions[]=
+{
+    "TabClose",
+    "Reload",
+    "TabNew",
+    "Stop",
+    "Forward",
+    "Back",
+    NULL
+};
+
+const MouseGestureDirection default_gesture_strokes[] =
+{
+    STROKE_SOUTH, STROKE_EAST, STROKE_NONE,
+    STROKE_SOUTH, STROKE_WEST, STROKE_NONE,
+    STROKE_SOUTH, STROKE_NONE,
+    STROKE_NORTH, STROKE_NONE,
+    STROKE_EAST, STROKE_NONE,
+    STROKE_WEST, STROKE_NONE,
+    STROKE_NONE,
+};
+
+const MouseGestureDirection* default_gestures[] =
+{
+    &default_gesture_strokes[0],
+    &default_gesture_strokes[3],
+    &default_gesture_strokes[6],
+    &default_gesture_strokes[8],
+    &default_gesture_strokes[10],
+    &default_gesture_strokes[12],
+    &default_gesture_strokes[14],
+};
+
+static gboolean
+parse_direction (const char* str, MouseGestureDirection* dir)
+{
+    int i;
+    for (i = 0; i < N_DIRECTIONS; i++)
+    {
+        if(!strcmp(str, direction_names[i]))
+        {
+            *dir = i;
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
+static gboolean
+strokes_equal (const MouseGestureDirection* a, const MouseGestureDirection* b)
+{
+    int i;
+    for (i = 0; a[i] != STROKE_NONE && b[i] != STROKE_NONE; i++)
+    {
+        if(a[i] != b[i])
+            return FALSE;
+    }
+    return a[i] == b[i];
+}
+
+struct MouseGestureNode
+{
     double x;
     double y;
 };
 
-struct _MouseGesture {
+static guint
+dist_sqr (guint x1, guint y1, guint x2, guint y2)
+{
+    guint xdiff = abs(x1 - x2);
+    guint ydiff = abs(y1 - y2);
+    return xdiff * xdiff + ydiff * ydiff;
+}
+
+static float
+get_angle_for_direction (MouseGestureDirection direction)
+{
+    return direction * 2 * M_PI / N_DIRECTIONS;
+}
+
+static MouseGestureDirection
+nearest_direction_for_angle (float angle)
+{
+    /* move halfway to the next direction so we can floor to round */
+    angle += M_PI / N_DIRECTIONS;
+
+    /* ensure we stay within [0, 2pi) */
+    if (angle >= 2 * M_PI)
+        angle -= 2 * M_PI;
+
+    return (MouseGestureDirection)((angle * N_DIRECTIONS) / (2* M_PI));
+}
+
+static gboolean
+vector_follows_direction (float angle, float distance, MouseGestureDirection direction)
+{
+    if (direction == STROKE_NONE)
+        return distance < MINLENGTH / 2;
+
+    float dir_angle = get_angle_for_direction (direction);
+    if (fabsf(angle - dir_angle) < DEVIANCE || fabsf(angle - dir_angle + 2 * M_PI) < DEVIANCE)
+        return TRUE;
+
+    if(distance < MINLENGTH / 2)
+        return TRUE;
+
+    return FALSE;
+}
+
+/* returns the angle in the range [0, 2pi) (anticlockwise from east) from point 1 to 2 */
+static float
+get_angle_between_points (guint x1, guint y1, guint x2, guint y2)
+{
+    float distance = sqrtf (dist_sqr (x1, y1, x2, y2));
+
+    /* compute the angle of the vector from a to b */
+    float cval=((signed int)x2 - (signed int)x1) / distance;
+    float angle = acosf (cval);
+    if(y2 > y1)
+        angle = 2 * M_PI - angle;
+
+    return angle;
+}
+
+#define N_NODES 8
+
+struct _MouseGesture
+{
     MouseButton button;
-    struct MouseGestureNode start;
-    struct MouseGestureNode middle;
-    struct MouseGestureNode end;
+    MouseGestureDirection strokes[N_NODES + 1];
+    struct MouseGestureNode locations[N_NODES];
+    struct MouseGestureNode last_pos;
+    float last_distance;
+    /* the index of the location to be filled next */
+    guint count;
     MouseButton last;
 };
 
-#define DEVIANCE 20
-#define MINLENGTH 50
-
 MouseGesture *gesture = NULL;
 
-void mouse_gesture_clear (MouseGesture *g)
+static void
+mouse_gesture_clear (MouseGesture *g)
 {
-    g->start.x = 0;
-    g->start.y = 0;
-    g->middle.x = 0;
-    g->middle.y = 0;
-    g->end.x = 0;
-    g->end.y = 0;
+    memset(g->locations, 0, sizeof(g->locations));
+    g->strokes[0] = STROKE_NONE;
+    g->count = 0;
+    g->last_distance = 0;
     g->last = MOUSE_BUTTON_UNSET;
 }
 
 MouseGesture* mouse_gesture_new (void)
 {
-    MouseGesture* g = g_new (MouseGesture, 1);
+    MouseGesture* g = g_slice_new (MouseGesture);
     mouse_gesture_clear (g);
 
     return g;
@@ -68,10 +226,11 @@ mouse_gestures_button_press_event_cb (GtkWidget*     web_view,
     {
         /* If the gesture was previously cleaned,
            start a new gesture and coordinates. */
-        if (gesture->last == MOUSE_BUTTON_UNSET)
+        if (gesture->count == MOUSE_BUTTON_UNSET)
         {
-            gesture->start.x = event->button.x;
-            gesture->start.y = event->button.y;
+            gesture->locations[gesture->count].x = event->button.x;
+            gesture->locations[gesture->count].y = event->button.y;
+            gesture->last_pos = gesture->locations[gesture->count];
             gesture->last = event->button.button;
         }
         return TRUE;
@@ -85,27 +244,58 @@ mouse_gestures_motion_notify_event_cb (GtkWidget*     web_view,
                                        GdkEvent*      event,
                                        MidoriBrowser* browser)
 {
+    /* wait until a button has been pressed */
     if (gesture->last != MOUSE_BUTTON_UNSET)
     {
-        guint x, y;
+        guint x, y, oldx, oldy;
+        float angle, distance;
+        MouseGestureDirection old_direction, new_direction;
 
         x = event->motion.x;
         y = event->motion.y;
+        oldx = gesture->locations[gesture->count].x;
+        oldy = gesture->locations[gesture->count].y;
 
-        if ((gesture->start.x - x < DEVIANCE && gesture->start.x - x > -DEVIANCE) ||
-            (gesture->start.y - y < DEVIANCE && gesture->start.y - y > -DEVIANCE))
+        old_direction = gesture->strokes[gesture->count];
+
+        angle = get_angle_between_points (oldx, oldy, x, y);
+        distance = sqrtf (dist_sqr (oldx, oldy, x, y));
+
+        /* wait until minimum distance has been reached to set an initial direction. */
+        if (old_direction == STROKE_NONE)
         {
-            gesture->middle.x = x;
-            gesture->middle.y = y;
-            return TRUE;
+            if (distance >= MINLENGTH)
+            {
+                gesture->strokes[gesture->count] = nearest_direction_for_angle (angle);
+                if(midori_debug ("adblock:match"))
+                    g_debug ("detected %s\n", direction_names[gesture->strokes[gesture->count]]);
+            }
         }
-        else if ((gesture->middle.x - x < DEVIANCE && gesture->middle.x - x > -DEVIANCE) ||
-                 (gesture->middle.y - y < DEVIANCE && gesture->middle.y - y > -DEVIANCE))
+        else if (!vector_follows_direction (angle, distance, old_direction)
+                 || distance < gesture->last_distance)
         {
-            gesture->end.x = x;
-            gesture->end.y = y;
-            return TRUE;
+            /* if path curves or we've reversed our movement, try to detect a new direction */
+            angle = get_angle_between_points (gesture->last_pos.x, gesture->last_pos.y, x, y);
+            new_direction = nearest_direction_for_angle (angle);
+
+            if (new_direction != old_direction && gesture->count + 1 < N_NODES)
+            {
+                /* record this node and return to an indeterminate direction */
+                gesture->count++;
+                gesture->strokes[gesture->count] = STROKE_NONE;
+                gesture->locations[gesture->count].x = x;
+                gesture->locations[gesture->count].y = y;
+                gesture->last_distance = 0;
+            }
         }
+        else if(distance > gesture->last_distance)
+        {
+            /* if following the same direction, store the progress along it for later divergence checks */
+            gesture->last_pos.x = x;
+            gesture->last_pos.y = y;
+            gesture->last_distance = distance;
+        }
+        return TRUE;
     }
 
     return FALSE;
@@ -125,69 +315,31 @@ mouse_gestures_button_release_event_cb (GtkWidget*      web_view,
                                         GdkEventButton* event,
                                         MidoriView*     view)
 {
-    /* All mouse gestures will use this mouse button */
-    if (gesture->last == gesture->button)
+    int i;
+
+    if (gesture->strokes[gesture->count] != STROKE_NONE)
     {
-        /* The initial horizontal move is between the bounds */
-        if ((gesture->middle.x - gesture->start.x < DEVIANCE) &&
-            (gesture->middle.x - gesture->start.x > -DEVIANCE))
-        {
-             /* We initially moved down more than MINLENGTH pixels */
-            if (gesture->middle.y > gesture->start.y + MINLENGTH)
-            {
-                /* Then we the final vertical move is between the bounds and
-                   we moved right more than MINLENGTH pixels */
-                if ((gesture->middle.y - gesture->end.y < DEVIANCE) &&
-                    (gesture->middle.y - gesture->end.y > -DEVIANCE) &&
-                    (gesture->end.x > gesture->middle.x + MINLENGTH))
-                     /* We moved down then right: close the tab */
-                     return mouse_gestures_activate_action (view, "TabClose");
-                /* Then we the final vertical move is between the bounds and
-                we moved left more than MINLENGTH pixels */
-                else if ((gesture->middle.y - gesture->end.y < DEVIANCE) &&
-                         (gesture->middle.y - gesture->end.y > -DEVIANCE) &&
-                         (gesture->end.x + MINLENGTH < gesture->middle.x))
-                     /* We moved down then left: reload */
-                     return mouse_gestures_activate_action (view, "Reload");
-                /* The end node was never updated, we only did a vertical move */
-                else if(gesture->end.y == 0 && gesture->end.x == 0)
-                    /* We moved down then: create a new tab */
-                    return mouse_gestures_activate_action (view, "TabNew");
-            }
-            /* We initially moved up more than MINLENGTH pixels */
-            else if (gesture->middle.y + MINLENGTH < gesture->start.y)
-            {
-                /* The end node was never updated, we only did a vertical move */
-                if (gesture->end.y == 0 && gesture->end.x == 0)
-                    /* We moved up: stop */
-                    return mouse_gestures_activate_action (view, "Stop");
-            }
-        }
-        /* The initial horizontal move is between the bounds */
-        else if ((gesture->middle.y - gesture->start.y < DEVIANCE) &&
-                 (gesture->middle.y - gesture->start.y > -DEVIANCE))
-        {
-            /* We initially moved right more than MINLENGTH pixels */
-            if (gesture->middle.x > gesture->start.x + MINLENGTH)
-            {
-                /* The end node was never updated, we only did an horizontal move */
-                if (gesture->end.x == 0 && gesture->end.y == 0)
-                    /* We moved right: forward */
-                    return mouse_gestures_activate_action (view, "Forward");
-            }
-            /* We initially moved left more than MINLENGTH pixels */
-            else if (gesture->middle.x + MINLENGTH < gesture->start.x)
-            {
-                /* The end node was never updated, we only did an horizontal move */
-                if (gesture->end.x == 0 && gesture->end.y == 0)
-                    /* We moved left: back */
-                    return mouse_gestures_activate_action (view, "Back");
-            }
-        }
-        mouse_gesture_clear (gesture);
+        gesture->count++;
+        gesture->strokes[gesture->count] = STROKE_NONE;
     }
 
-    if (MIDORI_EVENT_CONTEXT_MENU (event))
+    const MouseGestureDirection** gestures = config_gestures ?
+                                             (const MouseGestureDirection**)config_gestures :
+                                             default_gestures;
+    const gchar** actions = config_actions ? (const char**)config_actions : default_actions;
+
+    for(i = 0; gestures[i][0] != STROKE_NONE; i++)
+    {
+        if(strokes_equal (gesture->strokes, gestures[i]))
+        {
+            mouse_gesture_clear (gesture);
+            return mouse_gestures_activate_action (view, actions[i]);
+        }
+    }
+
+    mouse_gesture_clear (gesture);
+
+    if (MIDORI_EVENT_CONTEXT_MENU (event) && 0)
     {
         GtkWidget* menu = gtk_menu_new ();
         midori_view_populate_popup (view, menu, TRUE);
@@ -197,6 +349,62 @@ mouse_gestures_button_release_event_cb (GtkWidget*      web_view,
     }
 
     return FALSE;
+}
+
+static void
+mouse_gestures_load_config (MidoriExtension* extension)
+{
+    int i;
+    gchar* config_file;
+    gsize n_keys;
+    gchar** keys;
+    GKeyFile* keyfile;
+
+    config_file = g_build_filename (midori_extension_get_config_dir (extension),
+                                    "gestures", NULL);
+    keyfile = g_key_file_new ();
+    g_key_file_load_from_file (keyfile, config_file, G_KEY_FILE_NONE, NULL);
+    g_free (config_file);
+
+    if (!keyfile)
+        return;
+
+    keys = g_key_file_get_keys (keyfile, "gestures", &n_keys, NULL);
+    if (!keys)
+        return;
+
+    if(config_gestures)
+    {
+        g_strfreev ((gchar**)config_gestures);
+        g_strfreev (config_actions);
+    }
+    config_gestures = g_malloc ((n_keys + 1) * sizeof (MouseGestureDirection*));
+    config_actions = g_malloc (n_keys * sizeof (gchar*));
+
+    for(i = 0; keys[i]; i++)
+    {
+        gsize n_strokes;
+        int j;
+        gchar** stroke_strings = g_key_file_get_string_list (keyfile, "gestures", keys[i], &n_strokes,
+                                                             NULL);
+
+        config_gestures[i] = g_malloc ((n_strokes + 1) * sizeof (MouseGestureDirection));
+
+        for (j = 0; j < n_strokes; j++)
+        {
+            if (!parse_direction (stroke_strings[j], &config_gestures[i][j]))
+                g_warning ("mouse-gestures: failed to parse direction \"%s\"\n", stroke_strings[j]);
+        }
+        config_gestures[i][j] = STROKE_NONE;
+
+        config_actions[i] = keys[i];
+        g_strfreev (stroke_strings);
+    }
+    config_gestures[i] = g_malloc (sizeof (MouseGestureDirection));
+    config_gestures[i][0] = STROKE_NONE;
+
+    g_free (keys);
+    g_key_file_free (keyfile);
 }
 
 static void
@@ -268,7 +476,14 @@ mouse_gestures_deactivate_cb (MidoriExtension* extension,
     for (; tabs; tabs = g_list_next (tabs))
         mouse_gestures_deactivate_tabs (tabs->data, browser);
     g_list_free (tabs);
-    g_free (gesture);
+    g_slice_free (MouseGesture, gesture);
+    if(config_gestures)
+    {
+        g_strfreev ((gchar**)config_gestures);
+        config_gestures = NULL;
+        g_strfreev (config_actions);
+        config_actions = NULL;
+    }
 }
 
 static void
@@ -280,6 +495,7 @@ mouse_gestures_activate_cb (MidoriExtension* extension,
 
     gesture = mouse_gesture_new ();
     gesture->button = midori_extension_get_integer (extension, "button");
+    mouse_gestures_load_config (extension);
 
     browsers = katze_object_get_object (app, "browsers");
     KATZE_ARRAY_FOREACH_ITEM (browser, browsers)
@@ -296,9 +512,10 @@ extension_init (void)
     MidoriExtension* extension = g_object_new (MIDORI_TYPE_EXTENSION,
         "name", _("Mouse Gestures"),
         "description", _("Control Midori by moving the mouse"),
-        "version", "0.1" MIDORI_VERSION_SUFFIX,
+        "version", "0.2" MIDORI_VERSION_SUFFIX,
         "authors", "Matthias Kruk <mkruk@matthiaskruk.de>", NULL);
     midori_extension_install_integer (extension, "button", MOUSE_BUTTON_RIGHT);
+    midori_extension_install_integer (extension, "actions", MOUSE_BUTTON_RIGHT);
 
     g_signal_connect (extension, "activate",
         G_CALLBACK (mouse_gestures_activate_cb), NULL);
