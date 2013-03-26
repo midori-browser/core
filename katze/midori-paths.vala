@@ -35,6 +35,7 @@ namespace Midori {
     namespace Paths {
         static string? exec_path = null;
         static string[] command_line = null;
+        static string? runtime_dir = null;
         static RuntimeMode mode = RuntimeMode.UNDEFINED;
 
         static string? config_dir = null;
@@ -74,18 +75,26 @@ namespace Midori {
             return mode;
         }
 
-        private static string get_runtime_dir () {
+        public static unowned string get_runtime_dir () {
+            if (runtime_dir != null)
+                return runtime_dir;
+
             #if HAVE_WIN32
-            string? runtime_dir = Environment.get_variable ("XDG_RUNTIME_DIR");
+            runtime_dir = Environment.get_variable ("XDG_RUNTIME_DIR");
             if (runtime_dir == null || runtime_dir == "")
                 runtime_dir = Environment.get_user_data_dir ();
             #else
-            string? runtime_dir = Environment.get_variable ("XDG_RUNTIME_DIR");
-            if (runtime_dir == null || runtime_dir == "")
-                return Path.build_path (Path.DIR_SEPARATOR_S,
+            runtime_dir = Environment.get_variable ("XDG_RUNTIME_DIR");
+            if (runtime_dir == null || runtime_dir == "") {
+                runtime_dir = Path.build_path (Path.DIR_SEPARATOR_S,
                     Environment.get_tmp_dir (), PACKAGE_NAME + "-" + Environment.get_user_name ());
+                mkdir_with_parents (runtime_dir);
+                return runtime_dir;
+            }
             #endif
-            return Path.build_path (Path.DIR_SEPARATOR_S, runtime_dir, PACKAGE_NAME);
+            runtime_dir = Path.build_path (Path.DIR_SEPARATOR_S, runtime_dir, PACKAGE_NAME);
+            mkdir_with_parents (runtime_dir);
+            return runtime_dir;
         }
 
         public static void init (RuntimeMode new_mode, string? config) {

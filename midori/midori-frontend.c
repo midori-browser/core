@@ -296,6 +296,15 @@ button_modify_preferences_clicked_cb (GtkWidget*         button,
         gtk_widget_destroy (dialog);
 }
 
+static void
+midori_frontend_crash_log_cb (GtkWidget* button,
+                              gchar*     crash_log)
+{
+    GError* error = NULL;
+    if (!sokoke_show_uri (gtk_widget_get_screen (button), crash_log, 0, &error))
+        midori_error (error->message);
+}
+
 static MidoriStartup
 midori_frontend_diagnostic_dialog (MidoriApp*         app,
                                    MidoriWebSettings* settings,
@@ -343,6 +352,19 @@ midori_frontend_diagnostic_dialog (MidoriApp*         app,
         _("Show last tabs without loading"), MIDORI_STARTUP_DELAYED_PAGES,
         _("Show last open tabs"), MIDORI_STARTUP_LAST_OPEN_PAGES,
         NULL);
+
+    gchar* crash_log = g_build_filename (midori_paths_get_runtime_dir (), "gdb.bt", NULL);
+    if (g_access (crash_log, F_OK) == 0)
+    {
+        GtkWidget* button = gtk_button_new_with_mnemonic (_("Show last crash _log"));
+        g_signal_connect_data (button, "clicked",
+            G_CALLBACK (midori_frontend_crash_log_cb), crash_log,
+            (GClosureNotify)g_free, 0);
+        gtk_widget_show (button);
+        gtk_box_pack_start (GTK_BOX (box), button, FALSE, FALSE, 4);
+    }
+    else
+        g_free (crash_log);
     gtk_dialog_set_default_response (GTK_DIALOG (dialog),
         load_on_startup == MIDORI_STARTUP_HOMEPAGE
         ? MIDORI_STARTUP_BLANK_PAGE : load_on_startup);

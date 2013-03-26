@@ -144,15 +144,15 @@ main (int    argc,
     {
         gchar* gdb = g_find_program_in_path ("gdb");
         gchar* args = midori_paths_get_command_line_str (FALSE);
+        const gchar* runtime_dir = midori_paths_get_runtime_dir ();
         gchar* cmd = g_strdup_printf (
             "--batch -ex 'set print thread-events off' -ex run "
-            "-ex 'set logging on %s' -ex 'bt' --return-child-result "
+            "-ex 'set logging on %s/%s' -ex 'bt' --return-child-result "
             "--args %s",
-            "/tmp/midori-gdb.bt", args);
-        if (gdb != NULL)
-            sokoke_spawn_program (gdb, TRUE, cmd, FALSE, TRUE);
-        else
-            g_print (_("Error: \"gdb\" can't be found\n"));
+            runtime_dir, "gdb.bt", args);
+        if (gdb == NULL)
+            midori_error (_("Error: \"gdb\" can't be found\n"));
+        sokoke_spawn_program (gdb, TRUE, cmd, FALSE, TRUE);
         g_free (gdb);
         g_free (cmd);
         g_free (args);
