@@ -70,6 +70,24 @@ proxy_uri_file_set_cb (GtkFileChooser* button,
     g_object_set (object, property, file, NULL);
 }
 
+#if GTK_CHECK_VERSION (3, 2, 0)
+static void
+proxy_font_chooser_font_activated_cb (GtkFontChooser* chooser,
+                                      const gchar*    font_name,
+                                      GObject*        object)
+{
+    gtk_font_chooser_set_font (chooser, font_name);
+}
+
+static gboolean
+proxy_font_chooser_filter_monospace_cb (PangoFontFamily* family,
+                                        PangoFontFace*   face,
+                                        gpointer         data)
+{
+    gboolean monospace = GPOINTER_TO_INT (data);
+    return monospace == pango_font_family_is_monospace (family);
+}
+#else
 static void
 proxy_combo_box_text_changed_cb (GtkComboBoxText* button,
                                  GObject*         object)
@@ -79,6 +97,7 @@ proxy_combo_box_text_changed_cb (GtkComboBoxText* button,
     g_object_set (object, property, text, NULL);
     g_free (text);
 }
+#endif
 
 static const gchar*
 katze_app_info_get_commandline (GAppInfo* info)
@@ -498,30 +517,40 @@ katze_property_proxy (gpointer     object,
     else if (type == G_TYPE_PARAM_STRING && (_hint == I_("font")
         || _hint == I_("font-monospace")))
     {
-        GtkComboBox* combo;
-        gint n_families, i;
-        PangoContext* context;
-        PangoFontFamily** families;
-        gboolean monospace = _hint == I_("font-monospace");
         string = katze_object_get_string (object, property);
-
-        widget = gtk_combo_box_text_new ();
-        combo = GTK_COMBO_BOX (widget);
-        context = gtk_widget_get_pango_context (widget);
-        pango_context_list_families (context, &families, &n_families);
         if (!string)
             string = g_strdup (G_PARAM_SPEC_STRING (pspec)->default_value);
         /* 'sans' and 'sans-serif' are presumably the same */
         if (!g_strcmp0 (string, "sans-serif"))
             katze_assign (string, g_strdup ("sans"));
+        gboolean monospace = _hint == I_("font-monospace");
+
+        #if GTK_CHECK_VERSION (3, 2, 0)
+        widget = gtk_font_button_new ();
+        gtk_font_button_set_show_size (GTK_FONT_BUTTON (widget), FALSE);
+        gtk_font_chooser_set_font (GTK_FONT_CHOOSER (widget), string);
+        g_signal_connect (widget, "font-activated",
+                          G_CALLBACK (proxy_font_chooser_font_activated_cb), object);
+        gtk_font_chooser_set_filter_func (GTK_FONT_CHOOSER (widget),
+            (GtkFontFilterFunc)proxy_font_chooser_filter_monospace_cb, GINT_TO_POINTER (monospace), NULL);
+        #else
+        GtkComboBox* combo;
+        gint n_families, i;
+        PangoContext* context;
+        PangoFontFamily** families;
+
+        widget = gtk_combo_box_text_new ();
+        combo = GTK_COMBO_BOX (widget);
+        context = gtk_widget_get_pango_context (widget);
+        pango_context_list_families (context, &families, &n_families);
         if (string)
         {
             gint j = 0;
             for (i = 0; i < n_families; i++)
             {
-                const gchar* font = pango_font_family_get_name (families[i]);
                 if (monospace != pango_font_family_is_monospace (families[i]))
                     continue;
+                const gchar* font = pango_font_family_get_name (families[i]);
                 gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo), font);
                 if (!g_ascii_strcasecmp (font, string))
                     gtk_combo_box_set_active (combo, j);
@@ -533,6 +562,7 @@ katze_property_proxy (gpointer     object,
         g_signal_connect (widget, "changed",
                           G_CALLBACK (proxy_combo_box_text_changed_cb), object);
         g_free (families);
+        #endif
     }
     else if (type == G_TYPE_PARAM_STRING && hint && g_str_has_prefix (hint, "application-"))
     {
