@@ -316,10 +316,11 @@ katze_app_info_get_all_for_category (const gchar* category)
     GList* all_apps = g_app_info_get_all ();
     #endif
     GList* apps = NULL;
-    guint i = 0;
     GAppInfo* info;
-    while ((info = g_list_nth_data (all_apps, i++)))
+    GList* app;
+    for (app = apps; app; app = g_list_next (app))
     {
+        GAppInfo* info = app->data;
         #ifdef GDK_WINDOWING_X11
         gchar* filename = g_strconcat ("applications/", g_app_info_get_id (info), NULL);
         GKeyFile* file = g_key_file_new ();
@@ -573,10 +574,10 @@ katze_property_proxy (gpointer     object,
 
         if (apps != NULL)
         {
-            gint i = 0;
-
-            while ((info = g_list_nth_data (apps, i++)))
+            GList* app;
+            for (app = apps; app; app = g_list_next (app))
             {
+                GAppInfo* info = app->data;
                 const gchar* name = g_app_info_get_name (info);
                 GIcon* icon = g_app_info_get_icon (info);
                 gchar* icon_name;
