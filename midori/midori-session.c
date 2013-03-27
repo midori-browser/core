@@ -371,7 +371,7 @@ midori_browser_action_last_session_activate_cb (GtkAction*     action,
     KatzeArray* old_session = katze_array_new (KATZE_TYPE_ITEM);
     gchar* config_file = midori_paths_get_config_filename_for_reading ("session.old.xbel");
     GError* error = NULL;
-    if (midori_array_from_file (old_session, config_file, "xbel", &error))
+    if (midori_array_from_file (old_session, config_file, "xbel-tiny", &error))
     {
         KatzeItem* item;
         KATZE_ARRAY_FOREACH_ITEM (item, old_session)
@@ -379,8 +379,8 @@ midori_browser_action_last_session_activate_cb (GtkAction*     action,
     }
     else
     {
-        g_warning (_("The session couldn't be loaded: %s\n"), error->message);
-        /* FIXME: Show a graphical dialog */
+        sokoke_message_dialog (GTK_MESSAGE_ERROR,
+            _("The session couldn't be loaded: %s\n"), error->message, FALSE);
         g_error_free (error);
     }
     g_free (config_file);

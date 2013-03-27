@@ -498,7 +498,7 @@ midori_normal_app_new (const gchar* config,
     {
         katze_assign (config_file, midori_paths_get_config_filename_for_reading ("session.xbel"));
         error = NULL;
-        if (!midori_array_from_file (session, config_file, "xbel", &error))
+        if (!midori_array_from_file (session, config_file, "xbel-tiny", &error))
         {
             if (error->code != G_FILE_ERROR_NOENT)
                 g_string_append_printf (error_messages,
@@ -514,7 +514,7 @@ midori_normal_app_new (const gchar* config,
         G_CALLBACK (midori_trash_remove_item_cb), NULL);
     katze_assign (config_file, g_build_filename (config, "tabtrash.xbel", NULL));
     error = NULL;
-    if (!midori_array_from_file (trash, config_file, "xbel", &error))
+    if (!midori_array_from_file (trash, config_file, "xbel-tiny", &error))
     {
         if (error->code != G_FILE_ERROR_NOENT)
             g_string_append_printf (error_messages,
