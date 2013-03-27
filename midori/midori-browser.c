@@ -2631,9 +2631,9 @@ _action_print_activate (GtkAction*     action,
     /* FIXME: Blacklist/ custom contract doesn't work
     gchar* blacklisted_contracts[] = { "print", NULL }; */
     /* FIXME: granite: should return GtkWidget* like GTK+ */
-    GtkWidget* dialog = (GtkWidget*)granite_widgets_pop_over_new ();
-    GtkWidget* content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
+    GtkWidget* dialog = (GtkWidget*)granite_widgets_light_window_new (_("Share this page"));
     /* FIXME: granite: should return GtkWidget* like GTK+ */
+    GtkWidget* content_area = (GtkWidget*)granite_widgets_decorated_window_get_box (GRANITE_WIDGETS_DECORATED_WINDOW (dialog));
     gchar* filename = midori_view_save_source (MIDORI_VIEW (view), NULL, NULL);
     const gchar* mime_type = katze_item_get_meta_string (
         midori_view_get_proxy_item (MIDORI_VIEW (view)), "mime-type");
@@ -2648,9 +2648,8 @@ _action_print_activate (GtkAction*     action,
     gtk_container_add (GTK_CONTAINER (content_area), contractor);
     gtk_widget_show (contractor);
     gtk_widget_show (dialog);
-    if (gtk_widget_get_visible (browser->navigationbar))
-        granite_widgets_pop_over_move_to_widget (
-            GRANITE_WIDGETS_POP_OVER (dialog), browser->navigationbar, TRUE);
+    /* FIXME: granite: "box" isn't visible by default */
+    gtk_widget_show_all (dialog);
     #else
     midori_view_print (MIDORI_VIEW (view));
     #endif

@@ -28,10 +28,18 @@
 #endif
 
 static void
+#ifdef HAVE_GRANITE
+midori_private_data_dialog_response_cb (GtkWidget*    button,
+#else
 midori_private_data_dialog_response_cb (GtkWidget*     dialog,
                                         gint           response_id,
+#endif
                                         MidoriBrowser* browser)
 {
+    #ifdef HAVE_GRANITE
+    GtkWidget* dialog = gtk_widget_get_toplevel (button);
+    gint response_id = GTK_RESPONSE_ACCEPT;
+    #endif
     if (response_id == GTK_RESPONSE_ACCEPT)
     {
         GtkToggleButton* button;
@@ -116,16 +124,32 @@ midori_private_data_get_dialog (MidoriBrowser* browser)
     gint clear_prefs = MIDORI_CLEAR_NONE;
     g_object_get (settings, "clear-private-data", &clear_prefs, NULL);
 
+    #ifdef HAVE_GRANITE
+    /* FIXME: granite: should return GtkWidget* like GTK+ */
+    dialog = (GtkWidget*)granite_widgets_light_window_new (_("Clear Private Data"));
+    /* FIXME: granite: should return GtkWidget* like GTK+ */
+    content_area = (GtkWidget*)granite_widgets_decorated_window_get_box (GRANITE_WIDGETS_DECORATED_WINDOW (dialog));
+    hbox = gtk_hbox_new (FALSE, 4);
+    gtk_box_pack_end (GTK_BOX (content_area), hbox, FALSE, FALSE, 4);
+    button = gtk_button_new_with_mnemonic (_("_Clear private data"));
+    gtk_box_pack_end (GTK_BOX (hbox), button, FALSE, FALSE, 4);
+    g_signal_connect (button, "clicked",
+        G_CALLBACK (midori_private_data_dialog_response_cb), browser);
+    #else
     /* i18n: Dialog: Clear Private Data, in the Tools menu */
     dialog = gtk_dialog_new_with_buttons (_("Clear Private Data"),
         GTK_WINDOW (browser),
         GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR,
         GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
         _("_Clear private data"), GTK_RESPONSE_ACCEPT, NULL);
-    katze_widget_add_class (gtk_dialog_get_widget_for_response (
-        GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT), "noundo");
+    button = gtk_dialog_get_widget_for_response (GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT);
     content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
     gtk_window_set_skip_taskbar_hint (GTK_WINDOW (dialog), FALSE);
+    g_signal_connect (dialog, "response",
+        G_CALLBACK (midori_private_data_dialog_response_cb), browser);
+    gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT);
+    #endif
+    katze_widget_add_class (button, "noundo");
     screen = gtk_widget_get_screen (GTK_WIDGET (browser));
     if (screen)
         gtk_window_set_icon_name (GTK_WINDOW (dialog), GTK_STOCK_CLEAR);
@@ -168,8 +192,8 @@ midori_private_data_get_dialog (MidoriBrowser* browser)
     }
     g_free (clear_data);
     gtk_container_add (GTK_CONTAINER (alignment), vbox);
-    gtk_box_pack_start (GTK_BOX (hbox), alignment, TRUE, TRUE, 0);
-    gtk_box_pack_start (GTK_BOX (content_area), hbox, FALSE, FALSE, 0);
+    gtk_box_pack_start (GTK_BOX (hbox), alignment, TRUE, TRUE, 4);
+    gtk_box_pack_start (GTK_BOX (content_area), hbox, FALSE, FALSE, 8);
     button = gtk_check_button_new_with_mnemonic (_("Clear private data when _quitting Midori"));
     if ((clear_prefs & MIDORI_CLEAR_ON_QUIT) == MIDORI_CLEAR_ON_QUIT)
         gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
@@ -180,10 +204,6 @@ midori_private_data_get_dialog (MidoriBrowser* browser)
     gtk_container_add (GTK_CONTAINER (alignment), button);
     gtk_box_pack_start (GTK_BOX (content_area), alignment, FALSE, FALSE, 0);
     gtk_widget_show_all (content_area);
-
-    g_signal_connect (dialog, "response",
-        G_CALLBACK (midori_private_data_dialog_response_cb), browser);
-    gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT);
     return dialog;
 }
 
