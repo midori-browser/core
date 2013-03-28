@@ -4158,7 +4158,7 @@ midori_browser_bookmark_popup_item (GtkWidget*     menu,
                                     const gchar*   label,
                                     KatzeItem*     item,
                                     gpointer       callback,
-                                    MidoriBrowser* browser)
+                                    gpointer       userdata)
 {
     const gchar* uri;
     GtkWidget* menuitem;
@@ -4175,7 +4175,7 @@ midori_browser_bookmark_popup_item (GtkWidget*     menu,
     else if (!KATZE_IS_ARRAY (item) && strcmp (stock_id, GTK_STOCK_DELETE))
         gtk_widget_set_sensitive (menuitem, uri != NULL);
     g_object_set_data (G_OBJECT (menuitem), "KatzeItem", item);
-    g_signal_connect (menuitem, "activate", G_CALLBACK (callback), browser);
+    g_signal_connect (menuitem, "activate", G_CALLBACK (callback), userdata);
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
     gtk_widget_show (menuitem);
 }
@@ -4233,17 +4233,16 @@ midori_browser_bookmark_open_in_window_activate_cb (GtkWidget*     menuitem,
 }
 
 static void
-midori_browser_bookmark_edit_activate_cb (GtkWidget*     menuitem,
-                                          MidoriBrowser* browser)
+midori_browser_bookmark_edit_activate_cb (GtkWidget* menuitem,
+                                          GtkWidget* widget)
 {
-    KatzeItem* item;
-
-    item = (KatzeItem*)g_object_get_data (G_OBJECT (menuitem), "KatzeItem");
+    MidoriBrowser* browser = midori_browser_get_for_widget (widget);
+    KatzeItem* item = g_object_get_data (G_OBJECT (menuitem), "KatzeItem");
 
     if (KATZE_ITEM_IS_BOOKMARK (item))
-        midori_browser_edit_bookmark_dialog_new (browser, item, FALSE, FALSE, NULL);
+        midori_browser_edit_bookmark_dialog_new (browser, item, FALSE, FALSE, widget);
     else
-        midori_browser_edit_bookmark_dialog_new (browser, item, FALSE, TRUE, NULL);
+        midori_browser_edit_bookmark_dialog_new (browser, item, FALSE, TRUE, widget);
 }
 
 static void
@@ -4285,7 +4284,7 @@ midori_browser_bookmark_popup (GtkWidget*      widget,
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
     gtk_widget_show (menuitem);
     midori_browser_bookmark_popup_item (menu, GTK_STOCK_EDIT, NULL,
-        item, midori_browser_bookmark_edit_activate_cb, browser);
+        item, midori_browser_bookmark_edit_activate_cb, widget);
     midori_browser_bookmark_popup_item (menu, GTK_STOCK_DELETE, NULL,
         item, midori_browser_bookmark_delete_activate_cb, browser);
 
