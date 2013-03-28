@@ -133,12 +133,7 @@ static void _cookie_permission_manager_open_database(CookiePermissionManager *se
 	/* Build path to database file */
 	configDir=midori_extension_get_config_dir(priv->extension);
 	if(!configDir)
-	{
-		g_warning(_("Could not get path to configuration of extension: path is NULL"));
-
-		_cookie_permission_manager_error(self, _("Could not get path to configuration of extension."));
 		return;
-	}
 	
 	if(katze_mkdir_with_parents(configDir, 0700))
 	{
