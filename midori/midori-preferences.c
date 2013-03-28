@@ -411,15 +411,6 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     gtk_button_set_label (GTK_BUTTON (button), _("Allow scripts to open popups"));
     gtk_widget_set_tooltip_text (button, _("Whether scripts are allowed to open popup windows automatically"));
     SPANNED_ADD (button);
-    button = katze_property_proxy (settings, "middle-click-opens-selection", NULL);
-    gtk_button_set_label (GTK_BUTTON (button), _("Middle click opens Selection"));
-    gtk_widget_set_tooltip_text (button, _("Load an address from the selection via middle click"));
-    INDENTED_ADD (button);
-    #ifndef G_OS_WIN32
-    button = katze_property_proxy (settings, "flash-window-on-new-bg-tabs", NULL);
-    gtk_button_set_label (GTK_BUTTON (button), _("Flash window on background tabs"));
-    SPANNED_ADD (button);
-    #endif
 
     FRAME_NEW (NULL);
     button = gtk_label_new (_("Preferred languages"));

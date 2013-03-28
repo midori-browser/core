@@ -4,6 +4,7 @@
 [CCode (cprefix = "Katze", lower_case_cprefix = "katze_")]
 namespace Katze {
     static void assert_str_equal (string input, string result, string? expected);
+    static unowned Gtk.Widget property_proxy (void* object, string property, string? hint);
 
     [CCode (cheader_filename = "katze/katze.h")]
     public class Array : Katze.Item {

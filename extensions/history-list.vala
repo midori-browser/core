@@ -312,6 +312,12 @@ namespace HistoryList {
 
             table.attach_defaults (this.closing_behavior, 1, 2, 0, 1);
 
+#if !HAVE_WIN32
+            var proxy = Katze.property_proxy (this.hl_manager.get_app ().settings, "flash-window-on-new-bg-tabs", null);
+            (proxy as Gtk.Button).label = _("Flash window on background tabs");
+            table.attach_defaults (proxy, 0, 2, 1, 2);
+#endif
+
 #if HAVE_GTK3
             (get_content_area() as Gtk.Box).pack_start (table, false, true, 0);
 #else
