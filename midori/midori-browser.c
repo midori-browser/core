@@ -1029,13 +1029,15 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         label = gtk_button_new_with_mnemonic (_("Add to _Speed Dial"));
         g_signal_connect (label, "clicked",
             G_CALLBACK (midori_browser_edit_bookmark_add_speed_dial_cb), bookmark);
-        gtk_container_add (GTK_CONTAINER (content_area), label);
+        gtk_dialog_add_action_widget (GTK_DIALOG (dialog), label, GTK_RESPONSE_HELP);
     }
 
+    hbox = gtk_hbox_new (FALSE, 4);
+    gtk_box_pack_start (GTK_BOX (content_area), hbox, FALSE, FALSE, 0);
     check_toolbar = gtk_check_button_new_with_mnemonic (_("Show in the tool_bar"));
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (check_toolbar),
         katze_item_get_meta_boolean (bookmark, "toolbar"));
-    gtk_container_add (GTK_CONTAINER (content_area), check_toolbar);
+    gtk_box_pack_start (GTK_BOX (hbox), check_toolbar, FALSE, FALSE, 0);
 
     check_app = NULL;
     if (!is_folder)
@@ -1043,7 +1045,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         check_app = gtk_check_button_new_with_mnemonic (_("Run as _web application"));
         gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (check_app),
             katze_item_get_meta_boolean (bookmark, "app"));
-        gtk_container_add (GTK_CONTAINER (content_area), check_app);
+        gtk_box_pack_start (GTK_BOX (hbox), check_app, FALSE, FALSE, 0);
     }
     gtk_widget_show_all (content_area);
 
