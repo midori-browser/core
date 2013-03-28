@@ -788,7 +788,7 @@ midori_app_init (MidoriApp* app)
     app->search_engines = NULL;
     app->history = NULL;
     app->speeddial = NULL;
-    app->extensions = NULL;
+    app->extensions = katze_array_new (KATZE_TYPE_ARRAY);
     app->browsers = katze_array_new (MIDORI_TYPE_BROWSER);
 
     app->instance = MidoriAppInstanceNull;
@@ -928,6 +928,25 @@ MidoriApp*
 midori_app_new (const gchar* name)
 {
     return g_object_new (MIDORI_TYPE_APP, "name", name, NULL);
+}
+
+/**
+ * midori_app_new_proxy:
+ * @app: a #MidoriApp, or %NULL
+ *
+ * Instantiates a proxy #MidoriApp that can be passed to untrusted code
+ * or for sensitive use cases. Properties can be freely changed.
+ *
+ * Return value: a new #MidoriApp
+ *
+ * Since: 0.5.0
+ **/
+MidoriApp*
+midori_app_new_proxy (MidoriApp* app)
+{
+    g_return_val_if_fail (MIDORI_IS_APP (app) || !app, NULL);
+
+    return midori_app_new (NULL);
 }
 
 static gboolean instance_is_not_running = FALSE;

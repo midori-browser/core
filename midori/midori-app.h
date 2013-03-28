@@ -41,6 +41,9 @@ midori_app_get_type               (void) G_GNUC_CONST;
 MidoriApp*
 midori_app_new                    (const gchar*       name);
 
+MidoriApp*
+midori_app_new_proxy              (MidoriApp*         app);
+
 const gchar*
 midori_app_get_name               (MidoriApp*         app);
 

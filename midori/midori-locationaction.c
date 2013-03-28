@@ -654,17 +654,17 @@ midori_location_action_popup_timeout_cb (gpointer data)
 
     if (action->autocompleter == NULL)
     {
-        /* We use a proxy app to control what can be accessed */
+        MidoriApp* app = midori_app_new_proxy (NULL);
         MidoriBrowser* browser = midori_browser_get_for_widget (action->entry);
-        GObject* app = g_object_new (MIDORI_TYPE_APP,
+        g_object_set (app,
             "history", action->history,
             "search-engines", action->search_engines,
             NULL);
         /* FIXME: tabs of multiple windows */
         KatzeArray* browsers = katze_array_new (MIDORI_TYPE_BROWSER);
         katze_array_add_item (browsers, browser);
-        midori_app_set_browsers (MIDORI_APP (app), browsers, browser);
-        action->autocompleter = midori_autocompleter_new (app);
+        midori_app_set_browsers (app, browsers, browser);
+        action->autocompleter = midori_autocompleter_new (G_OBJECT (app));
         g_signal_connect (action->autocompleter, "populated",
             G_CALLBACK (midori_location_action_populated_suggestions_cb), action);
         g_object_unref (app);

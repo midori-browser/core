@@ -580,6 +580,10 @@ midori_extension_load_from_file (const gchar* extension_path,
     typedef GObject* (*extension_init_func)(void);
     extension_init_func extension_init;
     static GHashTable* modules = NULL;
+    GObject* extension;
+
+    g_return_val_if_fail (extension_path != NULL, NULL);
+    g_return_val_if_fail (filename != NULL, NULL);
 
     /* Ignore files which don't have the correct suffix */
     if (!g_str_has_suffix (filename, G_MODULE_SUFFIX))
@@ -600,24 +604,24 @@ midori_extension_load_from_file (const gchar* extension_path,
     /* GModule detects repeated loading but exposes no API to check it.
        Skip any modules that were loaded before. */
     if (modules == NULL)
-        modules = g_hash_table_new (g_direct_hash, g_direct_equal);
-    if (g_hash_table_lookup (modules, module))
-        return NULL;
-
-    g_hash_table_insert (modules, module, g_strdup (filename));
+        modules = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, g_object_unref);
+    if ((extension = g_hash_table_lookup (modules, module)))
+        return extension;
 
     if (module && g_module_symbol (module, "extension_init",
                                    (gpointer) &extension_init))
     {
         typedef void (*extension_test_func)(void);
         extension_test_func extension_test;
-        GObject* extension = extension_init ();
-        if (test && extension && g_module_symbol (module, "extension_test", (gpointer) &extension_test))
-            extension_test ();
-        return extension;
+        if ((extension = extension_init ()))
+        {
+            if (test && g_module_symbol (module, "extension_test", (gpointer) &extension_test))
+                extension_test ();
+            g_hash_table_insert (modules, module, extension);
+        }
     }
 
-    return NULL;
+    return extension;
 }
 
 void
@@ -639,18 +643,24 @@ midori_extension_activate_gracefully (MidoriApp*   app,
         g_warning ("%s", g_module_error ());
         katze_array_add_item (extensions, extension);
         g_object_unref (extensions);
-    }
-
-    if (extension != NULL)
         g_object_unref (extension);
+    }
 }
 
 static void
-midori_load_extension (MidoriApp*       app,
-                       MidoriExtension* extension,
-                       const gchar*     filename)
+midori_extension_add_to_list (MidoriApp*       app,
+                              MidoriExtension* extension,
+                              const gchar*     filename)
 {
+    if (filename == NULL)
+        return;
+
+    g_return_if_fail (MIDORI_IS_APP (app));
     KatzeArray* extensions = katze_object_get_object (app, "extensions");
+    g_return_if_fail (KATZE_IS_ARRAY (extensions));
+    if (g_object_get_data (G_OBJECT (extension), "filename"))
+        return;
+
     /* Signal that we want the extension to load and save */
     g_object_set_data_full (G_OBJECT (extension), "filename",
                             g_strdup (filename), g_free);
@@ -668,8 +678,7 @@ midori_extension_activate (GObject*     extension,
 {
     if (MIDORI_IS_EXTENSION (extension))
     {
-        if (filename != NULL)
-            midori_load_extension (app, MIDORI_EXTENSION (extension), filename);
+        midori_extension_add_to_list (app, MIDORI_EXTENSION (extension), filename);
         if (activate)
             g_signal_emit_by_name (extension, "activate", app);
     }
@@ -679,16 +688,12 @@ midori_extension_activate (GObject*     extension,
         KATZE_ARRAY_FOREACH_ITEM (extension_item, KATZE_ARRAY (extension))
             if (MIDORI_IS_EXTENSION (extension_item))
             {
-                gchar* key;
-
-                if (filename != NULL)
-                    midori_load_extension (app, extension_item, filename);
+                midori_extension_add_to_list (app, extension_item, filename);
                 if (activate)
                 {
-                    key = katze_object_get_string (extension_item, "key");
+                    gchar* key = extension_item->priv->key;
                     if (key && filename && strstr (filename, key))
                         g_signal_emit_by_name (extension_item, "activate", app);
-                    g_free (key);
                 }
             }
     }

@@ -14,6 +14,7 @@
 #include "midori-browser.h"
 
 #include "midori-app.h"
+#include "midori-extension.h"
 #include "midori-array.h"
 #include "midori-view.h"
 #include "midori-preferences.h"
@@ -532,7 +533,7 @@ midori_browser_update_history_title (MidoriBrowser* browser,
 /**
  * midori_browser_assert_action:
  * @browser: a #MidoriBrowser
- * @name: name of the action or setting=value expression
+ * @name: action, setting=value expression or extension=true|false
  *
  * Assert that @name is a valid action or setting expression,
  * if it fails the program will terminate with an error.
@@ -552,14 +553,25 @@ midori_browser_assert_action (MidoriBrowser* browser,
         gchar** parts = g_strsplit (name, "=", 0);
         GObjectClass* class = G_OBJECT_GET_CLASS (browser->settings);
         GParamSpec* pspec = g_object_class_find_property (class, parts[0]);
-        GType type = pspec ? G_PARAM_SPEC_TYPE (pspec) : G_TYPE_INVALID;
-        if (!(
-            (type == G_TYPE_PARAM_BOOLEAN && (!strcmp (parts[1], "true") || !strcmp (parts[1], "false")))
-         || type == G_TYPE_PARAM_STRING
-         || type == G_TYPE_PARAM_INT
-         || type == G_TYPE_PARAM_FLOAT
-         || type == G_TYPE_PARAM_ENUM))
-            midori_error (_("Value '%s' is invalid for %s"), parts[1], parts[0]);
+        if (pspec != NULL)
+        {
+            GType type = G_PARAM_SPEC_TYPE (pspec);
+            if (!(
+                (type == G_TYPE_PARAM_BOOLEAN && (!strcmp (parts[1], "true") || !strcmp (parts[1], "false")))
+             || type == G_TYPE_PARAM_STRING
+             || type == G_TYPE_PARAM_INT
+             || type == G_TYPE_PARAM_FLOAT
+             || type == G_TYPE_PARAM_ENUM))
+                midori_error (_("Value '%s' is invalid for %s"), parts[1], parts[0]);
+        }
+        else
+        {
+            gchar* extension_path = midori_paths_get_lib_path (PACKAGE_NAME);
+            GObject* extension = midori_extension_load_from_file (extension_path, parts[0], FALSE, FALSE);
+            g_free (extension_path);
+            if (!extension || (strcmp (parts[1], "true") && strcmp (parts[1], "false")))
+                midori_error (_("Unexpected setting '%s'"), name);
+        }
         g_strfreev (parts);
     }
     else
@@ -569,6 +581,11 @@ midori_browser_assert_action (MidoriBrowser* browser,
             midori_error (_("Unexpected action '%s'."), name);
     }
 }
+
+void
+midori_app_set_browsers (MidoriApp*     app,
+                         KatzeArray*    browsers,
+                         MidoriBrowser* browser);
 
 static void
 _midori_browser_activate_action (MidoriBrowser* browser,
@@ -581,28 +598,51 @@ _midori_browser_activate_action (MidoriBrowser* browser,
         gchar** parts = g_strsplit (name, "=", 0);
         GObjectClass* class = G_OBJECT_GET_CLASS (browser->settings);
         GParamSpec* pspec = g_object_class_find_property (class, parts[0]);
-        GType type = pspec ? G_PARAM_SPEC_TYPE (pspec) : G_TYPE_INVALID;
-        if (type == G_TYPE_PARAM_BOOLEAN && !strcmp ("true", parts[1]))
-            g_object_set (browser->settings, parts[0], TRUE, NULL);
-        else if (type == G_TYPE_PARAM_BOOLEAN && !strcmp ("false", parts[1]))
-            g_object_set (browser->settings, parts[0], FALSE, NULL);
-        else if (type == G_TYPE_PARAM_STRING)
-            g_object_set (browser->settings, parts[0], parts[1], NULL);
-        else if (type == G_TYPE_PARAM_INT || type == G_TYPE_PARAM_UINT)
-            g_object_set (browser->settings, parts[0], atoi (parts[1]), NULL);
-        else if (type == G_TYPE_PARAM_FLOAT)
-            g_object_set (browser->settings, parts[0], g_ascii_strtod (parts[1], NULL), NULL);
-        else if (type == G_TYPE_PARAM_ENUM)
+        if (pspec != NULL)
         {
-            GEnumClass* enum_class = G_ENUM_CLASS (g_type_class_peek (pspec->value_type));
-            GEnumValue* enum_value = g_enum_get_value_by_name (enum_class, parts[1]);
-            if (enum_value != NULL)
-                g_object_set (browser->settings, parts[0], enum_value->value, NULL);
+            GType type = G_PARAM_SPEC_TYPE (pspec);
+            if (type == G_TYPE_PARAM_BOOLEAN && !strcmp ("true", parts[1]))
+                g_object_set (browser->settings, parts[0], TRUE, NULL);
+            else if (type == G_TYPE_PARAM_BOOLEAN && !strcmp ("false", parts[1]))
+                g_object_set (browser->settings, parts[0], FALSE, NULL);
+            else if (type == G_TYPE_PARAM_STRING)
+                g_object_set (browser->settings, parts[0], parts[1], NULL);
+            else if (type == G_TYPE_PARAM_INT || type == G_TYPE_PARAM_UINT)
+                g_object_set (browser->settings, parts[0], atoi (parts[1]), NULL);
+            else if (type == G_TYPE_PARAM_FLOAT)
+                g_object_set (browser->settings, parts[0], g_ascii_strtod (parts[1], NULL), NULL);
+            else if (type == G_TYPE_PARAM_ENUM)
+            {
+                GEnumClass* enum_class = G_ENUM_CLASS (g_type_class_peek (pspec->value_type));
+                GEnumValue* enum_value = g_enum_get_value_by_name (enum_class, parts[1]);
+                if (enum_value != NULL)
+                    g_object_set (browser->settings, parts[0], enum_value->value, NULL);
+                else
+                    g_warning (_("Value '%s' is invalid for %s"), parts[1], parts[0]);
+            }
             else
                 g_warning (_("Value '%s' is invalid for %s"), parts[1], parts[0]);
         }
         else
-            g_warning (_("Value '%s' is invalid for %s"), parts[1], parts[0]);
+        {
+            gchar* extension_path = midori_paths_get_lib_path (PACKAGE_NAME);
+            GObject* extension = midori_extension_load_from_file (extension_path, parts[0], TRUE, FALSE);
+            MidoriApp* app = midori_app_new_proxy (NULL);
+            g_object_set (app,
+                "settings", browser->settings,
+                NULL);
+            /* FIXME: tabs of multiple windows */
+            KatzeArray* browsers = katze_array_new (MIDORI_TYPE_BROWSER);
+            katze_array_add_item (browsers, browser);
+            midori_app_set_browsers (app, browsers, browser);
+            g_free (extension_path);
+            if (extension && !strcmp (parts[1], "true"))
+                midori_extension_activate (extension, NULL, TRUE, app);
+            else if (extension && !strcmp (parts[1], "false"))
+                midori_extension_deactivate (MIDORI_EXTENSION (extension));
+            else
+                g_warning (_("Unexpected setting '%s'"), name);
+        }
         g_strfreev (parts);
     }
     else
@@ -7422,7 +7462,7 @@ midori_browser_add_uri (MidoriBrowser* browser,
 /**
  * midori_browser_activate_action:
  * @browser: a #MidoriBrowser
- * @name: name of the action or setting=value expression
+ * @name: action, setting=value expression or extension=true|false
  *
  * Activates the specified action. See also midori_browser_assert_action().
  **/
