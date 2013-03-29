@@ -684,18 +684,29 @@ midori_extension_activate (GObject*     extension,
     }
     else if (KATZE_IS_ARRAY (extension))
     {
+        gboolean success = FALSE;
         MidoriExtension* extension_item;
         KATZE_ARRAY_FOREACH_ITEM (extension_item, KATZE_ARRAY (extension))
             if (MIDORI_IS_EXTENSION (extension_item))
             {
-                midori_extension_add_to_list (app, extension_item, filename);
-                if (activate)
+                gchar* key = extension_item->priv->key;
+                g_return_if_fail (key != NULL);
+                if (filename != NULL && strchr (filename, '/'))
                 {
-                    gchar* key = extension_item->priv->key;
-                    if (key && filename && strstr (filename, key))
-                        g_signal_emit_by_name (extension_item, "activate", app);
+                    gchar* clean = g_strndup (filename, strchr (filename, '/') - filename);
+                    midori_extension_add_to_list (app, extension_item, clean);
+                    g_free (clean);
+                }
+                else
+                    midori_extension_add_to_list (app, extension_item, filename);
+                if (activate && filename && strstr (filename, key))
+                {
+                    g_signal_emit_by_name (extension_item, "activate", app);
+                    success = TRUE;
                 }
             }
+        /* Passed a multi extension w/o key or non-existing key */
+        g_warn_if_fail (!activate || success);
     }
 }
 

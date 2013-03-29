@@ -1552,32 +1552,21 @@ midori_settings_save_to_file (MidoriWebSettings* settings,
     {
         i = 0;
         while (_extensions[i])
-        {
-            g_key_file_set_boolean (key_file, "extensions", _extensions[i], TRUE);
-            i++;
-        }
+            g_key_file_set_boolean (key_file, "extensions", _extensions[i++], TRUE);
     }
     else if (extensions)
     {
         KATZE_ARRAY_FOREACH_ITEM (extension, extensions)
             if (midori_extension_is_active (extension))
             {
-                const gchar* filename = g_object_get_data (
-                    G_OBJECT (extension), "filename");
-
-                gchar* key;
-                gchar* term;
-
-                key = katze_object_get_string (extension, "key");
-                if (key && *key)
-                    term = g_strdup_printf ("%s/%s", filename, key);
-                else
-                    term = g_strdup (filename);
-
-                g_key_file_set_boolean (key_file, "extensions", term, TRUE);
-
+                const gchar* filename = g_object_get_data (G_OBJECT (extension), "filename");
+                if (filename && strchr (filename, '/'))
+                    g_warning ("%s: %s unexpected /", G_STRFUNC, filename);
+                gchar* key = katze_object_get_string (extension, "key");
+                gchar* subname = key ? g_strdup_printf ("%s/%s", filename, key) : g_strdup (filename);
+                g_key_file_set_boolean (key_file, "extensions", subname, TRUE);
                 g_free (key);
-                g_free (term);
+                g_free (subname);
             }
         g_object_unref (extensions);
     }
