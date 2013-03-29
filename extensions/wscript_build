@@ -31,10 +31,6 @@ for extension in extensions:
     if bld.env['HAVE_WEBKIT2'] and target not in ['tab-panel', 'statusbar-features', 'shortcuts', 'status-clock', 'tab-minimized', 'toolbar-editor']:
         continue
 
-    # Don't install unstable extensions
-    if Options.commands['install'] and target in ['cookie-permissions']:
-        continue
-
     obj = bld.new_task_gen ('cc', 'shlib')
     obj.target = target
     obj.includes = '.. ../katze ../midori'
