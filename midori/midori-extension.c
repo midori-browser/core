@@ -585,10 +585,6 @@ midori_extension_load_from_file (const gchar* extension_path,
     g_return_val_if_fail (extension_path != NULL, NULL);
     g_return_val_if_fail (filename != NULL, NULL);
 
-    /* Ignore files which don't have the correct suffix */
-    if (!g_str_has_suffix (filename, G_MODULE_SUFFIX))
-        return NULL;
-
     if (strchr (filename, '/'))
     {
         gchar* clean = g_strndup (filename, strchr (filename, '/') - filename);
@@ -597,6 +593,10 @@ midori_extension_load_from_file (const gchar* extension_path,
     }
     else
         fullname = g_build_filename (extension_path, filename, NULL);
+
+    /* Ignore files which don't have the correct suffix */
+    if (!g_str_has_suffix (fullname, G_MODULE_SUFFIX))
+        return NULL;
 
     module = g_module_open (fullname, G_MODULE_BIND_LOCAL);
     g_free (fullname);
