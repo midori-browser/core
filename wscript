@@ -585,7 +585,7 @@ def shutdown ():
             def t_kill ():
                 Utils.pprint ('RED', 'timed out')
                 os.kill (pp.pid, signal.SIGABRT)
-            t = threading.Timer (42, t_kill)
+            t = threading.Timer (int(os.environ.get ('MIDORI_TIMEOUT', '42')), t_kill)
             t.start ()
             if is_mingw (Build.bld.env):
                 args.insert (0, 'wine')
@@ -687,6 +687,8 @@ def shutdown ():
             Utils.pprint ('BLUE', 'Set MIDORI_UNITS to select a subset of test cases')
         if not 'MIDORI_TEST' in os.environ:
             Utils.pprint ('BLUE', 'Set MIDORI_TEST to "valgrind" or "callgrind" to perform memory checks')
+        if not 'MIDORI_TIMEOUT' in os.environ:
+            Utils.pprint ('BLUE', 'Set MIDORI_TIMEOUT to set the maximum test runtime (default: 42)')
         # if test.num_tests_failed > 0 or test.num_tests_err > 0:
         #     sys.exit (1)
 

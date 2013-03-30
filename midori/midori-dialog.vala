@@ -27,8 +27,9 @@ namespace Midori {
         internal static uint test_max_timeout = 0;
         internal static string? test_first_try = null;
         public void grab_max_timeout () {
+            int seconds = (Environment.get_variable ("MIDORI_TIMEOUT") ?? "42").to_int ();
             test_first_try = "once";
-            test_max_timeout = GLib.Timeout.add_seconds (21, ()=>{
+            test_max_timeout = GLib.Timeout.add_seconds (seconds > 0 ? seconds / 2 : 0, ()=>{
                 stdout.printf ("Timed out %s%s\n", test_first_try,
                     MainContext.default ().pending () ? " (loop)" : "");
                 if (test_first_try == "twice")
