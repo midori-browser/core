@@ -86,11 +86,6 @@ tabs_to_one_apply_cb (GtkWidget*     menuitem,
 
     GString* text = g_string_new("");
 
-    // const gchar* tpl = "<div id=\"google\" style=\"padding: 5;\">"
-    //                    " &nbsp;&nbsp; <img src=\"%s\" width=\"16px\" height=\"16px\"> &nbsp;&nbsp;"
-    //                    "<a href=\"%s\" target=\"_blank\" onclick=\"remove('google');\">%s</a>"
-    //                    "<br /></div>\n";
-
     const gchar* tpl = "add(\"%s\", \"%s\", \"%s\");";
     const gchar* icon;
     const gchar* title;
@@ -117,14 +112,6 @@ tabs_to_one_apply_cb (GtkWidget*     menuitem,
     g_string_free(text, TRUE);
     g_free(data);
     g_list_free(tabs);
-    // guchar *buf;
-    // gsize  size;
-    // buf = g_base64_decode("AAABAAEAEBAQAAAAAAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA/4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABERERERAREQEREREREBERAREREAEQEREBEREQARAREQERERABEBERAREREAEQEREBEREQARERERERERABEREREREREAEREREREREQARAAAAEREREREAAAAREREREQAAAAAAAAAAAAAAAAAAAAAAAAD//wAA//8AAAAhAAAAIQAAAyEAAAMhAAADIQAAAyEAAAMAAAADAAAAAwAAAAM/AAAAPwAAAD8AAP//AAD//wAA", &size);
-    // GdkPixbufLoader* loader = gdk_pixbuf_loader_new ();
-    // gdk_pixbuf_loader_write (loader, buf, size, NULL);
-    // GdkPixbuf* pixbuf = gdk_pixbuf_loader_get_pixbuf(loader);
-    // gdk_pixbuf_loader_close (loader, NULL);
-    // g_object_set (tab, "minimized", TRUE, NULL);
 }
 
 
