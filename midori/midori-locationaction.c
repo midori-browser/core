@@ -510,6 +510,8 @@ midori_location_action_popup_position (MidoriLocationAction* action,
     gtk_tree_view_column_cell_get_size (
         gtk_tree_view_get_column (GTK_TREE_VIEW (action->treeview), 0),
         NULL, NULL, NULL, NULL, &height);
+    if (height == 0)
+        return;
     gtk_widget_style_get (action->treeview, "vertical-separator", &sep, NULL);
     height += sep;
 
