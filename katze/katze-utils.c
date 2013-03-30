@@ -363,6 +363,92 @@ katze_app_info_get_all_for_category (const gchar* category)
     return apps;
 }
 
+static gboolean
+proxy_populate_apps (GtkWidget* widget)
+{
+    const gchar* property = g_object_get_data (G_OBJECT (widget), "property");
+    GObject* object = g_object_get_data (G_OBJECT (widget), "object");
+    gchar* string = katze_object_get_string (object, property);
+    if (!g_strcmp0 (string, ""))
+        katze_assign (string, NULL);
+    GtkSettings* settings = gtk_widget_get_settings (widget);
+    gint icon_width = 16;
+    if (settings == NULL)
+        settings = gtk_settings_get_for_screen (gdk_screen_get_default ());
+    gtk_icon_size_lookup_for_settings (settings, GTK_ICON_SIZE_MENU,
+                                       &icon_width, NULL);
+
+    GtkComboBox* combo = GTK_COMBO_BOX (widget);
+    GtkListStore* model = GTK_LIST_STORE (gtk_combo_box_get_model (combo));
+    GtkTreeIter iter_none;
+    gtk_list_store_insert_with_values (model, &iter_none, 0,
+        0, NULL, 1, NULL, 2, _("None"), 3, icon_width, -1);
+
+    const gchar* app_type = g_object_get_data (G_OBJECT (widget), "app-type");
+    GList* apps = g_app_info_get_all_for_type (app_type);
+    GAppInfo* info;
+    if (!apps)
+        apps = katze_app_info_get_all_for_category (app_type);
+    if (apps != NULL)
+    {
+        GList* app;
+        for (app = apps; app; app = g_list_next (app))
+        {
+            GAppInfo* info = app->data;
+            const gchar* name = g_app_info_get_name (info);
+            GIcon* icon = g_app_info_get_icon (info);
+            gchar* icon_name;
+            GtkTreeIter iter;
+
+            if (!g_app_info_should_show (info))
+                continue;
+
+            icon_name = icon ? g_icon_to_string (icon) : NULL;
+            gtk_list_store_insert_with_values (model, &iter, G_MAXINT,
+                0, info, 1, icon_name, 2, name, 3, icon_width, -1);
+            if (string && !strcmp (katze_app_info_get_commandline (info), string))
+                gtk_combo_box_set_active_iter (combo, &iter);
+
+            g_free (icon_name);
+        }
+        g_list_free (apps);
+    }
+
+    info = g_app_info_create_from_commandline ("",
+        "", G_APP_INFO_CREATE_NONE, NULL);
+    gtk_list_store_insert_with_values (model, NULL, G_MAXINT,
+        0, info, 1, NULL, 2, _("Custom…"), 3, icon_width, -1);
+    g_object_unref (info);
+
+    if (gtk_combo_box_get_active (combo) == -1)
+    {
+        if (string)
+        {
+            GtkWidget* entry;
+            const gchar* exe;
+
+            info = g_app_info_create_from_commandline (string,
+                NULL, G_APP_INFO_CREATE_NONE, NULL);
+            entry = gtk_entry_new ();
+            exe = g_app_info_get_executable (info);
+            if (exe && *exe && strcmp (exe, "%f"))
+                gtk_entry_set_text (GTK_ENTRY (entry), string);
+            gtk_widget_show (entry);
+            gtk_container_add (GTK_CONTAINER (combo), entry);
+            g_object_unref (info);
+            g_signal_connect (entry, "focus-out-event",
+                G_CALLBACK (proxy_entry_focus_out_event_cb), object);
+            g_object_set_data_full (G_OBJECT (entry), "property",
+                                    g_strdup (property), g_free);
+        }
+        else
+            gtk_combo_box_set_active_iter (combo, &iter_none);
+    }
+    g_signal_connect (widget, "changed",
+                      G_CALLBACK (proxy_combo_box_apps_changed_cb), object);
+    return G_SOURCE_REMOVE;
+}
+
 /**
  * katze_property_proxy:
  * @object: a #GObject
@@ -568,17 +654,7 @@ katze_property_proxy (gpointer     object,
     {
         GtkListStore* model;
         GtkCellRenderer* renderer;
-        GtkComboBox* combo;
-        GList* apps;
         const gchar* app_type = &hint[12];
-        GtkSettings* settings;
-        gint icon_width = 16;
-        GtkTreeIter iter_none;
-        GAppInfo* info;
-
-        settings = gtk_settings_get_for_screen (gdk_screen_get_default ());
-        gtk_icon_size_lookup_for_settings (settings, GTK_ICON_SIZE_MENU,
-                                           &icon_width, NULL);
 
         model = gtk_list_store_new (4, G_TYPE_APP_INFO, G_TYPE_STRING,
                                        G_TYPE_STRING, G_TYPE_INT);
@@ -590,77 +666,10 @@ katze_property_proxy (gpointer     object,
         renderer = gtk_cell_renderer_text_new ();
         gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (widget), renderer, TRUE);
         gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (widget), renderer, "text", 2);
-        combo = GTK_COMBO_BOX (widget);
-        apps = g_app_info_get_all_for_type (app_type);
-        if (!apps)
-            apps = katze_app_info_get_all_for_category (app_type);
 
-        string = katze_object_get_string (object, property);
-        if (!g_strcmp0 (string, ""))
-            katze_assign (string, NULL);
-
-        gtk_list_store_insert_with_values (model, &iter_none, 0,
-            0, NULL, 1, NULL, 2, _("None"), 3, icon_width, -1);
-
-        if (apps != NULL)
-        {
-            GList* app;
-            for (app = apps; app; app = g_list_next (app))
-            {
-                GAppInfo* info = app->data;
-                const gchar* name = g_app_info_get_name (info);
-                GIcon* icon = g_app_info_get_icon (info);
-                gchar* icon_name;
-                GtkTreeIter iter;
-
-                if (!g_app_info_should_show (info))
-                    continue;
-
-                icon_name = icon ? g_icon_to_string (icon) : NULL;
-                gtk_list_store_insert_with_values (model, &iter, G_MAXINT,
-                    0, info, 1, icon_name, 2, name, 3, icon_width, -1);
-                if (string && !strcmp (katze_app_info_get_commandline (info), string))
-                    gtk_combo_box_set_active_iter (combo, &iter);
-
-                g_free (icon_name);
-            }
-            g_list_free (apps);
-        }
-
-        {
-            info = g_app_info_create_from_commandline ("",
-                "", G_APP_INFO_CREATE_NONE, NULL);
-            gtk_list_store_insert_with_values (model, NULL, G_MAXINT,
-                0, info, 1, NULL, 2, _("Custom…"), 3, icon_width, -1);
-            g_object_unref (info);
-
-            if (gtk_combo_box_get_active (combo) == -1)
-            {
-                if (string)
-                {
-                    GtkWidget* entry;
-                    const gchar* exe;
-
-                    info = g_app_info_create_from_commandline (string,
-                        NULL, G_APP_INFO_CREATE_NONE, NULL);
-                    entry = gtk_entry_new ();
-                    exe = g_app_info_get_executable (info);
-                    if (exe && *exe && strcmp (exe, "%f"))
-                        gtk_entry_set_text (GTK_ENTRY (entry), string);
-                    gtk_widget_show (entry);
-                    gtk_container_add (GTK_CONTAINER (combo), entry);
-                    g_object_unref (info);
-                    g_signal_connect (entry, "focus-out-event",
-                        G_CALLBACK (proxy_entry_focus_out_event_cb), object);
-                    g_object_set_data_full (G_OBJECT (entry), "property",
-                                            g_strdup (property), g_free);
-                }
-                else
-                    gtk_combo_box_set_active_iter (combo, &iter_none);
-            }
-        }
-        g_signal_connect (widget, "changed",
-                          G_CALLBACK (proxy_combo_box_apps_changed_cb), object);
+        g_object_set_data_full (G_OBJECT (widget), "app-type", g_strdup (app_type), g_free);
+        g_object_set_data_full (G_OBJECT (widget), "object", g_object_ref (object), g_object_unref);
+        g_idle_add_full (G_PRIORITY_LOW, (GSourceFunc)proxy_populate_apps, widget, NULL);
     }
     else if (type == G_TYPE_PARAM_STRING)
     {
