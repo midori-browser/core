@@ -637,7 +637,7 @@ _midori_browser_activate_action (MidoriBrowser* browser,
             midori_app_set_browsers (app, browsers, browser);
             g_free (extension_path);
             if (extension && !strcmp (parts[1], "true"))
-                midori_extension_activate (extension, NULL, TRUE, app);
+                midori_extension_activate (extension, parts[0], TRUE, app);
             else if (extension && !strcmp (parts[1], "false"))
                 midori_extension_deactivate (MIDORI_EXTENSION (extension));
             else
