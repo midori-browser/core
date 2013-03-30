@@ -57,6 +57,9 @@ namespace NSPlugins {
 
 public Katze.Array? extension_init () {
 #if HAVE_WEBKIT_1_3_8
+    if (!Midori.WebSettings.has_plugin_support ())
+        return null;
+
     var extensions = new Katze.Array( typeof (Midori.Extension));
     WebKit.WebPluginDatabase pdb = WebKit.get_web_plugin_database ();
     SList<WebKit.WebPlugin> plugins = pdb.get_plugins ();
