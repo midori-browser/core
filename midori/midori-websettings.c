@@ -1560,6 +1560,7 @@ midori_settings_save_to_file (MidoriWebSettings* settings,
             if (midori_extension_is_active (extension))
             {
                 const gchar* filename = g_object_get_data (G_OBJECT (extension), "filename");
+                g_return_val_if_fail (filename != NULL, FALSE);
                 if (filename && strchr (filename, '/'))
                     g_warning ("%s: %s unexpected /", G_STRFUNC, filename);
                 gchar* key = katze_object_get_string (extension, "key");

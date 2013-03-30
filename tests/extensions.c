@@ -182,7 +182,20 @@ extension_load (const gchar* extension_path,
     while ((filename = g_dir_read_name (extension_dir)))
     {
         GObject* extension = midori_extension_load_from_file (extension_path, filename, FALSE, TRUE);
-        if (extension != NULL)
+        if (KATZE_IS_ARRAY (extension))
+        {
+            MidoriExtension* extension_item;
+            KATZE_ARRAY_FOREACH_ITEM (extension_item, KATZE_ARRAY (extension))
+                if (MIDORI_IS_EXTENSION (extension_item))
+                {
+                    gchar* key = katze_object_get_object (extension_item, "key");
+                    gchar* path = g_strdup_printf ("/extensions/%s/%s", filename, key);
+                    g_test_add_data_func (path, extension_item, extension_activate);
+                    g_free (path);
+                    g_free (key);
+                }
+        }
+        else if (extension != NULL)
         {
             gchar* path = g_strconcat ("/extensions/", filename, NULL);
             g_test_add_data_func (path, extension, extension_activate);

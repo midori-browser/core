@@ -596,7 +596,10 @@ midori_extension_load_from_file (const gchar* extension_path,
 
     /* Ignore files which don't have the correct suffix */
     if (!g_str_has_suffix (fullname, G_MODULE_SUFFIX))
+    {
+        g_free (fullname);
         return NULL;
+    }
 
     module = g_module_open (fullname, G_MODULE_BIND_LOCAL);
     g_free (fullname);
@@ -617,6 +620,7 @@ midori_extension_load_from_file (const gchar* extension_path,
         {
             if (test && g_module_symbol (module, "extension_test", (gpointer) &extension_test))
                 extension_test ();
+            g_object_set_data_full (G_OBJECT (extension), "filename", g_strdup (filename), g_free);
             g_hash_table_insert (modules, module, extension);
         }
     }
@@ -652,13 +656,11 @@ midori_extension_add_to_list (MidoriApp*       app,
                               MidoriExtension* extension,
                               const gchar*     filename)
 {
-    if (filename == NULL)
-        return;
-
     g_return_if_fail (MIDORI_IS_APP (app));
+    g_return_if_fail (filename != NULL);
     KatzeArray* extensions = katze_object_get_object (app, "extensions");
     g_return_if_fail (KATZE_IS_ARRAY (extensions));
-    if (g_object_get_data (G_OBJECT (extension), "filename"))
+    if (katze_array_get_item_index (extensions, extension) >= 0)
         return;
 
     katze_array_add_item (extensions, extension);
@@ -668,10 +670,11 @@ midori_extension_add_to_list (MidoriApp*       app,
         return;
 
     /* Signal that we want the extension to load and save */
-    g_object_set_data_full (G_OBJECT (extension), "filename",
-                            g_strdup (filename), g_free);
     if (midori_extension_is_prepared (extension))
-        midori_extension_get_config_dir (extension);
+    {
+        g_warn_if_fail (extension->priv->config_dir == NULL);
+        extension->priv->config_dir = midori_paths_get_extension_config_dir (filename);
+    }
 }
 
 void
@@ -682,7 +685,8 @@ midori_extension_activate (GObject*     extension,
 {
     if (MIDORI_IS_EXTENSION (extension))
     {
-        midori_extension_add_to_list (app, MIDORI_EXTENSION (extension), filename);
+        if (filename != NULL)
+            midori_extension_add_to_list (app, MIDORI_EXTENSION (extension), filename);
         if (activate)
             g_signal_emit_by_name (extension, "activate", app);
     }
@@ -698,11 +702,14 @@ midori_extension_activate (GObject*     extension,
                 if (filename != NULL && strchr (filename, '/'))
                 {
                     gchar* clean = g_strndup (filename, strchr (filename, '/') - filename);
+                    g_object_set_data_full (G_OBJECT (extension_item), "filename", clean, g_free);
                     midori_extension_add_to_list (app, extension_item, clean);
-                    g_free (clean);
                 }
-                else
+                else if (filename != NULL)
+                {
                     midori_extension_add_to_list (app, extension_item, filename);
+                    g_object_set_data_full (G_OBJECT (extension_item), "filename", g_strdup (filename), g_free);
+                }
                 if (activate && filename && strstr (filename, key))
                 {
                     g_signal_emit_by_name (extension_item, "activate", app);
@@ -846,15 +853,6 @@ midori_extension_get_config_dir (MidoriExtension* extension)
 {
 
     g_return_val_if_fail (midori_extension_is_prepared (extension), NULL);
-
-    if (!extension->priv->config_dir)
-    {
-        gchar* filename = g_object_get_data (G_OBJECT (extension), "filename");
-        if (filename != NULL)
-            extension->priv->config_dir = midori_paths_get_extension_config_dir (filename);
-        else
-            extension->priv->config_dir = NULL;
-    }
 
     return extension->priv->config_dir;
 }
