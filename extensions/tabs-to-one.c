@@ -12,17 +12,18 @@
 #include <midori/midori.h>
 
 static void
-open_tab_close_cb(WebKitWebView* webview, 
+tabs2one_close_cb(WebKitWebView* webview, 
                   MidoriBrowser* browser)
 {
-    g_signal_handlers_disconnect_by_func (webview, open_tab_close_cb, browser);
+    g_signal_handlers_disconnect_by_func (
+        webview, tabs2one_close_cb, browser);
     MidoriView* view = midori_view_get_for_widget(GTK_WIDGET(webview));
     midori_browser_close_tab(browser, GTK_WIDGET(view));
 }
 
 static void
-tabs_to_one_apply_cb (GtkWidget*     menuitem,
-                  MidoriBrowser* browser)
+tabs2one_apply_cb (GtkWidget*     menuitem,
+                   MidoriBrowser* browser)
 {
     bool exist = FALSE;
     GtkWidget* tab;
@@ -108,7 +109,8 @@ tabs_to_one_apply_cb (GtkWidget*     menuitem,
         }
     }
 
-    g_signal_connect(webview, "close-web-view", G_CALLBACK(open_tab_close_cb), browser);
+    g_signal_connect(webview, "close-web-view", 
+        G_CALLBACK(tabs2one_close_cb), browser);
     g_string_free(text, TRUE);
     g_free(data);
     g_list_free(tabs);
@@ -116,61 +118,61 @@ tabs_to_one_apply_cb (GtkWidget*     menuitem,
 
 
 static void
-tabs_to_one_app_add_browser_cb (MidoriApp*       app,
-                            MidoriBrowser*   browser,
-                            MidoriExtension* extension);
+tabs2one_app_add_browser_cb (MidoriApp*       app,
+                             MidoriBrowser*   browser,
+                             MidoriExtension* extension);
 
 static void
-tabs_to_one_browser_populate_tool_menu_cb (MidoriBrowser*   browser,
-                                       GtkWidget*       menu,
-                                       MidoriExtension* extension)
+tabs2one_browser_populate_tool_menu_cb (MidoriBrowser*   browser,
+                                        GtkWidget*       menu,
+                                        MidoriExtension* extension)
 {
     GtkWidget* menuitem = gtk_menu_item_new_with_mnemonic (_("Tabs to _One"));
 
     g_signal_connect (menuitem, "activate",
-        G_CALLBACK (tabs_to_one_apply_cb), browser);
+        G_CALLBACK (tabs2one_apply_cb), browser);
     gtk_widget_show (menuitem);
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
 }
 
 static void
-tabs_to_one_deactivate_cb (MidoriExtension* extension,
-                         MidoriBrowser*   browser)
+tabs2one_deactivate_cb (MidoriExtension* extension,
+                        MidoriBrowser*   browser)
 {
     MidoriApp* app = midori_extension_get_app (extension);
 
     g_signal_handlers_disconnect_by_func (
-        browser, tabs_to_one_browser_populate_tool_menu_cb, extension);
+        browser, tabs2one_browser_populate_tool_menu_cb, extension);
     g_signal_handlers_disconnect_by_func (
-        extension, tabs_to_one_deactivate_cb, browser);
+        extension, tabs2one_deactivate_cb, browser);
     g_signal_handlers_disconnect_by_func (
-        app, tabs_to_one_app_add_browser_cb, extension);
+        app, tabs2one_app_add_browser_cb, extension);
 }
 
 static void
-tabs_to_one_app_add_browser_cb (MidoriApp*       app,
-                            MidoriBrowser*   browser,
-                            MidoriExtension* extension)
+tabs2one_app_add_browser_cb (MidoriApp*       app,
+                             MidoriBrowser*   browser,
+                             MidoriExtension* extension)
 {
     g_signal_connect (browser, "populate-tool-menu",
-        G_CALLBACK (tabs_to_one_browser_populate_tool_menu_cb), extension);
+        G_CALLBACK (tabs2one_browser_populate_tool_menu_cb), extension);
     g_signal_connect (extension, "deactivate",
-        G_CALLBACK (tabs_to_one_deactivate_cb), browser);
+        G_CALLBACK (tabs2one_deactivate_cb), browser);
 }
 
 static void
-tabs_to_one_activate_cb (MidoriExtension* extension,
-                            MidoriApp*       app)
+tabs2one_activate_cb (MidoriExtension* extension,
+                      MidoriApp*       app)
 {
     KatzeArray* browsers;
     MidoriBrowser* browser;
 
     browsers = katze_object_get_object (app, "browsers");
     KATZE_ARRAY_FOREACH_ITEM (browser, browsers)
-        tabs_to_one_app_add_browser_cb (app, browser, extension);
+        tabs2one_app_add_browser_cb (app, browser, extension);
     g_object_unref (browsers);
     g_signal_connect (app, "add-browser",
-        G_CALLBACK (tabs_to_one_app_add_browser_cb), extension);
+        G_CALLBACK (tabs2one_app_add_browser_cb), extension);
 }
 
 MidoriExtension*
@@ -184,8 +186,7 @@ extension_init (void)
         NULL);
 
     g_signal_connect (extension, "activate",
-        G_CALLBACK (tabs_to_one_activate_cb), NULL);
+        G_CALLBACK (tabs2one_activate_cb), NULL);
 
     return extension;
 }
-
