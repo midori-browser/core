@@ -30,7 +30,7 @@ tabs_to_one_apply_cb (GtkWidget*     menuitem,
 
     for (; tabs; tabs = g_list_next (tabs))
     {
-        if (!strcmp(midori_view_get_display_uri (tabs->data), "about:onetab")){
+        if (!strcmp(midori_view_get_display_uri (tabs->data), "about:tasbs2one")){
             exist = TRUE;
             tab = tabs->data;
             break;
@@ -40,13 +40,13 @@ tabs_to_one_apply_cb (GtkWidget*     menuitem,
     g_list_free(tabs);
 
     if (!exist){
-        tab = midori_browser_add_uri (browser, "about:onetab");
+        tab = midori_browser_add_uri (browser, "about:tasbs2one");
     }
 
     WebKitWebView* webview = WEBKIT_WEB_VIEW (midori_view_get_web_view(MIDORI_VIEW (tab)));
 
     if (!exist){
-        const gchar* tpl = "<html><title>OneTab</title><head><script>\n"
+        const gchar* tpl = "<html><title>Tabs to One</title><head><script>\n"
                            "    function id() {\n"
                            "        return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1); }\n"
                            "    function is_last() {\n"
@@ -70,9 +70,9 @@ tabs_to_one_apply_cb (GtkWidget*     menuitem,
                            "</script></head><body></body></html>";
 
         #ifndef HAVE_WEBKIT2
-            webkit_web_view_load_html_string (webview, tpl, "about:onetab");
+            webkit_web_view_load_html_string (webview, tpl, "about:tasbs2one");
         #else
-            webkit_web_view_load_html (webview, tpl, "about:onetab");
+            webkit_web_view_load_html (webview, tpl, "about:tasbs2one");
         #endif
     }
 
@@ -99,7 +99,7 @@ tabs_to_one_apply_cb (GtkWidget*     menuitem,
         title = midori_view_get_display_title (tabs->data);
         uri = midori_view_get_display_uri (tabs->data);
         
-        if (strcmp(uri, "about:onetab")){
+        if (strcmp(uri, "about:tasbs2one")){
             g_string_append_printf (text, tpl, title, icon, uri);
             midori_browser_close_tab(browser, tabs->data);
             data = g_string_free(text, FALSE);
@@ -177,7 +177,7 @@ MidoriExtension*
 extension_init (void)
 {
     MidoriExtension* extension = g_object_new (MIDORI_TYPE_EXTENSION,
-        "name", _("Tabs to one"),
+        "name", _("Tabs to One"),
         "description", _("Closes all tabs open and create new tab with your links"),
         "version", "0.1" MIDORI_VERSION_SUFFIX,
         "authors", "Eder Sosa <eder.sohe@gmail.com>",
