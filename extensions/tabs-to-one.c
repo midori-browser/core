@@ -30,7 +30,7 @@ tabs_to_one_apply_cb (GtkWidget*     menuitem,
 
     for (; tabs; tabs = g_list_next (tabs))
     {
-        if (!strcmp(midori_view_get_display_uri (tabs->data), "about:tasbs2one")){
+        if (!strcmp(midori_view_get_display_uri (tabs->data), "about:tabs2one")){
             exist = TRUE;
             tab = tabs->data;
             break;
@@ -40,7 +40,7 @@ tabs_to_one_apply_cb (GtkWidget*     menuitem,
     g_list_free(tabs);
 
     if (!exist){
-        tab = midori_browser_add_uri (browser, "about:tasbs2one");
+        tab = midori_browser_add_uri (browser, "about:tabs2one");
     }
 
     WebKitWebView* webview = WEBKIT_WEB_VIEW (midori_view_get_web_view(MIDORI_VIEW (tab)));
@@ -70,9 +70,9 @@ tabs_to_one_apply_cb (GtkWidget*     menuitem,
                            "</script></head><body></body></html>";
 
         #ifndef HAVE_WEBKIT2
-            webkit_web_view_load_html_string (webview, tpl, "about:tasbs2one");
+            webkit_web_view_load_html_string (webview, tpl, "about:tabs2one");
         #else
-            webkit_web_view_load_html (webview, tpl, "about:tasbs2one");
+            webkit_web_view_load_html (webview, tpl, "about:tabs2one");
         #endif
     }
 
@@ -99,7 +99,7 @@ tabs_to_one_apply_cb (GtkWidget*     menuitem,
         title = midori_view_get_display_title (tabs->data);
         uri = midori_view_get_display_uri (tabs->data);
         
-        if (strcmp(uri, "about:tasbs2one")){
+        if (strcmp(uri, "about:tabs2one")){
             g_string_append_printf (text, tpl, title, icon, uri);
             midori_browser_close_tab(browser, tabs->data);
             data = g_string_free(text, FALSE);
