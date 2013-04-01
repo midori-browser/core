@@ -229,7 +229,7 @@ katze_throbber_class_init (KatzeThrobberClass* class)
                                      flags));
 
     g_object_class_install_property (gobject_class,
-                                     PROP_PIXBUF,
+                                     PROP_STATIC_PIXBUF,
                                      g_param_spec_object (
                                      "static-pixbuf",
                                      "Static Pixbuf",
