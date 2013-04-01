@@ -45,8 +45,6 @@ static void
 tabs2one_dom_click_items(WebKitDOMDocument* doc,
                          WebKitWebView* webview)
 {
-
-  // WebKitDOMNodeList *elements = webkit_dom_document_get_elements_by_class_name(doc, "item");
     WebKitDOMNodeList *elements = webkit_dom_document_query_selector_all(doc, ".item a", NULL);
 
     int i;
@@ -101,19 +99,18 @@ tabs2one_dom_click_remove_item_cb (WebKitDOMNode  *element,
                                    WebKitWebView  *webview)
 {
     gchar* id = webkit_dom_element_get_attribute (WEBKIT_DOM_ELEMENT(element), "data-parent-id");
-    midori_view_execute_script(midori_view_get_for_widget(GTK_WIDGET (webview)), 
-        g_strconcat ("remove('", id, "'); is_last();", NULL), NULL);
+    MidoriView* view = midori_view_get_for_widget(GTK_WIDGET (webview));
+    MidoriBrowser* browser = midori_browser_get_for_widget(GTK_WIDGET (webview));
+    midori_view_execute_script(midori_view_get_for_widget(GTK_WIDGET (webview)),
+        g_strconcat ("remove('", id, "');", NULL), NULL);
     tabs2one_cache_write_file (webview);
-}
 
-static void
-tabs2one_close_cb(WebKitWebView* webview, 
-                  MidoriBrowser* browser)
-{
-    g_signal_handlers_disconnect_by_func (
-        webview, tabs2one_close_cb, browser);
-    MidoriView* view = midori_view_get_for_widget(GTK_WIDGET(webview));
-    midori_browser_close_tab(browser, GTK_WIDGET(view));
+    WebKitDOMDocument* doc = webkit_web_view_get_dom_document(webview);
+    WebKitDOMNodeList *elements = webkit_dom_document_query_selector_all(doc, ".item a", NULL);
+    if (webkit_dom_node_list_get_length(elements) <= 0){
+        webkit_dom_element_set_attribute(WEBKIT_DOM_ELEMENT(element), "target", "_self", NULL);
+    }
+
 }
 
 static void
@@ -144,9 +141,6 @@ tabs2one_apply_cb (GtkWidget*     menuitem,
         const gchar* tpl = "<html><title>Tabs to One</title><head><meta charset=\"utf-8\"><script>\n"
                            "    function id() {\n"
                            "        return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1); }\n"
-                           "    function is_last() {\n"
-                           "        if (document.getElementsByClassName(\"item\").length <= 0)\n"
-                           "            self.close(); }\n"
                            "    function remove(id) {\n"
                            "        e=document.getElementById(id);\n" 
                            "        e.parentNode.removeChild(e); }\n"
@@ -159,7 +153,7 @@ tabs2one_apply_cb (GtkWidget*     menuitem,
                            "        var _id=id() + '-' + id(); d.id=_id; d.className=\"item\";\n"
                            "        i.src=icon; a.href=uri; a.target=\"_blank\"; a.appendChild(t);\n"
                            "        i.width=16; i.height=16; d.style.padding=5; i.style.paddingLeft=5; a.style.paddingLeft=5;\n"
-                           "        a.onclick=function(){ remove(_id); is_last(); };\n"
+                           "        a.onclick=function(){ remove(_id); };\n"
                            "        a.setAttribute(\"data-parent-id\", _id);\n"
                            "        d.appendChild(i); d.appendChild(a); d.appendChild(b);\n"
                            "        document.body.appendChild(d); }\n"
@@ -204,8 +198,6 @@ tabs2one_apply_cb (GtkWidget*     menuitem,
 
     tabs2one_cache_write_file (webview);
 
-    g_signal_connect(webview, "close-web-view", 
-        G_CALLBACK(tabs2one_close_cb), browser);
     g_string_free(text, TRUE);
     g_free(data);
     g_list_free(tabs);
@@ -281,7 +273,7 @@ extension_init (void)
 {
     MidoriExtension* extension = g_object_new (MIDORI_TYPE_EXTENSION,
         "name", _("Tabs to One"),
-        "description", _("Closes all tabs open and create new tab with your links"),
+        "description", _("Closes all open tabs and create new tab with links tabs"),
         "version", "0.1" MIDORI_VERSION_SUFFIX,
         "authors", "Eder Sosa <eder.sohe@gmail.com>",
         NULL);
