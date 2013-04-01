@@ -17,6 +17,49 @@ tabs2one_dom_click_remove_item_cb (WebKitDOMNode  *element,
                                    WebKitWebView  *webview);
 
 static gchar*
+tabs2one_id_generator (void)
+{
+    GString* id = g_string_new("");
+    GRand* generator = g_rand_new();
+    gint32 id1 = g_rand_int_range (generator, 1000, 9999); 
+    gint32 id2 = g_rand_int_range (generator, 1000, 9999);
+    g_rand_free(generator);
+    g_string_printf(id, "%i-%i", id1, id2);
+    return g_string_free(id, FALSE);
+}
+
+static void
+tabs2one_dom_create_item (WebKitDOMDocument* doc, 
+                          const gchar* icon, 
+                          const gchar* uri, 
+                          const gchar* title)
+{
+    WebKitDOMElement* body = webkit_dom_document_query_selector(doc, "body", NULL);
+    WebKitDOMElement* item = webkit_dom_document_create_element(doc, "div", NULL);
+    WebKitDOMElement* favicon = webkit_dom_document_create_element(doc, "img", NULL);
+    WebKitDOMElement* link = webkit_dom_document_create_element(doc, "a", NULL);
+    WebKitDOMElement* br = webkit_dom_document_create_element(doc, "br", NULL);
+    WebKitDOMText* content = webkit_dom_document_create_text_node(doc, title);
+
+    webkit_dom_element_set_attribute(item, "id", tabs2one_id_generator(), NULL);
+    webkit_dom_element_set_attribute(item, "class", "item", NULL);
+    webkit_dom_element_set_attribute(item, "style", "padding: 5px;", NULL);
+    webkit_dom_element_set_attribute(favicon, "src", icon, NULL);
+    webkit_dom_element_set_attribute(favicon, "width", "16px", NULL);
+    webkit_dom_element_set_attribute(favicon, "height", "16px", NULL);
+    webkit_dom_element_set_attribute(favicon, "style", "padding-left: 5px;", NULL);
+    webkit_dom_element_set_attribute(link, "href", uri, NULL);
+    webkit_dom_element_set_attribute(link, "style", "padding-left: 5px;", NULL);
+    webkit_dom_element_set_attribute(link, "target", "_blank", NULL);
+
+    webkit_dom_node_append_child(WEBKIT_DOM_NODE(link), WEBKIT_DOM_NODE(content), NULL);
+    webkit_dom_node_append_child(WEBKIT_DOM_NODE(item), WEBKIT_DOM_NODE(favicon), NULL);
+    webkit_dom_node_append_child(WEBKIT_DOM_NODE(item), WEBKIT_DOM_NODE(link), NULL);
+    webkit_dom_node_append_child(WEBKIT_DOM_NODE(item), WEBKIT_DOM_NODE(br), NULL);
+    webkit_dom_node_append_child(WEBKIT_DOM_NODE(body), WEBKIT_DOM_NODE(item), NULL);
+}
+
+static gchar*
 tabs2one_cache_get_dir (void){
     return g_build_filename (midori_paths_get_cache_dir (), "tabs2one", NULL);
 }
@@ -141,43 +184,27 @@ tabs2one_apply_cb (GtkWidget*     menuitem,
 
     if (!exist && !tabs2one_cache_exist ()){
 
-        const gchar* tpl = "<html><title>Tabs to One</title><head><meta charset=\"utf-8\"><script>\n"
-                           "    function id() {\n"
-                           "        return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1); }\n"
-                           "    function add(title,icon,uri) {\n"
-                           "        d=document.createElement(\"div\");\n"
-                           "        i=document.createElement(\"img\");\n"
-                           "        a=document.createElement(\"a\");\n"
-                           "        b=document.createElement(\"br\");\n"
-                           "        t=document.createTextNode(title);\n"
-                           "        var _id=id() + '-' + id(); d.id=_id; d.className=\"item\";\n"
-                           "        i.src=icon; a.href=uri; a.target=\"_blank\"; a.appendChild(t);\n"
-                           "        i.width=16; i.height=16; d.style.padding=5; i.style.paddingLeft=5; a.style.paddingLeft=5;\n"
-                           "        d.appendChild(i); d.appendChild(a); d.appendChild(b);\n"
-                           "        document.body.appendChild(d); }\n"
-                           "</script></head><body></body></html>";
+        const gchar* tpl = "<html>\n"
+                           "    <title>Tabs to One</title>\n"
+                           "    <head><meta charset=\"utf-8\"></head>\n"
+                           "    <body></body>\n"
+                           "</html>\n";
 
         g_file_set_contents(tabs2one_cache_get_filename (), tpl, -1, NULL);
         tab = midori_browser_add_uri (browser, tabs2one_cache_get_uri ());
     }
 
-    WebKitWebView* webview = WEBKIT_WEB_VIEW (midori_view_get_web_view(MIDORI_VIEW (tab)));
-
     while (gtk_events_pending())
         gtk_main_iteration();
-   
+
+    WebKitWebView* webview = WEBKIT_WEB_VIEW (midori_view_get_web_view(MIDORI_VIEW (tab)));
+    WebKitDOMDocument* doc = webkit_web_view_get_dom_document(webview);
+
     midori_browser_set_current_tab (browser, tab);
 
-    WebKitWebFrame* webframe = webkit_web_view_get_main_frame (webview);
-    JSContextRef jscontext = webkit_web_frame_get_global_context (webframe);
-
-    GString* text = g_string_new("");
-
-    const gchar* tpl = "add(\"%s\", \"%s\", \"%s\");";
     const gchar* icon;
     const gchar* title;
     const gchar* uri;
-    gchar* data = NULL;
     
     tabs = midori_browser_get_tabs (browser);
     for (; tabs; tabs = g_list_next (tabs))
@@ -185,22 +212,16 @@ tabs2one_apply_cb (GtkWidget*     menuitem,
         icon = midori_view_get_icon_uri (tabs->data);
         title = midori_view_get_display_title (tabs->data);
         uri = midori_view_get_display_uri (tabs->data);
+
         if (strcmp(uri, tabs2one_cache_get_uri ())){
-            g_string_append_printf (text, tpl, title, icon, uri);
+            tabs2one_dom_create_item(doc, icon, uri, title);
             midori_browser_close_tab(browser, tabs->data);
-            data = g_string_free(text, FALSE);
-            text = g_string_new("");
-            sokoke_js_script_eval (jscontext, data, NULL);
         }
     }
 
     tabs2one_cache_write_file (webview);
-
-    g_string_free(text, TRUE);
-    g_free(data);
     g_list_free(tabs);
 }
-
 
 static void
 tabs2one_app_add_browser_cb (MidoriApp*       app,
