@@ -7214,7 +7214,7 @@ midori_browser_set_property (GObject*      object,
             midori_search_action_set_current_item (MIDORI_SEARCH_ACTION (
                 _action_by_name (browser, "Search")), item);
 
-            if ((item = katze_array_find_uri (browser->search_engines, default_search)))
+            if (default_search != NULL && (item = katze_array_find_uri (browser->search_engines, default_search)))
                 midori_search_action_set_default_item (MIDORI_SEARCH_ACTION (
                     _action_by_name (browser, "Search")), item);
         }
