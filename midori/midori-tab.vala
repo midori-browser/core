@@ -224,14 +224,22 @@ namespace Midori {
         }
 
         public bool find (string text, bool case_sensitive, bool forward) {
-#if !HAVE_WEBKIT2
+#if HAVE_WEBKIT2
+            var controller = web_view.get_find_controller ();
+            uint options = WebKit.FindOptions.WRAP_AROUND;
+            if (!case_sensitive)
+                options += WebKit.FindOptions.CASE_INSENSITIVE;
+            if (!forward)
+                options += WebKit.FindOptions.BACKWARDS;
+            controller.search (text, options, 0);
+            // FIXME: mark matches, count matches, not found
+            return true;
+#else
             bool found = false;
             found = web_view.search_text (text, case_sensitive, forward, true);
             web_view.mark_text_matches (text, case_sensitive, 0);
             web_view.set_highlight_text_matches (true);
             return found;
-#else
-            return false;
 #endif
         }
     }
