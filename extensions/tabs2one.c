@@ -53,8 +53,8 @@ tabs2one_dom_click_items(WebKitDOMDocument* doc,
     {
         WebKitDOMNode *element = webkit_dom_node_list_item(elements, i);
         webkit_dom_event_target_add_event_listener(
-            WEBKIT_DOM_EVENT_TARGET (element), "click",
-            G_CALLBACK (tabs2one_dom_click_remove_item_cb), FALSE, webview);
+            WEBKIT_DOM_EVENT_TARGET(element), "click",
+            G_CALLBACK (tabs2one_dom_click_remove_item_cb), TRUE, webview);
     }
 }
 
@@ -98,22 +98,22 @@ tabs2one_dom_click_remove_item_cb (WebKitDOMNode  *element,
                                    WebKitDOMEvent *dom_event, 
                                    WebKitWebView  *webview)
 {
-    gchar* id = webkit_dom_element_get_attribute (WEBKIT_DOM_ELEMENT(element), "data-parent-id");
-    MidoriView* view = midori_view_get_for_widget(GTK_WIDGET (webview));
-    MidoriBrowser* browser = midori_browser_get_for_widget(GTK_WIDGET (webview));
-    WebKitDOMNode* parent = webkit_dom_node_get_parent_node(element);
-    // webkit_dom_node_remove_child(parent, element, NULL);
-    // midori_view_execute_script(midori_view_get_for_widget(GTK_WIDGET (webview)),
-    //     g_strconcat ("remove('", id, "');", NULL), NULL);
-    // tabs2one_cache_write_file (webview);
+    webkit_dom_event_prevent_default (dom_event);
+    MidoriView* view = midori_view_get_for_widget (GTK_WIDGET (webview));
+    MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (webview));
+    WebKitDOMNode* item = webkit_dom_node_get_parent_node (element);
+    WebKitDOMNode* body = webkit_dom_node_get_parent_node (item);
+    const gchar* uri = webkit_dom_element_get_attribute(WEBKIT_DOM_ELEMENT(element), "href");
+    midori_browser_add_uri (browser, uri);
+    
+    WebKitDOMDocument* doc = webkit_web_view_get_dom_document (webview);
+    webkit_dom_node_remove_child(body, item, NULL);
+    tabs2one_cache_write_file (webview);
 
-    WebKitDOMDocument* doc = webkit_web_view_get_dom_document(webview);
     WebKitDOMNodeList *elements = webkit_dom_document_query_selector_all(doc, ".item a", NULL);
     if (webkit_dom_node_list_get_length(elements) <= 0){
-        webkit_dom_element_set_attribute(WEBKIT_DOM_ELEMENT(element), "target", "_self", NULL);
+        midori_browser_close_tab(browser, GTK_WIDGET(view));
     }
-    webkit_dom_node_remove_child(parent, element, NULL);
-    tabs2one_cache_write_file (webview);
 }
 
 static void
@@ -144,9 +144,6 @@ tabs2one_apply_cb (GtkWidget*     menuitem,
         const gchar* tpl = "<html><title>Tabs to One</title><head><meta charset=\"utf-8\"><script>\n"
                            "    function id() {\n"
                            "        return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1); }\n"
-                           "    function remove(id) {\n"
-                           "        e=document.getElementById(id);\n" 
-                           "        e.parentNode.removeChild(e); }\n"
                            "    function add(title,icon,uri) {\n"
                            "        d=document.createElement(\"div\");\n"
                            "        i=document.createElement(\"img\");\n"
@@ -156,8 +153,6 @@ tabs2one_apply_cb (GtkWidget*     menuitem,
                            "        var _id=id() + '-' + id(); d.id=_id; d.className=\"item\";\n"
                            "        i.src=icon; a.href=uri; a.target=\"_blank\"; a.appendChild(t);\n"
                            "        i.width=16; i.height=16; d.style.padding=5; i.style.paddingLeft=5; a.style.paddingLeft=5;\n"
-                           "        a.onclick=function(){ remove(_id); };\n"
-                           "        a.setAttribute(\"data-parent-id\", _id);\n"
                            "        d.appendChild(i); d.appendChild(a); d.appendChild(b);\n"
                            "        document.body.appendChild(d); }\n"
                            "</script></head><body></body></html>";
