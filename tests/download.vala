@@ -69,7 +69,11 @@ static void download_unique () {
 }
 
 void download_properties () {
+#if HAVE_WEBKIT2
+    var download = WebKit.WebContext.get_default ().download_uri ("file:///klaatu/barada/nikto.ogg");
+#else
     var download = new WebKit.Download (new WebKit.NetworkRequest ("file:///klaatu/barada/nikto.ogg"));
+#endif
     assert (Midori.Download.get_type (download) == 0);
     Midori.Download.set_type (download, Midori.DownloadType.OPEN);
     assert (Midori.Download.get_type (download) == Midori.DownloadType.OPEN);
@@ -78,16 +82,22 @@ void download_properties () {
     try {
         string filename;
         FileUtils.close (FileUtils.open_tmp ("XXXXXX", out filename));
+#if HAVE_WEBKIT2
+        download.set_destination (Filename.to_uri (filename, null));
+#else
         download.destination_uri = Filename.to_uri (filename, null);
-        string tee = Midori.Download.get_tooltip (download);
         download.start ();
+#endif
+        string tee = Midori.Download.get_tooltip (download);
         assert (Midori.Download.get_progress (download) == 0.0);
         var loop = MainContext.default ();
         do { loop.iteration (true); } while (loop.pending ());
         string tee2 = Midori.Download.get_tooltip (download);
         assert (tee2.contains (tee));
         do { loop.iteration (true); } while (!Midori.Download.is_finished (download));
+#if !HAVE_WEBKIT2
         assert (download.status == WebKit.DownloadStatus.ERROR);
+#endif
     }
     catch (Error error) {
         GLib.error (error.message);

@@ -165,8 +165,10 @@ main (int    argc,
     midori_app_setup (&argc, &argv, NULL);
     midori_paths_init (MIDORI_RUNTIME_MODE_NORMAL, NULL);
 
+    #ifndef HAVE_WEBKIT2
     g_object_set_data (G_OBJECT (webkit_get_default_session ()),
                        "midori-session-initialized", (void*)1);
+    #endif
 
     g_test_add_func ("/browser/create", browser_create);
     g_test_add_func ("/browser/tooltips", browser_tooltips);

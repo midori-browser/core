@@ -134,31 +134,39 @@ void tab_alias () {
     tab.set_uri ("about:new");
     do { loop.iteration (true); } while (tab.load_status != Midori.LoadStatus.FINISHED);
     assert (tab.uri == tab.settings.tabhome);
+#if !HAVE_WEBKIT2
     // Check that this is the real page, not white page with a URL
     assert (!tab.web_view.search_text ("about:", true, false, false));
+#endif
 
     tab.settings.tabhome = "about:blank";
     tab.set_uri ("about:new");
     do { loop.iteration (true); } while (tab.load_status != Midori.LoadStatus.FINISHED);
     assert (tab.uri == tab.settings.tabhome);
+#if !HAVE_WEBKIT2
     // Check that this is the real page, not white page with a URL
     assert (!tab.web_view.search_text ("about:", true, false, false));
+#endif
 
     tab.settings.tabhome = "about:search";
     tab.settings.location_entry_search = "http://.invalid/";
     tab.set_uri ("about:new");
     do { loop.iteration (true); } while (tab.load_status != Midori.LoadStatus.FINISHED);
     assert (tab.uri == tab.settings.location_entry_search);
+#if !HAVE_WEBKIT2
     // Check that this is the real page, not white page with a URL
     assert (!tab.web_view.search_text ("about:", true, false, false));
+#endif
 
     tab.settings.tabhome = "about:home";
     tab.settings.homepage = "http://.invalid/";
     tab.set_uri ("about:new");
     do { loop.iteration (true); } while (tab.load_status != Midori.LoadStatus.FINISHED);
     assert (tab.uri == tab.settings.homepage);
+#if !HAVE_WEBKIT2
     // Check that this is the real page, not white page with a URL
     assert (!tab.web_view.search_text ("about:", true, false, false));
+#endif
 }
 
 void tab_http () {
@@ -201,14 +209,20 @@ void tab_http () {
 
     var source = new Midori.View.with_title (null, tab.settings);
     browser.add_tab (source);
+#if HAVE_WEBKIT2
+#else
     source.web_view.set_view_source_mode (true);
+#endif
     source.web_view.load_uri (test_url);
     do { loop.iteration (true); } while (source.load_status != Midori.LoadStatus.FINISHED);
     assert (!source.is_blank ());
     assert (!source.can_view_source ());
     assert (!source.special);
     /* FIXME assert (source.can_save ()); */
+#if HAVE_WEBKIT2
+#else
     assert (source.web_view.get_view_source_mode ());
+#endif
 
     source.set_uri ("http://.invalid");
     do { loop.iteration (true); } while (source.load_status != Midori.LoadStatus.FINISHED);
@@ -216,7 +230,10 @@ void tab_http () {
     assert (!source.can_view_source ());
     assert (source.special);
     assert (!source.can_save ());
+#if HAVE_WEBKIT2
+#else
     assert (!source.web_view.get_view_source_mode ());
+#endif
 
     Midori.Test.release_max_timeout ();
 }
@@ -262,7 +279,9 @@ void main (string[] args) {
     Test.init (ref args);
     Midori.App.setup (ref args, null);
     Midori.Paths.init (Midori.RuntimeMode.NORMAL, null);
+#if !HAVE_WEBKIT2
     WebKit.get_default_session ().set_data<bool> ("midori-session-initialized", true);
+#endif
     Test.add_func ("/tab/load-title", tab_load_title);
     Test.add_func ("/tab/display-title", tab_display_title);
     Test.add_func ("/tab/ellipsize", tab_display_ellipsize);

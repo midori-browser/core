@@ -218,8 +218,10 @@ main (int    argc,
     g_test_init (&argc, &argv, NULL);
     midori_app_setup (&argc, &argv, NULL);
     midori_paths_init (MIDORI_RUNTIME_MODE_NORMAL, NULL);
+    #ifndef HAVE_WEBKIT2
     soup_session_add_feature_by_type (webkit_get_default_session (),
         SOUP_TYPE_COOKIE_JAR);
+    #endif
 
     g_test_add_func ("/extensions/create", extension_create);
     g_test_add_func ("/extensions/settings", extension_settings);
