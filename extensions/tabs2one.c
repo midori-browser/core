@@ -11,6 +11,68 @@
 
 #include <midori/midori.h>
 
+static void 
+tabs2one_dom_click_remove_item_cb (WebKitDOMNode  *element, 
+                                   WebKitDOMEvent *dom_event, 
+                                   WebKitWebView  *webview);
+
+static gchar*
+tabs2one_create_cache_folder (void){
+    gchar* folder = g_build_filename (midori_paths_get_cache_dir (), "tabs2one", NULL);
+    midori_paths_mkdir_with_parents (folder, 0700);
+    return folder;
+}
+
+static gchar*
+tabs2one_get_cache_folder (void){
+    return g_build_filename (midori_paths_get_cache_dir (), "tabs2one", NULL);
+}
+
+static gchar*
+tabs2one_cache_filename (void){
+    return g_build_filename (tabs2one_get_cache_folder (), "tabs2one.html", NULL);
+}
+
+static bool 
+tabs2one_write_cache_file (WebKitWebView* webview)
+{
+    WebKitDOMDocument* doc = webkit_web_view_get_dom_document(webview);
+    WebKitDOMHTMLDocument* dochtml = (WebKitDOMHTMLDocument*)doc;
+    WebKitDOMHTMLElement* elementhtml = (WebKitDOMHTMLElement*)dochtml;
+    
+    const gchar* content = webkit_dom_html_element_get_inner_html(elementhtml);
+
+    WebKitDOMNodeList *elements = webkit_dom_document_get_elements_by_class_name(doc, "item");
+
+    int i;
+
+    for (i = 0; i < webkit_dom_node_list_get_length(elements); i++)
+    {
+        WebKitDOMNode *element = webkit_dom_node_list_item(elements, i);
+        webkit_dom_event_target_add_event_listener(
+            WEBKIT_DOM_EVENT_TARGET (element), "click",
+            G_CALLBACK (tabs2one_dom_click_remove_item_cb), FALSE, webview);
+    }
+
+    return g_file_set_contents(tabs2one_cache_filename (), content, -1, NULL);
+}
+
+static void 
+tabs2one_dom_click_remove_item_cb (WebKitDOMNode  *element, 
+                                   WebKitDOMEvent *dom_event, 
+                                   WebKitWebView  *webview)
+{
+  tabs2one_write_cache_file (webview);
+}
+
+static gchar* 
+tabs2one_read_cache_file (){
+    gchar* content;
+    g_file_get_contents(tabs2one_cache_filename (), &content, NULL, NULL);
+    return content;
+}
+
+
 static void
 tabs2one_close_cb(WebKitWebView* webview, 
                   MidoriBrowser* browser)
@@ -108,6 +170,8 @@ tabs2one_apply_cb (GtkWidget*     menuitem,
             sokoke_js_script_eval (jscontext, data, NULL);
         }
     }
+
+    tabs2one_write_cache_file (webview);
 
     g_signal_connect(webview, "close-web-view", 
         G_CALLBACK(tabs2one_close_cb), browser);
