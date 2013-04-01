@@ -101,16 +101,19 @@ tabs2one_dom_click_remove_item_cb (WebKitDOMNode  *element,
     gchar* id = webkit_dom_element_get_attribute (WEBKIT_DOM_ELEMENT(element), "data-parent-id");
     MidoriView* view = midori_view_get_for_widget(GTK_WIDGET (webview));
     MidoriBrowser* browser = midori_browser_get_for_widget(GTK_WIDGET (webview));
-    midori_view_execute_script(midori_view_get_for_widget(GTK_WIDGET (webview)),
-        g_strconcat ("remove('", id, "');", NULL), NULL);
-    tabs2one_cache_write_file (webview);
+    WebKitDOMNode* parent = webkit_dom_node_get_parent_node(element);
+    // webkit_dom_node_remove_child(parent, element, NULL);
+    // midori_view_execute_script(midori_view_get_for_widget(GTK_WIDGET (webview)),
+    //     g_strconcat ("remove('", id, "');", NULL), NULL);
+    // tabs2one_cache_write_file (webview);
 
     WebKitDOMDocument* doc = webkit_web_view_get_dom_document(webview);
     WebKitDOMNodeList *elements = webkit_dom_document_query_selector_all(doc, ".item a", NULL);
     if (webkit_dom_node_list_get_length(elements) <= 0){
         webkit_dom_element_set_attribute(WEBKIT_DOM_ELEMENT(element), "target", "_self", NULL);
     }
-
+    webkit_dom_node_remove_child(parent, element, NULL);
+    tabs2one_cache_write_file (webview);
 }
 
 static void
