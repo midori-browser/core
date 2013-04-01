@@ -113,11 +113,40 @@ tabs2one_cache_write_file (WebKitWebView* webview)
 }
 
 static void
-tabs2one_load_finished_cb(WebKitWebView*  webview,
-                          WebKitWebFrame* webframe,
-                          MidoriView*     view)
+tabs2one_onload_create_items_cb(WebKitWebView*  webview,
+                                WebKitWebFrame* webframe,
+                                MidoriBrowser*  browser)
 {
-    const gchar* title = midori_view_get_display_title(view);
+    WebKitDOMDocument* doc = webkit_web_view_get_dom_document(webview);
+    
+    const gchar* icon;
+    const gchar* title;
+    const gchar* uri;
+    
+    GList* tabs = midori_browser_get_tabs (browser);
+    for (; tabs; tabs = g_list_next (tabs))
+    {
+        icon = midori_view_get_icon_uri (tabs->data);
+        if (icon == NULL) icon = "";
+        title = midori_view_get_display_title (tabs->data);
+        uri = midori_view_get_display_uri (tabs->data);
+
+        if (strcmp(uri, tabs2one_cache_get_uri ())){
+            tabs2one_dom_create_item(doc, icon, uri, title);
+            midori_browser_close_tab(browser, tabs->data);
+        }
+    }
+
+    tabs2one_dom_click_items(doc, webview);
+    tabs2one_cache_write_file (webview);
+    g_list_free(tabs);
+}
+
+static void
+tabs2one_reload_connected_events_cb(WebKitWebView*  webview,
+                                    WebKitWebFrame* webframe,
+                                    MidoriView*     view)
+{
     const gchar* uri = midori_view_get_display_uri(view);
 
     if (!strcmp(uri, tabs2one_cache_get_uri ())) {
@@ -133,7 +162,7 @@ tabs2one_add_tab_cb (MidoriBrowser*   browser,
 {
     WebKitWebView* webview = WEBKIT_WEB_VIEW (midori_view_get_web_view(view));
     g_signal_connect (webview, "document-load-finished",
-        G_CALLBACK (tabs2one_load_finished_cb), view);
+        G_CALLBACK (tabs2one_reload_connected_events_cb), view);
 }
 
 static void 
@@ -194,33 +223,11 @@ tabs2one_apply_cb (GtkWidget*     menuitem,
         tab = midori_browser_add_uri (browser, tabs2one_cache_get_uri ());
     }
 
-    while (gtk_events_pending())
-        gtk_main_iteration();
-
     WebKitWebView* webview = WEBKIT_WEB_VIEW (midori_view_get_web_view(MIDORI_VIEW (tab)));
-    WebKitDOMDocument* doc = webkit_web_view_get_dom_document(webview);
-
     midori_browser_set_current_tab (browser, tab);
 
-    const gchar* icon;
-    const gchar* title;
-    const gchar* uri;
-    
-    tabs = midori_browser_get_tabs (browser);
-    for (; tabs; tabs = g_list_next (tabs))
-    {
-        icon = midori_view_get_icon_uri (tabs->data);
-        title = midori_view_get_display_title (tabs->data);
-        uri = midori_view_get_display_uri (tabs->data);
-
-        if (strcmp(uri, tabs2one_cache_get_uri ())){
-            tabs2one_dom_create_item(doc, icon, uri, title);
-            midori_browser_close_tab(browser, tabs->data);
-        }
-    }
-
-    tabs2one_cache_write_file (webview);
-    g_list_free(tabs);
+     g_signal_connect (webview, "document-load-finished",
+        G_CALLBACK (tabs2one_onload_create_items_cb), browser);
 }
 
 static void
