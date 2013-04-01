@@ -1343,6 +1343,9 @@ webkit_web_view_load_error_cb (WebKitWebView*  web_view,
                                GError*         error,
                                MidoriView*     view)
 {
+    #ifdef HAVE_WEBKIT2
+    void* web_frame = NULL;
+    #endif
     gchar* title;
     gchar* message;
     gboolean result;
@@ -1502,10 +1505,11 @@ static void
 midori_view_web_view_crashed_cb (WebKitWebView* web_view,
                                  MidoriView*    view)
 {
-    title = g_strdup_printf (_("Oops - %s"), uri);
-    message = g_strdup_printf (_("Something went wrong with '%s'."), uri);
-    result = midori_view_display_error (view, uri, title,
-        message, error->message, _("Try again"), web_frame);
+    const gchar* uri = webkit_web_view_get_uri (web_view);
+    gchar* title = g_strdup_printf (_("Oops - %s"), uri);
+    gchar* message = g_strdup_printf (_("Something went wrong with '%s'."), uri);
+    midori_view_display_error (view, uri, title,
+        message, "", _("Try again"), NULL);
     g_free (message);
     g_free (title);
 }
@@ -1636,7 +1640,7 @@ webkit_web_view_hovering_over_link_cb (WebKitWebView*       web_view,
     #ifdef HAVE_WEBKIT2
     if (!webkit_hit_test_result_context_is_link (hit_test_result))
         return;
-    const gchar* message = webkit_hit_test_result_get_link_uri (hit_test_result);
+    const gchar* link_uri = webkit_hit_test_result_get_link_uri (hit_test_result);
     #endif
 
     #if !(WEBKIT_CHECK_VERSION (1, 3, 1) && defined (HAVE_LIBSOUP_2_29_91))
@@ -3741,7 +3745,7 @@ midori_view_constructor (GType                  type,
                       "signal::notify::estimated-load-progress",
                       webkit_web_view_progress_changed_cb, view,
                       "signal::notify::favicon",
-                      midori_web_view_notify_favicon_uri_cb, view,
+                      midori_web_view_notify_icon_uri_cb, view,
                       "signal::mouse-target-changed",
                       webkit_web_view_hovering_over_link_cb, view,
                       #else
@@ -4316,10 +4320,8 @@ midori_view_set_uri (MidoriView*  view,
         }
         else if (g_str_has_prefix (uri, "javascript:"))
         {
-            gboolean result;
-            gchar* exception;
-
-            result = midori_view_execute_script (view, &uri[11], &exception);
+            gchar* exception = NULL;
+            gboolean result = midori_view_execute_script (view, &uri[11], &exception);
             if (!result)
             {
                 sokoke_message_dialog (GTK_MESSAGE_ERROR, "javascript:",
