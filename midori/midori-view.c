@@ -4118,13 +4118,13 @@ midori_view_set_uri (MidoriView*  view,
                 timer = g_timer_new ();
             #endif
 
-            midori_tab_set_uri (MIDORI_TAB (view), "about:blank");
+            midori_tab_set_uri (MIDORI_TAB (view), uri);
             midori_tab_set_mime_type (MIDORI_TAB (view), "text/html");
             katze_item_set_meta_string (view->item, "mime-type", "text/html");
             katze_item_set_meta_integer (view->item, "delay", MIDORI_DELAY_UNDELAYED);
 
             html = dial != NULL ? midori_speed_dial_get_html (dial, NULL) : "";
-            midori_view_set_html (view, html, NULL, NULL);
+            midori_view_set_html (view, html, uri, NULL);
 
             #ifdef G_ENABLE_DEBUG
             if (midori_debug ("startup"))
@@ -4454,7 +4454,9 @@ midori_view_get_display_uri (MidoriView* view)
     uri = midori_tab_get_uri (MIDORI_TAB (view));
     /* Something in the stack tends to turn "" into "about:blank".
        Yet for practical purposes we prefer "".  */
-    if (!strcmp (uri, "about:blank") || !strcmp (uri, "about:private"))
+    if (!strcmp (uri, "about:blank")
+     || !strcmp (uri, "about:dial")
+     || !strcmp (uri, "about:private"))
         return "";
 
     return uri;
