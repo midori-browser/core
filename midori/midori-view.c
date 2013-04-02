@@ -1561,10 +1561,8 @@ midori_view_web_view_notify_load_status_cb (WebKitWebView* web_view,
         /* Not implemented */
         break;
     case WEBKIT_LOAD_FINISHED:
-        midori_view_load_finished (view);
-        break;
     case WEBKIT_LOAD_FAILED:
-        /* Not implemented */
+        midori_view_load_finished (view);
         break;
     default:
         g_warn_if_reached ();
