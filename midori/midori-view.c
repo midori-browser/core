@@ -5250,7 +5250,12 @@ midori_view_reload (MidoriView* view,
     g_return_if_fail (MIDORI_IS_VIEW (view));
 
     if (midori_tab_is_blank (MIDORI_TAB (view)))
-        midori_view_set_uri (view, midori_tab_get_uri (MIDORI_TAB (view)));
+    {
+        /* Duplicate here because the URI pointer might change */
+        gchar* uri = g_strdup (midori_tab_get_uri (MIDORI_TAB (view)));
+        midori_view_set_uri (view, uri);
+        g_free (uri);
+    }
     else if (from_cache)
         webkit_web_view_reload (WEBKIT_WEB_VIEW (view->web_view));
     else
