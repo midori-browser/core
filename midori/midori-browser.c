@@ -6960,6 +6960,11 @@ midori_browser_settings_notify (MidoriWebSettings* web_settings,
     }
     else if (name == g_intern_string ("maximum-history-age"))
         browser->maximum_history_age = g_value_get_int (&value);
+    #ifdef HAVE_GRANITE
+    else if (name == g_intern_string ("close-buttons-on-tabs"))
+        granite_widgets_dynamic_notebook_set_tabs_closable (
+            GRANITE_WIDGETS_DYNAMIC_NOTEBOOK (browser->notebook), g_value_get_boolean (&value));
+    #endif
     else if (name == g_intern_string ("close-buttons-left"))
     {
         midori_findbar_set_close_button_left (MIDORI_FINDBAR (browser->find),
