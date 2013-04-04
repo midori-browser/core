@@ -3834,6 +3834,7 @@ midori_view_constructor (GType                  type,
     /* Overlays must be created before showing GtkOverlay as of GTK+ 3.2 */
     {
     GtkWidget* frame = gtk_frame_new (NULL);
+    gtk_widget_set_no_show_all (frame, TRUE);
     view->overlay_label = gtk_label_new (NULL);
     gtk_widget_show (view->overlay_label);
     gtk_container_add (GTK_CONTAINER (frame), view->overlay_label);
