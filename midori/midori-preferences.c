@@ -355,7 +355,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     label = gtk_label_new (_("Preferred Encoding"));
     gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
     INDENTED_ADD (label);
-    button = katze_property_proxy (settings, "preferred-encoding", "custom-default-encoding");
+    button = katze_property_proxy (settings, "preferred-encoding", "custom-default-charset");
     SPANNED_ADD (button);
 
     /* Page "Behavior" */

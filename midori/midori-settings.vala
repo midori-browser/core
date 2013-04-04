@@ -27,6 +27,12 @@ namespace Midori {
         } set {
             enable_scripts = value;
         } }
+        /* Since: 0.5.1 */
+        public string default_charset { owned get {
+            return default_encoding;
+        } set {
+            default_encoding = value;
+        } }
 #else
     public class Settings : WebKit.Settings {
 #endif

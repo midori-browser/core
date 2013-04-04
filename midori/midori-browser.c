@@ -3453,34 +3453,33 @@ _action_view_encoding_activate (GtkAction*     action,
                                 MidoriBrowser* browser)
 {
     GtkWidget* view = midori_browser_get_current_tab (browser);
-        const gchar* name;
-        GtkWidget* web_view;
+    const gchar* name = gtk_action_get_name (current);
+    WebKitWebView* web_view = WEBKIT_WEB_VIEW (midori_view_get_web_view (MIDORI_VIEW (view)));
 
-        name = gtk_action_get_name (current);
-        web_view = midori_view_get_web_view (MIDORI_VIEW (view));
-        if (!strcmp (name, "EncodingAutomatic"))
-            g_object_set (web_view, "custom-encoding", NULL, NULL);
-        else
-        {
-            const gchar* encoding;
-            if (!strcmp (name, "EncodingChinese"))
-                encoding = "BIG5";
-            else if (!strcmp (name, "EncodingChineseSimplified"))
-                encoding = "GB18030";
-            else if (!strcmp (name, "EncodingJapanese"))
-                encoding = "SHIFT_JIS";
-            else if (!strcmp (name, "EncodingKorean"))
-                encoding = "EUC-KR";
-            else if (!strcmp (name, "EncodingRussian"))
-                encoding = "KOI8-R";
-            else if (!strcmp (name, "EncodingUnicode"))
-                encoding = "UTF-8";
-            else if (!strcmp (name, "EncodingWestern"))
-                encoding = "ISO-8859-1";
-            else
-                g_assert_not_reached ();
-            g_object_set (web_view, "custom-encoding", encoding, NULL);
-        }
+    const gchar* encoding;
+    if (!strcmp (name, "EncodingAutomatic"))
+        encoding = NULL;
+    else if (!strcmp (name, "EncodingChinese"))
+        encoding = "BIG5";
+    else if (!strcmp (name, "EncodingChineseSimplified"))
+        encoding = "GB18030";
+    else if (!strcmp (name, "EncodingJapanese"))
+        encoding = "SHIFT_JIS";
+    else if (!strcmp (name, "EncodingKorean"))
+        encoding = "EUC-KR";
+    else if (!strcmp (name, "EncodingRussian"))
+        encoding = "KOI8-R";
+    else if (!strcmp (name, "EncodingUnicode"))
+        encoding = "UTF-8";
+    else if (!strcmp (name, "EncodingWestern"))
+        encoding = "ISO-8859-1";
+    else
+        g_assert_not_reached ();
+    #ifdef HAVE_WEBKIT2
+    webkit_web_view_set_custom_charset (web_view, encoding);
+    #else
+    webkit_web_view_set_custom_encoding (web_view, encoding);
+    #endif
 }
 
 static void

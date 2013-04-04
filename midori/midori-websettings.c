@@ -532,7 +532,7 @@ notify_default_encoding_cb (GObject*    object,
 
     web_settings = MIDORI_WEB_SETTINGS (object);
 
-    g_object_get (object, "default-encoding", &string, NULL);
+    g_object_get (object, pspec->name, &string, NULL);
     encoding = string ? string : "";
     if (!strcmp (encoding, "BIG5"))
         web_settings->preferred_encoding = MIDORI_ENCODING_CHINESE;
@@ -581,7 +581,7 @@ midori_web_settings_init (MidoriWebSettings* web_settings)
     " * { -webkit-appearance: none !important }");
     #endif
 
-    g_signal_connect (web_settings, "notify::default-encoding",
+    g_signal_connect (web_settings, "notify::default-charset",
                       G_CALLBACK (notify_default_encoding_cb), NULL);
     g_signal_connect (web_settings, "notify::default-font-family",
                       G_CALLBACK (notify_default_font_family_cb), NULL);
@@ -977,28 +977,28 @@ midori_web_settings_set_property (GObject*      object,
         switch (web_settings->preferred_encoding)
         {
         case MIDORI_ENCODING_CHINESE:
-            g_object_set (object, "default-encoding", "BIG5", NULL);
+            g_object_set (object, "default-charset", "BIG5", NULL);
             break;
         case MIDORI_ENCODING_CHINESE_SIMPLIFIED:
-            g_object_set (object, "default-encoding", "GB18030", NULL);
+            g_object_set (object, "default-charset", "GB18030", NULL);
             break;
         case MIDORI_ENCODING_JAPANESE:
-            g_object_set (object, "default-encoding", "SHIFT_JIS", NULL);
+            g_object_set (object, "default-charset", "SHIFT_JIS", NULL);
             break;
        case MIDORI_ENCODING_KOREAN:
-            g_object_set (object, "default-encoding", "EUC-KR", NULL);
+            g_object_set (object, "default-charset", "EUC-KR", NULL);
             break;
         case MIDORI_ENCODING_RUSSIAN:
-            g_object_set (object, "default-encoding", "KOI8-R", NULL);
+            g_object_set (object, "default-charset", "KOI8-R", NULL);
             break;
         case MIDORI_ENCODING_UNICODE:
-            g_object_set (object, "default-encoding", "UTF-8", NULL);
+            g_object_set (object, "default-charset", "UTF-8", NULL);
             break;
         case MIDORI_ENCODING_WESTERN:
-            g_object_set (object, "default-encoding", "ISO-8859-1", NULL);
+            g_object_set (object, "default-charset", "ISO-8859-1", NULL);
             break;
         case MIDORI_ENCODING_CUSTOM:
-            g_object_set (object, "default-encoding", "", NULL);
+            g_object_set (object, "default-charset", "", NULL);
         }
         break;
 
