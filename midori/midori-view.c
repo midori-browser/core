@@ -3432,10 +3432,11 @@ _midori_view_set_settings (MidoriView*        view,
         "open-tabs-in-the-background", &view->open_tabs_in_the_background,
         NULL);
 
-    g_object_set (view->web_view,
-                  "settings", settings,
-                  "full-content-zoom", zoom_text_and_images,
-                  NULL);
+    webkit_web_view_set_settings (WEBKIT_WEB_VIEW (view->web_view), (void*)settings);
+    #ifndef HAVE_WEBKIT2
+    webkit_web_view_set_full_content_zoom (WEBKIT_WEB_VIEW (view->web_view),
+        zoom_text_and_images);
+    #endif
 }
 
 /**
@@ -3506,12 +3507,16 @@ midori_view_settings_notify_cb (MidoriWebSettings* settings,
     g_value_init (&value, pspec->value_type);
     g_object_get_property (G_OBJECT (view->settings), name, &value);
 
-    if (name == g_intern_string ("zoom-text-and-images"))
+    if (name == g_intern_string ("open-new-pages-in"))
+        view->open_new_pages_in = g_value_get_enum (&value);
+    #ifndef HAVE_WEBKIT2
+    else if (name == g_intern_string ("zoom-text-and-images"))
     {
         if (view->web_view)
-            g_object_set (view->web_view, "full-content-zoom",
-                          g_value_get_boolean (&value), NULL);
+            webkit_web_view_set_full_content_zoom (WEBKIT_WEB_VIEW (view->web_view),
+                g_value_get_boolean (&value));
     }
+    #endif
     else if (name == g_intern_string ("close-buttons-on-tabs"))
     {
         view->close_buttons_on_tabs = g_value_get_boolean (&value);
@@ -3520,8 +3525,6 @@ midori_view_settings_notify_cb (MidoriWebSettings* settings,
                                    view->close_buttons_on_tabs);
         #endif
     }
-    else if (name == g_intern_string ("open-new-pages-in"))
-        view->open_new_pages_in = g_value_get_enum (&value);
     else if (name == g_intern_string ("middle-click-opens-selection"))
         view->middle_click_opens_selection = g_value_get_boolean (&value);
     else if (name == g_intern_string ("open-tabs-in-the-background"))
@@ -3807,9 +3810,11 @@ midori_view_constructor (GType                  type,
 
     if (view->settings)
     {
-        g_object_set (view->web_view, "settings", view->settings,
-            "full-content-zoom", katze_object_get_boolean (view->settings,
-                "zoom-text-and-images"), NULL);
+        webkit_web_view_set_settings (WEBKIT_WEB_VIEW (view->web_view), (void*)view->settings);
+        #ifndef HAVE_WEBKIT2
+        webkit_web_view_set_full_content_zoom (WEBKIT_WEB_VIEW (view->web_view),
+            katze_object_get_boolean (view->settings, "zoom-text-and-images"));
+        #endif
     }
 
     #ifdef HAVE_WEBKIT2

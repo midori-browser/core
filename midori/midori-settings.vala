@@ -33,8 +33,15 @@ namespace Midori {
         } set {
             default_encoding = value;
         } }
+        /* Since: 0.1.3 */
+        public bool zoom_text_and_images { get; set; default = true; }
 #else
     public class Settings : WebKit.Settings {
+        public bool zoom_text_and_images { get {
+            return !zoom_text_only;
+        } set {
+            zoom_text_only = !value;
+        } }
 #endif
         public bool remember_last_window_size { get; set; default = true; }
         public int last_window_width { get; set; default = 0; }
@@ -101,8 +108,6 @@ namespace Midori {
         public bool find_while_typing { get; set; default = false; }
 
         public bool open_popups_in_tabs { get; set; default = true; }
-        /* Since: 0.1.3 */
-        public bool zoom_text_and_images { get; set; default = true; }
         /* Since: 0.2.0 */
         // [Deprecated (since = "0.4.9")]
         public bool kinetic_scrolling { get; set; default = true; }
