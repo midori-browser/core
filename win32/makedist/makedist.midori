@@ -56,11 +56,17 @@ else
     version_tag=$version
 fi
 
-# generate unique filename
-if [ "$have_7zip" != ""  ]; then
-    ARCHIVE=midori-$version_tag-`date +%Y%m%d%H%M`.7z
+if [ "$RELEASE" == "" ]; then
+    ARCHIVE_FILENAME=midori-$version_tag-`date +%Y%m%d%H%M`
 else
-    ARCHIVE=midori-$version_tag-`date +%Y%m%d%H%M`.zip
+    ARCHIVE_FILENAME=midori-$version_tag
+fi
+
+# generate archive filename
+if [ "$have_7zip" != ""  ]; then
+    ARCHIVE=$ARCHIVE_FILENAME.7z
+else
+    ARCHIVE=$ARCHIVE_FILENAME.zip
 fi
 
 # function: dll-recursive <list of exe and dll files ...>
