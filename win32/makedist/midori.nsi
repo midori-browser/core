@@ -15,7 +15,7 @@
 
 ; Do a Cyclic Redundancy Check to make sure the installer was not corrupted by the download
 CRCCheck force
-RequestExecutionLevel user ; set execution level for Windows Vista
+RequestExecutionLevel admin ; set execution level for Windows Vista
 
 ;;;;;;;;;;;;;;;;;;;
 ; helper defines  ;
@@ -523,10 +523,9 @@ Function .onInit
 	${if} $Answer == "yes"
 		SetShellVarContext all ; set that e.g. shortcuts will be created for all users
 	${else}
-		SetShellVarContext current
-		; TODO is this really what we want? $PROGRAMFILES is not much better because
-		; probably the unprivileged user can't write it anyways
-		StrCpy $INSTDIR "$PROFILE\$(^Name)"
+               MessageBox mb_iconstop "Administrator rights required - use the portable release if that's not possible"
+               SetErrorLevel 740 ;ERROR_ELEVATION_REQUIRED
+               Quit
 	${endif}
 
 	; prevent running multiple instances of the installer
