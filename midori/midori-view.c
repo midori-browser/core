@@ -74,6 +74,12 @@ midori_view_web_view_get_snapshot (GtkWidget* web_view,
                                    gint       width,
                                    gint       height);
 
+#ifdef HAVE_WEBKIT2
+static void
+midori_view_uri_scheme_res (WebKitURISchemeRequest* request,
+                            gpointer                user_data);
+#endif
+
 static gboolean
 midori_view_display_error (MidoriView*     view,
                            const gchar*    uri,
@@ -383,6 +389,14 @@ midori_view_class_init (MidoriViewClass* class)
                                      "The associated settings",
                                      MIDORI_TYPE_WEB_SETTINGS,
                                      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+    #ifdef HAVE_WEBKIT2
+    WebKitWebContext* context = webkit_web_context_get_default ();
+    webkit_web_context_register_uri_scheme (context,
+        "res", midori_view_uri_scheme_res, NULL, NULL);
+    webkit_web_context_register_uri_scheme (context,
+        "stock", midori_view_uri_scheme_res, NULL, NULL);
+    #endif
 }
 
 static void
@@ -922,7 +936,15 @@ webkit_web_view_progress_changed_cb (WebKitWebView* web_view,
     midori_tab_set_progress (MIDORI_TAB (view), progress);
 }
 
-#ifndef HAVE_WEBKIT2
+#ifdef HAVE_WEBKIT2
+static void
+midori_view_uri_scheme_res (WebKitURISchemeRequest* request,
+                            gpointer                user_data)
+{
+    const gchar* uri = webkit_uri_scheme_request_get_uri (request);
+    WebKitWebView* web_view = webkit_uri_scheme_request_get_web_view (request);
+    MidoriView* view = midori_view_get_for_widget (GTK_WIDGET (web_view));
+#else
 static void
 midori_view_web_view_resource_request_cb (WebKitWebView*         web_view,
                                           WebKitWebFrame*        web_frame,
@@ -932,6 +954,7 @@ midori_view_web_view_resource_request_cb (WebKitWebView*         web_view,
                                           MidoriView*            view)
 {
     const gchar* uri = webkit_network_request_get_uri (request);
+#endif
 
     /* Only apply custom URIs to special pages for security purposes */
     if (!midori_tab_get_special (MIDORI_TAB (view)))
@@ -940,10 +963,25 @@ midori_view_web_view_resource_request_cb (WebKitWebView*         web_view,
     if (g_str_has_prefix (uri, "res://"))
     {
         gchar* filepath = midori_paths_get_res_filename (&uri[6]);
+        #ifdef HAVE_WEBKIT2
+        gchar* contents;
+        gsize length;
+        if (g_file_get_contents (filepath, &contents, &length, NULL))
+        {
+            gchar* content_type = g_content_type_guess (filepath, (guchar*)contents, length, NULL);
+            gchar* mime_type = g_content_type_get_mime_type (content_type);
+            GInputStream* stream = g_memory_input_stream_new_from_data (contents, -1, g_free);
+            webkit_uri_scheme_request_finish (request, stream, -1, mime_type);
+            g_object_unref (stream);
+            g_free (mime_type);
+            g_free (content_type);
+        }
+        #else
         gchar* file_uri = g_filename_to_uri (filepath, NULL, NULL);
-        g_free (filepath);
         webkit_network_request_set_uri (request, file_uri);
         g_free (file_uri);
+        #endif
+        g_free (filepath);
     }
     else if (g_str_has_prefix (uri, "stock://"))
     {
@@ -992,12 +1030,18 @@ midori_view_web_view_resource_request_cb (WebKitWebView*         web_view,
             gsize buffer_size;
             if (g_file_get_contents (icon_filename, &buffer, &buffer_size, NULL))
             {
+                #ifdef HAVE_WEBKIT2
+                GInputStream* stream = g_memory_input_stream_new_from_data (buffer, buffer_size, g_free);
+                webkit_uri_scheme_request_finish (request, stream, -1, "image/svg+xml");
+                g_object_unref (stream);
+                #else
                 gchar* encoded = g_base64_encode ((guchar*)buffer, buffer_size);
                 gchar* data_uri = g_strconcat ("data:image/svg+xml;base64,", encoded, NULL);
                 g_free (buffer);
                 g_free (encoded);
                 webkit_network_request_set_uri (request, data_uri);
                 g_free (data_uri);
+                #endif
                 return;
             }
         }
@@ -1021,16 +1065,21 @@ midori_view_web_view_resource_request_cb (WebKitWebView*         web_view,
                 return;
 
             encoded = g_base64_encode ((guchar*)buffer, buffer_size);
-            g_free (buffer);
             data_uri = g_strconcat ("data:image/png;base64,", encoded, NULL);
             g_free (encoded);
+            #ifdef HAVE_WEBKIT2
+            GInputStream* stream = g_memory_input_stream_new_from_data (buffer, buffer_size, g_free);
+            webkit_uri_scheme_request_finish (request, stream, -1, "image/png");
+            g_object_unref (stream);
+            #else
+            g_free (buffer);
             webkit_network_request_set_uri (request, data_uri);
+            #endif
             g_free (data_uri);
             return;
         }
     }
 }
-#endif
 
 #define HAVE_GTK_INFO_BAR GTK_CHECK_VERSION (2, 18, 0)
 
