@@ -427,13 +427,10 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
 
     /* Page "Interface" */
     PAGE_NEW (GTK_STOCK_CONVERT, _("Browsing"));
-    if (!g_getenv ("DESKTOP_SESSION"))
-    {
         FRAME_NEW (NULL);
         INDENTED_ADD (gtk_label_new (_("Toolbar Style:")));
         button = katze_property_proxy (settings, "toolbar-style", NULL);
         SPANNED_ADD (button);
-    }
     FRAME_NEW (NULL);
     label = gtk_label_new (_("Open new pages in:"));
     INDENTED_ADD (label);
