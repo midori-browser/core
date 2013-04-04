@@ -232,10 +232,8 @@ else
 fi
 
 mkdir -p $gtk_etc_dir
-rm $gtk_rc_file
 
-
-# Use small icons by default and Tango theme
+# Use small icons by default and Faenza icon theme
 if [ "$GTK3_BUILD" == "1" ]; then
 
     cat > $gtk_rc_file << _EOF
