@@ -294,3 +294,15 @@ echo "<*> Cleaning up..."
 
 # remove working directory
 rm -r $temp_dir
+
+
+echo "<*> Computing checksums..."
+
+sum_file=midori-$version.sha1
+sha1sum $ARCHIVE >> $sum_file
+
+if [ "$NSIS" != "" ]; then
+    sha1sum $nsis_file >> $sum_file
+fi
+
+cat $sum_file
