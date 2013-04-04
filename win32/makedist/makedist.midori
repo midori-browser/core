@@ -65,6 +65,12 @@ else
     ARCHIVE=$ARCHIVE_FILENAME.zip
 fi
 
+if [ "NSIS" != "" ];then
+    where_am_i=$PWD
+    cp -a $where_am_i/win32/makedist/midori.nsi $temp_dir
+    cp -a $where_am_i/win32/makedist/midori.ico $temp_dir
+fi
+
 # function: dll-recursive <list of exe and dll files ...>
 #
 # recursively search all dll dependencies of the input files.
@@ -274,6 +280,13 @@ if [ "$have_7zip" != "" ]; then
     7za a -m0=lzma $ARCHIVE midori-$version_tag > /dev/null
 else
     zip -rq $ARCHIVE midori-$version_tag
+fi
+
+if [ "$NSIS" != "" ];then
+    nsis_file=Midori-${version}_setup.exe
+    echo "Creating $nsis_file"
+    makensis -NOCD -V2 ./midori.nsi
+    mv $nsis_file $where_am_i
 fi
 popd > /dev/null
 
