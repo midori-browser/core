@@ -3601,14 +3601,11 @@ static void
 _action_scroll_somewhere_activate (GtkAction*     action,
                                    MidoriBrowser* browser)
 {
-    GtkWidget* view;
-    WebKitWebView* web_view;
-    const gchar* name;
-
-    view = midori_browser_get_current_tab (browser);
-    web_view = WEBKIT_WEB_VIEW (midori_view_get_web_view (MIDORI_VIEW (view)));
-    name = gtk_action_get_name (action);
 #ifndef HAVE_WEBKIT2
+    GtkWidget* view = midori_browser_get_current_tab (browser);
+    WebKitWebView* web_view = WEBKIT_WEB_VIEW (midori_view_get_web_view (MIDORI_VIEW (view)));
+    const gchar* name = gtk_action_get_name (action);
+
     if (g_str_equal (name, "ScrollLeft"))
         webkit_web_view_move_cursor (web_view, GTK_MOVEMENT_VISUAL_POSITIONS, -1);
     else if (g_str_equal (name, "ScrollDown"))
@@ -3670,7 +3667,6 @@ static gboolean
 _action_navigation_activate (GtkAction*     action,
                              MidoriBrowser* browser)
 {
-#ifndef HAVE_WEBKIT2
     MidoriView* view;
     GtkWidget* tab;
     gchar* uri;
@@ -3701,11 +3697,16 @@ _action_navigation_activate (GtkAction*     action,
     {
         if (middle_click)
         {
-            GtkWidget* web_view = midori_view_get_web_view (view);
-            WebKitWebBackForwardList* back_forward_list =
-                webkit_web_view_get_back_forward_list (WEBKIT_WEB_VIEW (web_view));
-            WebKitWebHistoryItem* back_item = webkit_web_back_forward_list_get_back_item (back_forward_list);
-            const gchar* back_uri = webkit_web_history_item_get_uri (back_item);
+            WebKitWebView* web_view = WEBKIT_WEB_VIEW (midori_view_get_web_view (view));
+            #ifdef HAVE_WEBKIT2
+            WebKitBackForwardList* list = webkit_web_view_get_back_forward_list (web_view);
+            WebKitBackForwardListItem* item = webkit_back_forward_list_get_back_item (list);
+            const gchar* back_uri = webkit_back_forward_list_item_get_uri (item);
+            #else
+            WebKitWebBackForwardList* list = webkit_web_view_get_back_forward_list (web_view);
+            WebKitWebHistoryItem* item = webkit_web_back_forward_list_get_forward_item (list);
+            const gchar* back_uri = webkit_web_history_item_get_uri (item);
+            #endif
             GtkWidget* view = midori_browser_add_uri (browser, back_uri);
             midori_browser_set_current_tab_smartly (browser, view);
         }
@@ -3718,11 +3719,16 @@ _action_navigation_activate (GtkAction*     action,
     {
         if (middle_click)
         {
-            GtkWidget* web_view = midori_view_get_web_view (view);
-            WebKitWebBackForwardList* back_forward_list =
-                webkit_web_view_get_back_forward_list (WEBKIT_WEB_VIEW (web_view));
-            WebKitWebHistoryItem* forward_item = webkit_web_back_forward_list_get_forward_item (back_forward_list);
-            const gchar* forward_uri = webkit_web_history_item_get_uri (forward_item);
+            WebKitWebView* web_view = WEBKIT_WEB_VIEW (midori_view_get_web_view (view));
+            #ifdef HAVE_WEBKIT2
+            WebKitBackForwardList* list = webkit_web_view_get_back_forward_list (web_view);
+            WebKitBackForwardListItem* item = webkit_back_forward_list_get_forward_item (list);
+            const gchar* forward_uri = webkit_back_forward_list_item_get_uri (item);
+            #else
+            WebKitWebBackForwardList* list = webkit_web_view_get_back_forward_list (web_view);
+            WebKitWebHistoryItem* item = webkit_web_back_forward_list_get_forward_item (list);
+            const gchar* forward_uri = webkit_web_history_item_get_uri (item);
+            #endif
             GtkWidget* view = midori_browser_add_uri (browser, forward_uri);
             midori_browser_set_current_tab_smartly (browser, view);
         }
@@ -3775,7 +3781,6 @@ _action_navigation_activate (GtkAction*     action,
 
         return TRUE;
     }
-#endif
     return FALSE;
 }
 
