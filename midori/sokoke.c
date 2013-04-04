@@ -977,6 +977,10 @@ sokoke_prefetch_uri (MidoriWebSettings*  settings,
         return FALSE;
     }
 
+#ifdef HAVE_WEBKIT2
+    WebKitWebContext* context = webkit_web_context_get_default ();
+    webkit_web_context_prefetch_dns (context, hostname);
+#else
     if (!hosts ||
         !g_regex_match_simple (hostname, hosts,
                                G_REGEX_CASELESS, G_REGEX_MATCH_NOTEMPTY))
@@ -997,15 +1001,11 @@ sokoke_prefetch_uri (MidoriWebSettings*  settings,
         new_hosts = g_strdup_printf ("%s|%s", hosts, hostname);
         katze_assign (hosts, new_hosts);
     }
-#ifndef HAVE_WEBKIT2
     else if (callback)
         callback (NULL, SOUP_STATUS_OK, user_data);
+#endif
     g_free (hostname);
     return TRUE;
-#else
-    g_free (hostname);
-    return FALSE;
-#endif
 }
 
 /**
