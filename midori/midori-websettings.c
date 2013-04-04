@@ -1222,8 +1222,12 @@ midori_web_settings_get_property (GObject*    object,
             WEB_SETTINGS_STRING ("enable-fullscreen")));
         break;
     case PROP_USER_STYLESHEET_URI:
+#ifdef HAVE_WEBKIT2
+        g_value_set_string (value, web_settings->user_stylesheet_uri);
+#else
         g_value_take_string (value, katze_object_get_string (web_settings,
             WEB_SETTINGS_STRING ("user-stylesheet-uri")));
+#endif
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -1278,7 +1282,11 @@ midori_web_settings_process_stylesheets (MidoriWebSettings* settings,
 
     /* data: uri prefix from Source/WebCore/page/Page.cpp:700 in WebKit */
     encoded = g_strconcat ("data:text/css;charset=utf-8;base64,", css->str, NULL);
+    #ifdef HAVE_WEBKIT2
+    /* TODO: webkit_web_view_group_add_user_style_sheet */
+    #else
     g_object_set (settings, WEB_SETTINGS_STRING ("user-stylesheet-uri"), encoded, NULL);
+    #endif
     g_free (encoded);
     g_string_free (css, TRUE);
 }
