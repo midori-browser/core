@@ -1,5 +1,47 @@
 This file is licensed under the terms of the expat license, see the file EXPAT.
 
+v0.5.0:
+ Store --execute arguments in string array
+ Prevent overlay frame from being caught by show_all
+ Unconditionally show Toolbar Style preference
+ Duplicate current URI when reloading Midori.View
+ Update tabs being closable on setting change in Granite
+ Check default_search before setting SearchAction default
+ Populate application chooser button in idle
+ Bail out of completion resizing if cell height is 0
+ Pass proxy to bookmark dialog when editing via menu
+ Tweak bookmark dialog, button to buttons, toggles side by side
+ Move 'Flash windows' option into History List
+ Use light window for Clear Private Data with Granite
+ Use GtkFontButton with filter func with GTK+ 3.2
+ Implement 'Run in debugger' button in diagnostic dialog
+ Add Win32 work-around to History List for modifiers
+ Make toolbar drag/ drop work in GTK+3
+ Check if active form element is input before getting search text
+ Implement direction-based mouse gesture configuration
+ Implement mouse movement, load-failed, crashed, search in WebKit2
+ Add 'Show last crash log' button to diagnostic dialog
+ Make invalid actions fail; exit on error in new process only
+ Accept setting=value and extension=true/ false in --execute
+ Merged cookie permissions as of 2013-03-08
+ Gray out webGL preference if context is unavailable
+ Use browser API to Close Other in view menu item
+ Fix periods to ellipsis in Custom/ Customize Shortcuts
+ Support Colorful Tabs in History List
+ Add Midori.Tab.fg/ bg_color and Midori.View.set_colors
+ Fix word-wrap, #decription and #message in about.css
+ Set view scroll policy to Never to avoid flickering
+ Use XDG_RUNTIME_DIR for temporary files
+ Build Vala and C parts of core separately
+ Don't provide default value for enable-scripts
+ Respect Open new pages: window for Web Search and Open Image
+ enable-javascript in WebKit1/ 2, macro for (Web)Settings
+ Fix MIDORI_*_VERSION to be integers
+ Fix .desktop file validation unit test and fix errors
+ 'New tab behavior' preference: about:dial/ new/ search/ home alias URLs
+ Use stripped down XBEL variant for session and trash
+ Allow any proxies supported by libproxy; list supported types in preferences
+
 v0.4.9:
  Let non-Granite security window behave like a window
  Disable Contractor support in Granite for now
