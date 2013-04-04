@@ -175,6 +175,9 @@ midori_web_settings_get_system_name        (gchar**            architecture,
 gboolean
 midori_web_settings_has_plugin_support     (void);
 
+gboolean
+midori_web_settings_skip_plugin            (const gchar* path);
+
 typedef enum
 {
     MIDORI_SITE_DATA_UNDETERMINED,

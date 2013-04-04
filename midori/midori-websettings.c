@@ -625,6 +625,19 @@ midori_web_settings_has_plugin_support (void)
 }
 
 /**
+ * midori_web_settings_skip_plugin:
+ *
+ * Returns: %TRUE if the passed plugin shouldn't be shown in UI listings.
+ *
+ * Since: 0.5.1
+ **/
+gboolean
+midori_web_settings_skip_plugin (const gchar* path)
+{
+    return !path || strstr (path, "npwrapper.") || strstr (path, "plugins-wrapped");
+}
+
+/**
  * midori_web_settings_get_site_data_policy:
  *
  * Tests if @uri may store site data.

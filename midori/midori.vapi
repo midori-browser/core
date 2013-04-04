@@ -222,6 +222,7 @@ namespace Midori {
         [NoAccessorMethod]
         public MidoriStartup load_on_startup { get; set; }
         public static bool has_plugin_support ();
+        public static bool skip_plugin (string path);
     }
 
     [CCode (cheader_filename = "midori/midori-websettings.h", cprefix = "MIDORI_STARTUP_")]

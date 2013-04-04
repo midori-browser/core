@@ -3919,12 +3919,23 @@ midori_view_list_versions (GString* markup,
         ));
 }
 
+#ifdef HAVE_WEBKIT2
+static void
+midori_view_get_plugins_cb (GObject*      object,
+                            GAsyncResult* result,
+                            MidoriView*   view)
+{
+    GList* plugins = webkit_web_context_get_plugins_finish (WEBKIT_WEB_CONTEXT (object), result, NULL);
+    g_object_set_data (object, "nsplugins", plugins);
+    midori_view_reload (view, FALSE);
+}
+#endif
+
 void
 midori_view_list_plugins (MidoriView* view,
                           GString*    ns_plugins,
                           gboolean    html)
 {
-    #ifndef HAVE_WEBKIT2
     if (!midori_web_settings_has_plugin_support ())
         return;
 
@@ -3933,14 +3944,29 @@ midori_view_list_plugins (MidoriView* view,
     else
         g_string_append_c (ns_plugins, '\n');
 
-    #if WEBKIT_CHECK_VERSION (1, 3, 8)
+    #ifdef HAVE_WEBKIT2
+    WebKitWebContext* context = webkit_web_context_get_default ();
+    GList* plugins = g_object_get_data (G_OBJECT (context), "nsplugins");
+    if (plugins == NULL)
+    {
+        midori_view_add_version (ns_plugins, html, g_strdup ("…"));
+        webkit_web_context_get_plugins (context, NULL, (GAsyncReadyCallback)midori_view_get_plugins_cb, view);
+    }
+    else
+        for (; plugins != NULL; plugins = g_list_next (plugins))
+        {
+            if (!midori_web_settings_skip_plugin (webkit_plugin_get_path (plugins->data)))
+                midori_view_add_version (ns_plugins, html, g_strdup_printf ("%s\t%s",
+                    webkit_plugin_get_name (plugins->data),
+                    html ? webkit_plugin_get_description (plugins->data) : ""));
+        }
+    #elif WEBKIT_CHECK_VERSION (1, 3, 8)
     WebKitWebPluginDatabase* pdb = webkit_get_web_plugin_database ();
     GSList* plugins = webkit_web_plugin_database_get_plugins (pdb);
     GSList* plugin = plugins;
     for (; plugin != NULL; plugin = g_slist_next (plugin))
     {
-        const gchar* path = webkit_web_plugin_get_path (plugin->data);
-        if (!path || strstr (path, "npwrapper.") || strstr (path, "plugins-wrapped"))
+        if (midori_web_settings_skip_plugin (webkit_web_plugin_get_path (plugin->data)))
             continue;
         midori_view_add_version (ns_plugins, html, g_strdup_printf ("%s\t%s",
             webkit_web_plugin_get_name (plugin->data),
@@ -3965,9 +3991,8 @@ midori_view_list_plugins (MidoriView* view,
         while (items[i] != NULL)
         {
             gchar** parts = g_strsplit (items[i], "|", 2);
-            if (parts[0]
-             && !strstr (parts[1], "npwrapper.") && !strstr (parts[1], "plugins-wrapped")
-             && !g_str_equal (parts[1], "undefined"))
+            if (parts[0] && !g_str_equal (parts[1], "undefined")
+             && !midori_web_settings_skip_plugin (parts[1]))
                 midori_view_add_version (ns_plugins, html, g_strdup_printf ("%s\t%s",
                     parts[1], html ? parts[0] : ""));
             g_strfreev (parts);
@@ -3978,9 +4003,6 @@ midori_view_list_plugins (MidoriView* view,
                 "No plugins found"));
         g_strfreev (items);
         g_free (value);
-    #endif
-    #else
-    return;
     #endif
 }
 

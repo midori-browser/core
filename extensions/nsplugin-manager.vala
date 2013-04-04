@@ -65,7 +65,7 @@ public Katze.Array? extension_init () {
     SList<WebKit.WebPlugin> plugins = pdb.get_plugins ();
 
     foreach (WebKit.WebPlugin plugin in plugins) {
-        if (plugin.get_path () == null || "npwrapper." in plugin.get_path () || "plugins-wrapped" in plugin.get_path())
+        if (Midori.WebSettings.skip_plugin (plugin.get_path ()))
             continue;
         extensions.add_item (new NSPlugins.Extension (plugin));
     }
