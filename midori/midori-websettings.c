@@ -1048,8 +1048,10 @@ midori_web_settings_set_property (GObject*      object,
         break;
     case PROP_PREFERRED_LANGUAGES:
         katze_assign (web_settings->http_accept_language, g_value_dup_string (value));
+        #ifndef HAVE_WEBKIT2
         g_object_set (web_settings, "spell-checking-languages",
                       web_settings->http_accept_language, NULL);
+        #endif
         midori_web_settings_update_accept_language (web_settings);
         break;
     case PROP_SITE_DATA_RULES:
