@@ -711,18 +711,24 @@ midori_view_update_load_status (MidoriView*      view,
     #endif
 }
 
-#ifndef HAVE_WEBKIT2
 static gboolean
 midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view,
+                                             #ifdef HAVE_WEBKIT2
+                                             WebKitPolicyDecision*      decision,
+                                             WebKitPolicyDecisionType   decision_type,
+                                             #else
                                              WebKitWebFrame*            web_frame,
                                              WebKitNetworkRequest*      request,
                                              WebKitWebNavigationAction* action,
                                              WebKitWebPolicyDecision*   decision,
+                                             #endif
                                              MidoriView*                view)
 {
-    JSContextRef js_context;
-    gchar* result;
+    #ifdef HAVE_WEBKIT2
+    const gchar* uri = webkit_web_view_get_uri (web_view);
+    #else
     const gchar* uri = webkit_network_request_get_uri (request);
+    #endif
     if (g_str_has_prefix (uri, "geo:") && strstr (uri, ","))
     {
         gchar* new_uri = sokoke_magic_uri (uri, TRUE, FALSE);
@@ -735,7 +741,11 @@ midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view
         if (sokoke_show_uri (gtk_widget_get_screen (GTK_WIDGET (web_view)),
                              uri, GDK_CURRENT_TIME, NULL))
         {
+            #ifdef HAVE_WEBKIT2
+            webkit_policy_decision_ignore (decision);
+            #else
             webkit_web_policy_decision_ignore (decision);
+            #endif
             return TRUE;
         }
     }
@@ -743,10 +753,14 @@ midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view
     {
         /* For security reasons, main content served as data: is limited to images
            http://lcamtuf.coredump.cx/switch/ */
+        #ifdef HAVE_WEBKIT2
+        webkit_policy_decision_ignore (decision);
+        #else
         webkit_web_policy_decision_ignore (decision);
+        #endif
         return TRUE;
     }
-    #ifdef HAVE_GCR
+    #if defined (HAVE_GCR) && !defined (HAVE_WEBKIT2)
     else if (/* midori_tab_get_special (MIDORI_TAB (view)) && */ !strncmp (uri, "https", 5))
     {
         /* We show an error page if the certificate is invalid.
@@ -800,9 +814,10 @@ midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view
         katze_item_set_meta_integer (view->item, "delay", MIDORI_DELAY_UNDELAYED);
     }
 
+    #ifndef HAVE_WEBKIT2
     /* Remove link labels */
-    js_context = webkit_web_frame_get_global_context (web_frame);
-    result = sokoke_js_script_eval (js_context,
+    JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
+    gchar* result = sokoke_js_script_eval (js_context,
         "(function (links) {"
         "if (links != undefined && links.length > 0) {"
         "   for (var i = links.length - 1; i >= 0; i--) {"
@@ -821,9 +836,9 @@ midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view
         NULL);
     g_free (result);
     view->find_links = -1;
+    #endif
     return FALSE;
 }
-#endif
 
 static void
 midori_view_load_started (MidoriView* view)
@@ -3798,6 +3813,8 @@ midori_view_constructor (GType                  type,
                       midori_web_view_notify_icon_uri_cb, view,
                       "signal::mouse-target-changed",
                       webkit_web_view_hovering_over_link_cb, view,
+                      "signal::decide-policy",
+                      midori_view_web_view_navigation_decision_cb, view,
                       #else
                       "signal::notify::load-status",
                       midori_view_web_view_notify_load_status_cb, view,
