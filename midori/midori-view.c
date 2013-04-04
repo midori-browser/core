@@ -104,7 +104,6 @@ struct _MidoriView
     GtkWidget* web_view;
     KatzeArray* news_feeds;
 
-    gboolean middle_click_opens_selection;
     gboolean open_tabs_in_the_background;
     gboolean close_buttons_on_tabs;
     MidoriNewPage open_new_pages_in;
@@ -1760,7 +1759,11 @@ midori_view_web_view_button_press_event_cb (WebKitWebView*  web_view,
             view->button_press_handled = TRUE;
             return TRUE;
         }
-        if (view->middle_click_opens_selection)
+        #if GTK_CHECK_VERSION (3, 4, 0)
+        if (katze_object_get_boolean (gtk_widget_get_settings (view->web_view), "gtk-enable-primary-paste"))
+        #else
+        if (midori_settings_get_middle_click_opens_selection (MIDORI_SETTINGS (view->settings)))
+        #endif
         {
             gboolean is_editable;
             WebKitHitTestResult* result;
@@ -3428,7 +3431,6 @@ _midori_view_set_settings (MidoriView*        view,
         "zoom-text-and-images", &zoom_text_and_images,
         "close-buttons-on-tabs", &view->close_buttons_on_tabs,
         "open-new-pages-in", &view->open_new_pages_in,
-        "middle-click-opens-selection", &view->middle_click_opens_selection,
         "open-tabs-in-the-background", &view->open_tabs_in_the_background,
         NULL);
 
@@ -3525,8 +3527,6 @@ midori_view_settings_notify_cb (MidoriWebSettings* settings,
                                    view->close_buttons_on_tabs);
         #endif
     }
-    else if (name == g_intern_string ("middle-click-opens-selection"))
-        view->middle_click_opens_selection = g_value_get_boolean (&value);
     else if (name == g_intern_string ("open-tabs-in-the-background"))
         view->open_tabs_in_the_background = g_value_get_boolean (&value);
     else if (name == g_intern_string ("enable-javascript"))

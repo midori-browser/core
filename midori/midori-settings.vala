@@ -111,6 +111,7 @@ namespace Midori {
         /* Since: 0.2.0 */
         // [Deprecated (since = "0.4.9")]
         public bool kinetic_scrolling { get; set; default = true; }
+        // [Deprecated (since = "0.5.0")]
         public bool middle_click_opens_selection { get; set; default = true; }
         public bool flash_window_on_new_bg_tabs { get; set; default = false; }
 
