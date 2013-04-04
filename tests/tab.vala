@@ -209,20 +209,14 @@ void tab_http () {
 
     var source = new Midori.View.with_title (null, tab.settings);
     browser.add_tab (source);
-#if HAVE_WEBKIT2
-#else
-    source.web_view.set_view_source_mode (true);
-#endif
+    source.view_source = true;
     source.web_view.load_uri (test_url);
     do { loop.iteration (true); } while (source.load_status != Midori.LoadStatus.FINISHED);
     assert (!source.is_blank ());
     assert (!source.can_view_source ());
     assert (!source.special);
     /* FIXME assert (source.can_save ()); */
-#if HAVE_WEBKIT2
-#else
-    assert (source.web_view.get_view_source_mode ());
-#endif
+    assert (source.view_source);
 
     source.set_uri ("http://.invalid");
     do { loop.iteration (true); } while (source.load_status != Midori.LoadStatus.FINISHED);
@@ -230,10 +224,7 @@ void tab_http () {
     assert (!source.can_view_source ());
     assert (source.special);
     assert (!source.can_save ());
-#if HAVE_WEBKIT2
-#else
-    assert (!source.web_view.get_view_source_mode ());
-#endif
+    assert (!source.view_source);
 
     Midori.Test.release_max_timeout ();
 }

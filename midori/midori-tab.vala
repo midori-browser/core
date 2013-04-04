@@ -136,9 +136,26 @@ namespace Midori {
 #endif
         }
 
+#if HAVE_WEBKIT2
+        public bool view_source { get {
+            return web_view.view_mode == WebKit.ViewMode.SOURCE;
+        }
+        set {
+            web_view.view_mode = value ? WebKit.ViewMode.SOURCE : WebKit.ViewMode.WEB;
+        }
+        }
+#else
+        public bool view_source { get {
+            return web_view.get_view_source_mode ();
+        }
+        set {
+            web_view.set_view_source_mode (value);
+        }
+        }
+#endif
+
         public bool can_view_source () {
-#if !HAVE_WEBKIT2
-            if (is_blank () || special || web_view.get_view_source_mode ())
+            if (is_blank () || special || view_source)
                 return false;
             string content_type = ContentType.from_mime_type (mime_type);
 #if HAVE_WIN32
@@ -148,9 +165,6 @@ namespace Midori {
             string text_type = ContentType.from_mime_type ("text/plain");
 #endif
             return ContentType.is_a (content_type, text_type);
-#else
-            return true;
-#endif
         }
 
         public static string get_display_title (string? title, string uri) {
@@ -191,11 +205,11 @@ namespace Midori {
 
         /* Since: 0.4.3 */
         public bool can_save () {
-#if !HAVE_WEBKIT2
             if (is_blank () || special)
                 return false;
-            if (web_view.get_view_source_mode ())
+            if (view_source)
                 return false;
+#if !HAVE_WEBKIT2
             if (web_view.get_main_frame ().get_data_source ().get_data () == null)
                 return false;
 #endif

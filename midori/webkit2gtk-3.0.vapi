@@ -464,6 +464,11 @@ namespace WebKit {
 		public signal void received_data (uint64 data_length);
 		public signal void sent_request (WebKit.URIRequest request, WebKit.URIResponse redirected_response);
 	}
+	[CCode (cheader_filename = "webkit2/webkit2.h", cprefix = "WEBKIT_VIEW_MODE_")]
+	public enum ViewMode {
+		WEB,
+		SOURCE
+	}
 	[CCode (cheader_filename = "webkit2/webkit2.h", type_id = "webkit_web_view_get_type ()")]
 	public class WebView : WebKit.WebViewBase, Atk.Implementor, Gtk.Buildable {
 		[CCode (has_construct_function = false, type = "GtkWidget*")]
@@ -509,6 +514,7 @@ namespace WebKit {
 		[NoAccessorMethod]
 		public WebKit.WebContext web_context { owned get; construct; }
 		public double zoom_level { get; set; }
+		public WebKit.ViewMode view_mode { get; set; }
 		public virtual signal void close ();
 		public virtual signal bool context_menu (WebKit.ContextMenu context_menu, Gdk.Event event, WebKit.HitTestResult hit_test_result);
 		public virtual signal void context_menu_dismissed ();

@@ -3505,9 +3505,7 @@ _action_source_view_activate (GtkAction*     action,
 
         source = midori_view_new_with_item (NULL, browser->settings);
         source_view = midori_view_get_web_view (MIDORI_VIEW (source));
-#ifndef HAVE_WEBKIT2
-        webkit_web_view_set_view_source_mode (WEBKIT_WEB_VIEW (source_view), TRUE);
-#endif
+        midori_tab_set_view_source (MIDORI_TAB (source_view), TRUE);
         webkit_web_view_load_uri (WEBKIT_WEB_VIEW (source_view), source_uri);
         midori_browser_add_tab (browser, source);
     }
