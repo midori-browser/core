@@ -47,7 +47,7 @@ if [ "$1" != "" ]; then
 fi
 
 if [ "$version_tag" != "" ]; then
-    version_tag=$version_tag-$version
+    version_tag=$version-$version_tag
 else
     version_tag=$version
 fi
@@ -117,7 +117,7 @@ grab_files ()
 echo "Creating $ARCHIVE"
 
 # create destination folder
-workdir=$temp_dir/midori-$version_tag
+workdir=$temp_dir/midori-$version
 mkdir $workdir
 
 echo "<*> Generating dll list..."
