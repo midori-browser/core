@@ -1,0 +1,59 @@
+#!/bin/bash
+
+# Copyright (C) 2013 Paweł Forysiuk <tuxator@o2.pl>
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# See the file COPYING for the full license text.
+
+
+version=$(git describe --abbrev=0)
+dropbox_dir=$HOME/Dropbox/Public
+
+# 32-bit build
+#mingw32-env
+export MINGW_PREFIX="/usr/i686-w64-mingw32/sys-root/mingw"
+eval `rpm --eval %{mingw32_env}`
+
+./configure --prefix=$MINGW_PREFIX --enable-gtk3
+make clean
+make install
+
+rpmquery -qa mingw32* > midori-${version}-deps-i686.txt
+rm -f midori-$version.sha1
+
+MINGW_PREFIX=${MINGW_PREFIX} RELEASE=1 NSIS=1 ./win32/makedist/makedist.midori
+mv -v midori-${version}.7z $dropbox_dir
+mv -v Midori-${version}_setup.exe $dropbox_dir
+
+dropbox puburl $dropbox_dir/midori-${version}.7z >  release_links.txt
+dropbox puburl $dropbox_dir/Midori-${version}_setup.exe >> release_links.txt
+
+if [ "$NO_64BIT" != "" ]; then
+    # 64-bit build
+    #mingw64-env
+    export MINGW_PREFIX="/usr/x86_64-w64-mingw32/sys-root/mingw"
+    eval `rpm --eval %{mingw64_env}`
+
+    ./configure --prefix=$MINGW_PREFIX --enable-gtk3
+    make clean
+    make install
+
+    rpmquery -qa mingw64* > midori-${version}-deps-x86_64.txt
+    MINGW_PREFIX=${MINGW_PREFIX} RELEASE=1 sh ./win32/makedist/makedist.midori x86_64-portable
+    mv -v midori-${version}-x86_64-portable.7z $dropbox_dir
+    dropbox puburl $dropbox_dir/midori-${version}-x86_64-portable.7z >> release_links.txt
+fi
+
+echo
+echo "============================="
+echo "Midori win32 release details:"
+echo "Download links:"
+cat release_links.txt
+echo "Checksums:"
+cat midori-$version.sha1
+echo "============================="
+echo
