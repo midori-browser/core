@@ -78,7 +78,7 @@ main (int    argc,
     gboolean debug = FALSE;
     gboolean run;
     gchar* snapshot;
-    gboolean execute;
+    gchar** execute;
     gboolean help_execute;
     gboolean version;
     gchar** uris;
@@ -106,7 +106,7 @@ main (int    argc,
        N_("Run the specified filename as javascript"), NULL },
        { "snapshot", 's', 0, G_OPTION_ARG_STRING, &snapshot,
        N_("Take a snapshot of the specified URI"), NULL },
-       { "execute", 'e', 0, G_OPTION_ARG_NONE, &execute,
+       { "execute", 'e', 0, G_OPTION_ARG_STRING_ARRAY, &execute,
        N_("Execute the specified command"), NULL },
        { "help-execute", 0, 0, G_OPTION_ARG_NONE, &help_execute,
        N_("List available commands to execute with -e/ --execute"), NULL },
@@ -132,7 +132,7 @@ main (int    argc,
     plain = FALSE;
     run = FALSE;
     snapshot = NULL;
-    execute = FALSE;
+    execute = NULL;
     help_execute = FALSE;
     version = FALSE;
     uris = NULL;
@@ -374,7 +374,7 @@ main (int    argc,
     if (private)
     {
         MidoriBrowser* browser = midori_private_app_new (config, webapp,
-            execute ? NULL : uris, execute ? uris : NULL, inactivity_reset, block_uris);
+            uris, execute, inactivity_reset, block_uris);
         g_signal_connect (browser, "destroy", G_CALLBACK (gtk_main_quit), NULL);
         g_signal_connect (browser, "quit", G_CALLBACK (gtk_main_quit), NULL);
         gtk_main ();
@@ -384,7 +384,7 @@ main (int    argc,
     if (webapp)
     {
         MidoriBrowser* browser = midori_web_app_new (config, webapp,
-            execute ? NULL : uris, execute ? uris : NULL, inactivity_reset, block_uris);
+            uris, execute, inactivity_reset, block_uris);
         g_signal_connect (browser, "destroy", G_CALLBACK (gtk_main_quit), NULL);
         g_signal_connect (browser, "quit", G_CALLBACK (gtk_main_quit), NULL);
         gtk_main ();
@@ -393,7 +393,7 @@ main (int    argc,
 
     MidoriApp* app = midori_normal_app_new (config,
         portable ? "portable" : "normal", diagnostic_dialog, webapp,
-        execute ? NULL : uris, execute ? uris : NULL, inactivity_reset, block_uris);
+        uris, execute, inactivity_reset, block_uris);
     if (app == NULL)
         return 0;
     if (app == (void*)0xdeadbeef)
