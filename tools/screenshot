@@ -1,0 +1,83 @@
+#! /bin/sh
+# Copyright (C) 2013 Christian Dywan <christian@twotoasts.de>
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# See the file COPYING for the full license text.
+
+xvfbonce() {
+    xvfb-run --server-args='-fbdir /tmp -screen 0 1024x768x16' \
+        env LANGUAGE= UBUNTU_MENUPROXY= MOZ_PLUGIN_PATH=/ SCREENCHILD=42 $0 $1 "$2" 2>&1 | grep -v RANDR
+}
+
+if test "$SCREENCHILD" = "42"; then
+    (xfwm4 || metacity) 2>&1 | grep -v XRandr | grep -v 'Fatal IO error' &
+    sleep 2; kill -0 $! || exit $?
+    if test "$1" = "midori"; then
+        echo Processing case $2
+        CFG=/tmp/midori-scrn/$2
+        PNG=$CFG.png
+        test -d $CFG && rm -R $CFG; mkdir -p $CFG
+        mkdir -p $CFG/midori
+        mkdir -p $CFG/gtk-3.0
+        echo '[Settings]' > $CFG/gtk-3.0/settings.ini
+        test -n "$GTK_THEME" && echo "gtk-theme-name=$GTK_THEME" >> $CFG/gtk-3.0/settings.ini
+        test -n "$ICON_THEME" && echo "gtk-icon-theme-name=$ICON_THEME" >> $CFG/gtk-3.0/settings.ini
+        export XDG_CONFIG_HOME; XDG_CONFIG_HOME=$CFG
+        echo '[settings]' > $CFG/midori/config
+        echo 'last-window-state=MIDORI_WINDOW_MAXIMIZED' >> $CFG/midori/config
+        EXE="-e toolbar-style=MIDORI_TOOLBAR_ICONS"
+        URLS="http://.invalid about:version http://en.wikipedia.org/wiki/Cat"
+        if test "$2" = "1"; then
+            EXE="$EXE -e BookmarkAdd"
+        elif test "$2" = "2"; then
+            EXE="$EXE $URLS -e Panel -e libtab-panel.so=true"
+            echo 'last-panel-page=3' >> $CFG/config
+        elif test "$2" = "3"; then
+            EXE="$EXE -e Preferences"
+        elif test "$2" = "4"; then
+            EXE="$EXE -e ClearPrivateData"
+        elif test "$2" = "5"; then
+            EXE="$EXE -e Find"
+        elif test "$2" = "6"; then
+            EXE="$EXE -e ManageSearchEngines"
+        fi
+        _build/default/midori/midori $EXE 2>&1 \
+            | grep -v 'Theme parsing error' \
+            | grep -E -v '\[[0-9]{3}:[0-9]{3}\]' \
+            | grep -v 'Fatal IO error' \
+            | uniq &
+    elif test "$1" = "custom"; then
+        if test "$2" = ""; then
+            echo 'Argument required'
+            exit 1
+        fi
+        PNG=/tmp/screenshot-custom.png
+        $2 &
+    else
+        echo Unknown scenario "$2"
+        exit 1
+    fi
+    sleep 2; kill -0 $! || exit $?
+    sleep 14
+    # test ! -f /tmp/Xvfb_screen0 && echo Xvfb produced no memory image && exit 1
+    # convert /tmp/Xvfb_screen0 $PNG
+    WINDOW=$(xprop -root | grep --color=never '_NET_ACTIVE_WINDOW(WINDOW)' | sed 's@_NET_ACTIVE_WINDOW(WINDOW): window id # @@g')
+    import -frame -window "$WINDOW" $PNG || exit 1
+    echo Screenshot $PNG saved
+    exit 0
+elif test "$1" = "midori"; then
+    for i in 1 2 3 4 5 6; do
+        xvfbonce $1 $i
+    done
+elif test "$1" = "custom"; then
+    xvfbonce $1 "$2"
+else
+    echo Usage:
+    echo "  $0 midori"
+    echo "  $0 custom 'commandline --with -a rguments'"
+fi
+
