@@ -3845,8 +3845,6 @@ midori_view_constructor (GType                  type,
     view->web_view = GTK_WIDGET (midori_tab_get_web_view (MIDORI_TAB (view)));
     g_object_connect (view->web_view,
                       #ifdef HAVE_WEBKIT2
-                      "signal::web-process-crashed",
-                      midori_view_web_view_crashed_cb, view,
                       "signal::load-failed",
                       webkit_web_view_load_error_cb, view,
                       "signal::load-changed",
@@ -3928,6 +3926,9 @@ midori_view_constructor (GType                  type,
     }
 
     #ifdef HAVE_WEBKIT2
+    if (g_signal_lookup ("web-process-crashed", WEBKIT_TYPE_WEB_VIEW))
+        g_signal_connect (view->web_view, "web-process-crashed",
+            (GCallback)midori_view_web_view_crashed_cb, view);
     view->scrolled_window = view->web_view;
     #endif
 
