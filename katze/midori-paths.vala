@@ -131,19 +131,23 @@ namespace Midori {
                 cache_dir = Path.build_path (Path.DIR_SEPARATOR_S,
                     Environment.get_user_cache_dir (), PACKAGE_NAME);
                 user_data_dir = Environment.get_user_data_dir ();
+#if 0 // HAVE_WEBKIT2
+                WebKit.WebContext.get_default ().set_disk_cache_directory (
+                    Path.build_path (Path.DIR_SEPARATOR_S, cache_dir, "web"));
+#endif
                 tmp_dir = get_runtime_dir ();
             }
-#if !HAVE_WEBKIT2
 #if HAVE_WEBKIT_1_3_13
             if (user_data_dir != null) {
                 string folder = Path.build_filename (user_data_dir, "webkit", "icondatabase");
-#if HAVE_WEBKIT_1_8_0
+#if HAVE_WEBKIT2
+                WebKit.WebContext.get_default ().set_favicon_database_directory (folder);
+#elif HAVE_WEBKIT_1_8_0
                 WebKit.get_favicon_database ().set_path (folder);
 #elif HAVE_WEBKIT_1_3_13
                 WebKit.get_icon_database ().set_path (folder);
 #endif
             }
-#endif
 #endif
             if (strcmp (Environment.get_variable ("MIDORI_DEBUG"), "paths") == 0) {
                 stdout.printf ("config: %s\ncache: %s\nuser_data: %s\ntmp: %s\n",
@@ -419,8 +423,11 @@ namespace Midori {
             if (widget != null)
                 Gtk.icon_size_lookup_for_settings (widget.get_settings (),
                     Gtk.IconSize.MENU, out icon_width, out icon_height);
-#if !HAVE_WEBKIT2
-#if HAVE_WEBKIT_1_8_0
+#if HAVE_WEBKIT2
+            /* TODO async
+            var database = WebKit.WebContext.get_default ().get_favicon_database ();
+            database.get_favicon.begin (uri, null); */
+#elif HAVE_WEBKIT_1_8_0
             Gdk.Pixbuf? pixbuf = WebKit.get_favicon_database ()
                 .try_get_favicon_pixbuf (uri, icon_width, icon_height);
             if (pixbuf != null)
@@ -447,7 +454,6 @@ namespace Midori {
                 }
                 catch (GLib.Error error) { }
             }
-#endif
 #endif
             if (widget != null)
                 return widget.render_icon (Gtk.STOCK_FILE, Gtk.IconSize.MENU, null);

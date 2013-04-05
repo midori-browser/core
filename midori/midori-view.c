@@ -619,7 +619,17 @@ _midori_web_view_load_icon (MidoriView* view)
     gtk_icon_size_lookup_for_settings (settings, GTK_ICON_SIZE_MENU, &icon_width, &icon_height);
     GdkPixbuf* pixbuf = NULL;
     #ifdef HAVE_WEBKIT2
-    /* FIXME */
+    cairo_surface_t* surface = webkit_web_view_get_favicon (WEBKIT_WEB_VIEW (view->web_view));
+    if (surface != NULL
+     && (pixbuf = gdk_pixbuf_get_from_surface (surface, 0, 0,
+        cairo_image_surface_get_width (surface),
+        cairo_image_surface_get_height (surface))))
+    {
+        GdkPixbuf* pixbuf_scaled = gdk_pixbuf_scale_simple (pixbuf,
+            icon_width, icon_height, GDK_INTERP_BILINEAR);
+        g_object_unref (pixbuf);
+        midori_view_apply_icon (view, pixbuf_scaled, view->icon_uri);
+    }
     #elif WEBKIT_CHECK_VERSION (1, 8, 0)
     if ((pixbuf = webkit_web_view_try_get_favicon_pixbuf (
         WEBKIT_WEB_VIEW (view->web_view), icon_width, icon_height)))
@@ -1643,12 +1653,15 @@ midori_web_view_notify_icon_uri_cb (WebKitWebView* web_view,
                                     MidoriView*    view)
 {
 #ifdef HAVE_WEBKIT2
-    /* TODO */
+    const gchar* uri = webkit_web_view_get_uri (web_view);
+    WebKitWebContext* context = webkit_web_context_get_default ();
+    WebKitFaviconDatabase* favicon_database = webkit_web_context_get_favicon_database (context);
+    gchar* icon_uri = webkit_favicon_database_get_favicon_uri (favicon_database, uri);
 #else
-    const gchar* icon_uri = webkit_web_view_get_icon_uri (web_view);
-    katze_assign (view->icon_uri, g_strdup (icon_uri));
-    _midori_web_view_load_icon (view);
+    gchar* icon_uri = g_strdup (webkit_web_view_get_icon_uri (web_view));
 #endif
+    katze_assign (view->icon_uri, icon_uri);
+    _midori_web_view_load_icon (view);
 }
 #endif
 

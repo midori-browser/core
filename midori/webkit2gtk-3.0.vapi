@@ -74,6 +74,14 @@ namespace WebKit {
 		public void set_persistent_storage (string filename, WebKit.CookiePersistentStorage storage);
 		public signal void changed ();
 	}
+	[CCode (cheader_filename = "webkit2/webkit2.h", type_id = "webkit_favicon_database_get_type ()")]
+	public class FaviconDatabase : GLib.Object {
+		[CCode (has_construct_function = false)]
+		protected FaviconDatabase ();
+		public async Cairo.Surface? get_favicon (string page_uri, GLib.Cancellable? cancellable) throws GLib.Error;
+		public string? get_favicon_uri (string page_uri);
+		public void clear ();
+	}
 	[CCode (cheader_filename = "webkit2/webkit2.h", type_id = "webkit_download_get_type ()")]
 	public class Download : GLib.Object {
 		[CCode (has_construct_function = false)]
@@ -419,7 +427,10 @@ namespace WebKit {
 		public WebKit.Download download_uri (string uri);
 		public WebKit.CacheModel get_cache_model ();
 		public unowned WebKit.CookieManager get_cookie_manager ();
+		public unowned WebKit.FaviconDatabase get_favicon_database ();
+		public void set_favicon_database_directory (string path);
 		public static unowned WebKit.WebContext get_default ();
+		public void set_disk_cache_directory (string path);
 		public async GLib.List<WebKit.Plugin> get_plugins (GLib.Cancellable? cancellable) throws GLib.Error;
 		public bool get_spell_checking_enabled ();
 		public unowned string get_spell_checking_languages ();
