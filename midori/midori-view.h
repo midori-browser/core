@@ -248,6 +248,13 @@ midori_view_set_colors                 (MidoriView*        view,
                                         GdkColor*          fg_color,
                                         GdkColor*          bg_color);
 
+gboolean
+midori_view_get_tls_info               (MidoriView*        view,
+                                        void*              request,
+                                        GTlsCertificate**     tls_cert,
+                                        GTlsCertificateFlags* tls_flags,
+                                        gchar**               hostname);
+
 G_END_DECLS
 
 #endif /* __MIDORI_VIEW_H__ */

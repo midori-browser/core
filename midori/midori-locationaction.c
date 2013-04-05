@@ -1382,20 +1382,21 @@ midori_location_action_show_page_info (GtkWidget* widget,
                                        GtkBox*    box,
                                        GtkWidget* dialog)
 {
-#ifndef HAVE_WEBKIT2
+    GTlsCertificate* tls_cert;
+    GTlsCertificateFlags tls_flags;
+    gchar* hostname;
+
     MidoriBrowser* browser = midori_browser_get_for_widget (widget);
     MidoriView* view = MIDORI_VIEW (midori_browser_get_current_tab (browser));
+    #ifdef HAVE_WEBKIT2
+    void* request = NULL;
+    #else
     WebKitWebView* web_view = WEBKIT_WEB_VIEW (midori_view_get_web_view (view));
     WebKitWebFrame* web_frame = webkit_web_view_get_main_frame (web_view);
     WebKitWebDataSource* source = webkit_web_frame_get_data_source (web_frame);
     WebKitNetworkRequest* request = webkit_web_data_source_get_request (source);
-    SoupMessage* message = midori_map_get_message (webkit_network_request_get_message (request));
-    GTlsCertificate* tls_cert;
-    GTlsCertificateFlags tls_flags;
-
-    g_return_if_fail (message);
-    g_object_get (message, "tls-certificate", &tls_cert, "tls-errors", &tls_flags, NULL);
-
+    #endif
+    midori_view_get_tls_info (view, request, &tls_cert, &tls_flags, &hostname);
     if (tls_cert == NULL)
         return;
 
@@ -1403,7 +1404,6 @@ midori_location_action_show_page_info (GtkWidget* widget,
     GByteArray* der_cert;
     GcrCertificate* gcr_cert;
     GtkWidget* details;
-    SoupURI* uri = soup_message_get_uri (message);
 
     g_object_get (tls_cert, "certificate", &der_cert, NULL);
     gcr_cert = gcr_simple_certificate_new (
@@ -1412,7 +1412,7 @@ midori_location_action_show_page_info (GtkWidget* widget,
     details = (GtkWidget*)gcr_certificate_details_widget_new (gcr_cert);
     gtk_widget_show (details);
     gtk_container_add (GTK_CONTAINER (box), details);
-    if (gcr_trust_is_certificate_pinned (gcr_cert, GCR_PURPOSE_SERVER_AUTH, uri->host, NULL, NULL))
+    if (gcr_trust_is_certificate_pinned (gcr_cert, GCR_PURPOSE_SERVER_AUTH, hostname, NULL, NULL))
         gtk_dialog_add_buttons (GTK_DIALOG (dialog),
             ("_Don't trust this website"), MIDORI_CERT_REVOKE, NULL);
     else if (tls_flags > 0)
@@ -1422,7 +1422,7 @@ midori_location_action_show_page_info (GtkWidget* widget,
         gtk_dialog_add_button (GTK_DIALOG (dialog), _("_Export certificate"), MIDORI_CERT_EXPORT),
         "secondary", TRUE, NULL);
 
-    g_object_set_data_full (G_OBJECT (gcr_cert), "peer", g_strdup (uri->host), (GDestroyNotify)g_free);
+    g_object_set_data_full (G_OBJECT (gcr_cert), "peer", hostname, (GDestroyNotify)g_free);
     g_object_set_data_full (G_OBJECT (dialog), "gcr-cert", gcr_cert, (GDestroyNotify)g_object_unref);
     g_signal_connect (dialog, "response",
         G_CALLBACK (midori_location_action_cert_response_cb), gcr_cert);
@@ -1440,7 +1440,6 @@ midori_location_action_show_page_info (GtkWidget* widget,
     #endif
 
     g_object_unref (tls_cert);
-#endif
 }
 #endif
 

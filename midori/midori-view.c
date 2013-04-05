@@ -721,6 +721,34 @@ midori_view_update_load_status (MidoriView*      view,
     #endif
 }
 
+gboolean
+midori_view_get_tls_info (MidoriView*           view,
+                          void*                 request,
+                          GTlsCertificate**     tls_cert,
+                          GTlsCertificateFlags* tls_flags,
+                          gchar**               hostname)
+{
+    #ifdef HAVE_WEBKIT2
+    WebKitWebView* web_view = WEBKIT_WEB_VIEW (view->web_view);
+    *hostname = midori_uri_parse_hostname (webkit_web_view_get_uri (web_view), NULL);
+    return webkit_web_view_get_tls_info (web_view, tls_cert, tls_flags);
+    #else
+    SoupMessage* message = midori_map_get_message (webkit_network_request_get_message (request));
+    if (message != NULL)
+    {
+        SoupURI* uri = soup_message_get_uri (message);
+        *hostname = uri ? g_strdup (uri->host) : NULL;
+        g_object_get (message, "tls-certificate", tls_cert, "tls-errors", tls_flags, NULL);
+        return tls_flags == 0
+         && soup_message_get_flags (message) & SOUP_MESSAGE_CERTIFICATE_TRUSTED;
+    }
+    *tls_cert = NULL;
+    *tls_flags = 0;
+    *hostname = NULL;
+    return FALSE;
+    #endif
+}
+
 static gboolean
 midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view,
                                              #ifdef HAVE_WEBKIT2
@@ -735,6 +763,7 @@ midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view
                                              MidoriView*                view)
 {
     #ifdef HAVE_WEBKIT2
+    void* request = NULL;
     const gchar* uri = webkit_web_view_get_uri (web_view);
     #else
     const gchar* uri = webkit_network_request_get_uri (request);
@@ -770,33 +799,35 @@ midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view
         #endif
         return TRUE;
     }
-    #if defined (HAVE_GCR) && !defined (HAVE_WEBKIT2)
+    #if defined (HAVE_GCR)
     else if (/* midori_tab_get_special (MIDORI_TAB (view)) && */ !strncmp (uri, "https", 5))
     {
         /* We show an error page if the certificate is invalid.
            If a "special", unverified page loads a form, it must be that page.
            if (webkit_web_navigation_action_get_reason (action) == WEBKIT_WEB_NAVIGATION_REASON_FORM_SUBMITTED)
            FIXME: Verify more stricly that this cannot be eg. a simple Reload */
+        #ifdef HAVE_WEBKIT2
+        if (decision_type == WEBKIT_POLICY_DECISION_TYPE_NAVIGATION_ACTION)
+        #else
         if (webkit_web_navigation_action_get_reason (action) == WEBKIT_WEB_NAVIGATION_REASON_RELOAD)
+        #endif
         {
-            SoupMessage* message = webkit_network_request_get_message (request);
-            if (!(soup_message_get_flags (message) & SOUP_MESSAGE_CERTIFICATE_TRUSTED))
+            GTlsCertificate* tls_cert;
+            GTlsCertificateFlags tls_flags;
+            gchar* hostname;
+            if (!midori_view_get_tls_info (view, request, &tls_cert, &tls_flags, &hostname)
+             && tls_cert != NULL)
             {
-                SoupURI* soup_uri = soup_message_get_uri (message);
-                GTlsCertificate* tls_cert;
                 GcrCertificate* gcr_cert;
                 GByteArray* der_cert;
 
-                message = midori_map_get_message (message);
-                g_object_get (message, "tls-certificate", &tls_cert, NULL);
-                g_return_val_if_fail (tls_cert != NULL, FALSE);
                 g_object_get (tls_cert, "certificate", &der_cert, NULL);
                 gcr_cert = gcr_simple_certificate_new (der_cert->data, der_cert->len);
                 g_byte_array_unref (der_cert);
-                if (soup_uri && soup_uri->host && !gcr_trust_is_certificate_pinned (gcr_cert, GCR_PURPOSE_SERVER_AUTH, soup_uri->host, NULL, NULL))
+                if (hostname && !gcr_trust_is_certificate_pinned (gcr_cert, GCR_PURPOSE_SERVER_AUTH, hostname, NULL, NULL))
                 {
                     GError* error = NULL;
-                    gcr_trust_add_pinned_certificate (gcr_cert, GCR_PURPOSE_SERVER_AUTH, soup_uri->host, NULL, &error);
+                    gcr_trust_add_pinned_certificate (gcr_cert, GCR_PURPOSE_SERVER_AUTH, hostname, NULL, &error);
                     if (error != NULL)
                     {
                         gchar* slots = g_strjoinv (" , ", (gchar**)gcr_pkcs11_get_trust_lookup_uris ());
@@ -814,6 +845,7 @@ midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view
                 g_object_unref (gcr_cert);
                 g_object_unref (tls_cert);
             }
+            g_free (hostname);
         }
     }
     #endif
