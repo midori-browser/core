@@ -1713,7 +1713,10 @@ webkit_web_view_hovering_over_link_cb (WebKitWebView*       web_view,
 {
     #ifdef HAVE_WEBKIT2
     if (!webkit_hit_test_result_context_is_link (hit_test_result))
+    {
+        katze_assign (view->link_uri, NULL);
         return;
+    }
     const gchar* link_uri = webkit_hit_test_result_get_link_uri (hit_test_result);
     #endif
 
@@ -1783,7 +1786,6 @@ midori_view_web_view_button_press_event_cb (WebKitWebView*  web_view,
                                             GdkEventButton* event,
                                             MidoriView*     view)
 {
-#ifndef HAVE_WEBKIT2
     GtkClipboard* clipboard;
     gchar* uri;
     gchar* new_uri;
@@ -1842,13 +1844,10 @@ midori_view_web_view_button_press_event_cb (WebKitWebView*  web_view,
         if (midori_settings_get_middle_click_opens_selection (MIDORI_SETTINGS (view->settings)))
         #endif
         {
-            gboolean is_editable;
-            WebKitHitTestResult* result;
-            WebKitHitTestResultContext context;
-
-            result = webkit_web_view_get_hit_test_result (web_view, event);
-            context = katze_object_get_int (result, "context");
-            is_editable = context & WEBKIT_HIT_TEST_RESULT_CONTEXT_EDITABLE;
+            #ifndef HAVE_WEBKIT2
+            WebKitHitTestResult* result = webkit_web_view_get_hit_test_result (web_view, event);
+            WebKitHitTestResultContext context = katze_object_get_int (result, "context");
+            gboolean is_editable = context & WEBKIT_HIT_TEST_RESULT_CONTEXT_EDITABLE;
             g_object_unref (result);
             if (!is_editable)
             {
@@ -1900,6 +1899,7 @@ midori_view_web_view_button_press_event_cb (WebKitWebView*  web_view,
                     }
                 }
             }
+            #endif
         }
         if (MIDORI_MOD_SCROLL (event->state))
         {
@@ -1943,7 +1943,6 @@ midori_view_web_view_button_press_event_cb (WebKitWebView*  web_view,
 
     /* We propagate the event, since it may otherwise be stuck in WebKit */
     g_signal_emit_by_name (view, "event", event, &background);
-#endif
     return FALSE;
 }
 
