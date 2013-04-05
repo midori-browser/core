@@ -30,6 +30,15 @@
 #include "katze/katze.h"
 #include <sqlite3.h>
 
+static void
+plain_entry_activate_cb (GtkWidget* entry,
+                         GtkWidget* web_view)
+{
+    gchar* uri = sokoke_magic_uri (gtk_entry_get_text (GTK_ENTRY (entry)), FALSE, TRUE);
+    webkit_web_view_load_uri (WEBKIT_WEB_VIEW (web_view), uri);
+    g_free (uri);
+}
+
 #define HAVE_OFFSCREEN GTK_CHECK_VERSION (2, 20, 0)
 
 #ifndef HAVE_WEBKIT2
@@ -307,25 +316,29 @@ main (int    argc,
     if (plain)
     {
         GtkWidget* window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+        GtkWidget* vbox = gtk_vbox_new (FALSE, 0);
+        GtkWidget* entry = gtk_entry_new ();
 #ifndef HAVE_WEBKIT2
         GtkWidget* scrolled = gtk_scrolled_window_new (NULL, NULL);
 #endif
         GtkWidget* web_view = webkit_web_view_new ();
-        gchar* uri = sokoke_magic_uri (
-            (uris != NULL && uris[0]) ? uris[0] : "http://www.example.com", FALSE, TRUE);
         katze_window_set_sensible_default_size (GTK_WINDOW (window));
 
+        gtk_box_pack_start (GTK_BOX (vbox), entry, FALSE, FALSE, 0);
 #ifndef HAVE_WEBKIT2
-        gtk_container_add (GTK_CONTAINER (window), scrolled);
+        gtk_box_pack_start (GTK_BOX (vbox), scrolled, TRUE, TRUE, 0);
         gtk_container_add (GTK_CONTAINER (scrolled), web_view);
 #else
-        gtk_container_add (GTK_CONTAINER (window), web_view);
+        gtk_box_pack_start (GTK_BOX (vbox), web_view, TRUE, TRUE, 0);
 #endif
+        gtk_container_add (GTK_CONTAINER (window), vbox);
+        gtk_entry_set_text (GTK_ENTRY (entry), uris && *uris ? *uris : "http://www.example.com");
+        plain_entry_activate_cb (entry, web_view);
+        g_signal_connect (entry, "activate",
+            G_CALLBACK (plain_entry_activate_cb), web_view);
         g_signal_connect (window, "delete-event",
             G_CALLBACK (gtk_main_quit), window);
         gtk_widget_show_all (window);
-        webkit_web_view_load_uri (WEBKIT_WEB_VIEW (web_view), uri);
-        g_free (uri);
         gtk_main ();
         return 0;
     }
