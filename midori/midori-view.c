@@ -1984,18 +1984,6 @@ midori_view_web_view_button_release_event_cb (WebKitWebView*  web_view,
     return button_press_handled;
 }
 
-static gboolean
-midori_view_inspector_window_key_press_event_cb (GtkWidget*   window,
-                                                 GdkEventKey* event,
-                                                 gpointer     user_data)
-{
-    /* Close window on Ctrl+W */
-    if (event->keyval == 'w' && (event->state & GDK_CONTROL_MASK))
-        gtk_widget_destroy (window);
-
-    return FALSE;
-}
-
 static void
 handle_link_hints (WebKitWebView* web_view,
                    GdkEventKey*   event,
@@ -3697,6 +3685,19 @@ midori_view_get_progress (MidoriView* view)
     return midori_tab_get_progress (MIDORI_TAB (view));
 }
 
+#ifndef HAVE_WEBKIT2
+static gboolean
+midori_view_inspector_window_key_press_event_cb (GtkWidget*   window,
+                                                 GdkEventKey* event,
+                                                 gpointer     user_data)
+{
+    /* Close window on Ctrl+W */
+    if (event->keyval == 'w' && (event->state & GDK_CONTROL_MASK))
+        gtk_widget_destroy (window);
+
+    return FALSE;
+}
+
 static void
 midori_view_web_inspector_construct_window (gpointer       inspector,
                                             WebKitWebView* web_view,
@@ -3773,8 +3774,8 @@ static gboolean
 midori_view_web_inspector_show_window_cb (WebKitWebInspector* inspector,
                                           MidoriView*         view)
 {
-    WebKitWebView* inspector_view = webkit_web_inspector_get_web_view (inspector);
-    GtkWidget* window = gtk_widget_get_toplevel (GTK_WIDGET (inspector_view));
+    GtkWidget* inspector_view = GTK_WIDGET (webkit_web_inspector_get_web_view (inspector));
+    GtkWidget* window = gtk_widget_get_toplevel (inspector_view);
     if (!window)
         return FALSE;
     if (katze_object_get_boolean (view->settings, "last-inspector-attached"))
@@ -3794,7 +3795,7 @@ static gboolean
 midori_view_web_inspector_attach_window_cb (gpointer    inspector,
                                             MidoriView* view)
 {
-    WebKitWebView* inspector_view = webkit_web_inspector_get_web_view (inspector);
+    GtkWidget* inspector_view = GTK_WIDGET (webkit_web_inspector_get_web_view (inspector));
     g_signal_emit_by_name (view, "attach-inspector", inspector_view);
     return TRUE;
 }
@@ -3803,15 +3804,15 @@ static gboolean
 midori_view_web_inspector_detach_window_cb (gpointer    inspector,
                                             MidoriView* view)
 {
-    WebKitWebView* inspector_view = webkit_web_inspector_get_web_view (inspector);
-    GtkWidget* parent = gtk_widget_get_parent (GTK_WIDGET (inspector_view));
+    GtkWidget* inspector_view = GTK_WIDGET (webkit_web_inspector_get_web_view (inspector));
+    GtkWidget* parent = gtk_widget_get_parent (inspector_view);
     if (GTK_IS_WINDOW (parent))
         return FALSE;
 
     gtk_widget_hide (parent);
     g_signal_emit_by_name (view, "detach-inspector", inspector_view);
     midori_view_web_inspector_construct_window (inspector,
-        WEBKIT_WEB_VIEW (view->web_view), GTK_WIDGET (inspector_view), view);
+        WEBKIT_WEB_VIEW (view->web_view), inspector_view, view);
     return TRUE;
 }
 
@@ -3819,13 +3820,18 @@ static gboolean
 midori_view_web_inspector_close_window_cb (gpointer    inspector,
                                            MidoriView* view)
 {
-    WebKitWebView* inspector_view = webkit_web_inspector_get_web_view (inspector);
-    GtkWidget* scrolled = gtk_widget_get_parent (GTK_WIDGET (inspector_view));
+    GtkWidget* inspector_view = GTK_WIDGET (webkit_web_inspector_get_web_view (inspector));
+    #ifdef HAVE_WEBKIT2
+    GtkWidget* scrolled = inspector_view;
+    #else
+    GtkWidget* scrolled = gtk_widget_get_parent (inspector_view);
+    #endif
     if (!scrolled)
         return FALSE;
     gtk_widget_hide (gtk_widget_get_parent (scrolled));
     return TRUE;
 }
+#endif
 
 static GObject*
 midori_view_constructor (GType                  type,
@@ -3963,10 +3969,9 @@ midori_view_constructor (GType                  type,
     gtk_box_pack_start (GTK_BOX (view), view->scrolled_window, TRUE, TRUE, 0);
     #endif
 
+    gtk_widget_show_all (view->scrolled_window);
     #ifndef HAVE_WEBKIT2
     gtk_container_add (GTK_CONTAINER (view->scrolled_window), view->web_view);
-    #endif
-    gtk_widget_show_all (view->scrolled_window);
 
     inspector = webkit_web_view_get_inspector ((WebKitWebView*)view->web_view);
     g_object_connect (inspector,
@@ -3981,6 +3986,7 @@ midori_view_constructor (GType                  type,
                       "signal::close-window",
                       midori_view_web_inspector_close_window_cb, view,
                       NULL);
+    #endif
     return object;
 }
 
