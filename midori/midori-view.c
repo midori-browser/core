@@ -5875,7 +5875,11 @@ midori_view_get_for_widget (GtkWidget* web_view)
 {
     g_return_val_if_fail (GTK_IS_WIDGET (web_view), NULL);
 
+    #ifdef HAVE_WEBKIT2
+    GtkWidget* scrolled = web_view;
+    #else
     GtkWidget* scrolled = gtk_widget_get_parent (web_view);
+    #endif
     #if GTK_CHECK_VERSION(3, 2, 0)
     GtkWidget* overlay = gtk_widget_get_parent (scrolled);
     GtkWidget* view = gtk_widget_get_parent (overlay);
