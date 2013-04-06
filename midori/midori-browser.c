@@ -1437,15 +1437,26 @@ midori_browser_download_status_cb (WebKitDownload*  download,
 #endif
 }
 
+#ifdef HAVE_WEBKIT2
+static void
+midori_browser_close_tab_idle (GObject*      resource,
+                               GAsyncResult* result,
+                               gpointer      view)
+{
+    guchar* data = webkit_web_resource_get_data_finish (WEBKIT_WEB_RESOURCE (resource),
+        result, NULL, NULL);
+    if (data != NULL)
+        return;
+#else
 static gboolean
 midori_browser_close_tab_idle (gpointer view)
 {
-    MidoriBrowser* browser;
-
-    g_return_val_if_fail (GTK_IS_WIDGET (view), FALSE);
-    browser = midori_browser_get_for_widget (GTK_WIDGET (view));
+#endif
+    MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (view));
     midori_browser_close_tab (browser, GTK_WIDGET (view));
+#ifndef HAVE_WEBKIT2
     return G_SOURCE_REMOVE;
+#endif
 }
 
 static gboolean
@@ -1453,15 +1464,10 @@ midori_view_download_requested_cb (GtkWidget*      view,
                                    WebKitDownload* download,
                                    MidoriBrowser*  browser)
 {
-#ifndef HAVE_WEBKIT2
     MidoriDownloadType type = midori_download_get_type (download);
-    GtkWidget* web_view;
-    WebKitWebFrame* web_frame;
-    WebKitWebDataSource* datasource;
-    gboolean handled;
+    gboolean handled = TRUE;
 
     g_return_val_if_fail (MIDORI_IS_VIEW (view), FALSE);
-    handled = TRUE;
     if (type == MIDORI_DOWNLOAD_CANCEL)
     {
         handled = FALSE;
@@ -1474,9 +1480,15 @@ midori_view_download_requested_cb (GtkWidget*      view,
         g_signal_connect (download, "notify::status",
             G_CALLBACK (midori_browser_download_status_cb), GTK_WIDGET (browser));
         g_free (destination_uri);
+        #ifndef HAVE_WEBKIT2
         webkit_download_start (download);
+        #endif
     }
+    #ifdef HAVE_WEBKIT2
+    else if (!webkit_download_get_destination (download))
+    #else
     else if (!webkit_download_get_destination_uri (download))
+    #endif
     {
         if (type == MIDORI_DOWNLOAD_SAVE_AS)
         {
@@ -1485,13 +1497,19 @@ midori_view_download_requested_cb (GtkWidget*      view,
 
             if (!dialog)
             {
+                #ifdef HAVE_WEBKIT2
+                const gchar* download_uri = webkit_uri_response_get_uri (
+                    webkit_download_get_response (download));
+                #else
+                const gchar* download_uri = webkit_download_get_uri (download);
+                #endif
                 gchar* folder;
                 dialog = (GtkWidget*)midori_file_chooser_dialog_new (_("Save file"),
                     GTK_WINDOW (browser), GTK_FILE_CHOOSER_ACTION_SAVE);
                 gtk_file_chooser_set_do_overwrite_confirmation (
                     GTK_FILE_CHOOSER (dialog), TRUE);
                 gtk_window_set_destroy_with_parent (GTK_WINDOW (dialog), TRUE);
-                folder = midori_uri_get_folder (webkit_download_get_uri (download));
+                folder = midori_uri_get_folder (download_uri);
                 if (folder == NULL)
                     folder = katze_object_get_string (browser->settings, "download-folder");
                 gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), folder);
@@ -1530,19 +1548,26 @@ midori_view_download_requested_cb (GtkWidget*      view,
             midori_browser_prepare_download (browser, download, destination_uri);
             g_free (destination_uri);
         }
+        #ifndef HAVE_WEBKIT2
         webkit_download_start (download);
+        #endif
     }
 
     /* Close empty tabs due to download links with a target */
-    web_view = midori_view_get_web_view (MIDORI_VIEW (view));
-    web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view));
-    datasource = webkit_web_frame_get_data_source (web_frame);
-    if (midori_view_is_blank (MIDORI_VIEW (view)) && webkit_web_data_source_get_data (datasource) == NULL)
-        g_idle_add (midori_browser_close_tab_idle, view);
+    if (midori_view_is_blank (MIDORI_VIEW (view)))
+    {
+        GtkWidget* web_view = midori_view_get_web_view (MIDORI_VIEW (view));
+        #ifdef HAVE_WEBKIT2
+        WebKitWebResource* resource = webkit_web_view_get_main_resource (WEBKIT_WEB_VIEW (web_view));
+        webkit_web_resource_get_data (resource, NULL, midori_browser_close_tab_idle, view);
+        #else
+        WebKitWebFrame* web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view));
+        WebKitWebDataSource* datasource = webkit_web_frame_get_data_source (web_frame);
+        if (webkit_web_data_source_get_data (datasource) == NULL)
+            g_idle_add (midori_browser_close_tab_idle, view);
+        #endif
+    }
     return handled;
-#else
-    return FALSE;
-#endif
 }
 
 static void
