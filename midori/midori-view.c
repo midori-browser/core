@@ -1276,7 +1276,19 @@ midori_view_add_info_bar (MidoriView*    view,
     return infobar;
 }
 
-#ifndef HAVE_WEBKIT2
+#ifdef HAVE_WEBKIT2
+static gboolean
+midori_view_web_view_permission_request_cb (WebKitWebView*           web_view,
+                                            WebKitPermissionRequest* decision,
+                                            MidoriView*              view)
+{
+    /* if (WEBKIT_IS_GEOLOCATION_PERMISSION_REQUEST (decision))
+    {
+        TODO: return TRUE;
+    } */
+    return FALSE;
+}
+#else
 static void
 midori_view_database_response_cb (GtkWidget*         infobar,
                                   gint               response,
@@ -3254,6 +3266,7 @@ midori_view_download_requested_cb (GtkWidget*      web_view,
 #endif
 }
 
+#ifndef HAVE_WEBKIT2
 static gboolean
 webkit_web_view_console_message_cb (GtkWidget*   web_view,
                                     const gchar* message,
@@ -3261,7 +3274,6 @@ webkit_web_view_console_message_cb (GtkWidget*   web_view,
                                     const gchar* source_id,
                                     MidoriView*  view)
 {
-#ifndef HAVE_WEBKIT2
     if (g_object_get_data (G_OBJECT (webkit_get_default_session ()),
                            "pass-through-console"))
         return FALSE;
@@ -3281,9 +3293,6 @@ webkit_web_view_console_message_cb (GtkWidget*   web_view,
     else
         g_signal_emit_by_name (view, "console-message", message, line, source_id);
     return TRUE;
-#else
-    return FALSE;
-#endif
 }
 
 static void
@@ -3294,7 +3303,6 @@ midori_view_script_response_cb (GtkWidget*  infobar,
     view->alerts--;
 }
 
-#ifndef HAVE_WEBKIT2
 static gboolean
 midori_view_web_view_script_alert_cb (GtkWidget*      web_view,
                                       WebKitWebFrame* web_frame,
@@ -3906,6 +3914,8 @@ midori_view_constructor (GType                  type,
                       webkit_web_view_hovering_over_link_cb, view,
                       "signal::decide-policy",
                       midori_view_web_view_navigation_decision_cb, view,
+                      "signal::permission-request",
+                      midori_view_web_view_permission_request_cb, view,
                       #else
                       "signal::notify::load-status",
                       midori_view_web_view_notify_load_status_cb, view,
@@ -3939,6 +3949,12 @@ midori_view_constructor (GType                  type,
                       #endif
                       "signal::hovering-over-link",
                       webkit_web_view_hovering_over_link_cb, view,
+                      "signal::status-bar-text-changed",
+                      webkit_web_view_statusbar_text_changed_cb, view,
+                      "signal::populate-popup",
+                      webkit_web_view_populate_popup_cb, view,
+                      "signal::console-message",
+                      webkit_web_view_console_message_cb, view,
                       "signal::download-requested",
                       midori_view_download_requested_cb, view,
                       #endif
@@ -3947,8 +3963,6 @@ midori_view_constructor (GType                  type,
                       webkit_web_view_notify_uri_cb, view,
                       "signal::notify::title",
                       webkit_web_view_notify_title_cb, view,
-                      "signal::status-bar-text-changed",
-                      webkit_web_view_statusbar_text_changed_cb, view,
                       "signal::leave-notify-event",
                       midori_view_web_view_leave_notify_event_cb, view,
                       "signal::button-press-event",
@@ -3959,10 +3973,6 @@ midori_view_constructor (GType                  type,
                       gtk_widget_key_press_event_cb, view,
                       "signal::scroll-event",
                       gtk_widget_scroll_event_cb, view,
-                      "signal::populate-popup",
-                      webkit_web_view_populate_popup_cb, view,
-                      "signal::console-message",
-                      webkit_web_view_console_message_cb, view,
                       NULL);
 
     if (view->settings)
