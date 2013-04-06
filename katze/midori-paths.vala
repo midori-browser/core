@@ -404,12 +404,12 @@ namespace Midori {
         public static void clear_icons () {
             assert (cache_dir != null);
             assert (user_data_dir != null);
-#if !HAVE_WEBKIT2
-#if HAVE_WEBKIT_1_8_0
+#if HAVE_WEBKIT2
+            WebKit.WebContext.get_default ().get_favicon_database ().clear ();
+#elif HAVE_WEBKIT_1_8_0
             WebKit.get_favicon_database ().clear ();
 #elif HAVE_WEBKIT_1_3_13
             WebKit.get_icon_database ().clear ();
-#endif
 #endif
             /* FIXME: Exclude search engine icons */
             remove_path (Path.build_filename (cache_dir, "icons"));
