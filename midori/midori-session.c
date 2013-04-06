@@ -102,7 +102,7 @@ soup_session_settings_notify_first_party_cb (MidoriWebSettings* settings,
 }
 #endif
 
-#if defined (HAVE_LIBSOUP_2_34_0)
+#if !defined (HAVE_WEBKIT2) && defined (HAVE_LIBSOUP_2_34_0)
 /* Implemented in MidoriLocationAction */
 void
 midori_map_add_message (SoupMessage* message);

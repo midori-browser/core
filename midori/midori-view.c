@@ -30,8 +30,10 @@
     #define GCR_API_SUBJECT_TO_CHANGE
     #include <gcr/gcr.h>
 
+#ifndef HAVE_WEBKIT2
 SoupMessage*
 midori_map_get_message (SoupMessage* message);
+#endif
 #endif
 
 #include <string.h>
@@ -923,52 +925,50 @@ midori_view_load_committed (MidoriView* view)
 
     if (!strncmp (uri, "https", 5))
     {
+        #if defined (HAVE_LIBSOUP_2_29_91)
         #ifdef HAVE_WEBKIT2
-        /* Not implemented */
-        #elif defined (HAVE_LIBSOUP_2_29_91)
+        void* request = NULL;
+        #else
         WebKitWebFrame* web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view));
         WebKitWebDataSource* source = webkit_web_frame_get_data_source (web_frame);
         WebKitNetworkRequest* request = webkit_web_data_source_get_request (source);
-        SoupMessage* message = webkit_network_request_get_message (request);
-
-        if (message
-         && soup_message_get_flags (message) & SOUP_MESSAGE_CERTIFICATE_TRUSTED)
+        #endif
+        GTlsCertificate* tls_cert;
+        GTlsCertificateFlags tls_flags;
+        gchar* hostname; /* FIXME leak */
+        if (midori_view_get_tls_info (view, request, &tls_cert, &tls_flags, &hostname))
             midori_tab_set_security (MIDORI_TAB (view), MIDORI_SECURITY_TRUSTED);
         #ifdef HAVE_GCR
-        else if (!midori_tab_get_special (MIDORI_TAB (view)) && message != NULL)
+        else if (!midori_tab_get_special (MIDORI_TAB (view)) && tls_cert != NULL)
         {
-            GTlsCertificate* tls_cert;
             GcrCertificate* gcr_cert;
             GByteArray* der_cert;
-            SoupURI* soup_uri;
 
-            message = midori_map_get_message (message);
-            g_object_get (message, "tls-certificate", &tls_cert, NULL);
-            g_return_if_fail (tls_cert != NULL);
             g_object_get (tls_cert, "certificate", &der_cert, NULL);
             gcr_cert = gcr_simple_certificate_new (der_cert->data, der_cert->len);
             g_byte_array_unref (der_cert);
-            soup_uri = soup_message_get_uri (message);
-            if (gcr_trust_is_certificate_pinned (gcr_cert, GCR_PURPOSE_SERVER_AUTH, soup_uri->host, NULL, NULL))
+            if (gcr_trust_is_certificate_pinned (gcr_cert, GCR_PURPOSE_SERVER_AUTH, hostname, NULL, NULL))
                 midori_tab_set_security (MIDORI_TAB (view), MIDORI_SECURITY_TRUSTED);
             else
             {
-                GTlsCertificateFlags tls_flags;
                 midori_tab_set_security (MIDORI_TAB (view), MIDORI_SECURITY_UNKNOWN);
-                g_object_get (message, "tls-errors", &tls_flags, NULL);
                 midori_tab_stop_loading (MIDORI_TAB (view));
                 midori_view_display_error (view, NULL, NULL, _("Security unknown"),
                     midori_location_action_tls_flags_to_string (tls_flags),
                     _("Trust this website"),
                     NULL);
             }
-            g_object_unref (tls_cert);
             g_object_unref (gcr_cert);
         }
         #endif
         else
         #endif
             midori_tab_set_security (MIDORI_TAB (view), MIDORI_SECURITY_UNKNOWN);
+        #if defined (HAVE_LIBSOUP_2_29_91)
+        if (tls_cert != NULL)
+            g_object_unref (tls_cert);
+        g_free (hostname);
+        #endif
     }
     else
         midori_tab_set_security (MIDORI_TAB (view), MIDORI_SECURITY_NONE);

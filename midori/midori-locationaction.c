@@ -1283,6 +1283,7 @@ midori_location_action_focus_out_event_cb (GtkWidget*   widget,
 #endif
 
 #if defined (HAVE_LIBSOUP_2_34_0)
+#ifndef HAVE_WEBKIT2
 static GHashTable* message_map = NULL;
 void
 midori_map_add_message (SoupMessage* message)
@@ -1300,10 +1301,13 @@ midori_map_get_message (SoupMessage* message)
     SoupURI* uri = soup_message_get_uri (message);
     SoupMessage* full;
     g_return_val_if_fail (uri && uri->host, message);
+    if (message_map == NULL)
+        message_map = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_object_unref);
     full = g_hash_table_lookup (message_map, uri->host);
     g_return_val_if_fail (full, message);
     return full;
 }
+#endif
 
 #ifdef HAVE_GCR
 typedef enum {
@@ -1398,7 +1402,10 @@ midori_location_action_show_page_info (GtkWidget* widget,
     #endif
     midori_view_get_tls_info (view, request, &tls_cert, &tls_flags, &hostname);
     if (tls_cert == NULL)
+    {
+        g_free (hostname);
         return;
+    }
 
     #ifdef HAVE_GCR
     GByteArray* der_cert;
