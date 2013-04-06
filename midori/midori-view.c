@@ -69,11 +69,6 @@ static void
 _midori_view_set_settings (MidoriView*        view,
                            MidoriWebSettings* settings);
 
-static GdkPixbuf*
-midori_view_web_view_get_snapshot (GtkWidget* web_view,
-                                   gint       width,
-                                   gint       height);
-
 #ifdef HAVE_WEBKIT2
 static void
 midori_view_uri_scheme_res (WebKitURISchemeRequest* request,
@@ -5722,19 +5717,17 @@ midori_view_get_snapshot (MidoriView* view,
 {
     g_return_val_if_fail (MIDORI_IS_VIEW (view), NULL);
 
-    return midori_view_web_view_get_snapshot ((GtkWidget*)view->web_view, width, height);
-}
-
-static GdkPixbuf*
-midori_view_web_view_get_snapshot (GtkWidget* web_view,
-                                   gint       width,
-                                   gint       height)
-{
+    GdkPixbuf* pixbuf;
+    #ifdef HAVE_WEBKIT2_A
+    webkit_web_view_get_snapshot (WEBKIT_WEB_VIEW (view->web_view),
+        WEBKIT_SNAPSHOT_REGION_VISIBLE, WEBKIT_SNAPSHOT_OPTIONS_NONE,
+        NULL, midori_view_get_snapshot_cb, view);
+    #else
     GtkAllocation allocation;
-    gboolean fast;
-    gint x, y, w, h;
+    gint x, y;
     GdkRectangle rect;
     #if !GTK_CHECK_VERSION (3, 0, 0)
+    gint w, h;
     GdkWindow* window;
     GdkPixmap* pixmap;
     GdkEvent event;
@@ -5744,28 +5737,10 @@ midori_view_web_view_get_snapshot (GtkWidget* web_view,
     cairo_surface_t* surface;
     cairo_t* cr;
     #endif
-    GdkPixbuf* pixbuf;
 
-    g_return_val_if_fail (WEBKIT_IS_WEB_VIEW (web_view), NULL);
-
-    gtk_widget_get_allocation (web_view, &allocation);
+    gtk_widget_get_allocation (view->web_view, &allocation);
     x = allocation.x;
     y = allocation.y;
-    w = allocation.width;
-    h = allocation.height;
-
-    /* If width and height are both negative, we try to render faster at
-       the cost of correctness or beauty. Only a part of the page is
-       rendered which makes it a lot faster and scaling isn't as nice. */
-    fast = FALSE;
-    if (width < 0 && height < 0)
-    {
-        width *= -1;
-        height *= -1;
-        w = w > 320 ? 320 : w;
-        h = h > 240 ? 240 : h;
-        fast = TRUE;
-    }
 
     #if GTK_CHECK_VERSION (3, 0, 0)
     surface = cairo_image_surface_create (CAIRO_FORMAT_RGB24,
@@ -5773,17 +5748,19 @@ midori_view_web_view_get_snapshot (GtkWidget* web_view,
     cr = cairo_create (surface);
     cairo_rectangle (cr, x, y, width, height);
     cairo_clip (cr);
-    gtk_widget_draw (web_view, cr);
+    gtk_widget_draw (view->web_view, cr);
     pixbuf = gdk_pixbuf_get_from_surface (surface, x, y, width, height);
     cairo_surface_destroy (surface);
     cairo_destroy (cr);
     #else
+    w = allocation.width;
+    h = allocation.height;
     rect.x = x;
     rect.y = y;
     rect.width = w;
     rect.height = h;
 
-    window = gtk_widget_get_window (web_view);
+    window = gtk_widget_get_window (view->web_view);
     g_return_val_if_fail (window != NULL, NULL);
 
     pixmap = gdk_pixmap_new (window, w, h, gdk_drawable_get_depth (window));
@@ -5797,29 +5774,19 @@ midori_view_web_view_get_snapshot (GtkWidget* web_view,
         &event.expose.area.width, &event.expose.area.height);
     event.expose.region = gdk_region_rectangle (&event.expose.area);
 
-    g_signal_emit_by_name (web_view, "expose-event", &event, &result);
+    g_signal_emit_by_name (view->web_view, "expose-event", &event, &result);
 
     colormap = gdk_drawable_get_colormap (pixmap);
     pixbuf = gdk_pixbuf_get_from_drawable (NULL, pixmap, colormap, 0, 0,
                                            0, 0, rect.width, rect.height);
     g_object_unref (pixmap);
     #endif
+    #endif
 
-    if (width || height)
-    {
-        GdkPixbuf* scaled;
-        if (!width)
-            width = rect.width;
-        if (!height)
-            height = rect.height;
-
-        scaled = gdk_pixbuf_scale_simple (pixbuf, width, height,
-            fast ? GDK_INTERP_NEAREST : GDK_INTERP_TILES);
-        g_object_unref (pixbuf);
-        return scaled;
-    }
-
-    return pixbuf;
+    GdkPixbuf* scaled = gdk_pixbuf_scale_simple (pixbuf, width, height,
+        GDK_INTERP_TILES);
+    g_object_unref (pixbuf);
+    return scaled;
 }
 
 /**
