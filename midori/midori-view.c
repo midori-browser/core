@@ -5559,6 +5559,7 @@ midori_view_get_next_page (MidoriView* view)
     return midori_view_get_related_page (view, "next", _("next"));
 }
 
+#ifndef HAVE_WEBKIT2
 static GtkWidget*
 midori_view_print_create_custom_widget_cb (GtkPrintOperation* operation,
                                            MidoriView*        view)
@@ -5576,6 +5577,7 @@ midori_view_print_create_custom_widget_cb (GtkPrintOperation* operation,
 
     return box;
 }
+#endif
 
 /**
  * midori_view_print
@@ -5586,22 +5588,26 @@ midori_view_print_create_custom_widget_cb (GtkPrintOperation* operation,
 void
 midori_view_print (MidoriView* view)
 {
-#ifndef HAVE_WEBKIT2
-    WebKitWebFrame* frame;
-    GtkPrintOperation* operation;
-    GError* error;
-
     g_return_if_fail (MIDORI_IS_VIEW (view));
 
-    frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view));
-    operation = gtk_print_operation_new ();
+#ifdef HAVE_WEBKIT2
+    WebKitPrintOperation* operation = webkit_print_operation_new (WEBKIT_WEB_VIEW (view->web_view));
+    GtkPrintSettings* settings = gtk_print_settings_new ();
+    webkit_print_operation_set_print_settings (operation, settings);
+    g_object_unref (settings);
+    webkit_print_operation_run_dialog (operation,
+        GTK_WINDOW (midori_browser_get_for_widget (view->web_view)));
+    g_object_unref (operation);
+#else
+    WebKitWebFrame* frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view));
+    GtkPrintOperation* operation = gtk_print_operation_new ();
     gtk_print_operation_set_custom_tab_label (operation, _("Features"));
     #if GTK_CHECK_VERSION (2, 18, 0)
     gtk_print_operation_set_embed_page_setup (operation, TRUE);
     #endif
     g_signal_connect (operation, "create-custom-widget",
         G_CALLBACK (midori_view_print_create_custom_widget_cb), view);
-    error = NULL;
+    GError* error = NULL;
     webkit_web_frame_print_full (frame, operation,
         GTK_PRINT_OPERATION_ACTION_PRINT_DIALOG, &error);
     g_object_unref (operation);
