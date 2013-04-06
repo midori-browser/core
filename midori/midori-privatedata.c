@@ -303,7 +303,9 @@ midori_clear_saved_logins_cb (void)
 static void
 midori_clear_web_cache_cb (void)
 {
-#ifndef HAVE_WEBKIT2
+#ifdef HAVE_WEBKIT2
+    webkit_web_context_clear_cache (webkit_web_context_get_default ());
+#else
     SoupSession* session = webkit_get_default_session ();
     SoupSessionFeature* feature = soup_session_get_feature (session, SOUP_TYPE_CACHE);
     gchar* cache = g_build_filename (midori_paths_get_cache_dir (), "web", NULL);
