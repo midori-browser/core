@@ -735,7 +735,9 @@ midori_view_get_tls_info (MidoriView*           view,
     #ifdef HAVE_WEBKIT2
     WebKitWebView* web_view = WEBKIT_WEB_VIEW (view->web_view);
     *hostname = midori_uri_parse_hostname (webkit_web_view_get_uri (web_view), NULL);
-    return webkit_web_view_get_tls_info (web_view, tls_cert, tls_flags);
+    gboolean success = webkit_web_view_get_tls_info (web_view, tls_cert, tls_flags);
+    g_object_ref (*tls_cert);
+    return success;
     #else
     SoupMessage* message = midori_map_get_message (webkit_network_request_get_message (request));
     if (message != NULL)
@@ -861,8 +863,9 @@ midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view
                 else
                     g_warn_if_reached ();
                 g_object_unref (gcr_cert);
-                g_object_unref (tls_cert);
             }
+            if (tls_cert != NULL)
+                g_object_unref (tls_cert);
             g_free (hostname);
         }
     }
