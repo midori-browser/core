@@ -2568,7 +2568,7 @@ _action_add_desktop_shortcut_activate (GtkAction*     action,
     g_key_file_set_string (keyfile, "Desktop Entry", "Type", "Application");
     g_key_file_set_string (keyfile, "Desktop Entry", "Name", app_name);
     g_key_file_set_string (keyfile, "Desktop Entry", "Exec", app_exec);
-    g_key_file_set_string (keyfile, "Desktop Entry", "TryExec", "midori");
+    g_key_file_set_string (keyfile, "Desktop Entry", "TryExec", PACKAGE_NAME);
     g_key_file_set_string (keyfile, "Desktop Entry", "Icon", app_icon);
     g_key_file_set_string (keyfile, "Desktop Entry", "Categories", "Network;");
     sokoke_key_file_save_to_file (keyfile, app_dir, NULL);

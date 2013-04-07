@@ -794,7 +794,7 @@ midori_app_init (MidoriApp* app)
     app->instance = MidoriAppInstanceNull;
 
     #if HAVE_LIBNOTIFY
-    notify_init ("midori");
+    notify_init (PACKAGE_NAME);
     #else
     app->program_notify_send = g_find_program_in_path ("notify-send");
     #endif

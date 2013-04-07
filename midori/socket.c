@@ -263,8 +263,8 @@ gint socket_init(const gchar *instance_name, const gchar *config_dir, gboolean *
 #else
 	*exists = FALSE;
 	if (socket_filename == NULL)
-		socket_filename = g_strdup_printf("%s%cmidori_socket_%s_%s",
-			config_dir, G_DIR_SEPARATOR, g_get_host_name(), instance_name);
+		socket_filename = g_strdup_printf("%s%c%s_socket_%s_%s",
+			config_dir, G_DIR_SEPARATOR, PACKAGE_NAME, g_get_host_name(), instance_name);
 
 	sock = fd_connect_unix(socket_filename);
 	if (sock < 0)

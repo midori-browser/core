@@ -99,7 +99,7 @@ namespace Midori {
                 Katze.mkdir_with_parents (
                     Path.build_path (Path.DIR_SEPARATOR_S,
                                      Environment.get_user_cache_dir (),
-                                     "midori", "thumbnails"), 0700);
+                                     PACKAGE_NAME, "thumbnails"), 0700);
 
                 foreach (string tile in keyfile.get_groups ()) {
                     try {
