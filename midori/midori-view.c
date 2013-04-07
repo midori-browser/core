@@ -4027,7 +4027,6 @@ midori_view_constructor (GType                  type,
     gtk_box_pack_start (GTK_BOX (view), view->scrolled_window, TRUE, TRUE, 0);
     #endif
 
-    gtk_widget_show_all (view->scrolled_window);
     #ifndef HAVE_WEBKIT2
     gtk_container_add (GTK_CONTAINER (view->scrolled_window), view->web_view);
 
@@ -4045,6 +4044,7 @@ midori_view_constructor (GType                  type,
                       midori_view_web_inspector_close_window_cb, view,
                       NULL);
     #endif
+    gtk_widget_show_all (view->scrolled_window);
     return object;
 }
 
