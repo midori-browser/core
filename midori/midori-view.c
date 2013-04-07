@@ -29,11 +29,11 @@
 #ifdef HAVE_GCR
     #define GCR_API_SUBJECT_TO_CHANGE
     #include <gcr/gcr.h>
+#endif
 
-#ifndef HAVE_WEBKIT2
+#if !defined (HAVE_WEBKIT2) && defined (HAVE_LIBSOUP_2_29_91)
 SoupMessage*
 midori_map_get_message (SoupMessage* message);
-#endif
 #endif
 
 #include <string.h>
@@ -725,6 +725,7 @@ midori_view_update_load_status (MidoriView*      view,
     #endif
 }
 
+#if defined (HAVE_LIBSOUP_2_29_91)
 gboolean
 midori_view_get_tls_info (MidoriView*           view,
                           void*                 request,
@@ -754,6 +755,7 @@ midori_view_get_tls_info (MidoriView*           view,
     return FALSE;
     #endif
 }
+#endif
 
 static gboolean
 midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view,
