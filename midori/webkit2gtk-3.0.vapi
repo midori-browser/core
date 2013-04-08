@@ -433,13 +433,15 @@ namespace WebKit {
 		public void set_disk_cache_directory (string path);
 		public async GLib.List<WebKit.Plugin> get_plugins (GLib.Cancellable? cancellable) throws GLib.Error;
 		public bool get_spell_checking_enabled ();
-		public unowned string get_spell_checking_languages ();
+		public unowned string[] get_spell_checking_languages ();
 		public void register_uri_scheme (string scheme, owned WebKit.URISchemeRequestCallback callback);
 		public void set_additional_plugins_directory (string directory);
 		public void set_cache_model (WebKit.CacheModel cache_model);
 		public void set_spell_checking_enabled (bool enabled);
-		public void set_spell_checking_languages (string languages);
+		public void set_spell_checking_languages (string[] languages);
+		public void set_preferred_languages (string[] languages);
 		public signal void download_started (WebKit.Download download);
+		public void set_web_extensions_directory (string path);
 	}
 	[CCode (cheader_filename = "webkit2/webkit2.h", type_id = "webkit_web_inspector_get_type ()")]
 	public class WebInspector : GLib.Object {

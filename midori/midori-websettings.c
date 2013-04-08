@@ -832,6 +832,7 @@ generate_ident_string (MidoriWebSettings* web_settings,
     }
 }
 
+#ifndef HAVE_WEBKIT2
 /* Provide a new way for SoupSession to assume an 'Accept-Language'
    string automatically from the return value of g_get_language_names(),
    properly formatted according to RFC2616.
@@ -946,6 +947,7 @@ midori_web_settings_get_accept_language (MidoriWebSettings* settings)
         midori_web_settings_update_accept_language (settings);
     return settings->accept;
 }
+#endif
 
 static void
 midori_web_settings_process_stylesheets (MidoriWebSettings* settings,
@@ -1048,11 +1050,19 @@ midori_web_settings_set_property (GObject*      object,
         break;
     case PROP_PREFERRED_LANGUAGES:
         katze_assign (web_settings->http_accept_language, g_value_dup_string (value));
-        #ifndef HAVE_WEBKIT2
+        #ifdef HAVE_WEBKIT2
+        WebKitWebContext* context = webkit_web_context_get_default ();
+        gchar** languages = web_settings->http_accept_language
+            ? g_strsplit_set (web_settings->http_accept_language, ",; ", -1)
+            : g_strdupv ((gchar**)g_get_language_names ());
+        webkit_web_context_set_preferred_languages (context, (const gchar* const*)languages);
+        webkit_web_context_set_spell_checking_languages (context, (const gchar* const*)languages);
+        g_strfreev (languages);
+        #else
         g_object_set (web_settings, "spell-checking-languages",
                       web_settings->http_accept_language, NULL);
-        #endif
         midori_web_settings_update_accept_language (web_settings);
+        #endif
         break;
     case PROP_SITE_DATA_RULES:
         katze_assign (web_settings->site_data_rules, g_value_dup_string (value));

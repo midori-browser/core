@@ -117,13 +117,20 @@ midori_soup_session_request_started_cb (SoupSession* session,
 }
 #endif
 
+#ifndef HAVE_WEBKIT2
+const gchar*
+midori_web_settings_get_accept_language    (MidoriWebSettings* settings);
+#endif
+
 static void
 midori_soup_session_settings_accept_language_cb (SoupSession*       session,
                                                  SoupMessage*       msg,
                                                  MidoriWebSettings* settings)
 {
+    #ifndef HAVE_WEBKIT2
     const gchar* accept = midori_web_settings_get_accept_language (settings);
     soup_message_headers_append (msg->request_headers, "Accept-Language", accept);
+    #endif
 
     if (katze_object_get_boolean (settings, "strip-referer"))
     {

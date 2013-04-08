@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2008-2012 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2008-2013 Christian Dywan <christian@twotoasts.de>
  Copyright (C) 2011 Peter Hatina <phatina@redhat.com>
 
  This library is free software; you can redistribute it and/or
@@ -41,6 +41,11 @@ namespace Midori {
             return !zoom_text_only;
         } set {
             zoom_text_only = !value;
+        } }
+        public bool enable_spell_checking { get {
+            return WebKit.WebContext.get_default ().get_spell_checking_enabled ();
+        } set {
+            WebKit.WebContext.get_default ().set_spell_checking_enabled (value);
         } }
 #endif
         public bool remember_last_window_size { get; set; default = true; }
