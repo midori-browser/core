@@ -387,8 +387,7 @@ feed_panel_cursor_or_row_changed_cb (GtkTreeView* treeview,
                         "<body><h3>%s</h3></body></html>", katze_item_get_uri (KATZE_ITEM (parent)));
                 }
             }
-            webkit_web_view_load_html_string (
-                WEBKIT_WEB_VIEW (panel->webview), text ? text : "", uri);
+            midori_view_set_html (MIDORI_VIEW (panel->webview), text ? text : "", uri, NULL);
             g_free ((gchar*) text);
 
             sensitive = TRUE;
@@ -396,8 +395,7 @@ feed_panel_cursor_or_row_changed_cb (GtkTreeView* treeview,
         else
         {
             text = katze_item_get_text (item);
-            webkit_web_view_load_html_string (
-                WEBKIT_WEB_VIEW (panel->webview), text ? text : "", uri);
+            midori_view_set_html (MIDORI_VIEW (panel->webview), text ? text : "", uri, NULL);
         }
         g_object_unref (item);
     }
@@ -600,6 +598,7 @@ webview_button_press_event_cb (GtkWidget*      widget,
     return MIDORI_EVENT_CONTEXT_MENU (event);
 }
 
+#ifndef HAVE_WEBKIT2
 static gboolean
 webview_navigation_request_cb (WebKitWebView*             web_view,
                                WebKitWebFrame*            frame,
@@ -622,6 +621,7 @@ webview_navigation_request_cb (WebKitWebView*             web_view,
 
     return FALSE;
 }
+#endif
 
 static const gchar*
 feed_panel_get_label (MidoriViewable* viewable)
@@ -760,7 +760,7 @@ feed_panel_init (FeedPanel* panel)
     GtkIconFactory *factory;
     GtkIconSource *icon_source;
     GtkIconSet *icon_set;
-    WebKitWebSettings* settings;
+    MidoriWebSettings* settings;
     PangoFontDescription* font_desc;
     const gchar* family;
     gint size;
@@ -812,7 +812,6 @@ feed_panel_init (FeedPanel* panel)
                       NULL);
     gtk_widget_show (treeview);
 
-    webview = webkit_web_view_new ();
 #if GTK_CHECK_VERSION(3,0,0)
     font_desc = (PangoFontDescription*)gtk_style_context_get_font (
         gtk_widget_get_style_context (treeview), GTK_STATE_FLAG_NORMAL);
@@ -821,14 +820,16 @@ feed_panel_init (FeedPanel* panel)
 #endif
     family = pango_font_description_get_family (font_desc);
     size = pango_font_description_get_size (font_desc) / PANGO_SCALE;
-    settings = webkit_web_settings_new ();
+    settings = midori_web_settings_new ();
     g_object_set (settings, "default-font-family", family,
                             "default-font-size", size, NULL);
-    g_object_set (webview, "settings", settings, NULL);
+    webview = midori_view_new_with_item (NULL, settings);
     gtk_widget_set_size_request (webview, -1, 50);
-    g_object_connect (webview,
+    g_object_connect (midori_tab_get_web_view (MIDORI_TAB (webview)),
+                      #ifndef HAVE_WEBKIT2
                       "signal::navigation-policy-decision-requested",
                       webview_navigation_request_cb, panel,
+                      #endif
                       "signal::button-press-event",
                       webview_button_press_event_cb, NULL,
                       "signal::button-release-event",

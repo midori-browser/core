@@ -1380,11 +1380,7 @@ void
 midori_view_set_html (MidoriView*     view,
                       const gchar*    data,
                       const gchar*    uri,
-#ifndef HAVE_WEBKIT2
-                      WebKitWebFrame* web_frame)
-#else
                       void*           web_frame)
-#endif
 {
     g_return_if_fail (MIDORI_IS_VIEW (view));
     g_return_if_fail (data != NULL);
@@ -1392,13 +1388,11 @@ midori_view_set_html (MidoriView*     view,
     WebKitWebView* web_view = WEBKIT_WEB_VIEW (view->web_view);
     if (!uri)
         uri = "about:blank";
-#ifndef HAVE_WEBKIT2
-    if (!web_frame)
-        web_frame = webkit_web_view_get_main_frame (web_view);
-#endif
     katze_item_set_uri (view->item, uri);
     midori_tab_set_special (MIDORI_TAB (view), TRUE);
 #ifndef HAVE_WEBKIT2
+    if (!web_frame)
+        web_frame = webkit_web_view_get_main_frame (web_view);
     webkit_web_frame_load_alternate_string (
         web_frame, data, uri, uri);
 #else

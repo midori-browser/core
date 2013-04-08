@@ -108,6 +108,7 @@ namespace Midori {
         public signal void quit ();
     }
 
+    [CCode (cheader_filename = "midori/midori.h")]
     public class Extension : GLib.Object {
         [CCode (has_construct_function = false)]
         public Extension ();
@@ -217,6 +218,7 @@ namespace Midori {
         PENDING_UNDELAY,
     }
 
+    [CCode (cheader_filename = "midori/midori.h")]
     public class WebSettings : Midori.Settings {
         public WebSettings ();
         [NoAccessorMethod]

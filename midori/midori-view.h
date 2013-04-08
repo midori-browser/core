@@ -83,6 +83,12 @@ midori_view_set_uri                    (MidoriView*        view,
                                         const gchar*       uri);
 
 void
+midori_view_set_html                   (MidoriView*        view,
+                                        const gchar*       data,
+                                        const gchar*       uri,
+                                        void*              web_frame);
+
+void
 midori_view_set_overlay_text           (MidoriView*        view,
                                         const gchar*       text);
 
