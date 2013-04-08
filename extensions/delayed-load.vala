@@ -157,8 +157,7 @@ namespace DelayedLoad {
 
                 int64 delay = item.get_meta_integer ("delay");
                 if (delay != Midori.Delay.DELAYED) {
-                    WebKit.LoadStatus load_status = view.web_view.load_status;
-                    if (load_status == WebKit.LoadStatus.FINISHED) {
+                    if (view.load_status == Midori.LoadStatus.FINISHED) {
                         if (this.timeout != 0)
                             this.tasks.set (browser, new TabShaker (browser));
 
