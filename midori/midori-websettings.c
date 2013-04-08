@@ -794,8 +794,8 @@ generate_ident_string (MidoriWebSettings* web_settings,
     const int webcore_major = WEBKIT_USER_AGENT_MAJOR_VERSION;
     const int webcore_minor = WEBKIT_USER_AGENT_MINOR_VERSION;
     #else
-    const int webcore_major = WEBKIT_MAJOR_VERSION;
-    const int webcore_minor = WEBKIT_MINOR_VERSION;
+    const int webcore_major = 537;
+    const int webcore_minor = 32;
     #endif
 
     #if WEBKIT_CHECK_VERSION (1, 1, 18)
