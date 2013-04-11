@@ -1361,24 +1361,23 @@ midori_location_action_cert_response_cb (GtkWidget*      dialog,
 const gchar*
 midori_location_action_tls_flags_to_string (GTlsCertificateFlags tls_flags)
 {
-    const gchar* tls_error;
     if (tls_flags & G_TLS_CERTIFICATE_UNKNOWN_CA)
-        tls_error = _("The signing certificate authority is not known.");
+        return _("The signing certificate authority is not known.");
     else if (tls_flags & G_TLS_CERTIFICATE_BAD_IDENTITY)
-        tls_error = _("The certificate does not match the expected identity of the site that it was retrieved from.");
+        return _("The certificate does not match the expected identity of the site that it was retrieved from.");
     else if(tls_flags & G_TLS_CERTIFICATE_NOT_ACTIVATED)
-        tls_error = _("The certificate's activation time is still in the future.");
+        return _("The certificate's activation time is still in the future.");
     else if (tls_flags & G_TLS_CERTIFICATE_EXPIRED)
-        tls_error = _("The certificate has expired");
+        return _("The certificate has expired");
     else if (tls_flags & G_TLS_CERTIFICATE_REVOKED)
-        tls_error = _("The certificate has been revoked according to the GTlsConnection's certificate revocation list.");
+        return _("The certificate has been revoked according to the GTlsConnection's certificate revocation list.");
     else if (tls_flags & G_TLS_CERTIFICATE_INSECURE)
-        tls_error = _("The certificate's algorithm is considered insecure.");
+        return _("The certificate's algorithm is considered insecure.");
     else if (tls_flags & G_TLS_CERTIFICATE_GENERIC_ERROR)
-        tls_error = _("Some other error occurred validating the certificate.");
-    else
-        tls_error = "Unknown GTLSCertificateFlags value";
-    return tls_error;
+        return _("Some other error occurred validating the certificate.");
+    else if (tls_flags == 0)
+        g_return_val_if_reached ("GTLSCertificateFlags is 0");
+    g_return_val_if_reached ("Unknown GTLSCertificateFlags value");
 }
 
 void

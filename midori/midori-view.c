@@ -737,7 +737,8 @@ midori_view_get_tls_info (MidoriView*           view,
     WebKitWebView* web_view = WEBKIT_WEB_VIEW (view->web_view);
     *hostname = midori_uri_parse_hostname (webkit_web_view_get_uri (web_view), NULL);
     gboolean success = webkit_web_view_get_tls_info (web_view, tls_cert, tls_flags);
-    g_object_ref (*tls_cert);
+    if (*tls_cert != NULL)
+        g_object_ref (*tls_cert);
     return success;
     #else
     SoupMessage* message = midori_map_get_message (webkit_network_request_get_message (request));
@@ -746,8 +747,9 @@ midori_view_get_tls_info (MidoriView*           view,
         SoupURI* uri = soup_message_get_uri (message);
         *hostname = uri ? g_strdup (uri->host) : NULL;
         g_object_get (message, "tls-certificate", tls_cert, "tls-errors", tls_flags, NULL);
-        return tls_flags == 0
-         && soup_message_get_flags (message) & SOUP_MESSAGE_CERTIFICATE_TRUSTED;
+        if (soup_message_get_flags (message) & SOUP_MESSAGE_CERTIFICATE_TRUSTED)
+            return TRUE;
+        return tls_flags == 0;
     }
     *tls_cert = NULL;
     *tls_flags = 0;
