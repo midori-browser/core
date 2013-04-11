@@ -17,7 +17,7 @@
 #define STOCK_BOOKMARKS          "user-bookmarks"
 #define STOCK_EXTENSION          "extension"
 #define STOCK_HISTORY            "document-open-recent"
-#define STOCK_WEB_BROWSER        "web-browser"
+#define MIDORI_STOCK_WEB_BROWSER "web-browser"
 #define STOCK_NEWS_FEED          "internet-news-reader"
 #define STOCK_STYLE              "preferences-desktop-theme"
 #define STOCK_TRANSFER           "package"

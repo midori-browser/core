@@ -2981,9 +2981,6 @@ midori_view_populate_popup (MidoriView* view,
                 gtk_action_group_get_action (actions, "AddSpeedDial"));
             gtk_menu_shell_append (menu_shell, menuitem);
         }
-        menuitem = sokoke_action_create_popup_menu_item (
-                gtk_action_group_get_action (actions, "AddDesktopShortcut"));
-        gtk_menu_shell_append (menu_shell, menuitem);
 
         menuitem = sokoke_action_create_popup_menu_item (
                 gtk_action_group_get_action (actions, "SaveAs"));

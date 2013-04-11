@@ -9,8 +9,6 @@
  See the file COPYING for the full license text.
 */
 
-extern const string PACKAGE_NAME;
-
 bool check_sensible_window_size (Gtk.Window window, Midori.WebSettings settings) {
     Gdk.Rectangle monitor;
     window.screen.get_monitor_geometry (0, out monitor);

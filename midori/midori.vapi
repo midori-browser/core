@@ -1,10 +1,13 @@
 /* Copyright (C) 2010 Christian Dywan <christian@twotoasts.de>
    This file is licensed under the terms of the expat license, see the file EXPAT. */
 
+public const string PACKAGE_NAME;
+
 [CCode (cprefix = "Midori", lower_case_cprefix = "midori_")]
 namespace Midori {
     public const string VERSION_SUFFIX;
     namespace Stock {
+        public const string WEB_BROWSER;
         public const string PLUGINS;
     }
 
@@ -71,7 +74,7 @@ namespace Midori {
         [NoAccessorMethod]
         public Gtk.Notebook notebook { owned get; }
         [NoAccessorMethod]
-        public Gtk.Widget panel { owned get; }
+        public Midori.Panel panel { owned get; }
         [NoAccessorMethod]
         public string uri { owned get; set; }
         public Gtk.Widget? tab { get; set; }
@@ -106,6 +109,12 @@ namespace Midori {
         public signal void populate_tool_menu (Gtk.Menu menu);
         [HasEmitter]
         public signal void quit ();
+    }
+
+    [CCode (cheader_filename = "midori/midori.h")]
+    public class Panel : Gtk.HBox {
+        public Panel ();
+        public int append_page (Midori.Viewable viewable);
     }
 
     [CCode (cheader_filename = "midori/midori.h")]

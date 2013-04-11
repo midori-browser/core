@@ -2546,48 +2546,6 @@ _action_add_speed_dial_activate (GtkAction*     action,
 }
 
 static void
-_action_add_desktop_shortcut_activate (GtkAction*     action,
-                                       MidoriBrowser* browser)
-{
-    #if defined (GDK_WINDOWING_X11)
-    GtkWidget* tab = midori_browser_get_current_tab (browser);
-    KatzeItem* item = midori_view_get_proxy_item (MIDORI_VIEW (tab));
-    const gchar* app_name = katze_item_get_name (item);
-    gchar* app_exec = g_strconcat ("midori -a ", katze_item_get_uri (item), NULL);
-    GKeyFile* keyfile = g_key_file_new ();
-    /* Strip LRE leading character and / */
-    gchar* filename = g_strdelimit (g_strconcat (app_name, ".desktop", NULL), "‪/", ' ');
-    gchar* app_dir = g_build_filename (g_get_user_data_dir (), "applications", filename, NULL);
-    #if WEBKIT_CHECK_VERSION (1, 3, 13)
-    /* FIXME: midori_paths_get_icon */
-    gchar* app_icon = g_strdup (STOCK_WEB_BROWSER);
-    #else
-    const gchar* icon_uri = midori_view_get_icon_uri (MIDORI_VIEW (tab));
-    gchar* app_icon = katze_net_get_cached_path (NULL, icon_uri, "icons");
-    if (!g_file_test (app_icon, G_FILE_TEST_EXISTS))
-        katze_assign (app_icon, g_strdup (STOCK_WEB_BROWSER));
-    #endif
-    g_key_file_set_string (keyfile, "Desktop Entry", "Version", "1.0");
-    g_key_file_set_string (keyfile, "Desktop Entry", "Type", "Application");
-    g_key_file_set_string (keyfile, "Desktop Entry", "Name", app_name);
-    g_key_file_set_string (keyfile, "Desktop Entry", "Exec", app_exec);
-    g_key_file_set_string (keyfile, "Desktop Entry", "TryExec", PACKAGE_NAME);
-    g_key_file_set_string (keyfile, "Desktop Entry", "Icon", app_icon);
-    g_key_file_set_string (keyfile, "Desktop Entry", "Categories", "Network;");
-    sokoke_key_file_save_to_file (keyfile, app_dir, NULL);
-    g_free (app_dir);
-    g_free (filename);
-    g_free (app_exec);
-    g_free (app_icon);
-    g_key_file_free (keyfile);
-    #elif defined(GDK_WINDOWING_QUARTZ)
-    /* TODO: Implement */
-    #elif defined (GDK_WINDOWING_WIN32)
-    /* TODO: Implement */
-    #endif
-}
-
-static void
 midori_browser_subscribe_to_news_feed (MidoriBrowser* browser,
                                        const gchar*   uri)
 {
@@ -2646,8 +2604,7 @@ _action_compact_add_activate (GtkAction*     action,
 {
     GtkWidget* dialog;
     GtkBox* box;
-    const gchar* actions[] = { "BookmarkAdd", "AddSpeedDial",
-                               "AddDesktopShortcut", "AddNewsFeed" };
+    const gchar* actions[] = { "BookmarkAdd", "AddSpeedDial", "AddNewsFeed" };
     guint i;
 
     dialog = g_object_new (GTK_TYPE_DIALOG,
@@ -3249,9 +3206,6 @@ _action_compact_menu_populate_popup (GtkAction*     action,
       { "BookmarksImport" },
       { "BookmarksExport" },
       { "ClearPrivateData" },
-      #if defined (GDK_WINDOWING_X11)
-      { "AddDesktopShortcut" },
-      #endif
       { "-" },
       { NULL },
       #ifndef HAVE_GRANITE
@@ -5339,10 +5293,6 @@ static const GtkActionEntry entries[] =
     { "AddSpeedDial", NULL,
         N_("Add to Speed _dial"), "<Ctrl>h",
         NULL, G_CALLBACK (_action_add_speed_dial_activate) },
-    { "AddDesktopShortcut", NULL,
-        /* N_("Add Shortcut to the _desktop"), "", */
-        N_("Create _Launcher"), "",
-        NULL, G_CALLBACK (_action_add_desktop_shortcut_activate) },
     { "AddNewsFeed", NULL,
         N_("Subscribe to News _feed"), NULL,
         NULL, G_CALLBACK (_action_add_news_feed_activate) },
@@ -5769,7 +5719,6 @@ static const gchar* ui_markup =
                 "<separator/>"
                 "<menuitem action='SaveAs'/>"
                 "<menuitem action='AddSpeedDial'/>"
-                "<menuitem action='AddDesktopShortcut'/>"
                 "<separator/>"
                 "<menuitem action='TabClose'/>"
                 "<menuitem action='WindowClose'/>"
@@ -5896,7 +5845,7 @@ midori_browser_realize_cb (GtkStyle*      style,
         if (gtk_icon_theme_has_icon (icon_theme, "midori"))
             gtk_window_set_icon_name (GTK_WINDOW (browser), "midori");
         else
-            gtk_window_set_icon_name (GTK_WINDOW (browser), STOCK_WEB_BROWSER);
+            gtk_window_set_icon_name (GTK_WINDOW (browser), MIDORI_STOCK_WEB_BROWSER);
     }
 }
 
@@ -6067,7 +6016,7 @@ midori_browser_init (MidoriBrowser* browser)
     g_signal_connect (browser, "destroy",
                       G_CALLBACK (midori_browser_destroy_cb), NULL);
     gtk_window_set_role (GTK_WINDOW (browser), "browser");
-    gtk_window_set_icon_name (GTK_WINDOW (browser), STOCK_WEB_BROWSER);
+    gtk_window_set_icon_name (GTK_WINDOW (browser), MIDORI_STOCK_WEB_BROWSER);
     #if GTK_CHECK_VERSION (3, 4, 0)
     gtk_window_set_hide_titlebar_when_maximized (GTK_WINDOW (browser), TRUE);
     #endif
@@ -6292,9 +6241,6 @@ midori_browser_init (MidoriBrowser* browser)
 
     _action_set_sensitive (browser, "EncodingCustom", FALSE);
     _action_set_visible (browser, "LastSession", FALSE);
-    #if !defined (GDK_WINDOWING_X11)
-    _action_set_visible (browser, "AddDesktopShortcut", FALSE);
-    #endif
 
     _action_set_visible (browser, "Bookmarks", browser->bookmarks != NULL);
     _action_set_visible (browser, "BookmarkAdd", browser->bookmarks != NULL);

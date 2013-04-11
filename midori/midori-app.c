@@ -1353,7 +1353,7 @@ midori_app_setup (gint               *argc,
     static GtkStockItem items[] =
     {
         { STOCK_IMAGE },
-        { STOCK_WEB_BROWSER },
+        { MIDORI_STOCK_WEB_BROWSER },
         { STOCK_NEWS_FEED },
         { STOCK_STYLE },
 
