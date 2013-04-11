@@ -87,6 +87,14 @@ namespace Midori {
 #endif
         } }
 
+        /**
+         * Overrides the browser window title if given.
+         * Examples are "Help Viewer" or "L:D_N:application_ID:midori_O:URL"
+         *
+         * Since: 0.5.1
+         **/
+        public string? custom_title { get; set; default = null; }
+
         public string? location_entry_search { get; set; default = null; }
         /* Since: 0.1.7 */
         public int clear_private_data { get; set; default = 0; }

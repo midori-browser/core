@@ -726,7 +726,10 @@ static void
 midori_browser_set_title (MidoriBrowser* browser,
                           const gchar*   title)
 {
-    if (katze_object_get_boolean (browser->settings, "enable-private-browsing"))
+    const gchar* custom_title = midori_settings_get_custom_title (MIDORI_SETTINGS (browser->settings));
+    if (custom_title && *custom_title)
+        gtk_window_set_title (GTK_WINDOW (browser), custom_title);
+    else if (katze_object_get_boolean (browser->settings, "enable-private-browsing"))
     {
         gchar* window_title = g_strdup_printf (_("%s (Private Browsing)"), title);
         gtk_window_set_title (GTK_WINDOW (browser), window_title);
