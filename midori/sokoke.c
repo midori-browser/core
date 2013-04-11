@@ -457,7 +457,7 @@ sokoke_resolve_hostname (const gchar* hostname)
     gint host_resolved = 0;
 
     uri = g_strconcat ("http://", hostname, NULL);
-    if (sokoke_prefetch_uri (NULL, uri, sokoke_resolve_hostname_cb,
+    if (sokoke_prefetch_uri (NULL, uri, G_CALLBACK (sokoke_resolve_hostname_cb),
                              &host_resolved))
     {
         GTimer* timer = g_timer_new ();
@@ -954,11 +954,7 @@ sokoke_gtk_action_count_modifiers (GtkAction* action)
 gboolean
 sokoke_prefetch_uri (MidoriWebSettings*  settings,
                      const char*         uri,
-#ifndef HAVE_WEBKIT2
-                     SoupAddressCallback callback,
-#else
-                     void*               callback,
-#endif
+                     GCallback           callback,
                      gpointer            user_data)
 {
     #define MAXHOSTS 50
@@ -980,6 +976,8 @@ sokoke_prefetch_uri (MidoriWebSettings*  settings,
 #ifdef HAVE_WEBKIT2
     WebKitWebContext* context = webkit_web_context_get_default ();
     webkit_web_context_prefetch_dns (context, hostname);
+    g_free (hostname);
+    return FALSE;
 #else
     if (!hosts ||
         !g_regex_match_simple (hostname, hosts,
@@ -989,7 +987,7 @@ sokoke_prefetch_uri (MidoriWebSettings*  settings,
         gchar* new_hosts;
 
         address = soup_address_new (hostname, SOUP_ADDRESS_ANY_PORT);
-        soup_address_resolve_async (address, 0, 0, callback, user_data);
+        soup_address_resolve_async (address, 0, 0, (SoupAddressCallback)callback, user_data);
         g_object_unref (address);
 
         if (host_count > MAXHOSTS)
@@ -1002,10 +1000,10 @@ sokoke_prefetch_uri (MidoriWebSettings*  settings,
         katze_assign (hosts, new_hosts);
     }
     else if (callback)
-        callback (NULL, SOUP_STATUS_OK, user_data);
-#endif
+        ((SoupAddressCallback)callback) (NULL, SOUP_STATUS_OK, user_data);
     g_free (hostname);
     return TRUE;
+#endif
 }
 
 /**
