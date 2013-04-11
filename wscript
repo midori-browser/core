@@ -246,7 +246,8 @@ def configure (conf):
         check_pkg ('gtk+-3.0', '3.0.0', var='GTK', mandatory=False)
         check_pkg ('gcr-3', '2.32', mandatory=False)
         if option_enabled ('webkit2'):
-            check_pkg ('webkit2gtk-3.0', '1.10.1', var='WEBKIT', mandatory=False)
+            # 2.0.0 matches 1.11.91 API; 1.11.92 > 2.0.0
+            check_pkg ('webkit2gtk-3.0', '1.11.91', var='WEBKIT', mandatory=False)
             if not conf.env['HAVE_WEBKIT']:
                 Utils.pprint ('RED', 'WebKit2/ GTK+3 was not found.\n' \
                     'Pass --disable-webkit2 to build without WebKit2.')
