@@ -279,7 +279,6 @@ midori_history_read_from_db (MidoriHistory* history,
         result = sqlite3_prepare_v2 (db, sqlcmd, -1, &statement, NULL);
         filterstr = g_strdup_printf ("%%%s%%", filter);
         sqlite3_bind_text (statement, 1, filterstr, -1, g_free);
-        req_day = -1;
     }
     else if (req_day == 0)
     {

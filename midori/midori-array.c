@@ -210,8 +210,6 @@ katze_array_from_xmlDocPtr (KatzeArray* array,
     xmlNodePtr cur;
     KatzeItem* item;
 
-    cur = xmlDocGetRootElement (doc);
-
     if ((cur = xmlDocGetRootElement (doc)) == NULL)
     {
         /* Empty document */

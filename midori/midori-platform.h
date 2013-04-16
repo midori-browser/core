@@ -25,11 +25,11 @@
 
 #ifdef GDK_WINDOWING_QUARTZ
     #define MIDORI_EVENT_CONTEXT_MENU(evt) \
-        ((evt->button == 3) \
-        || (evt->button == 1 && (evt->state & GDK_CONTROL_MASK)))
+        ((evt && evt->button == 3) \
+        || (evt && evt->button == 1 && (evt->state & GDK_CONTROL_MASK)))
 #else
     #define MIDORI_EVENT_CONTEXT_MENU(evt) \
-        (evt->button == 3)
+        (evt && evt->button == 3)
 #endif
 
 #define MIDORI_EVENT_NEW_TAB(evt) \

@@ -1230,10 +1230,10 @@ katze_uri_entry_changed_cb (GtkWidget* entry,
         valid = midori_uri_is_ip_address (uri);
 
     #if GTK_CHECK_VERSION (3, 2, 0)
-    g_object_set_data (G_OBJECT (entry), "invalid", GINT_TO_POINTER (*uri && !valid));
+    g_object_set_data (G_OBJECT (entry), "invalid", GINT_TO_POINTER (uri && *uri && !valid));
     gtk_widget_queue_draw (entry);
     #else
-    if (*uri && !valid)
+    if (uri && *uri && !valid)
     {
         GdkColor bg_color = { 0 };
         GdkColor fg_color = { 0 };

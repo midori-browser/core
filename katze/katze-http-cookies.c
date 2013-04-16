@@ -267,7 +267,7 @@ katze_http_cookies_jar_changed_cb (SoupCookieJar*    jar,
     if (!g_strcmp0 (g_getenv ("MIDORI_DEBUG"), "cookies"))
         http_cookies->counter++;
 
-    if (!http_cookies->timeout && (old_cookie || new_cookie->expires))
+    if (!http_cookies->timeout && (old_cookie || (new_cookie && new_cookie->expires)))
         http_cookies->timeout = midori_timeout_add_seconds (
             5, (GSourceFunc)katze_http_cookies_update_jar, http_cookies, NULL);
 }

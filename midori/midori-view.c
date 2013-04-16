@@ -2924,7 +2924,7 @@ midori_view_populate_popup (MidoriView* view,
         gtk_menu_shell_append (menu_shell, menuitem);
 
         if (webkit_web_view_get_focused_frame (web_view) != webkit_web_view_get_main_frame (web_view))
-            menuitem = midori_view_insert_menu_item (menu_shell, -1,
+            midori_view_insert_menu_item (menu_shell, -1,
                 _("Open _Frame in New Tab"), NULL,
                 G_CALLBACK (midori_web_view_open_frame_in_new_tab_cb), widget);
 

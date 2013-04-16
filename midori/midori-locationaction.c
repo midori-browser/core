@@ -478,7 +478,7 @@ midori_location_action_popup_position (MidoriLocationAction* action,
     GtkWidget* popup = action->popup;
     GtkWidget* widget = action->entry;
     GdkWindow* window = gtk_widget_get_window (widget);
-    gint wx, wy, x_border, y_border, items;
+    gint wx, wy, items;
     GtkRequisition menu_req;
     GtkRequisition widget_req;
     GdkScreen* screen;
@@ -504,8 +504,6 @@ midori_location_action_popup_position (MidoriLocationAction* action,
     wx += alloc.x;
     wy += alloc.y + (alloc.height - widget_req.height) / 2;
     #endif
-    /* _gtk_entry_get_borders (GTK_ENTRY (widget), &x_border, &y_border); */
-    x_border = y_border = 0;
 
     gtk_tree_view_column_cell_get_size (
         gtk_tree_view_get_column (GTK_TREE_VIEW (action->treeview), 0),
@@ -526,7 +524,7 @@ midori_location_action_popup_position (MidoriLocationAction* action,
         items = MIN (matches, ((monitor.y + wy) / height) - 1);
     else
         items = MIN (matches, ((toplevel_height - wy) / height) - 1);
-    width = MIN (alloc.width, monitor.width) - 2 * x_border;
+    width = MIN (alloc.width, monitor.width);
 
     gtk_tree_view_columns_autosize (GTK_TREE_VIEW (action->treeview));
     #if GTK_CHECK_VERSION (3, 0, 0)

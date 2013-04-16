@@ -95,7 +95,6 @@ atom_get_link (KatzeItem* item,
     gboolean newishtml;
     gboolean newlink;
 
-    newlink = FALSE;
     oldtype = (gchar*)katze_item_get_meta_string (item, "feedpanel:linktype");
     oldrel = (gchar*)katze_item_get_meta_string (item, "feedpanel:linkrel");
 

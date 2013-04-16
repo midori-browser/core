@@ -219,6 +219,8 @@ feed_parse_doc (xmlDocPtr   doc,
                     feed_parse_node (fparser);
             }
         }
+        else
+            isvalid = FALSE;
 
         fparser->error = NULL;
         fparser->doc = NULL;

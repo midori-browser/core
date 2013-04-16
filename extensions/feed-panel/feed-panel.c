@@ -705,7 +705,6 @@ feed_panel_get_toolbar (MidoriViewable* viewable)
 static void
 feed_panel_finalize (GObject* object)
 {
-    FeedPanel* panel = FEED_PANEL (object);
 }
 
 static void

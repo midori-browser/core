@@ -929,10 +929,16 @@ js_metadata_from_file (const gchar* filename,
                 /* We don't support these, so abort here */
                 g_free (line);
                 g_io_channel_shutdown (channel, false, 0);
-                g_slist_free (*includes);
-                g_slist_free (*excludes);
-                *includes = NULL;
-                *excludes = NULL;
+                if (includes != NULL)
+                {
+                    g_slist_free (*includes);
+                    *includes = NULL;
+                }
+                if (excludes != NULL)
+                {
+                    g_slist_free (*excludes);
+                    *excludes = NULL;
+                }
                 return FALSE;
             }
              else if (includes && g_str_has_prefix (line, "// @include"))

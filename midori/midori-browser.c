@@ -856,7 +856,7 @@ midori_bookmark_folder_button_new (KatzeArray* array,
     db = g_object_get_data (G_OBJECT (array), "db");
     g_return_val_if_fail (db != NULL, NULL);
     n = 1;
-    result = sqlite3_prepare_v2 (db, sqlcmd, -1, &statement, NULL);
+    if ((result = sqlite3_prepare_v2 (db, sqlcmd, -1, &statement, NULL)) == SQLITE_OK)
     while ((result = sqlite3_step (statement)) == SQLITE_ROW)
     {
         const unsigned char* name = sqlite3_column_text (statement, 0);
@@ -6660,7 +6660,7 @@ _midori_browser_set_toolbar_items (MidoriBrowser* browser,
     const char* token_search = g_intern_static_string ("Search");
     const char* token_dontcare = g_intern_static_string ("Dontcare");
     const char* token_current = token_dontcare;
-    const char* token_last = token_dontcare;
+    const char* token_last;
 
     gtk_container_foreach (GTK_CONTAINER (browser->navigationbar),
         (GtkCallback)gtk_widget_destroy, NULL);
@@ -6707,7 +6707,6 @@ _midori_browser_set_toolbar_items (MidoriBrowser* browser,
 
                 toolitem = gtk_action_create_tool_item (GTK_ACTION (paned_action));
                 token_current = token_dontcare;
-                token_last = token_dontcare;
             }
             else if (token_current == token_dontcare && token_last != token_dontcare)
             {
