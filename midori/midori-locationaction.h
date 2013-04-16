@@ -71,6 +71,11 @@ void
 midori_location_action_clear                (MidoriLocationAction* location_action);
 
 void
+midori_location_action_set_primary_icon     (MidoriLocationAction* location_action,
+                                             GIcon*                icon,
+                                             const gchar*          tooltip);
+
+void
 midori_location_action_set_security_hint    (MidoriLocationAction* location_action,
                                              MidoriSecurity        hint);
 

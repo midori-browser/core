@@ -1380,7 +1380,7 @@ midori_location_action_tls_flags_to_string (GTlsCertificateFlags tls_flags)
     g_return_val_if_reached ("Unknown GTLSCertificateFlags value");
 }
 
-void
+static void
 midori_location_action_show_page_info (GtkWidget* widget,
                                        GtkBox*    box,
                                        GtkWidget* dialog)
@@ -1463,6 +1463,10 @@ midori_location_action_icon_released_cb (GtkWidget*           widget,
 
     if (icon_pos == GTK_ICON_ENTRY_PRIMARY)
     {
+        /* No "security" window for blank pages */
+        if (midori_uri_is_blank (MIDORI_LOCATION_ACTION (action)->text))
+            return;
+
         const gchar* title = _("Security details");
         GtkWidget* content_area;
         GtkWidget* hbox;
@@ -1748,6 +1752,36 @@ midori_location_action_set_secondary_icon (MidoriLocationAction* location_action
 }
 
 /**
+ * midori_location_action_primary_icon:
+ * @location_action: a #MidoriLocationAction
+ * @icon: a list of icon names, preferred icon first
+ * @tooltip: The tooltip to show
+ *
+ * The primary icon is mutually exclusive with the security hint.
+ *
+ * Since: 0.5.1
+ **/
+void
+midori_location_action_set_primary_icon (MidoriLocationAction* location_action,
+                                         GIcon*                icon,
+                                         const gchar*          tooltip)
+{
+    GSList* proxies;
+
+    g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
+
+    proxies = gtk_action_get_proxies (GTK_ACTION (location_action));
+
+    for (; proxies != NULL; proxies = g_slist_next (proxies))
+    if (GTK_IS_TOOL_ITEM (proxies->data))
+    {
+        GtkWidget* entry = midori_location_action_entry_for_proxy (proxies->data);
+        gtk_entry_set_icon_from_gicon (GTK_ENTRY (entry), GTK_ICON_ENTRY_PRIMARY, icon);
+        gtk_icon_entry_set_tooltip (GTK_ICON_ENTRY (entry), GTK_ICON_ENTRY_PRIMARY, tooltip);
+    }
+}
+
+/**
  * midori_location_action_set_security_hint:
  * @location_action: a #MidoriLocationAction
  * @hint: a security hint
@@ -1761,39 +1795,31 @@ void
 midori_location_action_set_security_hint (MidoriLocationAction* location_action,
                                           MidoriSecurity        hint)
 {
-    GSList* proxies;
+    GIcon* icon;
+    gchar* tooltip;
 
     g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
 
-    proxies = gtk_action_get_proxies (GTK_ACTION (location_action));
-
-    for (; proxies != NULL; proxies = g_slist_next (proxies))
-    if (GTK_IS_TOOL_ITEM (proxies->data))
+    if (hint == MIDORI_SECURITY_UNKNOWN)
     {
-        GtkWidget* entry = midori_location_action_entry_for_proxy (proxies->data);
-
-        if (hint == MIDORI_SECURITY_UNKNOWN)
-        {
-            gchar* icon_names[] = { "channel-insecure-symbolic", "lock-insecure", "dialog-information", NULL };
-            gtk_entry_set_icon_from_gicon (GTK_ENTRY (entry), GTK_ICON_ENTRY_PRIMARY,
-                g_themed_icon_new_from_names (icon_names, -1));
-            gtk_icon_entry_set_tooltip (GTK_ICON_ENTRY (entry),
-                GTK_ICON_ENTRY_PRIMARY, _("Not verified"));
-        }
-        else if (hint == MIDORI_SECURITY_TRUSTED)
-        {
-            gchar* icon_names[] = { "channel-secure-symbolic", "lock-secure", "locked", NULL };
-            gtk_entry_set_icon_from_gicon (GTK_ENTRY (entry), GTK_ICON_ENTRY_PRIMARY,
-                g_themed_icon_new_from_names (icon_names, -1));
-            gtk_icon_entry_set_tooltip (GTK_ICON_ENTRY (entry),
-                GTK_ICON_ENTRY_PRIMARY, _("Verified and encrypted connection"));
-        }
-        else if (hint == MIDORI_SECURITY_NONE)
-        {
-            gtk_entry_set_icon_from_gicon (GTK_ENTRY (entry), GTK_ICON_ENTRY_PRIMARY,
-                g_themed_icon_new_with_default_fallbacks ("text-html-symbolic"));
-            gtk_icon_entry_set_tooltip (GTK_ICON_ENTRY (entry),
-                GTK_ICON_ENTRY_PRIMARY, _("Open, unencrypted connection"));
-        }
+        gchar* icon_names[] = { "channel-insecure-symbolic", "lock-insecure", "dialog-information", NULL };
+        icon = g_themed_icon_new_from_names (icon_names, -1);
+        tooltip = _("Not verified");
     }
+    else if (hint == MIDORI_SECURITY_TRUSTED)
+    {
+        gchar* icon_names[] = { "channel-secure-symbolic", "lock-secure", "locked", NULL };
+        icon = g_themed_icon_new_from_names (icon_names, -1);
+        tooltip = _("Verified and encrypted connection");
+    }
+    else if (hint == MIDORI_SECURITY_NONE)
+    {
+        icon = g_themed_icon_new_with_default_fallbacks ("text-html-symbolic");
+        tooltip = _("Open, unencrypted connection");
+    }
+    else
+        g_assert_not_reached ();
+
+    midori_location_action_set_primary_icon (location_action, icon, tooltip);
+    g_object_unref (icon);
 }

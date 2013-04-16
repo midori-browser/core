@@ -345,8 +345,17 @@ _midori_browser_update_interface (MidoriBrowser* browser,
     }
 
     action = _action_by_name (browser, "Location");
-    midori_location_action_set_security_hint (
-        MIDORI_LOCATION_ACTION (action), midori_tab_get_security (MIDORI_TAB (view)));
+    if (midori_tab_is_blank (MIDORI_TAB (view)))
+    {
+        gchar* icon_names[] = { "edit-find-symbolic", "edit-find", NULL };
+        GIcon* icon = g_themed_icon_new_from_names (icon_names, -1);
+        midori_location_action_set_primary_icon (
+            MIDORI_LOCATION_ACTION (action), icon, _("Web Search…"));
+        g_object_unref (icon);
+    }
+    else
+        midori_location_action_set_security_hint (
+            MIDORI_LOCATION_ACTION (action), midori_tab_get_security (MIDORI_TAB (view)));
     midori_browser_update_secondary_icon (browser, view, action);
 }
 
