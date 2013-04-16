@@ -114,7 +114,6 @@ namespace Apps {
 
             treeview.show ();
             pack_start (treeview, true, true, 0);
-            assert (treeview.get_n_columns () > 0);;
 
             this.array = array;
             array.add_item.connect (launcher_added);
