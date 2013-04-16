@@ -97,7 +97,7 @@ namespace Midori {
             }
 
             string speed = "";
-            uint64 last_size = download.get_data<uint64> ("last-size");
+            uint64? last_size = download.get_data<uint64?> ("last-size");
             if (elapsed != last_time) {
                 speed = format_size ((uint64)(
                     (current_size - last_size) / (elapsed - last_time)));
@@ -110,7 +110,7 @@ namespace Midori {
 
             if (elapsed - last_time > 5.0) {
                 download.set_data<int> ("last-time", (int)elapsed);
-                download.set_data<uint64> ("last-size", current_size);
+                download.set_data<uint64?> ("last-size", current_size);
             }
 
             return "%s\n%s %s%s".printf (filename, size, speed, eta);
