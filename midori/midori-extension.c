@@ -778,29 +778,6 @@ midori_extension_is_active (MidoriExtension* extension)
 }
 
 /**
- * midori_extension_is_deactivating:
- * @extension: a #MidoriExtension
- *
- * Determines if @extension is currently in the process of
- * being deactivated.
- *
- * Extensions remain fully functional even while being
- * deactivated, so you can for instance still save settings
- * but you may need to cleanup during deactivation.
- *
- * Return value: %TRUE if @extension is deactivating
- *
- * Since: 0.1.7
- **/
-gboolean
-midori_extension_is_deactivating (MidoriExtension* extension)
-{
-    g_return_val_if_fail (MIDORI_IS_EXTENSION (extension), FALSE);
-
-    return extension->priv->active == 2;
-}
-
-/**
  * midori_extension_deactivate:
  * @extension: a #MidoriExtension
  *
@@ -811,7 +788,6 @@ midori_extension_deactivate (MidoriExtension* extension)
 {
     g_return_if_fail (midori_extension_is_active (extension));
 
-    extension->priv->active = 2;
     g_signal_emit (extension, signals[DEACTIVATE], 0);
     extension->priv->active = 0;
     katze_object_assign (extension->priv->app, NULL);
