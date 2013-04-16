@@ -36,7 +36,7 @@ G_BEGIN_DECLS
  * Unrefs @lvalue if needed and assigns it the value of @rvalue.
  **/
 #define katze_object_assign(lvalue, rvalue) \
-    lvalue = ((lvalue ? g_object_unref (lvalue) : lvalue), rvalue)
+    lvalue = ((lvalue ? g_object_unref (lvalue) : (void)0), rvalue)
 
 /**
  * katze_strv_assign:
