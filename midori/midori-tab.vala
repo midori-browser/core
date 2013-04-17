@@ -61,9 +61,10 @@ namespace Midori {
         public Gdk.Color? fg_color { get; protected set; default = null; }
         public Gdk.Color? bg_color { get; protected set; default = null; }
 
+        /* Special pages don't convey progress */
         private double current_progress = 0.0;
         public double progress { get {
-            return current_progress;
+            return special ? 0.0 : current_progress;
         }
         protected set {
             /* When we are finished, we don't want to *see* progress anymore */
