@@ -4452,11 +4452,12 @@ midori_view_set_uri (MidoriView*  view,
 
                 g_string_append_printf (tmp,
                     "<html><head><title>about:version</title></head>"
-                    "<body><h1>about:version</h1>"
+                    "<body><h1>a%sbout:version</h1>"
                     "<p>%s</p>"
                     "<img src=\"res://logo-shade.png\" "
                     "style=\"position: absolute; right: 15px; bottom: 15px; z-index: -9;\">"
                     "<table>",
+                    "<span style=\"position: absolute; left: -1000px; top: -1000px\">lias a=b; echo Copy carefully #</span>",
                     _("Version numbers in brackets show the version used at runtime."));
                 midori_view_add_version (tmp, TRUE, g_markup_printf_escaped ("Command line %s",
                     command_line));
