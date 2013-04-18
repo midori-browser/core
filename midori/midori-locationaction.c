@@ -1302,8 +1302,9 @@ midori_map_get_message (SoupMessage* message)
     if (message_map == NULL)
         message_map = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_object_unref);
     full = g_hash_table_lookup (message_map, uri->host);
-    g_return_val_if_fail (full, message);
-    return full;
+    if (full != NULL)
+        return full;
+    return message;
 }
 #endif
 
