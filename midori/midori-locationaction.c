@@ -1436,12 +1436,14 @@ midori_location_action_show_page_info (GtkWidget* widget,
     gtk_window_set_default_size (GTK_WINDOW (dialog), 250, 200);
     #endif
     #else
-    const gchar* tls_error = midori_location_action_tls_flags_to_string (tls_flags);
-
     if (!g_tls_certificate_get_issuer (tls_cert))
         gtk_box_pack_start (box, gtk_label_new (_("Self-signed")), FALSE, FALSE, 0);
 
-    gtk_box_pack_start (box, gtk_label_new (tls_error), FALSE, FALSE, 0);
+    if (tls_flags > 0)
+    {
+        const gchar* tls_error = midori_location_action_tls_flags_to_string (tls_flags);
+        gtk_box_pack_start (box, gtk_label_new (tls_error), FALSE, FALSE, 0);
+    }
     #endif
 
     g_object_unref (tls_cert);
