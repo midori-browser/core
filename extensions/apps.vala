@@ -38,7 +38,8 @@ namespace Apps {
                 """.printf (name, exec, PACKAGE_NAME, icon_name);
             var file = folder.get_child (filename);
             try {
-                yield file.replace_contents_async (contents.data, null, false, GLib.FileCreateFlags.NONE, null, null);
+                var stream = yield file.replace_async (null, false, GLib.FileCreateFlags.NONE);
+                yield stream.write_async (contents.data);
             }
             catch (Error error) {
                 // TODO GUI infobar
@@ -198,7 +199,7 @@ namespace Apps {
                 monitor = app_folder.monitor_directory (0, null);
                 monitor.changed.connect (app_changed);
 
-                var enumerator = yield app_folder.enumerate_children_async (FileAttribute.STANDARD_NAME, 0);
+                var enumerator = yield app_folder.enumerate_children_async ("standard::name", 0);
                 while (true) {
                     var files = yield enumerator.next_files_async (10);
                     if (files == null)
