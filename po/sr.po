@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: midori 0.1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-04-17 01:42+0000\n"
+"POT-Creation-Date: 2013-04-19 07:42+0000\n"
 "PO-Revision-Date: 2013-03-03 14:22+0100\n"
 "Last-Translator: Саша Петровић <salepetronije@gmail.com>\n"
 "Language-Team: српски <>\n"
@@ -425,7 +425,7 @@ msgid "Open in New _Tab"
 msgstr "Отвори у новом _листу"
 
 #: ../midori/midori-browser.c:4273 ../midori/midori-view.c:2932
-#: ../midori/midori-view.c:4887 ../panels/midori-bookmarks.c:843
+#: ../midori/midori-view.c:4888 ../panels/midori-bookmarks.c:843
 #: ../panels/midori-history.c:800 ../extensions/feed-panel/feed-panel.c:513
 msgid "Open in New _Window"
 msgstr "Отвори у _новом прозору"
@@ -895,15 +895,15 @@ msgstr "Подешавање проширења „%s“ не може бити 
 msgid "The configuration of the extension '%s' couldn't be saved: %s\n"
 msgstr "Подешавање проширења „%s“ не може бити сачувано: %s\n"
 
-#: ../midori/midori-locationaction.c:1332
+#: ../midori/midori-locationaction.c:1333
 msgid "Export certificate"
-msgstr "Извези сертификат"
+msgstr "Извези уверење"
 
-#: ../midori/midori-locationaction.c:1363
+#: ../midori/midori-locationaction.c:1364
 msgid "The signing certificate authority is not known."
-msgstr "Власништво потписаног сертификата није познато."
+msgstr "Власништво потписаног уверења није познато."
 
-#: ../midori/midori-locationaction.c:1365
+#: ../midori/midori-locationaction.c:1366
 msgid ""
 "The certificate does not match the expected identity of the site that it was "
 "retrieved from."
@@ -911,54 +911,54 @@ msgstr ""
 "Сертификат се не подудара са очекиваним идентитетом цајта са ког је добавље"
 "+ен"
 
-#: ../midori/midori-locationaction.c:1367
+#: ../midori/midori-locationaction.c:1368
 msgid "The certificate's activation time is still in the future."
-msgstr "Време почетка важења сертификата је у будућности."
+msgstr "Време почетка важења уверења је у будућности."
 
-#: ../midori/midori-locationaction.c:1369
+#: ../midori/midori-locationaction.c:1370
 msgid "The certificate has expired"
-msgstr "Сертификат је истекао"
+msgstr "Уверење је истекло"
 
-#: ../midori/midori-locationaction.c:1371
+#: ../midori/midori-locationaction.c:1372
 msgid ""
 "The certificate has been revoked according to the GTlsConnection's "
 "certificate revocation list."
 msgstr "Уверење је повучено у складу са списком повлачења уверења ГТлс веза."
 
-#: ../midori/midori-locationaction.c:1373
+#: ../midori/midori-locationaction.c:1374
 msgid "The certificate's algorithm is considered insecure."
-msgstr "Алгоритам сертификата се сматра несигурним."
+msgstr "Алгоритам уврења се сматра несигурним."
 
-#: ../midori/midori-locationaction.c:1375
+#: ../midori/midori-locationaction.c:1376
 msgid "Some other error occurred validating the certificate."
-msgstr "Неке друге грешке су се десиле приликом провере сертификата."
+msgstr "Неке друге грешке су се десиле приликом провере уверења."
 
-#: ../midori/midori-locationaction.c:1426
+#: ../midori/midori-locationaction.c:1427
 msgid "_Export certificate"
-msgstr "_Извоз сертификата"
+msgstr "_Извоз уверења"
 
-#: ../midori/midori-locationaction.c:1441
+#: ../midori/midori-locationaction.c:1440
 msgid "Self-signed"
 msgstr "Са сопственим потписом"
 
-#: ../midori/midori-locationaction.c:1468
+#: ../midori/midori-locationaction.c:1471
 msgid "Security details"
 msgstr "Безбедносни детаљи"
 
 #. i18n: Right-click on Location, Open an URL from the clipboard
-#: ../midori/midori-locationaction.c:1551
+#: ../midori/midori-locationaction.c:1554
 msgid "Paste and p_roceed"
 msgstr "Налепи и _настави"
 
-#: ../midori/midori-locationaction.c:1805
+#: ../midori/midori-locationaction.c:1808
 msgid "Not verified"
 msgstr "Непроверено"
 
-#: ../midori/midori-locationaction.c:1811
+#: ../midori/midori-locationaction.c:1814
 msgid "Verified and encrypted connection"
 msgstr "Проверена и шифрована веза"
 
-#: ../midori/midori-locationaction.c:1816
+#: ../midori/midori-locationaction.c:1819
 msgid "Open, unencrypted connection"
 msgstr "Отворена, нешифрована веза"
 
@@ -1098,7 +1098,7 @@ msgstr "Не могу да учитам подешавања: %s\n"
 msgid "Invalid configuration value '%s'"
 msgstr "Неисправна је вредност „%s“ у подешавањима"
 
-#: ../midori/midori-tab.vala:121
+#: ../midori/midori-tab.vala:122
 #, c-format
 msgid "Failed to inject stylesheet: %s"
 msgstr "Не могу да уметнем пресвлаку: %s"
@@ -1324,42 +1324,42 @@ msgstr "Језик и временска зона нису откривени в
 msgid "Flash and other Netscape plugins cannot be listed by websites."
 msgstr "Веб сајтови не могу да излистају Флеш или друге Нетскејп прикључке."
 
-#: ../midori/midori-view.c:4460
+#: ../midori/midori-view.c:4461
 msgid "Version numbers in brackets show the version used at runtime."
 msgstr ""
 "Бројеви издања у заградама приказују издање коришћено за време покретања."
 
-#: ../midori/midori-view.c:4510
+#: ../midori/midori-view.c:4511
 msgid "Page loading delayed"
 msgstr "Учитавање странице је одложено"
 
-#: ../midori/midori-view.c:4511
+#: ../midori/midori-view.c:4512
 msgid "Loading delayed either due to a recent crash or startup preferences."
 msgstr ""
 "Учитавање је одложено или због недавног пада програма или због поставки "
 "покретања."
 
-#: ../midori/midori-view.c:4512
+#: ../midori/midori-view.c:4513
 msgid "Load Page"
 msgstr "Учитај страницу"
 
-#: ../midori/midori-view.c:4677
+#: ../midori/midori-view.c:4678
 msgid "Blank page"
 msgstr "Празна страница"
 
-#: ../midori/midori-view.c:4891
+#: ../midori/midori-view.c:4892
 msgid "_Duplicate Tab"
 msgstr "_Удвостручи лист"
 
-#: ../midori/midori-view.c:4896
+#: ../midori/midori-view.c:4897
 msgid "Show Tab _Label"
 msgstr "Прикажи _натпис листа"
 
-#: ../midori/midori-view.c:4896
+#: ../midori/midori-view.c:4897
 msgid "Show Tab _Icon Only"
 msgstr "Прикажи само _иконицу листа"
 
-#: ../midori/midori-view.c:4903
+#: ../midori/midori-view.c:4904
 msgid "Close Ot_her Tab"
 msgid_plural "Close Ot_her Tabs"
 msgstr[0] "Затвори _други лист"
@@ -1367,24 +1367,24 @@ msgstr[1] "Затвори _друге листове"
 msgstr[2] "Затвори _друге листове"
 
 #. i18n: word stem of "previous page" type links, case is not important
-#: ../midori/midori-view.c:5597
+#: ../midori/midori-view.c:5598
 msgid "previous"
 msgstr "Претходно"
 
 #. i18n: word stem of "next page" type links, case is not important
-#: ../midori/midori-view.c:5616
+#: ../midori/midori-view.c:5617
 msgid "next"
 msgstr "Следеће"
 
-#: ../midori/midori-view.c:5630
+#: ../midori/midori-view.c:5631
 msgid "Print background images"
 msgstr "Прикажи позадинске слике"
 
-#: ../midori/midori-view.c:5631
+#: ../midori/midori-view.c:5632
 msgid "Whether background images should be printed"
 msgstr "Одређује да ли треба приказати слике за позадину"
 
-#: ../midori/midori-view.c:5661
+#: ../midori/midori-view.c:5662
 msgid "Features"
 msgstr "Могућности"
 
@@ -3099,19 +3099,19 @@ msgstr "Управник безбедности колачића"
 msgid "Manage cookie permission per site"
 msgstr "Управљај дозволама колачића по пореклу"
 
-#: ../extensions/apps.vala:81
+#: ../extensions/apps.vala:82
 msgid "Applications"
 msgstr "Програми"
 
-#: ../extensions/apps.vala:226
+#: ../extensions/apps.vala:227
 msgid "Create _Launcher"
 msgstr "Направи _покретач"
 
-#: ../extensions/apps.vala:264
+#: ../extensions/apps.vala:265
 msgid "Web App Manager"
 msgstr "Управник веб програмима"
 
-#: ../extensions/apps.vala:265
+#: ../extensions/apps.vala:266
 msgid "Manage websites installed as applications"
 msgstr "Управља веб страницама које су уграђене као програми"
 
