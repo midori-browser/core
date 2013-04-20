@@ -69,39 +69,76 @@ static void download_unique () {
 }
 
 void download_properties () {
+    var test_address = new Soup.Address ("127.0.0.1", Soup.ADDRESS_ANY_PORT);
+    test_address.resolve_sync (null);
+    var test_server = new Soup.Server ("interface", test_address, null);
+    string test_url = "http://127.0.0.1:%u".printf (test_server.get_port ());
+    test_server.run_async ();
+    test_server.add_handler ("/", (server, msg, path, query, client)=>{
+        Thread.usleep (1000000); /* 1 seconds in µs */
+        if ("/not_found/" in path)
+            msg.set_status (404);
+        else
+            msg.set_status (200);
+        msg.set_response ("text/html", Soup.MemoryUse.COPY, "<body></body>".data);
+        });
+
+    string was_found_url = test_url + "/cat.png";
+    string not_found_url = test_url + "/not_found/dog.png";
 #if HAVE_WEBKIT2
-    var download = WebKit.WebContext.get_default ().download_uri ("file:///klaatu/barada/nikto.ogg");
+    var download = WebKit.WebContext.get_default ().download_uri (was_found_url);
 #else
-    var download = new WebKit.Download (new WebKit.NetworkRequest ("file:///klaatu/barada/nikto.ogg"));
+    var download = new WebKit.Download (new WebKit.NetworkRequest (was_found_url));
 #endif
     assert (Midori.Download.get_type (download) == 0);
     Midori.Download.set_type (download, Midori.DownloadType.OPEN);
     assert (Midori.Download.get_type (download) == Midori.DownloadType.OPEN);
     assert (Midori.Download.get_progress (download) == 0.0);
 
+    string filename, uri;
     try {
-        string filename;
         FileUtils.close (FileUtils.open_tmp ("XXXXXX", out filename));
-#if HAVE_WEBKIT2
-        download.set_destination (Filename.to_uri (filename, null));
-#else
-        download.destination_uri = Filename.to_uri (filename, null);
-        download.start ();
-#endif
-        string tee = Midori.Download.get_tooltip (download);
-        assert (Midori.Download.get_progress (download) == 0.0);
-        var loop = MainContext.default ();
-        do { loop.iteration (true); } while (loop.pending ());
-        string tee2 = Midori.Download.get_tooltip (download);
-        assert (tee2.contains (tee));
-        do { loop.iteration (true); } while (!Midori.Download.is_finished (download));
-#if !HAVE_WEBKIT2
-        assert (download.status == WebKit.DownloadStatus.ERROR);
-#endif
+        uri = Filename.to_uri (filename, null);
     }
     catch (Error error) {
         GLib.error (error.message);
     }
+
+#if HAVE_WEBKIT2
+    download.set_destination (uri);
+#else
+    download.destination_uri = uri;
+    download.start ();
+#endif
+    string tee = Midori.Download.get_tooltip (download);
+    assert (tee.contains (Path.get_basename (filename)));
+    assert (Midori.Download.get_progress (download) == 0.0);
+
+    download.notify["progress"].connect ((pspec) => {
+        string tee2 = Midori.Download.get_tooltip (download);
+        assert (tee2.contains (Path.get_basename (filename)));
+    });
+    var loop = MainContext.default ();
+    do { loop.iteration (true); } while (!Midori.Download.is_finished (download));
+#if !HAVE_WEBKIT2
+    assert (download.status == WebKit.DownloadStatus.FINISHED);
+#endif
+
+#if HAVE_WEBKIT2
+    download = WebKit.WebContext.get_default ().download_uri (not_found_url);
+#else
+    download = new WebKit.Download (new WebKit.NetworkRequest (not_found_url));
+#endif
+#if HAVE_WEBKIT2
+    download.set_destination (uri);
+#else
+    download.destination_uri = uri;
+    download.start ();
+#endif
+    do { loop.iteration (true); } while (!Midori.Download.is_finished (download));
+#if !HAVE_WEBKIT2
+    assert (download.status == WebKit.DownloadStatus.ERROR);
+#endif
 }
 
 void main (string[] args) {

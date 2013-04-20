@@ -98,7 +98,7 @@ namespace Midori {
 
             string speed = "";
             uint64? last_size = download.get_data<uint64?> ("last-size");
-            if (elapsed != last_time) {
+            if (last_size != null && elapsed != last_time) {
                 speed = format_size ((uint64)(
                     (current_size - last_size) / (elapsed - last_time)));
             }
@@ -108,7 +108,7 @@ namespace Midori {
             /* i18n: Download tooltip (transfer rate): (130KB/s) */
             speed = _(" (%s/s)").printf (speed);
 
-            if (elapsed - last_time > 5.0) {
+            if (elapsed - last_time > 0.0) {
                 download.set_data<int> ("last-time", (int)elapsed);
                 download.set_data<uint64?> ("last-size", current_size);
             }
