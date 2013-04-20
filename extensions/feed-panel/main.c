@@ -448,8 +448,7 @@ feed_app_add_browser_cb (MidoriApp*       app,
     priv->parsers = g_slist_prepend (priv->parsers, rss_init_parser ());
 
     sfeeds = midori_extension_get_string_list (extension, "feeds", &n);
-    g_assert (n == 0 || sfeeds);
-
+    if (sfeeds != NULL)
     for (i = 0; i < n; i++)
     {
         if (sfeeds[i])
@@ -459,7 +458,6 @@ feed_app_add_browser_cb (MidoriApp*       app,
                 update_feed (priv, KATZE_ITEM (feed));
         }
     }
-    g_strdupv (sfeeds);
     action_group = midori_browser_get_action_group (browser);
     action = gtk_action_group_get_action (action_group, "Location");
 
