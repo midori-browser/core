@@ -105,12 +105,6 @@ static KatzeArray*
 feed_add_item (KatzeArray*  feeds,
                const gchar* uri)
 {
-    KatzeArray* feed;
-
-    feed = NULL;
-
-    if (uri)
-    {
         if (katze_array_find_token (feeds, uri))
         {
             GtkWidget* dialog;
@@ -124,22 +118,21 @@ feed_add_item (KatzeArray*  feeds,
             gtk_widget_show (dialog);
             g_signal_connect_swapped (dialog, "response",
                 G_CALLBACK (gtk_widget_destroy), dialog);
-
+            return NULL;
         }
         else
         {
             KatzeArray* child;
 
-            feed = katze_array_new (KATZE_TYPE_ARRAY);
+            KatzeArray* feed = katze_array_new (KATZE_TYPE_ARRAY);
             child = katze_array_new (KATZE_TYPE_ITEM);
             katze_item_set_uri (KATZE_ITEM (feed), uri);
             katze_item_set_token (KATZE_ITEM (feed), uri);
             katze_item_set_uri (KATZE_ITEM (child), uri);
             katze_array_add_item (feeds, feed);
             katze_array_add_item (feed, child);
+            return feed;
         }
-    }
-    return feed;
 }
 
 static void
@@ -503,7 +496,6 @@ MidoriExtension*
 extension_init (void)
 {
     MidoriExtension* extension;
-    gchar* sfeed[2];
 
     extension = g_object_new (MIDORI_TYPE_EXTENSION,
         "name", _("Feed Panel"),
@@ -512,8 +504,7 @@ extension_init (void)
         "authors", "Dale Whittaker <dayul@users.sf.net>",
         NULL);
 
-    sfeed[0] = NULL;
-    midori_extension_install_string_list (extension, "feeds", sfeed, 1);
+    midori_extension_install_string_list (extension, "feeds", NULL, 0);
 
     g_signal_connect (extension, "activate",
         G_CALLBACK (feed_activate_cb), NULL);

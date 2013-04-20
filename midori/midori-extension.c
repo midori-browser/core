@@ -389,7 +389,10 @@ midori_extension_activate_cb (MidoriExtension* extension,
                 setting_->value = g_key_file_get_string_list (extension->priv->key_file,
                     "settings", setting->name, &setting_->length, NULL);
                 if (setting_->value == NULL)
+                {
                     setting_->value = g_strdupv (setting_->default_value);
+                    setting_->length = setting_->default_length;
+                }
             }
             else
                 setting_->value = g_strdupv (setting_->default_value);
