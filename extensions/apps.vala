@@ -196,6 +196,14 @@ namespace Apps {
             var data_dir = File.new_for_path (Midori.Paths.get_user_data_dir ());
             app_folder = data_dir.get_child ("applications");
             try {
+                try {
+                    app_folder.make_directory_with_parents (null);
+                }
+                catch (IOError folder_error) {
+                    if (!(folder_error is IOError.EXISTS))
+                        throw folder_error;
+                }
+
                 monitor = app_folder.monitor_directory (0, null);
                 monitor.changed.connect (app_changed);
 
@@ -219,7 +227,8 @@ namespace Apps {
             }
             catch (Error io_error) {
                 monitor = null;
-                warning ("Failed to list .desktop files: %s", io_error.message);
+                warning ("Failed to list .desktop files (%s): %s",
+                         app_folder.get_path (), io_error.message);
             }
         }
 
