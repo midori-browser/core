@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: midori 0.1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-04-19 07:42+0000\n"
+"POT-Creation-Date: 2013-04-20 05:18+0000\n"
 "PO-Revision-Date: 2013-03-03 14:22+0100\n"
 "Last-Translator: Саша Петровић <salepetronije@gmail.com>\n"
 "Language-Team: српски <>\n"
@@ -62,7 +62,7 @@ msgstr "Мидоријево приватно прегледање"
 msgid "Open a new private browsing window"
 msgstr "Отворите нови прозор приватног прегледања"
 
-#: ../data/midori-private.desktop.in.h:3 ../midori/midori-view.c:4411
+#: ../data/midori-private.desktop.in.h:3 ../midori/midori-view.c:4412
 msgid "Private Browsing"
 msgstr "Приватно прегледање"
 
@@ -372,7 +372,7 @@ msgstr ""
 "Или идите на „Поставке, Разгледање“ у Мидорију, и изаберите „Читач вести“. "
 "Следећи пут када кликнете на иконицу довода вести, биће аутоматски додат."
 
-#: ../midori/midori-browser.c:2590 ../extensions/feed-panel/main.c:356
+#: ../midori/midori-browser.c:2590 ../extensions/feed-panel/main.c:349
 msgid "New feed"
 msgstr "Нови довод"
 
@@ -890,7 +890,7 @@ msgstr "Изборник"
 msgid "The configuration of the extension '%s' couldn't be loaded: %s\n"
 msgstr "Подешавање проширења „%s“ не може бити учитано: %s\n"
 
-#: ../midori/midori-extension.c:873 ../extensions/addons.c:1681
+#: ../midori/midori-extension.c:876 ../extensions/addons.c:1681
 #, c-format
 msgid "The configuration of the extension '%s' couldn't be saved: %s\n"
 msgstr "Подешавање проширења „%s“ не може бити сачувано: %s\n"
@@ -983,11 +983,11 @@ msgstr "Прикажи брзе посете"
 msgid "Show Homepage"
 msgstr "Прикажи почетну страницу"
 
-#: ../midori/midori-websettings.c:116 ../midori/midori-frontend.c:367
+#: ../midori/midori-websettings.c:116 ../midori/midori-frontend.c:366
 msgid "Show last open tabs"
 msgstr "Прикажи последње отворене језичке"
 
-#: ../midori/midori-websettings.c:117 ../midori/midori-frontend.c:366
+#: ../midori/midori-websettings.c:117 ../midori/midori-frontend.c:365
 msgid "Show last tabs without loading"
 msgstr "Прикажи последње језичке без учитавања"
 
@@ -1282,49 +1282,49 @@ msgstr "Отворите %s"
 msgid "Inspect page - %s"
 msgstr "Провера странице — %s"
 
-#: ../midori/midori-view.c:4336
+#: ../midori/midori-view.c:4337
 #, c-format
 msgid "No documentation installed"
 msgstr "Није инсталирана помоћ"
 
-#: ../midori/midori-view.c:4412
+#: ../midori/midori-view.c:4413
 msgid "Midori doesn't store any personal data:"
 msgstr "Мидори не чува никакве личне податке:"
 
-#: ../midori/midori-view.c:4413
+#: ../midori/midori-view.c:4414
 msgid "No history or web cookies are being saved."
 msgstr "Нису сачувани ни историјат ни веб колачићи."
 
-#: ../midori/midori-view.c:4414
+#: ../midori/midori-view.c:4415
 msgid "Extensions are disabled."
 msgstr "Проширења су искључена."
 
-#: ../midori/midori-view.c:4415
+#: ../midori/midori-view.c:4416
 msgid "HTML5 storage, local database and application caches are disabled."
 msgstr ""
 "ХТМЛ5 скалдиштење, месна база података и причувавања програма су искључена."
 
-#: ../midori/midori-view.c:4416
+#: ../midori/midori-view.c:4417
 msgid "Midori prevents websites from tracking the user:"
 msgstr "Мидори спречава веб сајтове да прате корисника:"
 
-#: ../midori/midori-view.c:4417
+#: ../midori/midori-view.c:4418
 msgid "Referrer URLs are stripped down to the hostname."
 msgstr "Адресе преусмеривача су отцепљене на назив домаћина."
 
-#: ../midori/midori-view.c:4418
+#: ../midori/midori-view.c:4419
 msgid "DNS prefetching is disabled."
 msgstr "ДНС довлачење је искључено."
 
-#: ../midori/midori-view.c:4419
+#: ../midori/midori-view.c:4420
 msgid "The language and timezone are not revealed to websites."
 msgstr "Језик и временска зона нису откривени веб сајтовима."
 
-#: ../midori/midori-view.c:4420
+#: ../midori/midori-view.c:4421
 msgid "Flash and other Netscape plugins cannot be listed by websites."
 msgstr "Веб сајтови не могу да излистају Флеш или друге Нетскејп прикључке."
 
-#: ../midori/midori-view.c:4461
+#: ../midori/midori-view.c:4462
 msgid "Version numbers in brackets show the version used at runtime."
 msgstr ""
 "Бројеви издања у заградама приказују издање коришћено за време покретања."
@@ -1761,7 +1761,7 @@ msgstr "_Назив:"
 msgid "_Description:"
 msgstr "_Опис:"
 
-#: ../midori/midori-searchaction.c:1105 ../extensions/feed-panel/main.c:368
+#: ../midori/midori-searchaction.c:1105 ../extensions/feed-panel/main.c:361
 msgid "_Address:"
 msgstr "_Адреса:"
 
@@ -2133,7 +2133,7 @@ msgid "Userstyles"
 msgstr "Лични стилови"
 
 #: ../extensions/addons.c:370 ../extensions/addons.c:449
-#: ../extensions/feed-panel/main.c:120
+#: ../extensions/feed-panel/main.c:114
 msgid "Error"
 msgstr "Грешка"
 
@@ -2415,21 +2415,21 @@ msgstr "Не могу да нађем потребни „item“ елемент
 msgid "Failed to find required RSS \"channel\" elements in XML data."
 msgstr "Не могу да нађем потребни „channel“ елемент вести међу ИксМЛ подацима."
 
-#: ../extensions/feed-panel/main.c:122
+#: ../extensions/feed-panel/main.c:116
 #, c-format
 msgid "Feed '%s' already exists"
 msgstr "Довод „%s“ већ постоји"
 
-#: ../extensions/feed-panel/main.c:199
+#: ../extensions/feed-panel/main.c:192
 #, c-format
 msgid "Error loading feed '%s'"
 msgstr "Грешка учитавања додова „%s“"
 
-#: ../extensions/feed-panel/main.c:509
+#: ../extensions/feed-panel/main.c:499
 msgid "Feed Panel"
 msgstr "Површ са доводима"
 
-#: ../extensions/feed-panel/main.c:510
+#: ../extensions/feed-panel/main.c:500
 msgid "Read Atom/ RSS feeds"
 msgstr "Чита Атоме / доводе са вестима"
 
@@ -2779,7 +2779,7 @@ msgstr ""
 msgid "The configuration couldn't be saved. %s"
 msgstr "Не могу да сачувам подешавања. %s"
 
-#: ../midori/midori-session.c:390 ../midori/midori-frontend.c:505
+#: ../midori/midori-session.c:390 ../midori/midori-frontend.c:508
 #, c-format
 msgid "The session couldn't be loaded: %s\n"
 msgstr "Не могу да учитам сесију: %s\n"
@@ -2796,63 +2796,63 @@ msgid "The trash couldn't be saved. %s"
 msgstr "Не могу да сачувам документ. %s"
 
 #: ../midori/midori-frontend.c:337
+#, c-format
 msgid ""
-"Midori seems to have crashed the last time it was opened. If this happened "
-"repeatedly, try one of the following options to solve the problem."
+"Midori crashed the last time it was opened. You can report the problem at %s."
 msgstr ""
 "Изгледа да је Мидори неисправно завршио рад приликом последњег покретања. "
 "Уколико се ово често понавља покушајте неки од понуђених предлога."
 
-#: ../midori/midori-frontend.c:347
+#: ../midori/midori-frontend.c:346
 msgid "Modify _preferences"
 msgstr "Измени пос_тавке"
 
-#: ../midori/midori-frontend.c:351
+#: ../midori/midori-frontend.c:350
 msgid "Disable all _extensions"
 msgstr "Онемогући сва п_роширења"
 
-#: ../midori/midori-frontend.c:360
+#: ../midori/midori-frontend.c:359
 msgid "Show a dialog after Midori crashed"
 msgstr "Приказује прозорче након пада Мидорија"
 
-#: ../midori/midori-frontend.c:365
+#: ../midori/midori-frontend.c:364
 msgid "Discard old tabs"
 msgstr "Одбаци старе језичке"
 
-#: ../midori/midori-frontend.c:373
+#: ../midori/midori-frontend.c:372
 msgid "Show last crash _log"
 msgstr "Прикажи последњи _дневник грешака"
 
-#: ../midori/midori-frontend.c:386
+#: ../midori/midori-frontend.c:385
 msgid "Run in _debugger"
 msgstr "Покрени уз _праћење грешака"
 
-#: ../midori/midori-frontend.c:457
+#: ../midori/midori-frontend.c:460
 msgid "An instance of Midori is already running but not responding.\n"
 msgstr ""
 "Један примерак Мидорија је већ покренут али не даје одзив.\n"
 "\n"
 
-#: ../midori/midori-frontend.c:490
+#: ../midori/midori-frontend.c:493
 #, c-format
 msgid "Bookmarks couldn't be loaded: %s\n"
 msgstr "Не могу да учитам забелешку: %s\n"
 
-#: ../midori/midori-frontend.c:521
+#: ../midori/midori-frontend.c:524
 #, c-format
 msgid "The trash couldn't be loaded: %s\n"
 msgstr "Не могу да учитам смеће: %s\n"
 
-#: ../midori/midori-frontend.c:529
+#: ../midori/midori-frontend.c:532
 #, c-format
 msgid "The history couldn't be loaded: %s\n"
 msgstr "Не могу да учитам историјат: %s\n"
 
-#: ../midori/midori-frontend.c:540
+#: ../midori/midori-frontend.c:543
 msgid "The following errors occured:"
 msgstr "Јавиле су се следеће грешке:"
 
-#: ../midori/midori-frontend.c:545
+#: ../midori/midori-frontend.c:548
 msgid "_Ignore"
 msgstr "_Занемари"
 
@@ -3103,15 +3103,15 @@ msgstr "Управљај дозволама колачића по пореклу
 msgid "Applications"
 msgstr "Програми"
 
-#: ../extensions/apps.vala:227
+#: ../extensions/apps.vala:236
 msgid "Create _Launcher"
 msgstr "Направи _покретач"
 
-#: ../extensions/apps.vala:265
+#: ../extensions/apps.vala:274
 msgid "Web App Manager"
 msgstr "Управник веб програмима"
 
-#: ../extensions/apps.vala:266
+#: ../extensions/apps.vala:275
 msgid "Manage websites installed as applications"
 msgstr "Управља веб страницама које су уграђене као програми"
 
