@@ -4216,8 +4216,10 @@ list_geolocation (GString* markup)
     "</script>");
 }
 
-static gchar*
-list_video_formats (MidoriView* view)
+static void
+midori_view_list_video_formats (MidoriView* view,
+                                GString*    formats,
+                                gboolean    html)
 {
 #ifndef HAVE_WEBKIT2
     WebKitWebFrame* web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view));
@@ -4234,9 +4236,8 @@ list_video_formats (MidoriView* view)
         "' &nbsp; WebM [' + "
         "supported('video/webm; codecs=\"vp8, vorbis\"') + ']' "
         "", NULL);
-    return value;
-#else
-    return NULL;
+    midori_view_add_version (formats, html, g_strdup_printf ("Video Formats %s", value));
+    g_free (value);
 #endif
 }
 
@@ -4466,10 +4467,9 @@ midori_view_set_uri (MidoriView*  view,
                     platform, sys_name, architecture ? architecture : ""));
                 midori_view_add_version (tmp, TRUE, g_markup_printf_escaped ("Identification %s",
                     ident));
-                midori_view_add_version (tmp, TRUE, g_strdup_printf ("Video Formats %s",
-                    list_video_formats (view)));
-                g_string_append (tmp, "</table><table>");
+                midori_view_list_video_formats (view, tmp, TRUE);
 
+                g_string_append (tmp, "</table><table>");
                 midori_view_list_plugins (view, tmp, TRUE);
                 g_string_append (tmp, "</table>");
                 list_about_uris (tmp);
