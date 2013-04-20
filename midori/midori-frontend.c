@@ -334,9 +334,8 @@ midori_frontend_diagnostic_dialog (MidoriApp*         app,
 
     dialog = gtk_message_dialog_new (
         NULL, 0, GTK_MESSAGE_WARNING, GTK_BUTTONS_NONE,
-        _("Midori seems to have crashed the last time it was opened. "
-          "If this happened repeatedly, try one of the following options "
-          "to solve the problem."));
+        _("Midori crashed the last time it was opened. You can report the problem at %s."),
+        PACKAGE_BUGREPORT);
     gtk_window_set_skip_taskbar_hint (GTK_WINDOW (dialog), FALSE);
     gtk_window_set_title (GTK_WINDOW (dialog), g_get_application_name ());
     content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
@@ -442,15 +441,19 @@ midori_normal_app_new (const gchar* config,
     MidoriApp* app = midori_app_new (nickname);
     if (midori_app_instance_is_running (app))
     {
-        gboolean result = FALSE;
-        GtkWidget* dialog;
-
-        if (execute_commands != NULL && midori_app_send_command (app, execute_commands))
-            return NULL;
-        if (open_uris != NULL && midori_app_instance_send_uris (app, open_uris))
-            return NULL;
-        if (!execute_commands && !open_uris && midori_app_instance_send_new_browser (app))
-            return NULL;
+        /* It makes no sense to show a crash dialog while running */
+        if (!diagnostic_dialog)
+        {
+            gboolean success = FALSE;
+            if (execute_commands != NULL && midori_app_send_command (app, execute_commands))
+                success = TRUE;
+            if (open_uris != NULL && midori_app_instance_send_uris (app, open_uris))
+                success = TRUE;
+            if (!execute_commands && !open_uris && midori_app_instance_send_new_browser (app))
+                success = TRUE;
+            if (success)
+                return NULL;
+        }
 
         /* FIXME: We mustn't lose the URL here; either instance is freezing or inside a crash dialog */
         sokoke_message_dialog (GTK_MESSAGE_INFO,
