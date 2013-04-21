@@ -13,7 +13,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: midori 0.2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-04-18 04:42+0000\n"
+"POT-Creation-Date: 2013-04-21 02:54+0000\n"
 "PO-Revision-Date: 2012-12-07 14:55+0100\n"
 "Last-Translator: \n"
 "Language-Team: French <fr@li.org>\n"
@@ -65,7 +65,7 @@ msgstr "Midori (Navigation privée)"
 msgid "Open a new private browsing window"
 msgstr "Ouvrir une nouvelle fenêtre (Navigation privée)"
 
-#: ../data/midori-private.desktop.in.h:3 ../midori/midori-view.c:4411
+#: ../data/midori-private.desktop.in.h:3 ../midori/midori-view.c:4412
 msgid "Private Browsing"
 msgstr "Navigation privée"
 
@@ -378,7 +378,7 @@ msgstr ""
 "de Midori, et sélectionnez un agrégateur de flux. La prochaine fois que vous "
 "cliquerez sur l'icône de fil de nouvelles, il sera ajouté automatiquement."
 
-#: ../midori/midori-browser.c:2590 ../extensions/feed-panel/main.c:356
+#: ../midori/midori-browser.c:2590 ../extensions/feed-panel/main.c:349
 msgid "New feed"
 msgstr "Nouveau flux"
 
@@ -902,36 +902,36 @@ msgstr "Menu"
 msgid "The configuration of the extension '%s' couldn't be loaded: %s\n"
 msgstr "La configuration de l'extension « %s » n'a pas pu être lue : %s\n"
 
-#: ../midori/midori-extension.c:873 ../extensions/addons.c:1681
+#: ../midori/midori-extension.c:876 ../extensions/addons.c:1681
 #, c-format
 msgid "The configuration of the extension '%s' couldn't be saved: %s\n"
 msgstr ""
 "La configuration de l'extension « %s » n'a pas pu être enregistrée: %s\n"
 
-#: ../midori/midori-locationaction.c:1332
+#: ../midori/midori-locationaction.c:1333
 msgid "Export certificate"
 msgstr "Exporter le certificat"
 
-#: ../midori/midori-locationaction.c:1363
+#: ../midori/midori-locationaction.c:1364
 msgid "The signing certificate authority is not known."
 msgstr "L'autorité de signature de certificat est inconnue."
 
-#: ../midori/midori-locationaction.c:1365
+#: ../midori/midori-locationaction.c:1366
 msgid ""
 "The certificate does not match the expected identity of the site that it was "
 "retrieved from."
 msgstr ""
 "Le certificat ne correspond pas à l'identité attendue du site qui a été reçu."
 
-#: ../midori/midori-locationaction.c:1367
+#: ../midori/midori-locationaction.c:1368
 msgid "The certificate's activation time is still in the future."
 msgstr "Le temps d'activation du certificat est encore dans le futur."
 
-#: ../midori/midori-locationaction.c:1369
+#: ../midori/midori-locationaction.c:1370
 msgid "The certificate has expired"
 msgstr "Le certificat a expiré"
 
-#: ../midori/midori-locationaction.c:1371
+#: ../midori/midori-locationaction.c:1372
 msgid ""
 "The certificate has been revoked according to the GTlsConnection's "
 "certificate revocation list."
@@ -939,40 +939,40 @@ msgstr ""
 "Le certificat a été révoqué conformément à la liste de révocation de "
 "certificats GTL Connexions."
 
-#: ../midori/midori-locationaction.c:1373
+#: ../midori/midori-locationaction.c:1374
 msgid "The certificate's algorithm is considered insecure."
 msgstr "L'algorithme du certificat est considéré comme peu sûr."
 
-#: ../midori/midori-locationaction.c:1375
+#: ../midori/midori-locationaction.c:1376
 msgid "Some other error occurred validating the certificate."
 msgstr "Une autre erreur s'est produite lors de la validation du certificat."
 
-#: ../midori/midori-locationaction.c:1426
+#: ../midori/midori-locationaction.c:1427
 msgid "_Export certificate"
 msgstr "_Exporter le certificat"
 
-#: ../midori/midori-locationaction.c:1441
+#: ../midori/midori-locationaction.c:1440
 msgid "Self-signed"
 msgstr "Auto-signé"
 
-#: ../midori/midori-locationaction.c:1468
+#: ../midori/midori-locationaction.c:1471
 msgid "Security details"
 msgstr "Détails de sécurité"
 
 #. i18n: Right-click on Location, Open an URL from the clipboard
-#: ../midori/midori-locationaction.c:1551
+#: ../midori/midori-locationaction.c:1554
 msgid "Paste and p_roceed"
 msgstr "Coller et continue_r"
 
-#: ../midori/midori-locationaction.c:1805
+#: ../midori/midori-locationaction.c:1808
 msgid "Not verified"
 msgstr "Non vérifié"
 
-#: ../midori/midori-locationaction.c:1811
+#: ../midori/midori-locationaction.c:1814
 msgid "Verified and encrypted connection"
 msgstr "Connection sécurisée"
 
-#: ../midori/midori-locationaction.c:1816
+#: ../midori/midori-locationaction.c:1819
 msgid "Open, unencrypted connection"
 msgstr "Ouvrir une connection sécurisée"
 
@@ -997,11 +997,11 @@ msgstr "Montrer l'Appel rapide"
 msgid "Show Homepage"
 msgstr "Afficher la page d'accueil"
 
-#: ../midori/midori-websettings.c:116 ../midori/midori-frontend.c:367
+#: ../midori/midori-websettings.c:116 ../midori/midori-frontend.c:366
 msgid "Show last open tabs"
 msgstr "Afficher les derniers onglets ouverts"
 
-#: ../midori/midori-websettings.c:117 ../midori/midori-frontend.c:366
+#: ../midori/midori-websettings.c:117 ../midori/midori-frontend.c:365
 msgid "Show last tabs without loading"
 msgstr "Afficher les derniers onglets sans les charger"
 
@@ -1291,52 +1291,52 @@ msgstr "Ouvrir %s"
 msgid "Inspect page - %s"
 msgstr "Analyser la page - %s"
 
-#: ../midori/midori-view.c:4336
+#: ../midori/midori-view.c:4337
 #, c-format
 msgid "No documentation installed"
 msgstr "Pas de documentation installée"
 
-#: ../midori/midori-view.c:4412
+#: ../midori/midori-view.c:4413
 msgid "Midori doesn't store any personal data:"
 msgstr "Midori ne stocke aucune donnée personnelle :"
 
-#: ../midori/midori-view.c:4413
+#: ../midori/midori-view.c:4414
 msgid "No history or web cookies are being saved."
 msgstr "Aucun historique ou cookie n'est enregistré."
 
-#: ../midori/midori-view.c:4414
+#: ../midori/midori-view.c:4415
 msgid "Extensions are disabled."
 msgstr "Les extensions sont désactivées."
 
-#: ../midori/midori-view.c:4415
+#: ../midori/midori-view.c:4416
 msgid "HTML5 storage, local database and application caches are disabled."
 msgstr ""
 "Le stockage HTML5, la base de donnée locale et le cache de l'application "
 "sont désactivés."
 
-#: ../midori/midori-view.c:4416
+#: ../midori/midori-view.c:4417
 msgid "Midori prevents websites from tracking the user:"
 msgstr "Midori empêche les sites web de traquer l'utilisateur :"
 
-#: ../midori/midori-view.c:4417
+#: ../midori/midori-view.c:4418
 msgid "Referrer URLs are stripped down to the hostname."
 msgstr "Les URL référantes sont réduites au nom d'hôte."
 
-#: ../midori/midori-view.c:4418
+#: ../midori/midori-view.c:4419
 msgid "DNS prefetching is disabled."
 msgstr "Le DNS préchargé est désactivé."
 
-#: ../midori/midori-view.c:4419
+#: ../midori/midori-view.c:4420
 msgid "The language and timezone are not revealed to websites."
 msgstr "La langue et le fuseau horaire ne sont pas révélés aux sites web."
 
-#: ../midori/midori-view.c:4420
+#: ../midori/midori-view.c:4421
 msgid "Flash and other Netscape plugins cannot be listed by websites."
 msgstr ""
 "Les sites web ne peuvent pas connaître les greffons Netscape (tels que "
 "Flash) installés."
 
-#: ../midori/midori-view.c:4461
+#: ../midori/midori-view.c:4462
 msgid "Version numbers in brackets show the version used at runtime."
 msgstr ""
 "Les numéros de version entre parenthèses montrent la version que vous "
@@ -1778,7 +1778,7 @@ msgstr "_Nom :"
 msgid "_Description:"
 msgstr "_Description :"
 
-#: ../midori/midori-searchaction.c:1105 ../extensions/feed-panel/main.c:368
+#: ../midori/midori-searchaction.c:1105 ../extensions/feed-panel/main.c:361
 msgid "_Address:"
 msgstr "_Adresse :"
 
@@ -2148,7 +2148,7 @@ msgid "Userstyles"
 msgstr "Styles utilisateur"
 
 #: ../extensions/addons.c:370 ../extensions/addons.c:449
-#: ../extensions/feed-panel/main.c:120
+#: ../extensions/feed-panel/main.c:114
 msgid "Error"
 msgstr "Erreur"
 
@@ -2437,21 +2437,21 @@ msgstr ""
 "Impossible de trouver les éléments RSS \"channel\" requis dans les données "
 "XML."
 
-#: ../extensions/feed-panel/main.c:122
+#: ../extensions/feed-panel/main.c:116
 #, c-format
 msgid "Feed '%s' already exists"
 msgstr "Le flux « %s » existe déjà"
 
-#: ../extensions/feed-panel/main.c:199
+#: ../extensions/feed-panel/main.c:192
 #, c-format
 msgid "Error loading feed '%s'"
 msgstr "Erreur lors du chargement du flux « %s »"
 
-#: ../extensions/feed-panel/main.c:509
+#: ../extensions/feed-panel/main.c:499
 msgid "Feed Panel"
 msgstr "Panneau de flux"
 
-#: ../extensions/feed-panel/main.c:510
+#: ../extensions/feed-panel/main.c:500
 msgid "Read Atom/ RSS feeds"
 msgstr "Lire des flux Atom et RSS"
 
@@ -2804,7 +2804,7 @@ msgstr ""
 msgid "The configuration couldn't be saved. %s"
 msgstr "La configuration n'a pas pu être enregistrée. %s"
 
-#: ../midori/midori-session.c:390 ../midori/midori-frontend.c:505
+#: ../midori/midori-session.c:390 ../midori/midori-frontend.c:508
 #, c-format
 msgid "The session couldn't be loaded: %s\n"
 msgstr "La session n'a pas pu être chargée : %s\n"
@@ -2821,62 +2821,62 @@ msgid "The trash couldn't be saved. %s"
 msgstr "La corbeille n'a pas pu être enregistrée. %s"
 
 #: ../midori/midori-frontend.c:337
+#, c-format
 msgid ""
-"Midori seems to have crashed the last time it was opened. If this happened "
-"repeatedly, try one of the following options to solve the problem."
+"Midori crashed the last time it was opened. You can report the problem at %s."
 msgstr ""
 "Midori semble s'être interrompu de façon inattendue lors de la dernière "
 "utilisation. Si cela se produit de façon répétée, essayez l'une des options "
 "suivantes pour résoudre le problème."
 
-#: ../midori/midori-frontend.c:347
+#: ../midori/midori-frontend.c:346
 msgid "Modify _preferences"
 msgstr "Modifier les _préférences"
 
-#: ../midori/midori-frontend.c:351
+#: ../midori/midori-frontend.c:350
 msgid "Disable all _extensions"
 msgstr "Désactiver toutes les _extensions"
 
-#: ../midori/midori-frontend.c:360
+#: ../midori/midori-frontend.c:359
 msgid "Show a dialog after Midori crashed"
 msgstr "Afficher une fenêtre en cas de fermeture inattendue de Midori"
 
-#: ../midori/midori-frontend.c:365
+#: ../midori/midori-frontend.c:364
 msgid "Discard old tabs"
 msgstr "Ignorer les derniers onglets"
 
-#: ../midori/midori-frontend.c:373
+#: ../midori/midori-frontend.c:372
 msgid "Show last crash _log"
 msgstr "Afficher le journal de la dernière panne"
 
-#: ../midori/midori-frontend.c:386
+#: ../midori/midori-frontend.c:385
 msgid "Run in _debugger"
 msgstr "Exécuter dans _debugger"
 
-#: ../midori/midori-frontend.c:457
+#: ../midori/midori-frontend.c:460
 msgid "An instance of Midori is already running but not responding.\n"
 msgstr "Une instance de Midori est déjà lancée mais ne répond pas.\n"
 
-#: ../midori/midori-frontend.c:490
+#: ../midori/midori-frontend.c:493
 #, c-format
 msgid "Bookmarks couldn't be loaded: %s\n"
 msgstr "Les signets n'ont pas pu être chargés : %s\n"
 
-#: ../midori/midori-frontend.c:521
+#: ../midori/midori-frontend.c:524
 #, c-format
 msgid "The trash couldn't be loaded: %s\n"
 msgstr "La corbeille n'a pas pu être chargée : %s\n"
 
-#: ../midori/midori-frontend.c:529
+#: ../midori/midori-frontend.c:532
 #, c-format
 msgid "The history couldn't be loaded: %s\n"
 msgstr "L'historique n'a pas pu être chargé : %s\n"
 
-#: ../midori/midori-frontend.c:540
+#: ../midori/midori-frontend.c:543
 msgid "The following errors occured:"
 msgstr "Les erreurs suivantes sont survenues :"
 
-#: ../midori/midori-frontend.c:545
+#: ../midori/midori-frontend.c:548
 msgid "_Ignore"
 msgstr "_Ignorer"
 
@@ -3130,19 +3130,19 @@ msgstr "Gestionnaire de sécurité des cookies"
 msgid "Manage cookie permission per site"
 msgstr "gérer les permissions cookies par site"
 
-#: ../extensions/apps.vala:81
+#: ../extensions/apps.vala:82
 msgid "Applications"
 msgstr "Applications"
 
-#: ../extensions/apps.vala:226
+#: ../extensions/apps.vala:236
 msgid "Create _Launcher"
 msgstr "Créer un _lanceur"
 
-#: ../extensions/apps.vala:264
+#: ../extensions/apps.vala:274
 msgid "Web App Manager"
 msgstr "Gestionnaire d'application Web"
 
-#: ../extensions/apps.vala:265
+#: ../extensions/apps.vala:275
 msgid "Manage websites installed as applications"
 msgstr "Gérer des sites Web comme des applications installées"
 
