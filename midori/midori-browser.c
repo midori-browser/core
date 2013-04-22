@@ -22,7 +22,6 @@
 #include "midori-locationaction.h"
 #include "midori-searchaction.h"
 #include "midori-findbar.h"
-#include "midori-transferbar.h"
 #include "midori-platform.h"
 #include "midori-privatedata.h"
 #include "midori-core.h"
@@ -77,7 +76,6 @@ struct _MidoriBrowser
 
     GtkWidget* statusbar;
     GtkWidget* statusbar_contents;
-    GtkWidget* transferbar;
     gchar* statusbar_text;
 
     gint last_window_width, last_window_height;
@@ -211,20 +209,10 @@ midori_browser_set_bookmarks (MidoriBrowser* browser,
 static void
 midori_browser_add_speed_dial (MidoriBrowser* browser);
 
-gboolean
-midori_transferbar_confirm_delete (MidoriTransferbar* transferbar);
-
 static void
 midori_browser_notebook_size_allocate_cb (GtkWidget*     notebook,
                                           GdkRectangle*  allocation,
                                           MidoriBrowser* browser);
-
-void
-midori_transferbar_add_download_item (MidoriTransferbar* transferbar,
-                                      WebKitDownload*    download);
-void
-midori_transferbar_check_size (GtkWidget*         statusbar,
-                               MidoriTransferbar* transferbar);
 
 #define _action_by_name(brwsr, nme) \
     gtk_action_group_get_action (brwsr->action_group, nme)
@@ -1109,9 +1097,6 @@ midori_browser_prepare_download (MidoriBrowser*  browser,
         return FALSE;
     webkit_download_set_destination_uri (download, uri);
     g_signal_emit (browser, signals[ADD_DOWNLOAD], 0, download);
-    midori_transferbar_add_download_item (MIDORI_TRANSFERBAR (browser->transferbar), download);
-    midori_transferbar_check_size (browser->statusbar,
-        MIDORI_TRANSFERBAR (browser->transferbar));
     return TRUE;
 #else
     return FALSE;
@@ -1955,14 +1940,6 @@ midori_browser_key_press_event (GtkWidget*   widget,
     return widget_class->key_press_event (widget, event);
 }
 
-static gboolean
-midori_browser_delete_event (GtkWidget*   widget,
-                             GdkEventAny* event)
-{
-    MidoriBrowser* browser = MIDORI_BROWSER (widget);
-    return midori_transferbar_confirm_delete (MIDORI_TRANSFERBAR (browser->transferbar));
-}
-
 static void
 midori_browser_class_init (MidoriBrowserClass* class)
 {
@@ -2077,8 +2054,7 @@ midori_browser_class_init (MidoriBrowserClass* class)
      * @download: a new download
      *
      * Emitted when a new download was accepted and is
-     * about to start, before the browser adds items
-     * to the transferbar.
+     * about to start. Download UI should hook up here.
      *
      * Emitting this signal manually is equal to a
      * user initiating and confirming a download
@@ -2199,7 +2175,6 @@ midori_browser_class_init (MidoriBrowserClass* class)
 
     gtkwidget_class = GTK_WIDGET_CLASS (class);
     gtkwidget_class->key_press_event = midori_browser_key_press_event;
-    gtkwidget_class->delete_event = midori_browser_delete_event;
 
     gobject_class = G_OBJECT_CLASS (class);
     gobject_class->dispose = midori_browser_dispose;
@@ -6433,16 +6408,6 @@ midori_browser_init (MidoriBrowser* browser)
     }
     #endif
     gtk_box_pack_start (GTK_BOX (vbox), browser->statusbar, FALSE, FALSE, 0);
-
-    browser->transferbar = g_object_new (MIDORI_TYPE_TRANSFERBAR, NULL);
-    #if GTK_CHECK_VERSION (3, 0, 0)
-    /* FIXME: Transfers should go between text and statusbar features like GTK+2 */
-    gtk_box_pack_end (GTK_BOX (browser->statusbar_contents), browser->transferbar, FALSE, FALSE, 3);
-    #else
-    gtk_box_pack_start (GTK_BOX (browser->statusbar_contents), browser->transferbar, FALSE, FALSE, 3);
-    #endif
-    gtk_toolbar_set_show_arrow (GTK_TOOLBAR (browser->transferbar), FALSE);
-    gtk_widget_show (browser->transferbar);
 
     g_signal_connect (browser->statusbar, "button-press-event",
         G_CALLBACK (midori_browser_menu_button_press_event_cb), browser);

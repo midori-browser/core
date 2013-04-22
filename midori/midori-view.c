@@ -3232,8 +3232,8 @@ midori_view_download_requested_cb (GtkWidget*      web_view,
     if (screen)
     {
         icon_theme = gtk_icon_theme_get_for_screen (screen);
-        if (gtk_icon_theme_has_icon (icon_theme, STOCK_TRANSFER))
-            gtk_window_set_icon_name (GTK_WINDOW (dialog), STOCK_TRANSFER);
+        if (gtk_icon_theme_has_icon (icon_theme, MIDORI_STOCK_TRANSFER))
+            gtk_window_set_icon_name (GTK_WINDOW (dialog), MIDORI_STOCK_TRANSFER);
         else
             gtk_window_set_icon_name (GTK_WINDOW (dialog), GTK_STOCK_OPEN);
     }

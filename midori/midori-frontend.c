@@ -19,7 +19,6 @@
 #include "midori-panel.h"
 #include "panels/midori-bookmarks.h"
 #include "panels/midori-history.h"
-#include "panels/midori-transfers.h"
 #include "sokoke.h"
 #include <glib/gi18n-lib.h>
 
@@ -265,9 +264,6 @@ midori_app_add_browser_cb (MidoriApp*     app,
     midori_panel_append_page (MIDORI_PANEL (panel), MIDORI_VIEWABLE (addon));
 
     addon = g_object_new (MIDORI_TYPE_HISTORY, "app", app, "visible", TRUE, NULL);
-    midori_panel_append_page (MIDORI_PANEL (panel), MIDORI_VIEWABLE (addon));
-
-    addon = g_object_new (MIDORI_TYPE_TRANSFERS, "app", app, "visible", TRUE, NULL);
     midori_panel_append_page (MIDORI_PANEL (panel), MIDORI_VIEWABLE (addon));
 
     /* Extensions */

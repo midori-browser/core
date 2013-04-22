@@ -13,10 +13,12 @@ namespace Katze {
         public signal void remove_item (GLib.Object item);
         public uint get_length ();
         public GLib.List<unowned Item> get_items ();
+        public bool is_empty ();
     }
 
     [CCode (cheader_filename = "katze/katze.h")]
     public class Item : GLib.Object {
+        public Item ();
         public string? uri { get; set; }
         public string? name { get; set; }
         public string? text { get; set; }

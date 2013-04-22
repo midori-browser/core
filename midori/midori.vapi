@@ -8,6 +8,7 @@ namespace Midori {
     public const string VERSION_SUFFIX;
     namespace Stock {
         public const string WEB_BROWSER;
+        public const string TRANSFER;
         public const string PLUGINS;
     }
 
@@ -51,6 +52,7 @@ namespace Midori {
         public signal void remove_browser (Browser browser);
         [HasEmitter]
         public signal void quit ();
+        public void send_notification (string title, string message);
     }
 
     [CCode (cheader_filename = "midori/midori.h")]
@@ -109,6 +111,8 @@ namespace Midori {
         public signal void populate_tool_menu (Gtk.Menu menu);
         [HasEmitter]
         public signal void quit ();
+        public signal void send_notification (string title, string message);
+        public static void update_history (Katze.Item item, string type, string event);
     }
 
     [CCode (cheader_filename = "midori/midori.h")]

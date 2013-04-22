@@ -20,7 +20,7 @@
 #define MIDORI_STOCK_WEB_BROWSER "web-browser"
 #define STOCK_NEWS_FEED          "internet-news-reader"
 #define STOCK_STYLE              "preferences-desktop-theme"
-#define STOCK_TRANSFER           "package"
+#define MIDORI_STOCK_TRANSFER    "package"
 #define MIDORI_STOCK_PLUGINS     "application-x-shockwave-flash"
 #define STOCK_BOOKMARK_ADD       "bookmark-new"
 #define STOCK_IMAGE              "image-x-generic"
