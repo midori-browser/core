@@ -26,10 +26,47 @@ namespace Transfers {
         internal signal void remove ();
         internal signal void removed ();
 
+        internal int action { get {
+            return Midori.Download.get_type (download);
+        } }
+        internal double progress { get {
+            return Midori.Download.get_progress (download);
+        } }
+#if HAVE_WEBKIT2
+        public bool succeeded { get; protected set; default = false; }
+        public bool finished { get; protected set; default = false; }
+        internal string destination { get {
+            return download.destination;
+        } }
+#else
+        internal bool succeeded { get {
+            return download.status == WebKit.DownloadStatus.FINISHED;
+        } }
+        internal bool finished { get {
+            return Midori.Download.is_finished (download);
+        } }
+        internal string destination { get {
+            return download.destination_uri;
+        } }
+#endif
+
         internal Transfer (WebKit.Download download) {
             this.download = download;
+            #if HAVE_WEBKIT2
+            download.notify["estimated-progress"].connect (transfer_changed);
+            download.finished.connect (() => {
+                succeeded = finished = true;
+                changed ();
+            });
+            download.failed.connect (() => {
+                succeeded = false;
+                finished = true;
+                changed ();
+            });
+            #else
             download.notify["status"].connect (transfer_changed);
             download.notify["progress"].connect (transfer_changed);
+            #endif
         }
 
         void transfer_changed (GLib.ParamSpec pspec) {
@@ -75,7 +112,7 @@ namespace Transfers {
         void clear_clicked () {
             foreach (GLib.Object item in array.get_items ()) {
                 var transfer = item as Transfer;
-                if (Midori.Download.is_finished (transfer.download))
+                if (transfer.finished)
                     transfer.remove ();
             }
         }
@@ -149,24 +186,23 @@ namespace Transfers {
                 Transfer transfer;
                 store.get (iter, 0, out transfer);
 
-                bool finished = transfer.download.status == WebKit.DownloadStatus.FINISHED;
                 var menu = new Gtk.Menu ();
                 var menuitem = new Gtk.ImageMenuItem.from_stock (Gtk.STOCK_OPEN, null);
                 menuitem.activate.connect (() => {
                     Midori.Download.open (transfer.download, treeview);
                 });
-                menuitem.sensitive = finished;
+                menuitem.sensitive = transfer.succeeded;
                 menu.append (menuitem);
                 menuitem = new Gtk.ImageMenuItem.with_mnemonic (_("Open Destination _Folder"));
                 menuitem.image = new Gtk.Image.from_stock (Gtk.STOCK_DIRECTORY, Gtk.IconSize.MENU);
                 menuitem.activate.connect (() => {
-                    var folder = GLib.File.new_for_uri (transfer.download.destination_uri);
+                    var folder = GLib.File.new_for_uri (transfer.destination);
                     Sokoke.show_uri (get_screen (), folder.get_parent ().get_uri (), 0);
                 });
                 menu.append (menuitem);
                 menuitem = new Gtk.ImageMenuItem.with_mnemonic (_("Copy Link Loc_ation"));
                 menuitem.activate.connect (() => {
-                    string uri = transfer.download.destination_uri;
+                    string uri = transfer.destination;
                     get_clipboard (Gdk.SELECTION_PRIMARY).set_text (uri, -1);
                     get_clipboard (Gdk.SELECTION_CLIPBOARD).set_text (uri, -1);
                 });
@@ -185,7 +221,7 @@ namespace Transfers {
             Transfer transfer1, transfer2;
             model.get (a, 0, out transfer1);
             model.get (b, 0, out transfer2);
-            return transfer1.download.status - transfer2.download.status;
+            return (transfer1.finished ? 1 : 0) - (transfer2.finished ? 1 : 0);
         }
 
         void transfer_changed () {
@@ -238,9 +274,8 @@ namespace Transfers {
             Transfer transfer;
             model.get (iter, 0, out transfer);
             string tooltip = Midori.Download.get_tooltip (transfer.download);
-            double progress = Midori.Download.get_progress (transfer.download);
             renderer.set ("text", tooltip,
-                          "value", (int)(progress * 100));
+                          "value", (int)(transfer.progress * 100));
         }
 
         void on_render_button (Gtk.CellLayout column, Gtk.CellRenderer renderer,
@@ -269,7 +304,7 @@ namespace Transfers {
             progress.show_text = true;
 #endif
             progress.ellipsize = Pango.EllipsizeMode.MIDDLE;
-            string filename = Path.get_basename (transfer.download.destination_uri);
+            string filename = Path.get_basename (transfer.destination);
             progress.text = filename;
             int width;
             Sokoke.widget_get_text_size (progress, "M", out width, null);
@@ -316,7 +351,7 @@ namespace Transfers {
         void clear_clicked () {
             foreach (GLib.Object item in array.get_items ()) {
                 var transfer = item as Transfer;
-                if (Midori.Download.is_finished (transfer.download))
+                if (transfer.finished)
                     array.remove_item (item);
             }
         }
@@ -374,15 +409,14 @@ namespace Transfers {
         }
 
         void transfer_changed (Transfer transfer) {
-            if (transfer.download.get_status () == WebKit.DownloadStatus.FINISHED) {
+            if (transfer.succeeded) {
                 /* FIXME: The following 2 blocks ought to be done in core */
-                var type = Midori.Download.get_type (transfer.download);
-                if (type == Midori.DownloadType.OPEN) {
+                if (transfer.action == Midori.DownloadType.OPEN) {
                     if (Midori.Download.action_clear (transfer.download, widgets.nth_data (0)))
                         transfer.remove ();
                 }
 
-                string uri = transfer.download.destination_uri;
+                string uri = transfer.destination;
                 string filename = Path.get_basename (uri);
                 var item = new Katze.Item ();
                 item.uri = uri;
@@ -410,7 +444,7 @@ namespace Transfers {
             bool pending_downloads = false;
             foreach (GLib.Object item in array.get_items ()) {
                 var transfer = item as Transfer;
-                if (!Midori.Download.is_finished (transfer.download)) {
+                if (!transfer.finished) {
                     pending_downloads = true;
                     break;
                 }
