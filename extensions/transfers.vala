@@ -218,8 +218,7 @@ namespace Transfers {
                 menuitem.image = new Gtk.Image.from_stock (Gtk.STOCK_COPY, Gtk.IconSize.MENU);
                 menu.append (menuitem);
                 menu.show_all ();
-                // Katze.widget_popup (treeview, menu, null, Katze.MenuPosition.CURSOR);
-                menu.popup (null, null, null, event != null ? event.button : 0, event != null ? event.time : 0);
+                Katze.widget_popup (treeview, menu, null, Katze.MenuPos.CURSOR);
 
                 return true;
             }

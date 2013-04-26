@@ -5,6 +5,13 @@
 namespace Katze {
     static void assert_str_equal (string input, string result, string? expected);
     static unowned Gtk.Widget property_proxy (void* object, string property, string? hint);
+    [CCode (cheader_filename = "katze/katze.h", cprefix = "KATZE_MENU_POSITION_")]
+    enum MenuPos {
+        CURSOR,
+        LEFT,
+        RIGHT
+    }
+    static void widget_popup (Gtk.Widget? widget, Gtk.Menu menu, Gdk.EventButton? event, MenuPos pos);
 
     [CCode (cheader_filename = "katze/katze.h")]
     public class Array : Katze.Item {
