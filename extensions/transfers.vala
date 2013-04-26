@@ -74,6 +74,15 @@ namespace Transfers {
         }
     }
 
+    static bool pending_transfers (Katze.Array array) {
+        foreach (GLib.Object item in array.get_items ()) {
+            var transfer = item as Transfer;
+            if (!transfer.finished)
+                return true;
+        }
+        return false;
+    }
+
     private class Sidebar : Gtk.VBox, Midori.Viewable {
         Gtk.Toolbar? toolbar = null;
         Gtk.ToolButton clear;
@@ -367,7 +376,8 @@ namespace Transfers {
             clear.clicked.connect (clear_clicked);
             clear.sensitive = !array.is_empty ();
             insert (clear, -1);
-            show_all ();
+            clear.show ();
+            clear.sensitive = false;
 
             this.array = array;
             array.add_item.connect (transfer_added);
@@ -380,6 +390,7 @@ namespace Transfers {
             var transfer = item as Transfer;
             insert (new TransferButton (transfer), -1);
             clear.sensitive = true;
+            show ();
 
             Gtk.Requisition req;
             Gtk.widget_size_request (parent, out req);
@@ -391,8 +402,9 @@ namespace Transfers {
         }
 
         void transfer_removed (GLib.Object item) {
+            clear.sensitive = pending_transfers (array);
             if (array.is_empty ())
-                clear.sensitive = false;
+                hide ();
         }
     }
 
@@ -445,15 +457,7 @@ namespace Transfers {
         bool browser_closed (Gtk.Widget widget, Gdk.Event event) {
 #endif
             var browser = widget as Midori.Browser;
-            bool pending_downloads = false;
-            foreach (GLib.Object item in array.get_items ()) {
-                var transfer = item as Transfer;
-                if (!transfer.finished) {
-                    pending_downloads = true;
-                    break;
-                }
-            }
-            if (pending_downloads) {
+            if (pending_transfers (array)) {
                 var dialog = new Gtk.MessageDialog (browser,
                     Gtk.DialogFlags.DESTROY_WITH_PARENT,
                     Gtk.MessageType.WARNING, Gtk.ButtonsType.NONE,
