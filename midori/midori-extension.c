@@ -690,7 +690,7 @@ midori_extension_activate (GObject*     extension,
     {
         if (filename != NULL)
             midori_extension_add_to_list (app, MIDORI_EXTENSION (extension), filename);
-        if (activate)
+        if (activate && !midori_extension_is_active (MIDORI_EXTENSION (extension)))
             g_signal_emit_by_name (extension, "activate", app);
     }
     else if (KATZE_IS_ARRAY (extension))
@@ -713,7 +713,8 @@ midori_extension_activate (GObject*     extension,
                     midori_extension_add_to_list (app, extension_item, filename);
                     g_object_set_data_full (G_OBJECT (extension_item), "filename", g_strdup (filename), g_free);
                 }
-                if (activate && filename && strstr (filename, key))
+                if (activate && !midori_extension_is_active (MIDORI_EXTENSION (extension))
+                 && filename && strstr (filename, key))
                 {
                     g_signal_emit_by_name (extension_item, "activate", app);
                     success = TRUE;
