@@ -558,6 +558,9 @@ midori_extension_load_from_folder (MidoriApp* app,
         const gchar* filename;
         while (keys && (filename = keys[i++]))
             midori_extension_activate_gracefully (app, extension_path, filename, activate);
+        /* FIXME need proper stock extension mechanism */
+        midori_extension_activate_gracefully (app, extension_path, "libtransfers." G_MODULE_SUFFIX, activate);
+        g_assert (g_module_error () == NULL);
     }
     else
     {
