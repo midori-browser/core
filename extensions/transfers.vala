@@ -439,7 +439,11 @@ namespace Transfers {
             transfer.removed ();
         }
 
+#if HAVE_GTK3
         bool browser_closed (Gtk.Widget widget, Gdk.EventAny event) {
+#else
+        bool browser_closed (Gtk.Widget widget, Gdk.Event event) {
+#endif
             var browser = widget as Midori.Browser;
             bool pending_downloads = false;
             foreach (GLib.Object item in array.get_items ()) {
