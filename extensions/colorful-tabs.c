@@ -12,53 +12,75 @@
 
 #include <midori/midori.h>
 
+static GdkColor
+view_get_bgcolor_for_hostname (MidoriView* view, gchar* hostname)
+{
+    GdkColor color;
+    GdkPixbuf* icon = midori_view_get_icon (view);
+    if (icon != NULL)
+    {
+        GdkPixbuf* newpix;
+        guchar* pixels;
+
+        newpix = gdk_pixbuf_scale_simple (icon, 1, 1, GDK_INTERP_BILINEAR);
+        pixels = gdk_pixbuf_get_pixels (newpix);
+        color.red = pixels[0] * 255;
+        color.green = pixels[1] * 255;
+        color.blue = pixels[2] * 255;
+    }
+    else
+    {
+        gchar* hash, *colorstr;
+
+        hash = g_compute_checksum_for_string (G_CHECKSUM_MD5, hostname, 1);
+        colorstr = g_strndup (hash, 6 + 1);
+        colorstr[0] = '#';
+        gdk_color_parse (colorstr, &color);
+
+        g_free (hash);
+        g_free (colorstr);
+    }
+
+    if ((color.red   < 35000)
+     && (color.green < 35000)
+     && (color.blue  < 35000))
+    {
+        color.red   += 20000;
+        color.green += 20000;
+        color.blue  += 20000;
+    }
+
+    if (color.red < 10000)
+        color.red = 5000;
+    else
+        color.red -= 5000;
+    if (color.blue < 10000)
+        color.blue = 5000;
+    else
+        color.blue -= 5000;
+    if (color.green < 10000)
+        color.green = 5000;
+    else
+        color.green -= 5000;
+
+    return color;
+}
+
 static void
 colorful_tabs_view_notify_uri_cb (MidoriView*      view,
                                   GParamSpec*      pspec,
                                   MidoriExtension* extension)
 {
     gchar* hostname;
-    gchar* colorstr;
     GdkColor color;
     GdkColor fgcolor;
-    GdkPixbuf* icon;
 
     if (!midori_uri_is_blank (midori_view_get_display_uri (view))
       && (hostname = midori_uri_parse_hostname (midori_view_get_display_uri (view), NULL))
       && midori_view_get_icon_uri (view) != NULL)
     {
-        icon = midori_view_get_icon (view);
-        if (icon != NULL)
-        {
-            GdkPixbuf* newpix;
-            guchar* pixels;
-
-            newpix = gdk_pixbuf_scale_simple (icon, 1, 1, GDK_INTERP_BILINEAR);
-            g_return_if_fail (gdk_pixbuf_get_bits_per_sample (newpix) == 8);
-            pixels = gdk_pixbuf_get_pixels (newpix);
-            color.red = pixels[0] * 225;
-            color.green = pixels[1] * 225;
-            color.blue = pixels[2] * 225;
-        }
-        else
-        {
-            gchar* hash = g_compute_checksum_for_string (G_CHECKSUM_MD5, hostname, 1);
-            colorstr = g_strndup (hash, 6 + 1);
-            g_free (hash);
-            colorstr[0] = '#';
-            gdk_color_parse (colorstr, &color);
-        }
+        color = view_get_bgcolor_for_hostname (view, hostname);
         g_free (hostname);
-
-        if ((color.red   < 35000)
-         && (color.green < 35000)
-         && (color.blue  < 35000))
-        {
-            color.red   += 20000;
-            color.green += 20000;
-            color.blue  += 20000;
-        }
-
         /* Ensure high contrast by enforcing black/ white text colour. */
         if ((color.red   < 41000)
          && (color.green < 41000)
@@ -66,19 +88,6 @@ colorful_tabs_view_notify_uri_cb (MidoriView*      view,
             gdk_color_parse ("#fff", &fgcolor);
         else
             gdk_color_parse ("#000", &fgcolor);
-
-        if (color.red < 10000)
-            color.red = 5000;
-        else
-            color.red -= 5000;
-        if (color.blue < 10000)
-            color.blue = 5000;
-        else
-            color.blue -= 5000;
-        if (color.green < 10000)
-            color.green = 5000;
-        else
-            color.green -= 5000;
 
         midori_view_set_colors (view, &fgcolor, &color);
     }
