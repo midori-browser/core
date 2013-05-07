@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: midori-0.1.7\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-05-07 08:21+0000\n"
-"PO-Revision-Date: 2013-05-07 20:38+0200\n"
+"PO-Revision-Date: 2013-05-07 21:02+0200\n"
 "Last-Translator: Miguel Anxo Bouzada <mbouzada@gmail.com>\n"
 "Language-Team: Galician <proxecto@trasno.net>\n"
 "Language: gl\n"
@@ -710,7 +710,7 @@ msgstr "_Exportar os marcadores"
 
 #: ../midori/midori-browser.c:5430 ../midori/midori-searchaction.c:459
 msgid "_Manage Search Engines"
-msgstr "_Xestor de motores de busca"
+msgstr "Ad_ministrador de motores de busca"
 
 #: ../midori/midori-browser.c:5433
 msgid "_Clear Private Data"
@@ -2158,7 +2158,7 @@ msgstr "Colorea cada lapela para distinguilas"
 #: ../extensions/cookie-manager/cookie-manager-page.c:73
 #: ../extensions/cookie-manager/main.c:35
 msgid "Cookie Manager"
-msgstr "Xestor de «cookies»"
+msgstr "Administrador de «cookies»"
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:103
 msgid "Delete All"
@@ -2287,7 +2287,7 @@ msgstr ""
 
 #: ../extensions/external-download-manager.vala:175
 msgid "External Download Manager - Aria2"
-msgstr "Xestor de descargas externo - Aria2"
+msgstr "Administrador externo de descargas - Aria2"
 
 #: ../extensions/external-download-manager.vala:176
 msgid "Download files with Aria2"
@@ -2295,7 +2295,7 @@ msgstr "Descargar os ficheiros con Aria2"
 
 #: ../extensions/external-download-manager.vala:202
 msgid "External Download Manager - SteadyFlow"
-msgstr "Xestor de descargas externo - SteadyFlow"
+msgstr "Administrador externo de descargas - SteadyFlow"
 
 #: ../extensions/external-download-manager.vala:203
 msgid "Download files with SteadyFlow"
@@ -2312,7 +2312,7 @@ msgstr "Descargar os ficheiros con «%s» ou cunha orde personalizada"
 
 #: ../extensions/external-download-manager.vala:320
 msgid "External Download Manager - CommandLine"
-msgstr "Xestor de descargas externo - Liña de ordes"
+msgstr "Administrador externo de descargas - Liña de ordes"
 
 #: ../extensions/feed-panel/feed-atom.c:208
 msgid "Failed to find required Atom \"entry\" elements in XML data."
@@ -2875,14 +2875,16 @@ msgid ""
 "This action will delete all cookie permissions. You will be asked for "
 "permissions again for each web site visited."
 msgstr ""
+"Esta acción eliminará todos os permisos das cookies. Pediránselle de novo os "
+"permisos para cada sitio web visitado."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:608
 msgid "Cookie permission manager"
-msgstr "Xestor de permisos para as cookies"
+msgstr "Administrador de permisos para as cookies"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:609
 msgid "Instance of current cookie permission manager"
-msgstr "Instancia do actual xestor de permisos para as cookies"
+msgstr "Instancia do actual administrador de permisos para as cookies"
 
 #. Set up dialog
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:650
@@ -2897,6 +2899,11 @@ msgid ""
 "add a policy for a domain manually by entering the domain below, choosing "
 "the policy and clicking on <i>Add</i>."
 msgstr ""
+"A seguir amosase unha lista de todos os sitios web e o conxunto de "
+"directivas para eles. Pode eliminar as directivas marcando as entradas e "
+"premendo en <i>Eliminar</i>. Tamén pode engadir manualmente unha directiva "
+"para un dominio introducindo o dominio a seguir, escollendo a directiva e "
+"premendo en <i>Engadir</i>."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:740
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:556
@@ -2905,7 +2912,7 @@ msgstr "Dominio"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:748
 msgid "Policy"
-msgstr "Política"
+msgstr "Directiva"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:777
 msgid "Delete _all"
@@ -2914,17 +2921,20 @@ msgstr "Eliminar _todo"
 #. Add "ask-for-unknown-policy" checkbox
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:786
 msgid "A_sk for policy if unknown for a domain"
-msgstr "_Pregunte pola política se non se coñece un dominio"
+msgstr "_Pregunte pola directiva se non se coñece un dominio"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:91
 msgid ""
 "A fatal error occurred which prevents the cookie permission manager "
 "extension to continue. You should disable it."
 msgstr ""
+"Produciuse un erro grave que impide que a extensión administradora dos "
+"permiso para as cookies continúe. Debe desactivalo."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:95
 msgid "Error in cookie permission manager extension"
-msgstr "Produciuse un erro na extensión xestora de permisos para as cookies"
+msgstr ""
+"Produciuse un erro na extensión administradora de permisos para as cookies"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:100
 msgid "Reason"
@@ -2951,7 +2961,7 @@ msgstr "Non foi posíbel estabelecer a estrutura da base de datos da extensión.
 #, c-format
 msgid "Could not determine global cookie policy to set for domain: %s"
 msgstr ""
-"Non foi posíbel determinar unha política global de cookies que estabelecer "
+"Non foi posíbel determinar unha directiva global de cookies que estabelecer "
 "para o dominio: %s"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:488
@@ -3036,13 +3046,16 @@ msgstr "Ruta da instancia da base de datos SQLite empregada por esta extensión"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1038
 msgid "Ask for unknown policy"
-msgstr "Preguntar por unha política descoñecida"
+msgstr "Preguntar por unha directiva descoñecida"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1039
 msgid ""
 "If true this extension ask for policy for every unknown domain.If false this "
 "extension uses the global cookie policy set in Midori settings."
 msgstr ""
+"Se é verdadeiro esta extensión preguntará polas directivas para cada dominio "
+"descoñecido. Se é falso esta extensión utiliza a directiva global de "
+"cookies establecida na configuración de Midori."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1115
 msgid "Undetermined"
@@ -3050,11 +3063,11 @@ msgstr "Sen determinar"
 
 #: ../extensions/cookie-permissions/main.c:62
 msgid "Cookie Security Manager"
-msgstr "Xestor de seguranza das cookies"
+msgstr "Administrador de seguranza das cookies"
 
 #: ../extensions/cookie-permissions/main.c:63
 msgid "Manage cookie permission per site"
-msgstr "Xestionar os permisos das cookies por sitio"
+msgstr "Administrar os permisos das cookies por sitio"
 
 #: ../extensions/apps.vala:82
 msgid "Applications"
@@ -3066,7 +3079,7 @@ msgstr "Crear _iniciador"
 
 #: ../extensions/apps.vala:274
 msgid "Web App Manager"
-msgstr "Xestor de aplicativos web"
+msgstr "Administrador de aplicativos web"
 
 #: ../extensions/apps.vala:275
 msgid "Manage websites installed as applications"
@@ -3111,7 +3124,7 @@ msgstr "Se sae de Midori hanse cancelar as transferencias."
 
 #: ../extensions/transfers.vala:515
 msgid "Transfer Manager"
-msgstr "Xestor de transferencias"
+msgstr "Administrador de transferencias"
 
 #: ../extensions/transfers.vala:516
 msgid "View downloaded files"
