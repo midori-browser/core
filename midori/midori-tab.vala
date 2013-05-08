@@ -138,6 +138,7 @@ namespace Midori {
         }
 
 #if HAVE_WEBKIT2
+        /* Since: 0.5.1 */
         public bool view_source { get {
             return web_view.view_mode == WebKit.ViewMode.SOURCE;
         }
@@ -146,6 +147,7 @@ namespace Midori {
         }
         }
 #else
+        /* Since: 0.5.1 */
         public bool view_source { get {
             return web_view.get_view_source_mode ();
         }
