@@ -1456,7 +1456,7 @@ void
 midori_error (const gchar* format,
               ...)
 {
-    g_printerr ("%s - ", _("Midori"));
+    g_printerr ("%s - ", g_get_application_name ());
     va_list args;
     va_start (args, format);
     g_vfprintf (stderr, format, args);
