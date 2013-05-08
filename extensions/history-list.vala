@@ -136,13 +136,14 @@ namespace HistoryList {
                 "foreground-gdk", TabTreeCells.TREE_CELL_FG,
                 "cell-background-gdk", TabTreeCells.TREE_CELL_BG);
 
+            this.show_all ();
+
             Requisition requisition;
             int height;
             int max_lines = 10;
 #if HAVE_GTK3
             requisition = Requisition();
-            this.treeview.get_preferred_width(out requisition.width, null);
-            this.treeview.get_preferred_height(out requisition.height, null);
+            this.treeview.get_preferred_size(out requisition, null);
 #else
             this.treeview.size_request (out requisition);
 #endif
@@ -153,8 +154,6 @@ namespace HistoryList {
                 height = requisition.height + 2;
             }
             sw.set_size_request (320, height);
-
-            this.show_all ();
         }
 
         public override void make_update () {
