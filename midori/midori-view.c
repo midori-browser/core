@@ -864,8 +864,6 @@ midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view
                         g_error_free (error);
                     }
                 }
-                else
-                    g_warn_if_reached ();
                 g_object_unref (gcr_cert);
             }
             if (tls_cert != NULL)
