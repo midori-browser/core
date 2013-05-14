@@ -352,6 +352,8 @@ main (int    argc,
 
         if (g_file_get_contents (uris ? *uris : NULL, &script, NULL, &error))
         {
+            midori_paths_init (MIDORI_RUNTIME_MODE_PRIVATE, config);
+
             MidoriBrowser* browser = midori_browser_new ();
             MidoriWebSettings* settings = midori_browser_get_settings (browser);
 #ifndef HAVE_WEBKIT2
