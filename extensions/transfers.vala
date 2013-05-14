@@ -480,9 +480,9 @@ namespace Transfers {
             widgets.append (viewable);
             var toolbar = new Toolbar (array);
 #if HAVE_GTK3
-            browser.statusbar.pack_end (toolbar);
+            browser.statusbar.pack_end (toolbar, false, false);
 #else
-            browser.statusbar.pack_start (toolbar);
+            browser.statusbar.pack_start (toolbar, false, false);
 #endif
             widgets.append (toolbar);
             // TODO: popover
