@@ -35,7 +35,7 @@ for extension in extensions:
     obj.target = target
     obj.includes = '.. ../katze ../midori'
     obj.source = source
-    obj.uselib = 'UNIQUE LIBSOUP GIO GTK SQLITE WEBKIT LIBXML CLUTTER GRANITE'
+    obj.uselib = 'UNIQUE LIBSOUP GIO GTK SQLITE WEBKIT LIBXML GRANITE'
     if 'vala' in source:
         obj.env.append_value ('CCFLAGS', '-w')
         obj.vapi_dirs = '../midori ../katze'
@@ -49,7 +49,7 @@ for extension in extensions:
         else:
             obj.packages += ' webkitgtk-3.0'
         if bld.env['HAVE_GRANITE']:
-            obj.packages += ' clutter-gtk-1.0 granite'
+            obj.packages += ' granite'
     obj.install_path = '${LIBDIR}/midori'
     # See LINKFLAGS in wscript: w/ o it we get several "undefined reference" errors
     if bld.env['platform'] == 'win32':

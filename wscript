@@ -208,7 +208,6 @@ def configure (conf):
             option_checkfatal ('granite', 'new notebook, pop-overs')
             conf.define ('GRANITE_VERSION', 'No')
         else:
-            check_pkg ('clutter-gtk-1.0', '1.0')
             conf.env.append_value ('VALAFLAGS', '-D HAVE_GRANITE')
     else:
         conf.define ('GRANITE_VERSION', 'No')

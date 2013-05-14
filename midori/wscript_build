@@ -9,7 +9,7 @@ import os
 progressive = True
 libs = 'M UNIQUE LIBSOUP GMODULE GTHREAD LIBIDN GIO GTK SQLITE ' \
        'LIBNOTIFY WEBKIT JAVASCRIPTCOREGTK LIBXML X11 XSS WS2_32 ' \
-       'GCR GRANITE CLUTTER ZEITGEIST'
+       'GCR GRANITE ZEITGEIST'
 
 if Options.commands['build'] or Options.commands['check']:
     blddir = str (bld.bldnode)[6:] # dir:// + absolute path
@@ -34,7 +34,7 @@ if progressive:
     else:
         obj.packages += ' gtk+-2.0'
     if bld.env['HAVE_GRANITE']:
-        obj.packages += ' clutter-gtk-1.0 granite'
+        obj.packages += ' granite'
     obj.install_path = None
     bld.add_group ()
 
