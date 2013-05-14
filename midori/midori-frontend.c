@@ -230,6 +230,11 @@ midori_private_app_new (const gchar* config,
         midori_browser_assert_action (browser, execute_commands[i]);
         midori_browser_activate_action (browser, execute_commands[i]);
     }
+
+    /* FIXME need proper stock extension mechanism */
+    midori_browser_activate_action (browser, "libtransfers." G_MODULE_SUFFIX "=true");
+    g_assert (g_module_error () == NULL);
+
     return browser;
 }
 
