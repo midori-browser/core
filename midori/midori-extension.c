@@ -722,7 +722,7 @@ midori_extension_activate (GObject*     extension,
                     midori_extension_add_to_list (app, extension_item, filename);
                     g_object_set_data_full (G_OBJECT (extension_item), "filename", g_strdup (filename), g_free);
                 }
-                if (activate && !midori_extension_is_active (MIDORI_EXTENSION (extension))
+                if (activate && !midori_extension_is_active (MIDORI_EXTENSION (extension_item))
                  && filename && strstr (filename, key))
                 {
                     g_signal_emit_by_name (extension_item, "activate", app);
