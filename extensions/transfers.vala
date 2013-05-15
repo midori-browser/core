@@ -387,7 +387,8 @@ namespace Transfers {
 
         void transfer_added (GLib.Object item) {
             var transfer = item as Transfer;
-            insert (new TransferButton (transfer), -1);
+            /* Newest item on the left */
+            insert (new TransferButton (transfer), 0);
             clear.sensitive = true;
             show ();
 
