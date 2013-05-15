@@ -339,7 +339,7 @@ mouse_gestures_button_release_event_cb (GtkWidget*      web_view,
 
     mouse_gesture_clear (gesture);
 
-    if (MIDORI_EVENT_CONTEXT_MENU (event) && 0)
+    if (MIDORI_EVENT_CONTEXT_MENU (event))
     {
         GtkWidget* menu = gtk_menu_new ();
         midori_view_populate_popup (view, menu, TRUE);
