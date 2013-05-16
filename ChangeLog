@@ -1,5 +1,29 @@
 This file is licensed under the terms of the expat license, see the file EXPAT.
 
+v0.5.1:
+ Fix mouse gesture regression breaking context menu
+ Fix --run command line switch by midori_paths_init
+ Fix bug in size calculation for the history list popup
+ Handle diagnostic dialog argument in running instance
+ Fix feed panel default value crash
+ Ensure existence of the applications directory
+ Fix download tooltip crash and extend test case
+ Integrate user interaction exploit demo in about:
+ Don't convey loading or progress on special pages
+ Address missing NULL checks and dead code found by clang
+ No security window for blank pages, but a search icon
+ Introduce UI for created apps/ launchers: Web App Manager
+ Add custom-title setting to override browser title
+ Add a Gtk.Entry to --plain mode for entering URLs
+ Deprecate middle_click_opens_selection in favour of gtk-enable-primary-paste
+
+ Webkit2:
+ Require 1.11.91 aka 2.0.0 for WebKit2
+ Delayed load, clear favicons, clear HTTP cache, tab favicons
+ Navigation policy, mouse buttons, security details
+ basic cookies, download dialog, res://, stock://, print
+ Zoom, default-charset, view-source, spell-check, prefetch
+ Back/ forward, enable-java, plugin listing, web inspector
 v0.5.0:
  Store --execute arguments in string array
  Prevent overlay frame from being caught by show_all

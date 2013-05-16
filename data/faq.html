@@ -4,8 +4,8 @@
   <meta charset="utf-8" />
   <title>midori:faq</title>
 <meta name="generator" content="DokuWiki"/>
-<meta name="robots" content="index,follow"/>
-<meta name="date" content="2013-03-23T11:08:29+0100"/>
+<meta name="robots" content="noindex,nofollow"/>
+<meta name="date" content="2013-05-13T12:47:33+0200"/>
 <meta name="keywords" content="midori,faq"/>
 <link rel="search" type="application/opensearchdescription+xml" href="/lib/exe/opensearch.php" title="Xfce Wiki"/>
 <link rel="start" href="/"/>
@@ -49,6 +49,7 @@
 <li class="level2"><div class="li"><a href="#portable_modewin32">Portable mode/ Win32</a></div></li>
 <li class="level2"><div class="li"><a href="#kiosk_mode">Kiosk mode</a></div></li>
 <li class="level2"><div class="li"><a href="#always_open_midori_in_fullscreen">Always open Midori in Fullscreen</a></div></li>
+<li class="level2"><div class="li"><a href="#overriding_settings_and_loading_extensions">Overriding settings and loading extensions</a></div></li>
 </ul>
 </li>
 <li class="level1"><div class="li"><a href="#proxy_servers">Proxy servers</a></div></li>
@@ -305,6 +306,10 @@ nspluginwrapper is a program that runs Flash and other Netscape plugins in a sep
 <span class="kw2">sudo</span> <span class="kw2">apt-get install</span> nspluginwrapper
 <span class="kw2">sudo</span> nspluginwrapper <span class="re5">-i</span> <span class="sy0">/</span>usr<span class="sy0">/</span>lib<span class="sy0">/</span>flashplugin-installer<span class="sy0">/</span>libflashplayer.so
 nspluginwrapper <span class="re5">-v</span> <span class="re5">-a</span> <span class="re5">-n</span> <span class="re5">-i</span></pre>
+
+<p>
+Another remedy is using WebKit2 - starting with Midori 0.4.9 experimental support is available, <a href="https://trac.webkit.org/wiki/WebKitGTK/WebKit2Roadmap" class="urlextern" title="https://trac.webkit.org/wiki/WebKitGTK/WebKit2Roadmap"  rel="nofollow">progress on WebKit2GTK+ can be seen in the WebKit wiki</a>.
+</p>
 
 </div>
 
@@ -584,12 +589,12 @@ Most settings listed at <a href="http://webkitgtk.org/reference/webkitgtk/stable
 </p>
 
 </div>
-<!-- EDIT5 SECTION "Flash doesn't work" [4387-12513] -->
+<!-- EDIT5 SECTION "Flash doesn't work" [4387-12724] -->
 <h1 class="sectionedit6" id="privacy">Privacy</h1>
 <div class="level1">
 
 </div>
-<!-- EDIT6 SECTION "Privacy" [12514-12536] -->
+<!-- EDIT6 SECTION "Privacy" [12725-12747] -->
 <h2 class="sectionedit7" id="blacklist_cookies">Blacklist cookies</h2>
 <div class="level2">
 
@@ -615,7 +620,7 @@ The feature is currently experimental and will change in future versions.
 </p>
 
 </div>
-<!-- EDIT7 SECTION "Blacklist cookies" [12537-13073] -->
+<!-- EDIT7 SECTION "Blacklist cookies" [12748-13284] -->
 <h2 class="sectionedit8" id="adblock">Adblock</h2>
 <div class="level2">
 
@@ -624,12 +629,12 @@ The Advertisement Blocker can be activated under Extensions. It uses the same li
 </p>
 
 </div>
-<!-- EDIT8 SECTION "Adblock" [13074-13329] -->
+<!-- EDIT8 SECTION "Adblock" [13285-13540] -->
 <h1 class="sectionedit9" id="modes">Modes</h1>
 <div class="level1">
 
 </div>
-<!-- EDIT9 SECTION "Modes" [13330-13350] -->
+<!-- EDIT9 SECTION "Modes" [13541-13561] -->
 <h2 class="sectionedit10" id="web_applications">Web Applications</h2>
 <div class="level2">
 
@@ -650,7 +655,7 @@ There are two closely related features to open websites as dedicated windows of 
 </p>
 
 </div>
-<!-- EDIT10 SECTION "Web Applications" [13351-13867] -->
+<!-- EDIT10 SECTION "Web Applications" [13562-14078] -->
 <h2 class="sectionedit11" id="private_browsing">Private Browsing</h2>
 <div class="level2">
 
@@ -676,7 +681,7 @@ The same options available to -a/ –app can be used for private browsing mode.
 </p>
 
 </div>
-<!-- EDIT11 SECTION "Private Browsing" [13868-14787] -->
+<!-- EDIT11 SECTION "Private Browsing" [14079-14998] -->
 <h2 class="sectionedit12" id="portable_modewin32">Portable mode/ Win32</h2>
 <div class="level2">
 
@@ -685,7 +690,7 @@ On Windows builds, -P/ –portable causes all data to be written to the “profi
 </p>
 
 </div>
-<!-- EDIT12 SECTION "Portable mode/ Win32" [14788-15101] -->
+<!-- EDIT12 SECTION "Portable mode/ Win32" [14999-15312] -->
 <h2 class="sectionedit13" id="kiosk_mode">Kiosk mode</h2>
 <div class="level2">
 
@@ -717,7 +722,7 @@ Any links outside end up in an error page. All images and other files won&#039;t
 </p>
 
 </div>
-<!-- EDIT13 SECTION "Kiosk mode" [15102-16139] -->
+<!-- EDIT13 SECTION "Kiosk mode" [15313-16350] -->
 <h2 class="sectionedit14" id="always_open_midori_in_fullscreen">Always open Midori in Fullscreen</h2>
 <div class="level2">
 
@@ -750,8 +755,25 @@ If for whatever reason this isn&#039;t enough, <a href="https://live.gnome.org/D
 </p>
 
 </div>
-<!-- EDIT14 SECTION "Always open Midori in Fullscreen" [16140-16666] -->
-<h1 class="sectionedit15" id="proxy_servers">Proxy servers</h1>
+<!-- EDIT14 SECTION "Always open Midori in Fullscreen" [16351-16878] -->
+<h2 class="sectionedit15" id="overriding_settings_and_loading_extensions">Overriding settings and loading extensions</h2>
+<div class="level2">
+
+<p>
+As of Midori 0.5.0 the –execute command line switch got more powerful:
+</p>
+
+<p>
+<code>midori -e libcolorful-tabs.so=true</code>
+</p>
+
+<p>
+<code>midori -e enable-javascript=false</code>
+</p>
+
+</div>
+<!-- EDIT15 SECTION "Overriding settings and loading extensions" [16879-17086] -->
+<h1 class="sectionedit16" id="proxy_servers">Proxy servers</h1>
 <div class="level1">
 
 <p>
@@ -805,7 +827,7 @@ Mousehole is a scriptable proxy server written in Ruby.
 <div class="level4">
 
 <p>
-The coming libSoup 2.40 will support SOCKS proxies, <a href="https://bugzilla.gnome.org/show_bug.cgi?id=553269" class="urlextern" title="https://bugzilla.gnome.org/show_bug.cgi?id=553269"  rel="nofollow">see the relevant bug report</a>.
+As of Midori 0.5.0 and libSoup 2.40 SOCKS proxies can be used, the Preferences dialog lists detected types and accepts curl syntax.
 </p>
 
 <p>
@@ -834,8 +856,8 @@ server_port = 5555</pre>
 </ol>
 
 </div>
-<!-- EDIT15 SECTION "Proxy servers" [16667-18491] -->
-<h1 class="sectionedit16" id="keyboard_hotkeys">Keyboard Hotkeys</h1>
+<!-- EDIT16 SECTION "Proxy servers" [17087-18908] -->
+<h1 class="sectionedit17" id="keyboard_hotkeys">Keyboard Hotkeys</h1>
 <div class="level1">
 
 </div>
@@ -916,8 +938,8 @@ When using Ctrl+f to bring up Find, use Ctrl+f again or ESC. When using ”/” 
 </p>
 
 </div>
-<!-- EDIT16 SECTION "Keyboard Hotkeys" [18492-19824] -->
-<h1 class="sectionedit17" id="mouse_gestures">Mouse Gestures</h1>
+<!-- EDIT17 SECTION "Keyboard Hotkeys" [18909-20241] -->
+<h1 class="sectionedit18" id="mouse_gestures">Mouse Gestures</h1>
 <div class="level1">
 
 <p>
@@ -937,8 +959,15 @@ You can change the button using a hidden option:
   button=2</pre>
 
 <p>
-For a quick and dirty overview of the gestures in the current release take a look at the <a href="http://www.matthiaskruk.de/midori/mouse-gestures.pdf" class="urlextern" title="http://www.matthiaskruk.de/midori/mouse-gestures.pdf"  rel="nofollow">preliminary manual</a>.
-Further information is available at the <a href="http://www.matthiaskruk.de/midori" class="urlextern" title="http://www.matthiaskruk.de/midori"  rel="nofollow">MGX website</a>.
+As of Midori 0.5.0 individual gestures can be configured freely, consult “midori –help-execute” for a list of available left-hand actions:
+</p>
+<pre class="code">  [gestures]
+  Quit=W;E;
+  TabPrevious=SW;
+  TabNext=SE;</pre>
+
+<p>
+Separated by ; the right-hand values are cardinal directions, (W)est, (E)east, (N)orth, (S)outh. You can also combine eg. WE for West East.
 </p>
 
 <p>
@@ -946,8 +975,8 @@ Additionally, there are programs allowing mouse gestures system-wide, for exampl
 </p>
 
 </div>
-<!-- EDIT17 SECTION "Mouse Gestures" [19825-20500] -->
-<h1 class="sectionedit18" id="user_scripts_and_styles">User scripts and styles</h1>
+<!-- EDIT18 SECTION "Mouse Gestures" [20242-21006] -->
+<h1 class="sectionedit19" id="user_scripts_and_styles">User scripts and styles</h1>
 <div class="level1">
 
 <p>
@@ -1007,8 +1036,8 @@ You can also use <a href="http://rightfootin.blogspot.com/2009/04/flashblock-wan
 </p>
 
 </div>
-<!-- EDIT18 SECTION "User scripts and styles" [20501-23055] -->
-<h2 class="sectionedit19" id="user_styles">User styles</h2>
+<!-- EDIT19 SECTION "User scripts and styles" [21007-23561] -->
+<h2 class="sectionedit20" id="user_styles">User styles</h2>
 <div class="level2">
 
 <p>
@@ -1069,6 +1098,6 @@ Customize as needed:
         }</pre>
 
 </div>
-<!-- EDIT19 SECTION "User styles" [23056-] --></div>
+<!-- EDIT20 SECTION "User styles" [23562-] --></div>
 </body>
 </html>
