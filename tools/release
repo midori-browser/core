@@ -27,7 +27,8 @@ elif [ "x$1" = "xafter" ]; then
         echo -n ' && ' ;;
     esac
     echo git tag -a $NEWVER -m "'Bump version to $NEWVER'"
-    echo http://git.xfce.org/apps/midori/snapshot/midori-$NEWVER.tar.bz2
+    echo Press RETURN to download tarball now; read yes
+    wget http://git.xfce.org/apps/midori/snapshot/midori-$NEWVER.tar.bz2
     echo https://releases.xfce.org/
     echo Press RETURN to update Launchpad bugs now; read yes
     if [ -n $(which bugreleaser 1>/dev/null) ]; then
