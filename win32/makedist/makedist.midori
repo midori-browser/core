@@ -42,6 +42,11 @@ have_7zip=`which 7za`
 grep -q gtk-3.0 _build/config.log && GTK3_BUILD=1
 version=`grep PACKAGE_VERSION _build/default/config.h | awk '{ print $3 $4; }' | sed 's@(debug)@-debug@g'|sed 's@"@@g'`
 
+#strip sha from version if release
+if [ "$RELEASE" != "" ];then
+    version=$(echo $version| awk -F \- '{print $1}')
+fi
+
 if [ "$1" != "" ]; then
    version_tag="$1"
 fi
