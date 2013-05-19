@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2012 André Stösel <andre@stoesel.de>
+   Copyright (C) 2013 André Stösel <andre@stoesel.de>
 
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public

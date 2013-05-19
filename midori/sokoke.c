@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2007-2011 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2007-2013 Christian Dywan <christian@twotoasts.de>
  Copyright (C) 2009 Dale Whittaker <dayul@users.sf.net>
  Copyright (C) 2009 Alexander Butenko <a.butenka@gmail.com>
 
