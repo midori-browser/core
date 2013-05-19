@@ -442,6 +442,10 @@ midori_normal_app_new (const gchar* config,
     MidoriApp* app = midori_app_new (nickname);
     if (midori_app_instance_is_running (app))
     {
+        /* midori_debug makes no sense on a running instance */
+        if (g_getenv ("MIDORI_DEBUG"))
+            g_warning ("MIDORI_DEBUG only works for a new instance");
+
         /* It makes no sense to show a crash dialog while running */
         if (!diagnostic_dialog)
         {
