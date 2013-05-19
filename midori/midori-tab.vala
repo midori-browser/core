@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2007-2012 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2007-2013 Christian Dywan <christian@twotoasts.de>
  Copyright (C) 2009 Jean-François Guchens <zcx000@gmail.com>
  Copyright (C) 2011 Peter Hatina <phatina@redhat.com>
 

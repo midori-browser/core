@@ -174,7 +174,7 @@ main (int    argc,
         g_string_free (versions, TRUE);
 
         g_print (
-          "Copyright (c) 2007-2012 Christian Dywan\n\n"
+          "Copyright (c) 2007-2013 Christian Dywan\n\n"
           "%s\n"
           "\t%s\n\n"
           "%s\n"

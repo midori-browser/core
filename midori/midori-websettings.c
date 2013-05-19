@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2008-2012 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2008-2013 Christian Dywan <christian@twotoasts.de>
  Copyright (C) 2011 Peter Hatina <phatina@redhat.com>
 
  This library is free software; you can redistribute it and/or
