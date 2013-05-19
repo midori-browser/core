@@ -10,7 +10,7 @@
 # See the file COPYING for the full license text.
 
 
-version=$(git describe --abbrev=0)
+version=$(grep --color=no 'VERSION = VERSION_FULL = ' wscript | sed -r "s@.+ = '(.+)'@\1@")
 dropbox_dir=$HOME/Dropbox/Public
 
 # 32-bit build

@@ -9,24 +9,25 @@
 #
 # See the file COPYING for the full license text.
 
-OLDVER=$(git describe --abbrev=0)
+OLDVER=$(grep --color=no 'VERSION = VERSION_FULL = ' wscript | sed -r "s@.+ = '(.+)'@\1@")
 NEWVER=$(python -c "print('0.'+str(float('$OLDVER'[2:])+.1))")
 if [ "x$1" = "xbefore" ]; then
     echo Bumping from $OLDVER to $NEWVER
+    OLDVER=0.5.1
     sed -i "s@$OLDVER@$NEWVER@g" wscript win32/makedist/midori.nsi
-    echo; echo v$NEWVER:; git log --pretty='format: %s' $OLDVER..HEAD | grep -v l10n | grep -v makedist | grep -v tools/release | grep -v nsi | grep -v -E 'Update .+ translation'; echo
+    echo; echo v$NEWVER:; bzr log --line -rtag:$OLDVER.. | sed -r 's@.+2013-[0-9]+-[0-9]+ @@' | grep -v l10n | grep -v makedist | grep -v tools/release | grep -v nsi | grep -v -E 'Update .+ translation'; echo
     curl http://wiki.xfce.org/_export/xhtml/midori/faq | \
         sed 's@This is a list of frequently asked questions@This is <a href="http://wiki.xfce.org/midori/faq">a snapshot of the online FAQ</a>@g' | \
         sed 's@<link rel="style.*>@<link rel="stylesheet" href="faq.css" />@g' > data/faq.html
 elif [ "x$1" = "xafter" ]; then
-    echo -n git commit -m "'Bump version to $NEWVER'"
+    echo -n bzr commit -p -m "'Bump version to $NEWVER'"
     case $SHELL in
     *fish*)
         echo -n '; and ' ;;
     *)
         echo -n ' && ' ;;
     esac
-    echo git tag -a $NEWVER -m "'Bump version to $NEWVER'"
+    echo bzr tag $NEWVER
     echo Press RETURN to download tarball now; read yes
     wget http://git.xfce.org/apps/midori/snapshot/midori-$NEWVER.tar.bz2
     echo https://releases.xfce.org/

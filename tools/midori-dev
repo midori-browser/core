@@ -9,10 +9,10 @@
 #
 # See the file COPYING for the full license text.
 #
-# midori-dev: Run, update or debug Midori from git.
+# midori-dev: Run, update or debug Midori from bzr.
 
-# Adjust this to where you have your git sources
-DEVDIR=~/src/xfce/midori/git
+# Adjust this to where you have your bzr sources
+DEVDIR=~/src/xfce/midori/bzr
 
 # Location of stdout and stderr from running midori
 LOG=~/.midori.out
@@ -40,7 +40,7 @@ if [ $CMD == "dev" ]; then
 fi
 
 case $CMD in
-  git)
+  bzr)
     exec ./waf build --run "$@" >& $LOG
     ;;
   gdb)
@@ -72,13 +72,13 @@ case $CMD in
     fi
     ;;
   pull)
-    git pull
+    bzr pull
     ;;
   *)
     cat << EOM
 Usage: Create a symlink midori-<CMD>, or run 'midori-dev <CMD>'
 where CMD can be
-  git:  run the current git version
+  bzr:  run the current bzr version
   gdb:  open the last core dump in gdb
   save: saves relevant information about the last crash
         so that it can be analyzed later
