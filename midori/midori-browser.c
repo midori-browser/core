@@ -947,7 +947,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
             GRANITE_WIDGETS_POP_OVER (dialog), proxy, TRUE);
     }
     else
-    #endif 
+    #endif
     
     {
         dialog = gtk_dialog_new_with_buttons (title, GTK_WINDOW (browser),
@@ -958,14 +958,13 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     gtk_container_set_border_width (GTK_CONTAINER (dialog), 6);
 
     gtk_dialog_add_buttons (GTK_DIALOG (dialog),
-    GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-    new_bookmark ? GTK_STOCK_ADD : GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT, NULL);
+        GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+        new_bookmark ? GTK_STOCK_ADD : GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT, NULL);
 
-    if (!is_folder) {
+    if (!is_folder)
         label = gtk_label_new (_("Type a name for this bookmark, and choose where to keep it."));
-    } else {
+    else
         label = gtk_label_new (_("Type a name for this folder, and choose where to keep it."));
-    }
 
     vbox = gtk_vbox_new (FALSE, 6);
     gtk_box_pack_start (GTK_BOX (vbox), label, FALSE, FALSE, 6);
@@ -1003,7 +1002,8 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     gtk_box_pack_start (GTK_BOX (vbox), entry_title, FALSE, FALSE, 0);
 
     entry_uri = NULL;
-    if (!is_folder) {
+    if (!is_folder)
+    {
         entry_uri = katze_uri_entry_new (
         #if GTK_CHECK_VERSION (2, 20, 0)
             gtk_dialog_get_widget_for_response (GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT));
@@ -1048,7 +1048,8 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     gtk_widget_show_all (content_area);
 
     gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT);
-    if (midori_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT) {
+    if (midori_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
+    {
         gint64 selected;
 
         katze_item_set_name (bookmark,
@@ -1077,7 +1078,6 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (check_toolbar)))
             if (!gtk_widget_get_visible (browser->bookmarkbar))
                 _action_set_active (browser, "Bookmarkbar", TRUE);
-
         return_status = TRUE;
     }
 
