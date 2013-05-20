@@ -1,0 +1,2990 @@
+# Dutch translation of the midori package.
+# Copyright (C) The Xfce development team.
+# This file is distributed under the same license as the midori package.
+# Vincent Tunru <projects@vinnl.nl> 2008
+# Emmo, 2011-2013 (assisted by Pjotr), pjotrvertaalt@gmail.com.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: midori\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-08-15 11:48+0000\n"
+"PO-Revision-Date: 2013-05-19 21:21+0000\n"
+"Last-Translator: Thomas Berends <Unknown>\n"
+"Language-Team: Dutch (Flemish)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Launchpad-Export-Date: 2013-05-20 05:17+0000\n"
+"X-Generator: Launchpad (build 16626)\n"
+"Language: nl (Dutch)\n"
+
+#: ../data/midori.desktop.in.h:1
+msgid "Browse the Web"
+msgstr "Surfen op het web"
+
+#: ../data/midori.desktop.in.h:2
+msgid "Internet;WWW;Explorer"
+msgstr "Internet;WWW;Verkenner"
+
+#: ../data/midori.desktop.in.h:3 ../midori/main.c:2025 ../midori/main.c:2049
+#: ../midori/main.c:2063 ../midori/midori-websettings.c:315
+msgid "Midori"
+msgstr "Midori"
+
+#: ../data/midori.desktop.in.h:4
+msgid "Midori Web Browser"
+msgstr "Midori webbrowser"
+
+#: ../data/midori.desktop.in.h:5
+msgid "New Private Browsing Window"
+msgstr "Nieuw privé-surfvenster"
+
+#: ../data/midori.desktop.in.h:6 ../midori/midori-browser.c:1479
+msgid "New Tab"
+msgstr "Nieuw tabblad"
+
+#: ../data/midori.desktop.in.h:7 ../midori/midori-browser.c:1476
+msgid "New Window"
+msgstr "Nieuw venster"
+
+#: ../data/midori.desktop.in.h:8
+msgid "Web Browser"
+msgstr "Webbrowser"
+
+#: ../data/midori-private.desktop.in.h:1
+msgid "Midori Private Browsing"
+msgstr "Midori Privé-surfen"
+
+#: ../data/midori-private.desktop.in.h:2
+msgid "Open a new private browsing window"
+msgstr "Open een nieuw privé-surfvenster"
+
+#: ../data/midori-private.desktop.in.h:3 ../midori/midori-view.c:4505
+msgid "Private Browsing"
+msgstr "Privé-surfen"
+
+#: ../midori/main.c:91 ../midori/main.c:97
+#, c-format
+msgid "The configuration couldn't be loaded: %s\n"
+msgstr "Configuratie kon niet geladen worden: %s\n"
+
+#: ../midori/main.c:145
+#, c-format
+msgid "Value '%s' is invalid for %s"
+msgstr "Waarde '%s' is ongeldig voor %s"
+
+#: ../midori/main.c:150 ../midori/main.c:254
+#, c-format
+msgid "Invalid configuration value '%s'"
+msgstr "Ongeldige configuratiewaarde '%s'"
+
+#: ../midori/main.c:375
+#, c-format
+msgid "The search engines couldn't be loaded. %s\n"
+msgstr "De zoekmachines konden niet worden geladen. %s\n"
+
+#: ../midori/main.c:429
+#, c-format
+msgid "Failed to clear history: %s\n"
+msgstr "Niet gelukt om geschiedenis te verwijderen: %s\n"
+
+#: ../midori/main.c:451 ../extensions/formhistory/formhistory.c:531
+#, c-format
+msgid "Failed to open database: %s\n"
+msgstr "Kon gegevensbank niet openen: %s\n"
+
+#. i18n: Couldn't remove items that are older than n days
+#: ../midori/main.c:523
+#, c-format
+msgid "Failed to remove old history items: %s\n"
+msgstr "Kon oude elementen in geschiedenis niet verwijderen: %s\n"
+
+#: ../midori/main.c:545
+#, c-format
+msgid "The configuration couldn't be saved. %s"
+msgstr "De instellingen konden niet worden opgeslagen. %s"
+
+#: ../midori/main.c:571
+#, c-format
+msgid "The search engines couldn't be saved. %s"
+msgstr "De zoekmachines konden niet opgeslagen worden. %s"
+
+#. i18n: Trash, or wastebin, containing closed tabs
+#: ../midori/main.c:608
+#, c-format
+msgid "The trash couldn't be saved. %s"
+msgstr "De prullenbak kon niet worden opgeslagen. %s"
+
+#: ../midori/main.c:681 ../panels/midori-extensions.c:90
+msgid "Extensions"
+msgstr "Extensies"
+
+#: ../midori/main.c:695
+msgid "Privacy"
+msgstr "Privacy"
+
+#: ../midori/main.c:707
+msgid ""
+"Cookies store login data, saved games, or user profiles for advertisement "
+"purposes."
+msgstr ""
+"Koekjes slaan aanmeldgegevens, opgeslagen spelletjes of gebruikerprofielen "
+"op voor adverteerdoeleinden."
+
+#: ../midori/main.c:763
+#, c-format
+msgid "The session couldn't be saved. %s"
+msgstr "De sessie kon niet worden opgeslagen. %s"
+
+#: ../midori/main.c:1001
+msgid ""
+"No root certificate file is available. SSL certificates cannot be verified."
+msgstr ""
+"Geen root-certificaatbestand aanwezig. SSL-certificaten kunnen niet worden "
+"geverifieerd."
+
+#: ../midori/main.c:1093
+msgid ""
+"Midori seems to have crashed the last time it was opened. If this happened "
+"repeatedly, try one of the following options to solve the problem."
+msgstr ""
+"Midori schijnt te zijn vastgelopen, de laatste keer dat hij werd geopend. "
+"Als dit herhaaldelijk gebeurt, probeer dan een van de volgende opties om het "
+"probleem op te lossen."
+
+#: ../midori/main.c:1112
+msgid "Modify _preferences"
+msgstr "_Voorkeuren wijzigen"
+
+#: ../midori/main.c:1116
+msgid "Disable all _extensions"
+msgstr "Schakel alle _extensies uit"
+
+#: ../midori/main.c:1129
+msgid "Discard old tabs"
+msgstr "Verwijder oude tabbladen"
+
+#: ../midori/main.c:1130 ../midori/midori-websettings.c:223
+msgid "Show last tabs without loading"
+msgstr "Toon laatste tabbladen zonder te laden"
+
+#: ../midori/main.c:1131 ../midori/midori-websettings.c:222
+msgid "Show last open tabs"
+msgstr "Toon laatst geopende tabbladen"
+
+#: ../midori/main.c:1379 ../midori/main.c:2433
+#, c-format
+msgid "The session couldn't be loaded: %s\n"
+msgstr "De sessie kon niet geladen worden: %s\n"
+
+#: ../midori/main.c:1517
+#, c-format
+msgid "Snapshot saved to: %s\n"
+msgstr "Momentopname opgeslagen in: %s\n"
+
+#: ../midori/main.c:1933
+msgid "Run ADDRESS as a web application"
+msgstr "ADRES uitvoeren als een webtoepassing"
+
+#: ../midori/main.c:1933
+msgid "ADDRESS"
+msgstr "ADRES"
+
+#: ../midori/main.c:1936
+msgid "Use FOLDER as configuration folder"
+msgstr "Gebruik MAP als configuratiemap"
+
+#: ../midori/main.c:1936
+msgid "FOLDER"
+msgstr "MAP"
+
+#: ../midori/main.c:1939
+msgid "Private browsing, no changes are saved"
+msgstr "Privé-surfen, veranderingen worden niet opgeslagen."
+
+#: ../midori/main.c:1941
+msgid "Show a diagnostic dialog"
+msgstr "Toon een diagnostisch venster"
+
+#: ../midori/main.c:1943
+msgid "Run the specified filename as javascript"
+msgstr "Voer de opgegeven bestandnaam uit als javascript"
+
+#: ../midori/main.c:1945
+msgid "Take a snapshot of the specified URI"
+msgstr "Maak een momentopname van de opgegeven URI"
+
+#: ../midori/main.c:1947
+msgid "Execute the specified command"
+msgstr "Voer de opgegeven opdracht uit"
+
+#: ../midori/main.c:1949
+msgid "List available commands to execute with -e/ --execute"
+msgstr "Lijst beschikbare opdrachten uit te voeren met -e/ --execute"
+
+#: ../midori/main.c:1951
+msgid "Display program version"
+msgstr "Versie-informatie weergeven"
+
+#: ../midori/main.c:1953
+msgid "Addresses"
+msgstr "Adressen"
+
+#: ../midori/main.c:1955
+msgid "Block URIs according to regular expression PATTERN"
+msgstr "Blokkeer URIs die overeenstemmen met reguliere expressie PATROON"
+
+#: ../midori/main.c:1955
+msgid "PATTERN"
+msgstr "PATROON"
+
+#. i18n: CLI: Close tabs, clear private data, open starting page
+#: ../midori/main.c:1959
+msgid "Reset Midori after SECONDS seconds of inactivity"
+msgstr ""
+"Zet Midori na SECONDEN seconden van inactiviteit, terug op de "
+"standaardwaarden"
+
+#: ../midori/main.c:1959
+msgid "SECONDS"
+msgstr "SECONDEN"
+
+#: ../midori/main.c:1962
+msgid "Redirects console warnings to the specified FILENAME"
+msgstr "Verwijst terminalwaarschuwingen naar de opgegeven BESTANDNAAM"
+
+#: ../midori/main.c:1962
+msgid "FILENAME"
+msgstr "BESTANDNAAM"
+
+#: ../midori/main.c:2064
+msgid "Please report comments, suggestions and bugs to:"
+msgstr "Gelieve commentaar, suggesties en fouten te melden bij:"
+
+#: ../midori/main.c:2066
+msgid "Check for new versions at:"
+msgstr "Controleer op nieuwe versies op:"
+
+#. i18n: Logins and passwords in websites and web forms
+#: ../midori/main.c:2161
+msgid "Saved logins and _passwords"
+msgstr "Opgeslagen aanmeldingen en _wachtwoorden"
+
+#: ../midori/main.c:2163
+msgid "Cookies and Website data"
+msgstr "Koekjes en websitegegevens"
+
+#. TODO: Preserve page icons of search engines and merge privacy items
+#: ../midori/main.c:2167 ../midori/midori-websettings.c:1020
+#: ../extensions/web-cache.c:462 ../extensions/web-cache.c:471
+msgid "Web Cache"
+msgstr "Webopslag"
+
+#: ../midori/main.c:2170
+msgid "Website icons"
+msgstr "Website-pictogrammen"
+
+#: ../midori/main.c:2274
+msgid "An unknown error occured"
+msgstr "Er is een onbekende fout opgetreden"
+
+#: ../midori/main.c:2381
+msgid "An instance of Midori is already running but not responding.\n"
+msgstr "Een exemplaar van Midori is al actief maar reageert niet.\n"
+
+#: ../midori/main.c:2415
+#, c-format
+msgid "Bookmarks couldn't be loaded: %s\n"
+msgstr "De bladwijzers konden niet worden geladen: %s\n"
+
+#: ../midori/main.c:2448
+#, c-format
+msgid "The trash couldn't be loaded: %s\n"
+msgstr "De prullenbak kon niet geladen worden: %s\n"
+
+#: ../midori/main.c:2461
+#, c-format
+msgid "The history couldn't be loaded: %s\n"
+msgstr "De geschiedenis kon niet geladen worden: %s\n"
+
+#: ../midori/main.c:2476
+msgid "The following errors occured:"
+msgstr "De volgende fouten hebben plaatsgevonden:"
+
+#: ../midori/main.c:2492
+msgid "_Ignore"
+msgstr "_Negeren"
+
+#: ../midori/midori-app.c:1155 ../midori/midori-browser.c:545
+#, c-format
+msgid "Unexpected action '%s'."
+msgstr "Onverwachte actie '%s'."
+
+#: ../midori/midori-app.c:1457 ../midori/midori-browser.c:6435
+msgid "_Bookmarks"
+msgstr "_Bladwijzers"
+
+#: ../midori/midori-app.c:1458
+msgid "Add Boo_kmark"
+msgstr "Bladwijzer _toevoegen"
+
+#: ../midori/midori-app.c:1459
+msgid "_Extensions"
+msgstr "_Extensies"
+
+#. i18n: Browsing history, visited web pages, closed tabs
+#: ../midori/midori-app.c:1460 ../midori/midori-browser.c:4891
+msgid "_History"
+msgstr "_Geschiedenis"
+
+#: ../midori/midori-app.c:1461
+msgid "_Userscripts"
+msgstr "Gebruikers_scripts"
+
+#: ../midori/midori-app.c:1462
+msgid "User_styles"
+msgstr "Gebruikers_stijlen"
+
+#: ../midori/midori-app.c:1463
+msgid "New _Tab"
+msgstr "Nieuw _tabblad"
+
+#: ../midori/midori-app.c:1464
+msgid "_Transfers"
+msgstr "Bestand_overdrachten"
+
+#: ../midori/midori-app.c:1465
+msgid "Netscape p_lugins"
+msgstr "Netscape-invoegtoepassingen"
+
+#: ../midori/midori-app.c:1466
+msgid "_Closed Tabs"
+msgstr "Ge_sloten tabbladen"
+
+#: ../midori/midori-app.c:1467 ../midori/midori-browser.c:5574
+msgid "New _Window"
+msgstr "Nieuw _venster"
+
+#: ../midori/midori-app.c:1468
+msgid "New _Folder"
+msgstr "Nieuwe _map"
+
+#: ../midori/midori-app.c:1497
+msgid "[Addresses]"
+msgstr "[Adressen]"
+
+#: ../midori/midori-array.c:522
+msgid "File not found."
+msgstr "Bestand niet gevonden."
+
+#: ../midori/midori-array.c:547 ../midori/midori-array.c:586
+#: ../midori/midori-array.c:609 ../midori/midori-array.c:619
+msgid "Malformed document."
+msgstr "Misvormd document."
+
+#: ../midori/midori-array.c:628
+msgid "Unrecognized bookmark format."
+msgstr "Onbekende bladwijzeropmaak."
+
+#: ../midori/midori-array.c:915
+msgid "Writing failed."
+msgstr "Schrijven is mislukt."
+
+#: ../midori/midori-browser.c:364 ../midori/midori-browser.c:5662
+#: ../midori/midori-browser.c:5671
+msgid "Reload the current page"
+msgstr "De huidige pagina opnieuw laden"
+
+#: ../midori/midori-browser.c:373 ../midori/midori-browser.c:5668
+msgid "Stop loading the current page"
+msgstr "Stop met het laden van de huidige pagina"
+
+#: ../midori/midori-browser.c:530
+#, c-format
+msgid "Failed to update title: %s\n"
+msgstr "Kon titel niet aanpassen: %s\n"
+
+#: ../midori/midori-browser.c:625
+#, c-format
+msgid "%s (Private Browsing)"
+msgstr "%s (Privé-surfen)"
+
+#: ../midori/midori-browser.c:735 ../midori/midori-browser.c:777
+#: ../panels/midori-bookmarks.c:114
+msgid "Bookmarks"
+msgstr "Bladwijzers"
+
+#: ../midori/midori-browser.c:837
+msgid "New folder"
+msgstr "Nieuwe map"
+
+#: ../midori/midori-browser.c:837
+msgid "Edit folder"
+msgstr "Map bewerken"
+
+#: ../midori/midori-browser.c:839
+msgid "New bookmark"
+msgstr "Nieuwe bladwijzer"
+
+#: ../midori/midori-browser.c:839
+msgid "Edit bookmark"
+msgstr "Bladwijzer bewerken"
+
+#: ../midori/midori-browser.c:873
+msgid "Type a name for this bookmark and choose where to keep it."
+msgstr ""
+"Tik een naam voor deze bladwijzer en kies waar die bewaard moet worden."
+
+#: ../midori/midori-browser.c:934
+msgid "Add to _Speed Dial"
+msgstr "Toevoegen aan _snelkiezen"
+
+#: ../midori/midori-browser.c:940
+msgid "Show in the tool_bar"
+msgstr "Laat in de werk_balk zien"
+
+#: ../midori/midori-browser.c:948
+msgid "Run as _web application"
+msgstr "Uitvoeren als _webtoepassing"
+
+#: ../midori/midori-browser.c:1019
+#, c-format
+msgid "The file \"%s\" can't be saved in this folder."
+msgstr "Het bestand '%s' kan niet worden opgeslagen in deze map."
+
+#: ../midori/midori-browser.c:1021
+#, c-format
+msgid "You don't have permission to write in this location."
+msgstr "U heeft geen rechten om op deze plaats te schrijven."
+
+#: ../midori/midori-browser.c:1028
+#, c-format
+msgid "There is not enough free space to download \"%s\"."
+msgstr "Er is niet voldoende schijfruimte om '%s' binnen te halen."
+
+#: ../midori/midori-browser.c:1031
+#, c-format
+msgid "The file needs %s but only %s are left."
+msgstr "Het bestand heeft %s nodig maar slechts %s zijn over."
+
+#: ../midori/midori-browser.c:1167 ../midori/midori-browser.c:4695
+msgid "Save file as"
+msgstr "Bestand opslaan als"
+
+#: ../midori/midori-browser.c:1173
+msgid "Save associated _resources"
+msgstr "Geassocieerde hulpbronnen opslaan"
+
+#: ../midori/midori-browser.c:1476
+msgid "A new window has been opened"
+msgstr "Er is een nieuw venster geopend"
+
+#: ../midori/midori-browser.c:1479
+msgid "A new tab has been opened"
+msgstr "Er is een nieuw tabblad geopend"
+
+#: ../midori/midori-browser.c:1496
+msgid "Error opening the image!"
+msgstr "Fout bij het openen van de afbeelding."
+
+#: ../midori/midori-browser.c:1497
+msgid "Can not open selected image in a default viewer."
+msgstr "Kan de gekozen afbeelding niet openen in een standaardkijker."
+
+#: ../midori/midori-browser.c:1503
+msgid "Error downloading the image!"
+msgstr "Fout bij het binnenhalen van de afbeelding."
+
+#: ../midori/midori-browser.c:1504
+msgid "Can not download selected image."
+msgstr "Kan de gekozen afbeelding niet binnenhalen."
+
+#: ../midori/midori-browser.c:1625
+msgid "Save file"
+msgstr "Bestand opslaan"
+
+#: ../midori/midori-browser.c:2528
+msgid "Open file"
+msgstr "Bestand openen"
+
+#: ../midori/midori-browser.c:2660
+msgid ""
+"To use the above URI open a news aggregator. There is usually a menu or "
+"button \"New Subscription\", \"New News Feed\" or similar.\n"
+"Alternatively go to Preferences, Applications in Midori, and select a News "
+"Aggregator. Next time you click the news feed icon, it will be added "
+"automatically."
+msgstr ""
+"Om de bovenstaande URI te openen heeft u een nieuwsaggregator nodig. Daar is "
+"meestal een menu of knop 'Nieuw abonnement', 'Nieuwe nieuwsvoeding' of "
+"vergelijkbaar.\n"
+"Anders kunt u gaan naar Voorkeuren, Toepassingen in Midori en een "
+"Nieuwsaggregator kiezen. De volgende keer dat u het pictogram van "
+"nieuwsvoeding aanklikt, zal dit automatisch worden toegevoegd."
+
+#: ../midori/midori-browser.c:2666 ../extensions/feed-panel/main.c:365
+msgid "New feed"
+msgstr "Nieuwe voeding"
+
+#: ../midori/midori-browser.c:2709 ../midori/midori-browser.c:5734
+#: ../panels/midori-bookmarks.c:527
+msgid "Add a new bookmark"
+msgstr "Nieuwe bladwijzer toevoegen"
+
+#: ../midori/midori-browser.c:3253 ../midori/midori-searchaction.c:487
+msgid "Empty"
+msgstr "Leeg"
+
+#: ../midori/midori-browser.c:3699 ../midori/midori-browser.c:3700
+msgid "Toggle text cursor navigation"
+msgstr "Schakel tekstaanwijzer-navigatie"
+
+#: ../midori/midori-browser.c:3702
+msgid ""
+"Pressing F7 toggles Caret Browsing. When active, a text cursor appears in "
+"all websites."
+msgstr ""
+"Het indrukken van F7 schakelt de cursormodus om. Wanneer deze actief is, "
+"verschijnt er op alle websites een tekstcursor."
+
+#: ../midori/midori-browser.c:3705
+msgid "_Enable Caret Browsing"
+msgstr "Cursormodus inschakelen"
+
+#: ../midori/midori-browser.c:4095 ../midori/midori-browser.c:6128
+#, c-format
+msgid "Failed to insert new history item: %s\n"
+msgstr "Kon nieuw element in geschiedenis niet toevoegen: %s\n"
+
+#: ../midori/midori-browser.c:4421 ../panels/midori-bookmarks.c:850
+#: ../panels/midori-history.c:806
+msgid "Open all in _Tabs"
+msgstr "Alles openen in _tabbladen"
+
+#: ../midori/midori-browser.c:4428 ../panels/midori-bookmarks.c:856
+#: ../panels/midori-history.c:812 ../extensions/feed-panel/feed-panel.c:528
+msgid "Open in New _Tab"
+msgstr "In nieuw _tabblad openen"
+
+#: ../midori/midori-browser.c:4431 ../midori/midori-view.c:2944
+#: ../midori/midori-view.c:5082 ../panels/midori-bookmarks.c:858
+#: ../panels/midori-history.c:814 ../extensions/feed-panel/feed-panel.c:530
+msgid "Open in New _Window"
+msgstr "In nieuw _venster openen"
+
+#: ../midori/midori-browser.c:4520
+msgid "Arora"
+msgstr "Arora"
+
+#: ../midori/midori-browser.c:4521
+msgid "Kazehakase"
+msgstr "Kazehakase"
+
+#: ../midori/midori-browser.c:4522
+msgid "Opera"
+msgstr "Opera"
+
+#: ../midori/midori-browser.c:4523
+msgid "Konqueror"
+msgstr "Konqueror"
+
+#: ../midori/midori-browser.c:4524
+msgid "Epiphany"
+msgstr "Epiphany"
+
+#: ../midori/midori-browser.c:4525
+#, c-format
+msgid "Firefox (%s)"
+msgstr "Firefox (%s)"
+
+#: ../midori/midori-browser.c:4526
+msgid "Midori 0.2.6"
+msgstr "Midori 0.2.6"
+
+#: ../midori/midori-browser.c:4547
+msgid "Import bookmarks…"
+msgstr "Bladwijzers invoeren…"
+
+#: ../midori/midori-browser.c:4550 ../midori/midori-browser.c:5739
+msgid "_Import bookmarks"
+msgstr "Bladwijzers _invoeren"
+
+#: ../midori/midori-browser.c:4561
+msgid "_Application:"
+msgstr "_Toepassing:"
+
+#: ../midori/midori-browser.c:4626
+msgid "Import from XBEL or HTML file"
+msgstr "Invoeren vanuit een XBEL- of HTML-bestand"
+
+#: ../midori/midori-browser.c:4654
+msgid "Import from a file"
+msgstr "Invoeren vanuit een bestand"
+
+#: ../midori/midori-browser.c:4666
+msgid "Failed to import bookmarks"
+msgstr "Bladwijzers invoeren mislukt"
+
+#: ../midori/midori-browser.c:4700
+msgid "XBEL Bookmarks"
+msgstr "XBEL-bladwijzers"
+
+#: ../midori/midori-browser.c:4705
+msgid "Netscape Bookmarks"
+msgstr "Netscape-bladwijzers"
+
+#: ../midori/midori-browser.c:4719
+msgid "Midori can only export to XBEL (*.xbel) and Netscape (*.html)"
+msgstr "Midori kan alleen uitvoeren naar XBEL (*.xbel) en Netscape (*.html)"
+
+#: ../midori/midori-browser.c:4734
+msgid "Failed to export bookmarks"
+msgstr "Bladwijzers uitvoeren mislukt"
+
+#. i18n: Dialog: Clear Private Data, in the Tools menu
+#: ../midori/midori-browser.c:4856
+msgid "Clear Private Data"
+msgstr "Wis privégegevens"
+
+#: ../midori/midori-browser.c:4860
+msgid "_Clear private data"
+msgstr "Privégegevens _wissen"
+
+#: ../midori/midori-browser.c:4875
+msgid "Clear the following data:"
+msgstr "Wis de volgende gegevens:"
+
+#: ../midori/midori-browser.c:4885
+msgid "Last open _tabs"
+msgstr "Laatst openstaande _tabbladen"
+
+#: ../midori/midori-browser.c:4911
+msgid "Clear private data when _quitting Midori"
+msgstr "Privégegevens wissen bij het _afsluiten van Midori"
+
+#: ../midori/midori-browser.c:5126
+msgid "A lightweight web browser."
+msgstr "Een lichtgewicht-webbrowser."
+
+#: ../midori/midori-browser.c:5127
+msgid "See about:version for version info."
+msgstr "Ga naar about:version voor informatie over de versie."
+
+#: ../midori/midori-browser.c:5129
+msgid ""
+"This library is free software; you can redistribute it and/or modify it "
+"under the terms of the GNU Lesser General Public License as published by the "
+"Free Software Foundation; either version 2.1 of the License, or (at your "
+"option) any later version."
+msgstr ""
+"Deze bibliotheek is vrije programmatuur; u kan deze opnieuw verdelen en/of "
+"wijzigen onder de voorwaarden van de GNU Lesser General Public License, "
+"zoals gepubliceerd door de Free Software Foundation; hetzij versie 2.1 van "
+"de licentie hetzij een latere versie (naar keuze)."
+
+#: ../midori/midori-browser.c:5159
+msgid "translator-credits"
+msgstr ""
+"Timo Verbeek <timoverbeek10@hotmail.com>\n"
+"Pascal De Vuyst <pascal.devuyst@gmail.com>\n"
+"Emmo / Pjotr pjotrvertaalt@gmail.com\n"
+"\n"
+"Launchpad Contributions:\n"
+"  Christian Dywan https://launchpad.net/~kalikiana\n"
+"  Jaap Broekhuizen https://launchpad.net/~jaapz-b\n"
+"  Kim Boram https://launchpad.net/~boramism\n"
+"  Michael Moroni https://launchpad.net/~airon90\n"
+"  Rafael Ferreira https://launchpad.net/~rafael-f-f1\n"
+"  Thomas Berends https://launchpad.net/~thomasberends\n"
+"  WebKit Team https://launchpad.net/~webkit-team\n"
+"  jc1 https://launchpad.net/~jc1-quebecos"
+
+#: ../midori/midori-browser.c:5572
+msgid "_File"
+msgstr "_Bestand"
+
+#: ../midori/midori-browser.c:5575
+msgid "Open a new window"
+msgstr "Open een nieuw venster"
+
+#: ../midori/midori-browser.c:5578
+msgid "Open a new tab"
+msgstr "Open een nieuw tabblad"
+
+#: ../midori/midori-browser.c:5580
+msgid "New P_rivate Browsing Window"
+msgstr "Nieuw p_rivé-surfvenster"
+
+#: ../midori/midori-browser.c:5584
+msgid "Open a file"
+msgstr "Open een bestand"
+
+#: ../midori/midori-browser.c:5586
+msgid "_Save Page As…"
+msgstr "_Sla pagina op als…"
+
+#: ../midori/midori-browser.c:5587
+msgid "Save to a file"
+msgstr "Opslaan naar bestand"
+
+#: ../midori/midori-browser.c:5589
+msgid "Add to Speed _dial"
+msgstr "Toevoegen aan _snelkiezen"
+
+#: ../midori/midori-browser.c:5593
+msgid "Add Shortcut to the _desktop"
+msgstr "Voeg snelkoppeling toe op _bureaublad"
+
+#: ../midori/midori-browser.c:5595
+msgid "Create _Launcher"
+msgstr "Maak _starter"
+
+#: ../midori/midori-browser.c:5599
+msgid "Subscribe to News _feed"
+msgstr "Abonneren op nieuws_voeding"
+
+#: ../midori/midori-browser.c:5605
+msgid "_Close Tab"
+msgstr "Tabblad _sluiten"
+
+#: ../midori/midori-browser.c:5606
+msgid "Close the current tab"
+msgstr "Huidig tabblad sluiten"
+
+#: ../midori/midori-browser.c:5608
+msgid "C_lose Window"
+msgstr "Venster _sluiten"
+
+#: ../midori/midori-browser.c:5612
+msgid "_Share"
+msgstr "Delen"
+
+#: ../midori/midori-browser.c:5617
+msgid "Print the current page"
+msgstr "Huidige pagina afdrukken"
+
+#: ../midori/midori-browser.c:5620
+msgid "Close a_ll Windows"
+msgstr "A_lle Vensters Sluiten"
+
+#: ../midori/midori-browser.c:5623
+msgid "_Edit"
+msgstr "_Bewerken"
+
+#: ../midori/midori-browser.c:5646
+msgid "_Find…"
+msgstr "_Zoek…"
+
+#: ../midori/midori-browser.c:5647
+msgid "Find a word or phrase in the page"
+msgstr "Zoek naar een woord of zin in deze pagina"
+
+#: ../midori/midori-browser.c:5649
+msgid "Find _Next"
+msgstr "Vo_lgende zoeken"
+
+#: ../midori/midori-browser.c:5652
+msgid "Find _Previous"
+msgstr "Vo_rige zoeken"
+
+#: ../midori/midori-browser.c:5656
+msgid "Configure the application preferences"
+msgstr "Toepassingsvoorkeuren instellen"
+
+#: ../midori/midori-browser.c:5658
+msgid "_View"
+msgstr "_Beeld"
+
+#: ../midori/midori-browser.c:5659
+msgid "_Toolbars"
+msgstr "_Werkbalken"
+
+#: ../midori/midori-browser.c:5664
+msgid "Reload page without caching"
+msgstr "Vernieuw de pagina zonder gegevensopslag"
+
+#: ../midori/midori-browser.c:5674
+msgid "Increase the zoom level"
+msgstr "Zoomniveau verhogen"
+
+#: ../midori/midori-browser.c:5677
+msgid "Decrease the zoom level"
+msgstr "Zoomniveau verlagen"
+
+#: ../midori/midori-browser.c:5681
+msgid "_Encoding"
+msgstr "_Codering"
+
+#: ../midori/midori-browser.c:5683
+msgid "View So_urce"
+msgstr "_Bron bekijken"
+
+#: ../midori/midori-browser.c:5686
+msgid "Ca_ret Browsing"
+msgstr "Cursor-surfen"
+
+#: ../midori/midori-browser.c:5690
+msgid "Toggle fullscreen view"
+msgstr "Schakel volledig-scherm-weergave"
+
+#: ../midori/midori-browser.c:5692
+msgid "Scroll _Left"
+msgstr "Naar _links bladeren"
+
+#: ../midori/midori-browser.c:5695
+msgid "Scroll _Down"
+msgstr "Naar _beneden bladeren"
+
+#: ../midori/midori-browser.c:5698
+msgid "Scroll _Up"
+msgstr "Naar _omhoog bladeren"
+
+#: ../midori/midori-browser.c:5701
+msgid "Scroll _Right"
+msgstr "Naar _rechts bladeren"
+
+#: ../midori/midori-browser.c:5704
+msgid "_Readable"
+msgstr "Leesbaar"
+
+#: ../midori/midori-browser.c:5707
+msgid "_Go"
+msgstr "_Ga"
+
+#: ../midori/midori-browser.c:5710
+msgid "Go back to the previous page"
+msgstr "Ga terug naar de vorige pagina"
+
+#: ../midori/midori-browser.c:5713
+msgid "Go forward to the next page"
+msgstr "Ga naar de volgende pagina"
+
+#. i18n: Visit the previous logical page, ie. in a forum or blog
+#: ../midori/midori-browser.c:5717
+msgid "Go to the previous sub-page"
+msgstr "Ga naar de vorige subpagina"
+
+#. i18n: Visit the following logical page, ie. in a forum or blog
+#: ../midori/midori-browser.c:5721
+msgid "Go to the next sub-page"
+msgstr "Ga naar de volgende subpagina"
+
+#: ../midori/midori-browser.c:5723
+msgid "_Homepage"
+msgstr "_Thuispagina"
+
+#: ../midori/midori-browser.c:5724
+msgid "Go to your homepage"
+msgstr "Ga naar de thuispagina"
+
+#: ../midori/midori-browser.c:5726
+msgid "Empty Trash"
+msgstr "Prullenbak leegmaken"
+
+#: ../midori/midori-browser.c:5729
+msgid "Undo _Close Tab"
+msgstr "Tabblad _sluiten ongedaan maken"
+
+#: ../midori/midori-browser.c:5736
+msgid "Add a new _folder"
+msgstr "Nieuwe _map toevoegen"
+
+#: ../midori/midori-browser.c:5742
+msgid "_Export bookmarks"
+msgstr "Bladwijzers _exporteren"
+
+#: ../midori/midori-browser.c:5745 ../midori/midori-searchaction.c:496
+msgid "_Manage Search Engines"
+msgstr "_Zoekmachines beheren"
+
+#: ../midori/midori-browser.c:5748
+msgid "_Clear Private Data"
+msgstr "Privé-gegevens _Wissen"
+
+#: ../midori/midori-browser.c:5751
+msgid "_Inspect Page"
+msgstr "Pagina _inspecteren"
+
+#: ../midori/midori-browser.c:5755
+msgid "_Previous Tab"
+msgstr "Vo_rig tabblad"
+
+#: ../midori/midori-browser.c:5758
+msgid "_Next Tab"
+msgstr "Vo_lgend tabblad"
+
+#: ../midori/midori-browser.c:5760
+msgid "Move Tab _Backward"
+msgstr "Verplaats tabblad naar _achteren"
+
+#: ../midori/midori-browser.c:5762
+msgid "_Move Tab Forward"
+msgstr "_Verplaats tabblad naar voren"
+
+#: ../midori/midori-browser.c:5765
+msgid "Focus _Current Tab"
+msgstr "Focus _huidig tabblad"
+
+#: ../midori/midori-browser.c:5768
+msgid "Focus _Next view"
+msgstr "Focus _volgende weergave"
+
+#: ../midori/midori-browser.c:5771
+msgid "Only show the Icon of the _Current Tab"
+msgstr "Toon alleen het Pictogram van het _Huidige Tabblad"
+
+#: ../midori/midori-browser.c:5774
+msgid "_Duplicate Current Tab"
+msgstr "Huidig tabblad _dupliceren"
+
+#: ../midori/midori-browser.c:5777
+msgid "Close Ot_her Tabs"
+msgstr "An_dere tabbladen sluiten"
+
+#: ../midori/midori-browser.c:5780
+msgid "Open last _session"
+msgstr "Open laatste _sessie"
+
+#: ../midori/midori-browser.c:5783
+msgid "_Help"
+msgstr "_Hulp"
+
+#: ../midori/midori-browser.c:5785
+msgid "_Frequent Questions"
+msgstr "_Veelgestelde vragen"
+
+#: ../midori/midori-browser.c:5788
+msgid "_Report a Problem…"
+msgstr "_Meld een probleem…"
+
+#: ../midori/midori-browser.c:5793 ../midori/midori-browser.c:6454
+msgid "_Tools"
+msgstr "_Hulpmiddelen"
+
+#: ../midori/midori-browser.c:5800
+msgid "_Menubar"
+msgstr "_Menubalk"
+
+#: ../midori/midori-browser.c:5804
+msgid "_Navigationbar"
+msgstr "_Navigatiebalk"
+
+#: ../midori/midori-browser.c:5808
+msgid "Side_panel"
+msgstr "_Zijbalk"
+
+#: ../midori/midori-browser.c:5809
+msgid "Sidepanel"
+msgstr "Zijbalk"
+
+#: ../midori/midori-browser.c:5812
+msgid "_Bookmarkbar"
+msgstr "_Bladwijzerbalk"
+
+#: ../midori/midori-browser.c:5816
+msgid "_Statusbar"
+msgstr "_Statusbalk"
+
+#: ../midori/midori-browser.c:5825 ../midori/midori-websettings.c:314
+msgid "_Automatic"
+msgstr "_Automatisch"
+
+#: ../midori/midori-browser.c:5828 ../midori/midori-websettings.c:238
+msgid "Chinese Traditional (BIG5)"
+msgstr "Chinees traditioneel (BIG5)"
+
+#: ../midori/midori-browser.c:5831 ../midori/midori-websettings.c:239
+msgid "Chinese Simplified (GB18030)"
+msgstr "Chinees vereenvoudigd (GB18030)"
+
+#. i18n: A double underscore "__" is used to prevent the mnemonic
+#: ../midori/midori-browser.c:5835
+msgid "Japanese (SHIFT__JIS)"
+msgstr "Japans (SHIFT__JIS)"
+
+#: ../midori/midori-browser.c:5838 ../midori/midori-websettings.c:241
+msgid "Korean (EUC-KR)"
+msgstr "Koreaans (EUC-KR)"
+
+#: ../midori/midori-browser.c:5841 ../midori/midori-websettings.c:242
+msgid "Russian (KOI8-R)"
+msgstr "Russisch (KOI8-R)"
+
+#: ../midori/midori-browser.c:5844 ../midori/midori-websettings.c:243
+msgid "Unicode (UTF-8)"
+msgstr "Unicode (UTF-8)"
+
+#: ../midori/midori-browser.c:5847 ../midori/midori-websettings.c:244
+msgid "Western (ISO-8859-1)"
+msgstr "Westers (ISO-8859-1)"
+
+#: ../midori/midori-browser.c:5850
+msgid "Custom…"
+msgstr "Aangepast…"
+
+#: ../midori/midori-browser.c:6360
+msgid "_Separator"
+msgstr "_Scheidingsteken"
+
+#: ../midori/midori-browser.c:6367
+msgid "_Location…"
+msgstr "_Locatie…"
+
+#: ../midori/midori-browser.c:6369
+msgid "Open a particular location"
+msgstr "Open een specifieke locatie"
+
+#: ../midori/midori-browser.c:6391
+msgid "_Web Search…"
+msgstr "Zoeken op het _web…"
+
+#: ../midori/midori-browser.c:6393
+msgid "Run a web search"
+msgstr "Doorzoek het web"
+
+#: ../midori/midori-browser.c:6420
+msgid "Reopen a previously closed tab or window"
+msgstr "Heropen een eerder gesloten tabblad of venster"
+
+#: ../midori/midori-browser.c:6437
+msgid "Show the saved bookmarks"
+msgstr "Opgeslagen bladwijzers weergeven"
+
+#: ../midori/midori-browser.c:6470
+msgid "_Window"
+msgstr "_Venster"
+
+#: ../midori/midori-browser.c:6472
+msgid "Show a list of all open tabs"
+msgstr "Geef een lijst van alle open tabbladen weer"
+
+#: ../midori/midori-browser.c:6486
+msgid "_Menu"
+msgstr "_Menu"
+
+#: ../midori/midori-browser.c:6488
+msgid "Menu"
+msgstr "Menu"
+
+#: ../midori/midori-browser.c:7313
+#, c-format
+msgid "Unexpected setting '%s'"
+msgstr "Onverwachte configuratie-optie '%s'"
+
+#: ../midori/midori-extension.c:329
+#, c-format
+msgid "The configuration of the extension '%s' couldn't be loaded: %s\n"
+msgstr "De configuratie van de extensie '%s' kon niet worden geladen: %s\n"
+
+#: ../midori/midori-extension.c:747 ../midori/midori-extension.c:844
+#: ../midori/midori-extension.c:941 ../midori/midori-extension.c:1053
+#: ../extensions/addons.c:1688
+#, c-format
+msgid "The configuration of the extension '%s' couldn't be saved: %s\n"
+msgstr ""
+"De configuratie van de extensie '%s' kon niet worden opgeslagen: %s\n"
+
+#: ../midori/midori-locationaction.c:394
+#, c-format
+msgid "Search with %s"
+msgstr "Zoek met %s"
+
+#: ../midori/midori-locationaction.c:414
+msgid "Search with…"
+msgstr "Doorzoeken met…"
+
+#: ../midori/midori-locationaction.c:541
+#, c-format
+msgid "Failed to select from history\n"
+msgstr "Kon niet kiezen uit geschiedenis\n"
+
+#: ../midori/midori-locationaction.c:628
+#, c-format
+msgid "Search for %s"
+msgstr "Zoek naar %s"
+
+#: ../midori/midori-locationaction.c:1223
+msgid "Export certificate"
+msgstr "Uitvoercertificaat"
+
+#: ../midori/midori-locationaction.c:1255
+msgid "The signing certificate authority is not known."
+msgstr "De ondertekenende certificaatautoriteit is niet bekend."
+
+#: ../midori/midori-locationaction.c:1257
+msgid ""
+"The certificate does not match the expected identity of the site that it was "
+"retrieved from."
+msgstr ""
+"Het certificaat komt niet overeen met de verwachte identiteit van de webstek "
+"waar hij van is opgehaald."
+
+#: ../midori/midori-locationaction.c:1259
+msgid "The certificate's activation time is still in the future."
+msgstr "De activatietijd van het certificaat is nog steeds in de toekomst."
+
+#: ../midori/midori-locationaction.c:1261
+msgid "The certificate has expired"
+msgstr "Het certificaat is verlopen"
+
+#: ../midori/midori-locationaction.c:1263
+msgid ""
+"The certificate has been revoked according to the GTlsConnection's "
+"certificate revocation list."
+msgstr ""
+"Het certificaat is ingetrokken volgens de intrekkingslijst voor certificaten "
+"van GTlsConnection."
+
+#: ../midori/midori-locationaction.c:1265
+msgid "The certificate's algorithm is considered insecure."
+msgstr "Het algoritme van het certificaat wordt beschouwd als onveilig."
+
+#: ../midori/midori-locationaction.c:1267
+msgid "Some other error occurred validating the certificate."
+msgstr ""
+"Bij het valideren van het certificaat vond er een andere fout plaats."
+
+#: ../midori/midori-locationaction.c:1314
+msgid "_Export certificate"
+msgstr "_Uitvoercertificaat"
+
+#: ../midori/midori-locationaction.c:1329
+msgid "Self-signed"
+msgstr "Zelf-ondertekend"
+
+#: ../midori/midori-locationaction.c:1363
+msgid "Security details"
+msgstr "Veiligheidsdetails"
+
+#. i18n: Right-click on Location, Open an URL from the clipboard
+#: ../midori/midori-locationaction.c:1646
+msgid "Paste and p_roceed"
+msgstr "Plakken en _doorgaan"
+
+#: ../midori/midori-locationaction.c:1970
+msgid "Not verified"
+msgstr "Niet geverifieerd"
+
+#: ../midori/midori-locationaction.c:1978
+msgid "Verified and encrypted connection"
+msgstr "Geverifieerde en versleutelde verbinding"
+
+#: ../midori/midori-locationaction.c:1985
+msgid "Open, unencrypted connection"
+msgstr "Open, niet-versleutelde verbinding"
+
+#: ../midori/midori-panel.c:317 ../midori/midori-panel.c:319
+#: ../midori/midori-panel.c:483 ../midori/midori-panel.c:486
+msgid "Align sidepanel to the right"
+msgstr "Zijbalk rechts plaatsen"
+
+#: ../midori/midori-panel.c:329 ../midori/midori-panel.c:330
+msgid "Close panel"
+msgstr "Balk sluiten"
+
+#: ../midori/midori-panel.c:484 ../midori/midori-panel.c:487
+msgid "Align sidepanel to the left"
+msgstr "Zijbalk links plaatsen"
+
+#: ../midori/midori-websettings.c:220
+msgid "Show Speed Dial"
+msgstr "Toon snelkeuzemenu"
+
+#: ../midori/midori-websettings.c:221
+msgid "Show Homepage"
+msgstr "Toon startpagina"
+
+#: ../midori/midori-websettings.c:240
+msgid "Japanese (SHIFT_JIS)"
+msgstr "Japans (SHIFT_JIS)"
+
+#: ../midori/midori-websettings.c:245 ../midori/midori-websettings.c:321
+#: ../katze/katze-utils.c:633
+msgid "Custom..."
+msgstr "Aangepast…"
+
+#: ../midori/midori-websettings.c:260
+msgid "New tab"
+msgstr "Nieuw tabblad"
+
+#: ../midori/midori-websettings.c:261
+msgid "New window"
+msgstr "Nieuw venster"
+
+#: ../midori/midori-websettings.c:262
+msgid "Current tab"
+msgstr "Huidig tabblad"
+
+#: ../midori/midori-websettings.c:277
+msgid "Default"
+msgstr "Standaard"
+
+#: ../midori/midori-websettings.c:278
+msgid "Icons"
+msgstr "Pictogrammen"
+
+#: ../midori/midori-websettings.c:279
+msgid "Small icons"
+msgstr "Kleine pictogrammen"
+
+#: ../midori/midori-websettings.c:280
+msgid "Text"
+msgstr "Tekst"
+
+#: ../midori/midori-websettings.c:281
+msgid "Icons and text"
+msgstr "Pictogrammen en tekst"
+
+#: ../midori/midori-websettings.c:282
+msgid "Text beside icons"
+msgstr "Tekst naast pictogrammen"
+
+#: ../midori/midori-websettings.c:297
+msgid "Automatic (GNOME or environment)"
+msgstr "Automatisch (GNOME of omgeving)"
+
+#: ../midori/midori-websettings.c:298
+msgid "HTTP proxy server"
+msgstr "HTTP proxy-server"
+
+#: ../midori/midori-websettings.c:299
+msgid "No proxy server"
+msgstr "Geen proxy-server"
+
+#: ../midori/midori-websettings.c:316
+msgid "Chrome"
+msgstr "Chrome"
+
+#: ../midori/midori-websettings.c:317
+msgid "Safari"
+msgstr "Safari"
+
+#: ../midori/midori-websettings.c:318
+msgid "iPhone"
+msgstr "iPhone"
+
+#: ../midori/midori-websettings.c:319
+msgid "Firefox"
+msgstr "Firefox"
+
+#: ../midori/midori-websettings.c:320
+msgid "Internet Explorer"
+msgstr "Internet Explorer"
+
+#: ../midori/midori-websettings.c:404
+msgid "Remember last window size"
+msgstr "Laatst gebruikte venstergrootte onthouden"
+
+#: ../midori/midori-websettings.c:405
+msgid "Whether to save the last window size"
+msgstr "Al dan niet de laatst gebruikte venstergrootte opslaan"
+
+#: ../midori/midori-websettings.c:413
+msgid "Last window width"
+msgstr "Laatst gebruikte vensterbreedte"
+
+#: ../midori/midori-websettings.c:414
+msgid "The last saved window width"
+msgstr "De laatst opgeslagen vensterbreedte"
+
+#: ../midori/midori-websettings.c:422
+msgid "Last window height"
+msgstr "Laatst gebruikte vensterhoogte"
+
+#: ../midori/midori-websettings.c:423
+msgid "The last saved window height"
+msgstr "De laatste opgeslagen vensterhoogte"
+
+#: ../midori/midori-websettings.c:448
+msgid "Last panel position"
+msgstr "Laatst gebruikte positie van paneel"
+
+#: ../midori/midori-websettings.c:449
+msgid "The last saved panel position"
+msgstr "De laatste opgeslagen positie van het paneel"
+
+#. i18n: The internal index of the last opened panel
+#: ../midori/midori-websettings.c:458
+msgid "Last panel page"
+msgstr "Laatst geopende werkbalkpagina"
+
+#: ../midori/midori-websettings.c:459
+msgid "The last saved panel page"
+msgstr "De laatst opgeslagen werkbalkpagina"
+
+#: ../midori/midori-websettings.c:467
+msgid "Last Web search"
+msgstr "Laatste webzoekactie"
+
+#: ../midori/midori-websettings.c:468
+msgid "The last saved Web search"
+msgstr "De laatst bewaarde webzoekactie"
+
+#: ../midori/midori-websettings.c:492
+msgid "Show Menubar"
+msgstr "Menubalk weergeven"
+
+#: ../midori/midori-websettings.c:493
+msgid "Whether to show the menubar"
+msgstr "Menubalk weergeven"
+
+#: ../midori/midori-websettings.c:501
+msgid "Show Navigationbar"
+msgstr "Navigatiebalk weergeven"
+
+#: ../midori/midori-websettings.c:502
+msgid "Whether to show the navigationbar"
+msgstr "Al dan niet de navigatiebalk weergeven"
+
+#: ../midori/midori-websettings.c:510
+msgid "Show Bookmarkbar"
+msgstr "Bladwijzerbalk weergeven"
+
+#: ../midori/midori-websettings.c:511
+msgid "Whether to show the bookmarkbar"
+msgstr "Al dan niet bladwijzerbalk weergeven"
+
+#: ../midori/midori-websettings.c:519
+msgid "Show Panel"
+msgstr "Werkbalk weergeven"
+
+#: ../midori/midori-websettings.c:520
+msgid "Whether to show the panel"
+msgstr "Al dan niet de werkbalk weergeven"
+
+#: ../midori/midori-websettings.c:528
+msgid "Show Statusbar"
+msgstr "Statusbalk weergeven"
+
+#: ../midori/midori-websettings.c:529
+msgid "Whether to show the statusbar"
+msgstr "Al dan niet de statusbalk weergeven"
+
+#: ../midori/midori-websettings.c:538
+msgid "Toolbar Style:"
+msgstr "Stijl van de werkbalk:"
+
+#: ../midori/midori-websettings.c:539
+msgid "The style of the toolbar"
+msgstr "De stijl van de werkbalk"
+
+#: ../midori/midori-websettings.c:548
+msgid "Toolbar Items"
+msgstr "Elementen in de werkbalk"
+
+#: ../midori/midori-websettings.c:549
+msgid "The items to show on the toolbar"
+msgstr "De elementen om weer te geven in de werkbalk"
+
+#: ../midori/midori-websettings.c:557
+msgid "Compact Sidepanel"
+msgstr "Compacte zijbalk"
+
+#: ../midori/midori-websettings.c:558
+msgid "Whether to make the sidepanel compact"
+msgstr "Al dan niet de zijbalk compact weergeven"
+
+#: ../midori/midori-websettings.c:573
+msgid "Align sidepanel on the right"
+msgstr "Plaats zijbalk rechts"
+
+#: ../midori/midori-websettings.c:574
+msgid "Whether to align the sidepanel on the right"
+msgstr "Of de zijbalk aan de rechterkant dient te worden geplaatst"
+
+#: ../midori/midori-websettings.c:589
+msgid "Open panels in separate windows"
+msgstr "Open werkbalken in aparte vensters"
+
+#: ../midori/midori-websettings.c:590
+msgid "Whether to always open panels in separate windows"
+msgstr "Of tabbladen altijd dienen te worden geopend in aparte vensters"
+
+#: ../midori/midori-websettings.c:599
+msgid "When Midori starts:"
+msgstr "Bij starten van Midori:"
+
+#: ../midori/midori-websettings.c:600
+msgid "What to do when Midori starts"
+msgstr "Wat er dient te gebeuren bij starten van Midori"
+
+#: ../midori/midori-websettings.c:609
+msgid "Homepage:"
+msgstr "Startpagina:"
+
+#: ../midori/midori-websettings.c:610
+msgid "The homepage"
+msgstr "De startpagina"
+
+#: ../midori/midori-websettings.c:625
+msgid "Show crash dialog"
+msgstr "Toon vastloopdialoogvenster"
+
+#: ../midori/midori-websettings.c:626
+msgid "Show a dialog after Midori crashed"
+msgstr "Toon een dialoogvenster nadat Midori is vastgelopen"
+
+#: ../midori/midori-websettings.c:634
+msgid "Save downloaded files to:"
+msgstr "Bewaar binnengehaalde bestanden in:"
+
+#: ../midori/midori-websettings.c:635
+msgid "The folder downloaded files are saved to"
+msgstr "De map waarin binnengehaalde bestanden worden opgeslagen"
+
+#: ../midori/midori-websettings.c:643
+msgid "Text Editor"
+msgstr "Tekstverwerker"
+
+#: ../midori/midori-websettings.c:644
+msgid "An external text editor"
+msgstr "Een externe tekstverwerker"
+
+#: ../midori/midori-websettings.c:659
+msgid "News Aggregator"
+msgstr "Nieuwsaggregator"
+
+#: ../midori/midori-websettings.c:660
+msgid "An external news aggregator"
+msgstr "Een externe nieuwaggregator"
+
+#: ../midori/midori-websettings.c:668
+msgid "Location entry Search"
+msgstr "Zoeken vanuit locatieveld"
+
+#: ../midori/midori-websettings.c:669
+msgid "The search to perform inside the location entry"
+msgstr "Met welke website gezocht wordt vanuit het locatie-invoerveld"
+
+#: ../midori/midori-websettings.c:677
+msgid "Preferred Encoding"
+msgstr "Voorkeurcodering"
+
+#: ../midori/midori-websettings.c:678
+msgid "The preferred character encoding"
+msgstr "De voorkeurcodering van tekens"
+
+#: ../midori/midori-websettings.c:688
+msgid "Always Show Tabbar"
+msgstr "Balk met tabbladen altijd weergeven"
+
+#: ../midori/midori-websettings.c:689
+msgid "Always show the tabbar"
+msgstr "De balk met tabbladen altijd weergeven"
+
+#: ../midori/midori-websettings.c:702
+msgid "Close Buttons on Tabs"
+msgstr "Sluitknoppen op tabbladen"
+
+#: ../midori/midori-websettings.c:703
+msgid "Whether tabs have close buttons"
+msgstr "Of tabbladen sluitknoppen hebben"
+
+#: ../midori/midori-websettings.c:728
+msgid "Open new pages in:"
+msgstr "Nieuwe pagina's openen in:"
+
+#: ../midori/midori-websettings.c:729
+msgid "Where to open new pages"
+msgstr "Waar nieuwe pagina's geopend moeten worden"
+
+#: ../midori/midori-websettings.c:738
+msgid "Middle click opens Selection"
+msgstr "Klikken met middelste muisknop opent selectie"
+
+#: ../midori/midori-websettings.c:739
+msgid "Load an address from the selection via middle click"
+msgstr "Een adres vanuit de selectie laden met middelste muisknop"
+
+#: ../midori/midori-websettings.c:747
+msgid "Open tabs in the background"
+msgstr "Tabbladen op de achtergrond openen"
+
+#: ../midori/midori-websettings.c:748
+msgid "Whether to open new tabs in the background"
+msgstr "Of tabbladen op de achtergrond geopend dienen te worden"
+
+#: ../midori/midori-websettings.c:756
+msgid "Open Tabs next to Current"
+msgstr "Tabbladen naast het huidige tabblad openen"
+
+#: ../midori/midori-websettings.c:757
+msgid ""
+"Whether to open new tabs next to the current tab or after the last one"
+msgstr ""
+"Of nieuwe tabbladen naast het huidige tabblad geopend dienen te worden of na "
+"het laatste tabblad"
+
+#: ../midori/midori-websettings.c:765
+msgid "Open popups in tabs"
+msgstr "Opduikvensters in tabbladen openen"
+
+#: ../midori/midori-websettings.c:766
+msgid "Whether to open popup windows in tabs"
+msgstr "Of opduikvensters in tabbladen geopend dienen te worden"
+
+#: ../midori/midori-websettings.c:776 ../extensions/statusbar-features.c:155
+msgid "Load images automatically"
+msgstr "Afbeeldingen automatisch laden"
+
+#: ../midori/midori-websettings.c:777
+msgid "Load and display images automatically"
+msgstr "Afbeeldingen automatisch laden en weergeven"
+
+#: ../midori/midori-websettings.c:784 ../extensions/statusbar-features.c:165
+msgid "Enable scripts"
+msgstr "Scripts aanzetten"
+
+#: ../midori/midori-websettings.c:785
+msgid "Enable embedded scripting languages"
+msgstr "Ingebedde scripttalen uitvoeren"
+
+#: ../midori/midori-websettings.c:792 ../extensions/statusbar-features.c:177
+msgid "Enable Netscape plugins"
+msgstr "Netscape-plugins uitvoeren"
+
+#: ../midori/midori-websettings.c:793
+msgid "Enable embedded Netscape plugin objects"
+msgstr "Ingebedde Netscape-pluginobjecten uitvoeren"
+
+#: ../midori/midori-websettings.c:808
+msgid "Enable Spell Checking"
+msgstr "Spellingscontrole aanzetten"
+
+#: ../midori/midori-websettings.c:809
+msgid "Enable spell checking while typing"
+msgstr "Spellingscontrole tijdens het typen activeren"
+
+#: ../midori/midori-websettings.c:815
+msgid "Enable HTML5 database support"
+msgstr "Ondersteuning van HTML5-gegevensbank activeren"
+
+#: ../midori/midori-websettings.c:816
+msgid "Whether to enable HTML5 database support"
+msgstr ""
+"Of ondersteuning van de HTML5-gegevensbank dient te worden geactiveerd"
+
+#: ../midori/midori-websettings.c:822
+msgid "Enable HTML5 local storage support"
+msgstr "HTML5 lokale opslagondersteuning activeren"
+
+#: ../midori/midori-websettings.c:823
+msgid "Whether to enable HTML5 local storage support"
+msgstr "Of HTML5 locale opslagondersteuning dient te worden geactiveerd"
+
+#: ../midori/midori-websettings.c:829
+msgid "Enable offline web application cache"
+msgstr "Offline webtoepassingsopslag gebruiken"
+
+#: ../midori/midori-websettings.c:830
+msgid "Whether to enable offline web application cache"
+msgstr "Of offline webtoepassingsopslag dient te worden gebruikt"
+
+#: ../midori/midori-websettings.c:851
+msgid "Flash window on background tabs"
+msgstr "Laat venster op achtergrond-tabbladen opflitsen"
+
+#: ../midori/midori-websettings.c:852
+msgid "Flash the browser window if a new tab was opened in the background"
+msgstr ""
+"Laat het browser-venster opflitsen indien er een nieuw tabblad werd geopend "
+"in de achtergrond"
+
+#: ../midori/midori-websettings.c:860
+msgid "Enable WebGL support"
+msgstr "WebGL-ondersteuning inschakelen"
+
+#: ../midori/midori-websettings.c:861
+msgid "Allow websites to use OpenGL rendering"
+msgstr "Sta websites toe om OpenGL-weergave te gebruiken"
+
+#: ../midori/midori-websettings.c:887
+msgid "Zoom Text and Images"
+msgstr "Tekst en afbeeldingen zoomen"
+
+#: ../midori/midori-websettings.c:888
+msgid "Whether to zoom text and images"
+msgstr "Of tekst en afbeeldingen gezoomd dienen te worden"
+
+#: ../midori/midori-websettings.c:903
+msgid "Find inline while typing"
+msgstr "Zoeken tijdens typen can regel"
+
+#: ../midori/midori-websettings.c:904
+msgid "Whether to automatically find inline while typing"
+msgstr "Of automatisch gezocht moet worden tijdens typen van regel"
+
+#: ../midori/midori-websettings.c:919
+msgid "Kinetic scrolling"
+msgstr "Kinetisch bladeren"
+
+#: ../midori/midori-websettings.c:920
+msgid "Whether scrolling should kinetically move according to speed"
+msgstr "Of bladeren kinetisch dient te gebeuren volgens de snelheid"
+
+#: ../midori/midori-websettings.c:928
+msgid "Delete old Cookies after:"
+msgstr "Verwijder oude koekjes na:"
+
+#: ../midori/midori-websettings.c:929
+msgid "The maximum number of days to save cookies for"
+msgstr "Hoeveel dagen een koekje maximaal bewaard mag worden"
+
+#: ../midori/midori-websettings.c:945
+msgid "Only accept Cookies from sites you visit"
+msgstr "Alleen koekjes aanvaarden van websites die u bezoekt"
+
+#: ../midori/midori-websettings.c:946
+msgid "Block cookies sent by third-party websites"
+msgstr "Blokkeer koekjes verzonden door derden"
+
+#: ../midori/midori-websettings.c:960
+msgid "Delete pages from history after:"
+msgstr "Verwijder pagina's uit de geschiedenis na:"
+
+#: ../midori/midori-websettings.c:961
+msgid "The maximum number of days to save the history for"
+msgstr "Hoeveel dagen de geschiedenis bewaard moeten blijven"
+
+#: ../midori/midori-websettings.c:976
+msgid "Proxy server"
+msgstr "Proxyserver"
+
+#: ../midori/midori-websettings.c:977
+msgid "The type of proxy server to use"
+msgstr "De te gebruiken proxyserver"
+
+#: ../midori/midori-websettings.c:986
+msgid "HTTP Proxy Server"
+msgstr "HTTP Proxyserver"
+
+#: ../midori/midori-websettings.c:987
+msgid "The proxy server used for HTTP connections"
+msgstr "De proxyserver die gebruikt wordt voor HTTP-verbindingen"
+
+#: ../midori/midori-websettings.c:1002
+msgid "Port"
+msgstr "Poort"
+
+#: ../midori/midori-websettings.c:1003
+msgid "The proxy server port used for HTTP connections"
+msgstr "De proxyserver die gebruikt wordt voor HTTP-verbindingen"
+
+#: ../midori/midori-websettings.c:1021
+msgid "The maximum size of cached pages on disk"
+msgstr "De maximale grootte van opgeslagen pagina's op de harde schijf"
+
+#. i18n: This refers to an application, not the 'user agent' string
+#: ../midori/midori-websettings.c:1038
+msgid "Identify as"
+msgstr "Identificeren als"
+
+#: ../midori/midori-websettings.c:1039
+msgid "What to identify as to web pages"
+msgstr "Hoe zich te identificeren op webpagina's"
+
+#: ../midori/midori-websettings.c:1055
+msgid "Identification string"
+msgstr "Identificatie-tekstsnoer"
+
+#: ../midori/midori-websettings.c:1056
+msgid "The application identification string"
+msgstr "Het identificatie-tekstsnoer van de toepassing"
+
+#: ../midori/midori-websettings.c:1072
+msgid "Preferred languages"
+msgstr "Voorkeurstalen"
+
+#: ../midori/midori-websettings.c:1073
+msgid ""
+"A comma separated list of languages preferred for rendering multilingual "
+"webpages, for example \"de\", \"ru,nl\" or \"en-us;q=1.0, fr-fr;q=0.667\""
+msgstr ""
+"Een door komma's gescheiden lijst van voorkeurstalen om meertalige "
+"webpagina's in weer te geven, bijvoorbeeld 'de', 'ru,nl' of 'en-us;q=1.0, fr-"
+"fr;q=0.667'"
+
+#: ../midori/midori-websettings.c:1088
+msgid "Clear private data"
+msgstr "Privé-gegevens wissen"
+
+#: ../midori/midori-websettings.c:1089
+msgid "The private data selected for deletion"
+msgstr "De te verwijderen privé-gegevens"
+
+#: ../midori/midori-websettings.c:1104
+msgid "Clear data"
+msgstr "Gegevens wissen"
+
+#: ../midori/midori-websettings.c:1105
+msgid "The data selected for deletion"
+msgstr "De te verwijderen gegevens"
+
+#. i18n: Reworded: Shorten details propagated when going to another page
+#: ../midori/midori-websettings.c:1154
+msgid "Strip referrer details sent to websites"
+msgstr "Verwijder naar websites gestuurde verwijzingdetails"
+
+#. i18n: Referer here is not a typo but a technical term
+#: ../midori/midori-websettings.c:1156
+msgid "Whether the \"Referer\" header should be shortened to the hostname"
+msgstr "Of de 'Referer'-koptekst moet worden verkort tot de hostnaam"
+
+#: ../midori/midori-websettings.c:1170
+msgid "Always use my font choices"
+msgstr "Altijd mijn lettertypekeuzes gebruiken"
+
+#: ../midori/midori-websettings.c:1171
+msgid "Override fonts picked by websites with user preferences"
+msgstr "Lettertypes van websites vervangen door gebruikersvoorkeuren"
+
+#: ../midori/midori-view.c:1002 ../midori/midori-view.c:1140
+msgid "Trust this website"
+msgstr "Vertrouw deze website"
+
+#: ../midori/midori-view.c:1138
+msgid "Security unknown"
+msgstr "Veiligheid onbekend"
+
+#: ../midori/midori-view.c:1436
+#, c-format
+msgid "%s wants to save an HTML5 database."
+msgstr "%s wil een HTML5-gegevensbank opslaan."
+
+#: ../midori/midori-view.c:1440 ../midori/midori-view.c:1474
+msgid "_Deny"
+msgstr "_Weigeren"
+
+#: ../midori/midori-view.c:1440 ../midori/midori-view.c:1474
+msgid "_Allow"
+msgstr "_Toestaan"
+
+#: ../midori/midori-view.c:1469
+#, c-format
+msgid "%s wants to know your location."
+msgstr "%s wil uw locatie weten."
+
+#: ../midori/midori-view.c:1565
+#, c-format
+msgid "Error - %s"
+msgstr "Fout - %s"
+
+#: ../midori/midori-view.c:1566
+#, c-format
+msgid "The page '%s' couldn't be loaded."
+msgstr "De pagina '%s' kan niet worden geladen"
+
+#: ../midori/midori-view.c:1568
+msgid "Try again"
+msgstr "Probeer opnieuw"
+
+#: ../midori/midori-view.c:1766 ../midori/midori-view.c:2879
+#, c-format
+msgid "Send a message to %s"
+msgstr "Stuur een bericht naar %s"
+
+#: ../midori/midori-view.c:2665
+msgid "Add _search engine..."
+msgstr "Zoekmachine toevoegen"
+
+#: ../midori/midori-view.c:2709 ../midori/midori-view.c:3035
+msgid "Inspect _Element"
+msgstr "_Element inspecteren"
+
+#: ../midori/midori-view.c:2761
+msgid "Open Link in New _Tab"
+msgstr "Koppeling in nieuw _tabblad openen"
+
+#: ../midori/midori-view.c:2765
+msgid "Open Link in _Foreground Tab"
+msgstr "Koppeling in nieuw tabblad op _voorgrond openen"
+
+#: ../midori/midori-view.c:2766
+msgid "Open Link in _Background Tab"
+msgstr "Koppeling in nieuw tabblad op _achtergrond openen"
+
+#: ../midori/midori-view.c:2769
+msgid "Open Link in New _Window"
+msgstr "Koppeling in nieuw _venster Openen"
+
+#: ../midori/midori-view.c:2772
+msgid "Open Link as Web A_pplication"
+msgstr "Koppeling als webt_oepassing openen"
+
+#: ../midori/midori-view.c:2777
+msgid "Copy Link de_stination"
+msgstr "Koppelingbe_stemming kopiëren"
+
+#: ../midori/midori-view.c:2793
+msgid "Open _Image in New Tab"
+msgstr "Open _afbeelding in nieuw tabblad"
+
+#: ../midori/midori-view.c:2796
+msgid "Copy Image _Address"
+msgstr "_Adres van afbeelding kopiëren"
+
+#: ../midori/midori-view.c:2799
+msgid "Save I_mage"
+msgstr "A_fbeelding opslaan"
+
+#: ../midori/midori-view.c:2802
+msgid "Open in Image _Viewer"
+msgstr "Openen in afbeeldingkijker."
+
+#: ../midori/midori-view.c:2809
+msgid "Copy Video _Address"
+msgstr "_Adres van video kopiëren"
+
+#: ../midori/midori-view.c:2812
+msgid "Save _Video"
+msgstr "_Video opslaan"
+
+#: ../midori/midori-view.c:2812
+msgid "Download _Video"
+msgstr "_Video binnenhalen"
+
+#: ../midori/midori-view.c:2838
+msgid "Search _with"
+msgstr "Zoeken _met"
+
+#: ../midori/midori-view.c:2870
+msgid "_Search the Web"
+msgstr "_Zoek op internet"
+
+#: ../midori/midori-view.c:2887
+msgid "Open Address in New _Tab"
+msgstr "Adres in nieuw _tabblad openen"
+
+#: ../midori/midori-view.c:2940
+msgid "Open _Frame in New Tab"
+msgstr "Open omlijsting in nieuw tabblad"
+
+#: ../midori/midori-view.c:3201
+#, c-format
+msgid "Open or download file from %s"
+msgstr "Bestand openen of binnenhalen vanaf %s"
+
+#: ../midori/midori-view.c:3225
+#, c-format
+msgid "File Name: %s"
+msgstr "Bestandnaam: %s"
+
+#: ../midori/midori-view.c:3230
+#, c-format
+msgid "File Type: '%s'"
+msgstr "Bestandtype: '%s'"
+
+#: ../midori/midori-view.c:3232
+#, c-format
+msgid "File Type: %s ('%s')"
+msgstr "Bestandtype: %s ('%s')"
+
+#: ../midori/midori-view.c:3267
+#, c-format
+msgid "Size: %s"
+msgstr "Grootte: %s"
+
+#. i18n: A file open dialog title, ie. "Open http://fila.com/manual.tgz"
+#: ../midori/midori-view.c:3278
+#, c-format
+msgid "Open %s"
+msgstr "Openen %s"
+
+#: ../midori/midori-view.c:3897
+#, c-format
+msgid "Inspect page - %s"
+msgstr "Pagina analyseren - %s"
+
+#: ../midori/midori-view.c:4252
+msgid "Speed Dial"
+msgstr "Snelkeuze"
+
+#: ../midori/midori-view.c:4253 ../midori/midori-view.c:4359
+msgid "Click to add a shortcut"
+msgstr "Klik om een sneltoets toe te voegen"
+
+#: ../midori/midori-view.c:4254
+msgid "Enter shortcut address"
+msgstr "Voer adres voor sneltoets in"
+
+#: ../midori/midori-view.c:4255
+msgid "Enter shortcut title"
+msgstr "Voer titel voor sneltoets in"
+
+#: ../midori/midori-view.c:4256
+msgid "Are you sure you want to delete this shortcut?"
+msgstr "Weet u zeker dat u deze sneltoets wilt wissen?"
+
+#: ../midori/midori-view.c:4429
+#, c-format
+msgid "No documentation installed"
+msgstr "Geen documentatie geïnstalleerd"
+
+#: ../midori/midori-view.c:4506
+msgid "Midori doesn't store any personal data:"
+msgstr "Midori slaat geen persoonlijke gegevens op:"
+
+#: ../midori/midori-view.c:4507
+msgid "No history or web cookies are being saved."
+msgstr "Webgeschiedenis en webkoekjes worden niet opgeslagen."
+
+#: ../midori/midori-view.c:4508
+msgid "Extensions are disabled."
+msgstr "Extensies zijn uitgeschakeld."
+
+#: ../midori/midori-view.c:4509
+msgid "HTML5 storage, local database and application caches are disabled."
+msgstr ""
+"HTML5-opslag, plaatselijke gegevensbank en toepassingopslag zijn "
+"uitgeschakeld."
+
+#: ../midori/midori-view.c:4510
+msgid "Midori prevents websites from tracking the user:"
+msgstr "Midori verhindert websites om de gebruiker te volgen:"
+
+#: ../midori/midori-view.c:4511
+msgid "Referrer URLs are stripped down to the hostname."
+msgstr "Verwijzingskoppelingen worden teruggebracht tot de hostnaam."
+
+#: ../midori/midori-view.c:4512
+msgid "DNS prefetching is disabled."
+msgstr "Vooraf DNS binnenhalen is uitgeschakeld."
+
+#: ../midori/midori-view.c:4513
+msgid "The language and timezone are not revealed to websites."
+msgstr "De taal en de tijdzone worden niet bekendgemaakt aan websites."
+
+#: ../midori/midori-view.c:4514
+msgid "Flash and other Netscape plugins cannot be listed by websites."
+msgstr ""
+"Flash en andere Netscape (Firefox)-plugins, kunnen niet worden geregistreerd "
+"door websites."
+
+#: ../midori/midori-view.c:4603
+msgid "Version numbers in brackets show the version used at runtime."
+msgstr ""
+"Versienummers tussen haakjes tonen de versie die tijdens de runtime wordt "
+"gebruikt"
+
+#: ../midori/midori-view.c:4653
+msgid "Page loading delayed"
+msgstr "Het laden van de pagina is vertraagd"
+
+#: ../midori/midori-view.c:4654
+msgid "Loading delayed either due to a recent crash or startup preferences."
+msgstr ""
+"Het laden is vertraagd ofwel door een recente crash ofwel door "
+"opstartvoorkeuren."
+
+#: ../midori/midori-view.c:4655
+msgid "Load Page"
+msgstr "Pagina laden"
+
+#: ../midori/midori-view.c:4822
+msgid "Blank page"
+msgstr "Blanco pagina"
+
+#: ../midori/midori-view.c:5086
+msgid "_Duplicate Tab"
+msgstr "Tabblad _dupliceren"
+
+#: ../midori/midori-view.c:5091
+msgid "Show Tab _Label"
+msgstr "Toon tabblad_etiket"
+
+#: ../midori/midori-view.c:5091
+msgid "Show Tab _Icon Only"
+msgstr "Toon alleen tabblad_pictogram"
+
+#: ../midori/midori-view.c:5098
+msgid "Close Ot_her Tab"
+msgid_plural "Close Ot_her Tabs"
+msgstr[0] "Andere tabblad sluiten"
+msgstr[1] "Andere tabbladen sluiten"
+
+#. i18n: word stem of "previous page" type links, case is not important
+#: ../midori/midori-view.c:5934
+msgid "previous"
+msgstr "vorige"
+
+#. i18n: word stem of "next page" type links, case is not important
+#: ../midori/midori-view.c:5953
+msgid "next"
+msgstr "volgende"
+
+#: ../midori/midori-view.c:5966
+msgid "Print background images"
+msgstr "Achtergrondafbeeldingen meenemen in afdrukken"
+
+#: ../midori/midori-view.c:5967
+msgid "Whether background images should be printed"
+msgstr "Of achtergrondafbeeldingen dienen te worden afgedrukt"
+
+#: ../midori/midori-view.c:5999
+msgid "Features"
+msgstr "Opties"
+
+#: ../midori/midori-preferences.c:298
+msgid "Startup"
+msgstr "Opstarten"
+
+#: ../midori/midori-preferences.c:311
+msgid "Use _current page"
+msgstr "Gebruik _huidige pagina"
+
+#: ../midori/midori-preferences.c:315
+msgid "Use current page as homepage"
+msgstr "Gebruik de huidige pagina als startpagina"
+
+#. Page "Appearance"
+#: ../midori/midori-preferences.c:324
+msgid "Fonts"
+msgstr "Lettertypes"
+
+#: ../midori/midori-preferences.c:327
+msgid "Proportional Font Family"
+msgstr "Proportionele lettertypen-familie"
+
+#: ../midori/midori-preferences.c:331
+msgid "The default font family used to display text"
+msgstr "De standaardlettertype-familie om tekst weer te geven"
+
+#: ../midori/midori-preferences.c:334
+msgid "The default font size used to display text"
+msgstr "De standaard lettergrootte om tekst weer te geven"
+
+#: ../midori/midori-preferences.c:336
+msgid "Fixed-width Font Family"
+msgstr "Lettertype-familie met vaste breedte"
+
+#: ../midori/midori-preferences.c:340
+msgid "The font family used to display fixed-width text"
+msgstr "De lettertype-familie om tekst met vaste breedte weer te geven"
+
+#: ../midori/midori-preferences.c:343
+msgid "The font size used to display fixed-width text"
+msgstr "De lettertypegrootte om tekst met vaste breedte weer te geven"
+
+#: ../midori/midori-preferences.c:345
+msgid "Minimum Font Size"
+msgstr "Minimale lettertypegrootte"
+
+#: ../midori/midori-preferences.c:349
+msgid "The minimum font size used to display text"
+msgstr "De minimale lettertypegrootte om tekst weer te geven"
+
+#. Page "Behavior"
+#: ../midori/midori-preferences.c:360
+msgid "Behavior"
+msgstr "Gedrag"
+
+#: ../midori/midori-preferences.c:386
+msgid "Allow scripts to open popups"
+msgstr "Scripts toelaten om opduikvensters te openen"
+
+#: ../midori/midori-preferences.c:387
+msgid "Whether scripts are allowed to open popup windows automatically"
+msgstr ""
+"Of het toegelaten is voor scripts om opduikvensters automatisch te openen"
+
+#. Page "Interface"
+#: ../midori/midori-preferences.c:418
+msgid "Browsing"
+msgstr "Surfen"
+
+#. Page "Network"
+#: ../midori/midori-preferences.c:458
+msgid "Network"
+msgstr "Netwerk"
+
+#: ../midori/midori-preferences.c:465
+msgid "Hostname"
+msgstr "Hostnaam"
+
+#: ../midori/midori-preferences.c:489
+msgid "MB"
+msgstr "MB"
+
+#: ../midori/midori-searchaction.c:957
+msgid "Add search engine"
+msgstr "Zoekmachine toevoegen"
+
+#: ../midori/midori-searchaction.c:957
+msgid "Edit search engine"
+msgstr "Zoekmachine bewerken"
+
+#: ../midori/midori-searchaction.c:985
+msgid "_Name:"
+msgstr "_Naam:"
+
+#: ../midori/midori-searchaction.c:1000
+msgid "_Description:"
+msgstr "_Beschrijving:"
+
+#: ../midori/midori-searchaction.c:1013 ../extensions/feed-panel/main.c:377
+msgid "_Address:"
+msgstr "_Adres:"
+
+#: ../midori/midori-searchaction.c:1032
+msgid "_Token:"
+msgstr "_Trefwoord:"
+
+#: ../midori/midori-searchaction.c:1330
+msgid "Manage Search Engines"
+msgstr "Zoekmachines beheren"
+
+#: ../midori/midori-searchaction.c:1432
+msgid "Use as _default"
+msgstr "Als _standaard gebruiken"
+
+#: ../midori/sokoke.c:346
+msgid "Open with"
+msgstr "Openen met"
+
+#: ../midori/sokoke.c:354
+#, c-format
+msgid "Choose an application or command to open \"%s\":"
+msgstr "Kies een toepassing of opdracht om \"%s\" te openen:"
+
+#: ../midori/sokoke.c:468 ../midori/sokoke.c:482
+msgid "Could not run external program."
+msgstr "Kon extern programma niet uitvoeren."
+
+#: ../midori/sokoke.c:1529
+#, c-format
+msgid "%d hour"
+msgid_plural "%d hours"
+msgstr[0] "%d uur"
+msgstr[1] "%d uur"
+
+#: ../midori/sokoke.c:1530
+#, c-format
+msgid "%d minute"
+msgid_plural "%d minutes"
+msgstr[0] "%d minuut"
+msgstr[1] "%d minuten"
+
+#: ../midori/sokoke.c:1531
+#, c-format
+msgid "%d second"
+msgid_plural "%d seconds"
+msgstr[0] "%d seconde"
+msgstr[1] "%d seconden"
+
+#. i18n: Download tooltip (size): 4KB of 43MB
+#: ../midori/sokoke.c:1539 ../panels/midori-transfers.c:268
+#, c-format
+msgid "%s of %s"
+msgstr "%s van %s"
+
+#. i18n: Unknown number of bytes, used for transfer rate like ?B/s
+#: ../midori/sokoke.c:1548
+msgid "?B"
+msgstr "?B"
+
+#. i18n: Download tooltip (transfer rate): (130KB/s)
+#: ../midori/sokoke.c:1551
+#, c-format
+msgid " (%s/s)"
+msgstr " (%s/s)"
+
+#. i18n: Download tooltip (estimated time) : - 1 hour, 5 minutes remaning
+#: ../midori/sokoke.c:1568
+#, c-format
+msgid " - %s remaining"
+msgstr " - %s over"
+
+#. i18n: A panel at the bottom, to search text in pages
+#: ../toolbars/midori-findbar.c:265
+msgid "_Inline Find:"
+msgstr "_Zoeken in regel:"
+
+#: ../toolbars/midori-findbar.c:287
+msgid "Previous"
+msgstr "Vorig"
+
+#: ../toolbars/midori-findbar.c:293
+msgid "Next"
+msgstr "Volgend"
+
+#: ../toolbars/midori-findbar.c:297
+msgid "Match Case"
+msgstr "Hoofdlettergevoelig"
+
+#: ../toolbars/midori-findbar.c:306
+msgid "Highlight Matches"
+msgstr "Overeenkomsten markeren"
+
+#: ../toolbars/midori-findbar.c:317
+msgid "Close Findbar"
+msgstr "Zoekbalk sluiten"
+
+#: ../toolbars/midori-transferbar.c:124
+#, c-format
+msgid "The file '<b>%s</b>' has been downloaded."
+msgstr "Het bestand <b>'%s'</b> is binnengehaald."
+
+#: ../toolbars/midori-transferbar.c:129
+msgid "Transfer completed"
+msgstr "Overdracht compleet"
+
+#: ../toolbars/midori-transferbar.c:201
+msgid "The downloaded file is erroneous."
+msgstr "Het binnengehaalde bestand is foutief."
+
+#: ../toolbars/midori-transferbar.c:202
+msgid ""
+"The checksum provided with the link did not match. This means the file is "
+"probably incomplete or was modified afterwards."
+msgstr ""
+"De controlesom die aangeboden werd bij de koppeling kwam niet overeen. Dit "
+"betekent dat het bestand waarschijnlijk incompleet is of achteraf gewijzigd "
+"werd."
+
+#: ../toolbars/midori-transferbar.c:345 ../panels/midori-transfers.c:142
+msgid "Clear All"
+msgstr "Alles wissen"
+
+#: ../toolbars/midori-transferbar.c:382 ../toolbars/midori-transferbar.c:384
+msgid "Some files are being downloaded"
+msgstr "Sommige bestanden worden binnengehaald"
+
+#: ../toolbars/midori-transferbar.c:388
+msgid "_Quit Midori"
+msgstr "Midori _afsluiten"
+
+#: ../toolbars/midori-transferbar.c:390
+msgid "The transfers will be cancelled if Midori quits."
+msgstr ""
+"De bestandoverdrachten zullen worden geannuleerd als Midori wordt afgesloten."
+
+#: ../panels/midori-bookmarks.c:308
+#, c-format
+msgid "Failed to add bookmark item: %s\n"
+msgstr "Niet gelukt om bladwijzerelement toe te voegen: %s\n"
+
+#: ../panels/midori-bookmarks.c:475
+#, c-format
+msgid "Failed to update bookmark : %s\n"
+msgstr "Kon bladwijzer niet bijwerken : %s\n"
+
+#: ../panels/midori-bookmarks.c:535
+msgid "Edit the selected bookmark"
+msgstr "Geselecteerde bladwijzer bewerken"
+
+#: ../panels/midori-bookmarks.c:543
+msgid "Delete the selected bookmark"
+msgstr "Geselecteerde bladwijzer verwijderen"
+
+#: ../panels/midori-bookmarks.c:558
+msgid "Add a new folder"
+msgstr "Een nieuwe map toevoegen"
+
+#: ../panels/midori-bookmarks.c:697 ../panels/midori-history.c:638
+msgid "<i>Separator</i>"
+msgstr "<i>Scheidingsteken</i>"
+
+#. Create the filter entry
+#: ../panels/midori-bookmarks.c:1027
+msgid "Search Bookmarks"
+msgstr "Bladwijzers zoeken"
+
+#: ../panels/midori-history.c:111
+msgid "History"
+msgstr "Geschiedenis"
+
+#: ../panels/midori-history.c:158 ../panels/midori-history.c:189
+msgid "Today"
+msgstr "Vandaag"
+
+#: ../panels/midori-history.c:160 ../panels/midori-history.c:191
+msgid "Yesterday"
+msgstr "Gisteren"
+
+#: ../panels/midori-history.c:162 ../panels/midori-history.c:186
+#, c-format
+msgid "%d day ago"
+msgid_plural "%d days ago"
+msgstr[0] "%d dag geleden"
+msgstr[1] "%d dagen geleden"
+
+#: ../panels/midori-history.c:165 ../panels/midori-history.c:184
+msgid "A week ago"
+msgstr "Eén week geleden"
+
+#: ../panels/midori-history.c:232
+#, c-format
+msgid "Failed to remove history item: %s\n"
+msgstr "Kon element in geschiedenis niet verwijderen: %s\n"
+
+#: ../panels/midori-history.c:360
+msgid "Are you sure you want to remove all history items?"
+msgstr "Weet u zeker dat u de hele geschiedenis wilt wissen?"
+
+#: ../panels/midori-history.c:407
+msgid "Bookmark the selected history item"
+msgstr "Geselecteerde element uit geschiedenis toevoegen als bladwijzer"
+
+#: ../panels/midori-history.c:416
+msgid "Delete the selected history item"
+msgstr "Geselecteerde element uit geschiedenis verwijderen"
+
+#: ../panels/midori-history.c:424
+msgid "Clear the entire history"
+msgstr "Volledige geschiedenis wissen"
+
+#. Create the filter entry
+#: ../panels/midori-history.c:997
+msgid "Search History"
+msgstr "Zoekgeschiedenis"
+
+#: ../panels/midori-transfers.c:87
+msgid "Transfers"
+msgstr "Overdrachten"
+
+#: ../panels/midori-transfers.c:470
+msgid "Open Destination _Folder"
+msgstr "Open bestemmings_map"
+
+#: ../panels/midori-transfers.c:473
+msgid "Copy Link Loc_ation"
+msgstr "Kopieer _koppelingsverwijzing"
+
+#: ../katze/katze-http-auth.c:210
+msgid "Authentication Required"
+msgstr "Authenticatie vereist"
+
+#: ../katze/katze-http-auth.c:226
+msgid ""
+"A username and a password are required\n"
+"to open this location:"
+msgstr ""
+"Een gebruikernaam en wachtwoord zijn\n"
+"vereist om deze locatie te openen:"
+
+#: ../katze/katze-http-auth.c:240
+msgid "Username"
+msgstr "Gebruikersnaam"
+
+#: ../katze/katze-http-auth.c:253
+msgid "Password"
+msgstr "Wachtwoord"
+
+#: ../katze/katze-http-auth.c:267
+msgid "_Remember password"
+msgstr "Wachtwoord _onthouden"
+
+#: ../katze/katze-throbber.c:949
+#, c-format
+msgid "Named icon '%s' couldn't be loaded"
+msgstr "Pictogram '%s' kon niet geladen worden"
+
+#: ../katze/katze-throbber.c:962
+#, c-format
+msgid "Stock icon '%s' couldn't be loaded"
+msgstr "Standaardpictogram '%s' kon niet geladen worden"
+
+#: ../katze/katze-throbber.c:1042
+msgid "Animation frames are broken"
+msgstr "Animatiebeelden zijn gebroken"
+
+#: ../katze/katze-utils.c:443 ../katze/katze-utils.c:867
+#, c-format
+msgid "Property '%s' is invalid for %s"
+msgstr "Eigenschap '%s' is ongeldig voor %s"
+
+#: ../katze/katze-utils.c:489 ../katze/katze-utils.c:518
+#: ../extensions/addons.c:308
+msgid "Choose file"
+msgstr "Bestand kiezen"
+
+#: ../katze/katze-utils.c:504
+msgid "Choose folder"
+msgstr "Map kiezen"
+
+#: ../katze/katze-utils.c:602
+msgid "None"
+msgstr "Geen"
+
+#: ../katze/katze-utils.c:717
+msgid "1 hour"
+msgstr "1 uur"
+
+#: ../katze/katze-utils.c:718
+msgid "1 day"
+msgstr "1 dag"
+
+#: ../katze/katze-utils.c:719
+msgid "1 week"
+msgstr "1 week"
+
+#: ../katze/katze-utils.c:720
+msgid "1 month"
+msgstr "1 maand"
+
+#: ../katze/katze-utils.c:721
+msgid "1 year"
+msgstr "1 jaar"
+
+#: ../katze/katze-preferences.c:98 ../extensions/history-list.vala:235
+#, c-format
+msgid "Preferences for %s"
+msgstr "Voorkeuren voor %s"
+
+#: ../extensions/adblock.c:470
+msgid "Configure Advertisement filters"
+msgstr "Configureer advertentiefilters"
+
+#: ../extensions/adblock.c:503
+#, c-format
+msgid ""
+"Type the address of a preconfigured filter list in the text entry and click "
+"\"Add\" to add it to the list. You can find more lists at %s."
+msgstr ""
+"Tik het adres van een voorgeconfigureerde filterlijst in het tekstvak en "
+"klik op 'Toevoegen' om het aan de lijst toe te voegen. Meer lijsten zijn "
+"beschikbaar op %s."
+
+#: ../extensions/adblock.c:917
+msgid "Edit rule"
+msgstr "Regel bewerken"
+
+#: ../extensions/adblock.c:931
+msgid "_Rule:"
+msgstr "_Regel:"
+
+#: ../extensions/adblock.c:985
+msgid "Bl_ock image"
+msgstr "Afbeelding bl_okkeren"
+
+#: ../extensions/adblock.c:990
+msgid "Bl_ock link"
+msgstr "Koppeling bl_okkeren"
+
+#: ../extensions/adblock.c:1689
+msgid "Advertisement blocker"
+msgstr "Advertentieblokkeerder"
+
+#: ../extensions/adblock.c:1690
+msgid "Block advertisements according to a filter list"
+msgstr "Blokkeer advertenties volgens filterlijst"
+
+#. i18n: An infobar shows up when viewing a script on userscripts.org
+#: ../extensions/addons.c:221
+msgid ""
+"This page appears to contain a user script. Do you wish to install it?"
+msgstr ""
+"Deze pagina lijkt een gebruikersscript te bevatten. Wilt u het installeren?"
+
+#: ../extensions/addons.c:222
+msgid "_Install user script"
+msgstr "Gebruikerscript _installeren"
+
+#. i18n: An infobar shows up when viewing a style on userstyles.org
+#: ../extensions/addons.c:227
+msgid "This page appears to contain a user style. Do you wish to install it?"
+msgstr ""
+"Deze pagina lijkt een gebruikersstijl te bevatten. Wilt u het installeren?"
+
+#: ../extensions/addons.c:228
+msgid "_Install user style"
+msgstr "Gebruikersstijl _installeren"
+
+#: ../extensions/addons.c:236
+msgid "Don't install"
+msgstr "Niet installeren"
+
+#: ../extensions/addons.c:319 ../extensions/addons.c:677
+msgid "Userscripts"
+msgstr "Gebruikersscripts"
+
+#: ../extensions/addons.c:324 ../extensions/addons.c:679
+msgid "Userstyles"
+msgstr "Gebruikersopmaakprofielen"
+
+#: ../extensions/addons.c:370 ../extensions/addons.c:449
+#: ../extensions/feed-panel/main.c:129
+msgid "Error"
+msgstr "Fout"
+
+#: ../extensions/addons.c:411
+#, c-format
+msgid "Do you want to delete '%s'?"
+msgstr "Wilt u '%s' verwijderen?"
+
+#: ../extensions/addons.c:417
+msgid "Delete user script"
+msgstr "Gebruikersscript verwijderen"
+
+#: ../extensions/addons.c:418
+msgid "Delete user style"
+msgstr "Gebruikersstijl verwijderen"
+
+#: ../extensions/addons.c:421
+#, c-format
+msgid "The file <b>%s</b> will be permanently deleted."
+msgstr "Het bestand <b>'%s'</b> zal blijvend worden verwijderd."
+
+#: ../extensions/addons.c:566 ../extensions/addons.c:643
+msgid "Open in Text Editor"
+msgstr "In tekstbewerker openen"
+
+#: ../extensions/addons.c:568 ../extensions/addons.c:652
+msgid "Open Target Folder"
+msgstr "Bestemmingsmap openen"
+
+#: ../extensions/addons.c:634
+msgid "Add new addon"
+msgstr "Nieuwe extensie toevoegen"
+
+#: ../extensions/addons.c:660
+msgid "Remove selected addon"
+msgstr "Geselecteerde extensie verwijderen"
+
+#: ../extensions/addons.c:1689 ../extensions/addons.c:1907
+msgid "User addons"
+msgstr "Gebruikersextensies"
+
+#: ../extensions/addons.c:1819
+#, c-format
+msgid "Can't monitor folder '%s': %s"
+msgstr "Kan map '%s': %s niet bewaken"
+
+#: ../extensions/addons.c:1908
+msgid "Support for userscripts and userstyles"
+msgstr "Ondersteuning voor gebruikersscripts en -stijlen"
+
+#: ../extensions/colorful-tabs.c:201
+msgid "Colorful Tabs"
+msgstr "Gekleurde tabbladen"
+
+#: ../extensions/colorful-tabs.c:202
+msgid "Tint each tab distinctly"
+msgstr "Ieder tabblad verschillend tinten"
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:73
+#: ../extensions/cookie-manager/main.c:35
+msgid "Cookie Manager"
+msgstr "Koekjesbeheerder"
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:103
+msgid "Delete All"
+msgstr "Alles wissen"
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:105
+msgid ""
+"Deletes all shown cookies. If a filter is set, only those cookies are "
+"deleted which match the filter."
+msgstr ""
+"Alle weergegeven koekjes wissen. Als een filter is ingesteld zullen enkel de "
+"koekjes die overeenkomen met het filter worden gewist."
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:120
+msgid "Expand All"
+msgstr "Alles uitvouwen"
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:127
+msgid "Collapse All"
+msgstr "Alles invouwen"
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:572
+msgid "Do you really want to delete all cookies?"
+msgstr "Weet u zeker dat u alle koekjes wil wissen?"
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:574
+msgid "Question"
+msgstr "Vraag"
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:583
+msgid "Only cookies which match the filter will be deleted."
+msgstr "Enkel koekjes die overeenkomen met de filter zullen worden gewist."
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:671
+msgid "At the end of the session"
+msgstr "Bij het beëindigen van de sessie"
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:674
+#, c-format
+msgid ""
+"<b>Host</b>: %s\n"
+"<b>Name</b>: %s\n"
+"<b>Value</b>: %s\n"
+"<b>Path</b>: %s\n"
+"<b>Secure</b>: %s\n"
+"<b>Expires</b>: %s"
+msgstr ""
+"<b>Host</b>: %s\n"
+"<b>Naam</b>: %s\n"
+"<b>Waarde</b>: %s\n"
+"<b>Pad</b>: %s\n"
+"<b>Beveiligd</b>: %s\n"
+"<b>Vervalt</b>: %s"
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:680
+msgid "Yes"
+msgstr "Ja"
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:680
+msgid "No"
+msgstr "Nee"
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:694
+#, c-format
+msgid ""
+"<b>Domain</b>: %s\n"
+"<b>Cookies</b>: %d"
+msgstr ""
+"<b>Domein</b>: %s\n"
+"<b>Koekjes</b>: %d"
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:1017
+msgid "Name"
+msgstr "Naam"
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:1069
+msgid "_Expand All"
+msgstr "Alles _uitvouwen"
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:1077
+msgid "_Collapse All"
+msgstr "Alles _invouwen"
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:1129
+msgid "Search Cookies by Name or Domain"
+msgstr "Zoek koekjes op naam of domein"
+
+#: ../extensions/cookie-manager/main.c:36
+msgid "List, view and delete cookies"
+msgstr "Koekjes tonen en verwijderen"
+
+#: ../extensions/copy-tabs.c:38
+msgid "Copy Tab _Addresses"
+msgstr "Tabblad_adressen kopiëren"
+
+#: ../extensions/copy-tabs.c:95
+msgid "Copy Addresses of Tabs"
+msgstr "Kopieer adressen van tabbladen"
+
+#: ../extensions/copy-tabs.c:96
+msgid "Copy the addresses of all tabs to the clipboard"
+msgstr "Kopieer de adressen van alle tabbladen naar het klembord"
+
+#: ../extensions/feed-panel/feed-atom.c:209
+msgid "Failed to find required Atom \"entry\" elements in XML data."
+msgstr "Kan vereiste Atom 'entry'-elementen niet vinden in XML-gegevens."
+
+#: ../extensions/feed-panel/feed-atom.c:315
+msgid "Failed to find required Atom \"feed\" elements in XML data."
+msgstr "Kan vereiste Atom 'feed'-elementen niet vinden in XML-gegevens."
+
+#. i18n: The local date a feed was last updated
+#: ../extensions/feed-panel/feed-panel.c:387
+#, c-format
+msgctxt "Feed"
+msgid "Last updated: %s."
+msgstr "Laatst bijgewerkt: %s."
+
+#: ../extensions/feed-panel/feed-panel.c:653
+msgid "Feeds"
+msgstr "Voedingen"
+
+#: ../extensions/feed-panel/feed-panel.c:706
+msgid "Add new feed"
+msgstr "Nieuwe voeding toevoegen"
+
+#: ../extensions/feed-panel/feed-panel.c:713
+msgid "Delete feed"
+msgstr "Voeding verwijderen"
+
+#: ../extensions/feed-panel/feed-panel.c:795
+msgid "_Feeds"
+msgstr "_Voedingen"
+
+#: ../extensions/feed-panel/feed-parse.c:195
+#, c-format
+msgid "Failed to find root element in feed XML data."
+msgstr "Kan hoofdelement in XML-gegevens van voeding niet vinden."
+
+#: ../extensions/feed-panel/feed-parse.c:235
+#, c-format
+msgid "Unsupported feed format."
+msgstr "Niet-ondersteunde voedingsopmaak."
+
+#: ../extensions/feed-panel/feed-parse.c:265
+#, c-format
+msgid "Failed to parse XML feed: %s"
+msgstr "Kan XML-voeding niet openen: %s"
+
+#: ../extensions/feed-panel/feed-rss.c:46
+msgid "Failed to find \"channel\" element in RSS XML data."
+msgstr "Kan 'kanaal'-element in RSS XML-gegevens niet vinden."
+
+#: ../extensions/feed-panel/feed-rss.c:51
+msgid "Unsupported RSS version found."
+msgstr "Niet-ondersteunde RSS-versie gevonden."
+
+#: ../extensions/feed-panel/feed-rss.c:148
+msgid "Failed to find required RSS \"item\" elements in XML data."
+msgstr "Kan vereiste RSS 'onderdeel'-elementen niet vinden in XML-gegevens."
+
+#: ../extensions/feed-panel/feed-rss.c:248
+msgid "Failed to find required RSS \"channel\" elements in XML data."
+msgstr "Kan vereiste RSS 'kanaal'-elementen niet vinden in XML-gegevens."
+
+#: ../extensions/feed-panel/main.c:131
+#, c-format
+msgid "Feed '%s' already exists"
+msgstr "Voeding '%s' bestaat reeds"
+
+#: ../extensions/feed-panel/main.c:208
+#, c-format
+msgid "Error loading feed '%s'"
+msgstr "Fout bij het laden van voeding '%s'"
+
+#: ../extensions/feed-panel/main.c:518
+msgid "Feed Panel"
+msgstr "Werkbalk voor voedingen"
+
+#: ../extensions/feed-panel/main.c:519
+msgid "Read Atom/ RSS feeds"
+msgstr "Lees Atom/RSS-voedingen"
+
+#: ../extensions/formhistory/formhistory.c:39
+#, c-format
+msgid "Failed to add form value: %s\n"
+msgstr "Fout bij toevoegen van formulierwaarde: %s\n"
+
+#: ../extensions/formhistory/formhistory.c:95
+msgid "Form history"
+msgstr "Formuliergeschiedenis"
+
+#: ../extensions/formhistory/formhistory.c:112
+msgid ""
+"Master password required\n"
+"to open password database"
+msgstr ""
+"Een gebruikernaam en wachtwoord zijn\n"
+"vereist om deze locatie te openen:"
+
+#: ../extensions/formhistory/formhistory.c:294
+msgid "Remember password on this page?"
+msgstr "Wachtwoord onthouden op deze pagina?"
+
+#: ../extensions/formhistory/formhistory.c:299
+msgid "Remember"
+msgstr "Onthouden"
+
+#: ../extensions/formhistory/formhistory.c:300
+msgid "Not now"
+msgstr "Niet nu"
+
+#: ../extensions/formhistory/formhistory.c:301
+msgid "Never for this page"
+msgstr "Nooit voor deze pagina"
+
+#: ../extensions/formhistory/formhistory.c:437
+msgid "Toggle form history state"
+msgstr "Schakel geschiedenis-status van formulier in of uit"
+
+#: ../extensions/formhistory/formhistory.c:438
+msgid "Activate or deactivate form history for the current tab."
+msgstr ""
+"Activeer of deactiveer formuliergeschiedenis voor het huidige tabblad."
+
+#: ../extensions/formhistory/formhistory.c:549
+#: ../extensions/formhistory/formhistory.c:553
+#, c-format
+msgid "Failed to execute database statement: %s\n"
+msgstr "Kan bewering van gegevensbank niet uitvoeren: %s\n"
+
+#: ../extensions/formhistory/formhistory.c:629
+msgid "Only activate form history via hotkey (Ctrl+Shift+F) per tab"
+msgstr ""
+"Activeer formuliergeschiedenis alleen via sneltoets (Ctrl+Shift+F) per "
+"tabblad"
+
+#: ../extensions/formhistory/formhistory.c:668
+msgid "Form history filler"
+msgstr "Formuliergeschiedenis-invuller"
+
+#: ../extensions/formhistory/formhistory.c:669
+msgid "Stores history of entered form data"
+msgstr "Bewaart geschiedenis van ingegeven formuliergegevens"
+
+#: ../extensions/formhistory/formhistory-gdom-frontend.c:225
+#: ../extensions/formhistory/formhistory-js-frontend.c:106
+#, c-format
+msgid "Failed to select suggestions\n"
+msgstr "Kon geen suggesties kiezen\n"
+
+#: ../extensions/history-list.vala:197
+msgid "There are no unvisited tabs"
+msgstr "Er zijn geen onbezochte tabbladen"
+
+#: ../extensions/history-list.vala:235
+#, c-format
+msgid "History-List"
+msgstr "Geschiedenislijst"
+
+#: ../extensions/history-list.vala:275
+msgid "Tab closing behavior"
+msgstr "Gedrag bij sluiten tabblad"
+
+#: ../extensions/history-list.vala:283
+msgid "Do nothing"
+msgstr "Doe niets"
+
+#: ../extensions/history-list.vala:289
+msgid "Switch to last viewed tab"
+msgstr "Overschakelen naar laatst bekeken tabblad"
+
+#: ../extensions/history-list.vala:295
+msgid "Switch to newest tab"
+msgstr "Overschakelen naar nieuwste tabblad"
+
+#: ../extensions/history-list.vala:423
+msgid "Next new Tab (History List)"
+msgstr "Volgende nieuwe tabblad (Geschiedenislijst)"
+
+#: ../extensions/history-list.vala:424
+msgid "Next new tab from history"
+msgstr "Volgende nieuwe tabblad vanuit geschiedenis"
+
+#: ../extensions/history-list.vala:433
+msgid "Previous new Tab (History List)"
+msgstr "Vorige nieuwe tabblad (Geschiedenislijst)"
+
+#: ../extensions/history-list.vala:434
+msgid "Previous new tab from history"
+msgstr "Vorige nieuwe tabblad vanuit geschiedenis"
+
+#: ../extensions/history-list.vala:443
+msgid "Display tab in background (History List)"
+msgstr "Toon tabblad in achtergrond (Geschiedenislijst)"
+
+#: ../extensions/history-list.vala:444
+msgid "Display the current selected tab in background"
+msgstr "Toon het thans gekozen tabblad in achtergrond"
+
+#: ../extensions/history-list.vala:569
+msgid "History List"
+msgstr "Geschiedenislijst"
+
+#: ../extensions/history-list.vala:570
+msgid "Move to the last used tab when switching or closing tabs"
+msgstr ""
+"Ga naar het laatst gebruikte tabblad bij tabbladwissel of tabbladsluiting"
+
+#: ../extensions/mouse-gestures.c:301
+msgid "Mouse Gestures"
+msgstr "Muisgebaren"
+
+#: ../extensions/mouse-gestures.c:302
+msgid "Control Midori by moving the mouse"
+msgstr "Midori besturen door de muis te bewegen"
+
+#: ../extensions/shortcuts.c:109
+msgid "Reload page or stop loading"
+msgstr "Pagina vernieuwen of stoppen met laden"
+
+#: ../extensions/shortcuts.c:176
+msgid "Customize Keyboard shortcuts"
+msgstr "Sneltoetsen aanpassen"
+
+#: ../extensions/shortcuts.c:283
+msgid "Customize Sh_ortcuts..."
+msgstr "Sneltoetsen aanpassen…"
+
+#: ../extensions/shortcuts.c:320
+msgid "Shortcuts"
+msgstr "Sneltoetsen"
+
+#: ../extensions/shortcuts.c:321
+msgid "View and edit keyboard shortcuts"
+msgstr "Sneltoetsen tonen en bewerken"
+
+#: ../extensions/status-clock.c:174
+msgid "Statusbar Clock"
+msgstr "Statusbalk-klok"
+
+#: ../extensions/status-clock.c:175
+msgid "Display date and time in the statusbar"
+msgstr "Datum en tijd in de statusbalk tonen"
+
+#: ../extensions/statusbar-features.c:152
+msgid "Images"
+msgstr "Afbeeldingen"
+
+#: ../extensions/statusbar-features.c:162
+msgid "Scripts"
+msgstr "Scripts"
+
+#: ../extensions/statusbar-features.c:174
+msgid "Netscape plugins"
+msgstr "Netscape plugins"
+
+#: ../extensions/statusbar-features.c:259
+msgid "Statusbar Features"
+msgstr "Statusbalkfuncties"
+
+#: ../extensions/statusbar-features.c:260
+msgid "Easily toggle features on web pages on and off"
+msgstr "Eenvoudig schakelen van gedrag van webpagina's"
+
+#: ../extensions/tab-panel.c:589 ../extensions/tab-panel.c:676
+msgid "Tab Panel"
+msgstr "Tabbladwerkbalk"
+
+#: ../extensions/tab-panel.c:659
+msgid "T_ab Panel"
+msgstr "T_abbladwerkbalk"
+
+#: ../extensions/tab-panel.c:677
+msgid "Show tabs in a vertical panel"
+msgstr "Tabbladen in een verticale werkbalk tonen"
+
+#: ../extensions/tabs-minimized.c:76
+msgid "Only Icons on Tabs by default"
+msgstr "Standaard alleen pictogrammen op tabbladen"
+
+#: ../extensions/tabs-minimized.c:77
+msgid "New tabs have no label by default"
+msgstr "Nieuwe tabbladen hebben geen standaardetiket"
+
+#: ../extensions/toolbar-editor.c:395
+msgid "Customize Toolbar"
+msgstr "Werkbalk aanpassen"
+
+#: ../extensions/toolbar-editor.c:411
+msgid ""
+"Select items to be displayed on the toolbar. Items can be reordered by drag "
+"and drop."
+msgstr ""
+"Selecteer elementen die op de werkbalk dienen te worden weergegeven. "
+"Elementen kunnen via slepen en neerzetten van plaats worden veranderd."
+
+#: ../extensions/toolbar-editor.c:427
+msgid "Available Items"
+msgstr "Beschikbare elementen"
+
+#: ../extensions/toolbar-editor.c:448
+msgid "Displayed Items"
+msgstr "Weergegeven elementen"
+
+#: ../extensions/toolbar-editor.c:588
+msgid "_Customize Toolbar…"
+msgstr "Werkbalk aanpassen…"
+
+#: ../extensions/toolbar-editor.c:617
+msgid "Toolbar Editor"
+msgstr "Werkbalkbewerker"
+
+#: ../extensions/toolbar-editor.c:618
+msgid "Easily edit the toolbar layout"
+msgstr "De werkbalkvormgeving eenvoudig aanpassen"
+
+#: ../extensions/web-cache.c:463
+msgid "Cache HTTP communication on disk"
+msgstr "HTTP-communicatie op schijf opslaan"

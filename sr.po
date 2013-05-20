@@ -1,0 +1,2980 @@
+# Serbian translations for midori package.
+# Copyright (C) 2008 THE midori'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the midori package.
+# Милош Поповић <gpopac@gmail.com> 2009
+# Мирослав Николић <miroslavnikolic@rocketmail.com>, 2012, 2013.
+# Саша Петровић <salepetronije@gmail.com>, 2012, 2013.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: midori 0.1.7\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-08-15 11:48+0000\n"
+"PO-Revision-Date: 2013-05-19 15:49+0000\n"
+"Last-Translator: Саша Петровић <salepetronije@gmail.com>\n"
+"Language-Team: српски <>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"X-Launchpad-Export-Date: 2013-05-20 05:18+0000\n"
+"X-Generator: Launchpad (build 16626)\n"
+"Language: sr\n"
+
+#: ../data/midori.desktop.in.h:1
+msgid "Browse the Web"
+msgstr "Прегледајте веб"
+
+#: ../data/midori.desktop.in.h:2
+msgid "Internet;WWW;Explorer"
+msgstr "Интернет;ВВВ;Истраживач"
+
+#: ../data/midori.desktop.in.h:3 ../midori/main.c:2025 ../midori/main.c:2049
+#: ../midori/main.c:2063 ../midori/midori-websettings.c:315
+msgid "Midori"
+msgstr "Мидори"
+
+#: ../data/midori.desktop.in.h:4
+msgid "Midori Web Browser"
+msgstr "Интернет прегледник Мидори"
+
+#: ../data/midori.desktop.in.h:5
+msgid "New Private Browsing Window"
+msgstr "Нови прозор приватног прегледања"
+
+#: ../data/midori.desktop.in.h:6 ../midori/midori-browser.c:1479
+msgid "New Tab"
+msgstr "Нови лист"
+
+#: ../data/midori.desktop.in.h:7 ../midori/midori-browser.c:1476
+msgid "New Window"
+msgstr "Нови прозор"
+
+#: ../data/midori.desktop.in.h:8
+msgid "Web Browser"
+msgstr "Интернет прегледник"
+
+#: ../data/midori-private.desktop.in.h:1
+msgid "Midori Private Browsing"
+msgstr "Мидоријево приватно прегледање"
+
+#: ../data/midori-private.desktop.in.h:2
+msgid "Open a new private browsing window"
+msgstr "Отворите нови прозор приватног прегледања"
+
+#: ../data/midori-private.desktop.in.h:3 ../midori/midori-view.c:4505
+msgid "Private Browsing"
+msgstr "Приватно прегледање"
+
+#: ../midori/main.c:91 ../midori/main.c:97
+#, c-format
+msgid "The configuration couldn't be loaded: %s\n"
+msgstr "Не могу да учитам подешавања: %s\n"
+
+#: ../midori/main.c:145
+#, c-format
+msgid "Value '%s' is invalid for %s"
+msgstr "Вредност „%s“ је неисправна за %s"
+
+#: ../midori/main.c:150 ../midori/main.c:254
+#, c-format
+msgid "Invalid configuration value '%s'"
+msgstr "Неисправна је вредност „%s“ у подешавањима"
+
+#: ../midori/main.c:375
+#, c-format
+msgid "The search engines couldn't be loaded. %s\n"
+msgstr "Не могу да учитам погоне претраге. %s\n"
+
+#: ../midori/main.c:429
+#, c-format
+msgid "Failed to clear history: %s\n"
+msgstr "Не могу да очистим историјат: %s\n"
+
+#: ../midori/main.c:451 ../extensions/formhistory/formhistory.c:531
+#, c-format
+msgid "Failed to open database: %s\n"
+msgstr "Не могу да отворим базу података: %s\n"
+
+#. i18n: Couldn't remove items that are older than n days
+#: ../midori/main.c:523
+#, c-format
+msgid "Failed to remove old history items: %s\n"
+msgstr "Не могу да уклоним старе ставке из историјата: %s\n"
+
+#: ../midori/main.c:545
+#, c-format
+msgid "The configuration couldn't be saved. %s"
+msgstr "Не могу да сачувам подешавања. %s"
+
+#: ../midori/main.c:571
+#, c-format
+msgid "The search engines couldn't be saved. %s"
+msgstr "Не могу да сачувам погоне претраге. %s"
+
+#. i18n: Trash, or wastebin, containing closed tabs
+#: ../midori/main.c:608
+#, c-format
+msgid "The trash couldn't be saved. %s"
+msgstr "Не могу да сачувам документ. %s"
+
+#: ../midori/main.c:681 ../panels/midori-extensions.c:90
+msgid "Extensions"
+msgstr "Проширења"
+
+#: ../midori/main.c:695
+msgid "Privacy"
+msgstr "Приватност"
+
+#: ../midori/main.c:707
+msgid ""
+"Cookies store login data, saved games, or user profiles for advertisement "
+"purposes."
+msgstr ""
+"Колачићи чувају податке пријава, сачуване игре, или корисничке профиле за "
+"сврхе оглашавања."
+
+#: ../midori/main.c:763
+#, c-format
+msgid "The session couldn't be saved. %s"
+msgstr "Не могу да сачувам сесију. %s"
+
+#: ../midori/main.c:1001
+msgid ""
+"No root certificate file is available. SSL certificates cannot be verified."
+msgstr ""
+"Није доступна корена датотека уверења. ССЛ уверења не могу бити проверена."
+
+#: ../midori/main.c:1093
+msgid ""
+"Midori seems to have crashed the last time it was opened. If this happened "
+"repeatedly, try one of the following options to solve the problem."
+msgstr ""
+"Изгледа да је Мидори неисправно завршио рад приликом последњег покретања. "
+"Уколико се ово често понавља покушајте неки од понуђених предлога."
+
+#: ../midori/main.c:1112
+msgid "Modify _preferences"
+msgstr "Измени пос_тавке"
+
+#: ../midori/main.c:1116
+msgid "Disable all _extensions"
+msgstr "Онемогући сва п_роширења"
+
+#: ../midori/main.c:1129
+msgid "Discard old tabs"
+msgstr "Одбаци старе језичке"
+
+#: ../midori/main.c:1130 ../midori/midori-websettings.c:223
+msgid "Show last tabs without loading"
+msgstr "Прикажи последње језичке без учитавања"
+
+#: ../midori/main.c:1131 ../midori/midori-websettings.c:222
+msgid "Show last open tabs"
+msgstr "Прикажи последње отворене језичке"
+
+#: ../midori/main.c:1379 ../midori/main.c:2433
+#, c-format
+msgid "The session couldn't be loaded: %s\n"
+msgstr "Не могу да учитам сесију: %s\n"
+
+#: ../midori/main.c:1517
+#, c-format
+msgid "Snapshot saved to: %s\n"
+msgstr "Снимак је сачуван у: %s\n"
+
+#: ../midori/main.c:1933
+msgid "Run ADDRESS as a web application"
+msgstr "Покреће АДРЕСУ као веб програм"
+
+#: ../midori/main.c:1933
+msgid "ADDRESS"
+msgstr "АДРЕСА"
+
+#: ../midori/main.c:1936
+msgid "Use FOLDER as configuration folder"
+msgstr "Користи ФАСЦИКЛУ за чување подешавања"
+
+#: ../midori/main.c:1936
+msgid "FOLDER"
+msgstr "ФАСЦИКЛА"
+
+#: ../midori/main.c:1939
+msgid "Private browsing, no changes are saved"
+msgstr "Приватно разгледање, никакве измене се не чувају"
+
+#: ../midori/main.c:1941
+msgid "Show a diagnostic dialog"
+msgstr "Приказује прозорче за дијагнозу"
+
+#: ../midori/main.c:1943
+msgid "Run the specified filename as javascript"
+msgstr "Покреће изабрану датотеку као јава скрипту"
+
+#: ../midori/main.c:1945
+msgid "Take a snapshot of the specified URI"
+msgstr "Прави снимак изабране адресе"
+
+#: ../midori/main.c:1947
+msgid "Execute the specified command"
+msgstr "Извршава наведену наредбу"
+
+#: ../midori/main.c:1949
+msgid "List available commands to execute with -e/ --execute"
+msgstr "Исписује доступне наредбе за извршавање са -e/ --execute"
+
+#: ../midori/main.c:1951
+msgid "Display program version"
+msgstr "Исписује издање програма"
+
+#: ../midori/main.c:1953
+msgid "Addresses"
+msgstr "Адресе"
+
+#: ../midori/main.c:1955
+msgid "Block URIs according to regular expression PATTERN"
+msgstr "Блокира адресе сходно ОБРАСЦУ регуларног израза"
+
+#: ../midori/main.c:1955
+msgid "PATTERN"
+msgstr "ОБРАЗАЦ"
+
+#. i18n: CLI: Close tabs, clear private data, open starting page
+#: ../midori/main.c:1959
+msgid "Reset Midori after SECONDS seconds of inactivity"
+msgstr "Поново покреће Мидори након СЕКУНДЕ секунди мировања"
+
+#: ../midori/main.c:1959
+msgid "SECONDS"
+msgstr "СЕКУНДЕ"
+
+#: ../midori/main.c:1962
+msgid "Redirects console warnings to the specified FILENAME"
+msgstr "Преусмерава упозорења конзоле на наведену ДАТОТЕКУ НАЗИВА"
+
+#: ../midori/main.c:1962
+msgid "FILENAME"
+msgstr "НАЗИВ ДАТОТЕКЕ"
+
+#: ../midori/main.c:2064
+msgid "Please report comments, suggestions and bugs to:"
+msgstr "Пошаљите примедбе, предлоге и грешке на:"
+
+#: ../midori/main.c:2066
+msgid "Check for new versions at:"
+msgstr "Преузмите новије издање са:"
+
+#. i18n: Logins and passwords in websites and web forms
+#: ../midori/main.c:2161
+msgid "Saved logins and _passwords"
+msgstr "Сачувана пријављивања и _лозинке"
+
+#: ../midori/main.c:2163
+msgid "Cookies and Website data"
+msgstr "Колачићи и подаци веб сајта"
+
+#. TODO: Preserve page icons of search engines and merge privacy items
+#: ../midori/main.c:2167 ../midori/midori-websettings.c:1020
+#: ../extensions/web-cache.c:462 ../extensions/web-cache.c:471
+msgid "Web Cache"
+msgstr "Веб кеш"
+
+#: ../midori/main.c:2170
+msgid "Website icons"
+msgstr "Иконице веб сајта"
+
+#: ../midori/main.c:2274
+msgid "An unknown error occured"
+msgstr "Догодила се непозната грешка"
+
+#: ../midori/main.c:2381
+msgid "An instance of Midori is already running but not responding.\n"
+msgstr "Један примерак Мидорија је већ покренут али не даје одзив.\n"
+
+#: ../midori/main.c:2415
+#, c-format
+msgid "Bookmarks couldn't be loaded: %s\n"
+msgstr "Не могу да учитам забелешку: %s\n"
+
+#: ../midori/main.c:2448
+#, c-format
+msgid "The trash couldn't be loaded: %s\n"
+msgstr "Не могу да учитам смеће: %s\n"
+
+#: ../midori/main.c:2461
+#, c-format
+msgid "The history couldn't be loaded: %s\n"
+msgstr "Не могу да учитам историјат: %s\n"
+
+#: ../midori/main.c:2476
+msgid "The following errors occured:"
+msgstr "Јавиле су се следеће грешке:"
+
+#: ../midori/main.c:2492
+msgid "_Ignore"
+msgstr "_Занемари"
+
+#: ../midori/midori-app.c:1155 ../midori/midori-browser.c:545
+#, c-format
+msgid "Unexpected action '%s'."
+msgstr "Неочекивана радња „%s“."
+
+#: ../midori/midori-app.c:1457 ../midori/midori-browser.c:6435
+msgid "_Bookmarks"
+msgstr "_Забелешке"
+
+#: ../midori/midori-app.c:1458
+msgid "Add Boo_kmark"
+msgstr "_Додај забелешку"
+
+#: ../midori/midori-app.c:1459
+msgid "_Extensions"
+msgstr "П_роширења"
+
+#. i18n: Browsing history, visited web pages, closed tabs
+#: ../midori/midori-app.c:1460 ../midori/midori-browser.c:4891
+msgid "_History"
+msgstr "_Историјат"
+
+#: ../midori/midori-app.c:1461
+msgid "_Userscripts"
+msgstr "Личне _скрипте"
+
+#: ../midori/midori-app.c:1462
+msgid "User_styles"
+msgstr "Лични с_тилови"
+
+#: ../midori/midori-app.c:1463
+msgid "New _Tab"
+msgstr "Нови _лист"
+
+#: ../midori/midori-app.c:1464
+msgid "_Transfers"
+msgstr "Пр_еноси"
+
+#: ../midori/midori-app.c:1465
+msgid "Netscape p_lugins"
+msgstr "Нетскејп _додаци"
+
+#: ../midori/midori-app.c:1466
+msgid "_Closed Tabs"
+msgstr "_Затворени листови"
+
+#: ../midori/midori-app.c:1467 ../midori/midori-browser.c:5574
+msgid "New _Window"
+msgstr "_Нови прозор"
+
+#: ../midori/midori-app.c:1468
+msgid "New _Folder"
+msgstr "Нова _фасцикла"
+
+#: ../midori/midori-app.c:1497
+msgid "[Addresses]"
+msgstr "[Адресе]"
+
+#: ../midori/midori-array.c:522
+msgid "File not found."
+msgstr "Није нађена датотека."
+
+#: ../midori/midori-array.c:547 ../midori/midori-array.c:586
+#: ../midori/midori-array.c:609 ../midori/midori-array.c:619
+msgid "Malformed document."
+msgstr "Документ је лоше форматиран."
+
+#: ../midori/midori-array.c:628
+msgid "Unrecognized bookmark format."
+msgstr "Непознат формат забелешки."
+
+#: ../midori/midori-array.c:915
+msgid "Writing failed."
+msgstr "Није успело уписивање."
+
+#: ../midori/midori-browser.c:364 ../midori/midori-browser.c:5662
+#: ../midori/midori-browser.c:5671
+msgid "Reload the current page"
+msgstr "Поново учитајте тренутну страницу"
+
+#: ../midori/midori-browser.c:373 ../midori/midori-browser.c:5668
+msgid "Stop loading the current page"
+msgstr "Зауставите учитавање тренутне странице"
+
+#: ../midori/midori-browser.c:530
+#, c-format
+msgid "Failed to update title: %s\n"
+msgstr "Нисам успео да освежим наслов: %s\n"
+
+#: ../midori/midori-browser.c:625
+#, c-format
+msgid "%s (Private Browsing)"
+msgstr "%s (Приватно прегледање)"
+
+#: ../midori/midori-browser.c:735 ../midori/midori-browser.c:777
+#: ../panels/midori-bookmarks.c:114
+msgid "Bookmarks"
+msgstr "Забелешке"
+
+#: ../midori/midori-browser.c:837
+msgid "New folder"
+msgstr "Нова фасцикла"
+
+#: ../midori/midori-browser.c:837
+msgid "Edit folder"
+msgstr "Уреди фасциклу"
+
+#: ../midori/midori-browser.c:839
+msgid "New bookmark"
+msgstr "Нова забелешка"
+
+#: ../midori/midori-browser.c:839
+msgid "Edit bookmark"
+msgstr "Уреди забелешку"
+
+#: ../midori/midori-browser.c:873
+msgid "Type a name for this bookmark and choose where to keep it."
+msgstr "Укуцајте име за ову забелешку и изаберите место чувања."
+
+#: ../midori/midori-browser.c:934
+msgid "Add to _Speed Dial"
+msgstr "Додај у _брзе посете"
+
+#: ../midori/midori-browser.c:940
+msgid "Show in the tool_bar"
+msgstr "Прикажи у траци _алата"
+
+#: ../midori/midori-browser.c:948
+msgid "Run as _web application"
+msgstr "Покрени као _веб програм"
+
+#: ../midori/midori-browser.c:1019
+#, c-format
+msgid "The file \"%s\" can't be saved in this folder."
+msgstr "Датотека „%s“ не може бити сачувана у овој фасцикли."
+
+#: ../midori/midori-browser.c:1021
+#, c-format
+msgid "You don't have permission to write in this location."
+msgstr "Немате дозволу да пишете овде."
+
+#: ../midori/midori-browser.c:1028
+#, c-format
+msgid "There is not enough free space to download \"%s\"."
+msgstr "Нема довољно слободног места за преузимање „%s“."
+
+#: ../midori/midori-browser.c:1031
+#, c-format
+msgid "The file needs %s but only %s are left."
+msgstr "Датотека захтева %s али је преостало само %s."
+
+#: ../midori/midori-browser.c:1167 ../midori/midori-browser.c:4695
+msgid "Save file as"
+msgstr "Сачувај датотеку као"
+
+#: ../midori/midori-browser.c:1173
+msgid "Save associated _resources"
+msgstr "Сачувај придружени _садржај"
+
+#: ../midori/midori-browser.c:1476
+msgid "A new window has been opened"
+msgstr "Нови прозор је отворен"
+
+#: ../midori/midori-browser.c:1479
+msgid "A new tab has been opened"
+msgstr "Нови лист је отворен"
+
+#: ../midori/midori-browser.c:1496
+msgid "Error opening the image!"
+msgstr "Грешка приликом отварања слике!"
+
+#: ../midori/midori-browser.c:1497
+msgid "Can not open selected image in a default viewer."
+msgstr "Не могу да отворим изабрану слику у основном прегледачу."
+
+#: ../midori/midori-browser.c:1503
+msgid "Error downloading the image!"
+msgstr "Грешка у преузимању слике!"
+
+#: ../midori/midori-browser.c:1504
+msgid "Can not download selected image."
+msgstr "Не могу да преузмем изабрану слику."
+
+#: ../midori/midori-browser.c:1625
+msgid "Save file"
+msgstr "Сачувај датотеку"
+
+#: ../midori/midori-browser.c:2528
+msgid "Open file"
+msgstr "Отворите датотеку"
+
+#: ../midori/midori-browser.c:2660
+msgid ""
+"To use the above URI open a news aggregator. There is usually a menu or "
+"button \"New Subscription\", \"New News Feed\" or similar.\n"
+"Alternatively go to Preferences, Applications in Midori, and select a News "
+"Aggregator. Next time you click the news feed icon, it will be added "
+"automatically."
+msgstr ""
+"Да користите горњу адресу отворите придруживача вести. Постоји обично "
+"изборник или дугме „New Subscription“ (Нова претплата), „New News Feed“ "
+"(Нови довод вести) или слично.\n"
+"Или идите на „Поставке, Разгледање“ у Мидорију, и изаберите „Читач вести“. "
+"Следећи пут када кликнете на иконицу довода вести, биће аутоматски додат."
+
+#: ../midori/midori-browser.c:2666 ../extensions/feed-panel/main.c:365
+msgid "New feed"
+msgstr "Нови довод"
+
+#: ../midori/midori-browser.c:2709 ../midori/midori-browser.c:5734
+#: ../panels/midori-bookmarks.c:527
+msgid "Add a new bookmark"
+msgstr "Додајте нову забелешку"
+
+#: ../midori/midori-browser.c:3253 ../midori/midori-searchaction.c:487
+msgid "Empty"
+msgstr "Празно"
+
+#: ../midori/midori-browser.c:3699 ../midori/midori-browser.c:3700
+msgid "Toggle text cursor navigation"
+msgstr "Искључује навигацију текста курсором"
+
+#: ../midori/midori-browser.c:3702
+msgid ""
+"Pressing F7 toggles Caret Browsing. When active, a text cursor appears in "
+"all websites."
+msgstr ""
+"Притисак на Ф7 пребацује прегледање курсором. Када је активан, текстуални "
+"курсор се појављује на свим веб странама."
+
+#: ../midori/midori-browser.c:3705
+msgid "_Enable Caret Browsing"
+msgstr "_Укључи прегледање курсором"
+
+#: ../midori/midori-browser.c:4095 ../midori/midori-browser.c:6128
+#, c-format
+msgid "Failed to insert new history item: %s\n"
+msgstr "Не могу да уметнем нову ставку историјата: %s\n"
+
+#: ../midori/midori-browser.c:4421 ../panels/midori-bookmarks.c:850
+#: ../panels/midori-history.c:806
+msgid "Open all in _Tabs"
+msgstr "Отвори с_ве у листовима"
+
+# bug: no plural-forms
+#: ../midori/midori-browser.c:4428 ../panels/midori-bookmarks.c:856
+#: ../panels/midori-history.c:812 ../extensions/feed-panel/feed-panel.c:528
+msgid "Open in New _Tab"
+msgstr "Отвори у новом _листу"
+
+#: ../midori/midori-browser.c:4431 ../midori/midori-view.c:2944
+#: ../midori/midori-view.c:5082 ../panels/midori-bookmarks.c:858
+#: ../panels/midori-history.c:814 ../extensions/feed-panel/feed-panel.c:530
+msgid "Open in New _Window"
+msgstr "Отвори у _новом прозору"
+
+#: ../midori/midori-browser.c:4520
+msgid "Arora"
+msgstr "Арора"
+
+#: ../midori/midori-browser.c:4521
+msgid "Kazehakase"
+msgstr "Кејзхакејз"
+
+#: ../midori/midori-browser.c:4522
+msgid "Opera"
+msgstr "Опера"
+
+#: ../midori/midori-browser.c:4523
+msgid "Konqueror"
+msgstr "К-освајач"
+
+#: ../midori/midori-browser.c:4524
+msgid "Epiphany"
+msgstr "Спознаја"
+
+#: ../midori/midori-browser.c:4525
+#, c-format
+msgid "Firefox (%s)"
+msgstr "Фајерфокс (%s)"
+
+#: ../midori/midori-browser.c:4526
+msgid "Midori 0.2.6"
+msgstr "Мидори 0.2.6"
+
+#: ../midori/midori-browser.c:4547
+msgid "Import bookmarks…"
+msgstr "Увези забелешке…"
+
+#: ../midori/midori-browser.c:4550 ../midori/midori-browser.c:5739
+msgid "_Import bookmarks"
+msgstr "Увези _забелешке"
+
+#: ../midori/midori-browser.c:4561
+msgid "_Application:"
+msgstr "_Програм:"
+
+#: ../midori/midori-browser.c:4626
+msgid "Import from XBEL or HTML file"
+msgstr "Увези из ИксБЕЛ или ХТМЛ датотеке"
+
+#: ../midori/midori-browser.c:4654
+msgid "Import from a file"
+msgstr "Увези из датотеке"
+
+#: ../midori/midori-browser.c:4666
+msgid "Failed to import bookmarks"
+msgstr "Нисам успео да увезем обележиваче"
+
+#: ../midori/midori-browser.c:4700
+msgid "XBEL Bookmarks"
+msgstr "ИксБЕЛ обележивачи"
+
+#: ../midori/midori-browser.c:4705
+msgid "Netscape Bookmarks"
+msgstr "Нетскејп обележивачи"
+
+#: ../midori/midori-browser.c:4719
+msgid "Midori can only export to XBEL (*.xbel) and Netscape (*.html)"
+msgstr "Мидори може само да извезе у ИксБЕЛ (*.xbel) и Нетскејп (*.html)"
+
+#: ../midori/midori-browser.c:4734
+msgid "Failed to export bookmarks"
+msgstr "Нисам успео да извезем обележиваче"
+
+#. i18n: Dialog: Clear Private Data, in the Tools menu
+#: ../midori/midori-browser.c:4856
+msgid "Clear Private Data"
+msgstr "Очистите личне податке"
+
+#: ../midori/midori-browser.c:4860
+msgid "_Clear private data"
+msgstr "О_чисти личне податке"
+
+#: ../midori/midori-browser.c:4875
+msgid "Clear the following data:"
+msgstr "Очисти следеће податке:"
+
+#: ../midori/midori-browser.c:4885
+msgid "Last open _tabs"
+msgstr "Последњи отворени _листови"
+
+#: ../midori/midori-browser.c:4911
+msgid "Clear private data when _quitting Midori"
+msgstr "Очисти приватне податке приликом _напуштања Мидорија"
+
+#: ../midori/midori-browser.c:5126
+msgid "A lightweight web browser."
+msgstr "Једноставан Интернет прегледник."
+
+#: ../midori/midori-browser.c:5127
+msgid "See about:version for version info."
+msgstr "Погледајте „about:version“ за податке о издању."
+
+#: ../midori/midori-browser.c:5129
+msgid ""
+"This library is free software; you can redistribute it and/or modify it "
+"under the terms of the GNU Lesser General Public License as published by the "
+"Free Software Foundation; either version 2.1 of the License, or (at your "
+"option) any later version."
+msgstr ""
+"Ова библиотека је слободан софтвер; можете је расподељивати и/или мењати под "
+"условима Гнуове мање опште јавне лиценце како је објављује Задужбина "
+"слободног софтвера; било верзије 2.1 те лиценце, или (према вашем мишљењу) "
+"било које новије верзије."
+
+#: ../midori/midori-browser.c:5159
+msgid "translator-credits"
+msgstr ""
+"Милош Поповић <gpopac@gmail.com>\n"
+"\n"
+"http://prevod.org — превод на српски језик.\n"
+"\n"
+"Launchpad Contributions:\n"
+"  Miloš Popović https://launchpad.net/~gpopac\n"
+"  Мирослав Николић https://launchpad.net/~lipek\n"
+"  Саша Петровић https://launchpad.net/~salepetronije"
+
+#: ../midori/midori-browser.c:5572
+msgid "_File"
+msgstr "_Датотека"
+
+#: ../midori/midori-browser.c:5575
+msgid "Open a new window"
+msgstr "Отворите нови прозор"
+
+#: ../midori/midori-browser.c:5578
+msgid "Open a new tab"
+msgstr "Отворите нови лист"
+
+#: ../midori/midori-browser.c:5580
+msgid "New P_rivate Browsing Window"
+msgstr "Нови прозор _приватног прегледања"
+
+#: ../midori/midori-browser.c:5584
+msgid "Open a file"
+msgstr "Отворите датотеку"
+
+#: ../midori/midori-browser.c:5586
+msgid "_Save Page As…"
+msgstr "_Сачувај страницу као…"
+
+#: ../midori/midori-browser.c:5587
+msgid "Save to a file"
+msgstr "Сачувајте у датотеку"
+
+#: ../midori/midori-browser.c:5589
+msgid "Add to Speed _dial"
+msgstr "Додај у _брзе посете"
+
+#: ../midori/midori-browser.c:5593
+msgid "Add Shortcut to the _desktop"
+msgstr "Додај пречицу на _радну површ"
+
+#: ../midori/midori-browser.c:5595
+msgid "Create _Launcher"
+msgstr "Направи _покретач"
+
+#: ../midori/midori-browser.c:5599
+msgid "Subscribe to News _feed"
+msgstr "Претплати се на _довод вести"
+
+#: ../midori/midori-browser.c:5605
+msgid "_Close Tab"
+msgstr "З_атвори лист"
+
+#: ../midori/midori-browser.c:5606
+msgid "Close the current tab"
+msgstr "Затворите тренутни лист"
+
+#: ../midori/midori-browser.c:5608
+msgid "C_lose Window"
+msgstr "_Затвори прозор"
+
+#: ../midori/midori-browser.c:5612
+msgid "_Share"
+msgstr "_Дели"
+
+#: ../midori/midori-browser.c:5617
+msgid "Print the current page"
+msgstr "Штампајте тренутну страницу"
+
+#: ../midori/midori-browser.c:5620
+msgid "Close a_ll Windows"
+msgstr "Затвори _све прозоре"
+
+#: ../midori/midori-browser.c:5623
+msgid "_Edit"
+msgstr "_Уређивање"
+
+#: ../midori/midori-browser.c:5646
+msgid "_Find…"
+msgstr "_Пронађи…"
+
+#: ../midori/midori-browser.c:5647
+msgid "Find a word or phrase in the page"
+msgstr "Пронађите жељену реч или израз унутар странице"
+
+#: ../midori/midori-browser.c:5649
+msgid "Find _Next"
+msgstr "Нађи _следеће"
+
+#: ../midori/midori-browser.c:5652
+msgid "Find _Previous"
+msgstr "Нађи _претходно"
+
+#: ../midori/midori-browser.c:5656
+msgid "Configure the application preferences"
+msgstr "Подесите поставке програма"
+
+#: ../midori/midori-browser.c:5658
+msgid "_View"
+msgstr "П_реглед"
+
+#: ../midori/midori-browser.c:5659
+msgid "_Toolbars"
+msgstr "Траке _алата"
+
+#: ../midori/midori-browser.c:5664
+msgid "Reload page without caching"
+msgstr "Учитај страницу без причувавања"
+
+#: ../midori/midori-browser.c:5674
+msgid "Increase the zoom level"
+msgstr "Увећајте ниво приказа"
+
+#: ../midori/midori-browser.c:5677
+msgid "Decrease the zoom level"
+msgstr "Умањите ниво приказа"
+
+#: ../midori/midori-browser.c:5681
+msgid "_Encoding"
+msgstr "_Кодирање"
+
+#: ../midori/midori-browser.c:5683
+msgid "View So_urce"
+msgstr "Прикажи _извор"
+
+#: ../midori/midori-browser.c:5686
+msgid "Ca_ret Browsing"
+msgstr "Прегледање _курсором"
+
+#: ../midori/midori-browser.c:5690
+msgid "Toggle fullscreen view"
+msgstr "Пребаците приказ преко целог екрана"
+
+#: ../midori/midori-browser.c:5692
+msgid "Scroll _Left"
+msgstr "Клизај ле_во"
+
+#: ../midori/midori-browser.c:5695
+msgid "Scroll _Down"
+msgstr "Клизај до_ле"
+
+#: ../midori/midori-browser.c:5698
+msgid "Scroll _Up"
+msgstr "Клизај го_ре"
+
+#: ../midori/midori-browser.c:5701
+msgid "Scroll _Right"
+msgstr "Клизај де_сно"
+
+#: ../midori/midori-browser.c:5704
+msgid "_Readable"
+msgstr "_Читљив"
+
+#: ../midori/midori-browser.c:5707
+msgid "_Go"
+msgstr "_Иди"
+
+#: ../midori/midori-browser.c:5710
+msgid "Go back to the previous page"
+msgstr "Идите на претходну страницу"
+
+#: ../midori/midori-browser.c:5713
+msgid "Go forward to the next page"
+msgstr "Идите на следећу страницу"
+
+#. i18n: Visit the previous logical page, ie. in a forum or blog
+#: ../midori/midori-browser.c:5717
+msgid "Go to the previous sub-page"
+msgstr "Идите на претходну садржану страницу"
+
+#. i18n: Visit the following logical page, ie. in a forum or blog
+#: ../midori/midori-browser.c:5721
+msgid "Go to the next sub-page"
+msgstr "Идите на следећу садржану страницу"
+
+#: ../midori/midori-browser.c:5723
+msgid "_Homepage"
+msgstr "По_четна страница"
+
+#: ../midori/midori-browser.c:5724
+msgid "Go to your homepage"
+msgstr "Идите на почетну страницу"
+
+#: ../midori/midori-browser.c:5726
+msgid "Empty Trash"
+msgstr "Испразни смеће"
+
+#: ../midori/midori-browser.c:5729
+msgid "Undo _Close Tab"
+msgstr "_Опозови затварање листа"
+
+#: ../midori/midori-browser.c:5736
+msgid "Add a new _folder"
+msgstr "Додај нову _фасциклу"
+
+#: ../midori/midori-browser.c:5742
+msgid "_Export bookmarks"
+msgstr "_Извези забелешке"
+
+#: ../midori/midori-browser.c:5745 ../midori/midori-searchaction.c:496
+msgid "_Manage Search Engines"
+msgstr "По_деси погоне претраге"
+
+#: ../midori/midori-browser.c:5748
+msgid "_Clear Private Data"
+msgstr "Очисти _личне податке"
+
+#: ../midori/midori-browser.c:5751
+msgid "_Inspect Page"
+msgstr "_Прегледај страницу"
+
+#: ../midori/midori-browser.c:5755
+msgid "_Previous Tab"
+msgstr "_Претходни лист"
+
+#: ../midori/midori-browser.c:5758
+msgid "_Next Tab"
+msgstr "_Следећи лист"
+
+#: ../midori/midori-browser.c:5760
+msgid "Move Tab _Backward"
+msgstr "Премести лист уна_зад"
+
+#: ../midori/midori-browser.c:5762
+msgid "_Move Tab Forward"
+msgstr "Премести лист уна_пред"
+
+#: ../midori/midori-browser.c:5765
+msgid "Focus _Current Tab"
+msgstr "Приближи _тренутни лист"
+
+#: ../midori/midori-browser.c:5768
+msgid "Focus _Next view"
+msgstr "Приближи _следећи преглед"
+
+#: ../midori/midori-browser.c:5771
+msgid "Only show the Icon of the _Current Tab"
+msgstr "Прикажи само иконицу _тренутног листа"
+
+#: ../midori/midori-browser.c:5774
+msgid "_Duplicate Current Tab"
+msgstr "_Удвостручи тренутни лист"
+
+#: ../midori/midori-browser.c:5777
+msgid "Close Ot_her Tabs"
+msgstr "Затвори _друге листове"
+
+#: ../midori/midori-browser.c:5780
+msgid "Open last _session"
+msgstr "Отвори последњу _сесију"
+
+#: ../midori/midori-browser.c:5783
+msgid "_Help"
+msgstr "_Помоћ"
+
+#: ../midori/midori-browser.c:5785
+msgid "_Frequent Questions"
+msgstr "_Честа питања"
+
+#: ../midori/midori-browser.c:5788
+msgid "_Report a Problem…"
+msgstr "Пријавите _проблем…"
+
+#: ../midori/midori-browser.c:5793 ../midori/midori-browser.c:6454
+msgid "_Tools"
+msgstr "_Алати"
+
+#: ../midori/midori-browser.c:5800
+msgid "_Menubar"
+msgstr "Трака _избора"
+
+#: ../midori/midori-browser.c:5804
+msgid "_Navigationbar"
+msgstr "Трака _кретања"
+
+#: ../midori/midori-browser.c:5808
+msgid "Side_panel"
+msgstr "Бочна _површ"
+
+#: ../midori/midori-browser.c:5809
+msgid "Sidepanel"
+msgstr "Бочна површ"
+
+#: ../midori/midori-browser.c:5812
+msgid "_Bookmarkbar"
+msgstr "Трака _забелешки"
+
+#: ../midori/midori-browser.c:5816
+msgid "_Statusbar"
+msgstr "Трака _стања"
+
+#: ../midori/midori-browser.c:5825 ../midori/midori-websettings.c:314
+msgid "_Automatic"
+msgstr "_Самостално"
+
+#: ../midori/midori-browser.c:5828 ../midori/midori-websettings.c:238
+msgid "Chinese Traditional (BIG5)"
+msgstr "Кинески Традиционални (BIG5)"
+
+#: ../midori/midori-browser.c:5831 ../midori/midori-websettings.c:239
+msgid "Chinese Simplified (GB18030)"
+msgstr "Кинески поједностављени (GB18030)"
+
+#. i18n: A double underscore "__" is used to prevent the mnemonic
+#: ../midori/midori-browser.c:5835
+msgid "Japanese (SHIFT__JIS)"
+msgstr "Јапански (SHIFT__JIS)"
+
+#: ../midori/midori-browser.c:5838 ../midori/midori-websettings.c:241
+msgid "Korean (EUC-KR)"
+msgstr "Корејски (EUC-KR)"
+
+#: ../midori/midori-browser.c:5841 ../midori/midori-websettings.c:242
+msgid "Russian (KOI8-R)"
+msgstr "Руски (KOI8-R)"
+
+#: ../midori/midori-browser.c:5844 ../midori/midori-websettings.c:243
+msgid "Unicode (UTF-8)"
+msgstr "Уникод (UTF-_8)"
+
+#: ../midori/midori-browser.c:5847 ../midori/midori-websettings.c:244
+msgid "Western (ISO-8859-1)"
+msgstr "Западни (I_SO-8859-1)"
+
+#: ../midori/midori-browser.c:5850
+msgid "Custom…"
+msgstr "Прилагођено…"
+
+#: ../midori/midori-browser.c:6360
+msgid "_Separator"
+msgstr "_Раздвајач"
+
+#: ../midori/midori-browser.c:6367
+msgid "_Location…"
+msgstr "На _адресу…"
+
+#: ../midori/midori-browser.c:6369
+msgid "Open a particular location"
+msgstr "Отворите нарочиту адресу"
+
+#: ../midori/midori-browser.c:6391
+msgid "_Web Search…"
+msgstr "П_ретражи веб…"
+
+#: ../midori/midori-browser.c:6393
+msgid "Run a web search"
+msgstr "Покрените претрагу веба"
+
+#: ../midori/midori-browser.c:6420
+msgid "Reopen a previously closed tab or window"
+msgstr "Вратите претходно затворене прозоре или листове"
+
+#: ../midori/midori-browser.c:6437
+msgid "Show the saved bookmarks"
+msgstr "Прикажите сачуване обележиваче"
+
+#: ../midori/midori-browser.c:6470
+msgid "_Window"
+msgstr "_Прозор"
+
+#: ../midori/midori-browser.c:6472
+msgid "Show a list of all open tabs"
+msgstr "Прикажите списак свих отворених листова"
+
+#: ../midori/midori-browser.c:6486
+msgid "_Menu"
+msgstr "_Изборник"
+
+#: ../midori/midori-browser.c:6488
+msgid "Menu"
+msgstr "Изборник"
+
+#: ../midori/midori-browser.c:7313
+#, c-format
+msgid "Unexpected setting '%s'"
+msgstr "Неочекивана поставка „%s“"
+
+#: ../midori/midori-extension.c:329
+#, c-format
+msgid "The configuration of the extension '%s' couldn't be loaded: %s\n"
+msgstr "Подешавање проширења „%s“ не може бити учитано: %s\n"
+
+#: ../midori/midori-extension.c:747 ../midori/midori-extension.c:844
+#: ../midori/midori-extension.c:941 ../midori/midori-extension.c:1053
+#: ../extensions/addons.c:1688
+#, c-format
+msgid "The configuration of the extension '%s' couldn't be saved: %s\n"
+msgstr "Подешавање проширења „%s“ не може бити сачувано: %s\n"
+
+#: ../midori/midori-locationaction.c:394
+#, c-format
+msgid "Search with %s"
+msgstr "Претражи помоћу %s"
+
+#: ../midori/midori-locationaction.c:414
+msgid "Search with…"
+msgstr "Претражи помоћу…"
+
+#: ../midori/midori-locationaction.c:541
+#, c-format
+msgid "Failed to select from history\n"
+msgstr "Нисам успео да изаберем из историјата\n"
+
+#: ../midori/midori-locationaction.c:628
+#, c-format
+msgid "Search for %s"
+msgstr "Потражи %s"
+
+#: ../midori/midori-locationaction.c:1223
+msgid "Export certificate"
+msgstr "Извези уверење"
+
+#: ../midori/midori-locationaction.c:1255
+msgid "The signing certificate authority is not known."
+msgstr "Власништво потписаног уверења није познато."
+
+#: ../midori/midori-locationaction.c:1257
+msgid ""
+"The certificate does not match the expected identity of the site that it was "
+"retrieved from."
+msgstr ""
+"Сертификат се не подудара са очекиваним идентитетом цајта са ког је "
+"добавље+ен"
+
+#: ../midori/midori-locationaction.c:1259
+msgid "The certificate's activation time is still in the future."
+msgstr "Време почетка важења уверења је у будућности."
+
+#: ../midori/midori-locationaction.c:1261
+msgid "The certificate has expired"
+msgstr "Уверење је истекло"
+
+#: ../midori/midori-locationaction.c:1263
+msgid ""
+"The certificate has been revoked according to the GTlsConnection's "
+"certificate revocation list."
+msgstr "Уверење је повучено у складу са списком повлачења уверења ГТлс веза."
+
+#: ../midori/midori-locationaction.c:1265
+msgid "The certificate's algorithm is considered insecure."
+msgstr "Алгоритам уврења се сматра несигурним."
+
+#: ../midori/midori-locationaction.c:1267
+msgid "Some other error occurred validating the certificate."
+msgstr "Неке друге грешке су се десиле приликом провере уверења."
+
+#: ../midori/midori-locationaction.c:1314
+msgid "_Export certificate"
+msgstr "_Извоз уверења"
+
+#: ../midori/midori-locationaction.c:1329
+msgid "Self-signed"
+msgstr "Са сопственим потписом"
+
+#: ../midori/midori-locationaction.c:1363
+msgid "Security details"
+msgstr "Безбедносни детаљи"
+
+#. i18n: Right-click on Location, Open an URL from the clipboard
+#: ../midori/midori-locationaction.c:1646
+msgid "Paste and p_roceed"
+msgstr "Налепи и _настави"
+
+#: ../midori/midori-locationaction.c:1970
+msgid "Not verified"
+msgstr "Непроверено"
+
+#: ../midori/midori-locationaction.c:1978
+msgid "Verified and encrypted connection"
+msgstr "Проверена и шифрована веза"
+
+#: ../midori/midori-locationaction.c:1985
+msgid "Open, unencrypted connection"
+msgstr "Отворена, нешифрована веза"
+
+#: ../midori/midori-panel.c:317 ../midori/midori-panel.c:319
+#: ../midori/midori-panel.c:483 ../midori/midori-panel.c:486
+msgid "Align sidepanel to the right"
+msgstr "Поставите бочну површ на десну страну"
+
+#: ../midori/midori-panel.c:329 ../midori/midori-panel.c:330
+msgid "Close panel"
+msgstr "Затворите површ"
+
+#: ../midori/midori-panel.c:484 ../midori/midori-panel.c:487
+msgid "Align sidepanel to the left"
+msgstr "Поставите бочну површ на леву страну"
+
+#: ../midori/midori-websettings.c:220
+msgid "Show Speed Dial"
+msgstr "Прикажи брзе посете"
+
+#: ../midori/midori-websettings.c:221
+msgid "Show Homepage"
+msgstr "Прикажи почетну страницу"
+
+#: ../midori/midori-websettings.c:240
+msgid "Japanese (SHIFT_JIS)"
+msgstr "Јапански (SHIFT_JIS)"
+
+#: ../midori/midori-websettings.c:245 ../midori/midori-websettings.c:321
+#: ../katze/katze-utils.c:633
+msgid "Custom..."
+msgstr "Прилагођено…"
+
+#: ../midori/midori-websettings.c:260
+msgid "New tab"
+msgstr "новом листу"
+
+#: ../midori/midori-websettings.c:261
+msgid "New window"
+msgstr "новом прозору"
+
+#: ../midori/midori-websettings.c:262
+msgid "Current tab"
+msgstr "тренутном листу"
+
+#: ../midori/midori-websettings.c:277
+msgid "Default"
+msgstr "Уобичајено"
+
+#: ../midori/midori-websettings.c:278
+msgid "Icons"
+msgstr "Иконице"
+
+#: ../midori/midori-websettings.c:279
+msgid "Small icons"
+msgstr "Мале иконице"
+
+#: ../midori/midori-websettings.c:280
+msgid "Text"
+msgstr "Текст"
+
+#: ../midori/midori-websettings.c:281
+msgid "Icons and text"
+msgstr "Иконице и текст"
+
+#: ../midori/midori-websettings.c:282
+msgid "Text beside icons"
+msgstr "Текст поред иконица"
+
+#: ../midori/midori-websettings.c:297
+msgid "Automatic (GNOME or environment)"
+msgstr "Самостално (Гном или окружење)"
+
+#: ../midori/midori-websettings.c:298
+msgid "HTTP proxy server"
+msgstr "ХТТП сервер посредник"
+
+#: ../midori/midori-websettings.c:299
+msgid "No proxy server"
+msgstr "Без посредничког сервера"
+
+#: ../midori/midori-websettings.c:316
+msgid "Chrome"
+msgstr "Кром"
+
+#: ../midori/midori-websettings.c:317
+msgid "Safari"
+msgstr "Сафари"
+
+#: ../midori/midori-websettings.c:318
+msgid "iPhone"
+msgstr "Ајфон"
+
+#: ../midori/midori-websettings.c:319
+msgid "Firefox"
+msgstr "Фајерфокс"
+
+#: ../midori/midori-websettings.c:320
+msgid "Internet Explorer"
+msgstr "Интернет експлорер"
+
+#: ../midori/midori-websettings.c:404
+msgid "Remember last window size"
+msgstr "Запамти последњу величину прозора"
+
+#: ../midori/midori-websettings.c:405
+msgid "Whether to save the last window size"
+msgstr "Да ли ће бити сачувана последња величина прозора"
+
+#: ../midori/midori-websettings.c:413
+msgid "Last window width"
+msgstr "Последња ширина прозора"
+
+#: ../midori/midori-websettings.c:414
+msgid "The last saved window width"
+msgstr "Последња ширина сачуваног прозора"
+
+#: ../midori/midori-websettings.c:422
+msgid "Last window height"
+msgstr "Последњег висина прозора"
+
+#: ../midori/midori-websettings.c:423
+msgid "The last saved window height"
+msgstr "Последња висина сачуваног прозора"
+
+#: ../midori/midori-websettings.c:448
+msgid "Last panel position"
+msgstr "Последњи положај панела"
+
+#: ../midori/midori-websettings.c:449
+msgid "The last saved panel position"
+msgstr "Последњи сачувани положај панела"
+
+#. i18n: The internal index of the last opened panel
+#: ../midori/midori-websettings.c:458
+msgid "Last panel page"
+msgstr "Последња станица панела"
+
+#: ../midori/midori-websettings.c:459
+msgid "The last saved panel page"
+msgstr "Последња сачувана страница панела"
+
+#: ../midori/midori-websettings.c:467
+msgid "Last Web search"
+msgstr "Последња претрага"
+
+#: ../midori/midori-websettings.c:468
+msgid "The last saved Web search"
+msgstr "Последња сачувана претрага веба"
+
+#: ../midori/midori-websettings.c:492
+msgid "Show Menubar"
+msgstr "Приказивање траке изборника"
+
+#: ../midori/midori-websettings.c:493
+msgid "Whether to show the menubar"
+msgstr "Да ли ће бити приказана трака изборника"
+
+#: ../midori/midori-websettings.c:501
+msgid "Show Navigationbar"
+msgstr "Приказивање траке навигације"
+
+#: ../midori/midori-websettings.c:502
+msgid "Whether to show the navigationbar"
+msgstr "Да ли ће бити приказана трака навигације"
+
+#: ../midori/midori-websettings.c:510
+msgid "Show Bookmarkbar"
+msgstr "Приказивање обележивача"
+
+#: ../midori/midori-websettings.c:511
+msgid "Whether to show the bookmarkbar"
+msgstr "Да ли ће бити приказани обележивачи"
+
+#: ../midori/midori-websettings.c:519
+msgid "Show Panel"
+msgstr "Приказивање бочне површи"
+
+#: ../midori/midori-websettings.c:520
+msgid "Whether to show the panel"
+msgstr "Да ли ће бити приказана бочна површ"
+
+#: ../midori/midori-websettings.c:528
+msgid "Show Statusbar"
+msgstr "Приказивање траке стања"
+
+#: ../midori/midori-websettings.c:529
+msgid "Whether to show the statusbar"
+msgstr "Да ли ће бити приказана трака стања"
+
+#: ../midori/midori-websettings.c:538
+msgid "Toolbar Style:"
+msgstr "Стил траке алата:"
+
+#: ../midori/midori-websettings.c:539
+msgid "The style of the toolbar"
+msgstr "Одређује изглед траке алата"
+
+#: ../midori/midori-websettings.c:548
+msgid "Toolbar Items"
+msgstr "Ставке траке алата"
+
+#: ../midori/midori-websettings.c:549
+msgid "The items to show on the toolbar"
+msgstr "Ставке које ће бити приказане у траци алата"
+
+#: ../midori/midori-websettings.c:557
+msgid "Compact Sidepanel"
+msgstr "Збијена бочна површ"
+
+#: ../midori/midori-websettings.c:558
+msgid "Whether to make the sidepanel compact"
+msgstr "Да ли ће бочну површ учинити збијеном"
+
+#: ../midori/midori-websettings.c:573
+msgid "Align sidepanel on the right"
+msgstr "Постављање бочне површи на десно"
+
+#: ../midori/midori-websettings.c:574
+msgid "Whether to align the sidepanel on the right"
+msgstr "Да ли ће бочна површ бити поравната на десно"
+
+#: ../midori/midori-websettings.c:589
+msgid "Open panels in separate windows"
+msgstr "Површи у засебним прозорима"
+
+#: ../midori/midori-websettings.c:590
+msgid "Whether to always open panels in separate windows"
+msgstr "Да ли ће увек отварати површи у засебним прозорима"
+
+#: ../midori/midori-websettings.c:599
+msgid "When Midori starts:"
+msgstr "Када се Мидори покрене:"
+
+#: ../midori/midori-websettings.c:600
+msgid "What to do when Midori starts"
+msgstr "Шта да се ради када се покрене Мидори"
+
+#: ../midori/midori-websettings.c:609
+msgid "Homepage:"
+msgstr "Матична страница:"
+
+#: ../midori/midori-websettings.c:610
+msgid "The homepage"
+msgstr "Почетна страница"
+
+#: ../midori/midori-websettings.c:625
+msgid "Show crash dialog"
+msgstr "Прикажи прозорче падова програма"
+
+#: ../midori/midori-websettings.c:626
+msgid "Show a dialog after Midori crashed"
+msgstr "Приказује прозорче након пада Мидорија"
+
+#: ../midori/midori-websettings.c:634
+msgid "Save downloaded files to:"
+msgstr "Сачувај преузете датотеке у:"
+
+#: ../midori/midori-websettings.c:635
+msgid "The folder downloaded files are saved to"
+msgstr "Фасцикла у којој ће бити сачуване преузете датотеке"
+
+#: ../midori/midori-websettings.c:643
+msgid "Text Editor"
+msgstr "Уређивач текста"
+
+#: ../midori/midori-websettings.c:644
+msgid "An external text editor"
+msgstr "Спољни програм за уређивање текста"
+
+#: ../midori/midori-websettings.c:659
+msgid "News Aggregator"
+msgstr "Читач вести"
+
+#: ../midori/midori-websettings.c:660
+msgid "An external news aggregator"
+msgstr "Спољни програм за читање вести"
+
+#: ../midori/midori-websettings.c:668
+msgid "Location entry Search"
+msgstr "Претрага поља за адресе"
+
+#: ../midori/midori-websettings.c:669
+msgid "The search to perform inside the location entry"
+msgstr "Претрага која ће бити обављена из поља за унос адреса"
+
+#: ../midori/midori-websettings.c:677
+msgid "Preferred Encoding"
+msgstr "Омиљено кодирање"
+
+#: ../midori/midori-websettings.c:678
+msgid "The preferred character encoding"
+msgstr "Кодирање знакова које ће бити у предности"
+
+#: ../midori/midori-websettings.c:688
+msgid "Always Show Tabbar"
+msgstr "Увек прикажи листове"
+
+#: ../midori/midori-websettings.c:689
+msgid "Always show the tabbar"
+msgstr "Увек приказује траку листова"
+
+#: ../midori/midori-websettings.c:702
+msgid "Close Buttons on Tabs"
+msgstr "Дугме за затварање листова"
+
+#: ../midori/midori-websettings.c:703
+msgid "Whether tabs have close buttons"
+msgstr "Да ли ће листови имати дугмад за затварање"
+
+# bug(slobo): једноставно разлистај?
+#: ../midori/midori-websettings.c:728
+msgid "Open new pages in:"
+msgstr "Отвори нове странице у:"
+
+#: ../midori/midori-websettings.c:729
+msgid "Where to open new pages"
+msgstr "Где ће бити отворене нове странице"
+
+#: ../midori/midori-websettings.c:738
+msgid "Middle click opens Selection"
+msgstr "Средњи клик отвара избор"
+
+#: ../midori/midori-websettings.c:739
+msgid "Load an address from the selection via middle click"
+msgstr "Учитава адресу из избора на средњи клик мишем"
+
+#: ../midori/midori-websettings.c:747
+msgid "Open tabs in the background"
+msgstr "Отворите листове у позадини"
+
+#: ../midori/midori-websettings.c:748
+msgid "Whether to open new tabs in the background"
+msgstr "Да ли ће нови листови бити отворени у позадини"
+
+#: ../midori/midori-websettings.c:756
+msgid "Open Tabs next to Current"
+msgstr "Отворите листове поред тренутног"
+
+#: ../midori/midori-websettings.c:757
+msgid ""
+"Whether to open new tabs next to the current tab or after the last one"
+msgstr "Да ли да отвори нове листове поред текућег или након последњег листа"
+
+#: ../midori/midori-websettings.c:765
+msgid "Open popups in tabs"
+msgstr "Отворите искачуће прозоре у листовима"
+
+#: ../midori/midori-websettings.c:766
+msgid "Whether to open popup windows in tabs"
+msgstr "Да ли да отвори искачуће прозоре у листовима"
+
+#: ../midori/midori-websettings.c:776 ../extensions/statusbar-features.c:155
+msgid "Load images automatically"
+msgstr "Сам учитај слике"
+
+#: ../midori/midori-websettings.c:777
+msgid "Load and display images automatically"
+msgstr "Учитава и самостално приказује слике"
+
+#: ../midori/midori-websettings.c:784 ../extensions/statusbar-features.c:165
+msgid "Enable scripts"
+msgstr "Укључи скрипте"
+
+#: ../midori/midori-websettings.c:785
+msgid "Enable embedded scripting languages"
+msgstr "Укључује уметнуте језике за скрипте"
+
+#: ../midori/midori-websettings.c:792 ../extensions/statusbar-features.c:177
+msgid "Enable Netscape plugins"
+msgstr "Укључи прикључке Нетскејпа"
+
+#: ../midori/midori-websettings.c:793
+msgid "Enable embedded Netscape plugin objects"
+msgstr "Укључује угнежђене објекте прикључака Нетскејпа"
+
+#: ../midori/midori-websettings.c:808
+msgid "Enable Spell Checking"
+msgstr "Укључи проверу писања"
+
+#: ../midori/midori-websettings.c:809
+msgid "Enable spell checking while typing"
+msgstr "Укључује проверу писања за време куцања"
+
+#: ../midori/midori-websettings.c:815
+msgid "Enable HTML5 database support"
+msgstr "Укључи подршку ХТМЛ5 базе података"
+
+#: ../midori/midori-websettings.c:816
+msgid "Whether to enable HTML5 database support"
+msgstr "Да ли да укључи подршку ХТМЛ5 базе података"
+
+#: ../midori/midori-websettings.c:822
+msgid "Enable HTML5 local storage support"
+msgstr "Укључи подршку ХТМЛ5 месног скалдиштења"
+
+#: ../midori/midori-websettings.c:823
+msgid "Whether to enable HTML5 local storage support"
+msgstr "Да ли да укључи подршку ХТМЛ5 месног скалдиштења"
+
+#: ../midori/midori-websettings.c:829
+msgid "Enable offline web application cache"
+msgstr "Укључи тренутну меморију веб програма ван мреже"
+
+#: ../midori/midori-websettings.c:830
+msgid "Whether to enable offline web application cache"
+msgstr "Да ли да укључи тренутну меморију веб програма ван мреже"
+
+#: ../midori/midori-websettings.c:851
+msgid "Flash window on background tabs"
+msgstr "Трепни прозором на позадинским листовима"
+
+#: ../midori/midori-websettings.c:852
+msgid "Flash the browser window if a new tab was opened in the background"
+msgstr "Трепнуће прозором прегледника ако буде отворен нови лист у позадини"
+
+#: ../midori/midori-websettings.c:860
+msgid "Enable WebGL support"
+msgstr "Укључи ВебГЛ подршку"
+
+#: ../midori/midori-websettings.c:861
+msgid "Allow websites to use OpenGL rendering"
+msgstr "Омогућава веб сајтовима да користе ОпенГЛ исцртавање"
+
+#: ../midori/midori-websettings.c:887
+msgid "Zoom Text and Images"
+msgstr "Увећај текст и слике"
+
+#: ../midori/midori-websettings.c:888
+msgid "Whether to zoom text and images"
+msgstr "Да ли да повећа текст и слике"
+
+#: ../midori/midori-websettings.c:903
+msgid "Find inline while typing"
+msgstr "Налази унутр за време куцања"
+
+#: ../midori/midori-websettings.c:904
+msgid "Whether to automatically find inline while typing"
+msgstr "Да ли да самостално проналази унутар за време куцања"
+
+#: ../midori/midori-websettings.c:919
+msgid "Kinetic scrolling"
+msgstr "Кинетичко клизање"
+
+#: ../midori/midori-websettings.c:920
+msgid "Whether scrolling should kinetically move according to speed"
+msgstr "Да ли клизање треба кинетички да се помера у складу са брзином"
+
+#: ../midori/midori-websettings.c:928
+msgid "Delete old Cookies after:"
+msgstr "Обриши старе колачиће након:"
+
+#: ../midori/midori-websettings.c:929
+msgid "The maximum number of days to save cookies for"
+msgstr "Највећи број дана за које ће бити причувани колачићи"
+
+#: ../midori/midori-websettings.c:945
+msgid "Only accept Cookies from sites you visit"
+msgstr "Прихвати колачиће само са сајтова које посетим"
+
+#: ../midori/midori-websettings.c:946
+msgid "Block cookies sent by third-party websites"
+msgstr "Блокира колачиће које пошаљу веб сајтови трећих страна"
+
+#: ../midori/midori-websettings.c:960
+msgid "Delete pages from history after:"
+msgstr "Обриши странице из историјата након:"
+
+#: ../midori/midori-websettings.c:961
+msgid "The maximum number of days to save the history for"
+msgstr "Највећи број дана за које ће бити причуван историјат"
+
+#: ../midori/midori-websettings.c:976
+msgid "Proxy server"
+msgstr "Сервер посредник"
+
+#: ../midori/midori-websettings.c:977
+msgid "The type of proxy server to use"
+msgstr "Врста посредника сервера за коришћење"
+
+#: ../midori/midori-websettings.c:986
+msgid "HTTP Proxy Server"
+msgstr "ХТТП сервер посредник"
+
+#: ../midori/midori-websettings.c:987
+msgid "The proxy server used for HTTP connections"
+msgstr "Сервер посредник коришћен за ХТТП везе"
+
+#: ../midori/midori-websettings.c:1002
+msgid "Port"
+msgstr "Прикључак"
+
+#: ../midori/midori-websettings.c:1003
+msgid "The proxy server port used for HTTP connections"
+msgstr "Прикључак сервера посредника коришћеног за ХТТП везе"
+
+#: ../midori/midori-websettings.c:1021
+msgid "The maximum size of cached pages on disk"
+msgstr "Највећа величина причуваних страница на диску"
+
+#. i18n: This refers to an application, not the 'user agent' string
+#: ../midori/midori-websettings.c:1038
+msgid "Identify as"
+msgstr "Представи се као"
+
+#: ../midori/midori-websettings.c:1039
+msgid "What to identify as to web pages"
+msgstr "Одређује како ће се програм представити веб страницама"
+
+#: ../midori/midori-websettings.c:1055
+msgid "Identification string"
+msgstr "Реченица за представање"
+
+#: ../midori/midori-websettings.c:1056
+msgid "The application identification string"
+msgstr "Реченица која одређује како веб странице препознају програм"
+
+#: ../midori/midori-websettings.c:1072
+msgid "Preferred languages"
+msgstr "Пожељни језици"
+
+#: ../midori/midori-websettings.c:1073
+msgid ""
+"A comma separated list of languages preferred for rendering multilingual "
+"webpages, for example \"de\", \"ru,nl\" or \"en-us;q=1.0, fr-fr;q=0.667\""
+msgstr ""
+"Зарезом одвојен списак пожељних језика за исцртавање вишејезичних веб "
+"страница, на пример „de“, „ru,nl“ или „en-us;q=1.0, fr-fr;q=0.667“"
+
+#: ../midori/midori-websettings.c:1088
+msgid "Clear private data"
+msgstr "Брисање личних података"
+
+#: ../midori/midori-websettings.c:1089
+msgid "The private data selected for deletion"
+msgstr "Лични подаци изабрани за брисање"
+
+#: ../midori/midori-websettings.c:1104
+msgid "Clear data"
+msgstr "Брисање података"
+
+#: ../midori/midori-websettings.c:1105
+msgid "The data selected for deletion"
+msgstr "Подаци изабрани за брисање"
+
+#. i18n: Reworded: Shorten details propagated when going to another page
+#: ../midori/midori-websettings.c:1154
+msgid "Strip referrer details sent to websites"
+msgstr "Отцепи податке преусмеривача послате веб сајтовима"
+
+#. i18n: Referer here is not a typo but a technical term
+#: ../midori/midori-websettings.c:1156
+msgid "Whether the \"Referer\" header should be shortened to the hostname"
+msgstr ""
+"Да ли заглавље преусмеривача треба да буде скраћено на назив домаћина"
+
+#: ../midori/midori-websettings.c:1170
+msgid "Always use my font choices"
+msgstr "Увек користи моје изборе словног лика"
+
+#: ../midori/midori-websettings.c:1171
+msgid "Override fonts picked by websites with user preferences"
+msgstr ""
+"Преписује словне ликове изабране веб сајтовима оним које изабере корисник"
+
+#: ../midori/midori-view.c:1002 ../midori/midori-view.c:1140
+msgid "Trust this website"
+msgstr "Верујте овом веб сајту"
+
+#: ../midori/midori-view.c:1138
+msgid "Security unknown"
+msgstr "Непозната безбедност"
+
+#: ../midori/midori-view.c:1436
+#, c-format
+msgid "%s wants to save an HTML5 database."
+msgstr "%s жели да сачува ХТМЛ5 базу податдака."
+
+#: ../midori/midori-view.c:1440 ../midori/midori-view.c:1474
+msgid "_Deny"
+msgstr "_Одбиј"
+
+#: ../midori/midori-view.c:1440 ../midori/midori-view.c:1474
+msgid "_Allow"
+msgstr "_Допусти"
+
+#: ../midori/midori-view.c:1469
+#, c-format
+msgid "%s wants to know your location."
+msgstr "%s жели да зна ваше место."
+
+#: ../midori/midori-view.c:1565
+#, c-format
+msgid "Error - %s"
+msgstr "Грешка — %s"
+
+#: ../midori/midori-view.c:1566
+#, c-format
+msgid "The page '%s' couldn't be loaded."
+msgstr "Не могу да учитам страницу „%s“."
+
+#: ../midori/midori-view.c:1568
+msgid "Try again"
+msgstr "Покушај поново"
+
+#: ../midori/midori-view.c:1766 ../midori/midori-view.c:2879
+#, c-format
+msgid "Send a message to %s"
+msgstr "Пошаљи поруку %s"
+
+#: ../midori/midori-view.c:2665
+msgid "Add _search engine..."
+msgstr "Додајте погон претраге"
+
+#: ../midori/midori-view.c:2709 ../midori/midori-view.c:3035
+msgid "Inspect _Element"
+msgstr "Провери _елемент"
+
+#: ../midori/midori-view.c:2761
+msgid "Open Link in New _Tab"
+msgstr "Отвори везу у новом _листу"
+
+#: ../midori/midori-view.c:2765
+msgid "Open Link in _Foreground Tab"
+msgstr "Отвори везу у про_челном листу"
+
+#: ../midori/midori-view.c:2766
+msgid "Open Link in _Background Tab"
+msgstr "Отвори везу у по_задинском листу"
+
+#: ../midori/midori-view.c:2769
+msgid "Open Link in New _Window"
+msgstr "Отвори везу у _новом прозору"
+
+#: ../midori/midori-view.c:2772
+msgid "Open Link as Web A_pplication"
+msgstr "Отвори везу као веб _програм"
+
+#: ../midori/midori-view.c:2777
+msgid "Copy Link de_stination"
+msgstr "Умножи _одредиште везе"
+
+# bug: no plural-forms
+#: ../midori/midori-view.c:2793
+msgid "Open _Image in New Tab"
+msgstr "Отвори слику у _новом листу"
+
+#: ../midori/midori-view.c:2796
+msgid "Copy Image _Address"
+msgstr "Умножи _адресу слике"
+
+#: ../midori/midori-view.c:2799
+msgid "Save I_mage"
+msgstr "Сачувај _слику"
+
+# bug: no plural-forms
+#: ../midori/midori-view.c:2802
+msgid "Open in Image _Viewer"
+msgstr "Отвори у _прегледнику слика"
+
+#: ../midori/midori-view.c:2809
+msgid "Copy Video _Address"
+msgstr "Умножи _адресу снимка"
+
+#: ../midori/midori-view.c:2812
+msgid "Save _Video"
+msgstr "Сачувај _снимак"
+
+#: ../midori/midori-view.c:2812
+msgid "Download _Video"
+msgstr "Преузми _снимак"
+
+#: ../midori/midori-view.c:2838
+msgid "Search _with"
+msgstr "Пре_тражи са"
+
+#: ../midori/midori-view.c:2870
+msgid "_Search the Web"
+msgstr "П_ретражи Интернет"
+
+# bug: no plural-forms
+#: ../midori/midori-view.c:2887
+msgid "Open Address in New _Tab"
+msgstr "Отвору адресу у новом _листу"
+
+# bug: no plural-forms
+#: ../midori/midori-view.c:2940
+msgid "Open _Frame in New Tab"
+msgstr "Отвори кадар у новом _листу"
+
+#: ../midori/midori-view.c:3201
+#, c-format
+msgid "Open or download file from %s"
+msgstr "Отворите или преузмите датотеку из %s"
+
+#: ../midori/midori-view.c:3225
+#, c-format
+msgid "File Name: %s"
+msgstr "Назив датотеке: %s"
+
+#: ../midori/midori-view.c:3230
+#, c-format
+msgid "File Type: '%s'"
+msgstr "Врста датотеке: „%s“"
+
+#: ../midori/midori-view.c:3232
+#, c-format
+msgid "File Type: %s ('%s')"
+msgstr "Врста датотеке: %s („%s“)"
+
+#: ../midori/midori-view.c:3267
+#, c-format
+msgid "Size: %s"
+msgstr "Величина: %s"
+
+#. i18n: A file open dialog title, ie. "Open http://fila.com/manual.tgz"
+#: ../midori/midori-view.c:3278
+#, c-format
+msgid "Open %s"
+msgstr "Отворите %s"
+
+#: ../midori/midori-view.c:3897
+#, c-format
+msgid "Inspect page - %s"
+msgstr "Провера странице — %s"
+
+#: ../midori/midori-view.c:4252
+msgid "Speed Dial"
+msgstr "Брзе посете"
+
+#: ../midori/midori-view.c:4253 ../midori/midori-view.c:4359
+msgid "Click to add a shortcut"
+msgstr "Кликните да додате пречицу"
+
+#: ../midori/midori-view.c:4254
+msgid "Enter shortcut address"
+msgstr "Унесите адресу за пречицу"
+
+#: ../midori/midori-view.c:4255
+msgid "Enter shortcut title"
+msgstr "Унесите наслов за пречицу"
+
+#: ../midori/midori-view.c:4256
+msgid "Are you sure you want to delete this shortcut?"
+msgstr "Да ли заиста желите да обришете ову пречицу?"
+
+#: ../midori/midori-view.c:4429
+#, c-format
+msgid "No documentation installed"
+msgstr "Није инсталирана помоћ"
+
+#: ../midori/midori-view.c:4506
+msgid "Midori doesn't store any personal data:"
+msgstr "Мидори не чува никакве личне податке:"
+
+#: ../midori/midori-view.c:4507
+msgid "No history or web cookies are being saved."
+msgstr "Нису сачувани ни историјат ни веб колачићи."
+
+#: ../midori/midori-view.c:4508
+msgid "Extensions are disabled."
+msgstr "Проширења су искључена."
+
+#: ../midori/midori-view.c:4509
+msgid "HTML5 storage, local database and application caches are disabled."
+msgstr ""
+"ХТМЛ5 скалдиштење, месна база података и причувавања програма су искључена."
+
+#: ../midori/midori-view.c:4510
+msgid "Midori prevents websites from tracking the user:"
+msgstr "Мидори спречава веб сајтове да прате корисника:"
+
+#: ../midori/midori-view.c:4511
+msgid "Referrer URLs are stripped down to the hostname."
+msgstr "Адресе преусмеривача су отцепљене на назив домаћина."
+
+#: ../midori/midori-view.c:4512
+msgid "DNS prefetching is disabled."
+msgstr "ДНС довлачење је искључено."
+
+#: ../midori/midori-view.c:4513
+msgid "The language and timezone are not revealed to websites."
+msgstr "Језик и временска зона нису откривени веб сајтовима."
+
+#: ../midori/midori-view.c:4514
+msgid "Flash and other Netscape plugins cannot be listed by websites."
+msgstr "Веб сајтови не могу да излистају Флеш или друге Нетскејп прикључке."
+
+#: ../midori/midori-view.c:4603
+msgid "Version numbers in brackets show the version used at runtime."
+msgstr ""
+"Бројеви издања у заградама приказују издање коришћено за време покретања."
+
+#: ../midori/midori-view.c:4653
+msgid "Page loading delayed"
+msgstr "Учитавање странице је одложено"
+
+#: ../midori/midori-view.c:4654
+msgid "Loading delayed either due to a recent crash or startup preferences."
+msgstr ""
+"Учитавање је одложено или због недавног пада програма или због поставки "
+"покретања."
+
+#: ../midori/midori-view.c:4655
+msgid "Load Page"
+msgstr "Учитај страницу"
+
+#: ../midori/midori-view.c:4822
+msgid "Blank page"
+msgstr "Празна страница"
+
+#: ../midori/midori-view.c:5086
+msgid "_Duplicate Tab"
+msgstr "_Удвостручи лист"
+
+#: ../midori/midori-view.c:5091
+msgid "Show Tab _Label"
+msgstr "Прикажи _натпис листа"
+
+#: ../midori/midori-view.c:5091
+msgid "Show Tab _Icon Only"
+msgstr "Прикажи само _иконицу листа"
+
+#: ../midori/midori-view.c:5098
+msgid "Close Ot_her Tab"
+msgid_plural "Close Ot_her Tabs"
+msgstr[0] "Затвори _други лист"
+msgstr[1] "Затвори _друге листове"
+msgstr[2] "Затвори _друге листове"
+
+#. i18n: word stem of "previous page" type links, case is not important
+#: ../midori/midori-view.c:5934
+msgid "previous"
+msgstr "Претходно"
+
+#. i18n: word stem of "next page" type links, case is not important
+#: ../midori/midori-view.c:5953
+msgid "next"
+msgstr "Следеће"
+
+#: ../midori/midori-view.c:5966
+msgid "Print background images"
+msgstr "Прикажи позадинске слике"
+
+#: ../midori/midori-view.c:5967
+msgid "Whether background images should be printed"
+msgstr "Одређује да ли треба приказати слике за позадину"
+
+#: ../midori/midori-view.c:5999
+msgid "Features"
+msgstr "Могућности"
+
+#: ../midori/midori-preferences.c:298
+msgid "Startup"
+msgstr "Покретање"
+
+#: ../midori/midori-preferences.c:311
+msgid "Use _current page"
+msgstr "Користи _тренутну страницу"
+
+#: ../midori/midori-preferences.c:315
+msgid "Use current page as homepage"
+msgstr "Искористи тренутну страницу као почетну"
+
+#. Page "Appearance"
+#: ../midori/midori-preferences.c:324
+msgid "Fonts"
+msgstr "Словни ликови"
+
+#: ../midori/midori-preferences.c:327
+msgid "Proportional Font Family"
+msgstr "Породица сразмерног писма"
+
+#: ../midori/midori-preferences.c:331
+msgid "The default font family used to display text"
+msgstr "Основна породица писма за приказ текста"
+
+#: ../midori/midori-preferences.c:334
+msgid "The default font size used to display text"
+msgstr "Основна величина писма за приказ текста"
+
+#: ../midori/midori-preferences.c:336
+msgid "Fixed-width Font Family"
+msgstr "Породица писма сталне ширине"
+
+#: ../midori/midori-preferences.c:340
+msgid "The font family used to display fixed-width text"
+msgstr "Породица писма за приказ текста сталне ширине"
+
+#: ../midori/midori-preferences.c:343
+msgid "The font size used to display fixed-width text"
+msgstr "Величина писма за приказ текста сталне ширине"
+
+#: ../midori/midori-preferences.c:345
+msgid "Minimum Font Size"
+msgstr "Најмања величина писма"
+
+#: ../midori/midori-preferences.c:349
+msgid "The minimum font size used to display text"
+msgstr "Најмања величина писма за приказ текста"
+
+#. Page "Behavior"
+#: ../midori/midori-preferences.c:360
+msgid "Behavior"
+msgstr "Понашање"
+
+#: ../midori/midori-preferences.c:386
+msgid "Allow scripts to open popups"
+msgstr "Омогући скриптама да отворе облачиће"
+
+#: ../midori/midori-preferences.c:387
+msgid "Whether scripts are allowed to open popup windows automatically"
+msgstr ""
+"Да ли ће скриптама бити допуштено да самостално отварају искачуће прозоре"
+
+#. Page "Interface"
+#: ../midori/midori-preferences.c:418
+msgid "Browsing"
+msgstr "Разгледање"
+
+#. Page "Network"
+#: ../midori/midori-preferences.c:458
+msgid "Network"
+msgstr "Мрежа"
+
+#: ../midori/midori-preferences.c:465
+msgid "Hostname"
+msgstr "Домаћин"
+
+#: ../midori/midori-preferences.c:489
+msgid "MB"
+msgstr "MB"
+
+#: ../midori/midori-searchaction.c:957
+msgid "Add search engine"
+msgstr "Додајте погон претраге"
+
+#: ../midori/midori-searchaction.c:957
+msgid "Edit search engine"
+msgstr "Уреди погон претраге"
+
+#: ../midori/midori-searchaction.c:985
+msgid "_Name:"
+msgstr "_Назив:"
+
+#: ../midori/midori-searchaction.c:1000
+msgid "_Description:"
+msgstr "_Опис:"
+
+#: ../midori/midori-searchaction.c:1013 ../extensions/feed-panel/main.c:377
+msgid "_Address:"
+msgstr "_Адреса:"
+
+#: ../midori/midori-searchaction.c:1032
+msgid "_Token:"
+msgstr "_Израз:"
+
+#: ../midori/midori-searchaction.c:1330
+msgid "Manage Search Engines"
+msgstr "Подеси погоне претраге"
+
+#: ../midori/midori-searchaction.c:1432
+msgid "Use as _default"
+msgstr "_Постави за основни"
+
+#: ../midori/sokoke.c:346
+msgid "Open with"
+msgstr "Отвори програмом"
+
+#: ../midori/sokoke.c:354
+#, c-format
+msgid "Choose an application or command to open \"%s\":"
+msgstr "Изаберите програм или наредбу којом ће бити отворено „%s“:"
+
+#: ../midori/sokoke.c:468 ../midori/sokoke.c:482
+msgid "Could not run external program."
+msgstr "Не могу да покренем спољни програм."
+
+#: ../midori/sokoke.c:1529
+#, c-format
+msgid "%d hour"
+msgid_plural "%d hours"
+msgstr[0] "%d сат"
+msgstr[1] "%d сата"
+msgstr[2] "%d сати"
+
+#: ../midori/sokoke.c:1530
+#, c-format
+msgid "%d minute"
+msgid_plural "%d minutes"
+msgstr[0] "%d минут"
+msgstr[1] "%d минута"
+msgstr[2] "%d минута"
+
+#: ../midori/sokoke.c:1531
+#, c-format
+msgid "%d second"
+msgid_plural "%d seconds"
+msgstr[0] "%d секунда"
+msgstr[1] "%d секунде"
+msgstr[2] "%d секунди"
+
+#. i18n: Download tooltip (size): 4KB of 43MB
+#: ../midori/sokoke.c:1539 ../panels/midori-transfers.c:268
+#, c-format
+msgid "%s of %s"
+msgstr "%s од %s"
+
+#. i18n: Unknown number of bytes, used for transfer rate like ?B/s
+#: ../midori/sokoke.c:1548
+msgid "?B"
+msgstr "?B"
+
+#. i18n: Download tooltip (transfer rate): (130KB/s)
+#: ../midori/sokoke.c:1551
+#, c-format
+msgid " (%s/s)"
+msgstr " (%s/s)"
+
+#. i18n: Download tooltip (estimated time) : - 1 hour, 5 minutes remaning
+#: ../midori/sokoke.c:1568
+#, c-format
+msgid " - %s remaining"
+msgstr " — преостало време: %s"
+
+#. i18n: A panel at the bottom, to search text in pages
+#: ../toolbars/midori-findbar.c:265
+msgid "_Inline Find:"
+msgstr "_Потражите израз:"
+
+#: ../toolbars/midori-findbar.c:287
+msgid "Previous"
+msgstr "Претходно"
+
+#: ../toolbars/midori-findbar.c:293
+msgid "Next"
+msgstr "Следеће"
+
+#: ../toolbars/midori-findbar.c:297
+msgid "Match Case"
+msgstr "Упореди велчину слова"
+
+#: ../toolbars/midori-findbar.c:306
+msgid "Highlight Matches"
+msgstr "Истакни пронађено"
+
+#: ../toolbars/midori-findbar.c:317
+msgid "Close Findbar"
+msgstr "Затворите траку за претрагу"
+
+#: ../toolbars/midori-transferbar.c:124
+#, c-format
+msgid "The file '<b>%s</b>' has been downloaded."
+msgstr "Датотека „<b>%s</b>“ је преузета."
+
+#: ../toolbars/midori-transferbar.c:129
+msgid "Transfer completed"
+msgstr "Пренос је завршен"
+
+#: ../toolbars/midori-transferbar.c:201
+msgid "The downloaded file is erroneous."
+msgstr "Преузета датотека је погрешна."
+
+#: ../toolbars/midori-transferbar.c:202
+msgid ""
+"The checksum provided with the link did not match. This means the file is "
+"probably incomplete or was modified afterwards."
+msgstr ""
+"Сума за проверу обезбеђена везом не одговара. Ово значи да је датотека "
+"вероватно непотпуна или да је касније измењена."
+
+#: ../toolbars/midori-transferbar.c:345 ../panels/midori-transfers.c:142
+msgid "Clear All"
+msgstr "Очисти све"
+
+#: ../toolbars/midori-transferbar.c:382 ../toolbars/midori-transferbar.c:384
+msgid "Some files are being downloaded"
+msgstr "Неке датотеке су преузете"
+
+#: ../toolbars/midori-transferbar.c:388
+msgid "_Quit Midori"
+msgstr "_Напусти Мидори"
+
+#: ../toolbars/midori-transferbar.c:390
+msgid "The transfers will be cancelled if Midori quits."
+msgstr "Преноси ће бити отказани ако затворите Мидори."
+
+#: ../panels/midori-bookmarks.c:308
+#, c-format
+msgid "Failed to add bookmark item: %s\n"
+msgstr "Нисам успео да додам ставку забелешки: %s\n"
+
+#: ../panels/midori-bookmarks.c:475
+#, c-format
+msgid "Failed to update bookmark : %s\n"
+msgstr "Нисам успео да додам ставку забелешки: %s\n"
+
+#: ../panels/midori-bookmarks.c:535
+msgid "Edit the selected bookmark"
+msgstr "Уредите изабрану забелешку"
+
+#: ../panels/midori-bookmarks.c:543
+msgid "Delete the selected bookmark"
+msgstr "Уклоните изабрану забелешку"
+
+#: ../panels/midori-bookmarks.c:558
+msgid "Add a new folder"
+msgstr "Додајте нову фасциклу"
+
+#: ../panels/midori-bookmarks.c:697 ../panels/midori-history.c:638
+msgid "<i>Separator</i>"
+msgstr "<i>Раздвајач</i>"
+
+#. Create the filter entry
+#: ../panels/midori-bookmarks.c:1027
+msgid "Search Bookmarks"
+msgstr "Тражи забелешке"
+
+#: ../panels/midori-history.c:111
+msgid "History"
+msgstr "Историјат"
+
+#: ../panels/midori-history.c:158 ../panels/midori-history.c:189
+msgid "Today"
+msgstr "Данас"
+
+#: ../panels/midori-history.c:160 ../panels/midori-history.c:191
+msgid "Yesterday"
+msgstr "Јуче"
+
+#: ../panels/midori-history.c:162 ../panels/midori-history.c:186
+#, c-format
+msgid "%d day ago"
+msgid_plural "%d days ago"
+msgstr[0] "Пре %d дан"
+msgstr[1] "Пре %d дана"
+msgstr[2] "Пре %d дана"
+
+#: ../panels/midori-history.c:165 ../panels/midori-history.c:184
+msgid "A week ago"
+msgstr "Пре недељу дана"
+
+#: ../panels/midori-history.c:232
+#, c-format
+msgid "Failed to remove history item: %s\n"
+msgstr "Не могу да уклоним ставку историјата: %s\n"
+
+#: ../panels/midori-history.c:360
+msgid "Are you sure you want to remove all history items?"
+msgstr "Да ли заиста желите да уклоните све ставке из историјата?"
+
+#: ../panels/midori-history.c:407
+msgid "Bookmark the selected history item"
+msgstr "Обележите изабрану ставку историјата"
+
+#: ../panels/midori-history.c:416
+msgid "Delete the selected history item"
+msgstr "Уклоните изабрану ставку из историјата"
+
+#: ../panels/midori-history.c:424
+msgid "Clear the entire history"
+msgstr "Очистите сав историјат"
+
+#. Create the filter entry
+#: ../panels/midori-history.c:997
+msgid "Search History"
+msgstr "Историја претраге"
+
+#: ../panels/midori-transfers.c:87
+msgid "Transfers"
+msgstr "Преноси"
+
+#: ../panels/midori-transfers.c:470
+msgid "Open Destination _Folder"
+msgstr "Отвори одредишну _фасциклу"
+
+#: ../panels/midori-transfers.c:473
+msgid "Copy Link Loc_ation"
+msgstr "_Умножи место везе"
+
+#: ../katze/katze-http-auth.c:210
+msgid "Authentication Required"
+msgstr "Потребна је пријава"
+
+#: ../katze/katze-http-auth.c:226
+msgid ""
+"A username and a password are required\n"
+"to open this location:"
+msgstr ""
+"Потребно је корисничко име и лозинка за\n"
+"отварање ове странице:"
+
+#: ../katze/katze-http-auth.c:240
+msgid "Username"
+msgstr "Корисничко име"
+
+#: ../katze/katze-http-auth.c:253
+msgid "Password"
+msgstr "Лозинка"
+
+#: ../katze/katze-http-auth.c:267
+msgid "_Remember password"
+msgstr "_Запамти лозинку"
+
+#: ../katze/katze-throbber.c:949
+#, c-format
+msgid "Named icon '%s' couldn't be loaded"
+msgstr "Именована иконица „%s“ не може бити учитана"
+
+#: ../katze/katze-throbber.c:962
+#, c-format
+msgid "Stock icon '%s' couldn't be loaded"
+msgstr "Стек иконица „%s“ не може бити учитана"
+
+#: ../katze/katze-throbber.c:1042
+msgid "Animation frames are broken"
+msgstr "Оквири са анимацијама су неисправни"
+
+#: ../katze/katze-utils.c:443 ../katze/katze-utils.c:867
+#, c-format
+msgid "Property '%s' is invalid for %s"
+msgstr "Вредност „%s“ није исправна за %s"
+
+#: ../katze/katze-utils.c:489 ../katze/katze-utils.c:518
+#: ../extensions/addons.c:308
+msgid "Choose file"
+msgstr "Изаберите датотеку"
+
+#: ../katze/katze-utils.c:504
+msgid "Choose folder"
+msgstr "Изаберите фасциклу"
+
+#: ../katze/katze-utils.c:602
+msgid "None"
+msgstr "Ништа"
+
+#: ../katze/katze-utils.c:717
+msgid "1 hour"
+msgstr "1 сата"
+
+#: ../katze/katze-utils.c:718
+msgid "1 day"
+msgstr "1 дана"
+
+#: ../katze/katze-utils.c:719
+msgid "1 week"
+msgstr "1 недеље"
+
+#: ../katze/katze-utils.c:720
+msgid "1 month"
+msgstr "1 месеца"
+
+#: ../katze/katze-utils.c:721
+msgid "1 year"
+msgstr "1 године"
+
+#: ../katze/katze-preferences.c:98 ../extensions/history-list.vala:235
+#, c-format
+msgid "Preferences for %s"
+msgstr "Поставке за %s"
+
+#: ../extensions/adblock.c:470
+msgid "Configure Advertisement filters"
+msgstr "Подесите пропуснике реклама"
+
+#: ../extensions/adblock.c:503
+#, c-format
+msgid ""
+"Type the address of a preconfigured filter list in the text entry and click "
+"\"Add\" to add it to the list. You can find more lists at %s."
+msgstr ""
+"Упишите адресу претподешеног списка филтера у поље за унос текста и кликните "
+"„Додај“ да га додате на списак. Више спискова можете да пронађете на %s."
+
+#: ../extensions/adblock.c:917
+msgid "Edit rule"
+msgstr "Измени правило"
+
+#: ../extensions/adblock.c:931
+msgid "_Rule:"
+msgstr "_Правило:"
+
+#: ../extensions/adblock.c:985
+msgid "Bl_ock image"
+msgstr "Блокирај _слику"
+
+#: ../extensions/adblock.c:990
+msgid "Bl_ock link"
+msgstr "Блокирај _везу"
+
+#: ../extensions/adblock.c:1689
+msgid "Advertisement blocker"
+msgstr "Зауставник реклама"
+
+#: ../extensions/adblock.c:1690
+msgid "Block advertisements according to a filter list"
+msgstr "Блокира рекламе у складу са списком пропусника"
+
+#. i18n: An infobar shows up when viewing a script on userscripts.org
+#: ../extensions/addons.c:221
+msgid ""
+"This page appears to contain a user script. Do you wish to install it?"
+msgstr ""
+"Ова страница изгледа да садржи корисничку скрипту. Да ли желите да је "
+"инсталирате?"
+
+#: ../extensions/addons.c:222
+msgid "_Install user script"
+msgstr "_Инсталирај корисничку скрипту"
+
+#. i18n: An infobar shows up when viewing a style on userstyles.org
+#: ../extensions/addons.c:227
+msgid "This page appears to contain a user style. Do you wish to install it?"
+msgstr ""
+"Ова страница изгледа да садржи кориснички стил. Да ли желите да га "
+"инсталирате?"
+
+#: ../extensions/addons.c:228
+msgid "_Install user style"
+msgstr "_Инсталирај кориснички стил"
+
+#: ../extensions/addons.c:236
+msgid "Don't install"
+msgstr "Немој инсталирати"
+
+#: ../extensions/addons.c:319 ../extensions/addons.c:677
+msgid "Userscripts"
+msgstr "Личне скрипте"
+
+#: ../extensions/addons.c:324 ../extensions/addons.c:679
+msgid "Userstyles"
+msgstr "Лични стилови"
+
+#: ../extensions/addons.c:370 ../extensions/addons.c:449
+#: ../extensions/feed-panel/main.c:129
+msgid "Error"
+msgstr "Грешка"
+
+#: ../extensions/addons.c:411
+#, c-format
+msgid "Do you want to delete '%s'?"
+msgstr "Да ли желите да обришете „%s“?"
+
+#: ../extensions/addons.c:417
+msgid "Delete user script"
+msgstr "Обриши корисничку скрипту"
+
+#: ../extensions/addons.c:418
+msgid "Delete user style"
+msgstr "Обриши кориснички стил"
+
+#: ../extensions/addons.c:421
+#, c-format
+msgid "The file <b>%s</b> will be permanently deleted."
+msgstr "Датотека <b>%s</b> ће бити неповратно обрисана."
+
+#: ../extensions/addons.c:566 ../extensions/addons.c:643
+msgid "Open in Text Editor"
+msgstr "Отворите у уређивачу текста"
+
+#: ../extensions/addons.c:568 ../extensions/addons.c:652
+msgid "Open Target Folder"
+msgstr "Отворите циљну фасциклу"
+
+#: ../extensions/addons.c:634
+msgid "Add new addon"
+msgstr "Додајте нови додатак"
+
+#: ../extensions/addons.c:660
+msgid "Remove selected addon"
+msgstr "Уклоните изабрани додатак"
+
+#: ../extensions/addons.c:1689 ../extensions/addons.c:1907
+msgid "User addons"
+msgstr "Кориснички додаци"
+
+#: ../extensions/addons.c:1819
+#, c-format
+msgid "Can't monitor folder '%s': %s"
+msgstr "Не могу да надгледам фасциклу „%s“: %s"
+
+#: ../extensions/addons.c:1908
+msgid "Support for userscripts and userstyles"
+msgstr "Подршка за корисничке скрипте и корисничке стилове"
+
+#: ../extensions/colorful-tabs.c:201
+msgid "Colorful Tabs"
+msgstr "Листови у боји"
+
+#: ../extensions/colorful-tabs.c:202
+msgid "Tint each tab distinctly"
+msgstr "Обојите сваки лист другачије"
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:73
+#: ../extensions/cookie-manager/main.c:35
+msgid "Cookie Manager"
+msgstr "Управник колачићима"
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:103
+msgid "Delete All"
+msgstr "Обриши све"
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:105
+msgid ""
+"Deletes all shown cookies. If a filter is set, only those cookies are "
+"deleted which match the filter."
+msgstr ""
+"Обришите све приказане колачиће. Уколико је постављен филтер, биће обрисани "
+"само колачићи који се поклапају са филтером."
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:120
+msgid "Expand All"
+msgstr "Прошири све"
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:127
+msgid "Collapse All"
+msgstr "Сакупи све"
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:572
+msgid "Do you really want to delete all cookies?"
+msgstr "Да ли желите да обришете све колачиће?"
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:574
+msgid "Question"
+msgstr "Питање"
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:583
+msgid "Only cookies which match the filter will be deleted."
+msgstr "Биће обрисани само колачићи који се поклапају са задатим филтером."
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:671
+msgid "At the end of the session"
+msgstr "На крају сесије"
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:674
+#, c-format
+msgid ""
+"<b>Host</b>: %s\n"
+"<b>Name</b>: %s\n"
+"<b>Value</b>: %s\n"
+"<b>Path</b>: %s\n"
+"<b>Secure</b>: %s\n"
+"<b>Expires</b>: %s"
+msgstr ""
+"<b>Домаћин</b>: %s\n"
+"<b>Назив</b>: %s\n"
+"<b>Вредност</b>: %s\n"
+"<b>Путања</b>: %s\n"
+"<b>Сигурност</b>: %s\n"
+"<b>Истиче</b>: %s"
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:680
+msgid "Yes"
+msgstr "Да"
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:680
+msgid "No"
+msgstr "Не"
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:694
+#, c-format
+msgid ""
+"<b>Domain</b>: %s\n"
+"<b>Cookies</b>: %d"
+msgstr ""
+"<b>Домен</b>: %s\n"
+"<b>Колачићи</b>: %d"
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:1017
+msgid "Name"
+msgstr "Назив"
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:1069
+msgid "_Expand All"
+msgstr "_Прошири све"
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:1077
+msgid "_Collapse All"
+msgstr "_Сакупи све"
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:1129
+msgid "Search Cookies by Name or Domain"
+msgstr "Тражи колачиће по имену или домену"
+
+#: ../extensions/cookie-manager/main.c:36
+msgid "List, view and delete cookies"
+msgstr "Исписује, уређује и уклања колачиће"
+
+#: ../extensions/copy-tabs.c:38
+msgid "Copy Tab _Addresses"
+msgstr "Умножи _адресе листова"
+
+# bug: no plural-forms
+#: ../extensions/copy-tabs.c:95
+msgid "Copy Addresses of Tabs"
+msgstr "Умножте адресе листова"
+
+#: ../extensions/copy-tabs.c:96
+msgid "Copy the addresses of all tabs to the clipboard"
+msgstr "Умножите адресе свих листова у оставу"
+
+#: ../extensions/feed-panel/feed-atom.c:209
+msgid "Failed to find required Atom \"entry\" elements in XML data."
+msgstr ""
+"Нисам успео да пронађем потребне Атом „entry“ елементе у ИксМЛ подацима."
+
+#: ../extensions/feed-panel/feed-atom.c:315
+msgid "Failed to find required Atom \"feed\" elements in XML data."
+msgstr ""
+"Нисам успео да пронађем потребне Атом „feed“ елементе у ИксМЛ подацима."
+
+#. i18n: The local date a feed was last updated
+#: ../extensions/feed-panel/feed-panel.c:387
+#, c-format
+msgctxt "Feed"
+msgid "Last updated: %s."
+msgstr "Последње ажурирање: %s."
+
+#: ../extensions/feed-panel/feed-panel.c:653
+msgid "Feeds"
+msgstr "Доводи"
+
+#: ../extensions/feed-panel/feed-panel.c:706
+msgid "Add new feed"
+msgstr "Додајте нови довод"
+
+#: ../extensions/feed-panel/feed-panel.c:713
+msgid "Delete feed"
+msgstr "Обриши довод"
+
+#: ../extensions/feed-panel/feed-panel.c:795
+msgid "_Feeds"
+msgstr "_Доводи"
+
+#: ../extensions/feed-panel/feed-parse.c:195
+#, c-format
+msgid "Failed to find root element in feed XML data."
+msgstr "Не могу да нађем изворне податке међу ИксМЛ подацима."
+
+#: ../extensions/feed-panel/feed-parse.c:235
+#, c-format
+msgid "Unsupported feed format."
+msgstr "Није подржан формат довода."
+
+#: ../extensions/feed-panel/feed-parse.c:265
+#, c-format
+msgid "Failed to parse XML feed: %s"
+msgstr "Не могу да обрадим ИксМЛ довод: %s"
+
+#: ../extensions/feed-panel/feed-rss.c:46
+msgid "Failed to find \"channel\" element in RSS XML data."
+msgstr "Не могу да нађем елемент „channel“ међу РСС ИксМЛ подацима."
+
+#: ../extensions/feed-panel/feed-rss.c:51
+msgid "Unsupported RSS version found."
+msgstr "Пронађено је неподржано издање вести."
+
+#: ../extensions/feed-panel/feed-rss.c:148
+msgid "Failed to find required RSS \"item\" elements in XML data."
+msgstr "Не могу да нађем потребни „item“ елемент вести међу ИксМЛ подацима."
+
+#: ../extensions/feed-panel/feed-rss.c:248
+msgid "Failed to find required RSS \"channel\" elements in XML data."
+msgstr ""
+"Не могу да нађем потребни „channel“ елемент вести међу ИксМЛ подацима."
+
+#: ../extensions/feed-panel/main.c:131
+#, c-format
+msgid "Feed '%s' already exists"
+msgstr "Довод „%s“ већ постоји"
+
+#: ../extensions/feed-panel/main.c:208
+#, c-format
+msgid "Error loading feed '%s'"
+msgstr "Грешка учитавања додова „%s“"
+
+#: ../extensions/feed-panel/main.c:518
+msgid "Feed Panel"
+msgstr "Површ са доводима"
+
+#: ../extensions/feed-panel/main.c:519
+msgid "Read Atom/ RSS feeds"
+msgstr "Чита Атоме / доводе са вестима"
+
+#: ../extensions/formhistory/formhistory.c:39
+#, c-format
+msgid "Failed to add form value: %s\n"
+msgstr "Нисам успео да додам вредност обрасца: %s\n"
+
+#: ../extensions/formhistory/formhistory.c:95
+msgid "Form history"
+msgstr "Историјат образаца"
+
+#: ../extensions/formhistory/formhistory.c:112
+msgid ""
+"Master password required\n"
+"to open password database"
+msgstr ""
+"Потребна је главна лозинка\n"
+"за отварање базе лозинки"
+
+#: ../extensions/formhistory/formhistory.c:294
+msgid "Remember password on this page?"
+msgstr "Да запамтим лозинку на овој страници?"
+
+#: ../extensions/formhistory/formhistory.c:299
+msgid "Remember"
+msgstr "Запамти"
+
+#: ../extensions/formhistory/formhistory.c:300
+msgid "Not now"
+msgstr "Не сада"
+
+#: ../extensions/formhistory/formhistory.c:301
+msgid "Never for this page"
+msgstr "Никада за ову страницу"
+
+#: ../extensions/formhistory/formhistory.c:437
+msgid "Toggle form history state"
+msgstr "Пребаци стање историјата обрасца"
+
+#: ../extensions/formhistory/formhistory.c:438
+msgid "Activate or deactivate form history for the current tab."
+msgstr "Укључите или искључите историјат обрасца за текући лист."
+
+#: ../extensions/formhistory/formhistory.c:549
+#: ../extensions/formhistory/formhistory.c:553
+#, c-format
+msgid "Failed to execute database statement: %s\n"
+msgstr "Не могу да покренем тврдњу из базе података: %s\n"
+
+#: ../extensions/formhistory/formhistory.c:629
+msgid "Only activate form history via hotkey (Ctrl+Shift+F) per tab"
+msgstr "Укључи историјат обрасца само путем пречице (Ктрл+Шифт+Ф) по листу"
+
+#: ../extensions/formhistory/formhistory.c:668
+msgid "Form history filler"
+msgstr "Пропусник историјата обрасца"
+
+#: ../extensions/formhistory/formhistory.c:669
+msgid "Stores history of entered form data"
+msgstr "Складишти историјат унесених података обрасца"
+
+#: ../extensions/formhistory/formhistory-gdom-frontend.c:225
+#: ../extensions/formhistory/formhistory-js-frontend.c:106
+#, c-format
+msgid "Failed to select suggestions\n"
+msgstr "Нисам успео да изаберем предлоге\n"
+
+#: ../extensions/history-list.vala:197
+msgid "There are no unvisited tabs"
+msgstr "Нема непосећених листова"
+
+#: ../extensions/history-list.vala:235
+#, c-format
+msgid "History-List"
+msgstr "Списак историјата"
+
+#: ../extensions/history-list.vala:275
+msgid "Tab closing behavior"
+msgstr "Понашање затварања листа"
+
+#: ../extensions/history-list.vala:283
+msgid "Do nothing"
+msgstr "Не ради ништа"
+
+#: ../extensions/history-list.vala:289
+msgid "Switch to last viewed tab"
+msgstr "Пребаци на последњи виђени лист"
+
+#: ../extensions/history-list.vala:295
+msgid "Switch to newest tab"
+msgstr "Пребаци на најновији лист"
+
+#: ../extensions/history-list.vala:423
+msgid "Next new Tab (History List)"
+msgstr "Следећи нови лист (списак историјата)"
+
+#: ../extensions/history-list.vala:424
+msgid "Next new tab from history"
+msgstr "Следећи нови лист из историјата"
+
+#: ../extensions/history-list.vala:433
+msgid "Previous new Tab (History List)"
+msgstr "Претходни нови лист (списак историјата)"
+
+#: ../extensions/history-list.vala:434
+msgid "Previous new tab from history"
+msgstr "Претходни нови лист из историјата"
+
+#: ../extensions/history-list.vala:443
+msgid "Display tab in background (History List)"
+msgstr "Прикажи лист у позадини (списак историјата)"
+
+#: ../extensions/history-list.vala:444
+msgid "Display the current selected tab in background"
+msgstr "Прикажи текући изабрани лист у позадини"
+
+#: ../extensions/history-list.vala:569
+msgid "History List"
+msgstr "Списак историјата"
+
+#: ../extensions/history-list.vala:570
+msgid "Move to the last used tab when switching or closing tabs"
+msgstr ""
+"Прелази на последње коришћени лист приликом пребацивања или затварања листова"
+
+#: ../extensions/mouse-gestures.c:301
+msgid "Mouse Gestures"
+msgstr "Гестови миша"
+
+#: ../extensions/mouse-gestures.c:302
+msgid "Control Midori by moving the mouse"
+msgstr "Управља Мидоријем помоћу миша"
+
+#: ../extensions/shortcuts.c:109
+msgid "Reload page or stop loading"
+msgstr "Поново учитај страницу или заустави учитавање"
+
+#: ../extensions/shortcuts.c:176
+msgid "Customize Keyboard shortcuts"
+msgstr "Прилагодите пречице са тастатуре"
+
+#: ../extensions/shortcuts.c:283
+msgid "Customize Sh_ortcuts..."
+msgstr "Прилагодите _пречице…"
+
+#: ../extensions/shortcuts.c:320
+msgid "Shortcuts"
+msgstr "Пречице"
+
+#: ../extensions/shortcuts.c:321
+msgid "View and edit keyboard shortcuts"
+msgstr "Приказује и уређује пречице тастатуре"
+
+#: ../extensions/status-clock.c:174
+msgid "Statusbar Clock"
+msgstr "Сат у траци стања"
+
+#: ../extensions/status-clock.c:175
+msgid "Display date and time in the statusbar"
+msgstr "Приказује датум и време у траци стања"
+
+#: ../extensions/statusbar-features.c:152
+msgid "Images"
+msgstr "Слике"
+
+#: ../extensions/statusbar-features.c:162
+msgid "Scripts"
+msgstr "Скрипте"
+
+#: ../extensions/statusbar-features.c:174
+msgid "Netscape plugins"
+msgstr "Нетскејп прикључци"
+
+#: ../extensions/statusbar-features.c:259
+msgid "Statusbar Features"
+msgstr "Могућности траке стања"
+
+#: ../extensions/statusbar-features.c:260
+msgid "Easily toggle features on web pages on and off"
+msgstr "Једноставно укључује и искључује опције на веб страницама"
+
+#: ../extensions/tab-panel.c:589 ../extensions/tab-panel.c:676
+msgid "Tab Panel"
+msgstr "Бочна површ"
+
+#: ../extensions/tab-panel.c:659
+msgid "T_ab Panel"
+msgstr "Бочна _површ"
+
+#: ../extensions/tab-panel.c:677
+msgid "Show tabs in a vertical panel"
+msgstr "Приказује листове у усправној површи"
+
+#: ../extensions/tabs-minimized.c:76
+msgid "Only Icons on Tabs by default"
+msgstr "Само иконице на листовима по задатим поставкама"
+
+#: ../extensions/tabs-minimized.c:77
+msgid "New tabs have no label by default"
+msgstr "Нови листови немају ознаку по задатим поставкама"
+
+#: ../extensions/toolbar-editor.c:395
+msgid "Customize Toolbar"
+msgstr "Прилагоди траку алата"
+
+#: ../extensions/toolbar-editor.c:411
+msgid ""
+"Select items to be displayed on the toolbar. Items can be reordered by drag "
+"and drop."
+msgstr ""
+"Изаберите ставке које ће бити приказане на траци алата. Ставкама може бити "
+"промењено место превлачењем и увацивањем."
+
+#: ../extensions/toolbar-editor.c:427
+msgid "Available Items"
+msgstr "Доступне ставке"
+
+#: ../extensions/toolbar-editor.c:448
+msgid "Displayed Items"
+msgstr "Приказане ставке"
+
+#: ../extensions/toolbar-editor.c:588
+msgid "_Customize Toolbar…"
+msgstr "_Подеси траку алата…"
+
+#: ../extensions/toolbar-editor.c:617
+msgid "Toolbar Editor"
+msgstr "Уређивач траке алата"
+
+#: ../extensions/toolbar-editor.c:618
+msgid "Easily edit the toolbar layout"
+msgstr "Лако мењајте распоред траке алата"
+
+#: ../extensions/web-cache.c:463
+msgid "Cache HTTP communication on disk"
+msgstr "Причувај ХТТП објављивања на диск"
