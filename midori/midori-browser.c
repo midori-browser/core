@@ -930,24 +930,23 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     GtkWidget* check_app;
     gboolean return_status = FALSE;
     sqlite3* db = g_object_get_data (G_OBJECT (browser->bookmarks), "db");
-    if (!db) {
+    if (!db)
         return FALSE;
-    }
 
-    if (is_folder) {
+    if (is_folder)
         title = new_bookmark ? _("New Folder") : _("Edit Folder");
-    } else {
+    else
         title = new_bookmark ? _("New Bookmark") : _("Edit Bookmark");
-    }
-
     
     #ifdef HAVE_GRANITE
-    if (proxy != NULL) {
+    if (proxy != NULL)
+    {
         /* FIXME: granite: should return GtkWidget* like GTK+ */
         dialog = (GtkWidget*)granite_widgets_pop_over_new ();
         granite_widgets_pop_over_move_to_widget (
             GRANITE_WIDGETS_POP_OVER (dialog), proxy, TRUE);
-    } else
+    }
+    else
     #endif 
     
     {
@@ -956,7 +955,6 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     }
 
     content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
-
     gtk_container_set_border_width (GTK_CONTAINER (dialog), 6);
 
     gtk_dialog_add_buttons (GTK_DIALOG (dialog),
@@ -976,23 +974,26 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     gtk_window_set_icon_name (GTK_WINDOW (dialog),
         new_bookmark ? GTK_STOCK_ADD : GTK_STOCK_REMOVE);
 
-    if (!bookmark) {
+    if (!bookmark)
+    {
         view = midori_browser_get_current_tab (browser);
-        if (is_folder) {
+        if (is_folder)
+        {
             bookmark = (KatzeItem*)katze_array_new (KATZE_TYPE_ARRAY);
             katze_item_set_name (bookmark,
                 midori_view_get_display_title (MIDORI_VIEW (view)));
-        } else {
+        }
+        else
             bookmark = g_object_new (KATZE_TYPE_ITEM,
                 "uri", midori_view_get_display_uri (MIDORI_VIEW (view)),
                 "name", midori_view_get_display_title (MIDORI_VIEW (view)), NULL);
-        }
     }
 
     entry_title = gtk_entry_new ();
     gtk_entry_set_activates_default (GTK_ENTRY (entry_title), TRUE);
     value = katze_item_get_name (bookmark);
-    if (!is_folder) {
+    if (!is_folder)
+    {
         gtk_entry_set_text (GTK_ENTRY (entry_title), katze_str_non_null (value));
     }
     midori_browser_edit_bookmark_title_changed_cb (GTK_ENTRY (entry_title),
@@ -1019,7 +1020,8 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         katze_item_get_meta_integer (bookmark, "parentid"));
     gtk_box_pack_start (GTK_BOX (vbox), combo_folder, FALSE, FALSE, 0);
 
-    if (new_bookmark && !is_folder) {
+    if (new_bookmark && !is_folder)
+    {
         label = gtk_button_new_with_mnemonic (_("Add to _Speed Dial"));
         g_signal_connect (label, "clicked",
             G_CALLBACK (midori_browser_edit_bookmark_add_speed_dial_cb), bookmark);
@@ -1029,13 +1031,14 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
 
     hbox = gtk_hbox_new (FALSE, 6);
     gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
-    check_toolbar = gtk_check_button_new_with_mnemonic (_("Show in Boomarks _Bar"));
+    check_toolbar = gtk_check_button_new_with_mnemonic (_("Show in BooKmarks _Bar"));
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (check_toolbar),
         katze_item_get_meta_boolean (bookmark, "toolbar"));
     gtk_box_pack_start (GTK_BOX (hbox), check_toolbar, FALSE, FALSE, 0);
 
     check_app = NULL;
-    if (!is_folder) {
+    if (!is_folder)
+    {
         check_app = gtk_check_button_new_with_mnemonic (_("Run as _web application"));
         gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (check_app),
             katze_item_get_meta_boolean (bookmark, "app"));
@@ -1053,7 +1056,8 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         katze_item_set_meta_integer (bookmark, "toolbar",
             gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (check_toolbar)));
 
-        if (!is_folder) {
+        if (!is_folder)
+        {
             katze_item_set_uri (bookmark,
                 gtk_entry_get_text (GTK_ENTRY (entry_uri)));
             katze_item_set_meta_integer (bookmark, "app",
@@ -1063,19 +1067,16 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         selected = midori_bookmark_folder_button_get_active (combo_folder);
         katze_item_set_meta_integer (bookmark, "parentid", selected);
 
-        if (new_bookmark) {
+        if (new_bookmark)
             katze_array_add_item (browser->bookmarks, bookmark);
-        } else {
+        else
             midori_bookmarks_update_item_db (db, bookmark);
-        }
 
         midori_browser_update_history (bookmark, "bookmark", new_bookmark ? "create" : "modify");
 
-        if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (check_toolbar))) {
-            if (!gtk_widget_get_visible (browser->bookmarkbar)) {
+        if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (check_toolbar)))
+            if (!gtk_widget_get_visible (browser->bookmarkbar))
                 _action_set_active (browser, "Bookmarkbar", TRUE);
-            }
-        }
 
         return_status = TRUE;
     }
