@@ -352,12 +352,10 @@ midori_location_entry_render_title_cb (GtkCellLayout*   layout,
 {
     MidoriLocationAction* action = data;
     gchar* title;
-    gchar* background;
     gchar* desc;
 
     gtk_tree_model_get (model, iter,
         MIDORI_AUTOCOMPLETER_COLUMNS_MARKUP, &title,
-        MIDORI_AUTOCOMPLETER_COLUMNS_BACKGROUND, &background,
         -1);
 
     if (strchr (title, '\n')) /* A search engine or action suggestion */
@@ -365,7 +363,6 @@ midori_location_entry_render_title_cb (GtkCellLayout*   layout,
         gchar** parts = g_strsplit (title, "\n", 2);
         desc = g_strdup (parts[0]);
         g_strfreev (parts);
-        g_free (background);
     }
     else
     {
@@ -392,13 +389,11 @@ midori_location_entry_render_uri_cb (GtkCellLayout*   layout,
     MidoriLocationAction* action = data;
     gchar* title;
     gchar* uri_escaped;
-    gchar* background;
     gchar* desc;
 
     gtk_tree_model_get (model, iter,
         MIDORI_AUTOCOMPLETER_COLUMNS_MARKUP, &title,
         MIDORI_AUTOCOMPLETER_COLUMNS_URI, &uri_escaped,
-        MIDORI_AUTOCOMPLETER_COLUMNS_BACKGROUND, &background,
         -1);
 
     if (strchr (title, '\n')) /* A search engine or action suggestion */
@@ -406,7 +401,6 @@ midori_location_entry_render_uri_cb (GtkCellLayout*   layout,
         gchar** parts = g_strsplit (title, "\n", 2);
         desc = g_strdup (parts[1]);
         g_strfreev (parts);
-        g_free (background);
     }
     else
     {
@@ -434,20 +428,17 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
     MidoriLocationAction* action = data;
     gchar* uri_escaped;
     gchar* title;
-    gchar* background;
     gchar* desc;
 
     gtk_tree_model_get (model, iter,
         MIDORI_AUTOCOMPLETER_COLUMNS_URI, &uri_escaped,
         MIDORI_AUTOCOMPLETER_COLUMNS_MARKUP, &title,
-        MIDORI_AUTOCOMPLETER_COLUMNS_BACKGROUND, &background,
         -1);
 
     if (strchr (title, '\n')) /* A search engine or action suggestion */
     {
         desc = title;
         g_free (uri_escaped);
-        g_free (background);
     }
     else
     {
