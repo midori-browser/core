@@ -1194,3 +1194,122 @@ midori_array_query (KatzeArray*  bookmarks,
     return midori_array_query_recursive (bookmarks, fields, condition, value, FALSE);
 }
 
+static gint64
+count_from_sqlite (sqlite3*     db,
+		   const gchar* sqlcmd)
+{
+    gint64 count = -1;
+    sqlite3_stmt* stmt;
+    gint result;
+    
+    result = sqlite3_prepare_v2 (db, sqlcmd, -1, &stmt, NULL);
+    if (result != SQLITE_OK)
+        return -1;
+
+    g_assert (sqlite3_column_count (stmt) == 1);
+    
+    if ((result = sqlite3_step (stmt)) == SQLITE_ROW)
+	count = sqlite3_column_int64(stmt, 0);
+
+    sqlite3_clear_bindings (stmt);
+    sqlite3_reset (stmt);
+
+    return count;
+}
+
+/**
+ * midori_array_count_recursive:
+ * @array: the main bookmark array
+ * @condition: condition, like "folder = '%q'"
+ * @value: a value to be inserted if @condition contains %q
+ * @recursive: if %TRUE include children
+ *
+ * Return value: the number of elements on success, -1 otherwise
+ *
+ * Since: 0.5.1
+ **/
+gint64
+midori_array_count_recursive (KatzeArray*  bookmarks,
+			      const gchar* condition,
+                              const gchar* value,
+			      KatzeItem*   folder,
+                              gboolean     recursive)
+{
+    gint64 count = -1;
+    gint64 id = -1;
+    sqlite3* db;
+    gchar* sqlcmd;
+    char* sqlcmd_value;
+    KatzeArray* array;
+    KatzeItem* item;
+    GList* list;
+    gchar* id_str;
+
+    g_return_val_if_fail (KATZE_IS_ARRAY (bookmarks), -1);
+    g_return_val_if_fail (!folder || KATZE_ITEM_IS_FOLDER (folder), -1);
+    g_return_val_if_fail (condition, -1);
+    db = g_object_get_data (G_OBJECT (bookmarks), "db");
+    g_return_val_if_fail (db != NULL, -1);
+
+    g_assert(!strstr("parentid", condition));
+
+    id = folder ? katze_item_get_meta_integer (folder, "id") : 0;
+
+    if (id > 0)
+	sqlcmd = g_strdup_printf ("SELECT COUNT(*) FROM bookmarks "
+				  "WHERE parentid = %" G_GINT64_FORMAT " AND %s",
+				  id,
+				  condition);
+    else
+	sqlcmd = g_strdup_printf ("SELECT COUNT(*) FROM bookmarks "
+				  "WHERE parentid IS NULL AND %s ",
+				  condition);
+
+    if (strstr (condition, "%q"))
+    {
+        sqlcmd_value = sqlite3_mprintf (sqlcmd, value ? value : "");
+        count = count_from_sqlite (db, sqlcmd_value);
+        sqlite3_free (sqlcmd_value);
+    }
+    else
+        count = count_from_sqlite (db, sqlcmd);
+
+    g_free (sqlcmd);
+
+    if (!recursive || (count < 0))
+        return count;
+
+    if (id > 0)
+	sqlcmd = g_strdup_printf ("parentid = %" G_GINT64_FORMAT " AND uri = ''",
+				  id);
+    else
+	sqlcmd = g_strdup ("parentid IS NULL AND uri = '' ");
+
+    array = midori_array_query_recursive (bookmarks, "id, uri", sqlcmd, NULL, FALSE);
+	     
+    g_free (sqlcmd);
+	    
+    KATZE_ARRAY_FOREACH_ITEM_L (item, array, list)
+    {
+	if (KATZE_ITEM_IS_FOLDER(item))
+	{
+	    gint64 sub_count = midori_array_count_recursive (bookmarks,
+							     condition,
+							     value,
+							     item,
+							     recursive);
+	     
+	    if (sub_count < 0)
+	    {
+		g_object_unref (array);
+		return -1;
+	    }
+	    
+	    count += sub_count;
+	}
+    }
+    
+    g_object_unref (array);
+    return count;
+}
+
