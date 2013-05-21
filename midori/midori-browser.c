@@ -986,10 +986,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     entry_title = gtk_entry_new ();
     gtk_entry_set_activates_default (GTK_ENTRY (entry_title), TRUE);
     value = katze_item_get_name (bookmark);
-    if (!is_folder)
-    {
-        gtk_entry_set_text (GTK_ENTRY (entry_title), katze_str_non_null (value));
-    }
+    gtk_entry_set_text (GTK_ENTRY (entry_title), katze_str_non_null (value));
     midori_browser_edit_bookmark_title_changed_cb (GTK_ENTRY (entry_title),
                                                    GTK_DIALOG (dialog));
     g_signal_connect (entry_title, "changed",
