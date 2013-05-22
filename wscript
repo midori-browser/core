@@ -267,6 +267,7 @@ def configure (conf):
     else:
         check_pkg ('gtk+-2.0', '2.16.0', var='GTK')
         check_pkg ('webkit-1.0', '1.1.17', args=args)
+        conf.define ('GCR_VERSION', 'No')
         if check_version (conf.env['WEBKIT_VERSION'], 1, 5, 1):
             check_pkg ('javascriptcoregtk-1.0', '1.5.1', args=args)
         if check_version (conf.env['GTK_VERSION'], 2, 20, 0):
