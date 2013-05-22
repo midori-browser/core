@@ -407,7 +407,7 @@ main (int    argc,
     }
 
     MidoriApp* app = midori_normal_app_new (config,
-        portable ? "portable" : "normal", diagnostic_dialog, webapp,
+        portable ? "portable" : "normal", diagnostic_dialog,
         uris, execute, inactivity_reset, block_uris);
     if (app == NULL)
         return 0;

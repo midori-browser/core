@@ -426,7 +426,6 @@ MidoriApp*
 midori_normal_app_new (const gchar* config,
                        gchar*       nickname,
                        gboolean     diagnostic_dialog,
-                       const gchar* webapp,
                        gchar**      open_uris,
                        gchar**      execute_commands,
                        gint         inactivity_reset,
