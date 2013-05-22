@@ -46,10 +46,7 @@ midori_web_app_new (const gchar* config,
 {
     guint i;
 
-    midori_paths_init (MIDORI_RUNTIME_MODE_APP, config);
-#ifndef HAVE_WEBKIT2
-    g_object_set_data (G_OBJECT (webkit_get_default_session ()), "pass-through-console", (void*)1);
-#endif
+    midori_paths_init (MIDORI_RUNTIME_MODE_APP, webapp);
     MidoriBrowser* browser = midori_browser_new ();
     g_signal_connect (browser, "new-window",
         G_CALLBACK (midori_frontend_browser_new_window_cb), NULL);
@@ -68,7 +65,7 @@ midori_web_app_new (const gchar* config,
                   "inactivity-reset", inactivity_reset,
                   "block-uris", block_uris,
                   NULL);
-    midori_load_soup_session (settings);
+    midori_load_soup_session_full (settings);
 
     KatzeArray* search_engines = midori_search_engines_new_from_folder (NULL);
     g_object_set (browser,
