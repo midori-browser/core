@@ -54,11 +54,11 @@ midori_web_app_new (const gchar* webapp,
     midori_browser_set_action_visible (browser, "Menubar", FALSE);
     midori_browser_set_action_visible (browser, "CompactMenu", FALSE);
 
-    MidoriWebSettings* settings = midori_browser_get_settings (browser);
+    MidoriWebSettings* settings = midori_settings_new_full (NULL);
     g_object_set (settings,
                   "show-menubar", FALSE,
                   "show-navigationbar", FALSE,
-                  "toolbar-items", "Back,Forward,ReloadStop,Location,Homepage",
+                  "toolbar-items", "Back,Forward,ReloadStop,Location,Homepage,Preferences",
                   "show-statusbar", FALSE,
                   "show-panel", FALSE,
                   "last-window-state", MIDORI_WINDOW_NORMAL,
@@ -98,6 +98,7 @@ midori_web_app_new (const gchar* webapp,
         midori_browser_assert_action (browser, execute_commands[i]);
         midori_browser_activate_action (browser, execute_commands[i]);
     }
+    midori_session_persistent_settings (settings, NULL);
     return browser;
 }
 
