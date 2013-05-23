@@ -398,7 +398,7 @@ main (int    argc,
 
     if (webapp)
     {
-        MidoriBrowser* browser = midori_web_app_new (config, webapp,
+        MidoriBrowser* browser = midori_web_app_new (webapp,
             uris, execute, inactivity_reset, block_uris);
         g_signal_connect (browser, "destroy", G_CALLBACK (gtk_main_quit), NULL);
         g_signal_connect (browser, "quit", G_CALLBACK (gtk_main_quit), NULL);

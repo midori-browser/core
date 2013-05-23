@@ -13,12 +13,12 @@ namespace Midori {
     }
 
     [CCode (cheader_filename = "midori/midori.h")]
-    public static unowned Midori.Browser web_app_new (string? config,
-        string? webapp, [CCode (array_length = false)] string[]? uris, [CCode (array_length = false)] string[]? commands, int reset, string? block);
+    public static unowned Midori.Browser web_app_new (
+        string webapp, [CCode (array_length = false)] string[]? uris, [CCode (array_length = false)] string[]? commands, int reset, string? block);
     public static unowned Midori.Browser private_app_new (string? config,
         string? webapp, [CCode (array_length = false)] string[]? uris, [CCode (array_length = false)] string[]? commands, int reset, string? block);
     public static unowned App normal_app_new (string? config, string nickname, bool diagnostic,
-        string? webapp, [CCode (array_length = false)] string[]? uris, [CCode (array_length = false)] string[]? commands, int reset, string? block);
+        [CCode (array_length = false)] string[]? uris, [CCode (array_length = false)] string[]? commands, int reset, string? block);
     public static void normal_app_on_quit (App app);
 
     [CCode (cheader_filename = "midori/midori.h")]

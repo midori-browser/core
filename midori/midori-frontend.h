@@ -15,8 +15,7 @@
 #include "midori/midori-app.h"
 
 MidoriBrowser*
-midori_web_app_new (const gchar* config,
-                    const gchar* webapp,
+midori_web_app_new (const gchar* webapp,
                     gchar**      open_uris,
                     gchar**      execute_commands,
                     gint         inactivity_reset,

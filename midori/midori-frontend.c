@@ -37,14 +37,14 @@ midori_frontend_browser_new_window_cb (MidoriBrowser* browser,
 }
 
 MidoriBrowser*
-midori_web_app_new (const gchar* config,
-                    const gchar* webapp,
+midori_web_app_new (const gchar* webapp,
                     gchar**      open_uris,
                     gchar**      execute_commands,
                     gint         inactivity_reset,
                     const gchar* block_uris)
 {
     guint i;
+    g_return_val_if_fail (webapp != NULL, NULL);
 
     midori_paths_init (MIDORI_RUNTIME_MODE_APP, webapp);
     MidoriBrowser* browser = midori_browser_new ();
