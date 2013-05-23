@@ -4431,11 +4431,13 @@ midori_view_set_uri (MidoriView*  view,
                 data = g_markup_printf_escaped ("<body><h1>%s</h1>"
                     "<p>config: <code>%s</code></p>"
                     "<p>res: <code>%s</code></p>"
+                    "<p>data: <code>%s/%s</code></p>"
                     "<p>lib: <code>%s</code></p>"
                     "<p>cache: <code>%s</code></p>"
                     "<p>tmp: <code>%s</code></p>"
                     "</body>",
                     uri, midori_paths_get_config_dir_for_reading (), res_dir,
+                    midori_paths_get_user_data_dir_for_reading (), PACKAGE_NAME,
                     lib_dir, midori_paths_get_cache_dir_for_reading (), midori_paths_get_tmp_dir ());
                 g_free (res_dir);
                 g_free (lib_dir);
