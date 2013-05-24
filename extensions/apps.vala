@@ -22,7 +22,7 @@ namespace Apps {
 
         internal static async void create (string prefix, GLib.File folder, string uri, string title) {
             /* Strip LRE leading character and / */
-            string filename = title.delimit ("‪/", ' ') + ".desktop";
+            string filename = title.delimit ("‪/", ' ').strip() + ".desktop";
             string exec = prefix + uri;
             string name = title;
             // TODO: Midori.Paths.get_icon save to png
