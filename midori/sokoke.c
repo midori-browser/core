@@ -474,10 +474,12 @@ sokoke_external_uri (const gchar* uri)
 {
     GAppInfo* info;
 
-    if (!uri || !strncmp (uri, "http", 4)
-             || !strncmp (uri, "file", 4)
-             || !strncmp (uri, "geo", 3)
-             || !strncmp (uri, "about:", 6))
+    /* URI schemes are case-insensitive, followed by ':' - rfc3986 */
+    if (!uri || !strncasecmp (uri, "http:", 5)
+             || !strncasecmp (uri, "https:", 6)
+             || !strncasecmp (uri, "file:", 5)
+             || !strncasecmp (uri, "geo:", 4)
+             || !strncasecmp (uri, "about:", 6))
         return FALSE;
 
     info = sokoke_default_for_uri (uri, NULL);
