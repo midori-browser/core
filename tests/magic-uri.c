@@ -403,7 +403,10 @@ magic_uri_protocols (void)
     g_assert (!sokoke_external_uri (""));
 
     g_assert (!sokoke_external_uri ("http://google.com"));
+    g_assert (!sokoke_external_uri ("HTTP://google.com"));
+    g_assert (!sokoke_external_uri ("Http://google.com"));
     g_assert (!sokoke_external_uri ("https://google.com"));
+    g_assert (!sokoke_external_uri ("httPS://google.com"));
     g_assert (!sokoke_external_uri ("file:///home/"));
     g_assert (!sokoke_external_uri ("geo:100,3000"));
     g_assert (!sokoke_external_uri ("about:blank"));
