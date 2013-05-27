@@ -65,11 +65,9 @@ static GdkColor adjust_brightness (GdkColor color)
 }
 
 static GdkColor
-view_get_bgcolor_for_favicon (MidoriView* view, gchar* hostname)
+view_get_bgcolor_for_favicon (GdkPixbuf* icon)
 {
-
     GdkColor color;
-    GdkPixbuf* icon = midori_view_get_icon (view);
     GdkPixbuf* newpix;
     guchar* pixels;
 
@@ -85,7 +83,7 @@ view_get_bgcolor_for_favicon (MidoriView* view, gchar* hostname)
 }
 
 static GdkColor
-view_get_bgcolor_for_hostname (MidoriView* view, gchar* hostname)
+view_get_bgcolor_for_hostname (gchar* hostname)
 {
     gchar* hash, *colorstr;
     GdkColor color;
@@ -108,23 +106,28 @@ colorful_tabs_view_notify_uri_cb (MidoriView*      view,
                                   GParamSpec*      pspec,
                                   MidoriExtension* extension)
 {
-    gchar* hostname;
+    const gchar* uri = midori_view_get_display_uri (view);
+    if (!*uri)
+        return;
 
-    if (!midori_uri_is_blank (midori_view_get_display_uri (view))
-      && (hostname = midori_uri_parse_hostname (midori_view_get_display_uri (view), NULL))
-      && midori_view_get_icon_uri (view) != NULL)
+    if (!midori_uri_is_blank (uri))
     {
-        GdkColor fgcolor, color;
+        gchar* hostname = midori_uri_parse_hostname (uri, NULL);
+        if (hostname)
+        {
+            GdkColor fgcolor, color;
+            GdkPixbuf* icon = midori_view_get_icon (view);
 
-        if (midori_view_get_icon_uri (view) != NULL)
-            color = view_get_bgcolor_for_favicon (view, hostname);
-        else
-            color = view_get_bgcolor_for_hostname (view, hostname);
+            if (icon)
+                color = view_get_bgcolor_for_favicon (icon);
+            else
+                color = view_get_bgcolor_for_hostname (hostname);
 
-        fgcolor = get_foreground_color_for_GdkColor (color);
-        g_free (hostname);
+            fgcolor = get_foreground_color_for_GdkColor (color);
+            midori_view_set_colors (view, &fgcolor, &color);
 
-        midori_view_set_colors (view, &fgcolor, &color);
+            g_free (hostname);
+        }
     }
     else
         midori_view_set_colors (view, NULL, NULL);
@@ -207,10 +210,6 @@ colorful_tabs_activate_cb (MidoriExtension* extension,
 
 void test_colour_for_hostname (void)
 {
-    MidoriApp* app = midori_app_new (NULL);
-    MidoriBrowser* browser;
-    MidoriWebSettings* settings;
-    GtkWidget* view;
     GdkColor color;
     GdkColor fgcolor;
 
@@ -230,16 +229,10 @@ void test_colour_for_hostname (void)
      { "get.cm", "#000000000000", "#1c424c72e207" },
     };
 
-    settings = midori_web_settings_new ();
-    g_object_set (app, "settings", settings, NULL);
-    browser = midori_app_create_browser (app);
-
     guint i;
     for (i = 0; i < G_N_ELEMENTS (items); i++)
     {
-        view = midori_browser_add_uri (browser, items[i].host);
-
-        color = view_get_bgcolor_for_hostname (MIDORI_VIEW (view), (gchar*)items[i].host);
+        color = view_get_bgcolor_for_hostname ((gchar*)items[i].host);
         fgcolor = get_foreground_color_for_GdkColor (color);
 
         g_assert_cmpstr (items[i].color, ==, gdk_color_to_string (&color));
