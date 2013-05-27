@@ -3105,6 +3105,21 @@ _action_bookmarks_populate_folder (GtkAction*     action,
     gtk_container_foreach (GTK_CONTAINER (menu),
         (GtkCallback)(gtk_widget_destroy), NULL);
 
+    /* "Import Bookmarks" and "Export Bookmarks" at the top */
+    if (id == NULL)
+    {
+        GtkWidget* menuitem;
+        menuitem = gtk_action_create_menu_item (_action_by_name (browser, "BookmarksImport"));
+        gtk_menu_shell_append (menu, menuitem);
+        gtk_widget_show (menuitem);
+        menuitem = gtk_action_create_menu_item (_action_by_name (browser, "BookmarksExport"));
+        gtk_menu_shell_append (menu, menuitem);
+        gtk_widget_show (menuitem);
+        menuitem = gtk_separator_menu_item_new ();
+        gtk_menu_shell_append (menu, menuitem);
+        gtk_widget_show (menuitem);
+    }
+
     if (katze_array_is_empty (bookmarks))
     {
         GtkWidget* menuitem = gtk_image_menu_item_new_with_label (_("Empty"));
@@ -5697,8 +5712,6 @@ static const gchar* ui_markup =
                 "<menuitem action='WindowClose'/>"
                 "<separator/>"
                 "<menuitem action='Print'/>"
-                "<menuitem action='BookmarksImport'/>"
-                "<menuitem action='BookmarksExport'/>"
                 "<separator/>"
                 "<menuitem action='Quit'/>"
             "</menu>"
@@ -5761,7 +5774,10 @@ static const gchar* ui_markup =
                 "<menuitem action='Search'/>"
                 "<menuitem action='Trash'/>"
             "</menu>"
-            "<menuitem action='Bookmarks'/>"
+            "<menu action='Bookmarks'>"
+                "<menuitem action='BookmarksImport'/>"
+                "<menuitem action='BookmarksExport'/>"
+            "</menu>"
             "<menuitem action='Tools'/>"
             "<menuitem action='Window'/>"
             "<menu action='Help'>"
