@@ -136,7 +136,7 @@ sokoke_open_with_response_cb (GtkWidget* dialog,
     gtk_widget_destroy (dialog);
 }
 
-static GAppInfo*
+GAppInfo*
 sokoke_default_for_uri (const gchar* uri,
                         gchar**      scheme_ptr)
 {
