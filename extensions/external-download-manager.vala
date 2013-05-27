@@ -147,7 +147,7 @@ namespace EDM {
 
             var headers = value_array_new ();
             if (dlReq.cookie_header != null) {
-                value_array_insert (headers, 0, typeof (string), "Cookie: %s".printf(dlReq.cookie_header));
+                value_array_insert (headers, 0, typeof (string), "Cookie: " + dlReq.cookie_header);
             }
 
             if (headers.n_values > 0)
@@ -273,15 +273,15 @@ namespace EDM {
             dialog.show ();
         }
 
+        private string replace_quoted (string context, string replace, string? with) {
+            return context.replace(replace, with != null ? GLib.Shell.quote(with) : "\'\'");
+        }
+
         public override bool download (DownloadRequest dlReq) {
             try {
                 string cmd = this.get_string ("commandline");
-                cmd = cmd.replace("{REFERER}", GLib.Shell.quote (dlReq.referer));
-                if (dlReq.cookie_header != null) {
-                    cmd = cmd.replace("{COOKIES}", GLib.Shell.quote ("Cookie: " + dlReq.cookie_header));
-                } else {
-                    cmd = cmd.replace("{COOKIES}", "\'\'");
-                }
+                cmd = replace_quoted(cmd, "{REFERER}", dlReq.referer);
+                cmd = replace_quoted(cmd, "{COOKIES}", dlReq.cookie_header != null ? "Cookie: " + dlReq.cookie_header : null);
                 cmd = cmd.replace("{URL}", GLib.Shell.quote (dlReq.uri));
                 GLib.Process.spawn_command_line_async (cmd);
                 return true;
