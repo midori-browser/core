@@ -2246,13 +2246,6 @@ midori_web_view_menu_new_window_activate_cb (GtkWidget*  widget,
 }
 
 static void
-midori_web_view_menu_web_app_activate_cb (GtkWidget*  widget,
-                                          MidoriView* view)
-{
-    sokoke_spawn_app (view->link_uri, FALSE);
-}
-
-static void
 midori_web_view_menu_link_copy_activate_cb (GtkWidget*  widget,
                                             MidoriView* view)
 {
@@ -2758,9 +2751,6 @@ midori_view_populate_popup (MidoriView* view,
         midori_view_insert_menu_item (menu_shell, -1,
             _("Open Link in New _Window"), STOCK_WINDOW_NEW,
             G_CALLBACK (midori_web_view_menu_new_window_activate_cb), widget);
-        midori_view_insert_menu_item (menu_shell, -1,
-            _("Open Link as Web A_pplication"), NULL,
-            G_CALLBACK (midori_web_view_menu_web_app_activate_cb), widget);
         }
 
         midori_view_insert_menu_item (menu_shell, -1,
