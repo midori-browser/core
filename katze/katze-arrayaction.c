@@ -52,6 +52,7 @@ enum
     POPULATE_FOLDER,
     ACTIVATE_ITEM,
     ACTIVATE_ITEM_ALT,
+    ACTIVATE_ITEM_FULL,
     LAST_SIGNAL
 };
 
@@ -167,7 +168,7 @@ katze_array_action_class_init (KatzeArrayActionClass* class)
      * Return value: %TRUE if the event was handled. If %FALSE is returned,
      *               the default "activate-item" signal is emitted.
      *
-     * Since: 0.1.7
+     * Deprecated: 0.5.2: Use "activate-item-full" instead.
      **/
     signals[ACTIVATE_ITEM_ALT] = g_signal_new ("activate-item-alt",
                                        G_TYPE_FROM_CLASS (class),
@@ -178,6 +179,34 @@ katze_array_action_class_init (KatzeArrayActionClass* class)
                                        midori_cclosure_marshal_BOOLEAN__OBJECT_UINT,
                                        G_TYPE_BOOLEAN, 2,
                                        KATZE_TYPE_ITEM, G_TYPE_UINT);
+
+    /**
+     * KatzeArrayAction::activate-item-full:
+     * @array: the object on which the signal is emitted
+     * @item: the item being activated
+     * @event: the %GdkButtonEvent pressed
+     * @proxy: the %GtkWidget that caught the event
+     *
+     * An item was clicked, with the specified @button.
+     *
+     * Return value: %TRUE if the event was handled. If %FALSE is returned,
+     *               the default "activate-item-alt" signal is emitted. If
+     *               "activate-item-alt" if not handled on its turn the
+     *               "activate-item" signal is emitted.
+     *
+     * Since: 0.5.2
+     **/
+    signals[ACTIVATE_ITEM_FULL] = g_signal_new ("activate-item-full",
+                                       G_TYPE_FROM_CLASS (class),
+                                       (GSignalFlags) (G_SIGNAL_RUN_LAST),
+                                       0,
+                                       0,
+                                       NULL,
+                                       midori_cclosure_marshal_BOOLEAN__OBJECT_POINTER_OBJECT,
+                                       G_TYPE_BOOLEAN, 3,
+				       KATZE_TYPE_ITEM, 
+				       GDK_TYPE_EVENT, 
+				       GTK_TYPE_WIDGET);
 
     gobject_class = G_OBJECT_CLASS (class);
     gobject_class->finalize = katze_array_action_finalize;
@@ -288,13 +317,71 @@ katze_array_action_activate (GtkAction* action)
 static void
 katze_array_action_activate_item (KatzeArrayAction* action,
                                   KatzeItem*        item,
-                                  gint              button)
+                                  GdkEventButton*   event,
+				  GtkWidget*        proxy)
 {
+    /* katze_array_action_activate_item emits the signal.
+     * It can result from "clicked" event where the button event
+     * is not provided.
+     * We need to check if the current event is usable.
+     * If it's not we just synthetize a usable button event.
+     */
+
+    gboolean free_event = FALSE;
     gboolean handled = FALSE;
-    g_signal_emit (action, signals[ACTIVATE_ITEM_ALT], 0, item,
-                   button, &handled);
+
+    if (!event)
+    {
+	event = (GdkEventButton*)gtk_get_current_event ();
+	if (event->type != GDK_BUTTON_PRESS)
+	{
+	    gdk_event_free ((GdkEvent*)event);
+	    event = NULL;
+	}
+	else
+	    free_event = TRUE;
+    }
+
+    if (!event)
+    {            /* Simulate a button 1 press event */
+	gint x;
+	gint y;
+	gint x_root;
+	gint y_root;
+
+	free_event = TRUE;
+	event = (GdkEventButton*)gdk_event_new (GDK_BUTTON_PRESS);
+	event->type = GDK_BUTTON_PRESS;
+	event->window = proxy->window;
+	event->send_event = FALSE;
+	event->time = gtk_get_current_event_time();
+	gdk_window_get_pointer (proxy->window,
+				&x, &y,
+				NULL);
+	event->x = x;
+	event->y = y;
+	gtk_get_current_event_state (&event->state);
+
+	event->button = 1;
+	event->device = NULL; /* FIXME: find the mouse device */
+	gdk_window_get_root_coords (proxy->window,
+				    x, y,
+				    &x_root,
+				    &y_root);
+  	event->x_root = x_root;
+	event->y_root = y_root;
+    }
+
+    g_signal_emit (action, signals[ACTIVATE_ITEM_FULL], 0, item,
+                   event, proxy, &handled);
+    if (!handled)
+	g_signal_emit (action, signals[ACTIVATE_ITEM_ALT], 0, item,
+		       event->button, &handled);
     if (!handled)
         g_signal_emit (action, signals[ACTIVATE_ITEM], 0, item);
+
+    if (free_event)
+	gdk_event_free ((GdkEvent*)event);
 }
 
 static void
@@ -302,7 +389,8 @@ katze_array_action_menu_activate_cb  (GtkWidget*        proxy,
                                       KatzeArrayAction* array_action)
 {
     KatzeItem* item = g_object_get_data (G_OBJECT (proxy), "KatzeItem");
-    katze_array_action_activate_item (array_action, item, 1);
+
+    katze_array_action_activate_item (array_action, item, NULL, proxy);
 }
 
 static gboolean
@@ -312,10 +400,32 @@ katze_array_action_menu_button_press_cb (GtkWidget*        proxy,
 {
     KatzeItem* item = g_object_get_data (G_OBJECT (proxy), "KatzeItem");
 
-    katze_array_action_activate_item (array_action, item, event->button);
+    katze_array_action_activate_item (array_action, item, event, proxy);
 
     /* we need to block the 'activate' handler which would be called
      * otherwise as well */
+    g_signal_handlers_block_by_func (proxy,
+        katze_array_action_menu_activate_cb, array_action);
+
+    return FALSE;
+}
+
+static gboolean
+katze_array_action_tool_item_child_button_press_cb (GtkWidget*        proxy,
+						    GdkEventButton*   event,
+						    KatzeArrayAction* array_action)
+{
+    GtkWidget* toolitem = proxy->parent;
+    KatzeItem* item = g_object_get_data (G_OBJECT (toolitem), "KatzeItem");
+
+    /* let the 'clicked' signal be processed normally */
+    if (event->button == 1)
+	return FALSE;
+
+    katze_array_action_activate_item (array_action, item, event, proxy);
+
+    /* FIXME: Do we need to block the 'activate' handler which would be called
+     * otherwise as well? */
     g_signal_handlers_block_by_func (proxy,
         katze_array_action_menu_activate_cb, array_action);
 
@@ -476,6 +586,7 @@ katze_array_action_proxy_clicked_cb (GtkWidget*        proxy,
     gboolean handled = FALSE;
 
     array = (KatzeArray*)g_object_get_data (G_OBJECT (proxy), "KatzeItem");
+
     if (GTK_IS_MENU_ITEM (proxy))
     {
         if (katze_array_action_menu_item_need_update (array_action, proxy))
@@ -492,7 +603,7 @@ katze_array_action_proxy_clicked_cb (GtkWidget*        proxy,
 
     if (KATZE_IS_ITEM (array) && katze_item_get_uri ((KatzeItem*)array))
     {
-        katze_array_action_activate_item (array_action, KATZE_ITEM (array), 1);
+        katze_array_action_activate_item (array_action, KATZE_ITEM (array), NULL, proxy);
         return;
     }
 
@@ -706,9 +817,19 @@ katze_array_action_create_tool_item_for (KatzeArrayAction* array_action,
     else
         gtk_tool_item_set_tooltip_text (toolitem, uri);
 
-    g_object_set_data (G_OBJECT (toolitem), "KatzeArray", item);
+    g_object_set_data (G_OBJECT (toolitem), "KatzeItem", item);
     g_signal_connect (toolitem, "clicked",
         G_CALLBACK (katze_array_action_proxy_clicked_cb), array_action);
+    if (KATZE_IS_ITEM (item))
+    {
+	/* Tool items block the "button-press-event" but we can get it
+	 * when connecting it to the tool item's child widget
+	 */
+
+	GtkWidget* child = gtk_bin_get_child (GTK_BIN (toolitem));
+	g_signal_connect (child, "button-press-event",
+            G_CALLBACK (katze_array_action_tool_item_child_button_press_cb), array_action);
+    }
 
     g_object_set_data (G_OBJECT (toolitem), "KatzeArrayAction", array_action);
     g_signal_connect (item, "notify",
