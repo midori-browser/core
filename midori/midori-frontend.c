@@ -37,19 +37,16 @@ midori_frontend_browser_new_window_cb (MidoriBrowser* browser,
 }
 
 MidoriBrowser*
-midori_web_app_new (const gchar* config,
-                    const gchar* webapp,
+midori_web_app_new (const gchar* webapp,
                     gchar**      open_uris,
                     gchar**      execute_commands,
                     gint         inactivity_reset,
                     const gchar* block_uris)
 {
     guint i;
+    g_return_val_if_fail (webapp != NULL, NULL);
 
-    midori_paths_init (MIDORI_RUNTIME_MODE_APP, config);
-#ifndef HAVE_WEBKIT2
-    g_object_set_data (G_OBJECT (webkit_get_default_session ()), "pass-through-console", (void*)1);
-#endif
+    midori_paths_init (MIDORI_RUNTIME_MODE_APP, webapp);
     MidoriBrowser* browser = midori_browser_new ();
     g_signal_connect (browser, "new-window",
         G_CALLBACK (midori_frontend_browser_new_window_cb), NULL);
@@ -57,18 +54,18 @@ midori_web_app_new (const gchar* config,
     midori_browser_set_action_visible (browser, "Menubar", FALSE);
     midori_browser_set_action_visible (browser, "CompactMenu", FALSE);
 
-    MidoriWebSettings* settings = midori_browser_get_settings (browser);
+    MidoriWebSettings* settings = midori_settings_new_full (NULL);
     g_object_set (settings,
                   "show-menubar", FALSE,
                   "show-navigationbar", FALSE,
-                  "toolbar-items", "Back,Forward,ReloadStop,Location,Homepage",
+                  "toolbar-items", "Back,Forward,ReloadStop,Location,Homepage,Preferences",
                   "show-statusbar", FALSE,
                   "show-panel", FALSE,
                   "last-window-state", MIDORI_WINDOW_NORMAL,
                   "inactivity-reset", inactivity_reset,
                   "block-uris", block_uris,
                   NULL);
-    midori_load_soup_session (settings);
+    midori_load_soup_session_full (settings);
 
     KatzeArray* search_engines = midori_search_engines_new_from_folder (NULL);
     g_object_set (browser,
@@ -101,6 +98,7 @@ midori_web_app_new (const gchar* config,
         midori_browser_assert_action (browser, execute_commands[i]);
         midori_browser_activate_action (browser, execute_commands[i]);
     }
+    midori_session_persistent_settings (settings, NULL);
     return browser;
 }
 
@@ -426,7 +424,6 @@ MidoriApp*
 midori_normal_app_new (const gchar* config,
                        gchar*       nickname,
                        gboolean     diagnostic_dialog,
-                       const gchar* webapp,
                        gchar**      open_uris,
                        gchar**      execute_commands,
                        gint         inactivity_reset,
