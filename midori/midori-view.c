@@ -5931,7 +5931,12 @@ midori_view_set_colors (MidoriView* view,
     gtk_widget_modify_fg (label, GTK_STATE_NORMAL, fg_color);
     gtk_widget_modify_fg (label, GTK_STATE_ACTIVE, fg_color);
 
+    #if GTK_CHECK_VERSION (3, 0, 0)
     gtk_widget_modify_bg (label, GTK_STATE_NORMAL, bg_color);
     gtk_widget_modify_bg (label, GTK_STATE_ACTIVE, bg_color);
+    #else
+    gtk_widget_modify_bg (event_box, GTK_STATE_NORMAL, bg_color);
+    gtk_widget_modify_bg (event_box, GTK_STATE_ACTIVE, bg_color);
+    #endif
 }
 
