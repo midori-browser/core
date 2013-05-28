@@ -5901,6 +5901,12 @@ midori_view_set_colors (MidoriView* view,
                         GdkColor*   fg_color,
                         GdkColor*   bg_color)
 {
+    /*
+        The proxy tab label is what's put in the notebook,
+        in all known cases a GtkEventBox
+        Contained can be a GtkLabel or a GtkBox including a GtkLabel
+        Granite as of this writing uses a GtkLabel (which may change)
+    */
     GtkWidget* event_box = midori_view_get_proxy_tab_label (view);
     GtkWidget* label = gtk_bin_get_child (GTK_BIN (event_box));
 
