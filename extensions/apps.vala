@@ -20,7 +20,7 @@ namespace Apps {
         internal string exec;
         internal string uri;
 
-        internal static async void create (string prefix, GLib.File folder, string uri, string title) {
+        internal static async void create (string prefix, GLib.File folder, string uri, string title, Gtk.Widget proxy) {
             /* Strip LRE leading character and / */
             string filename = title.delimit ("‪/", ' ').strip() + ".desktop";
             string exec = prefix + uri;
@@ -41,10 +41,18 @@ namespace Apps {
             try {
                 var stream = yield file.replace_async (null, false, GLib.FileCreateFlags.NONE);
                 yield stream.write_async (contents.data);
+
+                var browser = proxy.get_toplevel () as Midori.Browser;
+                browser.send_notification (_("Launcher created"),
+                    _("You can now run <b>%s</b> from your launcher or menu").printf (name));
+                /* TODO: Use infobar; currently hits gtk_widget_get_realized: assertion `GTK_IS_WIDGET (widget)' failed
+                (browser.tab as Midori.View).add_info_bar (Gtk.MessageType.INFO,
+                    _("You can now run <b>%s</b> from your launcher or menu").printf (name), null, null, null); */
             }
             catch (Error error) {
-                // TODO GUI infobar
-                warning ("Failed to create new launcher: %s", error.message);
+                var browser = proxy.get_toplevel () as Midori.Browser;
+                browser.send_notification (_("Error creating launcher"),
+                    _("Failed to create new launcher: %s").printf (error.message));
             }
         }
 
@@ -100,7 +108,7 @@ namespace Apps {
                     string config = Path.build_path (Path.DIR_SEPARATOR_S,
                         Midori.Paths.get_user_data_dir (), PACKAGE_NAME, "profiles", uuid);
                     Launcher.create.begin (PROFILE_PREFIX, app_folder,
-                        config, _("Midori (%s)").printf (uuid));
+                        config, _("Midori (%s)").printf (uuid), this);
                 });
                 toolbar.insert (profile, -1);
 
@@ -113,7 +121,7 @@ namespace Apps {
                 app.clicked.connect (() => {
                     var view = (get_toplevel () as Midori.Browser).tab as Midori.View;
                     Launcher.create.begin (APP_PREFIX, app_folder,
-                        view.get_display_uri (), view.get_display_title ());
+                        view.get_display_uri (), view.get_display_title (), this);
                 });
                 toolbar.insert (app, -1);
             }
@@ -271,7 +279,7 @@ namespace Apps {
             menuitem.activate.connect (() => {
                 var view = browser.tab as Midori.View;
                 Launcher.create.begin (APP_PREFIX, app_folder,
-                    view.get_display_uri (), view.get_display_title ());
+                    view.get_display_uri (), view.get_display_title (), browser);
             });
         }
 

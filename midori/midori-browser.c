@@ -7716,7 +7716,7 @@ midori_browser_set_current_tab (MidoriBrowser* browser,
 GtkWidget*
 midori_browser_get_current_tab (MidoriBrowser* browser)
 {
-    #ifdef HAVE_GRANITE
+    #if 0 // def HAVE_GRANITE
     GraniteWidgetsTab* tab;
     #else
     gint n;
@@ -7724,7 +7724,7 @@ midori_browser_get_current_tab (MidoriBrowser* browser)
 
     g_return_val_if_fail (MIDORI_IS_BROWSER (browser), NULL);
 
-    #ifdef HAVE_GRANITE
+    #if 0 // FIXME: not reliable def HAVE_GRANITE
     tab = granite_widgets_dynamic_notebook_get_current (
         GRANITE_WIDGETS_DYNAMIC_NOTEBOOK (browser->notebook));
     return tab ? granite_widgets_tab_get_page (tab) : NULL;

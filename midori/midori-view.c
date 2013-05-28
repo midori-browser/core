@@ -1222,6 +1222,7 @@ midori_view_add_info_bar (MidoriView*    view,
     va_list args;
     const gchar* button_text;
 
+    g_return_val_if_fail (MIDORI_IS_VIEW (view), NULL);
     g_return_val_if_fail (message != NULL, NULL);
 
     va_start (args, first_button_text);
