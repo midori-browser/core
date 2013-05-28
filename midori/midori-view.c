@@ -5903,15 +5903,42 @@ midori_view_set_colors (MidoriView* view,
                         GdkColor*   fg_color,
                         GdkColor*   bg_color)
 {
+    /*
+        The proxy tab label is what's put in the notebook,
+        in all known cases a GtkEventBox
+        Contained can be a GtkLabel or a GtkBox including a GtkLabel
+        Granite as of this writing uses a GtkLabel (which may change)
+    */
+    GtkWidget* event_box = midori_view_get_proxy_tab_label (view);
+    GtkWidget* label = gtk_bin_get_child (GTK_BIN (event_box));
+
+    if (GTK_IS_BOX (label))
+    {
+        GList* children = gtk_container_get_children (GTK_CONTAINER (label));
+        for (; children != NULL; children = g_list_next (children))
+            if (GTK_IS_LABEL (children->data))
+            {
+                label = children->data;
+                break;
+            }
+        g_list_free (children);
+    }
+
     midori_tab_set_fg_color (MIDORI_TAB (view), fg_color);
     midori_tab_set_bg_color (MIDORI_TAB (view), bg_color);
 
-    GtkWidget* label = midori_view_get_proxy_tab_label (view);
-    gtk_event_box_set_visible_window (GTK_EVENT_BOX (label),
+    gtk_event_box_set_visible_window (GTK_EVENT_BOX (event_box),
         fg_color != NULL || bg_color != NULL);
+
     gtk_widget_modify_fg (label, GTK_STATE_NORMAL, fg_color);
     gtk_widget_modify_fg (label, GTK_STATE_ACTIVE, fg_color);
+
+    #if GTK_CHECK_VERSION (3, 0, 0)
     gtk_widget_modify_bg (label, GTK_STATE_NORMAL, bg_color);
     gtk_widget_modify_bg (label, GTK_STATE_ACTIVE, bg_color);
+    #else
+    gtk_widget_modify_bg (event_box, GTK_STATE_NORMAL, bg_color);
+    gtk_widget_modify_bg (event_box, GTK_STATE_ACTIVE, bg_color);
+    #endif
 }
 
