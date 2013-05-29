@@ -264,23 +264,25 @@ namespace Apps {
             }
         }
 
-        void tool_menu_populated (Midori.Browser browser, Gtk.Menu menu) {
-            var menuitem = new Gtk.MenuItem.with_mnemonic (_("Create _Launcher"));
-            menuitem.show ();
-            menu.append (menuitem);
-            menuitem.activate.connect (() => {
+        void browser_added (Midori.Browser browser) {
+            var accels = new Gtk.AccelGroup ();
+            browser.add_accel_group (accels);
+            var action_group = browser.get_action_group ();
+
+            var action = new Gtk.Action ("CreateLauncher", _("Create _Launcher"),
+                _("Creates a new app for a specific site"), null);
+            action.activate.connect (() => {
                 var view = browser.tab as Midori.View;
                 Launcher.create.begin (APP_PREFIX, app_folder,
                     view.get_display_uri (), view.get_display_title ());
             });
-        }
+            action_group.add_action_with_accel (action, "<Ctrl><Shift>A");
+            action.set_accel_group (accels);
+            action.connect_accelerator ();
 
-        void browser_added (Midori.Browser browser) {
             var viewable = new Sidebar (array, app_folder);
             viewable.show ();
             browser.panel.append_page (viewable);
-            browser.populate_tool_menu.connect (tool_menu_populated);
-            // TODO website context menu
             widgets.append (viewable);
         }
 
@@ -300,6 +302,12 @@ namespace Apps {
             app.add_browser.disconnect (browser_added);
             foreach (var widget in widgets)
                 widget.destroy ();
+            foreach (var browser in app.get_browsers ()) {
+                var action_group = browser.get_action_group ();
+                var action = action_group.get_action ("CreateLauncher");
+                action_group.remove_action (action);
+            }
+
         }
 
         internal Manager () {

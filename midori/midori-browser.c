@@ -903,8 +903,19 @@ midori_browser_edit_bookmark_add_speed_dial_cb (GtkWidget* button,
                                                 KatzeItem* bookmark)
 {
     MidoriBrowser* browser = midori_browser_get_for_widget (button);
-    gtk_widget_set_sensitive (button, FALSE);
     midori_browser_add_speed_dial (browser);
+    GtkWidget* dialog = gtk_widget_get_toplevel (button);
+    gtk_dialog_response (GTK_DIALOG (dialog), GTK_RESPONSE_DELETE_EVENT);
+}
+
+static void
+midori_browser_edit_bookmark_create_launcher_cb (GtkWidget* button,
+                                                 KatzeItem* bookmark)
+{
+    GtkAction* action = g_object_get_data (G_OBJECT (button), "midori-action");
+    gtk_action_activate (action);
+    GtkWidget* dialog = gtk_widget_get_toplevel (button);
+    gtk_dialog_response (GTK_DIALOG (dialog), GTK_RESPONSE_DELETE_EVENT);
 }
 
 /* Private function, used by MidoriBookmarks and MidoriHistory */
@@ -927,7 +938,6 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     GtkWidget* entry_uri;
     GtkWidget* combo_folder;
     GtkWidget* check_toolbar;
-    GtkWidget* check_app;
     gboolean return_status = FALSE;
     sqlite3* db = g_object_get_data (G_OBJECT (browser->bookmarks), "db");
     if (!db)
@@ -1012,15 +1022,6 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         katze_item_get_meta_integer (bookmark, "parentid"));
     gtk_box_pack_start (GTK_BOX (vbox), combo_folder, FALSE, FALSE, 0);
 
-    if (new_bookmark && !is_folder)
-    {
-        label = gtk_button_new_with_mnemonic (_("Add to _Speed Dial"));
-        g_signal_connect (label, "clicked",
-            G_CALLBACK (midori_browser_edit_bookmark_add_speed_dial_cb), bookmark);
-            return_status = TRUE;
-        gtk_dialog_add_action_widget (GTK_DIALOG (dialog), label, GTK_RESPONSE_HELP);
-    }
-
     hbox = gtk_hbox_new (FALSE, 6);
     gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
     check_toolbar = gtk_check_button_new_with_mnemonic (_("Show in Bookmarks _Bar"));
@@ -1028,14 +1029,28 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         katze_item_get_meta_boolean (bookmark, "toolbar"));
     gtk_box_pack_start (GTK_BOX (hbox), check_toolbar, FALSE, FALSE, 0);
 
-    check_app = NULL;
-    if (!is_folder)
+    if (new_bookmark && !is_folder)
     {
-        check_app = gtk_check_button_new_with_mnemonic (_("Run as _web application"));
-        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (check_app),
-            katze_item_get_meta_boolean (bookmark, "app"));
-        gtk_box_pack_start (GTK_BOX (hbox), check_app, FALSE, FALSE, 0);
+        hbox = gtk_hbox_new (FALSE, 6);
+        gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
+
+        label = gtk_button_new_with_mnemonic (_("Add to _Speed Dial"));
+        g_signal_connect (label, "clicked",
+            G_CALLBACK (midori_browser_edit_bookmark_add_speed_dial_cb), bookmark);
+        gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
+
+        /* FIXME: There's no API for extending the bookmark dialog */
+        GtkAction* action = _action_by_name (browser, "CreateLauncher");
+        if (action != NULL)
+        {
+            label = gtk_button_new_with_mnemonic (gtk_action_get_label (action));
+            g_object_set_data (G_OBJECT (label), "midori-action", action);
+            g_signal_connect (label, "clicked",
+                G_CALLBACK (midori_browser_edit_bookmark_create_launcher_cb), bookmark);
+            gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
+        }
     }
+
     gtk_widget_show_all (content_area);
 
     gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT);
@@ -1048,12 +1063,8 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         katze_item_set_meta_integer (bookmark, "toolbar",
             gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (check_toolbar)));
         if (!is_folder)
-        {
             katze_item_set_uri (bookmark,
                 gtk_entry_get_text (GTK_ENTRY (entry_uri)));
-            katze_item_set_meta_integer (bookmark, "app",
-                gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (check_app)));
-        }
 
         selected = midori_bookmark_folder_button_get_active (combo_folder);
         katze_item_set_meta_integer (bookmark, "parentid", selected);
