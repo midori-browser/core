@@ -7011,6 +7011,14 @@ midori_bookmarkbar_populate (MidoriBrowser* browser)
 
                 katze_item_set_name (KATZE_ITEM (subfolder), katze_item_get_name (item));
                 katze_item_set_meta_integer (KATZE_ITEM (subfolder), "id", id);
+                katze_item_set_meta_integer (KATZE_ITEM (subfolder), "toolbar", 1);
+                katze_item_set_meta_integer (KATZE_ITEM (subfolder), "parentid", 
+                    katze_item_get_meta_integer (item, "parentid"));
+		katze_item_set_uri (KATZE_ITEM (subfolder), NULL);
+		katze_item_set_meta_string (KATZE_ITEM (subfolder), "desc",
+		    katze_item_get_meta_string (KATZE_ITEM (item), "desc"));
+		katze_item_set_meta_integer (KATZE_ITEM (subfolder), "app",
+		    katze_item_get_meta_boolean (KATZE_ITEM (item), "app"));
                 midori_bookmarkbar_insert_item (browser->bookmarkbar, KATZE_ITEM (subfolder));
             g_free (parentid);
         }
