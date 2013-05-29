@@ -189,6 +189,7 @@ namespace Midori {
         public Gdk.Pixbuf get_snapshot (int width, int height);
         public void populate_popup (Gtk.Menu menu, bool manual);
         public void reload (bool from_cache);
+        public Gtk.Widget add_info_bar (Gtk.MessageType type, string message, GLib.Callback? callback, void* object, ...);
 
         public string title { get; }
         public Gdk.Pixbuf icon { get; }
