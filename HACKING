@@ -4,48 +4,47 @@
 
 ====== Check out the sources ======
 
-<code bash>bzr branch lp:midori</code>
+bzr branch lp:midori
 
-The development **trunk** (master, tip) is the latest iteration of the next release. Browse it online and look for other branches at http://code.launchpad.net/midori .
+The development **trunk** (master, tip) is the latest iteration of the next release. Browse it online and look for other branches at http://code.launchpad.net/midori or http://bazaar.launchpad.net/~midori/midori/trunk/tarball download a tarball of the latest revision.
 
 //The code used to be hosted in git.xfce.org/apps/midori.//
-
 ====== Join IRC chat rooms ======
 
-Join [[irc://irc.freenode.net/midori|#midori]] on Freenode [[https://kiwiirc.com/client/irc.freenode.net/midori|or use webchat]] to talk about Midori, discuss bugs and new ideas.
+Join irc://irc.freenode.net/midori #midori on Freenode https://kiwiirc.com/client/irc.freenode.net/midori or use webchat to talk about Midori, discuss bugs and new ideas.
 ====== Contribute other than touching code ======
 
-  * [[http://bugs.launchpad.net/midori|Go through problem reports]] and check Unconfirmed bugs or those lacking information and mark any duplicates you spot
-  * [[https://www.bountysource.com/#trackers/130181-midori|Add a bounty]] for a feature or bug you'd like to support
+  * http://bugs.launchpad.net/midori Go through problem reports and check Unconfirmed bugs or those lacking information and mark any duplicates you spot
+  * https://www.bountysource.com/#trackers/130181-midori Add a bounty for a feature or bug you'd like to support
 
 ====== Build the code ======
 
-<code bash>./waf configure --prefix=/usr
+./waf configure --prefix=/usr
 ./waf build
-sudo ./waf install</code>
+sudo ./waf install
 
 Midori can be **run without being installed**.
 
-<code bash>_build/default/midori/midori</code>
+_build/default/midori/midori
 
 You can use a **temporary folder for testing** without affecting normal settings
 
-<code bash>_build/default/midori/midori -c /tmp/midoridev</code>
+_build/default/midori/midori -c /tmp/midoridev
 
 You'll want to **unit test** the code if you're testing a new version or contributed your own changes:
 
-<code bash>xvfb-run ./waf check</code>
+xvfb-run ./waf check
 
-Automated daily builds in Launchpad ([[https://launchpad.net/~elementary-os/+archive/daily|ppa:elementary-os/daily]] and [[https://launchpad.net/~midori/+archive/midori-dev|ppa:midori/midori-dev]]) run these tests as well.
+Automated daily builds in Launchpad (https://launchpad.net/~elementary-os/+archive/daily ppa:elementary-os/daily and https://launchpad.net/~midori/+archive/midori-dev ppa:midori/midori-dev) run these tests as well.
 ====== Debugging issues ======
 
 Testing an installed release may reveal crashers or memory corruption which require investigating from a local build and obtaining a stacktrace (backtrace, crash log).
 
-<code bash>_build/default/midori/midori -g [OPTIONAL ARGUMENTS]</code>
+_build/default/midori/midori -g [OPTIONAL ARGUMENTS]
 
 For more specific debugging output, depending on the feature in question you may use
 
-<code bash>env MIDORI_DEBUG=help _build/default/midori/midori</code>
+env MIDORI_DEBUG=help _build/default/midori/midori
 
 ====== Coding style and quality ======
 
@@ -105,15 +104,15 @@ Remember to keep your branch updated:
 
 As a general rule of thumb, ''bzr help COMMAND'' gives you an explanation of any command and ''bzr help commands'' lists all available commands.
 
-//If you're a die-hard git user, [[http://zyga.github.io/git-lp/|checkout git-lp]] to use git commands with the Bazaar repository.//
+//If you're a die-hard git user, http://zyga.github.io/git-lp/ checkout git-lp to use git commands with the Bazaar repository.//
 
 ====== Push proposed changes ======
 
-If you haven't yet, [[https://launchpad.net/~/+editsshkeys|check that Launchpad has your SSH key]] - you can create an SSH key with **Passwords and Keys** aka **Seahorse** or ''ssh-keygen -t rsa'' - and use ''bzr launchpad-login'' to make youself known to bzr locally.
+If you haven't yet, https://launchpad.net/~/+editsshkeys check that Launchpad has your SSH key - you can create an SSH key with **Passwords and Keys** aka **Seahorse** or ''ssh-keygen -t rsa'' - and use ''bzr launchpad-login'' to make youself known to bzr locally.
 
 If you checked out trunk, and added your patch(es), just **push it under your username** in Launchpad and you can **propose it for merging into trunk**. This will automatically request a **review from other developers** who can then comment on it and provide feedback.
 
-<code bash>bzr push --remember lp:~USERNAME/midori/fix-bug1120383 && bzr lp-propose-merge lp:midori</code>
+bzr push --remember lp:~USERNAME/midori/fix-bug1120383 && bzr lp-propose-merge lp:midori
 
 lp-propose-merge command may not be working on some distributions like Arch or Fedora.
 In case you get error like //bzr: ERROR: Unable to import library "launchpadlib": No module named launchpadlib// just use Launchpad's Web UI to propose a merge.
@@ -125,21 +124,21 @@ Leave the branches alone, **approved branches are cleared automatically** by Lau
 
 For larger feature branches, **use the team** in Launchpad to allow other developers to work on the code with you.
 
-<code bash>bzr push --remember lp:~midori/midori/featuritis && bzr lp-propose-merge lp:midori</code>
+bzr push --remember lp:~midori/midori/featuritis && bzr lp-propose-merge lp:midori
 
 What if I want to help out on an **existing merge request** that I can't push to?
 
-<code bash>
+
 bzr branch ~OTHERPERSON/midori/fix-bug1120383
 cd fix-bug1120383
 # make commits
 bzr push lp:USERNAME~/midori/fix-bug1120383
 bzr lp-propose-merge ~OTHERPERSON/midori/fix-bug1120383
-</code>
+
 
 Updating a branch that may be out of sync with trunk:
 
-<code bash>
+
 bzr pull
 bzr: ERROR: These branches have diverged
 bzr merge lp:midori
@@ -147,53 +146,53 @@ bzr merge lp:midori
 bzr resolve FILENAME
 # If any conflicts remain continue fixing
 bzr commit -m 'Merge lp:midori'
-</code>
+
 
 Save a little bandwidth, **branch from an existing local copy** that you keep around:
 
-<code bash>
+
 bzr branch lp:midori midori
 bzr branch midori midori.fix-bug1120383
 cd midori.fix-bug1120383
 bzr pull lp:midori
-</code>
+
 ====== Midori for Windows ======
 ===== Dependencies =====
 Midori for Windows is compiled on a Linux host and MinGW stack. For the current build Fedora 18 packages are used. Packages needed are listed below:
 
-<code bash>yum install gcc vala intltool</code>
+yum install gcc vala intltool
 
 For a native build
-<code bash>yum install libsoup-devel webkitgtk3-devel sqlite-devel</code>
+yum install libsoup-devel webkitgtk3-devel sqlite-devel
 
 For cross-compilation
-<code bash>yum install mingw{32,64}-webkitgtk3 mingw{32,64}-glib-networking mingw{32,64}-gdb</code>
+yum install mingw{32,64}-webkitgtk3 mingw{32,64}-glib-networking mingw{32,64}-gdb
 
 Packages needed when assembling the archive
-<code bash> yum install faenza-icon-theme p7zip mingw32-nsis</code>
+ yum install faenza-icon-theme p7zip mingw32-nsis
 
 Installing those should get you the packages needed to successfully build and develop Midori for Win32.
 
 ===== Building =====
 For 32-bit builds:
-<code bash>
+
 mingw32-env
 ./configure --enable-gtk3 --prefix=/usr/i686-w64-mingw32/sys-root/mingw/
 make
-sudo make install</code>
+sudo make install
 
 For 64-bit builds:
-<code bash>
+
 mingw64-env
 ./configure --enable-gtk3 --prefix=/usr/x86_64-w64-mingw32/sys-root/mingw/
 make
-sudo make install</code>
+sudo make install
 
 Once built and tested you can assemble the Midori archive with a helper script
 32-bit build:
-<code bash>env MINGW_PREFIX="/usr/i686-w64-mingw32/sys-root/mingw" ./win32/makedist/makedist.midori</code>
+env MINGW_PREFIX="/usr/i686-w64-mingw32/sys-root/mingw" ./win32/makedist/makedist.midori
 64-bit build:
-<code bash>env MINGW_PREFIX="/usr/x86_64-w64-mingw32/sys-root/mingw/" ./win32/makedist/makedist.midori x64</code>
+env MINGW_PREFIX="/usr/x86_64-w64-mingw32/sys-root/mingw/" ./win32/makedist/makedist.midori x64
 
 ===== Testing =====
 For testing your changes unfortuantely a real system is needed because Midori and WebKitGTK+ don't work properly under Wine. Even if it works some problems are not visible when using Wine, but are present when running under a real Windows system and vice versa.
