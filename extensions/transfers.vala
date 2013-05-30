@@ -423,14 +423,17 @@ namespace Transfers {
         }
 
         bool notification_timeout_triggered () {
-            string filename = notifications.nth_data(0);
-            string msg;
-            if (notifications.length () == 1)
-                msg = _("The file '<b>%s</b>' has been downloaded.").printf (filename);
-            else
-                msg = _("'<b>%s</b>' and %d other files have been downloaded.").printf (filename, notifications.length ());
-            get_app ().send_notification (_("Transfer completed"), msg);
-            notifications = new GLib.List<string> ();
+            notification_timeout = 0;
+            if (notifications.length () > 0) {
+                string filename = notifications.nth_data(0);
+                string msg;
+                if (notifications.length () == 1)
+                    msg = _("The file '<b>%s</b>' has been downloaded.").printf (filename);
+                else
+                    msg = _("'<b>%s</b>' and %d other files have been downloaded.").printf (filename, notifications.length ());
+                get_app ().send_notification (_("Transfer completed"), msg);
+                notifications = new GLib.List<string> ();
+            }
             return false;
         }
 
@@ -452,8 +455,10 @@ namespace Transfers {
                     Gtk.RecentManager.get_default ().add_item (uri);
 
                 notifications.append (filename);
-                if (notification_timeout == 0)
+                if (notification_timeout == 0) {
+                    notification_timeout_triggered ();
                     notification_timeout = Midori.Timeout.add_seconds (60, notification_timeout_triggered);
+                }
             }
         }
 
