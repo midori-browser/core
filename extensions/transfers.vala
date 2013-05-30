@@ -423,6 +423,7 @@ namespace Transfers {
         }
 
         bool notification_timeout_triggered () {
+            notification_timeout = 0;
             string filename = notifications.nth_data(0);
             string msg;
             if (notifications.length () == 1)
