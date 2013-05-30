@@ -11,6 +11,34 @@
 
 #include <midori/midori.h>
 
+typedef struct
+{
+    gchar* folder;
+    gchar* filename;
+    gchar* uri;
+} tabs2onePriv;
+
+static tabs2onePriv* priv;
+
+tabs2onePriv*
+tabs2one_private_new ()
+{
+    tabs2onePriv* priv = g_slice_new (tabs2onePriv);
+    priv->folder = NULL;
+    priv->filename = NULL;
+    priv->uri = NULL;
+
+    return priv;
+}
+
+void tabs2one_private_destroy (tabs2onePriv* priv)
+{
+    katze_assign (priv->folder, NULL);
+    katze_assign (priv->filename, NULL);
+    katze_assign (priv->uri, NULL);
+    g_slice_free (tabs2onePriv, priv);
+}
+
 static void 
 tabs2one_dom_click_remove_item_cb (WebKitDOMNode  *element, 
                                    WebKitDOMEvent *dom_event, 
@@ -59,29 +87,28 @@ tabs2one_dom_create_item (WebKitDOMDocument* doc,
     webkit_dom_node_append_child(WEBKIT_DOM_NODE(body), WEBKIT_DOM_NODE(item), NULL);
 }
 
-static gchar*
-tabs2one_cache_get_dir (void){
-    return g_build_filename (midori_paths_get_cache_dir (), "tabs2one", NULL);
-}
-
 static void
-tabs2one_cache_create_dir (void){
-    midori_paths_mkdir_with_parents (tabs2one_cache_get_dir (), 0700);
+tabs2one_cache_create_dir (void)
+{
+    midori_paths_mkdir_with_parents (priv->folder, 0700);
 }
 
 static gchar*
-tabs2one_cache_get_filename (void){
-    return g_build_filename (tabs2one_cache_get_dir (), "tabs2one.html", NULL);
+tabs2one_cache_get_filename (void)
+{
+    return priv->filename;
 }
 
 static gchar*
-tabs2one_cache_get_uri (void){
-    return g_strconcat ("file://", tabs2one_cache_get_filename (), NULL);
+tabs2one_cache_get_uri (void)
+{
+    return priv->uri;
 }
 
 static bool
-tabs2one_cache_exist (void){
-    return g_file_test (tabs2one_cache_get_filename (), G_FILE_TEST_EXISTS);
+tabs2one_cache_exist (void)
+{
+    return g_file_test (priv->filename, G_FILE_TEST_EXISTS);
 }
 
 static gboolean
@@ -258,6 +285,8 @@ tabs2one_deactivate_cb (MidoriExtension* extension,
         app, tabs2one_app_add_browser_cb, extension);
     g_signal_handlers_disconnect_by_func (
         browser, tabs2one_add_tab_cb, extension);
+
+    tabs2one_private_destroy (priv);
 }
 
 static void
@@ -279,8 +308,18 @@ static void
 tabs2one_activate_cb (MidoriExtension* extension,
                       MidoriApp*       app)
 {
+    const gchar* config_dir = midori_extension_get_config_dir (extension);
+    priv = tabs2one_private_new ();
     KatzeArray* browsers;
     MidoriBrowser* browser;
+    gchar* filename, *uri;
+
+    filename = g_build_filename (config_dir, "tabs2one.html", NULL);
+    uri = g_filename_to_uri (filename, NULL, NULL);
+
+    priv->filename = g_strdup (filename);
+    priv->uri = g_strdup (uri);
+    priv->folder = g_strdup (config_dir);
 
     browsers = katze_object_get_object (app, "browsers");
     KATZE_ARRAY_FOREACH_ITEM (browser, browsers)
@@ -288,6 +327,9 @@ tabs2one_activate_cb (MidoriExtension* extension,
     g_object_unref (browsers);
     g_signal_connect (app, "add-browser",
         G_CALLBACK (tabs2one_app_add_browser_cb), extension);
+
+    g_free (filename);
+    g_free (uri);
 }
 
 MidoriExtension*
