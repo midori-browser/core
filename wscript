@@ -193,12 +193,11 @@ def configure (conf):
             uselib_store=var, errmsg=name + ver_str + ' not found')][have])
         return have
 
-    if option_enabled ('libnotify'):
-        if not check_pkg ('libnotify', mandatory=False):
-            option_checkfatal ('libnotify', 'notifications')
-    else:
+    if is_win32 (os.environ):
         conf.define ('LIBNOTIFY_VERSION', 'No')
         conf.check_message_custom ('libnotify', '', 'disabled')
+    else:
+        check_pkg ('libnotify', mandatory=True)
     conf.define ('HAVE_LIBNOTIFY', [0,1][conf.env['LIBNOTIFY_VERSION'] != 'No'])
 
     if option_enabled ('granite'):
@@ -419,7 +418,6 @@ def set_options (opt):
 
     group = opt.add_option_group ('Optional features', '')
     add_enable_option ('unique', 'single instance support', group, disable=is_win32 (os.environ))
-    add_enable_option ('libnotify', 'notification support', group)
     add_enable_option ('granite', 'new notebook, pop-overs', group, disable=True)
     add_enable_option ('addons', 'building of extensions', group)
     add_enable_option ('tests', 'install tests', group, disable=True)
