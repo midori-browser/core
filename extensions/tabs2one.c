@@ -128,7 +128,7 @@ tabs2one_onload_create_items_cb(WebKitWebView*  webview,
     const gchar* icon;
     const gchar* title;
     const gchar* uri;
-    
+
     GList* tabs = midori_browser_get_tabs (browser);
     for (; tabs; tabs = g_list_next (tabs))
     {
@@ -141,13 +141,14 @@ tabs2one_onload_create_items_cb(WebKitWebView*  webview,
         {
             if (!midori_uri_is_blank (uri))
                 tabs2one_dom_create_item(doc, icon, uri, title);
-
-            midori_browser_close_tab(browser, tabs->data);
         }
+
+        midori_browser_close_tab(browser, tabs->data);
     }
 
     tabs2one_dom_add_click_listeners (doc, webview);
     tabs2one_cache_write_file (webview);
+    midori_browser_set_current_uri (browser, tabs2one_cache_get_uri ());
     g_list_free(tabs);
 }
 
@@ -203,27 +204,10 @@ static void
 tabs2one_apply_cb (GtkWidget*     menuitem,
                    MidoriBrowser* browser)
 {
-    bool exist = FALSE;
     GtkWidget* tab = NULL;
-    GList* tabs = midori_browser_get_tabs (browser);
 
-    for (; tabs; tabs = g_list_next (tabs))
+    if (!tabs2one_cache_exist ())
     {
-        if (tabs2one_is_uri_tabs2one_tab (midori_view_get_display_uri (tabs->data))){
-            exist = TRUE;
-            tab = tabs->data;
-            break;
-        }
-    }
-
-    g_list_free(tabs);
-
-    if (!exist && tabs2one_cache_exist ()){
-        tab = midori_browser_add_uri (browser, tabs2one_cache_get_uri ());
-    }
-
-    if (!exist && !tabs2one_cache_exist ()){
-
         const gchar* tpl = "<html>\n"
                            "    <title>Tabs to One</title>\n"
                            "    <head><meta charset=\"utf-8\"></head>\n"
@@ -231,8 +215,9 @@ tabs2one_apply_cb (GtkWidget*     menuitem,
                            "</html>\n";
 
         g_file_set_contents(tabs2one_cache_get_filename (), tpl, -1, NULL);
-        tab = midori_browser_add_uri (browser, tabs2one_cache_get_uri ());
     }
+
+    tab = midori_browser_add_uri (browser, tabs2one_cache_get_uri ());
 
     WebKitWebView* webview = WEBKIT_WEB_VIEW (midori_view_get_web_view(MIDORI_VIEW (tab)));
     midori_browser_set_current_tab (browser, tab);
