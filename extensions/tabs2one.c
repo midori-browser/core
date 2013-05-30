@@ -131,7 +131,10 @@ tabs2one_onload_create_items_cb(WebKitWebView*  webview,
         uri = midori_view_get_display_uri (tabs->data);
 
         if (strcmp(uri, tabs2one_cache_get_uri ())){
-            tabs2one_dom_create_item(doc, icon, uri, title);
+
+            if (!midori_uri_is_blank (uri))
+                tabs2one_dom_create_item(doc, icon, uri, title);
+
             midori_browser_close_tab(browser, tabs->data);
         }
     }
