@@ -411,6 +411,8 @@ namespace Transfers {
     private class Manager : Midori.Extension {
         internal Katze.Array array;
         internal GLib.List<Gtk.Widget> widgets;
+        internal GLib.List<string> notifications;
+        internal uint notification_timeout;
 
         void download_added (WebKit.Download download) {
             var transfer = new Transfer (download);
@@ -418,6 +420,18 @@ namespace Transfers {
             transfer.changed.connect (transfer_changed);
             array.remove_item.connect (transfer_removed);
             array.add_item (transfer);
+        }
+
+        bool notification_timeout_triggered () {
+            string filename = notifications.nth_data(0);
+            string msg;
+            if (notifications.length () == 1)
+                msg = _("The file '<b>%s</b>' has been downloaded.").printf (filename);
+            else
+                msg = _("'<b>%s</b>' and %d other files have been downloaded.").printf (filename, notifications.length ());
+            get_app ().send_notification (_("Transfer completed"), msg);
+            notifications = new GLib.List<string> ();
+            return false;
         }
 
         void transfer_changed (Transfer transfer) {
@@ -437,8 +451,9 @@ namespace Transfers {
                 if (!Midori.Download.has_wrong_checksum (transfer.download))
                     Gtk.RecentManager.get_default ().add_item (uri);
 
-                string msg = _("The file '<b>%s</b>' has been downloaded.").printf (filename);
-                get_app ().send_notification (_("Transfer completed"), msg);
+                notifications.append (filename);
+                if (notification_timeout == 0)
+                    notification_timeout = Midori.Timeout.add_seconds (60, notification_timeout_triggered);
             }
         }
 
@@ -495,6 +510,8 @@ namespace Transfers {
         void activated (Midori.App app) {
             array = new Katze.Array (typeof (Transfer));
             widgets = new GLib.List<Gtk.Widget> ();
+            notifications = new GLib.List<string> ();
+            notification_timeout = 0;
             foreach (var browser in app.get_browsers ())
                 browser_added (browser);
             app.add_browser.connect (browser_added);
