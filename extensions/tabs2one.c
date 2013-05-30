@@ -308,7 +308,7 @@ extension_init (void)
 {
     MidoriExtension* extension = g_object_new (MIDORI_TYPE_EXTENSION,
         "name", _("Tabs to One"),
-        "description", _("Closes all open tabs and create new tab with links tabs"),
+        "description", _("Closes all open tabs and creates new tab with tabs links"),
         "version", "0.1" MIDORI_VERSION_SUFFIX,
         "authors", "Eder Sosa <eder.sohe@gmail.com>",
         NULL);
