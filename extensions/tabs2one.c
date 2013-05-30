@@ -85,8 +85,8 @@ tabs2one_cache_exist (void){
 }
 
 static void
-tabs2one_dom_click_items(WebKitDOMDocument* doc,
-                         WebKitWebView* webview)
+tabs2one_dom_add_click_listeners (WebKitDOMDocument* doc,
+                                  WebKitWebView* webview)
 {
     WebKitDOMNodeList *elements = webkit_dom_document_query_selector_all(doc, ".item a", NULL);
 
@@ -107,7 +107,7 @@ tabs2one_cache_write_file (WebKitWebView* webview)
     WebKitDOMDocument* doc = webkit_web_view_get_dom_document(webview);
     WebKitDOMHTMLDocument* dochtml = (WebKitDOMHTMLDocument*)doc;
     WebKitDOMHTMLElement* elementhtml = (WebKitDOMHTMLElement*)dochtml;
-    tabs2one_dom_click_items(doc, webview);
+    tabs2one_dom_add_click_listeners (doc, webview);
     const gchar* content = webkit_dom_html_element_get_inner_html(elementhtml);
     return g_file_set_contents(tabs2one_cache_get_filename (), content, -1, NULL);
 }
@@ -139,7 +139,7 @@ tabs2one_onload_create_items_cb(WebKitWebView*  webview,
         }
     }
 
-    tabs2one_dom_click_items(doc, webview);
+    tabs2one_dom_add_click_listeners (doc, webview);
     tabs2one_cache_write_file (webview);
     g_list_free(tabs);
 }
@@ -152,7 +152,7 @@ tabs2one_reload_connected_events_cb(WebKitWebView*  webview,
 
     if (!strcmp(uri, tabs2one_cache_get_uri ())) {
         WebKitDOMDocument* doc = webkit_web_view_get_dom_document(webview);
-        tabs2one_dom_click_items(doc, webview);
+        tabs2one_dom_add_click_listeners (doc, webview);
     }
 }
 
