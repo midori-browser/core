@@ -445,6 +445,24 @@ midori_bookmarks_toolbar_update (MidoriBookmarks *bookmarks)
     gtk_widget_set_sensitive (GTK_WIDGET (bookmarks->edit), selected);
 }
 
+static gchar* 
+midori_bookmarks_statusbar_bookmarks_str (gint count)
+{
+    if (!count)
+	return NULL;
+
+    return g_strdup_printf (ngettext ("%d bookmark", "%d bookmarks", count), count);
+}
+
+static gchar* 
+midori_bookmarks_statusbar_subfolder_str (gint count)
+{
+    if (!count)
+	return NULL;
+
+    return g_strdup_printf (ngettext ("%d subfolder", "%d subfolders", count), count);
+}
+
 static void
 midori_bookmarks_statusbar_update (MidoriBookmarks *bookmarks)
 {
@@ -464,55 +482,44 @@ midori_bookmarks_statusbar_update (MidoriBookmarks *bookmarks)
 
         if (KATZE_ITEM_IS_FOLDER (item))
         {
-            gint child_folders_count = midori_array_count_recursive(
+            gint child_folders_count = midori_array_count_recursive (
 		bookmarks->array,
 		"uri = ''",
 		NULL,
 		item,
 		FALSE);
-            gint child_bookmarks_count = midori_array_count_recursive(
+            gint child_bookmarks_count = midori_array_count_recursive (
 		bookmarks->array,
 		"uri <> ''",
 		NULL,
 		item,
 		FALSE);
+	    gchar* child_folders_str = midori_bookmarks_statusbar_subfolder_str (child_folders_count);
+	    gchar* child_bookmarks_str = midori_bookmarks_statusbar_bookmarks_str (child_bookmarks_count);
 
             if (!child_bookmarks_count && !child_folders_count)
                 text = g_strdup_printf(
                     _("%s : empty folder"),
                     name);
-            else if (!child_bookmarks_count && (child_folders_count == 1))
+            else if (!child_bookmarks_count && (child_folders_count >= 1))
                 text = g_strdup_printf(
-                    _("%s : folder, one subfolder and no bookmark"),
-                    name);
-            else if (!child_bookmarks_count && child_folders_count)
+		    _("%s : folder, %s and no bookmark"),
+                    name,
+		    child_folders_str);
+            else if ((child_bookmarks_count >= 1) && !child_folders_count)
                 text = g_strdup_printf(
-                    _("%s : folder, %d subfolders and no bookmark"),
-                    name, child_folders_count);
-            else if ((child_bookmarks_count == 1) && !child_folders_count)
+                    _("%s : folder, %s"),
+                    name,
+		    child_bookmarks_str);
+            else if ((child_bookmarks_count >= 1) && (child_folders_count >= 1))
                 text = g_strdup_printf(
-                    _("%s : folder, one bookmark"),
-                    name);
-            else if ((child_bookmarks_count == 1) && (child_folders_count == 1))
-                text = g_strdup_printf(
-                    _("%s : folder, one bookmark and one subfolder"),
-                    name);
-            else if ((child_bookmarks_count == 1) && child_folders_count)
-                text = g_strdup_printf(
-                    _("%s : folder, one bookmark and %d subfolders"),
-                    name, child_folders_count);
-            else if (child_bookmarks_count && !child_folders_count)
-                text = g_strdup_printf(
-                    _("%s : folder, %d bookmarks"),
-                    name, child_bookmarks_count);
-            else if (child_bookmarks_count && (child_folders_count == 1))
-                text = g_strdup_printf(
-                    _("%s : folder, %d bookmarks and one subfolder"),
-                    name, child_bookmarks_count);
-            else if (child_bookmarks_count && child_folders_count)
-                text = g_strdup_printf(
-                    _("%s : folder, %d bookmarks and %d subfolders"),
-                    name, child_bookmarks_count, child_folders_count);
+                    _("%s : folder, %s and %s"),
+                    name,
+		    child_bookmarks_str,
+		    child_folders_str);
+
+	    g_free (child_folders_str);
+	    g_free (child_bookmarks_str);
         }
         else if (KATZE_ITEM_IS_BOOKMARK (item))
         {
@@ -526,51 +533,40 @@ midori_bookmarks_statusbar_update (MidoriBookmarks *bookmarks)
     }
     else
     {
-	gint child_folders_count = midori_array_count_recursive(
+	gint child_folders_count = midori_array_count_recursive (
 	    bookmarks->array,
 	    "uri = ''",
 	    NULL,
 	    NULL,
 	    FALSE);
-	gint child_bookmarks_count = midori_array_count_recursive(
+	gint child_bookmarks_count = midori_array_count_recursive (
 	    bookmarks->array,
 	    "uri <> ''",
 	    NULL,
 	    NULL,
 	    FALSE);
+	gchar* child_folders_str = midori_bookmarks_statusbar_subfolder_str (child_folders_count);
+	gchar* child_bookmarks_str = midori_bookmarks_statusbar_bookmarks_str (child_bookmarks_count);
 	
 	if (!child_bookmarks_count && !child_folders_count)
 	    text = g_strdup_printf(
 		_("Bookmarks : empty"));
-	else if (!child_bookmarks_count && (child_folders_count == 1))
+	else if (!child_bookmarks_count && (child_folders_count >= 1))
 	    text = g_strdup_printf(
-		_("Bookmarks : one folder and no bookmark"));
-	else if (!child_bookmarks_count && child_folders_count)
+		_("Bookmarks : %s and no bookmark"),
+		child_folders_str);
+	else if ((child_bookmarks_count >= 1) && !child_folders_count)
 	    text = g_strdup_printf(
-		_("Bookmarks : %d folders and no bookmark"),
-		child_folders_count);
-	else if ((child_bookmarks_count == 1) && !child_folders_count)
+		_("Bookmarks : %s"),
+		child_bookmarks_str);
+	else if ((child_bookmarks_count >= 1) && (child_folders_count >= 1))
 	    text = g_strdup_printf(
-		_("Bookmarks : one bookmark"));
-	else if ((child_bookmarks_count == 1) && (child_folders_count == 1))
-	    text = g_strdup_printf(
-		_("Bookmarks : one bookmark and one folder"));
-	else if ((child_bookmarks_count == 1) && child_folders_count)
-	    text = g_strdup_printf(
-		_("Bookmarks : one bookmark and %d folders"),
-		child_folders_count);
-	else if (child_bookmarks_count && !child_folders_count)
-	    text = g_strdup_printf(
-		_("Bookmarks : %d bookmarks"),
-		child_bookmarks_count);
-	else if (child_bookmarks_count && (child_folders_count == 1))
-	    text = g_strdup_printf(
-		_("Bookmarks : %d bookmarks and one folder"),
-		child_bookmarks_count);
-	else if (child_bookmarks_count && child_folders_count)
-	    text = g_strdup_printf(
-		_("Bookmarks : %d bookmarks and %d folders"),
-		child_bookmarks_count, child_folders_count);
+		_("Bookmarks : %s and %s"),
+		child_bookmarks_str,
+		child_folders_str);
+	
+	g_free (child_folders_str);
+	g_free (child_bookmarks_str);
     }
 
     if (text)

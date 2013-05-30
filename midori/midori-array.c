@@ -1217,43 +1217,28 @@ count_from_sqlite (sqlite3*     db,
     return count;
 }
 
-/**
- * midori_array_count_recursive:
- * @array: the main bookmark array
- * @condition: condition, like "folder = '%q'"
- * @value: a value to be inserted if @condition contains %q
- * @recursive: if %TRUE include children
- *
- * Return value: the number of elements on success, -1 otherwise
- *
- * Since: 0.5.1
- **/
-gint64
-midori_array_count_recursive (KatzeArray*  bookmarks,
-			      const gchar* condition,
-                              const gchar* value,
-			      KatzeItem*   folder,
-                              gboolean     recursive)
+static gint64
+midori_array_count_recursive_by_id (KatzeArray*  bookmarks,
+				    const gchar* condition,
+				    const gchar* value,
+				    gint64       id,
+				    gboolean     recursive)
 {
     gint64 count = -1;
-    gint64 id = -1;
     sqlite3* db;
     gchar* sqlcmd;
     char* sqlcmd_value;
-    KatzeArray* array;
-    KatzeItem* item;
-    GList* list;
-    gchar* id_str;
+    sqlite3_stmt* stmt;
+    gint result;
+    GList* ids;
+    GList* iter_ids;
 
-    g_return_val_if_fail (KATZE_IS_ARRAY (bookmarks), -1);
-    g_return_val_if_fail (!folder || KATZE_ITEM_IS_FOLDER (folder), -1);
     g_return_val_if_fail (condition, -1);
+    g_return_val_if_fail (KATZE_IS_ARRAY (bookmarks), -1);
     db = g_object_get_data (G_OBJECT (bookmarks), "db");
     g_return_val_if_fail (db != NULL, -1);
 
     g_assert(!strstr("parentid", condition));
-
-    id = folder ? katze_item_get_meta_integer (folder, "id") : 0;
 
     if (id > 0)
 	sqlcmd = g_strdup_printf ("SELECT COUNT(*) FROM bookmarks "
@@ -1279,37 +1264,83 @@ midori_array_count_recursive (KatzeArray*  bookmarks,
     if (!recursive || (count < 0))
         return count;
 
-    if (id > 0)
-	sqlcmd = g_strdup_printf ("parentid = %" G_GINT64_FORMAT " AND uri = ''",
-				  id);
-    else
-	sqlcmd = g_strdup ("parentid IS NULL AND uri = '' ");
+    ids = NULL;
 
-    array = midori_array_query_recursive (bookmarks, "id, uri", sqlcmd, NULL, FALSE);
-	     
-    g_free (sqlcmd);
-	    
-    KATZE_ARRAY_FOREACH_ITEM_L (item, array, list)
+    if (id > 0)
+	sqlcmd_value = sqlite3_mprintf (
+	    "SELECT id FROM bookmarks "
+	    "WHERE parentid = %" G_GINT64_FORMAT " AND uri = ''", id);
+    else
+	sqlcmd_value = sqlite3_mprintf (
+	    "SELECT id FROM bookmarks "
+	    "WHERE parentid IS NULL AND uri = ''");
+
+    if (sqlite3_prepare_v2 (db, sqlcmd_value, -1, &stmt, NULL) == SQLITE_OK)
     {
-	if (KATZE_ITEM_IS_FOLDER(item))
-	{
-	    gint64 sub_count = midori_array_count_recursive (bookmarks,
-							     condition,
-							     value,
-							     item,
-							     recursive);
-	     
-	    if (sub_count < 0)
-	    {
-		g_object_unref (array);
-		return -1;
-	    }
-	    
-	    count += sub_count;
-	}
-    }
+	g_assert (sqlite3_column_count (stmt) == 1);
     
-    g_object_unref (array);
+	if ((result = sqlite3_step (stmt)) == SQLITE_ROW)
+	{
+	    gint64* pid = g_new (gint64, 1);
+	    
+	    *pid = sqlite3_column_int64(stmt, 0);
+	    ids = g_list_append (ids, pid);
+	}
+	
+	sqlite3_clear_bindings (stmt);
+	sqlite3_reset (stmt);
+    }
+
+    sqlite3_free (sqlcmd_value);
+
+    iter_ids = ids;
+    while (iter_ids)
+    {
+	gint64 sub_count = midori_array_count_recursive_by_id (bookmarks,
+							       condition,
+							       value,
+							       *(gint64*)(iter_ids->data),
+							       recursive);
+	
+	if (sub_count < 0)
+	{
+	    g_list_free_full (ids, g_free);
+	    return -1;
+	}
+	
+	count += sub_count;
+	iter_ids = g_list_next (iter_ids);
+    }
+	
+    g_list_free_full (ids, g_free);
     return count;
 }
 
+/**
+ * midori_array_count_recursive:
+ * @array: the main bookmark array
+ * @condition: condition, like "folder = '%q'"
+ * @value: a value to be inserted if @condition contains %q
+ * @recursive: if %TRUE include children
+ *
+ * Return value: the number of elements on success, -1 otherwise
+ *
+ * Since: 0.5.2
+ **/
+gint64
+midori_array_count_recursive (KatzeArray*  bookmarks,
+			      const gchar* condition,
+                              const gchar* value,
+			      KatzeItem*   folder,
+                              gboolean     recursive)
+{
+    gint64 id = -1;
+
+    g_return_val_if_fail (!folder || KATZE_ITEM_IS_FOLDER (folder), -1);
+    
+    id = folder ? katze_item_get_meta_integer (folder, "id") : 0;
+
+    return midori_array_count_recursive_by_id (bookmarks, condition,
+					       value, id,
+					       recursive);
+}
