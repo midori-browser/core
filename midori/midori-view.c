@@ -1813,14 +1813,9 @@ midori_view_ensure_link_uri (MidoriView* view,
 
     if (gtk_widget_get_window (view->web_view))
     {
-        GdkEventButton ev;
 
         if (!event) {
-            gint ex, ey;
-            event = &ev;
-            gdk_window_get_pointer (gtk_widget_get_window (view->web_view), &ex, &ey, NULL);
-            event->x = ex;
-            event->y = ey;
+            event = (GdkEventButton *)gtk_get_current_event();
         }
 
         if (x != NULL)
