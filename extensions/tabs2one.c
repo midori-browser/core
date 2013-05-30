@@ -235,13 +235,15 @@ tabs2one_apply_cb (GtkWidget*     menuitem,
 
     if (!tabs2one_cache_exist ())
     {
-        const gchar* tpl = "<html>\n"
-                           "    <title>Tabs to One</title>\n"
-                           "    <head><meta charset=\"utf-8\"></head>\n"
-                           "    <body></body>\n"
-                           "</html>\n";
+        GString* tpl = g_string_new ("<html>\n<title>");
 
-        g_file_set_contents(tabs2one_cache_get_filename (), tpl, -1, NULL);
+        g_string_append_printf (tpl, "%s", _("Tabs to One"));
+        g_string_append (tpl, "</title>\n<head><meta charset=\"utf-8\"></head><body>\n");
+        g_string_append_printf (tpl, "<h2>%s</h2>\n", _("Tabs you collected so far"));
+        g_string_append_printf (tpl, "<div><span>%s</span></div>\n", _("Clicking an item removes tab from the list."));
+        g_string_append (tpl, "</body>\n</html>\n");
+
+        g_file_set_contents(tabs2one_cache_get_filename (), g_string_free (tpl, FALSE), -1, NULL);
     }
 
     tab = midori_browser_add_uri (browser, tabs2one_cache_get_uri ());
