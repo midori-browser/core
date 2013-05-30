@@ -84,6 +84,12 @@ tabs2one_cache_exist (void){
     return g_file_test (tabs2one_cache_get_filename (), G_FILE_TEST_EXISTS);
 }
 
+static gboolean
+tabs2one_is_uri_tabs2one_tab (const gchar* uri)
+{
+    return g_str_equal (uri, tabs2one_cache_get_uri ());
+}
+
 static void
 tabs2one_dom_add_click_listeners (WebKitDOMDocument* doc,
                                   WebKitWebView* webview)
@@ -130,8 +136,8 @@ tabs2one_onload_create_items_cb(WebKitWebView*  webview,
         title = midori_view_get_display_title (tabs->data);
         uri = midori_view_get_display_uri (tabs->data);
 
-        if (strcmp(uri, tabs2one_cache_get_uri ())){
-
+        if (!tabs2one_is_uri_tabs2one_tab (uri))
+        {
             if (!midori_uri_is_blank (uri))
                 tabs2one_dom_create_item(doc, icon, uri, title);
 
@@ -150,11 +156,13 @@ tabs2one_reload_connected_events_cb(WebKitWebView*  webview,
 {
     const gchar* uri = midori_view_get_display_uri(view);
 
-    if (!strcmp(uri, tabs2one_cache_get_uri ())) {
+    if (tabs2one_is_uri_tabs2one_tab (uri))
+    {
         WebKitDOMDocument* doc = webkit_web_view_get_dom_document(webview);
         tabs2one_dom_add_click_listeners (doc, webview);
     }
 }
+
 
 static void
 tabs2one_add_tab_cb (MidoriBrowser*   browser,
@@ -199,7 +207,7 @@ tabs2one_apply_cb (GtkWidget*     menuitem,
 
     for (; tabs; tabs = g_list_next (tabs))
     {
-        if (!strcmp(midori_view_get_display_uri (tabs->data), tabs2one_cache_get_uri ())){
+        if (tabs2one_is_uri_tabs2one_tab (midori_view_get_display_uri (tabs->data))){
             exist = TRUE;
             tab = tabs->data;
             break;
