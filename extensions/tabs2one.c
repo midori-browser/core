@@ -114,7 +114,6 @@ tabs2one_cache_write_file (WebKitWebView* webview)
 
 static void
 tabs2one_onload_create_items_cb(WebKitWebView*  webview,
-                                WebKitWebFrame* webframe,
                                 MidoriBrowser*  browser)
 {
     WebKitDOMDocument* doc = webkit_web_view_get_dom_document(webview);
@@ -144,7 +143,6 @@ tabs2one_onload_create_items_cb(WebKitWebView*  webview,
 
 static void
 tabs2one_reload_connected_events_cb(WebKitWebView*  webview,
-                                    WebKitWebFrame* webframe,
                                     MidoriView*     view)
 {
     const gchar* uri = midori_view_get_display_uri(view);
