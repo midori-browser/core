@@ -4159,22 +4159,8 @@ static void
 midori_browser_bookmark_open_activate_cb (GtkWidget*     menuitem,
                                           MidoriBrowser* browser)
 {
-    KatzeItem* item;
-    const gchar* uri;
-
-    item = (KatzeItem*)g_object_get_data (G_OBJECT (menuitem), "KatzeItem");
-
-    if ((uri = katze_item_get_uri (item)) && *uri)
-    {
-        gchar* uri_fixed = sokoke_magic_uri (uri, TRUE, FALSE);
-        if (!uri_fixed)
-            uri_fixed = g_strdup (uri);
-   
-        midori_browser_set_current_uri (browser, uri_fixed);
-        gtk_widget_grab_focus (midori_browser_get_current_tab (browser));
-
-        g_free (uri_fixed);
-    }
+    KatzeItem* item = (KatzeItem*)g_object_get_data (G_OBJECT (menuitem), "KatzeItem");
+    midori_browser_open_bookmark (browser, item);
 }
 
 static void
