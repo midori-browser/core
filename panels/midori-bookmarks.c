@@ -1108,10 +1108,8 @@ midori_bookmarks_get_item_at_pos (GtkTreeView *treeview,
     if (!path)
 	return NULL;
     
-    if (!gtk_tree_model_get_iter (model, &iter, path))
-	return NULL;
-    
-    gtk_tree_model_get (model, &iter, 0, &item, -1);
+    if (gtk_tree_model_get_iter (model, &iter, path))
+	gtk_tree_model_get (model, &iter, 0, &item, -1);
     
     gtk_tree_path_free (path);
 
