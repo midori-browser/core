@@ -13,6 +13,8 @@
 #define __MIDORI_SESSION_H__
 
 #include <glib/gstdio.h>
+#include "midori-app.h"
+#include "midori-websettings.h"
 
 gboolean
 midori_load_soup_session (gpointer settings);
@@ -25,6 +27,10 @@ midori_load_extensions (gpointer data);
 
 gboolean
 midori_load_session (gpointer data);
+
+void
+midori_session_persistent_settings (MidoriWebSettings* settings,
+                                    MidoriApp*         app);
 
 #endif /* __MIDORI_SESSION_H__ */
 

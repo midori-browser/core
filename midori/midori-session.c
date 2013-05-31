@@ -12,9 +12,7 @@
 #include "midori/midori-session.h"
 
 #include <midori/midori-core.h>
-#include "midori-app.h"
 #include "midori-array.h"
-#include "midori-websettings.h"
 #include "midori-extension.h"
 #include "sokoke.h"
 
@@ -371,6 +369,13 @@ settings_notify_cb (MidoriWebSettings* settings,
     g_free (config_file);
 }
 
+void
+midori_session_persistent_settings (MidoriWebSettings* settings,
+                                    MidoriApp*         app)
+{
+    g_signal_connect_after (settings, "notify", G_CALLBACK (settings_notify_cb), app);
+}
+
 static void
 midori_browser_action_last_session_activate_cb (GtkAction*     action,
                                                 MidoriBrowser* browser)
@@ -470,7 +475,7 @@ midori_load_session (gpointer data)
     #endif
 
     browser = midori_app_create_browser (app);
-    g_signal_connect_after (settings, "notify", G_CALLBACK (settings_notify_cb), app);
+    midori_session_persistent_settings (settings, app);
 
     config_file = midori_paths_get_config_filename_for_reading ("session.old.xbel");
     if (g_access (config_file, F_OK) == 0)

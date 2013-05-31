@@ -193,12 +193,11 @@ def configure (conf):
             uselib_store=var, errmsg=name + ver_str + ' not found')][have])
         return have
 
-    if option_enabled ('libnotify'):
-        if not check_pkg ('libnotify', mandatory=False):
-            option_checkfatal ('libnotify', 'notifications')
-    else:
+    if is_win32 (os.environ):
         conf.define ('LIBNOTIFY_VERSION', 'No')
         conf.check_message_custom ('libnotify', '', 'disabled')
+    else:
+        check_pkg ('libnotify', mandatory=True)
     conf.define ('HAVE_LIBNOTIFY', [0,1][conf.env['LIBNOTIFY_VERSION'] != 'No'])
 
     if option_enabled ('granite'):
@@ -267,7 +266,7 @@ def configure (conf):
     else:
         check_pkg ('gtk+-2.0', '2.16.0', var='GTK')
         check_pkg ('webkit-1.0', '1.1.17', args=args)
-        check_pkg ('gcr-3-gtk2', '2.32', mandatory=False)
+        conf.define ('GCR_VERSION', 'No')
         if check_version (conf.env['WEBKIT_VERSION'], 1, 5, 1):
             check_pkg ('javascriptcoregtk-1.0', '1.5.1', args=args)
         if check_version (conf.env['GTK_VERSION'], 2, 20, 0):
@@ -419,7 +418,6 @@ def set_options (opt):
 
     group = opt.add_option_group ('Optional features', '')
     add_enable_option ('unique', 'single instance support', group, disable=is_win32 (os.environ))
-    add_enable_option ('libnotify', 'notification support', group)
     add_enable_option ('granite', 'new notebook, pop-overs', group, disable=True)
     add_enable_option ('addons', 'building of extensions', group)
     add_enable_option ('tests', 'install tests', group, disable=True)
@@ -713,40 +711,3 @@ def shutdown ():
             Utils.pprint ('RED', "Failed to generate po template.")
             Utils.pprint ('RED', "Make sure intltool is installed.")
         os.chdir ('..')
-    elif Options.options.run:
-        folder = os.path.abspath (blddir + '/default')
-        try:
-            relfolder = folder
-            if not is_mingw (Build.bld.env):
-                relfolder = os.path.relpath (folder)
-        except:
-            pass
-        try:
-            nls = 'MIDORI_NLSPATH=' + relfolder + os.sep + 'po'
-            lang = os.environ['LANG']
-            try:
-                for lang in os.listdir (folder + os.sep + 'po'):
-                    if lang[3:] == 'mo':
-                        lang = lang[:-3]
-                    else:
-                        continue
-                    Utils.check_dir (folder + os.sep + 'po' + os.sep + lang)
-                    Utils.check_dir (folder + os.sep + 'po' + os.sep + lang + \
-                        os.sep + 'LC_MESSAGES')
-                    os.symlink (folder + os.sep + 'po' + os.sep + lang + '.mo',
-                        folder + os.sep + 'po' + os.sep + lang + os.sep + \
-                        'LC_MESSAGES' + os.sep + APPNAME + '.mo')
-            except:
-                pass
-            command = nls + ' '
-            if is_mingw (Build.bld.env):
-                # This works only if everything is installed to that prefix
-                os.chdir (Build.bld.env['PREFIX'] + os.sep + 'bin')
-                command += ' wine cmd /k "PATH=%PATH%;' + Build.bld.env['PREFIX'] + os.sep + 'bin' + ' && ' + APPNAME + '.exe"'
-            else:
-                command += ' ' + relfolder + os.sep + APPNAME + os.sep + APPNAME
-            print (command)
-            Utils.exec_command (command)
-        except Exception:
-            msg = sys.exc_info()[1] # Python 2/3 compatibility
-            Utils.pprint ('RED', "Failed to run application: " + str (msg))

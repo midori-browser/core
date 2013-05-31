@@ -113,7 +113,16 @@ namespace Midori {
                 tmp_dir = Path.build_path (Path.DIR_SEPARATOR_S,
                     exec_path, "profile", "tmp");
             }
-            else if (mode == RuntimeMode.PRIVATE || mode == RuntimeMode.APP) {
+            else if (mode == RuntimeMode.APP) {
+                config_dir = Path.build_path (Path.DIR_SEPARATOR_S,
+                    Environment.get_user_data_dir (), PACKAGE_NAME, "apps",
+                    Checksum.compute_for_string (ChecksumType.MD5, config, -1));
+                cache_dir = Path.build_path (Path.DIR_SEPARATOR_S,
+                    Environment.get_user_cache_dir (), PACKAGE_NAME);
+                user_data_dir_for_reading = Environment.get_user_data_dir ();
+                tmp_dir = get_runtime_dir ();
+            }
+            else if (mode == RuntimeMode.PRIVATE) {
                 string? real_config = config != null && !Path.is_absolute (config)
                     ? Path.build_filename (Environment.get_current_dir (), config) : config;
                 readonly_dir = real_config ?? Path.build_path (Path.DIR_SEPARATOR_S,

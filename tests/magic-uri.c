@@ -386,6 +386,40 @@ magic_uri_commands (void)
         }
 }
 
+GAppInfo* sokoke_default_for_uri (const gchar* uri, gchar** scheme_ptr);
+
+static gboolean uri_has_default (const gchar* uri)
+{
+    GAppInfo* info = sokoke_default_for_uri (uri, NULL);
+    if (info)
+        g_object_unref (info);
+    return info != NULL;
+}
+
+static void
+magic_uri_protocols (void)
+{
+    g_assert (!sokoke_external_uri (NULL));
+    g_assert (!sokoke_external_uri (""));
+
+    g_assert (!sokoke_external_uri ("http://google.com"));
+    g_assert (!sokoke_external_uri ("HTTP://google.com"));
+    g_assert (!sokoke_external_uri ("Http://google.com"));
+    g_assert (!sokoke_external_uri ("https://google.com"));
+    g_assert (!sokoke_external_uri ("httPS://google.com"));
+    g_assert (!sokoke_external_uri ("file:///home/"));
+    g_assert (!sokoke_external_uri ("geo:100,3000"));
+    g_assert (!sokoke_external_uri ("about:blank"));
+
+    g_assert (!sokoke_external_uri ("https://"));
+    g_assert (!sokoke_external_uri ("http://"));
+    g_assert (!sokoke_external_uri ("http:/"));
+    g_assert (!sokoke_external_uri ("http"));
+    g_assert (sokoke_external_uri ("ftp://ftphost.org") == uri_has_default ("ftp://ftphost.org"));
+    g_assert (sokoke_external_uri ("geometry:bar") == uri_has_default ("geometry:bar"));
+    g_assert (sokoke_external_uri ("httparty:woo") == uri_has_default ("httparty:woo"));
+}
+
 int
 main (int    argc,
       char** argv)
@@ -404,6 +438,7 @@ main (int    argc,
     g_test_add_func ("/magic-uri/prefix", magic_uri_prefix);
     g_test_add_func ("/magic-uri/prefetch", magic_uri_prefetch);
     g_test_add_func ("/magic-uri/commands", magic_uri_commands);
+    g_test_add_func ("/magic-uri/protocols", magic_uri_protocols);
 
     return g_test_run ();
 }

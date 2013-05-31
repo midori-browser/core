@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2010-2011 André Stösel <andre@stoesel.de>
+   Copyright (C) 2010-2013 André Stösel <andre@stoesel.de>
 
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -578,6 +578,7 @@ namespace HistoryList {
             foreach (var browser in app.get_browsers ())
                 browser_added (browser);
             app.add_browser.connect (browser_added);
+            app.remove_browser.connect (browser_removed);
         }
 
         void deactivated () {
@@ -585,6 +586,7 @@ namespace HistoryList {
             foreach (var browser in app.get_browsers ())
                 browser_removed (browser);
             app.add_browser.disconnect (browser_added);
+            app.remove_browser.disconnect (browser_removed);
         }
 
         void show_preferences () {
