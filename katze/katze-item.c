@@ -445,13 +445,8 @@ katze_item_get_pixbuf (KatzeItem* item,
 
     g_return_val_if_fail (KATZE_IS_ITEM (item), NULL);
 
-    if (widget)
-    {
-	if (KATZE_ITEM_IS_FOLDER (item))
-	    return gtk_widget_render_icon (widget, GTK_STOCK_DIRECTORY, GTK_ICON_SIZE_MENU, NULL);
-	if (KATZE_ITEM_IS_BOOKMARK (item) && katze_item_get_meta_boolean (item, "app"))
-	    return gtk_widget_render_icon (widget, GTK_STOCK_EXECUTE, GTK_ICON_SIZE_MENU, NULL);
-    }
+    if (widget && KATZE_ITEM_IS_FOLDER (item))
+        return gtk_widget_render_icon (widget, GTK_STOCK_DIRECTORY, GTK_ICON_SIZE_MENU, NULL);
     if ((pixbuf = midori_paths_get_icon (katze_item_get_icon (item), NULL)))
         return pixbuf;
     if ((pixbuf = midori_paths_get_icon (item->uri, widget)))
@@ -531,8 +526,7 @@ katze_item_get_image (KatzeItem* item,
     gtk_widget_show (image);
     if (pixbuf != NULL)
         g_object_unref (pixbuf);
-    if (KATZE_ITEM_IS_FOLDER (item) 
-	|| (KATZE_ITEM_IS_BOOKMARK (item) && katze_item_get_meta_boolean (item, "app")))
+    if (KATZE_ITEM_IS_FOLDER (item))
         return image;
     g_object_set_data (G_OBJECT (image), "KatzeItem", g_object_ref (item));
     g_signal_connect (image, "destroy",
