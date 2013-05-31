@@ -104,7 +104,7 @@ namespace Apps {
                 profile.is_important = true;
                 profile.show ();
                 profile.clicked.connect (() => {
-                    string uuid = GLib.DBus.generate_guid ();
+                    string uuid = g_dbus_generate_guid ();
                     string config = Path.build_path (Path.DIR_SEPARATOR_S,
                         Midori.Paths.get_user_data_dir (), PACKAGE_NAME, "profiles", uuid);
                     Launcher.create.begin (PROFILE_PREFIX, app_folder,
