@@ -1814,10 +1814,6 @@ midori_view_ensure_link_uri (MidoriView* view,
     if (gtk_widget_get_window (view->web_view))
     {
 
-        if (!event) {
-            event = (GdkEventButton *)gtk_get_current_event();
-        }
-
         if (x != NULL)
             *x = event->x;
         if (y != NULL)
@@ -2608,7 +2604,10 @@ midori_view_populate_popup (MidoriView* view,
     gboolean is_image;
     gboolean is_media;
 
-    midori_view_ensure_link_uri (view, &x, &y, NULL);
+    GdkEvent* event = gtk_get_current_event();
+    midori_view_ensure_link_uri (view, &x, &y, (GdkEventButton *)event);
+    gdk_event_free (event);
+
     context = katze_object_get_int (view->hit_test, "context");
     has_selection = context & WEBKIT_HIT_TEST_RESULT_CONTEXT_SELECTION;
     /* Ensure view->selected_text */
