@@ -449,8 +449,9 @@ static gchar*
 midori_bookmarks_statusbar_bookmarks_str (gint count)
 {
     if (!count)
-	return NULL;
+        return NULL;
 
+    /* i18n: [n] bookmark(s) */
     return g_strdup_printf (ngettext ("%d bookmark", "%d bookmarks", count), count);
 }
 
@@ -458,8 +459,9 @@ static gchar*
 midori_bookmarks_statusbar_subfolder_str (gint count)
 {
     if (!count)
-	return NULL;
+        return NULL;
 
+    /* i18n: [n] subfolder(s) */
     return g_strdup_printf (ngettext ("%d subfolder", "%d subfolders", count), count);
 }
 
@@ -482,91 +484,70 @@ midori_bookmarks_statusbar_update (MidoriBookmarks *bookmarks)
 
         if (KATZE_ITEM_IS_FOLDER (item))
         {
-            gint child_folders_count = midori_array_count_recursive (
-		bookmarks->array,
-		"uri = ''",
-		NULL,
-		item,
-		FALSE);
-            gint child_bookmarks_count = midori_array_count_recursive (
-		bookmarks->array,
-		"uri <> ''",
-		NULL,
-		item,
-		FALSE);
-	    gchar* child_folders_str = midori_bookmarks_statusbar_subfolder_str (child_folders_count);
-	    gchar* child_bookmarks_str = midori_bookmarks_statusbar_bookmarks_str (child_bookmarks_count);
+            gint child_folders_count = midori_array_count_recursive (bookmarks->array,
+                "uri = ''", NULL, item, FALSE);
+            gint child_bookmarks_count = midori_array_count_recursive (bookmarks->array,
+                "uri <> ''", NULL, item, FALSE);
+            gchar* child_folders_str = midori_bookmarks_statusbar_subfolder_str (child_folders_count);
+            gchar* child_bookmarks_str = midori_bookmarks_statusbar_bookmarks_str (child_bookmarks_count);
 
             if (!child_bookmarks_count && !child_folders_count)
-                text = g_strdup_printf(
-                    _("%s : empty folder"),
-                    name);
+                /* i18n: [folder name] : empty folder */
+                text = g_strdup_printf(_("%s : empty folder"), name);
             else if (!child_bookmarks_count && (child_folders_count >= 1))
-                text = g_strdup_printf(
-		    _("%s : folder, %s and no bookmark"),
-                    name,
-		    child_folders_str);
+                /* i18n: [folder name] : folder, [[n] folder(s)] and no bookmark */
+                text = g_strdup_printf(_("%s : folder, %s and no bookmark"),
+                    name, child_folders_str);
             else if ((child_bookmarks_count >= 1) && !child_folders_count)
-                text = g_strdup_printf(
-                    _("%s : folder, %s"),
-                    name,
-		    child_bookmarks_str);
+                /* i18n: [folder name] : folder, [[n] bookmark(s)] */
+               text = g_strdup_printf(_("%s : folder, %s"),
+                    name, child_bookmarks_str);
             else if ((child_bookmarks_count >= 1) && (child_folders_count >= 1))
-                text = g_strdup_printf(
-                    _("%s : folder, %s and %s"),
-                    name,
-		    child_bookmarks_str,
-		    child_folders_str);
+                /* i18n: [folder name] : folder, [[n] bookmark(s)] and [[n] folder(s)] */
+                text = g_strdup_printf(_("%s : folder, %s and %s"),
+                    name, child_bookmarks_str, child_folders_str);
 
-	    g_free (child_folders_str);
-	    g_free (child_bookmarks_str);
+            g_free (child_folders_str);
+            g_free (child_bookmarks_str);
         }
         else if (KATZE_ITEM_IS_BOOKMARK (item))
         {
             const gchar* uri = katze_item_get_uri (item);
 
-	    if (katze_item_get_meta_boolean (item, "app"))
-		text = g_strdup_printf (_("%s : web application bookmark to : %s"), name, uri);
-	    else
-		text = g_strdup_printf (_("%s : bookmark to : %s"), name, uri);
+            if (katze_item_get_meta_boolean (item, "app"))
+                /* i18n: [bookmark name] : web application bookmark to : [bookmark uri] */
+                text = g_strdup_printf (_("%s : web application bookmark to : %s"), name, uri);
+            else
+                /* i18n: [bookmark name] : bookmark to : [bookmark uri] */
+                text = g_strdup_printf (_("%s : bookmark to : %s"), name, uri);
         }
     }
     else
     {
-	gint child_folders_count = midori_array_count_recursive (
-	    bookmarks->array,
-	    "uri = ''",
-	    NULL,
-	    NULL,
-	    FALSE);
-	gint child_bookmarks_count = midori_array_count_recursive (
-	    bookmarks->array,
-	    "uri <> ''",
-	    NULL,
-	    NULL,
-	    FALSE);
-	gchar* child_folders_str = midori_bookmarks_statusbar_subfolder_str (child_folders_count);
-	gchar* child_bookmarks_str = midori_bookmarks_statusbar_bookmarks_str (child_bookmarks_count);
-	
-	if (!child_bookmarks_count && !child_folders_count)
-	    text = g_strdup_printf(
-		_("Bookmarks : empty"));
-	else if (!child_bookmarks_count && (child_folders_count >= 1))
-	    text = g_strdup_printf(
-		_("Bookmarks : %s and no bookmark"),
-		child_folders_str);
-	else if ((child_bookmarks_count >= 1) && !child_folders_count)
-	    text = g_strdup_printf(
-		_("Bookmarks : %s"),
-		child_bookmarks_str);
-	else if ((child_bookmarks_count >= 1) && (child_folders_count >= 1))
-	    text = g_strdup_printf(
-		_("Bookmarks : %s and %s"),
-		child_bookmarks_str,
-		child_folders_str);
-	
-	g_free (child_folders_str);
-	g_free (child_bookmarks_str);
+        gint child_folders_count = midori_array_count_recursive (bookmarks->array,
+            "uri = ''", NULL, NULL, FALSE);
+        gint child_bookmarks_count = midori_array_count_recursive (bookmarks->array,
+            "uri <> ''", NULL, NULL, FALSE);
+        gchar* child_folders_str = midori_bookmarks_statusbar_subfolder_str (child_folders_count);
+        gchar* child_bookmarks_str = midori_bookmarks_statusbar_bookmarks_str (child_bookmarks_count);
+        
+        if (!child_bookmarks_count && !child_folders_count)
+            text = g_strdup_printf(_("Bookmarks : empty"));
+        else if (!child_bookmarks_count && (child_folders_count >= 1))
+            /* i18n: Bookmarks : [[n] folder(s)] and no bookmark */
+            text = g_strdup_printf(_("Bookmarks : %s and no bookmark"),
+                child_folders_str);
+        else if ((child_bookmarks_count >= 1) && !child_folders_count)
+            /* i18n: Bookmarks : [[n] bookmark(s)] */
+            text = g_strdup_printf(_("Bookmarks : %s"),
+                child_bookmarks_str);
+        else if ((child_bookmarks_count >= 1) && (child_folders_count >= 1))
+            /* i18n: Bookmarks : [[n] bookmark(s)] and [[n] folder(s)] */
+            text = g_strdup_printf(_("Bookmarks : %s and %s"),
+                child_bookmarks_str, child_folders_str);
+        
+        g_free (child_folders_str);
+        g_free (child_bookmarks_str);
     }
 
     if (text)
@@ -909,27 +890,6 @@ midori_bookmarks_open_activate_cb (GtkWidget*       menuitem,
 }
 
 static void
-midori_bookmarks_run_web_application_cb (GtkWidget*       menuitem,
-					 MidoriBookmarks* bookmarks)
-{
-    KatzeItem* item;
-    const gchar* uri;
-
-    item = (KatzeItem*)g_object_get_data (G_OBJECT (menuitem), "KatzeItem");
-
-    if ((uri = katze_item_get_uri (item)) && *uri)
-    {
-	gchar* uri_fixed = sokoke_magic_uri (uri, TRUE, FALSE);
-	if (!uri_fixed)
-	    uri_fixed = g_strdup (uri);
-   
-        sokoke_spawn_app (uri_fixed, FALSE);
-
-        g_free (uri_fixed);
-    }
-}
-
-static void
 midori_bookmarks_open_in_tab_activate_cb (GtkWidget*       menuitem,
                                           MidoriBookmarks* bookmarks)
 {
@@ -995,12 +955,8 @@ midori_bookmarks_popup (GtkWidget*       widget,
     menu = gtk_menu_new ();
     if (KATZE_ITEM_IS_FOLDER (item))
     {
-	gint child_bookmarks_count = midori_array_count_recursive(
-	    bookmarks->array,
-	    "uri <> ''",
-	    NULL,
-	    item,
-	    FALSE);
+	gint child_bookmarks_count = midori_array_count_recursive (bookmarks->array,
+	    "uri <> ''", NULL, item, FALSE);
 
 	if (!child_bookmarks_count) 
 	    midori_bookmarks_popup_item (menu,
@@ -1013,33 +969,16 @@ midori_bookmarks_popup (GtkWidget*       widget,
     }
     else
     {
-	if (katze_item_get_meta_boolean (item, "app"))
-	{
-	    midori_bookmarks_popup_item (menu, 
-					 GTK_STOCK_EXECUTE, _("Open as Web A_pplication"),
-					 item, midori_bookmarks_run_web_application_cb, bookmarks);
-	    midori_bookmarks_popup_item (menu, GTK_STOCK_OPEN, NULL,
-					 item, midori_bookmarks_open_activate_cb, bookmarks);
-	}
-	else
-	{
-	    midori_bookmarks_popup_item (menu, GTK_STOCK_OPEN, NULL,
-					 item, midori_bookmarks_open_activate_cb, bookmarks);
-	    midori_bookmarks_popup_item (menu,
-					 GTK_STOCK_EXECUTE, _("Open as Web A_pplication"),
-					 item, midori_bookmarks_run_web_application_cb, bookmarks);
-	}
-
-        midori_bookmarks_popup_item (menu, STOCK_TAB_NEW, _("Open in New _Tab"),
+	midori_bookmarks_popup_item (menu, GTK_STOCK_OPEN, NULL,
+	    item, midori_bookmarks_open_activate_cb, bookmarks);
+	midori_bookmarks_popup_item (menu, STOCK_TAB_NEW, _("Open in New _Tab"),
             item, midori_bookmarks_open_in_tab_activate_cb, bookmarks);
         midori_bookmarks_popup_item (menu, STOCK_WINDOW_NEW, _("Open in New _Window"),
             item, midori_bookmarks_open_in_window_activate_cb, bookmarks);
     }
-
     menuitem = gtk_separator_menu_item_new ();
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
     gtk_widget_show (menuitem);
-
     midori_bookmarks_popup_item (menu, GTK_STOCK_EDIT, NULL,
         item, midori_bookmarks_edit_clicked_cb, bookmarks);
     midori_bookmarks_popup_item (menu, GTK_STOCK_DELETE, NULL,

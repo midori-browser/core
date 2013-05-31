@@ -4166,27 +4166,6 @@ midori_browser_bookmark_open_activate_cb (GtkWidget*     menuitem,
 }
 
 static void
-midori_browser_bookmark_run_web_application_cb (GtkWidget*     menuitem,
-                                                MidoriBrowser* browser)
-{
-    KatzeItem* item;
-    const gchar* uri;
-
-    item = (KatzeItem*)g_object_get_data (G_OBJECT (menuitem), "KatzeItem");
-
-    if ((uri = katze_item_get_uri (item)) && *uri)
-    {
-        gchar* uri_fixed = sokoke_magic_uri (uri, TRUE, FALSE);
-        if (!uri_fixed)
-            uri_fixed = g_strdup (uri);
-   
-        sokoke_spawn_app (uri_fixed, FALSE);
-
-        g_free (uri_fixed);
-    }
-}
-
-static void
 midori_browser_bookmark_open_in_tab_activate_cb (GtkWidget*     menuitem,
                                                  MidoriBrowser* browser)
 {
@@ -4265,41 +4244,21 @@ midori_browser_bookmark_popup (GtkWidget*      widget,
     menu = gtk_menu_new ();
     if (KATZE_ITEM_IS_FOLDER (item))
     {
-        gint child_bookmarks_count = midori_array_count_recursive(
-            browser->bookmarks,
-            "uri <> ''",
-            NULL,
-            item,
-            FALSE);
+        gint child_bookmarks_count = midori_array_count_recursive (browser->bookmarks,
+            "uri <> ''", NULL, item, FALSE);
 
         if (!child_bookmarks_count) 
-            midori_browser_bookmark_popup_item (
-                menu,
-                STOCK_TAB_NEW, _("Open all in _Tabs"),
-                item, NULL, browser);
+            midori_browser_bookmark_popup_item (menu,
+                STOCK_TAB_NEW, _("Open all in _Tabs"), item, NULL, browser);
         else
-            midori_browser_bookmark_popup_item (
-                menu,
+            midori_browser_bookmark_popup_item (menu,
                 STOCK_TAB_NEW, _("Open all in _Tabs"),
                 item, midori_browser_bookmark_open_in_tab_activate_cb, browser);
     }
     else
     {
-        if (katze_item_get_meta_boolean (item, "app"))
-        {
-            midori_browser_bookmark_popup_item (menu, GTK_STOCK_EXECUTE, _("Open as Web A_pplication"),
-                                                item, midori_browser_bookmark_run_web_application_cb, browser);
-            midori_browser_bookmark_popup_item (menu, GTK_STOCK_OPEN, NULL,
-                                                item, midori_browser_bookmark_open_activate_cb, browser);
-        }
-        else
-        {
-            midori_browser_bookmark_popup_item (menu, GTK_STOCK_OPEN, NULL,
-                                                item, midori_browser_bookmark_open_activate_cb, browser);
-            midori_browser_bookmark_popup_item (menu, GTK_STOCK_EXECUTE, _("Open as Web A_pplication"),
-                                                item, midori_browser_bookmark_run_web_application_cb, browser);
-        }
-
+        midori_browser_bookmark_popup_item (menu, GTK_STOCK_OPEN, NULL,
+            item, midori_browser_bookmark_open_activate_cb, browser);
         midori_browser_bookmark_popup_item (menu,
             STOCK_TAB_NEW, _("Open in New _Tab"),
             item, midori_browser_bookmark_open_in_tab_activate_cb, browser);
