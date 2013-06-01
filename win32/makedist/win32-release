@@ -20,7 +20,7 @@ eval `rpm --eval %{mingw32_env}`
 
 ./configure --prefix=$MINGW_PREFIX --enable-gtk3
 make clean
-sudo make install
+sudo make install || exit
 
 rpmquery -qa mingw32* > midori-${version}-deps-i686.txt
 rm -f midori-$version.sha1
@@ -40,7 +40,7 @@ if [ "$64BIT" != "" ]; then
 
     ./configure --prefix=$MINGW_PREFIX --enable-gtk3
     make clean
-    sudo make install
+    sudo make install || exit
 
     rpmquery -qa mingw64* > midori-${version}-deps-x86_64.txt
     MINGW_PREFIX=${MINGW_PREFIX} RELEASE=1 sh ./win32/makedist/makedist.midori x86_64-portable
