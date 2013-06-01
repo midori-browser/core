@@ -32,7 +32,7 @@ mv -v Midori-${version}_setup.exe $dropbox_dir
 dropbox puburl $dropbox_dir/midori-${version}.7z >  release_links.txt
 dropbox puburl $dropbox_dir/Midori-${version}_setup.exe >> release_links.txt
 
-if [ "$64BIT" != "" ]; then
+if [ "$DO_64BIT" != "" ]; then
     # 64-bit build
     #mingw64-env
     export MINGW_PREFIX="/usr/x86_64-w64-mingw32/sys-root/mingw"
