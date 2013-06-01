@@ -18,7 +18,7 @@ dropbox_dir=$HOME/Dropbox/Public
 export MINGW_PREFIX="/usr/i686-w64-mingw32/sys-root/mingw"
 eval `rpm --eval %{mingw32_env}`
 
-./configure --prefix=$MINGW_PREFIX --enable-gtk3
+PKG_CONFIG_PATH="$MINGW_PREFIX/lib/pkgconfig/" ./configure --prefix=$MINGW_PREFIX --enable-gtk3
 make clean
 sudo make install || exit
 
@@ -38,7 +38,7 @@ if [ "$DO_64BIT" != "" ]; then
     export MINGW_PREFIX="/usr/x86_64-w64-mingw32/sys-root/mingw"
     eval `rpm --eval %{mingw64_env}`
 
-    ./configure --prefix=$MINGW_PREFIX --enable-gtk3
+    PKG_CONFIG_PATH="$MINGW_PREFIX/lib/pkgconfig/" ./configure --prefix=$MINGW_PREFIX --enable-gtk3
     make clean
     sudo make install || exit
 
