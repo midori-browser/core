@@ -411,8 +411,10 @@ def set_options (opt):
 
     group = opt.add_option_group ('Localization and documentation', '')
     add_enable_option ('nls', 'native language support', group)
+    group.add_option ('--update-pot', action='store_true', default=False,
+        help='Update gettext template', dest='update_pot')
     group.add_option ('--update-po', action='store_true', default=False,
-        help='Update localization files', dest='update_po')
+        help='Update all localization files', dest='update_po')
     add_enable_option ('docs', 'informational text files', group)
     add_enable_option ('apidocs', 'API documentation', group, disable=True)
 
@@ -453,6 +455,28 @@ def write_linguas_file (self):
 write_linguas_file = feature ('intltool_po')(write_linguas_file)
 
 def build (bld):
+    if Options.options.update_pot:
+        os.chdir ('./po')
+        try:
+            subprocess.call(['intltool-update', '-p', '-g', APPNAME])
+            Utils.pprint ('YELLOW', "Updated gettext template.")
+        except:
+            Utils.pprint ('RED', "Failed to update gettext template.")
+            Utils.pprint ('RED', "Make sure intltool is installed.")
+        os.chdir ('..')
+        return
+
+    if Options.options.update_po:
+        os.chdir('./po')
+        try:
+            subprocess.call(['intltool-update', '-r', '-g', APPNAME])
+            Utils.pprint ('YELLOW', "Updated translations.")
+        except:
+            Utils.pprint ('RED', "Failed to update translations.")
+            Utils.pprint ('RED', "Make sure intltool is installed.")
+        os.chdir ('..')
+        return
+
     bld.add_group ()
 
     bld.add_subdirs ('midori icons')
@@ -547,8 +571,6 @@ def check (ctx):
 def distclean ():
     if os.path.exists ('po/LINGUAS'):
         os.remove ('po/LINGUAS')
-    if os.path.exists ('po/midori.pot'):
-        os.remove ('po/midori.pot')
 
 def shutdown ():
     if Options.commands['install'] or Options.commands['uninstall']:
@@ -690,24 +712,3 @@ def shutdown ():
         # if test.num_tests_failed > 0 or test.num_tests_err > 0:
         #     sys.exit (1)
 
-    elif Options.options.update_po:
-        os.chdir('./po')
-        try:
-            try:
-                size_old = os.stat (APPNAME + '.pot').st_size
-            except:
-                size_old = 0
-            subprocess.call (['intltool-update', '-p', '-g', APPNAME])
-            size_new = os.stat (APPNAME + '.pot').st_size
-            if size_new != size_old:
-                Utils.pprint ('YELLOW', "Updated po template.")
-                try:
-                    command = 'intltool-update -r -g %s' % APPNAME
-                    Utils.exec_command (command)
-                    Utils.pprint ('YELLOW', "Updated translations.")
-                except:
-                    Utils.pprint ('RED', "Failed to update translations.")
-        except:
-            Utils.pprint ('RED', "Failed to generate po template.")
-            Utils.pprint ('RED', "Make sure intltool is installed.")
-        os.chdir ('..')
