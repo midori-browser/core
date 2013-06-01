@@ -473,6 +473,9 @@ def build (bld):
         obj = bld.new_task_gen ('intltool_po')
         obj.podir = 'po'
         obj.appname = APPNAME
+        os.chdir ('./po')
+        subprocess.call(['intltool-update', '-p', '-g', APPNAME])
+        os.chdir ('..')
 
     if bld.env['GTKDOC_SCAN'] and Options.commands['build']:
         bld.add_subdirs ('docs/api')
@@ -693,21 +696,9 @@ def shutdown ():
     elif Options.options.update_po:
         os.chdir('./po')
         try:
-            try:
-                size_old = os.stat (APPNAME + '.pot').st_size
-            except:
-                size_old = 0
-            subprocess.call (['intltool-update', '-p', '-g', APPNAME])
-            size_new = os.stat (APPNAME + '.pot').st_size
-            if size_new != size_old:
-                Utils.pprint ('YELLOW', "Updated po template.")
-                try:
-                    command = 'intltool-update -r -g %s' % APPNAME
-                    Utils.exec_command (command)
-                    Utils.pprint ('YELLOW', "Updated translations.")
-                except:
-                    Utils.pprint ('RED', "Failed to update translations.")
+            subprocess.call(['intltool-update', '-r', '-g', APPNAME])
+            Utils.pprint ('YELLOW', "Updated translations.")
         except:
-            Utils.pprint ('RED', "Failed to generate po template.")
+            Utils.pprint ('RED', "Failed to update translations.")
             Utils.pprint ('RED', "Make sure intltool is installed.")
         os.chdir ('..')
