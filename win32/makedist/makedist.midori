@@ -44,7 +44,7 @@ version=`grep PACKAGE_VERSION _build/default/config.h | awk '{ print $3 $4; }' |
 
 #strip sha from version if release
 if [ "$RELEASE" != "" ];then
-    version=$(echo $version| awk -F \- '{print $1}')
+    version=$(echo $version| awk -F \~ '{print $1}')
 fi
 
 if [ "$1" != "" ]; then
