@@ -202,7 +202,7 @@ grab_files share mime
 grab_files share midori.mo
 
 # We need to ship our CA bundle for now
-cp /etc/pki/tls/certs/ca-bundle.crt $workdir/share/midori/res/
+cp -a /etc/pki/tls/certs/ca-bundle.crt $workdir/share/midori/res/
 
 if [ "$GTK3_BUILD" == "1" ]; then
     grab_files share webkitgtk-3.0
