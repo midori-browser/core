@@ -4245,13 +4245,10 @@ midori_browser_bookmark_popup (GtkWidget*      widget,
         gint child_bookmarks_count = midori_array_count_recursive (browser->bookmarks,
             "uri <> ''", NULL, item, FALSE);
 
-        if (!child_bookmarks_count) 
-            midori_browser_bookmark_popup_item (menu,
-                STOCK_TAB_NEW, _("Open all in _Tabs"), item, NULL, browser);
-        else
-            midori_browser_bookmark_popup_item (menu,
-                STOCK_TAB_NEW, _("Open all in _Tabs"),
-                item, midori_browser_bookmark_open_in_tab_activate_cb, browser);
+        midori_browser_bookmark_popup_item (menu,
+            STOCK_TAB_NEW, _("Open all in _Tabs"), item,
+            (!child_bookmarks_count ? NULL : midori_browser_bookmark_open_in_tab_activate_cb),
+            browser);
     }
     else
     {

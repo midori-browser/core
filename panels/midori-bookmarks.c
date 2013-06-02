@@ -946,14 +946,10 @@ midori_bookmarks_popup (GtkWidget*       widget,
         gint child_bookmarks_count = midori_array_count_recursive (bookmarks->array,
             "uri <> ''", NULL, item, FALSE);
 
-        if (!child_bookmarks_count) 
-            midori_bookmarks_popup_item (menu,
-                                         STOCK_TAB_NEW, _("Open all in _Tabs"),
-                                         item, NULL, bookmarks);
-        else
-            midori_bookmarks_popup_item (menu,
-                                         STOCK_TAB_NEW, _("Open all in _Tabs"),
-                                         item, midori_bookmarks_open_in_tab_activate_cb, bookmarks);
+        midori_bookmarks_popup_item (menu,
+            STOCK_TAB_NEW, _("Open all in _Tabs"), item, 
+            (!child_bookmarks_count ? NULL : midori_bookmarks_open_in_tab_activate_cb), 
+            bookmarks);
     }
     else
     {
