@@ -7,67 +7,63 @@ msgid ""
 msgstr ""
 "Project-Id-Version: midori 0.0.21\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-04-10 08:15+0000\n"
-"PO-Revision-Date: \n"
-"Last-Translator: Kristjan Vool <vool.kristjan@gmail.com>\n"
+"POT-Creation-Date: 2013-06-01 21:58+0200\n"
+"PO-Revision-Date: 2013-05-24 22:48+0000\n"
+"Last-Translator: Kristjan Vool <Unknown>\n"
 "Language-Team: \n"
-"Language: Estonian\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Launchpad-Export-Date: 2013-06-02 04:41+0000\n"
+"X-Generator: Launchpad (build 16660)\n"
+"Language: Estonian\n"
 "X-Poedit-Language: Estonian\n"
 
-#: ../data/midori.desktop.in.h:1
-msgid "Browse the Web"
-msgstr "Veebi lehitsemine stiilselt"
-
-#: ../data/midori.desktop.in.h:2
-msgid "Internet;WWW;Explorer"
-msgstr "Internet;WWW;Explorer;Web;Veeb;Brauser;Browser"
-
-#: ../data/midori.desktop.in.h:3
-#: ../midori/main.c:162
-#: ../midori/midori-app.c:1459
+#: ../data/midori.desktop.in.h:1 ../midori/main.c:162
 #: ../midori/midori-websettings.c:228
-#: ../midori/midori-view.c:4070
 msgid "Midori"
 msgstr "Midori"
 
-#: ../data/midori.desktop.in.h:4
+#: ../data/midori.desktop.in.h:2
+msgid "Web Browser"
+msgstr "Veebibrauser"
+
+#: ../data/midori.desktop.in.h:3
 msgid "Midori Web Browser"
 msgstr "Midori veebibrauser"
 
-#: ../data/midori.desktop.in.h:5
-msgid "New Private Browsing Window"
-msgstr "Uus privaatne aken"
+#: ../data/midori.desktop.in.h:4
+msgid "Browse the Web"
+msgstr "Veebi lehitsemine stiilselt"
 
-#: ../data/midori.desktop.in.h:6
-#: ../midori/midori-browser.c:1404
+#: ../data/midori.desktop.in.h:5
+msgid "Internet;WWW;Explorer"
+msgstr "Internet;WWW;Explorer;Web;Veeb;Brauser;Browser"
+
+#: ../data/midori.desktop.in.h:6 ../midori/midori-browser.c:1390
 msgid "New Tab"
 msgstr "Uus kaart"
 
-#: ../data/midori.desktop.in.h:7
-#: ../midori/midori-browser.c:1401
+#: ../data/midori.desktop.in.h:7 ../midori/midori-browser.c:1387
 msgid "New Window"
 msgstr "Uus aken"
 
 #: ../data/midori.desktop.in.h:8
-msgid "Web Browser"
-msgstr "Veebibrauser"
+msgid "New Private Browsing Window"
+msgstr "Uus privaatne aken"
 
 #: ../data/midori-private.desktop.in.h:1
 msgid "Midori Private Browsing"
 msgstr "Midori privaatne lehitsemine"
 
-#: ../data/midori-private.desktop.in.h:2
-msgid "Open a new private browsing window"
-msgstr "Ava uus privaatne aken"
-
-#: ../data/midori-private.desktop.in.h:3
-#: ../midori/midori-view.c:4412
+#: ../data/midori-private.desktop.in.h:2 ../midori/midori-view.c:4395
 msgid "Private Browsing"
 msgstr "Privaatne lehitsemine"
+
+#: ../data/midori-private.desktop.in.h:3
+msgid "Open a new private browsing window"
+msgstr "Ava uus privaatne aken"
 
 #: ../midori/main.c:72
 #, c-format
@@ -96,7 +92,8 @@ msgstr "Privaatne veebilehtisemine, muudatusi ei salvestata"
 
 #: ../midori/main.c:106
 msgid "Portable mode, all runtime files are stored in one place"
-msgstr "Kaasaskantav viis, kõik käivitatavad failid salvestatakse samasse kohta"
+msgstr ""
+"Kaasaskantav viis, kõik käivitatavad failid salvestatakse samasse kohta"
 
 #: ../midori/main.c:109
 msgid "Plain GTK+ window with WebKit, akin to GtkLauncher"
@@ -163,128 +160,118 @@ msgstr "Märkused, ettepanekud ja vead palun sinna:"
 msgid "Check for new versions at:"
 msgstr "Kontrolli uusi versioone:"
 
-#: ../midori/main.c:382
+#: ../midori/main.c:384
 msgid "An unknown error occured"
 msgstr "Tekkis ootamatu viga"
 
-#: ../midori/midori-app.c:1360
-#: ../midori/midori-browser.c:6183
+#: ../midori/midori-app.c:1337 ../midori/midori-browser.c:6124
 msgid "_Bookmarks"
 msgstr "_Järjehoidjad"
 
-#: ../midori/midori-app.c:1361
+#: ../midori/midori-app.c:1338
 msgid "Add Boo_kmark"
 msgstr "Lisa _järjehoidjatesse..."
 
-#: ../midori/midori-app.c:1362
+#: ../midori/midori-app.c:1339
 msgid "_Extensions"
 msgstr "_Laiendid"
 
 #. i18n: Browsing history, visited web pages, closed tabs
-#: ../midori/midori-app.c:1363
-#: ../midori/midori-privatedata.c:177
+#: ../midori/midori-app.c:1340 ../midori/midori-privatedata.c:177
 msgid "_History"
 msgstr "_Ajalugu"
 
-#: ../midori/midori-app.c:1364
+#: ../midori/midori-app.c:1341
 msgid "_Userscripts"
 msgstr "Kasutaja_skriptid"
 
-#: ../midori/midori-app.c:1365
+#: ../midori/midori-app.c:1342
 msgid "User_styles"
 msgstr "Kasutaja_stiilid"
 
-#: ../midori/midori-app.c:1366
+#: ../midori/midori-app.c:1343
 msgid "New _Tab"
 msgstr "Uus _kaart"
 
-#: ../midori/midori-app.c:1367
+#: ../midori/midori-app.c:1344
 msgid "_Transfers"
 msgstr "_Allalaadimised"
 
-#: ../midori/midori-app.c:1368
+#: ../midori/midori-app.c:1345
 msgid "Netscape p_lugins"
 msgstr "Netscape _laiendused"
 
-#: ../midori/midori-app.c:1369
+#: ../midori/midori-app.c:1346
 msgid "_Closed Tabs"
 msgstr "_Suletud kaardid"
 
-#: ../midori/midori-app.c:1370
-#: ../midori/midori-browser.c:5322
+#: ../midori/midori-app.c:1347 ../midori/midori-browser.c:5267
 msgid "New _Window"
 msgstr "Uus _aken"
 
-#: ../midori/midori-app.c:1371
+#: ../midori/midori-app.c:1348
 msgid "New _Folder"
 msgstr "Uus _kaust"
 
-#: ../midori/midori-app.c:1426
-#: ../midori/midori-app.c:1429
-#: ../midori/midori-app.c:1432
+#: ../midori/midori-app.c:1403 ../midori/midori-app.c:1406
+#: ../midori/midori-app.c:1409
 msgid "[Addresses]"
 msgstr "[Aadressid]"
 
-#: ../midori/midori-array.c:551
+#: ../midori/midori-array.c:549
 msgid "File not found."
 msgstr "Faili ei leitud."
 
-#: ../midori/midori-array.c:576
-#: ../midori/midori-array.c:615
-#: ../midori/midori-array.c:639
-#: ../midori/midori-array.c:649
+#: ../midori/midori-array.c:574 ../midori/midori-array.c:613
+#: ../midori/midori-array.c:637 ../midori/midori-array.c:647
 msgid "Malformed document."
 msgstr "Väärvormistatud dokument."
 
-#: ../midori/midori-array.c:658
+#: ../midori/midori-array.c:656
 msgid "Unrecognized bookmark format."
 msgstr "Tundmatu järjehoidjate vorming."
 
-#: ../midori/midori-browser.c:336
-#: ../midori/midori-browser.c:5458
+#: ../midori/midori-browser.c:324 ../midori/midori-browser.c:5399
 msgid "Go forward to the next page"
 msgstr "Mine edasi järgmisele leheküljele"
 
 #. i18n: Visit the following logical page, ie. in a forum or blog
-#: ../midori/midori-browser.c:343
-#: ../midori/midori-browser.c:5466
-#: ../midori/midori-browser.c:5469
+#: ../midori/midori-browser.c:331 ../midori/midori-browser.c:5407
+#: ../midori/midori-browser.c:5410
 msgid "Go to the next sub-page"
 msgstr "Mine järgmisele ala-veebilehele"
 
-#: ../midori/midori-browser.c:448
-#: ../midori/midori-browser.c:5407
-#: ../midori/midori-browser.c:5416
+#: ../midori/midori-browser.c:341
+msgid "Web Search…"
+msgstr "Veebiotsing…"
+
+#: ../midori/midori-browser.c:445 ../midori/midori-browser.c:5348
+#: ../midori/midori-browser.c:5357
 msgid "Reload the current page"
 msgstr "Laadi praegune lehekülg uuesti"
 
-#: ../midori/midori-browser.c:456
-#: ../midori/midori-browser.c:5413
+#: ../midori/midori-browser.c:453 ../midori/midori-browser.c:5354
 msgid "Stop loading the current page"
 msgstr "Peata praeguse lehekülje laadimine"
 
-#: ../midori/midori-browser.c:526
+#: ../midori/midori-browser.c:523
 #, c-format
 msgid "Failed to update title: %s\n"
 msgstr "Leakirja %s uuendamine ebaõnnestus\n"
 
-#: ../midori/midori-browser.c:565
-#: ../midori/midori-browser.c:621
-#: ../midori/midori-browser.c:624
-#: ../midori/midori-websettings.c:1465
+#: ../midori/midori-browser.c:562 ../midori/midori-browser.c:618
+#: ../midori/midori-browser.c:621 ../midori/midori-websettings.c:1465
 #, c-format
 msgid "Value '%s' is invalid for %s"
 msgstr "\"%s\" on vale %s väärtus"
 
-#: ../midori/midori-browser.c:573
-#: ../midori/midori-browser.c:644
-#: ../midori/midori-browser.c:7006
+#: ../midori/midori-browser.c:570 ../midori/midori-browser.c:641
+#: ../midori/midori-browser.c:6933
 #, c-format
 msgid "Unexpected setting '%s'"
 msgstr "Ootamatu seade \"%s\""
 
-#: ../midori/midori-browser.c:581
-#: ../midori/midori-browser.c:654
+#: ../midori/midori-browser.c:578 ../midori/midori-browser.c:651
 #, c-format
 msgid "Unexpected action '%s'."
 msgstr "Ootamatu toiming \"%s\"."
@@ -294,98 +281,106 @@ msgstr "Ootamatu toiming \"%s\"."
 msgid "%s (Private Browsing)"
 msgstr "%s - privaatne lehitsemine"
 
-#: ../midori/midori-browser.c:841
-#: ../midori/midori-browser.c:883
+#: ../midori/midori-browser.c:841 ../midori/midori-browser.c:883
 #: ../panels/midori-bookmarks.c:114
 msgid "Bookmarks"
 msgstr "Järjehoidjad"
 
 #: ../midori/midori-browser.c:937
-msgid "New folder"
-msgstr "Uus kaust"
+msgid "New Folder"
+msgstr ""
 
 #: ../midori/midori-browser.c:937
-msgid "Edit folder"
-msgstr "Kausta muutmine"
+msgid "Edit Folder"
+msgstr ""
 
 #: ../midori/midori-browser.c:939
-msgid "New bookmark"
-msgstr "Uus järjehoidja"
+msgid "New Bookmark"
+msgstr ""
 
 #: ../midori/midori-browser.c:939
-msgid "Edit bookmark"
-msgstr "Muuda järjehoidjat"
+msgid "Edit Bookmark"
+msgstr ""
 
-#: ../midori/midori-browser.c:973
-msgid "Type a name for this bookmark and choose where to keep it."
-msgstr "Järjehoidjale nime ning salvestuskoha valimine"
+#: ../midori/midori-browser.c:961
+msgid "Type a name for this bookmark, and choose where to keep it."
+msgstr ""
 
-#: ../midori/midori-browser.c:1029
+#: ../midori/midori-browser.c:963
+msgid "Type a name for this folder, and choose where to keep it."
+msgstr ""
+
+#: ../midori/midori-browser.c:1017
 msgid "Add to _Speed Dial"
 msgstr "Lisa kiirvalimiste lehele"
 
-#: ../midori/midori-browser.c:1037
-msgid "Show in the tool_bar"
-msgstr "Tööriista_ribal näitamine"
+#: ../midori/midori-browser.c:1026
+msgid "Show in Bookmarks _Bar"
+msgstr ""
 
-#: ../midori/midori-browser.c:1045
+#: ../midori/midori-browser.c:1034
 msgid "Run as _web application"
 msgstr "Veebi_rakendusena käivitamine"
 
-#: ../midori/midori-browser.c:1161
-#: ../midori/midori-browser.c:4565
+#: ../midori/midori-browser.c:1147 ../midori/midori-browser.c:4510
 msgid "Save file as"
 msgstr "Salvesta fail kui"
 
-#: ../midori/midori-browser.c:1171
+#: ../midori/midori-browser.c:1157
 msgid "Save associated _resources"
 msgstr "Salvesta ühised _ressurssid"
 
-#: ../midori/midori-browser.c:1401
+#: ../midori/midori-browser.c:1387
 msgid "A new window has been opened"
 msgstr "Avati uus aken"
 
-#: ../midori/midori-browser.c:1404
+#: ../midori/midori-browser.c:1390
 msgid "A new tab has been opened"
 msgstr "Avati uus aken"
 
-#: ../midori/midori-browser.c:1422
+#: ../midori/midori-browser.c:1408
 msgid "Error opening the image!"
 msgstr "Viga pildi avamisel!"
 
-#: ../midori/midori-browser.c:1423
+#: ../midori/midori-browser.c:1409
 msgid "Can not open selected image in a default viewer."
 msgstr "Valitud pildi avamine vaikimisi pildivaaturiga pole võimalik."
 
-#: ../midori/midori-browser.c:1429
+#: ../midori/midori-browser.c:1415
 msgid "Error downloading the image!"
 msgstr "Viga pildi allalaadimisel!"
 
-#: ../midori/midori-browser.c:1430
+#: ../midori/midori-browser.c:1416
 msgid "Can not download selected image."
 msgstr "Valitud pilti pole võimalik allalaadida."
 
-#: ../midori/midori-browser.c:1507
+#: ../midori/midori-browser.c:1493
 msgid "Save file"
 msgstr "Salvesta fail"
 
-#: ../midori/midori-browser.c:2486
+#: ../midori/midori-browser.c:2462
 msgid "Open file"
 msgstr "Ava fail"
 
-#: ../midori/midori-browser.c:2614
+#: ../midori/midori-browser.c:2548
 msgid ""
-"To use the above URI open a news aggregator. There is usually a menu or button \"New Subscription\", \"New News Feed\" or similar.\n"
-"Alternatively go to Preferences, Applications in Midori, and select a News Aggregator. Next time you click the news feed icon, it will be added automatically."
-msgstr "Ülevaloleva lingi kasutamiseks tuleb see avada uudistevoona. Selle jaoks on tavaliselt olemas menüü või nup nimega \"Uus tellimus\", \"Uus uudistevoog\" või sarnane. Teisel juhul ava eelistused, rakendused Midoris ning vali uudistevoo rakendus. Järgmisel korral, kui vajutad uudistevoo peale, siis see lisatakse automaatselt."
+"To use the above URI open a news aggregator. There is usually a menu or "
+"button \"New Subscription\", \"New News Feed\" or similar.\n"
+"Alternatively go to Preferences, Applications in Midori, and select a News "
+"Aggregator. Next time you click the news feed icon, it will be added "
+"automatically."
+msgstr ""
+"Ülevaloleva lingi kasutamiseks tuleb see avada uudistevoona. Selle jaoks on "
+"tavaliselt olemas menüü või nup nimega \"Uus tellimus\", \"Uus uudistevoog\" "
+"või sarnane. Teisel juhul ava eelistused, rakendused Midoris ning vali "
+"uudistevoo rakendus. Järgmisel korral, kui vajutad uudistevoo peale, siis "
+"see lisatakse automaatselt."
 
-#: ../midori/midori-browser.c:2620
-#: ../extensions/feed-panel/main.c:356
+#: ../midori/midori-browser.c:2554 ../extensions/feed-panel/main.c:349
 msgid "New feed"
 msgstr "Uus uudistevoog"
 
-#: ../midori/midori-browser.c:2652
-#: ../midori/midori-browser.c:5482
+#: ../midori/midori-browser.c:2585 ../midori/midori-browser.c:5423
 #: ../panels/midori-bookmarks.c:527
 msgid "Add a new bookmark"
 msgstr "Uus järjehoidja..."
@@ -393,515 +388,513 @@ msgstr "Uus järjehoidja..."
 #. FIXME: Blacklist/ custom contract doesn't work
 #. gchar* blacklisted_contracts[] = { "print", NULL };
 #. FIXME: granite: should return GtkWidget* like GTK+
-#: ../midori/midori-browser.c:2701
-#: ../midori/midori-browser.c:5358
+#: ../midori/midori-browser.c:2634 ../midori/midori-browser.c:5299
 msgid "Share this page"
 msgstr "Jaga seda lehte"
 
-#: ../midori/midori-browser.c:3177
-#: ../midori/midori-searchaction.c:450
+#: ../midori/midori-browser.c:3125 ../midori/midori-searchaction.c:450
 msgid "Empty"
 msgstr "Tühi"
 
-#: ../midori/midori-browser.c:3556
-#: ../midori/midori-browser.c:3557
+#: ../midori/midori-browser.c:3501 ../midori/midori-browser.c:3502
 msgid "Toggle text cursor navigation"
 msgstr "Hiirega veebilehitsemise kasutamine"
 
-#: ../midori/midori-browser.c:3559
-msgid "Pressing F7 toggles Caret Browsing. When active, a text cursor appears in all websites."
-msgstr "Nupu F7 vajutades lülitatakse hiirega veebilehitsemine sisse või välja. Kui see on lubatud, siis on igal veebilehel olemas tekstikursor."
+#: ../midori/midori-browser.c:3504
+msgid ""
+"Pressing F7 toggles Caret Browsing. When active, a text cursor appears in "
+"all websites."
+msgstr ""
+"Nupu F7 vajutades lülitatakse hiirega veebilehitsemine sisse või välja. Kui "
+"see on lubatud, siis on igal veebilehel olemas tekstikursor."
 
-#: ../midori/midori-browser.c:3562
+#: ../midori/midori-browser.c:3507
 msgid "_Enable Caret Browsing"
 msgstr "Luba _hiirega veebilehitsemine"
 
-#: ../midori/midori-browser.c:3983
-#: ../midori/midori-browser.c:5930
+#: ../midori/midori-browser.c:3928 ../midori/midori-browser.c:5871
 #, c-format
 msgid "Failed to insert new history item: %s\n"
 msgstr "Ajaloo kirjutamine ebaõnnestus: %s\n"
 
-#: ../midori/midori-browser.c:4297
-#: ../panels/midori-bookmarks.c:835
-#: ../panels/midori-history.c:793
+#: ../midori/midori-browser.c:4242 ../panels/midori-bookmarks.c:835
+#: ../panels/midori-history.c:792
 msgid "Open all in _Tabs"
 msgstr "Ava kõik _kaartidena"
 
-#: ../midori/midori-browser.c:4304
-#: ../panels/midori-bookmarks.c:841
-#: ../panels/midori-history.c:799
-#: ../extensions/feed-panel/feed-panel.c:511
+#: ../midori/midori-browser.c:4249 ../panels/midori-bookmarks.c:841
+#: ../panels/midori-history.c:798 ../extensions/feed-panel/feed-panel.c:511
 msgid "Open in New _Tab"
 msgstr "Ava uues _kaardis"
 
-#: ../midori/midori-browser.c:4307
-#: ../midori/midori-view.c:2930
-#: ../midori/midori-view.c:4888
-#: ../panels/midori-bookmarks.c:843
-#: ../panels/midori-history.c:801
-#: ../extensions/feed-panel/feed-panel.c:513
+#: ../midori/midori-browser.c:4252 ../midori/midori-view.c:2915
+#: ../midori/midori-view.c:4873 ../panels/midori-bookmarks.c:843
+#: ../panels/midori-history.c:800 ../extensions/feed-panel/feed-panel.c:513
 msgid "Open in New _Window"
 msgstr "Ava uues _aknas"
 
-#: ../midori/midori-browser.c:4396
+#: ../midori/midori-browser.c:4341
 msgid "Arora"
 msgstr "Arora"
 
-#: ../midori/midori-browser.c:4397
+#: ../midori/midori-browser.c:4342
 msgid "Kazehakase"
 msgstr "Kazehakase"
 
-#: ../midori/midori-browser.c:4398
+#: ../midori/midori-browser.c:4343
 msgid "Opera"
 msgstr "Opera"
 
-#: ../midori/midori-browser.c:4399
+#: ../midori/midori-browser.c:4344
 msgid "Konqueror"
 msgstr "Konqueror"
 
-#: ../midori/midori-browser.c:4400
+#: ../midori/midori-browser.c:4345
 msgid "Epiphany"
 msgstr "Epiphany"
 
-#: ../midori/midori-browser.c:4401
+#: ../midori/midori-browser.c:4346
 #, c-format
 msgid "Firefox (%s)"
 msgstr "Firefox (%s)"
 
-#: ../midori/midori-browser.c:4402
+#: ../midori/midori-browser.c:4347
 msgid "Midori 0.2.6"
 msgstr "Midori 0.2.6"
 
-#: ../midori/midori-browser.c:4420
+#: ../midori/midori-browser.c:4365
 msgid "Import bookmarks…"
 msgstr "Impordi järjehoidjad..."
 
-#: ../midori/midori-browser.c:4423
-#: ../midori/midori-browser.c:5487
+#: ../midori/midori-browser.c:4368
 msgid "_Import bookmarks"
 msgstr "_Impordi järjehoidjad..."
 
-#: ../midori/midori-browser.c:4434
+#: ../midori/midori-browser.c:4379
 msgid "_Application:"
 msgstr "_Rakendus:"
 
-#: ../midori/midori-browser.c:4499
+#: ../midori/midori-browser.c:4444
 msgid "Import from XBEL or HTML file"
 msgstr "Importimine XBEL või HTML failist"
 
-#: ../midori/midori-browser.c:4527
+#: ../midori/midori-browser.c:4472
 msgid "Import from a file"
 msgstr "Impordi failist"
 
-#: ../midori/midori-browser.c:4539
+#: ../midori/midori-browser.c:4484
 msgid "Failed to import bookmarks"
 msgstr "Jäjehoidjate importimine ebaõnnestus"
 
-#: ../midori/midori-browser.c:4570
+#: ../midori/midori-browser.c:4515
 msgid "XBEL Bookmarks"
 msgstr "XBEL järjehoidjad"
 
-#: ../midori/midori-browser.c:4575
+#: ../midori/midori-browser.c:4520
 msgid "Netscape Bookmarks"
 msgstr "Netscape järjehoidjad"
 
-#: ../midori/midori-browser.c:4589
+#: ../midori/midori-browser.c:4534
 msgid "Midori can only export to XBEL (*.xbel) and Netscape (*.html)"
-msgstr "Midori järjehoidjad saavad olla ainult XBEL (*.xbel) või Netscape (*.html) vormingus"
+msgstr ""
+"Midori järjehoidjad saavad olla ainult XBEL (*.xbel) või Netscape (*.html) "
+"vormingus"
 
-#: ../midori/midori-browser.c:4604
+#: ../midori/midori-browser.c:4549
 msgid "Failed to export bookmarks"
 msgstr "Järjehoidjate eksportimine ebaõnnestus"
 
-#: ../midori/midori-browser.c:4820
+#: ../midori/midori-browser.c:4765
 msgid "A lightweight web browser."
 msgstr "Kiire ning stiilne veebibrauser!"
 
-#: ../midori/midori-browser.c:4821
+#: ../midori/midori-browser.c:4766
 msgid "See about:version for version info."
 msgstr "Versiooni teabe jaoks ava lehekülg \"about:version\"."
 
-#: ../midori/midori-browser.c:4823
-msgid "This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 of the License, or (at your option) any later version."
-msgstr "See rakenduste kogum koosneb vabavaralisest tarkvarast; sul on luba seda tarkvara jagada teistega ning muuta järgides GNU Lesser General Public'u kasutusõigusi, mille andis välja Vabatarkvaraline sihtasutus; sa pead kinni pead pidama vähemalt 2.1 versiooniga litsentsist või uuemast."
+#: ../midori/midori-browser.c:4768
+msgid ""
+"This library is free software; you can redistribute it and/or modify it "
+"under the terms of the GNU Lesser General Public License as published by the "
+"Free Software Foundation; either version 2.1 of the License, or (at your "
+"option) any later version."
+msgstr ""
+"See rakenduste kogum koosneb vabavaralisest tarkvarast; sul on luba seda "
+"tarkvara jagada teistega ning muuta järgides GNU Lesser General Public'u "
+"kasutusõigusi, mille andis välja Vabatarkvaraline sihtasutus; sa pead kinni "
+"pead pidama vähemalt 2.1 versiooniga litsentsist või uuemast."
 
-#: ../midori/midori-browser.c:4858
+#: ../midori/midori-browser.c:4803
 msgid "translator-credits"
-msgstr "Kristjan Siimson <epost@ksiimson.se>"
+msgstr ""
+"Kristjan Siimson <epost@ksiimson.se>\n"
+"\n"
+"Launchpad Contributions:\n"
+"  Kristjan Siimson https://launchpad.net/~kristjan-siimson\n"
+"  Kristjan Vool https://launchpad.net/~tictac7x\n"
+"  Kristjan Vool https://launchpad.net/~vool-kristjan\n"
+"  Märt Põder https://launchpad.net/~boamaod"
 
-#: ../midori/midori-browser.c:5320
+#: ../midori/midori-browser.c:5265
 msgid "_File"
 msgstr "_Fail"
 
-#: ../midori/midori-browser.c:5323
+#: ../midori/midori-browser.c:5268
 msgid "Open a new window"
 msgstr "Ava uus aken"
 
-#: ../midori/midori-browser.c:5326
+#: ../midori/midori-browser.c:5271
 msgid "Open a new tab"
 msgstr "Ava uus kaart"
 
-#: ../midori/midori-browser.c:5328
+#: ../midori/midori-browser.c:5273
 msgid "New P_rivate Browsing Window"
 msgstr "Uus privaatne _aken"
 
-#: ../midori/midori-browser.c:5332
+#: ../midori/midori-browser.c:5277
 msgid "Open a file"
 msgstr "Ava fail"
 
-#: ../midori/midori-browser.c:5334
+#: ../midori/midori-browser.c:5279
 msgid "_Save Page As…"
 msgstr "_Salvesta leht kui..."
 
-#: ../midori/midori-browser.c:5335
+#: ../midori/midori-browser.c:5280
 msgid "Save to a file"
 msgstr "Salvesta faili"
 
-#: ../midori/midori-browser.c:5337
+#: ../midori/midori-browser.c:5282
 msgid "Add to Speed _dial"
 msgstr "Lisa _kiirvalimiste lehele"
 
-#. N_("Add Shortcut to the _desktop"), "",
-#: ../midori/midori-browser.c:5341
-msgid "Create _Launcher"
-msgstr "Loo _käivitaja..."
-
-#: ../midori/midori-browser.c:5344
+#: ../midori/midori-browser.c:5285
 msgid "Subscribe to News _feed"
 msgstr "Kinnita _uuendustevoog"
 
-#: ../midori/midori-browser.c:5350
+#: ../midori/midori-browser.c:5291
 msgid "_Close Tab"
 msgstr "_Sulge kaart"
 
-#: ../midori/midori-browser.c:5351
+#: ../midori/midori-browser.c:5292
 msgid "Close the current tab"
 msgstr "Sulge praegune kaart"
 
-#: ../midori/midori-browser.c:5353
+#: ../midori/midori-browser.c:5294
 msgid "C_lose Window"
 msgstr "S_ulge aken"
 
-#: ../midori/midori-browser.c:5357
+#: ../midori/midori-browser.c:5298
 msgid "_Share"
 msgstr "_Jaga"
 
-#: ../midori/midori-browser.c:5362
+#: ../midori/midori-browser.c:5303
 msgid "Print the current page"
 msgstr "Prindi praegune lehekülg"
 
-#: ../midori/midori-browser.c:5365
+#: ../midori/midori-browser.c:5306
 msgid "Close a_ll Windows"
 msgstr "sulge _kõik aknad"
 
-#: ../midori/midori-browser.c:5368
+#: ../midori/midori-browser.c:5309
 msgid "_Edit"
 msgstr "_Redigeerimine"
 
-#: ../midori/midori-browser.c:5391
+#: ../midori/midori-browser.c:5332
 msgid "_Find…"
 msgstr "_Leia..."
 
-#: ../midori/midori-browser.c:5392
+#: ../midori/midori-browser.c:5333
 msgid "Find a word or phrase in the page"
 msgstr "Leia leheküljelt sõna või fraas"
 
-#: ../midori/midori-browser.c:5394
+#: ../midori/midori-browser.c:5335
 msgid "Find _Next"
 msgstr "Otsi _järgmist"
 
-#: ../midori/midori-browser.c:5397
+#: ../midori/midori-browser.c:5338
 msgid "Find _Previous"
 msgstr "Otsi _eelmist"
 
-#: ../midori/midori-browser.c:5401
+#: ../midori/midori-browser.c:5342
 msgid "Configure the application preferences"
 msgstr "Seadista rakenduse eelistused"
 
-#: ../midori/midori-browser.c:5403
+#: ../midori/midori-browser.c:5344
 msgid "_View"
 msgstr "_Vaade"
 
-#: ../midori/midori-browser.c:5404
+#: ../midori/midori-browser.c:5345
 msgid "_Toolbars"
 msgstr "_Tööriistaribad"
 
-#: ../midori/midori-browser.c:5409
+#: ../midori/midori-browser.c:5350
 msgid "Reload page without caching"
 msgstr "Taaslaadi leht ilma vahemällu salvestamata"
 
-#: ../midori/midori-browser.c:5419
+#: ../midori/midori-browser.c:5360
 msgid "Increase the zoom level"
 msgstr "Tõsta suurendusastet"
 
-#: ../midori/midori-browser.c:5422
+#: ../midori/midori-browser.c:5363
 msgid "Decrease the zoom level"
 msgstr "Kahanda suurendusastet"
 
-#: ../midori/midori-browser.c:5426
+#: ../midori/midori-browser.c:5367
 msgid "_Encoding"
 msgstr "_Kodeering"
 
-#: ../midori/midori-browser.c:5428
+#: ../midori/midori-browser.c:5369
 msgid "View So_urce"
 msgstr "_Lähtekood"
 
-#: ../midori/midori-browser.c:5431
+#: ../midori/midori-browser.c:5372
 msgid "Ca_ret Browsing"
 msgstr "_Hiirega lehitsemine"
 
-#: ../midori/midori-browser.c:5435
+#: ../midori/midori-browser.c:5376
 msgid "Toggle fullscreen view"
 msgstr "Vaheta täisekraanivaadet"
 
-#: ../midori/midori-browser.c:5437
+#: ../midori/midori-browser.c:5378
 msgid "Scroll _Left"
 msgstr "Keri _vasakule"
 
-#: ../midori/midori-browser.c:5440
+#: ../midori/midori-browser.c:5381
 msgid "Scroll _Down"
 msgstr "Keri _alla"
 
-#: ../midori/midori-browser.c:5443
+#: ../midori/midori-browser.c:5384
 msgid "Scroll _Up"
 msgstr "Keri üle_s"
 
-#: ../midori/midori-browser.c:5446
+#: ../midori/midori-browser.c:5387
 msgid "Scroll _Right"
 msgstr "Keri _paremale"
 
-#: ../midori/midori-browser.c:5449
+#: ../midori/midori-browser.c:5390
 msgid "_Readable"
 msgstr "_Lihttekst"
 
-#: ../midori/midori-browser.c:5452
+#: ../midori/midori-browser.c:5393
 msgid "_Go"
 msgstr "_Mine"
 
-#: ../midori/midori-browser.c:5455
+#: ../midori/midori-browser.c:5396
 msgid "Go back to the previous page"
 msgstr "Mine tagasi eelmisele leheküljele"
 
 #. i18n: Visit the previous logical page, ie. in a forum or blog
-#: ../midori/midori-browser.c:5462
+#: ../midori/midori-browser.c:5403
 msgid "Go to the previous sub-page"
 msgstr "Mine eelmisele ala-leheküljele"
 
-#: ../midori/midori-browser.c:5471
+#: ../midori/midori-browser.c:5412
 msgid "_Homepage"
 msgstr "_Koduleht"
 
-#: ../midori/midori-browser.c:5472
+#: ../midori/midori-browser.c:5413
 msgid "Go to your homepage"
 msgstr "Mine oma koduleheküljele"
 
-#: ../midori/midori-browser.c:5474
+#: ../midori/midori-browser.c:5415
 msgid "Empty Trash"
 msgstr "Tühjenda prügi"
 
-#: ../midori/midori-browser.c:5477
+#: ../midori/midori-browser.c:5418
 msgid "Undo _Close Tab"
 msgstr "Ava _suletud kaart"
 
-#: ../midori/midori-browser.c:5484
+#: ../midori/midori-browser.c:5425
 msgid "Add a new _folder"
 msgstr "Loo uus _kaust"
 
-#: ../midori/midori-browser.c:5490
-msgid "_Export bookmarks"
-msgstr "_Ekspordi järjehoidjad...."
+#: ../midori/midori-browser.c:5428
+msgid "_Import bookmarks…"
+msgstr ""
 
-#: ../midori/midori-browser.c:5493
-#: ../midori/midori-searchaction.c:459
-msgid "_Manage Search Engines"
-msgstr "_Halda otsingumootoreid..."
+#: ../midori/midori-browser.c:5431
+msgid "_Export bookmarks…"
+msgstr ""
 
-#: ../midori/midori-browser.c:5496
-msgid "_Clear Private Data"
-msgstr "_Kustuta privaatsed andmed..."
+#: ../midori/midori-browser.c:5434
+msgid "_Manage Search Engines…"
+msgstr ""
 
-#: ../midori/midori-browser.c:5499
+#: ../midori/midori-browser.c:5437
+msgid "_Clear Private Data…"
+msgstr ""
+
+#: ../midori/midori-browser.c:5440
 msgid "_Inspect Page"
 msgstr "_Inspekteeri lehte..."
 
-#: ../midori/midori-browser.c:5503
+#: ../midori/midori-browser.c:5444
 msgid "_Previous Tab"
 msgstr "_Eelmine kaart"
 
-#: ../midori/midori-browser.c:5506
+#: ../midori/midori-browser.c:5447
 msgid "_Next Tab"
 msgstr "_Järgmine kaart"
 
-#: ../midori/midori-browser.c:5508
+#: ../midori/midori-browser.c:5449
 msgid "Move Tab to _first position"
 msgstr "Liiguta kaart _esimesele kohale"
 
-#: ../midori/midori-browser.c:5510
+#: ../midori/midori-browser.c:5451
 msgid "Move Tab _Backward"
 msgstr "Liiguta kaarti _tahapoole"
 
-#: ../midori/midori-browser.c:5512
+#: ../midori/midori-browser.c:5453
 msgid "_Move Tab Forward"
 msgstr "Liiguta kaarti _edasi"
 
-#: ../midori/midori-browser.c:5514
+#: ../midori/midori-browser.c:5455
 msgid "Move Tab to _last position"
 msgstr "Liiguta kaarti _lõppu"
 
-#: ../midori/midori-browser.c:5517
+#: ../midori/midori-browser.c:5458
 msgid "Focus _Current Tab"
 msgstr "Fokuseeri _praegune kaart"
 
-#: ../midori/midori-browser.c:5520
+#: ../midori/midori-browser.c:5461
 msgid "Focus _Next view"
 msgstr "Fokuseeri _uus vaade"
 
-#: ../midori/midori-browser.c:5523
+#: ../midori/midori-browser.c:5464
 msgid "Only show the Icon of the _Current Tab"
 msgstr "Näita ainult aktiivse kaardi _ikooni"
 
-#: ../midori/midori-browser.c:5526
+#: ../midori/midori-browser.c:5467
 msgid "_Duplicate Current Tab"
 msgstr "_Dubleeri praegust kaarti"
 
-#: ../midori/midori-browser.c:5529
+#: ../midori/midori-browser.c:5470
 msgid "Close Ot_her Tabs"
 msgstr "Sulge _teised kaardid"
 
-#: ../midori/midori-browser.c:5532
+#: ../midori/midori-browser.c:5473
 msgid "Open last _session"
 msgstr "_Ava eelmine seanss"
 
-#: ../midori/midori-browser.c:5535
+#: ../midori/midori-browser.c:5476
 msgid "_Help"
 msgstr "_Abi"
 
-#: ../midori/midori-browser.c:5537
+#: ../midori/midori-browser.c:5478
 msgid "_Frequent Questions"
 msgstr "_Korduma kippuvad küsimused..."
 
-#: ../midori/midori-browser.c:5540
+#: ../midori/midori-browser.c:5481
 msgid "_Report a Problem…"
 msgstr "_Teate probleemist..."
 
-#: ../midori/midori-browser.c:5545
-#: ../midori/midori-browser.c:6202
+#: ../midori/midori-browser.c:5486 ../midori/midori-browser.c:6143
 msgid "_Tools"
 msgstr "_Tööriistad"
 
-#: ../midori/midori-browser.c:5552
+#: ../midori/midori-browser.c:5493
 msgid "_Menubar"
 msgstr "_Menüüriba"
 
-#: ../midori/midori-browser.c:5556
+#: ../midori/midori-browser.c:5497
 msgid "_Navigationbar"
 msgstr "_Navigatsiooniriba"
 
-#: ../midori/midori-browser.c:5560
+#: ../midori/midori-browser.c:5501
 msgid "Side_panel"
 msgstr "Külg_paneel"
 
-#: ../midori/midori-browser.c:5561
+#: ../midori/midori-browser.c:5502
 msgid "Sidepanel"
 msgstr "Külg_paneel"
 
-#: ../midori/midori-browser.c:5564
+#: ../midori/midori-browser.c:5505
 msgid "_Bookmarkbar"
 msgstr "_Järjehoidjariba"
 
-#: ../midori/midori-browser.c:5568
+#: ../midori/midori-browser.c:5509
 msgid "_Statusbar"
 msgstr "_Olekuriba"
 
-#: ../midori/midori-browser.c:5577
-#: ../midori/midori-websettings.c:227
+#: ../midori/midori-browser.c:5518 ../midori/midori-websettings.c:227
 msgid "_Automatic"
 msgstr "_Automaatne"
 
-#: ../midori/midori-browser.c:5580
-#: ../midori/midori-websettings.c:151
+#: ../midori/midori-browser.c:5521 ../midori/midori-websettings.c:151
 msgid "Chinese Traditional (BIG5)"
 msgstr "Hiina (BIG5)"
 
-#: ../midori/midori-browser.c:5583
-#: ../midori/midori-websettings.c:152
+#: ../midori/midori-browser.c:5524 ../midori/midori-websettings.c:152
 msgid "Chinese Simplified (GB18030)"
 msgstr "Hiina lihtsustatud (GB18030)"
 
 #. i18n: A double underscore "__" is used to prevent the mnemonic
-#: ../midori/midori-browser.c:5587
+#: ../midori/midori-browser.c:5528
 msgid "Japanese (SHIFT__JIS)"
 msgstr "Jaapani (SHIFT_JIS)"
 
-#: ../midori/midori-browser.c:5590
-#: ../midori/midori-websettings.c:154
+#: ../midori/midori-browser.c:5531 ../midori/midori-websettings.c:154
 msgid "Korean (EUC-KR)"
 msgstr "Korea (EUC-KR)"
 
-#: ../midori/midori-browser.c:5593
-#: ../midori/midori-websettings.c:155
+#: ../midori/midori-browser.c:5534 ../midori/midori-websettings.c:155
 msgid "Russian (KOI8-R)"
 msgstr "Vene (KOI8-R)"
 
-#: ../midori/midori-browser.c:5596
-#: ../midori/midori-websettings.c:156
+#: ../midori/midori-browser.c:5537 ../midori/midori-websettings.c:156
 msgid "Unicode (UTF-8)"
 msgstr "Unicode (UTF-8)"
 
-#: ../midori/midori-browser.c:5599
-#: ../midori/midori-websettings.c:157
+#: ../midori/midori-browser.c:5540 ../midori/midori-websettings.c:157
 msgid "Western (ISO-8859-1)"
 msgstr "Lääne (ISO-8859-1)"
 
-#: ../midori/midori-browser.c:5602
-#: ../midori/midori-websettings.c:158
-#: ../midori/midori-websettings.c:234
-#: ../katze/katze-utils.c:420
+#: ../midori/midori-browser.c:5543 ../midori/midori-websettings.c:158
+#: ../midori/midori-websettings.c:234 ../katze/katze-utils.c:420
 msgid "Custom…"
 msgstr "Kohandatud…"
 
-#: ../midori/midori-browser.c:6108
+#: ../midori/midori-browser.c:6049
 msgid "_Separator"
 msgstr "_Eraldaja"
 
-#: ../midori/midori-browser.c:6115
+#: ../midori/midori-browser.c:6056
 msgid "_Location…"
 msgstr "_Asukoht…"
 
-#: ../midori/midori-browser.c:6117
+#: ../midori/midori-browser.c:6058
 msgid "Open a particular location"
 msgstr "Veebilehe avamine või otsimine"
 
-#: ../midori/midori-browser.c:6139
+#: ../midori/midori-browser.c:6080
 msgid "_Web Search…"
 msgstr "_Veebiotsing…"
 
-#: ../midori/midori-browser.c:6141
+#: ../midori/midori-browser.c:6082
 msgid "Run a web search"
 msgstr "Käivita veebiotsing"
 
-#: ../midori/midori-browser.c:6168
+#: ../midori/midori-browser.c:6109
 msgid "Reopen a previously closed tab or window"
 msgstr "Ava uuesti varem suletud kaart või aken"
 
-#: ../midori/midori-browser.c:6185
+#: ../midori/midori-browser.c:6126
 msgid "Show the saved bookmarks"
 msgstr "Salvestatud järjehoidjate näitamine"
 
-#: ../midori/midori-browser.c:6218
+#: ../midori/midori-browser.c:6159
 msgid "_Tabs"
 msgstr "_Kaardid"
 
-#: ../midori/midori-browser.c:6220
+#: ../midori/midori-browser.c:6161
 msgid "Show a list of all open tabs"
 msgstr "Avatud kaartidest nimekirja näitamine"
 
-#: ../midori/midori-browser.c:6234
+#: ../midori/midori-browser.c:6175
 msgid "_Menu"
 msgstr "_Menüü"
 
-#: ../midori/midori-browser.c:6236
+#: ../midori/midori-browser.c:6177
 msgid "Menu"
 msgstr "Menüü"
 
@@ -910,107 +903,104 @@ msgstr "Menüü"
 msgid "The configuration of the extension '%s' couldn't be loaded: %s\n"
 msgstr "Laienduse '%s' seadistuste laadimine ebaõnnestus: %s\n"
 
-#: ../midori/midori-extension.c:897
-#: ../extensions/addons.c:1675
+#: ../midori/midori-extension.c:886 ../extensions/addons.c:1681
 #, c-format
 msgid "The configuration of the extension '%s' couldn't be saved: %s\n"
 msgstr "Laienduse '%s' seadistuste salvestamine ebaõnnestus: %s\n"
 
-#: ../midori/midori-locationaction.c:1334
+#: ../midori/midori-locationaction.c:1324
 msgid "Export certificate"
 msgstr "Ekspordi sertifikaat"
 
-#: ../midori/midori-locationaction.c:1366
+#: ../midori/midori-locationaction.c:1355
 msgid "The signing certificate authority is not known."
 msgstr "Sertifikaadi autor on tundmatu."
 
-#: ../midori/midori-locationaction.c:1368
-msgid "The certificate does not match the expected identity of the site that it was retrieved from."
+#: ../midori/midori-locationaction.c:1357
+msgid ""
+"The certificate does not match the expected identity of the site that it was "
+"retrieved from."
 msgstr "Sertifikaat ei sisalda sama sisu, kui veebileht."
 
-#: ../midori/midori-locationaction.c:1370
+#: ../midori/midori-locationaction.c:1359
 msgid "The certificate's activation time is still in the future."
 msgstr "Sertifikaat kinnitatakse alles hiljem."
 
-#: ../midori/midori-locationaction.c:1372
+#: ../midori/midori-locationaction.c:1361
 msgid "The certificate has expired"
 msgstr "Sertifikaat on aegunud."
 
-#: ../midori/midori-locationaction.c:1374
-msgid "The certificate has been revoked according to the GTlsConnection's certificate revocation list."
-msgstr "Sertifikaat tühistati vastavalt GTlsConnection'si tühistavate sertifikaatide põhjal"
+#: ../midori/midori-locationaction.c:1363
+msgid ""
+"The certificate has been revoked according to the GTlsConnection's "
+"certificate revocation list."
+msgstr ""
+"Sertifikaat tühistati vastavalt GTlsConnection'si tühistavate sertifikaatide "
+"põhjal"
 
-#: ../midori/midori-locationaction.c:1376
+#: ../midori/midori-locationaction.c:1365
 msgid "The certificate's algorithm is considered insecure."
 msgstr "Sertifikaadi algoritm on ebaturvaline."
 
-#: ../midori/midori-locationaction.c:1378
+#: ../midori/midori-locationaction.c:1367
 msgid "Some other error occurred validating the certificate."
 msgstr "Sertifikaadi kinnitamisel tekkis viga."
 
-#: ../midori/midori-locationaction.c:1429
+#: ../midori/midori-locationaction.c:1418
 msgid "_Export certificate"
 msgstr "_Ekspordi sertifikaat"
 
-#: ../midori/midori-locationaction.c:1444
+#: ../midori/midori-locationaction.c:1431
 msgid "Self-signed"
 msgstr "Iseallkirjastatud"
 
-#: ../midori/midori-locationaction.c:1467
+#: ../midori/midori-locationaction.c:1462
 msgid "Security details"
 msgstr "Turvalisuse teave"
 
 #. i18n: Right-click on Location, Open an URL from the clipboard
-#: ../midori/midori-locationaction.c:1550
+#: ../midori/midori-locationaction.c:1545
 msgid "Paste and p_roceed"
 msgstr "Kleebi ja _mine"
 
-#: ../midori/midori-locationaction.c:1782
+#: ../midori/midori-locationaction.c:1799
 msgid "Not verified"
 msgstr "Pole kinnitatud"
 
-#: ../midori/midori-locationaction.c:1790
+#: ../midori/midori-locationaction.c:1805
 msgid "Verified and encrypted connection"
-msgstr "  Turvaline ühendus  "
+msgstr "Turvaline ühendus"
 
-#: ../midori/midori-locationaction.c:1797
+#: ../midori/midori-locationaction.c:1810
 msgid "Open, unencrypted connection"
-msgstr "  Kontrollimata ühendus  "
+msgstr "Kontrollimata ühendus"
 
-#: ../midori/midori-panel.c:314
-#: ../midori/midori-panel.c:316
-#: ../midori/midori-panel.c:480
-#: ../midori/midori-panel.c:483
+#: ../midori/midori-panel.c:314 ../midori/midori-panel.c:316
+#: ../midori/midori-panel.c:480 ../midori/midori-panel.c:483
 msgid "Align sidepanel to the right"
 msgstr "Liiguta külgpaneel paremale"
 
-#: ../midori/midori-panel.c:326
-#: ../midori/midori-panel.c:327
+#: ../midori/midori-panel.c:326 ../midori/midori-panel.c:327
 msgid "Close panel"
 msgstr "Sulge külgpaneel"
 
-#: ../midori/midori-panel.c:481
-#: ../midori/midori-panel.c:484
+#: ../midori/midori-panel.c:481 ../midori/midori-panel.c:484
 msgid "Align sidepanel to the left"
 msgstr "Liiguta külgpaneel vasakule"
 
-#: ../midori/midori-websettings.c:114
-#: ../midori/midori-websettings.c:135
+#: ../midori/midori-websettings.c:114 ../midori/midori-websettings.c:135
 msgid "Show Speed Dial"
 msgstr "Näita kiirvalimist"
 
-#: ../midori/midori-websettings.c:115
-#: ../midori/midori-websettings.c:133
+#: ../midori/midori-websettings.c:115 ../midori/midori-websettings.c:133
 msgid "Show Homepage"
 msgstr "Näita kodulehekülge"
 
-#: ../midori/midori-websettings.c:116
-#: ../midori/midori-frontend.c:367
+#: ../midori/midori-websettings.c:116 ../midori/midori-frontend.c:365
 msgid "Show last open tabs"
 msgstr "Taasta eelnevad kaardid"
 
-#: ../midori/midori-websettings.c:117
-#: ../midori/midori-frontend.c:366
+#: ../midori/midori-websettings.c:117 ../midori/midori-frontend.c:364
 msgid "Show last tabs without loading"
 msgstr "Taasta eelnevad kaardid uuendamata"
 
@@ -1108,27 +1098,26 @@ msgstr "Alati kohandatud kirjatüüpide kasutamine"
 
 #: ../midori/midori-websettings.c:511
 msgid "Override fonts picked by websites with user preferences"
-msgstr "Veebilehtede kirjatüüpide asemel kasutatakse kasutaja eelistatavaid kirjatüüpe"
+msgstr ""
+"Veebilehtede kirjatüüpide asemel kasutatakse kasutaja eelistatavaid "
+"kirjatüüpe"
 
-#: ../midori/midori-websettings.c:1410
-#: ../midori/midori-websettings.c:1416
+#: ../midori/midori-websettings.c:1410 ../midori/midori-websettings.c:1416
 #, c-format
 msgid "The configuration couldn't be loaded: %s\n"
 msgstr "Eelistuste laadimine ebaõnnestus: %s\n"
 
-#: ../midori/midori-websettings.c:1470
-#: ../midori/midori-websettings.c:1581
+#: ../midori/midori-websettings.c:1470 ../midori/midori-websettings.c:1581
 #, c-format
 msgid "Invalid configuration value '%s'"
 msgstr "Vigane eelistuste väärtus '%s'"
 
-#: ../midori/midori-tab.vala:121
+#: ../midori/midori-tab.vala:122
 #, c-format
 msgid "Failed to inject stylesheet: %s"
 msgstr "Stiili faili %s lisamine ebaõnnestus"
 
-#: ../midori/midori-view.c:859
-#: ../midori/midori-view.c:984
+#: ../midori/midori-view.c:861 ../midori/midori-view.c:984
 msgid "Trust this website"
 msgstr "Usalda seda veebilehte"
 
@@ -1136,278 +1125,270 @@ msgstr "Usalda seda veebilehte"
 msgid "Security unknown"
 msgstr "Turvalisus teadmata"
 
-#: ../midori/midori-view.c:1334
+#: ../midori/midori-view.c:1335
 #, c-format
 msgid "%s wants to save an HTML5 database."
 msgstr "%s soovib salvestada HTML5 andmebaasi."
 
-#: ../midori/midori-view.c:1338
-#: ../midori/midori-view.c:1370
+#: ../midori/midori-view.c:1339 ../midori/midori-view.c:1371
 msgid "_Deny"
 msgstr "_Keela"
 
-#: ../midori/midori-view.c:1338
-#: ../midori/midori-view.c:1370
+#: ../midori/midori-view.c:1339 ../midori/midori-view.c:1371
 msgid "_Allow"
 msgstr "_Luba"
 
-#: ../midori/midori-view.c:1366
+#: ../midori/midori-view.c:1367
 #, c-format
 msgid "%s wants to know your location."
 msgstr "%s soovib teada su asukohta."
 
-#: ../midori/midori-view.c:1497
+#: ../midori/midori-view.c:1498
 #, c-format
 msgid "Error - %s"
 msgstr "Viga - %s"
 
-#: ../midori/midori-view.c:1498
+#: ../midori/midori-view.c:1499
 #, c-format
 msgid "The page '%s' couldn't be loaded."
 msgstr "Veebilehe '%s' laadimine ebaõnnestus"
 
-#: ../midori/midori-view.c:1500
-#: ../midori/midori-view.c:1644
+#: ../midori/midori-view.c:1501 ../midori/midori-view.c:1645
 msgid "Try again"
 msgstr "Proovi uuesti"
 
-#: ../midori/midori-view.c:1641
+#: ../midori/midori-view.c:1642
 #, c-format
 msgid "Oops - %s"
 msgstr "Ups - %s"
 
-#: ../midori/midori-view.c:1642
+#: ../midori/midori-view.c:1643
 #, c-format
 msgid "Something went wrong with '%s'."
 msgstr "Tekkis probleem - '%s'"
 
-#: ../midori/midori-view.c:1789
-#: ../midori/midori-view.c:2871
+#: ../midori/midori-view.c:1790 ../midori/midori-view.c:2856
 #, c-format
 msgid "Send a message to %s"
 msgstr "Sõnumi saatmine - %s"
 
-#: ../midori/midori-view.c:2656
+#: ../midori/midori-view.c:2644
 msgid "Add _search engine..."
 msgstr "Lisa otsingumootoritesse..."
 
-#: ../midori/midori-view.c:2699
-#: ../midori/midori-view.c:3006
+#: ../midori/midori-view.c:2687 ../midori/midori-view.c:2988
 msgid "Inspect _Element"
 msgstr "_Inspekteeri elementi..."
 
-#: ../midori/midori-view.c:2751
+#: ../midori/midori-view.c:2739
 msgid "Open Link in New _Tab"
 msgstr "Ava link _tagataustal"
 
-#: ../midori/midori-view.c:2755
+#: ../midori/midori-view.c:2743
 msgid "Open Link in _Foreground Tab"
 msgstr "Ava link uues _kaardis"
 
-#: ../midori/midori-view.c:2756
+#: ../midori/midori-view.c:2744
 msgid "Open Link in _Background Tab"
 msgstr "Ava link tagatausta _kaardis"
 
-#: ../midori/midori-view.c:2759
+#: ../midori/midori-view.c:2747
 msgid "Open Link in New _Window"
 msgstr "Ava link uues _aknas"
 
-#: ../midori/midori-view.c:2762
-msgid "Open Link as Web A_pplication"
-msgstr "Ava link _veebi_rakendusena"
-
-#: ../midori/midori-view.c:2767
+#: ../midori/midori-view.c:2752
 msgid "Copy Link de_stination"
 msgstr "Kopeeri lingi _aadress"
 
-#: ../midori/midori-view.c:2773
+#: ../midori/midori-view.c:2758
 msgid "Save _As…"
 msgstr "_Salvesta kui..."
 
-#: ../midori/midori-view.c:2783
+#: ../midori/midori-view.c:2768
 msgid "Open _Image in New Window"
 msgstr "Ava pilt uues _aknas"
 
-#: ../midori/midori-view.c:2784
+#: ../midori/midori-view.c:2769
 msgid "Open _Image in New Tab"
 msgstr "Ava _pilt uues kaardis"
 
-#: ../midori/midori-view.c:2788
+#: ../midori/midori-view.c:2773
 msgid "Copy Im_age"
 msgstr "Kopeeri _pilt ja aadress"
 
-#: ../midori/midori-view.c:2791
+#: ../midori/midori-view.c:2776
 msgid "Save I_mage"
 msgstr "Salvesta _pilt kui..."
 
-#: ../midori/midori-view.c:2794
+#: ../midori/midori-view.c:2779
 msgid "Open in Image _Viewer"
 msgstr "Ava pildi_vaaturiga"
 
-#: ../midori/midori-view.c:2801
+#: ../midori/midori-view.c:2786
 msgid "Copy Video _Address"
 msgstr "Kopeeri video _aadress"
 
-#: ../midori/midori-view.c:2804
+#: ../midori/midori-view.c:2789
 msgid "Save _Video"
 msgstr "Salvesta _video"
 
-#: ../midori/midori-view.c:2804
+#: ../midori/midori-view.c:2789
 msgid "Download _Video"
 msgstr "Lae alla _video"
 
-#: ../midori/midori-view.c:2830
+#: ../midori/midori-view.c:2815
 msgid "Search _with"
 msgstr "_Otsi, kasutades"
 
-#: ../midori/midori-view.c:2859
+#: ../midori/midori-view.c:2844
 msgid "_Search the Web"
 msgstr "Veebist _otsimine"
 
-#: ../midori/midori-view.c:2879
+#: ../midori/midori-view.c:2864
 msgid "Open Address in New _Tab"
 msgstr "Ava link uues _kaardis"
 
-#: ../midori/midori-view.c:2926
+#: ../midori/midori-view.c:2911
 msgid "Open _Frame in New Tab"
 msgstr "Ava uues _kaardis"
 
-#: ../midori/midori-view.c:3150
+#: ../midori/midori-view.c:3132
 #, c-format
 msgid "Open or download file from %s"
 msgstr "Faili avamine või allalaadimine asukohast %s"
 
-#: ../midori/midori-view.c:3164
-#: ../midori/midori-view.c:3167
+#: ../midori/midori-view.c:3146 ../midori/midori-view.c:3149
 #, c-format
 msgid "File Name: %s"
 msgstr "Faili nimi: %s"
 
-#: ../midori/midori-view.c:3173
+#: ../midori/midori-view.c:3155
 #, c-format
 msgid "File Type: '%s'"
 msgstr "Faili tüüp: '%s'"
 
-#: ../midori/midori-view.c:3175
+#: ../midori/midori-view.c:3157
 #, c-format
 msgid "File Type: %s ('%s')"
 msgstr "Faili tüüp: %s ('%s')"
 
-#: ../midori/midori-view.c:3213
+#: ../midori/midori-view.c:3195
 #, c-format
 msgid "Size: %s"
 msgstr "Suurus: %s"
 
 #. i18n: A file open dialog title, ie. "Open http://fila.com/manual.tgz"
-#: ../midori/midori-view.c:3226
-#: ../midori/midori-view.c:3228
+#: ../midori/midori-view.c:3208 ../midori/midori-view.c:3210
 #, c-format
 msgid "Open %s"
 msgstr "%s"
 
-#: ../midori/midori-view.c:3774
+#: ../midori/midori-view.c:3756
 #, c-format
 msgid "Inspect page - %s"
 msgstr "Inspekteeri - %s"
 
-#: ../midori/midori-view.c:4337
+#: ../midori/midori-view.c:4320
 #, c-format
 msgid "No documentation installed"
 msgstr "Dokumentatsiooni pole paigaldatud"
 
-#: ../midori/midori-view.c:4413
+#: ../midori/midori-view.c:4396
 msgid "Midori doesn't store any personal data:"
 msgstr "Midori ei salvesta  isiklikke andmeid:"
 
-#: ../midori/midori-view.c:4414
+#: ../midori/midori-view.c:4397
 msgid "No history or web cookies are being saved."
 msgstr "Ajalugu ega veebi küpsiseid ei salvestata"
 
-#: ../midori/midori-view.c:4415
+#: ../midori/midori-view.c:4398
 msgid "Extensions are disabled."
 msgstr "Laiendused on keelatud"
 
-#: ../midori/midori-view.c:4416
+#: ../midori/midori-view.c:4399
 msgid "HTML5 storage, local database and application caches are disabled."
 msgstr "HTML5 ja kohalik andmebaas on keelatud, rakenduste vahemälu keelatud"
 
-#: ../midori/midori-view.c:4417
+#: ../midori/midori-view.c:4400
 msgid "Midori prevents websites from tracking the user:"
 msgstr "Midori takistab veebilehtedel kasutaja jälitamise:"
 
-#: ../midori/midori-view.c:4418
+#: ../midori/midori-view.c:4401
 msgid "Referrer URLs are stripped down to the hostname."
 msgstr "Viitade lingid sisaldavad ainult domeeni nime"
 
-#: ../midori/midori-view.c:4419
+#: ../midori/midori-view.c:4402
 msgid "DNS prefetching is disabled."
 msgstr "DNS-i eelhankimine on keelatud"
 
-#: ../midori/midori-view.c:4420
+#: ../midori/midori-view.c:4403
 msgid "The language and timezone are not revealed to websites."
 msgstr "Veebilehed ei näe kasutaja süsteemi keelt ning ajatsooni"
 
-#: ../midori/midori-view.c:4421
+#: ../midori/midori-view.c:4404
 msgid "Flash and other Netscape plugins cannot be listed by websites."
-msgstr "Veebilehed ei näe, milliseid Flash või muid Netscape laiendusi kasutad"
+msgstr ""
+"Veebilehed ei näe, milliseid Flash või muid Netscape laiendusi kasutad"
 
-#: ../midori/midori-view.c:4461
+#: ../midori/midori-view.c:4447
 msgid "Version numbers in brackets show the version used at runtime."
 msgstr "Sulgudes olevad numbrid näitavad käivitatava rakenduse versiooni."
 
-#: ../midori/midori-view.c:4511
+#: ../midori/midori-view.c:4496
 msgid "Page loading delayed"
 msgstr "Veebilehe laadimine ebaõnnestus"
 
-#: ../midori/midori-view.c:4512
+#: ../midori/midori-view.c:4497
 msgid "Loading delayed either due to a recent crash or startup preferences."
-msgstr "Veebilehe laadimine ebaõnnestus eelneva ootamatu sulgemise või valede eelistuste tõttu."
+msgstr ""
+"Veebilehe laadimine ebaõnnestus eelneva ootamatu sulgemise või valede "
+"eelistuste tõttu."
 
-#: ../midori/midori-view.c:4513
+#: ../midori/midori-view.c:4498
 msgid "Load Page"
 msgstr "Proovi uuesti"
 
-#: ../midori/midori-view.c:4678
+#: ../midori/midori-view.c:4663
 msgid "Blank page"
 msgstr "Tühi lehekülg"
 
-#: ../midori/midori-view.c:4892
+#: ../midori/midori-view.c:4877
 msgid "_Duplicate Tab"
 msgstr "_Dubleeri kaarti"
 
-#: ../midori/midori-view.c:4897
+#: ../midori/midori-view.c:4882
 msgid "Show Tab _Label"
 msgstr "Näita kaardi pealkirja"
 
-#: ../midori/midori-view.c:4897
+#: ../midori/midori-view.c:4882
 msgid "Show Tab _Icon Only"
 msgstr "Näita ainult kaardi _ikooni"
 
-#: ../midori/midori-view.c:4904
+#: ../midori/midori-view.c:4889
 msgid "Close Ot_her Tab"
 msgid_plural "Close Ot_her Tabs"
 msgstr[0] "Sulge _teine kaart"
 msgstr[1] "Sulge _teised kaardid"
 
 #. i18n: word stem of "previous page" type links, case is not important
-#: ../midori/midori-view.c:5598
+#: ../midori/midori-view.c:5583
 msgid "previous"
 msgstr "eelmine"
 
 #. i18n: word stem of "next page" type links, case is not important
-#: ../midori/midori-view.c:5617
+#: ../midori/midori-view.c:5602
 msgid "next"
 msgstr "järgmine"
 
-#: ../midori/midori-view.c:5631
+#: ../midori/midori-view.c:5616
 msgid "Print background images"
 msgstr "Taustapiltide printimine"
 
-#: ../midori/midori-view.c:5632
+#: ../midori/midori-view.c:5617
 msgid "Whether background images should be printed"
 msgstr "Kas taustapildid prinditakse"
 
-#: ../midori/midori-view.c:5662
+#: ../midori/midori-view.c:5647
 msgid "Features"
 msgstr "Võimalused"
 
@@ -1442,7 +1423,7 @@ msgstr[1] "%d sekundit"
 #: ../midori/midori-download.vala:96
 #, c-format
 msgid " - %s remaining"
-msgstr "- %s lõpetamiseni"
+msgstr " - %s lõpetamiseni"
 
 #. i18n: Unknown number of bytes, used for transfer rate like ?B/s
 #: ../midori/midori-download.vala:107
@@ -1460,8 +1441,12 @@ msgid "The downloaded file is erroneous."
 msgstr "Allalaaditud fail on vigane."
 
 #: ../midori/midori-download.vala:225
-msgid "The checksum provided with the link did not match. This means the file is probably incomplete or was modified afterwards."
-msgstr "Lingiga seotud kontrollsumma ei kattu. See tähendab, et fail on arvatavasti poolik või hiljem muudetud."
+msgid ""
+"The checksum provided with the link did not match. This means the file is "
+"probably incomplete or was modified afterwards."
+msgstr ""
+"Lingiga seotud kontrollsumma ei kattu. See tähendab, et fail on arvatavasti "
+"poolik või hiljem muudetud."
 
 #: ../midori/midori-download.vala:345
 #, c-format
@@ -1486,8 +1471,7 @@ msgstr "Fail vajab %s-i, aga ainult %s on järel."
 msgid "Speed Dial"
 msgstr "Kiirvalimiste leht"
 
-#: ../midori/midori-speeddial.vala:181
-#: ../midori/midori-speeddial.vala:261
+#: ../midori/midori-speeddial.vala:181 ../midori/midori-speeddial.vala:261
 msgid "Click to add a shortcut"
 msgstr "Vajuta otsetee lisamiseks"
 
@@ -1569,8 +1553,7 @@ msgstr "Eelistatud keeleformaat:"
 msgid "Behavior"
 msgstr "Käitumine"
 
-#: ../midori/midori-preferences.c:365
-#: ../extensions/statusbar-features.c:155
+#: ../midori/midori-preferences.c:365 ../extensions/statusbar-features.c:155
 msgid "Load images automatically"
 msgstr "Piltide kuvamine"
 
@@ -1578,8 +1561,7 @@ msgstr "Piltide kuvamine"
 msgid "Enable Spell Checking"
 msgstr "Kirjavigade tuvastamine"
 
-#: ../midori/midori-preferences.c:382
-#: ../extensions/statusbar-features.c:165
+#: ../midori/midori-preferences.c:382 ../extensions/statusbar-features.c:165
 msgid "Enable scripts"
 msgstr "Skriptide lubamine"
 
@@ -1587,8 +1569,7 @@ msgstr "Skriptide lubamine"
 msgid "Enable WebGL support"
 msgstr "Graafilise kiirenduse lubamine (WebGL)"
 
-#: ../midori/midori-preferences.c:403
-#: ../extensions/statusbar-features.c:177
+#: ../midori/midori-preferences.c:403 ../extensions/statusbar-features.c:177
 msgid "Enable Netscape plugins"
 msgstr "Netscape laienduste lubamine"
 
@@ -1609,8 +1590,12 @@ msgid "Preferred languages"
 msgstr "Eelistatud keeled:"
 
 #: ../midori/midori-preferences.c:420
-msgid "A comma separated list of languages preferred for rendering multilingual webpages, for example \"de\", \"ru,nl\" or \"en-us;q=1.0, fr-fr;q=0.667\""
-msgstr "Komadega eraldatud nimekiri eelistatud keeltest mitmekeelsete veebilehtede jaoks, näiteks \"de\", \"ru,nl\" või \"en-us;q=1.0, fr-fr;q=0.667\""
+msgid ""
+"A comma separated list of languages preferred for rendering multilingual "
+"webpages, for example \"de\", \"ru,nl\" or \"en-us;q=1.0, fr-fr;q=0.667\""
+msgstr ""
+"Komadega eraldatud nimekiri eelistatud keeltest mitmekeelsete veebilehtede "
+"jaoks, näiteks \"de\", \"ru,nl\" või \"en-us;q=1.0, fr-fr;q=0.667\""
 
 #: ../midori/midori-preferences.c:422
 msgid "Save downloaded files to:"
@@ -1646,7 +1631,8 @@ msgid "Open Tabs next to Current"
 msgstr "Ava kaardid praeguse kõrval"
 
 #: ../midori/midori-preferences.c:453
-msgid "Whether to open new tabs next to the current tab or after the last one"
+msgid ""
+"Whether to open new tabs next to the current tab or after the last one"
 msgstr "Kas avada uued kaardid käesoleva või viimase kaardi kõrval"
 
 #: ../midori/midori-preferences.c:456
@@ -1680,18 +1666,15 @@ msgstr "Port"
 
 #: ../midori/midori-preferences.c:500
 msgid "Supported proxy types:"
-msgstr "Toetatud proksi serverite tüübid: "
+msgstr "Toetatud proksi serverite tüübid:"
 
 #. TODO: Preserve page icons of search engines and merge privacy items
-#: ../midori/midori-preferences.c:520
-#: ../extensions/web-cache.c:461
-#: ../extensions/web-cache.c:470
-#: ../midori/midori-privatedata.c:330
+#: ../midori/midori-preferences.c:520 ../extensions/web-cache.c:461
+#: ../extensions/web-cache.c:470 ../midori/midori-privatedata.c:330
 msgid "Web Cache"
 msgstr "Veebilehtede vahemälu:"
 
-#: ../midori/midori-preferences.c:521
-#: ../midori/midori-preferences.c:524
+#: ../midori/midori-preferences.c:521 ../midori/midori-preferences.c:524
 msgid "The maximum size of cached pages on disk"
 msgstr "Maksimaalne vahemällu salvestatud veebilehtede suurus"
 
@@ -1712,8 +1695,7 @@ msgstr "Privaatsus"
 msgid "Delete old Cookies after:"
 msgstr "Vanad küpsised ksututatakse pärast ajavahemikku:"
 
-#: ../midori/midori-preferences.c:552
-#: ../midori/midori-preferences.c:555
+#: ../midori/midori-preferences.c:552 ../midori/midori-preferences.c:555
 msgid "The maximum number of days to save cookies for"
 msgstr "Suurim arv päevasid küpsiste salvestamiseks"
 
@@ -1726,8 +1708,12 @@ msgid "Block cookies sent by third-party websites"
 msgstr "Kolmanda osapoole veebilehtede küpsiste blokeerimine"
 
 #: ../midori/midori-preferences.c:565
-msgid "Cookies store login data, saved games, or user profiles for advertisement purposes."
-msgstr "Küpsised säilitavad sisselogimise andmeid, mängude salvestusi või kasutaja profiile reklaaminduse otstarbeks"
+msgid ""
+"Cookies store login data, saved games, or user profiles for advertisement "
+"purposes."
+msgstr ""
+"Küpsised säilitavad sisselogimise andmeid, mängude salvestusi või kasutaja "
+"profiile reklaaminduse otstarbeks"
 
 #: ../midori/midori-preferences.c:572
 msgid "Enable offline web application cache"
@@ -1751,15 +1737,17 @@ msgstr "Kas viitaja andmed peaks sisaldama ainult nime"
 msgid "Delete pages from history after:"
 msgstr "Ajaloo kustutamine pärast ajavahemikku:"
 
-#: ../midori/midori-preferences.c:586
-#: ../midori/midori-preferences.c:589
+#: ../midori/midori-preferences.c:586 ../midori/midori-preferences.c:589
 msgid "The maximum number of days to save the history for"
 msgstr "Ajavahemik ajaloo kirjete säilitamiseks"
 
-#: ../midori/midori-preferences.c:626
-#: ../panels/midori-extensions.c:90
+#: ../midori/midori-preferences.c:626 ../panels/midori-extensions.c:90
 msgid "Extensions"
 msgstr "Laiendid"
+
+#: ../midori/midori-searchaction.c:459
+msgid "_Manage Search Engines"
+msgstr "_Halda otsingumootoreid..."
 
 #: ../midori/midori-searchaction.c:1049
 msgid "Add search engine"
@@ -1777,8 +1765,7 @@ msgstr "_Nimi:"
 msgid "_Description:"
 msgstr "_Kirjeldus:"
 
-#: ../midori/midori-searchaction.c:1105
-#: ../extensions/feed-panel/main.c:368
+#: ../midori/midori-searchaction.c:1105 ../extensions/feed-panel/main.c:361
 msgid "_Address:"
 msgstr "_Aadress:"
 
@@ -1804,8 +1791,7 @@ msgstr "Otsingumootorite laadimine ebaõnnestus. %s\n"
 msgid "The search engines couldn't be saved. %s"
 msgstr "Otsingumootoreid ei saanud salvestada. %s"
 
-#: ../midori/midori-historycompletion.vala:17
-#: ../panels/midori-history.c:111
+#: ../midori/midori-historycompletion.vala:17 ../panels/midori-history.c:111
 msgid "History"
 msgstr "Ajalugu"
 
@@ -1844,13 +1830,12 @@ msgstr "Ava koos"
 msgid "Choose an application or command to open \"%s\":"
 msgstr "Käivitatav rakendus või kohandatud käsk, mida avada \"%s\":"
 
-#: ../midori/sokoke.c:368
-#: ../midori/sokoke.c:388
-#: ../midori/midori-frontend.c:309
+#: ../midori/sokoke.c:368 ../midori/sokoke.c:388
+#: ../midori/midori-frontend.c:308
 msgid "Could not run external program."
 msgstr "Välist programmi ei saanud käivitada"
 
-#: ../midori/sokoke.c:576
+#: ../midori/sokoke.c:578
 msgid "Invalid URI"
 msgstr "Vigane link"
 
@@ -1875,33 +1860,6 @@ msgstr "Tõstutundlik"
 msgid "Close Findbar"
 msgstr "Sulge otsinguriba"
 
-#: ../toolbars/midori-transferbar.c:109
-#, c-format
-msgid "The file '<b>%s</b>' has been downloaded."
-msgstr "%s"
-
-#: ../toolbars/midori-transferbar.c:114
-msgid "Transfer completed"
-msgstr "Allalaadimine valmis"
-
-#: ../toolbars/midori-transferbar.c:244
-#: ../panels/midori-transfers.c:139
-msgid "Clear All"
-msgstr "Puhasta"
-
-#: ../toolbars/midori-transferbar.c:277
-#: ../toolbars/midori-transferbar.c:279
-msgid "Some files are being downloaded"
-msgstr "Failide allalaadimised on pooleli"
-
-#: ../toolbars/midori-transferbar.c:283
-msgid "_Quit Midori"
-msgstr "_Välju"
-
-#: ../toolbars/midori-transferbar.c:285
-msgid "The transfers will be cancelled if Midori quits."
-msgstr "Allalaadimised katkestatakse väljumisel."
-
 #: ../panels/midori-bookmarks.c:308
 #, c-format
 msgid "Failed to add bookmark item: %s\n"
@@ -1924,8 +1882,7 @@ msgstr "Kustuta valitud järjehoidja"
 msgid "Add a new folder"
 msgstr "Loo uus kaust..."
 
-#: ../panels/midori-bookmarks.c:687
-#: ../panels/midori-history.c:629
+#: ../panels/midori-bookmarks.c:687 ../panels/midori-history.c:628
 msgid "<i>Separator</i>"
 msgstr "<i>Eraldaja</i>"
 
@@ -1934,67 +1891,50 @@ msgstr "<i>Eraldaja</i>"
 msgid "Search Bookmarks"
 msgstr "Otsi järjehoidjatest..."
 
-#: ../panels/midori-history.c:158
-#: ../panels/midori-history.c:191
+#: ../panels/midori-history.c:158 ../panels/midori-history.c:191
 msgid "Today"
 msgstr "Täna"
 
-#: ../panels/midori-history.c:160
-#: ../panels/midori-history.c:193
+#: ../panels/midori-history.c:160 ../panels/midori-history.c:193
 msgid "Yesterday"
 msgstr "Eile"
 
-#: ../panels/midori-history.c:162
-#: ../panels/midori-history.c:188
+#: ../panels/midori-history.c:162 ../panels/midori-history.c:188
 #, c-format
 msgid "%d day ago"
 msgid_plural "%d days ago"
 msgstr[0] "%d päev tagasi"
 msgstr[1] "%d päeva tagasi"
 
-#: ../panels/midori-history.c:165
-#: ../panels/midori-history.c:186
+#: ../panels/midori-history.c:165 ../panels/midori-history.c:186
 msgid "A week ago"
 msgstr "Nädal aega tagasi"
 
-#: ../panels/midori-history.c:234
-#: ../midori/midori-bookmarks.c:59
+#: ../panels/midori-history.c:234 ../midori/midori-bookmarks.c:59
 #, c-format
 msgid "Failed to remove history item: %s\n"
 msgstr "Ajaloo kirje %s kustutamine ebaõnnestus\n"
 
-#: ../panels/midori-history.c:362
+#: ../panels/midori-history.c:361
 msgid "Are you sure you want to remove all history items?"
 msgstr "Oled sa kindel, et soovid kusutatada kogu lehitsemise ajaloo?"
 
-#: ../panels/midori-history.c:409
+#: ../panels/midori-history.c:408
 msgid "Bookmark the selected history item"
 msgstr "Lisa valitud kirje järjehoidjatesse..."
 
-#: ../panels/midori-history.c:418
+#: ../panels/midori-history.c:417
 msgid "Delete the selected history item"
 msgstr "Kustuta valitud ajaloo kirje"
 
-#: ../panels/midori-history.c:426
+#: ../panels/midori-history.c:425
 msgid "Clear the entire history"
 msgstr "Kustuta lehitsemise ajalugu"
 
 #. Create the filter entry
-#: ../panels/midori-history.c:981
+#: ../panels/midori-history.c:980
 msgid "Search History"
 msgstr "Otsi ajaloost..."
-
-#: ../panels/midori-transfers.c:87
-msgid "Transfers"
-msgstr "Allalaadimised"
-
-#: ../panels/midori-transfers.c:442
-msgid "Open Destination _Folder"
-msgstr "Ava faili sisaldav kaust"
-
-#: ../panels/midori-transfers.c:445
-msgid "Copy Link Loc_ation"
-msgstr "Kopeeri faili allalaadimise _aadress"
 
 #: ../katze/katze-http-auth.c:210
 msgid "Authentication Required"
@@ -2043,8 +1983,7 @@ msgstr "Puudub"
 msgid "Property '%s' is invalid for %s"
 msgstr "Omadus \"%s\" ei ole õige %s jaoks"
 
-#: ../katze/katze-utils.c:565
-#: ../katze/katze-utils.c:594
+#: ../katze/katze-utils.c:565 ../katze/katze-utils.c:594
 #: ../extensions/addons.c:308
 msgid "Choose file"
 msgstr "Vali fail"
@@ -2073,10 +2012,9 @@ msgstr "1 kuu"
 msgid "1 year"
 msgstr "1 aasta"
 
-#: ../katze/katze-preferences.c:72
-#: ../extensions/delayed-load.vala:24
+#: ../katze/katze-preferences.c:72 ../extensions/delayed-load.vala:24
 #: ../extensions/external-download-manager.vala:224
-#: ../extensions/history-list.vala:243
+#: ../extensions/history-list.vala:242
 #, c-format
 msgid "Preferences for %s"
 msgstr "%s eelistused"
@@ -2095,8 +2033,12 @@ msgstr "Reklaamifiltrite eelistused"
 
 #: ../extensions/adblock.c:512
 #, c-format
-msgid "Type the address of a preconfigured filter list in the text entry and click \"Add\" to add it to the list. You can find more lists at %s."
-msgstr "Nimekirja lisamiseks sisesta lahtrisse eelseadistatud filtri aadress ning seejärel klõpsa nupul \"Lisa\". Rohkemate nimekirjade jaoks mine asukohta %s."
+msgid ""
+"Type the address of a preconfigured filter list in the text entry and click "
+"\"Add\" to add it to the list. You can find more lists at %s."
+msgstr ""
+"Nimekirja lisamiseks sisesta lahtrisse eelseadistatud filtri aadress ning "
+"seejärel klõpsa nupul \"Lisa\". Rohkemate nimekirjade jaoks mine asukohta %s."
 
 #: ../extensions/adblock.c:926
 msgid "Edit rule"
@@ -2124,7 +2066,8 @@ msgstr "Reklaamide blokeerimine vastavalt sinu eelistustele"
 
 #. i18n: An infobar shows up when viewing a script on userscripts.org
 #: ../extensions/addons.c:222
-msgid "This page appears to contain a user script. Do you wish to install it?"
+msgid ""
+"This page appears to contain a user script. Do you wish to install it?"
 msgstr "See veebileht sisaldab kasutajaskripti, soovid sa selle paigaldada?"
 
 #: ../extensions/addons.c:223
@@ -2144,19 +2087,16 @@ msgstr "_Paigalda stiil"
 msgid "Don't install"
 msgstr "Ära paigalda"
 
-#: ../extensions/addons.c:319
-#: ../extensions/addons.c:674
+#: ../extensions/addons.c:319 ../extensions/addons.c:674
 msgid "Userscripts"
 msgstr "Kasutajaskriptid"
 
-#: ../extensions/addons.c:324
-#: ../extensions/addons.c:676
+#: ../extensions/addons.c:324 ../extensions/addons.c:676
 msgid "Userstyles"
 msgstr "Stiilid:"
 
-#: ../extensions/addons.c:370
-#: ../extensions/addons.c:449
-#: ../extensions/feed-panel/main.c:120
+#: ../extensions/addons.c:370 ../extensions/addons.c:449
+#: ../extensions/feed-panel/main.c:114
 msgid "Error"
 msgstr "Viga"
 
@@ -2178,13 +2118,11 @@ msgstr "Kustuta stiili fail"
 msgid "The file <b>%s</b> will be permanently deleted."
 msgstr "Fail <b>%s</b> kustutatakse jäädavalt."
 
-#: ../extensions/addons.c:563
-#: ../extensions/addons.c:640
+#: ../extensions/addons.c:563 ../extensions/addons.c:640
 msgid "Open in Text Editor"
 msgstr "Ava tekstiredaktoriga"
 
-#: ../extensions/addons.c:565
-#: ../extensions/addons.c:649
+#: ../extensions/addons.c:565 ../extensions/addons.c:649
 msgid "Open Target Folder"
 msgstr "Ava kausta asukoht"
 
@@ -2196,25 +2134,24 @@ msgstr "Lisa uus laiendus"
 msgid "Remove selected addon"
 msgstr "Kustuta valitud laiendus"
 
-#: ../extensions/addons.c:1676
-#: ../extensions/addons.c:1892
+#: ../extensions/addons.c:1682 ../extensions/addons.c:1898
 msgid "User addons"
 msgstr "Kasutaja laiendid"
 
-#: ../extensions/addons.c:1806
+#: ../extensions/addons.c:1812
 #, c-format
 msgid "Can't monitor folder '%s': %s"
 msgstr "Kausta '%s': %s jälgimine pole võimalik"
 
-#: ../extensions/addons.c:1893
+#: ../extensions/addons.c:1899
 msgid "Support for userscripts and userstyles"
 msgstr "Tugi kasutaja skriptide ja stiilide jaoks"
 
-#: ../extensions/colorful-tabs.c:168
+#: ../extensions/colorful-tabs.c:260
 msgid "Colorful Tabs"
 msgstr "Värvilised kaardid"
 
-#: ../extensions/colorful-tabs.c:169
+#: ../extensions/colorful-tabs.c:261
 msgid "Tint each tab distinctly"
 msgstr "Kaartide tausta värvimine"
 
@@ -2228,8 +2165,12 @@ msgid "Delete All"
 msgstr "Kustuta kõik"
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:105
-msgid "Deletes all shown cookies. If a filter is set, only those cookies are deleted which match the filter."
-msgstr "Kusutab kõik nähtavad küpsised. Kui filter on kasutuses, siis kustutatakse nähtavatest küpsistest vaid need, mis kattuvad filtri eelistustega."
+msgid ""
+"Deletes all shown cookies. If a filter is set, only those cookies are "
+"deleted which match the filter."
+msgstr ""
+"Kusutab kõik nähtavad küpsised. Kui filter on kasutuses, siis kustutatakse "
+"nähtavatest küpsistest vaid need, mis kattuvad filtri eelistustega."
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:120
 msgid "Expand All"
@@ -2323,8 +2264,7 @@ msgstr "Kaartide veebiaadresside kopeerija"
 msgid "Copy the addresses of all tabs to the clipboard"
 msgstr "Kõikide kaartide veebiaadresside kopeerimine vahemällu"
 
-#: ../extensions/delayed-load.vala:24
-#: ../extensions/delayed-load.vala:208
+#: ../extensions/delayed-load.vala:24 ../extensions/delayed-load.vala:212
 #, c-format
 msgid "Delayed load"
 msgstr "Viivitatud laadimine"
@@ -2333,12 +2273,14 @@ msgstr "Viivitatud laadimine"
 msgid "Delay in seconds until loading the page:"
 msgstr "Enne lehe laadimist oodatakse:"
 
-#: ../extensions/delayed-load.vala:209
+#: ../extensions/delayed-load.vala:213
 msgid "Delay page load until you actually use the tab."
 msgstr "Veebilehe laadimisega oodatakse, kuni sa kaardile vahetud"
 
 #: ../extensions/external-download-manager.vala:124
-msgid "An error occurred when attempting to download a file with the following plugin:\n"
+msgid ""
+"An error occurred when attempting to download a file with the following "
+"plugin:\n"
 msgstr "Faili allalaadimisel tekkis viga, tänu laiendusele:\n"
 
 #: ../extensions/external-download-manager.vala:175
@@ -2370,13 +2312,15 @@ msgstr "Failide allalaadimine \"%s\" või muu kohandatud käsuga"
 msgid "External Download Manager - CommandLine"
 msgstr "Väline allalaadimishaldur - kohandatud käsuga"
 
-#: ../extensions/feed-panel/feed-atom.c:209
+#: ../extensions/feed-panel/feed-atom.c:208
 msgid "Failed to find required Atom \"entry\" elements in XML data."
-msgstr "Vajamineva Atom'i \"entry\" elementide leidmine XML andmedest ebaõnnestus."
+msgstr ""
+"Vajamineva Atom'i \"entry\" elementide leidmine XML andmedest ebaõnnestus."
 
-#: ../extensions/feed-panel/feed-atom.c:315
+#: ../extensions/feed-panel/feed-atom.c:314
 msgid "Failed to find required Atom \"feed\" elements in XML data."
-msgstr "Vajamineva Atom'i \"feed\" elementide leidmine XML andmedest ebaõnnestus."
+msgstr ""
+"Vajamineva Atom'i \"feed\" elementide leidmine XML andmedest ebaõnnestus."
 
 #. i18n: The local date a feed was last updated
 #: ../extensions/feed-panel/feed-panel.c:375
@@ -2397,7 +2341,7 @@ msgstr "Lisa uus uudistevoog"
 msgid "Delete feed"
 msgstr "Kustuta uudistevood"
 
-#: ../extensions/feed-panel/feed-panel.c:769
+#: ../extensions/feed-panel/feed-panel.c:768
 msgid "_Feeds"
 msgstr "_Uudistevood"
 
@@ -2406,12 +2350,12 @@ msgstr "_Uudistevood"
 msgid "Failed to find root element in feed XML data."
 msgstr "Vajamineva põhi elemeni leidmine XML andmedest ebaõnnestus."
 
-#: ../extensions/feed-panel/feed-parse.c:235
+#: ../extensions/feed-panel/feed-parse.c:237
 #, c-format
 msgid "Unsupported feed format."
 msgstr "Tundmatu uudistevoo formaat."
 
-#: ../extensions/feed-panel/feed-parse.c:265
+#: ../extensions/feed-panel/feed-parse.c:267
 #, c-format
 msgid "Failed to parse XML feed: %s"
 msgstr "XML uudistevoo %s analüüsimine ebaõnnestus"
@@ -2426,27 +2370,29 @@ msgstr "Tundmatu uudistevoo formaat."
 
 #: ../extensions/feed-panel/feed-rss.c:148
 msgid "Failed to find required RSS \"item\" elements in XML data."
-msgstr "Vajaminevate RSS \"item\" elementide leidmine XML andmetest ebaõnnestus."
+msgstr ""
+"Vajaminevate RSS \"item\" elementide leidmine XML andmetest ebaõnnestus."
 
 #: ../extensions/feed-panel/feed-rss.c:248
 msgid "Failed to find required RSS \"channel\" elements in XML data."
-msgstr "Vajaminevate RSS \"channel\" elementide leidmine XML andmetest ebaõnnestus."
+msgstr ""
+"Vajaminevate RSS \"channel\" elementide leidmine XML andmetest ebaõnnestus."
 
-#: ../extensions/feed-panel/main.c:122
+#: ../extensions/feed-panel/main.c:116
 #, c-format
 msgid "Feed '%s' already exists"
 msgstr "Uudistevoog '%s' on juba olemas"
 
-#: ../extensions/feed-panel/main.c:199
+#: ../extensions/feed-panel/main.c:192
 #, c-format
 msgid "Error loading feed '%s'"
 msgstr "Viga uudistevoo '%s' laadimisel"
 
-#: ../extensions/feed-panel/main.c:509
+#: ../extensions/feed-panel/main.c:499
 msgid "Feed Panel"
 msgstr "Uudistevoogude paneel"
 
-#: ../extensions/feed-panel/main.c:510
+#: ../extensions/feed-panel/main.c:500
 msgid "Read Atom/ RSS feeds"
 msgstr "Atom'i või RSS uudistevoogude lugemine"
 
@@ -2491,8 +2437,7 @@ msgstr "Targa kaardihalduri sisselülitamine"
 msgid "Activate or deactivate form history for the current tab."
 msgstr "Praeguse akna jaoks lahtrite ajaloohalduri lubamine või keelamine."
 
-#: ../extensions/formhistory/formhistory.c:515
-#: ../midori/midori-history.c:47
+#: ../extensions/formhistory/formhistory.c:515 ../midori/midori-history.c:47
 #: ../midori/midori-bookmarks.c:155
 #, c-format
 msgid "Failed to open database: %s\n"
@@ -2506,7 +2451,9 @@ msgstr "Andmebaasi kinnituse %s käivitamine ebaõnnestus\n"
 
 #: ../extensions/formhistory/formhistory.c:624
 msgid "Only activate form history via hotkey (Ctrl+Shift+F) per tab"
-msgstr "Lahtrite automaattäitmise lubamine igale kaardile invidiuaalselt, vajutades (Ctrl+Shift+F)"
+msgstr ""
+"Lahtrite automaattäitmise lubamine igale kaardile invidiuaalselt, vajutades "
+"(Ctrl+Shift+F)"
 
 #: ../extensions/formhistory/formhistory.c:681
 msgid "Form history filler"
@@ -2514,7 +2461,8 @@ msgstr "Lahtrite automaattäitja"
 
 #: ../extensions/formhistory/formhistory.c:682
 msgid "Stores history of entered form data"
-msgstr "Salvestab lahtritesse salvestatud andmed kiireks järgnevaks kasutamiseks"
+msgstr ""
+"Salvestab lahtritesse salvestatud andmed kiireks järgnevaks kasutamiseks"
 
 #: ../extensions/formhistory/formhistory-gdom-frontend.c:223
 #: ../extensions/formhistory/formhistory-js-frontend.c:104
@@ -2522,64 +2470,64 @@ msgstr "Salvestab lahtritesse salvestatud andmed kiireks järgnevaks kasutamisek
 msgid "Failed to select suggestions\n"
 msgstr "Soovituste valimine ebaõnnestus\n"
 
-#: ../extensions/history-list.vala:205
+#: ../extensions/history-list.vala:204
 msgid "There are no unvisited tabs"
 msgstr "Külastamata kaarte pole"
 
-#: ../extensions/history-list.vala:243
+#: ../extensions/history-list.vala:242
 #, c-format
 msgid "History-List"
 msgstr "Ajaloo nimekiri"
 
-#: ../extensions/history-list.vala:283
+#: ../extensions/history-list.vala:282
 msgid "Tab closing behavior"
 msgstr "Kaardi sulgemisel:"
 
-#: ../extensions/history-list.vala:291
+#: ../extensions/history-list.vala:290
 msgid "Do nothing"
 msgstr "Ära tee midagi"
 
-#: ../extensions/history-list.vala:297
+#: ../extensions/history-list.vala:296
 msgid "Switch to last viewed tab"
 msgstr "Ava eelnevalt kasutatud kaart"
 
-#: ../extensions/history-list.vala:303
+#: ../extensions/history-list.vala:302
 msgid "Switch to newest tab"
 msgstr "Ava hiljutiseim kaart"
 
-#: ../extensions/history-list.vala:317
+#: ../extensions/history-list.vala:316
 msgid "Flash window on background tabs"
 msgstr "Kaartide avamisel ekraani sähvatamine"
 
-#: ../extensions/history-list.vala:449
+#: ../extensions/history-list.vala:448
 msgid "Next new Tab (History List)"
 msgstr "Järgmine uus kaart (tark kaardihaldur)"
 
-#: ../extensions/history-list.vala:450
+#: ../extensions/history-list.vala:449
 msgid "Next new tab from history"
 msgstr "Järgmine uus kaart ajaloost"
 
-#: ../extensions/history-list.vala:459
+#: ../extensions/history-list.vala:458
 msgid "Previous new Tab (History List)"
 msgstr "Eelmine kaart(tark kaardihaldur)"
 
-#: ../extensions/history-list.vala:460
+#: ../extensions/history-list.vala:459
 msgid "Previous new tab from history"
 msgstr "Eelmine uus kaart ajaloost"
 
-#: ../extensions/history-list.vala:469
+#: ../extensions/history-list.vala:468
 msgid "Display tab in background (History List)"
 msgstr "Kaardi kuvamine taustal (tark kaardihaldur)"
 
-#: ../extensions/history-list.vala:470
+#: ../extensions/history-list.vala:469
 msgid "Display the current selected tab in background"
 msgstr "Kuva praegune kaart tagataustale"
 
-#: ../extensions/history-list.vala:597
+#: ../extensions/history-list.vala:598
 msgid "History List"
 msgstr "Tark kaardihaldur"
 
-#: ../extensions/history-list.vala:598
+#: ../extensions/history-list.vala:599
 msgid "Move to the last used tab when switching or closing tabs"
 msgstr "Kaardile vahetumisel või sulgemisel viimati kasutatud kaardi avamine"
 
@@ -2639,8 +2587,7 @@ msgstr "Olekuriba eripärad"
 msgid "Easily toggle features on web pages on and off"
 msgstr "Veebilehtedel elementide lihtne sisse- või väljalülitamine"
 
-#: ../extensions/tab-panel.c:591
-#: ../extensions/tab-panel.c:680
+#: ../extensions/tab-panel.c:591 ../extensions/tab-panel.c:680
 msgid "Tab Panel"
 msgstr "Vertikaalne kaartide paneel"
 
@@ -2665,8 +2612,12 @@ msgid "Customize Toolbar"
 msgstr "Olekuriba kohandamine"
 
 #: ../extensions/toolbar-editor.c:409
-msgid "Select items to be displayed on the toolbar. Items can be reordered by drag and drop."
-msgstr " Vali kirjed, mida soovid olekuribal näidata. Kirjete asukohti on võimalik muuta lohistades. "
+msgid ""
+"Select items to be displayed on the toolbar. Items can be reordered by drag "
+"and drop."
+msgstr ""
+"Vali kirjed, mida soovid olekuribal näidata. Kirjete asukohti on võimalik "
+"muuta lohistades."
 
 #: ../extensions/toolbar-editor.c:425
 msgid "Available Items"
@@ -2699,13 +2650,11 @@ msgstr "Küpsiste laadimine ebaõnnestus\n"
 
 #. FIXME: granite: should return GtkWidget* like GTK+
 #. i18n: Dialog: Clear Private Data, in the Tools menu
-#: ../midori/midori-privatedata.c:129
-#: ../midori/midori-privatedata.c:140
+#: ../midori/midori-privatedata.c:129 ../midori/midori-privatedata.c:140
 msgid "Clear Private Data"
 msgstr "Privaatsete andmete kusutamine"
 
-#: ../midori/midori-privatedata.c:134
-#: ../midori/midori-privatedata.c:144
+#: ../midori/midori-privatedata.c:134 ../midori/midori-privatedata.c:144
 msgid "_Clear private data"
 msgstr "_Kustuta andmed"
 
@@ -2767,7 +2716,7 @@ msgstr "tehingu tagasivõtmine ebaõnnestus"
 
 #: ../midori/midori-bookmarks.c:119
 msgid "failed to DETACH "
-msgstr "DETACH ebaõnnestus"
+msgstr "DETACH ebaõnnestus "
 
 #: ../midori/midori-bookmarks.c:259
 #, c-format
@@ -2784,84 +2733,89 @@ msgstr "Importimine vanast andmebaasist %s  ebaõnnestus\n"
 msgid "The bookmarks couldn't be saved. %s"
 msgstr "Järjehoidjaid ei saanud salvestada. %s"
 
-#: ../midori/midori-session.c:199
-msgid "No root certificate file is available. SSL certificates cannot be verified."
-msgstr "Ülemsertifikaat pole saadaval. SSL sertifikaate pole võimalik verifitseerida."
+#: ../midori/midori-session.c:197
+msgid ""
+"No root certificate file is available. SSL certificates cannot be verified."
+msgstr ""
+"Ülemsertifikaat pole saadaval. SSL sertifikaate pole võimalik verifitseerida."
 
-#: ../midori/midori-session.c:368
+#: ../midori/midori-session.c:366
 #, c-format
 msgid "The configuration couldn't be saved. %s"
 msgstr "Seadistust ei saanud salvestada. %s"
 
-#: ../midori/midori-session.c:390
-#: ../midori/midori-frontend.c:505
+#: ../midori/midori-session.c:395 ../midori/midori-frontend.c:510
 #, c-format
 msgid "The session couldn't be loaded: %s\n"
 msgstr "Sessiooni laadimine ebaõnnestus: %s\n"
 
-#: ../midori/midori-session.c:419
+#: ../midori/midori-session.c:424
 #, c-format
 msgid "The session couldn't be saved. %s"
 msgstr "Sessiooni ei saanud salvestada. %s"
 
 #. i18n: Trash, or wastebin, containing closed tabs
-#: ../midori/midori-frontend.c:129
+#: ../midori/midori-frontend.c:126
 #, c-format
 msgid "The trash couldn't be saved. %s"
 msgstr "Prügi ei saanud salvestada. %s"
 
-#: ../midori/midori-frontend.c:337
-msgid "Midori seems to have crashed the last time it was opened. If this happened repeatedly, try one of the following options to solve the problem."
-msgstr "Tundub, et Midori jooksis eelmisel käivitamisel kokku. Kui see juhtub pidevalt, siis proovi järgnevaid võimalusi."
+#: ../midori/midori-frontend.c:336
+#, c-format
+msgid ""
+"Midori crashed the last time it was opened. You can report the problem at %s."
+msgstr ""
+"Midori lõpetas eelmine kord ootamatult töötamise. Sellest veast saad sa "
+"teada asukohta %s."
 
-#: ../midori/midori-frontend.c:347
+#: ../midori/midori-frontend.c:345
 msgid "Modify _preferences"
 msgstr "Muuda _eelistusi"
 
-#: ../midori/midori-frontend.c:351
+#: ../midori/midori-frontend.c:349
 msgid "Disable all _extensions"
 msgstr "Keela kõik _laiendused"
 
-#: ../midori/midori-frontend.c:360
+#: ../midori/midori-frontend.c:358
 msgid "Show a dialog after Midori crashed"
 msgstr "Dialoogi näitamine pärast Midori kokkujooksmist"
 
-#: ../midori/midori-frontend.c:365
+#: ../midori/midori-frontend.c:363
 msgid "Discard old tabs"
 msgstr "Sulge vanad kaardid"
 
-#: ../midori/midori-frontend.c:373
+#: ../midori/midori-frontend.c:371
 msgid "Show last crash _log"
 msgstr "Näita viimatist krahhi _logi"
 
-#: ../midori/midori-frontend.c:386
+#: ../midori/midori-frontend.c:384
 msgid "Run in _debugger"
 msgstr "Käivita _veaotsijaga"
 
-#: ../midori/midori-frontend.c:457
+#: ../midori/midori-frontend.c:462
 msgid "An instance of Midori is already running but not responding.\n"
 msgstr "Midori juba töötab, kuid ei vasta.\n"
 
-#: ../midori/midori-frontend.c:490
+#: ../midori/midori-frontend.c:495
 #, c-format
 msgid "Bookmarks couldn't be loaded: %s\n"
 msgstr "Järjehoidjate laadimisel tekkis probleem: %s\n"
 
-#: ../midori/midori-frontend.c:521
+#: ../midori/midori-frontend.c:526
 #, c-format
 msgid "The trash couldn't be loaded: %s\n"
 msgstr "Prügi laadimisel tekkis probleem: %s\n"
 
-#: ../midori/midori-frontend.c:529
+#: ../midori/midori-frontend.c:534
 #, c-format
 msgid "The history couldn't be loaded: %s\n"
 msgstr "Ajaloo laadimisel tekkis probleem: %s\n"
 
-#: ../midori/midori-frontend.c:540
+#: ../midori/midori-frontend.c:545
 msgid "The following errors occured:"
 msgstr "Tekkisid järgnevad vead:"
 
-#: ../midori/midori-frontend.c:545
+#: ../midori/midori-frontend.c:550
 msgid "_Ignore"
 msgstr "_Eira"
 
@@ -2915,8 +2869,12 @@ msgid "Delete all cookie permissions?"
 msgstr "Kustutada kõik küpsiste õigused?"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:438
-msgid "This action will delete all cookie permissions. You will be asked for permissions again for each web site visited."
-msgstr "See toiming kustutab kõik küpsiste õigused. Kui sa teed seda, siis sult küsitakse iga veebilehte külastades õigusi."
+msgid ""
+"This action will delete all cookie permissions. You will be asked for "
+"permissions again for each web site visited."
+msgstr ""
+"See toiming kustutab kõik küpsiste õigused. Kui sa teed seda, siis sult "
+"küsitakse iga veebilehte külastades õigusi."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:608
 msgid "Cookie permission manager"
@@ -2933,8 +2891,17 @@ msgstr "Küpsiste õiguste seadistamine"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:665
 #, c-format
-msgid "Below is a list of all web sites and the policy set for them. You can delete policies by marking the entries and clicking on <i>Delete</i>.You can also add a policy for a domain manually by entering the domain below, choosing the policy and clicking on <i>Add</i>."
-msgstr "Allpool on nimekiri veebilehtedest ja nendele määratud käitumisviisidest. Sul on võimalik kustutada käitumisviise valides kirjeid ning klõpsates <i>Kustuta</i> nupul. Samuti on sul võimalik käsitsi lisada domeenile konkreetseid käitumisviise, sisestades domeeni nimi allpool ning seejärel <i>Lisa</i> nupule vajutades."
+msgid ""
+"Below is a list of all web sites and the policy set for them. You can delete "
+"policies by marking the entries and clicking on <i>Delete</i>.You can also "
+"add a policy for a domain manually by entering the domain below, choosing "
+"the policy and clicking on <i>Add</i>."
+msgstr ""
+"Allpool on nimekiri veebilehtedest ja nendele määratud käitumisviisidest. "
+"Sul on võimalik kustutada käitumisviise valides kirjeid ning klõpsates "
+"<i>Kustuta</i> nupul. Samuti on sul võimalik käsitsi lisada domeenile "
+"konkreetseid käitumisviise, sisestades domeeni nimi allpool ning seejärel "
+"<i>Lisa</i> nupule vajutades."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:740
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:556
@@ -2955,8 +2922,12 @@ msgid "A_sk for policy if unknown for a domain"
 msgstr "Domeeni mittearusaamisel _küsi käitumisviise"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:91
-msgid "A fatal error occurred which prevents the cookie permission manager extension to continue. You should disable it."
-msgstr "Küpsiste õigustehalduris tekkis tõsine probleem, parem oleks see praegu keelata."
+msgid ""
+"A fatal error occurred which prevents the cookie permission manager "
+"extension to continue. You should disable it."
+msgstr ""
+"Küpsiste õigustehalduris tekkis tõsine probleem, parem oleks see praegu "
+"keelata."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:95
 msgid "Error in cookie permission manager extension"
@@ -3072,8 +3043,13 @@ msgid "Ask for unknown policy"
 msgstr "Küsimine tundmatu käitumisviisi korral"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1039
-msgid "If true this extension ask for policy for every unknown domain.If false this extension uses the global cookie policy set in Midori settings."
-msgstr "Kui see laiendus on lubatud, siis iga tundmatu domeeni juhul küsitakse, mida teha. Kui see laiendus on keelatud, siis kasutatatakse üldist küpsiste käitumisviisi eelistusi."
+msgid ""
+"If true this extension ask for policy for every unknown domain.If false this "
+"extension uses the global cookie policy set in Midori settings."
+msgstr ""
+"Kui see laiendus on lubatud, siis iga tundmatu domeeni juhul küsitakse, mida "
+"teha. Kui see laiendus on keelatud, siis kasutatatakse üldist küpsiste "
+"käitumisviisi eelistusi."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1115
 msgid "Undetermined"
@@ -3087,576 +3063,107 @@ msgstr "Küpsiste turvalisushaldur"
 msgid "Manage cookie permission per site"
 msgstr "Küpsiste õiguste haldamine veebilehtede kaupa"
 
-msgid "Lightweight web browser"
-msgstr "Kergekaaluline veebibrauser"
-
-msgid "_Bookmark"
-msgstr "_Järjehoidja"
-
-msgid "_Console"
-msgstr "_Konsool"
-
-msgid "_Closed Tabs and Windows"
-msgstr "_Suletud kaardid ja aknad"
-
-msgid "Writing failed."
-msgstr "Kirjutamine ei õnnestunud."
-
-msgid "URIs"
-msgstr "URI-d"
-
-msgid "[URIs]"
-msgstr "[URI-d]"
-
-msgid "%d%% loaded"
-msgstr "%d%% laaditud"
-
-msgid "_Title:"
-msgstr "_Pealkiri:"
-
-msgid "_URL:"
-msgstr "_URL:"
-
-msgid "Root"
-msgstr "Juur"
-
-msgid "Close this window"
-msgstr "Sulge see aken"
-
-msgid "Cut the selected text"
-msgstr "Lõika valitud tekst"
-
-msgid "Copy the selected text"
-msgstr "Kopeeri valitud tekst"
-
-msgid "Paste text from the clipboard"
-msgstr "Aseta tekst lõikepuhvrist"
-
-msgid "Delete the selected text"
-msgstr "Kustuta valitud tekst"
-
-msgid "Select all text"
-msgstr "Vali kõik tekst"
-
-msgid "Find the next occurrence of a word or phrase"
-msgstr "Leia järgmine sõna või fraasi esinemine"
-
-msgid "Find the previous occurrence of a word or phrase"
-msgstr "Leia eelmine sõna või fraasi esinemine"
-
-msgid "_Quick Find"
-msgstr "_Kiirotsing"
-
-msgid "Quickly jump to a word or phrase"
-msgstr "Kiirelt hüppa sõna või fraasini"
-
-msgid "Reset the zoom level"
-msgstr "Tühista suurendusaste"
-
-msgid "View the source code of the page"
-msgstr "Vaata lehekülje lähtekoodi"
-
-msgid "View Selection Source"
-msgstr "Vaata valiku lähtekoodi"
-
-msgid "Delete the contents of the trash"
-msgstr "Kustuta prügi sisu"
-
-msgid "Open the last closed tab"
-msgstr "Ava viimati suletud kaart"
-
-msgid "Add, edit and remove search engines…"
-msgstr "Lisa, muuda ja eemalda otsingumootoreid"
-
-msgid "Switch to the previous tab"
-msgstr "Lülitu eelmisele kaardile"
-
-msgid "_Contents"
-msgstr "_Sisukord"
-
-msgid "Show the documentation"
-msgstr "Näita dokumentatsiooni"
-
-msgid "Show information about the program"
-msgstr "Näita teavet programmi kohta"
-
-msgid "Don't save any private data while browsing"
-msgstr "Ära salvesta lehitsemisel isiklike andmeid"
-
-msgid "Show menubar"
-msgstr "Menüüriba näitamine"
-
-msgid "Show navigationbar"
-msgstr "Näita navigatsiooniriba"
-
-msgid "Show bookmarkbar"
-msgstr "Näita järjehoidjariba"
-
-msgid "_Transferbar"
-msgstr "_Allalaadimisriba"
-
-msgid "Show transferbar"
-msgstr "Näita allalaadimisriba"
-
-msgid "Show statusbar"
-msgstr "Näita olekuriba"
-
-msgid "_Recently visited pages"
-msgstr "_Hiljuti külastatud veebilehed"
-
-msgid "_Window"
-msgstr "_Aken"
-
-msgid "Highlight Matches"
-msgstr "Tõsta sobivused esile"
-
-msgid "Both"
-msgstr "Mõlemad"
-
-msgid "Both horizontal"
-msgstr "Mõlemad rõhtsed"
-
-msgid "All cookies"
-msgstr "Kõik küpsised"
-
-msgid "Session cookies"
-msgstr "Sessiooni küpsised"
-
-msgid "Whether to save the last window size"
-msgstr "Kas salvestada viimane akna suurus"
-
-msgid "Last window width"
-msgstr "Viimane akna laius"
-
-msgid "The last saved window width"
-msgstr "Viimati salvestatud akna  suurus"
-
-msgid "Last window height"
-msgstr "Viimane akna kõrgus"
-
-msgid "The last saved window height"
-msgstr "Viimati salvestatud akna kõrgus"
-
-msgid "Last panel position"
-msgstr "Viimane paneeli asukoht"
-
-msgid "The last saved panel position"
-msgstr "Viimati salvestatud paneeli asukoht"
-
-msgid "Last panel page"
-msgstr "Viimane paneeli lehekülg"
-
-msgid "The last saved panel page"
-msgstr "Viimati salvestatud paneeli lehekülg"
-
-msgid "Last Web search"
-msgstr "Viimane veebiotsing"
-
-msgid "The last saved Web search"
-msgstr "Viimati salvestatud veebiotsing"
-
-msgid "Show Menubar"
-msgstr "Näita menüüriba"
-
-msgid "Whether to show the menubar"
-msgstr "Kas näidata menüüriba"
-
-msgid "Show Navigationbar"
-msgstr "Näita navigatsiooniriba"
-
-msgid "Whether to show the navigationbar"
-msgstr "Kas näidata navigatsiooniriba"
-
-msgid "Show Bookmarkbar"
-msgstr "Näita järjehoidjariba"
-
-msgid "Whether to show the bookmarkbar"
-msgstr "Kas näidata järjehoidjariba"
-
-msgid "Whether to show the panel"
-msgstr "Kas näidata paneeli"
-
-msgid "Show Statusbar"
-msgstr "Näita olekuriba"
-
-msgid "Whether to show the statusbar"
-msgstr "Kas näidata olekuriba"
-
-msgid "Toolbar Items"
-msgstr "Tööriistariba kirjed"
-
-msgid "The items to show on the toolbar"
-msgstr "Tööriistaribal kuvatavad kirjed"
-
-msgid "Compact Sidepanel"
-msgstr "Kompaktne külgpaneel"
-
-msgid "Whether to make the sidepanel compact"
-msgstr "kas külgpaneel on kompaktvaates"
-
-msgid "Load on Startup"
-msgstr "Laadi tööleminekul"
-
-msgid "What to load on startup"
-msgstr "Mida tööleminekul laadida"
-
-msgid "The homepage"
-msgstr "Kodulehekülg"
-
-msgid "Location entry Search"
-msgstr "Asukoha sissekande otsing"
-
-msgid "The search to perform inside the location entry"
-msgstr "Otsing mida viia läbi asukoha sissekandes"
-
-msgid "The preferred character encoding"
-msgstr "Eelistatud märkide kodeering"
-
-msgid "Whether tabs have close buttons"
-msgstr "Kas kaartidel on sulgemisnupud"
-
-msgid "Where to open new pages"
-msgstr "Kus avada uued leheküljed"
-
-msgid "Open external pages in"
-msgstr "Väliste veebilehtede avamine asukohas"
-
-msgid "Where to open externally opened pages"
-msgstr "Kus avada väliselt avatud veebilehed"
-
-msgid "Middle click opens Selection"
-msgstr "Hiire keskmise klõpsuga valiku avamine"
-
-msgid "Load an URL from the selection via middle click"
-msgstr "Valitud tekstist hiire keskmise klõpsuga aadressi ehk URL-i laadimine"
-
-msgid "Whether to open new tabs in the background"
-msgstr "Kas avada uued kaardid taustal"
-
-msgid "Open popups in tabs"
-msgstr "Ava hüpikaknad kaartides"
-
-msgid "What type of cookies to accept"
-msgstr "Mis liiki küpsised vastu võtta"
-
-msgid "Original cookies only"
-msgstr "Ainult algupärased küpsised"
-
-msgid "Maximum cookie age"
-msgstr "Suurim küpsise vanus"
-
-msgid "Whether the last visited pages are saved"
-msgstr "Kas viimati külastatud leheküljed on salvestatud"
-
-msgid "Maximum history age"
-msgstr "Suurim ajaloo vanus"
-
-msgid "Remember last form inputs"
-msgstr "Jäta meelde viimased ankeedisisendid"
-
-msgid "Whether the last form inputs are saved"
-msgstr "Kas viimased ankeedisisendid salvestatakse"
-
-msgid "Whether the last downloaded files are saved"
-msgstr "Kas viimati allalaaditud failid on salvestatud"
-
-msgid "The proxy used for HTTP connections"
-msgstr "HTTP ühendusteks kasutatav proksi"
-
-msgid "Cache size"
-msgstr "Vahemälu suurus"
-
-msgid "The allowed size of the cache"
-msgstr "Lubatud vahemälu suurus"
-
-msgid "Open URL in New _Tab"
-msgstr "Ava link uues _kaardis"
-
-msgid "Source"
-msgstr "Lähtekood"
-
-msgid "General"
-msgstr "Üldine"
-
-msgid "Appearance"
-msgstr "Välimus"
-
-msgid "Font settings"
-msgstr "Fondi seadistused"
-
-msgid "Interface"
-msgstr "Liides"
-
-msgid "Navigationbar"
-msgstr "Navigatsiooniriba"
-
-msgid "Web Cookies"
-msgstr "Veebi küpsised"
-
-msgid "_Icon (name or file):"
-msgstr "_Ikoon (nimi või fail):"
-
-msgid "Manage search engines"
-msgstr "Halda otsingumootoreid"
-
-msgid "Warning: You are using a superuser account!"
-msgstr "Hoiatus: Sa kasutad superkasutaja kontot!"
-
-msgid "%s has no property '%s'"
-msgstr "%s ei ühtegi väärtust \"%s\""
-
-msgid "%s cannot be assigned to %s.%s"
-msgstr "%s ei saa määrata %s.%s"
-
-msgid "%s.%s cannot be accessed"
-msgstr "%s.%s ei saa ligi"
-
-msgid "_Disable"
-msgstr "_Lülita välja"
-
-msgid "Console"
-msgstr "Konsool"
-
-msgid "Pageholder"
-msgstr "Lehehoidja"
-
-msgid "_Pageholder"
-msgstr "_Lehehoidja"
-
-msgid "Select _All"
-msgstr "Vali _kõik"
-
-msgid "_Fullscreen"
-msgstr "_Täisekraan"
-
-msgid "_Leave Fullscreen"
-msgstr "_Lahku täisekraanist"
-
-msgid "Unknown argument."
-msgstr "Tundmatu argument."
-
-msgid "Settings"
-msgstr "Seadistused"
-
-msgid "The bookmarks folder, containing all bookmarks"
-msgstr "Järjehoidjate kataloog, sisaldab kõiki järjehoidjaid"
-
-msgid "Trash"
-msgstr "Prügi"
-
-msgid "The trash, collecting recently closed tabs and windows"
-msgstr "Prügi, kogub hiljuti suletud kaarte ja aknaid"
-
-msgid "The list of search engines"
-msgstr "Otsingumootorite loetelu"
-
-msgid "Browser"
-msgstr "Brauser"
-
-msgid "The current browser"
-msgstr "Praegune brauser"
-
-msgid "Browser Count"
-msgstr "Brausereid"
-
-msgid "The current number of browsers"
-msgstr "Praegune brauserite arv"
-
-msgid "Web Widget"
-msgstr "Veebividin"
-
-msgid "The assigned web widget"
-msgstr "Määratud veebividin"
-
-msgid "Kind"
-msgstr "Liik"
-
-msgid "The kind of addons"
-msgstr "Lisandite liik"
-
-msgid "The navigationbar"
-msgstr "Navigatsiooniriba"
-
-msgid "URI"
-msgstr "URI"
-
-msgid "The current URI"
-msgstr "Käesolev URI"
-
-msgid "Tab"
-msgstr "Kaart"
-
-msgid "The current tab"
-msgstr "Käesolev kaart"
-
-msgid "The statusbar"
-msgstr "Olekuriba"
-
-msgid "The list of search engines to be used for web search"
-msgstr "Loetelu veebiotsinguks kasutatavatest otsingumootoritest"
-
-msgid "Pa_ge Setup"
-msgstr "Lehekülje _seadistamine"
-
-msgid "Show a preview of the printed page"
-msgstr "Näita trükitava lehekülje eelvaadet"
-
-msgid "Undo the last modification"
-msgstr "Võta viimane muudatus tagasi"
-
-msgid "Redo the last modification"
-msgstr "Tee viimane muudatus uuesti"
-
-msgid "Add, edit and remove bookmarks…"
-msgstr "Lisa, muuda ja eemalda järjehoidjaid…"
-
-msgid "Open the selected bookmark in a new tab"
-msgstr "Ava valitud järjehoidja uues kaardis"
-
-msgid "Open the selected bookmark in a new window"
-msgstr "Ava valitud järjehoidja uues aknas"
-
-msgid "Tab _Overview"
-msgstr "Kaardi _ülevaade"
-
-msgid "_Work Offline"
-msgstr "_Tööta ühenduseta"
-
-msgid "Work without a network connection"
-msgstr "Tööta ilma võrguühenduseta."
-
-msgid "Shadow Type"
-msgstr "Varju liik"
-
-msgid "Appearance of the shadow around each panel"
-msgstr "Varju väljanägemine iga paneeli ümber"
-
-msgid "Menu to hold panel items"
-msgstr "Menüü paneelielementide hoidmiseks"
-
-msgid "The index of the current page"
-msgstr "Käesoleva lehekülje indeks"
-
-msgid "Last pageholder URI"
-msgstr "Viimase lehehoidja URI"
-
-msgid "The URI last opened in the pageholder"
-msgstr "Viimati lehehoidjas avatud URI"
-
-msgid "Show New Tab"
-msgstr "Näita uut kaarti"
-
-msgid "Show the New Tab button in the toolbar"
-msgstr "Näita tööriistaribas uue kaardi nuppu"
-
-msgid "Show the Homepage button in the toolbar"
-msgstr "Näita tööriistaribas kodulehekülje nuppu"
-
-msgid "Show Web search"
-msgstr "Näita veebiotsingut"
-
-msgid "Show the Web search entry in the toolbar"
-msgstr "Näita tööriistaribas veebiotsingu sissekannet"
-
-msgid "Tab Label Size"
-msgstr "Kaardimärgendi suurus"
-
-msgid "The desired tab label size"
-msgstr "Soovitud kaardimärgendi suurus"
-
-msgid "Load Provisional"
-msgstr "Laadi esialgne"
-
-msgid "Load Committed"
-msgstr "Laadi üleantud"
-
-msgid "Load Finished"
-msgstr "Laadimine lõpetatud"
-
-msgid "The URI of the currently loaded page"
-msgstr "Käesoleva laaditud lehekülje URI"
-
-msgid "The title of the currently loaded page"
-msgstr "Käesoleva laaditud lehekülje pealkiri"
-
-msgid "The current loading progress"
-msgstr "Käesoleva laadimise edenemine"
-
-msgid "The current loading status"
-msgstr "Käesoleva laadimise olek"
-
-msgid "Download Link with Download _Manager"
-msgstr "Laadi link allalaadimise halduriga"
-
-msgid "Settings instance to provide properties"
-msgstr "Omadustega varustav seadistuste instants"
-
-msgid "Current Item"
-msgstr "Käesolev element"
-
-msgid "The currently selected item"
-msgstr "Hetkel valitud element"
-
-msgid "Dialog"
-msgstr "Dialoog"
-
-msgid "A dialog to manage search engines"
-msgstr "Dialoog otsingumootorite haldamiseks"
-
-msgid "Icon size"
-msgstr "Ikooni suurus"
-
-msgid "Symbolic size to use for the animation"
-msgstr "Sümboolne suurus animeerimisel kasutamiseks"
-
-msgid "The name of an icon containing animation frames"
-msgstr "Animatsioonikaadreid sisaldava ikooni nimi"
-
-msgid "Pixbuf"
-msgstr "Pixbuf"
-
-msgid "A GdkPixbuf containing animation frames"
-msgstr "Animatsioonikaadreid sisaldav GdkPixpuf"
-
-msgid "Animated"
-msgstr "Animeeritud"
-
-msgid "Static Icon Name"
-msgstr "Staatilise ikooni nimi"
-
-msgid "The name of an icon to be used as the static image"
-msgstr "Staatilise pildina kasutatava ikooni nimi"
-
-msgid "Static Pixbuf"
-msgstr "Staatiline Pixbuf"
-
-msgid "A GdkPixbuf to be used as the static image"
-msgstr "Staatilise pildina kasutatav GdkPixbuf"
-
-msgid "Static Stock ID"
-msgstr "Staatilise varutunnus"
-
-msgid "The stock ID of an icon to be used as the static image"
-msgstr "Staatilise pildina kasutatava ikooni varutunnus"
-
-msgid "The name of the item"
-msgstr "Elemendi nimi"
-
-msgid "The descriptive text of the item"
-msgstr "Elemendi kirjeldav tekst"
-
-msgid "The URI of the item"
-msgstr "Elemendi URI"
-
-msgid "Icon"
-msgstr "Ikoon"
-
-msgid "The icon of the item"
-msgstr "Elemendi ikoon"
-
-msgid "Token"
-msgstr "Luba"
-
-msgid "The token of the item"
-msgstr "Elemendi luba"
-
+#: ../extensions/apps.vala:46
+msgid "Launcher created"
+msgstr ""
+
+#: ../extensions/apps.vala:47
+#, c-format
+msgid "You can now run <b>%s</b> from your launcher or menu"
+msgstr ""
+
+#: ../extensions/apps.vala:54
+msgid "Error creating launcher"
+msgstr ""
+
+#: ../extensions/apps.vala:55
+#, c-format
+msgid "Failed to create new launcher: %s"
+msgstr ""
+
+#: ../extensions/apps.vala:92
+msgid "Applications"
+msgstr "Rakendused"
+
+#: ../extensions/apps.vala:101
+msgid "New _Profile"
+msgstr ""
+
+#: ../extensions/apps.vala:102
+msgid "Creates a new, independant profile and a launcher"
+msgstr ""
+
+#: ../extensions/apps.vala:111
+#, c-format
+msgid "Midori (%s)"
+msgstr ""
+
+#: ../extensions/apps.vala:116
+msgid "New _App"
+msgstr ""
+
+#: ../extensions/apps.vala:117
+msgid "Creates a new app for a specific site"
+msgstr ""
+
+#: ../extensions/apps.vala:276
+msgid "Create _Launcher"
+msgstr "Loo _käivitaja..."
+
+#: ../extensions/apps.vala:314
+msgid "Web App Manager"
+msgstr "Veebirakenduse haldur"
+
+#: ../extensions/apps.vala:315
+msgid "Manage websites installed as applications"
+msgstr "Paigaldatud veebilehtede haldamine rakendustena"
+
+#: ../extensions/transfers.vala:98
+msgid "Transfers"
+msgstr "Allalaadimised"
+
+#: ../extensions/transfers.vala:111 ../extensions/transfers.vala:373
+msgid "Clear All"
+msgstr "Puhasta"
+
+#: ../extensions/transfers.vala:205
+msgid "Open Destination _Folder"
+msgstr "Ava faili sisaldav kaust"
+
+#: ../extensions/transfers.vala:212
+msgid "Copy Link Loc_ation"
+msgstr "Kopeeri faili allalaadimise _aadress"
+
+#: ../extensions/transfers.vala:431
+#, c-format
+msgid "The file '<b>%s</b>' has been downloaded."
+msgstr "%s"
+
+#: ../extensions/transfers.vala:433
+#, c-format
+msgid "'<b>%s</b>' and %d other files have been downloaded."
+msgstr ""
+
+#: ../extensions/transfers.vala:434
+msgid "Transfer completed"
+msgstr "Allalaadimine valmis"
+
+#: ../extensions/transfers.vala:484 ../extensions/transfers.vala:485
+msgid "Some files are being downloaded"
+msgstr "Failide allalaadimised on pooleli"
+
+#: ../extensions/transfers.vala:487
+msgid "_Quit Midori"
+msgstr "_Välju"
+
+#: ../extensions/transfers.vala:489
+msgid "The transfers will be cancelled if Midori quits."
+msgstr "Allalaadimised katkestatakse väljumisel."
+
+#: ../extensions/transfers.vala:538
+msgid "Transfer Manager"
+msgstr "Allalaadimishaldur"
+
+#: ../extensions/transfers.vala:539
+msgid "View downloaded files"
+msgstr "Vaata allalaaditud faile"
