@@ -45,9 +45,6 @@ namespace Apps {
                 var browser = proxy.get_toplevel () as Midori.Browser;
                 browser.send_notification (_("Launcher created"),
                     _("You can now run <b>%s</b> from your launcher or menu").printf (name));
-                /* TODO: Use infobar; currently hits gtk_widget_get_realized: assertion `GTK_IS_WIDGET (widget)' failed
-                (browser.tab as Midori.View).add_info_bar (Gtk.MessageType.INFO,
-                    _("You can now run <b>%s</b> from your launcher or menu").printf (name), null, null, null); */
             }
             catch (Error error) {
                 var browser = proxy.get_toplevel () as Midori.Browser;
