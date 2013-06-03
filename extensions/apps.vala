@@ -125,6 +125,21 @@ namespace Apps {
             return toolbar;
         }
 
+        void row_activated (Gtk.TreePath path, Gtk.TreeViewColumn column) {
+            Gtk.TreeIter iter;
+            if (store.get_iter (out iter, path)) {
+                Launcher launcher;
+                store.get (iter, 0, out launcher);
+                try {
+                    GLib.Process.spawn_command_line_async (launcher.exec);
+                }
+                catch (Error error) {
+                    var browser = get_toplevel () as Midori.Browser;
+                    browser.send_notification (_("Error launching"), error.message);
+                }
+            }
+        }
+
         public Sidebar (Katze.Array array, GLib.File app_folder) {
             Gtk.TreeViewColumn column;
 
@@ -148,6 +163,7 @@ namespace Apps {
             column.set_cell_data_func (renderer_text, on_render_text);
             treeview.append_column (column);
 
+            treeview.row_activated.connect (row_activated);
             treeview.show ();
             pack_start (treeview, true, true, 0);
 
