@@ -7,6 +7,10 @@ import os
 
 extensions = os.listdir ('extensions')
 for extension in extensions:
+    # FIXME In the absense of a proper mechanism, transfers is a stock extension
+    if not bld.env['addons'] and extension != 'transfers.vala':
+        continue
+
     folder = 'extensions' + os.sep + extension
     if os.path.isdir (folder):
         files = os.listdir (folder)
