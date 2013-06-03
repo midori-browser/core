@@ -480,9 +480,7 @@ def build (bld):
     bld.add_group ()
 
     bld.add_subdirs ('midori icons')
-
-    if bld.env['addons']:
-        bld.add_subdirs ('extensions')
+    bld.add_subdirs ('extensions')
 
     bld.add_group ()
 
