@@ -22,9 +22,9 @@ namespace Apps {
 
         internal static async void create (string prefix, GLib.File folder, string uri, string title, Gtk.Widget proxy) {
             /* Strip LRE leading character and / */
-            string filename = title.delimit ("‪/", ' ').strip() + ".desktop";
             string exec = prefix + uri;
-            string name = title;
+            string name = title.delimit ("‪/", ' ').strip();
+            string filename = Midori.Download.clean_filename (name) + ".desktop";
             // TODO: Midori.Paths.get_icon save to png
             string icon_name = Midori.Stock.WEB_BROWSER;
             string contents = """
