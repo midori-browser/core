@@ -489,18 +489,18 @@ midori_bookmarks_statusbar_update (MidoriBookmarks *bookmarks)
             gchar* child_bookmarks_str = midori_bookmarks_statusbar_bookmarks_str (child_bookmarks_count);
 
             if (!child_bookmarks_count && !child_folders_count)
-                /* i18n: empty folder */
-                text = g_strdup_printf (_("empty folder"));
+                /* i18n: Empty folder */
+                text = g_strdup_printf (_("Empty folder"));
             else if (!child_bookmarks_count && (child_folders_count >= 1))
-                /* i18n: folder containing [[n] folder(s)] and no bookmark */
-                text = g_strdup_printf (_("folder containing %s and no bookmark"),
+                /* i18n: Folder containing [[n] folder(s)] and no bookmark */
+                text = g_strdup_printf (_("Folder containing %s and no bookmark"),
                     child_folders_str);
             else if ((child_bookmarks_count >= 1) && !child_folders_count)
-                /* i18n: folder containing [[n] bookmark(s)] */
-               text = g_strdup_printf (_("folder containing %s"), child_bookmarks_str);
+                /* i18n: Folder containing [[n] bookmark(s)] */
+               text = g_strdup_printf (_("Folder containing %s"), child_bookmarks_str);
             else if ((child_bookmarks_count >= 1) && (child_folders_count >= 1))
-                /* i18n: folder containing [[n] bookmark(s)] and [[n] folder(s)] */
-                text = g_strdup_printf (_("folder containing %s and %s"),
+                /* i18n: Folder containing [[n] bookmark(s)] and [[n] folder(s)] */
+                text = g_strdup_printf (_("Folder containing %s and %s"),
                     child_bookmarks_str, child_folders_str);
 
             g_free (child_folders_str);
@@ -510,8 +510,8 @@ midori_bookmarks_statusbar_update (MidoriBookmarks *bookmarks)
         {
             const gchar* uri = katze_item_get_uri (item);
 
-            /* i18n: bookmark leading to : [bookmark uri] */
-            text = g_strdup_printf (_("bookmark leading to : %s"), uri);
+            /* i18n: Bookmark leading to: [bookmark uri] */
+            text = g_strdup_printf (_("Bookmark leading to: %s"), uri);
         }
     }
     else
@@ -579,7 +579,7 @@ midori_bookmarks_update_item_db (sqlite3*   db,
     if (sqlite3_exec (db, sqlcmd, NULL, NULL, &errmsg) != SQLITE_OK)
     {
         updated = FALSE;
-        g_printerr (_("Failed to update bookmark : %s\n"), errmsg);
+        g_printerr (_("Failed to update bookmark: %s\n"), errmsg);
         sqlite3_free (errmsg);
     }
 
@@ -1084,7 +1084,7 @@ midori_bookmarks_get_item_at_pos (GtkTreeView *treeview,
     GtkTreeModel* model = gtk_tree_view_get_model (treeview);
     GtkTreePath* path;
     GtkTreeIter iter;
-    KatzeItem* item;
+    KatzeItem* item = NULL;
 
     gtk_tree_view_get_path_at_pos (treeview, x, y,
                                    &path, NULL, NULL, NULL);

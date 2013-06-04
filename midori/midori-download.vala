@@ -244,9 +244,9 @@ namespace Midori {
 
         public string clean_filename (string filename) {
             #if HAVE_WIN32
-            return filename.delimit ("/\\<>:\"|?*", '_');
+            return filename.delimit ("/\\<>:\"|?* ", '_');
             #else
-            return filename.delimit ("/", '_');
+            return filename.delimit ("/ ", '_');
             #endif
         }
 
