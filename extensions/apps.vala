@@ -22,9 +22,9 @@ namespace Apps {
 
         internal static async void create (string prefix, GLib.File folder, string uri, string title, Gtk.Widget proxy) {
             /* Strip LRE leading character and / */
-            string filename = title.delimit ("‪/", ' ').strip() + ".desktop";
             string exec = prefix + uri;
-            string name = title;
+            string name = title.delimit ("‪/", ' ').strip();
+            string filename = Midori.Download.clean_filename (name) + ".desktop";
             // TODO: Midori.Paths.get_icon save to png
             string icon_name = Midori.Stock.WEB_BROWSER;
             string contents = """
@@ -45,9 +45,6 @@ namespace Apps {
 
                 browser.send_notification (_("Launcher created"),
                     _("You can now run <b>%s</b> from your launcher or menu").printf (name));
-                /* TODO: Use infobar; currently hits gtk_widget_get_realized: assertion `GTK_IS_WIDGET (widget)' failed
-                (browser.tab as Midori.View).add_info_bar (Gtk.MessageType.INFO,
-                    _("You can now run <b>%s</b> from your launcher or menu").printf (name), null, null, null); */
             }
             catch (Error error) {
                 browser.send_notification (_("Error creating launcher"),
@@ -127,6 +124,46 @@ namespace Apps {
             return toolbar;
         }
 
+        void row_activated (Gtk.TreePath path, Gtk.TreeViewColumn column) {
+            Gtk.TreeIter iter;
+            if (store.get_iter (out iter, path)) {
+                Launcher launcher;
+                store.get (iter, 0, out launcher);
+                try {
+                    GLib.Process.spawn_command_line_async (launcher.exec);
+                }
+                catch (Error error) {
+                    var browser = get_toplevel () as Midori.Browser;
+                    browser.send_notification (_("Error launching"), error.message);
+                }
+            }
+        }
+
+        bool button_released (Gdk.EventButton event) {
+            Gtk.TreePath? path;
+            Gtk.TreeViewColumn column;
+            if (treeview.get_path_at_pos ((int)event.x, (int)event.y, out path, out column, null, null)) {
+                if (path != null) {
+                    if (column == treeview.get_column (2)) {
+                        Gtk.TreeIter iter;
+                        if (store.get_iter (out iter, path)) {
+                            Launcher launcher;
+                            store.get (iter, 0, out launcher);
+                            try {
+                                launcher.file.trash (null);
+                                store.remove (iter);
+                            }
+                            catch (Error error) {
+                                GLib.critical (error.message);
+                            }
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
         public Sidebar (Katze.Array array, GLib.File app_folder) {
             Gtk.TreeViewColumn column;
 
@@ -150,6 +187,14 @@ namespace Apps {
             column.set_cell_data_func (renderer_text, on_render_text);
             treeview.append_column (column);
 
+            column = new Gtk.TreeViewColumn ();
+            Gtk.CellRendererPixbuf renderer_button = new Gtk.CellRendererPixbuf ();
+            column.pack_start (renderer_button, false);
+            column.set_cell_data_func (renderer_button, on_render_button);
+            treeview.append_column (column);
+
+            treeview.row_activated.connect (row_activated);
+            treeview.button_release_event.connect (button_released);
             treeview.show ();
             pack_start (treeview, true, true, 0);
 
@@ -201,6 +246,13 @@ namespace Apps {
                 Markup.printf_escaped ("<b>%s</b>\n%s",
                     launcher.name, launcher.uri),
                           "ellipsize", Pango.EllipsizeMode.END);
+        }
+
+        void on_render_button (Gtk.CellLayout column, Gtk.CellRenderer renderer,
+            Gtk.TreeModel model, Gtk.TreeIter iter) {
+
+            renderer.set ("stock-id", Gtk.STOCK_DELETE,
+                          "stock-size", Gtk.IconSize.MENU);
         }
     }
 
