@@ -10,15 +10,15 @@ msgstr ""
 "Project-Id-Version: midori 0.4.6\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-06-01 21:58+0200\n"
-"PO-Revision-Date: 2013-06-02 11:54+0000\n"
-"Last-Translator: WebKit Team <Unknown>\n"
+"PO-Revision-Date: 2013-06-04 15:38+0000\n"
+"Last-Translator: Andrzej Markiewicz <sowizz@gmail.com>\n"
 "Language-Team: polski <>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2013-06-03 05:13+0000\n"
+"X-Launchpad-Export-Date: 2013-06-05 05:18+0000\n"
 "X-Generator: Launchpad (build 16660)\n"
 "Language: pl\n"
 
@@ -108,7 +108,7 @@ msgstr "Wyświetla okno diagnostyczne po wystąpieniu awarii"
 
 #: ../midori/main.c:113
 msgid "Run within gdb and save a backtrace on crash"
-msgstr ""
+msgstr "Uruchom w ramach gdb i zapisz szczegóły awarii"
 
 #: ../midori/main.c:115
 msgid "Run the specified filename as javascript"
@@ -153,7 +153,7 @@ msgstr "SEKUNDY"
 
 #: ../midori/main.c:156
 msgid "Error: \"gdb\" can't be found\n"
-msgstr ""
+msgstr "Błąd: nie odnaleziono ,,gdb''\n"
 
 #: ../midori/main.c:182
 msgid "Please report comments, suggestions and bugs to:"
@@ -246,7 +246,7 @@ msgstr "Przechodzi do następnej podstrony"
 
 #: ../midori/midori-browser.c:341
 msgid "Web Search…"
-msgstr ""
+msgstr "Wyszukaj w sieci..."
 
 #: ../midori/midori-browser.c:445 ../midori/midori-browser.c:5348
 #: ../midori/midori-browser.c:5357
@@ -291,27 +291,27 @@ msgstr "Zakładki"
 
 #: ../midori/midori-browser.c:937
 msgid "New Folder"
-msgstr ""
+msgstr "Nowy folder"
 
 #: ../midori/midori-browser.c:937
 msgid "Edit Folder"
-msgstr ""
+msgstr "Edytuj Folder"
 
 #: ../midori/midori-browser.c:939
 msgid "New Bookmark"
-msgstr ""
+msgstr "Nowa zakładka"
 
 #: ../midori/midori-browser.c:939
 msgid "Edit Bookmark"
-msgstr ""
+msgstr "Edytuj zakładkę"
 
 #: ../midori/midori-browser.c:961
 msgid "Type a name for this bookmark, and choose where to keep it."
-msgstr ""
+msgstr "Wpisz nazwę zakładki i ustal, gdzie ją zapisać."
 
 #: ../midori/midori-browser.c:963
 msgid "Type a name for this folder, and choose where to keep it."
-msgstr ""
+msgstr "Wpisz nazwę folderu i ustal, gdzie go zapisać."
 
 #: ../midori/midori-browser.c:1017
 msgid "Add to _Speed Dial"
@@ -319,7 +319,7 @@ msgstr "Dodaj odnośnik _szybkiego wybierania"
 
 #: ../midori/midori-browser.c:1026
 msgid "Show in Bookmarks _Bar"
-msgstr ""
+msgstr "Pokaż na pasku zakładek"
 
 #: ../midori/midori-browser.c:1034
 msgid "Run as _web application"
@@ -727,19 +727,19 @@ msgstr "Utwórz _katalog"
 
 #: ../midori/midori-browser.c:5428
 msgid "_Import bookmarks…"
-msgstr ""
+msgstr "Importuj zakładki..."
 
 #: ../midori/midori-browser.c:5431
 msgid "_Export bookmarks…"
-msgstr ""
+msgstr "Eksportuj zakładki..."
 
 #: ../midori/midori-browser.c:5434
 msgid "_Manage Search Engines…"
-msgstr ""
+msgstr "Zarządzaj wyszukiwarkami"
 
 #: ../midori/midori-browser.c:5437
 msgid "_Clear Private Data…"
-msgstr ""
+msgstr "Usuń prywatne dane"
 
 #: ../midori/midori-browser.c:5440
 msgid "_Inspect Page"
@@ -1178,12 +1178,12 @@ msgstr "Wczytaj ponownie"
 #: ../midori/midori-view.c:1642
 #, c-format
 msgid "Oops - %s"
-msgstr ""
+msgstr "Ups! %s"
 
 #: ../midori/midori-view.c:1643
 #, c-format
 msgid "Something went wrong with '%s'."
-msgstr ""
+msgstr "Wystąpił problem z '%s'."
 
 #: ../midori/midori-view.c:1790 ../midori/midori-view.c:2856
 #, c-format
@@ -1705,7 +1705,7 @@ msgstr "Port:"
 
 #: ../midori/midori-preferences.c:500
 msgid "Supported proxy types:"
-msgstr ""
+msgstr "Obsługiwane typy proxy:"
 
 #. TODO: Preserve page icons of search engines and merge privacy items
 #: ../midori/midori-preferences.c:520 ../extensions/web-cache.c:461
@@ -2814,6 +2814,8 @@ msgstr "Nie można zapisać listy ostatnio zamkniętych kart i okien. %s"
 msgid ""
 "Midori crashed the last time it was opened. You can report the problem at %s."
 msgstr ""
+"Przeglądarka uległa awarii podczas ostatniego uruchomienia. Błąd może zostać "
+"głoszony pod adresem %s."
 
 #: ../midori/midori-frontend.c:345
 msgid "Modify _preferences"
@@ -2833,11 +2835,11 @@ msgstr "Porzucenie ostatnich kart"
 
 #: ../midori/midori-frontend.c:371
 msgid "Show last crash _log"
-msgstr ""
+msgstr "Pokaż szczegóły ostatniej awarii"
 
 #: ../midori/midori-frontend.c:384
 msgid "Run in _debugger"
-msgstr ""
+msgstr "Uruchom w debuggerze"
 
 #: ../midori/midori-frontend.c:462
 msgid "An instance of Midori is already running but not responding.\n"
@@ -2873,7 +2875,7 @@ msgstr "Z_ignoruj"
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:662
 #, c-format
 msgid "SQL fails: %s"
-msgstr ""
+msgstr "Błąd SQL: %s"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:246
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:707
@@ -2920,6 +2922,8 @@ msgid ""
 "This action will delete all cookie permissions. You will be asked for "
 "permissions again for each web site visited."
 msgstr ""
+"Ta czynność spowoduje usunięcie uprawnień ciasteczek. Zostaniesz poproszony "
+"o ich ponowne określenie dla każdej odwiedzonej strony."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:608
 msgid "Cookie permission manager"
@@ -2927,12 +2931,12 @@ msgstr "Menedżer uprawnień ciasteczek"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:609
 msgid "Instance of current cookie permission manager"
-msgstr ""
+msgstr "Instancja obecnego managera uprawnień ciasteczek"
 
 #. Set up dialog
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:650
 msgid "Configure cookie permission"
-msgstr ""
+msgstr "Określ uprawnienia ciasteczek"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:665
 #, c-format
@@ -3006,22 +3010,22 @@ msgstr "Nie można ustalić ogólnych uprawnień ciasteczek dla domeny: %s"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:488
 msgid "Till session end"
-msgstr ""
+msgstr "Do końca sesji"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:512
 #, c-format
 msgid "The website %s wants to store %d cookies."
-msgstr ""
+msgstr "Strona %s prosi o pozwolenie na przechowywanie %d ciasteczek."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:514
 #, c-format
 msgid "The website %s wants to store a cookie."
-msgstr ""
+msgstr "Strona %s prosi o pozwolenie na przechowanie ciasteczka."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:518
 #, c-format
 msgid "Multiple websites want to store %d cookies in total."
-msgstr ""
+msgstr "Wiele stron prosi o pozwolenie na przechowanie %d ciasteczek."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:527
 msgid "_Accept"
@@ -3037,7 +3041,7 @@ msgstr "_Odmów"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:530
 msgid "Deny _this time"
-msgstr ""
+msgstr "Odrzuć tym razem"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:563
 msgid "Path"
@@ -3057,7 +3061,7 @@ msgstr "Wystąpienie wtyczki"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1012
 msgid "The Midori extension instance for this extension"
-msgstr ""
+msgstr "Instancja dla rozszerzenia Midori"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1018
 msgid "Application instance"
@@ -3065,7 +3069,7 @@ msgstr "Wystąpienie programu"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1019
 msgid "The Midori application instance this extension belongs to"
-msgstr ""
+msgstr "Instancja aplikacji Midori dla tego rozszerzenia należy do"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1025
 msgid "Database instance"
@@ -3074,6 +3078,7 @@ msgstr "Wystąpienie bazy danych"
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1026
 msgid "Pointer to sqlite database instance used by this extension"
 msgstr ""
+"Wskaźnik do instancji bazy danych sqlite wykorzystywany przez to rozszerzenie"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1031
 msgid "Database path"
@@ -3082,20 +3087,24 @@ msgstr "Ścieżka bazy danych"
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1032
 msgid "Path to sqlite database instance used by this extension"
 msgstr ""
+"Ścieżka do instancji bazy danych sqlite wykorzystywana przez to rozszerzenie"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1038
 msgid "Ask for unknown policy"
-msgstr ""
+msgstr "Zapytaj o nieznaną politykę prywatności"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1039
 msgid ""
 "If true this extension ask for policy for every unknown domain.If false this "
 "extension uses the global cookie policy set in Midori settings."
 msgstr ""
+"Jeśli wyrazisz zgodę rozszerzenie zapyta o politykę prywatności dla każdej "
+"nieznanej domeny. W przeciwnym wypadku zostaną wykorzystane globalne "
+"ustawienia."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1115
 msgid "Undetermined"
-msgstr ""
+msgstr "Nieokreślone"
 
 #: ../extensions/cookie-permissions/main.c:62
 msgid "Cookie Security Manager"
@@ -3103,50 +3112,50 @@ msgstr "Menedżer bezpieczeństwa ciasteczek"
 
 #: ../extensions/cookie-permissions/main.c:63
 msgid "Manage cookie permission per site"
-msgstr ""
+msgstr "Określ indywidualne uprawnienia ciasteczek"
 
 #: ../extensions/apps.vala:46
 msgid "Launcher created"
-msgstr ""
+msgstr "Aktywator utworzony"
 
 #: ../extensions/apps.vala:47
 #, c-format
 msgid "You can now run <b>%s</b> from your launcher or menu"
-msgstr ""
+msgstr "Możesz uruchomić teraz <b>%s</b> ze swojego launchera lub menu"
 
 #: ../extensions/apps.vala:54
 msgid "Error creating launcher"
-msgstr ""
+msgstr "Błąd podczas tworzenia aktywatora"
 
 #: ../extensions/apps.vala:55
 #, c-format
 msgid "Failed to create new launcher: %s"
-msgstr ""
+msgstr "Nieudane tworzenie nowego aktywatora: %s"
 
 #: ../extensions/apps.vala:92
 msgid "Applications"
-msgstr ""
+msgstr "Aplikacje"
 
 #: ../extensions/apps.vala:101
 msgid "New _Profile"
-msgstr ""
+msgstr "Nowy profil"
 
 #: ../extensions/apps.vala:102
 msgid "Creates a new, independant profile and a launcher"
-msgstr ""
+msgstr "Tworzy nowy, niezależny profil i aktywator dla niego"
 
 #: ../extensions/apps.vala:111
 #, c-format
 msgid "Midori (%s)"
-msgstr ""
+msgstr "Midori (%s)"
 
 #: ../extensions/apps.vala:116
 msgid "New _App"
-msgstr ""
+msgstr "Nowa aplikacja"
 
 #: ../extensions/apps.vala:117
 msgid "Creates a new app for a specific site"
-msgstr ""
+msgstr "Tworzy nową aplikację dla zdefiniowanej strony"
 
 #: ../extensions/apps.vala:276
 msgid "Create _Launcher"
@@ -3154,11 +3163,11 @@ msgstr "Utwórz _aktywator"
 
 #: ../extensions/apps.vala:314
 msgid "Web App Manager"
-msgstr ""
+msgstr "Manager aplikacji webowych"
 
 #: ../extensions/apps.vala:315
 msgid "Manage websites installed as applications"
-msgstr ""
+msgstr "Zarządzaj stronami zainstalowanymi jako aplikacje"
 
 #: ../extensions/transfers.vala:98
 msgid "Transfers"
@@ -3184,7 +3193,7 @@ msgstr "Pobrano plik „<b>%s</b>”."
 #: ../extensions/transfers.vala:433
 #, c-format
 msgid "'<b>%s</b>' and %d other files have been downloaded."
-msgstr ""
+msgstr "'<b>%s</b>' oraz %d innych plików zostało pobrane."
 
 #: ../extensions/transfers.vala:434
 msgid "Transfer completed"
@@ -3204,8 +3213,8 @@ msgstr "Pobieranie plików zostanie anulowane wraz z zakończeniem programu."
 
 #: ../extensions/transfers.vala:538
 msgid "Transfer Manager"
-msgstr ""
+msgstr "Manager pobierania"
 
 #: ../extensions/transfers.vala:539
 msgid "View downloaded files"
-msgstr ""
+msgstr "Wyświetl pobrane pliki"
