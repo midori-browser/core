@@ -66,12 +66,14 @@ namespace HistoryList {
 
         public abstract void make_update ();
         public abstract void clean_up ();
+        public abstract void close_tab ();
     }
 
     private class TabWindow : HistoryWindow {
         protected Gtk.HBox? hbox;
         protected Gtk.VBox? vbox;
         protected bool is_dirty = false;
+        protected Gtk.ScrolledWindow? scroll_windows;
 
         protected void store_append_row (GLib.PtrArray list, Gtk.ListStore store, out Gtk.TreeIter iter) {
             for (var i = list.len; i > 0; i--) {
@@ -99,6 +101,28 @@ namespace HistoryList {
             store_append_row (list_new, store, out iter);
         }
 
+        protected void resize_treeview () {
+            Requisition requisition;
+            int height;
+            int max_lines = 10;
+#if HAVE_GTK3
+            requisition = Requisition();
+            this.treeview.get_preferred_size(out requisition, null);
+#else
+            this.treeview.size_request (out requisition);
+#endif
+            Gtk.ListStore model = this.treeview.get_model () as Gtk.ListStore;
+            int length = model.iter_n_children(null);
+            if (length > max_lines) {
+                height = requisition.height / length * max_lines + 2;
+            } else {
+                height = requisition.height + 2;
+            }
+            this.scroll_windows.set_size_request (320, height);
+            this.resize (320, height);
+
+        }
+
         public TabWindow (Midori.Browser browser) {
             base (browser);
 
@@ -107,10 +131,10 @@ namespace HistoryList {
 
             this.hbox = new Gtk.HBox (false, 1);
 
-            var sw = new Gtk.ScrolledWindow (null, null);
-            sw.set_policy (PolicyType.NEVER , PolicyType.AUTOMATIC);
-            sw.set_shadow_type (ShadowType.ETCHED_IN);
-            this.hbox.pack_start (sw, true, true, 0);
+            this.scroll_windows = new Gtk.ScrolledWindow (null, null);
+            this.scroll_windows.set_policy (PolicyType.NEVER , PolicyType.AUTOMATIC);
+            this.scroll_windows.set_shadow_type (ShadowType.ETCHED_IN);
+            this.hbox.pack_start (this.scroll_windows, true, true, 0);
 
             var store = new Gtk.ListStore (TabTreeCells.TREE_CELL_COUNT,
                 typeof (Gdk.Pixbuf), typeof (string),
@@ -121,7 +145,7 @@ namespace HistoryList {
             this.vbox.pack_start (this.hbox, true, true, 0);
 
             this.treeview = new Gtk.TreeView.with_model (store);
-            sw.add (treeview);
+            this.scroll_windows.add (treeview);
 
             this.treeview.set_model (store);
             this.treeview.set ("headers-visible", false);
@@ -137,23 +161,7 @@ namespace HistoryList {
                 "cell-background-gdk", TabTreeCells.TREE_CELL_BG);
 
             this.show_all ();
-
-            Requisition requisition;
-            int height;
-            int max_lines = 10;
-#if HAVE_GTK3
-            requisition = Requisition();
-            this.treeview.get_preferred_size(out requisition, null);
-#else
-            this.treeview.size_request (out requisition);
-#endif
-            int length = store.iter_n_children(null);
-            if (length > max_lines) {
-                height = requisition.height / length * max_lines + 2;
-            } else {
-                height = requisition.height + 2;
-            }
-            sw.set_size_request (320, height);
+            this.resize_treeview ();
         }
 
         public override void make_update () {
@@ -186,6 +194,35 @@ namespace HistoryList {
 
                 this.make_update ();
                 this.is_dirty = false;
+            }
+        }
+
+        public override void close_tab () {
+            Gtk.TreePath? path;
+            Gtk.TreeViewColumn? column;
+
+            this.treeview.get_cursor (out path, out column);
+
+            Gtk.ListStore model = this.treeview.get_model () as Gtk.ListStore;
+            int length = model.iter_n_children(null);
+
+            if (length > 1) {
+                Gtk.TreeIter iter;
+                unowned Midori.View? view = null;
+
+                model.get_iter (out iter, path);
+                model.get (iter, TabTreeCells.TREE_CELL_POINTER, out view);
+
+                /*
+                    FixMe: the retrun value of `Gtk.ListStore.remove` should be checked
+                    Note:  in some cases the return value of `Gtk.ListStore.remove` is wrong
+                */
+                model.remove (iter);
+                this.browser.close_tab (view);
+                if (length > 2)
+                    this.resize_treeview ();
+                else
+                    this.hide ();
             }
         }
     }
@@ -334,6 +371,7 @@ namespace HistoryList {
         public signal void preferences_changed ();
 
         protected uint escKeyval;
+        protected uint delKeyval;
         protected uint modifier_count;
         protected int closing_behavior;
         protected HistoryWindow? history_window;
@@ -378,6 +416,8 @@ namespace HistoryList {
                 }
                 this.history_window.destroy ();
                 this.history_window = null;
+            } else if (event_key.keyval == this.delKeyval) {
+                this.history_window.close_tab ();
             }
             return false;
         }
@@ -609,6 +649,7 @@ namespace HistoryList {
         }
         construct {
             this.escKeyval = Gdk.keyval_from_name ("Escape");
+            this.delKeyval = Gdk.keyval_from_name ("Delete");
         }
     }
 }
