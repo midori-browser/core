@@ -15,14 +15,19 @@
 static GdkColor
 get_foreground_color_for_GdkColor (GdkColor color)
 {
-    /* rgb (160, 160, 160) is gray */
-    guint gray = 160 * 255;
     GdkColor fgcolor;
+    gfloat brightness, r, g, b;
+
+    r = color.red / 255;
+    g = color.green / 255;
+    b = color.blue / 255;
+
+    /* For math used see algorithms for converting from rgb to yuv */
+    brightness = 0.299 * r + 0.587 * g + 0.114 * b;
 
     /* Ensure high contrast by enforcing black/ white text colour. */
-    if ((color.red < gray)
-    && (color.green < gray)
-    && (color.blue < gray))
+    /* Brigthness (range 0-255) equals value of y from YUV color space. */
+    if (brightness < 128)
         gdk_color_parse ("white", &fgcolor);
     else
         gdk_color_parse ("black", &fgcolor);
@@ -222,11 +227,11 @@ void test_colour_for_hostname (void)
 
     static const ColorItem items[] = {
      { "www.last.fm", "#ffffffffffff", "#12ed7da312ed" },
-     { "git.xfce.org", "#000000000000", "#1c424c72e207" },
+     { "git.xfce.org", "#ffffffffffff", "#1c424c72e207" },
      { "elementaryos.org", "#000000000000", "#50dbac36b43e" },
      { "news.ycombinator.com", "#000000000000", "#a5cba6cc5278" },
-     { "cgit.freedesktop.org", "#ffffffffffff", "#95bb8db37ca2" },
-     { "get.cm", "#000000000000", "#1c424c72e207" },
+     { "cgit.freedesktop.org", "#000000000000", "#95bb8db37ca2" },
+     { "get.cm", "#ffffffffffff", "#1c424c72e207" },
     };
 
     guint i;
