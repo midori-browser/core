@@ -47,4 +47,11 @@ KatzeArray*
 katze_array_from_sqlite (sqlite3*     db,
                          const gchar* sqlcmd);
 
+gint64
+midori_array_count_recursive (KatzeArray*  bookmarks,
+			      const gchar* condition,
+                              const gchar* value,
+			      KatzeItem*   folder,
+                              gboolean     recursive);
+
 #endif /* !__MIDORI_ARRAY_H__ */
