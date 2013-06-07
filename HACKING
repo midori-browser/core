@@ -1,169 +1,200 @@
-This file is licensed under the terms of the expat license, see the file EXPAT.
+====== Midori - Contribute ======
 
-+ Hacking guide for Midori +
+**This document is licensed under the LGPL 2.1.**
 
-- How to contribute
-- Coding style
-- Source files in the project
-- Examplary source code
+====== Check out the sources ======
 
-+++ How to contribute +++
+bzr branch lp:midori
 
-There are several ways to contribute to the project:
+The development **trunk** (master, tip) is the latest iteration of the next release. Browse it online and look for other branches at http://code.launchpad.net/midori or http://bazaar.launchpad.net/~midori/midori/trunk/tarball download a tarball of the latest revision.
 
-For translating, have a look at the file TRANSLATE.
+//The code used to be hosted in git.xfce.org/apps/midori.//
+====== Join IRC chat rooms ======
 
-For helping with testing and triaging bug reports, you should register with the bug tracker at https://bugs.launchpad.net/midori and join #midori on irc.freenode.net where a lot of problems are discussed. You can start right away by trying to reproduce bug reports and comment with your findings.
+Join irc://irc.freenode.net/midori #midori on Freenode https://kiwiirc.com/client/irc.freenode.net/midori or use webchat to talk about Midori, discuss bugs and new ideas.
+====== Contribute other than touching code ======
 
-If you are interested in contributing code, there are a few options. You can join #midori to discuss a particular problem you would like to look into, or a feature you would want to implement. Opening a bug report or feature request if there isn't already one is the next step. To attract some attention, if you attached a patch or have questions, ask in #midori.
+  * http://bugs.launchpad.net/midori Go through problem reports and check Unconfirmed bugs or those lacking information and mark any duplicates you spot
+  * https://www.bountysource.com/#trackers/130181-midori Add a bounty for a feature or bug you'd like to support
 
-+++ Coding style +++
+====== Build the code ======
 
-Indentation is 4 spaces, no tabs, preferrably at 80 to 120 columns per line to
-avoid automated line-breaks. Trailing whitespace is not desirable.
+./waf configure --prefix=/usr
+./waf build
+sudo ./waf install
 
-Declarations go to the beginning of a block, not inline. Variables of one plain
-type may be grouped in one declaration, pointer types may not be grouped. The
-asterisk goes next to the type.
-Variables should be ordered in the order they are used.
+Midori can be **run without being installed**.
 
-Comments explain functionality, they should not state facts. The appropriate
-style is always C style /* */, not C++ style.
+_build/default/midori/midori
 
-Variable and function names should be animal, animal_shelter or animalsc in
-case it would otherwise be very long. Loop counters may be single letters.
-Type names should be Animal, AnimalShelter or AnimalSC. No prefixes from third
-party projects should be used, such as GTK or WebKit, while underlines may be
-used but do not have a particular meaning.
+You can use a **temporary folder for testing** without affecting normal settings
 
-There is a space between functions or keywords and round brackets, and curly
-brackets always go on separate lines, at the indentation level of the
-function, conditional or loop expression. Curly brackets are left out for single
-statement conditionals and loops unless they notably help readability.
-The type of a function goes on a separate line before the function.
-Preprocessor instructions are indented with the code they relate to.
+_build/default/midori/midori -c /tmp/midoridev
 
-Code history is precious, so one should avoid renaming a lot of functions at
-once or moving whole paragraphs only to add or remove a level of indentation.
-Moving blocks of code around is also undesriable because it makes patches less
-readable since the result looks like new code.
+You'll want to **unit test** the code if you're testing a new version or contributed your own changes:
+
+xvfb-run ./waf check
+
+Automated daily builds in Launchpad (https://launchpad.net/~elementary-os/+archive/daily ppa:elementary-os/daily and https://launchpad.net/~midori/+archive/midori-dev ppa:midori/midori-dev) run these tests as well.
+====== Debugging issues ======
+
+Testing an installed release may reveal crashers or memory corruption which require investigating from a local build and obtaining a stacktrace (backtrace, crash log).
+
+_build/default/midori/midori -g [OPTIONAL ARGUMENTS]
+
+For more specific debugging output, depending on the feature in question you may use
+
+env MIDORI_DEBUG=help _build/default/midori/midori
+
+====== Coding style and quality ======
+
+Midori code should in general have:
+
+  * 4 space indentation, no tabs
+  * Between 80 to 120 columns
+  * Prefer /* */ style comments
+  * Call variables //animal// and //animal_shelter// instead of <del>camelCase</del>
+  * Keep a space between functions/ keywords and round parentheses
+
+For Vala:
+
+  * Prefer //new Gtk.Widget ()// over //using Gtk; new Widget ()//
+  * Stick to standard Vala-style curly parentheses on the same line
+  * Cuddled //} else {// and //} catch (Error error) {//
+
+For C:
+
+  * Always keep { and } on their own line
+
+//Extensions may historically diverge from the standard styling on a case-by-case basis//
+
+====== Committing code ======
+
+Tell Bazaar your name if you haven't yet
+    bzr whoami "Real Name <email@address>"
+
+See what you did so far
+    bzr diff
+
+Get an overview of changed and new files
+    bzr status
+
+Add new files, move/ rename or delete
+    bzr add FILENAME
+    bzr mv OLDFILE NEWFILE
+    bzr rm FILENAME
+
+Commit all current changes - Bazaar automatically picks up edited files. //If you're used to git, think of an implicit staging area.//
+    bzr commit -p
+
+If you've done several commits
+    bzr log | less
+    bzr log -p | less
+
+In the case you committed something wrong or want to ammend it:
+    bzr uncommit
+
+If you end up with unrelated debugging code or other patches in the current changes, it's sometimes handy to temporarily clean up. //This may be seen as bzr's version of git stash.//
+    bzr shelve
+    bzr commit -p
+    bzr unshelve
+
+Remember to keep your branch updated:
+    bzr pull
+
+As a general rule of thumb, ''bzr help COMMAND'' gives you an explanation of any command and ''bzr help commands'' lists all available commands.
+
+//If you're a die-hard git user, http://zyga.github.io/git-lp/ checkout git-lp to use git commands with the Bazaar repository.//
+
+====== Push proposed changes ======
+
+If you haven't yet, https://launchpad.net/~/+editsshkeys check that Launchpad has your SSH key - you can create an SSH key with **Passwords and Keys** aka **Seahorse** or ''ssh-keygen -t rsa'' - and use ''bzr launchpad-login'' to make youself known to bzr locally.
+
+If you checked out trunk, and added your patch(es), just **push it under your username** in Launchpad and you can **propose it for merging into trunk**. This will automatically request a **review from other developers** who can then comment on it and provide feedback.
+
+bzr push --remember lp:~USERNAME/midori/fix-bug1120383 && bzr lp-propose-merge lp:midori
+
+lp-propose-merge command may not be working on some distributions like Arch or Fedora.
+In case you get error like //bzr: ERROR: Unable to import library "launchpadlib": No module named launchpadlib// just use Launchpad's Web UI to propose a merge.
 
 
-+++ Source files in the project +++
+**What happens to all the branches?**
 
-Core:
-    Files prefixed with "midori-" in the folder "midori" make up the core. They
-    are essential to running the browser and mostly tailored to the browser.
-    All header files prefixed with "midori-" are considered supported API and
-    can be used to implement extensions.
-    "sokoke" is a collection of very specialized helper functions which change
-    from time to time as needed. In the past some of the code was moved to
-    "katze" when it was considered generally useful.
-    "socket" is a socket implementation with no dependency on other parts of
-    the core, which is used if Midori is built without an external single
-    instance support library.
-Panels:
-    Files in the "panels" folder are classes that implement MidoriViewable and
-    which are loaded into the MidoriPanel at startup. These panels are in
-    principle optional.
-Katze:
-    Re-usable classes and utility functions that don't depend on the core and
-    some of that code indeed found its way into other projects.
-Extensions:
-    These are extensions, written in C, which are loaded optionally if the user
-    so chooses. Extensions can use API from "midori-" and "katze-" headers. Each
-    module consists of either a single .c file or a folder with .c files.
-Tests:
-    Unit tests are run regularly to verify possible regressions or measure
-    performance of implementations. Except for select cases code changes should
-    not cause failure of unit tests.
+Leave the branches alone, **approved branches are cleared automatically** by Launchpad.
+
+For larger feature branches, **use the team** in Launchpad to allow other developers to work on the code with you.
+
+bzr push --remember lp:~midori/midori/featuritis && bzr lp-propose-merge lp:midori
+
+What if I want to help out on an **existing merge request** that I can't push to?
 
 
-+++ Examplary source code +++
+bzr branch ~OTHERPERSON/midori/fix-bug1120383
+cd fix-bug1120383
+# make commits
+bzr push lp:USERNAME~/midori/fix-bug1120383
+bzr lp-propose-merge ~OTHERPERSON/midori/fix-bug1120383
 
-    /*
-       Copyright
-       LICENSE TEXT
-    */
 
-    #include "foo.h"
+Updating a branch that may be out of sync with trunk:
 
-    #include "bar.h"
 
-    #include <glib.h>
+bzr pull
+bzr: ERROR: These branches have diverged
+bzr merge lp:midori
+# Hand-edit conflicting changes
+bzr resolve FILENAME
+# If any conflicts remain continue fixing
+bzr commit -m 'Merge lp:midori'
 
-    void
-    foobar (FooEnum bar, const gchar* foo)
-    {
-        gint n, i;
 
-        if (!foo)
-            return;
+Save a little bandwidth, **branch from an existing local copy** that you keep around:
 
-        #ifdef BAR_STRICT
-        if (bar == FOO_N)
-        {
-            g_print ("illegal value for 'bar'.\n");
-            return;
-        }
-        #endif
 
-        /* this is an example */
-        switch (bar)
-        {
-        case FOO_FOO:
-            n = bar + 1;
-            break;
-        case FOO_BAR:
-            n = bar + 10;
-            break;
-        default:
-            n = 1;
-        }
+bzr branch lp:midori midori
+bzr branch midori midori.fix-bug1120383
+cd midori.fix-bug1120383
+bzr pull lp:midori
 
-        for (i = 0; i < n; i++)
-        {
-            g_print ("%s\n", foo);
-        }
-    }
+====== Midori for Windows ======
+===== Dependencies =====
+Midori for Windows is compiled on a Linux host and MinGW stack. For the current build Fedora 18 packages are used. Packages needed are listed below:
 
-Header file example:
+yum install gcc vala intltool
 
-    /*
-       Copyright
-       LICENSE TEXT
-    */
+For a native build
+yum install libsoup-devel webkitgtk3-devel sqlite-devel
 
-    #ifndef __FOO_H__
-    #define __FOO_H__ 1
+For cross-compilation
+yum install mingw{32,64}-webkitgtk3 mingw{32,64}-glib-networking mingw{32,64}-gdb
 
-    #ifdef HAVE_BAR_H
-        #define BAR_STRICT
-    #endif
+Packages needed when assembling the archive
+ yum install faenza-icon-theme p7zip mingw32-nsis
 
-    /* Types */
+Installing those should get you the packages needed to successfully build and develop Midori for Win32.
 
-    typedef enum
-    {
-        FOO_FOO,
-        FOO_BAR,
-        FOO_N
-    } FooEnum;
+===== Building =====
+For 32-bit builds:
 
-    typedef struct
-    {
-        FooEnum foo_bar;
-    } FooStruct;
+mingw32-env
+./configure --enable-gtk3 --prefix=/usr/i686-w64-mingw32/sys-root/mingw/
+make
+sudo make install
 
-    /* Declarations */
+For 64-bit builds:
 
-    void
-    foo_bar           (FooEnum      bar,
-                       const gchar* foo);
+mingw64-env
+./configure --enable-gtk3 --prefix=/usr/x86_64-w64-mingw32/sys-root/mingw/
+make
+sudo make install
 
-    const gchar*
-    foo_foo           (FooStruct foo_struct,
-                       guint     number,
-                       gboolean  flag);
+Once built and tested you can assemble the Midori archive with a helper script
+32-bit build:
+env MINGW_PREFIX="/usr/i686-w64-mingw32/sys-root/mingw" ./win32/makedist/makedist.midori
+64-bit build:
+env MINGW_PREFIX="/usr/x86_64-w64-mingw32/sys-root/mingw/" ./win32/makedist/makedist.midori x64
 
-    #endif /* !__FOO_H__ */
+===== Testing =====
+For testing your changes unfortuantely a real system is needed because Midori and WebKitGTK+ don't work properly under Wine. Even if it works some problems are not visible when using Wine, but are present when running under a real Windows system and vice versa.
+
+One way around it is to virtualize Windows on a Linux host and mount your MinGW directories as a network drive or shared folder.
