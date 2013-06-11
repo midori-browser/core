@@ -50,6 +50,8 @@ namespace HistoryList {
             Gtk.TreeViewColumn? column;
 
             this.treeview.get_cursor (out path, out column);
+            if (path == null)
+                return;
 
             unowned int[] indices = path.get_indices ();
             int new_index = indices[0] + step;
