@@ -171,6 +171,8 @@ namespace HistoryList {
             Gtk.TreeViewColumn? column;
 
             this.treeview.get_cursor (out path, out column);
+            if (path == null)
+                return;
 
             var model = this.treeview.get_model () as Gtk.ListStore;
 
