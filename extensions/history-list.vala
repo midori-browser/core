@@ -177,7 +177,8 @@ namespace HistoryList {
             Gtk.TreeIter iter;
             unowned Midori.View? view = null;
 
-            model.get_iter (out iter, path);
+            if (!model.get_iter (out iter, path))
+                return;
             model.get (iter, TabTreeCells.TREE_CELL_POINTER, out view);
             this.browser.set ("tab", view);
         }
