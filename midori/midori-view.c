@@ -4935,14 +4935,7 @@ midori_view_get_proxy_tab_label (MidoriView* view)
     g_return_val_if_fail (MIDORI_IS_VIEW (view), NULL);
 
     GtkWidget* tab = GTK_WIDGET (midori_view_get_tab (view));
-    GList* children = gtk_container_get_children (GTK_CONTAINER (tab));
-    GtkWidget* label = NULL;
-    for (; children; children = g_list_next (children))
-        if (GTK_IS_EVENT_BOX (children->data))
-            label = children->data;
-    g_list_free (children);
-    g_warn_if_fail (label != NULL);
-    return label;
+    return tab;
 }
 
 #else
@@ -5894,9 +5887,21 @@ midori_view_set_colors (MidoriView* view,
         Contained can be a GtkLabel or a GtkBox including a GtkLabel
         Granite as of this writing uses a GtkLabel (which may change)
     */
-    GtkWidget* event_box = midori_view_get_proxy_tab_label (view);
-    GtkWidget* label = gtk_bin_get_child (GTK_BIN (event_box));
+    GtkWidget* box = midori_view_get_proxy_tab_label (view);
+    GtkWidget* event_box = box;
+    if (GTK_IS_BOX (box))
+    {
+        GList* children = gtk_container_get_children (GTK_CONTAINER (box));
+        for (; children != NULL; children = g_list_next (children))
+            if (GTK_IS_EVENT_BOX (children->data))
+            {
+                event_box = children->data;
+                break;
+            }
+        g_list_free (children);
+    }
 
+    GtkWidget* label = gtk_bin_get_child (GTK_BIN (event_box));
     if (GTK_IS_BOX (label))
     {
         GList* children = gtk_container_get_children (GTK_CONTAINER (label));
@@ -5919,11 +5924,11 @@ midori_view_set_colors (MidoriView* view,
     gtk_widget_modify_fg (label, GTK_STATE_ACTIVE, fg_color);
 
     #if GTK_CHECK_VERSION (3, 0, 0)
-    gtk_widget_modify_bg (label, GTK_STATE_NORMAL, bg_color);
-    gtk_widget_modify_bg (label, GTK_STATE_ACTIVE, bg_color);
-    #else
     gtk_widget_modify_bg (event_box, GTK_STATE_NORMAL, bg_color);
     gtk_widget_modify_bg (event_box, GTK_STATE_ACTIVE, bg_color);
+    #else
+    gtk_widget_modify_bg (box, GTK_STATE_NORMAL, bg_color);
+    gtk_widget_modify_bg (box, GTK_STATE_ACTIVE, bg_color);
     #endif
 }
 
