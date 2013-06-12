@@ -217,6 +217,11 @@ namespace HistoryList {
 
                 model.get_iter (out iter, path);
                 model.get (iter, TabTreeCells.TREE_CELL_POINTER, out view);
+#if !HAVE_GTK3
+                if (path.prev () == false)
+                    path.next ();
+                this.treeview.set_cursor (path, column, false);
+#endif
 
                 /*
                     FixMe: the retrun value of `Gtk.ListStore.remove` should be checked
