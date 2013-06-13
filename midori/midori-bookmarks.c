@@ -48,19 +48,21 @@ midori_bookmarks_remove_item_cb (KatzeArray* array,
 {
     gchar* sqlcmd;
     char* errmsg = NULL;
+    gchar* id;
 
-
-    sqlcmd = sqlite3_mprintf (
-            "DELETE FROM bookmarks WHERE id = %" G_GINT64_FORMAT ";",
+    id = g_strdup_printf ("%" G_GINT64_FORMAT,
             katze_item_get_meta_integer (item, "id"));
+
+    sqlcmd = sqlite3_mprintf ("DELETE FROM bookmarks WHERE id = %q", id);
 
     if (sqlite3_exec (db, sqlcmd, NULL, NULL, &errmsg) != SQLITE_OK)
     {
-        g_printerr (_("Failed to remove history item: %s\n"), errmsg);
+        g_printerr (_("Failed to remove bookmark item: %s\n"), errmsg);
         sqlite3_free (errmsg);
     }
 
     sqlite3_free (sqlcmd);
+    g_free (id);
 }
 
 #define _APPEND_TO_SQL_ERRORMSG(custom_errmsg) \

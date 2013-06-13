@@ -556,6 +556,10 @@ midori_bookmarks_update_item_db (sqlite3*   db,
     char* errmsg = NULL;
     gchar* parentid;
     gboolean updated;
+    gchar* id;
+
+    id = g_strdup_printf ("%" G_GINT64_FORMAT,
+            katze_item_get_meta_integer (item, "id"));
 
     if (katze_item_get_meta_integer (item, "parentid") > 0)
         parentid = g_strdup_printf ("%" G_GINT64_FORMAT,
@@ -566,14 +570,14 @@ midori_bookmarks_update_item_db (sqlite3*   db,
     sqlcmd = sqlite3_mprintf (
             "UPDATE bookmarks SET "
             "parentid=%q, title='%q', uri='%q', desc='%q', toolbar=%d, app=%d "
-            "WHERE id = %" G_GINT64_FORMAT ";",
+            "WHERE id = %q ;",
             parentid,
             katze_item_get_name (item),
             katze_str_non_null (katze_item_get_uri (item)),
             katze_str_non_null (katze_item_get_meta_string (item, "desc")),
             katze_item_get_meta_boolean (item, "toolbar"),
             katze_item_get_meta_boolean (item, "app"),
-            katze_item_get_meta_integer (item, "id"));
+            id);
 
     updated = TRUE;
     if (sqlite3_exec (db, sqlcmd, NULL, NULL, &errmsg) != SQLITE_OK)
@@ -585,6 +589,7 @@ midori_bookmarks_update_item_db (sqlite3*   db,
 
     sqlite3_free (sqlcmd);
     g_free (parentid);
+    g_free (id);
 
     return updated;
 }
