@@ -218,6 +218,7 @@ namespace HistoryList {
                 model.get_iter (out iter, path);
                 model.get (iter, TabTreeCells.TREE_CELL_POINTER, out view);
 #if !HAVE_GTK3
+                /* removing the selected cursor causes a segfault when using GTK2 */
                 if (path.prev () == false)
                     path.next ();
                 this.treeview.set_cursor (path, column, false);
