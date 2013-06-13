@@ -5063,12 +5063,6 @@ midori_browser_notebook_tab_removed_cb (GtkWidget*         notebook,
     if (midori_browser_tab_connected (browser, MIDORI_VIEW (view)))
         midori_browser_disconnect_tab (browser, MIDORI_VIEW (view));
 
-    GraniteWidgetsTab* new_tab = granite_widgets_dynamic_notebook_get_current (
-        GRANITE_WIDGETS_DYNAMIC_NOTEBOOK (notebook));
-    gint new_pos = granite_widgets_dynamic_notebook_get_tab_position (
-        GRANITE_WIDGETS_DYNAMIC_NOTEBOOK (notebook), new_tab);
-    midori_browser_switched_tab (browser, granite_widgets_tab_get_page (tab),
-        MIDORI_VIEW (granite_widgets_tab_get_page (new_tab)), new_pos);
     return TRUE;
 }
 
@@ -5092,9 +5086,6 @@ midori_browser_notebook_tab_switched_cb (GraniteWidgetsDynamicNotebook* notebook
                                          GraniteWidgetsTab* new_tab,
                                          MidoriBrowser*     browser)
 {
-    if (old_tab && granite_widgets_dynamic_notebook_get_tab_position (notebook, old_tab) == -1)
-        return;
-
     gint new_pos = granite_widgets_dynamic_notebook_get_tab_position (notebook, new_tab);
 
     midori_browser_switched_tab (browser,
