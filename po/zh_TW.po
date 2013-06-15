@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: midori master\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-06-01 21:58+0200\n"
+"POT-Creation-Date: 2013-06-14 17:01-0500\n"
 "PO-Revision-Date: 2013-06-02 11:53+0000\n"
 "Last-Translator: Cheng-Chia Tseng <pswo10680@gmail.com>\n"
 "Language-Team: chinese-l10n <chinese-l10n@googlegroups.com>\n"
@@ -16,8 +16,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2013-06-03 05:14+0000\n"
-"X-Generator: Launchpad (build 16660)\n"
+"X-Launchpad-Export-Date: 2013-06-15 04:39+0000\n"
+"X-Generator: Launchpad (build 16667)\n"
 
 #: ../data/midori.desktop.in.h:1 ../midori/main.c:162
 #: ../midori/midori-websettings.c:228
@@ -162,7 +162,7 @@ msgstr "檢查看看新版本於："
 msgid "An unknown error occured"
 msgstr "遭遇未知錯誤"
 
-#: ../midori/midori-app.c:1337 ../midori/midori-browser.c:6124
+#: ../midori/midori-app.c:1337 ../midori/midori-browser.c:6126
 msgid "_Bookmarks"
 msgstr "書籤(_B)"
 
@@ -203,7 +203,7 @@ msgstr "Netscape 外掛程式(_L)"
 msgid "_Closed Tabs"
 msgstr "關閉的分頁(_C)"
 
-#: ../midori/midori-app.c:1347 ../midori/midori-browser.c:5267
+#: ../midori/midori-app.c:1347 ../midori/midori-browser.c:5269
 msgid "New _Window"
 msgstr "開新視窗(_W)"
 
@@ -229,13 +229,13 @@ msgstr "異常文件。"
 msgid "Unrecognized bookmark format."
 msgstr "無法辨識的書籤格式。"
 
-#: ../midori/midori-browser.c:324 ../midori/midori-browser.c:5399
+#: ../midori/midori-browser.c:324 ../midori/midori-browser.c:5401
 msgid "Go forward to the next page"
 msgstr "前往下一頁"
 
 #. i18n: Visit the following logical page, ie. in a forum or blog
-#: ../midori/midori-browser.c:331 ../midori/midori-browser.c:5407
-#: ../midori/midori-browser.c:5410
+#: ../midori/midori-browser.c:331 ../midori/midori-browser.c:5409
+#: ../midori/midori-browser.c:5412
 msgid "Go to the next sub-page"
 msgstr "前往下一子頁"
 
@@ -243,12 +243,12 @@ msgstr "前往下一子頁"
 msgid "Web Search…"
 msgstr "網頁搜尋…"
 
-#: ../midori/midori-browser.c:445 ../midori/midori-browser.c:5348
-#: ../midori/midori-browser.c:5357
+#: ../midori/midori-browser.c:445 ../midori/midori-browser.c:5350
+#: ../midori/midori-browser.c:5359
 msgid "Reload the current page"
 msgstr "重新載入目前頁面"
 
-#: ../midori/midori-browser.c:453 ../midori/midori-browser.c:5354
+#: ../midori/midori-browser.c:453 ../midori/midori-browser.c:5356
 msgid "Stop loading the current page"
 msgstr "停止載入目前頁面"
 
@@ -264,7 +264,7 @@ msgid "Value '%s' is invalid for %s"
 msgstr "「%s」值對於 %s 無效"
 
 #: ../midori/midori-browser.c:570 ../midori/midori-browser.c:641
-#: ../midori/midori-browser.c:6933
+#: ../midori/midori-browser.c:6935
 #, c-format
 msgid "Unexpected setting '%s'"
 msgstr "未預期的設定「%s」"
@@ -280,7 +280,7 @@ msgid "%s (Private Browsing)"
 msgstr "%s (私密瀏覽)"
 
 #: ../midori/midori-browser.c:841 ../midori/midori-browser.c:883
-#: ../panels/midori-bookmarks.c:114
+#: ../panels/midori-bookmarks.c:118
 msgid "Bookmarks"
 msgstr "書籤"
 
@@ -320,7 +320,7 @@ msgstr ""
 msgid "Run as _web application"
 msgstr "以網頁應用程式執行(_W)"
 
-#: ../midori/midori-browser.c:1147 ../midori/midori-browser.c:4510
+#: ../midori/midori-browser.c:1147 ../midori/midori-browser.c:4521
 msgid "Save file as"
 msgstr "檔案另存為"
 
@@ -375,15 +375,15 @@ msgstr ""
 msgid "New feed"
 msgstr "新饋流"
 
-#: ../midori/midori-browser.c:2585 ../midori/midori-browser.c:5423
-#: ../panels/midori-bookmarks.c:527
+#: ../midori/midori-browser.c:2585 ../midori/midori-browser.c:5425
+#: ../panels/midori-bookmarks.c:639
 msgid "Add a new bookmark"
 msgstr "加入新的書籤"
 
 #. FIXME: Blacklist/ custom contract doesn't work
 #. gchar* blacklisted_contracts[] = { "print", NULL };
 #. FIXME: granite: should return GtkWidget* like GTK+
-#: ../midori/midori-browser.c:2634 ../midori/midori-browser.c:5299
+#: ../midori/midori-browser.c:2634 ../midori/midori-browser.c:5301
 msgid "Share this page"
 msgstr "分享此頁面"
 
@@ -405,105 +405,105 @@ msgstr "請按下 F7 來切換鍵盤瀏覽功能。啟用時，所有的網站�
 msgid "_Enable Caret Browsing"
 msgstr "啟用鍵盤瀏覽(_E)"
 
-#: ../midori/midori-browser.c:3928 ../midori/midori-browser.c:5871
+#: ../midori/midori-browser.c:3928 ../midori/midori-browser.c:5873
 #, c-format
 msgid "Failed to insert new history item: %s\n"
 msgstr "無法插入新歷史項目：%s\n"
 
-#: ../midori/midori-browser.c:4242 ../panels/midori-bookmarks.c:835
+#: ../midori/midori-browser.c:4249 ../panels/midori-bookmarks.c:955
 #: ../panels/midori-history.c:792
 msgid "Open all in _Tabs"
 msgstr "以分頁開啟全部(_T)"
 
-#: ../midori/midori-browser.c:4249 ../panels/midori-bookmarks.c:841
+#: ../midori/midori-browser.c:4258 ../panels/midori-bookmarks.c:963
 #: ../panels/midori-history.c:798 ../extensions/feed-panel/feed-panel.c:511
 msgid "Open in New _Tab"
 msgstr "在新分頁中開啟(_T)"
 
-#: ../midori/midori-browser.c:4252 ../midori/midori-view.c:2915
-#: ../midori/midori-view.c:4873 ../panels/midori-bookmarks.c:843
+#: ../midori/midori-browser.c:4261 ../midori/midori-view.c:2915
+#: ../midori/midori-view.c:4873 ../panels/midori-bookmarks.c:965
 #: ../panels/midori-history.c:800 ../extensions/feed-panel/feed-panel.c:513
 msgid "Open in New _Window"
 msgstr "在新視窗中開啟(_W)"
 
-#: ../midori/midori-browser.c:4341
+#: ../midori/midori-browser.c:4352
 msgid "Arora"
 msgstr "Arora"
 
-#: ../midori/midori-browser.c:4342
+#: ../midori/midori-browser.c:4353
 msgid "Kazehakase"
 msgstr "Kazehakase"
 
-#: ../midori/midori-browser.c:4343
+#: ../midori/midori-browser.c:4354
 msgid "Opera"
 msgstr "Opera"
 
-#: ../midori/midori-browser.c:4344
+#: ../midori/midori-browser.c:4355
 msgid "Konqueror"
 msgstr "征服家"
 
-#: ../midori/midori-browser.c:4345
+#: ../midori/midori-browser.c:4356
 msgid "Epiphany"
 msgstr "Epiphany"
 
-#: ../midori/midori-browser.c:4346
+#: ../midori/midori-browser.c:4357
 #, c-format
 msgid "Firefox (%s)"
 msgstr "Firefox (%s)"
 
-#: ../midori/midori-browser.c:4347
+#: ../midori/midori-browser.c:4358
 msgid "Midori 0.2.6"
 msgstr "Midori 0.2.6"
 
-#: ../midori/midori-browser.c:4365
+#: ../midori/midori-browser.c:4376
 msgid "Import bookmarks…"
 msgstr "匯入書籤…"
 
-#: ../midori/midori-browser.c:4368
+#: ../midori/midori-browser.c:4379
 msgid "_Import bookmarks"
 msgstr "匯入書籤(_I)"
 
-#: ../midori/midori-browser.c:4379
+#: ../midori/midori-browser.c:4390
 msgid "_Application:"
 msgstr "應用程式(_A)："
 
-#: ../midori/midori-browser.c:4444
+#: ../midori/midori-browser.c:4455
 msgid "Import from XBEL or HTML file"
 msgstr "從 XBEL 或 HTML 檔案匯入"
 
-#: ../midori/midori-browser.c:4472
+#: ../midori/midori-browser.c:4483
 msgid "Import from a file"
 msgstr "從檔案匯入"
 
-#: ../midori/midori-browser.c:4484
+#: ../midori/midori-browser.c:4495
 msgid "Failed to import bookmarks"
 msgstr "匯入書籤失敗"
 
-#: ../midori/midori-browser.c:4515
+#: ../midori/midori-browser.c:4526
 msgid "XBEL Bookmarks"
 msgstr "XBEL 書籤"
 
-#: ../midori/midori-browser.c:4520
+#: ../midori/midori-browser.c:4531
 msgid "Netscape Bookmarks"
 msgstr "Netscape 書籤"
 
-#: ../midori/midori-browser.c:4534
+#: ../midori/midori-browser.c:4545
 msgid "Midori can only export to XBEL (*.xbel) and Netscape (*.html)"
 msgstr "Midori 僅能匯出為 XBEL (*.xbel) 與 Netscape (*.html)"
 
-#: ../midori/midori-browser.c:4549
+#: ../midori/midori-browser.c:4560
 msgid "Failed to export bookmarks"
 msgstr "無法匯出書籤"
 
-#: ../midori/midori-browser.c:4765
+#: ../midori/midori-browser.c:4776
 msgid "A lightweight web browser."
 msgstr "輕量網頁瀏覽器。"
 
-#: ../midori/midori-browser.c:4766
+#: ../midori/midori-browser.c:4777
 msgid "See about:version for version info."
 msgstr "查看 about:version 來取得版本資訊。"
 
-#: ../midori/midori-browser.c:4768
+#: ../midori/midori-browser.c:4779
 msgid ""
 "This library is free software; you can redistribute it and/or modify it "
 "under the terms of the GNU Lesser General Public License as published by the "
@@ -513,7 +513,7 @@ msgstr ""
 "這個函式庫為自由軟體；基於 Free Software Foundation 所發布的 GNU Lesser General Public "
 "License 授權條款，不管是該條款的 2.1 版，或是 (您可自由選擇) 任意後續版本；您可以將它再次散布出去，與/或修改它。"
 
-#: ../midori/midori-browser.c:4803
+#: ../midori/midori-browser.c:4814
 msgid "translator-credits"
 msgstr ""
 "趙惟倫 <william.chao@ossii.com.tw>, 2009.\n"
@@ -523,366 +523,366 @@ msgstr ""
 "  Cheng-Chia Tseng https://launchpad.net/~zerng07\n"
 "  leo  https://launchpad.net/~shing80333"
 
-#: ../midori/midori-browser.c:5265
+#: ../midori/midori-browser.c:5267
 msgid "_File"
 msgstr "檔案(_F)"
 
-#: ../midori/midori-browser.c:5268
+#: ../midori/midori-browser.c:5270
 msgid "Open a new window"
 msgstr "開啟新視窗"
 
-#: ../midori/midori-browser.c:5271
+#: ../midori/midori-browser.c:5273
 msgid "Open a new tab"
 msgstr "開啟新分頁"
 
-#: ../midori/midori-browser.c:5273
+#: ../midori/midori-browser.c:5275
 msgid "New P_rivate Browsing Window"
 msgstr "新增私人瀏覽視窗(_R)"
 
-#: ../midori/midori-browser.c:5277
+#: ../midori/midori-browser.c:5279
 msgid "Open a file"
 msgstr "開啟檔案"
 
-#: ../midori/midori-browser.c:5279
+#: ../midori/midori-browser.c:5281
 msgid "_Save Page As…"
 msgstr "另存網頁為(_S)…"
 
-#: ../midori/midori-browser.c:5280
+#: ../midori/midori-browser.c:5282
 msgid "Save to a file"
 msgstr "儲存到檔案"
 
-#: ../midori/midori-browser.c:5282
+#: ../midori/midori-browser.c:5284
 msgid "Add to Speed _dial"
 msgstr "加入快速播號(_D)"
 
-#: ../midori/midori-browser.c:5285
+#: ../midori/midori-browser.c:5287
 msgid "Subscribe to News _feed"
 msgstr "訂閱新聞饋流(_F)"
 
-#: ../midori/midori-browser.c:5291
+#: ../midori/midori-browser.c:5293
 msgid "_Close Tab"
 msgstr "關閉分頁(_C)"
 
-#: ../midori/midori-browser.c:5292
+#: ../midori/midori-browser.c:5294
 msgid "Close the current tab"
 msgstr "關閉目前分頁"
 
-#: ../midori/midori-browser.c:5294
+#: ../midori/midori-browser.c:5296
 msgid "C_lose Window"
 msgstr "關閉視窗(_L)"
 
-#: ../midori/midori-browser.c:5298
+#: ../midori/midori-browser.c:5300
 msgid "_Share"
 msgstr "分享(_S)"
 
-#: ../midori/midori-browser.c:5303
+#: ../midori/midori-browser.c:5305
 msgid "Print the current page"
 msgstr "列印目前頁面"
 
-#: ../midori/midori-browser.c:5306
+#: ../midori/midori-browser.c:5308
 msgid "Close a_ll Windows"
 msgstr "關閉所有視窗(_L)"
 
-#: ../midori/midori-browser.c:5309
+#: ../midori/midori-browser.c:5311
 msgid "_Edit"
 msgstr "編輯(_E)"
 
-#: ../midori/midori-browser.c:5332
+#: ../midori/midori-browser.c:5334
 msgid "_Find…"
 msgstr "尋找(_F)…"
 
-#: ../midori/midori-browser.c:5333
+#: ../midori/midori-browser.c:5335
 msgid "Find a word or phrase in the page"
 msgstr "在頁面中尋找字詞或片語"
 
-#: ../midori/midori-browser.c:5335
+#: ../midori/midori-browser.c:5337
 msgid "Find _Next"
 msgstr "找下一個(_N)"
 
-#: ../midori/midori-browser.c:5338
+#: ../midori/midori-browser.c:5340
 msgid "Find _Previous"
 msgstr "找上一個(_P)"
 
-#: ../midori/midori-browser.c:5342
+#: ../midori/midori-browser.c:5344
 msgid "Configure the application preferences"
 msgstr "組配應用程式偏好設定"
 
-#: ../midori/midori-browser.c:5344
+#: ../midori/midori-browser.c:5346
 msgid "_View"
 msgstr "檢視(_V)"
 
-#: ../midori/midori-browser.c:5345
+#: ../midori/midori-browser.c:5347
 msgid "_Toolbars"
 msgstr "工具列(_T)"
 
-#: ../midori/midori-browser.c:5350
+#: ../midori/midori-browser.c:5352
 msgid "Reload page without caching"
 msgstr "重新載入頁面而不使用快取功能"
 
-#: ../midori/midori-browser.c:5360
+#: ../midori/midori-browser.c:5362
 msgid "Increase the zoom level"
 msgstr "增加縮放等級"
 
-#: ../midori/midori-browser.c:5363
+#: ../midori/midori-browser.c:5365
 msgid "Decrease the zoom level"
 msgstr "減少縮放等級"
 
-#: ../midori/midori-browser.c:5367
+#: ../midori/midori-browser.c:5369
 msgid "_Encoding"
 msgstr "編碼(_E)"
 
-#: ../midori/midori-browser.c:5369
+#: ../midori/midori-browser.c:5371
 msgid "View So_urce"
 msgstr "檢視源碼(_U)"
 
-#: ../midori/midori-browser.c:5372
+#: ../midori/midori-browser.c:5374
 msgid "Ca_ret Browsing"
 msgstr "鍵盤瀏覽(_R)"
 
-#: ../midori/midori-browser.c:5376
+#: ../midori/midori-browser.c:5378
 msgid "Toggle fullscreen view"
 msgstr "切換全螢幕檢視"
 
-#: ../midori/midori-browser.c:5378
+#: ../midori/midori-browser.c:5380
 msgid "Scroll _Left"
 msgstr "向左捲(_L)"
 
-#: ../midori/midori-browser.c:5381
+#: ../midori/midori-browser.c:5383
 msgid "Scroll _Down"
 msgstr "向下捲(_D)"
 
-#: ../midori/midori-browser.c:5384
+#: ../midori/midori-browser.c:5386
 msgid "Scroll _Up"
 msgstr "向上捲(_U)"
 
-#: ../midori/midori-browser.c:5387
+#: ../midori/midori-browser.c:5389
 msgid "Scroll _Right"
 msgstr "向右捲(_R)"
 
-#: ../midori/midori-browser.c:5390
+#: ../midori/midori-browser.c:5392
 msgid "_Readable"
 msgstr "可讀(_E)"
 
-#: ../midori/midori-browser.c:5393
+#: ../midori/midori-browser.c:5395
 msgid "_Go"
 msgstr "前往(_G)"
 
-#: ../midori/midori-browser.c:5396
+#: ../midori/midori-browser.c:5398
 msgid "Go back to the previous page"
 msgstr "回到上一頁"
 
 #. i18n: Visit the previous logical page, ie. in a forum or blog
-#: ../midori/midori-browser.c:5403
+#: ../midori/midori-browser.c:5405
 msgid "Go to the previous sub-page"
 msgstr "回到上一子頁"
 
-#: ../midori/midori-browser.c:5412
+#: ../midori/midori-browser.c:5414
 msgid "_Homepage"
 msgstr "首頁(_H)"
 
-#: ../midori/midori-browser.c:5413
+#: ../midori/midori-browser.c:5415
 msgid "Go to your homepage"
 msgstr "前往您的首頁"
 
-#: ../midori/midori-browser.c:5415
+#: ../midori/midori-browser.c:5417
 msgid "Empty Trash"
 msgstr "清空回收筒"
 
-#: ../midori/midori-browser.c:5418
+#: ../midori/midori-browser.c:5420
 msgid "Undo _Close Tab"
 msgstr "復原關閉分頁(_C)"
 
-#: ../midori/midori-browser.c:5425
+#: ../midori/midori-browser.c:5427
 msgid "Add a new _folder"
 msgstr "加入新的資料夾(_F)"
 
-#: ../midori/midori-browser.c:5428
+#: ../midori/midori-browser.c:5430
 msgid "_Import bookmarks…"
 msgstr ""
 
-#: ../midori/midori-browser.c:5431
+#: ../midori/midori-browser.c:5433
 msgid "_Export bookmarks…"
 msgstr ""
 
-#: ../midori/midori-browser.c:5434
+#: ../midori/midori-browser.c:5436
 msgid "_Manage Search Engines…"
 msgstr ""
 
-#: ../midori/midori-browser.c:5437
+#: ../midori/midori-browser.c:5439
 msgid "_Clear Private Data…"
 msgstr ""
 
-#: ../midori/midori-browser.c:5440
+#: ../midori/midori-browser.c:5442
 msgid "_Inspect Page"
 msgstr "審閱頁面(_I)"
 
-#: ../midori/midori-browser.c:5444
+#: ../midori/midori-browser.c:5446
 msgid "_Previous Tab"
 msgstr "上一個分頁(_P)"
 
-#: ../midori/midori-browser.c:5447
+#: ../midori/midori-browser.c:5449
 msgid "_Next Tab"
 msgstr "下一個分頁(_N)"
 
-#: ../midori/midori-browser.c:5449
+#: ../midori/midori-browser.c:5451
 msgid "Move Tab to _first position"
 msgstr "將分頁移動至第一個位置(_F)"
 
-#: ../midori/midori-browser.c:5451
+#: ../midori/midori-browser.c:5453
 msgid "Move Tab _Backward"
 msgstr "將分頁往後移(_B)"
 
-#: ../midori/midori-browser.c:5453
+#: ../midori/midori-browser.c:5455
 msgid "_Move Tab Forward"
 msgstr "將分頁往前移(_M)"
 
-#: ../midori/midori-browser.c:5455
+#: ../midori/midori-browser.c:5457
 msgid "Move Tab to _last position"
 msgstr "將分頁移動至最後一個位置(_L)"
 
-#: ../midori/midori-browser.c:5458
+#: ../midori/midori-browser.c:5460
 msgid "Focus _Current Tab"
 msgstr "專注於目前分頁(_C)"
 
-#: ../midori/midori-browser.c:5461
+#: ../midori/midori-browser.c:5463
 msgid "Focus _Next view"
 msgstr "聚焦下個檢視點(_N)"
 
-#: ../midori/midori-browser.c:5464
+#: ../midori/midori-browser.c:5466
 msgid "Only show the Icon of the _Current Tab"
 msgstr "只顯示目前分頁的圖示(_C)"
 
-#: ../midori/midori-browser.c:5467
+#: ../midori/midori-browser.c:5469
 msgid "_Duplicate Current Tab"
 msgstr "製作目前分頁的複本(_D)"
 
-#: ../midori/midori-browser.c:5470
+#: ../midori/midori-browser.c:5472
 msgid "Close Ot_her Tabs"
 msgstr "關閉其它分頁(_H)"
 
-#: ../midori/midori-browser.c:5473
+#: ../midori/midori-browser.c:5475
 msgid "Open last _session"
 msgstr "開啟上次工作階段(_S)"
 
-#: ../midori/midori-browser.c:5476
+#: ../midori/midori-browser.c:5478
 msgid "_Help"
 msgstr "求助(_H)"
 
-#: ../midori/midori-browser.c:5478
+#: ../midori/midori-browser.c:5480
 msgid "_Frequent Questions"
 msgstr "常見問題(_F)"
 
-#: ../midori/midori-browser.c:5481
+#: ../midori/midori-browser.c:5483
 msgid "_Report a Problem…"
 msgstr "回報問題(_R)…"
 
-#: ../midori/midori-browser.c:5486 ../midori/midori-browser.c:6143
+#: ../midori/midori-browser.c:5488 ../midori/midori-browser.c:6145
 msgid "_Tools"
 msgstr "工具(_T)"
 
-#: ../midori/midori-browser.c:5493
+#: ../midori/midori-browser.c:5495
 msgid "_Menubar"
 msgstr "選單列(_M)"
 
-#: ../midori/midori-browser.c:5497
+#: ../midori/midori-browser.c:5499
 msgid "_Navigationbar"
 msgstr "導覽列(_N)"
 
-#: ../midori/midori-browser.c:5501
+#: ../midori/midori-browser.c:5503
 msgid "Side_panel"
 msgstr "側邊面板(_P)"
 
-#: ../midori/midori-browser.c:5502
+#: ../midori/midori-browser.c:5504
 msgid "Sidepanel"
 msgstr "側邊面板"
 
-#: ../midori/midori-browser.c:5505
+#: ../midori/midori-browser.c:5507
 msgid "_Bookmarkbar"
 msgstr "書籤列(_B)"
 
-#: ../midori/midori-browser.c:5509
+#: ../midori/midori-browser.c:5511
 msgid "_Statusbar"
 msgstr "狀態列(_S)"
 
-#: ../midori/midori-browser.c:5518 ../midori/midori-websettings.c:227
+#: ../midori/midori-browser.c:5520 ../midori/midori-websettings.c:227
 msgid "_Automatic"
 msgstr "自動(_A)"
 
-#: ../midori/midori-browser.c:5521 ../midori/midori-websettings.c:151
+#: ../midori/midori-browser.c:5523 ../midori/midori-websettings.c:151
 msgid "Chinese Traditional (BIG5)"
 msgstr "正體中文 (BIG5)"
 
-#: ../midori/midori-browser.c:5524 ../midori/midori-websettings.c:152
+#: ../midori/midori-browser.c:5526 ../midori/midori-websettings.c:152
 msgid "Chinese Simplified (GB18030)"
 msgstr "簡體中文 (GB18030)"
 
 #. i18n: A double underscore "__" is used to prevent the mnemonic
-#: ../midori/midori-browser.c:5528
+#: ../midori/midori-browser.c:5530
 msgid "Japanese (SHIFT__JIS)"
 msgstr "日文 (SHIFT__JIS)"
 
-#: ../midori/midori-browser.c:5531 ../midori/midori-websettings.c:154
+#: ../midori/midori-browser.c:5533 ../midori/midori-websettings.c:154
 msgid "Korean (EUC-KR)"
 msgstr "韓文 (EUC-KR)"
 
-#: ../midori/midori-browser.c:5534 ../midori/midori-websettings.c:155
+#: ../midori/midori-browser.c:5536 ../midori/midori-websettings.c:155
 msgid "Russian (KOI8-R)"
 msgstr "俄文 (KOI8-R)"
 
-#: ../midori/midori-browser.c:5537 ../midori/midori-websettings.c:156
+#: ../midori/midori-browser.c:5539 ../midori/midori-websettings.c:156
 msgid "Unicode (UTF-8)"
 msgstr "統一碼 (UTF-8)"
 
-#: ../midori/midori-browser.c:5540 ../midori/midori-websettings.c:157
+#: ../midori/midori-browser.c:5542 ../midori/midori-websettings.c:157
 msgid "Western (ISO-8859-1)"
 msgstr "西歐 (ISO-8859-1)"
 
-#: ../midori/midori-browser.c:5543 ../midori/midori-websettings.c:158
+#: ../midori/midori-browser.c:5545 ../midori/midori-websettings.c:158
 #: ../midori/midori-websettings.c:234 ../katze/katze-utils.c:420
 msgid "Custom…"
 msgstr "自訂…"
 
-#: ../midori/midori-browser.c:6049
+#: ../midori/midori-browser.c:6051
 msgid "_Separator"
 msgstr "分隔符號(_S)"
 
-#: ../midori/midori-browser.c:6056
+#: ../midori/midori-browser.c:6058
 msgid "_Location…"
 msgstr "位置(_L)…"
 
-#: ../midori/midori-browser.c:6058
+#: ../midori/midori-browser.c:6060
 msgid "Open a particular location"
 msgstr "開啟特定位置"
 
-#: ../midori/midori-browser.c:6080
+#: ../midori/midori-browser.c:6082
 msgid "_Web Search…"
 msgstr "網頁搜尋(_W)…"
 
-#: ../midori/midori-browser.c:6082
+#: ../midori/midori-browser.c:6084
 msgid "Run a web search"
 msgstr "執行網頁搜尋"
 
-#: ../midori/midori-browser.c:6109
+#: ../midori/midori-browser.c:6111
 msgid "Reopen a previously closed tab or window"
 msgstr "重新開啟之前關閉的分頁或視窗"
 
-#: ../midori/midori-browser.c:6126
+#: ../midori/midori-browser.c:6128
 msgid "Show the saved bookmarks"
 msgstr "顯示已儲存書籤"
 
-#: ../midori/midori-browser.c:6159
+#: ../midori/midori-browser.c:6161
 msgid "_Tabs"
 msgstr "分頁(_T)"
 
-#: ../midori/midori-browser.c:6161
+#: ../midori/midori-browser.c:6163
 msgid "Show a list of all open tabs"
 msgstr "顯示所有開啟分頁的清單"
 
-#: ../midori/midori-browser.c:6175
+#: ../midori/midori-browser.c:6177
 msgid "_Menu"
 msgstr "選單(_M)"
 
-#: ../midori/midori-browser.c:6177
+#: ../midori/midori-browser.c:6179
 msgid "Menu"
 msgstr "選單"
 
@@ -1351,24 +1351,24 @@ msgid_plural "Close Ot_her Tabs"
 msgstr[0] "關閉其他分頁(_H)"
 
 #. i18n: word stem of "previous page" type links, case is not important
-#: ../midori/midori-view.c:5583
+#: ../midori/midori-view.c:5576
 msgid "previous"
 msgstr "上一頁"
 
 #. i18n: word stem of "next page" type links, case is not important
-#: ../midori/midori-view.c:5602
+#: ../midori/midori-view.c:5595
 msgid "next"
 msgstr "下一頁"
 
-#: ../midori/midori-view.c:5616
+#: ../midori/midori-view.c:5609
 msgid "Print background images"
 msgstr "列印背景圖像"
 
-#: ../midori/midori-view.c:5617
+#: ../midori/midori-view.c:5610
 msgid "Whether background images should be printed"
 msgstr "是否應該列印背景圖像"
 
-#: ../midori/midori-view.c:5647
+#: ../midori/midori-view.c:5640
 msgid "Features"
 msgstr "特色"
 
@@ -1832,34 +1832,92 @@ msgstr "符合大小寫"
 msgid "Close Findbar"
 msgstr "關閉尋找列"
 
-#: ../panels/midori-bookmarks.c:308
+#: ../panels/midori-bookmarks.c:312
 #, c-format
 msgid "Failed to add bookmark item: %s\n"
 msgstr "加入書籤項目失敗：%s\n"
 
-#: ../panels/midori-bookmarks.c:475
+#. i18n: [n] bookmark(s)
+#: ../panels/midori-bookmarks.c:455
 #, c-format
-msgid "Failed to update bookmark : %s\n"
-msgstr "無法更新書籤：%s\n"
+msgid "%d bookmark"
+msgid_plural "%d bookmarks"
+msgstr[0] ""
+msgstr[1] ""
 
-#: ../panels/midori-bookmarks.c:535
+#. i18n: [n] subfolder(s)
+#: ../panels/midori-bookmarks.c:465
+#, c-format
+msgid "%d subfolder"
+msgid_plural "%d subfolders"
+msgstr[0] ""
+msgstr[1] ""
+
+#. i18n: Empty folder
+#: ../panels/midori-bookmarks.c:493
+#, c-format
+msgid "Empty folder"
+msgstr ""
+
+#. i18n: Folder containing [[n] folder(s)] and no bookmark
+#: ../panels/midori-bookmarks.c:496
+#, c-format
+msgid "Folder containing %s and no bookmark"
+msgstr ""
+
+#. i18n: Folder containing [[n] bookmark(s)]
+#: ../panels/midori-bookmarks.c:500
+#, c-format
+msgid "Folder containing %s"
+msgstr ""
+
+#. i18n: Folder containing [[n] bookmark(s)] and [[n] folder(s)]
+#: ../panels/midori-bookmarks.c:503
+#, c-format
+msgid "Folder containing %s and %s"
+msgstr ""
+
+#. i18n: Bookmark leading to: [bookmark uri]
+#: ../panels/midori-bookmarks.c:514
+#, c-format
+msgid "Bookmark leading to: %s"
+msgstr ""
+
+#. i18n: [[n] folder(s)] and no bookmark
+#: ../panels/midori-bookmarks.c:528
+#, c-format
+msgid "%s and no bookmark"
+msgstr ""
+
+#. i18n: [[n] bookmark(s)] and [[n] folder(s)]
+#: ../panels/midori-bookmarks.c:534
+#, c-format
+msgid "%s and %s"
+msgstr ""
+
+#: ../panels/midori-bookmarks.c:586
+#, c-format
+msgid "Failed to update bookmark: %s\n"
+msgstr ""
+
+#: ../panels/midori-bookmarks.c:647
 msgid "Edit the selected bookmark"
 msgstr "編輯所選書籤"
 
-#: ../panels/midori-bookmarks.c:543
+#: ../panels/midori-bookmarks.c:655
 msgid "Delete the selected bookmark"
 msgstr "刪除所選書籤"
 
-#: ../panels/midori-bookmarks.c:558
+#: ../panels/midori-bookmarks.c:671
 msgid "Add a new folder"
 msgstr "加入新的資料夾"
 
-#: ../panels/midori-bookmarks.c:687 ../panels/midori-history.c:628
+#: ../panels/midori-bookmarks.c:800 ../panels/midori-history.c:628
 msgid "<i>Separator</i>"
 msgstr "<i>分隔符號</i>"
 
 #. Create the filter entry
-#: ../panels/midori-bookmarks.c:1009
+#: ../panels/midori-bookmarks.c:1228
 msgid "Search Bookmarks"
 msgstr "搜尋書籤"
 
@@ -1881,7 +1939,7 @@ msgstr[0] "%d 天前"
 msgid "A week ago"
 msgstr "一週前"
 
-#: ../panels/midori-history.c:234 ../midori/midori-bookmarks.c:59
+#: ../panels/midori-history.c:234
 #, c-format
 msgid "Failed to remove history item: %s\n"
 msgstr "移除歷史項目時失敗：%s\n"
@@ -1985,7 +2043,7 @@ msgstr "一年"
 
 #: ../katze/katze-preferences.c:72 ../extensions/delayed-load.vala:24
 #: ../extensions/external-download-manager.vala:224
-#: ../extensions/history-list.vala:242
+#: ../extensions/history-list.vala:290
 #, c-format
 msgid "Preferences for %s"
 msgstr "偏好設定用於 %s"
@@ -2116,11 +2174,11 @@ msgstr "無法監控「%s」資料夾：%s"
 msgid "Support for userscripts and userstyles"
 msgstr "支援使用者指令稿與使用者樣式"
 
-#: ../extensions/colorful-tabs.c:260
+#: ../extensions/colorful-tabs.c:265
 msgid "Colorful Tabs"
 msgstr "彩色分頁"
 
-#: ../extensions/colorful-tabs.c:261
+#: ../extensions/colorful-tabs.c:266
 msgid "Tint each tab distinctly"
 msgstr "將每個分頁著上不同的色彩"
 
@@ -2401,7 +2459,7 @@ msgid "Activate or deactivate form history for the current tab."
 msgstr "為目前分頁啟動或關閉表單歷史。"
 
 #: ../extensions/formhistory/formhistory.c:515 ../midori/midori-history.c:47
-#: ../midori/midori-bookmarks.c:155
+#: ../midori/midori-bookmarks.c:157
 #, c-format
 msgid "Failed to open database: %s\n"
 msgstr "開啟資料庫時失敗：%s\n"
@@ -2430,64 +2488,64 @@ msgstr "儲存已輸入表單資料的歷史"
 msgid "Failed to select suggestions\n"
 msgstr "無法選取建議\n"
 
-#: ../extensions/history-list.vala:204
+#: ../extensions/history-list.vala:252
 msgid "There are no unvisited tabs"
 msgstr "沒有尚未造訪的分頁"
 
-#: ../extensions/history-list.vala:242
+#: ../extensions/history-list.vala:290
 #, c-format
 msgid "History-List"
 msgstr "歷史清單"
 
-#: ../extensions/history-list.vala:282
+#: ../extensions/history-list.vala:330
 msgid "Tab closing behavior"
 msgstr "分頁關閉行為"
 
-#: ../extensions/history-list.vala:290
+#: ../extensions/history-list.vala:338
 msgid "Do nothing"
 msgstr "不做任何事"
 
-#: ../extensions/history-list.vala:296
+#: ../extensions/history-list.vala:344
 msgid "Switch to last viewed tab"
 msgstr "切換至最後檢視的分頁"
 
-#: ../extensions/history-list.vala:302
+#: ../extensions/history-list.vala:350
 msgid "Switch to newest tab"
 msgstr "切換至最新的分頁"
 
-#: ../extensions/history-list.vala:316
+#: ../extensions/history-list.vala:364
 msgid "Flash window on background tabs"
 msgstr "於背景分頁閃動視窗"
 
-#: ../extensions/history-list.vala:448
+#: ../extensions/history-list.vala:499
 msgid "Next new Tab (History List)"
 msgstr "下一個新分頁 (歷史清單)"
 
-#: ../extensions/history-list.vala:449
+#: ../extensions/history-list.vala:500
 msgid "Next new tab from history"
 msgstr "下一個歷史中的新分頁"
 
-#: ../extensions/history-list.vala:458
+#: ../extensions/history-list.vala:509
 msgid "Previous new Tab (History List)"
 msgstr "上一個新分頁 (歷史清單)"
 
-#: ../extensions/history-list.vala:459
+#: ../extensions/history-list.vala:510
 msgid "Previous new tab from history"
 msgstr "上一個歷史中的新分頁"
 
-#: ../extensions/history-list.vala:468
+#: ../extensions/history-list.vala:519
 msgid "Display tab in background (History List)"
 msgstr "在背景顯示分頁 (歷史清單)"
 
-#: ../extensions/history-list.vala:469
+#: ../extensions/history-list.vala:520
 msgid "Display the current selected tab in background"
 msgstr "在背景顯示目前選取的分頁"
 
-#: ../extensions/history-list.vala:598
+#: ../extensions/history-list.vala:649
 msgid "History List"
 msgstr "歷史清單"
 
-#: ../extensions/history-list.vala:599
+#: ../extensions/history-list.vala:650
 msgid "Move to the last used tab when switching or closing tabs"
 msgstr "當切換或關閉分頁時移動最後使用的分頁"
 
@@ -2567,33 +2625,33 @@ msgstr "分頁預設只使用圖示表示"
 msgid "New tabs have no label by default"
 msgstr "新分頁預設情況下沒有分頁標籤"
 
-#: ../extensions/toolbar-editor.c:393
+#: ../extensions/toolbar-editor.c:401
 msgid "Customize Toolbar"
 msgstr "自訂工具列"
 
-#: ../extensions/toolbar-editor.c:409
+#: ../extensions/toolbar-editor.c:417
 msgid ""
 "Select items to be displayed on the toolbar. Items can be reordered by drag "
 "and drop."
 msgstr "選取工具列上要顯示的項目。這些項目可以利用拖曳方式來重新調整位置。"
 
-#: ../extensions/toolbar-editor.c:425
+#: ../extensions/toolbar-editor.c:433
 msgid "Available Items"
 msgstr "可用項目"
 
-#: ../extensions/toolbar-editor.c:446
+#: ../extensions/toolbar-editor.c:454
 msgid "Displayed Items"
 msgstr "顯示的項目"
 
-#: ../extensions/toolbar-editor.c:586
+#: ../extensions/toolbar-editor.c:611
 msgid "_Customize Toolbar…"
 msgstr "自訂工具列(_C)…"
 
-#: ../extensions/toolbar-editor.c:615
+#: ../extensions/toolbar-editor.c:640
 msgid "Toolbar Editor"
 msgstr "工具列編輯器"
 
-#: ../extensions/toolbar-editor.c:616
+#: ../extensions/toolbar-editor.c:641
 msgid "Easily edit the toolbar layout"
 msgstr "輕鬆編輯工具列配置"
 
@@ -2660,33 +2718,38 @@ msgstr "清空歷史時失敗：%s\n"
 msgid "Failed to remove old history items: %s\n"
 msgstr "移除舊的歷史項目時失敗：%s\n"
 
-#: ../midori/midori-bookmarks.c:104
+#: ../midori/midori-bookmarks.c:60
+#, c-format
+msgid "Failed to remove bookmark item: %s\n"
+msgstr ""
+
+#: ../midori/midori-bookmarks.c:106
 msgid "failed to ATTACH old db"
 msgstr "無法 ATTACH 舊資料庫"
 
-#: ../midori/midori-bookmarks.c:111
+#: ../midori/midori-bookmarks.c:113
 msgid "failed to import from old db"
 msgstr "從舊資料庫匯入失敗"
 
-#: ../midori/midori-bookmarks.c:115
+#: ../midori/midori-bookmarks.c:117
 msgid "failed to rollback the transaction"
 msgstr "無法回復處理事項"
 
-#: ../midori/midori-bookmarks.c:119
+#: ../midori/midori-bookmarks.c:121
 msgid "failed to DETACH "
 msgstr "無法 DETACH "
 
-#: ../midori/midori-bookmarks.c:259
+#: ../midori/midori-bookmarks.c:261
 #, c-format
 msgid "Couldn't create bookmarks table: %s\n"
 msgstr "無法建立書籤表格：%s\n"
 
-#: ../midori/midori-bookmarks.c:274
+#: ../midori/midori-bookmarks.c:276
 #, c-format
 msgid "Couldn't import from old database: %s\n"
 msgstr "無法從舊資料庫匯入：%s\n"
 
-#: ../midori/midori-bookmarks.c:311
+#: ../midori/midori-bookmarks.c:313
 #, c-format
 msgid "The bookmarks couldn't be saved. %s"
 msgstr "無法儲存書籤。%s"
@@ -3017,49 +3080,53 @@ msgstr ""
 msgid "You can now run <b>%s</b> from your launcher or menu"
 msgstr ""
 
-#: ../extensions/apps.vala:54
+#: ../extensions/apps.vala:50
 msgid "Error creating launcher"
 msgstr ""
 
-#: ../extensions/apps.vala:55
+#: ../extensions/apps.vala:51
 #, c-format
 msgid "Failed to create new launcher: %s"
 msgstr ""
 
-#: ../extensions/apps.vala:92
+#: ../extensions/apps.vala:88
 msgid "Applications"
 msgstr "應用程式"
 
-#: ../extensions/apps.vala:101
+#: ../extensions/apps.vala:97
 msgid "New _Profile"
 msgstr ""
 
-#: ../extensions/apps.vala:102
+#: ../extensions/apps.vala:98
 msgid "Creates a new, independant profile and a launcher"
 msgstr ""
 
-#: ../extensions/apps.vala:111
+#: ../extensions/apps.vala:107
 #, c-format
 msgid "Midori (%s)"
 msgstr ""
 
-#: ../extensions/apps.vala:116
+#: ../extensions/apps.vala:112
 msgid "New _App"
 msgstr ""
 
-#: ../extensions/apps.vala:117
+#: ../extensions/apps.vala:113
 msgid "Creates a new app for a specific site"
 msgstr ""
 
-#: ../extensions/apps.vala:276
+#: ../extensions/apps.vala:137
+msgid "Error launching"
+msgstr ""
+
+#: ../extensions/apps.vala:327
 msgid "Create _Launcher"
 msgstr "建立啟動器(_L)"
 
-#: ../extensions/apps.vala:314
+#: ../extensions/apps.vala:365
 msgid "Web App Manager"
 msgstr "網頁程式管理員"
 
-#: ../extensions/apps.vala:315
+#: ../extensions/apps.vala:366
 msgid "Manage websites installed as applications"
 msgstr "管理安裝成應用程式型態的網站"
 
