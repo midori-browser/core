@@ -9,14 +9,14 @@ msgstr ""
 "Project-Id-Version: midori master\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-06-14 17:01-0500\n"
-"PO-Revision-Date: 2013-06-02 11:53+0000\n"
+"PO-Revision-Date: 2013-06-15 16:35+0000\n"
 "Last-Translator: Cheng-Chia Tseng <pswo10680@gmail.com>\n"
 "Language-Team: chinese-l10n <chinese-l10n@googlegroups.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2013-06-15 04:39+0000\n"
+"X-Launchpad-Export-Date: 2013-06-16 04:35+0000\n"
 "X-Generator: Launchpad (build 16667)\n"
 
 #: ../data/midori.desktop.in.h:1 ../midori/main.c:162
@@ -42,7 +42,7 @@ msgstr "Internet;WWW;Explorer;網際網路;瀏覽器"
 
 #: ../data/midori.desktop.in.h:6 ../midori/midori-browser.c:1390
 msgid "New Tab"
-msgstr "新分頁"
+msgstr "新增分頁"
 
 #: ../data/midori.desktop.in.h:7 ../midori/midori-browser.c:1387
 msgid "New Window"
@@ -286,27 +286,27 @@ msgstr "書籤"
 
 #: ../midori/midori-browser.c:937
 msgid "New Folder"
-msgstr ""
+msgstr "新增資料夾"
 
 #: ../midori/midori-browser.c:937
 msgid "Edit Folder"
-msgstr ""
+msgstr "編輯資料夾"
 
 #: ../midori/midori-browser.c:939
 msgid "New Bookmark"
-msgstr ""
+msgstr "新增書籤"
 
 #: ../midori/midori-browser.c:939
 msgid "Edit Bookmark"
-msgstr ""
+msgstr "編輯書籤"
 
 #: ../midori/midori-browser.c:961
 msgid "Type a name for this bookmark, and choose where to keep it."
-msgstr ""
+msgstr "請為此書籤輸入名稱，並選擇保存書籤的位置。"
 
 #: ../midori/midori-browser.c:963
 msgid "Type a name for this folder, and choose where to keep it."
-msgstr ""
+msgstr "請為此資料夾輸入名稱，並選擇保存資料夾的位置。"
 
 #: ../midori/midori-browser.c:1017
 msgid "Add to _Speed Dial"
@@ -314,7 +314,7 @@ msgstr "加入至快速播號(_S)"
 
 #: ../midori/midori-browser.c:1026
 msgid "Show in Bookmarks _Bar"
-msgstr ""
+msgstr "顯示於書籤列中(_B)"
 
 #: ../midori/midori-browser.c:1034
 msgid "Run as _web application"
@@ -698,19 +698,19 @@ msgstr "加入新的資料夾(_F)"
 
 #: ../midori/midori-browser.c:5430
 msgid "_Import bookmarks…"
-msgstr ""
+msgstr "匯入書籤(_I)…"
 
 #: ../midori/midori-browser.c:5433
 msgid "_Export bookmarks…"
-msgstr ""
+msgstr "匯出書籤(_E)..."
 
 #: ../midori/midori-browser.c:5436
 msgid "_Manage Search Engines…"
-msgstr ""
+msgstr "管理搜尋引擎(_M)..."
 
 #: ../midori/midori-browser.c:5439
 msgid "_Clear Private Data…"
-msgstr ""
+msgstr "清除隱私資料(_C)…"
 
 #: ../midori/midori-browser.c:5442
 msgid "_Inspect Page"
@@ -1842,63 +1842,61 @@ msgstr "加入書籤項目失敗：%s\n"
 #, c-format
 msgid "%d bookmark"
 msgid_plural "%d bookmarks"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%d 張書籤"
 
 #. i18n: [n] subfolder(s)
 #: ../panels/midori-bookmarks.c:465
 #, c-format
 msgid "%d subfolder"
 msgid_plural "%d subfolders"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%d 個子資料夾"
 
 #. i18n: Empty folder
 #: ../panels/midori-bookmarks.c:493
 #, c-format
 msgid "Empty folder"
-msgstr ""
+msgstr "空白資料夾"
 
 #. i18n: Folder containing [[n] folder(s)] and no bookmark
 #: ../panels/midori-bookmarks.c:496
 #, c-format
 msgid "Folder containing %s and no bookmark"
-msgstr ""
+msgstr "資料夾包含 %s 但無書籤"
 
 #. i18n: Folder containing [[n] bookmark(s)]
 #: ../panels/midori-bookmarks.c:500
 #, c-format
 msgid "Folder containing %s"
-msgstr ""
+msgstr "資料夾包含 %s"
 
 #. i18n: Folder containing [[n] bookmark(s)] and [[n] folder(s)]
 #: ../panels/midori-bookmarks.c:503
 #, c-format
 msgid "Folder containing %s and %s"
-msgstr ""
+msgstr "資料夾包含 %s 和 %s"
 
 #. i18n: Bookmark leading to: [bookmark uri]
 #: ../panels/midori-bookmarks.c:514
 #, c-format
 msgid "Bookmark leading to: %s"
-msgstr ""
+msgstr "書籤導引至：%s"
 
 #. i18n: [[n] folder(s)] and no bookmark
 #: ../panels/midori-bookmarks.c:528
 #, c-format
 msgid "%s and no bookmark"
-msgstr ""
+msgstr "%s 但無書籤"
 
 #. i18n: [[n] bookmark(s)] and [[n] folder(s)]
 #: ../panels/midori-bookmarks.c:534
 #, c-format
 msgid "%s and %s"
-msgstr ""
+msgstr "%s 和 %s"
 
 #: ../panels/midori-bookmarks.c:586
 #, c-format
 msgid "Failed to update bookmark: %s\n"
-msgstr ""
+msgstr "無法更新書籤：%s\n"
 
 #: ../panels/midori-bookmarks.c:647
 msgid "Edit the selected bookmark"
@@ -2721,7 +2719,7 @@ msgstr "移除舊的歷史項目時失敗：%s\n"
 #: ../midori/midori-bookmarks.c:60
 #, c-format
 msgid "Failed to remove bookmark item: %s\n"
-msgstr ""
+msgstr "無法移除書籤項目：%s\n"
 
 #: ../midori/midori-bookmarks.c:106
 msgid "failed to ATTACH old db"
@@ -3073,21 +3071,21 @@ msgstr "針對各個網站管理訊餅的許可與否"
 
 #: ../extensions/apps.vala:46
 msgid "Launcher created"
-msgstr ""
+msgstr "啟動器已建立"
 
 #: ../extensions/apps.vala:47
 #, c-format
 msgid "You can now run <b>%s</b> from your launcher or menu"
-msgstr ""
+msgstr "您現在可以從您的啟動器或選單中執行 <b>%s</b>"
 
 #: ../extensions/apps.vala:50
 msgid "Error creating launcher"
-msgstr ""
+msgstr "建立啟動器時發生錯誤"
 
 #: ../extensions/apps.vala:51
 #, c-format
 msgid "Failed to create new launcher: %s"
-msgstr ""
+msgstr "無法建立新起動器：%s"
 
 #: ../extensions/apps.vala:88
 msgid "Applications"
@@ -3095,28 +3093,28 @@ msgstr "應用程式"
 
 #: ../extensions/apps.vala:97
 msgid "New _Profile"
-msgstr ""
+msgstr "新增個人檔案(_P)"
 
 #: ../extensions/apps.vala:98
 msgid "Creates a new, independant profile and a launcher"
-msgstr ""
+msgstr "建立新的、獨立的個人檔案與啟動器"
 
 #: ../extensions/apps.vala:107
 #, c-format
 msgid "Midori (%s)"
-msgstr ""
+msgstr "Midori (%s)"
 
 #: ../extensions/apps.vala:112
 msgid "New _App"
-msgstr ""
+msgstr "新增程式(_A)"
 
 #: ../extensions/apps.vala:113
 msgid "Creates a new app for a specific site"
-msgstr ""
+msgstr "為指定的網站建立新的程式"
 
 #: ../extensions/apps.vala:137
 msgid "Error launching"
-msgstr ""
+msgstr "啟動時發生錯誤"
 
 #: ../extensions/apps.vala:327
 msgid "Create _Launcher"
@@ -3154,7 +3152,7 @@ msgstr "已下載「<b>%s</b>」檔案。"
 #: ../extensions/transfers.vala:433
 #, c-format
 msgid "'<b>%s</b>' and %d other files have been downloaded."
-msgstr ""
+msgstr "「<b>%s</b>」和另外 %d 份檔案已下載。"
 
 #: ../extensions/transfers.vala:434
 msgid "Transfer completed"
