@@ -8,7 +8,6 @@
  version 2.1 of the License, or (at your option) any later version.
 */
 #include "formhistory-frontend.h"
-#ifdef FORMHISTORY_USE_GDOM
 #define COMPLETION_DELAY 200
 
 FormHistoryPriv*
@@ -393,14 +392,12 @@ formhistory_DOMContentLoaded_cb (WebKitDOMElement* window,
     for (i = 0; i < webkit_dom_node_list_get_length (inputs); i++)
     {
         WebKitDOMNode* element = webkit_dom_node_list_item (inputs, i);
-        #if WEBKIT_CHECK_VERSION (1, 6, 1)
         gchar* autocomplete = webkit_dom_html_input_element_get_autocomplete (
             WEBKIT_DOM_HTML_INPUT_ELEMENT (element));
         gboolean off = !g_strcmp0 (autocomplete, "off");
         g_free (autocomplete);
         if (off)
             continue;
-        #endif
 
         g_object_set_data (G_OBJECT (element), "doc", doc);
         g_object_set_data (G_OBJECT (element), "webview", web_view);
@@ -511,4 +508,3 @@ formhistory_construct_popup_gui (FormHistoryPriv* priv)
         G_CALLBACK (formhistory_suggestion_selected_cb), priv);
     return TRUE;
 }
-#endif
