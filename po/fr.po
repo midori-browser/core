@@ -14,14 +14,14 @@ msgstr ""
 "Project-Id-Version: midori 0.2.7\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-06-14 17:01-0500\n"
-"PO-Revision-Date: 2013-06-04 11:10+0000\n"
-"Last-Translator: Stéphane Marguet <StempUbuntu@gmail.com>\n"
+"PO-Revision-Date: 2013-06-16 13:26+0000\n"
+"Last-Translator: Corentin Noël <tintou@mailoo.org>\n"
 "Language-Team: French <fr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2013-06-15 04:37+0000\n"
+"X-Launchpad-Export-Date: 2013-06-17 05:19+0000\n"
 "X-Generator: Launchpad (build 16667)\n"
 "Language: fr\n"
 
@@ -311,10 +311,14 @@ msgstr "Modifier un signet"
 #: ../midori/midori-browser.c:961
 msgid "Type a name for this bookmark, and choose where to keep it."
 msgstr ""
+"Veuillez saisir un nom pour votre signet et sélectionner un emplacement où "
+"l'enregistrer."
 
 #: ../midori/midori-browser.c:963
 msgid "Type a name for this folder, and choose where to keep it."
 msgstr ""
+"Veuillez saisir un nom pour ce dossier et sélectionner un emplacement où "
+"l'enregistrer."
 
 #: ../midori/midori-browser.c:1017
 msgid "Add to _Speed Dial"
@@ -322,7 +326,7 @@ msgstr "Ajouter à la page d'appel rapide"
 
 #: ../midori/midori-browser.c:1026
 msgid "Show in Bookmarks _Bar"
-msgstr ""
+msgstr "Afficher dans la _barre des signets"
 
 #: ../midori/midori-browser.c:1034
 msgid "Run as _web application"
@@ -733,19 +737,19 @@ msgstr "Ajouter un nouveau _dossier"
 
 #: ../midori/midori-browser.c:5430
 msgid "_Import bookmarks…"
-msgstr ""
+msgstr "_Importer des signets…"
 
 #: ../midori/midori-browser.c:5433
 msgid "_Export bookmarks…"
-msgstr ""
+msgstr "_Exporter des signets…"
 
 #: ../midori/midori-browser.c:5436
 msgid "_Manage Search Engines…"
-msgstr ""
+msgstr "Gestion de les _moteurs de recherche…"
 
 #: ../midori/midori-browser.c:5439
 msgid "_Clear Private Data…"
-msgstr ""
+msgstr "Supprimer les données de navigation…"
 
 #: ../midori/midori-browser.c:5442
 msgid "_Inspect Page"
@@ -1909,63 +1913,63 @@ msgstr "Échec de l'ajout du signet : %s\n"
 #, c-format
 msgid "%d bookmark"
 msgid_plural "%d bookmarks"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%d signet"
+msgstr[1] "%d signets"
 
 #. i18n: [n] subfolder(s)
 #: ../panels/midori-bookmarks.c:465
 #, c-format
 msgid "%d subfolder"
 msgid_plural "%d subfolders"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%d sous-dossier"
+msgstr[1] "%d sous-dossiers"
 
 #. i18n: Empty folder
 #: ../panels/midori-bookmarks.c:493
 #, c-format
 msgid "Empty folder"
-msgstr ""
+msgstr "Dossier vide"
 
 #. i18n: Folder containing [[n] folder(s)] and no bookmark
 #: ../panels/midori-bookmarks.c:496
 #, c-format
 msgid "Folder containing %s and no bookmark"
-msgstr ""
+msgstr "Dossier contenant %s mais aucun signet"
 
 #. i18n: Folder containing [[n] bookmark(s)]
 #: ../panels/midori-bookmarks.c:500
 #, c-format
 msgid "Folder containing %s"
-msgstr ""
+msgstr "Dossier contenant %s"
 
 #. i18n: Folder containing [[n] bookmark(s)] and [[n] folder(s)]
 #: ../panels/midori-bookmarks.c:503
 #, c-format
 msgid "Folder containing %s and %s"
-msgstr ""
+msgstr "Dossier contenant %s et %s"
 
 #. i18n: Bookmark leading to: [bookmark uri]
 #: ../panels/midori-bookmarks.c:514
 #, c-format
 msgid "Bookmark leading to: %s"
-msgstr ""
+msgstr "Signet vers : %s"
 
 #. i18n: [[n] folder(s)] and no bookmark
 #: ../panels/midori-bookmarks.c:528
 #, c-format
 msgid "%s and no bookmark"
-msgstr ""
+msgstr "%s mais aucun signet"
 
 #. i18n: [[n] bookmark(s)] and [[n] folder(s)]
 #: ../panels/midori-bookmarks.c:534
 #, c-format
 msgid "%s and %s"
-msgstr ""
+msgstr "%s et %s"
 
 #: ../panels/midori-bookmarks.c:586
 #, c-format
 msgid "Failed to update bookmark: %s\n"
-msgstr ""
+msgstr "Impossible de mettre à jours le signet : %s\n"
 
 #: ../panels/midori-bookmarks.c:647
 msgid "Edit the selected bookmark"
@@ -2812,7 +2816,7 @@ msgstr "Impossible de supprimer les anciens éléments de l'historique : %s\n"
 #: ../midori/midori-bookmarks.c:60
 #, c-format
 msgid "Failed to remove bookmark item: %s\n"
-msgstr ""
+msgstr "Impossible de supprimer le signet : %s\n"
 
 #: ../midori/midori-bookmarks.c:106
 msgid "failed to ATTACH old db"
@@ -3185,21 +3189,23 @@ msgstr "gérer les permissions cookies par site"
 
 #: ../extensions/apps.vala:46
 msgid "Launcher created"
-msgstr ""
+msgstr "Lanceur créé"
 
 #: ../extensions/apps.vala:47
 #, c-format
 msgid "You can now run <b>%s</b> from your launcher or menu"
 msgstr ""
+"Vous pouvez désormais démarrer <b>%s</b> à partir de votre lanceur ou du "
+"menu Applications"
 
 #: ../extensions/apps.vala:50
 msgid "Error creating launcher"
-msgstr ""
+msgstr "Une erreur s'est produite lors la création du lanceur"
 
 #: ../extensions/apps.vala:51
 #, c-format
 msgid "Failed to create new launcher: %s"
-msgstr ""
+msgstr "Impossible de créer le nouveau lanceur : %s"
 
 #: ../extensions/apps.vala:88
 msgid "Applications"
@@ -3211,7 +3217,7 @@ msgstr "Nouveau _Profil"
 
 #: ../extensions/apps.vala:98
 msgid "Creates a new, independant profile and a launcher"
-msgstr ""
+msgstr "Créer un nouveau profile ainsi que le lanceur associé"
 
 #: ../extensions/apps.vala:107
 #, c-format
@@ -3220,15 +3226,15 @@ msgstr "Midori (%s)"
 
 #: ../extensions/apps.vala:112
 msgid "New _App"
-msgstr ""
+msgstr "Nouvelle _application"
 
 #: ../extensions/apps.vala:113
 msgid "Creates a new app for a specific site"
-msgstr ""
+msgstr "Créer une nouvelle application pour ce site web"
 
 #: ../extensions/apps.vala:137
 msgid "Error launching"
-msgstr ""
+msgstr "Erreur de lancement"
 
 #: ../extensions/apps.vala:327
 msgid "Create _Launcher"
@@ -3267,6 +3273,7 @@ msgstr "Le fichier « <b>%s</b> » a été téléchargé."
 #, c-format
 msgid "'<b>%s</b>' and %d other files have been downloaded."
 msgstr ""
+"Le fichier '<b>%s</b>' ainsi que %d autres fichiers ont été téléchargés."
 
 #: ../extensions/transfers.vala:434
 msgid "Transfer completed"
