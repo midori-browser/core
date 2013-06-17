@@ -3797,14 +3797,9 @@ _action_location_reset_uri (GtkAction*     action,
 }
 
 #ifndef HAVE_WEBKIT2
-#if WEBKIT_CHECK_VERSION (1, 3, 13)
-static void
 #if WEBKIT_CHECK_VERSION (1, 8, 0)
+static void
 midori_browser_item_icon_loaded_cb (WebKitFaviconDatabase* database,
-#elif WEBKIT_CHECK_VERSION (1, 3, 13)
-midori_browser_item_icon_loaded_cb (WebKitIconDatabase*    database,
-                                    WebKitWebFrame*        web_frame,
-#endif
                                     const gchar*           frame_uri,
                                     KatzeItem*             item)
 {
@@ -3812,26 +3807,16 @@ midori_browser_item_icon_loaded_cb (WebKitIconDatabase*    database,
     if (strcmp (frame_uri, uri))
         return;
 
-    #if WEBKIT_CHECK_VERSION (1, 8, 0)
     gchar* icon_uri = webkit_favicon_database_get_favicon_uri (
         webkit_get_favicon_database (), frame_uri);
-    #elif WEBKIT_CHECK_VERSION (1, 3, 13)
-    gchar* icon_uri = webkit_icon_database_get_icon_uri (
-        webkit_get_icon_database (), frame_uri);
-    #endif
     if (icon_uri != NULL)
     {
         g_free (icon_uri);
         katze_item_set_icon (item, frame_uri);
         /* This signal fires extremely often (WebKit bug?)
            we must throttle it (disconnect) once we have an icon */
-        #if WEBKIT_CHECK_VERSION (1, 8, 0)
         g_signal_handlers_disconnect_by_func (webkit_get_favicon_database (),
             midori_browser_item_icon_loaded_cb, item);
-        #elif WEBKIT_CHECK_VERSION (1, 3, 13)
-        g_signal_handlers_disconnect_by_func (webkit_get_icon_database (),
-            midori_browser_item_icon_loaded_cb, item);
-        #endif
     }
 }
 #endif
@@ -3847,9 +3832,6 @@ midori_browser_queue_item_for_icon (KatzeItem*     item,
     g_object_set_data_full (G_OBJECT (item), "browser-queue-icon", g_strdup (uri), g_free);
     #if WEBKIT_CHECK_VERSION (1, 8, 0)
     g_signal_connect (webkit_get_favicon_database (), "icon-loaded",
-        G_CALLBACK (midori_browser_item_icon_loaded_cb), item);
-    #elif WEBKIT_CHECK_VERSION (1, 3, 13)
-    g_signal_connect (webkit_get_icon_database (), "icon-loaded",
         G_CALLBACK (midori_browser_item_icon_loaded_cb), item);
     #endif
 #endif

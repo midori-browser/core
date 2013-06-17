@@ -151,18 +151,14 @@ namespace Midori {
 #endif
                 tmp_dir = get_runtime_dir ();
             }
-#if HAVE_WEBKIT_1_3_13
             if (user_data_dir != null) {
                 string folder = Path.build_filename (user_data_dir, "webkit", "icondatabase");
 #if HAVE_WEBKIT2
                 WebKit.WebContext.get_default ().set_favicon_database_directory (folder);
 #elif HAVE_WEBKIT_1_8_0
                 WebKit.get_favicon_database ().set_path (folder);
-#elif HAVE_WEBKIT_1_3_13
-                WebKit.get_icon_database ().set_path (folder);
 #endif
             }
-#endif
             if (strcmp (Environment.get_variable ("MIDORI_DEBUG"), "paths") == 0) {
                 stdout.printf ("config: %s\ncache: %s\nuser_data: %s\ntmp: %s\n",
                                config_dir, cache_dir, user_data_dir, tmp_dir);
@@ -422,11 +418,8 @@ namespace Midori {
             WebKit.WebContext.get_default ().get_favicon_database ().clear ();
 #elif HAVE_WEBKIT_1_8_0
             WebKit.get_favicon_database ().clear ();
-#elif HAVE_WEBKIT_1_3_13
-            WebKit.get_icon_database ().clear ();
 #endif
             /* FIXME: Exclude search engine icons */
-            remove_path (Path.build_filename (cache_dir, "icons"));
             remove_path (Path.build_filename (user_data_dir, "webkit", "icondatabase"));
         }
 
@@ -446,28 +439,6 @@ namespace Midori {
                 .try_get_favicon_pixbuf (uri, icon_width, icon_height);
             if (pixbuf != null)
                 return pixbuf;
-#elif HAVE_WEBKIT_1_3_13
-            Gdk.Pixbuf? pixbuf = WebKit.get_icon_database ().get_icon_pixbuf (uri);
-            if (pixbuf != null)
-                return pixbuf.scale_simple (icon_width, icon_height, Gdk.InterpType.BILINEAR);
-#else
-            if (Midori.URI.is_http (uri)) {
-                try {
-                    uint i = 8;
-                    while (uri[i] != '\0' && uri[i] != '/')
-                        i++;
-                    string icon_uri = (uri[i] == '/')
-                        ? uri.substring (0, i) + "/favicon.ico"
-                        : uri + "/favicon.ico";
-                    string checksum = Checksum.compute_for_string (ChecksumType.MD5, icon_uri, -1);
-                    string filename = checksum + Midori.Download.get_extension_for_uri (icon_uri) ?? "";
-                    string path = Path.build_filename (get_cache_dir_for_reading (), "icons", filename);
-                    Gdk.Pixbuf? pixbuf = new Gdk.Pixbuf.from_file_at_size (path, icon_width, icon_height);
-                    if (pixbuf != null)
-                        return pixbuf;
-                }
-                catch (GLib.Error error) { }
-            }
 #endif
             if (widget != null)
                 return widget.render_icon (Gtk.STOCK_FILE, Gtk.IconSize.MENU, null);
