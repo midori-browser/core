@@ -60,9 +60,6 @@ struct _MidoriWebSettings
     gint clear_private_data;
     gchar* clear_data;
     gchar* site_data_rules;
-    #if !WEBKIT_CHECK_VERSION (1, 3, 13)
-    gboolean enable_dns_prefetching;
-    #endif
     gboolean enforce_font_family;
     gchar* user_stylesheet_uri;
     gchar* user_stylesheet_uri_cached;
@@ -376,7 +373,6 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      TRUE,
                                      flags));
 
-    #if WEBKIT_CHECK_VERSION (1, 1, 18)
     g_object_class_install_property (gobject_class,
                                      PROP_ENABLE_PAGE_CACHE,
                                      g_param_spec_boolean ("enable-page-cache",
@@ -384,7 +380,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                                            "Whether the page cache should be used",
         !midori_web_settings_low_memory_profile (),
                                                            flags));
-    #endif
+
     if (g_object_class_find_property (gobject_class, "enable-fullscreen"))
     g_object_class_install_property (gobject_class,
                                      PROP_ENABLE_FULLSCREEN,
@@ -478,23 +474,6 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
         "Cookies, HTML5 databases, local storage and application cache blocking",
                                      NULL,
                                      flags));
-    #if !WEBKIT_CHECK_VERSION (1, 3, 13)
-    /**
-     * MidoriWebSettings:enable-dns-prefetching:
-     *
-     * Whether to resolve host names in advance.
-     *
-     * Since: 0.3.4
-     */
-    g_object_class_install_property (gobject_class,
-                                     PROP_ENABLE_DNS_PREFETCHING,
-                                     g_param_spec_boolean (
-                                     "enable-dns-prefetching",
-        "Whether to resolve host names in advance",
-        "Whether host names on a website or in bookmarks should be prefetched",
-                                     TRUE,
-                                     flags));
-    #endif
 
     /**
      * MidoriWebSettings:enforc-font-family:
@@ -567,13 +546,7 @@ midori_web_settings_init (MidoriWebSettings* web_settings)
     web_settings->user_stylesheet_uri = web_settings->user_stylesheet_uri_cached = NULL;
     web_settings->user_stylesheets = NULL;
 
-    #if WEBKIT_CHECK_VERSION (1, 2, 6) && !WEBKIT_CHECK_VERSION (1, 2, 8)
-    /* Shadows are very slow with WebKitGTK+ 1.2.7 */
-    midori_web_settings_add_style (web_settings, "box-shadow-workaround",
-        "* { -webkit-box-shadow: none !important; }");
-    #endif
-
-    #if defined (_WIN32) && WEBKIT_CHECK_VERSION (1, 7, 1) && !GTK_CHECK_VERSION (3, 0, 0)
+    #if defined (_WIN32) && !GTK_CHECK_VERSION (3, 0, 0)
     /* Try to work-around black borders on native widgets and GTK+2 on Win32 */
     midori_web_settings_add_style (web_settings, "black-widgets-workaround",
     "input[type='checkbox'] { -webkit-appearance: checkbox !important }"
@@ -617,11 +590,7 @@ midori_web_settings_finalize (GObject* object)
 gboolean
 midori_web_settings_has_plugin_support (void)
 {
-    #if !WEBKIT_CHECK_VERSION (1, 8, 2) && defined G_OS_WIN32
-    return FALSE;
-    #else
     return !midori_debug ("unarmed")  && g_strcmp0 (g_getenv ("MOZ_PLUGIN_PATH"), "/");
-    #endif
 }
 
 /**
@@ -798,10 +767,8 @@ generate_ident_string (MidoriWebSettings* web_settings,
     const int webcore_minor = 32;
     #endif
 
-    #if WEBKIT_CHECK_VERSION (1, 1, 18)
     g_object_set (web_settings, "enable-site-specific-quirks",
         identify_as != MIDORI_IDENT_GENUINE, NULL);
-    #endif
 
     switch (identify_as)
     {
@@ -1013,17 +980,15 @@ midori_web_settings_set_property (GObject*      object,
            WEB_SETTINGS_STRING ("enable-plugins"), g_value_get_boolean (value),
         #if HAVE_WEBKIT2
             "enable-java", g_value_get_boolean (value),
-        #elif WEBKIT_CHECK_VERSION (1, 1, 22)
+        #else
             "enable-java-applet", g_value_get_boolean (value),
         #endif
             NULL);
         break;
-    #if WEBKIT_CHECK_VERSION (1, 1, 18)
     case PROP_ENABLE_PAGE_CACHE:
         g_object_set (web_settings, WEB_SETTINGS_STRING ("enable-page-cache"),
                       g_value_get_boolean (value), NULL);
         break;
-    #endif
 
     case PROP_PROXY_TYPE:
         web_settings->proxy_type = g_value_get_enum (value);
@@ -1067,11 +1032,6 @@ midori_web_settings_set_property (GObject*      object,
     case PROP_SITE_DATA_RULES:
         katze_assign (web_settings->site_data_rules, g_value_dup_string (value));
         break;
-    #if !WEBKIT_CHECK_VERSION (1, 3, 13)
-    case PROP_ENABLE_DNS_PREFETCHING:
-        web_settings->enable_dns_prefetching = g_value_get_boolean (value);
-        break;
-    #endif
     case PROP_ENFORCE_FONT_FAMILY:
         if ((web_settings->enforce_font_family = g_value_get_boolean (value)))
         {
@@ -1189,12 +1149,10 @@ midori_web_settings_get_property (GObject*    object,
         g_value_set_boolean (value, katze_object_get_boolean (web_settings,
                              WEB_SETTINGS_STRING ("enable-plugins")));
         break;
-    #if WEBKIT_CHECK_VERSION (1, 1, 18)
     case PROP_ENABLE_PAGE_CACHE:
         g_value_set_boolean (value, katze_object_get_boolean (web_settings,
                              WEB_SETTINGS_STRING ("enable-page-cache")));
         break;
-    #endif
 
     case PROP_PROXY_TYPE:
         g_value_set_enum (value, web_settings->proxy_type);
@@ -1219,11 +1177,6 @@ midori_web_settings_get_property (GObject*    object,
     case PROP_SITE_DATA_RULES:
         g_value_set_string (value, web_settings->site_data_rules);
         break;
-    #if !WEBKIT_CHECK_VERSION (1, 3, 13)
-    case PROP_ENABLE_DNS_PREFETCHING:
-        g_value_set_boolean (value, web_settings->enable_dns_prefetching);
-        break;
-    #endif
     case PROP_ENFORCE_FONT_FAMILY:
         g_value_set_boolean (value, web_settings->enforce_font_family);
         break;
