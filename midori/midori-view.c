@@ -56,12 +56,6 @@ midori_map_get_message (SoupMessage* message);
     #include <sys/utsname.h>
 #endif
 
-#if !WEBKIT_CHECK_VERSION (1, 4, 3)
-/* This is unstable API, so we need to declare it */
-gchar*
-webkit_web_view_get_selected_text (WebKitWebView* web_view);
-#endif
-
 static void
 midori_view_item_meta_data_changed (KatzeItem*   item,
                                     const gchar* key,
@@ -511,7 +505,7 @@ _midori_web_view_load_icon (MidoriView* view)
         g_object_unref (pixbuf);
         midori_view_apply_icon (view, pixbuf_scaled, view->icon_uri);
     }
-    #elif WEBKIT_CHECK_VERSION (1, 8, 0)
+    #else
     if ((pixbuf = webkit_web_view_try_get_favicon_pixbuf (
         WEBKIT_WEB_VIEW (view->web_view), icon_width, icon_height)))
         midori_view_apply_icon (view, pixbuf, view->icon_uri);
@@ -1157,7 +1151,6 @@ midori_view_web_view_database_quota_exceeded_cb (WebKitWebView*     web_view,
     }
 }
 
-#if WEBKIT_CHECK_VERSION (1, 1, 23)
 static void
 midori_view_location_response_cb (GtkWidget*                       infobar,
                                   gint                             response,
@@ -1187,7 +1180,6 @@ midori_view_web_view_geolocation_decision_cb (WebKitWebView*                   w
     g_free (message);
     return TRUE;
 }
-#endif
 #endif
 
 void
@@ -1577,10 +1569,6 @@ webkit_web_view_hovering_over_link_cb (WebKitWebView*       web_view,
         return;
     }
     const gchar* link_uri = webkit_hit_test_result_get_link_uri (hit_test_result);
-    #endif
-
-    #if !(WEBKIT_CHECK_VERSION (1, 3, 1) && defined (HAVE_LIBSOUP_2_29_91))
-    sokoke_prefetch_uri (view->settings, link_uri, NULL, NULL);
     #endif
 
     katze_assign (view->link_uri, g_strdup (link_uri));
@@ -2307,7 +2295,6 @@ midori_web_view_menu_inspect_element_activate_cb (GtkWidget*  widget,
 #endif
 }
 
-#if WEBKIT_CHECK_VERSION (1, 5, 0)
 static void
 midori_view_menu_add_search_engine_cb (GtkWidget*  widget,
                                        MidoriView* view)
@@ -2318,7 +2305,6 @@ midori_view_menu_add_search_engine_cb (GtkWidget*  widget,
     KatzeItem* item = g_object_get_data (G_OBJECT (widget), "item");
     midori_search_action_get_editor (MIDORI_SEARCH_ACTION (action), item, TRUE);
 }
-#endif
 
 static GtkWidget*
 midori_view_insert_menu_item (GtkMenuShell* menu,
@@ -2433,7 +2419,6 @@ midori_view_populate_popup (MidoriView* view,
             webkit_web_view_can_undo (web_view));
         gtk_menu_shell_prepend (menu_shell, menuitem);
 
-        #if WEBKIT_CHECK_VERSION (1, 5, 0)
         {
             KatzeItem* item = midori_search_action_get_engine_for_form (
                 WEBKIT_WEB_VIEW (view->web_view), view->ellipsize);
@@ -2446,7 +2431,6 @@ midori_view_populate_popup (MidoriView* view,
                 gtk_widget_show (menuitem);
             }
         }
-        #endif
 
         if (manual)
         {
@@ -3719,10 +3703,8 @@ midori_view_constructor (GType                  type,
                       midori_view_web_view_resource_request_cb, view,
                       "signal::database-quota-exceeded",
                       midori_view_web_view_database_quota_exceeded_cb, view,
-                      #if WEBKIT_CHECK_VERSION (1, 1, 23)
                       "signal::geolocation-policy-decision-requested",
                       midori_view_web_view_geolocation_decision_cb, view,
-                      #endif
                       "signal::notify::icon-uri",
                       midori_web_view_notify_icon_uri_cb, view,
                       "signal::hovering-over-link",
@@ -3913,7 +3895,7 @@ midori_view_list_plugins (MidoriView* view,
                     webkit_plugin_get_name (plugins->data),
                     html ? webkit_plugin_get_description (plugins->data) : ""));
         }
-    #elif WEBKIT_CHECK_VERSION (1, 3, 8)
+    #else
     WebKitWebPluginDatabase* pdb = webkit_get_web_plugin_database ();
     GSList* plugins = webkit_web_plugin_database_get_plugins (pdb);
     GSList* plugin = plugins;
@@ -3926,36 +3908,6 @@ midori_view_list_plugins (MidoriView* view,
             html ? webkit_web_plugin_get_description (plugin->data) : ""));
     }
     webkit_web_plugin_database_plugins_list_free (plugins);
-    #else
-    if (view == NULL)
-        return;
-
-    WebKitWebFrame* web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view));
-    JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
-    /* Joins available plugins like this: URI1|title1,URI2|title2 */
-    gchar* value = sokoke_js_script_eval (js_context,
-        "function plugins (l) { var f = new Array (); for (var i in l) "
-        "{ var p = l[i].name + '|' + l[i].filename; "
-        "if (f.indexOf (p) == -1) f.push (p); } return f; }"
-        "plugins (navigator.plugins)", NULL);
-    gchar** items = g_strsplit (value, ",", 0);
-    guint i = 0;
-    if (items != NULL)
-        while (items[i] != NULL)
-        {
-            gchar** parts = g_strsplit (items[i], "|", 2);
-            if (parts[0] && !g_str_equal (parts[1], "undefined")
-             && !midori_web_settings_skip_plugin (parts[1]))
-                midori_view_add_version (ns_plugins, html, g_strdup_printf ("%s\t%s",
-                    parts[1], html ? parts[0] : ""));
-            g_strfreev (parts);
-            i++;
-        }
-        if (g_str_has_prefix (value, "undefined"))
-            midori_view_add_version (ns_plugins, html, g_strdup_printf ("%s",
-                "No plugins found"));
-        g_strfreev (items);
-        g_free (value);
     #endif
 }
 
@@ -4494,17 +4446,14 @@ gboolean
 midori_view_has_selection (MidoriView* view)
 {
 #ifndef HAVE_WEBKIT2
-#if WEBKIT_CHECK_VERSION (1, 4, 3)
     WebKitDOMDocument* doc;
     WebKitDOMDOMWindow* window;
     WebKitDOMDOMSelection* selection;
     WebKitDOMRange* range;
-#endif
 
     g_return_val_if_fail (MIDORI_IS_VIEW (view), FALSE);
 
 
-#if WEBKIT_CHECK_VERSION (1, 4, 3)
     doc = webkit_web_view_get_dom_document (WEBKIT_WEB_VIEW (view->web_view));
     window = webkit_dom_document_get_default_view (doc);
     selection = webkit_dom_dom_window_get_selection (window);
@@ -4517,10 +4466,6 @@ midori_view_has_selection (MidoriView* view)
         return FALSE;
 
     katze_assign (view->selected_text, webkit_dom_range_get_text (range));
-#else
-    katze_assign (view->selected_text, webkit_web_view_get_selected_text (
-        WEBKIT_WEB_VIEW (view->web_view)));
-#endif
 
     if (view->selected_text && *view->selected_text)
         return TRUE;
