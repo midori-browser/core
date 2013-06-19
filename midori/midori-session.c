@@ -207,13 +207,6 @@ midori_load_soup_session (gpointer settings)
     g_free (certificate_file);
     #endif
 
-    #if !WEBKIT_CHECK_VERSION (1, 3, 5)
-    /* See http://stevesouders.com/ua/index.php */
-    g_object_set (session, "max-conns", 60,
-                           "max-conns-per-host", 6,
-                           NULL);
-    #endif
-
     g_object_set_data (G_OBJECT (session), "midori-settings", settings);
     soup_session_settings_notify_http_proxy_cb (settings, NULL, session);
     g_signal_connect (settings, "notify::http-proxy",
