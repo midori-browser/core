@@ -21,10 +21,8 @@
 #include <glib/gi18n.h>
 #include <libsoup/soup.h>
 
-#if WEBKIT_CHECK_VERSION (1, 3, 11)
     #define LIBSOUP_USE_UNSTABLE_REQUEST_API
     #include <libsoup/soup-cache.h>
-#endif
 
 #include <config.h>
 #if HAVE_LIBNOTIFY
@@ -381,7 +379,6 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     button = katze_property_proxy (settings, "enable-javascript", NULL);
     gtk_button_set_label (GTK_BUTTON (button), _("Enable scripts"));
     INDENTED_ADD (button);
-    #if WEBKIT_CHECK_VERSION (1, 3, 8)
     button = katze_property_proxy (settings, "enable-webgl", NULL);
     gtk_button_set_label (GTK_BUTTON (button), _("Enable WebGL support"));
     #ifndef HAVE_WEBKIT2
@@ -397,11 +394,6 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
             gtk_widget_set_sensitive (button, FALSE);
         g_free (supports_web_gl);
     }
-    #endif
-    #else
-    button = katze_property_proxy (settings, "enable-plugins", NULL);
-    gtk_button_set_label (GTK_BUTTON (button), _("Enable Netscape plugins"));
-    gtk_widget_set_sensitive (button, midori_web_settings_has_plugin_support ());
     #endif
     SPANNED_ADD (button);
     button = katze_property_proxy (settings, "zoom-text-and-images", NULL);
@@ -513,7 +505,6 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
         G_CALLBACK (midori_preferences_notify_proxy_type_cb), label);
     midori_preferences_notify_proxy_type_cb (settings, NULL, label);
     #endif
-    #if WEBKIT_CHECK_VERSION (1, 3, 11)
 #ifndef HAVE_WEBKIT2
     if (soup_session_get_feature (webkit_get_default_session (), SOUP_TYPE_CACHE))
     {
@@ -528,7 +519,6 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
         SPANNED_ADD (label);
     }
 #endif
-    #endif
     /* i18n: This refers to an application, not the 'user agent' string */
     label = gtk_label_new (_("Identify as"));
     gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);

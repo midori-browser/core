@@ -22,10 +22,8 @@
 #include <gdk/gdkkeysyms.h>
 #include <sqlite3.h>
 
-#if WEBKIT_CHECK_VERSION (1, 3, 11)
     #define LIBSOUP_USE_UNSTABLE_REQUEST_API
     #include <libsoup/soup-cache.h>
-#endif
 
 static void
 #ifdef HAVE_GRANITE
@@ -273,11 +271,9 @@ midori_clear_web_cookies_cb (void)
     webkit_remove_all_web_databases ();
 
     /* HTML5 offline application caches */
-    #if WEBKIT_CHECK_VERSION (1, 3, 13)
     /* Changing the size implies clearing the cache */
     webkit_application_cache_set_maximum_size (
         webkit_application_cache_get_maximum_size () - 1);
-    #endif
 #endif
 }
 
@@ -299,7 +295,6 @@ midori_clear_saved_logins_cb (void)
     g_free (filename);
 }
 
-#if WEBKIT_CHECK_VERSION (1, 3, 11)
 static void
 midori_clear_web_cache_cb (void)
 {
@@ -315,7 +310,6 @@ midori_clear_web_cache_cb (void)
     g_free (cache);
 #endif
 }
-#endif
 
 void
 midori_private_data_register_built_ins ()
@@ -325,11 +319,9 @@ midori_private_data_register_built_ins ()
         G_CALLBACK (midori_clear_saved_logins_cb));
     midori_private_data_register_item ("web-cookies", _("Cookies and Website data"),
         G_CALLBACK (midori_clear_web_cookies_cb));
-    #if WEBKIT_CHECK_VERSION (1, 3, 11)
     /* TODO: Preserve page icons of search engines and merge privacy items */
     midori_private_data_register_item ("web-cache", _("Web Cache"),
         G_CALLBACK (midori_clear_web_cache_cb));
-    #endif
     midori_private_data_register_item ("page-icons", _("Website icons"),
         G_CALLBACK (midori_paths_clear_icons));
 }

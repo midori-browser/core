@@ -170,9 +170,7 @@ midori_private_app_new (const gchar* config,
                   "enable-offline-web-application-cache", FALSE,
     /* Arguably DNS prefetching is or isn't a privacy concern. For the
      * lack of more fine-grained control we'll go the safe route. */
-    #if WEBKIT_CHECK_VERSION (1, 3, 11)
                   "enable-dns-prefetching", FALSE,
-    #endif
                   "strip-referer", TRUE,
                   "show-panel", FALSE,
                   "last-window-state", MIDORI_WINDOW_NORMAL,
