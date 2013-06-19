@@ -716,8 +716,11 @@ midori_view_update_load_status (MidoriView*      view,
 
     #ifdef HAVE_GRANITE
     if (view->tab)
+    {
         g_object_set (view->tab, "working",
             midori_view_get_progress (view) > 0.0, NULL);
+        g_object_set (view->tab, "menu", midori_view_get_tab_menu (view), NULL);
+    }
     #else
     if (view->tab_icon)
         katze_throbber_set_animated (KATZE_THROBBER (view->tab_icon),
