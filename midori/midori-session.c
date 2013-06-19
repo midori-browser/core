@@ -18,10 +18,8 @@
 
 #include <glib/gi18n-lib.h>
 
-#if WEBKIT_CHECK_VERSION (1, 3, 11)
     #define LIBSOUP_USE_UNSTABLE_REQUEST_API
     #include <libsoup/soup-cache.h>
-#endif
 
 static void
 midori_soup_session_set_proxy_uri (SoupSession* session,
@@ -301,14 +299,12 @@ midori_load_soup_session_full (gpointer settings)
         }
     }
 
-    #if WEBKIT_CHECK_VERSION (1, 3, 11)
     katze_assign (config_file, g_build_filename (midori_paths_get_cache_dir (), "web", NULL));
     feature = SOUP_SESSION_FEATURE (soup_cache_new (config_file, 0));
     soup_session_add_feature (session, feature);
     soup_cache_set_max_size (SOUP_CACHE (feature),
         katze_object_get_int (settings, "maximum-cache-size") * 1024 * 1024);
     soup_cache_load (SOUP_CACHE (feature));
-    #endif
     g_free (config_file);
 #endif
     return FALSE;

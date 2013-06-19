@@ -3797,7 +3797,6 @@ _action_location_reset_uri (GtkAction*     action,
 }
 
 #ifndef HAVE_WEBKIT2
-#if WEBKIT_CHECK_VERSION (1, 8, 0)
 static void
 midori_browser_item_icon_loaded_cb (WebKitFaviconDatabase* database,
                                     const gchar*           frame_uri,
@@ -3820,7 +3819,6 @@ midori_browser_item_icon_loaded_cb (WebKitFaviconDatabase* database,
     }
 }
 #endif
-#endif
 
 static void
 midori_browser_queue_item_for_icon (KatzeItem*     item,
@@ -3830,10 +3828,8 @@ midori_browser_queue_item_for_icon (KatzeItem*     item,
     if (katze_item_get_icon (item) != NULL)
         return;
     g_object_set_data_full (G_OBJECT (item), "browser-queue-icon", g_strdup (uri), g_free);
-    #if WEBKIT_CHECK_VERSION (1, 8, 0)
     g_signal_connect (webkit_get_favicon_database (), "icon-loaded",
         G_CALLBACK (midori_browser_item_icon_loaded_cb), item);
-    #endif
 #endif
 }
 

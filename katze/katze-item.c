@@ -458,7 +458,6 @@ static void
 katze_item_image_destroyed_cb (GtkWidget* image,
                                KatzeItem* item);
 #ifndef HAVE_WEBKIT2
-#if WEBKIT_CHECK_VERSION (1, 8, 0)
 static void
 katze_item_icon_loaded_cb (WebKitFaviconDatabase* database,
                            const gchar*           frame_uri,
@@ -477,17 +476,14 @@ katze_item_icon_loaded_cb (WebKitFaviconDatabase* database,
     }
 }
 #endif
-#endif
 
 static void
 katze_item_image_destroyed_cb (GtkWidget* image,
                                KatzeItem* item)
 {
 #ifndef HAVE_WEBKIT2
-    #if WEBKIT_CHECK_VERSION (1, 8, 0)
     g_signal_handlers_disconnect_by_func (webkit_get_favicon_database (),
         katze_item_icon_loaded_cb, image);
-    #endif
 #endif
     g_object_unref (item);
 }
@@ -524,10 +520,8 @@ katze_item_get_image (KatzeItem* item,
     g_signal_connect (image, "destroy",
         G_CALLBACK (katze_item_image_destroyed_cb), item);
 #ifndef HAVE_WEBKIT2
-    #if WEBKIT_CHECK_VERSION (1, 8, 0)
     g_signal_connect (webkit_get_favicon_database (), "icon-loaded",
         G_CALLBACK (katze_item_icon_loaded_cb), image);
-    #endif
 #endif
     return image;
 }

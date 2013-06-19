@@ -155,7 +155,7 @@ namespace Midori {
                 string folder = Path.build_filename (user_data_dir, "webkit", "icondatabase");
 #if HAVE_WEBKIT2
                 WebKit.WebContext.get_default ().set_favicon_database_directory (folder);
-#elif HAVE_WEBKIT_1_8_0
+#else
                 WebKit.get_favicon_database ().set_path (folder);
 #endif
             }
@@ -416,7 +416,7 @@ namespace Midori {
             assert (user_data_dir != null);
 #if HAVE_WEBKIT2
             WebKit.WebContext.get_default ().get_favicon_database ().clear ();
-#elif HAVE_WEBKIT_1_8_0
+#else
             WebKit.get_favicon_database ().clear ();
 #endif
             /* FIXME: Exclude search engine icons */
@@ -434,7 +434,7 @@ namespace Midori {
             /* TODO async
             var database = WebKit.WebContext.get_default ().get_favicon_database ();
             database.get_favicon.begin (uri, null); */
-#elif HAVE_WEBKIT_1_8_0
+#else
             Gdk.Pixbuf? pixbuf = WebKit.get_favicon_database ()
                 .try_get_favicon_pixbuf (uri, icon_width, icon_height);
             if (pixbuf != null)
