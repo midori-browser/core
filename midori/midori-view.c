@@ -969,9 +969,6 @@ midori_view_web_view_resource_request_cb (WebKitWebView*         web_view,
     }
 }
 
-#define HAVE_GTK_INFO_BAR GTK_CHECK_VERSION (2, 18, 0)
-
-#if HAVE_GTK_INFO_BAR
 static void
 midori_view_infobar_response_cb (GtkWidget* infobar,
                                  gint       response,
@@ -983,20 +980,6 @@ midori_view_infobar_response_cb (GtkWidget* infobar,
         response_cb (infobar, response, data_object);
     gtk_widget_destroy (infobar);
 }
-#else
-static void
-midori_view_info_bar_button_cb (GtkWidget* button,
-                                gpointer   data_object)
-{
-    GtkWidget* infobar = gtk_widget_get_parent (gtk_widget_get_parent (button));
-    gint response = GPOINTER_TO_INT (g_object_get_data (G_OBJECT (button), "midori-infobar-response"));
-    void (*response_cb) (GtkWidget*, gint, gpointer);
-    response_cb = g_object_get_data (G_OBJECT (infobar), "midori-infobar-cb");
-    if (response_cb != NULL)
-        response_cb (infobar, response, data_object);
-    gtk_widget_destroy (infobar);
-}
-#endif
 
 /**
  * midori_view_add_info_bar
@@ -1037,7 +1020,6 @@ midori_view_add_info_bar (MidoriView*    view,
 
     va_start (args, first_button_text);
 
-    #if HAVE_GTK_INFO_BAR
     infobar = gtk_info_bar_new ();
     for (button_text = first_button_text; button_text;
          button_text = va_arg (args, const gchar*))
@@ -1053,29 +1035,6 @@ midori_view_add_info_bar (MidoriView*    view,
                                     GTK_ORIENTATION_HORIZONTAL);
     g_signal_connect (infobar, "response",
         G_CALLBACK (midori_view_infobar_response_cb), data_object);
-    #else
-    infobar = gtk_hbox_new (FALSE, 0);
-    gtk_container_set_border_width (GTK_CONTAINER (infobar), 4);
-
-    content_area = gtk_hbox_new (FALSE, 0);
-    gtk_box_pack_start (GTK_BOX (infobar), content_area, TRUE, TRUE, 0);
-    action_area = gtk_hbutton_box_new ();
-    for (button_text = first_button_text; button_text;
-         button_text = va_arg (args, const gchar*))
-    {
-        gint response_id = va_arg (args, gint);
-        GtkWidget* button = gtk_button_new_with_mnemonic (button_text);
-        g_object_set_data (G_OBJECT (button), "midori-infobar-response",
-                           GINT_TO_POINTER (response_id));
-        g_signal_connect (button, "clicked",
-            G_CALLBACK (midori_view_info_bar_button_cb), data_object);
-        gtk_box_pack_start (GTK_BOX (action_area), button, FALSE, FALSE, 0);
-        if (response_id == GTK_RESPONSE_HELP)
-            gtk_button_box_set_child_secondary (GTK_BUTTON_BOX (action_area),
-                                                button, TRUE);
-    }
-    gtk_box_pack_start (GTK_BOX (infobar), action_area, FALSE, FALSE, 0);
-    #endif
 
     va_end (args);
     label = gtk_label_new (message);
@@ -5383,9 +5342,7 @@ midori_view_print (MidoriView* view)
     WebKitWebFrame* frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view));
     GtkPrintOperation* operation = gtk_print_operation_new ();
     gtk_print_operation_set_custom_tab_label (operation, _("Features"));
-    #if GTK_CHECK_VERSION (2, 18, 0)
     gtk_print_operation_set_embed_page_setup (operation, TRUE);
-    #endif
     g_signal_connect (operation, "create-custom-widget",
         G_CALLBACK (midori_view_print_create_custom_widget_cb), view);
     GError* error = NULL;
