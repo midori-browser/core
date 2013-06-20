@@ -439,7 +439,6 @@ adblock_preferences_remove_clicked_cb (GtkWidget*   button,
         gtk_list_store_remove (GTK_LIST_STORE (model), &iter);
 }
 
-#if GTK_CHECK_VERSION (2, 18, 0)
 static gboolean
 adblock_activate_link_cb (GtkWidget*   label,
                           const gchar* uri)
@@ -449,7 +448,6 @@ adblock_activate_link_cb (GtkWidget*   label,
     midori_browser_set_current_tab (browser, view);
     return TRUE;
 }
-#endif
 
 static GtkWidget*
 adblock_get_preferences_dialog (MidoriExtension* extension)
@@ -512,17 +510,10 @@ adblock_get_preferences_dialog (MidoriExtension* extension)
         "Type the address of a preconfigured filter list in the text entry "
         "and click \"Add\" to add it to the list. "
         "You can find more lists at %s."),
-        #if GTK_CHECK_VERSION (2, 18, 0)
         "<a href=\"http://adblockplus.org/en/subscriptions\">adblockplus.org/en/subscriptions</a> "
         "<a href=\"http://easylist.adblockplus.org/\">easylist.adblockplus.org</a>");
-        #else
-        "<u>http://adblockplus.org/en/subscriptions</u> "
-        "<u>http://easylist.adblockplus.org/</u>");
-        #endif
-    #if GTK_CHECK_VERSION (2, 18, 0)
     g_signal_connect (button, "activate-link",
         G_CALLBACK (adblock_activate_link_cb), NULL);
-    #endif
     gtk_label_set_markup (GTK_LABEL (button), description);
     g_free (description);
     gtk_label_set_line_wrap (GTK_LABEL (button), TRUE);
