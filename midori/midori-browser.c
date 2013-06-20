@@ -997,11 +997,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     if (!is_folder)
     {
         entry_uri = katze_uri_entry_new (
-        #if GTK_CHECK_VERSION (2, 20, 0)
             gtk_dialog_get_widget_for_response (GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT));
-        #else
-            NULL);
-        #endif
         gtk_entry_set_activates_default (GTK_ENTRY (entry_uri), TRUE);
         gtk_entry_set_text (GTK_ENTRY (entry_uri), katze_item_get_uri (bookmark));
         gtk_box_pack_start (GTK_BOX (vbox), entry_uri, FALSE, FALSE, 0);
@@ -4689,31 +4685,26 @@ static const gchar* credits_documenters[] =
 static const gchar* credits_artists[] =
     { "Nancy Runge <nancy@twotoasts.de>", NULL };
 
-#if !GTK_CHECK_VERSION (2, 24, 0)
 static void
-_action_about_activate_link (GtkAboutDialog* about,
-                             const gchar*    uri,
-                             gpointer        user_data)
+midori_browser_about_activate_link_cb (GtkAboutDialog* about,
+                                       const gchar*    uri,
+                                       gpointer        user_data)
 {
+    /* Some email clients need the 'mailto' to function properly */
+    if (g_str_has_prefix (uri, "mailto:"))
+    {
+        gchar* newuri = NULL;
+        if (!g_str_has_prefix (uri, "mailto:"))
+            newuri = g_strconcat ("mailto:", uri, NULL);
+        sokoke_show_uri (NULL, newuri ? newuri : uri, GDK_CURRENT_TIME, NULL);
+        g_free (newuri);
+        return;
+    }
+
     MidoriBrowser* browser = MIDORI_BROWSER (user_data);
     GtkWidget* view = midori_browser_add_uri (browser, uri);
     midori_browser_set_current_tab (browser, view);
 }
-
-static void
-_action_about_activate_email (GtkAboutDialog* about,
-                              const gchar*    uri,
-                              gpointer        user_data)
-{
-    /* Some email clients need the 'mailto' to function properly */
-    gchar* newuri = NULL;
-    if (!g_str_has_prefix (uri, "mailto:"))
-        newuri = g_strconcat ("mailto:", uri, NULL);
-
-    sokoke_show_uri (NULL, newuri ? newuri : uri, GDK_CURRENT_TIME, NULL);
-    g_free (newuri);
-}
-#endif
 
 static gchar*
 midori_browser_get_docs (gboolean error)
@@ -4748,10 +4739,6 @@ _action_about_activate (GtkAction*     action,
     "License as published by the Free Software Foundation; either "
     "version 2.1 of the License, or (at your option) any later version.");
 
-#if !GTK_CHECK_VERSION (2, 24, 0)
-    gtk_about_dialog_set_email_hook (_action_about_activate_email, NULL, NULL);
-    gtk_about_dialog_set_url_hook (_action_about_activate_link, browser, NULL);
-#endif
 #ifdef HAVE_GRANITE
     gchar* docs = midori_browser_get_docs (FALSE);
     /* Avoid granite_widgets_show_about_dialog for invalid memory and crashes */
@@ -4785,6 +4772,8 @@ _action_about_activate (GtkAction*     action,
     g_free (docs);
     #endif
     gtk_widget_show (dialog);
+    g_signal_connect (dialog, "activate-link",
+        G_CALLBACK (midori_browser_about_activate_link_cb), dialog);
     g_signal_connect_swapped (dialog, "response",
                               G_CALLBACK (gtk_widget_destroy), dialog);
 }
@@ -6358,29 +6347,8 @@ midori_browser_init (MidoriBrowser* browser)
 
     /* Statusbar */
     browser->statusbar = gtk_statusbar_new ();
-    #if GTK_CHECK_VERSION (2, 20, 0)
     browser->statusbar_contents =
         gtk_statusbar_get_message_area (GTK_STATUSBAR (browser->statusbar));
-    #else
-    /* Rearrange the statusbar packing. This is necessariy to keep
-        themes happy while there is no support from GtkStatusbar. */
-    forward = GTK_STATUSBAR (browser->statusbar)->label;
-    if (GTK_IS_BOX (gtk_widget_get_parent (forward)))
-        browser->statusbar_contents = gtk_widget_get_parent (forward);
-    else
-    {
-        browser->statusbar_contents = gtk_hbox_new (FALSE, 4);
-        gtk_widget_show (browser->statusbar_contents);
-        g_object_ref (GTK_STATUSBAR (browser->statusbar)->label);
-        gtk_container_remove (
-            GTK_CONTAINER (GTK_STATUSBAR (browser->statusbar)->frame), forward);
-        gtk_box_pack_start (GTK_BOX (browser->statusbar_contents),
-            forward, TRUE, TRUE, 0);
-        g_object_unref (forward);
-        gtk_container_add (GTK_CONTAINER (GTK_STATUSBAR (browser->statusbar)->frame),
-                           browser->statusbar_contents);
-    }
-    #endif
     gtk_box_pack_start (GTK_BOX (vbox), browser->statusbar, FALSE, FALSE, 0);
 
     g_signal_connect (browser->statusbar, "button-press-event",

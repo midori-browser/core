@@ -1235,7 +1235,6 @@ midori_location_action_key_press_event_cb (GtkEntry*    entry,
     return FALSE;
 }
 
-#if GTK_CHECK_VERSION (2, 19, 3)
 static void
 midori_location_action_preedit_changed_cb (GtkWidget*   entry,
                                            const gchar* preedit,
@@ -1245,7 +1244,6 @@ midori_location_action_preedit_changed_cb (GtkWidget*   entry,
     gchar* key = g_strdup (gtk_entry_get_text (GTK_ENTRY (entry)));
     midori_location_action_popup_completion (location_action, entry, key);
 }
-#endif
 
 static gboolean
 midori_location_action_focus_in_event_cb (GtkWidget*   widget,
@@ -1578,10 +1576,8 @@ midori_location_action_connect_proxy (GtkAction* action,
                       midori_location_action_button_press_event_cb, action,
                       "signal::key-press-event",
                       midori_location_action_key_press_event_cb, action,
-                      #if GTK_CHECK_VERSION (2, 19, 3)
                       "signal-after::preedit-changed",
                       midori_location_action_preedit_changed_cb, action,
-                      #endif
                       "signal::focus-in-event",
                       midori_location_action_focus_in_event_cb, action,
                       "signal::focus-out-event",
