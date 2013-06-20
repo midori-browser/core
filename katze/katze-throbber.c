@@ -16,16 +16,9 @@
 #include <glib/gi18n.h>
 #include <math.h>
 
-#define HAVE_SPINNER GTK_CHECK_VERSION (2, 20, 0)
-
 struct _KatzeThrobber
 {
-    #if HAVE_SPINNER
     GtkSpinner parent_instance;
-    #else
-    GtkMisc parent_instance;
-    #endif
-
     GtkIconSize icon_size;
     gchar* icon_name;
     GdkPixbuf* pixbuf;
@@ -43,18 +36,10 @@ struct _KatzeThrobber
 
 struct _KatzeThrobberClass
 {
-    #if HAVE_SPINNER
     GtkSpinnerClass parent_class;
-    #else
-    GtkMiscClass parent_class;
-    #endif
 };
 
-#if HAVE_SPINNER
 G_DEFINE_TYPE (KatzeThrobber, katze_throbber, GTK_TYPE_SPINNER);
-#else
-G_DEFINE_TYPE (KatzeThrobber, katze_throbber, GTK_TYPE_MISC);
-#endif
 
 enum
 {
@@ -135,14 +120,6 @@ katze_throbber_expose_event (GtkWidget*      widget,
 
 static void
 icon_theme_changed (KatzeThrobber* throbber);
-
-#if !HAVE_SPINNER
-static gboolean
-katze_throbber_timeout (KatzeThrobber* throbber);
-
-static void
-katze_throbber_timeout_destroy (KatzeThrobber* throbber);
-#endif
 
 static void
 katze_throbber_class_init (KatzeThrobberClass* class)
@@ -251,9 +228,6 @@ static void
 katze_throbber_init (KatzeThrobber *throbber)
 {
     gtk_widget_set_has_window (GTK_WIDGET (throbber), FALSE);
-    #if !HAVE_SPINNER
-    gtk_misc_set_alignment (GTK_MISC (throbber), 0.0, 0.5);
-    #endif
 
     throbber->timer_id = -1;
 }
@@ -486,14 +460,7 @@ katze_throbber_set_animated (KatzeThrobber*  throbber,
 
     throbber->animated = animated;
 
-    #if HAVE_SPINNER
     g_object_set (throbber, "active", animated, NULL);
-    #else
-    if (animated && (throbber->timer_id < 0))
-        throbber->timer_id = midori_timeout_add (50,
-            (GSourceFunc)katze_throbber_timeout, throbber,
-            (GDestroyNotify)katze_throbber_timeout_destroy);
-    #endif
     gtk_widget_queue_draw (GTK_WIDGET (throbber));
 
     g_object_notify (G_OBJECT (throbber), "animated");
@@ -797,24 +764,6 @@ katze_throbber_unmap (GtkWidget* widget)
         GTK_WIDGET_CLASS (katze_throbber_parent_class)->unmap (widget);
 }
 
-#if !HAVE_SPINNER
-static gboolean
-katze_throbber_timeout (KatzeThrobber*  throbber)
-{
-    throbber->index++;
-    gtk_widget_queue_draw (GTK_WIDGET (throbber));
-
-    return throbber->animated;
-}
-
-static void
-katze_throbber_timeout_destroy (KatzeThrobber*  throbber)
-{
-    throbber->index = 0;
-    throbber->timer_id = -1;
-}
-#endif
-
 static void
 katze_throbber_style_set (GtkWidget* widget,
                           GtkStyle*  prev_style)
@@ -888,16 +837,9 @@ katze_throbber_aligned_coords (GtkWidget* widget,
     GtkAllocation allocation;
     GtkRequisition requisition;
 
-    #if HAVE_SPINNER
     xalign = 0.0;
     yalign = 0.5;
     xpad = ypad = 0.0;
-    #else
-    gtk_misc_get_alignment (GTK_MISC (widget), &xalign, &yalign);
-    if (gtk_widget_get_direction (widget) == GTK_TEXT_DIR_RTL)
-        xalign = 1.0f - xalign;
-    gtk_misc_get_padding (GTK_MISC (widget), &xpad, &ypad);
-    #endif
 
     #if GTK_CHECK_VERSION (3, 0, 0)
     allocation.x = allocation.y = 0;
@@ -978,75 +920,12 @@ katze_throbber_expose_event (GtkWidget*      widget,
     }
     else
     {
-        #if HAVE_SPINNER
         if (throbber->animated)
 #if GTK_CHECK_VERSION (3, 0, 0)
             return GTK_WIDGET_CLASS (katze_throbber_parent_class)->draw (widget, cr);
 #else
             return GTK_WIDGET_CLASS (katze_throbber_parent_class)->expose_event (widget, event);
 #endif
-        #else
-        gint cols, rows;
-
-        if (G_UNLIKELY (throbber->icon_name && !throbber->pixbuf))
-        {
-            icon_theme_changed (KATZE_THROBBER (widget));
-
-            if (!throbber->pixbuf)
-            {
-                /* Fallback to a stock icon */
-                katze_assign (throbber->icon_name, g_strdup (GTK_STOCK_EXECUTE));
-                g_object_notify (G_OBJECT (throbber), "icon-name");
-                return TRUE;
-            }
-        }
-
-        cols = gdk_pixbuf_get_width (throbber->pixbuf) / throbber->width;
-        rows = gdk_pixbuf_get_height (throbber->pixbuf) / throbber->height;
-
-        if (G_UNLIKELY (cols == 1 && cols == rows))
-        {
-            katze_throbber_aligned_coords (widget, &ax, &ay);
-
-            if (throbber->animated)
-                gdk_draw_pixbuf (event->window, NULL, throbber->pixbuf,
-                                 0, 0, ax, ay,
-                                 throbber->width, throbber->height,
-                                 GDK_RGB_DITHER_NONE, 0, 0);
-            return TRUE;
-        }
-
-        if (G_LIKELY (cols > 0 && rows > 0))
-        {
-            gint idx;
-            guint x, y;
-
-            katze_throbber_aligned_coords (widget, &ax, &ay);
-
-            idx = throbber->index % (cols * rows);
-            if (G_LIKELY (throbber->timer_id >= 0))
-                idx = MAX (idx, 1);
-
-            x = (idx % cols) * throbber->width;
-            y = (idx / cols) * throbber->height;
-
-            gdk_draw_pixbuf (event->window, NULL, throbber->pixbuf,
-                             x, y, ax, ay,
-                             throbber->width, throbber->height,
-                             GDK_RGB_DITHER_NONE, 0, 0);
-        }
-        else
-        {
-            g_warning (_("Animation frames are broken"));
-            katze_assign (throbber->icon_name, NULL);
-            katze_object_assign (throbber->pixbuf, NULL);
-
-            g_object_freeze_notify (G_OBJECT (throbber));
-            g_object_notify (G_OBJECT (throbber), "icon-name");
-            g_object_notify (G_OBJECT (throbber), "pixbuf");
-            g_object_thaw_notify (G_OBJECT (throbber));
-        }
-        #endif
     }
 
     return TRUE;
