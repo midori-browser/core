@@ -6931,7 +6931,7 @@ midori_bookmarkbar_insert_item (GtkWidget* toolbar,
                                 KatzeItem* item)
 {
     MidoriBrowser* browser = midori_browser_get_for_widget (toolbar);
-    GtkAction* action = _action_by_name (browser, "Tools");
+    GtkAction* action = _action_by_name (browser, "Bookmarks");
     GtkToolItem* toolitem = katze_array_action_create_tool_item_for (
         KATZE_ARRAY_ACTION (action), item);
     g_object_set_data (G_OBJECT (toolitem), "KatzeItem", item);
@@ -6991,7 +6991,7 @@ midori_bookmarkbar_populate (MidoriBrowser* browser)
             gint64 id = katze_item_get_meta_integer (item, "id");
             gchar* parentid = g_strdup_printf ("%" G_GINT64_FORMAT, id);
             KatzeArray* subfolder = midori_array_query (browser->bookmarks,
-                "id, parentid, title, uri, desc, app, toolbar, pos_panel, pos_bar", "parentid = %q AND uri != ''",
+                "id, parentid, title, uri, desc, app, toolbar, pos_panel, pos_bar", "parentid = %q",
                 parentid);
 
                 katze_item_set_name (KATZE_ITEM (subfolder), katze_item_get_name (item));
