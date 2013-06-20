@@ -818,7 +818,6 @@ midori_view_notify_statusbar_text_cb (GtkWidget*     view,
 
 static GtkWidget*
 midori_bookmark_folder_button_new (KatzeArray* array,
-                                   gboolean    new_bookmark,
                                    gint64      selected,
                                    gint64      parentid)
 {
@@ -856,7 +855,7 @@ midori_bookmark_folder_button_new (KatzeArray* array,
             gtk_list_store_insert_with_values (model, NULL, G_MAXINT,
                 0, name, 1, PANGO_ELLIPSIZE_END, 2, id, -1);
 
-            if (!new_bookmark && id == parentid)
+            if (id == parentid)
                 gtk_combo_box_set_active (GTK_COMBO_BOX (combo), n);
             n++;
         }
@@ -910,11 +909,12 @@ midori_browser_edit_bookmark_add_speed_dial_cb (GtkWidget* button,
 /* Private function, used by MidoriBookmarks and MidoriHistory */
 /* static */ gboolean
 midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
-                                         KatzeItem*     bookmark,
+                                         KatzeItem*     bookmark_or_parent,
                                          gboolean       new_bookmark,
                                          gboolean       is_folder,
                                          GtkWidget*     proxy)
 {
+    KatzeItem*   bookmark = bookmark_or_parent;
     const gchar* title;
     GtkWidget* dialog;
     GtkWidget* content_area;
@@ -968,7 +968,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     gtk_window_set_icon_name (GTK_WINDOW (dialog),
         new_bookmark ? GTK_STOCK_ADD : GTK_STOCK_REMOVE);
 
-    if (!bookmark)
+    if (new_bookmark)
     {
         view = midori_browser_get_current_tab (browser);
         if (is_folder)
@@ -981,6 +981,11 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
             bookmark = g_object_new (KATZE_TYPE_ITEM,
                 "uri", midori_view_get_display_uri (MIDORI_VIEW (view)),
                 "name", midori_view_get_display_title (MIDORI_VIEW (view)), NULL);
+        katze_item_set_meta_integer (
+            bookmark, "parentid",
+            (!bookmark_or_parent
+                ? 0
+                : katze_item_get_meta_integer (bookmark_or_parent, "id")));
     }
 
     entry_title = gtk_entry_new ();
@@ -1008,7 +1013,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     }
 
     combo_folder = midori_bookmark_folder_button_new (browser->bookmarks,
-        new_bookmark, katze_item_get_meta_integer (bookmark, "id"),
+        katze_item_get_meta_integer (bookmark, "id"),
         katze_item_get_meta_integer (bookmark, "parentid"));
     gtk_box_pack_start (GTK_BOX (vbox), combo_folder, FALSE, FALSE, 0);
 
@@ -4426,7 +4431,7 @@ _action_bookmarks_import_activate (GtkAction*     action,
     gtk_widget_show_all (hbox);
 
     combobox_folder = midori_bookmark_folder_button_new (browser->bookmarks,
-                                                         FALSE, 0, 0);
+                                                         0, 0);
     gtk_container_add (GTK_CONTAINER (content_area), combobox_folder);
 
     gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT);
