@@ -25,7 +25,6 @@ namespace Apps {
             string exec = prefix + uri;
             string name = title.delimit ("‪/", ' ').strip();
             string filename = Midori.Download.clean_filename (name);
-            // TODO: Midori.Paths.get_icon save to png
 
             try {
                 folder.make_directory_with_parents (null);
@@ -36,6 +35,15 @@ namespace Apps {
             }
 
             string icon_name = Midori.Stock.WEB_BROWSER;
+            try {
+                var pixbuf = Midori.Paths.get_icon (uri, null);
+                string icon_filename = folder.get_child ("icon.png").get_path ();
+                pixbuf.save (icon_filename, "png", null, "compression", "7", null);
+                icon_name = icon_filename;
+            }
+            catch (Error error) {
+                GLib.warning (_("Failed to fetch application icon in %s: %s"), folder.get_path (), error.message);
+            }
             string contents = """
                 [Desktop Entry]
                 Version=1.0
@@ -248,11 +256,18 @@ namespace Apps {
 
             Launcher launcher;
             model.get (iter, 0, out launcher);
-            if (launcher.icon_name != null)
+
+            try {
+                int icon_width = 48, icon_height = 48;
+                Gtk.icon_size_lookup_for_settings (get_settings (),
+                    Gtk.IconSize.DIALOG, out icon_width, out icon_height);
+                var pixbuf = new Gdk.Pixbuf.from_file_at_size (launcher.icon_name, icon_width, icon_height);
+                renderer.set ("pixbuf", pixbuf);
+            }
+            catch (Error error) {
                 renderer.set ("icon-name", launcher.icon_name);
-            else
-                renderer.set ("stock-id", Gtk.STOCK_FILE);
-            renderer.set ("stock-size", Gtk.IconSize.BUTTON,
+            }
+            renderer.set ("stock-size", Gtk.IconSize.DIALOG,
                           "xpad", 4);
         }
 
