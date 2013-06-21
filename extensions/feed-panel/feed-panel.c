@@ -675,8 +675,6 @@ feed_panel_get_toolbar (MidoriViewable* viewable)
         GtkToolItem* toolitem;
 
         toolbar = gtk_toolbar_new ();
-        gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_BOTH_HORIZ);
-        gtk_toolbar_set_icon_size (GTK_TOOLBAR (toolbar), GTK_ICON_SIZE_BUTTON);
         panel->toolbar = toolbar;
         toolitem = gtk_tool_button_new_from_stock (GTK_STOCK_ADD);
         gtk_widget_set_tooltip_text (GTK_WIDGET (toolitem), _("Add new feed"));

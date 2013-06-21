@@ -87,10 +87,6 @@ static void cm_create_toolbar(CookieManagerPage *cmp)
 	GtkToolItem *toolitem;
 
 	priv->toolbar = toolbar = gtk_toolbar_new();
-	gtk_toolbar_set_style(GTK_TOOLBAR(toolbar), GTK_TOOLBAR_BOTH_HORIZ);
-	gtk_toolbar_set_icon_size(GTK_TOOLBAR(toolbar), GTK_ICON_SIZE_BUTTON);
-	gtk_widget_show(toolbar);
-
 	toolitem = gtk_tool_button_new_from_stock(GTK_STOCK_DELETE);
 	gtk_tool_item_set_is_important(toolitem, TRUE);
 	g_signal_connect(toolitem, "clicked", G_CALLBACK(cm_button_delete_clicked_cb), cmp);
