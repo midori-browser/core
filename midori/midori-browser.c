@@ -660,7 +660,7 @@ midori_view_notify_icon_cb (MidoriView*    view,
     if (midori_browser_get_current_tab (browser) != (GtkWidget*)view)
         return;
 
-    if (midori_paths_is_readonly () /* APP, PRIVATE */)
+    if (midori_paths_get_runtime_mode () == MIDORI_RUNTIME_MODE_APP)
         gtk_window_set_icon (GTK_WINDOW (browser), midori_view_get_icon (view));
 }
 
@@ -4959,7 +4959,7 @@ midori_browser_switched_tab (MidoriBrowser* browser,
     midori_browser_set_title (browser, midori_view_get_display_title (new_view));
     action = _action_by_name (browser, "Location");
     midori_location_action_set_text (MIDORI_LOCATION_ACTION (action), uri);
-    if (midori_paths_is_readonly () /* APP, PRIVATE */)
+    if (midori_paths_get_runtime_mode () == MIDORI_RUNTIME_MODE_APP)
         gtk_window_set_icon (GTK_WINDOW (browser), midori_view_get_icon (new_view));
 
     if (browser->proxy_array)
