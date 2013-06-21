@@ -26,6 +26,15 @@ namespace Apps {
             string name = title.delimit ("‪/", ' ').strip();
             string filename = Midori.Download.clean_filename (name);
             // TODO: Midori.Paths.get_icon save to png
+
+            try {
+                folder.make_directory_with_parents (null);
+            }
+            catch (Error error) {
+                /* It's not an error if the folder already exists;
+                   any fatal problems will fail further down the line */
+            }
+
             string icon_name = Midori.Stock.WEB_BROWSER;
             string contents = """
                 [Desktop Entry]
@@ -40,7 +49,6 @@ namespace Apps {
             var file = folder.get_child ("desc");
             var browser = proxy.get_toplevel () as Midori.Browser;
             try {
-                folder.make_directory_with_parents (null);
                 var stream = yield file.replace_async (null, false, GLib.FileCreateFlags.NONE);
                 yield stream.write_async (contents.data);
                 // Create a launcher/ menu
