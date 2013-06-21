@@ -1323,12 +1323,29 @@ midori_browser_notify_new_tab (MidoriBrowser* browser)
     }
 }
 
+static bool
+midori_view_forward_external (GtkWidget*   view,
+                              const gchar* uri)
+{
+    if (midori_paths_get_runtime_mode () == MIDORI_RUNTIME_MODE_APP)
+        return sokoke_show_uri (gtk_widget_get_screen (view), uri, 0, NULL);
+    else if (midori_paths_get_runtime_mode () == MIDORI_RUNTIME_MODE_PRIVATE)
+    {
+        sokoke_spawn_app (uri, TRUE);
+        return TRUE;
+    }
+    return FALSE;
+}
+
 static void
 midori_view_new_tab_cb (GtkWidget*     view,
                         const gchar*   uri,
                         gboolean       background,
                         MidoriBrowser* browser)
 {
+    if (midori_view_forward_external (view, uri))
+        return;
+
     GtkWidget* new_view = midori_browser_add_uri (browser, uri);
     midori_browser_view_copy_history (new_view, view, FALSE);
 
@@ -1343,12 +1360,13 @@ midori_view_new_window_cb (GtkWidget*     view,
                            const gchar*   uri,
                            MidoriBrowser* browser)
 {
+    if (midori_view_forward_external (view, uri))
+        return;
+
     MidoriBrowser* new_browser;
     g_signal_emit (browser, signals[NEW_WINDOW], 0, NULL, &new_browser);
-    if (new_browser)
-        midori_browser_add_uri (new_browser, uri);
-    else /* No MidoriApp, so this is app or private mode */
-        sokoke_spawn_app (uri, TRUE);
+    g_assert (new_browser != NULL);
+    midori_view_new_tab_cb (view, uri, FALSE, new_browser);
 }
 
 static void
@@ -1358,11 +1376,16 @@ midori_view_new_view_cb (GtkWidget*     view,
                          gboolean       user_initiated,
                          MidoriBrowser* browser)
 {
+    if (midori_view_forward_external (new_view,
+        katze_item_get_uri (midori_view_get_proxy_item (MIDORI_VIEW (new_view)))))
+        return;
+
     midori_browser_view_copy_history (new_view, view, TRUE);
     if (where == MIDORI_NEW_VIEW_WINDOW)
     {
         MidoriBrowser* new_browser;
         g_signal_emit (browser, signals[NEW_WINDOW], 0, NULL, &new_browser);
+        g_assert (new_browser != NULL);
         midori_browser_add_tab (new_browser, new_view);
         midori_browser_set_current_tab (new_browser, new_view);
     }

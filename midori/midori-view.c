@@ -2837,7 +2837,9 @@ webkit_web_view_create_web_view_cb (GtkWidget*      web_view,
         new_view = view;
     else
     {
-        new_view = (MidoriView*)midori_view_new_with_item (NULL, view->settings);
+        KatzeItem* item = katze_item_new ();
+        item->uri = g_strdup (webkit_web_frame_get_uri (web_frame));
+        new_view = (MidoriView*)midori_view_new_with_item (item, view->settings);
         g_signal_connect (new_view->web_view, "web-view-ready",
                           G_CALLBACK (webkit_web_view_web_view_ready_cb), view);
     }
