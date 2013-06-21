@@ -945,10 +945,10 @@ midori_location_action_create_tool_item (GtkAction* action)
     #if GTK_CHECK_VERSION (3, 6, 0)
     gtk_entry_set_input_purpose (GTK_ENTRY (entry), GTK_INPUT_PURPOSE_URL);
     #endif
-    gtk_icon_entry_set_icon_highlight (GTK_ICON_ENTRY (entry),
-         GTK_ICON_ENTRY_PRIMARY, TRUE);
-    gtk_icon_entry_set_icon_highlight (GTK_ICON_ENTRY (entry),
-         GTK_ICON_ENTRY_SECONDARY, TRUE);
+    gtk_entry_set_icon_activatable (GTK_ENTRY (entry),
+         GTK_ENTRY_ICON_PRIMARY, TRUE);
+    gtk_entry_set_icon_activatable (GTK_ENTRY (entry),
+         GTK_ENTRY_ICON_SECONDARY, TRUE);
 
     targetlist = gtk_target_list_new (NULL, 0);
     gtk_target_list_add_uri_targets (targetlist, 0);
@@ -1448,10 +1448,10 @@ midori_location_action_icon_released_cb (GtkWidget*           widget,
     /* The dialog should "toggle" like a menu, as far as users go
        FIXME: Half-working: the dialog closes but re-opens */
     static GtkWidget* dialog = NULL;
-    if (icon_pos == GTK_ICON_ENTRY_PRIMARY && dialog != NULL)
+    if (icon_pos == GTK_ENTRY_ICON_PRIMARY && dialog != NULL)
         gtk_widget_destroy (dialog);
 
-    if (icon_pos == GTK_ICON_ENTRY_PRIMARY)
+    if (icon_pos == GTK_ENTRY_ICON_PRIMARY)
     {
         /* No "security" window for blank pages */
         if (midori_uri_is_blank (MIDORI_LOCATION_ACTION (action)->text))
@@ -1499,7 +1499,7 @@ midori_location_action_icon_released_cb (GtkWidget*           widget,
         g_signal_connect (dialog, "destroy", G_CALLBACK (gtk_widget_destroyed), &dialog);
         gtk_widget_show_all (dialog);
     }
-    if (icon_pos == GTK_ICON_ENTRY_SECONDARY)
+    if (icon_pos == GTK_ENTRY_ICON_SECONDARY)
     {
         gboolean result;
         g_signal_emit (action, signals[SECONDARY_ICON_RELEASED], 0,
@@ -1731,11 +1731,11 @@ midori_location_action_set_secondary_icon (MidoriLocationAction* location_action
     {
         GtkWidget* entry = midori_location_action_entry_for_proxy (proxies->data);
         if (stock_id && gtk_stock_lookup (stock_id, &stock_item))
-            gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (entry),
-                GTK_ICON_ENTRY_SECONDARY, stock_id);
+            gtk_entry_set_icon_from_stock (GTK_ENTRY (entry),
+                GTK_ENTRY_ICON_SECONDARY, stock_id);
         else
-            gtk_icon_entry_set_icon_from_icon_name (GTK_ICON_ENTRY (entry),
-                GTK_ICON_ENTRY_SECONDARY, stock_id);
+            gtk_entry_set_icon_from_icon_name (GTK_ENTRY (entry),
+                GTK_ENTRY_ICON_SECONDARY, stock_id);
     }
 }
 
@@ -1764,8 +1764,8 @@ midori_location_action_set_primary_icon (MidoriLocationAction* location_action,
     if (GTK_IS_TOOL_ITEM (proxies->data))
     {
         GtkWidget* entry = midori_location_action_entry_for_proxy (proxies->data);
-        gtk_entry_set_icon_from_gicon (GTK_ENTRY (entry), GTK_ICON_ENTRY_PRIMARY, icon);
-        gtk_icon_entry_set_tooltip (GTK_ICON_ENTRY (entry), GTK_ICON_ENTRY_PRIMARY, tooltip);
+        gtk_entry_set_icon_from_gicon (GTK_ENTRY (entry), GTK_ENTRY_ICON_PRIMARY, icon);
+        gtk_entry_set_icon_tooltip_text (GTK_ENTRY (entry), GTK_ENTRY_ICON_PRIMARY, tooltip);
     }
 }
 
