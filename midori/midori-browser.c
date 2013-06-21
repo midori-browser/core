@@ -4685,27 +4685,6 @@ static const gchar* credits_documenters[] =
 static const gchar* credits_artists[] =
     { "Nancy Runge <nancy@twotoasts.de>", NULL };
 
-static void
-midori_browser_about_activate_link_cb (GtkAboutDialog* about,
-                                       const gchar*    uri,
-                                       gpointer        user_data)
-{
-    /* Some email clients need the 'mailto' to function properly */
-    if (g_str_has_prefix (uri, "mailto:"))
-    {
-        gchar* newuri = NULL;
-        if (!g_str_has_prefix (uri, "mailto:"))
-            newuri = g_strconcat ("mailto:", uri, NULL);
-        sokoke_show_uri (NULL, newuri ? newuri : uri, GDK_CURRENT_TIME, NULL);
-        g_free (newuri);
-        return;
-    }
-
-    MidoriBrowser* browser = MIDORI_BROWSER (user_data);
-    GtkWidget* view = midori_browser_add_uri (browser, uri);
-    midori_browser_set_current_tab (browser, view);
-}
-
 static gchar*
 midori_browser_get_docs (gboolean error)
 {
@@ -4772,8 +4751,6 @@ _action_about_activate (GtkAction*     action,
     g_free (docs);
     #endif
     gtk_widget_show (dialog);
-    g_signal_connect (dialog, "activate-link",
-        G_CALLBACK (midori_browser_about_activate_link_cb), dialog);
     g_signal_connect_swapped (dialog, "response",
                               G_CALLBACK (gtk_widget_destroy), dialog);
 }
