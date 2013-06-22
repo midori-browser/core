@@ -46,7 +46,7 @@ midori_findbar_class_init (MidoriFindbarClass* class)
 
 static void
 midori_findbar_set_icon (MidoriFindbar*       findbar,
-                         GtkIconEntryPosition icon_pos,
+                         GtkEntryIconPosition icon_pos,
                          const gchar*         icon_name)
 {
     if (icon_name != NULL)
@@ -57,7 +57,7 @@ midori_findbar_set_icon (MidoriFindbar*       findbar,
         g_free (symbolic_icon_name);
     }
     else
-        gtk_icon_entry_set_icon_from_icon_name (GTK_ICON_ENTRY (findbar->find_text),
+        gtk_entry_set_icon_from_icon_name (GTK_ENTRY (findbar->find_text),
                                                 icon_pos, NULL);
 }
 
@@ -146,7 +146,7 @@ midori_findbar_invoke (MidoriFindbar* findbar,
         gtk_widget_grab_focus (GTK_WIDGET (findbar->find_text));
     else
     {
-        midori_findbar_set_icon (findbar, GTK_ICON_ENTRY_PRIMARY, STOCK_EDIT_FIND);
+        midori_findbar_set_icon (findbar, GTK_ENTRY_ICON_PRIMARY, STOCK_EDIT_FIND);
         gtk_widget_show (GTK_WIDGET (findbar->find_case));
         gtk_widget_show (GTK_WIDGET (findbar->find_close));
         if (selected_text != NULL)
@@ -188,11 +188,11 @@ midori_findbar_preedit_changed_cb (GtkWidget*     entry,
     if (g_utf8_strlen (preedit, -1) >= 1)
     {
         gboolean case_sensitive = midori_findbar_case_sensitive (findbar);
-        midori_findbar_set_icon (findbar, GTK_ICON_ENTRY_SECONDARY, STOCK_EDIT_CLEAR);
+        midori_findbar_set_icon (findbar, GTK_ENTRY_ICON_SECONDARY, STOCK_EDIT_CLEAR);
         midori_tab_find (MIDORI_TAB (view), preedit, case_sensitive, TRUE);
     }
     else
-        midori_findbar_set_icon (findbar, GTK_ICON_ENTRY_SECONDARY, NULL);
+        midori_findbar_set_icon (findbar, GTK_ENTRY_ICON_SECONDARY, NULL);
 }
 
 static void
@@ -292,7 +292,7 @@ midori_findbar_search_text (MidoriFindbar* findbar,
     const gchar* text;
     gboolean case_sensitive;
 
-    midori_findbar_set_icon (findbar, GTK_ICON_ENTRY_PRIMARY, found ? STOCK_EDIT_FIND : STOCK_STOP);
+    midori_findbar_set_icon (findbar, GTK_ENTRY_ICON_PRIMARY, found ? STOCK_EDIT_FIND : STOCK_STOP);
 
     if (typing)
     {

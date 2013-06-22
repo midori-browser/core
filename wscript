@@ -263,7 +263,7 @@ def configure (conf):
         conf.env.append_value ('VALAFLAGS', '-D HAVE_OFFSCREEN')
         conf.env.append_value ('VALAFLAGS', '-D HAVE_DOM')
     else:
-        check_pkg ('gtk+-2.0', '2.16.0', var='GTK')
+        check_pkg ('gtk+-2.0', '2.24.0', var='GTK')
         check_pkg ('webkit-1.0', '1.8.3', args=args)
         conf.define ('GCR_VERSION', 'No')
         check_pkg ('javascriptcoregtk-1.0', '1.8.3', args=args)
