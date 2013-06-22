@@ -91,7 +91,6 @@ namespace Apps {
         public Gtk.Widget get_toolbar () {
             if (toolbar == null) {
                 toolbar = new Gtk.Toolbar ();
-                toolbar.set_icon_size (Gtk.IconSize.BUTTON);
 
                 var profile = new Gtk.ToolButton.from_stock (Gtk.STOCK_ADD);
                 profile.label = _("New _Profile");
