@@ -82,6 +82,7 @@ midori_view_display_error (MidoriView*     view,
                            const gchar*    title,
                            const gchar*    message,
                            const gchar*    description,
+                           const gchar*    suggestions,
                            const gchar*    try_again,
 #ifndef HAVE_WEBKIT2
                            WebKitWebFrame* web_frame);
@@ -667,7 +668,7 @@ midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view
                         gchar* slots = g_strjoinv (" , ", (gchar**)gcr_pkcs11_get_trust_lookup_uris ());
                         gchar* title = g_strdup_printf ("Error granting trust: %s", error->message);
                         midori_tab_stop_loading (MIDORI_TAB (view));
-                        midori_view_display_error (view, NULL, NULL, title, slots,
+                        midori_view_display_error (view, NULL, NULL, title, slots, NULL,
                             _("Trust this website"), NULL);
                         g_free (title);
                         g_free (slots);
@@ -790,7 +791,7 @@ midori_view_load_committed (MidoriView* view)
                 midori_tab_set_security (MIDORI_TAB (view), MIDORI_SECURITY_UNKNOWN);
                 midori_tab_stop_loading (MIDORI_TAB (view));
                 midori_view_display_error (view, NULL, NULL, _("Security unknown"),
-                    midori_location_action_tls_flags_to_string (tls_flags),
+                    midori_location_action_tls_flags_to_string (tls_flags), NULL,
                     _("Trust this website"),
                     NULL);
             }
@@ -1174,6 +1175,7 @@ midori_view_display_error (MidoriView*     view,
                            const gchar*    title,
                            const gchar*    message,
                            const gchar*    description,
+                           const gchar*    suggestions,
                            const gchar*    try_again,
 #ifndef HAVE_WEBKIT2
                            WebKitWebFrame* web_frame)
@@ -1212,6 +1214,7 @@ midori_view_display_error (MidoriView*     view,
             "{favicon}", katze_str_non_null (favicon),
             "{message}", message,
             "{description}", description,
+            "{suggestions}", suggestions,
             "{tryagain}", try_again,
             "{uri}", uri,
             "{hide-button-images}", show_button_images ? "" : "display:none",
@@ -1261,13 +1264,16 @@ webkit_web_view_load_error_cb (WebKitWebView*  web_view,
         /* A frame load is cancelled because of a download. */
         return FALSE;
     }
-
-    title = g_strdup_printf (_("Error - %s"), uri);
     message = g_strdup_printf (_("The page '%s' couldn't be loaded."), uri);
-    result = midori_view_display_error (view, uri, title,
-        message, error->message, _("Try again"), web_frame);
+    result = midori_view_display_error (view,
+                                        uri,
+                                        _("Error loading page"),
+                                        message,
+                                        error->message,
+                                        _("<li>Check the address for typos</li><li>Verify that your network settings are correct</li>"),
+                                        _("Try again"),
+                                        web_frame);
     g_free (message);
-    g_free (title);
     return result;
 }
 
@@ -1398,7 +1404,7 @@ midori_view_web_view_crashed_cb (WebKitWebView* web_view,
     gchar* title = g_strdup_printf (_("Oops - %s"), uri);
     gchar* message = g_strdup_printf (_("Something went wrong with '%s'."), uri);
     midori_view_display_error (view, uri, title,
-        message, "", _("Try again"), NULL);
+        message, "", NULL, _("Try again"), NULL);
     g_free (message);
     g_free (title);
 }
@@ -4204,7 +4210,7 @@ midori_view_set_uri (MidoriView*  view,
             midori_tab_set_uri (MIDORI_TAB (view), uri);
             midori_tab_set_special (MIDORI_TAB (view), TRUE);
             katze_item_set_meta_integer (view->item, "delay", MIDORI_DELAY_PENDING_UNDELAY);
-            midori_view_display_error (view, NULL, NULL, _("Page loading delayed"),
+            midori_view_display_error (view, NULL, NULL, NULL, _("Page loading delayed"),
                 _("Loading delayed either due to a recent crash or startup preferences."),
                 _("Load Page"),
                 NULL);
