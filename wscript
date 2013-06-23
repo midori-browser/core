@@ -291,13 +291,6 @@ def configure (conf):
     if check_version (conf.env['LIBSOUP_VERSION'], 2, 37, 1):
         conf.define ('HAVE_LIBSOUP_2_37_1', 1)
 
-    if check_version (conf.env['WEBKIT_VERSION'], 1, 3, 8):
-        conf.env.append_value ('VALAFLAGS', '-D HAVE_WEBKIT_1_3_8')
-    if check_version (conf.env['WEBKIT_VERSION'], 1, 3, 13):
-        conf.env.append_value ('VALAFLAGS', '-D HAVE_WEBKIT_1_3_13')
-    if check_version (conf.env['WEBKIT_VERSION'], 1, 8, 0):
-        conf.env.append_value ('VALAFLAGS', '-D HAVE_WEBKIT_1_8_0')
-
     check_pkg ('libxml-2.0', '2.6')
     conf.undefine ('LIBXML_VERSION') # Defined in xmlversion.h
     check_pkg ('sqlite3', '3.6.19', var='SQLITE')
