@@ -1270,7 +1270,7 @@ webkit_web_view_load_error_cb (WebKitWebView*  web_view,
                                         _("Error loading page"),
                                         message,
                                         error->message,
-                                        _("<li>Check the address for typos</li><li>Verify that your network settings are correct</li>"),
+                                        _("You might want to try one of these suggestions:<ul id=\"suggestions\"><li>Check the address for typos</li><li>Make sure that an ethernet cable is plugged in or the wireless card is activated</li><li>Verify that your network settings are correct</li></ul>"),
                                         _("Try again"),
                                         web_frame);
     g_free (message);
