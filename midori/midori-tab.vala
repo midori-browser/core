@@ -109,7 +109,6 @@ namespace Midori {
 
         public void inject_stylesheet (string stylesheet) {
 #if !HAVE_WEBKIT2
-            #if HAVE_DOM
             var dom = web_view.get_dom_document ();
             try {
                 var style = dom.create_element ("style");
@@ -121,19 +120,6 @@ namespace Midori {
             catch (Error error) {
                 critical (_("Failed to inject stylesheet: %s"), error.message);
             }
-            #else
-            web_view.execute_script ("""
-                (function () {
-                var style = document.createElement ('style');
-                style.setAttribute ('type', 'text/css');
-                style.appendChild (document.createTextNode ('%s'));
-                var head = document.getElementsByTagName ('head')[0];
-                if (head) head.appendChild (style);
-                else document.documentElement.insertBefore
-                (style, document.documentElement.firstChild);
-                }) ();
-                """.printf (stylesheet));
-            #endif
 #endif
         }
 
