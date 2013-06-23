@@ -14,10 +14,13 @@ body {
    /*background: #fefefe;*/
    min-width: 70%;
    max-width: 70%;
-   margin: 2em auto 1em;
+   /*margin: 2em auto 1em;*/
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: auto;
    padding: 1em;
-   /*border: 1px solid #bbbbbb;
-   -webkit-border-radius: 10px;*/
+   border: 1px solid red;
+   /*-webkit-border-radius: 10px;*/
 }
 
 #icon {
@@ -33,15 +36,18 @@ html[dir="rtl"] #icon {
 
 #main {
     margin-left: 80px;
-    padding-right: 80px;
-    width: 75%;
+    /*padding-right: 80px;
+    /*width: 75%;*/
+    border: 1px solid blue;
 }
 
 h1 {
     /*font: 'Open Sans' bold 24;*/
+    width: 100%
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+border: 1px solid green;
 }
 
 html[dir="ltr"] #logo {
@@ -59,12 +65,25 @@ button img {
 }
 
 #message {
-   font: 'Open Sans' light 18;
-   word-wrap: break-word;
+    /*white-space: nowrap;
+    font: 'Open Sans' light 18;
+    /*word-wrap: break-word;*/
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 #description {
-   font-style: bold;
-   word-wrap: break-word;
-   font-size: 1em;
+    /*white-space: nowrap;*/
+    font-style: bold;
+    /*word-wrap: break-word;*/
+    font-size: 1em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+border: 1px solid pink;
+}
+
+#suggestions {
+    overflow: hidden;
+    text-overflow: ellipsis;
+border: 1px solid yellow;
 }
