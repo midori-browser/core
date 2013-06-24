@@ -1267,7 +1267,7 @@ webkit_web_view_load_error_cb (WebKitWebView*  web_view,
         /* A frame load is cancelled because of a download. */
         return FALSE;
     }
-    message = g_strdup_printf (_("The page '%s' couldn't be loaded."), uri);
+    message = g_strdup_printf (_("The page '%s' couldn't be loaded:"), uri);
     result = midori_view_display_error (view,
                                         uri,
                                         "background-image: url(stock://gtk-dialog-warning);",
