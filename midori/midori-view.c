@@ -4101,13 +4101,14 @@ midori_view_set_uri (MidoriView*  view,
                 data = g_strdup_printf (
                     "<html><head><title>%s</title>"
                     "<link rel=\"stylesheet\" type=\"text/css\" href=\"res://about.css\">"
-                    "</head><body><div id=\"container\">"
-                    "<img id=\"logo\" src=\"res://logo-shade.png\" "
-                    "style=\"position: absolute; right: 15px; bottom: 15px; z-index: -9;\">"
-                    "<img id=\"icon\" src=\"stock://gtk-dialog-info\">"
-                    "<div id=\"main\"><h1>%s</h1>"
-                    "<p>%s</p><ul><li>%s</li><li>%s</li><li>%s</li></ul>"
-                    "<p>%s</p><ul><li>%s</li><li>%s</li><li>%s</li><li>%s</li></ul>"
+                    "</head>"
+                    "<body>"
+                    "<div id=\"main\">"
+                    "<div id=\"icon\" style=\"background-image: url(stock://gtk-dialog-info);\"></div>"
+                    "<div id=\"text\">"
+                    "<h1>%s</h1>"
+                    "<p class=\"indent\">%s</p><ul class=\"indent suggestions\"><li>%s</li><li>%s</li><li>%s</li></ul>"
+                    "<p class=\"indent\">%s</p><ul class=\"indent suggestions\"><li>%s</li><li>%s</li><li>%s</li><li>%s</li></ul>"
                     "</div><br style=\"clear: both\"></div></body></html>",
                     _("Private Browsing"), _("Private Browsing"),
                     _("Midori doesn't store any personal data:"),

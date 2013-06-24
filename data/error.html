@@ -9,20 +9,20 @@
 <link rel="stylesheet" type="text/css" href="res://about.css" />
 </head>
 <body>
-    <div id="container">
-        <img id="icon" src="stock://gtk-dialog-warning" />
         <div id="main">
+            <div id="icon" style="background-image: url(stock://gtk-dialog-warning);"></div>
+            <div id="text">
             <h1>{title}</h1>
-            <p id="message">{message}</p>
-            <p id="description">{description}</p>
+            <p class="message indent">{message}</p>
+            <p class="description indent">{description}</p>
             {suggestions}                
-            <form method="GET" action="{uri}">
-                <button type="submit" onclick="location.reload(); return false;" autofocus="true">
+            <form method="GET" action="{uri}" class="indent">
+                <button type="submit" onclick="location.reload(); return false;" autofocus="true" class="indent">
                     <span>{tryagain}</span>
                 </button>
             </form>
+            </div>
         </div>
         <br style="clear: both;"/>
-    </div>
   </body>
 </html>
