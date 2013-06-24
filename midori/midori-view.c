@@ -4107,11 +4107,11 @@ midori_view_set_uri (MidoriView*  view,
                     "<link rel=\"stylesheet\" type=\"text/css\" href=\"res://about.css\">"
                     "</head>"
                     "<body>"
-                    "<div id=\"main\" style=\"background-image: url(stock://gtk-dialog-info);\">"
-                    "<div id=\"text\">"
-                    "<h1>%s</h1>"
-                    "<p class=\"indent\">%s</p><ul class=\"indent suggestions\"><li>%s</li><li>%s</li><li>%s</li></ul>"
-                    "<p class=\"indent\">%s</p><ul class=\"indent suggestions\"><li>%s</li><li>%s</li><li>%s</li><li>%s</li></ul>"
+                        "<div id=\"main\" style=\"background-image: url(stock://gtk-dialog-info);\">"
+                            "<div id=\"text\">"
+                                "<h1>%s</h1>"
+                                "<p class=\"message\">%s</p><ul class=\" suggestions\"><li>%s</li><li>%s</li><li>%s</li></ul>"
+                                "<p class=\"message\">%s</p><ul class=\" suggestions\"><li>%s</li><li>%s</li><li>%s</li><li>%s</li></ul>"
                     "</div><br style=\"clear: both\"></div></body></html>",
                     _("Private Browsing"), _("Private Browsing"),
                     _("Midori doesn't store any personal data:"),
