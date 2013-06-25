@@ -52,6 +52,7 @@ namespace Midori {
             MARKUP,
             BACKGROUND,
             YALIGN,
+            SIZE,
             N
         }
 
@@ -60,8 +61,8 @@ namespace Midori {
             completions = new List<Completion> ();
             next_position = 0;
             model = new Gtk.ListStore (Columns.N,
-                typeof (Gdk.Pixbuf), typeof (string), typeof (string),
-                typeof (string), typeof (float));
+                typeof (GLib.Icon), typeof (string), typeof (string),
+                typeof (string), typeof (float), typeof (uint));
         }
 
         public void add (Completion completion) {
@@ -78,6 +79,17 @@ namespace Midori {
             return false;
         }
 
+        private GLib.Icon? scale_if_needed (GLib.Icon? icon) {
+            if (icon is Gdk.Pixbuf) {
+                var pixbuf = icon as Gdk.Pixbuf;
+                int icon_width = 16, icon_height = 16;
+                Gtk.icon_size_lookup (Gtk.IconSize.MENU, out icon_width, out icon_height);
+                if (pixbuf.width > icon_width || pixbuf.height > icon_height)
+                    return pixbuf.scale_simple (icon_width, icon_height, Gdk.InterpType.BILINEAR);
+            }
+            return icon;
+        }
+
         private void fill_model (Midori.Completion completion, List<Midori.Suggestion>? suggestions) {
             if (need_to_clear) {
                 model.clear ();
@@ -91,6 +103,7 @@ namespace Midori {
                     Columns.URI, "about:completion-description",
                     Columns.MARKUP, "<b>%s</b>\n".printf (Markup.escape_text (completion.description)),
                     Columns.ICON, null,
+                    Columns.SIZE, Gtk.IconSize.MENU,
                     Columns.BACKGROUND, null,
                     Columns.YALIGN, 0.25);
             }
@@ -110,7 +123,8 @@ namespace Midori {
                     Columns.URI, suggestion.uri,
                     Columns.MARKUP, suggestion.use_markup
                     ? suggestion.markup : Markup.escape_text (suggestion.markup),
-                    Columns.ICON, suggestion.icon,
+                    Columns.ICON, scale_if_needed (suggestion.icon),
+                    Columns.SIZE, Gtk.IconSize.MENU,
                     Columns.BACKGROUND, suggestion.background,
                     Columns.YALIGN, 0.25);
 
