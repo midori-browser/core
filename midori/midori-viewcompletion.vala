@@ -53,6 +53,11 @@ namespace Midori {
                     string? uri, title;
                     item.get ("uri", out uri);
                     item.get ("name", out title);
+
+                    /* Omit speed dial and blank pages */
+                    if (uri == "about:dial" || uri == "about:blank")
+                        continue;
+
                     if (uri == null) {
                         warning ("item.uri != null");
                         continue;
