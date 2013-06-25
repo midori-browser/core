@@ -465,7 +465,7 @@ katze_item_icon_loaded_cb (WebKitFaviconDatabase* database,
 {
     KatzeItem* item = g_object_get_data (G_OBJECT (image), "KatzeItem");
     GdkPixbuf* pixbuf;
-    if (!strcmp (frame_uri, item->uri)
+    if (!g_strcmp0 (frame_uri, item->uri)
       && (pixbuf = midori_paths_get_icon (frame_uri, image)))
     {
         gtk_image_set_from_pixbuf (GTK_IMAGE (image), pixbuf);
