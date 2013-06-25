@@ -76,10 +76,6 @@ struct _MidoriApp
 
     MidoriBrowser* browser;
     MidoriAppInstance instance;
-
-    #if !HAVE_LIBNOTIFY
-    gchar* program_notify_send;
-    #endif
 };
 
 static gchar* app_name = NULL;
@@ -795,8 +791,6 @@ midori_app_init (MidoriApp* app)
 
     #if HAVE_LIBNOTIFY
     notify_init (PACKAGE_NAME);
-    #else
-    app->program_notify_send = g_find_program_in_path ("notify-send");
     #endif
 }
 
@@ -824,8 +818,6 @@ midori_app_finalize (GObject* object)
     #if HAVE_LIBNOTIFY
     if (notify_is_initted ())
         notify_uninit ();
-    #else
-        katze_assign (app->program_notify_send, NULL);
     #endif
 
     G_OBJECT_CLASS (midori_app_parent_class)->finalize (object);
@@ -1311,21 +1303,6 @@ midori_app_send_notification (MidoriApp*   app,
         #endif
         notify_notification_show (note, NULL);
         g_object_unref (note);
-    }
-    #else
-    /* Fall back to the command line program "notify-send" */
-    if (app->program_notify_send)
-    {
-        gchar* msgq = g_shell_quote (message);
-        gchar* titleq = g_shell_quote (title);
-        gchar* command = g_strdup_printf ("%s -i midori %s %s",
-            app->program_notify_send, titleq, msgq);
-
-        g_spawn_command_line_async (command, NULL);
-
-        g_free (titleq);
-        g_free (msgq);
-        g_free (command);
     }
     #endif
 }

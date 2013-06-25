@@ -3112,6 +3112,21 @@ _action_bookmarks_populate_folder (GtkAction*     action,
     gtk_container_foreach (GTK_CONTAINER (menu),
         (GtkCallback)(gtk_widget_destroy), NULL);
 
+    /* "Import Bookmarks" and "Export Bookmarks" at the top */
+    if (id == NULL)
+    {
+        GtkWidget* menuitem;
+        menuitem = gtk_action_create_menu_item (_action_by_name (browser, "BookmarksImport"));
+        gtk_menu_shell_append (menu, menuitem);
+        gtk_widget_show (menuitem);
+        menuitem = gtk_action_create_menu_item (_action_by_name (browser, "BookmarksExport"));
+        gtk_menu_shell_append (menu, menuitem);
+        gtk_widget_show (menuitem);
+        menuitem = gtk_separator_menu_item_new ();
+        gtk_menu_shell_append (menu, menuitem);
+        gtk_widget_show (menuitem);
+    }
+
     if (katze_array_is_empty (bookmarks))
     {
         GtkWidget* menuitem = gtk_image_menu_item_new_with_label (_("Empty"));
@@ -4139,7 +4154,10 @@ midori_browser_bookmark_popup_item (GtkWidget*     menu,
     else if (!KATZE_IS_ARRAY (item) && strcmp (stock_id, GTK_STOCK_DELETE))
         gtk_widget_set_sensitive (menuitem, uri != NULL);
     g_object_set_data (G_OBJECT (menuitem), "KatzeItem", item);
-    g_signal_connect (menuitem, "activate", G_CALLBACK (callback), userdata);
+    if (callback)
+        g_signal_connect (menuitem, "activate", G_CALLBACK (callback), userdata);
+    else
+        gtk_widget_set_sensitive (menuitem, FALSE);
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
     gtk_widget_show (menuitem);
 }
@@ -4229,10 +4247,16 @@ midori_browser_bookmark_popup (GtkWidget*      widget,
     GtkWidget* menuitem;
 
     menu = gtk_menu_new ();
-    if (!katze_item_get_uri (item))
+    if (KATZE_ITEM_IS_FOLDER (item))
+    {
+        gint child_bookmarks_count = midori_array_count_recursive (browser->bookmarks,
+            "uri <> ''", NULL, item, FALSE);
+
         midori_browser_bookmark_popup_item (menu,
-            STOCK_TAB_NEW, _("Open all in _Tabs"),
-            item, midori_browser_bookmark_open_in_tab_activate_cb, browser);
+            STOCK_TAB_NEW, _("Open all in _Tabs"), item,
+            (!child_bookmarks_count ? NULL : midori_browser_bookmark_open_in_tab_activate_cb),
+            browser);
+    }
     else
     {
         midori_browser_bookmark_popup_item (menu, GTK_STOCK_OPEN, NULL,
@@ -4244,9 +4268,11 @@ midori_browser_bookmark_popup (GtkWidget*      widget,
             STOCK_WINDOW_NEW, _("Open in New _Window"),
             item, midori_browser_bookmark_open_in_window_activate_cb, browser);
     }
+
     menuitem = gtk_separator_menu_item_new ();
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
     gtk_widget_show (menuitem);
+
     midori_browser_bookmark_popup_item (menu, GTK_STOCK_EDIT, NULL,
         item, midori_browser_bookmark_edit_activate_cb, widget);
     midori_browser_bookmark_popup_item (menu, GTK_STOCK_DELETE, NULL,
@@ -5707,8 +5733,6 @@ static const gchar* ui_markup =
                 "<menuitem action='WindowClose'/>"
                 "<separator/>"
                 "<menuitem action='Print'/>"
-                "<menuitem action='BookmarksImport'/>"
-                "<menuitem action='BookmarksExport'/>"
                 "<separator/>"
                 "<menuitem action='Quit'/>"
             "</menu>"
@@ -5771,7 +5795,10 @@ static const gchar* ui_markup =
                 "<menuitem action='Search'/>"
                 "<menuitem action='Trash'/>"
             "</menu>"
-            "<menuitem action='Bookmarks'/>"
+            "<menu action='Bookmarks'>"
+                "<menuitem action='BookmarksImport'/>"
+                "<menuitem action='BookmarksExport'/>"
+            "</menu>"
             "<menuitem action='Tools'/>"
             "<menuitem action='Window'/>"
             "<menu action='Help'>"
@@ -7691,7 +7718,7 @@ midori_browser_set_current_tab (MidoriBrowser* browser,
 GtkWidget*
 midori_browser_get_current_tab (MidoriBrowser* browser)
 {
-    #ifdef HAVE_GRANITE
+    #if 0 // def HAVE_GRANITE
     GraniteWidgetsTab* tab;
     #else
     gint n;
@@ -7699,7 +7726,7 @@ midori_browser_get_current_tab (MidoriBrowser* browser)
 
     g_return_val_if_fail (MIDORI_IS_BROWSER (browser), NULL);
 
-    #ifdef HAVE_GRANITE
+    #if 0 // FIXME: not reliable def HAVE_GRANITE
     tab = granite_widgets_dynamic_notebook_get_current (
         GRANITE_WIDGETS_DYNAMIC_NOTEBOOK (browser->notebook));
     return tab ? granite_widgets_tab_get_page (tab) : NULL;

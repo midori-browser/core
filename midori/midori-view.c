@@ -1222,6 +1222,7 @@ midori_view_add_info_bar (MidoriView*    view,
     va_list args;
     const gchar* button_text;
 
+    g_return_val_if_fail (MIDORI_IS_VIEW (view), NULL);
     g_return_val_if_fail (message != NULL, NULL);
 
     va_start (args, first_button_text);
@@ -1812,15 +1813,6 @@ midori_view_ensure_link_uri (MidoriView* view,
 
     if (gtk_widget_get_window (view->web_view))
     {
-        GdkEventButton ev;
-
-        if (!event) {
-            gint ex, ey;
-            event = &ev;
-            gdk_window_get_pointer (gtk_widget_get_window (view->web_view), &ex, &ey, NULL);
-            event->x = ex;
-            event->y = ey;
-        }
 
         if (x != NULL)
             *x = event->x;
@@ -2246,13 +2238,6 @@ midori_web_view_menu_new_window_activate_cb (GtkWidget*  widget,
 }
 
 static void
-midori_web_view_menu_web_app_activate_cb (GtkWidget*  widget,
-                                          MidoriView* view)
-{
-    sokoke_spawn_app (view->link_uri, FALSE);
-}
-
-static void
 midori_web_view_menu_link_copy_activate_cb (GtkWidget*  widget,
                                             MidoriView* view)
 {
@@ -2619,7 +2604,10 @@ midori_view_populate_popup (MidoriView* view,
     gboolean is_image;
     gboolean is_media;
 
-    midori_view_ensure_link_uri (view, &x, &y, NULL);
+    GdkEvent* event = gtk_get_current_event();
+    midori_view_ensure_link_uri (view, &x, &y, (GdkEventButton *)event);
+    gdk_event_free (event);
+
     context = katze_object_get_int (view->hit_test, "context");
     has_selection = context & WEBKIT_HIT_TEST_RESULT_CONTEXT_SELECTION;
     /* Ensure view->selected_text */
@@ -2758,9 +2746,6 @@ midori_view_populate_popup (MidoriView* view,
         midori_view_insert_menu_item (menu_shell, -1,
             _("Open Link in New _Window"), STOCK_WINDOW_NEW,
             G_CALLBACK (midori_web_view_menu_new_window_activate_cb), widget);
-        midori_view_insert_menu_item (menu_shell, -1,
-            _("Open Link as Web A_pplication"), NULL,
-            G_CALLBACK (midori_web_view_menu_web_app_activate_cb), widget);
         }
 
         midori_view_insert_menu_item (menu_shell, -1,
@@ -4431,11 +4416,13 @@ midori_view_set_uri (MidoriView*  view,
                 data = g_markup_printf_escaped ("<body><h1>%s</h1>"
                     "<p>config: <code>%s</code></p>"
                     "<p>res: <code>%s</code></p>"
+                    "<p>data: <code>%s/%s</code></p>"
                     "<p>lib: <code>%s</code></p>"
                     "<p>cache: <code>%s</code></p>"
                     "<p>tmp: <code>%s</code></p>"
                     "</body>",
                     uri, midori_paths_get_config_dir_for_reading (), res_dir,
+                    midori_paths_get_user_data_dir_for_reading (), PACKAGE_NAME,
                     lib_dir, midori_paths_get_cache_dir_for_reading (), midori_paths_get_tmp_dir ());
                 g_free (res_dir);
                 g_free (lib_dir);
@@ -5901,15 +5888,42 @@ midori_view_set_colors (MidoriView* view,
                         GdkColor*   fg_color,
                         GdkColor*   bg_color)
 {
+    /*
+        The proxy tab label is what's put in the notebook,
+        in all known cases a GtkEventBox
+        Contained can be a GtkLabel or a GtkBox including a GtkLabel
+        Granite as of this writing uses a GtkLabel (which may change)
+    */
+    GtkWidget* event_box = midori_view_get_proxy_tab_label (view);
+    GtkWidget* label = gtk_bin_get_child (GTK_BIN (event_box));
+
+    if (GTK_IS_BOX (label))
+    {
+        GList* children = gtk_container_get_children (GTK_CONTAINER (label));
+        for (; children != NULL; children = g_list_next (children))
+            if (GTK_IS_LABEL (children->data))
+            {
+                label = children->data;
+                break;
+            }
+        g_list_free (children);
+    }
+
     midori_tab_set_fg_color (MIDORI_TAB (view), fg_color);
     midori_tab_set_bg_color (MIDORI_TAB (view), bg_color);
 
-    GtkWidget* label = midori_view_get_proxy_tab_label (view);
-    gtk_event_box_set_visible_window (GTK_EVENT_BOX (label),
+    gtk_event_box_set_visible_window (GTK_EVENT_BOX (event_box),
         fg_color != NULL || bg_color != NULL);
+
     gtk_widget_modify_fg (label, GTK_STATE_NORMAL, fg_color);
     gtk_widget_modify_fg (label, GTK_STATE_ACTIVE, fg_color);
+
+    #if GTK_CHECK_VERSION (3, 0, 0)
     gtk_widget_modify_bg (label, GTK_STATE_NORMAL, bg_color);
     gtk_widget_modify_bg (label, GTK_STATE_ACTIVE, bg_color);
+    #else
+    gtk_widget_modify_bg (event_box, GTK_STATE_NORMAL, bg_color);
+    gtk_widget_modify_bg (event_box, GTK_STATE_ACTIVE, bg_color);
+    #endif
 }
 

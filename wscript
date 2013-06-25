@@ -193,12 +193,11 @@ def configure (conf):
             uselib_store=var, errmsg=name + ver_str + ' not found')][have])
         return have
 
-    if option_enabled ('libnotify'):
-        if not check_pkg ('libnotify', mandatory=False):
-            option_checkfatal ('libnotify', 'notifications')
-    else:
+    if is_win32 (os.environ):
         conf.define ('LIBNOTIFY_VERSION', 'No')
         conf.check_message_custom ('libnotify', '', 'disabled')
+    else:
+        check_pkg ('libnotify', mandatory=True)
     conf.define ('HAVE_LIBNOTIFY', [0,1][conf.env['LIBNOTIFY_VERSION'] != 'No'])
 
     if option_enabled ('granite'):
@@ -412,14 +411,15 @@ def set_options (opt):
 
     group = opt.add_option_group ('Localization and documentation', '')
     add_enable_option ('nls', 'native language support', group)
+    group.add_option ('--update-pot', action='store_true', default=False,
+        help='Update gettext template', dest='update_pot')
     group.add_option ('--update-po', action='store_true', default=False,
-        help='Update localization files', dest='update_po')
+        help='Update all localization files', dest='update_po')
     add_enable_option ('docs', 'informational text files', group)
     add_enable_option ('apidocs', 'API documentation', group, disable=True)
 
     group = opt.add_option_group ('Optional features', '')
     add_enable_option ('unique', 'single instance support', group, disable=is_win32 (os.environ))
-    add_enable_option ('libnotify', 'notification support', group)
     add_enable_option ('granite', 'new notebook, pop-overs', group, disable=True)
     add_enable_option ('addons', 'building of extensions', group)
     add_enable_option ('tests', 'install tests', group, disable=True)
@@ -455,12 +455,32 @@ def write_linguas_file (self):
 write_linguas_file = feature ('intltool_po')(write_linguas_file)
 
 def build (bld):
+    if Options.options.update_pot:
+        os.chdir ('./po')
+        try:
+            subprocess.call(['intltool-update', '-p', '-g', APPNAME])
+            Utils.pprint ('YELLOW', "Updated gettext template.")
+        except:
+            Utils.pprint ('RED', "Failed to update gettext template.")
+            Utils.pprint ('RED', "Make sure intltool is installed.")
+        os.chdir ('..')
+        return
+
+    if Options.options.update_po:
+        os.chdir('./po')
+        try:
+            subprocess.call(['intltool-update', '-r', '-g', APPNAME])
+            Utils.pprint ('YELLOW', "Updated translations.")
+        except:
+            Utils.pprint ('RED', "Failed to update translations.")
+            Utils.pprint ('RED', "Make sure intltool is installed.")
+        os.chdir ('..')
+        return
+
     bld.add_group ()
 
     bld.add_subdirs ('midori icons')
-
-    if bld.env['addons']:
-        bld.add_subdirs ('extensions')
+    bld.add_subdirs ('extensions')
 
     bld.add_group ()
 
@@ -549,8 +569,6 @@ def check (ctx):
 def distclean ():
     if os.path.exists ('po/LINGUAS'):
         os.remove ('po/LINGUAS')
-    if os.path.exists ('po/midori.pot'):
-        os.remove ('po/midori.pot')
 
 def shutdown ():
     if Options.commands['install'] or Options.commands['uninstall']:
@@ -692,61 +710,3 @@ def shutdown ():
         # if test.num_tests_failed > 0 or test.num_tests_err > 0:
         #     sys.exit (1)
 
-    elif Options.options.update_po:
-        os.chdir('./po')
-        try:
-            try:
-                size_old = os.stat (APPNAME + '.pot').st_size
-            except:
-                size_old = 0
-            subprocess.call (['intltool-update', '-p', '-g', APPNAME])
-            size_new = os.stat (APPNAME + '.pot').st_size
-            if size_new != size_old:
-                Utils.pprint ('YELLOW', "Updated po template.")
-                try:
-                    command = 'intltool-update -r -g %s' % APPNAME
-                    Utils.exec_command (command)
-                    Utils.pprint ('YELLOW', "Updated translations.")
-                except:
-                    Utils.pprint ('RED', "Failed to update translations.")
-        except:
-            Utils.pprint ('RED', "Failed to generate po template.")
-            Utils.pprint ('RED', "Make sure intltool is installed.")
-        os.chdir ('..')
-    elif Options.options.run:
-        folder = os.path.abspath (blddir + '/default')
-        try:
-            relfolder = folder
-            if not is_mingw (Build.bld.env):
-                relfolder = os.path.relpath (folder)
-        except:
-            pass
-        try:
-            nls = 'MIDORI_NLSPATH=' + relfolder + os.sep + 'po'
-            lang = os.environ['LANG']
-            try:
-                for lang in os.listdir (folder + os.sep + 'po'):
-                    if lang[3:] == 'mo':
-                        lang = lang[:-3]
-                    else:
-                        continue
-                    Utils.check_dir (folder + os.sep + 'po' + os.sep + lang)
-                    Utils.check_dir (folder + os.sep + 'po' + os.sep + lang + \
-                        os.sep + 'LC_MESSAGES')
-                    os.symlink (folder + os.sep + 'po' + os.sep + lang + '.mo',
-                        folder + os.sep + 'po' + os.sep + lang + os.sep + \
-                        'LC_MESSAGES' + os.sep + APPNAME + '.mo')
-            except:
-                pass
-            command = nls + ' '
-            if is_mingw (Build.bld.env):
-                # This works only if everything is installed to that prefix
-                os.chdir (Build.bld.env['PREFIX'] + os.sep + 'bin')
-                command += ' wine cmd /k "PATH=%PATH%;' + Build.bld.env['PREFIX'] + os.sep + 'bin' + ' && ' + APPNAME + '.exe"'
-            else:
-                command += ' ' + relfolder + os.sep + APPNAME + os.sep + APPNAME
-            print (command)
-            Utils.exec_command (command)
-        except Exception:
-            msg = sys.exc_info()[1] # Python 2/3 compatibility
-            Utils.pprint ('RED', "Failed to run application: " + str (msg))

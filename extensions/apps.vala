@@ -10,7 +10,8 @@
 */
 
 namespace Apps {
-    const string EXEC_PREFIX = PACKAGE_NAME + " -a ";
+    const string APP_PREFIX = PACKAGE_NAME + " -a ";
+    const string PROFILE_PREFIX = PACKAGE_NAME + " -c ";
 
     private class Launcher : GLib.Object, GLib.Initable {
         internal GLib.File file;
@@ -19,11 +20,11 @@ namespace Apps {
         internal string exec;
         internal string uri;
 
-        internal static async void create (GLib.File folder, string uri, string title) {
+        internal static async void create (string prefix, GLib.File folder, string uri, string title, Gtk.Widget proxy) {
             /* Strip LRE leading character and / */
-            string filename = title.delimit ("‪/", ' ') + ".desktop";
-            string exec = EXEC_PREFIX + uri;
-            string name = title;
+            string exec = prefix + uri;
+            string name = title.delimit ("‪/", ' ').strip();
+            string filename = Midori.Download.clean_filename (name) + ".desktop";
             // TODO: Midori.Paths.get_icon save to png
             string icon_name = Midori.Stock.WEB_BROWSER;
             string contents = """
@@ -37,13 +38,17 @@ namespace Apps {
                 Categories=Network;
                 """.printf (name, exec, PACKAGE_NAME, icon_name);
             var file = folder.get_child (filename);
+            var browser = proxy.get_toplevel () as Midori.Browser;
             try {
                 var stream = yield file.replace_async (null, false, GLib.FileCreateFlags.NONE);
                 yield stream.write_async (contents.data);
+
+                browser.send_notification (_("Launcher created"),
+                    _("You can now run <b>%s</b> from your launcher or menu").printf (name));
             }
             catch (Error error) {
-                // TODO GUI infobar
-                warning ("Failed to create new launcher: %s", error.message);
+                browser.send_notification (_("Error creating launcher"),
+                    _("Failed to create new launcher: %s").printf (error.message));
             }
         }
 
@@ -58,12 +63,12 @@ namespace Apps {
             var keyfile = new GLib.KeyFile ();
             keyfile.load_from_file (file.get_path (), GLib.KeyFileFlags.NONE);
             exec = keyfile.get_string ("Desktop Entry", "Exec");
-            if (!exec.has_prefix (EXEC_PREFIX))
+            if (!exec.has_prefix (APP_PREFIX) && !exec.has_prefix (PROFILE_PREFIX))
                 return false;
 
             name = keyfile.get_string ("Desktop Entry", "Name");
             icon_name = keyfile.get_string ("Desktop Entry", "Icon");
-            uri = exec.replace (EXEC_PREFIX, "");
+            uri = exec.replace (APP_PREFIX, "").replace (PROFILE_PREFIX, "");
             return true;
         }
     }
@@ -73,6 +78,7 @@ namespace Apps {
         Gtk.ListStore store = new Gtk.ListStore (1, typeof (Launcher));
         Gtk.TreeView treeview;
         Katze.Array array;
+        GLib.File app_folder;
 
         public unowned string get_stock_id () {
             return Midori.Stock.WEB_BROWSER;
@@ -86,11 +92,79 @@ namespace Apps {
             if (toolbar == null) {
                 toolbar = new Gtk.Toolbar ();
                 toolbar.set_icon_size (Gtk.IconSize.BUTTON);
+
+                var profile = new Gtk.ToolButton.from_stock (Gtk.STOCK_ADD);
+                profile.label = _("New _Profile");
+                profile.tooltip_text = _("Creates a new, independant profile and a launcher");
+                profile.use_underline = true;
+                profile.is_important = true;
+                profile.show ();
+                profile.clicked.connect (() => {
+                    string uuid = g_dbus_generate_guid ();
+                    string config = Path.build_path (Path.DIR_SEPARATOR_S,
+                        Midori.Paths.get_user_data_dir (), PACKAGE_NAME, "profiles", uuid);
+                    Launcher.create.begin (PROFILE_PREFIX, app_folder,
+                        config, _("Midori (%s)").printf (uuid), this);
+                });
+                toolbar.insert (profile, -1);
+
+                var app = new Gtk.ToolButton.from_stock (Gtk.STOCK_ADD);
+                app.label = _("New _App");
+                app.tooltip_text = _("Creates a new app for a specific site");
+                app.use_underline = true;
+                app.is_important = true;
+                app.show ();
+                app.clicked.connect (() => {
+                    var view = (get_toplevel () as Midori.Browser).tab as Midori.View;
+                    Launcher.create.begin (APP_PREFIX, app_folder,
+                        view.get_display_uri (), view.get_display_title (), this);
+                });
+                toolbar.insert (app, -1);
             }
             return toolbar;
         }
 
-        public Sidebar (Katze.Array array) {
+        void row_activated (Gtk.TreePath path, Gtk.TreeViewColumn column) {
+            Gtk.TreeIter iter;
+            if (store.get_iter (out iter, path)) {
+                Launcher launcher;
+                store.get (iter, 0, out launcher);
+                try {
+                    GLib.Process.spawn_command_line_async (launcher.exec);
+                }
+                catch (Error error) {
+                    var browser = get_toplevel () as Midori.Browser;
+                    browser.send_notification (_("Error launching"), error.message);
+                }
+            }
+        }
+
+        bool button_released (Gdk.EventButton event) {
+            Gtk.TreePath? path;
+            Gtk.TreeViewColumn column;
+            if (treeview.get_path_at_pos ((int)event.x, (int)event.y, out path, out column, null, null)) {
+                if (path != null) {
+                    if (column == treeview.get_column (2)) {
+                        Gtk.TreeIter iter;
+                        if (store.get_iter (out iter, path)) {
+                            Launcher launcher;
+                            store.get (iter, 0, out launcher);
+                            try {
+                                launcher.file.trash (null);
+                                store.remove (iter);
+                            }
+                            catch (Error error) {
+                                GLib.critical (error.message);
+                            }
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        public Sidebar (Katze.Array array, GLib.File app_folder) {
             Gtk.TreeViewColumn column;
 
             treeview = new Gtk.TreeView.with_model (store);
@@ -113,6 +187,14 @@ namespace Apps {
             column.set_cell_data_func (renderer_text, on_render_text);
             treeview.append_column (column);
 
+            column = new Gtk.TreeViewColumn ();
+            Gtk.CellRendererPixbuf renderer_button = new Gtk.CellRendererPixbuf ();
+            column.pack_start (renderer_button, false);
+            column.set_cell_data_func (renderer_button, on_render_button);
+            treeview.append_column (column);
+
+            treeview.row_activated.connect (row_activated);
+            treeview.button_release_event.connect (button_released);
             treeview.show ();
             pack_start (treeview, true, true, 0);
 
@@ -121,6 +203,8 @@ namespace Apps {
             array.remove_item.connect (launcher_removed);
             foreach (GLib.Object item in array.get_items ())
                 launcher_added (item);
+
+            this.app_folder = app_folder;
         }
 
         private int tree_sort_func (Gtk.TreeModel model, Gtk.TreeIter a, Gtk.TreeIter b) {
@@ -162,6 +246,13 @@ namespace Apps {
                 Markup.printf_escaped ("<b>%s</b>\n%s",
                     launcher.name, launcher.uri),
                           "ellipsize", Pango.EllipsizeMode.END);
+        }
+
+        void on_render_button (Gtk.CellLayout column, Gtk.CellRenderer renderer,
+            Gtk.TreeModel model, Gtk.TreeIter iter) {
+
+            renderer.set ("stock-id", Gtk.STOCK_DELETE,
+                          "stock-size", Gtk.IconSize.MENU);
         }
     }
 
@@ -238,13 +329,13 @@ namespace Apps {
             menu.append (menuitem);
             menuitem.activate.connect (() => {
                 var view = browser.tab as Midori.View;
-                Launcher.create.begin (app_folder,
-                    view.get_display_uri (), view.get_display_title ());
+                Launcher.create.begin (APP_PREFIX, app_folder,
+                    view.get_display_uri (), view.get_display_title (), browser);
             });
         }
 
         void browser_added (Midori.Browser browser) {
-            var viewable = new Sidebar (array);
+            var viewable = new Sidebar (array, app_folder);
             viewable.show ();
             browser.panel.append_page (viewable);
             browser.populate_tool_menu.connect (tool_menu_populated);

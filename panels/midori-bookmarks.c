@@ -39,7 +39,6 @@ midori_browser_open_bookmark (MidoriBrowser* browser,
 struct _MidoriBookmarks
 {
     GtkVBox parent_instance;
-
     GtkWidget* toolbar;
     GtkWidget* edit;
     GtkWidget* delete;
@@ -49,6 +48,8 @@ struct _MidoriBookmarks
 
     gint filter_timeout;
     gchar* filter;
+
+    KatzeItem* hovering_item;
 };
 
 struct _MidoriBookmarksClass
@@ -84,6 +85,9 @@ midori_bookmarks_get_property (GObject*    object,
                                guint       prop_id,
                                GValue*     value,
                                GParamSpec* pspec);
+
+static void
+midori_bookmarks_statusbar_update (MidoriBookmarks *bookmarks);
 
 static void
 midori_bookmarks_class_init (MidoriBookmarksClass* class)
@@ -441,6 +445,109 @@ midori_bookmarks_toolbar_update (MidoriBookmarks *bookmarks)
     gtk_widget_set_sensitive (GTK_WIDGET (bookmarks->edit), selected);
 }
 
+static gchar* 
+midori_bookmarks_statusbar_bookmarks_str (gint count)
+{
+    if (!count)
+        return NULL;
+
+    /* i18n: [n] bookmark(s) */
+    return g_strdup_printf (ngettext ("%d bookmark", "%d bookmarks", count), count);
+}
+
+static gchar* 
+midori_bookmarks_statusbar_subfolders_str (gint count)
+{
+    if (!count)
+        return NULL;
+
+    /* i18n: [n] subfolder(s) */
+    return g_strdup_printf (ngettext ("%d subfolder", "%d subfolders", count), count);
+}
+
+static void
+midori_bookmarks_statusbar_update (MidoriBookmarks *bookmarks)
+{
+    gchar* text = NULL;
+    GtkTreeModel* model;
+    GtkTreeIter   iter;
+    gboolean selected;
+
+    if (bookmarks->hovering_item)
+    {
+        KatzeItem* item = bookmarks->hovering_item;
+
+        g_assert (!KATZE_ITEM_IS_SEPARATOR (item));
+
+        if (KATZE_ITEM_IS_FOLDER (item))
+        {
+            gint child_folders_count = midori_array_count_recursive (bookmarks->array,
+                "uri = ''", NULL, item, FALSE);
+            gint child_bookmarks_count = midori_array_count_recursive (bookmarks->array,
+                "uri <> ''", NULL, item, FALSE);
+            gchar* child_folders_str = midori_bookmarks_statusbar_subfolders_str (child_folders_count);
+            gchar* child_bookmarks_str = midori_bookmarks_statusbar_bookmarks_str (child_bookmarks_count);
+
+            if (!child_bookmarks_count && !child_folders_count)
+                /* i18n: Empty folder */
+                text = g_strdup_printf (_("Empty folder"));
+            else if (!child_bookmarks_count && (child_folders_count >= 1))
+                /* i18n: Folder containing [[n] folder(s)] and no bookmark */
+                text = g_strdup_printf (_("Folder containing %s and no bookmark"),
+                    child_folders_str);
+            else if ((child_bookmarks_count >= 1) && !child_folders_count)
+                /* i18n: Folder containing [[n] bookmark(s)] */
+               text = g_strdup_printf (_("Folder containing %s"), child_bookmarks_str);
+            else if ((child_bookmarks_count >= 1) && (child_folders_count >= 1))
+                /* i18n: Folder containing [[n] bookmark(s)] and [[n] folder(s)] */
+                text = g_strdup_printf (_("Folder containing %s and %s"),
+                    child_bookmarks_str, child_folders_str);
+
+            g_free (child_folders_str);
+            g_free (child_bookmarks_str);
+        }
+        else if (KATZE_ITEM_IS_BOOKMARK (item))
+        {
+            const gchar* uri = katze_item_get_uri (item);
+
+            /* i18n: Bookmark leading to: [bookmark uri] */
+            text = g_strdup_printf (_("Bookmark leading to: %s"), uri);
+        }
+    }
+    else
+    {
+        gint child_folders_count = midori_array_count_recursive (bookmarks->array,
+            "uri = ''", NULL, NULL, FALSE);
+        gint child_bookmarks_count = midori_array_count_recursive (bookmarks->array,
+            "uri <> ''", NULL, NULL, FALSE);
+        gchar* child_folders_str = midori_bookmarks_statusbar_subfolders_str (child_folders_count);
+        gchar* child_bookmarks_str = midori_bookmarks_statusbar_bookmarks_str (child_bookmarks_count);
+        
+        if (!child_bookmarks_count && (child_folders_count >= 1))
+            /* i18n: [[n] folder(s)] and no bookmark */
+            text = g_strdup_printf (_("%s and no bookmark"),
+                child_folders_str);
+        else if ((child_bookmarks_count >= 1) && !child_folders_count)
+            text = g_strdup (child_bookmarks_str);
+        else if ((child_bookmarks_count >= 1) && (child_folders_count >= 1))
+            /* i18n: [[n] bookmark(s)] and [[n] folder(s)] */
+            text = g_strdup_printf (_("%s and %s"),
+                child_bookmarks_str, child_folders_str);
+        
+        g_free (child_folders_str);
+        g_free (child_bookmarks_str);
+    }
+
+    if (text)
+    {
+        MidoriBrowser* browser = midori_browser_get_for_widget (bookmarks->treeview);
+        
+        g_object_set (browser, "statusbar-text", text, NULL);
+        
+        g_free(text);
+    }
+}
+
 gboolean
 midori_bookmarks_update_item_db (sqlite3*   db,
                                  KatzeItem* item)
@@ -472,7 +579,7 @@ midori_bookmarks_update_item_db (sqlite3*   db,
     if (sqlite3_exec (db, sqlcmd, NULL, NULL, &errmsg) != SQLITE_OK)
     {
         updated = FALSE;
-        g_printerr (_("Failed to update bookmark : %s\n"), errmsg);
+        g_printerr (_("Failed to update bookmark: %s\n"), errmsg);
         sqlite3_free (errmsg);
     }
 
@@ -547,6 +654,7 @@ midori_bookmarks_get_toolbar (MidoriViewable* viewable)
         gtk_widget_show (GTK_WIDGET (toolitem));
         bookmarks->delete = GTK_WIDGET (toolitem);
         midori_bookmarks_toolbar_update (bookmarks);
+        midori_bookmarks_statusbar_update (bookmarks);
         toolitem = gtk_separator_tool_item_new ();
         gtk_separator_tool_item_set_draw (GTK_SEPARATOR_TOOL_ITEM (toolitem), FALSE);
         gtk_tool_item_set_expand (toolitem, TRUE);
@@ -745,7 +853,10 @@ midori_bookmarks_popup_item (GtkWidget*       menu,
     else if (!KATZE_ITEM_IS_FOLDER (item) && strcmp (stock_id, GTK_STOCK_DELETE))
         gtk_widget_set_sensitive (menuitem, uri != NULL);
     g_object_set_data (G_OBJECT (menuitem), "KatzeItem", item);
-    g_signal_connect (menuitem, "activate", G_CALLBACK (callback), bookmarks);
+    if (callback)
+        g_signal_connect (menuitem, "activate", G_CALLBACK (callback), bookmarks);
+    else
+        gtk_widget_set_sensitive (menuitem, FALSE);
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
     gtk_widget_show (menuitem);
 }
@@ -831,9 +942,15 @@ midori_bookmarks_popup (GtkWidget*       widget,
 
     menu = gtk_menu_new ();
     if (KATZE_ITEM_IS_FOLDER (item))
+    {
+        gint child_bookmarks_count = midori_array_count_recursive (bookmarks->array,
+            "uri <> ''", NULL, item, FALSE);
+
         midori_bookmarks_popup_item (menu,
-            STOCK_TAB_NEW, _("Open all in _Tabs"),
-            item, midori_bookmarks_open_in_tab_activate_cb, bookmarks);
+            STOCK_TAB_NEW, _("Open all in _Tabs"), item, 
+            (!child_bookmarks_count ? NULL : midori_bookmarks_open_in_tab_activate_cb), 
+            bookmarks);
+    }
     else
     {
         midori_bookmarks_popup_item (menu, GTK_STOCK_OPEN, NULL,
@@ -960,6 +1077,103 @@ midori_bookmarks_selection_changed_cb (GtkTreeSelection *treeview,
     midori_bookmarks_toolbar_update (bookmarks);
 }
 
+static KatzeItem*
+midori_bookmarks_get_item_at_pos (GtkTreeView *treeview,
+                                  gint x, gint y)
+{    
+    GtkTreeModel* model = gtk_tree_view_get_model (treeview);
+    GtkTreePath* path;
+    GtkTreeIter iter;
+    KatzeItem* item = NULL;
+
+    gtk_tree_view_get_path_at_pos (treeview, x, y,
+                                   &path, NULL, NULL, NULL);
+    
+    if (!path)
+        return NULL;
+    
+    if (gtk_tree_model_get_iter (model, &iter, path))
+        gtk_tree_model_get (model, &iter, 0, &item, -1);
+    
+    gtk_tree_path_free (path);
+
+    return item;
+}
+
+static gboolean
+midori_bookmarks_enter_notify_event_cb (GtkTreeView      *treeview,
+                                        GdkEventCrossing *event,
+                                        MidoriBookmarks  *bookmarks)
+{
+    KatzeItem* item = midori_bookmarks_get_item_at_pos (treeview, event->x, event->y);
+
+    if (bookmarks->hovering_item)
+        g_object_unref (bookmarks->hovering_item);
+
+    bookmarks->hovering_item = item;
+
+    midori_bookmarks_statusbar_update (bookmarks);
+
+    return FALSE;
+}
+
+static gboolean
+midori_bookmarks_motion_notify_event_cb (GtkTreeView     *treeview,
+                                         GdkEventMotion  *event,
+                                         MidoriBookmarks *bookmarks)
+{
+    gboolean item_changed;
+    KatzeItem* item;
+    gint x;
+    gint y;
+
+    if (event->is_hint)
+        gtk_widget_get_pointer (GTK_WIDGET (treeview), &x, &y);
+    else
+    {
+        x = event->x;
+        y = event->y;
+    }
+
+    item = midori_bookmarks_get_item_at_pos (treeview, x, y);
+
+    item_changed = (bookmarks->hovering_item != item) ? TRUE : FALSE;
+
+    if (!item_changed)
+    {
+        if (item)
+            g_object_unref (item);
+    }
+    else
+    {
+        if (bookmarks->hovering_item)
+            g_object_unref (bookmarks->hovering_item);
+
+        bookmarks->hovering_item = item;
+
+        midori_bookmarks_statusbar_update (bookmarks);
+    }
+
+    return FALSE;
+}
+
+static gboolean
+midori_bookmarks_leave_notify_event_cb (GtkTreeView      *treeview,
+                                        GdkEventCrossing *event,
+                                        MidoriBookmarks  *bookmarks)
+{
+    MidoriBrowser* browser = midori_browser_get_for_widget (bookmarks->treeview);
+
+    if (bookmarks->hovering_item)
+        g_object_unref (bookmarks->hovering_item);
+    
+    bookmarks->hovering_item = NULL;
+
+    g_object_set (browser, "statusbar-text", "", NULL);
+
+    return FALSE;
+}
+
 static gboolean
 midori_bookmarks_filter_timeout_cb (gpointer data)
 {
@@ -1047,7 +1261,17 @@ midori_bookmarks_init (MidoriBookmarks* bookmarks)
                       midori_bookmarks_row_expanded_cb, bookmarks,
                       "signal::row-collapsed",
                       midori_bookmarks_row_collapsed_cb, bookmarks,
+                      "signal::enter-notify-event",
+                      midori_bookmarks_enter_notify_event_cb, bookmarks,
+                      "signal::motion-notify-event",
+                      midori_bookmarks_motion_notify_event_cb, bookmarks,
+                      "signal::leave-notify-event",
+                      midori_bookmarks_leave_notify_event_cb, bookmarks,
                       NULL);
+    gtk_widget_add_events (GTK_WIDGET (treeview), 
+                           GDK_POINTER_MOTION_MASK
+                           | GDK_POINTER_MOTION_HINT_MASK);
+
     selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
     g_signal_connect_after (selection, "changed",
                             G_CALLBACK (midori_bookmarks_selection_changed_cb),
@@ -1055,6 +1279,7 @@ midori_bookmarks_init (MidoriBookmarks* bookmarks)
     gtk_widget_show (treeview);
     gtk_box_pack_start (GTK_BOX (bookmarks), treeview, TRUE, TRUE, 0);
     bookmarks->treeview = treeview;
+    bookmarks->hovering_item = NULL;
 }
 
 static void
@@ -1064,5 +1289,6 @@ midori_bookmarks_finalize (GObject* object)
 
     if (bookmarks->app)
         g_object_unref (bookmarks->app);
+    if (bookmarks->hovering_item)
+	g_object_unref (bookmarks->hovering_item);
 }
-

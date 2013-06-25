@@ -1,540 +1,367 @@
-# Turkish translations for midori package.
-# Copyright (C) 2008 THE midori'S COPYRIGHT HOLDER
+# Turkish translation for midori
+# Copyright (c) 2012 Rosetta Contributors and Canonical Ltd 2012
 # This file is distributed under the same license as the midori package.
-# Mirat Can Bayrak <MiratCanBayrak@gmail.com>
-# Gökmen Görgen <gkmngrgn@gmail.com>
-# Ayhan YALÇINSOY <ayhanyalcinsoy@gmail.com>, 2010.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2012.
+#
 msgid ""
 msgstr ""
-"Project-Id-Version: midori 0.1.7\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-03-25 11:18+0000\n"
-"PO-Revision-Date: 2010-05-10 09:45+0300\n"
-"Last-Translator: Ayhan YALÇINSOY <ayhanyalcinsoy@gmail.com>\n"
-"Language-Team: Turkish <kde-i18n-doc@kde.org,xfce-i18n@xfce.org>\n"
+"Project-Id-Version: midori\n"
+"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
+"POT-Creation-Date: 2013-06-01 21:58+0200\n"
+"PO-Revision-Date: 2013-06-02 11:53+0000\n"
+"Last-Translator: WebKit Team <Unknown>\n"
+"Language-Team: Turkish <tr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: tr\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Lokalize 1.0\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Launchpad-Export-Date: 2013-06-03 05:14+0000\n"
+"X-Generator: Launchpad (build 16660)\n"
 
-#: ../data/midori.desktop.in.h:1
-#, fuzzy
-msgid "Browse the Web"
-msgstr "Web ara"
-
-#: ../data/midori.desktop.in.h:2
-#, fuzzy
-msgid "Internet;WWW;Explorer"
-msgstr "Internet Explorer"
-
-#: ../data/midori.desktop.in.h:3 ../midori/main.c:1989 ../midori/main.c:2009
-#: ../midori/main.c:2023 ../midori/midori-websettings.c:308
+#: ../data/midori.desktop.in.h:1 ../midori/main.c:162
+#: ../midori/midori-websettings.c:228
 msgid "Midori"
 msgstr "Midori"
 
-#: ../data/midori.desktop.in.h:4
+#: ../data/midori.desktop.in.h:2
 msgid "Web Browser"
 msgstr "Web Tarayıcı"
 
+#: ../data/midori.desktop.in.h:3
+msgid "Midori Web Browser"
+msgstr "Midori İnternet Tarayıcısı"
+
+#: ../data/midori.desktop.in.h:4
+msgid "Browse the Web"
+msgstr "İnternette Gezin"
+
+#: ../data/midori.desktop.in.h:5
+msgid "Internet;WWW;Explorer"
+msgstr "Internet;WWW;Tarayıcı"
+
+#: ../data/midori.desktop.in.h:6 ../midori/midori-browser.c:1390
+msgid "New Tab"
+msgstr "Yeni Sekme"
+
+#: ../data/midori.desktop.in.h:7 ../midori/midori-browser.c:1387
+msgid "New Window"
+msgstr "Yeni Pencere"
+
+#: ../data/midori.desktop.in.h:8
+msgid "New Private Browsing Window"
+msgstr "Yeni Özel Tarama Penceresi"
+
 #: ../data/midori-private.desktop.in.h:1
-#, fuzzy
 msgid "Midori Private Browsing"
-msgstr "%s (Gizli Gezinme)"
+msgstr "Midori Gizli Tarama"
 
-#: ../data/midori-private.desktop.in.h:2
-#, fuzzy
-msgid "Open a new private browsing window"
-msgstr "Yeni _Gizli Gezinme Penceresi"
-
-#: ../data/midori-private.desktop.in.h:3 ../midori/midori-view.c:4117
-#, fuzzy
+#: ../data/midori-private.desktop.in.h:2 ../midori/midori-view.c:4395
 msgid "Private Browsing"
-msgstr "%s (Gizli Gezinme)"
+msgstr "Gizli Tarama"
 
-#: ../midori/main.c:96 ../midori/main.c:102
-#, c-format
-msgid "The configuration couldn't be loaded: %s\n"
-msgstr "Ayarlar yüklenemedi: %s\n"
+#: ../data/midori-private.desktop.in.h:3
+msgid "Open a new private browsing window"
+msgstr "Yeni bir gizli tarama penceresi aç"
 
-#: ../midori/main.c:150
-#, c-format
-msgid "Value '%s' is invalid for %s"
-msgstr "'%s' değeri şunun için yanlış : %s"
-
-#: ../midori/main.c:155 ../midori/main.c:259
-#, c-format
-msgid "Invalid configuration value '%s'"
-msgstr "Geçersiz yapılandırma değeri '%s'"
-
-#: ../midori/main.c:364
-#, c-format
-msgid "The search engines couldn't be loaded. %s\n"
-msgstr "Arama motorları yüklenemedi. %s\n"
-
-#: ../midori/main.c:418
-#, c-format
-msgid "Failed to clear history: %s\n"
-msgstr "Geçmiş silinemedi: %s\n"
-
-#: ../midori/main.c:438 ../midori/main.c:562
-#: ../extensions/formhistory/formhistory.c:531
-#, c-format
-msgid "Failed to open database: %s\n"
-msgstr "Şu veri tabanı açılamadı: %s\n"
-
-#. i18n: Couldn't remove items that are older than n days
-#: ../midori/main.c:505
-#, c-format
-msgid "Failed to remove old history items: %s\n"
-msgstr "Eski geçmiş ögeleri silinemedi: %s\n"
-
-#: ../midori/main.c:545 ../panels/midori-history.c:232
-#, c-format
-msgid "Failed to remove history item: %s\n"
-msgstr "Şu geçmiş öğesi silinemedi: %s\n"
-
-#: ../midori/main.c:592
-#, c-format
-msgid "The bookmarks couldn't be saved. %s"
-msgstr "Yer imleri kaydedilemedi. %s"
-
-#: ../midori/main.c:614
-#, c-format
-msgid "The configuration couldn't be saved. %s"
-msgstr "Ayarlar kaydedilemedi. %s"
-
-#: ../midori/main.c:649
-#, c-format
-msgid "The search engines couldn't be saved. %s"
-msgstr "Arama motorları kaydedilemedi. %s"
-
-#. i18n: Trash, or wastebin, containing closed tabs
-#: ../midori/main.c:686
-#, c-format
-msgid "The trash couldn't be saved. %s"
-msgstr "Çöp kutusu kaydedilemedi. %s"
-
-#: ../midori/main.c:727 ../panels/midori-extensions.c:91
-msgid "Extensions"
-msgstr "Ek Özellikler"
-
-#: ../midori/main.c:741
-msgid "Privacy"
-msgstr "Gizlilik"
-
-#: ../midori/main.c:753
-msgid ""
-"Cookies store login data, saved games, or user profiles for advertisement "
-"purposes."
-msgstr ""
-"Çerezler giriç verilerini, kayıtı oyunları veya reklam amaçlı kullanıcı "
-"profillerini saklar."
-
-#: ../midori/main.c:809
-#, c-format
-msgid "The session couldn't be saved. %s"
-msgstr "Oturum kaydedilemedi. %s"
-
-#: ../midori/main.c:1027
-msgid ""
-"No root certificate file is available. SSL certificates cannot be verified."
-msgstr "Root yetki dosyası kullanılabilir değil. SSL yetkileri doğrulanamadı."
-
-#: ../midori/main.c:1096
-msgid ""
-"Midori seems to have crashed the last time it was opened. If this happened "
-"repeatedly, try one of the following options to solve the problem."
-msgstr ""
-"Midori son açıldığında çökmüş görünüyor. Bu devam ederse sorunu çözmek için "
-"aşağıdaki seçeneklerden biri deneyin."
-
-#: ../midori/main.c:1115
-msgid "Modify _preferences"
-msgstr "_Tercihleri Değiştir"
-
-#: ../midori/main.c:1119
-msgid "Disable all _extensions"
-msgstr "Tüm _eklentiler kapalı"
-
-#: ../midori/main.c:1132
-msgid "Discard old tabs"
-msgstr "Eski sekmeleri çıkar"
-
-#: ../midori/main.c:1133 ../midori/midori-websettings.c:217
-msgid "Show last tabs without loading"
-msgstr "Yüklemeden son sekmeyi göster"
-
-#: ../midori/main.c:1134 ../midori/midori-websettings.c:216
-msgid "Show last open tabs"
-msgstr "Son açılan sekmeleri göster"
-
-#: ../midori/main.c:1342 ../midori/main.c:2400
-#, c-format
-msgid "The session couldn't be loaded: %s\n"
-msgstr "Oturum yüklenemedi: %s\n"
-
-#: ../midori/main.c:1480
+#: ../midori/main.c:72
 #, c-format
 msgid "Snapshot saved to: %s\n"
 msgstr "Ekran görüntüsünü kaydet: %s\n"
 
-#: ../midori/main.c:1892
+#: ../midori/main.c:99
 msgid "Run ADDRESS as a web application"
 msgstr "ADRES'i web uygulaması gibi çalıştır"
 
-#: ../midori/main.c:1892
+#: ../midori/main.c:99
 msgid "ADDRESS"
 msgstr "ADRES"
 
-#: ../midori/main.c:1895
+#: ../midori/main.c:101
 msgid "Use FOLDER as configuration folder"
 msgstr "KLASÖR'ü yapılandırma klasörü olarak kullan"
 
-#: ../midori/main.c:1895
+#: ../midori/main.c:101
 msgid "FOLDER"
 msgstr "KLASÖR"
 
-#: ../midori/main.c:1898
+#: ../midori/main.c:103
 msgid "Private browsing, no changes are saved"
 msgstr "Özel tarama, değişiklikler kaydedilmez."
 
-#: ../midori/main.c:1900
+#: ../midori/main.c:106
+msgid "Portable mode, all runtime files are stored in one place"
+msgstr ""
+
+#: ../midori/main.c:109
+msgid "Plain GTK+ window with WebKit, akin to GtkLauncher"
+msgstr ""
+
+#: ../midori/main.c:111
 msgid "Show a diagnostic dialog"
 msgstr "Bir tanılama diyaloğu göster"
 
-#: ../midori/main.c:1902
+#: ../midori/main.c:113
+msgid "Run within gdb and save a backtrace on crash"
+msgstr ""
+
+#: ../midori/main.c:115
 msgid "Run the specified filename as javascript"
 msgstr "Belirtilen dosya ismini javascript olarak çalıştır"
 
-#: ../midori/main.c:1904
+#: ../midori/main.c:117
 msgid "Take a snapshot of the specified URI"
 msgstr "Belirtilen URI'nin bir ekran görüntüsünü al"
 
-#: ../midori/main.c:1906
+#: ../midori/main.c:119
 msgid "Execute the specified command"
 msgstr "Belirtilen komutu çalıştır"
 
-#: ../midori/main.c:1908
+#: ../midori/main.c:121
 msgid "List available commands to execute with -e/ --execute"
 msgstr "Çalıştırmak için kullanılabilir komutları -e/ --execute ile listele"
 
-#: ../midori/main.c:1910
+#: ../midori/main.c:123
 msgid "Display program version"
 msgstr "Uygulama sürümünü göster"
 
-#: ../midori/main.c:1912
+#: ../midori/main.c:125
 msgid "Addresses"
 msgstr "Adresler"
 
-#: ../midori/main.c:1914
+#: ../midori/main.c:127
 msgid "Block URIs according to regular expression PATTERN"
 msgstr "ÖRNEK düzenli ifadeye göre URI engele"
 
-#: ../midori/main.c:1914
+#: ../midori/main.c:127
 msgid "PATTERN"
 msgstr "ÖRNEK"
 
 #. i18n: CLI: Close tabs, clear private data, open starting page
-#: ../midori/main.c:1918
+#: ../midori/main.c:131
 msgid "Reset Midori after SECONDS seconds of inactivity"
 msgstr "Kullanılmayan süre SANİYELER 'den sonra Midori'yi yeniden başlat"
 
-#: ../midori/main.c:1918
+#: ../midori/main.c:131
 msgid "SECONDS"
 msgstr "SANİYELER"
 
-#: ../midori/main.c:1921
-msgid "Redirects console warnings to the specified FILENAME"
-msgstr "Konsol uyarılarını belirtilen DOSYAADI'ne yönlendirir"
+#: ../midori/main.c:156
+msgid "Error: \"gdb\" can't be found\n"
+msgstr ""
 
-#: ../midori/main.c:1921
-msgid "FILENAME"
-msgstr "DOSYAADI"
-
-#: ../midori/main.c:1986
-msgid "[Addresses]"
-msgstr "[Adresler]"
-
-#: ../midori/main.c:1996
-msgid "The specified configuration folder is invalid."
-msgstr "Belirtilen yapılandırma dizini geçersiz."
-
-#: ../midori/main.c:2024
+#: ../midori/main.c:182
 msgid "Please report comments, suggestions and bugs to:"
 msgstr ""
 "Lütfen yorumlarınızı, isteklerinizi ve yakaladığınız hataları şuraya "
 "raporlayın:"
 
-#: ../midori/main.c:2026
+#: ../midori/main.c:184
 msgid "Check for new versions at:"
 msgstr "Yeni sürümler için şuraya bakın:"
 
-#. i18n: Logins and passwords in websites and web forms
-#: ../midori/main.c:2110
-msgid "Saved logins and _passwords"
-msgstr "Kayıtlı girişler ve _parolalar"
-
-#: ../midori/main.c:2112
-#, fuzzy
-msgid "Cookies and Website data"
-msgstr "Website bilgisi ve çerezler"
-
-#. TODO: Preserve page icons of search engines and merge privacy items
-#: ../midori/main.c:2116 ../midori/midori-websettings.c:984
-#: ../extensions/web-cache.c:462 ../extensions/web-cache.c:471
-msgid "Web Cache"
-msgstr "Web Önbelleği"
-
-#: ../midori/main.c:2119
-msgid "Website icons"
-msgstr "Websitesi simgeleri"
-
-#: ../midori/main.c:2225
-#, fuzzy
+#: ../midori/main.c:384
 msgid "An unknown error occured"
-msgstr "Bilinmeyen bir sorun oluştu."
+msgstr "Bilinmeyen bir hata oluştu"
 
-#: ../midori/main.c:2331
-msgid "An instance of Midori is already running but not responding.\n"
-msgstr "Şu anda Midori'nin başka bir örneği çalışıyor; ama cevap vermiyor.\n"
-
-#: ../midori/main.c:2367
-#, c-format
-msgid "Bookmarks couldn't be loaded: %s\n"
-msgstr "Yer imleri yüklenemedi: %s\n"
-
-#: ../midori/main.c:2415
-#, c-format
-msgid "The trash couldn't be loaded: %s\n"
-msgstr "Çöp kutusu yüklenemedi: %s\n"
-
-#: ../midori/main.c:2428
-#, c-format
-msgid "The history couldn't be loaded: %s\n"
-msgstr "Geçmiş yüklenemedi: %s\n"
-
-#: ../midori/main.c:2444
-msgid "The following errors occured:"
-msgstr "Şu hatalar ortaya çıktı:"
-
-#: ../midori/main.c:2460
-msgid "_Ignore"
-msgstr "_Yoksay"
-
-#: ../midori/midori-app.c:1334
-msgid "_Bookmark"
-msgstr "_Yer imi"
-
-#: ../midori/midori-app.c:1335 ../midori/midori-browser.c:6039
+#: ../midori/midori-app.c:1337 ../midori/midori-browser.c:6124
 msgid "_Bookmarks"
 msgstr "_Yer İmleri"
 
-#: ../midori/midori-app.c:1336
+#: ../midori/midori-app.c:1338
 msgid "Add Boo_kmark"
 msgstr "_Yerimi Ekle"
 
-#: ../midori/midori-app.c:1337
-msgid "_Console"
-msgstr "_Uçbirim"
-
-#: ../midori/midori-app.c:1338
+#: ../midori/midori-app.c:1339
 msgid "_Extensions"
 msgstr "_Ek Özellikler"
 
 #. i18n: Browsing history, visited web pages, closed tabs
-#: ../midori/midori-app.c:1339 ../midori/midori-browser.c:4566
+#: ../midori/midori-app.c:1340 ../midori/midori-privatedata.c:177
 msgid "_History"
 msgstr "_Geçmiş"
-
-#: ../midori/midori-app.c:1340
-msgid "_Homepage"
-msgstr "_Anasayfa"
 
 #: ../midori/midori-app.c:1341
 msgid "_Userscripts"
 msgstr "_Kullanıcı betikleri"
 
 #: ../midori/midori-app.c:1342
+msgid "User_styles"
+msgstr "Kullanıcı _biçimleri"
+
+#: ../midori/midori-app.c:1343
 msgid "New _Tab"
 msgstr "Yeni _Sekme"
 
-#: ../midori/midori-app.c:1343
+#: ../midori/midori-app.c:1344
 msgid "_Transfers"
 msgstr "_Aktarımlar"
 
-#: ../midori/midori-app.c:1344
+#: ../midori/midori-app.c:1345
 msgid "Netscape p_lugins"
 msgstr "Netscape eklentileri"
 
-#: ../midori/midori-app.c:1345
+#: ../midori/midori-app.c:1346
 msgid "_Closed Tabs"
 msgstr "Sekmeleri _kapat"
 
-#: ../midori/midori-app.c:1346 ../midori/midori-browser.c:5195
+#: ../midori/midori-app.c:1347 ../midori/midori-browser.c:5267
 msgid "New _Window"
 msgstr "Yeni _Pencere"
 
-#: ../midori/midori-app.c:1347
+#: ../midori/midori-app.c:1348
 msgid "New _Folder"
 msgstr "Yeni _Dizin"
 
-#: ../midori/midori-array.c:522
+#: ../midori/midori-app.c:1403 ../midori/midori-app.c:1406
+#: ../midori/midori-app.c:1409
+msgid "[Addresses]"
+msgstr "[Adresler]"
+
+#: ../midori/midori-array.c:549
 msgid "File not found."
 msgstr "Dosya bulunamadı."
 
-#: ../midori/midori-array.c:547 ../midori/midori-array.c:586
-#: ../midori/midori-array.c:609 ../midori/midori-array.c:619
+#: ../midori/midori-array.c:574 ../midori/midori-array.c:613
+#: ../midori/midori-array.c:637 ../midori/midori-array.c:647
 msgid "Malformed document."
 msgstr "Kötü biçimlendirilmiş belge."
 
-#: ../midori/midori-array.c:628
+#: ../midori/midori-array.c:656
 msgid "Unrecognized bookmark format."
 msgstr "Tanımlanmayan yer imi biçimi."
 
-#: ../midori/midori-array.c:915
-msgid "Writing failed."
-msgstr "Yazma işlemi gerçekleştirilemedi."
+#: ../midori/midori-browser.c:324 ../midori/midori-browser.c:5399
+msgid "Go forward to the next page"
+msgstr "Sonraki sayfaya git"
 
-#: ../midori/midori-browser.c:331 ../midori/midori-browser.c:5277
-#: ../midori/midori-browser.c:5286
+#. i18n: Visit the following logical page, ie. in a forum or blog
+#: ../midori/midori-browser.c:331 ../midori/midori-browser.c:5407
+#: ../midori/midori-browser.c:5410
+msgid "Go to the next sub-page"
+msgstr "Sonraki sayfaya git"
+
+#: ../midori/midori-browser.c:341
+msgid "Web Search…"
+msgstr ""
+
+#: ../midori/midori-browser.c:445 ../midori/midori-browser.c:5348
+#: ../midori/midori-browser.c:5357
 msgid "Reload the current page"
 msgstr "Bu sayfayı yeniden yükle"
 
-#: ../midori/midori-browser.c:340 ../midori/midori-browser.c:5283
+#: ../midori/midori-browser.c:453 ../midori/midori-browser.c:5354
 msgid "Stop loading the current page"
 msgstr "Bu sayfayı yüklemeyi durdur"
 
-#: ../midori/midori-browser.c:476
+#: ../midori/midori-browser.c:523
 #, c-format
 msgid "Failed to update title: %s\n"
 msgstr "İsim güncelleme hatası: %s\n"
 
-#: ../midori/midori-browser.c:489
+#: ../midori/midori-browser.c:562 ../midori/midori-browser.c:618
+#: ../midori/midori-browser.c:621 ../midori/midori-websettings.c:1465
+#, c-format
+msgid "Value '%s' is invalid for %s"
+msgstr "'%s' değeri şunun için yanlış : %s"
+
+#: ../midori/midori-browser.c:570 ../midori/midori-browser.c:641
+#: ../midori/midori-browser.c:6933
+#, c-format
+msgid "Unexpected setting '%s'"
+msgstr "Beklenmedik ayar '%s'"
+
+#: ../midori/midori-browser.c:578 ../midori/midori-browser.c:651
 #, c-format
 msgid "Unexpected action '%s'."
 msgstr "Beklenmedik eylem '%s'."
 
-#: ../midori/midori-browser.c:579
+#: ../midori/midori-browser.c:731
 #, c-format
 msgid "%s (Private Browsing)"
 msgstr "%s (Gizli Gezinme)"
 
-#: ../midori/midori-browser.c:693 ../midori/midori-browser.c:726
-msgid "Toplevel folder"
-msgstr "Üst Seviye Dizin"
+#: ../midori/midori-browser.c:841 ../midori/midori-browser.c:883
+#: ../panels/midori-bookmarks.c:114
+msgid "Bookmarks"
+msgstr "Yer imleri"
 
-#: ../midori/midori-browser.c:784
-msgid "New folder"
-msgstr "Yeni Dizin"
+#: ../midori/midori-browser.c:937
+msgid "New Folder"
+msgstr ""
 
-#: ../midori/midori-browser.c:784
-msgid "Edit folder"
-msgstr "Klasörü düzenle"
+#: ../midori/midori-browser.c:937
+msgid "Edit Folder"
+msgstr ""
 
-#: ../midori/midori-browser.c:786
-msgid "New bookmark"
-msgstr "Yeni yer imi"
+#: ../midori/midori-browser.c:939
+msgid "New Bookmark"
+msgstr ""
 
-#: ../midori/midori-browser.c:786
-msgid "Edit bookmark"
-msgstr "Yer imini düzenle"
+#: ../midori/midori-browser.c:939
+msgid "Edit Bookmark"
+msgstr ""
 
-#: ../midori/midori-browser.c:828
-msgid "_Title:"
-msgstr "_Başlık:"
+#: ../midori/midori-browser.c:961
+msgid "Type a name for this bookmark, and choose where to keep it."
+msgstr ""
 
-#: ../midori/midori-browser.c:848 ../midori/midori-searchaction.c:961
-#: ../extensions/feed-panel/main.c:377
-msgid "_Address:"
-msgstr "Adres:"
+#: ../midori/midori-browser.c:963
+msgid "Type a name for this folder, and choose where to keep it."
+msgstr ""
 
-#: ../midori/midori-browser.c:871 ../midori/midori-browser.c:4303
-msgid "_Folder:"
-msgstr "_Dizin:"
-
-#: ../midori/midori-browser.c:887
+#: ../midori/midori-browser.c:1017
 msgid "Add to _Speed Dial"
 msgstr "_Hızlı aramaya Ekle"
 
-#: ../midori/midori-browser.c:900
-msgid "Show in the tool_bar"
-msgstr "Araç_çubuğunda göster"
+#: ../midori/midori-browser.c:1026
+msgid "Show in Bookmarks _Bar"
+msgstr ""
 
-#: ../midori/midori-browser.c:915
+#: ../midori/midori-browser.c:1034
 msgid "Run as _web application"
 msgstr "_Web uygulaması olarak çalıştır"
 
-#: ../midori/midori-browser.c:986
-#, c-format
-msgid "The file \"%s\" can't be saved in this folder."
-msgstr " \"%s\" Dosyası bu dizine kaydedilemedi."
-
-#: ../midori/midori-browser.c:988
-#, c-format
-msgid "You don't have permission to write in this location."
-msgstr "Bu konuma yazmak için yetkiniz bulunmuyor."
-
-#: ../midori/midori-browser.c:995
-#, c-format
-msgid "There is not enough free space to download \"%s\"."
-msgstr "\"%s\" indirmek için yeterli boş disk alanı yok."
-
-#: ../midori/midori-browser.c:998
-#, c-format
-msgid "The file needs %s but only %s are left."
-msgstr "Dosya %s ihtiyaç duyuyor ancak %s kaldı."
-
-#: ../midori/midori-browser.c:1036 ../midori/midori-browser.c:4372
+#: ../midori/midori-browser.c:1147 ../midori/midori-browser.c:4510
 msgid "Save file as"
 msgstr "Dosyayı kaydet"
 
-#: ../midori/midori-browser.c:1330
-msgid "New Window"
-msgstr "Yeni Pencere"
+#: ../midori/midori-browser.c:1157
+msgid "Save associated _resources"
+msgstr "İlişkili _kaynakları kaydet"
 
-#: ../midori/midori-browser.c:1330
+#: ../midori/midori-browser.c:1387
 msgid "A new window has been opened"
 msgstr "Yeni bir pencere açıldı"
 
-#: ../midori/midori-browser.c:1333
-msgid "New Tab"
-msgstr "Yeni Sekme"
-
-#: ../midori/midori-browser.c:1333
+#: ../midori/midori-browser.c:1390
 msgid "A new tab has been opened"
 msgstr "Yeni bir sekme açıldı"
 
-#: ../midori/midori-browser.c:1368
-#, fuzzy
+#: ../midori/midori-browser.c:1408
 msgid "Error opening the image!"
-msgstr "Resmi açmada hata!"
+msgstr "Görüntüyü açarken hata!"
 
-#: ../midori/midori-browser.c:1369
-#, fuzzy
+#: ../midori/midori-browser.c:1409
 msgid "Can not open selected image in a default viewer."
-msgstr "Seçili resim varsayılan göstericide açılamıyor."
+msgstr "Seçilen görüntü öntanımlı programda açılamaz."
 
-#: ../midori/midori-browser.c:1375
-#, fuzzy
+#: ../midori/midori-browser.c:1415
 msgid "Error downloading the image!"
-msgstr "Kaynak '%s' yükleme hatası"
+msgstr "Görüntüyü indirirken hata!"
 
-#: ../midori/midori-browser.c:1376
-#, fuzzy
+#: ../midori/midori-browser.c:1416
 msgid "Can not download selected image."
 msgstr "Seçilen resim indirilemiyor."
 
-#: ../midori/midori-browser.c:1479
+#: ../midori/midori-browser.c:1493
 msgid "Save file"
 msgstr "Dosyayı kaydet"
 
-#: ../midori/midori-browser.c:2346
+#: ../midori/midori-browser.c:2462
 msgid "Open file"
 msgstr "Dosya aç"
 
-#: ../midori/midori-browser.c:2478
+#: ../midori/midori-browser.c:2548
 msgid ""
 "To use the above URI open a news aggregator. There is usually a menu or "
 "button \"New Subscription\", \"New News Feed\" or similar.\n"
@@ -549,139 +376,142 @@ msgstr ""
 "haber toplayıcı seçin. Haber kaynağı simgesine tekrar tıkladığınızda "
 "otomatik olarak eklenecektir."
 
-#: ../midori/midori-browser.c:2484 ../extensions/feed-panel/main.c:365
+#: ../midori/midori-browser.c:2554 ../extensions/feed-panel/main.c:349
 msgid "New feed"
 msgstr "Yeni kaynak"
 
-#: ../midori/midori-browser.c:2527 ../midori/midori-browser.c:5346
-#: ../panels/midori-bookmarks.c:427
+#: ../midori/midori-browser.c:2585 ../midori/midori-browser.c:5423
+#: ../panels/midori-bookmarks.c:527
 msgid "Add a new bookmark"
 msgstr "Yeni bir yer imi ekle"
 
-#: ../midori/midori-browser.c:3026 ../midori/midori-searchaction.c:488
+#. FIXME: Blacklist/ custom contract doesn't work
+#. gchar* blacklisted_contracts[] = { "print", NULL };
+#. FIXME: granite: should return GtkWidget* like GTK+
+#: ../midori/midori-browser.c:2634 ../midori/midori-browser.c:5299
+msgid "Share this page"
+msgstr ""
+
+#: ../midori/midori-browser.c:3125 ../midori/midori-searchaction.c:450
 msgid "Empty"
 msgstr "Boş"
 
-#: ../midori/midori-browser.c:3446
+#: ../midori/midori-browser.c:3501 ../midori/midori-browser.c:3502
 msgid "Toggle text cursor navigation"
 msgstr "Metin imleci navigasyonunu değiştir"
 
-#: ../midori/midori-browser.c:3762 ../midori/midori-browser.c:5732
+#: ../midori/midori-browser.c:3504
+msgid ""
+"Pressing F7 toggles Caret Browsing. When active, a text cursor appears in "
+"all websites."
+msgstr ""
+"F7'ye basmak Düzenleme İşaretçisiyle Tarama'ya geçiş yapar. Etkin olduğunda, "
+"bir metin imleci tüm web sitelerinde görünür."
+
+#: ../midori/midori-browser.c:3507
+msgid "_Enable Caret Browsing"
+msgstr "Düzenleme İşaretçisiyle Taramayı _Etkinleştir"
+
+#: ../midori/midori-browser.c:3928 ../midori/midori-browser.c:5871
 #, c-format
 msgid "Failed to insert new history item: %s\n"
 msgstr "Yeni geçmiş ögesi ekleme hatası: %s\n"
 
-#: ../midori/midori-browser.c:4091 ../panels/midori-bookmarks.c:743
-#: ../panels/midori-history.c:801
+#: ../midori/midori-browser.c:4242 ../panels/midori-bookmarks.c:835
+#: ../panels/midori-history.c:792
 msgid "Open all in _Tabs"
 msgstr "Hepsini _Sekmelerde aç"
 
-#: ../midori/midori-browser.c:4098 ../panels/midori-bookmarks.c:749
-#: ../panels/midori-history.c:807 ../extensions/feed-panel/feed-panel.c:528
+#: ../midori/midori-browser.c:4249 ../panels/midori-bookmarks.c:841
+#: ../panels/midori-history.c:798 ../extensions/feed-panel/feed-panel.c:511
 msgid "Open in New _Tab"
 msgstr "Yeni _Sekmede Aç"
 
-#: ../midori/midori-browser.c:4101 ../midori/midori-view.c:2648
-#: ../midori/midori-view.c:4646 ../panels/midori-bookmarks.c:751
-#: ../panels/midori-history.c:809 ../extensions/feed-panel/feed-panel.c:530
+#: ../midori/midori-browser.c:4252 ../midori/midori-view.c:2915
+#: ../midori/midori-view.c:4873 ../panels/midori-bookmarks.c:843
+#: ../panels/midori-history.c:800 ../extensions/feed-panel/feed-panel.c:513
 msgid "Open in New _Window"
 msgstr "Yeni _Pencerede aç"
 
-#: ../midori/midori-browser.c:4190
+#: ../midori/midori-browser.c:4341
 msgid "Arora"
 msgstr "Arora"
 
-#: ../midori/midori-browser.c:4191
+#: ../midori/midori-browser.c:4342
 msgid "Kazehakase"
 msgstr "Kazehakase"
 
-#: ../midori/midori-browser.c:4192
+#: ../midori/midori-browser.c:4343
 msgid "Opera"
 msgstr "Opera"
 
-#: ../midori/midori-browser.c:4193
+#: ../midori/midori-browser.c:4344
 msgid "Konqueror"
 msgstr "Konqueror"
 
-#: ../midori/midori-browser.c:4194
+#: ../midori/midori-browser.c:4345
 msgid "Epiphany"
 msgstr "Epiphany"
 
-#: ../midori/midori-browser.c:4195
-#, fuzzy, c-format
+#: ../midori/midori-browser.c:4346
+#, c-format
 msgid "Firefox (%s)"
-msgstr "Firefox"
+msgstr "Firefox (%s)"
 
-#: ../midori/midori-browser.c:4216
+#: ../midori/midori-browser.c:4347
+msgid "Midori 0.2.6"
+msgstr "Midori 0.2.6"
+
+#: ../midori/midori-browser.c:4365
 msgid "Import bookmarks…"
 msgstr "Yerimleri içe aktarılıyor…"
 
-#: ../midori/midori-browser.c:4219 ../midori/midori-browser.c:5351
+#: ../midori/midori-browser.c:4368
 msgid "_Import bookmarks"
 msgstr "Yerimlerini içe aktar"
 
-#: ../midori/midori-browser.c:4230
+#: ../midori/midori-browser.c:4379
 msgid "_Application:"
 msgstr "_Uygulamadan:"
 
-#: ../midori/midori-browser.c:4295
+#: ../midori/midori-browser.c:4444
 msgid "Import from XBEL or HTML file"
 msgstr "XBEL ya da HTML dosyasından içeri aktar"
 
-#: ../midori/midori-browser.c:4330
+#: ../midori/midori-browser.c:4472
 msgid "Import from a file"
 msgstr "Dosyadan yükle"
 
-#: ../midori/midori-browser.c:4342
+#: ../midori/midori-browser.c:4484
 msgid "Failed to import bookmarks"
 msgstr "Yerimlerini içe aktarma hatası"
 
-#: ../midori/midori-browser.c:4377
+#: ../midori/midori-browser.c:4515
 msgid "XBEL Bookmarks"
 msgstr "XBEL yer imleri"
 
-#: ../midori/midori-browser.c:4382
+#: ../midori/midori-browser.c:4520
 msgid "Netscape Bookmarks"
 msgstr "Netscape yer imleri"
 
-#: ../midori/midori-browser.c:4396
+#: ../midori/midori-browser.c:4534
 msgid "Midori can only export to XBEL (*.xbel) and Netscape (*.html)"
-msgstr "Midori sadece XBEL (*. xbel) ve Netscape (*. html) dışarı aktarabilir."
+msgstr ""
+"Midori sadece XBEL (*. xbel) ve Netscape (*. html) dışarı aktarabilir."
 
-#: ../midori/midori-browser.c:4411
+#: ../midori/midori-browser.c:4549
 msgid "Failed to export bookmarks"
 msgstr "Yer imlerini dışarı aktarma hatası"
 
-#. i18n: Dialog: Clear Private Data, in the Tools menu
-#: ../midori/midori-browser.c:4533
-msgid "Clear Private Data"
-msgstr "Kişisel Verileri Temizle"
-
-#: ../midori/midori-browser.c:4537
-msgid "_Clear private data"
-msgstr "_Kişisel verileri temizle"
-
-#: ../midori/midori-browser.c:4550
-msgid "Clear the following data:"
-msgstr "Aşağıdaki verileri temizle:"
-
-#: ../midori/midori-browser.c:4560
-msgid "Last open _tabs"
-msgstr "Son açılmış sekmeler"
-
-#: ../midori/midori-browser.c:4586
-msgid "Clear private data when _quitting Midori"
-msgstr "Midori'den çıkıldığında kişisel verileri temizle"
-
-#: ../midori/midori-browser.c:4781
+#: ../midori/midori-browser.c:4765
 msgid "A lightweight web browser."
 msgstr "Hafif bir web tarayıcı."
 
-#: ../midori/midori-browser.c:4782
+#: ../midori/midori-browser.c:4766
 msgid "See about:version for version info."
 msgstr "Sürüm bilgisi için bakınız: about:version."
 
-#: ../midori/midori-browser.c:4784
+#: ../midori/midori-browser.c:4768
 msgid ""
 "This library is free software; you can redistribute it and/or modify it "
 "under the terms of the GNU Lesser General Public License as published by the "
@@ -690,1447 +520,930 @@ msgid ""
 msgstr ""
 "Bu kütüphane özgür yazılımdır; GNU'nun -Özgür Yazılım Vakfı tarafından "
 "yayımlanan Genel Kamu Lisansı sürüm 2.1 veya (seçiminize bağlı) daha eski "
-"bir sürüm- şartları altında yeniden dağıtılabilir ve/veya değiştirilebilir. "
+"bir sürüm- şartları altında yeniden dağıtılabilir ve/veya değiştirilebilir."
 
-#: ../midori/midori-browser.c:4805
+#: ../midori/midori-browser.c:4803
 msgid "translator-credits"
 msgstr ""
 "Mirat Can Bayrak <MiratCanBayrak@gmail.com>\n"
 "Gökmen Görgen <gkmngrgn@gmail.com>\n"
-"Ayhan YALÇINSOY <ayhanyalcinsoy@gmail.com>"
+"Ayhan YALÇINSOY <ayhanyalcinsoy@gmail.com>\n"
+"\n"
+"Launchpad Contributions:\n"
+"  Ayhan YALÇINSOY https://launchpad.net/~ayhanyalcinsoy\n"
+"  Ferhat TUNÇTAN https://launchpad.net/~ferhattnctn66\n"
+"  Hasan Yılmaz https://launchpad.net/~hasanyilmaz\n"
+"  Irmak Bıçakçıgil https://launchpad.net/~irmak\n"
+"  Sadık Atalay https://launchpad.net/~seaflames\n"
+"  Selim Sırrı Sevgi https://launchpad.net/~selimssevgi\n"
+"  Utku BERBEROĞLU https://launchpad.net/~boluluutku\n"
+"  WebKit Team https://launchpad.net/~webkit-team\n"
+"  c.k. https://launchpad.net/~cankutay-eser\n"
+"  kulkke https://launchpad.net/~kulkke\n"
+"  seaflames https://launchpad.net/~protoman-s\n"
+"  Çağatay Çöl https://launchpad.net/~cagataycol"
 
-#: ../midori/midori-browser.c:5193
+#: ../midori/midori-browser.c:5265
 msgid "_File"
 msgstr "_Dosya"
 
-#: ../midori/midori-browser.c:5196
+#: ../midori/midori-browser.c:5268
 msgid "Open a new window"
 msgstr "Yeni bir pencerede aç"
 
-#: ../midori/midori-browser.c:5199
+#: ../midori/midori-browser.c:5271
 msgid "Open a new tab"
 msgstr "Yeni bir sekmede aç"
 
-#: ../midori/midori-browser.c:5201
+#: ../midori/midori-browser.c:5273
 msgid "New P_rivate Browsing Window"
 msgstr "Yeni _Gizli Gezinme Penceresi"
 
-#: ../midori/midori-browser.c:5205
+#: ../midori/midori-browser.c:5277
 msgid "Open a file"
 msgstr "Bir dosya aç"
 
-#: ../midori/midori-browser.c:5207
+#: ../midori/midori-browser.c:5279
 msgid "_Save Page As…"
 msgstr "Sayfayı Farklı _Kaydet…"
 
-#: ../midori/midori-browser.c:5208
+#: ../midori/midori-browser.c:5280
 msgid "Save to a file"
 msgstr "Bir dosyaya kaydet"
 
-#: ../midori/midori-browser.c:5210
+#: ../midori/midori-browser.c:5282
 msgid "Add to Speed _dial"
 msgstr "Hızlı aramaya _ekle"
 
-#: ../midori/midori-browser.c:5214
-msgid "Add Shortcut to the _desktop"
-msgstr "_Masaüstüne Kısayol ekle"
-
-#: ../midori/midori-browser.c:5216
-msgid "Create _Launcher"
-msgstr "_Başlatıcı Oluştur"
-
-#: ../midori/midori-browser.c:5220
+#: ../midori/midori-browser.c:5285
 msgid "Subscribe to News _feed"
 msgstr "Haber _kaynaksine üye ol"
 
-#: ../midori/midori-browser.c:5226
+#: ../midori/midori-browser.c:5291
 msgid "_Close Tab"
 msgstr "Sekmeyi _kapat"
 
-#: ../midori/midori-browser.c:5227
+#: ../midori/midori-browser.c:5292
 msgid "Close the current tab"
 msgstr "Geçerli sekmeyi kapat"
 
-#: ../midori/midori-browser.c:5229
+#: ../midori/midori-browser.c:5294
 msgid "C_lose Window"
 msgstr "Pen_cereyi Kapat"
 
-#: ../midori/midori-browser.c:5233
+#: ../midori/midori-browser.c:5298
+msgid "_Share"
+msgstr "_Paylaş"
+
+#: ../midori/midori-browser.c:5303
 msgid "Print the current page"
 msgstr "Geçerli sayfayı yazdır"
 
-#: ../midori/midori-browser.c:5235
+#: ../midori/midori-browser.c:5306
 msgid "Close a_ll Windows"
 msgstr "Bütün Pen_cereleri Kapat"
 
-#: ../midori/midori-browser.c:5238
+#: ../midori/midori-browser.c:5309
 msgid "_Edit"
 msgstr "_Düzenle"
 
-#: ../midori/midori-browser.c:5261
+#: ../midori/midori-browser.c:5332
 msgid "_Find…"
 msgstr "_Bul,.."
 
-#: ../midori/midori-browser.c:5262
+#: ../midori/midori-browser.c:5333
 msgid "Find a word or phrase in the page"
 msgstr "Bir kelime yada ibareyi geçerli sayfada ara"
 
-#: ../midori/midori-browser.c:5264
+#: ../midori/midori-browser.c:5335
 msgid "Find _Next"
 msgstr "So_nrakini Bul"
 
-#: ../midori/midori-browser.c:5267
+#: ../midori/midori-browser.c:5338
 msgid "Find _Previous"
 msgstr "Öncekini Bu_l"
 
-#: ../midori/midori-browser.c:5271
+#: ../midori/midori-browser.c:5342
 msgid "Configure the application preferences"
 msgstr "Uygulama tercihlerini yapılandır"
 
-#: ../midori/midori-browser.c:5273
+#: ../midori/midori-browser.c:5344
 msgid "_View"
 msgstr "_Görünüm"
 
-#: ../midori/midori-browser.c:5274
+#: ../midori/midori-browser.c:5345
 msgid "_Toolbars"
 msgstr "_Araç Çubukları"
 
-#: ../midori/midori-browser.c:5279
+#: ../midori/midori-browser.c:5350
 msgid "Reload page without caching"
 msgstr "Önbellek kullanmadan sayfayı yeniden yükle"
 
-#: ../midori/midori-browser.c:5289
+#: ../midori/midori-browser.c:5360
 msgid "Increase the zoom level"
 msgstr "Yakınlaştırma seviyesini arttır"
 
-#: ../midori/midori-browser.c:5292
+#: ../midori/midori-browser.c:5363
 msgid "Decrease the zoom level"
 msgstr "Yakınlaştırma seviyesini azalt"
 
-#: ../midori/midori-browser.c:5296
+#: ../midori/midori-browser.c:5367
 msgid "_Encoding"
 msgstr "_Kodlama"
 
-#: ../midori/midori-browser.c:5298
+#: ../midori/midori-browser.c:5369
 msgid "View So_urce"
 msgstr "Kaynağını görüntüle"
 
-#: ../midori/midori-browser.c:5301
+#: ../midori/midori-browser.c:5372
 msgid "Ca_ret Browsing"
 msgstr "Düzenleme İşaretçisini Kullanarak Gezinme"
 
-#: ../midori/midori-browser.c:5305
+#: ../midori/midori-browser.c:5376
 msgid "Toggle fullscreen view"
 msgstr "Tam ekran modunu aç / kapat"
 
-#: ../midori/midori-browser.c:5307
+#: ../midori/midori-browser.c:5378
 msgid "Scroll _Left"
 msgstr "So_l Kaydırma"
 
-#: ../midori/midori-browser.c:5310
+#: ../midori/midori-browser.c:5381
 msgid "Scroll _Down"
 msgstr "Aşağı Kay_dırma"
 
-#: ../midori/midori-browser.c:5313
+#: ../midori/midori-browser.c:5384
 msgid "Scroll _Up"
 msgstr "Y_ukarı kaydırma"
 
-#: ../midori/midori-browser.c:5316
+#: ../midori/midori-browser.c:5387
 msgid "Scroll _Right"
 msgstr "Sağa Kaydı_rma"
 
-#: ../midori/midori-browser.c:5319
+#: ../midori/midori-browser.c:5390
+msgid "_Readable"
+msgstr "_Okunabilir"
+
+#: ../midori/midori-browser.c:5393
 msgid "_Go"
 msgstr "_Git"
 
-#: ../midori/midori-browser.c:5322
+#: ../midori/midori-browser.c:5396
 msgid "Go back to the previous page"
 msgstr "Önceki sayfaya geri dön"
 
-#: ../midori/midori-browser.c:5325
-msgid "Go forward to the next page"
-msgstr "Sonraki sayfaya git"
-
 #. i18n: Visit the previous logical page, ie. in a forum or blog
-#: ../midori/midori-browser.c:5329
+#: ../midori/midori-browser.c:5403
 msgid "Go to the previous sub-page"
 msgstr "Önceki sayfaya geri dön"
 
-#. i18n: Visit the following logical page, ie. in a forum or blog
-#: ../midori/midori-browser.c:5333
-msgid "Go to the next sub-page"
-msgstr "Sonraki sayfaya git"
+#: ../midori/midori-browser.c:5412
+msgid "_Homepage"
+msgstr "_Anasayfa"
 
-#: ../midori/midori-browser.c:5336
+#: ../midori/midori-browser.c:5413
 msgid "Go to your homepage"
 msgstr "Anasayfaya git"
 
-#: ../midori/midori-browser.c:5338
+#: ../midori/midori-browser.c:5415
 msgid "Empty Trash"
 msgstr "Çöp Kutusunu Boşalt"
 
-#: ../midori/midori-browser.c:5341
+#: ../midori/midori-browser.c:5418
 msgid "Undo _Close Tab"
 msgstr "Sekme kapatmayı geri al"
 
-#: ../midori/midori-browser.c:5348
+#: ../midori/midori-browser.c:5425
 msgid "Add a new _folder"
 msgstr "Yeni bir _dizin ekle"
 
-#: ../midori/midori-browser.c:5354
-msgid "_Export bookmarks"
-msgstr "Yerimlerini _dışa aktar"
+#: ../midori/midori-browser.c:5428
+msgid "_Import bookmarks…"
+msgstr ""
 
-#: ../midori/midori-browser.c:5357 ../midori/midori-searchaction.c:497
-msgid "_Manage Search Engines"
-msgstr "Arama _Motorlarını Yönet"
+#: ../midori/midori-browser.c:5431
+msgid "_Export bookmarks…"
+msgstr ""
 
-#: ../midori/midori-browser.c:5360
-msgid "_Clear Private Data"
-msgstr "Kişisel Verileri Temizle"
+#: ../midori/midori-browser.c:5434
+msgid "_Manage Search Engines…"
+msgstr ""
 
-#: ../midori/midori-browser.c:5363
+#: ../midori/midori-browser.c:5437
+msgid "_Clear Private Data…"
+msgstr ""
+
+#: ../midori/midori-browser.c:5440
 msgid "_Inspect Page"
 msgstr "Sayfayı _incele"
 
-#: ../midori/midori-browser.c:5367
+#: ../midori/midori-browser.c:5444
 msgid "_Previous Tab"
 msgstr "Ön_ceki Sekme"
 
-#: ../midori/midori-browser.c:5370
+#: ../midori/midori-browser.c:5447
 msgid "_Next Tab"
 msgstr "So_nraki Sekme"
 
-#: ../midori/midori-browser.c:5372
+#: ../midori/midori-browser.c:5449
+msgid "Move Tab to _first position"
+msgstr ""
+
+#: ../midori/midori-browser.c:5451
 msgid "Move Tab _Backward"
 msgstr "Sekmeyi _Geri Taşı"
 
-#: ../midori/midori-browser.c:5374
+#: ../midori/midori-browser.c:5453
 msgid "_Move Tab Forward"
 msgstr "Sekmeyi İleri _Taaşı"
 
-#: ../midori/midori-browser.c:5377
+#: ../midori/midori-browser.c:5455
+msgid "Move Tab to _last position"
+msgstr ""
+
+#: ../midori/midori-browser.c:5458
 msgid "Focus _Current Tab"
 msgstr "Geçerli Sekmeye Odaklan"
 
-#: ../midori/midori-browser.c:5380
+#: ../midori/midori-browser.c:5461
 msgid "Focus _Next view"
 msgstr "_Sonraki görünüme odaklan"
 
-#: ../midori/midori-browser.c:5383
+#: ../midori/midori-browser.c:5464
 msgid "Only show the Icon of the _Current Tab"
 msgstr "Sadece şuan ki sekmenin simgesini göster"
 
-#: ../midori/midori-browser.c:5386
+#: ../midori/midori-browser.c:5467
 msgid "_Duplicate Current Tab"
 msgstr "Şuan ki sekmeyi Çoğalt"
 
-#: ../midori/midori-browser.c:5389
+#: ../midori/midori-browser.c:5470
 msgid "Close Ot_her Tabs"
 msgstr "_Diğer Sekmeleri Kapat"
 
-#: ../midori/midori-browser.c:5392
+#: ../midori/midori-browser.c:5473
 msgid "Open last _session"
 msgstr "_Son oturumu aç"
 
-#: ../midori/midori-browser.c:5395
+#: ../midori/midori-browser.c:5476
 msgid "_Help"
 msgstr "_Yardım"
 
-#: ../midori/midori-browser.c:5397
+#: ../midori/midori-browser.c:5478
 msgid "_Frequent Questions"
 msgstr "_Sık Sorulan Sorular"
 
-#: ../midori/midori-browser.c:5400
+#: ../midori/midori-browser.c:5481
 msgid "_Report a Problem…"
 msgstr "Bir Hata _Raporla…"
 
-#: ../midori/midori-browser.c:5412
-msgid "_Menubar"
-msgstr "_Menü Çubuğu"
-
-#: ../midori/midori-browser.c:5416
-msgid "_Navigationbar"
-msgstr "Gezi_nti araç Çubuğu"
-
-#: ../midori/midori-browser.c:5420
-msgid "Side_panel"
-msgstr "Yan _panel"
-
-#: ../midori/midori-browser.c:5421
-#, fuzzy
-msgid "Sidepanel"
-msgstr "Yan _panel"
-
-#: ../midori/midori-browser.c:5424
-msgid "_Bookmarkbar"
-msgstr "Yer imi araç çu_buğu"
-
-#: ../midori/midori-browser.c:5428
-msgid "_Statusbar"
-msgstr "_Durum Çubuğu"
-
-#: ../midori/midori-browser.c:5437 ../midori/midori-websettings.c:307
-msgid "_Automatic"
-msgstr "Otom_atik"
-
-#: ../midori/midori-browser.c:5440 ../midori/midori-websettings.c:232
-msgid "Chinese (BIG5)"
-msgstr "Çince (BIG5)"
-
-#. i18n: A double underscore "__" is used to prevent the mnemonic
-#: ../midori/midori-browser.c:5444
-msgid "Japanese (SHIFT__JIS)"
-msgstr "Japonca (SHIFT__JIS)"
-
-#: ../midori/midori-browser.c:5447 ../midori/midori-websettings.c:234
-msgid "Korean (EUC-KR)"
-msgstr "Korece (EUC-KR)"
-
-#: ../midori/midori-browser.c:5450 ../midori/midori-websettings.c:235
-msgid "Russian (KOI8-R)"
-msgstr "Rusça (KOI8-R)"
-
-#: ../midori/midori-browser.c:5453 ../midori/midori-websettings.c:236
-msgid "Unicode (UTF-8)"
-msgstr "Unicode (UTF-8)"
-
-#: ../midori/midori-browser.c:5456 ../midori/midori-websettings.c:237
-msgid "Western (ISO-8859-1)"
-msgstr "Batı Avrupa (ISO-8859-1)"
-
-#: ../midori/midori-browser.c:5459 ../midori/midori-websettings.c:238
-#: ../midori/midori-websettings.c:313 ../katze/katze-utils.c:635
-msgid "Custom…"
-msgstr "Özel…"
-
-#: ../midori/midori-browser.c:5964
-msgid "_Separator"
-msgstr "Ayraç"
-
-#: ../midori/midori-browser.c:5971
-msgid "_Location…"
-msgstr "Kon_um…"
-
-#: ../midori/midori-browser.c:5973
-msgid "Open a particular location"
-msgstr "Belirli bir konumu aç"
-
-#: ../midori/midori-browser.c:5995
-msgid "_Web Search…"
-msgstr "_Web Arama…"
-
-#: ../midori/midori-browser.c:5997
-msgid "Run a web search"
-msgstr "Bir web arama gerçekleştir"
-
-#: ../midori/midori-browser.c:6024
-msgid "Reopen a previously closed tab or window"
-msgstr "Daha önce kapatılmış pencereyi ya da sekmeyi yeniden aç"
-
-#: ../midori/midori-browser.c:6041
-msgid "Show the saved bookmarks"
-msgstr "Kaydedilmiş yer imlerini göster"
-
-#: ../midori/midori-browser.c:6058
+#: ../midori/midori-browser.c:5486 ../midori/midori-browser.c:6143
 msgid "_Tools"
 msgstr "_Araçlar"
 
-#: ../midori/midori-browser.c:6074
-msgid "_Window"
-msgstr "_Pencere"
+#: ../midori/midori-browser.c:5493
+msgid "_Menubar"
+msgstr "_Menü Çubuğu"
 
-#: ../midori/midori-browser.c:6076
+#: ../midori/midori-browser.c:5497
+msgid "_Navigationbar"
+msgstr "Gezi_nti araç Çubuğu"
+
+#: ../midori/midori-browser.c:5501
+msgid "Side_panel"
+msgstr "Yan _panel"
+
+#: ../midori/midori-browser.c:5502
+msgid "Sidepanel"
+msgstr "Yan panel"
+
+#: ../midori/midori-browser.c:5505
+msgid "_Bookmarkbar"
+msgstr "Yer imi araç çu_buğu"
+
+#: ../midori/midori-browser.c:5509
+msgid "_Statusbar"
+msgstr "_Durum Çubuğu"
+
+#: ../midori/midori-browser.c:5518 ../midori/midori-websettings.c:227
+msgid "_Automatic"
+msgstr "Otom_atik"
+
+#: ../midori/midori-browser.c:5521 ../midori/midori-websettings.c:151
+msgid "Chinese Traditional (BIG5)"
+msgstr "Geleneksel Çince(BIG5)"
+
+#: ../midori/midori-browser.c:5524 ../midori/midori-websettings.c:152
+msgid "Chinese Simplified (GB18030)"
+msgstr "Basitleştirilmiş Çince (GB18030)"
+
+#. i18n: A double underscore "__" is used to prevent the mnemonic
+#: ../midori/midori-browser.c:5528
+msgid "Japanese (SHIFT__JIS)"
+msgstr "Japonca (SHIFT__JIS)"
+
+#: ../midori/midori-browser.c:5531 ../midori/midori-websettings.c:154
+msgid "Korean (EUC-KR)"
+msgstr "Korece (EUC-KR)"
+
+#: ../midori/midori-browser.c:5534 ../midori/midori-websettings.c:155
+msgid "Russian (KOI8-R)"
+msgstr "Rusça (KOI8-R)"
+
+#: ../midori/midori-browser.c:5537 ../midori/midori-websettings.c:156
+msgid "Unicode (UTF-8)"
+msgstr "Unicode (UTF-8)"
+
+#: ../midori/midori-browser.c:5540 ../midori/midori-websettings.c:157
+msgid "Western (ISO-8859-1)"
+msgstr "Batı Avrupa (ISO-8859-1)"
+
+#: ../midori/midori-browser.c:5543 ../midori/midori-websettings.c:158
+#: ../midori/midori-websettings.c:234 ../katze/katze-utils.c:420
+msgid "Custom…"
+msgstr "Özel…"
+
+#: ../midori/midori-browser.c:6049
+msgid "_Separator"
+msgstr "Ayraç"
+
+#: ../midori/midori-browser.c:6056
+msgid "_Location…"
+msgstr "Kon_um…"
+
+#: ../midori/midori-browser.c:6058
+msgid "Open a particular location"
+msgstr "Belirli bir konumu aç"
+
+#: ../midori/midori-browser.c:6080
+msgid "_Web Search…"
+msgstr "_Web Arama…"
+
+#: ../midori/midori-browser.c:6082
+msgid "Run a web search"
+msgstr "Bir web arama gerçekleştir"
+
+#: ../midori/midori-browser.c:6109
+msgid "Reopen a previously closed tab or window"
+msgstr "Daha önce kapatılmış pencereyi ya da sekmeyi yeniden aç"
+
+#: ../midori/midori-browser.c:6126
+msgid "Show the saved bookmarks"
+msgstr "Kaydedilmiş yer imlerini göster"
+
+#: ../midori/midori-browser.c:6159
+msgid "_Tabs"
+msgstr ""
+
+#: ../midori/midori-browser.c:6161
 msgid "Show a list of all open tabs"
 msgstr "Açık sekmelerin bir listesini göster"
 
-#: ../midori/midori-browser.c:6090
+#: ../midori/midori-browser.c:6175
 msgid "_Menu"
 msgstr "_Menü"
 
-#: ../midori/midori-browser.c:6092
+#: ../midori/midori-browser.c:6177
 msgid "Menu"
 msgstr "Menü"
 
-#: ../midori/midori-browser.c:6904
-#, c-format
-msgid "Unexpected setting '%s'"
-msgstr "Beklenmedik ayar '%s'"
-
-#: ../midori/midori-extension.c:310
+#: ../midori/midori-extension.c:341
 #, c-format
 msgid "The configuration of the extension '%s' couldn't be loaded: %s\n"
 msgstr "'%s' ayarları yüklenemedi: %s\n"
 
-#: ../midori/midori-extension.c:721 ../midori/midori-extension.c:818
-#: ../midori/midori-extension.c:915 ../midori/midori-extension.c:1027
-#: ../extensions/addons.c:1695
+#: ../midori/midori-extension.c:886 ../extensions/addons.c:1681
 #, c-format
 msgid "The configuration of the extension '%s' couldn't be saved: %s\n"
 msgstr "Uzantı yapılandırması '%s' kaydedilemedi: %s\n"
 
-#: ../midori/midori-locationaction.c:394
-#, c-format
-msgid "Search with %s"
-msgstr "%s ile ara"
+#: ../midori/midori-locationaction.c:1324
+msgid "Export certificate"
+msgstr "Sertfikayı dışa aktar"
 
-#: ../midori/midori-locationaction.c:412
-#, fuzzy
-msgid "Search with…"
-msgstr "_ile ara"
+#: ../midori/midori-locationaction.c:1355
+msgid "The signing certificate authority is not known."
+msgstr "Kayıtlı sertifika yöneticisi bilinmiyor."
 
-#: ../midori/midori-locationaction.c:537
-#, c-format
-msgid "Failed to select from history\n"
-msgstr "Geçmişten seçme hatası\n"
+#: ../midori/midori-locationaction.c:1357
+msgid ""
+"The certificate does not match the expected identity of the site that it was "
+"retrieved from."
+msgstr "Sertifika, alınan sitenin kimliğiyle uyuşmadı."
 
-#: ../midori/midori-locationaction.c:624
-#, c-format
-msgid "Search for %s"
-msgstr "%s için ara"
+#: ../midori/midori-locationaction.c:1359
+msgid "The certificate's activation time is still in the future."
+msgstr "Sertifikanın geçerliliği hala devam ediyor."
+
+#: ../midori/midori-locationaction.c:1361
+msgid "The certificate has expired"
+msgstr "Sertifikasının süresi bitmiş"
+
+#: ../midori/midori-locationaction.c:1363
+msgid ""
+"The certificate has been revoked according to the GTlsConnection's "
+"certificate revocation list."
+msgstr ""
+"Sertifika GTlsConnection sertifika iptal listesine göre iptal edilmiştir."
+
+#: ../midori/midori-locationaction.c:1365
+msgid "The certificate's algorithm is considered insecure."
+msgstr "Sertifika algoritmasının güvenli olmadığı düşünülüyor."
+
+#: ../midori/midori-locationaction.c:1367
+msgid "Some other error occurred validating the certificate."
+msgstr "Sertifika doğrulanırken başka hatalar oluştu."
+
+#: ../midori/midori-locationaction.c:1418
+msgid "_Export certificate"
+msgstr "_Sertifikayı dışa aktar."
+
+#: ../midori/midori-locationaction.c:1431
+msgid "Self-signed"
+msgstr "Kedinden-imzalı"
+
+#: ../midori/midori-locationaction.c:1462
+msgid "Security details"
+msgstr "Güvenlik detayları"
 
 #. i18n: Right-click on Location, Open an URL from the clipboard
-#: ../midori/midori-locationaction.c:1400
+#: ../midori/midori-locationaction.c:1545
 msgid "Paste and p_roceed"
 msgstr "Ya_pıştır ve ilerle"
 
-#: ../midori/midori-locationaction.c:1768
+#: ../midori/midori-locationaction.c:1799
 msgid "Not verified"
 msgstr "Doğrulanmadı"
 
-#: ../midori/midori-locationaction.c:1788
+#: ../midori/midori-locationaction.c:1805
 msgid "Verified and encrypted connection"
 msgstr "Doğrulanmış ve şifrelenmiş bağlantı"
 
-#: ../midori/midori-panel.c:397 ../midori/midori-panel.c:399
-#: ../midori/midori-panel.c:562 ../midori/midori-panel.c:565
+#: ../midori/midori-locationaction.c:1810
+msgid "Open, unencrypted connection"
+msgstr "Açık,şifrelenmemiş bağlantı"
+
+#: ../midori/midori-panel.c:314 ../midori/midori-panel.c:316
+#: ../midori/midori-panel.c:480 ../midori/midori-panel.c:483
 msgid "Align sidepanel to the right"
 msgstr "Kenar panelini sağa hizala"
 
-#: ../midori/midori-panel.c:409 ../midori/midori-panel.c:410
+#: ../midori/midori-panel.c:326 ../midori/midori-panel.c:327
 msgid "Close panel"
 msgstr "Paneli kapat"
 
-#: ../midori/midori-panel.c:563 ../midori/midori-panel.c:566
+#: ../midori/midori-panel.c:481 ../midori/midori-panel.c:484
 msgid "Align sidepanel to the left"
 msgstr "Kenar panelini sola hizala"
 
-#: ../midori/midori-websettings.c:214
+#: ../midori/midori-websettings.c:114 ../midori/midori-websettings.c:135
 msgid "Show Speed Dial"
 msgstr "Hızlı Aramayı Göster"
 
-#: ../midori/midori-websettings.c:215
+#: ../midori/midori-websettings.c:115 ../midori/midori-websettings.c:133
 msgid "Show Homepage"
 msgstr "Anasayfa göster"
 
-#: ../midori/midori-websettings.c:233
+#: ../midori/midori-websettings.c:116 ../midori/midori-frontend.c:365
+msgid "Show last open tabs"
+msgstr "Son açılan sekmeleri göster"
+
+#: ../midori/midori-websettings.c:117 ../midori/midori-frontend.c:364
+msgid "Show last tabs without loading"
+msgstr "Yüklemeden son sekmeyi göster"
+
+#: ../midori/midori-websettings.c:132
+msgid "Show Blank Page"
+msgstr ""
+
+#: ../midori/midori-websettings.c:134
+msgid "Show default Search Engine"
+msgstr ""
+
+#: ../midori/midori-websettings.c:136
+msgid "Show custom page"
+msgstr ""
+
+#: ../midori/midori-websettings.c:153
 msgid "Japanese (SHIFT_JIS)"
 msgstr "Japonca (Shift_JIS)"
 
-#: ../midori/midori-websettings.c:253
+#: ../midori/midori-websettings.c:173
 msgid "New tab"
 msgstr "Yeni sekme"
 
-#: ../midori/midori-websettings.c:254
+#: ../midori/midori-websettings.c:174
 msgid "New window"
 msgstr "Yeni pencere"
 
-#: ../midori/midori-websettings.c:255
+#: ../midori/midori-websettings.c:175
 msgid "Current tab"
 msgstr "Geçerli sekme"
 
-#: ../midori/midori-websettings.c:270
+#: ../midori/midori-websettings.c:190
 msgid "Default"
 msgstr "Öntanımlı"
 
-#: ../midori/midori-websettings.c:271
+#: ../midori/midori-websettings.c:191
 msgid "Icons"
 msgstr "Simgeler"
 
-#: ../midori/midori-websettings.c:272
+#: ../midori/midori-websettings.c:192
 msgid "Small icons"
 msgstr "Küçük simgeler"
 
-#: ../midori/midori-websettings.c:273
+#: ../midori/midori-websettings.c:193
 msgid "Text"
 msgstr "Metin"
 
-#: ../midori/midori-websettings.c:274
+#: ../midori/midori-websettings.c:194
 msgid "Icons and text"
 msgstr "Simgeler ve metin"
 
-#: ../midori/midori-websettings.c:275
+#: ../midori/midori-websettings.c:195
 msgid "Text beside icons"
 msgstr "Simgelerin yanında metin"
 
-#: ../midori/midori-websettings.c:290
+#: ../midori/midori-websettings.c:210
 msgid "Automatic (GNOME or environment)"
 msgstr "Otomatik (GNOME veya çevre)"
 
-#: ../midori/midori-websettings.c:291
+#: ../midori/midori-websettings.c:211
 msgid "HTTP proxy server"
 msgstr "HTTP vekil sunucu"
 
-#: ../midori/midori-websettings.c:292
+#: ../midori/midori-websettings.c:212
 msgid "No proxy server"
 msgstr "Vekil sunucu yok"
 
-#: ../midori/midori-websettings.c:309
+#: ../midori/midori-websettings.c:229
+msgid "Chrome"
+msgstr "Chrome"
+
+#: ../midori/midori-websettings.c:230
 msgid "Safari"
 msgstr "Safari"
 
-#: ../midori/midori-websettings.c:310
+#: ../midori/midori-websettings.c:231
 msgid "iPhone"
 msgstr "iPhone"
 
-#: ../midori/midori-websettings.c:311
+#: ../midori/midori-websettings.c:232
 msgid "Firefox"
 msgstr "Firefox"
 
-#: ../midori/midori-websettings.c:312
+#: ../midori/midori-websettings.c:233
 msgid "Internet Explorer"
 msgstr "Internet Explorer"
 
-#: ../midori/midori-websettings.c:388
-msgid "Remember last window size"
-msgstr "Son pencerenin ölçülerini hatırla"
-
-#: ../midori/midori-websettings.c:389
-msgid "Whether to save the last window size"
-msgstr "Son pencere boyu kaydedilsin"
-
-#: ../midori/midori-websettings.c:397
-msgid "Last window width"
-msgstr "Son pencerenin eni"
-
-#: ../midori/midori-websettings.c:398
-msgid "The last saved window width"
-msgstr "Son kaydedilmiş pencere eni"
-
-#: ../midori/midori-websettings.c:406
-msgid "Last window height"
-msgstr "Son pencere yüksekliği"
-
-#: ../midori/midori-websettings.c:407
-msgid "The last saved window height"
-msgstr "Son kaydedilmiş pencere yüksekliği"
-
-#: ../midori/midori-websettings.c:432
-msgid "Last panel position"
-msgstr "Son panel pozisyonu"
-
-#: ../midori/midori-websettings.c:433
-msgid "The last saved panel position"
-msgstr "Son kaydedilen panel pozisyonu"
-
-#. i18n: The internal index of the last opened panel
-#: ../midori/midori-websettings.c:442
-msgid "Last panel page"
-msgstr "Son panel sayfası"
-
-#: ../midori/midori-websettings.c:443
-msgid "The last saved panel page"
-msgstr "Son kaydedilmiş panel sayfası"
-
-#: ../midori/midori-websettings.c:451
-msgid "Last Web search"
-msgstr "Son Web Arama"
-
-#: ../midori/midori-websettings.c:452
-msgid "The last saved Web search"
-msgstr "Kaydedilmiş son web arama"
-
-#: ../midori/midori-websettings.c:461
-msgid "Show Menubar"
-msgstr "Menü Çubuğunu Göster"
-
-#: ../midori/midori-websettings.c:462
-msgid "Whether to show the menubar"
-msgstr "Menü çubuğu gösterilsin"
-
-#: ../midori/midori-websettings.c:470
-msgid "Show Navigationbar"
-msgstr "Gezinti Araç Çubuğunu Göster"
-
-#: ../midori/midori-websettings.c:471
-msgid "Whether to show the navigationbar"
-msgstr "Navigasyon çubuğu gösterilsin"
-
-#: ../midori/midori-websettings.c:479
-msgid "Show Bookmarkbar"
-msgstr "Yer İmi Araç Çubuğunu Göster"
-
-#: ../midori/midori-websettings.c:480
-msgid "Whether to show the bookmarkbar"
-msgstr "Yer imi araç çubuğu gösterilsin"
-
-#: ../midori/midori-websettings.c:488
-msgid "Show Panel"
-msgstr "Paneli Göster"
-
-#: ../midori/midori-websettings.c:489
-msgid "Whether to show the panel"
-msgstr "Panel çubuğu gösterilsin"
-
-#: ../midori/midori-websettings.c:497
-msgid "Show Statusbar"
-msgstr "Durum Çubuğunu Göster"
-
-#: ../midori/midori-websettings.c:498
-msgid "Whether to show the statusbar"
-msgstr "Durum çubuğu gösterilsin"
-
-#: ../midori/midori-websettings.c:507
-msgid "Toolbar Style:"
-msgstr "Araç Çubuğu Biçimi:"
-
-#: ../midori/midori-websettings.c:508
+#: ../midori/midori-websettings.c:308
 msgid "The style of the toolbar"
 msgstr "Araç çubuğunun biçimi"
 
-#: ../midori/midori-websettings.c:517
-msgid "Toolbar Items"
-msgstr "Araç Çubuğu Öğeleri"
-
-#: ../midori/midori-websettings.c:518
-msgid "The items to show on the toolbar"
-msgstr "Araç çubuğunun üzerinde gösterilecek ögeler"
-
-#: ../midori/midori-websettings.c:526
-msgid "Compact Sidepanel"
-msgstr "Küçük Yan Panel"
-
-#: ../midori/midori-websettings.c:527
-msgid "Whether to make the sidepanel compact"
-msgstr "Yan panel küçük gösterilsin"
-
-#: ../midori/midori-websettings.c:542
-msgid "Align sidepanel on the right"
-msgstr "Kenar panelini sağda hizala"
-
-#: ../midori/midori-websettings.c:543
-msgid "Whether to align the sidepanel on the right"
-msgstr "Kenar panelini sağa hizala açık/kapalı"
-
-#: ../midori/midori-websettings.c:558
-msgid "Open panels in separate windows"
-msgstr "Panelleri ayrı pencerelerde aç"
-
-#: ../midori/midori-websettings.c:559
-msgid "Whether to always open panels in separate windows"
-msgstr "Her zaman panelleri ayrı pencerelerde aç açık/kapalı"
-
-#: ../midori/midori-websettings.c:568
-msgid "When Midori starts:"
-msgstr "Midori başlarken:"
-
-#: ../midori/midori-websettings.c:569
-msgid "What to do when Midori starts"
-msgstr "Midori başlatılırken ne yapılacak"
-
-#: ../midori/midori-websettings.c:578
-msgid "Homepage:"
-msgstr "Anasayfa:"
-
-#: ../midori/midori-websettings.c:579
-msgid "The homepage"
-msgstr "Anasayfa"
-
-#: ../midori/midori-websettings.c:594
-msgid "Show crash dialog"
-msgstr "Çökme diyaloğunu göster"
-
-#: ../midori/midori-websettings.c:595
-msgid "Show a dialog after Midori crashed"
-msgstr "Midori çöktükten sonra bir diyalog göster"
-
-#: ../midori/midori-websettings.c:603
-msgid "Save downloaded files to:"
-msgstr "İndirilen dosyaları kaydet:"
-
-#: ../midori/midori-websettings.c:604
-msgid "The folder downloaded files are saved to"
-msgstr "İndirilen dosyaların kaydedileceği dizin"
-
-#: ../midori/midori-websettings.c:612
-msgid "Text Editor"
-msgstr "Metin Düzenleyici"
-
-#: ../midori/midori-websettings.c:613
-msgid "An external text editor"
-msgstr "Harici metin düzenleyici"
-
-#: ../midori/midori-websettings.c:628
-msgid "News Aggregator"
-msgstr "Haber Toplayıcı"
-
-#: ../midori/midori-websettings.c:629
-msgid "An external news aggregator"
-msgstr "Harici bir haber toplayıcıda"
-
-#: ../midori/midori-websettings.c:637
-msgid "Location entry Search"
-msgstr "Konum Girişi Arama"
-
-#: ../midori/midori-websettings.c:638
-msgid "The search to perform inside the location entry"
-msgstr "Konum girişi içinde yapılacak arama"
-
-#: ../midori/midori-websettings.c:646
-msgid "Preferred Encoding"
-msgstr "Tercih Edilen Kodlama"
-
-#: ../midori/midori-websettings.c:647
-msgid "The preferred character encoding"
-msgstr "Tercih edilen karakter kodlaması"
-
-#: ../midori/midori-websettings.c:657
-msgid "Always Show Tabbar"
-msgstr "Sekme Çubuğunu Her Zaman Göster"
-
-#: ../midori/midori-websettings.c:658
-msgid "Always show the tabbar"
-msgstr "Sekme çubuğunu her zaman göster"
-
-#: ../midori/midori-websettings.c:671
-msgid "Close Buttons on Tabs"
-msgstr "Sekmelerde kapatma düğmesi"
-
-#: ../midori/midori-websettings.c:672
-msgid "Whether tabs have close buttons"
-msgstr "Sekmelerde kapatma düğmesi olsun"
-
-#: ../midori/midori-websettings.c:697
-msgid "Open new pages in:"
-msgstr "Yeni sayfaları aç:"
-
-#: ../midori/midori-websettings.c:698
-msgid "Where to open new pages"
-msgstr "Yeni sayfaların açılacağı yer"
-
-#: ../midori/midori-websettings.c:707
-msgid "Middle click opens Selection"
-msgstr "Orta tuşla seçimi aç"
-
-#: ../midori/midori-websettings.c:708
-msgid "Load an address from the selection via middle click"
-msgstr "Orta tuşla tıklamasıyla bir adres yükle"
-
-#: ../midori/midori-websettings.c:716
-msgid "Open tabs in the background"
-msgstr "Sekmeleri arkaplanda aç"
-
-#: ../midori/midori-websettings.c:717
-msgid "Whether to open new tabs in the background"
-msgstr "Sekmeler arka planda açılsın"
-
-#: ../midori/midori-websettings.c:725
-msgid "Open Tabs next to Current"
-msgstr "Sekmeleri geçerli sekmeden sonrakine aç"
-
-#: ../midori/midori-websettings.c:726
-msgid "Whether to open new tabs next to the current tab or after the last one"
-msgstr "Yeni sekmelerin hangi sekmeden sonra açılacağını belirle"
-
-#: ../midori/midori-websettings.c:734
-msgid "Open popups in tabs"
-msgstr "Açılır pencereleri sekmelerde aç"
-
-#: ../midori/midori-websettings.c:735
-msgid "Whether to open popup windows in tabs"
-msgstr "Açılır pencereler sekmelerde açılsın"
-
-#: ../midori/midori-websettings.c:745 ../extensions/statusbar-features.c:134
-msgid "Load images automatically"
-msgstr "Resimleri otomatik yükle"
-
-#: ../midori/midori-websettings.c:746
-msgid "Load and display images automatically"
-msgstr "Resimleri otomatik yükle ve görüntüle"
-
-#: ../midori/midori-websettings.c:753 ../extensions/statusbar-features.c:143
-msgid "Enable scripts"
-msgstr "Betiklere izin ver"
-
-#: ../midori/midori-websettings.c:754
-msgid "Enable embedded scripting languages"
-msgstr "Kodlama dilleri yerleştirmesi açık"
-
-#: ../midori/midori-websettings.c:761 ../extensions/statusbar-features.c:154
-msgid "Enable Netscape plugins"
-msgstr "Netscape eklentileri açık"
-
-#: ../midori/midori-websettings.c:762
-msgid "Enable embedded Netscape plugin objects"
-msgstr "Gömülü Netscape eklenti nesneleri açık"
-
-#: ../midori/midori-websettings.c:777
-msgid "Enable Spell Checking"
-msgstr "Yazım Denetimi Açık"
-
-#: ../midori/midori-websettings.c:778
-msgid "Enable spell checking while typing"
-msgstr "Yazarken yazım denetimi açık/kapalı"
-
-#: ../midori/midori-websettings.c:784
-msgid "Enable HTML5 database support"
-msgstr "HTML5 veritabanı desteği açık"
-
-#: ../midori/midori-websettings.c:785
-msgid "Whether to enable HTML5 database support"
-msgstr "HTML5 veritabanı desteği açık/kapalı"
-
-#: ../midori/midori-websettings.c:791
-msgid "Enable HTML5 local storage support"
-msgstr "HTML5 yerel depolama desteği açık"
-
-#: ../midori/midori-websettings.c:792
-msgid "Whether to enable HTML5 local storage support"
-msgstr "HTML5 yerel depolama desteği açık/kapalı"
-
-#: ../midori/midori-websettings.c:798
-msgid "Enable offline web application cache"
-msgstr "Çevrim dışı web uygulama önbelleği açık"
-
-#: ../midori/midori-websettings.c:799
-msgid "Whether to enable offline web application cache"
-msgstr "Çevrim dışı web uygulama önbelleği açık/kapalı"
-
-#: ../midori/midori-websettings.c:815
-#, fuzzy
-msgid "Flash window on background tabs"
-msgstr "Flash penceresi arka plan sekmeler"
-
-#: ../midori/midori-websettings.c:816
-#, fuzzy
-msgid "Flash the browser window if a new tab was opened in the background"
-msgstr "Sekmeler arka planda açılsın"
-
-#: ../midori/midori-websettings.c:824
-#, fuzzy
-msgid "Enable WebGL support"
-msgstr "HTML5 veritabanı desteği açık"
-
-#: ../midori/midori-websettings.c:825
-#, fuzzy
-msgid "Allow websites to use OpenGL rendering"
-msgstr "Websitelerine OpenGL işlemesini kullanmaları için izin ver."
-
-#: ../midori/midori-websettings.c:851
-msgid "Zoom Text and Images"
-msgstr "Metni ve Resimleri yakınlaştır"
-
-#: ../midori/midori-websettings.c:852
-msgid "Whether to zoom text and images"
-msgstr "Metni ve Resimleri yakınlaştır açık/kapalı"
-
-#: ../midori/midori-websettings.c:867
-msgid "Find inline while typing"
-msgstr "Yazarken satır içinde ara"
-
-#: ../midori/midori-websettings.c:868
-msgid "Whether to automatically find inline while typing"
-msgstr "Yazarken otomatik satır içinde ara açık/kapalı"
-
-#: ../midori/midori-websettings.c:883
-msgid "Kinetic scrolling"
-msgstr "Hareketli kaydırma"
-
-#: ../midori/midori-websettings.c:884
-msgid "Whether scrolling should kinetically move according to speed"
-msgstr "Kaydırma hıza göre hareketli olarak taşınacak açık/kapalı"
-
-#: ../midori/midori-websettings.c:892
-msgid "Delete old Cookies after:"
-msgstr "Şu süreden eski Çerezleri sil:"
-
-#: ../midori/midori-websettings.c:893
-msgid "The maximum number of days to save cookies for"
-msgstr "Çerezlerin saklanacağı en çok gün sayısı"
-
-#: ../midori/midori-websettings.c:909
-#, fuzzy
-msgid "Only accept Cookies from sites you visit"
-msgstr "Sadece asıl internet sitelerinden gelen çerezleri kabul et"
-
-#: ../midori/midori-websettings.c:910
-#, fuzzy
-msgid "Block cookies sent by third-party websites"
-msgstr "Üçüncü parti websitelerinden gelen çerezleri engelle"
-
-#: ../midori/midori-websettings.c:924
-msgid "Delete pages from history after:"
-msgstr "Şu süreden eski sayfaları geçmişten sil:"
-
-#: ../midori/midori-websettings.c:925
-msgid "The maximum number of days to save the history for"
-msgstr "Geçmişin saklanacağı en çok gün sayısı"
-
-#: ../midori/midori-websettings.c:940
-msgid "Proxy server"
-msgstr "Vekil sunucu"
-
-#: ../midori/midori-websettings.c:941
-msgid "The type of proxy server to use"
-msgstr "Kullanılacak vekil sunucunun türü"
-
-#: ../midori/midori-websettings.c:950
-msgid "HTTP Proxy Server"
-msgstr "HTTP Vekil Sunucu"
-
-#: ../midori/midori-websettings.c:951
-msgid "The proxy server used for HTTP connections"
-msgstr "HTTP bağlantıları için kullanılan vekil sunucu"
-
-#: ../midori/midori-websettings.c:966
-msgid "Port"
-msgstr ""
-
-#: ../midori/midori-websettings.c:967
-#, fuzzy
-msgid "The proxy server port used for HTTP connections"
-msgstr "HTTP bağlantıları için kullanılan vekil sunucu"
-
-#: ../midori/midori-websettings.c:985
-msgid "The maximum size of cached pages on disk"
-msgstr "Diskteki önbelleklenmiş sayfaların en fazla boyutu"
-
-#. i18n: This refers to an application, not the 'user agent' string
-#: ../midori/midori-websettings.c:1002
-msgid "Identify as"
-msgstr "Belirle"
-
-#: ../midori/midori-websettings.c:1003
-msgid "What to identify as to web pages"
-msgstr "Web sayfasını belirle"
-
-#: ../midori/midori-websettings.c:1019
-msgid "Identification string"
-msgstr "Tanımlama dizesi"
-
-#: ../midori/midori-websettings.c:1020
-msgid "The application identification string"
-msgstr "Uygulama tanımlama dizesi"
-
-#: ../midori/midori-websettings.c:1036
-msgid "Preferred languages"
-msgstr "Tercih diller"
-
-#: ../midori/midori-websettings.c:1037
-msgid ""
-"A comma separated list of languages preferred for rendering multilingual "
-"webpages, for example \"de\", \"ru,nl\" or \"en-us;q=1.0, fr-fr;q=0.667\""
-msgstr ""
-"Çok dilli web sayfalarını taramak için önerilen dillerin listesi bir virgül "
-"ile ayrılır, örneğin \"de\",\"ru,nl\" veya \"en-us;q=1.0, fr-fr;q=0.667\""
-
-#: ../midori/midori-websettings.c:1052
-msgid "Clear private data"
-msgstr "Kişisel veri temizle"
-
-#: ../midori/midori-websettings.c:1053
-msgid "The private data selected for deletion"
-msgstr "Silmek için kişisel veri seçildi"
-
-#: ../midori/midori-websettings.c:1068
-msgid "Clear data"
-msgstr "Kişisel verileri temizle"
-
-#: ../midori/midori-websettings.c:1069
-msgid "The data selected for deletion"
-msgstr "Silmek için kişisel veri seçildi"
-
-#. i18n: Reworded: Shorten details propagated when going to another page
-#: ../midori/midori-websettings.c:1118
-msgid "Strip referrer details sent to websites"
-msgstr "İnternet sitelerine gönderilen başvurucu detaylarını sıyır"
-
-#. i18n: Referer here is not a typo but a technical term
-#: ../midori/midori-websettings.c:1120
-msgid "Whether the \"Referer\" header should be shortened to the hostname"
-msgstr "\"Referer\" başlığı ana makineye göre kısaltılmalı mı"
-
-#: ../midori/midori-websettings.c:1134
-#, fuzzy
+#: ../midori/midori-websettings.c:510
 msgid "Always use my font choices"
-msgstr "Her zaman benim seçtiğim yazıtipini kullan"
+msgstr "Her zaan yazıbiçimi tercihlerimi kullan"
 
-#: ../midori/midori-websettings.c:1135
+#: ../midori/midori-websettings.c:511
 msgid "Override fonts picked by websites with user preferences"
+msgstr "Siteler için kullanıcı tercihi yazı biçimlerini geçersiz kıl"
+
+#: ../midori/midori-websettings.c:1410 ../midori/midori-websettings.c:1416
+#, c-format
+msgid "The configuration couldn't be loaded: %s\n"
+msgstr "Ayarlar yüklenemedi: %s\n"
+
+#: ../midori/midori-websettings.c:1470 ../midori/midori-websettings.c:1581
+#, c-format
+msgid "Invalid configuration value '%s'"
+msgstr "Geçersiz yapılandırma değeri '%s'"
+
+#: ../midori/midori-tab.vala:122
+#, c-format
+msgid "Failed to inject stylesheet: %s"
 msgstr ""
 
-#: ../midori/midori-view.c:1353
+#: ../midori/midori-view.c:861 ../midori/midori-view.c:984
+msgid "Trust this website"
+msgstr "Bu siteye güven"
+
+#: ../midori/midori-view.c:982
+msgid "Security unknown"
+msgstr "Bilinmeyen güvenlik"
+
+#: ../midori/midori-view.c:1335
 #, c-format
 msgid "%s wants to save an HTML5 database."
 msgstr "%s HTML5 veri tabanına kaydetmek istiyor"
 
-#: ../midori/midori-view.c:1357 ../midori/midori-view.c:1389
+#: ../midori/midori-view.c:1339 ../midori/midori-view.c:1371
 msgid "_Deny"
 msgstr "_Reddet"
 
-#: ../midori/midori-view.c:1357 ../midori/midori-view.c:1389
+#: ../midori/midori-view.c:1339 ../midori/midori-view.c:1371
 msgid "_Allow"
 msgstr "İzin ver"
 
-#: ../midori/midori-view.c:1385
+#: ../midori/midori-view.c:1367
 #, c-format
 msgid "%s wants to know your location."
 msgstr "%s Konumunuzu öğrenmek istiyor."
 
-#: ../midori/midori-view.c:1476
+#: ../midori/midori-view.c:1498
 #, c-format
 msgid "Error - %s"
 msgstr "Hata - %s"
 
-#: ../midori/midori-view.c:1477
+#: ../midori/midori-view.c:1499
 #, c-format
 msgid "The page '%s' couldn't be loaded."
 msgstr "Sayfa '%s' yüklenemedi."
 
-#: ../midori/midori-view.c:1479
+#: ../midori/midori-view.c:1501 ../midori/midori-view.c:1645
 msgid "Try again"
 msgstr "Tekrar deneyin"
 
-#: ../midori/midori-view.c:1676 ../midori/midori-view.c:2589
+#: ../midori/midori-view.c:1642
+#, c-format
+msgid "Oops - %s"
+msgstr ""
+
+#: ../midori/midori-view.c:1643
+#, c-format
+msgid "Something went wrong with '%s'."
+msgstr ""
+
+#: ../midori/midori-view.c:1790 ../midori/midori-view.c:2856
 #, c-format
 msgid "Send a message to %s"
 msgstr "%s bir mesaj gönder"
 
-#: ../midori/midori-view.c:2419 ../midori/midori-view.c:2738
+#: ../midori/midori-view.c:2644
+msgid "Add _search engine..."
+msgstr "_arama motoru ekle..."
+
+#: ../midori/midori-view.c:2687 ../midori/midori-view.c:2988
 msgid "Inspect _Element"
 msgstr "Unsurları Kontrol _et"
 
-#: ../midori/midori-view.c:2471
+#: ../midori/midori-view.c:2739
 msgid "Open Link in New _Tab"
 msgstr "Bağlantıyı Yeni _Sekmede Aç"
 
-#: ../midori/midori-view.c:2475
+#: ../midori/midori-view.c:2743
 msgid "Open Link in _Foreground Tab"
 msgstr "Bağlantıyı _Önalan Sekmede Aç"
 
-#: ../midori/midori-view.c:2476
+#: ../midori/midori-view.c:2744
 msgid "Open Link in _Background Tab"
 msgstr "Bağlantıyı _Arka Alan Sekmede Aç"
 
-#: ../midori/midori-view.c:2479
+#: ../midori/midori-view.c:2747
 msgid "Open Link in New _Window"
 msgstr "Bağlantıyı Yeni _Pencerede aç"
 
-#: ../midori/midori-view.c:2482
-msgid "Open Link as Web A_pplication"
-msgstr "Bağlantıyı Web Uygulaması Olarak Aç"
-
-#: ../midori/midori-view.c:2487
+#: ../midori/midori-view.c:2752
 msgid "Copy Link de_stination"
 msgstr "Bağlantı konumunu _kopyala"
 
-#: ../midori/midori-view.c:2503
+#: ../midori/midori-view.c:2758
+msgid "Save _As…"
+msgstr ""
+
+#: ../midori/midori-view.c:2768
+msgid "Open _Image in New Window"
+msgstr ""
+
+#: ../midori/midori-view.c:2769
 msgid "Open _Image in New Tab"
 msgstr "Resm_i Yeni Sekmede Aç"
 
-#: ../midori/midori-view.c:2506
-msgid "Copy Image _Address"
-msgstr "Resim _Adresini Kopyala"
+#: ../midori/midori-view.c:2773
+msgid "Copy Im_age"
+msgstr ""
 
-#: ../midori/midori-view.c:2509
+#: ../midori/midori-view.c:2776
 msgid "Save I_mage"
 msgstr "Res_mi Kaydet"
 
-#: ../midori/midori-view.c:2512
-#, fuzzy
+#: ../midori/midori-view.c:2779
 msgid "Open in Image _Viewer"
-msgstr "Resm_i Yeni Sekmede Aç"
+msgstr "G_örüntü Gösterici ile Aç"
 
-#: ../midori/midori-view.c:2519
+#: ../midori/midori-view.c:2786
 msgid "Copy Video _Address"
 msgstr "Video _Adresini Kopyala"
 
-#: ../midori/midori-view.c:2522
+#: ../midori/midori-view.c:2789
 msgid "Save _Video"
 msgstr "_Video kaydet"
 
-#: ../midori/midori-view.c:2522
+#: ../midori/midori-view.c:2789
 msgid "Download _Video"
 msgstr "_Video İndir"
 
-#: ../midori/midori-view.c:2548
+#: ../midori/midori-view.c:2815
 msgid "Search _with"
 msgstr "_ile ara"
 
-#: ../midori/midori-view.c:2580
+#: ../midori/midori-view.c:2844
 msgid "_Search the Web"
 msgstr "Web ara"
 
-#: ../midori/midori-view.c:2597
+#: ../midori/midori-view.c:2864
 msgid "Open Address in New _Tab"
 msgstr "Adresi Yeni _Sekmede Aç"
 
-#: ../midori/midori-view.c:2886
-msgid "Open or download file"
-msgstr "Dosyayı aç veya indir"
+#: ../midori/midori-view.c:2911
+msgid "Open _Frame in New Tab"
+msgstr "Yeni sekmede _çerceve aç"
 
-#: ../midori/midori-view.c:2905
+#: ../midori/midori-view.c:3132
+#, c-format
+msgid "Open or download file from %s"
+msgstr "%s dosya aç veya indir"
+
+#: ../midori/midori-view.c:3146 ../midori/midori-view.c:3149
+#, c-format
+msgid "File Name: %s"
+msgstr "Dosya Adı: %s"
+
+#: ../midori/midori-view.c:3155
 #, c-format
 msgid "File Type: '%s'"
 msgstr "Dosya Türü: '%s'"
 
-#: ../midori/midori-view.c:2907
+#: ../midori/midori-view.c:3157
 #, c-format
 msgid "File Type: %s ('%s')"
 msgstr "Dosya Türü: %s ('%s')"
 
-#: ../midori/midori-view.c:2911
-#, fuzzy, c-format
-msgid "File Name: %s"
-msgstr "Dosya Türü: '%s'"
+#: ../midori/midori-view.c:3195
+#, c-format
+msgid "Size: %s"
+msgstr "Boyut:%s"
 
 #. i18n: A file open dialog title, ie. "Open http://fila.com/manual.tgz"
-#: ../midori/midori-view.c:2930
+#: ../midori/midori-view.c:3208 ../midori/midori-view.c:3210
 #, c-format
 msgid "Open %s"
 msgstr "%s aç"
 
-#: ../midori/midori-view.c:3575
+#: ../midori/midori-view.c:3756
 #, c-format
 msgid "Inspect page - %s"
 msgstr "Sayfayı incele - %s"
 
-#: ../midori/midori-view.c:3876
-msgid "Speed Dial"
-msgstr "Hızlı arama"
-
-#: ../midori/midori-view.c:3877 ../midori/midori-view.c:3973
-msgid "Click to add a shortcut"
-msgstr "Bir kısayol eklemek için tıklayın"
-
-#: ../midori/midori-view.c:3878
-msgid "Enter shortcut address"
-msgstr "Kısayol adresi girin"
-
-#: ../midori/midori-view.c:3879
-msgid "Enter shortcut title"
-msgstr "Kısayol başlığını girin"
-
-#: ../midori/midori-view.c:3880
-msgid "Are you sure you want to delete this shortcut?"
-msgstr "Bu kısayolu silmek istediğinizden emin misiniz?"
-
-#: ../midori/midori-view.c:4042
+#: ../midori/midori-view.c:4320
 #, c-format
 msgid "No documentation installed"
 msgstr "Kurulmuş belgelendirme yok"
 
-#: ../midori/midori-view.c:4118
-#, fuzzy
+#: ../midori/midori-view.c:4396
 msgid "Midori doesn't store any personal data:"
-msgstr "Midori, hiçbir kişisel bilgiyi depolamıyor."
+msgstr "Midori kişisel bilgileri depolamaz:"
 
-#: ../midori/midori-view.c:4119
+#: ../midori/midori-view.c:4397
 msgid "No history or web cookies are being saved."
-msgstr ""
+msgstr "Hiçbir ağ çerezi ya da geçmiş kaydedilmeyecek"
 
-#: ../midori/midori-view.c:4120
-#, fuzzy
+#: ../midori/midori-view.c:4398
 msgid "Extensions are disabled."
-msgstr "Eklentiler etkisizleştirildi."
+msgstr "Eklentiler devre dışı."
 
-#: ../midori/midori-view.c:4121
+#: ../midori/midori-view.c:4399
 msgid "HTML5 storage, local database and application caches are disabled."
-msgstr ""
+msgstr "HTML5 depolama, yerel veritabanı ve uygulama önbellekleri etkisiz."
 
-#: ../midori/midori-view.c:4122
+#: ../midori/midori-view.c:4400
 msgid "Midori prevents websites from tracking the user:"
-msgstr ""
+msgstr "Midori sitelerin kullanıcıyı takip etmesini engeller:"
 
-#: ../midori/midori-view.c:4123
+#: ../midori/midori-view.c:4401
 msgid "Referrer URLs are stripped down to the hostname."
-msgstr ""
+msgstr "Yönlendirilen bağlantı, sunucu ismine indirgendi."
 
-#: ../midori/midori-view.c:4124
+#: ../midori/midori-view.c:4402
 msgid "DNS prefetching is disabled."
-msgstr ""
+msgstr "DNS önbelleğe alma etkisiz."
 
-#: ../midori/midori-view.c:4125
+#: ../midori/midori-view.c:4403
 msgid "The language and timezone are not revealed to websites."
-msgstr ""
+msgstr "Dil ve zaman dilimi sitelerinde açığa vurulmaz."
 
-#: ../midori/midori-view.c:4126
+#: ../midori/midori-view.c:4404
 msgid "Flash and other Netscape plugins cannot be listed by websites."
-msgstr ""
+msgstr "Flash ve diğer Netscape eklentileri siteler tarafından listelenemez."
 
-#: ../midori/midori-view.c:4164
+#: ../midori/midori-view.c:4447
 msgid "Version numbers in brackets show the version used at runtime."
 msgstr ""
 "Parantez içerisindeki sürüm numaraları, çalışma zamanında kullanılan sürümü "
 "göstermektedir."
 
-#: ../midori/midori-view.c:4220
+#: ../midori/midori-view.c:4496
 msgid "Page loading delayed"
 msgstr "Sayfa yükleme gecikmesi"
 
-#: ../midori/midori-view.c:4221
+#: ../midori/midori-view.c:4497
 msgid "Loading delayed either due to a recent crash or startup preferences."
 msgstr "Yükleme yakın bir çökme veya başlangıç ayarları yüzünden gecikti."
 
-#: ../midori/midori-view.c:4222
+#: ../midori/midori-view.c:4498
 msgid "Load Page"
 msgstr "Sayfa Yükle"
 
-#: ../midori/midori-view.c:4388
+#: ../midori/midori-view.c:4663
 msgid "Blank page"
 msgstr "Boş sayfa"
 
-#: ../midori/midori-view.c:4650
+#: ../midori/midori-view.c:4877
 msgid "_Duplicate Tab"
 msgstr "Sekmeyi Çoğalt"
 
-#: ../midori/midori-view.c:4655
+#: ../midori/midori-view.c:4882
 msgid "Show Tab _Label"
 msgstr "Sekme etiketini göster"
 
-#: ../midori/midori-view.c:4655
+#: ../midori/midori-view.c:4882
 msgid "Show Tab _Icon Only"
 msgstr "Sadece sekme ikonunu göster"
 
-#: ../midori/midori-view.c:4661
-msgid "Close ot_her Tabs"
-msgstr "_Diğer Sekmeleri Kapat"
+#: ../midori/midori-view.c:4889
+msgid "Close Ot_her Tab"
+msgid_plural "Close Ot_her Tabs"
+msgstr[0] "_Diğer Sekmeleri Kapat"
 
 #. i18n: word stem of "previous page" type links, case is not important
-#: ../midori/midori-view.c:5474
-#, fuzzy
+#: ../midori/midori-view.c:5583
 msgid "previous"
-msgstr "Önceki Sekme"
+msgstr "önceki"
 
 #. i18n: word stem of "next page" type links, case is not important
-#: ../midori/midori-view.c:5493
+#: ../midori/midori-view.c:5602
 msgid "next"
-msgstr ""
+msgstr "sonraki"
 
-#: ../midori/midori-view.c:5506
+#: ../midori/midori-view.c:5616
 msgid "Print background images"
 msgstr "Arkaplan resimlerini yazdır"
 
-#: ../midori/midori-view.c:5507
+#: ../midori/midori-view.c:5617
 msgid "Whether background images should be printed"
 msgstr "Arka fon resimlerini yaz açık/kapalı"
 
-#: ../midori/midori-view.c:5539
+#: ../midori/midori-view.c:5647
 msgid "Features"
 msgstr "Özellikler"
 
-#: ../midori/midori-preferences.c:297
-msgid "Startup"
-msgstr "Açılış"
-
-#: ../midori/midori-preferences.c:310
-msgid "Use _current page"
-msgstr "_Geçerli sayfayı  kullan"
-
-#: ../midori/midori-preferences.c:314
-msgid "Use current page as homepage"
-msgstr "Geçerli sayfayı ana sayfa olarak kullan "
-
-#. Page "Appearance"
-#: ../midori/midori-preferences.c:323
-msgid "Fonts"
-msgstr "Yazıtipleri"
-
-#: ../midori/midori-preferences.c:326
-msgid "Proportional Font Family"
-msgstr "Uygun Yazıtipi Ailesi"
-
-#: ../midori/midori-preferences.c:330
-msgid "The default font family used to display text"
-msgstr "Görüntülenecek metin için kullanılacak öntanımlı biçim kümesi"
-
-#: ../midori/midori-preferences.c:333
-msgid "The default font size used to display text"
-msgstr "Görüntülenecek metin için kullanılacak öntanımlı biçim boyutu"
-
-#: ../midori/midori-preferences.c:335
-msgid "Fixed-width Font Family"
-msgstr "Sabit Yazıtipi Genişliği Ailesi"
-
-#: ../midori/midori-preferences.c:339
-msgid "The font family used to display fixed-width text"
-msgstr "Sabit genişlikte metin görüntülemek için kullanılacak yazıtipi ailesi"
-
-#: ../midori/midori-preferences.c:342
-msgid "The font size used to display fixed-width text"
-msgstr ""
-"Sabit genişlikte görüntülenecek metin için kullanılacak yazıtipi boyutu"
-
-#: ../midori/midori-preferences.c:344
-msgid "Minimum Font Size"
-msgstr "En Küçük Yazıtipi Boyutu"
-
-#: ../midori/midori-preferences.c:348
-msgid "The minimum font size used to display text"
-msgstr "Görüntülenecek metin için kullanılacak en küçük biçim boyutu"
-
-#. Page "Behavior"
-#: ../midori/midori-preferences.c:359
-msgid "Behavior"
-msgstr "Davranış"
-
-#: ../midori/midori-preferences.c:385
-msgid "Allow scripts to open popups"
-msgstr "Açılır pencere açmak için scriptlere izin ver"
-
-#: ../midori/midori-preferences.c:386
-msgid "Whether scripts are allowed to open popup windows automatically"
-msgstr ""
-"Scriptlerin otomatik olarak açılır pencere açmasına izin verilmesi açık/"
-"kapalı"
-
-#. Page "Interface"
-#: ../midori/midori-preferences.c:416
-msgid "Browsing"
-msgstr "Gözden Geçiriliyor"
-
-#. Page "Network"
-#: ../midori/midori-preferences.c:456
-msgid "Network"
-msgstr "Ağ"
-
-#: ../midori/midori-preferences.c:463
-msgid "Hostname"
-msgstr "Bilgisayar adı"
-
-#: ../midori/midori-preferences.c:487
-msgid "MB"
-msgstr "MB"
-
-#: ../midori/midori-searchaction.c:902
-msgid "Add search engine"
-msgstr "Arama motoru ekle"
-
-#: ../midori/midori-searchaction.c:902
-msgid "Edit search engine"
-msgstr "Arama motoru düzenle"
-
-#: ../midori/midori-searchaction.c:931
-msgid "_Name:"
-msgstr "_İsim:"
-
-#: ../midori/midori-searchaction.c:947
-msgid "_Description:"
-msgstr "_Açıklama:"
-
-#: ../midori/midori-searchaction.c:981
-msgid "_Icon:"
-msgstr "Simgeler:"
-
-#: ../midori/midori-searchaction.c:995
-msgid "_Token:"
-msgstr "İşare_t:"
-
-#: ../midori/midori-searchaction.c:1295
-msgid "Manage Search Engines"
-msgstr "Arama Motorlarını Yönet"
-
-#: ../midori/midori-searchaction.c:1395
-msgid "Use as _default"
-msgstr "Öntanımlı olarak kullan"
-
-#: ../midori/sokoke.c:412
-msgid "Open with"
-msgstr "Birlikte aç"
-
-#: ../midori/sokoke.c:420
+#. i18n: Download tooltip (size): 4KB of 43MB
+#: ../midori/midori-download.vala:63
 #, c-format
-msgid "Choose an application or command to open \"%s\":"
-msgstr "\"%s\" 'ı açmak için bir uygulama seçin."
+msgid "%s of %s"
+msgstr "%s nin %s"
 
-#: ../midori/sokoke.c:461 ../midori/sokoke.c:471 ../midori/sokoke.c:499
-#: ../midori/sokoke.c:528 ../midori/sokoke.c:542
-msgid "Could not run external program."
-msgstr "Harici uygulama çalıştırılamadı."
-
-#: ../midori/sokoke.c:1653
+#: ../midori/midori-download.vala:79
 #, c-format
 msgid "%d hour"
 msgid_plural "%d hours"
 msgstr[0] "%d saat"
 msgstr[1] "%d saat"
 
-#: ../midori/sokoke.c:1654
+#: ../midori/midori-download.vala:80
 #, c-format
 msgid "%d minute"
 msgid_plural "%d minutes"
 msgstr[0] "%d dakika"
 msgstr[1] "%d dakika"
 
-#: ../midori/sokoke.c:1655
+#: ../midori/midori-download.vala:81
 #, c-format
 msgid "%d second"
 msgid_plural "%d seconds"
 msgstr[0] "%d saniye"
 msgstr[1] "%d saniye"
 
-#. i18n: Download tooltip (size): 4KB of 43MB
-#: ../midori/sokoke.c:1663 ../panels/midori-transfers.c:267
+#. i18n: Download tooltip (estimated time) : - 1 hour, 5 minutes remaning
+#: ../midori/midori-download.vala:96
 #, c-format
-msgid "%s of %s"
-msgstr "%s nin %s"
+msgid " - %s remaining"
+msgstr " -%s kalan"
 
 #. i18n: Unknown number of bytes, used for transfer rate like ?B/s
-#: ../midori/sokoke.c:1672
+#: ../midori/midori-download.vala:107
 msgid "?B"
 msgstr "?B"
 
 #. i18n: Download tooltip (transfer rate): (130KB/s)
-#: ../midori/sokoke.c:1675
+#: ../midori/midori-download.vala:109
 #, c-format
 msgid " (%s/s)"
-msgstr "(%s/s)"
+msgstr " (%s/s)"
 
-#. i18n: Download tooltip (estimated time) : - 1 hour, 5 minutes remaning
-#: ../midori/sokoke.c:1692
-#, c-format
-msgid " - %s remaining"
-msgstr "-%s kalan"
-
-#. i18n: A panel at the bottom, to search text in pages
-#: ../toolbars/midori-findbar.c:264
-msgid "_Inline Find:"
-msgstr "Sat_ıriçi Bul:"
-
-#: ../toolbars/midori-findbar.c:290
-msgid "Previous"
-msgstr "Önceki Sekme"
-
-#: ../toolbars/midori-findbar.c:296
-msgid "Next"
-msgstr "Sonraki"
-
-#: ../toolbars/midori-findbar.c:300
-msgid "Match Case"
-msgstr "Büyük - Küçük Harf Duyarlı"
-
-#: ../toolbars/midori-findbar.c:309
-msgid "Highlight Matches"
-msgstr "Eşleşenleri Vurgula"
-
-#: ../toolbars/midori-findbar.c:320
-msgid "Close Findbar"
-msgstr "Arama Çubuğunu Kapat"
-
-#: ../toolbars/midori-transferbar.c:122
-#, c-format
-msgid "The file '<b>%s</b>' has been downloaded."
-msgstr "Dosya '<b>%s</b>' indirildi."
-
-#: ../toolbars/midori-transferbar.c:125
-msgid "Transfer completed"
-msgstr "Aktarım tamamlandı"
-
-#: ../toolbars/midori-transferbar.c:193
+#: ../midori/midori-download.vala:224
 msgid "The downloaded file is erroneous."
 msgstr "İndirilen dosya hatalı."
 
-#: ../toolbars/midori-transferbar.c:194
+#: ../midori/midori-download.vala:225
 msgid ""
 "The checksum provided with the link did not match. This means the file is "
 "probably incomplete or was modified afterwards."
@@ -2138,97 +1451,497 @@ msgstr ""
 "Bağlantı ile sağlanan checksum uyuşmuyor. Bu dosyada, muhtemelen eksik veya "
 "sonradan güncellenmiştir anlamına gelir."
 
-#: ../toolbars/midori-transferbar.c:331 ../panels/midori-transfers.c:141
-msgid "Clear All"
-msgstr "Hepsini Temizle"
+#: ../midori/midori-download.vala:345
+#, c-format
+msgid "The file \"%s\" can't be saved in this folder."
+msgstr "\"%s\" Dosyası bu dizine kaydedilemedi."
 
-#: ../toolbars/midori-transferbar.c:368 ../toolbars/midori-transferbar.c:370
-msgid "Some files are being downloaded"
-msgstr "Bazı dosyalar indiriliyor"
+#: ../midori/midori-download.vala:347
+msgid "You don't have permission to write in this location."
+msgstr "Bu konuma yazmak için yetkiniz bulunmuyor."
 
-#: ../toolbars/midori-transferbar.c:374
-msgid "_Quit Midori"
-msgstr "Midori'den _çık"
+#: ../midori/midori-download.vala:350
+#, c-format
+msgid "There is not enough free space to download \"%s\"."
+msgstr "\"%s\" indirmek için yeterli boş disk alanı yok."
 
-#: ../toolbars/midori-transferbar.c:376
-msgid "The transfers will be cancelled if Midori quits."
-msgstr "Midori kapatılırsa aktarmalar iptal edilecek."
+#: ../midori/midori-download.vala:352
+#, c-format
+msgid "The file needs %s but only %s are left."
+msgstr "Dosya %s ihtiyaç duyuyor ancak %s kaldı."
 
-#: ../panels/midori-bookmarks.c:114
-msgid "Bookmarks"
-msgstr "Yer imleri"
+#: ../midori/midori-speeddial.vala:180
+msgid "Speed Dial"
+msgstr "Hızlı arama"
 
-#: ../panels/midori-bookmarks.c:257
+#: ../midori/midori-speeddial.vala:181 ../midori/midori-speeddial.vala:261
+msgid "Click to add a shortcut"
+msgstr "Bir kısayol eklemek için tıklayın"
+
+#: ../midori/midori-speeddial.vala:182
+msgid "Enter shortcut address"
+msgstr "Kısayol adresi girin"
+
+#: ../midori/midori-speeddial.vala:183
+msgid "Enter shortcut title"
+msgstr "Kısayol başlığını girin"
+
+#: ../midori/midori-speeddial.vala:184
+msgid "Are you sure you want to delete this shortcut?"
+msgstr "Bu kısayolu silmek istediğinizden emin misiniz?"
+
+#: ../midori/midori-preferences.c:299
+msgid "Startup"
+msgstr "Açılış"
+
+#: ../midori/midori-preferences.c:301
+msgid "When Midori starts:"
+msgstr "Midori başlarken:"
+
+#: ../midori/midori-preferences.c:306
+msgid "Homepage:"
+msgstr "Anasayfa:"
+
+#: ../midori/midori-preferences.c:314
+msgid "Use _current page"
+msgstr "_Geçerli sayfayı  kullan"
+
+#: ../midori/midori-preferences.c:318
+msgid "Use current page as homepage"
+msgstr "Geçerli sayfayı ana sayfa olarak kullan"
+
+#. Page "Appearance"
+#: ../midori/midori-preferences.c:327
+msgid "Fonts"
+msgstr "Yazıtipleri"
+
+#: ../midori/midori-preferences.c:329
+msgid "Proportional Font Family"
+msgstr "Uygun Yazıtipi Ailesi"
+
+#: ../midori/midori-preferences.c:333
+msgid "The default font family used to display text"
+msgstr "Görüntülenecek metin için kullanılacak öntanımlı biçim kümesi"
+
+#: ../midori/midori-preferences.c:336
+msgid "The default font size used to display text"
+msgstr "Görüntülenecek metin için kullanılacak öntanımlı biçim boyutu"
+
+#: ../midori/midori-preferences.c:338
+msgid "Fixed-width Font Family"
+msgstr "Sabit Yazıtipi Genişliği Ailesi"
+
+#: ../midori/midori-preferences.c:342
+msgid "The font family used to display fixed-width text"
+msgstr ""
+"Sabit genişlikte metin görüntülemek için kullanılacak yazıtipi ailesi"
+
+#: ../midori/midori-preferences.c:345
+msgid "The font size used to display fixed-width text"
+msgstr ""
+"Sabit genişlikte görüntülenecek metin için kullanılacak yazıtipi boyutu"
+
+#: ../midori/midori-preferences.c:347
+msgid "Minimum Font Size"
+msgstr "En Küçük Yazıtipi Boyutu"
+
+#: ../midori/midori-preferences.c:351
+msgid "The minimum font size used to display text"
+msgstr "Görüntülenecek metin için kullanılacak en küçük biçim boyutu"
+
+#: ../midori/midori-preferences.c:355
+msgid "Preferred Encoding"
+msgstr "Tercih Edilen Kodlama"
+
+#. Page "Behavior"
+#: ../midori/midori-preferences.c:362
+msgid "Behavior"
+msgstr "Davranış"
+
+#: ../midori/midori-preferences.c:365 ../extensions/statusbar-features.c:155
+msgid "Load images automatically"
+msgstr "Resimleri otomatik yükle"
+
+#: ../midori/midori-preferences.c:368
+msgid "Enable Spell Checking"
+msgstr "Yazım Denetimi Açık"
+
+#: ../midori/midori-preferences.c:382 ../extensions/statusbar-features.c:165
+msgid "Enable scripts"
+msgstr "Betiklere izin ver"
+
+#: ../midori/midori-preferences.c:386
+msgid "Enable WebGL support"
+msgstr "WebGL desteğini etkinleştir"
+
+#: ../midori/midori-preferences.c:403 ../extensions/statusbar-features.c:177
+msgid "Enable Netscape plugins"
+msgstr "Netscape eklentileri açık"
+
+#: ../midori/midori-preferences.c:408
+msgid "Zoom Text and Images"
+msgstr "Metni ve Resimleri yakınlaştır"
+
+#: ../midori/midori-preferences.c:411
+msgid "Allow scripts to open popups"
+msgstr "Açılır pencere açmak için scriptlere izin ver"
+
+#: ../midori/midori-preferences.c:412
+msgid "Whether scripts are allowed to open popup windows automatically"
+msgstr ""
+"Scriptlerin otomatik olarak açılır pencere açmasına izin verilmesi "
+"açık/kapalı"
+
+#: ../midori/midori-preferences.c:416
+msgid "Preferred languages"
+msgstr "Tercih diller"
+
+#: ../midori/midori-preferences.c:420
+msgid ""
+"A comma separated list of languages preferred for rendering multilingual "
+"webpages, for example \"de\", \"ru,nl\" or \"en-us;q=1.0, fr-fr;q=0.667\""
+msgstr ""
+"Çok dilli web sayfalarını taramak için önerilen dillerin listesi bir virgül "
+"ile ayrılır, örneğin \"de\",\"ru,nl\" veya \"en-us;q=1.0, fr-fr;q=0.667\""
+
+#: ../midori/midori-preferences.c:422
+msgid "Save downloaded files to:"
+msgstr "İndirilen dosyaları kaydet:"
+
+#. Page "Interface"
+#: ../midori/midori-preferences.c:429
+msgid "Browsing"
+msgstr "Gözden Geçiriliyor"
+
+#: ../midori/midori-preferences.c:431
+msgid "Toolbar Style:"
+msgstr "Araç Çubuğu Biçimi:"
+
+#: ../midori/midori-preferences.c:435
+msgid "Open new pages in:"
+msgstr "Yeni sayfaları aç:"
+
+#: ../midori/midori-preferences.c:439
+msgid "New tab behavior:"
+msgstr ""
+
+#: ../midori/midori-preferences.c:444
+msgid "Close Buttons on Tabs"
+msgstr "Sekmelerde kapatma düğmesi"
+
+#: ../midori/midori-preferences.c:448
+msgid "Always Show Tabbar"
+msgstr "Sekme Çubuğunu Her Zaman Göster"
+
+#: ../midori/midori-preferences.c:452
+msgid "Open Tabs next to Current"
+msgstr "Sekmeleri geçerli sekmeden sonrakine aç"
+
+#: ../midori/midori-preferences.c:453
+msgid ""
+"Whether to open new tabs next to the current tab or after the last one"
+msgstr "Yeni sekmelerin hangi sekmeden sonra açılacağını belirle"
+
+#: ../midori/midori-preferences.c:456
+msgid "Open tabs in the background"
+msgstr "Sekmeleri arkaplanda aç"
+
+#: ../midori/midori-preferences.c:460
+msgid "Text Editor"
+msgstr "Metin Düzenleyici"
+
+#: ../midori/midori-preferences.c:465
+msgid "News Aggregator"
+msgstr "Haber Toplayıcı"
+
+#. Page "Network"
+#: ../midori/midori-preferences.c:472
+msgid "Network"
+msgstr "Ağ"
+
+#: ../midori/midori-preferences.c:474
+msgid "Proxy server"
+msgstr "Vekil sunucu"
+
+#: ../midori/midori-preferences.c:479
+msgid "Hostname"
+msgstr "Bilgisayar adı"
+
+#: ../midori/midori-preferences.c:487
+msgid "Port"
+msgstr "Bağlantı noktası"
+
+#: ../midori/midori-preferences.c:500
+msgid "Supported proxy types:"
+msgstr ""
+
+#. TODO: Preserve page icons of search engines and merge privacy items
+#: ../midori/midori-preferences.c:520 ../extensions/web-cache.c:461
+#: ../extensions/web-cache.c:470 ../midori/midori-privatedata.c:330
+msgid "Web Cache"
+msgstr "Web Önbelleği"
+
+#: ../midori/midori-preferences.c:521 ../midori/midori-preferences.c:524
+msgid "The maximum size of cached pages on disk"
+msgstr "Diskteki önbelleklenmiş sayfaların en fazla boyutu"
+
+#: ../midori/midori-preferences.c:526
+msgid "MB"
+msgstr "MB"
+
+#. i18n: This refers to an application, not the 'user agent' string
+#: ../midori/midori-preferences.c:533
+msgid "Identify as"
+msgstr "Belirle"
+
+#: ../midori/midori-preferences.c:548
+msgid "Privacy"
+msgstr "Gizlilik"
+
+#: ../midori/midori-preferences.c:550
+msgid "Delete old Cookies after:"
+msgstr "Şu süreden eski Çerezleri sil:"
+
+#: ../midori/midori-preferences.c:552 ../midori/midori-preferences.c:555
+msgid "The maximum number of days to save cookies for"
+msgstr "Çerezlerin saklanacağı en çok gün sayısı"
+
+#: ../midori/midori-preferences.c:559
+msgid "Only accept Cookies from sites you visit"
+msgstr "Yalnızca ziyaret edilen sayfalardan gelen çerezleri kabul et."
+
+#: ../midori/midori-preferences.c:560
+msgid "Block cookies sent by third-party websites"
+msgstr "Üçüncü-parti sitelerden gönderilen çerezleri engelle."
+
+#: ../midori/midori-preferences.c:565
+msgid ""
+"Cookies store login data, saved games, or user profiles for advertisement "
+"purposes."
+msgstr ""
+"Çerezler giriç verilerini, kayıtı oyunları veya reklam amaçlı kullanıcı "
+"profillerini saklar."
+
+#: ../midori/midori-preferences.c:572
+msgid "Enable offline web application cache"
+msgstr "Çevrim dışı web uygulama önbelleği açık"
+
+#: ../midori/midori-preferences.c:575
+msgid "Enable HTML5 local storage support"
+msgstr "HTML5 yerel depolama desteği açık"
+
+#. i18n: Reworded: Shorten details propagated when going to another page
+#: ../midori/midori-preferences.c:579
+msgid "Strip referrer details sent to websites"
+msgstr "İnternet sitelerine gönderilen başvurucu detaylarını sıyır"
+
+#. i18n: Referer here is not a typo but a technical term
+#: ../midori/midori-preferences.c:581
+msgid "Whether the \"Referer\" header should be shortened to the hostname"
+msgstr "\"Referer\" başlığı ana makineye göre kısaltılmalı mı"
+
+#: ../midori/midori-preferences.c:584
+msgid "Delete pages from history after:"
+msgstr "Şu süreden eski sayfaları geçmişten sil:"
+
+#: ../midori/midori-preferences.c:586 ../midori/midori-preferences.c:589
+msgid "The maximum number of days to save the history for"
+msgstr "Geçmişin saklanacağı en çok gün sayısı"
+
+#: ../midori/midori-preferences.c:626 ../panels/midori-extensions.c:90
+msgid "Extensions"
+msgstr "Ek Özellikler"
+
+#: ../midori/midori-searchaction.c:459
+msgid "_Manage Search Engines"
+msgstr "Arama _Motorlarını Yönet"
+
+#: ../midori/midori-searchaction.c:1049
+msgid "Add search engine"
+msgstr "Arama motoru ekle"
+
+#: ../midori/midori-searchaction.c:1049
+msgid "Edit search engine"
+msgstr "Arama motoru düzenle"
+
+#: ../midori/midori-searchaction.c:1077
+msgid "_Name:"
+msgstr "_İsim:"
+
+#: ../midori/midori-searchaction.c:1092
+msgid "_Description:"
+msgstr "_Açıklama:"
+
+#: ../midori/midori-searchaction.c:1105 ../extensions/feed-panel/main.c:361
+msgid "_Address:"
+msgstr "Adres:"
+
+#: ../midori/midori-searchaction.c:1124
+msgid "_Token:"
+msgstr "İşare_t:"
+
+#: ../midori/midori-searchaction.c:1414
+msgid "Manage Search Engines"
+msgstr "Arama Motorlarını Yönet"
+
+#: ../midori/midori-searchaction.c:1514
+msgid "Use as _default"
+msgstr "Öntanımlı olarak kullan"
+
+#: ../midori/midori-searchaction.c:1625
+#, c-format
+msgid "The search engines couldn't be loaded. %s\n"
+msgstr "Arama motorları yüklenemedi. %s\n"
+
+#: ../midori/midori-searchaction.c:1680
+#, c-format
+msgid "The search engines couldn't be saved. %s"
+msgstr "Arama motorları kaydedilemedi. %s"
+
+#: ../midori/midori-historycompletion.vala:17 ../panels/midori-history.c:111
+msgid "History"
+msgstr "Geçmiş"
+
+#: ../midori/midori-historycompletion.vala:54
+#, c-format
+msgid "Failed to initialize history: %s"
+msgstr ""
+
+#: ../midori/midori-historycompletion.vala:65
+#, c-format
+msgid "Failed to select from history: %s"
+msgstr ""
+
+#. search_view
+#: ../midori/midori-historycompletion.vala:83
+#, c-format
+msgid "Search for %s"
+msgstr "%s için ara"
+
+#: ../midori/midori-searchcompletion.vala:20
+#: ../midori/midori-searchcompletion.vala:60
+msgid "Search with…"
+msgstr "Birlikte ara..."
+
+#: ../midori/midori-searchcompletion.vala:48
+#, c-format
+msgid "Search with %s"
+msgstr "%s ile ara"
+
+#: ../midori/sokoke.c:243
+msgid "Open with"
+msgstr "Birlikte aç"
+
+#: ../midori/sokoke.c:251
+#, c-format
+msgid "Choose an application or command to open \"%s\":"
+msgstr "\"%s\" 'ı açmak için bir uygulama seçin."
+
+#: ../midori/sokoke.c:368 ../midori/sokoke.c:388
+#: ../midori/midori-frontend.c:308
+msgid "Could not run external program."
+msgstr "Harici uygulama çalıştırılamadı."
+
+#: ../midori/sokoke.c:578
+msgid "Invalid URI"
+msgstr ""
+
+#. i18n: A panel at the bottom, to search text in pages
+#: ../toolbars/midori-findbar.c:233
+msgid "_Inline Find:"
+msgstr "Sat_ıriçi Bul:"
+
+#: ../toolbars/midori-findbar.c:251
+msgid "Previous"
+msgstr "Önceki Sekme"
+
+#: ../toolbars/midori-findbar.c:257
+msgid "Next"
+msgstr "Sonraki"
+
+#: ../toolbars/midori-findbar.c:261
+msgid "Match Case"
+msgstr "Büyük - Küçük Harf Duyarlı"
+
+#: ../toolbars/midori-findbar.c:270
+msgid "Close Findbar"
+msgstr "Arama Çubuğunu Kapat"
+
+#: ../panels/midori-bookmarks.c:308
 #, c-format
 msgid "Failed to add bookmark item: %s\n"
 msgstr "Yerimi ekleme hatası: %s\n"
 
-#: ../panels/midori-bookmarks.c:435
+#: ../panels/midori-bookmarks.c:475
+#, c-format
+msgid "Failed to update bookmark : %s\n"
+msgstr "Yerimi güncellemesi başarısız : %s\n"
+
+#: ../panels/midori-bookmarks.c:535
 msgid "Edit the selected bookmark"
 msgstr "Seçili yer imini düzenle"
 
-#: ../panels/midori-bookmarks.c:443
+#: ../panels/midori-bookmarks.c:543
 msgid "Delete the selected bookmark"
 msgstr "Seçili yer imini sil"
 
-#: ../panels/midori-bookmarks.c:458
+#: ../panels/midori-bookmarks.c:558
 msgid "Add a new folder"
 msgstr "Yeni bir dizin ekle"
 
-#: ../panels/midori-bookmarks.c:592 ../panels/midori-history.c:633
+#: ../panels/midori-bookmarks.c:687 ../panels/midori-history.c:628
 msgid "<i>Separator</i>"
 msgstr "<i>Ayraç</i>"
 
-#: ../panels/midori-history.c:111
-msgid "History"
-msgstr "Geçmiş"
+#. Create the filter entry
+#: ../panels/midori-bookmarks.c:1009
+msgid "Search Bookmarks"
+msgstr "Yerimlerini Ara"
 
-#: ../panels/midori-history.c:158 ../panels/midori-history.c:189
+#: ../panels/midori-history.c:158 ../panels/midori-history.c:191
 msgid "Today"
 msgstr "Bugün"
 
-#: ../panels/midori-history.c:160 ../panels/midori-history.c:191
+#: ../panels/midori-history.c:160 ../panels/midori-history.c:193
 msgid "Yesterday"
 msgstr "Dün"
 
-#: ../panels/midori-history.c:162 ../panels/midori-history.c:186
+#: ../panels/midori-history.c:162 ../panels/midori-history.c:188
 #, c-format
 msgid "%d day ago"
 msgid_plural "%d days ago"
 msgstr[0] "%d gün önce"
 msgstr[1] "%d gün önce"
 
-#: ../panels/midori-history.c:165 ../panels/midori-history.c:184
+#: ../panels/midori-history.c:165 ../panels/midori-history.c:186
 msgid "A week ago"
 msgstr "Bir hafta önce"
 
-#: ../panels/midori-history.c:360
+#: ../panels/midori-history.c:234 ../midori/midori-bookmarks.c:59
+#, c-format
+msgid "Failed to remove history item: %s\n"
+msgstr "Şu geçmiş öğesi silinemedi: %s\n"
+
+#: ../panels/midori-history.c:361
 msgid "Are you sure you want to remove all history items?"
 msgstr "Bütün geçmiş ögelerini silmek istediğinizden emin misiniz?"
 
-#: ../panels/midori-history.c:407
+#: ../panels/midori-history.c:408
 msgid "Bookmark the selected history item"
 msgstr "Seçili geçmiş ögesini yer imlerine ekle"
 
-#: ../panels/midori-history.c:416
+#: ../panels/midori-history.c:417
 msgid "Delete the selected history item"
 msgstr "Seçili geçmiş öğesini sil"
 
-#: ../panels/midori-history.c:424
+#: ../panels/midori-history.c:425
 msgid "Clear the entire history"
 msgstr "Bütün geçmişi sil"
 
-#: ../panels/midori-transfers.c:86
-msgid "Transfers"
-msgstr "Aktarımlar"
-
-#: ../panels/midori-transfers.c:467
-msgid "Open Destination _Folder"
-msgstr "Hedef _Dizini Aç"
-
-#: ../panels/midori-transfers.c:470
-msgid "Copy Link Loc_ation"
-msgstr "Konum Bağlantısını Kopyala"
+#. Create the filter entry
+#: ../panels/midori-history.c:980
+msgid "Search History"
+msgstr "Arama Geçmişi"
 
 #: ../katze/katze-http-auth.c:210
 msgid "Authentication Required"
@@ -2254,68 +1967,78 @@ msgstr "Şifre"
 msgid "_Remember password"
 msgstr "Şifreyi _hatırla"
 
-#: ../katze/katze-throbber.c:949
+#: ../katze/katze-throbber.c:947
 #, c-format
 msgid "Named icon '%s' couldn't be loaded"
 msgstr "'%s' olarak isimlendirilmiş simge yüklenemiyor"
 
-#: ../katze/katze-throbber.c:962
+#: ../katze/katze-throbber.c:960
 #, c-format
 msgid "Stock icon '%s' couldn't be loaded"
 msgstr "'%s' stok simgesi yüklenemedi"
 
-#: ../katze/katze-throbber.c:1042
+#: ../katze/katze-throbber.c:1040
 msgid "Animation frames are broken"
 msgstr "Animasyon kareleri kırık"
 
-#: ../katze/katze-utils.c:439 ../katze/katze-utils.c:873
+#: ../katze/katze-utils.c:385
+msgid "None"
+msgstr "Yok"
+
+#: ../katze/katze-utils.c:528
 #, c-format
 msgid "Property '%s' is invalid for %s"
 msgstr "'%s' özelliği %s için geçersiz"
 
-#: ../katze/katze-utils.c:485 ../katze/katze-utils.c:514
+#: ../katze/katze-utils.c:565 ../katze/katze-utils.c:594
 #: ../extensions/addons.c:308
 msgid "Choose file"
 msgstr "Dosya seç"
 
-#: ../katze/katze-utils.c:500
+#: ../katze/katze-utils.c:580
 msgid "Choose folder"
 msgstr "Dizin seç"
 
-#: ../katze/katze-utils.c:604
-msgid "None"
-msgstr "Yok"
-
-#: ../katze/katze-utils.c:719
+#: ../katze/katze-utils.c:728
 msgid "1 hour"
 msgstr "1 saat"
 
-#: ../katze/katze-utils.c:720
+#: ../katze/katze-utils.c:729
 msgid "1 day"
 msgstr "1 gün"
 
-#: ../katze/katze-utils.c:721
+#: ../katze/katze-utils.c:730
 msgid "1 week"
 msgstr "1 hafta"
 
-#: ../katze/katze-utils.c:722
+#: ../katze/katze-utils.c:731
 msgid "1 month"
 msgstr "1 ay"
 
-#: ../katze/katze-utils.c:723
+#: ../katze/katze-utils.c:732
 msgid "1 year"
 msgstr "1 yıl"
 
-#: ../katze/katze-preferences.c:91 ../extensions/history-list.vala:235
+#: ../katze/katze-preferences.c:72 ../extensions/delayed-load.vala:24
+#: ../extensions/external-download-manager.vala:224
+#: ../extensions/history-list.vala:242
 #, c-format
 msgid "Preferences for %s"
 msgstr "%s için tercihler"
 
-#: ../extensions/adblock.c:467
+#: ../katze/midori-uri.vala:182
+msgid "MD5-Checksum:"
+msgstr "MD5-Checksum:"
+
+#: ../katze/midori-uri.vala:189
+msgid "SHA1-Checksum:"
+msgstr "SHA1-Checksum:"
+
+#: ../extensions/adblock.c:483
 msgid "Configure Advertisement filters"
 msgstr "Reklam filtresini yapılandır"
 
-#: ../extensions/adblock.c:498
+#: ../extensions/adblock.c:512
 #, c-format
 msgid ""
 "Type the address of a preconfigured filter list in the text entry and click "
@@ -2324,117 +2047,118 @@ msgstr ""
 "Metin girdisindeki ön yapılandırmalı filtre listesinin adresini yaz ve "
 "listeye eklemek için \"Ekle\"'yi tıkla. %s daha fazla liste bulabilirsin."
 
-#: ../extensions/adblock.c:846
+#: ../extensions/adblock.c:926
 msgid "Edit rule"
 msgstr "Kuralı düzenle"
 
-#: ../extensions/adblock.c:860
+#: ../extensions/adblock.c:940
 msgid "_Rule:"
 msgstr "_Kural:"
 
-#: ../extensions/adblock.c:914
+#: ../extensions/adblock.c:994
 msgid "Bl_ock image"
 msgstr "Resim _Engelle"
 
-#: ../extensions/adblock.c:919
+#: ../extensions/adblock.c:999
 msgid "Bl_ock link"
 msgstr "Bağlantıyı engelle"
 
-#: ../extensions/adblock.c:1620
+#: ../extensions/adblock.c:1925
 msgid "Advertisement blocker"
 msgstr "Reklam engelleyici"
 
-#: ../extensions/adblock.c:1621
+#: ../extensions/adblock.c:1926
 msgid "Block advertisements according to a filter list"
 msgstr "Filtre listesine göre reklamları engelle"
 
 #. i18n: An infobar shows up when viewing a script on userscripts.org
-#: ../extensions/addons.c:221
-msgid "This page appears to contain a user script. Do you wish to install it?"
+#: ../extensions/addons.c:222
+msgid ""
+"This page appears to contain a user script. Do you wish to install it?"
 msgstr "Bu sayfa betik içeriyor. Yüklenmesine izin veriyor musunuz?"
 
-#: ../extensions/addons.c:222
+#: ../extensions/addons.c:223
 msgid "_Install user script"
 msgstr "Betiklere izin ver"
 
 #. i18n: An infobar shows up when viewing a style on userstyles.org
-#: ../extensions/addons.c:227
+#: ../extensions/addons.c:228
 msgid "This page appears to contain a user style. Do you wish to install it?"
 msgstr "Bu sayfa kullanıcı stili içermektedir. Yüklemek ister misiniz?"
 
-#: ../extensions/addons.c:228
+#: ../extensions/addons.c:229
 msgid "_Install user style"
 msgstr "Kullanıcı stillerini yükle"
 
-#: ../extensions/addons.c:236
+#: ../extensions/addons.c:237
 msgid "Don't install"
 msgstr "Yükleme"
 
-#: ../extensions/addons.c:319 ../extensions/addons.c:681
+#: ../extensions/addons.c:319 ../extensions/addons.c:674
 msgid "Userscripts"
 msgstr "Kullanıcı Betikleri"
 
-#: ../extensions/addons.c:324 ../extensions/addons.c:683
+#: ../extensions/addons.c:324 ../extensions/addons.c:676
 msgid "Userstyles"
 msgstr "Kullanıcı Biçimleri"
 
-#: ../extensions/addons.c:380 ../extensions/addons.c:459
-#: ../extensions/feed-panel/main.c:129
+#: ../extensions/addons.c:370 ../extensions/addons.c:449
+#: ../extensions/feed-panel/main.c:114
 msgid "Error"
 msgstr "Hata"
 
-#: ../extensions/addons.c:421
+#: ../extensions/addons.c:411
 #, c-format
 msgid "Do you want to delete '%s'?"
 msgstr "'%s' i silmek istediğinizden eminmisiniz."
 
-#: ../extensions/addons.c:427
+#: ../extensions/addons.c:417
 msgid "Delete user script"
 msgstr "Kullanıcı betiklerini sil"
 
-#: ../extensions/addons.c:428
+#: ../extensions/addons.c:418
 msgid "Delete user style"
 msgstr "Kullanıcı stillerini sil"
 
-#: ../extensions/addons.c:431
+#: ../extensions/addons.c:421
 #, c-format
 msgid "The file <b>%s</b> will be permanently deleted."
 msgstr "'<b>%s</b>' dosyası kalıcı olarak silindi"
 
-#: ../extensions/addons.c:570 ../extensions/addons.c:647
+#: ../extensions/addons.c:563 ../extensions/addons.c:640
 msgid "Open in Text Editor"
 msgstr "Metin düzenleyici ile aç"
 
-#: ../extensions/addons.c:572 ../extensions/addons.c:656
+#: ../extensions/addons.c:565 ../extensions/addons.c:649
 msgid "Open Target Folder"
 msgstr "Hedef _Dizini Aç"
 
-#: ../extensions/addons.c:638
+#: ../extensions/addons.c:631
 msgid "Add new addon"
 msgstr "Yeni eklenti ekle"
 
-#: ../extensions/addons.c:664
+#: ../extensions/addons.c:657
 msgid "Remove selected addon"
 msgstr "Seçilmiş eklentiyi kaldır"
 
-#: ../extensions/addons.c:1696 ../extensions/addons.c:1914
+#: ../extensions/addons.c:1682 ../extensions/addons.c:1898
 msgid "User addons"
 msgstr "Kullanıcı eklentileri"
 
-#: ../extensions/addons.c:1826
+#: ../extensions/addons.c:1812
 #, c-format
 msgid "Can't monitor folder '%s': %s"
 msgstr "Dizin '%s' izlenemedi: %s"
 
-#: ../extensions/addons.c:1915
+#: ../extensions/addons.c:1899
 msgid "Support for userscripts and userstyles"
 msgstr "Kullanıcı scripts ve sitil desteği"
 
-#: ../extensions/colorful-tabs.c:201
+#: ../extensions/colorful-tabs.c:260
 msgid "Colorful Tabs"
 msgstr "Renkli Sekmeler"
 
-#: ../extensions/colorful-tabs.c:202
+#: ../extensions/colorful-tabs.c:261
 msgid "Tint each tab distinctly"
 msgstr "Her sekmeyi farklı biçimde renklendir"
 
@@ -2463,23 +2187,23 @@ msgstr "Hepsini Genişlet"
 msgid "Collapse All"
 msgstr "Hepsini Kapat"
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:572
+#: ../extensions/cookie-manager/cookie-manager-page.c:575
 msgid "Do you really want to delete all cookies?"
 msgstr "Bütün çerezleri silmek istediğinizden gerçekten emin misiniz?"
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:574
+#: ../extensions/cookie-manager/cookie-manager-page.c:577
 msgid "Question"
 msgstr "Soru"
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:583
+#: ../extensions/cookie-manager/cookie-manager-page.c:588
 msgid "Only cookies which match the filter will be deleted."
 msgstr "Sadece filtrelenen çerezler silinecek."
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:671
+#: ../extensions/cookie-manager/cookie-manager-page.c:680
 msgid "At the end of the session"
 msgstr "Oturumun sonunda"
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:674
+#: ../extensions/cookie-manager/cookie-manager-page.c:683
 #, c-format
 msgid ""
 "<b>Host</b>: %s\n"
@@ -2496,15 +2220,16 @@ msgstr ""
 "<b>Güvenlik</b>: %s\n"
 "<b>Bitiş süresi</b>: %s"
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:680
+#. i18n: is this cookie secure (SSL)? yes/ no
+#: ../extensions/cookie-manager/cookie-manager-page.c:690
 msgid "Yes"
 msgstr "Evet"
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:680
+#: ../extensions/cookie-manager/cookie-manager-page.c:690
 msgid "No"
 msgstr "Hayır"
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:694
+#: ../extensions/cookie-manager/cookie-manager-page.c:705
 #, c-format
 msgid ""
 "<b>Domain</b>: %s\n"
@@ -2513,74 +2238,115 @@ msgstr ""
 "<b>Alan</b>: %s\n"
 "<b>Çerezler</b>: %d"
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:1024
+#: ../extensions/cookie-manager/cookie-manager-page.c:1028
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:570
 msgid "Name"
 msgstr "İsim"
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:1077
+#: ../extensions/cookie-manager/cookie-manager-page.c:1080
 msgid "_Expand All"
 msgstr "Hepsini G_enişlet"
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:1085
+#: ../extensions/cookie-manager/cookie-manager-page.c:1088
 msgid "_Collapse All"
 msgstr "Hepsini _Kapat"
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:1139
-msgid "Filter:"
-msgstr "Filtre:"
-
-#: ../extensions/cookie-manager/cookie-manager-page.c:1144
-msgid ""
-"Enter a filter string to show only cookies whose name or domain field match "
-"the entered filter"
-msgstr ""
-"Girilmiş filtrenin, sadece çerezlerin adını veya alan adını takip ettiğini "
-"gösterecek bir filtre dizisi girin."
+#: ../extensions/cookie-manager/cookie-manager-page.c:1140
+msgid "Search Cookies by Name or Domain"
+msgstr "Çerezleri isme veya domaine göre ara"
 
 #: ../extensions/cookie-manager/main.c:36
 msgid "List, view and delete cookies"
 msgstr "Çerezleri listele, görüntüle ve sil"
 
-#: ../extensions/copy-tabs.c:38
+#: ../extensions/copy-tabs.c:39
 msgid "Copy Tab _Addresses"
 msgstr "Sekme _Adresini Kopyala"
 
-#: ../extensions/copy-tabs.c:95
+#: ../extensions/copy-tabs.c:96
 msgid "Copy Addresses of Tabs"
 msgstr "Sekme _Adresini Kopyala"
 
-#: ../extensions/copy-tabs.c:96
+#: ../extensions/copy-tabs.c:97
 msgid "Copy the addresses of all tabs to the clipboard"
 msgstr "Tüm sekmelerde ki adresleri panoya kopyala"
 
-#: ../extensions/feed-panel/feed-atom.c:209
+#: ../extensions/delayed-load.vala:24 ../extensions/delayed-load.vala:212
+#, c-format
+msgid "Delayed load"
+msgstr ""
+
+#: ../extensions/delayed-load.vala:49
+msgid "Delay in seconds until loading the page:"
+msgstr ""
+
+#: ../extensions/delayed-load.vala:213
+msgid "Delay page load until you actually use the tab."
+msgstr ""
+
+#: ../extensions/external-download-manager.vala:124
+msgid ""
+"An error occurred when attempting to download a file with the following "
+"plugin:\n"
+msgstr ""
+
+#: ../extensions/external-download-manager.vala:175
+msgid "External Download Manager - Aria2"
+msgstr ""
+
+#: ../extensions/external-download-manager.vala:176
+msgid "Download files with Aria2"
+msgstr ""
+
+#: ../extensions/external-download-manager.vala:202
+msgid "External Download Manager - SteadyFlow"
+msgstr ""
+
+#: ../extensions/external-download-manager.vala:203
+msgid "Download files with SteadyFlow"
+msgstr ""
+
+#: ../extensions/external-download-manager.vala:249
+msgid "Command:"
+msgstr ""
+
+#: ../extensions/external-download-manager.vala:304
+#, c-format
+msgid "Download files with \"%s\" or a custom command"
+msgstr ""
+
+#: ../extensions/external-download-manager.vala:320
+msgid "External Download Manager - CommandLine"
+msgstr ""
+
+#: ../extensions/feed-panel/feed-atom.c:208
 msgid "Failed to find required Atom \"entry\" elements in XML data."
 msgstr "XML verisindeki gerekli Atom \"girdi\" elementi bulma hatası."
 
-#: ../extensions/feed-panel/feed-atom.c:315
+#: ../extensions/feed-panel/feed-atom.c:314
 msgid "Failed to find required Atom \"feed\" elements in XML data."
 msgstr "XML verisindeki gerekli Atom \"kaynak\" elementi bulma hatası."
 
 #. i18n: The local date a feed was last updated
-#: ../extensions/feed-panel/feed-panel.c:387
+#: ../extensions/feed-panel/feed-panel.c:375
 #, c-format
 msgctxt "Feed"
 msgid "Last updated: %s."
 msgstr "Son güncelleme: %s."
 
-#: ../extensions/feed-panel/feed-panel.c:653
+#: ../extensions/feed-panel/feed-panel.c:629
 msgid "Feeds"
 msgstr "Kaynaklar"
 
-#: ../extensions/feed-panel/feed-panel.c:706
+#: ../extensions/feed-panel/feed-panel.c:682
 msgid "Add new feed"
 msgstr "Yeni kaynak ekle"
 
-#: ../extensions/feed-panel/feed-panel.c:713
+#: ../extensions/feed-panel/feed-panel.c:689
 msgid "Delete feed"
 msgstr "kaynak sil"
 
-#: ../extensions/feed-panel/feed-panel.c:795
+#: ../extensions/feed-panel/feed-panel.c:768
 msgid "_Feeds"
 msgstr "_Kaynak"
 
@@ -2589,12 +2355,12 @@ msgstr "_Kaynak"
 msgid "Failed to find root element in feed XML data."
 msgstr "XML veri kaynağında kök element bulma hatası."
 
-#: ../extensions/feed-panel/feed-parse.c:235
+#: ../extensions/feed-panel/feed-parse.c:237
 #, c-format
 msgid "Unsupported feed format."
 msgstr "Desteklenmeyen kaynak biçimi."
 
-#: ../extensions/feed-panel/feed-parse.c:265
+#: ../extensions/feed-panel/feed-parse.c:267
 #, c-format
 msgid "Failed to parse XML feed: %s"
 msgstr "XML kaynağı biçim hatası: %s"
@@ -2615,159 +2381,163 @@ msgstr "XML verisindeki gerekli RSS \"öge\" elementi bulma hatası."
 msgid "Failed to find required RSS \"channel\" elements in XML data."
 msgstr "XML verisindeki gerekli RSS \"kanal\" elementi bulma hatası."
 
-#: ../extensions/feed-panel/main.c:131
+#: ../extensions/feed-panel/main.c:116
 #, c-format
 msgid "Feed '%s' already exists"
 msgstr "Kaynak '%s' halihazırda var"
 
-#: ../extensions/feed-panel/main.c:208
+#: ../extensions/feed-panel/main.c:192
 #, c-format
 msgid "Error loading feed '%s'"
 msgstr "Kaynak '%s' yükleme hatası"
 
-#: ../extensions/feed-panel/main.c:518
+#: ../extensions/feed-panel/main.c:499
 msgid "Feed Panel"
 msgstr "Kaynak Paneli"
 
-#: ../extensions/feed-panel/main.c:519
+#: ../extensions/feed-panel/main.c:500
 msgid "Read Atom/ RSS feeds"
 msgstr "Atom/RSS kaynaklarını oku"
 
-#: ../extensions/formhistory/formhistory.c:39
+#: ../extensions/formhistory/formhistory.c:38
 #, c-format
 msgid "Failed to add form value: %s\n"
 msgstr "Biçim değeri ekleme hatası: %s\n"
 
-#: ../extensions/formhistory/formhistory.c:95
-#, fuzzy
+#: ../extensions/formhistory/formhistory.c:100
 msgid "Form history"
-msgstr "_Form Geçmişi"
+msgstr "Form geçmişi"
 
-#: ../extensions/formhistory/formhistory.c:112
-#, fuzzy
+#: ../extensions/formhistory/formhistory.c:117
 msgid ""
 "Master password required\n"
 "to open password database"
 msgstr ""
-"Bu konuma girmek için\n"
-"kullanıcı adı ve şifre gerekli:"
+"Parola veritabanını açmak için \n"
+"ana parola gerekli"
 
 #: ../extensions/formhistory/formhistory.c:294
-#, fuzzy
 msgid "Remember password on this page?"
-msgstr "Şifreyi _hatırla"
+msgstr "Bu sayfada parola hatırlansın mı?"
 
 #: ../extensions/formhistory/formhistory.c:299
-#, fuzzy
 msgid "Remember"
-msgstr "Şifreyi _hatırla"
+msgstr "Hatırla"
 
 #: ../extensions/formhistory/formhistory.c:300
 msgid "Not now"
-msgstr ""
+msgstr "Şimdi değil"
 
 #: ../extensions/formhistory/formhistory.c:301
 msgid "Never for this page"
-msgstr ""
+msgstr "Bu sayfa için asla"
 
-#: ../extensions/formhistory/formhistory.c:437
-#, fuzzy
+#: ../extensions/formhistory/formhistory.c:427
 msgid "Toggle form history state"
-msgstr "Form geçmişi durumunu değiştir."
+msgstr "Form geçmiş durumunu değiştir"
 
-#: ../extensions/formhistory/formhistory.c:438
+#: ../extensions/formhistory/formhistory.c:428
 msgid "Activate or deactivate form history for the current tab."
-msgstr "Geçerli sekme için form geçmişi etkinleştirin veya devre dışı bırakın."
+msgstr ""
+"Geçerli sekme için form geçmişi etkinleştirin veya devre dışı bırakın."
 
-#: ../extensions/formhistory/formhistory.c:549
-#: ../extensions/formhistory/formhistory.c:553
+#: ../extensions/formhistory/formhistory.c:515 ../midori/midori-history.c:47
+#: ../midori/midori-bookmarks.c:155
+#, c-format
+msgid "Failed to open database: %s\n"
+msgstr "Şu veri tabanı açılamadı: %s\n"
+
+#: ../extensions/formhistory/formhistory.c:533
+#: ../extensions/formhistory/formhistory.c:537
 #, c-format
 msgid "Failed to execute database statement: %s\n"
 msgstr "Veri tabanı ifadesi çalışma hatası: %s\n"
 
-#: ../extensions/formhistory/formhistory.c:629
-#, fuzzy
+#: ../extensions/formhistory/formhistory.c:624
 msgid "Only activate form history via hotkey (Ctrl+Shift+F) per tab"
 msgstr ""
-"her sekme için form geçmişini sadece kısayol tuşu (Ctrl + Shift + F) ile "
-"etkinleştir"
+"Form geçmişini her sekme için yalnızca (Ctrl+Shift+F) tuşları ile etkinleştir"
 
-#: ../extensions/formhistory/formhistory.c:668
+#: ../extensions/formhistory/formhistory.c:681
 msgid "Form history filler"
 msgstr "Tarih doldurucu biçimi"
 
-#: ../extensions/formhistory/formhistory.c:669
+#: ../extensions/formhistory/formhistory.c:682
 msgid "Stores history of entered form data"
 msgstr "Girilen biçim verilerinin geçmişini kaydeder"
 
-#: ../extensions/formhistory/formhistory-gdom-frontend.c:225
-#: ../extensions/formhistory/formhistory-js-frontend.c:106
-#, fuzzy, c-format
+#: ../extensions/formhistory/formhistory-gdom-frontend.c:223
+#: ../extensions/formhistory/formhistory-js-frontend.c:104
+#, c-format
 msgid "Failed to select suggestions\n"
-msgstr "Geçmişten seçme hatası\n"
+msgstr "Öneriler seçilemedi\n"
 
-#: ../extensions/history-list.vala:197
+#: ../extensions/history-list.vala:204
 msgid "There are no unvisited tabs"
 msgstr "Ziyaret edilmemiş sekme bulunmuyor"
 
-#: ../extensions/history-list.vala:235
+#: ../extensions/history-list.vala:242
 #, c-format
 msgid "History-List"
 msgstr "Geçmiş-Listesi"
 
-#: ../extensions/history-list.vala:275
+#: ../extensions/history-list.vala:282
 msgid "Tab closing behavior"
 msgstr "Sekme kapatma davranışı"
 
-#: ../extensions/history-list.vala:283
+#: ../extensions/history-list.vala:290
 msgid "Do nothing"
 msgstr "Hiçbirş ey yapma"
 
-#: ../extensions/history-list.vala:289
+#: ../extensions/history-list.vala:296
 msgid "Switch to last viewed tab"
 msgstr "Son bakılan sekmeye geç"
 
-#: ../extensions/history-list.vala:295
+#: ../extensions/history-list.vala:302
 msgid "Switch to newest tab"
 msgstr "En yeni sekmeye geç"
 
-#: ../extensions/history-list.vala:423
+#: ../extensions/history-list.vala:316
+msgid "Flash window on background tabs"
+msgstr "Artalan sekmeleri üzerindeki pencereyi göster"
+
+#: ../extensions/history-list.vala:448
 msgid "Next new Tab (History List)"
 msgstr "Bir sonraki yeni Sekme (Geçmiş Listesi)"
 
-#: ../extensions/history-list.vala:424
+#: ../extensions/history-list.vala:449
 msgid "Next new tab from history"
 msgstr "Geçmişten bir sonraki yeni sekme"
 
-#: ../extensions/history-list.vala:433
+#: ../extensions/history-list.vala:458
 msgid "Previous new Tab (History List)"
 msgstr "Bir önceki yeni Sekme (Geçmiş Listesi)"
 
-#: ../extensions/history-list.vala:434
+#: ../extensions/history-list.vala:459
 msgid "Previous new tab from history"
 msgstr "Geçmişten bir önceki yeni sekme"
 
-#: ../extensions/history-list.vala:443
+#: ../extensions/history-list.vala:468
 msgid "Display tab in background (History List)"
 msgstr "Sekmeyi arkaplanda göster Geçmiş Listesi()"
 
-#: ../extensions/history-list.vala:444
+#: ../extensions/history-list.vala:469
 msgid "Display the current selected tab in background"
 msgstr "Yeni seçilen sekmeyi arkaplanda göster"
 
-#: ../extensions/history-list.vala:569
+#: ../extensions/history-list.vala:598
 msgid "History List"
 msgstr "Geçmiş Listesi"
 
-#: ../extensions/history-list.vala:570
+#: ../extensions/history-list.vala:599
 msgid "Move to the last used tab when switching or closing tabs"
 msgstr "Sekmeleri kapatırken veya değiştirirken son kullanılan sekmeye taşı"
 
-#: ../extensions/mouse-gestures.c:301
+#: ../extensions/mouse-gestures.c:513
 msgid "Mouse Gestures"
 msgstr "Fare İşaretleri"
 
-#: ../extensions/mouse-gestures.c:302
+#: ../extensions/mouse-gestures.c:514
 msgid "Control Midori by moving the mouse"
 msgstr "Hareketli fare tarafından Midori kontrolü"
 
@@ -2775,52 +2545,52 @@ msgstr "Hareketli fare tarafından Midori kontrolü"
 msgid "Reload page or stop loading"
 msgstr "Sayfayı Yeniden yükle ya da yüklemeyi durdur"
 
-#: ../extensions/shortcuts.c:176
+#: ../extensions/shortcuts.c:168
 msgid "Customize Keyboard shortcuts"
 msgstr "Klavye kısayolunu özelleştir"
 
-#: ../extensions/shortcuts.c:283
+#: ../extensions/shortcuts.c:275
 msgid "Customize Sh_ortcuts…"
 msgstr "Kısayollar özelleştiriliyor…"
 
-#: ../extensions/shortcuts.c:320
+#: ../extensions/shortcuts.c:312
 msgid "Shortcuts"
 msgstr "Kısayollar"
 
-#: ../extensions/shortcuts.c:321
+#: ../extensions/shortcuts.c:313
 msgid "View and edit keyboard shortcuts"
 msgstr "Klavye kısayollarını görüntüle ve düzenle"
 
-#: ../extensions/status-clock.c:174
+#: ../extensions/status-clock.c:177
 msgid "Statusbar Clock"
 msgstr "_Durum Çubuğu Saati"
 
-#: ../extensions/status-clock.c:175
+#: ../extensions/status-clock.c:178
 msgid "Display date and time in the statusbar"
 msgstr "Durum çubuğunda tarihi ve saati göster"
 
-#: ../extensions/statusbar-features.c:131
+#: ../extensions/statusbar-features.c:152
 msgid "Images"
 msgstr "Resimler"
 
-#: ../extensions/statusbar-features.c:140
+#: ../extensions/statusbar-features.c:162
 msgid "Scripts"
 msgstr "Betikler"
 
-#: ../extensions/statusbar-features.c:151
+#: ../extensions/statusbar-features.c:174
 msgid "Netscape plugins"
 msgstr "Netscape eklentileri"
 
-#: ../extensions/statusbar-features.c:199
+#: ../extensions/statusbar-features.c:259
 msgid "Statusbar Features"
 msgstr "Durum Çubuğu Özellikleri"
 
-#: ../extensions/statusbar-features.c:200
+#: ../extensions/statusbar-features.c:260
 msgid "Easily toggle features on web pages on and off"
 msgstr ""
 "Web sayfasının açılmasında ve kapanmasında özellikleri kolayca kilitler"
 
-#: ../extensions/tab-panel.c:593 ../extensions/tab-panel.c:680
+#: ../extensions/tab-panel.c:591 ../extensions/tab-panel.c:680
 msgid "Tab Panel"
 msgstr "Sekme Paneli"
 
@@ -2860,583 +2630,529 @@ msgstr "Kullanılabilir ögeler"
 msgid "Displayed Items"
 msgstr "Görüntülenen Ögeler"
 
-#: ../extensions/toolbar-editor.c:581
-msgid "Customize _Toolbar…"
-msgstr "_Araç Çubuğu Özelleştiriliyor…"
+#: ../extensions/toolbar-editor.c:586
+msgid "_Customize Toolbar…"
+msgstr "_Özelleştir Araççubuğu..."
 
-#: ../extensions/toolbar-editor.c:597
-msgid "_Customize…"
-msgstr "_Düzenle…"
-
-#: ../extensions/toolbar-editor.c:627
+#: ../extensions/toolbar-editor.c:615
 msgid "Toolbar Editor"
 msgstr "Araç Çubuğu Düzenleyici"
 
-#: ../extensions/toolbar-editor.c:628
+#: ../extensions/toolbar-editor.c:616
 msgid "Easily edit the toolbar layout"
 msgstr "Araç çubuğunu kolayca düzenler"
 
-#: ../extensions/web-cache.c:463
+#: ../extensions/web-cache.c:462
 msgid "Cache HTTP communication on disk"
 msgstr "Diskteki HTTP iletişimi önbelleği"
 
-#~ msgid "Lightweight web browser"
-#~ msgstr "Hafif web tarayıcı "
-
-#~ msgid "No filename specified"
-#~ msgstr "Dosya ismi belirtilmedi"
-
-#~ msgid "Cookies"
-#~ msgstr "Çerezler"
-
-#~ msgid "'Flash' Cookies"
-#~ msgstr "'Flash' çerezleri"
-
-#~ msgid "HTML5 _Databases"
-#~ msgstr "HTML5 veritabanı"
-
-#~ msgid "Offline Application Cache"
-#~ msgstr "Çevrimdışı Uygulama Önbelleği "
-
-#~ msgid "Don't save any private data while browsing"
-#~ msgstr "Gezinirken hiç bir özel veriyi kaydetme"
-
-#~ msgid "Add shortcut to speed dial"
-#~ msgstr "Hızlı aramaya kısayol ekle"
-
-#~ msgid "Add shortcut to the desktop"
-#~ msgstr "Masaüstüne kısayol ekle"
-
-#~ msgid "Create a launcher"
-#~ msgstr "Bir başlatıcı oluştur"
-
-#~ msgid "Subscribe to this news feed"
-#~ msgstr "Bu haber kaynaksine üye ol"
-
-#~ msgid "Close this window"
-#~ msgstr "Bu pencereyi kapat"
-
-#~ msgid "Close all open windows"
-#~ msgstr "Bütün açık pencereleri kapat"
-
-#~ msgid "Undo the last modification"
-#~ msgstr "Son değişikliği geri al"
-
-#~ msgid "Redo the last modification"
-#~ msgstr "Son değişikliği yeniden yap"
-
-#~ msgid "Cut the selected text"
-#~ msgstr "Seçili metni kes"
-
-#~ msgid "Copy the selected text"
-#~ msgstr "Seçili metni kopyala"
-
-#~ msgid "Paste text from the clipboard"
-#~ msgstr "Metni panodan yapıştır"
-
-#~ msgid "Delete the selected text"
-#~ msgstr "Seçili metni sil"
-
-#~ msgid "Select all text"
-#~ msgstr "Bütün metni seç"
-
-#~ msgid "Find the next occurrence of a word or phrase"
-#~ msgstr "Kelime ya da ibarenin sonraki örneğini bul"
-
-#~ msgid "Find the previous occurrence of a word or phrase"
-#~ msgstr "Kelime ya da ibarenin sonraki örneğini bul"
-
-#~ msgid "Reset the zoom level"
-#~ msgstr "Yakınlaştırma oranını sıfırla"
-
-#~ msgid "View the source code of the page"
-#~ msgstr "Geçerli sayfanın kaynak kodunu görüntüle"
-
-#~ msgid "Scroll to the left"
-#~ msgstr "Sola kaydır"
-
-#~ msgid "Scroll down"
-#~ msgstr "Aşağı kaydır"
-
-#~ msgid "Scroll up"
-#~ msgstr "Yukarı kaydır"
-
-#~ msgid "Scroll to the right"
-#~ msgstr "Sağa kaydır"
-
-#~ msgid "Delete the contents of the trash"
-#~ msgstr "Çöp Kutusu içerisindeki bütün içeriği sil"
-
-#~ msgid "Open the last closed tab"
-#~ msgstr "Son kapatılan sekmeyi aç"
-
-#~ msgid "Add a new bookmark folder"
-#~ msgstr "Yeni bir yerimi dizini ekle"
-
-#~ msgid "Add, edit and remove search engines…"
-#~ msgstr "Arama motorlarını ekle, sil ve düzenle…"
-
-#~ msgid "Clear private data…"
-#~ msgstr "Kişisel verileri temizle…"
-
-#~ msgid "Inspect page details and access developer tools…"
-#~ msgstr "Sayfa detaylarını kontrol et ve geliştirici araçlarına bağlan…"
-
-#~ msgid "Switch to the previous tab"
-#~ msgstr "Önceki sekmeye geç"
-
-#~ msgid "Switch to the next tab"
-#~ msgstr "Sonraki sekmeye geç"
-
-#~ msgid "Move tab behind the previous tab"
-#~ msgstr "Sekmeyi önceki sekmenin arkasına taşı"
-
-#~ msgid "Move tab in front of the next tab"
-#~ msgstr "Sekmeyi sonraki sekmenin önüne taşı"
-
-#~ msgid "Focus the current tab"
-#~ msgstr "Geçerli sekmeye odaklan"
-
-#~ msgid "Cycle focus between views"
-#~ msgstr "Görünümler arasında dairesel odak"
-
-#~ msgid "Only show the icon of the current tab"
-#~ msgstr "Sadece şuan ki sekmenin simgesini göster"
-
-#~ msgid "Duplicate the current tab"
-#~ msgstr "Geçerli sekmeyi çoğalt"
-
-#~ msgid "Close all tabs except the current tab"
-#~ msgstr "Diğer sekmeleri kapat"
-
-#~ msgid "Open the tabs saved in the last session"
-#~ msgstr "Son oturumda kaydedilmiş sekmeleri aç"
-
-#~ msgid "Show the Frequently Asked Questions"
-#~ msgstr "Sık Sorulan Soruları Göster"
-
-#~ msgid "Open Midori's bug tracker"
-#~ msgstr "Midori'nin hata takip sistemini aç"
-
-#~ msgid "Show information about the program"
-#~ msgstr "Uygulama hakkında bilgi göster"
-
-#~ msgid "Show menubar"
-#~ msgstr "Menü çubuğunu göster"
-
-#~ msgid "Show navigationbar"
-#~ msgstr "Gezinti araç çubuğunu göster"
-
-#~ msgid "Show sidepanel"
-#~ msgstr "Yan paneli göster"
-
-#~ msgid "Show bookmarkbar"
-#~ msgstr "Yer imi araç çubuğunu göster"
-
-#~ msgid "Show statusbar"
-#~ msgstr "Durum çubuğunu göster"
-
-#~ msgid "MD5-Checksum:"
-#~ msgstr "MD5-Checksum:"
-
-#~ msgid "SHA1-Checksum:"
-#~ msgstr "SHA1-Checksum:"
-
-#~ msgid "Set number of columns and rows"
-#~ msgstr "Satır ve sütun sayısını ayarla"
-
-#~ msgid "Enter number of columns and rows:"
-#~ msgstr "Satır ve sütun sayısını gir"
-
-#~ msgid "Invalid input for the size of the speed dial"
-#~ msgstr "Hızlı arama boyutu için geçersiz girdi"
-
-#~ msgid "Thumb size:"
-#~ msgstr "Küçük resim boyutu:"
-
-#~ msgid "Small"
-#~ msgstr "Küçük"
-
-#~ msgid "Medium"
-#~ msgstr "Orta"
-
-#~ msgid "Big"
-#~ msgstr "Büyük"
-
-#~ msgid "Not available: %s"
-#~ msgstr "Kullanılamaz: %s"
-
-#~ msgid "Resource files not installed"
-#~ msgstr "Kaynak dosyalar yüklenmedi"
-
-#~ msgid "Reset the last _session"
-#~ msgstr "Son _oturumu yeniden başlat"
-
-#~ msgid "%d%% loaded"
-#~ msgstr "%d%% yüklendi"
-
-#~ msgid "Quit the application"
-#~ msgstr "Uygulamadan çık"
-
-#~ msgid "_Contents"
-#~ msgstr "_İçerik"
-
-#~ msgid "Show the documentation"
-#~ msgstr "Belgelendirmeyi göster"
-
-#~ msgid "_Transferbar"
-#~ msgstr "Ak_tarım çubuğu"
-
-#~ msgid "Show transferbar"
-#~ msgstr "Aktarım çubuğunu göster"
-
-#~ msgid "Failed to execute database statement\n"
-#~ msgstr "Veritabanı ifadesi çalıştırma hatası\n"
-
-#~ msgid "Show Blank page"
-#~ msgstr "Boş sayfa göster"
-
-#~ msgid "All cookies"
-#~ msgstr "Bütün çerezler"
-
-#~ msgid "Session cookies"
-#~ msgstr "Oturum çerezleri"
-
-#~ msgid "Show Transferbar"
-#~ msgstr "Aktarım çubuğunu göster"
-
-#~ msgid "Whether to show the transferbar"
-#~ msgstr "Aktarım çubuğu göster açık/kapalı"
-
-#~ msgid "Show progress in location entry"
-#~ msgstr "Yerel girdideki ilerlemeyi göster"
-
-#~ msgid "Whether to show loading progress in the location entry"
-#~ msgstr "Yerel girdideki yükleme ilerleyişini göster açık/kapalı"
-
-#~ msgid "Search engines in location completion"
-#~ msgstr "Konum tamamlamada arama motorları"
-
-#~ msgid "Whether to show search engines in the location completion"
-#~ msgstr "Konum tamamlamada arama motorlarını göster açık/kapalı"
-
-#~ msgid "Show operating controls of the panel"
-#~ msgstr "Panelin işletme kontrollerini göster"
-
-#~ msgid "Whether to show the operating controls of the panel"
-#~ msgstr "Panelin işletme kontrollerini göster açık/kapalı"
-
-#~ msgid "Show speed dial in new tabs"
-#~ msgstr "Yeni sekmede hızlı aramayı göster"
-
-#~ msgid "Show speed dial in newly opened tabs"
-#~ msgstr "Yeni açılan sekmelerde hızlı aramayı göster"
-
-#~ msgid "Ask for the destination folder"
-#~ msgstr "Hedef klasörü sor"
-
-#~ msgid "Whether to ask for the destination folder when downloading a file"
-#~ msgstr "Bir dosyayı indirirken hedef dizini sor açık/kapalı"
-
-#~ msgid "Whether to show a notification when a transfer has been completed"
-#~ msgstr "Bir aktarım bittiğinde bir uyarı göster açık/kapalı"
-
-#~ msgid "Download Manager"
-#~ msgstr "İndirme Yöneticisi"
-
-#~ msgid "An external download manager"
-#~ msgstr "Harici indirme yöneticisi"
-
-#~ msgid "Open external pages in:"
-#~ msgstr "Harici sayfaları aç:"
-
-#~ msgid "Where to open externally opened pages"
-#~ msgstr "Harici açılmış sayfaların açılacağı yer"
-
-#~ msgid "Accept cookies"
-#~ msgstr "Çerezleri kabul et"
-
-#~ msgid "What type of cookies to accept"
-#~ msgstr "Kabul edilecek çerez türleri"
-
-#~ msgid "Maximum cookie age"
-#~ msgstr "En çok çerez süresi"
-
-#~ msgid "Maximum history age"
-#~ msgstr "En çok geçmiş süresi"
-
-#~ msgid "Remember last downloaded files"
-#~ msgstr "Son indirilmiş dosyaları hatırla"
-
-#~ msgid "Whether the last downloaded files are saved"
-#~ msgstr "Eğer son indirilmiş dosyalar kaydedilmişse"
-
-#~ msgid "Not found - %s"
-#~ msgstr "Bulunamadı - %s"
-
-#~ msgid "_Save Link destination"
-#~ msgstr "Bağlantı konumunu kay_det"
-
-#~ msgid "_Download Link destination"
-#~ msgstr "Bağlantı konumunu İnd_ir"
-
-#~ msgid "Download with Download _Manager"
-#~ msgstr "İndirme _Yöneticisi ile indir"
-
-#~ msgid "Download I_mage"
-#~ msgstr "Resm_i İndir"
-
-#~ msgid "Document cannot be displayed"
-#~ msgstr "Belge görüntülenemedi"
-
-#~ msgid "General"
-#~ msgstr "Genel"
-
-#~ msgid "Appearance"
-#~ msgstr "Görünüm"
-
-#~ msgid "Font settings"
-#~ msgstr "Yazıtipi seçenekleri"
-
-#~ msgid "Enforce 96 dots per inch"
-#~ msgstr "96 dpi zorla"
-
-#~ msgid "Enforce a video dot density of 96 DPI"
-#~ msgstr "Video yoğunluğunu 96 DPI'ye zorla"
-
-#~ msgid "Interface"
-#~ msgstr "Arayüz"
-
-#~ msgid "Navigationbar"
-#~ msgstr "Gezinti Araç Çubuğu"
-
-#~ msgid "Applications"
-#~ msgstr "Uygulamalar"
-
-#~ msgid "External applications"
-#~ msgstr "Harici Uygulamadan"
-
-#~ msgid "Web Cookies"
-#~ msgstr "Web Çerezleri"
-
-#~ msgid "Delete cookies when quitting Midori"
-#~ msgstr "Midori'den çıkıldığında çerezleri temizle"
-
-#~ msgid "Delete old cookies after 1 hour"
-#~ msgstr "1 saatten daha eski çerezleri sil"
-
-#~ msgid "Delete old cookies after 1 week"
-#~ msgstr "1 haftadan daha eski çerezleri sil"
-
-#~ msgid "Delete old cookies after 1 month"
-#~ msgstr "1 aydan daha eski çerezleri sil"
-
-#~ msgid "Delete old cookies after 1 year"
-#~ msgstr "1 yıldan daha eski çerezleri sil"
-
-#~ msgid "Configure _Advertisement filters…"
-#~ msgstr "Rekl_am filtresini yapılandır…"
-
-#~ msgid "Open target folder for selected addon"
-#~ msgstr "Seçilmiş eklenti için hedef dizini aç"
-
-#~ msgid "Next Tab (History List)"
-#~ msgstr "Sonraki Sekme (Geçmiş Listesi)"
-
-#~ msgid "Previous Tab (History List)"
-#~ msgstr "Önceki Sekme"
-
-#~ msgid "Previous tab from history"
-#~ msgstr "Önceki Sekme"
-
-#~ msgid "Switch tabs with Ctrl+Tab sorted by last usage"
-#~ msgstr ""
-#~ "Son kullanım tarafından seçilmiş bir listeden seçilerek sekmelerin "
-#~ "değişmesine izin verir"
-
-#~ msgid "Pageholder"
-#~ msgstr "Sayfa Tutucu"
-
-#~ msgid "_Pageholder"
-#~ msgstr "_Sayfa tutucu"
-
-#~ msgid "Keep one or multiple pages open in parallel to your tabs"
-#~ msgstr ""
-#~ "Bir veya birden fazla sayfayı sekmelerinizde paralel olarak açık tutun"
-
-#~ msgid "_Recently visited pages"
-#~ msgstr "_Yeni ziyaret edilmiş sayfalar"
-
-#~ msgid "Reopen pages that you visited earlier"
-#~ msgstr "Daha önce ziyaret edilmiş sayfaları yeniden aç"
-
-#~ msgid "Detach chosen panel from the window"
-#~ msgstr "Pencereden seçilmiş paneli ayır"
-
-#~ msgid "Hide operating controls"
-#~ msgstr "İşlem kontrollerini gizle"
-
-#~ msgid "Original cookies only"
-#~ msgstr "Sadece gerçek çerezler"
-
-#~ msgid "Remember last visited pages"
-#~ msgstr "Son ziyaret edilen sayfaları hatırla"
-
-#~ msgid "Whether the last visited pages are saved"
-#~ msgstr "Eğer son ziyaret edilen sayfalar kaydedilmişse"
-
-#~ msgid "Detect proxy server automatically"
-#~ msgstr "Vekil sunucuyu otomatik olarak belirle"
-
-#~ msgid ""
-#~ "Whether to detect the proxy server automatically from the environment"
-#~ msgstr "Vekil sunucuyu ortamdan otomatik olarak belirle açık/kapalı"
-
-#~ msgid "_Restore Tab"
-#~ msgstr "Sekmeyi Ye_rleştir"
-
-#~ msgid "_Minimize Tab"
-#~ msgstr "Sekmeyi küçült"
-
-#~ msgid "Spell Checking"
-#~ msgstr "Yazım Denetimi"
-
-#~ msgid "Spelling dictionaries:"
-#~ msgstr "Yazım sözlükleri:"
-
-#~ msgid ""
-#~ "A comma separated list of languages to be used for spell checking, for "
-#~ "example \"en_GB,de_DE\""
-#~ msgstr ""
-#~ "Bir virgül yazım denetimi için kullanılacak dillerin listesini ayırır, "
-#~ "örneğin \"en_GB, de_DE\""
-
-#~ msgid "Console"
-#~ msgstr "Uçbirim"
-
-#~ msgid "Copy _All"
-#~ msgstr "_Hepsini Kopyala"
-
-#~ msgid "Copy All"
-#~ msgstr "Hepsini Kopyala"
-
-#~ msgid "Erroneous clock time"
-#~ msgstr "Saat zamanı hatalı"
-
-#~ msgid ""
-#~ "The clock time lies in the past. Please check the current date and time."
-#~ msgstr "Saat geri kalmış. Lütfen mevcut saat ve tarihi kontrol edin"
-
-#~ msgid "Copy %s to the folder %s."
-#~ msgstr "%s %s dizinine kopyala."
-
-#~ msgid "_Cookie Manager"
-#~ msgstr "_Çerez Yöneticisi"
-
-#~ msgid "Set number of shortcuts"
-#~ msgstr "Kısayol sayısını ayarla"
-
-#~ msgid "Enter number of shortcuts:"
-#~ msgstr "Kısayol sayısını gir"
-
-#~ msgid "User_styles"
-#~ msgstr "Kullanıcı _biçimleri"
-
-#~ msgid "URIs"
-#~ msgstr "URIs"
-
-#~ msgid "[URIs]"
-#~ msgstr "[URIs]"
-
-#~ msgid "_URL:"
-#~ msgstr "_URL:"
-
-#~ msgid "Root"
-#~ msgstr "Kök"
-
-#~ msgid "_Quick Find"
-#~ msgstr "Ç_abuk Bul"
-
-#~ msgid "Quickly jump to a word or phrase"
-#~ msgstr "Hemen kelime yada ibarenin olduğu yeri göster"
-
-#~ msgid "View Selection Source"
-#~ msgstr "Seçim Kaynağını Görüntüle"
-
-#~ msgid "Both"
-#~ msgstr "Her ikisi de"
-
-#~ msgid "Both horizontal"
-#~ msgstr "İkisi de yatay"
-
-#~ msgid "Load on Startup"
-#~ msgstr "Açılışta Yükle"
-
-#~ msgid "Remember last form inputs"
-#~ msgstr "Son form girişlerini hatırla"
-
-#~ msgid "Whether the last form inputs are saved"
-#~ msgstr "Son form girişlerinin saklanacağı en çok gün sayısı"
-
-#~ msgid "Cache size"
-#~ msgstr "Önbellek boyutu"
-
-#~ msgid "The allowed size of the cache"
-#~ msgstr "İzin verilen önbellek boyutu"
-
-#~ msgid "Open URL in New _Tab"
-#~ msgstr "URL'yi yeni _sekmede aç"
-
-#~ msgid "Source"
-#~ msgstr "Kaynak"
-
-#~ msgid "Shrink images automatically"
-#~ msgstr "Resimleri otomatik küçült"
-
-#~ msgid "Resizable text areas"
-#~ msgstr "Metin alanlarını yeniden boyutlandır"
-
-#~ msgid "Enable developer tools"
-#~ msgstr "Geliştirici araçlarına izin ver"
-
-#~ msgid "_Icon (name or file):"
-#~ msgstr "S_imge (isim ya da dosya):"
-
-#~ msgid "Manage search engines"
-#~ msgstr "Arama motorlarını yönet"
-
-#~ msgid "Warning: You are using a superuser account!"
-#~ msgstr "Dikkat: Süper kullanıcı hesabı kullanıyorsunuz!"
-
-#~ msgid "%s has no property '%s'"
-#~ msgstr "%s böyle bir özelliğe sahip değil '%s'"
-
-#~ msgid "%s cannot be assigned to %s.%s"
-#~ msgstr "%s şuna eşitlenemiyor %s.%s"
-
-#~ msgid "%s.%s cannot be accessed"
-#~ msgstr "Erişilemiyor: %s.%s "
-
-#~ msgid "_Enable"
-#~ msgstr "_Etkinleştir"
-
-#~ msgid "_Disable"
-#~ msgstr "_Devre dışı bırak"
-
-#~ msgid "Plugins"
-#~ msgstr "Eklentiler"
-
-#~ msgid "Last pageholder URI"
-#~ msgstr "Son sayfa tutacı URI"
-
-#~ msgid "The URI last opened in the pageholder"
-#~ msgstr "Sayfa tutucu içinde son açılan URI"
-
-#~ msgid "Load Provisional"
-#~ msgstr "Koşullu Yükle"
-
-#~ msgid "Load Committed"
-#~ msgstr "İşlenmişi Yükle"
-
-#~ msgid "Load Finished"
-#~ msgstr "Tamamlananı Yükle"
+#: ../katze/katze-http-cookies-sqlite.c:129
+#, c-format
+msgid "Failed to load cookies\n"
+msgstr ""
+
+#. FIXME: granite: should return GtkWidget* like GTK+
+#. i18n: Dialog: Clear Private Data, in the Tools menu
+#: ../midori/midori-privatedata.c:129 ../midori/midori-privatedata.c:140
+msgid "Clear Private Data"
+msgstr "Kişisel Verileri Temizle"
+
+#: ../midori/midori-privatedata.c:134 ../midori/midori-privatedata.c:144
+msgid "_Clear private data"
+msgstr "_Kişisel verileri temizle"
+
+#: ../midori/midori-privatedata.c:161
+msgid "Clear the following data:"
+msgstr "Aşağıdaki verileri temizle:"
+
+#: ../midori/midori-privatedata.c:171
+msgid "Last open _tabs"
+msgstr "Son açılmış sekmeler"
+
+#: ../midori/midori-privatedata.c:197
+msgid "Clear private data when _quitting Midori"
+msgstr "Midori'den çıkıldığında kişisel verileri temizle"
+
+#. i18n: Logins and passwords in websites and web forms
+#: ../midori/midori-privatedata.c:324
+msgid "Saved logins and _passwords"
+msgstr "Kayıtlı girişler ve _parolalar"
+
+#: ../midori/midori-privatedata.c:326
+msgid "Cookies and Website data"
+msgstr "Çerezler ve Website bilgisi"
+
+#: ../midori/midori-privatedata.c:333
+msgid "Website icons"
+msgstr "Websitesi simgeleri"
+
+#: ../midori/midori-viewcompletion.vala:18
+msgid "Open tabs"
+msgstr ""
+
+#: ../midori/midori-viewcompletion.vala:75
+msgid "More open tabs…"
+msgstr ""
+
+#: ../midori/midori-history.c:25
+#, c-format
+msgid "Failed to clear history: %s\n"
+msgstr "Geçmiş silinemedi: %s\n"
+
+#. i18n: Couldn't remove items that are older than n days
+#: ../midori/midori-history.c:122
+#, c-format
+msgid "Failed to remove old history items: %s\n"
+msgstr "Eski geçmiş ögeleri silinemedi: %s\n"
+
+#: ../midori/midori-bookmarks.c:104
+msgid "failed to ATTACH old db"
+msgstr ""
+
+#: ../midori/midori-bookmarks.c:111
+msgid "failed to import from old db"
+msgstr ""
+
+#: ../midori/midori-bookmarks.c:115
+msgid "failed to rollback the transaction"
+msgstr ""
+
+#: ../midori/midori-bookmarks.c:119
+msgid "failed to DETACH "
+msgstr ""
+
+#: ../midori/midori-bookmarks.c:259
+#, c-format
+msgid "Couldn't create bookmarks table: %s\n"
+msgstr ""
+
+#: ../midori/midori-bookmarks.c:274
+#, c-format
+msgid "Couldn't import from old database: %s\n"
+msgstr ""
+
+#: ../midori/midori-bookmarks.c:311
+#, c-format
+msgid "The bookmarks couldn't be saved. %s"
+msgstr "Yer imleri kaydedilemedi. %s"
+
+#: ../midori/midori-session.c:197
+msgid ""
+"No root certificate file is available. SSL certificates cannot be verified."
+msgstr ""
+"Root yetki dosyası kullanılabilir değil. SSL yetkileri doğrulanamadı."
+
+#: ../midori/midori-session.c:366
+#, c-format
+msgid "The configuration couldn't be saved. %s"
+msgstr "Ayarlar kaydedilemedi. %s"
+
+#: ../midori/midori-session.c:395 ../midori/midori-frontend.c:510
+#, c-format
+msgid "The session couldn't be loaded: %s\n"
+msgstr "Oturum yüklenemedi: %s\n"
+
+#: ../midori/midori-session.c:424
+#, c-format
+msgid "The session couldn't be saved. %s"
+msgstr "Oturum kaydedilemedi. %s"
+
+#. i18n: Trash, or wastebin, containing closed tabs
+#: ../midori/midori-frontend.c:126
+#, c-format
+msgid "The trash couldn't be saved. %s"
+msgstr "Çöp kutusu kaydedilemedi. %s"
+
+#: ../midori/midori-frontend.c:336
+#, c-format
+msgid ""
+"Midori crashed the last time it was opened. You can report the problem at %s."
+msgstr ""
+
+#: ../midori/midori-frontend.c:345
+msgid "Modify _preferences"
+msgstr "_Tercihleri Değiştir"
+
+#: ../midori/midori-frontend.c:349
+msgid "Disable all _extensions"
+msgstr "Tüm _eklentiler kapalı"
+
+#: ../midori/midori-frontend.c:358
+msgid "Show a dialog after Midori crashed"
+msgstr "Midori çöktükten sonra bir diyalog göster"
+
+#: ../midori/midori-frontend.c:363
+msgid "Discard old tabs"
+msgstr "Eski sekmeleri çıkar"
+
+#: ../midori/midori-frontend.c:371
+msgid "Show last crash _log"
+msgstr ""
+
+#: ../midori/midori-frontend.c:384
+msgid "Run in _debugger"
+msgstr ""
+
+#: ../midori/midori-frontend.c:462
+msgid "An instance of Midori is already running but not responding.\n"
+msgstr "Şu anda Midori'nin başka bir örneği çalışıyor; ama cevap vermiyor.\n"
+
+#: ../midori/midori-frontend.c:495
+#, c-format
+msgid "Bookmarks couldn't be loaded: %s\n"
+msgstr "Yer imleri yüklenemedi: %s\n"
+
+#: ../midori/midori-frontend.c:526
+#, c-format
+msgid "The trash couldn't be loaded: %s\n"
+msgstr "Çöp kutusu yüklenemedi: %s\n"
+
+#: ../midori/midori-frontend.c:534
+#, c-format
+msgid "The history couldn't be loaded: %s\n"
+msgstr "Geçmiş yüklenemedi: %s\n"
+
+#: ../midori/midori-frontend.c:545
+msgid "The following errors occured:"
+msgstr "Şu hatalar ortaya çıktı:"
+
+#: ../midori/midori-frontend.c:550
+msgid "_Ignore"
+msgstr "_Yoksay"
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:127
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:273
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:247
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:292
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:662
+#, c-format
+msgid "SQL fails: %s"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:246
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:707
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:1116
+msgid "Accept"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:250
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:709
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:1117
+msgid "Accept for session"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:254
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:711
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:1118
+msgid "Block"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:300
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:151
+#, c-format
+msgid "Could not open database of extenstion: %s"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:403
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:406
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:457
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:196
+#, c-format
+msgid "Failed to execute database statement: %s"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:432
+msgid "Do you really want to delete all cookie permissions?"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:434
+msgid "Delete all cookie permissions?"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:438
+msgid ""
+"This action will delete all cookie permissions. You will be asked for "
+"permissions again for each web site visited."
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:608
+msgid "Cookie permission manager"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:609
+msgid "Instance of current cookie permission manager"
+msgstr ""
+
+#. Set up dialog
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:650
+msgid "Configure cookie permission"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:665
+#, c-format
+msgid ""
+"Below is a list of all web sites and the policy set for them. You can delete "
+"policies by marking the entries and clicking on <i>Delete</i>.You can also "
+"add a policy for a domain manually by entering the domain below, choosing "
+"the policy and clicking on <i>Add</i>."
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:740
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:556
+msgid "Domain"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:748
+msgid "Policy"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:777
+msgid "Delete _all"
+msgstr ""
+
+#. Add "ask-for-unknown-policy" checkbox
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:786
+msgid "A_sk for policy if unknown for a domain"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:91
+msgid ""
+"A fatal error occurred which prevents the cookie permission manager "
+"extension to continue. You should disable it."
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:95
+msgid "Error in cookie permission manager extension"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:100
+msgid "Reason"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:140
+#, c-format
+msgid "Could not create configuration folder for extension: %s"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:142
+msgid "Could not create configuration folder for extension."
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:159
+msgid "Could not open database of extension."
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:192
+msgid "Could not set up database structure of extension."
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:313
+#, c-format
+msgid "Could not determine global cookie policy to set for domain: %s"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:488
+msgid "Till session end"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:512
+#, c-format
+msgid "The website %s wants to store %d cookies."
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:514
+#, c-format
+msgid "The website %s wants to store a cookie."
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:518
+#, c-format
+msgid "Multiple websites want to store %d cookies in total."
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:527
+msgid "_Accept"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:528
+msgid "Accept for this _session"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:529
+msgid "De_ny"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:530
+msgid "Deny _this time"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:563
+msgid "Path"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:577
+msgid "Value"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:588
+msgid "Expire date"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:1011
+msgid "Extension instance"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:1012
+msgid "The Midori extension instance for this extension"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:1018
+msgid "Application instance"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:1019
+msgid "The Midori application instance this extension belongs to"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:1025
+msgid "Database instance"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:1026
+msgid "Pointer to sqlite database instance used by this extension"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:1031
+msgid "Database path"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:1032
+msgid "Path to sqlite database instance used by this extension"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:1038
+msgid "Ask for unknown policy"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:1039
+msgid ""
+"If true this extension ask for policy for every unknown domain.If false this "
+"extension uses the global cookie policy set in Midori settings."
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:1115
+msgid "Undetermined"
+msgstr ""
+
+#: ../extensions/cookie-permissions/main.c:62
+msgid "Cookie Security Manager"
+msgstr ""
+
+#: ../extensions/cookie-permissions/main.c:63
+msgid "Manage cookie permission per site"
+msgstr ""
+
+#: ../extensions/apps.vala:46
+msgid "Launcher created"
+msgstr ""
+
+#: ../extensions/apps.vala:47
+#, c-format
+msgid "You can now run <b>%s</b> from your launcher or menu"
+msgstr ""
+
+#: ../extensions/apps.vala:54
+msgid "Error creating launcher"
+msgstr ""
+
+#: ../extensions/apps.vala:55
+#, c-format
+msgid "Failed to create new launcher: %s"
+msgstr ""
+
+#: ../extensions/apps.vala:92
+msgid "Applications"
+msgstr "Uygulamalar"
+
+#: ../extensions/apps.vala:101
+msgid "New _Profile"
+msgstr ""
+
+#: ../extensions/apps.vala:102
+msgid "Creates a new, independant profile and a launcher"
+msgstr ""
+
+#: ../extensions/apps.vala:111
+#, c-format
+msgid "Midori (%s)"
+msgstr ""
+
+#: ../extensions/apps.vala:116
+msgid "New _App"
+msgstr ""
+
+#: ../extensions/apps.vala:117
+msgid "Creates a new app for a specific site"
+msgstr ""
+
+#: ../extensions/apps.vala:276
+msgid "Create _Launcher"
+msgstr "_Başlatıcı Oluştur"
+
+#: ../extensions/apps.vala:314
+msgid "Web App Manager"
+msgstr ""
+
+#: ../extensions/apps.vala:315
+msgid "Manage websites installed as applications"
+msgstr ""
+
+#: ../extensions/transfers.vala:98
+msgid "Transfers"
+msgstr "Aktarımlar"
+
+#: ../extensions/transfers.vala:111 ../extensions/transfers.vala:373
+msgid "Clear All"
+msgstr "Hepsini Temizle"
+
+#: ../extensions/transfers.vala:205
+msgid "Open Destination _Folder"
+msgstr "Hedef _Dizini Aç"
+
+#: ../extensions/transfers.vala:212
+msgid "Copy Link Loc_ation"
+msgstr "Konum Bağlantısını Kopyala"
+
+#: ../extensions/transfers.vala:431
+#, c-format
+msgid "The file '<b>%s</b>' has been downloaded."
+msgstr "Dosya '<b>%s</b>' indirildi."
+
+#: ../extensions/transfers.vala:433
+#, c-format
+msgid "'<b>%s</b>' and %d other files have been downloaded."
+msgstr ""
+
+#: ../extensions/transfers.vala:434
+msgid "Transfer completed"
+msgstr "Aktarım tamamlandı"
+
+#: ../extensions/transfers.vala:484 ../extensions/transfers.vala:485
+msgid "Some files are being downloaded"
+msgstr "Bazı dosyalar indiriliyor"
+
+#: ../extensions/transfers.vala:487
+msgid "_Quit Midori"
+msgstr "Midori'den _çık"
+
+#: ../extensions/transfers.vala:489
+msgid "The transfers will be cancelled if Midori quits."
+msgstr "Midori kapatılırsa aktarmalar iptal edilecek."
+
+#: ../extensions/transfers.vala:538
+msgid "Transfer Manager"
+msgstr ""
+
+#: ../extensions/transfers.vala:539
+msgid "View downloaded files"
+msgstr ""

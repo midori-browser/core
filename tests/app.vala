@@ -23,7 +23,7 @@ void app_normal () {
     Midori.Test.log_set_fatal_handler_for_icons ();
     Midori.Paths.Test.reset_runtime_mode ();
     Midori.App.set_instance_is_running (false);
-    var app = Midori.normal_app_new (null, "test-normal", false, null, null, null, -1, null);
+    var app = Midori.normal_app_new (null, "test-normal", false, null, null, -1, null);
     var loop = MainContext.default ();
     do { loop.iteration (true); } while (loop.pending ());
     for (var i = 0 ; i < 7; i++) {
@@ -47,7 +47,7 @@ void app_normal_custom_config () {
     Midori.Paths.Test.reset_runtime_mode ();
     Midori.App.set_instance_is_running (false);
     var app = Midori.normal_app_new (Midori.Paths.make_tmp_dir ("custom-configXXXXXX"),
-        "test-custom-config-normal", false, null, null, null, -1, null);
+        "test-custom-config-normal", false, null, null, -1, null);
     var loop = MainContext.default ();
     do { loop.iteration (true); } while (loop.pending ());
     assert (check_sensible_window_size (app.browser, app.settings));
@@ -67,7 +67,7 @@ void app_private () {
 void app_web () {
     Midori.Paths.Test.reset_runtime_mode ();
     Midori.App.set_instance_is_running (false);
-    var browser = Midori.web_app_new (null, null, null, null, -1, null);
+    var browser = Midori.web_app_new ("https://mail.google.com", null, null, -1, null);
     var loop = MainContext.default ();
     do { loop.iteration (true); } while (loop.pending ());
     assert (check_sensible_window_size (browser, browser.settings));
@@ -76,7 +76,7 @@ void app_web () {
 void app_web_custom_config () {
     Midori.Paths.Test.reset_runtime_mode ();
     Midori.App.set_instance_is_running (false);
-    var browser = Midori.web_app_new (Midori.Paths.make_tmp_dir ("custom-configXXXXXX"), null, null, null, -1, null);
+    var browser = Midori.web_app_new ("https://mail.google.com", null, null, -1, null);
     var loop = MainContext.default ();
     do { loop.iteration (true); } while (loop.pending ());
     assert (check_sensible_window_size (browser, browser.settings));
@@ -90,7 +90,7 @@ void app_extensions_load () {
     Midori.Test.log_set_fatal_handler_for_icons ();
     Midori.Paths.Test.reset_runtime_mode ();
     Midori.App.set_instance_is_running (false);
-    var app = Midori.normal_app_new (null, "test-extensions-normal", false, null, null, null, -1, null);
+    var app = Midori.normal_app_new (null, "test-extensions-normal", false, null, null, -1, null);
     var loop = MainContext.default ();
     do { loop.iteration (true); } while (loop.pending ());
     /* No extensions loaded */
@@ -136,7 +136,7 @@ void app_extensions_activate () {
     Midori.Test.log_set_fatal_handler_for_icons ();
     Midori.Paths.Test.reset_runtime_mode ();
     Midori.App.set_instance_is_running (false);
-    var app = Midori.normal_app_new (null, "test-extensions-normal", false, null, null, null, -1, null);
+    var app = Midori.normal_app_new (null, "test-extensions-normal", false, null, null, -1, null);
     var loop = MainContext.default ();
     do { loop.iteration (true); } while (loop.pending ());
     Midori.Extension.load_from_folder (app, null, false);

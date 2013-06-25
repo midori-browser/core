@@ -5,343 +5,369 @@
 # Igor Știrbu <igor.stirbu@gmail.com> 2009
 # Mișu Moldovan <dumol@xfce.org> 2009-2012
 # Andrei Popescu <andreimpopescu@gmail.com> 2010
-# 
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: midori 0.4.7git\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-02-06 11:33+0000\n"
-"PO-Revision-Date: 2012-12-30 16:26+0200\n"
-"Last-Translator: Mișu Moldovan <dumol@xfce.org>\n"
+"POT-Creation-Date: 2013-06-01 21:58+0200\n"
+"PO-Revision-Date: 2013-06-02 11:54+0000\n"
+"Last-Translator: WebKit Team <Unknown>\n"
 "Language-Team: Romanian <debian-l10n-romanian@lists.debian.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n == 1 ? 0: (((n % 100 > 19) || ((n % 100 "
+"== 0) && (n != 0))) ? 2: 1));\n"
+"X-Launchpad-Export-Date: 2013-06-03 05:13+0000\n"
+"X-Generator: Launchpad (build 16660)\n"
 "Language: ro\n"
-"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < 20)) ? 1 : 2);;\n"
-"X-Generator: Virtaal 0.6.1\n"
 
-#: ../data/midori.desktop.in.h:1
-msgid "Browse the Web"
-msgstr "Navigați pe Internet"
-
-#: ../data/midori.desktop.in.h:2
-msgid "Internet;WWW;Explorer"
-msgstr "Internet;WWW;Navigator"
-
-#: ../data/midori.desktop.in.h:3 ../midori/main.c:138 ../midori/main.c:151
-#: ../midori/midori-app.c:1443 ../midori/midori-websettings.c:201
+#: ../data/midori.desktop.in.h:1 ../midori/main.c:162
+#: ../midori/midori-websettings.c:228
 msgid "Midori"
 msgstr "Midori"
 
-#: ../data/midori.desktop.in.h:4
+#: ../data/midori.desktop.in.h:2
+msgid "Web Browser"
+msgstr "Navigator web"
+
+#: ../data/midori.desktop.in.h:3
 msgid "Midori Web Browser"
 msgstr "Navigatorul web Midori"
 
-#: ../data/midori.desktop.in.h:5
-msgid "New Private Browsing Window"
-msgstr "Fereastră nouă de navigare privată"
+#: ../data/midori.desktop.in.h:4
+msgid "Browse the Web"
+msgstr "Navigați pe Internet"
 
-#: ../data/midori.desktop.in.h:6 ../midori/midori-browser.c:1268
+#: ../data/midori.desktop.in.h:5
+msgid "Internet;WWW;Explorer"
+msgstr "Internet;WWW;Navigator"
+
+#: ../data/midori.desktop.in.h:6 ../midori/midori-browser.c:1390
 msgid "New Tab"
 msgstr "Tab nou"
 
-#: ../data/midori.desktop.in.h:7 ../midori/midori-browser.c:1265
+#: ../data/midori.desktop.in.h:7 ../midori/midori-browser.c:1387
 msgid "New Window"
 msgstr "Fereastră nouă"
 
 #: ../data/midori.desktop.in.h:8
-msgid "Web Browser"
-msgstr "Navigator web"
+msgid "New Private Browsing Window"
+msgstr "Fereastră nouă de navigare privată"
 
 #: ../data/midori-private.desktop.in.h:1
 msgid "Midori Private Browsing"
 msgstr "Navigare privată cu Midori"
 
-#: ../data/midori-private.desktop.in.h:2
-msgid "Open a new private browsing window"
-msgstr "Deschide o nouă fereastră de navigare privată"
-
-#: ../data/midori-private.desktop.in.h:3 ../midori/midori-view.c:3925
+#: ../data/midori-private.desktop.in.h:2 ../midori/midori-view.c:4395
 msgid "Private Browsing"
 msgstr "Navigare privată"
 
-#: ../midori/main.c:62
+#: ../data/midori-private.desktop.in.h:3
+msgid "Open a new private browsing window"
+msgstr "Deschide o nouă fereastră de navigare privată"
+
+#: ../midori/main.c:72
 #, c-format
 msgid "Snapshot saved to: %s\n"
 msgstr "Captură salvată în: %s\n"
 
-#: ../midori/main.c:87
+#: ../midori/main.c:99
 msgid "Run ADDRESS as a web application"
 msgstr "Deschide ADRESA ca o aplicație web"
 
-#: ../midori/main.c:87
+#: ../midori/main.c:99
 msgid "ADDRESS"
 msgstr "ADRESĂ"
 
-#: ../midori/main.c:89
+#: ../midori/main.c:101
 msgid "Use FOLDER as configuration folder"
 msgstr "Folosește DOSAR ca dosar cu preferințe"
 
-#: ../midori/main.c:89
+#: ../midori/main.c:101
 msgid "FOLDER"
 msgstr "DOSAR"
 
-#: ../midori/main.c:91
+#: ../midori/main.c:103
 msgid "Private browsing, no changes are saved"
 msgstr "Navigare privată, nu se salvează modificările"
 
-#: ../midori/main.c:94
+#: ../midori/main.c:106
 msgid "Portable mode, all runtime files are stored in one place"
 msgstr ""
 "Mod portabil, toate fișierele necesare executabilului sunt ținute într-un "
 "singur loc"
 
-#: ../midori/main.c:97
+#: ../midori/main.c:109
 msgid "Plain GTK+ window with WebKit, akin to GtkLauncher"
 msgstr "Ferestră GTK+ minimală cu WebKit, precum GtkLauncher"
 
-#: ../midori/main.c:99
+#: ../midori/main.c:111
 msgid "Show a diagnostic dialog"
 msgstr "Arată o fereastră de depanare"
 
-#: ../midori/main.c:101
+#: ../midori/main.c:113
+msgid "Run within gdb and save a backtrace on crash"
+msgstr ""
+
+#: ../midori/main.c:115
 msgid "Run the specified filename as javascript"
 msgstr "Execută ca JavaScript fișierul precizat"
 
-#: ../midori/main.c:103
+#: ../midori/main.c:117
 msgid "Take a snapshot of the specified URI"
 msgstr "Salvează o captură a URI-ului specificat"
 
-#: ../midori/main.c:105
+#: ../midori/main.c:119
 msgid "Execute the specified command"
 msgstr "Execută comanda specificată"
 
-#: ../midori/main.c:107
+#: ../midori/main.c:121
 msgid "List available commands to execute with -e/ --execute"
 msgstr "Arată comenzile ce pot fi executate cu -e / --execute"
 
-#: ../midori/main.c:109
+#: ../midori/main.c:123
 msgid "Display program version"
 msgstr "Arată versiunea programului"
 
-#: ../midori/main.c:111
+#: ../midori/main.c:125
 msgid "Addresses"
 msgstr "Adrese"
 
-#: ../midori/main.c:113
+#: ../midori/main.c:127
 msgid "Block URIs according to regular expression PATTERN"
 msgstr "Blochează URI-uri după modelul regexp MODEL"
 
-#: ../midori/main.c:113
+#: ../midori/main.c:127
 msgid "PATTERN"
 msgstr "MODEL"
 
 #. i18n: CLI: Close tabs, clear private data, open starting page
-#: ../midori/main.c:117
+#: ../midori/main.c:131
 msgid "Reset Midori after SECONDS seconds of inactivity"
 msgstr "Repornește Midori după un număr de SECUNDE de inactivitate"
 
-#: ../midori/main.c:117
+#: ../midori/main.c:131
 msgid "SECONDS"
 msgstr "SECUNDE"
 
-#: ../midori/main.c:152
+#: ../midori/main.c:156
+msgid "Error: \"gdb\" can't be found\n"
+msgstr ""
+
+#: ../midori/main.c:182
 msgid "Please report comments, suggestions and bugs to:"
 msgstr "Trimiteți comentarii, sugestii și raportați problemele la:"
 
-#: ../midori/main.c:154
+#: ../midori/main.c:184
 msgid "Check for new versions at:"
 msgstr "Versiunile noi sunt disponibile la:"
 
-#: ../midori/main.c:299
+#: ../midori/main.c:384
 msgid "An unknown error occured"
 msgstr "A intervenit o eroare necunoscută"
 
-#: ../midori/midori-app.c:1129 ../midori/midori-browser.c:524
-#, c-format
-msgid "Unexpected action '%s'."
-msgstr "Acțiune neașteptată „%s”."
-
-#: ../midori/midori-app.c:1351 ../midori/midori-browser.c:6070
+#: ../midori/midori-app.c:1337 ../midori/midori-browser.c:6124
 msgid "_Bookmarks"
 msgstr "Favori_te"
 
-#: ../midori/midori-app.c:1352
+#: ../midori/midori-app.c:1338
 msgid "Add Boo_kmark"
 msgstr "Adaugă ca fa_vorit"
 
-#: ../midori/midori-app.c:1353
+#: ../midori/midori-app.c:1339
 msgid "_Extensions"
 msgstr "E_xtensii"
 
 #. i18n: Browsing history, visited web pages, closed tabs
-#: ../midori/midori-app.c:1354 ../midori/midori-privatedata.c:153
+#: ../midori/midori-app.c:1340 ../midori/midori-privatedata.c:177
 msgid "_History"
 msgstr "_Istoric"
 
-#: ../midori/midori-app.c:1355
+#: ../midori/midori-app.c:1341
 msgid "_Userscripts"
 msgstr "Scripturi pr_oprii"
 
-#: ../midori/midori-app.c:1356
+#: ../midori/midori-app.c:1342
 msgid "User_styles"
 msgstr "_Stiluri de utilizator"
 
-#: ../midori/midori-app.c:1357
+#: ../midori/midori-app.c:1343
 msgid "New _Tab"
 msgstr "Ta_b nou"
 
-#: ../midori/midori-app.c:1358
+#: ../midori/midori-app.c:1344
 msgid "_Transfers"
 msgstr "De_scărcări"
 
-#: ../midori/midori-app.c:1359
+#: ../midori/midori-app.c:1345
 msgid "Netscape p_lugins"
 msgstr "Module _Netscape"
 
-#: ../midori/midori-app.c:1360
+#: ../midori/midori-app.c:1346
 msgid "_Closed Tabs"
 msgstr "Taburi în_chise"
 
-#: ../midori/midori-app.c:1361 ../midori/midori-browser.c:5209
+#: ../midori/midori-app.c:1347 ../midori/midori-browser.c:5267
 msgid "New _Window"
 msgstr "_Fereastră nouă"
 
-#: ../midori/midori-app.c:1362
+#: ../midori/midori-app.c:1348
 msgid "New _Folder"
 msgstr "_Dosar nou"
 
-#: ../midori/midori-app.c:1417 ../midori/midori-app.c:1420
-#: ../midori/midori-app.c:1423
+#: ../midori/midori-app.c:1403 ../midori/midori-app.c:1406
+#: ../midori/midori-app.c:1409
 msgid "[Addresses]"
 msgstr "[Adrese]"
 
-#: ../midori/midori-array.c:522
+#: ../midori/midori-array.c:549
 msgid "File not found."
 msgstr "Nu s-a găsit fișierul."
 
-#: ../midori/midori-array.c:547 ../midori/midori-array.c:586
-#: ../midori/midori-array.c:609 ../midori/midori-array.c:619
+#: ../midori/midori-array.c:574 ../midori/midori-array.c:613
+#: ../midori/midori-array.c:637 ../midori/midori-array.c:647
 msgid "Malformed document."
 msgstr "Document nevalid."
 
-#: ../midori/midori-array.c:628
+#: ../midori/midori-array.c:656
 msgid "Unrecognized bookmark format."
 msgstr "Format necunoscut de favorite."
 
-#: ../midori/midori-array.c:915
-msgid "Writing failed."
-msgstr "Scrierea a eșuat."
-
-#: ../midori/midori-browser.c:337 ../midori/midori-browser.c:5345
+#: ../midori/midori-browser.c:324 ../midori/midori-browser.c:5399
 msgid "Go forward to the next page"
 msgstr "Salt la pagina următoare"
 
 #. i18n: Visit the following logical page, ie. in a forum or blog
-#: ../midori/midori-browser.c:344 ../midori/midori-browser.c:5353
-#: ../midori/midori-browser.c:5356
+#: ../midori/midori-browser.c:331 ../midori/midori-browser.c:5407
+#: ../midori/midori-browser.c:5410
 msgid "Go to the next sub-page"
 msgstr "Salt la sub-pagina următoare"
 
-#: ../midori/midori-browser.c:431 ../midori/midori-browser.c:5294
-#: ../midori/midori-browser.c:5303
+#: ../midori/midori-browser.c:341
+msgid "Web Search…"
+msgstr ""
+
+#: ../midori/midori-browser.c:445 ../midori/midori-browser.c:5348
+#: ../midori/midori-browser.c:5357
 msgid "Reload the current page"
 msgstr "Reîncarcă pagina curentă"
 
-#: ../midori/midori-browser.c:439 ../midori/midori-browser.c:5300
+#: ../midori/midori-browser.c:453 ../midori/midori-browser.c:5354
 msgid "Stop loading the current page"
 msgstr "Oprește încărcarea paginii curente"
 
-#: ../midori/midori-browser.c:509
+#: ../midori/midori-browser.c:523
 #, c-format
 msgid "Failed to update title: %s\n"
 msgstr "Nu s-a putut actualiza titlul: %s\n"
 
-#: ../midori/midori-browser.c:604
+#: ../midori/midori-browser.c:562 ../midori/midori-browser.c:618
+#: ../midori/midori-browser.c:621 ../midori/midori-websettings.c:1465
+#, c-format
+msgid "Value '%s' is invalid for %s"
+msgstr "Valoarea „%s” nu este validă pentru %s"
+
+#: ../midori/midori-browser.c:570 ../midori/midori-browser.c:641
+#: ../midori/midori-browser.c:6933
+#, c-format
+msgid "Unexpected setting '%s'"
+msgstr "Opțiune neașteptată „%s”"
+
+#: ../midori/midori-browser.c:578 ../midori/midori-browser.c:651
+#, c-format
+msgid "Unexpected action '%s'."
+msgstr "Acțiune neașteptată „%s”."
+
+#: ../midori/midori-browser.c:731
 #, c-format
 msgid "%s (Private Browsing)"
 msgstr "%s (Navigare privată)"
 
-#: ../midori/midori-browser.c:714 ../midori/midori-browser.c:756
+#: ../midori/midori-browser.c:841 ../midori/midori-browser.c:883
 #: ../panels/midori-bookmarks.c:114
 msgid "Bookmarks"
 msgstr "Favorite"
 
-#: ../midori/midori-browser.c:810
-msgid "New folder"
-msgstr "Dosar nou"
+#: ../midori/midori-browser.c:937
+msgid "New Folder"
+msgstr ""
 
-#: ../midori/midori-browser.c:810
-msgid "Edit folder"
-msgstr "Editare dosar"
+#: ../midori/midori-browser.c:937
+msgid "Edit Folder"
+msgstr ""
 
-#: ../midori/midori-browser.c:812
-msgid "New bookmark"
-msgstr "Favorit nou"
+#: ../midori/midori-browser.c:939
+msgid "New Bookmark"
+msgstr ""
 
-#: ../midori/midori-browser.c:812
-msgid "Edit bookmark"
-msgstr "Editare favorite"
+#: ../midori/midori-browser.c:939
+msgid "Edit Bookmark"
+msgstr ""
 
-#: ../midori/midori-browser.c:846
-msgid "Type a name for this bookmark and choose where to keep it."
-msgstr "Introduceți un nume pentru acest favorit și alegeți unde să-l salvați."
+#: ../midori/midori-browser.c:961
+msgid "Type a name for this bookmark, and choose where to keep it."
+msgstr ""
 
-#: ../midori/midori-browser.c:902
+#: ../midori/midori-browser.c:963
+msgid "Type a name for this folder, and choose where to keep it."
+msgstr ""
+
+#: ../midori/midori-browser.c:1017
 msgid "Add to _Speed Dial"
 msgstr "Ada_ugă ca apel rapid"
 
-#: ../midori/midori-browser.c:908
-msgid "Show in the tool_bar"
-msgstr "Arată în _bara cu unelte"
+#: ../midori/midori-browser.c:1026
+msgid "Show in Bookmarks _Bar"
+msgstr ""
 
-#: ../midori/midori-browser.c:916
+#: ../midori/midori-browser.c:1034
 msgid "Run as _web application"
 msgstr "Deschide ca o aplicație _web"
 
-#: ../midori/midori-browser.c:1026 ../midori/midori-browser.c:4447
+#: ../midori/midori-browser.c:1147 ../midori/midori-browser.c:4510
 msgid "Save file as"
 msgstr "Salvare fișier ca"
 
-#: ../midori/midori-browser.c:1036
+#: ../midori/midori-browser.c:1157
 msgid "Save associated _resources"
 msgstr "Salvează resursele _asociate"
 
-#: ../midori/midori-browser.c:1265
+#: ../midori/midori-browser.c:1387
 msgid "A new window has been opened"
 msgstr "S-a deschis o nouă fereastră"
 
-#: ../midori/midori-browser.c:1268
+#: ../midori/midori-browser.c:1390
 msgid "A new tab has been opened"
 msgstr "S-a deschis un nou tab"
 
-#: ../midori/midori-browser.c:1285
+#: ../midori/midori-browser.c:1408
 msgid "Error opening the image!"
 msgstr "Eroare la deschiderea imaginii!"
 
-#: ../midori/midori-browser.c:1286
+#: ../midori/midori-browser.c:1409
 msgid "Can not open selected image in a default viewer."
 msgstr ""
 "Nu s-a putut deschide imaginea selectată în programul asociat implicit."
 
-#: ../midori/midori-browser.c:1292
+#: ../midori/midori-browser.c:1415
 msgid "Error downloading the image!"
 msgstr "Eroare la descărcarea imaginii!"
 
-#: ../midori/midori-browser.c:1293
+#: ../midori/midori-browser.c:1416
 msgid "Can not download selected image."
 msgstr "Nu s-a putut descărca imaginea selectată."
 
-#: ../midori/midori-browser.c:1350
+#: ../midori/midori-browser.c:1493
 msgid "Save file"
 msgstr "Salvare fișier"
 
-#: ../midori/midori-browser.c:2318
+#: ../midori/midori-browser.c:2462
 msgid "Open file"
 msgstr "Deschidere fișier"
 
-#: ../midori/midori-browser.c:2444
+#: ../midori/midori-browser.c:2548
 msgid ""
 "To use the above URI open a news aggregator. There is usually a menu or "
 "button \"New Subscription\", \"New News Feed\" or similar.\n"
@@ -355,24 +381,31 @@ msgstr ""
 "preferințelor Midori. Data viitoare când veți mai da clic pe iconița unui "
 "flux de știri, acesta va fi adăugat automat."
 
-#: ../midori/midori-browser.c:2450 ../extensions/feed-panel/main.c:356
+#: ../midori/midori-browser.c:2554 ../extensions/feed-panel/main.c:349
 msgid "New feed"
 msgstr "Flux nou"
 
-#: ../midori/midori-browser.c:2485 ../midori/midori-browser.c:5369
+#: ../midori/midori-browser.c:2585 ../midori/midori-browser.c:5423
 #: ../panels/midori-bookmarks.c:527
 msgid "Add a new bookmark"
 msgstr "Adăugare favorit nou"
 
-#: ../midori/midori-browser.c:3009 ../midori/midori-searchaction.c:450
+#. FIXME: Blacklist/ custom contract doesn't work
+#. gchar* blacklisted_contracts[] = { "print", NULL };
+#. FIXME: granite: should return GtkWidget* like GTK+
+#: ../midori/midori-browser.c:2634 ../midori/midori-browser.c:5299
+msgid "Share this page"
+msgstr "Distribuiți această pagină"
+
+#: ../midori/midori-browser.c:3125 ../midori/midori-searchaction.c:450
 msgid "Empty"
 msgstr "Gol"
 
-#: ../midori/midori-browser.c:3404 ../midori/midori-browser.c:3405
+#: ../midori/midori-browser.c:3501 ../midori/midori-browser.c:3502
 msgid "Toggle text cursor navigation"
 msgstr "Navigare cu sau fără cursor"
 
-#: ../midori/midori-browser.c:3407
+#: ../midori/midori-browser.c:3504
 msgid ""
 "Pressing F7 toggles Caret Browsing. When active, a text cursor appears in "
 "all websites."
@@ -380,109 +413,109 @@ msgstr ""
 "Apăsând F7 comutați navigarea cu cursorul. Când aceasta va fi activă, va "
 "apărea un cursor în pagina web."
 
-#: ../midori/midori-browser.c:3410
+#: ../midori/midori-browser.c:3507
 msgid "_Enable Caret Browsing"
 msgstr "Activează _navigarea cu cursorul"
 
-#: ../midori/midori-browser.c:3851 ../midori/midori-browser.c:5817
+#: ../midori/midori-browser.c:3928 ../midori/midori-browser.c:5871
 #, c-format
 msgid "Failed to insert new history item: %s\n"
 msgstr "Nu s-a putut insera noul element în istoric: %s\n"
 
-#: ../midori/midori-browser.c:4179 ../panels/midori-bookmarks.c:840
-#: ../panels/midori-history.c:797
+#: ../midori/midori-browser.c:4242 ../panels/midori-bookmarks.c:835
+#: ../panels/midori-history.c:792
 msgid "Open all in _Tabs"
 msgstr "Deschide tot în _taburi"
 
-#: ../midori/midori-browser.c:4186 ../panels/midori-bookmarks.c:846
-#: ../panels/midori-history.c:803 ../extensions/feed-panel/feed-panel.c:519
+#: ../midori/midori-browser.c:4249 ../panels/midori-bookmarks.c:841
+#: ../panels/midori-history.c:798 ../extensions/feed-panel/feed-panel.c:511
 msgid "Open in New _Tab"
 msgstr "Deschide într-un _tab nou"
 
-#: ../midori/midori-browser.c:4189 ../midori/midori-view.c:2633
-#: ../midori/midori-view.c:4431 ../panels/midori-bookmarks.c:848
-#: ../panels/midori-history.c:805 ../extensions/feed-panel/feed-panel.c:521
+#: ../midori/midori-browser.c:4252 ../midori/midori-view.c:2915
+#: ../midori/midori-view.c:4873 ../panels/midori-bookmarks.c:843
+#: ../panels/midori-history.c:800 ../extensions/feed-panel/feed-panel.c:513
 msgid "Open in New _Window"
 msgstr "Deschide într-o _fereastră nouă"
 
-#: ../midori/midori-browser.c:4278
+#: ../midori/midori-browser.c:4341
 msgid "Arora"
 msgstr "Arora"
 
-#: ../midori/midori-browser.c:4279
+#: ../midori/midori-browser.c:4342
 msgid "Kazehakase"
 msgstr "Kazehakase"
 
-#: ../midori/midori-browser.c:4280
+#: ../midori/midori-browser.c:4343
 msgid "Opera"
 msgstr "Opera"
 
-#: ../midori/midori-browser.c:4281
+#: ../midori/midori-browser.c:4344
 msgid "Konqueror"
 msgstr "Konqueror"
 
-#: ../midori/midori-browser.c:4282
+#: ../midori/midori-browser.c:4345
 msgid "Epiphany"
 msgstr "Epiphany"
 
-#: ../midori/midori-browser.c:4283
+#: ../midori/midori-browser.c:4346
 #, c-format
 msgid "Firefox (%s)"
 msgstr "Firefox (%s)"
 
-#: ../midori/midori-browser.c:4284
+#: ../midori/midori-browser.c:4347
 msgid "Midori 0.2.6"
 msgstr "Midori 0.2.6"
 
-#: ../midori/midori-browser.c:4302
+#: ../midori/midori-browser.c:4365
 msgid "Import bookmarks…"
 msgstr "Importare de favorite…"
 
-#: ../midori/midori-browser.c:4305 ../midori/midori-browser.c:5374
+#: ../midori/midori-browser.c:4368
 msgid "_Import bookmarks"
 msgstr "Importă fa_voritele"
 
-#: ../midori/midori-browser.c:4316
+#: ../midori/midori-browser.c:4379
 msgid "_Application:"
 msgstr "_Program:"
 
-#: ../midori/midori-browser.c:4381
+#: ../midori/midori-browser.c:4444
 msgid "Import from XBEL or HTML file"
 msgstr "Importă dintr-un fișier XBEL sau HTML"
 
-#: ../midori/midori-browser.c:4409
+#: ../midori/midori-browser.c:4472
 msgid "Import from a file"
 msgstr "Importă dintr-un fișier"
 
-#: ../midori/midori-browser.c:4421
+#: ../midori/midori-browser.c:4484
 msgid "Failed to import bookmarks"
 msgstr "Nu s-au putut importa favoritele"
 
-#: ../midori/midori-browser.c:4452
+#: ../midori/midori-browser.c:4515
 msgid "XBEL Bookmarks"
 msgstr "Favorite XBEL"
 
-#: ../midori/midori-browser.c:4457
+#: ../midori/midori-browser.c:4520
 msgid "Netscape Bookmarks"
 msgstr "Favorite Netscape"
 
-#: ../midori/midori-browser.c:4471
+#: ../midori/midori-browser.c:4534
 msgid "Midori can only export to XBEL (*.xbel) and Netscape (*.html)"
 msgstr "Midori exportă doar în formatele XBEL (*.xbel) sau Netscape (*.html)"
 
-#: ../midori/midori-browser.c:4486
+#: ../midori/midori-browser.c:4549
 msgid "Failed to export bookmarks"
 msgstr "Nu s-au putut exporta favoritele"
 
-#: ../midori/midori-browser.c:4707
+#: ../midori/midori-browser.c:4765
 msgid "A lightweight web browser."
 msgstr "Un mic navigator web."
 
-#: ../midori/midori-browser.c:4708
+#: ../midori/midori-browser.c:4766
 msgid "See about:version for version info."
 msgstr "Consultați adresa about:version pentru detalii despre versiune."
 
-#: ../midori/midori-browser.c:4710
+#: ../midori/midori-browser.c:4768
 msgid ""
 "This library is free software; you can redistribute it and/or modify it "
 "under the terms of the GNU Lesser General Public License as published by the "
@@ -494,418 +527,415 @@ msgstr ""
 "publicată de Free Software Foundation, fie versiunea 2.1 ori o versiune "
 "ulterioară, la alegere."
 
-#: ../midori/midori-browser.c:4745
+#: ../midori/midori-browser.c:4803
 msgid "translator-credits"
 msgstr ""
 "Igor Știrbu <igor.stirbu@gmail.com>\n"
 "Mișu Moldovan <dumol@xfce.org>\n"
-"Andrei Popescu <andreimpopescu@gmail.com>"
+"Andrei Popescu <andreimpopescu@gmail.com>\n"
+"\n"
+"Launchpad Contributions:\n"
+"  Alexandru Musina https://launchpad.net/~alex-musina\n"
+"  Mișu Moldovan https://launchpad.net/~dumol\n"
+"  WebKit Team https://launchpad.net/~webkit-team\n"
+"  george tataru https://launchpad.net/~gtataru"
 
-#: ../midori/midori-browser.c:5207
+#: ../midori/midori-browser.c:5265
 msgid "_File"
 msgstr "_Fișier"
 
-#: ../midori/midori-browser.c:5210
+#: ../midori/midori-browser.c:5268
 msgid "Open a new window"
 msgstr "Deschide o fereastră nouă"
 
-#: ../midori/midori-browser.c:5213
+#: ../midori/midori-browser.c:5271
 msgid "Open a new tab"
 msgstr "Deschide un tab nou"
 
-#: ../midori/midori-browser.c:5215
+#: ../midori/midori-browser.c:5273
 msgid "New P_rivate Browsing Window"
 msgstr "Navigare p_rivată în fereastră nouă"
 
-#: ../midori/midori-browser.c:5219
+#: ../midori/midori-browser.c:5277
 msgid "Open a file"
 msgstr "Deschide un fișier"
 
-#: ../midori/midori-browser.c:5221
+#: ../midori/midori-browser.c:5279
 msgid "_Save Page As…"
 msgstr "_Salvează pagina ca…"
 
-#: ../midori/midori-browser.c:5222
+#: ../midori/midori-browser.c:5280
 msgid "Save to a file"
 msgstr "Salvează într-un fișier"
 
-#: ../midori/midori-browser.c:5224
+#: ../midori/midori-browser.c:5282
 msgid "Add to Speed _dial"
 msgstr "Ada_ugă ca apel rapid"
 
-#. N_("Add Shortcut to the _desktop"), "",
-#: ../midori/midori-browser.c:5228
-msgid "Create _Launcher"
-msgstr "Creează _lansator"
-
-#: ../midori/midori-browser.c:5231
+#: ../midori/midori-browser.c:5285
 msgid "Subscribe to News _feed"
 msgstr "Abonare la _fluxul de știri"
 
-#: ../midori/midori-browser.c:5237
+#: ../midori/midori-browser.c:5291
 msgid "_Close Tab"
 msgstr "În_chide tabul"
 
-#: ../midori/midori-browser.c:5238
+#: ../midori/midori-browser.c:5292
 msgid "Close the current tab"
 msgstr "Închide tabul curent"
 
-#: ../midori/midori-browser.c:5240
+#: ../midori/midori-browser.c:5294
 msgid "C_lose Window"
 msgstr "Înc_hide fereastra"
 
-#: ../midori/midori-browser.c:5244
+#: ../midori/midori-browser.c:5298
 msgid "_Share"
 msgstr "Distrib_uire"
 
-#: ../midori/midori-browser.c:5245
-msgid "Share this page"
-msgstr "Distribuiți această pagină"
-
-#: ../midori/midori-browser.c:5249
+#: ../midori/midori-browser.c:5303
 msgid "Print the current page"
 msgstr "Tipărește pagina curentă"
 
-#: ../midori/midori-browser.c:5252
+#: ../midori/midori-browser.c:5306
 msgid "Close a_ll Windows"
 msgstr "Închide to_ate ferestrele"
 
-#: ../midori/midori-browser.c:5255
+#: ../midori/midori-browser.c:5309
 msgid "_Edit"
 msgstr "_Editare"
 
-#: ../midori/midori-browser.c:5278
+#: ../midori/midori-browser.c:5332
 msgid "_Find…"
 msgstr "Ca_ută…"
 
-#: ../midori/midori-browser.c:5279
+#: ../midori/midori-browser.c:5333
 msgid "Find a word or phrase in the page"
 msgstr "Caută un cuvânt sau o frază în pagină"
 
-#: ../midori/midori-browser.c:5281
+#: ../midori/midori-browser.c:5335
 msgid "Find _Next"
 msgstr "Caută înai_nte"
 
-#: ../midori/midori-browser.c:5284
+#: ../midori/midori-browser.c:5338
 msgid "Find _Previous"
 msgstr "Caută înap_oi"
 
-#: ../midori/midori-browser.c:5288
+#: ../midori/midori-browser.c:5342
 msgid "Configure the application preferences"
 msgstr "Schimbați preferințele programului"
 
-#: ../midori/midori-browser.c:5290
+#: ../midori/midori-browser.c:5344
 msgid "_View"
 msgstr "_Vizualizare"
 
-#: ../midori/midori-browser.c:5291
+#: ../midori/midori-browser.c:5345
 msgid "_Toolbars"
 msgstr "_Bare cu unelte"
 
-#: ../midori/midori-browser.c:5296
+#: ../midori/midori-browser.c:5350
 msgid "Reload page without caching"
 msgstr "Reîncarcă pagina de la sursă"
 
-#: ../midori/midori-browser.c:5306
+#: ../midori/midori-browser.c:5360
 msgid "Increase the zoom level"
 msgstr "Zoom mărit"
 
-#: ../midori/midori-browser.c:5309
+#: ../midori/midori-browser.c:5363
 msgid "Decrease the zoom level"
 msgstr "Zoom micșorat"
 
-#: ../midori/midori-browser.c:5313
+#: ../midori/midori-browser.c:5367
 msgid "_Encoding"
 msgstr "C_odare"
 
-#: ../midori/midori-browser.c:5315
+#: ../midori/midori-browser.c:5369
 msgid "View So_urce"
 msgstr "Arată s_ursa"
 
-#: ../midori/midori-browser.c:5318
+#: ../midori/midori-browser.c:5372
 msgid "Ca_ret Browsing"
 msgstr "Navigare cu cu_rsor"
 
-#: ../midori/midori-browser.c:5322
+#: ../midori/midori-browser.c:5376
 msgid "Toggle fullscreen view"
 msgstr "Comută pe tot ecranul"
 
-#: ../midori/midori-browser.c:5324
+#: ../midori/midori-browser.c:5378
 msgid "Scroll _Left"
 msgstr "Derulare în _stânga"
 
-#: ../midori/midori-browser.c:5327
+#: ../midori/midori-browser.c:5381
 msgid "Scroll _Down"
 msgstr "Derulare în j_os"
 
-#: ../midori/midori-browser.c:5330
+#: ../midori/midori-browser.c:5384
 msgid "Scroll _Up"
 msgstr "Derulare în _sus"
 
-#: ../midori/midori-browser.c:5333
+#: ../midori/midori-browser.c:5387
 msgid "Scroll _Right"
 msgstr "Derulare în _dreapta"
 
-#: ../midori/midori-browser.c:5336
+#: ../midori/midori-browser.c:5390
 msgid "_Readable"
 msgstr "_Lizibil"
 
-#: ../midori/midori-browser.c:5339
+#: ../midori/midori-browser.c:5393
 msgid "_Go"
 msgstr "_Navigare"
 
-#: ../midori/midori-browser.c:5342
+#: ../midori/midori-browser.c:5396
 msgid "Go back to the previous page"
 msgstr "Salt la pagina anterioară"
 
 #. i18n: Visit the previous logical page, ie. in a forum or blog
-#: ../midori/midori-browser.c:5349
+#: ../midori/midori-browser.c:5403
 msgid "Go to the previous sub-page"
 msgstr "Salt la sub-pagina anterioară"
 
-#: ../midori/midori-browser.c:5358
+#: ../midori/midori-browser.c:5412
 msgid "_Homepage"
 msgstr "Pagină de _start"
 
-#: ../midori/midori-browser.c:5359
+#: ../midori/midori-browser.c:5413
 msgid "Go to your homepage"
 msgstr "Salt la pagina de start"
 
-#: ../midori/midori-browser.c:5361
+#: ../midori/midori-browser.c:5415
 msgid "Empty Trash"
 msgstr "Golește gunoiul"
 
-#: ../midori/midori-browser.c:5364
+#: ../midori/midori-browser.c:5418
 msgid "Undo _Close Tab"
 msgstr "Revocă înc_hiderea tabului"
 
-#: ../midori/midori-browser.c:5371
+#: ../midori/midori-browser.c:5425
 msgid "Add a new _folder"
 msgstr "Adaugă un _dosar nou"
 
-#: ../midori/midori-browser.c:5377
-msgid "_Export bookmarks"
-msgstr "E_xportă favoritele"
+#: ../midori/midori-browser.c:5428
+msgid "_Import bookmarks…"
+msgstr ""
 
-#: ../midori/midori-browser.c:5380 ../midori/midori-searchaction.c:459
-msgid "_Manage Search Engines"
-msgstr "_Gestionați motoarele de căutare"
+#: ../midori/midori-browser.c:5431
+msgid "_Export bookmarks…"
+msgstr ""
 
-#: ../midori/midori-browser.c:5383
-msgid "_Clear Private Data"
-msgstr "Șterge d_atele private"
+#: ../midori/midori-browser.c:5434
+msgid "_Manage Search Engines…"
+msgstr ""
 
-#: ../midori/midori-browser.c:5386
+#: ../midori/midori-browser.c:5437
+msgid "_Clear Private Data…"
+msgstr ""
+
+#: ../midori/midori-browser.c:5440
 msgid "_Inspect Page"
 msgstr "_Inspectați pagina"
 
-#: ../midori/midori-browser.c:5390
+#: ../midori/midori-browser.c:5444
 msgid "_Previous Tab"
 msgstr "Tabul a_nterior"
 
-#: ../midori/midori-browser.c:5393
+#: ../midori/midori-browser.c:5447
 msgid "_Next Tab"
 msgstr "Tabul u_rmător"
 
-#: ../midori/midori-browser.c:5395
+#: ../midori/midori-browser.c:5449
 msgid "Move Tab to _first position"
 msgstr "Mută tabul în p_rima poziție"
 
-#: ../midori/midori-browser.c:5397
+#: ../midori/midori-browser.c:5451
 msgid "Move Tab _Backward"
 msgstr "M_ută înapoi tabul"
 
-#: ../midori/midori-browser.c:5399
+#: ../midori/midori-browser.c:5453
 msgid "_Move Tab Forward"
 msgstr "_Mută înainte tabul"
 
-#: ../midori/midori-browser.c:5401
+#: ../midori/midori-browser.c:5455
 msgid "Move Tab to _last position"
 msgstr "Mută tabul în ulti_ma poziție"
 
-#: ../midori/midori-browser.c:5404
+#: ../midori/midori-browser.c:5458
 msgid "Focus _Current Tab"
 msgstr "Activează focusul tabului _curent"
 
-#: ../midori/midori-browser.c:5407
+#: ../midori/midori-browser.c:5461
 msgid "Focus _Next view"
 msgstr "Activează focusul _următorului widget"
 
-#: ../midori/midori-browser.c:5410
+#: ../midori/midori-browser.c:5464
 msgid "Only show the Icon of the _Current Tab"
 msgstr "Arată doar iconița tabului _curent"
 
-#: ../midori/midori-browser.c:5413
+#: ../midori/midori-browser.c:5467
 msgid "_Duplicate Current Tab"
 msgstr "_Duplică tabul curent"
 
-#: ../midori/midori-browser.c:5416
+#: ../midori/midori-browser.c:5470
 msgid "Close Ot_her Tabs"
 msgstr "Înc_hide celelalte taburi"
 
-#: ../midori/midori-browser.c:5419
+#: ../midori/midori-browser.c:5473
 msgid "Open last _session"
 msgstr "Deschide ultima _sesiune"
 
-#: ../midori/midori-browser.c:5422
+#: ../midori/midori-browser.c:5476
 msgid "_Help"
 msgstr "_Ajutor"
 
-#: ../midori/midori-browser.c:5424
+#: ../midori/midori-browser.c:5478
 msgid "_Frequent Questions"
 msgstr "Î_ntrebări frecvente"
 
-#: ../midori/midori-browser.c:5427
+#: ../midori/midori-browser.c:5481
 msgid "_Report a Problem…"
 msgstr "Raportați _o problemă…"
 
-#: ../midori/midori-browser.c:5432 ../midori/midori-browser.c:6089
+#: ../midori/midori-browser.c:5486 ../midori/midori-browser.c:6143
 msgid "_Tools"
 msgstr "_Unelte"
 
-#: ../midori/midori-browser.c:5439
+#: ../midori/midori-browser.c:5493
 msgid "_Menubar"
 msgstr "Bară de _meniu"
 
-#: ../midori/midori-browser.c:5443
+#: ../midori/midori-browser.c:5497
 msgid "_Navigationbar"
 msgstr "Bară de _navigare"
 
-#: ../midori/midori-browser.c:5447
+#: ../midori/midori-browser.c:5501
 msgid "Side_panel"
 msgstr "_Panou lateral"
 
-#: ../midori/midori-browser.c:5448
+#: ../midori/midori-browser.c:5502
 msgid "Sidepanel"
 msgstr "Panou lateral"
 
-#: ../midori/midori-browser.c:5451
+#: ../midori/midori-browser.c:5505
 msgid "_Bookmarkbar"
 msgstr "Bară cu _favorite"
 
-#: ../midori/midori-browser.c:5455
+#: ../midori/midori-browser.c:5509
 msgid "_Statusbar"
 msgstr "Bară de _stare"
 
-#: ../midori/midori-browser.c:5464 ../midori/midori-websettings.c:200
+#: ../midori/midori-browser.c:5518 ../midori/midori-websettings.c:227
 msgid "_Automatic"
 msgstr "_Automată"
 
-#: ../midori/midori-browser.c:5467 ../midori/midori-websettings.c:124
+#: ../midori/midori-browser.c:5521 ../midori/midori-websettings.c:151
 msgid "Chinese Traditional (BIG5)"
 msgstr "Chineză tradițională (BIG5)"
 
-#: ../midori/midori-browser.c:5470 ../midori/midori-websettings.c:125
+#: ../midori/midori-browser.c:5524 ../midori/midori-websettings.c:152
 msgid "Chinese Simplified (GB18030)"
 msgstr "Chineză simplificată (GB18030)"
 
 #. i18n: A double underscore "__" is used to prevent the mnemonic
-#: ../midori/midori-browser.c:5474
+#: ../midori/midori-browser.c:5528
 msgid "Japanese (SHIFT__JIS)"
 msgstr "Japoneză (SHIFT__JIS)"
 
-#: ../midori/midori-browser.c:5477 ../midori/midori-websettings.c:127
+#: ../midori/midori-browser.c:5531 ../midori/midori-websettings.c:154
 msgid "Korean (EUC-KR)"
 msgstr "Coreeană (EUC-KR)"
 
-#: ../midori/midori-browser.c:5480 ../midori/midori-websettings.c:128
+#: ../midori/midori-browser.c:5534 ../midori/midori-websettings.c:155
 msgid "Russian (KOI8-R)"
 msgstr "Rusă (KOI8-R)"
 
-#: ../midori/midori-browser.c:5483 ../midori/midori-websettings.c:129
+#: ../midori/midori-browser.c:5537 ../midori/midori-websettings.c:156
 msgid "Unicode (UTF-8)"
 msgstr "Unicode (UTF-8)"
 
-#: ../midori/midori-browser.c:5486 ../midori/midori-websettings.c:130
+#: ../midori/midori-browser.c:5540 ../midori/midori-websettings.c:157
 msgid "Western (ISO-8859-1)"
 msgstr "Vestică (ISO-8859-1)"
 
-#: ../midori/midori-browser.c:5489
+#: ../midori/midori-browser.c:5543 ../midori/midori-websettings.c:158
+#: ../midori/midori-websettings.c:234 ../katze/katze-utils.c:420
 msgid "Custom…"
 msgstr "Personalizat"
 
-#: ../midori/midori-browser.c:5995
+#: ../midori/midori-browser.c:6049
 msgid "_Separator"
 msgstr "_Separator"
 
-#: ../midori/midori-browser.c:6002
+#: ../midori/midori-browser.c:6056
 msgid "_Location…"
 msgstr "A_dresă…"
 
-#: ../midori/midori-browser.c:6004
+#: ../midori/midori-browser.c:6058
 msgid "Open a particular location"
 msgstr "Deschideți o anumită adresă"
 
-#: ../midori/midori-browser.c:6026
+#: ../midori/midori-browser.c:6080
 msgid "_Web Search…"
 msgstr "C_aută pe net…"
 
-#: ../midori/midori-browser.c:6028
+#: ../midori/midori-browser.c:6082
 msgid "Run a web search"
 msgstr "Porniți o căutare pe net"
 
-#: ../midori/midori-browser.c:6055
+#: ../midori/midori-browser.c:6109
 msgid "Reopen a previously closed tab or window"
 msgstr "Redeschideți taburi ori ferestre închise recent"
 
-#: ../midori/midori-browser.c:6072
+#: ../midori/midori-browser.c:6126
 msgid "Show the saved bookmarks"
 msgstr "Arată favoritele salvate"
 
-#: ../midori/midori-browser.c:6105
-msgid "_Window"
-msgstr "Fe_reastră"
+#: ../midori/midori-browser.c:6159
+msgid "_Tabs"
+msgstr ""
 
-#: ../midori/midori-browser.c:6107
+#: ../midori/midori-browser.c:6161
 msgid "Show a list of all open tabs"
 msgstr "Arată lista tuturor taburilor deschise"
 
-#: ../midori/midori-browser.c:6121
+#: ../midori/midori-browser.c:6175
 msgid "_Menu"
 msgstr "_Meniu"
 
-#: ../midori/midori-browser.c:6123
+#: ../midori/midori-browser.c:6177
 msgid "Menu"
 msgstr "Meniu"
-
-#: ../midori/midori-browser.c:6903
-#, c-format
-msgid "Unexpected setting '%s'"
-msgstr "Opțiune neașteptată „%s”"
 
 #: ../midori/midori-extension.c:341
 #, c-format
 msgid "The configuration of the extension '%s' couldn't be loaded: %s\n"
 msgstr "Opțiunile extensiei „%s” nu au putut fi încărcate: %s\n"
 
-#: ../midori/midori-extension.c:879 ../extensions/addons.c:1676
+#: ../midori/midori-extension.c:886 ../extensions/addons.c:1681
 #, c-format
 msgid "The configuration of the extension '%s' couldn't be saved: %s\n"
 msgstr "Opțiunile extensiei „%s” nu au putut fi salvate: %s\n"
 
-#: ../midori/midori-locationaction.c:1328
+#: ../midori/midori-locationaction.c:1324
 msgid "Export certificate"
 msgstr "Exportare certificat"
 
-#: ../midori/midori-locationaction.c:1360
+#: ../midori/midori-locationaction.c:1355
 msgid "The signing certificate authority is not known."
 msgstr "Autoritatea de semnare a certificatului nu este cunoscută."
 
-#: ../midori/midori-locationaction.c:1362
+#: ../midori/midori-locationaction.c:1357
 msgid ""
 "The certificate does not match the expected identity of the site that it was "
 "retrieved from."
 msgstr "Certificatul nu este potrivit domeniului din care a fost descărcat."
 
-#: ../midori/midori-locationaction.c:1364
+#: ../midori/midori-locationaction.c:1359
 msgid "The certificate's activation time is still in the future."
 msgstr "Data de activare a certificatului este în viitor."
 
-#: ../midori/midori-locationaction.c:1366
+#: ../midori/midori-locationaction.c:1361
 msgid "The certificate has expired"
 msgstr "Certificatul a expirat."
 
-#: ../midori/midori-locationaction.c:1368
+#: ../midori/midori-locationaction.c:1363
 msgid ""
 "The certificate has been revoked according to the GTlsConnection's "
 "certificate revocation list."
@@ -913,40 +943,40 @@ msgstr ""
 "Conform listei de certificate revocate GTlsConnection, certificatul a fost "
 "revocat."
 
-#: ../midori/midori-locationaction.c:1370
+#: ../midori/midori-locationaction.c:1365
 msgid "The certificate's algorithm is considered insecure."
 msgstr "Algoritmul certificatului este considerat nesigur."
 
-#: ../midori/midori-locationaction.c:1372
+#: ../midori/midori-locationaction.c:1367
 msgid "Some other error occurred validating the certificate."
 msgstr "A intervenit o altă eroare la validarea certificatului."
 
-#: ../midori/midori-locationaction.c:1419
+#: ../midori/midori-locationaction.c:1418
 msgid "_Export certificate"
 msgstr "_Exportare certificat"
 
-#: ../midori/midori-locationaction.c:1434
+#: ../midori/midori-locationaction.c:1431
 msgid "Self-signed"
 msgstr "Cu semnătură proprie"
 
-#: ../midori/midori-locationaction.c:1468
+#: ../midori/midori-locationaction.c:1462
 msgid "Security details"
 msgstr "Detalii de securitate"
 
 #. i18n: Right-click on Location, Open an URL from the clipboard
-#: ../midori/midori-locationaction.c:1555
+#: ../midori/midori-locationaction.c:1545
 msgid "Paste and p_roceed"
 msgstr "Lipește și co_ntinuă"
 
-#: ../midori/midori-locationaction.c:1787
+#: ../midori/midori-locationaction.c:1799
 msgid "Not verified"
 msgstr "Neverificată"
 
-#: ../midori/midori-locationaction.c:1795
+#: ../midori/midori-locationaction.c:1805
 msgid "Verified and encrypted connection"
 msgstr "Conexiune verificată și criptată"
 
-#: ../midori/midori-locationaction.c:1802
+#: ../midori/midori-locationaction.c:1810
 msgid "Open, unencrypted connection"
 msgstr "Conexiune deschisă, necriptată"
 
@@ -963,395 +993,386 @@ msgstr "Închide panoul"
 msgid "Align sidepanel to the left"
 msgstr "Aliniază la stânga panoul lateral"
 
-#: ../midori/midori-websettings.c:106
+#: ../midori/midori-websettings.c:114 ../midori/midori-websettings.c:135
 msgid "Show Speed Dial"
 msgstr "Arată apelurile rapide"
 
 # dumol: Truc pentru a micșora lățimea ferestrei cu preferințe
-#: ../midori/midori-websettings.c:107
+#: ../midori/midori-websettings.c:115 ../midori/midori-websettings.c:133
 msgid "Show Homepage"
 msgstr "Pagina de start"
 
 # dumol: Truc pentru a micșora lățimea ferestrei cu preferințe
-#: ../midori/midori-websettings.c:108 ../midori/midori-frontend.c:339
+#: ../midori/midori-websettings.c:116 ../midori/midori-frontend.c:365
 msgid "Show last open tabs"
 msgstr "Ultimele taburi deschise"
 
 # dumol: Truc pentru a micșora lățimea ferestrei cu preferințe
-#: ../midori/midori-websettings.c:109 ../midori/midori-frontend.c:338
+#: ../midori/midori-websettings.c:117 ../midori/midori-frontend.c:364
 msgid "Show last tabs without loading"
 msgstr "Ultimele taburi fără a le încărca"
 
-#: ../midori/midori-websettings.c:126
+#: ../midori/midori-websettings.c:132
+msgid "Show Blank Page"
+msgstr ""
+
+#: ../midori/midori-websettings.c:134
+msgid "Show default Search Engine"
+msgstr ""
+
+#: ../midori/midori-websettings.c:136
+msgid "Show custom page"
+msgstr ""
+
+#: ../midori/midori-websettings.c:153
 msgid "Japanese (SHIFT_JIS)"
 msgstr "Japoneză (SHIFT_JIS)"
 
-#: ../midori/midori-websettings.c:131 ../midori/midori-websettings.c:207
-#: ../katze/katze-utils.c:603
-msgid "Custom..."
-msgstr "Personalizare..."
-
-#: ../midori/midori-websettings.c:146
+#: ../midori/midori-websettings.c:173
 msgid "New tab"
 msgstr "Tab nou"
 
-#: ../midori/midori-websettings.c:147
+#: ../midori/midori-websettings.c:174
 msgid "New window"
 msgstr "Fereastră nouă"
 
-#: ../midori/midori-websettings.c:148
+#: ../midori/midori-websettings.c:175
 msgid "Current tab"
 msgstr "Tab curent"
 
-#: ../midori/midori-websettings.c:163
+#: ../midori/midori-websettings.c:190
 msgid "Default"
 msgstr "Implicit"
 
-#: ../midori/midori-websettings.c:164
+#: ../midori/midori-websettings.c:191
 msgid "Icons"
 msgstr "Iconițe"
 
-#: ../midori/midori-websettings.c:165
+#: ../midori/midori-websettings.c:192
 msgid "Small icons"
 msgstr "Iconițe mici"
 
-#: ../midori/midori-websettings.c:166
+#: ../midori/midori-websettings.c:193
 msgid "Text"
 msgstr "Text"
 
-#: ../midori/midori-websettings.c:167
+#: ../midori/midori-websettings.c:194
 msgid "Icons and text"
 msgstr "Iconițe și text"
 
-#: ../midori/midori-websettings.c:168
+#: ../midori/midori-websettings.c:195
 msgid "Text beside icons"
 msgstr "Text lângă iconițe"
 
-#: ../midori/midori-websettings.c:183
+#: ../midori/midori-websettings.c:210
 msgid "Automatic (GNOME or environment)"
 msgstr "Automat (din mediu ori GNOME)"
 
-#: ../midori/midori-websettings.c:184
+#: ../midori/midori-websettings.c:211
 msgid "HTTP proxy server"
 msgstr "Server proxy HTTP"
 
-#: ../midori/midori-websettings.c:185
+#: ../midori/midori-websettings.c:212
 msgid "No proxy server"
 msgstr "Fără server proxy"
 
-#: ../midori/midori-websettings.c:202
+#: ../midori/midori-websettings.c:229
 msgid "Chrome"
 msgstr "Chrome"
 
-#: ../midori/midori-websettings.c:203
+#: ../midori/midori-websettings.c:230
 msgid "Safari"
 msgstr "Safari"
 
-#: ../midori/midori-websettings.c:204
+#: ../midori/midori-websettings.c:231
 msgid "iPhone"
 msgstr "iPhone"
 
-#: ../midori/midori-websettings.c:205
+#: ../midori/midori-websettings.c:232
 msgid "Firefox"
 msgstr "Firefox"
 
-#: ../midori/midori-websettings.c:206
+#: ../midori/midori-websettings.c:233
 msgid "Internet Explorer"
 msgstr "Internet Explorer"
 
-#: ../midori/midori-websettings.c:280
-msgid "Toolbar Style:"
-msgstr "Stil pentru bara cu unelte:"
-
-#: ../midori/midori-websettings.c:281
+#: ../midori/midori-websettings.c:308
 msgid "The style of the toolbar"
 msgstr "Stilul barei cu unelte"
 
-# dumol: Truc pentru a micșora lățimea ferestrei cu preferințe
-#: ../midori/midori-websettings.c:290
-msgid "When Midori starts:"
-msgstr "La pornirea Midori arată:"
-
-#: ../midori/midori-websettings.c:327
-msgid "Open new pages in:"
-msgstr "Paginile noi se vor deschide în:"
-
-#. i18n: This refers to an application, not the 'user agent' string
-#: ../midori/midori-websettings.c:390
-msgid "Identify as"
-msgstr "Identificare"
-
-#: ../midori/midori-websettings.c:391
-msgid "What to identify as to web pages"
-msgstr "Alegeți identitatea de prezentat serverelor web"
-
-#: ../midori/midori-websettings.c:474
+#: ../midori/midori-websettings.c:510
 msgid "Always use my font choices"
 msgstr "Folosește întotdeauna fonturile mele"
 
-#: ../midori/midori-websettings.c:475
+#: ../midori/midori-websettings.c:511
 msgid "Override fonts picked by websites with user preferences"
-msgstr "Înlocuiește fonturile precizate în paginile web cu cele alese mai sus"
+msgstr ""
+"Înlocuiește fonturile precizate în paginile web cu cele alese mai sus"
 
-#: ../midori/midori-websettings.c:1305 ../midori/midori-websettings.c:1311
+#: ../midori/midori-websettings.c:1410 ../midori/midori-websettings.c:1416
 #, c-format
 msgid "The configuration couldn't be loaded: %s\n"
 msgstr "Nu s-au putut încărca preferințele: %s\n"
 
-#: ../midori/midori-websettings.c:1360
-#, c-format
-msgid "Value '%s' is invalid for %s"
-msgstr "Valoarea „%s” nu este validă pentru %s"
-
-#: ../midori/midori-websettings.c:1365 ../midori/midori-websettings.c:1476
+#: ../midori/midori-websettings.c:1470 ../midori/midori-websettings.c:1581
 #, c-format
 msgid "Invalid configuration value '%s'"
 msgstr "Valoare nevalidă „%s” în preferințe"
 
-#: ../midori/midori-tab.vala:117
+#: ../midori/midori-tab.vala:122
 #, c-format
 msgid "Failed to inject stylesheet: %s"
 msgstr "Nu s-a putut injecta foaia de stiluri: %s"
 
-#: ../midori/midori-view.c:725 ../midori/midori-view.c:866
+#: ../midori/midori-view.c:861 ../midori/midori-view.c:984
 msgid "Trust this website"
 msgstr "Site de încredere"
 
-#: ../midori/midori-view.c:864
+#: ../midori/midori-view.c:982
 msgid "Security unknown"
 msgstr "Nivel necunoscut de securitate"
 
-#: ../midori/midori-view.c:1162
+#: ../midori/midori-view.c:1335
 #, c-format
 msgid "%s wants to save an HTML5 database."
 msgstr "%s dorește să salveze o bază de date HTML5."
 
-#: ../midori/midori-view.c:1166 ../midori/midori-view.c:1198
+#: ../midori/midori-view.c:1339 ../midori/midori-view.c:1371
 msgid "_Deny"
 msgstr "_Refuză"
 
-#: ../midori/midori-view.c:1166 ../midori/midori-view.c:1198
+#: ../midori/midori-view.c:1339 ../midori/midori-view.c:1371
 msgid "_Allow"
 msgstr "_Acceptă"
 
-#: ../midori/midori-view.c:1194
+#: ../midori/midori-view.c:1367
 #, c-format
 msgid "%s wants to know your location."
 msgstr "%s dorește să vă identifice locația."
 
-#: ../midori/midori-view.c:1305
+#: ../midori/midori-view.c:1498
 #, c-format
 msgid "Error - %s"
 msgstr "Eroare - %s"
 
-#: ../midori/midori-view.c:1306
+#: ../midori/midori-view.c:1499
 #, c-format
 msgid "The page '%s' couldn't be loaded."
 msgstr "Nu s-a putut încărca pagina „%s”."
 
-#: ../midori/midori-view.c:1308
+#: ../midori/midori-view.c:1501 ../midori/midori-view.c:1645
 msgid "Try again"
 msgstr "Reîncearcă"
 
-#: ../midori/midori-view.c:1507 ../midori/midori-view.c:2574
+#: ../midori/midori-view.c:1642
+#, c-format
+msgid "Oops - %s"
+msgstr ""
+
+#: ../midori/midori-view.c:1643
+#, c-format
+msgid "Something went wrong with '%s'."
+msgstr ""
+
+#: ../midori/midori-view.c:1790 ../midori/midori-view.c:2856
 #, c-format
 msgid "Send a message to %s"
 msgstr "Scrieți un mail către %s"
 
-#: ../midori/midori-view.c:2362
+#: ../midori/midori-view.c:2644
 msgid "Add _search engine..."
 msgstr "Adaugă ca _motor de căutare..."
 
-#: ../midori/midori-view.c:2405 ../midori/midori-view.c:2709
+#: ../midori/midori-view.c:2687 ../midori/midori-view.c:2988
 msgid "Inspect _Element"
 msgstr "_Inspectați elementul"
 
-#: ../midori/midori-view.c:2457
+#: ../midori/midori-view.c:2739
 msgid "Open Link in New _Tab"
 msgstr "Deschide linkul într-un _tab nou"
 
-#: ../midori/midori-view.c:2461
+#: ../midori/midori-view.c:2743
 msgid "Open Link in _Foreground Tab"
 msgstr "Deschide lin_kul într-un tab nou în prim plan"
 
-#: ../midori/midori-view.c:2462
+#: ../midori/midori-view.c:2744
 msgid "Open Link in _Background Tab"
 msgstr "Deschide linkul într-un tab nou în _fundal"
 
-#: ../midori/midori-view.c:2465
+#: ../midori/midori-view.c:2747
 msgid "Open Link in New _Window"
 msgstr "Deschide linkul într-o _fereastră nouă"
 
-#: ../midori/midori-view.c:2468
-msgid "Open Link as Web A_pplication"
-msgstr "Deschide linkul ca o aplicație _web"
-
-#: ../midori/midori-view.c:2473
+#: ../midori/midori-view.c:2752
 msgid "Copy Link de_stination"
 msgstr "Copiază de_stinația linkului"
 
-#: ../midori/midori-view.c:2479
+#: ../midori/midori-view.c:2758
 msgid "Save _As…"
 msgstr "Salvează c_a…"
 
-#: ../midori/midori-view.c:2488
+#: ../midori/midori-view.c:2768
+msgid "Open _Image in New Window"
+msgstr ""
+
+#: ../midori/midori-view.c:2769
 msgid "Open _Image in New Tab"
 msgstr "Deschide _imaginea într-un tab nou"
 
-#: ../midori/midori-view.c:2491
+#: ../midori/midori-view.c:2773
 msgid "Copy Im_age"
 msgstr "Copiază _adresa imaginii"
 
-#: ../midori/midori-view.c:2494
+#: ../midori/midori-view.c:2776
 msgid "Save I_mage"
 msgstr "Salvează i_maginea"
 
-#: ../midori/midori-view.c:2497
+#: ../midori/midori-view.c:2779
 msgid "Open in Image _Viewer"
 msgstr "D_eschide imaginea în programul asociat"
 
-#: ../midori/midori-view.c:2504
+#: ../midori/midori-view.c:2786
 msgid "Copy Video _Address"
 msgstr "Copiază _adresa materialului video"
 
-#: ../midori/midori-view.c:2507
+#: ../midori/midori-view.c:2789
 msgid "Save _Video"
 msgstr "Salvează materialul _video"
 
-#: ../midori/midori-view.c:2507
+#: ../midori/midori-view.c:2789
 msgid "Download _Video"
 msgstr "Descarcă _materialul video"
 
-#: ../midori/midori-view.c:2533
+#: ../midori/midori-view.c:2815
 msgid "Search _with"
 msgstr "Caută c_u"
 
-#: ../midori/midori-view.c:2562
+#: ../midori/midori-view.c:2844
 msgid "_Search the Web"
 msgstr "C_aută pe net"
 
-#: ../midori/midori-view.c:2582
+#: ../midori/midori-view.c:2864
 msgid "Open Address in New _Tab"
 msgstr "Deschide adresa într-un _tab nou"
 
-#: ../midori/midori-view.c:2629
+#: ../midori/midori-view.c:2911
 msgid "Open _Frame in New Tab"
 msgstr "Desc_hide cadrul într-un tab nou"
 
-#: ../midori/midori-view.c:2841
+#: ../midori/midori-view.c:3132
 #, c-format
 msgid "Open or download file from %s"
 msgstr "Deschide sau descarcă fișierul de la %s"
 
-#: ../midori/midori-view.c:2854
+#: ../midori/midori-view.c:3146 ../midori/midori-view.c:3149
 #, c-format
 msgid "File Name: %s"
 msgstr "Nume fișier: %s"
 
-#: ../midori/midori-view.c:2859
+#: ../midori/midori-view.c:3155
 #, c-format
 msgid "File Type: '%s'"
 msgstr "Tip de fișier: „%s”"
 
-#: ../midori/midori-view.c:2861
+#: ../midori/midori-view.c:3157
 #, c-format
 msgid "File Type: %s ('%s')"
 msgstr "Tip de fișier: %s („%s”)"
 
-#: ../midori/midori-view.c:2898
+#: ../midori/midori-view.c:3195
 #, c-format
 msgid "Size: %s"
 msgstr "Mărime: %s"
 
 #. i18n: A file open dialog title, ie. "Open http://fila.com/manual.tgz"
-#: ../midori/midori-view.c:2909
+#: ../midori/midori-view.c:3208 ../midori/midori-view.c:3210
 #, c-format
 msgid "Open %s"
 msgstr "Deschide %s"
 
-#: ../midori/midori-view.c:3435
+#: ../midori/midori-view.c:3756
 #, c-format
 msgid "Inspect page - %s"
 msgstr "Inspectare pagină - %s"
 
-#: ../midori/midori-view.c:3850
+#: ../midori/midori-view.c:4320
 #, c-format
 msgid "No documentation installed"
 msgstr "Documentația nu este instalată"
 
-#: ../midori/midori-view.c:3926
+#: ../midori/midori-view.c:4396
 msgid "Midori doesn't store any personal data:"
 msgstr "Midori nu stochează niciun fel de date personale:"
 
-#: ../midori/midori-view.c:3927
+#: ../midori/midori-view.c:4397
 msgid "No history or web cookies are being saved."
 msgstr "Nu se salvează istoricul ori cookie-urile."
 
-#: ../midori/midori-view.c:3928
+#: ../midori/midori-view.c:4398
 msgid "Extensions are disabled."
 msgstr "Extensiile sunt dezactivate."
 
-#: ../midori/midori-view.c:3929
+#: ../midori/midori-view.c:4399
 msgid "HTML5 storage, local database and application caches are disabled."
 msgstr ""
 "Stocarea HTML5, bazele de date locale și cache-ul aplicațiilor web sunt "
 "dezactivate."
 
-#: ../midori/midori-view.c:3930
+#: ../midori/midori-view.c:4400
 msgid "Midori prevents websites from tracking the user:"
 msgstr "Midori previne urmărirea utilizatorilor pe Internet:"
 
-#: ../midori/midori-view.c:3931
+#: ../midori/midori-view.c:4401
 msgid "Referrer URLs are stripped down to the hostname."
 msgstr "Antetele referrer sunt trunchiate la numele serverului."
 
-#: ../midori/midori-view.c:3932
+#: ../midori/midori-view.c:4402
 msgid "DNS prefetching is disabled."
 msgstr "Cererile DNS nu se fac anticipat."
 
-#: ../midori/midori-view.c:3933
+#: ../midori/midori-view.c:4403
 msgid "The language and timezone are not revealed to websites."
 msgstr "Limba și fusul orar nu sunt accesibile site-urilor web."
 
-#: ../midori/midori-view.c:3934
+#: ../midori/midori-view.c:4404
 msgid "Flash and other Netscape plugins cannot be listed by websites."
 msgstr "Modulele Netscape (Flash și altele) nu pot fi listate de site-uri."
 
-#: ../midori/midori-view.c:4013
+#: ../midori/midori-view.c:4447
 msgid "Version numbers in brackets show the version used at runtime."
 msgstr "Cifrele dintre paranteze arată versiunile utilizate curent."
 
-#: ../midori/midori-view.c:4059
+#: ../midori/midori-view.c:4496
 msgid "Page loading delayed"
 msgstr "Încărcarea paginii a fost întârziată."
 
-#: ../midori/midori-view.c:4060
+#: ../midori/midori-view.c:4497
 msgid "Loading delayed either due to a recent crash or startup preferences."
 msgstr ""
 "Încărcarea a fost întârziată din cauza unei terminări premature ori pentru "
 "că așa ați optat în preferințele Midori."
 
-#: ../midori/midori-view.c:4061
+#: ../midori/midori-view.c:4498
 msgid "Load Page"
 msgstr "Încarcă pagina"
 
-#: ../midori/midori-view.c:4225
+#: ../midori/midori-view.c:4663
 msgid "Blank page"
 msgstr "O pagină goală"
 
-#: ../midori/midori-view.c:4435
+#: ../midori/midori-view.c:4877
 msgid "_Duplicate Tab"
 msgstr "D_uplică tabul"
 
-#: ../midori/midori-view.c:4440
+#: ../midori/midori-view.c:4882
 msgid "Show Tab _Label"
 msgstr "_Arată eticheta tabului"
 
-#: ../midori/midori-view.c:4440
+#: ../midori/midori-view.c:4882
 msgid "Show Tab _Icon Only"
 msgstr "_Arată doar iconița tabului"
 
-#: ../midori/midori-view.c:4447
+#: ../midori/midori-view.c:4889
 msgid "Close Ot_her Tab"
 msgid_plural "Close Ot_her Tabs"
 msgstr[0] "Înc_hide celălalt tab"
@@ -1359,34 +1380,34 @@ msgstr[1] "Înc_hide celelalte taburi"
 msgstr[2] "Înc_hide celelalte taburi"
 
 #. i18n: word stem of "previous page" type links, case is not important
-#: ../midori/midori-view.c:5122
+#: ../midori/midori-view.c:5583
 msgid "previous"
 msgstr "înapoi"
 
 #. i18n: word stem of "next page" type links, case is not important
-#: ../midori/midori-view.c:5141
+#: ../midori/midori-view.c:5602
 msgid "next"
 msgstr "înainte"
 
-#: ../midori/midori-view.c:5154
+#: ../midori/midori-view.c:5616
 msgid "Print background images"
 msgstr "Tipărește imaginile de fundal"
 
-#: ../midori/midori-view.c:5155
+#: ../midori/midori-view.c:5617
 msgid "Whether background images should be printed"
 msgstr "Specifică dacă se tipăresc și imaginile de fundal"
 
-#: ../midori/midori-view.c:5179
+#: ../midori/midori-view.c:5647
 msgid "Features"
 msgstr "Facilități"
 
 #. i18n: Download tooltip (size): 4KB of 43MB
-#: ../midori/midori-download.vala:54
+#: ../midori/midori-download.vala:63
 #, c-format
 msgid "%s of %s"
 msgstr "%s din %s"
 
-#: ../midori/midori-download.vala:70
+#: ../midori/midori-download.vala:79
 #, c-format
 msgid "%d hour"
 msgid_plural "%d hours"
@@ -1394,7 +1415,7 @@ msgstr[0] "o oră"
 msgstr[1] "%d ore"
 msgstr[2] "%d de ore"
 
-#: ../midori/midori-download.vala:71
+#: ../midori/midori-download.vala:80
 #, c-format
 msgid "%d minute"
 msgid_plural "%d minutes"
@@ -1402,7 +1423,7 @@ msgstr[0] "un minut"
 msgstr[1] "%d minute"
 msgstr[2] "%d de minute"
 
-#: ../midori/midori-download.vala:72
+#: ../midori/midori-download.vala:81
 #, c-format
 msgid "%d second"
 msgid_plural "%d seconds"
@@ -1411,27 +1432,27 @@ msgstr[1] "%d secunde"
 msgstr[2] "%d de secunde"
 
 #. i18n: Download tooltip (estimated time) : - 1 hour, 5 minutes remaning
-#: ../midori/midori-download.vala:87
+#: ../midori/midori-download.vala:96
 #, c-format
 msgid " - %s remaining"
 msgstr " - încă %s"
 
 #. i18n: Unknown number of bytes, used for transfer rate like ?B/s
-#: ../midori/midori-download.vala:98
+#: ../midori/midori-download.vala:107
 msgid "?B"
 msgstr "?B"
 
 #. i18n: Download tooltip (transfer rate): (130KB/s)
-#: ../midori/midori-download.vala:100
+#: ../midori/midori-download.vala:109
 #, c-format
 msgid " (%s/s)"
 msgstr " (%s/s)"
 
-#: ../midori/midori-download.vala:197
+#: ../midori/midori-download.vala:224
 msgid "The downloaded file is erroneous."
 msgstr "Fișierul descărcat este corupt."
 
-#: ../midori/midori-download.vala:198
+#: ../midori/midori-download.vala:225
 msgid ""
 "The checksum provided with the link did not match. This means the file is "
 "probably incomplete or was modified afterwards."
@@ -1439,21 +1460,21 @@ msgstr ""
 "Suma de control asociată linkului nu s-a potrivit. Probabil că fișierul este "
 "incomplet sau a fost modificat ulterior."
 
-#: ../midori/midori-download.vala:312
+#: ../midori/midori-download.vala:345
 #, c-format
 msgid "The file \"%s\" can't be saved in this folder."
 msgstr "Fișierul „%s” nu poate fi salvat în acest dosar."
 
-#: ../midori/midori-download.vala:314
+#: ../midori/midori-download.vala:347
 msgid "You don't have permission to write in this location."
 msgstr "Nu aveți drepturile necesare pentru a scrie aici."
 
-#: ../midori/midori-download.vala:317
+#: ../midori/midori-download.vala:350
 #, c-format
 msgid "There is not enough free space to download \"%s\"."
 msgstr "Nu există îndeajuns spațiu liber pentru a descărca „%s”."
 
-#: ../midori/midori-download.vala:319
+#: ../midori/midori-download.vala:352
 #, c-format
 msgid "The file needs %s but only %s are left."
 msgstr "Fișierul necesită %s, dar liberi sunt doar %s."
@@ -1462,7 +1483,7 @@ msgstr "Fișierul necesită %s, dar liberi sunt doar %s."
 msgid "Speed Dial"
 msgstr "Apeluri rapide"
 
-# dumol: E ok dacă e mai lung…
+# dumol: E ok dacă e mai lung...
 #: ../midori/midori-speeddial.vala:181 ../midori/midori-speeddial.vala:261
 msgid "Click to add a shortcut"
 msgstr "Dați clic  aici pentru a adăuga un apel rapid"
@@ -1483,124 +1504,106 @@ msgstr "Sigur doriți să ștergeți acest apel rapid?"
 msgid "Startup"
 msgstr "Pornire"
 
-#: ../midori/midori-preferences.c:305
+# dumol: Truc pentru a micșora lățimea ferestrei cu preferințe
+#: ../midori/midori-preferences.c:301
+msgid "When Midori starts:"
+msgstr "La pornirea Midori arată:"
+
+#: ../midori/midori-preferences.c:306
 msgid "Homepage:"
 msgstr "Pagină de start:"
 
-#: ../midori/midori-preferences.c:313
+#: ../midori/midori-preferences.c:314
 msgid "Use _current page"
 msgstr "Tipărește pagina _curentă"
 
-#: ../midori/midori-preferences.c:317
+#: ../midori/midori-preferences.c:318
 msgid "Use current page as homepage"
 msgstr "Utilizează pagina curentă ca pagină de start"
 
 #. Page "Appearance"
-#: ../midori/midori-preferences.c:326
+#: ../midori/midori-preferences.c:327
 msgid "Fonts"
 msgstr "Fonturi"
 
-#: ../midori/midori-preferences.c:328
+#: ../midori/midori-preferences.c:329
 msgid "Proportional Font Family"
 msgstr "Familie de fonturi proporționale"
 
-#: ../midori/midori-preferences.c:332
+#: ../midori/midori-preferences.c:333
 msgid "The default font family used to display text"
 msgstr "Familie implicită de fonturi pentru afișarea textului"
 
-#: ../midori/midori-preferences.c:335
+#: ../midori/midori-preferences.c:336
 msgid "The default font size used to display text"
 msgstr "Mărime implicită a fontului pentru afișarea textului"
 
-#: ../midori/midori-preferences.c:337
+#: ../midori/midori-preferences.c:338
 msgid "Fixed-width Font Family"
 msgstr "Familie de fonturi cu lățime fixă"
 
-#: ../midori/midori-preferences.c:341
+#: ../midori/midori-preferences.c:342
 msgid "The font family used to display fixed-width text"
 msgstr "Familie de fonturi utilizată pentru afișarea textului de lățime fixă"
 
-#: ../midori/midori-preferences.c:344
+#: ../midori/midori-preferences.c:345
 msgid "The font size used to display fixed-width text"
 msgstr "Mărimea fontului utilizat pentru afișarea textului de lățime fixă"
 
-#: ../midori/midori-preferences.c:346
+#: ../midori/midori-preferences.c:347
 msgid "Minimum Font Size"
 msgstr "Mărime minimă a fontului"
 
-#: ../midori/midori-preferences.c:350
+#: ../midori/midori-preferences.c:351
 msgid "The minimum font size used to display text"
 msgstr "Mărime minimă a fontului pentru afișarea textului"
 
-#: ../midori/midori-preferences.c:354
+#: ../midori/midori-preferences.c:355
 msgid "Preferred Encoding"
 msgstr "Codare preferată"
 
 #. Page "Behavior"
-#: ../midori/midori-preferences.c:361
+#: ../midori/midori-preferences.c:362
 msgid "Behavior"
 msgstr "Comportament"
 
-#: ../midori/midori-preferences.c:364 ../extensions/statusbar-features.c:155
+#: ../midori/midori-preferences.c:365 ../extensions/statusbar-features.c:155
 msgid "Load images automatically"
 msgstr "Încarcă automat imaginile"
 
-#: ../midori/midori-preferences.c:367
+#: ../midori/midori-preferences.c:368
 msgid "Enable Spell Checking"
 msgstr "Activează verificarea ortografică"
 
-#: ../midori/midori-preferences.c:381 ../extensions/statusbar-features.c:165
+#: ../midori/midori-preferences.c:382 ../extensions/statusbar-features.c:165
 msgid "Enable scripts"
 msgstr "Execută scripturile"
 
-#: ../midori/midori-preferences.c:385
+#: ../midori/midori-preferences.c:386
 msgid "Enable WebGL support"
 msgstr "Suport pentru standardul WebGL"
 
-#: ../midori/midori-preferences.c:388 ../extensions/statusbar-features.c:177
+#: ../midori/midori-preferences.c:403 ../extensions/statusbar-features.c:177
 msgid "Enable Netscape plugins"
 msgstr "Activează modulele Netscape"
 
-#: ../midori/midori-preferences.c:393
+#: ../midori/midori-preferences.c:408
 msgid "Zoom Text and Images"
 msgstr "Scalează imaginile odată cu textul"
 
-#: ../midori/midori-preferences.c:396
+#: ../midori/midori-preferences.c:411
 msgid "Allow scripts to open popups"
 msgstr "Permite popup-uri deschise de scripturi"
 
-#: ../midori/midori-preferences.c:397
+#: ../midori/midori-preferences.c:412
 msgid "Whether scripts are allowed to open popup windows automatically"
 msgstr "Specifică dacă se permite scripturilor deschiderea de ferestre popup"
 
-#: ../midori/midori-preferences.c:403
-msgid "Kinetic scrolling"
-msgstr "Derulare cinetică"
-
-#: ../midori/midori-preferences.c:404
-msgid "Whether scrolling should kinetically move according to speed"
-msgstr ""
-"Specifică dacă derularea ar trebui să se facă cinetic, în acord cu viteza "
-"derulării"
-
-#: ../midori/midori-preferences.c:409
-msgid "Middle click opens Selection"
-msgstr "Butonul din mijloc deschide selecția"
-
-#: ../midori/midori-preferences.c:410
-msgid "Load an address from the selection via middle click"
-msgstr ""
-"Încarcă adresa din clipboard prin clic pe butonul din mijloc al mausului"
-
-#: ../midori/midori-preferences.c:415
-msgid "Flash window on background tabs"
-msgstr "Evidențiere pentru taburile noi în fundal"
-
-#: ../midori/midori-preferences.c:420
+#: ../midori/midori-preferences.c:416
 msgid "Preferred languages"
 msgstr "Limbă preferată"
 
-#: ../midori/midori-preferences.c:424
+#: ../midori/midori-preferences.c:420
 msgid ""
 "A comma separated list of languages preferred for rendering multilingual "
 "webpages, for example \"de\", \"ru,nl\" or \"en-us;q=1.0, fr-fr;q=0.667\""
@@ -1608,100 +1611,122 @@ msgstr ""
 "O listă de limbi preferate pentru afișarea paginilor multilingve, de "
 "exemplu: „ro”, „ro,en” ori „en-us;q=1.0, fr-fr;q=0.667”"
 
-#: ../midori/midori-preferences.c:426
+#: ../midori/midori-preferences.c:422
 msgid "Save downloaded files to:"
 msgstr "Salvează fișierele descărcate în:"
 
 #. Page "Interface"
-#: ../midori/midori-preferences.c:433
+#: ../midori/midori-preferences.c:429
 msgid "Browsing"
 msgstr "Navigare"
 
-#: ../midori/midori-preferences.c:447
+#: ../midori/midori-preferences.c:431
+msgid "Toolbar Style:"
+msgstr "Stil pentru bara cu unelte:"
+
+#: ../midori/midori-preferences.c:435
+msgid "Open new pages in:"
+msgstr "Paginile noi se vor deschide în:"
+
+#: ../midori/midori-preferences.c:439
+msgid "New tab behavior:"
+msgstr ""
+
+#: ../midori/midori-preferences.c:444
 msgid "Close Buttons on Tabs"
 msgstr "Butoane de închidere a taburilor"
 
-#: ../midori/midori-preferences.c:451
+#: ../midori/midori-preferences.c:448
 msgid "Always Show Tabbar"
 msgstr "Arată întotdeauna bara cu taburi"
 
-#: ../midori/midori-preferences.c:455
+#: ../midori/midori-preferences.c:452
 msgid "Open Tabs next to Current"
 msgstr "Deschide taburile lângă cel curent"
 
-#: ../midori/midori-preferences.c:456
-msgid "Whether to open new tabs next to the current tab or after the last one"
+#: ../midori/midori-preferences.c:453
+msgid ""
+"Whether to open new tabs next to the current tab or after the last one"
 msgstr ""
 "Specifică dacă taburile noi se deschid lângă cel curent sau după ultimul tab"
 
-#: ../midori/midori-preferences.c:459
+#: ../midori/midori-preferences.c:456
 msgid "Open tabs in the background"
 msgstr "Deschide taburile în fundal"
 
-#: ../midori/midori-preferences.c:463
+#: ../midori/midori-preferences.c:460
 msgid "Text Editor"
 msgstr "Editor de text"
 
-#: ../midori/midori-preferences.c:468
+#: ../midori/midori-preferences.c:465
 msgid "News Aggregator"
 msgstr "Agregator de știri"
 
 #. Page "Network"
-#: ../midori/midori-preferences.c:475
+#: ../midori/midori-preferences.c:472
 msgid "Network"
 msgstr "Rețea"
 
-#: ../midori/midori-preferences.c:477
+#: ../midori/midori-preferences.c:474
 msgid "Proxy server"
 msgstr "Server proxy"
 
-#: ../midori/midori-preferences.c:482
+#: ../midori/midori-preferences.c:479
 msgid "Hostname"
 msgstr "Nume ori IP"
 
-#: ../midori/midori-preferences.c:490
+#: ../midori/midori-preferences.c:487
 msgid "Port"
 msgstr "Port"
 
+#: ../midori/midori-preferences.c:500
+msgid "Supported proxy types:"
+msgstr ""
+
 #. TODO: Preserve page icons of search engines and merge privacy items
-#: ../midori/midori-preferences.c:501 ../extensions/web-cache.c:461
-#: ../extensions/web-cache.c:470 ../midori/midori-privatedata.c:304
+#: ../midori/midori-preferences.c:520 ../extensions/web-cache.c:461
+#: ../extensions/web-cache.c:470 ../midori/midori-privatedata.c:330
 msgid "Web Cache"
 msgstr "Cache web"
 
-#: ../midori/midori-preferences.c:502 ../midori/midori-preferences.c:505
+#: ../midori/midori-preferences.c:521 ../midori/midori-preferences.c:524
 msgid "The maximum size of cached pages on disk"
 msgstr "Mărimea maximă a paginilor din cache-ul pe disc"
 
-#: ../midori/midori-preferences.c:507
+#: ../midori/midori-preferences.c:526
 msgid "MB"
 msgstr "MB"
 
-#: ../midori/midori-preferences.c:526
+#. i18n: This refers to an application, not the 'user agent' string
+#: ../midori/midori-preferences.c:533
+msgid "Identify as"
+msgstr "Identificare"
+
+#: ../midori/midori-preferences.c:548
 msgid "Privacy"
 msgstr "Intimitate"
 
 # dumol: Truc pentru a micșora lățimea ferestrei cu preferințe
-#: ../midori/midori-preferences.c:528
+#: ../midori/midori-preferences.c:550
 msgid "Delete old Cookies after:"
 msgstr "Șterge cookie-urile vechi după:"
 
-#: ../midori/midori-preferences.c:530 ../midori/midori-preferences.c:533
+#: ../midori/midori-preferences.c:552 ../midori/midori-preferences.c:555
 msgid "The maximum number of days to save cookies for"
 msgstr "Numărul maxim de zile pentru păstrarea cookie-urilor"
 
-#: ../midori/midori-preferences.c:537
+#: ../midori/midori-preferences.c:559
 msgid "Only accept Cookies from sites you visit"
 msgstr "Nu accepta cookie-uri third-party"
 
-#: ../midori/midori-preferences.c:538
+#: ../midori/midori-preferences.c:560
 msgid "Block cookies sent by third-party websites"
 msgstr ""
 "Blochează cookie-urile de la alte servere decât cel ce găzduiește pagina "
 "curentă"
 
 # dumol: Scurtat puțin pentru a nu lăbărța fereastra preferințelor
-#: ../midori/midori-preferences.c:543
+#: ../midori/midori-preferences.c:565
 msgid ""
 "Cookies store login data, saved games, or user profiles for advertisement "
 "purposes."
@@ -1709,74 +1734,78 @@ msgstr ""
 "Cookie-urile stochează autentificări, preferințe ori alte date, multe în "
 "scopuri publicitare."
 
-#: ../midori/midori-preferences.c:550
+#: ../midori/midori-preferences.c:572
 msgid "Enable offline web application cache"
 msgstr "Cache offline pentru aplicații web"
 
-#: ../midori/midori-preferences.c:553
+#: ../midori/midori-preferences.c:575
 msgid "Enable HTML5 local storage support"
 msgstr "Suport pentru stocare locală HTML5"
 
 #. i18n: Reworded: Shorten details propagated when going to another page
-#: ../midori/midori-preferences.c:557
+#: ../midori/midori-preferences.c:579
 msgid "Strip referrer details sent to websites"
 msgstr "Nu trimite serverelor detalii Referrer"
 
 #. i18n: Referer here is not a typo but a technical term
-#: ../midori/midori-preferences.c:559
+#: ../midori/midori-preferences.c:581
 msgid "Whether the \"Referer\" header should be shortened to the hostname"
 msgstr "Specifică dacă antetul Referrer va fi scurtat la numele serverului"
 
-#: ../midori/midori-preferences.c:562
+#: ../midori/midori-preferences.c:584
 msgid "Delete pages from history after:"
 msgstr "Șterge paginile din istoric după:"
 
-#: ../midori/midori-preferences.c:564 ../midori/midori-preferences.c:567
+#: ../midori/midori-preferences.c:586 ../midori/midori-preferences.c:589
 msgid "The maximum number of days to save the history for"
 msgstr "Numărul maxim de zile pentru păstrarea istoricului"
 
-#: ../midori/midori-preferences.c:604 ../panels/midori-extensions.c:90
+#: ../midori/midori-preferences.c:626 ../panels/midori-extensions.c:90
 msgid "Extensions"
 msgstr "Extensii"
 
-#: ../midori/midori-searchaction.c:1043
+#: ../midori/midori-searchaction.c:459
+msgid "_Manage Search Engines"
+msgstr "_Gestionați motoarele de căutare"
+
+#: ../midori/midori-searchaction.c:1049
 msgid "Add search engine"
 msgstr "Adăugați un motor de căutare"
 
-#: ../midori/midori-searchaction.c:1043
+#: ../midori/midori-searchaction.c:1049
 msgid "Edit search engine"
 msgstr "Editare motor de căutare"
 
-#: ../midori/midori-searchaction.c:1071
+#: ../midori/midori-searchaction.c:1077
 msgid "_Name:"
 msgstr "_Nume:"
 
-#: ../midori/midori-searchaction.c:1086
+#: ../midori/midori-searchaction.c:1092
 msgid "_Description:"
 msgstr "_Descriere:"
 
-#: ../midori/midori-searchaction.c:1099 ../extensions/feed-panel/main.c:368
+#: ../midori/midori-searchaction.c:1105 ../extensions/feed-panel/main.c:361
 msgid "_Address:"
 msgstr "_Adresă:"
 
-#: ../midori/midori-searchaction.c:1118
+#: ../midori/midori-searchaction.c:1124
 msgid "_Token:"
 msgstr "_Etichetă:"
 
-#: ../midori/midori-searchaction.c:1408
+#: ../midori/midori-searchaction.c:1414
 msgid "Manage Search Engines"
 msgstr "Gestionare a motoarelor de căutare"
 
-#: ../midori/midori-searchaction.c:1508
+#: ../midori/midori-searchaction.c:1514
 msgid "Use as _default"
 msgstr "I_mplicit"
 
-#: ../midori/midori-searchaction.c:1619
+#: ../midori/midori-searchaction.c:1625
 #, c-format
 msgid "The search engines couldn't be loaded. %s\n"
 msgstr "Nu s-au putut încărca motoarele de căutare. %s\n"
 
-#: ../midori/midori-searchaction.c:1674
+#: ../midori/midori-searchaction.c:1680
 #, c-format
 msgid "The search engines couldn't be saved. %s"
 msgstr "Nu s-au putut salva motoarele de căutare. %s"
@@ -1820,9 +1849,14 @@ msgstr "Deschide cu"
 msgid "Choose an application or command to open \"%s\":"
 msgstr "Alegeți o asociere pentru a deschide „%s”:"
 
-#: ../midori/sokoke.c:366 ../midori/sokoke.c:380
+#: ../midori/sokoke.c:368 ../midori/sokoke.c:388
+#: ../midori/midori-frontend.c:308
 msgid "Could not run external program."
 msgstr "Nu s-a putut porni programul extern."
+
+#: ../midori/sokoke.c:578
+msgid "Invalid URI"
+msgstr ""
 
 #. i18n: A panel at the bottom, to search text in pages
 #: ../toolbars/midori-findbar.c:233
@@ -1844,31 +1878,6 @@ msgstr "Majuscule semnificative"
 #: ../toolbars/midori-findbar.c:270
 msgid "Close Findbar"
 msgstr "Închide bara de căutare"
-
-#: ../toolbars/midori-transferbar.c:109
-#, c-format
-msgid "The file '<b>%s</b>' has been downloaded."
-msgstr "S-a descărcat fișierul „<b>%s</b>”."
-
-#: ../toolbars/midori-transferbar.c:114
-msgid "Transfer completed"
-msgstr "Descărcare finalizată"
-
-#: ../toolbars/midori-transferbar.c:239 ../panels/midori-transfers.c:139
-msgid "Clear All"
-msgstr "Șterge tot"
-
-#: ../toolbars/midori-transferbar.c:272 ../toolbars/midori-transferbar.c:274
-msgid "Some files are being downloaded"
-msgstr "Unele fișiere sunt în curs de descărcare"
-
-#: ../toolbars/midori-transferbar.c:278
-msgid "_Quit Midori"
-msgstr "În_chidere Midori"
-
-#: ../toolbars/midori-transferbar.c:280
-msgid "The transfers will be cancelled if Midori quits."
-msgstr "Dacă închideți Midori, se vor pierde descărcările curente."
 
 #: ../panels/midori-bookmarks.c:308
 #, c-format
@@ -1892,12 +1901,12 @@ msgstr "Ștergeți favoritul selectat"
 msgid "Add a new folder"
 msgstr "Adăugați un dosar nou"
 
-#: ../panels/midori-bookmarks.c:687 ../panels/midori-history.c:629
+#: ../panels/midori-bookmarks.c:687 ../panels/midori-history.c:628
 msgid "<i>Separator</i>"
 msgstr "<i>Separator</i>"
 
 #. Create the filter entry
-#: ../panels/midori-bookmarks.c:1017
+#: ../panels/midori-bookmarks.c:1009
 msgid "Search Bookmarks"
 msgstr "Căutare în favorite"
 
@@ -1926,38 +1935,26 @@ msgstr "Acum o săptămână"
 msgid "Failed to remove history item: %s\n"
 msgstr "Nu s-a putut șterge elementul din istoric: %s\n"
 
-#: ../panels/midori-history.c:362
+#: ../panels/midori-history.c:361
 msgid "Are you sure you want to remove all history items?"
 msgstr "Sigur doriți să ștergeți toate elementele din istoric?"
 
-#: ../panels/midori-history.c:409
+#: ../panels/midori-history.c:408
 msgid "Bookmark the selected history item"
 msgstr "Adaugă ca favorit elementul selectat din istoric"
 
-#: ../panels/midori-history.c:418
+#: ../panels/midori-history.c:417
 msgid "Delete the selected history item"
 msgstr "Șterge elementul selectat din istoric"
 
-#: ../panels/midori-history.c:426
+#: ../panels/midori-history.c:425
 msgid "Clear the entire history"
 msgstr "Șterge întregul istoric"
 
 #. Create the filter entry
-#: ../panels/midori-history.c:988
+#: ../panels/midori-history.c:980
 msgid "Search History"
 msgstr "Căutare în istoric"
-
-#: ../panels/midori-transfers.c:87
-msgid "Transfers"
-msgstr "Descărcări"
-
-#: ../panels/midori-transfers.c:435
-msgid "Open Destination _Folder"
-msgstr "Deschide _dosarul de destinație"
-
-#: ../panels/midori-transfers.c:438
-msgid "Copy Link Loc_ation"
-msgstr "Copiază _adresa linkului"
 
 #: ../katze/katze-http-auth.c:210
 msgid "Authentication Required"
@@ -1997,47 +1994,47 @@ msgstr "Nu s-a putut încărca iconița implicită „%s”"
 msgid "Animation frames are broken"
 msgstr "Cadrele animației sunt nevalide"
 
-#: ../katze/katze-utils.c:422 ../katze/katze-utils.c:811
+#: ../katze/katze-utils.c:385
+msgid "None"
+msgstr "Fără"
+
+#: ../katze/katze-utils.c:528
 #, c-format
 msgid "Property '%s' is invalid for %s"
 msgstr "Proprietatea „%s” nu este validă pentru %s"
 
-#: ../katze/katze-utils.c:459 ../katze/katze-utils.c:488
-#: ../extensions/addons.c:309
+#: ../katze/katze-utils.c:565 ../katze/katze-utils.c:594
+#: ../extensions/addons.c:308
 msgid "Choose file"
 msgstr "Selectați un fișier"
 
-#: ../katze/katze-utils.c:474
+#: ../katze/katze-utils.c:580
 msgid "Choose folder"
 msgstr "Selectați un dosar"
 
-#: ../katze/katze-utils.c:572
-msgid "None"
-msgstr "Fără"
-
-#: ../katze/katze-utils.c:687
+#: ../katze/katze-utils.c:728
 msgid "1 hour"
 msgstr "o oră"
 
-#: ../katze/katze-utils.c:688
+#: ../katze/katze-utils.c:729
 msgid "1 day"
 msgstr "o zi"
 
-#: ../katze/katze-utils.c:689
+#: ../katze/katze-utils.c:730
 msgid "1 week"
 msgstr "o săptămână"
 
-#: ../katze/katze-utils.c:690
+#: ../katze/katze-utils.c:731
 msgid "1 month"
 msgstr "o lună"
 
-#: ../katze/katze-utils.c:691
+#: ../katze/katze-utils.c:732
 msgid "1 year"
 msgstr "un an"
 
 #: ../katze/katze-preferences.c:72 ../extensions/delayed-load.vala:24
 #: ../extensions/external-download-manager.vala:224
-#: ../extensions/history-list.vala:235
+#: ../extensions/history-list.vala:242
 #, c-format
 msgid "Preferences for %s"
 msgstr "Preferințe pentru %s"
@@ -2050,11 +2047,11 @@ msgstr "Sumă de control MD5:"
 msgid "SHA1-Checksum:"
 msgstr "Sumă de control SHA1:"
 
-#: ../extensions/adblock.c:484
+#: ../extensions/adblock.c:483
 msgid "Configure Advertisement filters"
 msgstr "Opțiuni pentru filtrarea reclamelor"
 
-#: ../extensions/adblock.c:515
+#: ../extensions/adblock.c:512
 #, c-format
 msgid ""
 "Type the address of a preconfigured filter list in the text entry and click "
@@ -2064,33 +2061,34 @@ msgstr ""
 "faceți clic pe „Adaugă” pentru a o adăuga în listă. Puteți găsi mai multe "
 "liste la %s."
 
-#: ../extensions/adblock.c:929
+#: ../extensions/adblock.c:926
 msgid "Edit rule"
 msgstr "Editare regulă"
 
-#: ../extensions/adblock.c:943
+#: ../extensions/adblock.c:940
 msgid "_Rule:"
 msgstr "_Regulă:"
 
-#: ../extensions/adblock.c:997
+#: ../extensions/adblock.c:994
 msgid "Bl_ock image"
 msgstr "Bl_ochează imaginea"
 
-#: ../extensions/adblock.c:1002
+#: ../extensions/adblock.c:999
 msgid "Bl_ock link"
 msgstr "Bl_ochează linkul"
 
-#: ../extensions/adblock.c:1928
+#: ../extensions/adblock.c:1925
 msgid "Advertisement blocker"
 msgstr "Filtrare de reclame"
 
-#: ../extensions/adblock.c:1929
+#: ../extensions/adblock.c:1926
 msgid "Block advertisements according to a filter list"
 msgstr "Blochează reclamele conform unei liste de filtre"
 
 #. i18n: An infobar shows up when viewing a script on userscripts.org
 #: ../extensions/addons.c:222
-msgid "This page appears to contain a user script. Do you wish to install it?"
+msgid ""
+"This page appears to contain a user script. Do you wish to install it?"
 msgstr ""
 "Această pagină pare să conțină un script de utilizator. Doriți să-l "
 "instalați ca script propriu?"
@@ -2114,71 +2112,71 @@ msgstr "_Instalează stilul"
 msgid "Don't install"
 msgstr "Nu instala"
 
-#: ../extensions/addons.c:320 ../extensions/addons.c:675
+#: ../extensions/addons.c:319 ../extensions/addons.c:674
 msgid "Userscripts"
 msgstr "Scripturi de utilizator"
 
-#: ../extensions/addons.c:325 ../extensions/addons.c:677
+#: ../extensions/addons.c:324 ../extensions/addons.c:676
 msgid "Userstyles"
 msgstr "Stiluri de utilizator"
 
-#: ../extensions/addons.c:371 ../extensions/addons.c:450
-#: ../extensions/feed-panel/main.c:120
+#: ../extensions/addons.c:370 ../extensions/addons.c:449
+#: ../extensions/feed-panel/main.c:114
 msgid "Error"
 msgstr "Eroare"
 
-#: ../extensions/addons.c:412
+#: ../extensions/addons.c:411
 #, c-format
 msgid "Do you want to delete '%s'?"
 msgstr "Doriți să ștergeți „%s”?"
 
-#: ../extensions/addons.c:418
+#: ../extensions/addons.c:417
 msgid "Delete user script"
 msgstr "Ștergere script de utilizator"
 
-#: ../extensions/addons.c:419
+#: ../extensions/addons.c:418
 msgid "Delete user style"
 msgstr "Ștergere stil de utilizator"
 
-#: ../extensions/addons.c:422
+#: ../extensions/addons.c:421
 #, c-format
 msgid "The file <b>%s</b> will be permanently deleted."
 msgstr "Fișierul <b>%s</b> va fi șters definitiv."
 
-#: ../extensions/addons.c:564 ../extensions/addons.c:641
+#: ../extensions/addons.c:563 ../extensions/addons.c:640
 msgid "Open in Text Editor"
 msgstr "Deschide în editorul de text"
 
-#: ../extensions/addons.c:566 ../extensions/addons.c:650
+#: ../extensions/addons.c:565 ../extensions/addons.c:649
 msgid "Open Target Folder"
 msgstr "Deschide dosarul țintă"
 
-#: ../extensions/addons.c:632
+#: ../extensions/addons.c:631
 msgid "Add new addon"
 msgstr "Adăugare de noi elemente"
 
-#: ../extensions/addons.c:658
+#: ../extensions/addons.c:657
 msgid "Remove selected addon"
 msgstr "Șterge elementul selectat"
 
-#: ../extensions/addons.c:1677 ../extensions/addons.c:1893
+#: ../extensions/addons.c:1682 ../extensions/addons.c:1898
 msgid "User addons"
 msgstr "Module proprii"
 
-#: ../extensions/addons.c:1807
+#: ../extensions/addons.c:1812
 #, c-format
 msgid "Can't monitor folder '%s': %s"
 msgstr "Nu se poate monitoriza dosarul „%s”: %s"
 
-#: ../extensions/addons.c:1894
+#: ../extensions/addons.c:1899
 msgid "Support for userscripts and userstyles"
 msgstr "Suport pentru scripturi și stiluri de utilizator"
 
-#: ../extensions/colorful-tabs.c:203
+#: ../extensions/colorful-tabs.c:260
 msgid "Colorful Tabs"
 msgstr "Taburi colorate"
 
-#: ../extensions/colorful-tabs.c:204
+#: ../extensions/colorful-tabs.c:261
 msgid "Tint each tab distinctly"
 msgstr "Colorează distinct taburile"
 
@@ -2207,23 +2205,23 @@ msgstr "Extinde tot"
 msgid "Collapse All"
 msgstr "Pliază tot"
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:572
+#: ../extensions/cookie-manager/cookie-manager-page.c:575
 msgid "Do you really want to delete all cookies?"
 msgstr "Sigur doriți să ștergeți toate cookie-urile?"
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:574
+#: ../extensions/cookie-manager/cookie-manager-page.c:577
 msgid "Question"
 msgstr "Întrebare"
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:583
+#: ../extensions/cookie-manager/cookie-manager-page.c:588
 msgid "Only cookies which match the filter will be deleted."
 msgstr "Doar cookie-urile ce se potrivesc cu filtrul vor fi șterse."
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:674
+#: ../extensions/cookie-manager/cookie-manager-page.c:680
 msgid "At the end of the session"
 msgstr "Până la sfârșitul sesiunii"
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:677
+#: ../extensions/cookie-manager/cookie-manager-page.c:683
 #, c-format
 msgid ""
 "<b>Host</b>: %s\n"
@@ -2241,15 +2239,15 @@ msgstr ""
 "<b>Valabilitate</b>: %s"
 
 #. i18n: is this cookie secure (SSL)? yes/ no
-#: ../extensions/cookie-manager/cookie-manager-page.c:684
+#: ../extensions/cookie-manager/cookie-manager-page.c:690
 msgid "Yes"
 msgstr "Da"
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:684
+#: ../extensions/cookie-manager/cookie-manager-page.c:690
 msgid "No"
 msgstr "Nu"
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:699
+#: ../extensions/cookie-manager/cookie-manager-page.c:705
 #, c-format
 msgid ""
 "<b>Domain</b>: %s\n"
@@ -2258,19 +2256,20 @@ msgstr ""
 "<b>Domeniu</b>: %s\n"
 "<b>Cookie-uri</b>: %d"
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:1022
+#: ../extensions/cookie-manager/cookie-manager-page.c:1028
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:570
 msgid "Name"
 msgstr "Nume"
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:1074
+#: ../extensions/cookie-manager/cookie-manager-page.c:1080
 msgid "_Expand All"
 msgstr "_Extinde tot"
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:1082
+#: ../extensions/cookie-manager/cookie-manager-page.c:1088
 msgid "_Collapse All"
 msgstr "Plia_ză tot"
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:1134
+#: ../extensions/cookie-manager/cookie-manager-page.c:1140
 msgid "Search Cookies by Name or Domain"
 msgstr "Căutare în numele și domeniile cookie-urilor"
 
@@ -2290,7 +2289,7 @@ msgstr "Copiere a adreselor taburilor"
 msgid "Copy the addresses of all tabs to the clipboard"
 msgstr "Copiază adresele taburilor în clipboard"
 
-#: ../extensions/delayed-load.vala:24 ../extensions/delayed-load.vala:209
+#: ../extensions/delayed-load.vala:24 ../extensions/delayed-load.vala:212
 #, c-format
 msgid "Delayed load"
 msgstr "Încărcare întârziată"
@@ -2299,7 +2298,7 @@ msgstr "Încărcare întârziată"
 msgid "Delay in seconds until loading the page:"
 msgstr "Întârziere în secunde la încărcarea paginii"
 
-#: ../extensions/delayed-load.vala:210
+#: ../extensions/delayed-load.vala:213
 msgid "Delay page load until you actually use the tab."
 msgstr "Întârzie încărcarea paginii până ce accesați respectivul tab"
 
@@ -2336,38 +2335,38 @@ msgstr "Comandă:"
 msgid "Download files with \"%s\" or a custom command"
 msgstr "Descarcă fișierele cu „%s” ori o comandă personalizată"
 
-#: ../extensions/external-download-manager.vala:318
+#: ../extensions/external-download-manager.vala:320
 msgid "External Download Manager - CommandLine"
 msgstr "Manager extern de descărcări - Linie de comandă"
 
-#: ../extensions/feed-panel/feed-atom.c:209
+#: ../extensions/feed-panel/feed-atom.c:208
 msgid "Failed to find required Atom \"entry\" elements in XML data."
 msgstr "Nu s-au găsit elementele necesare Atom „entry” în datele XML."
 
-#: ../extensions/feed-panel/feed-atom.c:315
+#: ../extensions/feed-panel/feed-atom.c:314
 msgid "Failed to find required Atom \"feed\" elements in XML data."
 msgstr "Nu s-au găsit elementele necesare Atom „feed” în datele XML."
 
 #. i18n: The local date a feed was last updated
-#: ../extensions/feed-panel/feed-panel.c:378
+#: ../extensions/feed-panel/feed-panel.c:375
 #, c-format
 msgctxt "Feed"
 msgid "Last updated: %s."
 msgstr "Ultima actualizare: %s."
 
-#: ../extensions/feed-panel/feed-panel.c:644
+#: ../extensions/feed-panel/feed-panel.c:629
 msgid "Feeds"
 msgstr "Fluxuri de știri"
 
-#: ../extensions/feed-panel/feed-panel.c:697
+#: ../extensions/feed-panel/feed-panel.c:682
 msgid "Add new feed"
 msgstr "Adăugare flux nou"
 
-#: ../extensions/feed-panel/feed-panel.c:704
+#: ../extensions/feed-panel/feed-panel.c:689
 msgid "Delete feed"
 msgstr "Șterge fluxul"
 
-#: ../extensions/feed-panel/feed-panel.c:784
+#: ../extensions/feed-panel/feed-panel.c:768
 msgid "_Feeds"
 msgstr "_Fluxuri de știri"
 
@@ -2376,12 +2375,12 @@ msgstr "_Fluxuri de știri"
 msgid "Failed to find root element in feed XML data."
 msgstr "Nu s-a găsit elementul rădăcină în datele fluxului XML."
 
-#: ../extensions/feed-panel/feed-parse.c:235
+#: ../extensions/feed-panel/feed-parse.c:237
 #, c-format
 msgid "Unsupported feed format."
 msgstr "Format de flux nesuportat."
 
-#: ../extensions/feed-panel/feed-parse.c:265
+#: ../extensions/feed-panel/feed-parse.c:267
 #, c-format
 msgid "Failed to parse XML feed: %s"
 msgstr "Nu s-a putut prelucra fluxul XML: %s"
@@ -2403,21 +2402,21 @@ msgid "Failed to find required RSS \"channel\" elements in XML data."
 msgstr ""
 "Nu s-au găsit elementele necesare „channel” în datele XML ale RSS-ului."
 
-#: ../extensions/feed-panel/main.c:122
+#: ../extensions/feed-panel/main.c:116
 #, c-format
 msgid "Feed '%s' already exists"
 msgstr "Fluxul „%s” există deja"
 
-#: ../extensions/feed-panel/main.c:199
+#: ../extensions/feed-panel/main.c:192
 #, c-format
 msgid "Error loading feed '%s'"
 msgstr "Eroare la încărcarea fluxului „%s”"
 
-#: ../extensions/feed-panel/main.c:509
+#: ../extensions/feed-panel/main.c:499
 msgid "Feed Panel"
 msgstr "Panou cu fluxuri de știri"
 
-#: ../extensions/feed-panel/main.c:510
+#: ../extensions/feed-panel/main.c:500
 msgid "Read Atom/ RSS feeds"
 msgstr "Urmăriți fluxuri de știri Atom/RSS"
 
@@ -2460,7 +2459,8 @@ msgstr "Comută starea istoricului formularelor"
 
 #: ../extensions/formhistory/formhistory.c:428
 msgid "Activate or deactivate form history for the current tab."
-msgstr "Activează ori dezactivează istoricul formularelor pentru tabul curent"
+msgstr ""
+"Activează ori dezactivează istoricul formularelor pentru tabul curent"
 
 #: ../extensions/formhistory/formhistory.c:515 ../midori/midori-history.c:47
 #: ../midori/midori-bookmarks.c:155
@@ -2477,8 +2477,8 @@ msgstr "Nu s-a putut executa comanda asupra bazei de date: %s\n"
 #: ../extensions/formhistory/formhistory.c:624
 msgid "Only activate form history via hotkey (Ctrl+Shift+F) per tab"
 msgstr ""
-"activează per tab istoricul formularelor doar prin combinația de taste (Ctrl"
-"+Shift+F)"
+"activează per tab istoricul formularelor doar prin combinația de taste "
+"(Ctrl+Shift+F)"
 
 #: ../extensions/formhistory/formhistory.c:681
 msgid "Form history filler"
@@ -2494,68 +2494,72 @@ msgstr "Salvează istoricul datelor introduse în formulare"
 msgid "Failed to select suggestions\n"
 msgstr "Nu s-a putut selecta o sugestie\n"
 
-#: ../extensions/history-list.vala:197
+#: ../extensions/history-list.vala:204
 msgid "There are no unvisited tabs"
 msgstr "Nu există taburi nevizitate"
 
-#: ../extensions/history-list.vala:235
+#: ../extensions/history-list.vala:242
 #, c-format
 msgid "History-List"
 msgstr "Lista istoricului"
 
-#: ../extensions/history-list.vala:275
+#: ../extensions/history-list.vala:282
 msgid "Tab closing behavior"
 msgstr "La închiderea unui tab"
 
-#: ../extensions/history-list.vala:283
+#: ../extensions/history-list.vala:290
 msgid "Do nothing"
 msgstr "Nu face nimic"
 
-#: ../extensions/history-list.vala:289
+#: ../extensions/history-list.vala:296
 msgid "Switch to last viewed tab"
 msgstr "Comută la ultimul tab vizualizat"
 
-#: ../extensions/history-list.vala:295
+#: ../extensions/history-list.vala:302
 msgid "Switch to newest tab"
 msgstr "Comută la cel mai nou tab"
 
-#: ../extensions/history-list.vala:423
+#: ../extensions/history-list.vala:316
+msgid "Flash window on background tabs"
+msgstr "Evidențiere pentru taburile noi în fundal"
+
+#: ../extensions/history-list.vala:448
 msgid "Next new Tab (History List)"
 msgstr "Următorul tab nou (din istoric)"
 
-#: ../extensions/history-list.vala:424
+#: ../extensions/history-list.vala:449
 msgid "Next new tab from history"
 msgstr "Următorul tab nou din istoric"
 
-#: ../extensions/history-list.vala:433
+#: ../extensions/history-list.vala:458
 msgid "Previous new Tab (History List)"
 msgstr "Precedentul tab nou (din istoric)"
 
-#: ../extensions/history-list.vala:434
+#: ../extensions/history-list.vala:459
 msgid "Previous new tab from history"
 msgstr "Precedentul tab nou din istoric"
 
-#: ../extensions/history-list.vala:443
+#: ../extensions/history-list.vala:468
 msgid "Display tab in background (History List)"
 msgstr "Arată tabul în fundal (în lista istoricului)"
 
-#: ../extensions/history-list.vala:444
+#: ../extensions/history-list.vala:469
 msgid "Display the current selected tab in background"
 msgstr "Arată în fundal tabul selectat curent"
 
-#: ../extensions/history-list.vala:571
+#: ../extensions/history-list.vala:598
 msgid "History List"
 msgstr "Lista istoricului"
 
-#: ../extensions/history-list.vala:572
+#: ../extensions/history-list.vala:599
 msgid "Move to the last used tab when switching or closing tabs"
-msgstr "La comutarea ori închiderea taburilor mută la ultimul tab folosit "
+msgstr "La comutarea ori închiderea taburilor mută la ultimul tab folosit"
 
-#: ../extensions/mouse-gestures.c:297
+#: ../extensions/mouse-gestures.c:513
 msgid "Mouse Gestures"
 msgstr "Gesturi de maus"
 
-#: ../extensions/mouse-gestures.c:298
+#: ../extensions/mouse-gestures.c:514
 msgid "Control Midori by moving the mouse"
 msgstr "Controlați Midori prin gesturi de maus"
 
@@ -2568,8 +2572,8 @@ msgid "Customize Keyboard shortcuts"
 msgstr "Personalizați combinațiile de taste"
 
 #: ../extensions/shortcuts.c:275
-msgid "Customize Sh_ortcuts..."
-msgstr "Personalizați c_ombinațiile de taste…"
+msgid "Customize Sh_ortcuts…"
+msgstr ""
 
 #: ../extensions/shortcuts.c:312
 msgid "Shortcuts"
@@ -2607,15 +2611,15 @@ msgstr "Facilități web în bara de stare"
 msgid "Easily toggle features on web pages on and off"
 msgstr "Activați cu ușurință facilități pentru paginile web"
 
-#: ../extensions/tab-panel.c:584 ../extensions/tab-panel.c:673
+#: ../extensions/tab-panel.c:591 ../extensions/tab-panel.c:680
 msgid "Tab Panel"
 msgstr "Panou cu taburi"
 
-#: ../extensions/tab-panel.c:656
+#: ../extensions/tab-panel.c:663
 msgid "T_ab Panel"
 msgstr "Panou cu t_aburi"
 
-#: ../extensions/tab-panel.c:674
+#: ../extensions/tab-panel.c:681
 msgid "Show tabs in a vertical panel"
 msgstr "Arată taburile într-un panou vertical"
 
@@ -2627,11 +2631,11 @@ msgstr "Doar iconițe în taburi"
 msgid "New tabs have no label by default"
 msgstr "Taburile noi nu vor avea implicit etichete de text"
 
-#: ../extensions/toolbar-editor.c:395
+#: ../extensions/toolbar-editor.c:393
 msgid "Customize Toolbar"
 msgstr "Personalizați bara cu unelte"
 
-#: ../extensions/toolbar-editor.c:411
+#: ../extensions/toolbar-editor.c:409
 msgid ""
 "Select items to be displayed on the toolbar. Items can be reordered by drag "
 "and drop."
@@ -2639,23 +2643,23 @@ msgstr ""
 "Selectați elementele de afișat în bara cu unelte. Ele pot fi reordonate prin "
 "tragere și plasare."
 
-#: ../extensions/toolbar-editor.c:427
+#: ../extensions/toolbar-editor.c:425
 msgid "Available Items"
 msgstr "Elemente disponibile"
 
-#: ../extensions/toolbar-editor.c:448
+#: ../extensions/toolbar-editor.c:446
 msgid "Displayed Items"
 msgstr "Elemente afișate"
 
-#: ../extensions/toolbar-editor.c:588
+#: ../extensions/toolbar-editor.c:586
 msgid "_Customize Toolbar…"
 msgstr "Personalizați bara cu unel_te…"
 
-#: ../extensions/toolbar-editor.c:617
+#: ../extensions/toolbar-editor.c:615
 msgid "Toolbar Editor"
 msgstr "Editor pentru bara cu unelte"
 
-#: ../extensions/toolbar-editor.c:618
+#: ../extensions/toolbar-editor.c:616
 msgid "Easily edit the toolbar layout"
 msgstr "Personalizați aspectul barei cu unelte"
 
@@ -2668,38 +2672,39 @@ msgstr "Stochează comunicarea HTTP într-un cache pe disc"
 msgid "Failed to load cookies\n"
 msgstr "Nu s-au putut încărca cookie-urile\n"
 
+#. FIXME: granite: should return GtkWidget* like GTK+
 #. i18n: Dialog: Clear Private Data, in the Tools menu
-#: ../midori/midori-privatedata.c:120
+#: ../midori/midori-privatedata.c:129 ../midori/midori-privatedata.c:140
 msgid "Clear Private Data"
 msgstr "Ștergere de date private"
 
-#: ../midori/midori-privatedata.c:124
+#: ../midori/midori-privatedata.c:134 ../midori/midori-privatedata.c:144
 msgid "_Clear private data"
 msgstr "Șt_erge datele private"
 
-#: ../midori/midori-privatedata.c:137
+#: ../midori/midori-privatedata.c:161
 msgid "Clear the following data:"
 msgstr "Șterge următoarele date:"
 
 # dumol: Truc pentru a micșora lățimea ferestrei cu preferințe
-#: ../midori/midori-privatedata.c:147
+#: ../midori/midori-privatedata.c:171
 msgid "Last open _tabs"
 msgstr "Ultimele _taburi deschise"
 
-#: ../midori/midori-privatedata.c:173
+#: ../midori/midori-privatedata.c:197
 msgid "Clear private data when _quitting Midori"
 msgstr "Șterge datele pri_vate la ieșirea din Midori"
 
 #. i18n: Logins and passwords in websites and web forms
-#: ../midori/midori-privatedata.c:298
+#: ../midori/midori-privatedata.c:324
 msgid "Saved logins and _passwords"
 msgstr "_Parole și autentificări salvate"
 
-#: ../midori/midori-privatedata.c:300
+#: ../midori/midori-privatedata.c:326
 msgid "Cookies and Website data"
 msgstr "Cookie-uri și date ale site-urilor"
 
-#: ../midori/midori-privatedata.c:307
+#: ../midori/midori-privatedata.c:333
 msgid "Website icons"
 msgstr "Iconițe ale site-urilor web"
 
@@ -2708,7 +2713,7 @@ msgid "Open tabs"
 msgstr "Taburi deschise"
 
 # dumol: Truc pentru a micșora lățimea ferestrei cu preferințe
-#: ../midori/midori-viewcompletion.vala:67
+#: ../midori/midori-viewcompletion.vala:75
 msgid "More open tabs…"
 msgstr "Mai multe taburi deschise..."
 
@@ -2737,7 +2742,7 @@ msgstr "nu s-a putut anula tranzacția"
 
 #: ../midori/midori-bookmarks.c:119
 msgid "failed to DETACH "
-msgstr "nu s-a putut face DETACH"
+msgstr "nu s-a putut face DETACH "
 
 #: ../midori/midori-bookmarks.c:259
 #, c-format
@@ -2754,24 +2759,24 @@ msgstr "Nu s-a putut importa din vechea baza de date: %s\n"
 msgid "The bookmarks couldn't be saved. %s"
 msgstr "Nu s-au putut salva favoritele. %s"
 
-#: ../midori/midori-session.c:187
+#: ../midori/midori-session.c:197
 msgid ""
 "No root certificate file is available. SSL certificates cannot be verified."
 msgstr ""
 "Niciun fișier cu certificate root nu este disponibil. Certificatele SSL nu "
 "vor putea fi verificate."
 
-#: ../midori/midori-session.c:355
+#: ../midori/midori-session.c:366
 #, c-format
 msgid "The configuration couldn't be saved. %s"
 msgstr "Nu s-au putut salva preferințele. %s"
 
-#: ../midori/midori-session.c:376 ../midori/midori-frontend.c:449
+#: ../midori/midori-session.c:395 ../midori/midori-frontend.c:510
 #, c-format
 msgid "The session couldn't be loaded: %s\n"
 msgstr "Nu s-a putut încărca sesiunea: %s\n"
 
-#: ../midori/midori-session.c:406
+#: ../midori/midori-session.c:424
 #, c-format
 msgid "The session couldn't be saved. %s"
 msgstr "Nu s-a putut salva sesiunea. %s"
@@ -2782,686 +2787,397 @@ msgstr "Nu s-a putut salva sesiunea. %s"
 msgid "The trash couldn't be saved. %s"
 msgstr "Nu s-a putut salva gunoiul. %s"
 
-#: ../midori/midori-frontend.c:309
+#: ../midori/midori-frontend.c:336
+#, c-format
 msgid ""
-"Midori seems to have crashed the last time it was opened. If this happened "
-"repeatedly, try one of the following options to solve the problem."
+"Midori crashed the last time it was opened. You can report the problem at %s."
 msgstr ""
-"Se pare că Midori s-a terminat prematur la ultima pornire. Dacă se repetă "
-"problema, încercați una dintre opțiunile de mai jos pentru remediere."
 
-#: ../midori/midori-frontend.c:319
+#: ../midori/midori-frontend.c:345
 msgid "Modify _preferences"
 msgstr "_Editare preferințe"
 
-#: ../midori/midori-frontend.c:323
+#: ../midori/midori-frontend.c:349
 msgid "Disable all _extensions"
 msgstr "_Fără extensii"
 
-#: ../midori/midori-frontend.c:332
+#: ../midori/midori-frontend.c:358
 msgid "Show a dialog after Midori crashed"
 msgstr "Arată o fereastră de depanare la pornirea după o terminare prematură"
 
-#: ../midori/midori-frontend.c:337
+#: ../midori/midori-frontend.c:363
 msgid "Discard old tabs"
 msgstr "Uită taburile vechi"
 
-#: ../midori/midori-frontend.c:401
-msgid "An instance of Midori is already running but not responding.\n"
-msgstr "O instanță a programului Midori este deja pornită, dar nu răspunde.\n"
+#: ../midori/midori-frontend.c:371
+msgid "Show last crash _log"
+msgstr ""
 
-#: ../midori/midori-frontend.c:434
+#: ../midori/midori-frontend.c:384
+msgid "Run in _debugger"
+msgstr ""
+
+#: ../midori/midori-frontend.c:462
+msgid "An instance of Midori is already running but not responding.\n"
+msgstr ""
+"O instanță a programului Midori este deja pornită, dar nu răspunde.\n"
+
+#: ../midori/midori-frontend.c:495
 #, c-format
 msgid "Bookmarks couldn't be loaded: %s\n"
 msgstr "Nu s-au putut încărca favoritele: %s\n"
 
-#: ../midori/midori-frontend.c:465
+#: ../midori/midori-frontend.c:526
 #, c-format
 msgid "The trash couldn't be loaded: %s\n"
 msgstr "Nu s-a putut încărca gunoiul: %s\n"
 
-#: ../midori/midori-frontend.c:473
+#: ../midori/midori-frontend.c:534
 #, c-format
 msgid "The history couldn't be loaded: %s\n"
 msgstr "Nu s-a putut încărca istoricul: %s\n"
 
-#: ../midori/midori-frontend.c:484
+#: ../midori/midori-frontend.c:545
 msgid "The following errors occured:"
 msgstr "Au intervenit următoarele erori:"
 
-#: ../midori/midori-frontend.c:489
+#: ../midori/midori-frontend.c:550
 msgid "_Ignore"
 msgstr "_Ignoră"
 
-#~ msgid "Redirects console warnings to the specified FILENAME"
-#~ msgstr "Redirectează avertizările din consolă în FIȘIER"
-
-#~ msgid "FILENAME"
-#~ msgstr "FIȘIER"
-
-#~ msgid "Add Shortcut to the _desktop"
-#~ msgstr "Salvează lin_kul pe desktop"
-
-#~ msgid "Remember last window size"
-#~ msgstr "Reține dimensiunea ultimei ferestre"
-
-#~ msgid "Whether to save the last window size"
-#~ msgstr "Specifică dacă se salvează dimensiunea ultimei ferestre"
-
-#~ msgid "Last window width"
-#~ msgstr "Lățimea ultimei ferestre"
-
-#~ msgid "The last saved window width"
-#~ msgstr "Ultima lățime salvată a ferestrei"
-
-#~ msgid "Last window height"
-#~ msgstr "Înălțimea ultimei ferestre"
-
-#~ msgid "The last saved window height"
-#~ msgstr "Ultima înălțime salvată a ferestrei"
-
-#~ msgid "Last panel position"
-#~ msgstr "Ultima poziție a panoului"
-
-#~ msgid "The last saved panel position"
-#~ msgstr "Ultima poziție salvată a panoului"
-
-#~ msgid "Last panel page"
-#~ msgstr "Ultima pagină a panoului"
-
-#~ msgid "The last saved panel page"
-#~ msgstr "Ultima pagină salvată a panoului"
-
-#~ msgid "Last Web search"
-#~ msgstr "Ultima căutare pe net"
-
-#~ msgid "The last saved Web search"
-#~ msgstr "Ultima căutare pe net salvată"
-
-#~ msgid "Show Menubar"
-#~ msgstr "Arată bara de meniu"
-
-#~ msgid "Whether to show the menubar"
-#~ msgstr "Specifică dacă să fie vizibilă bara de meniu"
-
-#~ msgid "Show Navigationbar"
-#~ msgstr "Arată bara de navigare"
-
-#~ msgid "Whether to show the navigationbar"
-#~ msgstr "Specifică dacă să fie vizibilă bara de navigare"
-
-#~ msgid "Show Bookmarkbar"
-#~ msgstr "Arată bara cu favorite"
-
-#~ msgid "Whether to show the bookmarkbar"
-#~ msgstr "Specifică dacă să fie vizibilă bara cu favorite"
-
-#~ msgid "Show Panel"
-#~ msgstr "Arată panoul"
-
-#~ msgid "Whether to show the panel"
-#~ msgstr "Specifică dacă să fie vizibil panoul"
-
-#~ msgid "Show Statusbar"
-#~ msgstr "Arată bara de stare"
-
-#~ msgid "Whether to show the statusbar"
-#~ msgstr "Specifică dacă să fie vizibilă bara de stare"
-
-#~ msgid "Toolbar Items"
-#~ msgstr "Elementele barei cu unelte"
-
-#~ msgid "The items to show on the toolbar"
-#~ msgstr "Elementele de arătat în bara cu unelte"
-
-#~ msgid "Compact Sidepanel"
-#~ msgstr "Panou lateral compact"
-
-#~ msgid "Whether to make the sidepanel compact"
-#~ msgstr "Specifică dacă panoul lateral e compact"
-
-#~ msgid "Align sidepanel on the right"
-#~ msgstr "Aliniază la dreapta panoul lateral"
-
-#~ msgid "Whether to align the sidepanel on the right"
-#~ msgstr "Specifică dacă panoul lateral se aliniază la dreapta"
-
-#~ msgid "Open panels in separate windows"
-#~ msgstr "Deschide panourile în ferestre separate"
-
-#~ msgid "Whether to always open panels in separate windows"
-#~ msgstr "Specifică dacă panourile noi se deschid în ferestre separate"
-
-#~ msgid "What to do when Midori starts"
-#~ msgstr "Specificați cum să pornească Midori"
-
-#~ msgid "The homepage"
-#~ msgstr "Pagina de start"
-
-#~ msgid "Show crash dialog"
-#~ msgstr "Depanare după terminări premature"
-
-#~ msgid "The folder downloaded files are saved to"
-#~ msgstr "Calea către dosarul pentru salvarea fișierelor descărcate"
-
-#~ msgid "An external text editor"
-#~ msgstr "Editor extern de text"
-
-#~ msgid "An external news aggregator"
-#~ msgstr "Agregator extern de știri"
-
-#~ msgid "Location entry Search"
-#~ msgstr "Căutarea în bara de adrese"
-
-#~ msgid "The search to perform inside the location entry"
-#~ msgstr "Căutarea de efectuat în bara de adrese"
-
-#~ msgid "The preferred character encoding"
-#~ msgstr "Codarea de caractere preferată"
-
-#~ msgid "Always show the tabbar"
-#~ msgstr "Arată întotdeauna bara cu taburi"
-
-#~ msgid "Whether tabs have close buttons"
-#~ msgstr "Specifică dacă se adaugă butoane de închidere pe taburi"
-
-#~ msgid "Where to open new pages"
-#~ msgstr "Alegeți unde să se deschidă paginile noi"
-
-#~ msgid "Whether to open new tabs in the background"
-#~ msgstr "Specifică dacă taburile noi se deschid în fundal"
-
-#~ msgid "Open popups in tabs"
-#~ msgstr "Deschide popup-urile în taburi"
-
-#~ msgid "Whether to open popup windows in tabs"
-#~ msgstr "Specifică dacă ferestrele popup se deschid în taburi"
-
-#~ msgid "Load and display images automatically"
-#~ msgstr "Încarcă și afișează automat imaginile"
-
-#~ msgid "Enable embedded scripting languages"
-#~ msgstr "Activează limbajele de scripting incluse"
-
-#~ msgid "Enable embedded Netscape plugin objects"
-#~ msgstr "Activează modulele Netscape incluse"
-
-#~ msgid "Enable spell checking while typing"
-#~ msgstr "Verifică ortografia în timpul tastării"
-
-#~ msgid "Enable HTML5 database support"
-#~ msgstr "Suport pentru baze de date HTML5"
-
-#~ msgid "Whether to enable HTML5 database support"
-#~ msgstr "Specifică dacă să se activeze suportul pentru baze de date HTML5"
-
-#~ msgid "Whether to enable HTML5 local storage support"
-#~ msgstr "Specifică dacă să se activeze suportul pentru stocare locală HTML5"
-
-#~ msgid "Whether to enable offline web application cache"
-#~ msgstr ""
-#~ "Specifică dacă să se activeze suportul pentru cache offline de aplicații "
-#~ "web"
-
-#~ msgid "Flash the browser window if a new tab was opened in the background"
-#~ msgstr ""
-#~ "Evidențiază pe moment fereastra la deschiderea unui tab nou în fundal"
-
-#~ msgid "Allow websites to use OpenGL rendering"
-#~ msgstr "Permite randarea WebGL în paginile web"
-
-#~ msgid "Whether to zoom text and images"
-#~ msgstr "Specifică dacă se scalează concomitent textul și imaginile"
-
-#~ msgid "Find inline while typing"
-#~ msgstr "Caută în pagină pe măsură ce se tastează"
-
-#~ msgid "Whether to automatically find inline while typing"
-#~ msgstr "Specifică dacă se caută automat pe măsură ce se tastează"
-
-#~ msgid "The type of proxy server to use"
-#~ msgstr "Tipul serverului proxy de utilizat"
-
-#~ msgid "HTTP Proxy Server"
-#~ msgstr "Server proxy HTTP"
-
-#~ msgid "The proxy server used for HTTP connections"
-#~ msgstr "Serverul proxy pentru conexiuni HTTP"
-
-#~ msgid "The proxy server port used for HTTP connections"
-#~ msgstr "Portul serverului proxy pentru conexiuni HTTP"
-
-#~ msgid "Identification string"
-#~ msgstr "Șir de identificare"
-
-#~ msgid "The application identification string"
-#~ msgstr "Șirul de identificare al navigatorului"
-
-#~ msgid "Clear private data"
-#~ msgstr "Șterge datele private"
-
-#~ msgid "The private data selected for deletion"
-#~ msgstr "Datele private selectate pentru ștergere"
-
-#~ msgid "Clear data"
-#~ msgstr "Șterge datele"
-
-#~ msgid "The data selected for deletion"
-#~ msgstr "Datele selectate pentru ștergere"
-
-#~ msgid "Highlight Matches"
-#~ msgstr "Evidențiază potrivirile"
-
-#~ msgid "_Bookmark"
-#~ msgstr "_Favorit"
-
-#~ msgid "_Console"
-#~ msgstr "_Consolă"
-
-#~ msgid "Toplevel folder"
-#~ msgstr "Dosarul rădăcină"
-
-#~ msgid "_Title:"
-#~ msgstr "_Titlu:"
-
-#~ msgid "_Folder:"
-#~ msgstr "D_osar:"
-
-#~ msgid "Close ot_her Tabs"
-#~ msgstr "Înc_hide celelalte taburi"
-
-#~ msgid "_Icon:"
-#~ msgstr "_Iconiță:"
-
-#~ msgid "Filter:"
-#~ msgstr "Filtru:"
-
-#~ msgid ""
-#~ "Enter a filter string to show only cookies whose name or domain field "
-#~ "match the entered filter"
-#~ msgstr ""
-#~ "Introduceți un filtru pentru a afișa doar cookie-urile ale căror nume ori "
-#~ "domenii se potrivesc"
-
-#~ msgid "_Customize…"
-#~ msgstr "_Personalizare…"
-
-#~ msgid "The specified configuration folder is invalid."
-#~ msgstr "Dosarul cu preferințe precizat nu este valid."
-
-#~ msgid "Lightweight web browser"
-#~ msgstr "Mic navigator web"
-
-#~ msgid "Cookies"
-#~ msgstr "Cookie-uri"
-
-#~ msgid "'Flash' Cookies"
-#~ msgstr "Cookie-uri Flash"
-
-#~ msgid "HTML5 _Databases"
-#~ msgstr "Baze de _date HTML5"
-
-#~ msgid "Offline Application Cache"
-#~ msgstr "Cache offline de aplicație"
-
-#~ msgid "Not available: %s"
-#~ msgstr "Indisponibil: %s"
-
-#~ msgid "Resource files not installed"
-#~ msgstr "Fișierele resursă nu sunt instalate"
-
-#~ msgid "Don't save any private data while browsing"
-#~ msgstr "Nu salva date private în timpul navigării"
-
-#~ msgid "Add shortcut to speed dial"
-#~ msgstr "Adaugă în pagina apelurilor rapide"
-
-#~ msgid "Add shortcut to the desktop"
-#~ msgstr "Salvează linkul pe desktop"
-
-#~ msgid "Create a launcher"
-#~ msgstr "Creează un lansator"
-
-#~ msgid "Subscribe to this news feed"
-#~ msgstr "Abonare la acest flux de știri"
-
-#~ msgid "Close this window"
-#~ msgstr "Închide fereastra curentă"
-
-#~ msgid "Close all open windows"
-#~ msgstr "Închide toate ferestrele deschise"
-
-#~ msgid "Undo the last modification"
-#~ msgstr "Anulează ultima modificare"
-
-#~ msgid "Redo the last modification"
-#~ msgstr "Refă ultima modificare"
-
-#~ msgid "Cut the selected text"
-#~ msgstr "Taie textul selectat"
-
-#~ msgid "Copy the selected text"
-#~ msgstr "Copiază textul selectat"
-
-#~ msgid "Paste text from the clipboard"
-#~ msgstr "Lipește textul din clipboard"
-
-#~ msgid "Delete the selected text"
-#~ msgstr "Șterge textul selectat"
-
-#~ msgid "Select all text"
-#~ msgstr "Selectează tot textul"
-
-#~ msgid "Find the next occurrence of a word or phrase"
-#~ msgstr "Caută următoarea apariție a cuvântului sau a expresiei"
-
-#~ msgid "Find the previous occurrence of a word or phrase"
-#~ msgstr "Caută precedenta apariție a cuvântului sau a expresiei"
-
-#~ msgid "Reset the zoom level"
-#~ msgstr "Zoom normal"
-
-#~ msgid "View the source code of the page"
-#~ msgstr "Vizualizați codul sursă al paginii"
-
-#~ msgid "Scroll to the left"
-#~ msgstr "Derulare spre stânga"
-
-#~ msgid "Scroll down"
-#~ msgstr "Derulare în jos"
-
-#~ msgid "Scroll up"
-#~ msgstr "Derulare în sus"
-
-#~ msgid "Scroll to the right"
-#~ msgstr "Derulare spre dreapta"
-
-#~ msgid "Delete the contents of the trash"
-#~ msgstr "Șterge conținutul coșului de gunoi"
-
-#~ msgid "Open the last closed tab"
-#~ msgstr "Deschide ultimul tab închis"
-
-#~ msgid "Add a new bookmark folder"
-#~ msgstr "Adaugă un dosar cu favorite"
-
-#~ msgid "Add, edit and remove search engines…"
-#~ msgstr "Adăugați, editați și ștergeți motoare de căutare…"
-
-#~ msgid "Clear private data…"
-#~ msgstr "Ștergere de date private…"
-
-#~ msgid "Inspect page details and access developer tools…"
-#~ msgstr "Inspectați detaliile paginii și accesați uneltele de dezvoltare…"
-
-#~ msgid "Switch to the previous tab"
-#~ msgstr "Comută la tabul anterior"
-
-#~ msgid "Switch to the next tab"
-#~ msgstr "Comută la tabul următor"
-
-#~ msgid "Move tab behind the previous tab"
-#~ msgstr "Mută tabul după tabul următor"
-
-#~ msgid "Move tab in front of the next tab"
-#~ msgstr "Mută tabul înaintea tabului anterior"
-
-#~ msgid "Focus the current tab"
-#~ msgstr "Activează focusul tabului curent"
-
-#~ msgid "Cycle focus between views"
-#~ msgstr "Schimbă focusul între vizualizări"
-
-#~ msgid "Only show the icon of the current tab"
-#~ msgstr "Arată doar iconița tabului curent"
-
-#~ msgid "Duplicate the current tab"
-#~ msgstr "Duplică tabul curent"
-
-#~ msgid "Close all tabs except the current tab"
-#~ msgstr "Închide toate taburile înafara celui curent"
-
-#~ msgid "Open the tabs saved in the last session"
-#~ msgstr "Deschide taburile salvate în ultima sesiune"
-
-#~ msgid "Show the Frequently Asked Questions"
-#~ msgstr "Arată întrebările frecvente"
-
-#~ msgid "Open Midori's bug tracker"
-#~ msgstr "Accesați baza de date cu probleme Midori"
-
-#~ msgid "Show information about the program"
-#~ msgstr "Arată detalii despre program"
-
-#~ msgid "Show menubar"
-#~ msgstr "Arată bara de meniu"
-
-#~ msgid "Show navigationbar"
-#~ msgstr "Arată bara de navigare"
-
-#~ msgid "Show sidepanel"
-#~ msgstr "Arată panoul lateral"
-
-#~ msgid "Show bookmarkbar"
-#~ msgstr "Arată bara cu favorite"
-
-#~ msgid "Show statusbar"
-#~ msgstr "Arată bara de stare"
-
-#~ msgid "No filename specified"
-#~ msgstr "Nu s-a precizat un fișier"
-
-#~ msgid "Set number of columns and rows"
-#~ msgstr "Precizați numărul de coloane și rânduri"
-
-#~ msgid "Enter number of columns and rows:"
-#~ msgstr "Introduceți numărul de coloane și rânduri:"
-
-#~ msgid "Invalid input for the size of the speed dial"
-#~ msgstr "Input invalid pentru dimensiunile apelurilor rapide"
-
-#~ msgid "Thumb size:"
-#~ msgstr "Mărimea miniaturii:"
-
-#~ msgid "Small"
-#~ msgstr "Mică"
-
-#~ msgid "Medium"
-#~ msgstr "Medie"
-
-#~ msgid "Big"
-#~ msgstr "Mare"
-
-#~ msgid "Reset the last _session"
-#~ msgstr "_Sesiune nouă"
-
-#~ msgid "Quit the application"
-#~ msgstr "Ieșire din Midori"
-
-#~ msgid "_Contents"
-#~ msgstr "_Conținut"
-
-#~ msgid "Show the documentation"
-#~ msgstr "Arată documentația"
-
-#~ msgid "Failed to execute database statement\n"
-#~ msgstr "Nu s-a putut executa comanda asupra bazei de date\n"
-
-#~ msgid "Show Blank page"
-#~ msgstr "O pagină goală"
-
-#~ msgid "All cookies"
-#~ msgstr "Toate cookie-urile"
-
-#~ msgid "Session cookies"
-#~ msgstr "Cookie-uri de sesiune"
-
-#~ msgid "Show Transferbar"
-#~ msgstr "Arată bara descărcărilor"
-
-#~ msgid "Whether to show the transferbar"
-#~ msgstr "Specifică dacă să fie vizibilă bara descărcărilor"
-
-#~ msgid "Search engines in location completion"
-#~ msgstr "Arată căutările la auto-completare"
-
-#~ msgid "Whether to show search engines in the location completion"
-#~ msgstr ""
-#~ "Specifică dacă să fie vizibile motoarele de căutare la completarea în "
-#~ "bara de adrese"
-
-#~ msgid "Show operating controls of the panel"
-#~ msgstr "Arată controalele active ale panoului"
-
-#~ msgid "Whether to show the operating controls of the panel"
-#~ msgstr "Specifică dacă să fie vizibile controalele active ale panoului"
-
-#~ msgid "Show speed dial in new tabs"
-#~ msgstr "Arată apelurile rapide în taburi noi"
-
-#~ msgid "Show speed dial in newly opened tabs"
-#~ msgstr "Arată apelurile rapide în taburile nou deschise"
-
-#~ msgid "Download Manager"
-#~ msgstr "Manager de descărcări"
-
-#~ msgid "Open external pages in:"
-#~ msgstr "Paginile externe se vor deschide în:"
-
-#~ msgid "Where to open externally opened pages"
-#~ msgstr "Alegeți unde să se deschidă paginile externe"
-
-#~ msgid "Accept cookies"
-#~ msgstr "Acceptă cookie-uri"
-
-#~ msgid "What type of cookies to accept"
-#~ msgstr "Tipuri de cookie-uri acceptate"
-
-#~ msgid "Maximum cookie age"
-#~ msgstr "Durată maximă pentru cookie-uri"
-
-#~ msgid "Maximum history age"
-#~ msgstr "Număr maxim de zile pentru istoric"
-
-#~ msgid "Remember last downloaded files"
-#~ msgstr "Reține ultimele fișiere descărcate"
-
-#~ msgid "Whether the last downloaded files are saved"
-#~ msgstr "Specifică dacă se rețin ultimele fișiere descărcate"
-
-#~ msgid "Not found - %s"
-#~ msgstr "Nu s-a găsit %s"
-
-#~ msgid "_Save Link destination"
-#~ msgstr "_Salvează destinația linkului"
-
-#~ msgid "Download with Download _Manager"
-#~ msgstr "D_escarcă cu managerul descărcărilor"
-
-#~ msgid "_Download Link destination"
-#~ msgstr "_Descarcă destinația linkului"
-
-#~ msgid "Document cannot be displayed"
-#~ msgstr "Documentul nu poate fi afișat"
-
-#~ msgid "General"
-#~ msgstr "Generale"
-
-#~ msgid "Appearance"
-#~ msgstr "Aspect"
-
-#~ msgid "Font settings"
-#~ msgstr "Preferințe fonturi"
-
-#~ msgid "Enforce 96 dots per inch"
-#~ msgstr "Forțează afișarea în 96 DPI"
-
-#~ msgid "Enforce a video dot density of 96 DPI"
-#~ msgstr "Forțează la 96 DPI densitatea punctelor ecranului"
-
-#~ msgid "Interface"
-#~ msgstr "Interfață"
-
-#~ msgid "Navigationbar"
-#~ msgstr "Bară de navigare"
-
-#~ msgid "Applications"
-#~ msgstr "Programe"
-
-#~ msgid "External applications"
-#~ msgstr "Programe externe"
-
-#~ msgid "Web Cookies"
-#~ msgstr "Cookie-uri web"
-
-#~ msgid "Delete cookies when quitting Midori"
-#~ msgstr "Cookie-uri de șters la închiderea Midori:"
-
-#~ msgid "Delete old cookies after 1 hour"
-#~ msgstr "Cele mai vechi de o oră"
-
-#~ msgid "Delete old cookies after 1 week"
-#~ msgstr "Cele mai vechi de o săptămână"
-
-#~ msgid "Delete old cookies after 1 month"
-#~ msgstr "Cele mai vechi de o lună"
-
-#~ msgid "Delete old cookies after 1 year"
-#~ msgstr "Cele mai vechi de un an"
-
-#~ msgid "Configure _Advertisement filters…"
-#~ msgstr "Opțiuni pentru _filtrarea reclamelor…"
-
-#~ msgid "Open target folder for selected addon"
-#~ msgstr "Deschide dosarul țintă pentru elementul selectat"
-
-#~ msgid "Next Tab (History List)"
-#~ msgstr "Tabul următor (din istoric)"
-
-#~ msgid "Previous Tab (History List)"
-#~ msgstr "Tabul precedent (din istoric)"
-
-#~ msgid "Previous tab from history"
-#~ msgstr "Tabul anterior din istoric"
-
-#~ msgid "Switch tabs with Ctrl+Tab sorted by last usage"
-#~ msgstr "Arată taburile la Ctrl+Tab (listate după istoricul utilizării)"
-
-#~ msgid "Pageholder"
-#~ msgstr "Loc pentru pagini"
-
-#~ msgid "_Pageholder"
-#~ msgstr "_Loc pentru pagini"
-
-#~ msgid "Keep one or multiple pages open in parallel to your tabs"
-#~ msgstr "Țineți una sau mai multe pagini deschise în paralel"
-
-#~ msgid "%d%% loaded"
-#~ msgstr "%d%% încărcat"
-
-#~ msgid "_Transferbar"
-#~ msgstr "Bară de _descărcare"
-
-#~ msgid "Show transferbar"
-#~ msgstr "Arată bara descărcărilor"
-
-#~ msgid "Show progress in location entry"
-#~ msgstr "Arată progresul în bara de adrese"
-
-#~ msgid "Whether to show loading progress in the location entry"
-#~ msgstr ""
-#~ "Specifică dacă să fie vizibil progresul încărcării în bara de adrese"
-
-#~ msgid "Ask for the destination folder"
-#~ msgstr "Cere un dosar de destinație"
-
-#~ msgid "Whether to ask for the destination folder when downloading a file"
-#~ msgstr ""
-#~ "Specifică dacă se va cere precizarea dosarului în care se face descărcarea"
-
-#~ msgid "Whether to show a notification when a transfer has been completed"
-#~ msgstr ""
-#~ "Specifică dacă se afișează o notificare la finalizarea unei descărcări"
-
-#~ msgid "Download I_mage"
-#~ msgstr "Descarcă i_maginea"
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:127
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:273
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:247
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:292
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:662
+#, c-format
+msgid "SQL fails: %s"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:246
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:707
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:1116
+msgid "Accept"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:250
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:709
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:1117
+msgid "Accept for session"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:254
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:711
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:1118
+msgid "Block"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:300
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:151
+#, c-format
+msgid "Could not open database of extenstion: %s"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:403
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:406
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:457
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:196
+#, c-format
+msgid "Failed to execute database statement: %s"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:432
+msgid "Do you really want to delete all cookie permissions?"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:434
+msgid "Delete all cookie permissions?"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:438
+msgid ""
+"This action will delete all cookie permissions. You will be asked for "
+"permissions again for each web site visited."
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:608
+msgid "Cookie permission manager"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:609
+msgid "Instance of current cookie permission manager"
+msgstr ""
+
+#. Set up dialog
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:650
+msgid "Configure cookie permission"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:665
+#, c-format
+msgid ""
+"Below is a list of all web sites and the policy set for them. You can delete "
+"policies by marking the entries and clicking on <i>Delete</i>.You can also "
+"add a policy for a domain manually by entering the domain below, choosing "
+"the policy and clicking on <i>Add</i>."
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:740
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:556
+msgid "Domain"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:748
+msgid "Policy"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:777
+msgid "Delete _all"
+msgstr ""
+
+#. Add "ask-for-unknown-policy" checkbox
+#: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:786
+msgid "A_sk for policy if unknown for a domain"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:91
+msgid ""
+"A fatal error occurred which prevents the cookie permission manager "
+"extension to continue. You should disable it."
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:95
+msgid "Error in cookie permission manager extension"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:100
+msgid "Reason"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:140
+#, c-format
+msgid "Could not create configuration folder for extension: %s"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:142
+msgid "Could not create configuration folder for extension."
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:159
+msgid "Could not open database of extension."
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:192
+msgid "Could not set up database structure of extension."
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:313
+#, c-format
+msgid "Could not determine global cookie policy to set for domain: %s"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:488
+msgid "Till session end"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:512
+#, c-format
+msgid "The website %s wants to store %d cookies."
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:514
+#, c-format
+msgid "The website %s wants to store a cookie."
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:518
+#, c-format
+msgid "Multiple websites want to store %d cookies in total."
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:527
+msgid "_Accept"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:528
+msgid "Accept for this _session"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:529
+msgid "De_ny"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:530
+msgid "Deny _this time"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:563
+msgid "Path"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:577
+msgid "Value"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:588
+msgid "Expire date"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:1011
+msgid "Extension instance"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:1012
+msgid "The Midori extension instance for this extension"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:1018
+msgid "Application instance"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:1019
+msgid "The Midori application instance this extension belongs to"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:1025
+msgid "Database instance"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:1026
+msgid "Pointer to sqlite database instance used by this extension"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:1031
+msgid "Database path"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:1032
+msgid "Path to sqlite database instance used by this extension"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:1038
+msgid "Ask for unknown policy"
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:1039
+msgid ""
+"If true this extension ask for policy for every unknown domain.If false this "
+"extension uses the global cookie policy set in Midori settings."
+msgstr ""
+
+#: ../extensions/cookie-permissions/cookie-permission-manager.c:1115
+msgid "Undetermined"
+msgstr ""
+
+#: ../extensions/cookie-permissions/main.c:62
+msgid "Cookie Security Manager"
+msgstr ""
+
+#: ../extensions/cookie-permissions/main.c:63
+msgid "Manage cookie permission per site"
+msgstr ""
+
+#: ../extensions/apps.vala:46
+msgid "Launcher created"
+msgstr ""
+
+#: ../extensions/apps.vala:47
+#, c-format
+msgid "You can now run <b>%s</b> from your launcher or menu"
+msgstr ""
+
+#: ../extensions/apps.vala:54
+msgid "Error creating launcher"
+msgstr ""
+
+#: ../extensions/apps.vala:55
+#, c-format
+msgid "Failed to create new launcher: %s"
+msgstr ""
+
+#: ../extensions/apps.vala:92
+msgid "Applications"
+msgstr "Programe"
+
+#: ../extensions/apps.vala:101
+msgid "New _Profile"
+msgstr ""
+
+#: ../extensions/apps.vala:102
+msgid "Creates a new, independant profile and a launcher"
+msgstr ""
+
+#: ../extensions/apps.vala:111
+#, c-format
+msgid "Midori (%s)"
+msgstr ""
+
+#: ../extensions/apps.vala:116
+msgid "New _App"
+msgstr ""
+
+#: ../extensions/apps.vala:117
+msgid "Creates a new app for a specific site"
+msgstr ""
+
+#: ../extensions/apps.vala:276
+msgid "Create _Launcher"
+msgstr "Creează _lansator"
+
+#: ../extensions/apps.vala:314
+msgid "Web App Manager"
+msgstr ""
+
+#: ../extensions/apps.vala:315
+msgid "Manage websites installed as applications"
+msgstr ""
+
+#: ../extensions/transfers.vala:98
+msgid "Transfers"
+msgstr "Descărcări"
+
+#: ../extensions/transfers.vala:111 ../extensions/transfers.vala:373
+msgid "Clear All"
+msgstr "Șterge tot"
+
+#: ../extensions/transfers.vala:205
+msgid "Open Destination _Folder"
+msgstr "Deschide _dosarul de destinație"
+
+#: ../extensions/transfers.vala:212
+msgid "Copy Link Loc_ation"
+msgstr "Copiază _adresa linkului"
+
+#: ../extensions/transfers.vala:431
+#, c-format
+msgid "The file '<b>%s</b>' has been downloaded."
+msgstr "S-a descărcat fișierul „<b>%s</b>”."
+
+#: ../extensions/transfers.vala:433
+#, c-format
+msgid "'<b>%s</b>' and %d other files have been downloaded."
+msgstr ""
+
+#: ../extensions/transfers.vala:434
+msgid "Transfer completed"
+msgstr "Descărcare finalizată"
+
+#: ../extensions/transfers.vala:484 ../extensions/transfers.vala:485
+msgid "Some files are being downloaded"
+msgstr "Unele fișiere sunt în curs de descărcare"
+
+#: ../extensions/transfers.vala:487
+msgid "_Quit Midori"
+msgstr "În_chidere Midori"
+
+#: ../extensions/transfers.vala:489
+msgid "The transfers will be cancelled if Midori quits."
+msgstr "Dacă închideți Midori, se vor pierde descărcările curente."
+
+#: ../extensions/transfers.vala:538
+msgid "Transfer Manager"
+msgstr ""
+
+#: ../extensions/transfers.vala:539
+msgid "View downloaded files"
+msgstr ""
