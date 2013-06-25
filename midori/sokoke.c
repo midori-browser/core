@@ -1096,9 +1096,8 @@ sokoke_entry_changed_cb (GtkEditable* editable,
     const gchar* text = gtk_entry_get_text (entry);
     gboolean visible = text && *text
       && ! sokoke_entry_has_placeholder_text (entry);
-    gtk_icon_entry_set_icon_from_stock (
-        GTK_ICON_ENTRY (entry),
-        GTK_ICON_ENTRY_SECONDARY,
+    gtk_entry_set_icon_from_stock (
+        entry, GTK_ENTRY_ICON_SECONDARY,
         visible ? GTK_STOCK_CLEAR : NULL);
 }
 
@@ -1113,11 +1112,11 @@ sokoke_entry_focus_out_event_cb (GtkEditable*   editable,
 
 static void
 sokoke_entry_icon_released_cb (GtkEntry*            entry,
-                               GtkIconEntryPosition icon_pos,
+                               GtkEntryIconPosition icon_pos,
                                GdkEvent*            event,
                                gpointer             user_data)
 {
-    if (icon_pos != GTK_ICON_ENTRY_SECONDARY)
+    if (icon_pos != GTK_ENTRY_ICON_SECONDARY)
         return;
 
     gtk_entry_set_text (entry, "");
@@ -1131,7 +1130,7 @@ sokoke_search_entry_new (const gchar* placeholder_text)
     gtk_entry_set_placeholder_text (GTK_ENTRY (entry), placeholder_text);
     gtk_entry_set_icon_from_stock (GTK_ENTRY (entry),
                                    GTK_ENTRY_ICON_PRIMARY, GTK_STOCK_FIND);
-    gtk_icon_entry_set_icon_highlight (GTK_ENTRY (entry),
+    gtk_entry_set_icon_activatable (GTK_ENTRY (entry),
         GTK_ENTRY_ICON_SECONDARY, TRUE);
     {
         g_object_connect (entry,

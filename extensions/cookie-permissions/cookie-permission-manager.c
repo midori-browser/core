@@ -540,11 +540,7 @@ static gint _cookie_permission_manager_ask_for_policy(CookiePermissionManager *s
 /* FIXME: Find a way to add "details" widget */
 #ifndef NO_INFOBAR_DETAILS
 	/* Get content area of infobar */
-#if HAVE_GTK_INFO_BAR
 	contentArea=gtk_info_bar_get_content_area(GTK_INFO_BAR(infobar));
-#else
-	contentArea=infobar;
-#endif
 
 	/* Create list and set up columns of list */
 	list=gtk_tree_view_new_with_model(GTK_TREE_MODEL(listStore));

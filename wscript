@@ -253,22 +253,20 @@ def configure (conf):
             conf.define ('HAVE_WEBKIT2', 1)
             conf.env.append_value ('VALAFLAGS', '-D HAVE_WEBKIT2')
         else:
-            check_pkg ('webkitgtk-3.0', '1.1.17', var='WEBKIT', mandatory=False)
+            check_pkg ('webkitgtk-3.0', '1.8.3', var='WEBKIT', mandatory=False)
         if not conf.env['HAVE_GTK'] or not conf.env['HAVE_WEBKIT']:
             Utils.pprint ('RED', 'GTK+3 was not found.\n' \
                 'Pass --disable-gtk3 to build without GTK+3.')
             sys.exit (1)
-        if check_version (conf.env['WEBKIT_VERSION'], 1, 5, 1):
-            check_pkg ('javascriptcoregtk-3.0', '1.5.1', args=args)
+        check_pkg ('javascriptcoregtk-3.0', '1.8.3', args=args)
         conf.env.append_value ('VALAFLAGS', '-D HAVE_GTK3')
         conf.env.append_value ('VALAFLAGS', '-D HAVE_OFFSCREEN')
         conf.env.append_value ('VALAFLAGS', '-D HAVE_DOM')
     else:
-        check_pkg ('gtk+-2.0', '2.16.0', var='GTK')
-        check_pkg ('webkit-1.0', '1.1.17', args=args)
+        check_pkg ('gtk+-2.0', '2.24.0', var='GTK')
+        check_pkg ('webkit-1.0', '1.8.3', args=args)
         conf.define ('GCR_VERSION', 'No')
-        if check_version (conf.env['WEBKIT_VERSION'], 1, 5, 1):
-            check_pkg ('javascriptcoregtk-1.0', '1.5.1', args=args)
+        check_pkg ('javascriptcoregtk-1.0', '1.8.3', args=args)
         if check_version (conf.env['GTK_VERSION'], 2, 20, 0):
             conf.env.append_value ('VALAFLAGS', '-D HAVE_OFFSCREEN')
     conf.env['HAVE_GTK3'] = have_gtk3
@@ -292,13 +290,6 @@ def configure (conf):
         conf.env.append_value ('VALAFLAGS', '-D HAVE_LIBSOUP_2_34_0')
     if check_version (conf.env['LIBSOUP_VERSION'], 2, 37, 1):
         conf.define ('HAVE_LIBSOUP_2_37_1', 1)
-
-    if check_version (conf.env['WEBKIT_VERSION'], 1, 3, 8):
-        conf.env.append_value ('VALAFLAGS', '-D HAVE_WEBKIT_1_3_8')
-    if check_version (conf.env['WEBKIT_VERSION'], 1, 3, 13):
-        conf.env.append_value ('VALAFLAGS', '-D HAVE_WEBKIT_1_3_13')
-    if check_version (conf.env['WEBKIT_VERSION'], 1, 8, 0):
-        conf.env.append_value ('VALAFLAGS', '-D HAVE_WEBKIT_1_8_0')
 
     check_pkg ('libxml-2.0', '2.6')
     conf.undefine ('LIBXML_VERSION') # Defined in xmlversion.h

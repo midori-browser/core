@@ -77,41 +77,6 @@ katze_net_priv_free (KatzeNetPriv* priv)
     g_slice_free (KatzeNetPriv, priv);
 }
 
-#if !WEBKIT_CHECK_VERSION (1, 3, 13)
-gchar*
-katze_net_get_cached_path (KatzeNet*    net,
-                           const gchar* uri,
-                           const gchar* subfolder)
-{
-    gchar* checksum;
-    gchar* extension;
-    gchar* cached_filename;
-    gchar* cached_path;
-
-    if (uri == NULL)
-        return NULL;
-
-    checksum = g_compute_checksum_for_string (G_CHECKSUM_MD5, uri, -1);
-    extension = g_strrstr (uri, ".");
-    cached_filename = g_strdup_printf ("%s%s", checksum,
-                                       extension ? extension : "");
-    g_free (checksum);
-
-    if (subfolder)
-    {
-        gchar* cache_path = g_build_filename (midori_paths_get_cache_dir_for_reading (), subfolder, NULL);
-        katze_mkdir_with_parents (cache_path, 0700);
-        cached_path = g_build_filename (cache_path, cached_filename, NULL);
-        g_free (cache_path);
-    }
-    else
-        cached_path = g_build_filename (midori_paths_get_cache_dir (), cached_filename, NULL);
-
-    g_free (cached_filename);
-    return cached_path;
-}
-#endif
-
 static void
 katze_net_got_body_cb (SoupMessage*  msg,
                        KatzeNetPriv* priv);

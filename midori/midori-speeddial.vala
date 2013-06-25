@@ -339,14 +339,9 @@ namespace Midori {
                 return;
 
             return_if_fail (spec != null);
-            #if HAVE_OFFSCREEN
             var img = (thumb_view.parent as Gtk.OffscreenWindow).get_pixbuf ();
             var pixbuf_scaled = img.scale_simple (240, 160, Gdk.InterpType.TILES);
             img = pixbuf_scaled;
-            #else
-            thumb_view.realize ();
-            var img = midori_view_web_view_get_snapshot (thumb_view, 240, 160);
-            #endif
             unowned string title = thumb_view.get_title ();
             add_with_id (spec.dial_id, spec.uri, title ?? spec.uri, img);
 
@@ -373,22 +368,10 @@ namespace Midori {
                 if (settings.get_class ().find_property ("enable-java-applet") != null)
                     settings.set ("enable-java-applet", false);
                 thumb_view.settings = settings;
-                #if HAVE_OFFSCREEN
                 var offscreen = new Gtk.OffscreenWindow ();
                 offscreen.add (thumb_view);
                 thumb_view.set_size_request (800, 600);
                 offscreen.show_all ();
-                #else
-                /* What we are doing here is a bit of a hack. In order to render a
-                   thumbnail we need a new view and load the url in it. But it has
-                   to be visible and packed in a container. So we secretly pack it
-                   into the notebook of the parent browser. */
-                notebook.add (thumb_view);
-                thumb_view.destroy.connect (Gtk.widget_destroyed);
-                /* We use an empty label. It's not invisible but hard to spot. */
-                notebook.set_tab_label (thumb_view, new Gtk.EventBox ());
-                thumb_view.show ();
-                #endif
             }
 
             thumb_queue.append (new Spec (dial_id, uri));

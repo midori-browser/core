@@ -50,6 +50,8 @@ namespace HistoryList {
             Gtk.TreeViewColumn? column;
 
             this.treeview.get_cursor (out path, out column);
+            if (path == null)
+                return;
 
             unowned int[] indices = path.get_indices ();
             int new_index = indices[0] + step;
@@ -171,13 +173,16 @@ namespace HistoryList {
             Gtk.TreeViewColumn? column;
 
             this.treeview.get_cursor (out path, out column);
+            if (path == null)
+                return;
 
             var model = this.treeview.get_model () as Gtk.ListStore;
 
             Gtk.TreeIter iter;
             unowned Midori.View? view = null;
 
-            model.get_iter (out iter, path);
+            if (!model.get_iter (out iter, path))
+                return;
             model.get (iter, TabTreeCells.TREE_CELL_POINTER, out view);
             this.browser.set ("tab", view);
         }
@@ -212,6 +217,12 @@ namespace HistoryList {
 
                 model.get_iter (out iter, path);
                 model.get (iter, TabTreeCells.TREE_CELL_POINTER, out view);
+#if !HAVE_GTK3
+                /* removing the selected cursor causes a segfault when using GTK2 */
+                if (path.prev () == false)
+                    path.next ();
+                this.treeview.set_cursor (path, column, false);
+#endif
 
                 /*
                     FixMe: the retrun value of `Gtk.ListStore.remove` should be checked

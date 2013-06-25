@@ -458,20 +458,14 @@ static void
 katze_item_image_destroyed_cb (GtkWidget* image,
                                KatzeItem* item);
 #ifndef HAVE_WEBKIT2
-#if WEBKIT_CHECK_VERSION (1, 3, 13)
 static void
-#if WEBKIT_CHECK_VERSION (1, 8, 0)
 katze_item_icon_loaded_cb (WebKitFaviconDatabase* database,
-#elif WEBKIT_CHECK_VERSION (1, 3, 13)
-katze_item_icon_loaded_cb (WebKitIconDatabase*    database,
-                           WebKitWebFrame*        web_frame,
-#endif
                            const gchar*           frame_uri,
                            GtkWidget*             image)
 {
     KatzeItem* item = g_object_get_data (G_OBJECT (image), "KatzeItem");
     GdkPixbuf* pixbuf;
-    if (!strcmp (frame_uri, item->uri)
+    if (!g_strcmp0 (frame_uri, item->uri)
       && (pixbuf = midori_paths_get_icon (frame_uri, image)))
     {
         gtk_image_set_from_pixbuf (GTK_IMAGE (image), pixbuf);
@@ -482,20 +476,14 @@ katze_item_icon_loaded_cb (WebKitIconDatabase*    database,
     }
 }
 #endif
-#endif
 
 static void
 katze_item_image_destroyed_cb (GtkWidget* image,
                                KatzeItem* item)
 {
 #ifndef HAVE_WEBKIT2
-    #if WEBKIT_CHECK_VERSION (1, 8, 0)
     g_signal_handlers_disconnect_by_func (webkit_get_favicon_database (),
         katze_item_icon_loaded_cb, image);
-    #elif WEBKIT_CHECK_VERSION (1, 3, 13)
-    g_signal_handlers_disconnect_by_func (webkit_get_icon_database (),
-        katze_item_icon_loaded_cb, image);
-    #endif
 #endif
     g_object_unref (item);
 }
@@ -532,13 +520,8 @@ katze_item_get_image (KatzeItem* item,
     g_signal_connect (image, "destroy",
         G_CALLBACK (katze_item_image_destroyed_cb), item);
 #ifndef HAVE_WEBKIT2
-    #if WEBKIT_CHECK_VERSION (1, 8, 0)
     g_signal_connect (webkit_get_favicon_database (), "icon-loaded",
         G_CALLBACK (katze_item_icon_loaded_cb), image);
-    #elif WEBKIT_CHECK_VERSION (1, 3, 13)
-    g_signal_connect (webkit_get_icon_database (), "icon-loaded",
-        G_CALLBACK (katze_item_icon_loaded_cb), image);
-    #endif
 #endif
     return image;
 }
