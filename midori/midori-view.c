@@ -1267,15 +1267,16 @@ webkit_web_view_load_error_cb (WebKitWebView*  web_view,
         /* A frame load is cancelled because of a download. */
         return FALSE;
     }
-    message = g_strdup_printf (_("The page '%s' couldn't be loaded:"), uri);
+    message = g_strdup_printf (_("The page '%s' couldn't be loaded:"), uri); //Use Midori.URI.parse_hostname(uri)
+    title = g_strdup_printf (_("'%s' can't be found"), uri);
     result = midori_view_display_error (view,
                                         uri,
                                         "background-image: url(stock://gtk-dialog-warning);",
-                                        _("Error loading page"),
+                                        title,
                                         message,
                                         error->message,
-                                        _("You might want to try one of these suggestions:<ul id=\"suggestions\"><li>Check the address for typos</li><li>Make sure that an ethernet cable is plugged in or the wireless card is activated</li><li>Verify that your network settings are correct</li></ul>"),
-                                        _("Try again"),
+                                        _("<ul id=\"suggestions\"><li>Check the address for typos</li><li>Make sure that an ethernet cable is plugged in or the wireless card is activated</li><li>Verify that your network settings are correct</li></ul>"),
+                                        _("Try Again"),
                                         web_frame);
     g_free (message);
     return result;

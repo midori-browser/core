@@ -3,8 +3,7 @@
  This file is licensed under the terms of the expat license, see the file EXPAT.
  */
 body {
-   background-color: #fefefe;
-    /*background: -webkit-linear-gradient(#fefefe 0%, #eeeeee 100%);*/
+   background-color: #eeeeee;
     color: #222222;
     font-family: 'Open Sans', 'Droid Sans', Arial, sans-serif;
     font-size: 14px;
@@ -12,15 +11,6 @@ body {
     font-variant: normal;
     font-weight: normal;
     margin-top: 100px;
-}
-
-#icon {
-    /*float: left;
-    padding-left: 1%;
-    padding-top: 3%;
-    width: 80px;
-    height: 50px;
-    float: right;*/
 }
 
 html[dir="rtl"] #icon {
@@ -38,6 +28,13 @@ html[dir="rtl"] #icon {
     margin-right: auto;
     min-width: 480px;
     background-repeat: no-repeat;
+background-color: #ffffff;
+	border: 1px solid #aaaaaa;
+padding: 25px;
+-webkit-border-radius: 4px;
+-webkit-box-shadow: 0 2px 5px rgba(0,0,0,.05);
+background-position-x: 22px;
+background-position-y: 22px;
 }
 
 #text {
@@ -68,17 +65,16 @@ button img {
     padding: 2px 1px;
 }
 
+button {
+	font-size: 14px;
+}
+
 .message {
-    /*white-space: nowrap;
-    font: 'Open Sans' light 18;
-    /*word-wrap: break-word;*/
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
 .description {
-    /*white-space: nowrap;*/
-    /*word-wrap: break-word;*/
     font-size: 1em;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -93,27 +89,11 @@ button img {
     text-align: right;
 }
 
-/*DEVELOPMENT HELP
-#container {
-   border: 1px solid red;
+#logo {
+   position: absolute; bottom: 15px;
+   z-index: -1;
 }
 
-#main {
-    border: 1px solid blue;
-}
-
-h1 {
-border: 1px solid green;
-}
-
-#message {
-border: 1px solid black;
-}
-
-#description {
-border: 1px solid pink;
-}
-
-#suggestions {
-border: 1px solid yellow;
+form {
+	margin-bottom: 0px;
 }
