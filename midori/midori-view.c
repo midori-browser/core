@@ -2519,19 +2519,25 @@ midori_view_populate_popup (MidoriView* view,
     }
     if (view->link_uri)
     {
-        if (!midori_view_always_same_tab (view->link_uri))
+        if (midori_paths_get_runtime_mode () == MIDORI_RUNTIME_MODE_APP)
         {
-        midori_view_insert_menu_item (menu_shell, -1,
-            _("Open Link in New _Tab"), STOCK_TAB_NEW,
-            G_CALLBACK (midori_web_view_menu_new_tab_activate_cb), widget);
-        midori_view_insert_menu_item (menu_shell, -1,
-            view->open_tabs_in_the_background
-            ? _("Open Link in _Foreground Tab")
-            : _("Open Link in _Background Tab"), NULL,
-            G_CALLBACK (midori_web_view_menu_background_tab_activate_cb), widget);
-        midori_view_insert_menu_item (menu_shell, -1,
-            _("Open Link in New _Window"), STOCK_WINDOW_NEW,
-            G_CALLBACK (midori_web_view_menu_new_window_activate_cb), widget);
+            midori_view_insert_menu_item (menu_shell, -1,
+                _("Open Link in New _Tab"), STOCK_TAB_NEW,
+                G_CALLBACK (midori_web_view_menu_new_tab_activate_cb), widget);
+        }
+        else if (!midori_view_always_same_tab (view->link_uri))
+        {
+            midori_view_insert_menu_item (menu_shell, -1,
+                _("Open Link in New _Tab"), STOCK_TAB_NEW,
+                G_CALLBACK (midori_web_view_menu_new_tab_activate_cb), widget);
+            midori_view_insert_menu_item (menu_shell, -1,
+                view->open_tabs_in_the_background
+                ? _("Open Link in _Foreground Tab")
+                : _("Open Link in _Background Tab"), NULL,
+                G_CALLBACK (midori_web_view_menu_background_tab_activate_cb), widget);
+            midori_view_insert_menu_item (menu_shell, -1,
+                _("Open Link in New _Window"), STOCK_WINDOW_NEW,
+                G_CALLBACK (midori_web_view_menu_new_window_activate_cb), widget);
         }
 
         midori_view_insert_menu_item (menu_shell, -1,
