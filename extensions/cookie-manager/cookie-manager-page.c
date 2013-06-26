@@ -660,17 +660,9 @@ static gchar *cm_get_cookie_description_text(SoupCookie *cookie)
 	if (cookie->expires != NULL)
 	{
 		time_t expiration_time = soup_date_to_time_t(cookie->expires);
-		#if GLIB_CHECK_VERSION (2, 26, 0)
 		GDateTime* date = g_date_time_new_from_unix_local(expiration_time);
 		expires = g_date_time_format(date, "%c");
 		g_date_time_unref(date);
-		#else
-		static gchar date_fmt[512];
-		const struct tm *tm = localtime(&expiration_time);
-		/* Some GCC versions falsely complain about "%c" */
-		strftime(date_fmt, sizeof(date_fmt), "%c", tm);
-		expires = g_strdup(date_fmt);
-		#endif
 	}
 	else
 		expires = g_strdup(_("At the end of the session"));

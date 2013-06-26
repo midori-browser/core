@@ -484,7 +484,6 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     g_signal_connect (settings, "notify::proxy-type",
         G_CALLBACK (midori_preferences_notify_proxy_type_cb), entry);
     midori_preferences_notify_proxy_type_cb (settings, NULL, entry);
-    #if GLIB_CHECK_VERSION (2, 26, 0)
     INDENTED_ADD (gtk_event_box_new ());
     label = gtk_label_new (NULL);
     GString* proxy_types = g_string_new (NULL);
@@ -504,7 +503,6 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     g_signal_connect (settings, "notify::proxy-type",
         G_CALLBACK (midori_preferences_notify_proxy_type_cb), label);
     midori_preferences_notify_proxy_type_cb (settings, NULL, label);
-    #endif
 #ifndef HAVE_WEBKIT2
     if (soup_session_get_feature (webkit_get_default_session (), SOUP_TYPE_CACHE))
     {

@@ -48,21 +48,12 @@ clock_set_current_time (MidoriBrowser* browser)
     GtkWidget* label = g_object_get_data (G_OBJECT (browser), "clock-label");
     const gchar* format = midori_extension_get_string (extension, "format");
 
-    #if GLIB_CHECK_VERSION (2, 26, 0)
     GDateTime* date = g_date_time_new_now_local ();
     gint seconds = g_date_time_get_seconds (date);
     gchar* pretty = g_date_time_format (date, format);
     gtk_label_set_label (GTK_LABEL (label), pretty);
     g_free (pretty);
     g_date_time_unref (date);
-    #else
-    time_t rawtime = time (NULL);
-    struct tm *tm = localtime (&rawtime);
-    gint seconds = tm->tm_sec;
-    char date_fmt[512];
-    strftime (date_fmt, sizeof (date_fmt), format, tm);
-    gtk_label_set_label (GTK_LABEL (label), date_fmt);
-    #endif
 
     if (g_strstr_len (format, -1, "%c")
      || g_strstr_len (format, -1, "%N")
