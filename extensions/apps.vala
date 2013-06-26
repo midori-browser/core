@@ -294,7 +294,7 @@ namespace Apps {
         internal Katze.Array array;
         internal GLib.File app_folder;
         internal GLib.File profile_folder;
-        internal GLib.FileMonitor? monitor;
+        internal GLib.List<GLib.FileMonitor> monitors;
         internal GLib.List<Gtk.Widget> widgets;
 
         void app_changed (GLib.File file, GLib.File? other, GLib.FileMonitorEvent event) {
@@ -328,8 +328,9 @@ namespace Apps {
                         throw folder_error;
                 }
 
-                monitor = app_folder.monitor_directory (0, null);
+                var monitor = app_folder.monitor_directory (0, null);
                 monitor.changed.connect (app_changed);
+                monitors.append (monitor);
 
                 var enumerator = yield app_folder.enumerate_children_async ("standard::name", 0);
                 while (true) {
@@ -350,7 +351,6 @@ namespace Apps {
                 }
             }
             catch (Error io_error) {
-                monitor = null;
                 warning ("Failed to list apps (%s): %s",
                          app_folder.get_path (), io_error.message);
             }
@@ -380,6 +380,7 @@ namespace Apps {
         void activated (Midori.App app) {
             array = new Katze.Array (typeof (Launcher));
             var data_dir = File.new_for_path (Midori.Paths.get_user_data_dir ()).get_child (PACKAGE_NAME);
+            monitors = new GLib.List<GLib.FileMonitor> ();
             app_folder = data_dir.get_child ("apps");
             populate_apps.begin (app_folder);
             profile_folder = data_dir.get_child ("profiles");
@@ -392,8 +393,10 @@ namespace Apps {
 
         void deactivated () {
             var app = get_app ();
-            if (monitor != null)
+            foreach (var monitor in monitors)
                 monitor.changed.disconnect (app_changed);
+            monitors = null;
+
             app.add_browser.disconnect (browser_added);
             foreach (var widget in widgets)
                 widget.destroy ();
