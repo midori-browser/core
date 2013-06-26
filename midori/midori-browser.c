@@ -1204,7 +1204,7 @@ midori_browser_speed_dial_refresh_cb (MidoriSpeedDial* dial,
 {
     GList* tabs = midori_browser_get_tabs (browser);
     for (; tabs != NULL; tabs = g_list_next (tabs))
-        if (midori_view_is_blank (tabs->data))
+        if (!strcmp (midori_tab_get_uri (tabs->data), "about:dial"))
             midori_view_reload (tabs->data, FALSE);
     g_list_free (tabs);
 }
@@ -1212,16 +1212,10 @@ midori_browser_speed_dial_refresh_cb (MidoriSpeedDial* dial,
 static void
 midori_browser_add_speed_dial (MidoriBrowser* browser)
 {
-    GdkPixbuf* img;
     GtkWidget* view = midori_browser_get_current_tab (browser);
-
-    if ((img = midori_view_get_snapshot (MIDORI_VIEW (view), 240, 160)))
-    {
-        midori_speed_dial_add (browser->dial,
-            midori_view_get_display_uri (MIDORI_VIEW (view)),
-            midori_view_get_display_title (MIDORI_VIEW (view)), img);
-        g_object_unref (img);
-    }
+    midori_speed_dial_add (browser->dial,
+        midori_view_get_display_uri (MIDORI_VIEW (view)),
+        midori_view_get_display_title (MIDORI_VIEW (view)), NULL);
 }
 
 static gboolean

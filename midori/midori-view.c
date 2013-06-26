@@ -5452,6 +5452,7 @@ midori_view_execute_script (MidoriView*  view,
  * Returns: a newly allocated #GdkPixbuf
  *
  * Since: 0.2.1
+ * Deprecated: 0.5.3
  **/
 GdkPixbuf*
 midori_view_get_snapshot (MidoriView* view,
@@ -5460,76 +5461,7 @@ midori_view_get_snapshot (MidoriView* view,
 {
     g_return_val_if_fail (MIDORI_IS_VIEW (view), NULL);
 
-    GdkPixbuf* pixbuf;
-    #ifdef HAVE_WEBKIT2_A
-    webkit_web_view_get_snapshot (WEBKIT_WEB_VIEW (view->web_view),
-        WEBKIT_SNAPSHOT_REGION_VISIBLE, WEBKIT_SNAPSHOT_OPTIONS_NONE,
-        NULL, midori_view_get_snapshot_cb, view);
-    #else
-    GtkAllocation allocation;
-    gint x, y;
-    GdkRectangle rect;
-    #if !GTK_CHECK_VERSION (3, 0, 0)
-    gint w, h;
-    GdkWindow* window;
-    GdkPixmap* pixmap;
-    GdkEvent event;
-    gboolean result;
-    GdkColormap* colormap;
-    #else
-    cairo_surface_t* surface;
-    cairo_t* cr;
-    #endif
-
-    gtk_widget_get_allocation (view->web_view, &allocation);
-    x = allocation.x;
-    y = allocation.y;
-
-    #if GTK_CHECK_VERSION (3, 0, 0)
-    surface = cairo_image_surface_create (CAIRO_FORMAT_RGB24,
-                                          allocation.width, allocation.height);
-    cr = cairo_create (surface);
-    cairo_rectangle (cr, x, y, width, height);
-    cairo_clip (cr);
-    gtk_widget_draw (view->web_view, cr);
-    pixbuf = gdk_pixbuf_get_from_surface (surface, x, y, width, height);
-    cairo_surface_destroy (surface);
-    cairo_destroy (cr);
-    #else
-    w = allocation.width;
-    h = allocation.height;
-    rect.x = x;
-    rect.y = y;
-    rect.width = w;
-    rect.height = h;
-
-    window = gtk_widget_get_window (view->web_view);
-    g_return_val_if_fail (window != NULL, NULL);
-
-    pixmap = gdk_pixmap_new (window, w, h, gdk_drawable_get_depth (window));
-    event.expose.type = GDK_EXPOSE;
-    event.expose.window = pixmap;
-    event.expose.send_event = FALSE;
-    event.expose.count = 0;
-    event.expose.area.x = 0;
-    event.expose.area.y = 0;
-    gdk_drawable_get_size (GDK_DRAWABLE (window),
-        &event.expose.area.width, &event.expose.area.height);
-    event.expose.region = gdk_region_rectangle (&event.expose.area);
-
-    g_signal_emit_by_name (view->web_view, "expose-event", &event, &result);
-
-    colormap = gdk_drawable_get_colormap (pixmap);
-    pixbuf = gdk_pixbuf_get_from_drawable (NULL, pixmap, colormap, 0, 0,
-                                           0, 0, rect.width, rect.height);
-    g_object_unref (pixmap);
-    #endif
-    #endif
-
-    GdkPixbuf* scaled = gdk_pixbuf_scale_simple (pixbuf, width, height,
-        GDK_INTERP_TILES);
-    g_object_unref (pixbuf);
-    return scaled;
+    return view->icon ? g_object_ref (view->icon) : NULL;
 }
 
 /**
