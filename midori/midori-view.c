@@ -1272,7 +1272,7 @@ webkit_web_view_load_error_cb (WebKitWebView*  web_view,
     message = g_strdup_printf (_("The page '%s' couldn't be loaded:"), midori_uri_parse_hostname(uri, NULL));
     result = midori_view_display_error (view,
                                         uri,
-                                        "background-image: url(stock://gtk-dialog-warning);",
+                                        "stock://gtk-dialog-warning",
                                         title,
                                         message,
                                         error->message,
