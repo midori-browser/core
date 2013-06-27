@@ -1268,8 +1268,8 @@ webkit_web_view_load_error_cb (WebKitWebView*  web_view,
         return FALSE;
     }
 
-    title = g_strdup_printf (_("'%s' can't be found"), uri);
-    message = g_strdup_printf (_("The page '%s' couldn't be loaded:"), uri); //Use Midori.URI.parse_hostname(uri)
+    title = g_strdup_printf (_("'%s' can't be found"), midori_uri_parse_hostname(uri, NULL));
+    message = g_strdup_printf (_("The page '%s' couldn't be loaded:"), midori_uri_parse_hostname(uri, NULL));
     result = midori_view_display_error (view,
                                         uri,
                                         "background-image: url(stock://gtk-dialog-warning);",
