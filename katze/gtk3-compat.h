@@ -41,15 +41,6 @@ G_BEGIN_DECLS
         gtk_widget_get_preferred_size(wdgt, req, NULL)
 #endif
 
-#if !GLIB_CHECK_VERSION (2, 32, 0)
-    #define G_SOURCE_REMOVE   FALSE
-    #define G_SOURCE_CONTINUE TRUE
-#endif
-
-#if !GLIB_CHECK_VERSION (2, 30, 0)
-    #define g_format_size(sz) g_format_size_for_display ((goffset)sz)
-#endif
-
 #if GTK_CHECK_VERSION (3, 0, 0)
     #define GTK_DIALOG_NO_SEPARATOR 0
 #endif
