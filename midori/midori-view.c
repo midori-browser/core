@@ -1254,6 +1254,7 @@ webkit_web_view_load_error_cb (WebKitWebView*  web_view,
     #endif
     gchar* title;
     gchar* message;
+    GString* suggestions;
     gboolean result;
 
     /* The unholy trinity; also ignored in Webkit's default error handler */
@@ -1270,13 +1271,20 @@ webkit_web_view_load_error_cb (WebKitWebView*  web_view,
 
     title = g_strdup_printf (_("'%s' can't be found"), midori_uri_parse_hostname(uri, NULL));
     message = g_strdup_printf (_("The page '%s' couldn't be loaded:"), midori_uri_parse_hostname(uri, NULL));
+
+    suggestions = g_string_new ("<ul id=\"suggestions\"><li>");
+    g_string_append_printf (suggestions, "%s</li><li>%s</li><li>%s</li></ul>",
+        _("Check the address for typos"),
+        _("Make sure that an ethernet cable is plugged in or the wireless card is activated"),
+        _("Verify that your network settings are correct"));
+
     result = midori_view_display_error (view,
                                         uri,
                                         "stock://gtk-dialog-warning",
                                         title,
                                         message,
                                         error->message,
-                                        _("<ul id=\"suggestions\"><li>Check the address for typos</li><li>Make sure that an ethernet cable is plugged in or the wireless card is activated</li><li>Verify that your network settings are correct</li></ul>"),
+                                        g_string_free (suggestions, FALSE),
                                         _("Try Again"),
                                         web_frame);
     g_free (message);
