@@ -178,6 +178,13 @@ namespace Apps {
                             try {
                                 launcher.file.trash (null);
                                 store.remove (iter);
+#if HAVE_WIN32
+                                // TODO: implement Win32 version
+#else
+                                var data_dir = File.new_for_path (Midori.Paths.get_user_data_dir ());
+                                string filename = Midori.Download.clean_filename (launcher.name);
+                                data_dir.get_child ("applications").get_child (filename + ".desktop").trash ();
+#endif
                             }
                             catch (Error error) {
                                 GLib.critical (error.message);
