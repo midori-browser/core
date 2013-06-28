@@ -219,7 +219,7 @@ def configure (conf):
 
     conf.check (lib='m')
     check_pkg ('gmodule-2.0')
-    check_pkg ('gio-2.0', '2.32.4')
+    check_pkg ('gio-2.0', '2.32.3')
 
     args = ''
     if Options.platform == 'win32':
