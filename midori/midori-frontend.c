@@ -566,9 +566,10 @@ midori_normal_app_new (const gchar* config,
      && open_uris && !execute_commands)
      || diagnostic_dialog)
     {
-        load_on_startup = midori_frontend_diagnostic_dialog (app, settings, session);
-        if (load_on_startup == G_MAXINT)
+        gint response = midori_frontend_diagnostic_dialog (app, settings, session);
+        if (response == G_MAXINT)
             return NULL;
+        load_on_startup = response;
     }
     g_object_set_data (G_OBJECT (settings), "load-on-startup", GINT_TO_POINTER (load_on_startup));
 
