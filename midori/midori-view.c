@@ -4226,7 +4226,7 @@ midori_view_set_uri (MidoriView*  view,
             midori_tab_set_special (MIDORI_TAB (view), TRUE);
             katze_item_set_meta_integer (view->item, "delay", MIDORI_DELAY_PENDING_UNDELAY);
             midori_view_display_error (view, NULL, "stock://network-idle", NULL,
-                _("Page loading delayed"),
+                _("Page loading delayed:"),
                 _("Loading delayed either due to a recent crash or startup preferences."),
                 NULL,
                 _("Load Page"),
