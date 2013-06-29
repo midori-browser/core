@@ -43,6 +43,8 @@ namespace Apps {
             string icon_name = Midori.Stock.WEB_BROWSER;
             try {
                 var pixbuf = Midori.Paths.get_icon (uri, null);
+                if (pixbuf == null)
+                    throw new FileError.EXIST ("No favicon loaded");
                 string icon_filename = folder.get_child ("icon.png").get_path ();
                 pixbuf.save (icon_filename, "png", null, "compression", "7", null);
 #if HAVE_WIN32
