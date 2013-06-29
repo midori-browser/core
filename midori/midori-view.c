@@ -1278,15 +1278,9 @@ webkit_web_view_load_error_cb (WebKitWebView*  web_view,
         _("Make sure that an ethernet cable is plugged in or the wireless card is activated"),
         _("Verify that your network settings are correct"));
 
-    result = midori_view_display_error (view,
-                                        uri,
-                                        "stock://network-error",
-                                        title,
-                                        message,
-                                        error->message,
-                                        g_string_free (suggestions, FALSE),
-                                        _("Try Again"),
-                                        web_frame);
+    result = midori_view_display_error (view, uri, "stock://network-error", title,
+                                        message, error->message, g_string_free (suggestions, FALSE),
+                                        _("Try Again"), web_frame);
     g_free (message);
     g_free (title);
     return result;
@@ -4118,6 +4112,7 @@ midori_view_set_uri (MidoriView*  view,
                     "<link rel=\"stylesheet\" type=\"text/css\" href=\"res://about.css\">"
                     "</head>"
                     "<body>"
+                    "<img id=\"logo\" src=\"res://logo-shade.png\" />"
                         "<div id=\"main\" style=\"background-image: url(stock://gtk-dialog-info);\">"
                             "<div id=\"text\">"
                                 "<h1>%s</h1>"
