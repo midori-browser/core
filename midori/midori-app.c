@@ -1320,6 +1320,7 @@ midori_app_setup (gint               *argc,
                   gchar**            *argument_vector,
                   const GOptionEntry *entries)
 {
+
     GtkIconSource* icon_source;
     GtkIconSet* icon_set;
     GtkIconFactory* factory;
@@ -1329,6 +1330,8 @@ midori_app_setup (gint               *argc,
 
     static GtkStockItem items[] =
     {
+        { "network-error" },
+        { "network-idle" },
         { STOCK_IMAGE },
         { MIDORI_STOCK_WEB_BROWSER },
         { STOCK_NEWS_FEED },
