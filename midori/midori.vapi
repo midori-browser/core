@@ -252,6 +252,9 @@ namespace Midori {
     [CCode (cheader_filename = "midori/sokoke.h", lower_case_cprefix = "sokoke_")]
     namespace Sokoke {
         public static uint gtk_action_count_modifiers (Gtk.Action action);
+    #if HAVE_WIN32
+        public static void create_win32_desktop_lnk (string prefix, string title, string uri);
+    #endif
     }
 }
 

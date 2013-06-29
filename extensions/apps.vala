@@ -22,10 +22,16 @@ namespace Apps {
 
         internal static async void create (string prefix, GLib.File folder, string uri, string title, Gtk.Widget proxy) {
             /* Strip LRE leading character and / */
-            string exec = prefix + uri;
             string name = title.delimit ("‪/", ' ').strip();
             string filename = Midori.Download.clean_filename (name);
-
+            string exec;
+#if HAVE_WIN32
+            string doubleslash_uri = uri.replace ("\\", "\\\\");
+            string quoted_uri = GLib.Shell.quote (doubleslash_uri);
+            exec = prefix + quoted_uri;
+#else
+            exec = prefix + uri;
+#endif
             try {
                 folder.make_directory_with_parents (null);
             }
@@ -39,7 +45,12 @@ namespace Apps {
                 var pixbuf = Midori.Paths.get_icon (uri, null);
                 string icon_filename = folder.get_child ("icon.png").get_path ();
                 pixbuf.save (icon_filename, "png", null, "compression", "7", null);
+#if HAVE_WIN32
+                string doubleslash_icon = icon_filename.replace ("\\", "\\\\");
+                icon_name = doubleslash_icon;
+#else
                 icon_name = icon_filename;
+#endif
             }
             catch (Error error) {
                 GLib.warning (_("Failed to fetch application icon in %s: %s"), folder.get_path (), error.message);
@@ -61,7 +72,7 @@ namespace Apps {
                 yield stream.write_async (contents.data);
                 // Create a launcher/ menu
 #if HAVE_WIN32
-                // TODO: implement Win32 version
+                Midori.Sokoke.create_win32_desktop_lnk (prefix, title, uri);
 #else
                 var data_dir = File.new_for_path (Midori.Paths.get_user_data_dir ());
                 yield file.copy_async (data_dir.get_child ("applications").get_child (filename + ".desktop"),

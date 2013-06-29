@@ -34,6 +34,11 @@
 #include <glib/gstdio.h>
 #include "katze/katze.h"
 
+#ifdef G_OS_WIN32
+#include <windows.h>
+#include <shlobj.h>
+#endif
+
 static gchar*
 sokoke_js_string_utf8 (JSStringRef js_string)
 {
@@ -1148,3 +1153,59 @@ sokoke_search_entry_new (const gchar* placeholder_text)
     return entry;
 }
 
+#ifdef G_OS_WIN32
+void
+sokoke_create_win32_desktop_lnk (gchar* prefix, gchar* title, gchar* uri)
+{
+    gchar* exec_dir, *exec_path, *argument;
+    gchar* filename, *lnk_file, *lnk_path;
+    gchar* launcher_type;
+
+    WCHAR desktop_dir[MAX_PATH];
+    WCHAR w[MAX_PATH];
+
+    IShellLink* pShellLink;
+    IPersistFile* pPersistFile;
+
+    /* Retrive current path of User's Desktop directory, could be moved / on different partition */
+    SHGetFolderPath (NULL, CSIDL_DESKTOPDIRECTORY, NULL, SHGFP_TYPE_CURRENT, &desktop_dir);
+    /* CSIDL_PROGRAMS for "start menu -> programs" instead - needs saner/shorter filename */
+
+    filename = midori_download_clean_filename (title);
+    lnk_file = g_strconcat (filename, ".lnk", NULL);
+    lnk_path = g_build_filename (desktop_dir, lnk_file, NULL);
+
+    exec_dir = g_win32_get_package_installation_directory_of_module (NULL);
+    exec_path = g_build_filename (exec_dir, "bin", "midori.exe", NULL);
+
+    if (g_str_has_suffix (prefix, " -a "))
+        launcher_type = "-a";
+    else if (g_str_has_suffix (prefix, " -c "))
+        launcher_type = "-c";
+
+    argument = g_strdup_printf ("%s \"%s\"", launcher_type, uri);
+
+    /* Create link */
+    CoCreateInstance (&CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, &IID_IShellLink, (LPVOID *)&pShellLink);
+    pShellLink->lpVtbl->SetPath (pShellLink, exec_path);
+    pShellLink->lpVtbl->SetArguments (pShellLink, argument);
+    /* TODO: support adding site favicon as webapp icon */
+    /* pShellLink->lpVtbl->SetIconLocation (pShellLink, icon_path, icon_index); */
+
+    /* Save link */
+    pShellLink->lpVtbl->QueryInterface (pShellLink, &IID_IPersistFile, (LPVOID *)&pPersistFile);
+    MultiByteToWideChar (CP_UTF8, 0, lnk_path, -1, w, MAX_PATH);
+    pPersistFile->lpVtbl->Save (pPersistFile, w, TRUE);
+
+    pPersistFile->lpVtbl->Release (pPersistFile);
+    pShellLink->lpVtbl->Release (pShellLink);
+
+    g_free (exec_dir);
+    g_free (exec_path);
+    g_free (argument);
+    g_free (filename);
+    g_free (lnk_file);
+    g_free (lnk_path);
+    g_free (launcher_type);
+}
+#endif

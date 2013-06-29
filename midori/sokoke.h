@@ -128,4 +128,9 @@ sokoke_widget_copy_clipboard (GtkWidget*          widget,
 GtkWidget*
 sokoke_search_entry_new               (const gchar*        placeholder_text);
 
+#ifdef G_OS_WIN32
+void
+sokoke_create_win32_desktop_lnk (gchar* prefix, gchar* title, gchar* uri);
+#endif
+
 #endif /* !__SOKOKE_H__ */
