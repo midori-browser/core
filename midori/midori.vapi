@@ -253,6 +253,7 @@ namespace Midori {
     namespace Sokoke {
         public static uint gtk_action_count_modifiers (Gtk.Action action);
     #if HAVE_WIN32
+        public static string get_win32_desktop_lnk_path_from_title (string title);
         public static void create_win32_desktop_lnk (string prefix, string title, string uri);
     #endif
     }

@@ -1154,26 +1154,36 @@ sokoke_search_entry_new (const gchar* placeholder_text)
 }
 
 #ifdef G_OS_WIN32
-void
-sokoke_create_win32_desktop_lnk (gchar* prefix, gchar* title, gchar* uri)
+gchar*
+sokoke_get_win32_desktop_lnk_path_from_title (gchar* title)
 {
-    gchar* exec_dir, *exec_path, *argument;
-    gchar* filename, *lnk_file, *lnk_path;
-    gchar* launcher_type;
-
     WCHAR desktop_dir[MAX_PATH];
-    WCHAR w[MAX_PATH];
-
-    IShellLink* pShellLink;
-    IPersistFile* pPersistFile;
+    gchar* filename, *lnk_path, *lnk_file;
 
     /* Retrive current path of User's Desktop directory, could be moved / on different partition */
-    SHGetFolderPath (NULL, CSIDL_DESKTOPDIRECTORY, NULL, SHGFP_TYPE_CURRENT, &desktop_dir);
+    SHGetFolderPath (NULL, CSIDL_DESKTOPDIRECTORY, NULL, SHGFP_TYPE_CURRENT, (LPSTR)&desktop_dir);
     /* CSIDL_PROGRAMS for "start menu -> programs" instead - needs saner/shorter filename */
 
     filename = midori_download_clean_filename (title);
     lnk_file = g_strconcat (filename, ".lnk", NULL);
-    lnk_path = g_build_filename (desktop_dir, lnk_file, NULL);
+    lnk_path = g_build_filename ((gchar*)desktop_dir, lnk_file, NULL);
+
+    g_free (filename);
+    g_free (lnk_file);
+
+    return lnk_path;
+}
+
+void
+sokoke_create_win32_desktop_lnk (gchar* prefix, gchar* title, gchar* uri)
+{
+    WCHAR w[MAX_PATH];
+
+    gchar* exec_dir, *exec_path, *argument;
+    gchar* lnk_path, *launcher_type;
+
+    IShellLink* pShellLink;
+    IPersistFile* pPersistFile;
 
     exec_dir = g_win32_get_package_installation_directory_of_module (NULL);
     exec_path = g_build_filename (exec_dir, "bin", "midori.exe", NULL);
@@ -1193,6 +1203,7 @@ sokoke_create_win32_desktop_lnk (gchar* prefix, gchar* title, gchar* uri)
     /* pShellLink->lpVtbl->SetIconLocation (pShellLink, icon_path, icon_index); */
 
     /* Save link */
+    lnk_path = sokoke_get_win32_desktop_lnk_path_from_title (title);
     pShellLink->lpVtbl->QueryInterface (pShellLink, &IID_IPersistFile, (LPVOID *)&pPersistFile);
     MultiByteToWideChar (CP_UTF8, 0, lnk_path, -1, w, MAX_PATH);
     pPersistFile->lpVtbl->Save (pPersistFile, w, TRUE);
@@ -1203,8 +1214,6 @@ sokoke_create_win32_desktop_lnk (gchar* prefix, gchar* title, gchar* uri)
     g_free (exec_dir);
     g_free (exec_path);
     g_free (argument);
-    g_free (filename);
-    g_free (lnk_file);
     g_free (lnk_path);
     g_free (launcher_type);
 }
