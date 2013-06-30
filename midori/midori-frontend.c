@@ -316,7 +316,7 @@ midori_frontend_debugger_cb (GtkWidget* button,
     gtk_dialog_response (dialog, GTK_RESPONSE_HELP);
 }
 
-static MidoriStartup
+static gint
 midori_frontend_diagnostic_dialog (MidoriApp*         app,
                                    MidoriWebSettings* settings,
                                    KatzeArray*        session)
