@@ -113,8 +113,8 @@ def configure (conf):
     conf.check_tool ('compiler_cc')
     conf.check_tool ('vala')
     conf.check_tool ('glib2')
-    if not check_version (conf.env['VALAC_VERSION'], 0, 14, 0):
-        Utils.pprint ('RED', 'Vala 0.14.0 or later is required.')
+    if not check_version (conf.env['VALAC_VERSION'], 0, 16, 0):
+        Utils.pprint ('RED', 'Vala 0.16.0 or later is required.')
         sys.exit (1)
 
     if option_enabled ('nls'):
