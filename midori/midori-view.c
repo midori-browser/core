@@ -4108,7 +4108,7 @@ midori_view_set_uri (MidoriView*  view,
             else if (!strcmp (uri, "about:private"))
             {
                 data = g_strdup_printf (
-                    "<html><head><title>%s</title>"
+                    "<html dir=\"ltr\"><head><title>%s</title>"
                     "<link rel=\"stylesheet\" type=\"text/css\" href=\"res://about.css\">"
                     "</head>"
                     "<body>"
