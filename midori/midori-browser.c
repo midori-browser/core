@@ -484,6 +484,11 @@ midori_browser_update_history (KatzeItem*   item,
         inter = ZEITGEIST_ZG_DELETE_EVENT;
     else
         g_assert_not_reached ();
+
+    /* Don't insert folders into the log */
+    if (KATZE_ITEM_IS_FOLDER (item))
+        return;
+
     zeitgeist_log_insert_events_no_reply (zeitgeist_log_get_default (),
         zeitgeist_event_new_full (inter, ZEITGEIST_ZG_USER_ACTIVITY,
                                   "application://midori.desktop",
