@@ -889,8 +889,15 @@ midori_view_web_view_resource_request_cb (WebKitWebView*         web_view,
             icon_size_large_dialog = gtk_icon_size_register ("large-dialog", 64, 64);
 
         if (g_ascii_isalpha (icon_name[0]))
-            icon_size = strstr (icon_name, "dialog") ?
-                icon_size_large_dialog : GTK_ICON_SIZE_BUTTON;
+        {
+            if (g_str_has_prefix (icon_name, "dialog/"))
+            {
+                icon_name = &icon_name [strlen("dialog/")];
+                icon_size = icon_size_large_dialog;
+            }
+            else
+                icon_size = GTK_ICON_SIZE_BUTTON;
+        }
         else if (g_ascii_isdigit (icon_name[0]))
         {
             guint i = 0;
@@ -905,35 +912,6 @@ midori_view_web_view_resource_request_cb (WebKitWebView*         web_view,
                     g_free (size);
                     icon_name = &icon_name[i];
                 }
-        }
-
-        /* If available, load SVG icon as SVG markup */
-        gtk_icon_size_lookup_for_settings (
-            gtk_widget_get_settings (GTK_WIDGET (view)),
-                icon_size, &real_icon_size, &real_icon_size);
-        icon_info = gtk_icon_theme_lookup_icon (icon_theme, icon_name,
-            real_icon_size, GTK_ICON_LOOKUP_FORCE_SVG);
-        icon_filename = icon_info ? gtk_icon_info_get_filename (icon_info) : NULL;
-        if (icon_filename && g_str_has_suffix (icon_filename, ".svg"))
-        {
-            gchar* buffer;
-            gsize buffer_size;
-            if (g_file_get_contents (icon_filename, &buffer, &buffer_size, NULL))
-            {
-                #ifdef HAVE_WEBKIT2
-                GInputStream* stream = g_memory_input_stream_new_from_data (buffer, buffer_size, g_free);
-                webkit_uri_scheme_request_finish (request, stream, -1, "image/svg+xml");
-                g_object_unref (stream);
-                #else
-                gchar* encoded = g_base64_encode ((guchar*)buffer, buffer_size);
-                gchar* data_uri = g_strconcat ("data:image/svg+xml;base64,", encoded, NULL);
-                g_free (buffer);
-                g_free (encoded);
-                webkit_network_request_set_uri (request, data_uri);
-                g_free (data_uri);
-                #endif
-                return;
-            }
         }
 
         /* Render icon as a PNG at the desired size */
@@ -1278,7 +1256,7 @@ webkit_web_view_load_error_cb (WebKitWebView*  web_view,
         _("Make sure that an ethernet cable is plugged in or the wireless card is activated"),
         _("Verify that your network settings are correct"));
 
-    result = midori_view_display_error (view, uri, "stock://network-error", title,
+    result = midori_view_display_error (view, uri, "stock://dialog/network-error", title,
                                         message, error->message, g_string_free (suggestions, FALSE),
                                         _("Try Again"), web_frame);
     g_free (message);
@@ -4113,7 +4091,7 @@ midori_view_set_uri (MidoriView*  view,
                     "</head>"
                     "<body>"
                     "<img id=\"logo\" src=\"res://logo-shade.png\" />"
-                        "<div id=\"main\" style=\"background-image: url(stock://gtk-dialog-info);\">"
+                        "<div id=\"main\" style=\"background-image: url(stock://dialog/gtk-dialog-info);\">"
                             "<div id=\"text\">"
                                 "<h1>%s</h1>"
                                 "<p class=\"message\">%s</p><ul class=\" suggestions\"><li>%s</li><li>%s</li><li>%s</li></ul>"
@@ -4220,7 +4198,7 @@ midori_view_set_uri (MidoriView*  view,
             midori_tab_set_uri (MIDORI_TAB (view), uri);
             midori_tab_set_special (MIDORI_TAB (view), TRUE);
             katze_item_set_meta_integer (view->item, "delay", MIDORI_DELAY_PENDING_UNDELAY);
-            midori_view_display_error (view, NULL, "stock://network-idle", NULL,
+            midori_view_display_error (view, NULL, "stock://dialog/network-idle", NULL,
                 _("Page loading delayed:"),
                 _("Loading delayed either due to a recent crash or startup preferences."),
                 NULL,
