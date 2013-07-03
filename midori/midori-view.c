@@ -886,7 +886,11 @@ midori_view_web_view_resource_request_cb (WebKitWebView*         web_view,
         static gint icon_size_large_dialog = 0;
 
         if (!icon_size_large_dialog)
-            icon_size_large_dialog = gtk_icon_size_register ("large-dialog", 64, 64);
+        {
+            gint width = 48, height = 48;
+            gtk_icon_size_lookup (GTK_ICON_SIZE_DIALOG, &width, &height);
+            icon_size_large_dialog = gtk_icon_size_register ("large-dialog", width * 2, height * 2);
+        }
 
         if (g_ascii_isalpha (icon_name[0]))
         {
