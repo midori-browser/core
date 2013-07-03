@@ -596,6 +596,8 @@ midori_web_settings_has_plugin_support (void)
 /**
  * midori_web_settings_skip_plugin:
  *
+ * Tests if a plugin is redundant
+ *
  * Returns: %TRUE if the passed plugin shouldn't be shown in UI listings.
  *
  * Since: 0.5.1
@@ -603,7 +605,30 @@ midori_web_settings_has_plugin_support (void)
 gboolean
 midori_web_settings_skip_plugin (const gchar* path)
 {
-    return !path || strstr (path, "npwrapper.") || strstr (path, "plugins-wrapped");
+
+    static GHashTable* plugins = NULL;
+    gchar* basename = NULL;
+
+    if (!path)
+        return true;
+
+    if (!plugins)
+        plugins = g_hash_table_new (g_str_hash,  g_str_equal);
+
+    basename = g_path_get_basename (path);
+
+    if (g_hash_table_lookup (plugins, basename) != NULL)
+    {
+        g_free (basename);
+
+        return true;
+    }
+
+    g_hash_table_insert (plugins, basename, GINT_TO_POINTER (1));
+
+    /* Note: do not free basename */
+
+    return false;
 }
 
 /**
