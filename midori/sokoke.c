@@ -1157,16 +1157,15 @@ sokoke_search_entry_new (const gchar* placeholder_text)
 gchar*
 sokoke_get_win32_desktop_lnk_path_from_title (gchar* title)
 {
-    WCHAR desktop_dir[MAX_PATH];
+    const gchar* desktop_dir;
     gchar* filename, *lnk_path, *lnk_file;
 
-    /* Retrive current path of User's Desktop directory, could be moved / on different partition */
-    SHGetFolderPath (NULL, CSIDL_DESKTOPDIRECTORY, NULL, SHGFP_TYPE_CURRENT, (LPSTR)&desktop_dir);
     /* CSIDL_PROGRAMS for "start menu -> programs" instead - needs saner/shorter filename */
+    desktop_dir = g_get_user_special_dir (G_USER_DIRECTORY_DESKTOP);
 
     filename = midori_download_clean_filename (title);
     lnk_file = g_strconcat (filename, ".lnk", NULL);
-    lnk_path = g_build_filename ((gchar*)desktop_dir, lnk_file, NULL);
+    lnk_path = g_build_filename (desktop_dir, lnk_file, NULL);
 
     g_free (filename);
     g_free (lnk_file);
