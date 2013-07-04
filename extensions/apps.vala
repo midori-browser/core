@@ -193,9 +193,11 @@ namespace Apps {
                                 store.remove (iter);
 #if HAVE_WIN32
                                 string filename = Midori.Download.clean_filename (launcher.name);
-                                var lnk_filename = Midori.Sokoke.get_win32_desktop_lnk_path_from_title (filename);
-                                var lnk_file = File.new_for_path (lnk_filename);
-                                lnk_file.trash ();
+                                string lnk_filename = Midori.Sokoke.get_win32_desktop_lnk_path_from_title (filename);
+                                if (Posix.access (lnk_filename, Posix.F_OK) == 0) {
+                                    var lnk_file = File.new_for_path (lnk_filename);
+                                    lnk_file.trash ();
+                                }
 #else
                                 var data_dir = File.new_for_path (Midori.Paths.get_user_data_dir ());
                                 string filename = Midori.Download.clean_filename (launcher.name);
