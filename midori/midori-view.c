@@ -2522,7 +2522,7 @@ midori_view_populate_popup (MidoriView* view,
         if (midori_paths_get_runtime_mode () == MIDORI_RUNTIME_MODE_APP)
         {
             midori_view_insert_menu_item (menu_shell, -1,
-                _("Open Link in New _Tab"), STOCK_TAB_NEW,
+                _("Open _Link"), STOCK_TAB_NEW,
                 G_CALLBACK (midori_web_view_menu_new_tab_activate_cb), widget);
         }
         else if (!midori_view_always_same_tab (view->link_uri))
