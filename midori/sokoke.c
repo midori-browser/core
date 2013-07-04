@@ -1155,26 +1155,24 @@ sokoke_search_entry_new (const gchar* placeholder_text)
 
 #ifdef G_OS_WIN32
 gchar*
-sokoke_get_win32_desktop_lnk_path_from_title (gchar* title)
+sokoke_get_win32_desktop_lnk_path_for_filename (gchar* filename)
 {
     const gchar* desktop_dir;
-    gchar* filename, *lnk_path, *lnk_file;
+    gchar* lnk_path, *lnk_file;
 
     /* CSIDL_PROGRAMS for "start menu -> programs" instead - needs saner/shorter filename */
     desktop_dir = g_get_user_special_dir (G_USER_DIRECTORY_DESKTOP);
 
-    filename = midori_download_clean_filename (title);
     lnk_file = g_strconcat (filename, ".lnk", NULL);
     lnk_path = g_build_filename (desktop_dir, lnk_file, NULL);
 
-    g_free (filename);
     g_free (lnk_file);
 
     return lnk_path;
 }
 
 void
-sokoke_create_win32_desktop_lnk (gchar* prefix, gchar* title, gchar* uri)
+sokoke_create_win32_desktop_lnk (gchar* prefix, gchar* filename, gchar* uri)
 {
     WCHAR w[MAX_PATH];
 
@@ -1202,7 +1200,7 @@ sokoke_create_win32_desktop_lnk (gchar* prefix, gchar* title, gchar* uri)
     /* pShellLink->lpVtbl->SetIconLocation (pShellLink, icon_path, icon_index); */
 
     /* Save link */
-    lnk_path = sokoke_get_win32_desktop_lnk_path_from_title (title);
+    lnk_path = sokoke_get_win32_desktop_lnk_path_for_filename (filename);
     pShellLink->lpVtbl->QueryInterface (pShellLink, &IID_IPersistFile, (LPVOID *)&pPersistFile);
     MultiByteToWideChar (CP_UTF8, 0, lnk_path, -1, w, MAX_PATH);
     pPersistFile->lpVtbl->Save (pPersistFile, w, TRUE);

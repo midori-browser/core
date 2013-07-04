@@ -74,7 +74,7 @@ namespace Apps {
                 yield stream.write_async (contents.data);
                 // Create a launcher/ menu
 #if HAVE_WIN32
-                Midori.Sokoke.create_win32_desktop_lnk (prefix, title, uri);
+                Midori.Sokoke.create_win32_desktop_lnk (prefix, filename, uri);
 #else
                 var data_dir = File.new_for_path (Midori.Paths.get_user_data_dir ());
                 yield file.copy_async (data_dir.get_child ("applications").get_child (filename + ".desktop"),
@@ -191,16 +191,16 @@ namespace Apps {
                             try {
                                 launcher.file.trash (null);
                                 store.remove (iter);
-#if HAVE_WIN32
+
                                 string filename = Midori.Download.clean_filename (launcher.name);
-                                string lnk_filename = Midori.Sokoke.get_win32_desktop_lnk_path_from_title (filename);
+#if HAVE_WIN32
+                                string lnk_filename = Midori.Sokoke.get_win32_desktop_lnk_path_for_filename (filename);
                                 if (Posix.access (lnk_filename, Posix.F_OK) == 0) {
                                     var lnk_file = File.new_for_path (lnk_filename);
                                     lnk_file.trash ();
                                 }
 #else
                                 var data_dir = File.new_for_path (Midori.Paths.get_user_data_dir ());
-                                string filename = Midori.Download.clean_filename (launcher.name);
                                 data_dir.get_child ("applications").get_child (filename + ".desktop").trash ();
 #endif
                             }
