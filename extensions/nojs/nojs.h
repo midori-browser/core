@@ -78,6 +78,8 @@ void nojs_set_allow_all_sites(NoJS *self, gboolean inAllow);
 gboolean nojs_get_only_second_level_domain(NoJS *self);
 void nojs_set_only_second_level_domain(NoJS *self, gboolean inOnlySecondLevel);
 
+gchar* nojs_get_icon_path (const gchar* icon);
+
 /* Enumeration */
 GType nojs_policy_get_type(void) G_GNUC_CONST;
 #define NOJS_TYPE_POLICY	(nojs_policy_get_type())

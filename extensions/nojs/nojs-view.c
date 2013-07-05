@@ -224,7 +224,6 @@ static void _nojs_view_add_site_to_menu(NoJSView *self, const gchar *inDomain, N
 	GtkWidget			*item;
 	gchar				*itemLabel;
 	GtkWidget			*itemImage;
-	gchar				*itemImageFile;
 	static gint			INSERT_POSITION=1;
 	NoJSMenuIconState	newMenuIconState;
 
@@ -237,12 +236,7 @@ static void _nojs_view_add_site_to_menu(NoJSView *self, const gchar *inDomain, N
 	/* Add menu item(s) for domain */
 	itemLabel=g_strdup_printf(_("Deny %s"), inDomain);
 	item=gtk_image_menu_item_new_with_label(itemLabel);
-#ifdef ALTERNATE_DATADIR
-	itemImageFile=g_build_filename(ALTERNATE_DATADIR, "nojs-menu-deny.png", NULL);
-#else
-	itemImageFile=g_build_filename(MDATADIR, PACKAGE_NAME, "nojs", "nojs-menu-deny.png", NULL);
-#endif
-	itemImage=gtk_image_new_from_file(itemImageFile);
+	itemImage=gtk_image_new_from_stock (GTK_STOCK_NO, GTK_ICON_SIZE_MENU);
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), itemImage);
 	gtk_image_menu_item_set_always_show_image(GTK_IMAGE_MENU_ITEM(item), TRUE);
 	gtk_menu_shell_insert(GTK_MENU_SHELL(priv->menu), item, INSERT_POSITION);
@@ -251,16 +245,10 @@ static void _nojs_view_add_site_to_menu(NoJSView *self, const gchar *inDomain, N
 	g_object_set_data(G_OBJECT(item), "policy", GINT_TO_POINTER(NOJS_POLICY_BLOCK));
 	g_signal_connect_swapped(item, "activate", G_CALLBACK(_nojs_view_on_menu_item_activate), self);
 	g_free(itemLabel);
-	g_free(itemImageFile);
 
 	itemLabel=g_strdup_printf(_("Allow %s"), inDomain);
 	item=gtk_image_menu_item_new_with_label(itemLabel);
-#ifdef ALTERNATE_DATADIR
-	itemImageFile=g_build_filename(ALTERNATE_DATADIR, "nojs-menu-accept.png", NULL);
-#else
-	itemImageFile=g_build_filename(MDATADIR, PACKAGE_NAME, "nojs", "nojs-menu-accept.png", NULL);
-#endif
-	itemImage=gtk_image_new_from_file(itemImageFile);
+	itemImage=gtk_image_new_from_stock (GTK_STOCK_YES, GTK_ICON_SIZE_MENU);
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), itemImage);
 	gtk_image_menu_item_set_always_show_image(GTK_IMAGE_MENU_ITEM(item), TRUE);
 	gtk_menu_shell_insert(GTK_MENU_SHELL(priv->menu), item, INSERT_POSITION);
@@ -269,16 +257,10 @@ static void _nojs_view_add_site_to_menu(NoJSView *self, const gchar *inDomain, N
 	g_object_set_data(G_OBJECT(item), "policy", GINT_TO_POINTER(NOJS_POLICY_ACCEPT));
 	g_signal_connect_swapped(item, "activate", G_CALLBACK(_nojs_view_on_menu_item_activate), self);
 	g_free(itemLabel);
-	g_free(itemImageFile);
 
 	itemLabel=g_strdup_printf(_("Allow %s this session"), inDomain);
 	item=gtk_image_menu_item_new_with_label(itemLabel);
-#ifdef ALTERNATE_DATADIR
-	itemImageFile=g_build_filename(ALTERNATE_DATADIR, "nojs-menu-temporary.png", NULL);
-#else
-	itemImageFile=g_build_filename(MDATADIR, PACKAGE_NAME, "nojs", "nojs-menu-temporary.png", NULL);
-#endif
-	itemImage=gtk_image_new_from_file(itemImageFile);
+	itemImage=gtk_image_new_from_stock (GTK_STOCK_OK, GTK_ICON_SIZE_MENU);
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), itemImage);
 	gtk_image_menu_item_set_always_show_image(GTK_IMAGE_MENU_ITEM(item), TRUE);
 	gtk_menu_shell_insert(GTK_MENU_SHELL(priv->menu), item, INSERT_POSITION);
@@ -287,7 +269,6 @@ static void _nojs_view_add_site_to_menu(NoJSView *self, const gchar *inDomain, N
 	g_object_set_data(G_OBJECT(item), "policy", GINT_TO_POINTER(NOJS_POLICY_ACCEPT_TEMPORARILY));
 	g_signal_connect_swapped(item, "activate", G_CALLBACK(_nojs_view_on_menu_item_activate), self);
 	g_free(itemLabel);
-	g_free(itemImageFile);
 
 	/* Add seperator to seperate actions for this domain from the other domains */
 	item=gtk_separator_menu_item_new();

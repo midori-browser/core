@@ -386,6 +386,12 @@ static void _nojs_on_statusbar_icon_clicked(MidoriBrowser *inBrowser, gpointer i
 	gtk_menu_popup(menu, NULL, NULL, NULL, NULL, 0, gtk_get_current_event_time());
 }
 
+gchar* nojs_get_icon_path (const gchar* icon)
+{
+    gchar* res_dir = midori_paths_get_res_filename ("");
+    return g_build_filename (res_dir, "nojs", icon, NULL);
+}
+
 /* Menu icon of a view has changed */
 static void _nojs_on_menu_icon_changed(MidoriBrowser *inBrowser, GParamSpec *inSpec, gpointer inUserData)
 {
@@ -409,33 +415,18 @@ static void _nojs_on_menu_icon_changed(MidoriBrowser *inBrowser, GParamSpec *inS
 	imageFilename=NULL;
 	switch(menuIconState)
 	{
-#ifdef ALTERNATE_DATADIR
 		case NOJS_MENU_ICON_STATE_ALLOWED:
-			imageFilename=g_build_filename(ALTERNATE_DATADIR, "nojs-statusicon-allowed.png", NULL);
+			imageFilename=nojs_get_icon_path("nojs-statusicon-allowed.png");
 			break;
 
 		case NOJS_MENU_ICON_STATE_MIXED:
-			imageFilename=g_build_filename(ALTERNATE_DATADIR, "nojs-statusicon-mixed.png", NULL);
+			imageFilename=nojs_get_icon_path("nojs-statusicon-mixed.png");
 			break;
 
 		case NOJS_MENU_ICON_STATE_DENIED:
 		case NOJS_MENU_ICON_STATE_UNDETERMINED:
-			imageFilename=g_build_filename(ALTERNATE_DATADIR, "nojs-statusicon-denied.png", NULL);
+			imageFilename=nojs_get_icon_path("nojs-statusicon-denied.png");
 			break;
-#else
-		case NOJS_MENU_ICON_STATE_ALLOWED:
-			imageFilename=g_build_filename(MDATADIR, PACKAGE_NAME, "nojs", "nojs-statusicon-allowed.png", NULL);
-			break;
-
-		case NOJS_MENU_ICON_STATE_MIXED:
-			imageFilename=g_build_filename(MDATADIR, PACKAGE_NAME, "nojs", "nojs-statusicon-mixed.png", NULL);
-			break;
-
-		case NOJS_MENU_ICON_STATE_DENIED:
-		case NOJS_MENU_ICON_STATE_UNDETERMINED:
-			imageFilename=g_build_filename(MDATADIR, PACKAGE_NAME, "nojs", "nojs-statusicon-denied.png", NULL);
-			break;
-#endif
 	}
 
 	buttonImage=gtk_image_new_from_file(imageFilename);
