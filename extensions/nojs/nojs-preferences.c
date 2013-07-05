@@ -158,7 +158,7 @@ static void _nojs_preferences_on_manager_database_changed(NoJSPreferences *self,
 		success=sqlite3_open(databaseFile, &priv->database);
 		if(success!=SQLITE_OK)
 		{
-			g_warning(_("Could not open database of extenstion: %s"), sqlite3_errmsg(priv->database));
+			g_warning(_("Could not open database of extension: %s"), sqlite3_errmsg(priv->database));
 
 			if(priv->database) sqlite3_close(priv->database);
 			priv->database=NULL;
@@ -184,7 +184,7 @@ static void _nojs_preferences_on_allow_all_sites_changed(NoJSPreferences *self,
 	NoJSPreferencesPrivate	*priv=self->priv;
 	gboolean				state;
 
-	/* Get toogle state of widget (but block signal for manager) and set in manager */
+	/* Get toggle state of widget (but block signal for manager) and set in manager */
 	g_signal_handler_block(priv->manager, priv->signalManagerChangedAllowAllSitesID);
 
 	state=gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->allowAllSitesCheckbox));
@@ -204,7 +204,7 @@ static void _nojs_preferences_on_manager_allow_all_sites_changed(NoJSPreferences
 	/* Get new value from manager */
 	state=nojs_get_allow_all_sites(manager);
 
-	/* Set toogle in widget (but block signal for toggle) */
+	/* Set toggle in widget (but block signal for toggle) */
 	g_signal_handler_block(priv->allowAllSitesCheckbox, priv->signalAllowAllSitesToggledID);
 
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->allowAllSitesCheckbox), state);
@@ -220,7 +220,7 @@ static void _nojs_preferences_on_block_unknown_domains_changed(NoJSPreferences *
 	gboolean				state;
 	NoJSPolicy				policy;
 
-	/* Get toogle state of widget (but block signal for manager) and set in manager */
+	/* Get toggle state of widget (but block signal for manager) and set in manager */
 	g_signal_handler_block(priv->manager, priv->signalManagerChangedUnknownDomainPolicyID);
 
 	state=gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->blockUnknownDomainsCheckbox));
@@ -242,7 +242,7 @@ static void _nojs_preferences_on_manager_unknown_domain_policy_changed(NoJSPrefe
 	/* Get new value from manager */
 	policy=nojs_get_policy_for_unknown_domain(manager);
 
-	/* Set toogle in widget (but block signal for toggle) */
+	/* Set toggle in widget (but block signal for toggle) */
 	g_signal_handler_block(priv->blockUnknownDomainsCheckbox, priv->signalBlockUnknownDomainsToggledID);
 
 	state=(policy==NOJS_POLICY_BLOCK ? TRUE : FALSE);
@@ -258,7 +258,7 @@ static void _nojs_preferences_on_check_second_level_only_changed(NoJSPreferences
 	NoJSPreferencesPrivate	*priv=self->priv;
 	gboolean				state;
 
-	/* Get toogle state of widget (but block signal for manager) and set in manager */
+	/* Get toggle state of widget (but block signal for manager) and set in manager */
 	g_signal_handler_block(priv->manager, priv->signalManagerChangedCheckSecondLevelID);
 
 	state=gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->checkSecondLevelOnlyCheckbox));
@@ -278,7 +278,7 @@ static void _nojs_preferences_on_manager_only_second_level_changed(NoJSPreferenc
 	/* Get new value from manager */
 	state=nojs_get_only_second_level_domain(manager);
 
-	/* Set toogle in widget (but block signal for toggle) */
+	/* Set toggle in widget (but block signal for toggle) */
 	g_signal_handler_block(priv->checkSecondLevelOnlyCheckbox, priv->signalCheckSecondLevelOnlyToggledID);
 
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->checkSecondLevelOnlyCheckbox), state);

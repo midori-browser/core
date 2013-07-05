@@ -206,7 +206,7 @@ static void _nojs_open_database(NoJS *self)
 	success=sqlite3_open(priv->databaseFilename, &priv->database);
 	if(success!=SQLITE_OK)
 	{
-		g_warning(_("Could not open database of extenstion: %s"), sqlite3_errmsg(priv->database));
+		g_warning(_("Could not open database of extension: %s"), sqlite3_errmsg(priv->database));
 
 		g_free(priv->databaseFilename);
 		priv->databaseFilename=NULL;
@@ -1023,7 +1023,7 @@ void nojs_set_allow_all_sites(NoJS *self, gboolean inAllow)
 	}
 }
 
-/* Get/set flag to check for second-level domanins only */
+/* Get/set flag to check for second-level domains only */
 gboolean nojs_get_only_second_level_domain(NoJS *self)
 {
 	g_return_val_if_fail(IS_NOJS(self), TRUE);
