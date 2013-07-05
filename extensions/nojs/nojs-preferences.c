@@ -590,7 +590,6 @@ static void nojs_preferences_init(NoJSPreferences *self)
 	GtkCellRenderer				*renderer;
 	GtkTreeViewColumn			*column;
 	GtkWidget					*widget;
-	gchar						*text;
 	gchar						*dialogTitle;
 	GtkWidget					*scrolled;
 	GtkWidget					*vbox;
@@ -627,10 +626,9 @@ static void nojs_preferences_init(NoJSPreferences *self)
 
 	/* Set up description */
 	widget=gtk_label_new(NULL);
-	text=g_strdup_printf(_("Below is a list of all web sites and the policy set for them. "
+	gtk_label_set_markup(GTK_LABEL(widget),
+            _("Below is a list of all web sites and the policy set for them. "
 							"You can delete policies by marking the entries and clicking on <i>Delete</i>."));
-	gtk_label_set_markup(GTK_LABEL(widget), text);
-	g_free(text);
 	gtk_label_set_line_wrap(GTK_LABEL(widget), TRUE);
 	gtk_box_pack_start(GTK_BOX(vbox), widget, FALSE, FALSE, 4);
 
