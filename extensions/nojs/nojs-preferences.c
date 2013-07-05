@@ -370,13 +370,13 @@ void _nojs_preferences_on_delete_all(NoJSPreferences *self,
 									GTK_DIALOG_MODAL,
 									GTK_MESSAGE_QUESTION,
 									GTK_BUTTONS_YES_NO,
-									_("Do you really want to delete all cookie permissions?"));
+									_("Do you really want to delete all JavaScript permissions?"));
 
-	gtk_window_set_title(GTK_WINDOW(dialog), _("Delete all cookie permissions?"));
+	gtk_window_set_title(GTK_WINDOW(dialog), _("Delete all JavaScript permissions?"));
 	gtk_window_set_icon_name(GTK_WINDOW(dialog), GTK_STOCK_PROPERTIES);
 
 	gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog),
-												_("This action will delete all cookie permissions. "
+												_("This action will delete all JavaScript permissions. "
 												  "You will be asked for permissions again for each web site visited."));
 
 	dialogResponse=gtk_dialog_run(GTK_DIALOG(dialog));
@@ -491,7 +491,7 @@ static void nojs_preferences_set_property(GObject *inObject,
 				priv->manager=NULL;
 			}
 
-			/* Set new cookie permission manager and
+			/* Set new JavaScript permission manager and
 			 * listen to changes in database property
 			 */
 			manager=g_value_get_object(inValue);
@@ -688,7 +688,7 @@ static void nojs_preferences_init(NoJSPreferences *self)
 	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled), GTK_SHADOW_IN);
 	gtk_box_pack_start(GTK_BOX(vbox), scrolled, TRUE, TRUE, 5);
 
-	/* Set up cookie domain list management buttons */
+	/* Set up JavaScript domain list management buttons */
 #ifdef GTK__3_0_VERSION
 	hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
 	gtk_box_set_homogeneous(GTK_BOX(hbox), FALSE);
