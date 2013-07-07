@@ -610,7 +610,7 @@ midori_web_settings_skip_plugin (const gchar* path)
     gchar* basename = NULL;
 
     if (!path)
-        return true;
+        return TRUE;
 
     if (!plugins)
         plugins = g_hash_table_new (g_str_hash,  g_str_equal);
@@ -621,14 +621,14 @@ midori_web_settings_skip_plugin (const gchar* path)
     {
         g_free (basename);
 
-        return true;
+        return TRUE;
     }
 
     g_hash_table_insert (plugins, basename, GINT_TO_POINTER (1));
 
     /* Note: do not free basename */
 
-    return false;
+    return FALSE;
 }
 
 /**
