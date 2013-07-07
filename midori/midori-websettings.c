@@ -605,9 +605,9 @@ midori_web_settings_has_plugin_support (void)
 gboolean
 midori_web_settings_skip_plugin (const gchar* path)
 {
-
     static GHashTable* plugins = NULL;
     gchar* basename = NULL;
+    gchar* plugin_path = NULL;
 
     if (!path)
         return TRUE;
@@ -617,14 +617,20 @@ midori_web_settings_skip_plugin (const gchar* path)
 
     basename = g_path_get_basename (path);
 
-    if (g_hash_table_lookup (plugins, basename) != NULL)
+    plugin_path = g_hash_table_lookup (plugins, basename);
+    if (g_strcmp0 (path, plugin_path) == 0)
+    {
+        return FALSE;
+    }
+
+    if (plugin_path != NULL)
     {
         g_free (basename);
 
         return TRUE;
     }
 
-    g_hash_table_insert (plugins, basename, GINT_TO_POINTER (1));
+    g_hash_table_insert (plugins, basename, g_strdup (path));
 
     /* Note: do not free basename */
 
