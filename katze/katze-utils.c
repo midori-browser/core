@@ -705,6 +705,22 @@ katze_property_proxy (gpointer     object,
             G_CALLBACK (proxy_widget_string_destroy_cb), object);
         g_free (notify_property);
     }
+    else if (type == G_TYPE_PARAM_DOUBLE)
+    {
+        gdouble value;
+        g_object_get (object, property, &value, NULL);
+
+        widget = gtk_spin_button_new_with_range (
+            G_PARAM_SPEC_DOUBLE (pspec)->minimum,
+            G_PARAM_SPEC_DOUBLE (pspec)->maximum, 1);
+        /* Keep it narrow, 5 + 2 digits are usually fine */
+        gtk_entry_set_width_chars (GTK_ENTRY (widget), 5 + 2);
+        gtk_spin_button_set_digits (GTK_SPIN_BUTTON (widget), 2);
+        gtk_spin_button_set_value (GTK_SPIN_BUTTON (widget), value);
+        gtk_spin_button_set_increments (GTK_SPIN_BUTTON (widget), 0.1, -0.1);
+        g_signal_connect (widget, "value-changed",
+                          G_CALLBACK (proxy_spin_button_changed_cb), object);
+    }
     else if (type == G_TYPE_PARAM_FLOAT)
     {
         gfloat value;
