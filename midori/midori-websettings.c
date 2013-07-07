@@ -1395,7 +1395,7 @@ midori_settings_new_full (gchar*** extensions)
             integer = g_key_file_get_integer (key_file, "settings", property, NULL);
             g_object_set (settings, property, integer, NULL);
         }
-        else if (type == G_TYPE_PARAM_FLOAT)
+        else if (type == G_TYPE_PARAM_FLOAT || type == G_TYPE_PARAM_DOUBLE)
         {
             number = g_key_file_get_double (key_file, "settings", property, NULL);
             g_object_set (settings, property, number, NULL);
@@ -1503,6 +1503,13 @@ midori_settings_save_to_file (MidoriWebSettings* settings,
             g_object_get (settings, property, &integer, NULL);
             if (integer != G_PARAM_SPEC_UINT (pspec)->default_value)
                 g_key_file_set_integer (key_file, "settings", property, integer);
+        }
+        else if (type == G_TYPE_PARAM_DOUBLE)
+        {
+            gdouble number;
+            g_object_get (settings, property, &number, NULL);
+            if (number != G_PARAM_SPEC_DOUBLE (pspec)->default_value)
+                g_key_file_set_double (key_file, "settings", property, number);
         }
         else if (type == G_TYPE_PARAM_FLOAT)
         {

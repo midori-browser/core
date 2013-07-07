@@ -3280,6 +3280,7 @@ _midori_view_set_settings (MidoriView*        view,
                            MidoriWebSettings* settings)
 {
     gboolean zoom_text_and_images;
+    gdouble zoom_level;
 
     if (view->settings)
         g_signal_handlers_disconnect_by_func (view->settings,
@@ -3294,6 +3295,7 @@ _midori_view_set_settings (MidoriView*        view,
                       G_CALLBACK (midori_view_settings_notify_cb), view);
 
     g_object_get (view->settings,
+        "zoom-level", &zoom_level,
         "zoom-text-and-images", &zoom_text_and_images,
         "close-buttons-on-tabs", &view->close_buttons_on_tabs,
         "open-new-pages-in", &view->open_new_pages_in,
@@ -3305,6 +3307,7 @@ _midori_view_set_settings (MidoriView*        view,
     webkit_web_view_set_full_content_zoom (WEBKIT_WEB_VIEW (view->web_view),
         zoom_text_and_images);
     #endif
+    midori_view_set_zoom_level (view, zoom_level);
 }
 
 /**

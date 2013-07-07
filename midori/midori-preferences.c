@@ -403,6 +403,12 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     gtk_button_set_label (GTK_BUTTON (button), _("Allow scripts to open popups"));
     gtk_widget_set_tooltip_text (button, _("Whether scripts are allowed to open popup windows automatically"));
     SPANNED_ADD (button);
+    label = gtk_label_new (_("Default Zoom Level"));
+    gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
+    INDENTED_ADD (label);
+    button = katze_property_proxy (settings, "zoom-level", NULL);
+    gtk_widget_set_tooltip_text (button, _("Initial factor to enlarge newly opened tabs by"));
+    SPANNED_ADD (button);
 
     FRAME_NEW (NULL);
     button = gtk_label_new (_("Preferred languages"));

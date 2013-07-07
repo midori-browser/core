@@ -119,6 +119,8 @@ namespace Midori {
         /* Since: 0.1.4 */
         // [Deprecated (since = "0.4.7")]
         public bool find_while_typing { get; set; default = false; }
+        /* Since: 0.5.4 */
+        public double zoom_level { get; set; default = 1.0; }
 
         public bool open_popups_in_tabs { get; set; default = true; }
         /* Since: 0.2.0 */
