@@ -2471,19 +2471,25 @@ midori_view_populate_popup (MidoriView* view,
     }
     if (view->link_uri)
     {
-        if (!midori_view_always_same_tab (view->link_uri))
+        if (midori_paths_get_runtime_mode () == MIDORI_RUNTIME_MODE_APP)
         {
-        midori_view_insert_menu_item (menu_shell, -1,
-            _("Open Link in New _Tab"), STOCK_TAB_NEW,
-            G_CALLBACK (midori_web_view_menu_new_tab_activate_cb), widget);
-        midori_view_insert_menu_item (menu_shell, -1,
-            view->open_tabs_in_the_background
-            ? _("Open Link in _Foreground Tab")
-            : _("Open Link in _Background Tab"), NULL,
-            G_CALLBACK (midori_web_view_menu_background_tab_activate_cb), widget);
-        midori_view_insert_menu_item (menu_shell, -1,
-            _("Open Link in New _Window"), STOCK_WINDOW_NEW,
-            G_CALLBACK (midori_web_view_menu_new_window_activate_cb), widget);
+            midori_view_insert_menu_item (menu_shell, -1,
+                _("Open _Link"), STOCK_TAB_NEW,
+                G_CALLBACK (midori_web_view_menu_new_tab_activate_cb), widget);
+        }
+        else if (!midori_view_always_same_tab (view->link_uri))
+        {
+            midori_view_insert_menu_item (menu_shell, -1,
+                _("Open Link in New _Tab"), STOCK_TAB_NEW,
+                G_CALLBACK (midori_web_view_menu_new_tab_activate_cb), widget);
+            midori_view_insert_menu_item (menu_shell, -1,
+                view->open_tabs_in_the_background
+                ? _("Open Link in _Foreground Tab")
+                : _("Open Link in _Background Tab"), NULL,
+                G_CALLBACK (midori_web_view_menu_background_tab_activate_cb), widget);
+            midori_view_insert_menu_item (menu_shell, -1,
+                _("Open Link in New _Window"), STOCK_WINDOW_NEW,
+                G_CALLBACK (midori_web_view_menu_new_window_activate_cb), widget);
         }
 
         midori_view_insert_menu_item (menu_shell, -1,
@@ -2789,7 +2795,9 @@ webkit_web_view_create_web_view_cb (GtkWidget*      web_view,
         new_view = view;
     else
     {
-        new_view = (MidoriView*)midori_view_new_with_item (NULL, view->settings);
+        KatzeItem* item = katze_item_new ();
+        item->uri = g_strdup (webkit_web_frame_get_uri (web_frame));
+        new_view = (MidoriView*)midori_view_new_with_item (item, view->settings);
         g_signal_connect (new_view->web_view, "web-view-ready",
                           G_CALLBACK (webkit_web_view_web_view_ready_cb), view);
     }
@@ -3280,6 +3288,7 @@ _midori_view_set_settings (MidoriView*        view,
                            MidoriWebSettings* settings)
 {
     gboolean zoom_text_and_images;
+    gdouble zoom_level;
 
     if (view->settings)
         g_signal_handlers_disconnect_by_func (view->settings,
@@ -3294,6 +3303,7 @@ _midori_view_set_settings (MidoriView*        view,
                       G_CALLBACK (midori_view_settings_notify_cb), view);
 
     g_object_get (view->settings,
+        "zoom-level", &zoom_level,
         "zoom-text-and-images", &zoom_text_and_images,
         "close-buttons-on-tabs", &view->close_buttons_on_tabs,
         "open-new-pages-in", &view->open_new_pages_in,
@@ -3305,6 +3315,7 @@ _midori_view_set_settings (MidoriView*        view,
     webkit_web_view_set_full_content_zoom (WEBKIT_WEB_VIEW (view->web_view),
         zoom_text_and_images);
     #endif
+    midori_view_set_zoom_level (view, zoom_level);
 }
 
 /**
