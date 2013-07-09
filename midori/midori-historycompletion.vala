@@ -47,7 +47,7 @@ namespace Midori {
                 WHERE uri LIKE ?1 OR title LIKE ?1 GROUP BY uri
                 UNION ALL
                 SELECT 1 AS type, uri, title, 50 AS ct FROM bookmarks
-                WHERE title LIKE ?1 OR uri LIKE ?1 AND uri !=''
+                WHERE title LIKE ?1 OR uri LIKE ?1 AND uri !='' AND uri NOT LIKE 'javascript:%'
                 ) GROUP BY uri ORDER BY ct DESC LIMIT ?2
                 """;
             if (db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK) {
