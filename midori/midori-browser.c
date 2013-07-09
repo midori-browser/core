@@ -5014,6 +5014,7 @@ midori_browser_notebook_tab_removed_cb (GtkWidget*         notebook,
                                         GraniteWidgetsTab* tab,
                                         MidoriBrowser*     browser)
 {
+
     MidoriView* view = MIDORI_VIEW (granite_widgets_tab_get_page (tab));
     if (midori_browser_tab_connected (browser, MIDORI_VIEW (view)))
         midori_browser_disconnect_tab (browser, MIDORI_VIEW (view));
@@ -5027,12 +5028,15 @@ midori_browser_move_tab_to_notebook (MidoriBrowser*     browser,
                                      GraniteWidgetsTab* tab,
                                      GtkWidget*         new_notebook)
 {
-    g_object_ref (tab);
+    GraniteWidgetsTab* new_tab = granite_widgets_tab_new ("", NULL, NULL);
+    g_object_ref (view);
     _midori_browser_remove_tab (browser, view);
     granite_widgets_dynamic_notebook_insert_tab (
-        GRANITE_WIDGETS_DYNAMIC_NOTEBOOK (new_notebook), tab, 0);
+        GRANITE_WIDGETS_DYNAMIC_NOTEBOOK (new_notebook), new_tab, 0);
+    midori_view_set_tab (MIDORI_VIEW (view), new_tab);
+    _midori_browser_update_actions (browser);
     midori_browser_connect_tab (midori_browser_get_for_widget (new_notebook), view);
-    g_object_unref (tab);
+    g_object_unref (view);
 }
 
 static void
@@ -5091,7 +5095,7 @@ midori_browser_notebook_page_added_cb (GtkNotebook*   notebook,
                                        MidoriBrowser* browser)
 {
     if (!midori_browser_tab_connected (browser, MIDORI_VIEW (child)))
-        midori_browser_connect_tab (browser, child);
+        midori_browser_connect_tab (browser, MIDORI_VIEW (child));
     midori_browser_notebook_page_reordered_cb (GTK_WIDGET (notebook),
         MIDORI_VIEW (child), page_num, browser);
 }
