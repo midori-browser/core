@@ -148,14 +148,6 @@ sokoke_default_for_uri (const gchar* uri,
         return NULL;
 
     info = g_app_info_get_default_for_uri_scheme (scheme);
-    #if !GLIB_CHECK_VERSION (2, 28, 0)
-    if (!info)
-    {
-        gchar* type = g_strdup_printf ("x-scheme-handler/%s", scheme);
-        info = g_app_info_get_default_for_type (type, FALSE);
-        g_free (type);
-    }
-    #endif
     if (scheme_ptr != NULL)
         *scheme_ptr = scheme;
     else
@@ -191,10 +183,6 @@ sokoke_show_uri (GdkScreen*   screen,
     return ShellExecuteEx (&info);
     #else
 
-    #if !GLIB_CHECK_VERSION (2, 28, 0)
-    GAppInfo* info;
-    gchar* scheme;
-    #endif
     GtkWidget* dialog;
     GtkWidget* box;
     gchar* filename;
@@ -210,25 +198,6 @@ sokoke_show_uri (GdkScreen*   screen,
     /* g_app_info_launch_default_for_uri, gdk_display_get_app_launch_context */
     if (gtk_show_uri (screen, uri, timestamp, error))
         return TRUE;
-
-    #if !GLIB_CHECK_VERSION (2, 28, 0)
-    info = sokoke_default_for_uri (uri, &scheme);
-    if (info)
-    {
-        gchar* argument = g_strdup (&uri[scheme - uri]);
-        GList* uris = g_list_prepend (NULL, argument);
-        if (g_app_info_launch_uris (info, uris, NULL, NULL))
-        {
-            g_list_free (uris);
-            g_free (scheme);
-            g_object_unref (info);
-            return TRUE;
-        }
-        g_list_free (uris);
-        g_free (scheme);
-        g_object_unref (info);
-    }
-    #endif
 
     {
         gchar* command = g_strconcat ("xdg-open ", uri, NULL);

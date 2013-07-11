@@ -403,6 +403,12 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     gtk_button_set_label (GTK_BUTTON (button), _("Allow scripts to open popups"));
     gtk_widget_set_tooltip_text (button, _("Whether scripts are allowed to open popup windows automatically"));
     SPANNED_ADD (button);
+    label = gtk_label_new (_("Default Zoom Level"));
+    gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
+    INDENTED_ADD (label);
+    button = katze_property_proxy (settings, "zoom-level", NULL);
+    gtk_widget_set_tooltip_text (button, _("Initial factor to enlarge newly opened tabs by"));
+    SPANNED_ADD (button);
 
     FRAME_NEW (NULL);
     button = gtk_label_new (_("Preferred languages"));
@@ -484,7 +490,6 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     g_signal_connect (settings, "notify::proxy-type",
         G_CALLBACK (midori_preferences_notify_proxy_type_cb), entry);
     midori_preferences_notify_proxy_type_cb (settings, NULL, entry);
-    #if GLIB_CHECK_VERSION (2, 26, 0)
     INDENTED_ADD (gtk_event_box_new ());
     label = gtk_label_new (NULL);
     GString* proxy_types = g_string_new (NULL);
@@ -504,7 +509,6 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     g_signal_connect (settings, "notify::proxy-type",
         G_CALLBACK (midori_preferences_notify_proxy_type_cb), label);
     midori_preferences_notify_proxy_type_cb (settings, NULL, label);
-    #endif
 #ifndef HAVE_WEBKIT2
     if (soup_session_get_feature (webkit_get_default_session (), SOUP_TYPE_CACHE))
     {

@@ -596,6 +596,8 @@ midori_web_settings_has_plugin_support (void)
 /**
  * midori_web_settings_skip_plugin:
  *
+ * Tests if a plugin is redundant
+ *
  * Returns: %TRUE if the passed plugin shouldn't be shown in UI listings.
  *
  * Since: 0.5.1
@@ -603,7 +605,36 @@ midori_web_settings_has_plugin_support (void)
 gboolean
 midori_web_settings_skip_plugin (const gchar* path)
 {
-    return !path || strstr (path, "npwrapper.") || strstr (path, "plugins-wrapped");
+    static GHashTable* plugins = NULL;
+    gchar* basename = NULL;
+    gchar* plugin_path = NULL;
+
+    if (!path)
+        return TRUE;
+
+    if (!plugins)
+        plugins = g_hash_table_new (g_str_hash,  g_str_equal);
+
+    basename = g_path_get_basename (path);
+
+    plugin_path = g_hash_table_lookup (plugins, basename);
+    if (g_strcmp0 (path, plugin_path) == 0)
+    {
+        return FALSE;
+    }
+
+    if (plugin_path != NULL)
+    {
+        g_free (basename);
+
+        return TRUE;
+    }
+
+    g_hash_table_insert (plugins, basename, g_strdup (path));
+
+    /* Note: do not free basename */
+
+    return FALSE;
 }
 
 /**
@@ -1395,7 +1426,7 @@ midori_settings_new_full (gchar*** extensions)
             integer = g_key_file_get_integer (key_file, "settings", property, NULL);
             g_object_set (settings, property, integer, NULL);
         }
-        else if (type == G_TYPE_PARAM_FLOAT)
+        else if (type == G_TYPE_PARAM_FLOAT || type == G_TYPE_PARAM_DOUBLE)
         {
             number = g_key_file_get_double (key_file, "settings", property, NULL);
             g_object_set (settings, property, number, NULL);
@@ -1503,6 +1534,13 @@ midori_settings_save_to_file (MidoriWebSettings* settings,
             g_object_get (settings, property, &integer, NULL);
             if (integer != G_PARAM_SPEC_UINT (pspec)->default_value)
                 g_key_file_set_integer (key_file, "settings", property, integer);
+        }
+        else if (type == G_TYPE_PARAM_DOUBLE)
+        {
+            gdouble number;
+            g_object_get (settings, property, &number, NULL);
+            if (number != G_PARAM_SPEC_DOUBLE (pspec)->default_value)
+                g_key_file_set_double (key_file, "settings", property, number);
         }
         else if (type == G_TYPE_PARAM_FLOAT)
         {

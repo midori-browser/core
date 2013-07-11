@@ -113,8 +113,8 @@ def configure (conf):
     conf.check_tool ('compiler_cc')
     conf.check_tool ('vala')
     conf.check_tool ('glib2')
-    if not check_version (conf.env['VALAC_VERSION'], 0, 14, 0):
-        Utils.pprint ('RED', 'Vala 0.14.0 or later is required.')
+    if not check_version (conf.env['VALAC_VERSION'], 0, 16, 0):
+        Utils.pprint ('RED', 'Vala 0.16.0 or later is required.')
         sys.exit (1)
 
     if option_enabled ('nls'):
@@ -219,11 +219,7 @@ def configure (conf):
 
     conf.check (lib='m')
     check_pkg ('gmodule-2.0')
-    check_pkg ('gio-2.0', '2.22.0')
-    if check_version (conf.env['GIO_VERSION'], 2, 30, 0) \
-        and check_version (conf.env['VALAC_VERSION'], 0, 16, 0):
-        # Older Vala doesn't have GLib 2.30 bindings
-        conf.env.append_value ('VALAFLAGS', '-D HAVE_GLIB_2_30')
+    check_pkg ('gio-2.0', '2.32.3')
 
     args = ''
     if Options.platform == 'win32':
@@ -302,10 +298,6 @@ def configure (conf):
     conf.env['docs'] = option_enabled ('docs')
     if 'LINGUAS' in os.environ: conf.env['LINGUAS'] = os.environ['LINGUAS']
 
-    if not check_version (conf.env['GIO_VERSION'], 2, 26, 0):
-        conf.env['addons'] = False
-        Utils.pprint ('YELLOW', 'Glib < 2.26.0, disabling addons')
-
     conf.check (header_name='unistd.h')
     if not conf.env['HAVE_UNIQUE']:
         if Options.platform == 'win32':
@@ -365,13 +357,6 @@ def configure (conf):
     if conf.env['UNIQUE_VERSION'] == '1.0.4':
         Utils.pprint ('RED', 'unique 1.0.4 found, this version is erroneous.')
         Utils.pprint ('RED', 'Please use an older or newer version.')
-        sys.exit (1)
-    if check_version (conf.env['LIBSOUP_VERSION'], 2, 33, 4) \
-        and check_version (conf.env['GIO_VERSION'], 2, 32, 1) \
-        and not check_version (conf.env['GIO_VERSION'], 2, 32, 3):
-        Utils.pprint ('RED', 'libsoup >= 2.33.4 found with glib >= 2.32.1 < 2.32.3:')
-        Utils.pprint ('RED', 'This combination breaks the download GUI.')
-        Utils.pprint ('RED', 'See https://bugs.launchpad.net/midori/+bug/780133/comments/14')
         sys.exit (1)
 
 def set_options (opt):

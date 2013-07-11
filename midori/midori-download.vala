@@ -50,12 +50,6 @@ namespace Midori {
 #endif
         }
 
-#if !HAVE_GLIB_2_30
-        private static string format_size (uint64 size) {
-            return format_size_for_display ((int64)size);
-        }
-#endif
-
         public static string get_tooltip (WebKit.Download download) {
 #if !HAVE_WEBKIT2
             string filename = Path.get_basename (download.destination_uri);

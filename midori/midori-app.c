@@ -1320,6 +1320,7 @@ midori_app_setup (gint               *argc,
                   gchar**            *argument_vector,
                   const GOptionEntry *entries)
 {
+
     GtkIconSource* icon_source;
     GtkIconSet* icon_set;
     GtkIconFactory* factory;
@@ -1329,6 +1330,8 @@ midori_app_setup (gint               *argc,
 
     static GtkStockItem items[] =
     {
+        { "network-error" },
+        { "network-idle" },
         { STOCK_IMAGE },
         { MIDORI_STOCK_WEB_BROWSER },
         { STOCK_NEWS_FEED },
@@ -1369,12 +1372,6 @@ midori_app_setup (gint               *argc,
             dup2 (fileno (stderr), 2);
         }
     }
-    #endif
-
-    /* libSoup uses threads, therefore if WebKit is built with libSoup
-     * or Midori is using it, we need to initialize threads. */
-    #if !GLIB_CHECK_VERSION (2, 32, 0)
-    if (!g_thread_supported ()) g_thread_init (NULL);
     #endif
 
     /* Midori.Paths uses GFile */

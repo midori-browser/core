@@ -27,7 +27,7 @@
 
 gboolean
 midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
-                                         KatzeItem*     bookmark,
+                                         KatzeItem*     bookmark_or_parent,
                                          gboolean       new_bookmark,
                                          gboolean       is_folder,
                                          GtkWidget*     proxy);
@@ -390,14 +390,55 @@ midori_bookmarks_row_changed_cb (GtkTreeModel*    model,
 }
 
 static void
-midori_bookmarks_add_clicked_cb (GtkWidget* toolitem)
+midori_bookmarks_add_clicked_cb (GtkWidget* toolitem,
+				                 MidoriBookmarks* bookmarks)
 {
     MidoriBrowser* browser = midori_browser_get_for_widget (toolitem);
-    /* FIXME: Take selected folder into account */
+    GtkTreeView* treeview = GTK_TREE_VIEW (bookmarks->treeview);
+    GtkTreeModel* model;
+    GtkTreeIter iter;
+    KatzeItem* parent = NULL;
+
+    if (katze_tree_view_get_selected_iter (treeview,
+            &model, &iter))
+    {
+        gboolean done = FALSE;
+        while (!done)
+        {
+            gtk_tree_model_get (model, &iter, 0, &parent, -1);
+
+            if (KATZE_ITEM_IS_FOLDER (parent))
+            {
+                GtkTreePath* path = gtk_tree_model_get_path(model, &iter);
+
+                if (!gtk_tree_view_row_expanded (treeview, path))
+                    gtk_tree_view_expand_row (treeview, path, FALSE);
+
+                gtk_tree_path_free (path);
+                done = TRUE;
+            }
+            else
+            {
+                GtkTreeIter child = iter;
+
+                if (parent) g_object_unref (parent);
+                parent = NULL;
+
+                if (!gtk_tree_model_iter_parent (model, &iter, &child))
+                {
+                    done = TRUE;
+                }
+            }
+        }
+    }
+
     if (g_str_equal (gtk_widget_get_name (toolitem), "BookmarkFolderAdd"))
-        midori_browser_edit_bookmark_dialog_new (browser, NULL, TRUE, TRUE, toolitem);
+        midori_browser_edit_bookmark_dialog_new (browser, parent, TRUE, TRUE, toolitem);
     else
-        midori_browser_edit_bookmark_dialog_new (browser, NULL, TRUE, FALSE, toolitem);
+        midori_browser_edit_bookmark_dialog_new (browser, parent, TRUE, FALSE, toolitem);
+
+    if (parent)
+        g_object_unref (parent);
 }
 
 static void

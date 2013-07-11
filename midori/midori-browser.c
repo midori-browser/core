@@ -818,7 +818,6 @@ midori_view_notify_statusbar_text_cb (GtkWidget*     view,
 
 static GtkWidget*
 midori_bookmark_folder_button_new (KatzeArray* array,
-                                   gboolean    new_bookmark,
                                    gint64      selected,
                                    gint64      parentid)
 {
@@ -856,7 +855,7 @@ midori_bookmark_folder_button_new (KatzeArray* array,
             gtk_list_store_insert_with_values (model, NULL, G_MAXINT,
                 0, name, 1, PANGO_ELLIPSIZE_END, 2, id, -1);
 
-            if (!new_bookmark && id == parentid)
+            if (id == parentid)
                 gtk_combo_box_set_active (GTK_COMBO_BOX (combo), n);
             n++;
         }
@@ -910,11 +909,12 @@ midori_browser_edit_bookmark_add_speed_dial_cb (GtkWidget* button,
 /* Private function, used by MidoriBookmarks and MidoriHistory */
 /* static */ gboolean
 midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
-                                         KatzeItem*     bookmark,
+                                         KatzeItem*     bookmark_or_parent,
                                          gboolean       new_bookmark,
                                          gboolean       is_folder,
                                          GtkWidget*     proxy)
 {
+    KatzeItem*   bookmark = bookmark_or_parent;
     const gchar* title;
     GtkWidget* dialog;
     GtkWidget* content_area;
@@ -968,7 +968,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     gtk_window_set_icon_name (GTK_WINDOW (dialog),
         new_bookmark ? GTK_STOCK_ADD : GTK_STOCK_REMOVE);
 
-    if (!bookmark)
+    if (new_bookmark)
     {
         view = midori_browser_get_current_tab (browser);
         if (is_folder)
@@ -981,6 +981,11 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
             bookmark = g_object_new (KATZE_TYPE_ITEM,
                 "uri", midori_view_get_display_uri (MIDORI_VIEW (view)),
                 "name", midori_view_get_display_title (MIDORI_VIEW (view)), NULL);
+        katze_item_set_meta_integer (
+            bookmark, "parentid",
+            (!bookmark_or_parent
+                ? 0
+                : katze_item_get_meta_integer (bookmark_or_parent, "id")));
     }
 
     entry_title = gtk_entry_new ();
@@ -1004,7 +1009,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     }
 
     combo_folder = midori_bookmark_folder_button_new (browser->bookmarks,
-        new_bookmark, katze_item_get_meta_integer (bookmark, "id"),
+        katze_item_get_meta_integer (bookmark, "id"),
         katze_item_get_meta_integer (bookmark, "parentid"));
     gtk_box_pack_start (GTK_BOX (vbox), combo_folder, FALSE, FALSE, 0);
 
@@ -1204,7 +1209,7 @@ midori_browser_speed_dial_refresh_cb (MidoriSpeedDial* dial,
 {
     GList* tabs = midori_browser_get_tabs (browser);
     for (; tabs != NULL; tabs = g_list_next (tabs))
-        if (midori_view_is_blank (tabs->data))
+        if (!strcmp (midori_tab_get_uri (tabs->data), "about:dial"))
             midori_view_reload (tabs->data, FALSE);
     g_list_free (tabs);
 }
@@ -1212,16 +1217,10 @@ midori_browser_speed_dial_refresh_cb (MidoriSpeedDial* dial,
 static void
 midori_browser_add_speed_dial (MidoriBrowser* browser)
 {
-    GdkPixbuf* img;
     GtkWidget* view = midori_browser_get_current_tab (browser);
-
-    if ((img = midori_view_get_snapshot (MIDORI_VIEW (view), 240, 160)))
-    {
-        midori_speed_dial_add (browser->dial,
-            midori_view_get_display_uri (MIDORI_VIEW (view)),
-            midori_view_get_display_title (MIDORI_VIEW (view)), img);
-        g_object_unref (img);
-    }
+    midori_speed_dial_add (browser->dial,
+        midori_view_get_display_uri (MIDORI_VIEW (view)),
+        midori_view_get_display_title (MIDORI_VIEW (view)), NULL);
 }
 
 static gboolean
@@ -1319,12 +1318,29 @@ midori_browser_notify_new_tab (MidoriBrowser* browser)
     }
 }
 
+static bool
+midori_view_forward_external (GtkWidget*   view,
+                              const gchar* uri)
+{
+    if (midori_paths_get_runtime_mode () == MIDORI_RUNTIME_MODE_APP)
+        return sokoke_show_uri (gtk_widget_get_screen (view), uri, 0, NULL);
+    else if (midori_paths_get_runtime_mode () == MIDORI_RUNTIME_MODE_PRIVATE)
+    {
+        sokoke_spawn_app (uri, TRUE);
+        return TRUE;
+    }
+    return FALSE;
+}
+
 static void
 midori_view_new_tab_cb (GtkWidget*     view,
                         const gchar*   uri,
                         gboolean       background,
                         MidoriBrowser* browser)
 {
+    if (midori_view_forward_external (view, uri))
+        return;
+
     GtkWidget* new_view = midori_browser_add_uri (browser, uri);
     midori_browser_view_copy_history (new_view, view, FALSE);
 
@@ -1339,12 +1355,13 @@ midori_view_new_window_cb (GtkWidget*     view,
                            const gchar*   uri,
                            MidoriBrowser* browser)
 {
+    if (midori_view_forward_external (view, uri))
+        return;
+
     MidoriBrowser* new_browser;
     g_signal_emit (browser, signals[NEW_WINDOW], 0, NULL, &new_browser);
-    if (new_browser)
-        midori_browser_add_uri (new_browser, uri);
-    else /* No MidoriApp, so this is app or private mode */
-        sokoke_spawn_app (uri, TRUE);
+    g_assert (new_browser != NULL);
+    midori_view_new_tab_cb (view, uri, FALSE, new_browser);
 }
 
 static void
@@ -1354,11 +1371,16 @@ midori_view_new_view_cb (GtkWidget*     view,
                          gboolean       user_initiated,
                          MidoriBrowser* browser)
 {
+    if (midori_view_forward_external (new_view,
+        katze_item_get_uri (midori_view_get_proxy_item (MIDORI_VIEW (new_view)))))
+        return;
+
     midori_browser_view_copy_history (new_view, view, TRUE);
     if (where == MIDORI_NEW_VIEW_WINDOW)
     {
         MidoriBrowser* new_browser;
         g_signal_emit (browser, signals[NEW_WINDOW], 0, NULL, &new_browser);
+        g_assert (new_browser != NULL);
         midori_browser_add_tab (new_browser, new_view);
         midori_browser_set_current_tab (new_browser, new_view);
     }
@@ -4432,7 +4454,7 @@ _action_bookmarks_import_activate (GtkAction*     action,
     gtk_widget_show_all (hbox);
 
     combobox_folder = midori_bookmark_folder_button_new (browser->bookmarks,
-                                                         FALSE, 0, 0);
+                                                         0, 0);
     gtk_container_add (GTK_CONTAINER (content_area), combobox_folder);
 
     gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT);

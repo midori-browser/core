@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: midori 0.1.7\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-06-14 17:01-0500\n"
-"PO-Revision-Date: 2013-06-02 11:59+0000\n"
+"PO-Revision-Date: 2013-07-09 05:08+0000\n"
 "Last-Translator: Саша Петровић <salepetronije@gmail.com>\n"
 "Language-Team: српски <>\n"
 "MIME-Version: 1.0\n"
@@ -18,8 +18,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2013-06-15 04:38+0000\n"
-"X-Generator: Launchpad (build 16667)\n"
+"X-Launchpad-Export-Date: 2013-07-10 05:24+0000\n"
+"X-Generator: Launchpad (build 16696)\n"
 "Language: sr\n"
 
 #: ../data/midori.desktop.in.h:1 ../midori/main.c:162
@@ -289,27 +289,27 @@ msgstr "Забелешке"
 
 #: ../midori/midori-browser.c:937
 msgid "New Folder"
-msgstr ""
+msgstr "Нова фасцикла"
 
 #: ../midori/midori-browser.c:937
 msgid "Edit Folder"
-msgstr ""
+msgstr "Уредите фасциклу"
 
 #: ../midori/midori-browser.c:939
 msgid "New Bookmark"
-msgstr ""
+msgstr "Нова забелешка"
 
 #: ../midori/midori-browser.c:939
 msgid "Edit Bookmark"
-msgstr ""
+msgstr "Уредите забелешку"
 
 #: ../midori/midori-browser.c:961
 msgid "Type a name for this bookmark, and choose where to keep it."
-msgstr ""
+msgstr "Укуцајте име ове забелешке и изаберите где ћете је сместити."
 
 #: ../midori/midori-browser.c:963
 msgid "Type a name for this folder, and choose where to keep it."
-msgstr ""
+msgstr "Укуцајте име ове фасцикле и изаберите где ћете је сместити."
 
 #: ../midori/midori-browser.c:1017
 msgid "Add to _Speed Dial"
@@ -317,7 +317,7 @@ msgstr "Додај у _брзе посете"
 
 #: ../midori/midori-browser.c:1026
 msgid "Show in Bookmarks _Bar"
-msgstr ""
+msgstr "Приказуј у _траци забелешки"
 
 #: ../midori/midori-browser.c:1034
 msgid "Run as _web application"
@@ -711,19 +711,19 @@ msgstr "Додај нову _фасциклу"
 
 #: ../midori/midori-browser.c:5430
 msgid "_Import bookmarks…"
-msgstr ""
+msgstr "_Увези забелешке…"
 
 #: ../midori/midori-browser.c:5433
 msgid "_Export bookmarks…"
-msgstr ""
+msgstr "_Извези забелешке…"
 
 #: ../midori/midori-browser.c:5436
 msgid "_Manage Search Engines…"
-msgstr ""
+msgstr "_Управљај погонима претраге…"
 
 #: ../midori/midori-browser.c:5439
 msgid "_Clear Private Data…"
-msgstr ""
+msgstr "_Очисти личне податке…"
 
 #: ../midori/midori-browser.c:5442
 msgid "_Inspect Page"
@@ -1882,16 +1882,18 @@ msgstr "Нисам успео да додам ставку забелешки: %
 #, c-format
 msgid "%d bookmark"
 msgid_plural "%d bookmarks"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%d забелешка"
+msgstr[1] "%d забелешке"
+msgstr[2] "%d забелешки"
 
 #. i18n: [n] subfolder(s)
 #: ../panels/midori-bookmarks.c:465
 #, c-format
 msgid "%d subfolder"
 msgid_plural "%d subfolders"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%d подфасцикла"
+msgstr[1] "%d подфасцикле"
+msgstr[2] "%d подфасцикли"
 
 #. i18n: Empty folder
 #: ../panels/midori-bookmarks.c:493
@@ -1903,42 +1905,42 @@ msgstr ""
 #: ../panels/midori-bookmarks.c:496
 #, c-format
 msgid "Folder containing %s and no bookmark"
-msgstr ""
+msgstr "Фасцикла садржи %s и нема забележака"
 
 #. i18n: Folder containing [[n] bookmark(s)]
 #: ../panels/midori-bookmarks.c:500
 #, c-format
 msgid "Folder containing %s"
-msgstr ""
+msgstr "Фасцикла садржи %s"
 
 #. i18n: Folder containing [[n] bookmark(s)] and [[n] folder(s)]
 #: ../panels/midori-bookmarks.c:503
 #, c-format
 msgid "Folder containing %s and %s"
-msgstr ""
+msgstr "Фасцикла садржи %s и %s"
 
 #. i18n: Bookmark leading to: [bookmark uri]
 #: ../panels/midori-bookmarks.c:514
 #, c-format
 msgid "Bookmark leading to: %s"
-msgstr ""
+msgstr "Забелешка води ка: %s"
 
 #. i18n: [[n] folder(s)] and no bookmark
 #: ../panels/midori-bookmarks.c:528
 #, c-format
 msgid "%s and no bookmark"
-msgstr ""
+msgstr "%s и нема забележака"
 
 #. i18n: [[n] bookmark(s)] and [[n] folder(s)]
 #: ../panels/midori-bookmarks.c:534
 #, c-format
 msgid "%s and %s"
-msgstr ""
+msgstr "%s и %s"
 
 #: ../panels/midori-bookmarks.c:586
 #, c-format
 msgid "Failed to update bookmark: %s\n"
-msgstr ""
+msgstr "Нисам успео да освежим забелешку:  %s\n"
 
 #: ../panels/midori-bookmarks.c:647
 msgid "Edit the selected bookmark"
@@ -2779,7 +2781,7 @@ msgstr "Не могу да уклоним старе ставке из исто�
 #: ../midori/midori-bookmarks.c:60
 #, c-format
 msgid "Failed to remove bookmark item: %s\n"
-msgstr ""
+msgstr "Нисам успео да уклоним ставку забелешки: %s\n"
 
 #: ../midori/midori-bookmarks.c:106
 msgid "failed to ATTACH old db"
@@ -2844,6 +2846,8 @@ msgstr "Не могу да сачувам документ. %s"
 msgid ""
 "Midori crashed the last time it was opened. You can report the problem at %s."
 msgstr ""
+"Мидори се срушио приликом последњег покретања. Можете пријавити потешкоће на "
+"%s."
 
 #: ../midori/midori-frontend.c:345
 msgid "Modify _preferences"
@@ -3141,21 +3145,21 @@ msgstr "Управљај дозволама колачића по пореклу
 
 #: ../extensions/apps.vala:46
 msgid "Launcher created"
-msgstr ""
+msgstr "Направљен је покретач"
 
 #: ../extensions/apps.vala:47
 #, c-format
 msgid "You can now run <b>%s</b> from your launcher or menu"
-msgstr ""
+msgstr "Сада можете покретати <b>%s</b> из вашег покретача или изборника"
 
 #: ../extensions/apps.vala:50
 msgid "Error creating launcher"
-msgstr ""
+msgstr "Десила се грешка приликом стварања покретача"
 
 #: ../extensions/apps.vala:51
 #, c-format
 msgid "Failed to create new launcher: %s"
-msgstr ""
+msgstr "Нисам успео да направим нови покретач: %s"
 
 #: ../extensions/apps.vala:88
 msgid "Applications"
@@ -3163,28 +3167,28 @@ msgstr "Програми"
 
 #: ../extensions/apps.vala:97
 msgid "New _Profile"
-msgstr ""
+msgstr "Нови _профил"
 
 #: ../extensions/apps.vala:98
 msgid "Creates a new, independant profile and a launcher"
-msgstr ""
+msgstr "Ствара нови, независни профил и покретач"
 
 #: ../extensions/apps.vala:107
 #, c-format
 msgid "Midori (%s)"
-msgstr ""
+msgstr "Мидори (%s)"
 
 #: ../extensions/apps.vala:112
 msgid "New _App"
-msgstr ""
+msgstr "Нови _програм"
 
 #: ../extensions/apps.vala:113
 msgid "Creates a new app for a specific site"
-msgstr ""
+msgstr "Ствара нови програм за одређену страницу"
 
 #: ../extensions/apps.vala:137
 msgid "Error launching"
-msgstr ""
+msgstr "Десила се грешка при покретању"
 
 #: ../extensions/apps.vala:327
 msgid "Create _Launcher"
@@ -3222,7 +3226,7 @@ msgstr "Датотека „<b>%s</b>“ је преузета."
 #: ../extensions/transfers.vala:433
 #, c-format
 msgid "'<b>%s</b>' and %d other files have been downloaded."
-msgstr ""
+msgstr "„<b>%s</b>“ и %d осталих датотека су преузете."
 
 #: ../extensions/transfers.vala:434
 msgid "Transfer completed"

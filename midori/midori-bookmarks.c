@@ -250,6 +250,16 @@ midori_bookmarks_new (char** errmsg)
 
     if (newfile_did_exist)
     {
+        const gchar* setup_stmt = "PRAGMA foreign_keys = ON;";
+        /* initial setup */
+        if (sqlite3_exec (db, setup_stmt, NULL, NULL, &sql_errmsg) != SQLITE_OK)
+        {
+            *errmsg = g_strdup_printf (_("Couldn't setup bookmarks: %s\n"),
+                sql_errmsg ? sql_errmsg : "(err = NULL)");
+            sqlite3_free (sql_errmsg);
+            goto init_failed;
+        }
+
         /* we are done */
         goto init_success;
     }
