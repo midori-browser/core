@@ -523,7 +523,7 @@ midori_load_session (gpointer data)
     if (midori_uri_is_blank (katze_item_get_uri (item)))
         midori_browser_activate_action (browser, "Location");
 
-    /* `i` could already have been used! */
+    /* `i` also used above; in that case we won't re-add the same URLs here */
     for (; open_uris && open_uris[i]; i++)
     {
         uri = sokoke_magic_uri (open_uris[i], TRUE, TRUE);
