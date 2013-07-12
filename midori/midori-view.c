@@ -4568,6 +4568,7 @@ midori_view_get_tab_menu (MidoriView* view)
     g_return_val_if_fail (MIDORI_IS_VIEW (view), NULL);
 
     browser = midori_browser_get_for_widget (GTK_WIDGET (view));
+    g_return_val_if_fail (browser != NULL, NULL);
     actions = midori_browser_get_action_group (browser);
     pages = midori_browser_get_n_pages (browser);
 
@@ -4629,7 +4630,6 @@ midori_view_set_tab (MidoriView*        view,
                      GraniteWidgetsTab* tab)
 {
     g_return_if_fail (MIDORI_IS_VIEW (view));
-    g_return_if_fail (view->tab == NULL);
 
     view->tab = tab;
     g_object_set (tab,
