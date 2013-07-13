@@ -5102,7 +5102,7 @@ midori_browser_notebook_page_added_cb (GtkNotebook*   notebook,
                                        MidoriBrowser* browser)
 {
     if (!midori_browser_tab_connected (browser, MIDORI_VIEW (child)))
-        midori_browser_connect_tab (browser, MIDORI_VIEW (child));
+        midori_browser_connect_tab (browser, child);
     midori_browser_notebook_page_reordered_cb (GTK_WIDGET (notebook),
         MIDORI_VIEW (child), page_num, browser);
 }
