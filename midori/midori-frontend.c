@@ -600,11 +600,6 @@ midori_normal_app_on_quit (MidoriApp* app)
     midori_bookmarks_on_quit (bookmarks);
     midori_history_on_quit (history, settings);
     midori_private_data_on_quit (settings);
-    /* Removing KatzeHttpCookies makes it save outstanding changes */
-#ifndef HAVE_WEBKIT2
-    soup_session_remove_feature_by_type (webkit_get_default_session (),
-                                         KATZE_TYPE_HTTP_COOKIES);
-#endif
 
     MidoriStartup load_on_startup = katze_object_get_int (settings, "load-on-startup");
     if (load_on_startup < MIDORI_STARTUP_LAST_OPEN_PAGES)

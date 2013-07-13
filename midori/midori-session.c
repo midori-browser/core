@@ -17,6 +17,7 @@
 #include "sokoke.h"
 
 #include <glib/gi18n-lib.h>
+#include <libsoup/soup-cookie-jar-sqlite.h>
 
     #define LIBSOUP_USE_UNSTABLE_REQUEST_API
     #include <libsoup/soup-cache.h>
@@ -247,6 +248,36 @@ midori_load_soup_session (gpointer settings)
     return FALSE;
 }
 
+static void
+midori_session_cookie_jar_changed_cb (SoupCookieJar*     jar,
+                                      SoupCookie*        old_cookie,
+                                      SoupCookie*        new_cookie,
+                                      MidoriWebSettings* settings)
+{
+    if (new_cookie && new_cookie->expires)
+    {
+        time_t expires = soup_date_to_time_t (new_cookie->expires);
+        gint age = katze_object_get_int (settings, "maximum-cookie-age");
+        if (age > 0)
+        {
+            SoupDate* max_date = soup_date_new_from_now (
+                   age * SOUP_COOKIE_MAX_AGE_ONE_DAY);
+            if (soup_date_to_time_t (new_cookie->expires)
+                > soup_date_to_time_t (max_date))
+                   soup_cookie_set_expires (new_cookie, max_date);
+        }
+        else
+        {
+            /* An age of 0 to SoupCookie means already-expired
+            A user choosing 0 days probably expects 1 hour. */
+            soup_cookie_set_max_age (new_cookie, SOUP_COOKIE_MAX_AGE_ONE_HOUR);
+        }
+    }
+
+    if (midori_debug ("cookies"))
+        g_print ("cookie changed: old %p new %p\n", old_cookie, new_cookie);
+}
+
 gboolean
 midori_load_soup_session_full (gpointer settings)
 {
@@ -265,32 +296,12 @@ midori_load_soup_session_full (gpointer settings)
     soup_session_add_feature (session, feature);
     g_object_unref (feature);
 
-    jar = soup_cookie_jar_new ();
-    g_object_set_data (G_OBJECT (jar), "midori-settings", settings);
-    soup_session_add_feature (session, SOUP_SESSION_FEATURE (jar));
-    g_object_unref (jar);
-
     katze_assign (config_file, midori_paths_get_config_filename_for_writing ("cookies.db"));
-    have_new_cookies = g_access (config_file, F_OK) == 0;
-    feature = g_object_new (KATZE_TYPE_HTTP_COOKIES_SQLITE, NULL);
-    g_object_set_data_full (G_OBJECT (feature), "filename",
-                            config_file, (GDestroyNotify)g_free);
-    soup_session_add_feature (session, feature);
-    g_object_unref (feature);
-
-    if (!have_new_cookies)
-    {
-        katze_assign (config_file, midori_paths_get_config_filename_for_writing ("cookies.txt"));
-        if (g_access (config_file, F_OK) == 0)
-        {
-            g_message ("Importing cookies from txt to sqlite3");
-            feature_import = g_object_new (KATZE_TYPE_HTTP_COOKIES, NULL);
-            g_object_set_data_full (G_OBJECT (feature_import), "filename",
-                                    config_file, (GDestroyNotify)g_free);
-            soup_session_add_feature (session, SOUP_SESSION_FEATURE (feature_import));
-            soup_session_remove_feature (session, SOUP_SESSION_FEATURE (feature_import));
-        }
-    }
+    jar = soup_cookie_jar_sqlite_new (config_file, FALSE);
+    soup_session_add_feature (session, SOUP_SESSION_FEATURE (jar));
+    g_signal_connect (jar, "changed",
+                      G_CALLBACK (midori_session_cookie_jar_changed_cb), settings);
+    g_object_unref (jar);
 
     katze_assign (config_file, g_build_filename (midori_paths_get_cache_dir (), "web", NULL));
     feature = SOUP_SESSION_FEATURE (soup_cache_new (config_file, 0));

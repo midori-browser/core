@@ -239,14 +239,6 @@ midori_clear_web_cookies_cb (void)
         soup_cookie_jar_delete_cookie ((SoupCookieJar*)jar, cookies->data);
     }
     soup_cookies_free (cookies);
-    /* Removing KatzeHttpCookies makes it save outstanding changes */
-    if ((feature = soup_session_get_feature (session, KATZE_TYPE_HTTP_COOKIES)))
-    {
-        g_object_ref (feature);
-        soup_session_remove_feature (session, feature);
-        soup_session_add_feature (session, feature);
-        g_object_unref (feature);
-    }
 
     /* Local shared objects/ Flash cookies */
     if (midori_web_settings_has_plugin_support ())
