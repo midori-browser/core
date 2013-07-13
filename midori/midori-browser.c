@@ -214,6 +214,10 @@ midori_browser_notebook_size_allocate_cb (GtkWidget*     notebook,
                                           GdkRectangle*  allocation,
                                           MidoriBrowser* browser);
 
+static void
+midori_browser_step_history (MidoriBrowser* browser,
+                             MidoriView*    view);
+
 #define _action_by_name(brwsr, nme) \
     gtk_action_group_get_action (brwsr->action_group, nme)
 #define _action_set_sensitive(brwsr, nme, snstv) \
@@ -742,36 +746,37 @@ midori_view_notify_title_cb (GtkWidget*     widget,
                              MidoriBrowser* browser)
 {
     MidoriView* view = MIDORI_VIEW (widget);
-
-    if (midori_view_get_load_status (view) == MIDORI_LOAD_COMMITTED)
-    {
-        KatzeItem* proxy;
-        if (browser->history && browser->maximum_history_age)
-        {
-            const gchar* proxy_uri;
-            proxy = midori_view_get_proxy_item (view);
-            proxy_uri = katze_item_get_uri (proxy);
-            if (!midori_uri_is_blank (proxy_uri) &&
-                (katze_item_get_meta_integer (proxy, "history-step") == -1))
-            {
-                if (!katze_item_get_meta_boolean (proxy, "dont-write-history"))
-                {
-                    midori_browser_new_history_item (browser, proxy);
-                    katze_item_set_meta_integer (proxy, "history-step", 1);
-                }
-            }
-            else if (katze_item_get_name (proxy) &&
-                     !midori_uri_is_blank (proxy_uri) &&
-                     (katze_item_get_meta_integer (proxy, "history-step") == 1))
-            {
-                midori_browser_update_history_title (browser, proxy);
-                katze_item_set_meta_integer (proxy, "history-step", 2);
-            }
-        }
-    }
-
     if (widget == midori_browser_get_current_tab (browser))
         midori_browser_set_title (browser, midori_view_get_display_title (view));
+    midori_browser_step_history (browser, view);
+}
+
+static void
+midori_browser_step_history (MidoriBrowser* browser,
+                             MidoriView*    view)
+{
+    if (midori_view_get_load_status (view) != MIDORI_LOAD_COMMITTED)
+        return;
+    if (!browser->history || !browser->maximum_history_age)
+        return;
+
+    KatzeItem* proxy = midori_view_get_proxy_item (view);
+    const gchar* proxy_uri = katze_item_get_uri (proxy);
+    if (midori_uri_is_blank (proxy_uri))
+        return;
+
+    if (katze_item_get_meta_integer (proxy, "history-step") == -1
+     && !katze_item_get_meta_boolean (proxy, "dont-write-history"))
+    {
+        midori_browser_new_history_item (browser, proxy);
+        katze_item_set_meta_integer (proxy, "history-step", 1);
+    }
+    else if (katze_item_get_name (proxy)
+     && katze_item_get_meta_integer (proxy, "history-step") >= 1)
+    {
+        midori_browser_update_history_title (browser, proxy);
+        katze_item_set_meta_integer (proxy, "history-step", 2);
+    }
 }
 
 static void
