@@ -470,6 +470,8 @@ midori_browser_update_history (KatzeItem*   item,
                                const gchar* type,
                                const gchar* event)
 {
+    g_return_if_fail (!KATZE_ITEM_IS_SEPARATOR (item));
+
     #ifdef HAVE_ZEITGEIST
     const gchar* inter;
     if (strstr (event, "access"))
@@ -484,6 +486,11 @@ midori_browser_update_history (KatzeItem*   item,
         inter = ZEITGEIST_ZG_DELETE_EVENT;
     else
         g_assert_not_reached ();
+
+    /* FIXME: Should insert folders into the log (ZEITGEIST_NFO_BOOKMARK_FOLDER) */
+    if (KATZE_ITEM_IS_FOLDER (item))
+        return;
+
     zeitgeist_log_insert_events_no_reply (zeitgeist_log_get_default (),
         zeitgeist_event_new_full (inter, ZEITGEIST_ZG_USER_ACTIVITY,
                                   "application://midori.desktop",
