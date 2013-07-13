@@ -458,6 +458,8 @@ midori_load_session (gpointer data)
     gint64 current;
     gchar** open_uris = g_object_get_data (G_OBJECT (app), "open-uris");
     gchar** execute_commands = g_object_get_data (G_OBJECT (app), "execute-commands");
+    gchar* uri;
+    guint i = 0;
     #ifdef G_ENABLE_DEBUG
     gboolean startup_timer = midori_debug ("startup");
     GTimer* timer = startup_timer ? g_timer_new () : NULL;
@@ -486,7 +488,13 @@ midori_load_session (gpointer data)
     if (katze_array_is_empty (saved_session))
     {
         item = katze_item_new ();
-        if (load_on_startup == MIDORI_STARTUP_BLANK_PAGE)
+        if (open_uris)
+        {
+            uri = sokoke_magic_uri (open_uris[i], TRUE, TRUE);
+            katze_item_set_uri (item, uri);
+            g_free (uri);
+            i++;
+        } else if (load_on_startup == MIDORI_STARTUP_BLANK_PAGE)
             katze_item_set_uri (item, "about:new");
         else
             katze_item_set_uri (item, "about:home");
@@ -515,10 +523,10 @@ midori_load_session (gpointer data)
     if (midori_uri_is_blank (katze_item_get_uri (item)))
         midori_browser_activate_action (browser, "Location");
 
-    guint i = 0;
-    for (i = 0; open_uris && open_uris[i]; i++)
+    /* `i` also used above; in that case we won't re-add the same URLs here */
+    for (; open_uris && open_uris[i]; i++)
     {
-        gchar* uri = sokoke_magic_uri (open_uris[i], TRUE, TRUE);
+        uri = sokoke_magic_uri (open_uris[i], TRUE, TRUE);
         midori_browser_add_uri (browser, uri);
         g_free (uri);
     }
