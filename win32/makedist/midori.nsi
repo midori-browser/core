@@ -263,6 +263,8 @@ Section "!Program Files" SEC01
 
 	!insertmacro InstallIconTheme "status\dialog-password"
 	!insertmacro InstallIconTheme "status\locked"
+	!insertmacro InstallIconTheme "status\network-error"
+	!insertmacro InstallIconTheme "status\network-idle"
 
 SectionEnd
 
