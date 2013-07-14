@@ -1331,15 +1331,19 @@ midori_browser_notify_new_tab (MidoriBrowser* browser)
 }
 
 static bool
-midori_view_forward_external (GtkWidget*   view,
-                              const gchar* uri)
+midori_view_forward_external (GtkWidget*    view,
+                              const gchar*  uri,
+                              MidoriNewView where)
 {
     if (midori_paths_get_runtime_mode () == MIDORI_RUNTIME_MODE_APP)
         return sokoke_show_uri (gtk_widget_get_screen (view), uri, 0, NULL);
     else if (midori_paths_get_runtime_mode () == MIDORI_RUNTIME_MODE_PRIVATE)
     {
-        sokoke_spawn_app (uri, TRUE);
-        return TRUE;
+        if (where == MIDORI_NEW_VIEW_WINDOW)
+        {
+            sokoke_spawn_app (uri, TRUE);
+            return TRUE;
+        }
     }
     return FALSE;
 }
@@ -1350,7 +1354,7 @@ midori_view_new_tab_cb (GtkWidget*     view,
                         gboolean       background,
                         MidoriBrowser* browser)
 {
-    if (midori_view_forward_external (view, uri))
+    if (midori_view_forward_external (view, uri, MIDORI_NEW_VIEW_TAB))
         return;
 
     GtkWidget* new_view = midori_browser_add_uri (browser, uri);
@@ -1367,7 +1371,7 @@ midori_view_new_window_cb (GtkWidget*     view,
                            const gchar*   uri,
                            MidoriBrowser* browser)
 {
-    if (midori_view_forward_external (view, uri))
+    if (midori_view_forward_external (view, uri, MIDORI_NEW_VIEW_WINDOW))
         return;
 
     MidoriBrowser* new_browser;
@@ -1384,7 +1388,8 @@ midori_view_new_view_cb (GtkWidget*     view,
                          MidoriBrowser* browser)
 {
     if (midori_view_forward_external (new_view,
-        katze_item_get_uri (midori_view_get_proxy_item (MIDORI_VIEW (new_view)))))
+        katze_item_get_uri (midori_view_get_proxy_item (MIDORI_VIEW (new_view))),
+        where))
         return;
 
     midori_browser_view_copy_history (new_view, view, TRUE);
