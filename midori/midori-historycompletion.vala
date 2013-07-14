@@ -14,7 +14,7 @@ namespace Midori {
         unowned Sqlite.Database db;
 
         public HistoryCompletion () {
-            GLib.Object (description: _("History"));
+            GLib.Object (description: _("Bookmarks and History"));
         }
 
         public override void prepare (GLib.Object app) {
