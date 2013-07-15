@@ -5,7 +5,7 @@
   <title>midori:faq</title>
 <meta name="generator" content="DokuWiki"/>
 <meta name="robots" content="noindex,nofollow"/>
-<meta name="date" content="2013-05-13T12:47:33+0200"/>
+<meta name="date" content="2013-07-12T03:32:14+0200"/>
 <meta name="keywords" content="midori,faq"/>
 <link rel="search" type="application/opensearchdescription+xml" href="/lib/exe/opensearch.php" title="Xfce Wiki"/>
 <link rel="start" href="/"/>
@@ -18,7 +18,7 @@
 <link rel="stylesheet" href="faq.css" />
 <script type="text/javascript">/*<![CDATA[*/var NS='midori';var JSINFO = {"id":"midori:faq","namespace":"midori"};
 /*!]]>*/</script>
-<script type="text/javascript" charset="utf-8" src="/lib/exe/js.php?tseed=1358197876"></script>
+<script type="text/javascript" charset="utf-8" src="/lib/exe/js.php?tseed=1371413028"></script>
 </head>
 <body>
 <div class="dokuwiki export">
@@ -241,6 +241,10 @@ Midori &gt;= 0.4.7 automatically picks up the Strict-Transport-Security header a
 <div class="level4">
 
 <p>
+Midori uses the system&#039;s ca-certificates, the exact locations depend on the distribution.
+</p>
+
+<p>
 Midori &gt;= 0.4.7 supports <a href="http://git.gnome.org/browse/gcr/tree/gcr" class="urlextern" title="http://git.gnome.org/browse/gcr/tree/gcr"  rel="nofollow">gcr</a> for certificate display and management, you can click the lock in the urlbar to see detailed information. Earlier versions, or one without gcr will not handle certificates beyond the lock icon in the urlbar.
 </p>
 
@@ -250,7 +254,7 @@ Midori &gt;= 0.4.7 supports <a href="http://git.gnome.org/browse/gcr/tree/gcr" c
 <div class="level5">
 
 <p>
-No key store is available or it&#039;s incorrectly setup. By default GNOME keyring can do this. Under Xfce it is recommended to enable “GNOME services” under “Session and Startup settings”. Otherwise this can occur if a script doesn&#039;t correctly send the output of “gnome-keyring –startup” to the environment.
+No key store is available or it&#039;s incorrectly setup. By default GNOME keyring can do this. Under Xfce it is recommended to enable “GNOME services” under “Session and Startup settings”. To make sure, that the output of “gnome-keyring –startup” is correctly sent to the environment, you can add “export `gnome-keyring-daemon –start`” to .xinitrc.
 </p>
 
 </div>
@@ -263,7 +267,7 @@ No key store is available or it&#039;s incorrectly setup. By default GNOME keyri
 </p>
 
 </div>
-<!-- EDIT4 SECTION "Security features" [3301-4386] -->
+<!-- EDIT4 SECTION "Security features" [3301-4518] -->
 <h2 class="sectionedit5" id="flash_doesn_t_work">Flash doesn&#039;t work</h2>
 <div class="level2">
 
@@ -302,10 +306,13 @@ You can either run that above line and run Midori in the same terminal afterward
 <p>
 nspluginwrapper is a program that runs Flash and other Netscape plugins in a separate process. So a crash can&#039;t crash the whole browser and Flash, which is GTK+2 can run in GTK+3.
 </p>
-<pre class="code bash"><span class="kw2">sudo</span> <span class="kw2">apt-get install</span> flashplugin-installer
-<span class="kw2">sudo</span> <span class="kw2">apt-get install</span> nspluginwrapper
+<pre class="code bash"><span class="kw2">sudo</span> <span class="kw2">apt-get install</span> flashplugin-installer nspluginwrapper
 <span class="kw2">sudo</span> nspluginwrapper <span class="re5">-i</span> <span class="sy0">/</span>usr<span class="sy0">/</span>lib<span class="sy0">/</span>flashplugin-installer<span class="sy0">/</span>libflashplayer.so
 nspluginwrapper <span class="re5">-v</span> <span class="re5">-a</span> <span class="re5">-n</span> <span class="re5">-i</span></pre>
+
+<p>
+~/.mozilla can also be used with Adobe&#039;s tarball if system-wide install is not an option. The approach is confirmed to work with x86-64 as well.
+</p>
 
 <p>
 Another remedy is using WebKit2 - starting with Midori 0.4.9 experimental support is available, <a href="https://trac.webkit.org/wiki/WebKitGTK/WebKit2Roadmap" class="urlextern" title="https://trac.webkit.org/wiki/WebKitGTK/WebKit2Roadmap"  rel="nofollow">progress on WebKit2GTK+ can be seen in the WebKit wiki</a>.
@@ -358,7 +365,7 @@ You need to have GStreamer plugins installed which implement the codecs.
 </li>
 <li class="level1"><div class="li"> You may need gstreamer0.10-alsa for ALSA, depending on your distribution.</div>
 </li>
-<li class="level1"><div class="li"> You need plugins for Theora, gstreamer0.10-base and <abbr title="Motion Picture Experts Group">MPEG</abbr>-4 incluing aac (e.g. gst-plugins-faad), gstreamer0.10-bad. For WebM, you&#039;ll need plugins for vorbis (-base), matroska (-good), and vp8 (-bad). Have a look at <a href="http://www.gstreamer.net/documentation/plugins.html" class="urlextern" title="http://www.gstreamer.net/documentation/plugins.html"  rel="nofollow">http://www.gstreamer.net/documentation/plugins.html</a> for details.</div>
+<li class="level1"><div class="li"> You need plugins for Theora, gstreamer0.10-base and <abbr title="Moving Picture Experts Group">MPEG</abbr>-4 incluing aac (e.g. gst-plugins-faad), gstreamer0.10-bad. For WebM, you&#039;ll need plugins for vorbis (-base), matroska (-good), and vp8 (-bad). Have a look at <a href="http://www.gstreamer.net/documentation/plugins.html" class="urlextern" title="http://www.gstreamer.net/documentation/plugins.html"  rel="nofollow">http://www.gstreamer.net/documentation/plugins.html</a> for details.</div>
 </li>
 <li class="level1"><div class="li"> For Youtube or Vimeo, you need WebKitGTK+ 1.1.20 or newer.</div>
 </li>
@@ -589,12 +596,12 @@ Most settings listed at <a href="http://webkitgtk.org/reference/webkitgtk/stable
 </p>
 
 </div>
-<!-- EDIT5 SECTION "Flash doesn't work" [4387-12724] -->
+<!-- EDIT5 SECTION "Flash doesn't work" [4519-12981] -->
 <h1 class="sectionedit6" id="privacy">Privacy</h1>
 <div class="level1">
 
 </div>
-<!-- EDIT6 SECTION "Privacy" [12725-12747] -->
+<!-- EDIT6 SECTION "Privacy" [12982-13004] -->
 <h2 class="sectionedit7" id="blacklist_cookies">Blacklist cookies</h2>
 <div class="level2">
 
@@ -620,7 +627,7 @@ The feature is currently experimental and will change in future versions.
 </p>
 
 </div>
-<!-- EDIT7 SECTION "Blacklist cookies" [12748-13284] -->
+<!-- EDIT7 SECTION "Blacklist cookies" [13005-13541] -->
 <h2 class="sectionedit8" id="adblock">Adblock</h2>
 <div class="level2">
 
@@ -629,12 +636,12 @@ The Advertisement Blocker can be activated under Extensions. It uses the same li
 </p>
 
 </div>
-<!-- EDIT8 SECTION "Adblock" [13285-13540] -->
+<!-- EDIT8 SECTION "Adblock" [13542-13797] -->
 <h1 class="sectionedit9" id="modes">Modes</h1>
 <div class="level1">
 
 </div>
-<!-- EDIT9 SECTION "Modes" [13541-13561] -->
+<!-- EDIT9 SECTION "Modes" [13798-13818] -->
 <h2 class="sectionedit10" id="web_applications">Web Applications</h2>
 <div class="level2">
 
@@ -655,7 +662,7 @@ There are two closely related features to open websites as dedicated windows of 
 </p>
 
 </div>
-<!-- EDIT10 SECTION "Web Applications" [13562-14078] -->
+<!-- EDIT10 SECTION "Web Applications" [13819-14335] -->
 <h2 class="sectionedit11" id="private_browsing">Private Browsing</h2>
 <div class="level2">
 
@@ -681,7 +688,7 @@ The same options available to -a/ –app can be used for private browsing mode.
 </p>
 
 </div>
-<!-- EDIT11 SECTION "Private Browsing" [14079-14998] -->
+<!-- EDIT11 SECTION "Private Browsing" [14336-15255] -->
 <h2 class="sectionedit12" id="portable_modewin32">Portable mode/ Win32</h2>
 <div class="level2">
 
@@ -690,7 +697,7 @@ On Windows builds, -P/ –portable causes all data to be written to the “profi
 </p>
 
 </div>
-<!-- EDIT12 SECTION "Portable mode/ Win32" [14999-15312] -->
+<!-- EDIT12 SECTION "Portable mode/ Win32" [15256-15569] -->
 <h2 class="sectionedit13" id="kiosk_mode">Kiosk mode</h2>
 <div class="level2">
 
@@ -722,7 +729,7 @@ Any links outside end up in an error page. All images and other files won&#039;t
 </p>
 
 </div>
-<!-- EDIT13 SECTION "Kiosk mode" [15313-16350] -->
+<!-- EDIT13 SECTION "Kiosk mode" [15570-16607] -->
 <h2 class="sectionedit14" id="always_open_midori_in_fullscreen">Always open Midori in Fullscreen</h2>
 <div class="level2">
 
@@ -755,7 +762,7 @@ If for whatever reason this isn&#039;t enough, <a href="https://live.gnome.org/D
 </p>
 
 </div>
-<!-- EDIT14 SECTION "Always open Midori in Fullscreen" [16351-16878] -->
+<!-- EDIT14 SECTION "Always open Midori in Fullscreen" [16608-17135] -->
 <h2 class="sectionedit15" id="overriding_settings_and_loading_extensions">Overriding settings and loading extensions</h2>
 <div class="level2">
 
@@ -772,7 +779,7 @@ As of Midori 0.5.0 the –execute command line switch got more powerful:
 </p>
 
 </div>
-<!-- EDIT15 SECTION "Overriding settings and loading extensions" [16879-17086] -->
+<!-- EDIT15 SECTION "Overriding settings and loading extensions" [17136-17343] -->
 <h1 class="sectionedit16" id="proxy_servers">Proxy servers</h1>
 <div class="level1">
 
@@ -856,7 +863,7 @@ server_port = 5555</pre>
 </ol>
 
 </div>
-<!-- EDIT16 SECTION "Proxy servers" [17087-18908] -->
+<!-- EDIT16 SECTION "Proxy servers" [17344-19165] -->
 <h1 class="sectionedit17" id="keyboard_hotkeys">Keyboard Hotkeys</h1>
 <div class="level1">
 
@@ -938,7 +945,7 @@ When using Ctrl+f to bring up Find, use Ctrl+f again or ESC. When using ”/” 
 </p>
 
 </div>
-<!-- EDIT17 SECTION "Keyboard Hotkeys" [18909-20241] -->
+<!-- EDIT17 SECTION "Keyboard Hotkeys" [19166-20498] -->
 <h1 class="sectionedit18" id="mouse_gestures">Mouse Gestures</h1>
 <div class="level1">
 
@@ -975,7 +982,7 @@ Additionally, there are programs allowing mouse gestures system-wide, for exampl
 </p>
 
 </div>
-<!-- EDIT18 SECTION "Mouse Gestures" [20242-21006] -->
+<!-- EDIT18 SECTION "Mouse Gestures" [20499-21263] -->
 <h1 class="sectionedit19" id="user_scripts_and_styles">User scripts and styles</h1>
 <div class="level1">
 
@@ -1036,7 +1043,7 @@ You can also use <a href="http://rightfootin.blogspot.com/2009/04/flashblock-wan
 </p>
 
 </div>
-<!-- EDIT19 SECTION "User scripts and styles" [21007-23561] -->
+<!-- EDIT19 SECTION "User scripts and styles" [21264-23818] -->
 <h2 class="sectionedit20" id="user_styles">User styles</h2>
 <div class="level2">
 
@@ -1098,6 +1105,6 @@ Customize as needed:
         }</pre>
 
 </div>
-<!-- EDIT20 SECTION "User styles" [23562-] --></div>
+<!-- EDIT20 SECTION "User styles" [23819-] --></div>
 </body>
 </html>

@@ -1,3 +1,4 @@
+    
 ====== Midori - Contribute ======
 
 **This document is licensed under the LGPL 2.1.**
@@ -9,6 +10,10 @@ bzr branch lp:midori
 The development **trunk** (master, tip) is the latest iteration of the next release. Browse it online and look for other branches at http://code.launchpad.net/midori or http://bazaar.launchpad.net/~midori/midori/trunk/tarball download a tarball of the latest revision.
 
 //The code used to be hosted in git.xfce.org/apps/midori.//
+
+Keep your copy updated:
+
+bzr merge --pull
 ====== Join IRC chat rooms ======
 
 Join irc://irc.freenode.net/midori #midori on Freenode https://kiwiirc.com/client/irc.freenode.net/midori or use webchat to talk about Midori, discuss bugs and new ideas.
@@ -16,7 +21,8 @@ Join irc://irc.freenode.net/midori #midori on Freenode https://kiwiirc.com/clien
 
   * http://bugs.launchpad.net/midori Go through problem reports and check Unconfirmed bugs or those lacking information and mark any duplicates you spot
   * https://www.bountysource.com/#trackers/130181-midori Add a bounty for a feature or bug you'd like to support
-
+  * https://translations.launchpad.net/midori/trunk/+pots/trunk Translate to your own language
+  * https://github.com/eustasy/midori-browser.org/issues Report website bugs
 ====== Build the code ======
 
 ./waf configure --prefix=/usr
@@ -42,10 +48,13 @@ Testing an installed release may reveal crashers or memory corruption which requ
 
 _build/default/midori/midori -g [OPTIONAL ARGUMENTS]
 
+If the problem is a warning, not a crash GLib has a handy feature
+
+env G_DEBUG=all _build/default/midori/midori -g
+
 For more specific debugging output, depending on the feature in question you may use
 
 env MIDORI_DEBUG=help _build/default/midori/midori
-
 ====== Coding style and quality ======
 
 Midori code should in general have:
@@ -87,6 +96,9 @@ Add new files, move/ rename or delete
 Commit all current changes - Bazaar automatically picks up edited files. //If you're used to git, think of an implicit staging area.//
     bzr commit -p
 
+If you have one or more related bug reports you should pass them as arguments. Once these commits are merged the bug will automatically be closed and the commit log shows clickable links to the reports.
+    bzr commit -p --fixes=lp:1111999
+
 If you've done several commits
     bzr log | less
     bzr log -p | less
@@ -100,12 +112,11 @@ If you end up with unrelated debugging code or other patches in the current chan
     bzr unshelve
 
 Remember to keep your branch updated:
-    bzr pull
+    bzr merge --pull
 
 As a general rule of thumb, ''bzr help COMMAND'' gives you an explanation of any command and ''bzr help commands'' lists all available commands.
 
 //If you're a die-hard git user, http://zyga.github.io/git-lp/ checkout git-lp to use git commands with the Bazaar repository.//
-
 ====== Push proposed changes ======
 
 If you haven't yet, https://launchpad.net/~/+editsshkeys check that Launchpad has your SSH key - you can create an SSH key with **Passwords and Keys** aka **Seahorse** or ''ssh-keygen -t rsa'' - and use ''bzr launchpad-login'' to make youself known to bzr locally.
@@ -156,6 +167,27 @@ bzr branch midori midori.fix-bug1120383
 cd midori.fix-bug1120383
 bzr pull lp:midori
 
+
+====== Backwards compatibility ======
+As of Midori 0.5.4 the formula is:
+  * Required dependencies need to be available on the previous stable https://apps.fedoraproject.org/packages/s/webkit Fedora and http://packages.ubuntu.com/search?suite=quantal&keywords=webkit&searchon=names Ubuntu
+  * For reference http://openports.se/www/webkit OpenBSD
+  * Windows XP through 8 are to date ABI compatible, all dependencies are included
+
+^ package ^ F17 (2012-05-29) ^ U 12.10 (2012-10-18) ^
+| glib2 | 2.32.4 | 2.34.0 |
+| vala | 0.16.1 | 0.16 |
+| gtk3 | 3.4.4 | 3.6.0 |
+| gtk2 | 2.24.13 | 2.24.13 |
+| soup | 2.38.1 | 2.40 |
+| webkit | 1.8.3-1.fc17 | 1.10.0-0ubuntu1 |
+====== Midori with(out) Granite ======
+When built with Granite (--enable-granite) there're a few key differences:
+  * Preferences uses a http://valadoc.elementaryos.org/Granite/Granite.Widgets.StaticNotebook.html Granite.Widgets.StaticNotebook
+  * URL completion styling is slightly different
+  * Clear Private Data uses **Granite.Widgets.LightWindow**
+  * Edit Bookmark and Security Details use http://valadoc.elementaryos.org/Granite/Granite.Widgets.PopOver.html Granite.Widgets.PopOver instead of Gtk.Window
+  * Browser uses **Granite.Widgets.DynamicNotebook** instead of Gtk.Notebook
 ====== Midori for Windows ======
 ===== Dependencies =====
 Midori for Windows is compiled on a Linux host and MinGW stack. For the current build Fedora 18 packages are used. Packages needed are listed below:
@@ -198,3 +230,10 @@ env MINGW_PREFIX="/usr/x86_64-w64-mingw32/sys-root/mingw/" ./win32/makedist/make
 For testing your changes unfortuantely a real system is needed because Midori and WebKitGTK+ don't work properly under Wine. Even if it works some problems are not visible when using Wine, but are present when running under a real Windows system and vice versa.
 
 One way around it is to virtualize Windows on a Linux host and mount your MinGW directories as a network drive or shared folder.
+
+====== Jargon ======
+    * freeze: the 4th week of a 4 week release cycle, bug fixes only
+    * MR: merge request, a branch proposed for review
+    * ninja: an internal tab, usually empty label, used for taking screenshots
+    * fortress: user of an ancient release like 0.4.3 as found on Raspberry Pie, Debian, Ubuntu
+    * katze, sokoke, tabby: API names and coincidentally cat breeds

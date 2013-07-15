@@ -5459,7 +5459,7 @@ midori_view_execute_script (MidoriView*  view,
  * Returns: a newly allocated #GdkPixbuf
  *
  * Since: 0.2.1
- * Deprecated: 0.5.3
+ * Deprecated: 0.5.4
  **/
 GdkPixbuf*
 midori_view_get_snapshot (MidoriView* view,
