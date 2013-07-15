@@ -85,17 +85,26 @@ soup_session_settings_notify_http_proxy_cb (MidoriWebSettings* settings,
         midori_soup_session_set_proxy_uri (session, NULL);
 }
 
-#ifdef HAVE_LIBSOUP_2_29_91
+#if defined(HAVE_LIBSOUP_2_29_91) && WEBKIT_CHECK_VERSION (1, 1, 21)
 static void
 soup_session_settings_notify_first_party_cb (MidoriWebSettings* settings,
                                              GParamSpec*        pspec,
-                                             SoupSession*       session)
+                                             gpointer           user_data)
 {
-    gpointer jar = soup_session_get_feature (session, SOUP_TYPE_COOKIE_JAR);
     gboolean yes = katze_object_get_boolean (settings, "first-party-cookies-only");
+#ifdef HAVE_WEBKIT2
+    WebKitWebContext* context = webkit_web_context_get_default ();
+    WebKitCookieManager* cookie_manager = webkit_web_context_get_cookie_manager (context);
+    webkit_cookie_manager_set_accept_policy (cookie_manager,
+        yes ? WEBKIT_COOKIE_POLICY_ACCEPT_NO_THIRD_PARTY
+            : WEBKIT_COOKIE_POLICY_ACCEPT_ALWAYS);
+#else
+    SoupSession* session = webkit_get_default_session ();
+    gpointer jar = soup_session_get_feature (session, SOUP_TYPE_COOKIE_JAR);
     g_object_set (jar, "accept-policy",
         yes ? SOUP_COOKIE_JAR_ACCEPT_NO_THIRD_PARTY
             : SOUP_COOKIE_JAR_ACCEPT_ALWAYS, NULL);
+#endif
 }
 #endif
 
@@ -162,6 +171,11 @@ midori_soup_session_settings_accept_language_cb (SoupSession*       session,
 gboolean
 midori_load_soup_session (gpointer settings)
 {
+    #if defined(HAVE_LIBSOUP_2_29_91) && WEBKIT_CHECK_VERSION (1, 1, 21)
+    g_signal_connect (settings, "notify::first-party-cookies-only",
+        G_CALLBACK (soup_session_settings_notify_first_party_cb), NULL);
+    #endif
+
 #ifndef HAVE_WEBKIT2
     SoupSession* session = webkit_get_default_session ();
 
@@ -214,12 +228,6 @@ midori_load_soup_session (gpointer settings)
         G_CALLBACK (soup_session_settings_notify_http_proxy_cb), session);
     g_signal_connect (settings, "notify::proxy-type",
         G_CALLBACK (soup_session_settings_notify_http_proxy_cb), session);
-    #ifdef HAVE_LIBSOUP_2_29_91
-    if (g_object_class_find_property (G_OBJECT_GET_CLASS (settings),
-        "enable-file-access-from-file-uris")) /* WebKitGTK+ >= 1.1.21 */
-        g_signal_connect (settings, "notify::first-party-cookies-only",
-            G_CALLBACK (soup_session_settings_notify_first_party_cb), session);
-    #endif
 
     #if defined (HAVE_LIBSOUP_2_34_0)
     g_signal_connect (session, "request-started",
