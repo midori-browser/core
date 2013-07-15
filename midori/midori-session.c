@@ -289,7 +289,12 @@ midori_session_cookie_jar_changed_cb (SoupCookieJar*     jar,
 gboolean
 midori_load_soup_session_full (gpointer settings)
 {
-#ifndef HAVE_WEBKIT2
+#ifdef HAVE_WEBKIT2
+    WebKitWebContext* context = webkit_web_context_get_default ();
+    WebKitCookieManager* cookie_manager = webkit_web_context_get_cookie_manager (context);
+    g_signal_connect (cookie_manager, "changed",
+                      G_CALLBACK (midori_session_cookie_jar_changed_cb), settings);
+#else
     SoupSession* session = webkit_get_default_session ();
     SoupCookieJar* jar;
     gchar* config_file;
