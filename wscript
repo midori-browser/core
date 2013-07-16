@@ -309,6 +309,8 @@ def configure (conf):
         conf.check (function_name='inet_addr', header_name='sys/types.h sys/socket.h netinet/in.h arpa/inet.h')
     conf.define ('HAVE_OSX', int(sys.platform == 'darwin'))
     if Options.platform == 'win32':
+        conf.check (lib='ole32')
+        conf.check (lib='uuid')
         conf.env.append_value ('LINKFLAGS', '-mwindows')
         conf.env.append_value ('program_LINKFLAGS', ['-Wl,--out-implib=default/midori/libmidori.a', '-Wl,--export-all-symbols'])
     else:

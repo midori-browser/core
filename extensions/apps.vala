@@ -22,11 +22,41 @@ namespace Apps {
 
         internal static async void create (string prefix, GLib.File folder, string uri, string title, Gtk.Widget proxy) {
             /* Strip LRE leading character and / */
-            string exec = prefix + uri;
             string name = title.delimit ("‪/", ' ').strip();
-            string filename = Midori.Download.clean_filename (name) + ".desktop";
-            // TODO: Midori.Paths.get_icon save to png
+            string filename = Midori.Download.clean_filename (name);
+            string exec;
+#if HAVE_WIN32
+            string doubleslash_uri = uri.replace ("\\", "\\\\");
+            string quoted_uri = GLib.Shell.quote (doubleslash_uri);
+            exec = prefix + quoted_uri;
+#else
+            exec = prefix + uri;
+#endif
+            try {
+                folder.make_directory_with_parents (null);
+            }
+            catch (Error error) {
+                /* It's not an error if the folder already exists;
+                   any fatal problems will fail further down the line */
+            }
+
             string icon_name = Midori.Stock.WEB_BROWSER;
+            try {
+                var pixbuf = Midori.Paths.get_icon (uri, null);
+                if (pixbuf == null)
+                    throw new FileError.EXIST ("No favicon loaded");
+                string icon_filename = folder.get_child ("icon.png").get_path ();
+                pixbuf.save (icon_filename, "png", null, "compression", "7", null);
+#if HAVE_WIN32
+                string doubleslash_icon = icon_filename.replace ("\\", "\\\\");
+                icon_name = doubleslash_icon;
+#else
+                icon_name = icon_filename;
+#endif
+            }
+            catch (Error error) {
+                GLib.warning (_("Failed to fetch application icon in %s: %s"), folder.get_path (), error.message);
+            }
             string contents = """
                 [Desktop Entry]
                 Version=1.0
@@ -37,16 +67,25 @@ namespace Apps {
                 Icon=%s
                 Categories=Network;
                 """.printf (name, exec, PACKAGE_NAME, icon_name);
-            var file = folder.get_child (filename);
+            var file = folder.get_child ("desc");
             var browser = proxy.get_toplevel () as Midori.Browser;
             try {
                 var stream = yield file.replace_async (null, false, GLib.FileCreateFlags.NONE);
                 yield stream.write_async (contents.data);
+                // Create a launcher/ menu
+#if HAVE_WIN32
+                Midori.Sokoke.create_win32_desktop_lnk (prefix, filename, uri);
+#else
+                var data_dir = File.new_for_path (Midori.Paths.get_user_data_dir ());
+                yield file.copy_async (data_dir.get_child ("applications").get_child (filename + ".desktop"),
+                    GLib.FileCopyFlags.NONE);
+#endif
 
                 browser.send_notification (_("Launcher created"),
                     _("You can now run <b>%s</b> from your launcher or menu").printf (name));
             }
             catch (Error error) {
+                warning (_("Failed to create new launcher: %s").printf (error.message));
                 browser.send_notification (_("Error creating launcher"),
                     _("Failed to create new launcher: %s").printf (error.message));
             }
@@ -57,11 +96,9 @@ namespace Apps {
         }
 
         bool init (GLib.Cancellable? cancellable) throws GLib.Error {
-            if (!file.get_basename ().has_suffix (".desktop"))
-                return false;
-
             var keyfile = new GLib.KeyFile ();
-            keyfile.load_from_file (file.get_path (), GLib.KeyFileFlags.NONE);
+            keyfile.load_from_file (file.get_child ("desc").get_path (), GLib.KeyFileFlags.NONE);
+
             exec = keyfile.get_string ("Desktop Entry", "Exec");
             if (!exec.has_prefix (APP_PREFIX) && !exec.has_prefix (PROFILE_PREFIX))
                 return false;
@@ -79,6 +116,7 @@ namespace Apps {
         Gtk.TreeView treeview;
         Katze.Array array;
         GLib.File app_folder;
+        GLib.File profile_folder;
 
         public unowned string get_stock_id () {
             return Midori.Stock.WEB_BROWSER;
@@ -102,7 +140,7 @@ namespace Apps {
                     string uuid = g_dbus_generate_guid ();
                     string config = Path.build_path (Path.DIR_SEPARATOR_S,
                         Midori.Paths.get_user_data_dir (), PACKAGE_NAME, "profiles", uuid);
-                    Launcher.create.begin (PROFILE_PREFIX, app_folder,
+                    Launcher.create.begin (PROFILE_PREFIX, profile_folder.get_child (uuid),
                         config, _("Midori (%s)").printf (uuid), this);
                 });
                 toolbar.insert (profile, -1);
@@ -115,7 +153,8 @@ namespace Apps {
                 app.show ();
                 app.clicked.connect (() => {
                     var view = (get_toplevel () as Midori.Browser).tab as Midori.View;
-                    Launcher.create.begin (APP_PREFIX, app_folder,
+                    string checksum = Checksum.compute_for_string (ChecksumType.MD5, view.get_display_uri (), -1);
+                    Launcher.create.begin (APP_PREFIX, app_folder.get_child (checksum),
                         view.get_display_uri (), view.get_display_title (), this);
                 });
                 toolbar.insert (app, -1);
@@ -151,6 +190,18 @@ namespace Apps {
                             try {
                                 launcher.file.trash (null);
                                 store.remove (iter);
+
+                                string filename = Midori.Download.clean_filename (launcher.name);
+#if HAVE_WIN32
+                                string lnk_filename = Midori.Sokoke.get_win32_desktop_lnk_path_for_filename (filename);
+                                if (Posix.access (lnk_filename, Posix.F_OK) == 0) {
+                                    var lnk_file = File.new_for_path (lnk_filename);
+                                    lnk_file.trash ();
+                                }
+#else
+                                var data_dir = File.new_for_path (Midori.Paths.get_user_data_dir ());
+                                data_dir.get_child ("applications").get_child (filename + ".desktop").trash ();
+#endif
                             }
                             catch (Error error) {
                                 GLib.critical (error.message);
@@ -163,7 +214,7 @@ namespace Apps {
             return false;
         }
 
-        public Sidebar (Katze.Array array, GLib.File app_folder) {
+        public Sidebar (Katze.Array array, GLib.File app_folder, GLib.File profile_folder) {
             Gtk.TreeViewColumn column;
 
             treeview = new Gtk.TreeView.with_model (store);
@@ -204,6 +255,7 @@ namespace Apps {
                 launcher_added (item);
 
             this.app_folder = app_folder;
+            this.profile_folder = profile_folder;
         }
 
         private int tree_sort_func (Gtk.TreeModel model, Gtk.TreeIter a, Gtk.TreeIter b) {
@@ -228,11 +280,18 @@ namespace Apps {
 
             Launcher launcher;
             model.get (iter, 0, out launcher);
-            if (launcher.icon_name != null)
+
+            try {
+                int icon_width = 48, icon_height = 48;
+                Gtk.icon_size_lookup_for_settings (get_settings (),
+                    Gtk.IconSize.DIALOG, out icon_width, out icon_height);
+                var pixbuf = new Gdk.Pixbuf.from_file_at_size (launcher.icon_name, icon_width, icon_height);
+                renderer.set ("pixbuf", pixbuf);
+            }
+            catch (Error error) {
                 renderer.set ("icon-name", launcher.icon_name);
-            else
-                renderer.set ("stock-id", Gtk.STOCK_FILE);
-            renderer.set ("stock-size", Gtk.IconSize.BUTTON,
+            }
+            renderer.set ("stock-size", Gtk.IconSize.DIALOG,
                           "xpad", 4);
         }
 
@@ -258,7 +317,8 @@ namespace Apps {
     private class Manager : Midori.Extension {
         internal Katze.Array array;
         internal GLib.File app_folder;
-        internal GLib.FileMonitor? monitor;
+        internal GLib.File profile_folder;
+        internal GLib.List<GLib.FileMonitor> monitors;
         internal GLib.List<Gtk.Widget> widgets;
 
         void app_changed (GLib.File file, GLib.File? other, GLib.FileMonitorEvent event) {
@@ -282,9 +342,7 @@ namespace Apps {
             }
         }
 
-        async void populate_apps () {
-            var data_dir = File.new_for_path (Midori.Paths.get_user_data_dir ());
-            app_folder = data_dir.get_child ("applications");
+        async void populate_apps (File app_folder) {
             try {
                 try {
                     app_folder.make_directory_with_parents (null);
@@ -294,8 +352,9 @@ namespace Apps {
                         throw folder_error;
                 }
 
-                monitor = app_folder.monitor_directory (0, null);
+                var monitor = app_folder.monitor_directory (0, null);
                 monitor.changed.connect (app_changed);
+                monitors.append (monitor);
 
                 var enumerator = yield app_folder.enumerate_children_async ("standard::name", 0);
                 while (true) {
@@ -303,9 +362,9 @@ namespace Apps {
                     if (files == null)
                         break;
                     foreach (var info in files) {
-                        var desktop_file = app_folder.get_child (info.get_name ());
+                        var file = app_folder.get_child (info.get_name ());
                         try {
-                            var launcher = new Launcher (desktop_file);
+                            var launcher = new Launcher (file);
                             if (launcher.init ())
                                 array.add_item (launcher);
                         }
@@ -316,8 +375,7 @@ namespace Apps {
                 }
             }
             catch (Error io_error) {
-                monitor = null;
-                warning ("Failed to list .desktop files (%s): %s",
+                warning ("Failed to list apps (%s): %s",
                          app_folder.get_path (), io_error.message);
             }
         }
@@ -328,13 +386,14 @@ namespace Apps {
             menu.append (menuitem);
             menuitem.activate.connect (() => {
                 var view = browser.tab as Midori.View;
-                Launcher.create.begin (APP_PREFIX, app_folder,
+                string checksum = Checksum.compute_for_string (ChecksumType.MD5, view.get_display_uri (), -1);
+                Launcher.create.begin (APP_PREFIX, app_folder.get_child (checksum),
                     view.get_display_uri (), view.get_display_title (), browser);
             });
         }
 
         void browser_added (Midori.Browser browser) {
-            var viewable = new Sidebar (array, app_folder);
+            var viewable = new Sidebar (array, app_folder, profile_folder);
             viewable.show ();
             browser.panel.append_page (viewable);
             browser.populate_tool_menu.connect (tool_menu_populated);
@@ -344,7 +403,12 @@ namespace Apps {
 
         void activated (Midori.App app) {
             array = new Katze.Array (typeof (Launcher));
-            populate_apps.begin ();
+            var data_dir = File.new_for_path (Midori.Paths.get_user_data_dir ()).get_child (PACKAGE_NAME);
+            monitors = new GLib.List<GLib.FileMonitor> ();
+            app_folder = data_dir.get_child ("apps");
+            populate_apps.begin (app_folder);
+            profile_folder = data_dir.get_child ("profiles");
+            populate_apps.begin (profile_folder);
             widgets = new GLib.List<Gtk.Widget> ();
             foreach (var browser in app.get_browsers ())
                 browser_added (browser);
@@ -353,8 +417,10 @@ namespace Apps {
 
         void deactivated () {
             var app = get_app ();
-            if (monitor != null)
+            foreach (var monitor in monitors)
                 monitor.changed.disconnect (app_changed);
+            monitors = null;
+
             app.add_browser.disconnect (browser_added);
             foreach (var widget in widgets)
                 widget.destroy ();
