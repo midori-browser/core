@@ -1305,12 +1305,7 @@ midori_view_load_finished (MidoriView* view)
         "if (t && (t.indexOf ('rss') != -1 || t.indexOf ('atom') != -1)) "
         "f.push ('$' + l[i].href + '|' + l[i].title);"
         "else if (r == 'search' && t == 'application/opensearchdescription+xml') "
-        "f.push (':' + l[i].href + '|' + l[i].title); "
-        "} if (document.location.href.indexOf ('twitter') != -1)"
-        "{ var s = document.location.href.split('/'); "
-        "var u = 'https://api.twitter.com/1/statuses/user_timeline.rss"
-        "?include_rts=true&screen_name=' + s[3] + '&count=25'; "
-        "f.push ('$' + u + '|' + 'Twitter / ' + s[3]); } "
+        "f.push (':' + l[i].href + '|' + l[i].title); } "
         "return f; })("
         "document.getElementsByTagName ('link'));", NULL);
 
