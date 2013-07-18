@@ -25,7 +25,6 @@ rss_is_valid (FeedParser* fparser)
     {
         if ((str = xmlGetProp (node, BAD_CAST "version")))
         {
-            g_print ("feed version %s\n", str);
             if (!xmlStrcmp (str, BAD_CAST "2.0") || !xmlStrcmp (str, BAD_CAST "0.92"))
                 valid = TRUE;
             else
