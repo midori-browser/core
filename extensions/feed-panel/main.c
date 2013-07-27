@@ -13,6 +13,7 @@
 #include "feed-atom.h"
 #include "feed-rss.h"
 
+#include "katze-net.h"
 #include <midori/midori.h>
 
 #define EXTENSION_NAME "Feed Panel"
