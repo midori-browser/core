@@ -26,8 +26,7 @@
 #include "midori-privatedata.h"
 #include "midori-core.h"
 #include "midori-privatedata.h"
-#include "katze-cellrenderer2texts.h"
-#include "katze-cellrenderer2pixbufs.h"
+#include "katze-cellrenderercomboboxtext.h"
 
 #include "marshal.h"
 
@@ -894,22 +893,18 @@ midori_bookmark_folder_button_new (KatzeArray* array,
 
     gtk_cell_layout_clear (GTK_CELL_LAYOUT (combo));
 
-    renderer = katze_cell_renderer_2pixbufs_new ();
+    renderer = gtk_cell_renderer_pixbuf_new ();
     g_object_set (G_OBJECT (renderer), 
-        "pixbuf-expander-open", 
-        gtk_widget_render_icon (GTK_WIDGET (combo), 
-            GTK_STOCK_OPEN, GTK_ICON_SIZE_MENU, NULL),
-        "pixbuf-expander-closed", 
-        gtk_widget_render_icon (GTK_WIDGET (combo), 
-            GTK_STOCK_DIRECTORY, GTK_ICON_SIZE_MENU, NULL),
+        "stock-id", GTK_STOCK_DIRECTORY,
+        "stock-size", GTK_ICON_SIZE_MENU,
         NULL);
     gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (combo), renderer, FALSE);
 
-    renderer = katze_cell_renderer_2texts_new ();
+    renderer = katze_cell_renderer_combobox_text_new ();
     g_object_set (G_OBJECT (renderer), 
         "width-chars", 40,    /* FIXME: figure out a way to define an acceptable string length */
         "ellipsize", PANGO_ELLIPSIZE_END,
-        "alternate-text", _("Select this folder"),
+        "unfolded-text", _("Select [text]"),
         NULL);
     gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (combo), renderer, TRUE);
     gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (combo), renderer, "text", 0);
