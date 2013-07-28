@@ -89,6 +89,9 @@ namespace Midori {
         /* Allow the browser to provide the find bar */
         public signal void search_text (bool found, string typing);
 
+       /* Since: 0.5.5 */
+        public signal void context_menu (WebKit.HitTestResult hit_test_result, ContextAction menu);
+
         public bool is_blank () {
             return URI.is_blank (uri);
         }
