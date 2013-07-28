@@ -1153,13 +1153,13 @@ adblock_fixup_regexp (const gchar* prefix,
         case ']':
             g_string_append (str, "\\]");
             break;
-         case '(':
+        case '(':
             g_string_append (str, "\\(");
             break;
-         case ')':
+        case ')':
             g_string_append (str, "\\)");
             break;
-         default:
+        default:
             g_string_append_printf (str,"%c", *src);
             break;
         }
