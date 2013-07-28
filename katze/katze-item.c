@@ -15,8 +15,6 @@
 
 #include <glib/gi18n.h>
 
-#include "katze/katze.h"
-
 /**
  * SECTION:katze-item
  * @short_description: A useful item
