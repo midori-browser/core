@@ -2368,7 +2368,9 @@ midori_view_get_page_context_action (MidoriView*          view,
 
     if (context & WEBKIT_HIT_TEST_RESULT_CONTEXT_SELECTION)
     {
-        midori_context_action_add_by_name (menu, "Copy");
+        /* No need to have Copy twice, which is already in the editable menu */
+        if (!(context & WEBKIT_HIT_TEST_RESULT_CONTEXT_EDITABLE))
+            midori_context_action_add_by_name (menu, "Copy");
 
         /* Ensure view->selected_text */
         midori_view_has_selection (view);
