@@ -2398,7 +2398,7 @@ midori_view_get_page_context_action (MidoriView*          view,
         }
 
         KatzeArray* search_engines = katze_object_get_object (browser, "search-engines");
-        MidoriContextAction* searches = midori_context_action_new ("SearchWith", _("_Search _with"), NULL, NULL);
+        MidoriContextAction* searches = midori_context_action_new ("SearchWith", _("Search _with"), NULL, NULL);
         midori_context_action_add (menu, GTK_ACTION (searches));
 
         KatzeItem* item;
