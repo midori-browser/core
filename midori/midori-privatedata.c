@@ -232,7 +232,6 @@ midori_clear_web_cookies_cb (void)
     SoupSessionFeature* jar = soup_session_get_feature (session, SOUP_TYPE_COOKIE_JAR);
     GSList* cookies = soup_cookie_jar_all_cookies (SOUP_COOKIE_JAR (jar));
     SoupSessionFeature* feature;
-    gchar* cache;
 
     /* HTTP Cookies/ Web Cookies */
     for (; cookies != NULL; cookies = g_slist_next (cookies))
@@ -249,6 +248,7 @@ midori_clear_web_cookies_cb (void)
     /* Local shared objects/ Flash cookies */
     if (midori_web_settings_has_plugin_support ())
     {
+    gchar* cache;
     #ifdef GDK_WINDOWING_X11
     cache = g_build_filename (g_get_home_dir (), ".macromedia", "Flash_Player", NULL);
     midori_paths_remove_path (cache);

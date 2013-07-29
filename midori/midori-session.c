@@ -22,6 +22,7 @@
     #define LIBSOUP_USE_UNSTABLE_REQUEST_API
     #include <libsoup/soup-cache.h>
 
+#ifndef HAVE_WEBKIT2
 static void
 midori_soup_session_set_proxy_uri (SoupSession* session,
                                    const gchar* uri)
@@ -84,6 +85,7 @@ soup_session_settings_notify_http_proxy_cb (MidoriWebSettings* settings,
     else
         midori_soup_session_set_proxy_uri (session, NULL);
 }
+#endif
 
 #if defined(HAVE_LIBSOUP_2_29_91) && WEBKIT_CHECK_VERSION (1, 1, 21)
 static void
@@ -126,17 +128,14 @@ midori_soup_session_request_started_cb (SoupSession* session,
 #ifndef HAVE_WEBKIT2
 const gchar*
 midori_web_settings_get_accept_language    (MidoriWebSettings* settings);
-#endif
 
 static void
 midori_soup_session_settings_accept_language_cb (SoupSession*       session,
                                                  SoupMessage*       msg,
                                                  MidoriWebSettings* settings)
 {
-    #ifndef HAVE_WEBKIT2
     const gchar* accept = midori_web_settings_get_accept_language (settings);
     soup_message_headers_append (msg->request_headers, "Accept-Language", accept);
-    #endif
 
     if (katze_object_get_boolean (settings, "strip-referer"))
     {
@@ -167,6 +166,7 @@ midori_soup_session_settings_accept_language_cb (SoupSession*       session,
             soup_message_headers_remove (msg->request_headers, "Host");
     }
 }
+#endif
 
 gboolean
 midori_load_soup_session (gpointer settings)
@@ -256,6 +256,7 @@ midori_load_soup_session (gpointer settings)
     return FALSE;
 }
 
+#ifndef HAVE_WEBKIT2
 static void
 midori_session_cookie_jar_changed_cb (SoupCookieJar*     jar,
                                       SoupCookie*        old_cookie,
@@ -285,16 +286,12 @@ midori_session_cookie_jar_changed_cb (SoupCookieJar*     jar,
     if (midori_debug ("cookies"))
         g_print ("cookie changed: old %p new %p\n", old_cookie, new_cookie);
 }
+#endif
 
 gboolean
 midori_load_soup_session_full (gpointer settings)
 {
-#ifdef HAVE_WEBKIT2
-    WebKitWebContext* context = webkit_web_context_get_default ();
-    WebKitCookieManager* cookie_manager = webkit_web_context_get_cookie_manager (context);
-    g_signal_connect (cookie_manager, "changed",
-                      G_CALLBACK (midori_session_cookie_jar_changed_cb), settings);
-#else
+    #ifndef HAVE_WEBKIT2
     SoupSession* session = webkit_get_default_session ();
     SoupCookieJar* jar;
     gchar* config_file;
@@ -323,7 +320,7 @@ midori_load_soup_session_full (gpointer settings)
         katze_object_get_int (settings, "maximum-cache-size") * 1024 * 1024);
     soup_cache_load (SOUP_CACHE (feature));
     g_free (config_file);
-#endif
+    #endif
     return FALSE;
 }
 
