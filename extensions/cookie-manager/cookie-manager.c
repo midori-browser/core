@@ -12,6 +12,7 @@
 #include "config.h"
 #include <midori/midori.h>
 #include "katze/katze.h"
+#include <libsoup/soup-cookie-jar-sqlite.h>
 
 #include "cookie-manager.h"
 #include "cookie-manager-page.h"
