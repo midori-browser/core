@@ -2193,6 +2193,7 @@ midori_web_view_menu_background_tab_activate_cb (GtkAction* action,
                    !view->open_tabs_in_the_background);
 }
 
+#ifndef HAVE_WEBKIT2
 static void
 midori_web_view_menu_search_web_activate_cb (GtkAction* action,
                                              gpointer   user_data)
@@ -2214,6 +2215,7 @@ midori_web_view_menu_search_web_activate_cb (GtkAction* action,
 
     g_free (uri);
 }
+#endif
 
 static void
 midori_view_tab_label_menu_window_new_cb (GtkAction* action,
@@ -2224,17 +2226,17 @@ midori_view_tab_label_menu_window_new_cb (GtkAction* action,
         midori_view_get_display_uri (MIDORI_VIEW (view)));
 }
 
+#ifndef HAVE_WEBKIT2
 static void
 midori_web_view_open_frame_in_new_tab_cb (GtkAction* action,
                                           gpointer   user_data)
 {
-#ifndef HAVE_WEBKIT2
     MidoriView* view = user_data;
     WebKitWebFrame* web_frame = webkit_web_view_get_focused_frame (WEBKIT_WEB_VIEW (view->web_view));
     g_signal_emit (view, signals[NEW_TAB], 0,
         webkit_web_frame_get_uri (web_frame), view->open_tabs_in_the_background);
-#endif
 }
+#endif
 
 static void
 midori_view_inspect_element_activate_cb (GtkAction* action,
@@ -2242,10 +2244,12 @@ midori_view_inspect_element_activate_cb (GtkAction* action,
 {
     MidoriView* view = user_data;
     WebKitWebInspector* inspector = webkit_web_view_get_inspector (WEBKIT_WEB_VIEW (view->web_view));
+    #ifndef HAVE_WEBKIT2
     WebKitHitTestResult* hit_test_result = view->hit_test;
     gint x = katze_object_get_int (hit_test_result, "x");
     gint y = katze_object_get_int (hit_test_result, "y");
     webkit_web_inspector_inspect_coordinates (inspector, x, y);
+    #endif
     webkit_web_inspector_show (inspector);
 }
 
@@ -2366,6 +2370,7 @@ midori_view_get_page_context_action (MidoriView*          view,
             midori_web_view_menu_video_save_activate_cb, view);
     }
 
+    #ifndef HAVE_WEBKIT2
     if (context & WEBKIT_HIT_TEST_RESULT_CONTEXT_SELECTION)
     {
         if (context & WEBKIT_HIT_TEST_RESULT_CONTEXT_LINK)
@@ -2430,6 +2435,7 @@ midori_view_get_page_context_action (MidoriView*          view,
         midori_context_action_add_simple (menu, "SearchWeb", _("_Search the Web"), NULL, GTK_STOCK_FIND,
         midori_web_view_menu_search_web_activate_cb, view);
     }
+    #endif
 
     if (context == WEBKIT_HIT_TEST_RESULT_CONTEXT_DOCUMENT)
     {
@@ -2440,10 +2446,12 @@ midori_view_get_page_context_action (MidoriView*          view,
         midori_context_action_add (menu, NULL);
         midori_context_action_add_by_name (menu, "UndoTabClose");
 
+        #ifndef HAVE_WEBKIT2
         WebKitWebView* web_view = WEBKIT_WEB_VIEW (view->web_view);
         if (webkit_web_view_get_focused_frame (web_view) != webkit_web_view_get_main_frame (web_view))
             midori_context_action_add_simple (menu, "OpenFrameInNewTab", _("Open _Frame in New Tab"), NULL, NULL,
                 midori_web_view_open_frame_in_new_tab_cb, view);
+        #endif
 
         midori_context_action_add_simple (menu, "OpenInNewWindow", _("Open in New _Window"), NULL, NULL,
             midori_view_tab_label_menu_window_new_cb, view);

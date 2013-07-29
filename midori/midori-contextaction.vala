@@ -67,7 +67,7 @@ namespace Midori {
                 else if (action is ContextAction
                  && (action as ContextAction).children.nth_data (0) != null) {
                     menuitem = new WebKit.ContextMenuItem (action);
-                    menuitem.set_submenu (action as ContextAction).create_webkit_context_menu (null);
+                    menuitem.set_submenu ((action as ContextAction).create_webkit_context_menu (null));
                 }
                 else
                     menuitem = new WebKit.ContextMenuItem (action);
