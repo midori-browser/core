@@ -742,7 +742,7 @@ static void nojs_view_init(NoJSView *self)
 
 	priv->menu=NULL;
 	priv->menuPolicyWasChanged=FALSE;
-	priv->menuIconState=NOJS_POLICY_UNDETERMINED;
+	priv->menuIconState=NOJS_MENU_ICON_STATE_UNDETERMINED;
 
 	priv->resourceURIs=NULL;
 
