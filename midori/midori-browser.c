@@ -617,7 +617,7 @@ _midori_browser_activate_action (MidoriBrowser* browser,
                 g_object_set (browser->settings, parts[0], parts[1], NULL);
             else if (type == G_TYPE_PARAM_INT || type == G_TYPE_PARAM_UINT)
                 g_object_set (browser->settings, parts[0], atoi (parts[1]), NULL);
-            else if (type == G_TYPE_PARAM_FLOAT)
+            else if (type == G_TYPE_PARAM_FLOAT || type == G_TYPE_PARAM_DOUBLE)
                 g_object_set (browser->settings, parts[0], g_ascii_strtod (parts[1], NULL), NULL);
             else if (type == G_TYPE_PARAM_ENUM)
             {
