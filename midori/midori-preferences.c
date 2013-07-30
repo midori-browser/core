@@ -539,6 +539,9 @@ midori_preferences_add_privacy_category (KatzePreferences*  preferences,
     GtkWidget* label;
     gchar* markup;
 
+    g_return_if_fail (KATZE_IS_PREFERENCES (preferences));
+    g_return_if_fail (MIDORI_IS_WEB_SETTINGS (settings));
+
     katze_preferences_add_category (preferences, _("Privacy"), GTK_STOCK_INDEX);
     katze_preferences_add_group (preferences, NULL);
     button = gtk_label_new (_("Delete old Cookies after:"));
