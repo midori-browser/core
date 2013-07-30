@@ -1513,6 +1513,7 @@ webkit_web_view_hovering_over_link_cb (WebKitWebView*       web_view,
                                        MidoriView*          view)
 {
     #ifdef HAVE_WEBKIT2
+    katze_object_assign (view->hit_test, g_object_ref (hit_test_result));
     if (!webkit_hit_test_result_context_is_link (hit_test_result))
     {
         katze_assign (view->link_uri, NULL);
@@ -1901,7 +1902,6 @@ gtk_widget_key_press_event_cb (WebKitWebView* web_view,
                                GdkEventKey*   event,
                                MidoriView*    view)
 {
-#ifndef HAVE_WEBKIT2
     guint character;
 
     event->state = event->state & MIDORI_KEYS_MODIFIER_MASK;
@@ -1929,8 +1929,13 @@ gtk_widget_key_press_event_cb (WebKitWebView* web_view,
     if (character == (event->keyval | 0x01000000))
         return FALSE;
 
+    #ifdef HAVE_WEBKIT2
+    WebKitHitTestResultContext context = katze_object_get_int (view->hit_test, "context");
+    if (!(context & WEBKIT_HIT_TEST_RESULT_CONTEXT_EDITABLE))
+    #else
     if (!webkit_web_view_can_cut_clipboard (web_view)
         && !webkit_web_view_can_paste_clipboard (web_view))
+    #endif
     {
         gchar* text = character ? g_strdup_printf ("%c", character) : NULL;
         #if GTK_CHECK_VERSION(3, 2, 0)
@@ -1942,7 +1947,6 @@ gtk_widget_key_press_event_cb (WebKitWebView* web_view,
         g_free (text);
         return TRUE;
     }
-#endif
     return FALSE;
 }
 
