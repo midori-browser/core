@@ -569,6 +569,7 @@ midori_browser_assert_action (MidoriBrowser* browser,
              || type == G_TYPE_PARAM_STRING
              || type == G_TYPE_PARAM_INT
              || type == G_TYPE_PARAM_FLOAT
+             || type == G_TYPE_PARAM_DOUBLE
              || type == G_TYPE_PARAM_ENUM))
                 midori_error (_("Value '%s' is invalid for %s"), parts[1], parts[0]);
         }
