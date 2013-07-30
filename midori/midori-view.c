@@ -2417,8 +2417,6 @@ midori_view_get_page_context_action (MidoriView*          view,
             gchar* search_option = g_strdup_printf ("SearchWith%u", i);
             GtkAction* action = gtk_action_new (search_option, katze_item_get_name (item), NULL, STOCK_EDIT_FIND);
             g_free (search_option);
-            g_signal_connect (action, "activate",
-                              G_CALLBACK (midori_web_view_menu_search_web_activate_cb), view);
             midori_context_action_add (searches, action);
             if ((pixbuf = katze_item_get_pixbuf (item, view->web_view)))
             {
