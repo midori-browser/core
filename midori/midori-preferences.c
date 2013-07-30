@@ -241,6 +241,16 @@ midori_preferences_get_spell_languages (void)
 }
 #endif
 
+#ifdef G_OS_WIN32
+static void
+midori_preferences_theme_changed_cb (GtkWidget* button,
+                                     gpointer   user_data)
+{
+    g_object_set (gtk_widget_get_settings (button), "gtk-theme-name",
+        gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT (button)), NULL);
+}
+#endif
+
 /**
  * midori_preferences_set_settings:
  * @settings: the settings
@@ -426,6 +436,31 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     /* Page "Interface" */
     PAGE_NEW (GTK_STOCK_CONVERT, _("Browsing"));
         FRAME_NEW (NULL);
+    #ifdef G_OS_WIN32
+    INDENTED_ADD (gtk_label_new (_("Theme:")));
+    button = gtk_combo_box_text_new ();
+    SPANNED_ADD (button);
+    gchar* current_theme = katze_object_get_string (gtk_settings_get_default (), "gtk-theme-name");
+    gchar* theme_path = midori_paths_get_data_filename ("themes", FALSE);
+    GDir* dir;
+    if ((dir = g_dir_open (theme_path, 0, NULL)))
+    {
+        guint i = 0;
+        const gchar* name;
+        while ((name = g_dir_read_name (dir)))
+        {
+            gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (button), name);
+            if (!strcmp (name, current_theme))
+                gtk_combo_box_set_active (GTK_COMBO_BOX (button), i);
+            i++;
+        }
+        g_dir_close (dir);
+        g_signal_connect (button, "changed",
+                          G_CALLBACK (midori_preferences_theme_changed_cb), settings);
+    }
+    g_free (theme_path);
+    g_free (current_theme);
+    #endif
         INDENTED_ADD (gtk_label_new (_("Toolbar Style:")));
         button = katze_property_proxy (settings, "toolbar-style", NULL);
         SPANNED_ADD (button);
