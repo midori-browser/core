@@ -9,7 +9,7 @@ import os
 progressive = True
 libs = 'M UNIQUE LIBSOUP GMODULE GTHREAD LIBIDN GIO GTK SQLITE ' \
        'LIBNOTIFY WEBKIT JAVASCRIPTCOREGTK LIBXML X11 XSS WS2_32 ' \
-       'GCR GRANITE ZEITGEIST'
+       'GCR GRANITE ZEITGEIST OLE32 UUID '
 
 if Options.commands['build'] or Options.commands['check']:
     blddir = str (bld.bldnode)[6:] # dir:// + absolute path

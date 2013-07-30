@@ -1305,12 +1305,7 @@ midori_view_load_finished (MidoriView* view)
         "if (t && (t.indexOf ('rss') != -1 || t.indexOf ('atom') != -1)) "
         "f.push ('$' + l[i].href + '|' + l[i].title);"
         "else if (r == 'search' && t == 'application/opensearchdescription+xml') "
-        "f.push (':' + l[i].href + '|' + l[i].title); "
-        "} if (document.location.href.indexOf ('twitter') != -1)"
-        "{ var s = document.location.href.split('/'); "
-        "var u = 'https://api.twitter.com/1/statuses/user_timeline.rss"
-        "?include_rts=true&screen_name=' + s[3] + '&count=25'; "
-        "f.push ('$' + u + '|' + 'Twitter / ' + s[3]); } "
+        "f.push (':' + l[i].href + '|' + l[i].title); } "
         "return f; })("
         "document.getElementsByTagName ('link'));", NULL);
 
@@ -3148,10 +3143,6 @@ midori_view_init (MidoriView* view)
     view->find_links = -1;
     view->alerts = 0;
 
-    /* Force the compiler to not optimize out katze_net_load_uri */
-    if (!g_strcmp0 (view->icon_uri, ""))
-        katze_net_load_uri (NULL, NULL, (KatzeNetStatusCb)NULL, (KatzeNetTransferCb)NULL, view);
-
     view->item = katze_item_new ();
 
     view->scrollh = view->scrollv = -2;
@@ -4568,6 +4559,7 @@ midori_view_get_tab_menu (MidoriView* view)
     g_return_val_if_fail (MIDORI_IS_VIEW (view), NULL);
 
     browser = midori_browser_get_for_widget (GTK_WIDGET (view));
+    g_return_val_if_fail (browser != NULL, NULL);
     actions = midori_browser_get_action_group (browser);
     pages = midori_browser_get_n_pages (browser);
 
@@ -4629,7 +4621,6 @@ midori_view_set_tab (MidoriView*        view,
                      GraniteWidgetsTab* tab)
 {
     g_return_if_fail (MIDORI_IS_VIEW (view));
-    g_return_if_fail (view->tab == NULL);
 
     view->tab = tab;
     g_object_set (tab,
@@ -5459,7 +5450,7 @@ midori_view_execute_script (MidoriView*  view,
  * Returns: a newly allocated #GdkPixbuf
  *
  * Since: 0.2.1
- * Deprecated: 0.5.3
+ * Deprecated: 0.5.4
  **/
 GdkPixbuf*
 midori_view_get_snapshot (MidoriView* view,

@@ -20,7 +20,12 @@
 #include "katze-item.h"
 #include "katze-array.h"
 #include "katze-arrayaction.h"
-#include "katze-net.h"
 #include "katze-preferences.h"
+
+#ifndef HAVE_WEBKIT2
+    #include <webkit/webkit.h>
+#else
+    #include <webkit2/webkit2.h>
+#endif
 
 #endif /* __KATZE_H__ */

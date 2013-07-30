@@ -1153,6 +1153,12 @@ adblock_fixup_regexp (const gchar* prefix,
         case ']':
             g_string_append (str, "\\]");
             break;
+        case '(':
+            g_string_append (str, "\\(");
+            break;
+        case ')':
+            g_string_append (str, "\\)");
+            break;
         default:
             g_string_append_printf (str,"%c", *src);
             break;
@@ -1779,6 +1785,7 @@ test_adblock_parse (void)
     g_assert_cmpstr (adblock_parse_line (".*foo/bar"), ==, "..*foo/bar");
     g_assert_cmpstr (adblock_parse_line ("http://bla.blub/*"), ==, "http://bla.blub/");
     g_assert_cmpstr (adblock_parse_line ("bag?r[]=*cpa"), ==, "bag\\?r\\[\\]=.*cpa");
+    g_assert_cmpstr (adblock_parse_line ("(facebookLike,"), ==, "\\(facebookLike,");
     adblock_destroy_db ();
 }
 

@@ -424,6 +424,8 @@ namespace Midori {
             if (widget != null)
                 Gtk.icon_size_lookup_for_settings (widget.get_settings (),
                     Gtk.IconSize.MENU, out icon_width, out icon_height);
+            else
+                icon_width = icon_height = 0 /* maximum size */;
 #if HAVE_WEBKIT2
             /* TODO async
             var database = WebKit.WebContext.get_default ().get_favicon_database ();

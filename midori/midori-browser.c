@@ -26,6 +26,7 @@
 #include "midori-privatedata.h"
 #include "midori-core.h"
 #include "midori-privatedata.h"
+#include "katze-cellrenderercomboboxtext.h"
 
 #include "marshal.h"
 
@@ -213,6 +214,10 @@ static void
 midori_browser_notebook_size_allocate_cb (GtkWidget*     notebook,
                                           GdkRectangle*  allocation,
                                           MidoriBrowser* browser);
+
+static void
+midori_browser_step_history (MidoriBrowser* browser,
+                             MidoriView*    view);
 
 #define _action_by_name(brwsr, nme) \
     gtk_action_group_get_action (brwsr->action_group, nme)
@@ -470,6 +475,8 @@ midori_browser_update_history (KatzeItem*   item,
                                const gchar* type,
                                const gchar* event)
 {
+    g_return_if_fail (!KATZE_ITEM_IS_SEPARATOR (item));
+
     #ifdef HAVE_ZEITGEIST
     const gchar* inter;
     if (strstr (event, "access"))
@@ -484,6 +491,11 @@ midori_browser_update_history (KatzeItem*   item,
         inter = ZEITGEIST_ZG_DELETE_EVENT;
     else
         g_assert_not_reached ();
+
+    /* FIXME: Should insert folders into the log (ZEITGEIST_NFO_BOOKMARK_FOLDER) */
+    if (KATZE_ITEM_IS_FOLDER (item))
+        return;
+
     zeitgeist_log_insert_events_no_reply (zeitgeist_log_get_default (),
         zeitgeist_event_new_full (inter, ZEITGEIST_ZG_USER_ACTIVITY,
                                   "application://midori.desktop",
@@ -558,6 +570,7 @@ midori_browser_assert_action (MidoriBrowser* browser,
              || type == G_TYPE_PARAM_STRING
              || type == G_TYPE_PARAM_INT
              || type == G_TYPE_PARAM_FLOAT
+             || type == G_TYPE_PARAM_DOUBLE
              || type == G_TYPE_PARAM_ENUM))
                 midori_error (_("Value '%s' is invalid for %s"), parts[1], parts[0]);
         }
@@ -606,7 +619,7 @@ _midori_browser_activate_action (MidoriBrowser* browser,
                 g_object_set (browser->settings, parts[0], parts[1], NULL);
             else if (type == G_TYPE_PARAM_INT || type == G_TYPE_PARAM_UINT)
                 g_object_set (browser->settings, parts[0], atoi (parts[1]), NULL);
-            else if (type == G_TYPE_PARAM_FLOAT)
+            else if (type == G_TYPE_PARAM_FLOAT || type == G_TYPE_PARAM_DOUBLE)
                 g_object_set (browser->settings, parts[0], g_ascii_strtod (parts[1], NULL), NULL);
             else if (type == G_TYPE_PARAM_ENUM)
             {
@@ -742,36 +755,37 @@ midori_view_notify_title_cb (GtkWidget*     widget,
                              MidoriBrowser* browser)
 {
     MidoriView* view = MIDORI_VIEW (widget);
-
-    if (midori_view_get_load_status (view) == MIDORI_LOAD_COMMITTED)
-    {
-        KatzeItem* proxy;
-        if (browser->history && browser->maximum_history_age)
-        {
-            const gchar* proxy_uri;
-            proxy = midori_view_get_proxy_item (view);
-            proxy_uri = katze_item_get_uri (proxy);
-            if (!midori_uri_is_blank (proxy_uri) &&
-                (katze_item_get_meta_integer (proxy, "history-step") == -1))
-            {
-                if (!katze_item_get_meta_boolean (proxy, "dont-write-history"))
-                {
-                    midori_browser_new_history_item (browser, proxy);
-                    katze_item_set_meta_integer (proxy, "history-step", 1);
-                }
-            }
-            else if (katze_item_get_name (proxy) &&
-                     !midori_uri_is_blank (proxy_uri) &&
-                     (katze_item_get_meta_integer (proxy, "history-step") == 1))
-            {
-                midori_browser_update_history_title (browser, proxy);
-                katze_item_set_meta_integer (proxy, "history-step", 2);
-            }
-        }
-    }
-
     if (widget == midori_browser_get_current_tab (browser))
         midori_browser_set_title (browser, midori_view_get_display_title (view));
+    midori_browser_step_history (browser, view);
+}
+
+static void
+midori_browser_step_history (MidoriBrowser* browser,
+                             MidoriView*    view)
+{
+    if (midori_view_get_load_status (view) != MIDORI_LOAD_COMMITTED)
+        return;
+    if (!browser->history || !browser->maximum_history_age)
+        return;
+
+    KatzeItem* proxy = midori_view_get_proxy_item (view);
+    const gchar* proxy_uri = katze_item_get_uri (proxy);
+    if (midori_uri_is_blank (proxy_uri))
+        return;
+
+    if (katze_item_get_meta_integer (proxy, "history-step") == -1
+     && !katze_item_get_meta_boolean (proxy, "dont-write-history"))
+    {
+        midori_browser_new_history_item (browser, proxy);
+        katze_item_set_meta_integer (proxy, "history-step", 1);
+    }
+    else if (katze_item_get_name (proxy)
+     && katze_item_get_meta_integer (proxy, "history-step") >= 1)
+    {
+        midori_browser_update_history_title (browser, proxy);
+        katze_item_set_meta_integer (proxy, "history-step", 2);
+    }
 }
 
 static void
@@ -816,52 +830,217 @@ midori_view_notify_statusbar_text_cb (GtkWidget*     view,
     }
 }
 
+static gboolean
+midori_bookmark_folder_button_reach_parent (GtkTreeModel* model, GtkTreeIter *iter, gint64 parentid)
+{
+    do
+    {
+        gint64 id;
+
+        gtk_tree_model_get (model, iter, 1, &id, -1);
+
+        if (parentid == id)
+            return TRUE;
+
+        if (gtk_tree_model_iter_has_child (model, iter))
+        {
+            GtkTreeIter child;
+            gtk_tree_model_iter_children (model, &child, iter);
+            if (midori_bookmark_folder_button_reach_parent (model, &child, parentid))
+            {
+                *iter = child;
+                return TRUE;
+            }
+        }
+    }
+    while (gtk_tree_model_iter_next (model, iter));
+
+    return FALSE;
+}
+
+typedef struct _FolderEntry
+{
+    const gchar *title;
+    gint64 id;
+    gint64 parentid;
+} FolderEntry;
+
+static void
+midori_bookmark_folder_free_folder_entry (FolderEntry* folder)
+{
+    g_free ((gpointer)folder->title);
+}
+
 static GtkWidget*
 midori_bookmark_folder_button_new (KatzeArray* array,
-                                   gint64      selected,
-                                   gint64      parentid)
+                                   gint64      selected_parentid)
 {
-    GtkListStore* model;
+    GtkTreeStore* model;
     GtkWidget* combo;
     GtkCellRenderer* renderer;
     guint n;
     sqlite3* db;
     sqlite3_stmt* statement;
     gint result;
-    const gchar* sqlcmd = "SELECT title, id FROM bookmarks WHERE uri='' ORDER BY title ASC";
-
-    model = gtk_list_store_new (3, G_TYPE_STRING, G_TYPE_INT, G_TYPE_INT64);
-    combo = gtk_combo_box_new_with_model (GTK_TREE_MODEL (model));
-    renderer = gtk_cell_renderer_text_new ();
-    gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (combo), renderer, TRUE);
-    gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (combo), renderer, "text", 0);
-    gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (combo), renderer, "ellipsize", 1);
-    gtk_list_store_insert_with_values (model, NULL, G_MAXINT,
-        0, _("Bookmarks"), 1, PANGO_ELLIPSIZE_END, 2, (gint64)0, -1);
-    gtk_combo_box_set_active (GTK_COMBO_BOX (combo), 0);
+    const gchar* sqlcmd = "SELECT title, id, parentid FROM bookmarks WHERE uri='' ORDER BY parentid, title ASC";
+    gint64 current_parentid;
+    GtkTreeIter tree_iter;
+    GtkTreeIter stock_parent_iter;
+    GtkTreeIter* parent_iter;
+    GList *folders = NULL;
 
     db = g_object_get_data (G_OBJECT (array), "db");
     g_return_val_if_fail (db != NULL, NULL);
-    n = 1;
+
+    /* folder combo box model content:
+    ** 0: title
+    ** 1: id
+    */
+    model = gtk_tree_store_new (2, G_TYPE_STRING, G_TYPE_INT64);
+    combo = gtk_combo_box_new_with_model (GTK_TREE_MODEL (model));
+
+    /* setup combo layout
+    ** 0: a folder icon
+    ** 1: the folder name
+     */
+
+    gtk_cell_layout_clear (GTK_CELL_LAYOUT (combo));
+
+    renderer = gtk_cell_renderer_pixbuf_new ();
+    g_object_set (G_OBJECT (renderer), 
+        "stock-id", GTK_STOCK_DIRECTORY,
+        "stock-size", GTK_ICON_SIZE_MENU,
+        NULL);
+    gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (combo), renderer, FALSE);
+
+    renderer = katze_cell_renderer_combobox_text_new ();
+    g_object_set (G_OBJECT (renderer), 
+        "width-chars", 40,    /* FIXME: figure out a way to define an acceptable string length */
+        "ellipsize", PANGO_ELLIPSIZE_END,
+        "unfolded-text", _("Select [text]"),
+        NULL);
+    gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (combo), renderer, TRUE);
+    gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (combo), renderer, "text", 0);
+
+    /* read the folders list from the database */
+    /* FIXME: this should be a service of midori/midori-bookmarks-db */
+
     if ((result = sqlite3_prepare_v2 (db, sqlcmd, -1, &statement, NULL)) == SQLITE_OK)
-    while ((result = sqlite3_step (statement)) == SQLITE_ROW)
     {
-        const unsigned char* name = sqlite3_column_text (statement, 0);
-        gint64 id = sqlite3_column_int64 (statement, 1);
-
-        /* do not show the folder itself */
-        if (id != selected)
+        while ((result = sqlite3_step (statement)) == SQLITE_ROW)
         {
-            gtk_list_store_insert_with_values (model, NULL, G_MAXINT,
-                0, name, 1, PANGO_ELLIPSIZE_END, 2, id, -1);
+            FolderEntry* folder = g_new (FolderEntry, 1);
 
-            if (id == parentid)
-                gtk_combo_box_set_active (GTK_COMBO_BOX (combo), n);
-            n++;
+            folder->title = g_strdup ((const gchar*)sqlite3_column_text (statement, 0));
+            folder->id = sqlite3_column_int64 (statement, 1);
+            folder->parentid = sqlite3_column_int64 (statement, 2);
+
+            folders = g_list_append (folders, folder);
         }
+
+       	sqlite3_clear_bindings (statement);
+        sqlite3_reset (statement);
     }
+
+    /* populate the combo box */
+    /* FIXME: here we should have the root bookmark array's name and id, not hard encoded values */
+
+    gtk_tree_store_insert_with_values (model, &tree_iter, NULL, G_MAXINT,
+        0, _("Bookmarks"), 1, (gint64)0, -1);
+    gtk_combo_box_set_active_iter (GTK_COMBO_BOX (combo), &tree_iter);
+
+    current_parentid = 0;
+    parent_iter = NULL;
+    n = 1;
+    while (g_list_first (folders))
+    {
+        gboolean something_done = FALSE;
+        GList* list_iter = g_list_first (folders);
+
+        do
+        {
+            FolderEntry* folder = list_iter->data;
+            const gchar* title = folder->title;
+            gint64 id = folder->id;
+            gint64 parentid = folder->parentid;
+
+            if (parentid != current_parentid)  /* optimize case of sub-folders of the same parent */
+            {
+                if (!parentid)
+                {
+                    /* folder's parent is the stree store root */
+
+                    current_parentid = 0;
+                    parent_iter = NULL;
+                }
+                else if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (model), &tree_iter))
+                {
+                    if (midori_bookmark_folder_button_reach_parent (
+                            GTK_TREE_MODEL (model), &tree_iter, parentid))
+                    {
+                        /* folder's parent found in the tree store */
+
+                        current_parentid = parentid;
+                        stock_parent_iter = tree_iter;
+                        parent_iter = &stock_parent_iter;
+                    }
+                    else
+                    {
+                        /* folder's parent not found, skip it */
+
+                        list_iter = g_list_next (list_iter);
+                        continue;
+                    }
+                }
+                else
+                    g_assert_not_reached ();
+            }
+
+            /* insert folder in the tree store and remove it from the folders list */
+
+            gtk_tree_store_insert_with_values (model, &tree_iter, parent_iter, G_MAXINT,
+                0, title, 1, id, -1);
+
+            if (id == selected_parentid)
+                gtk_combo_box_set_active_iter (GTK_COMBO_BOX (combo), &tree_iter);
+
+            n++;
+
+            something_done = TRUE;
+
+            g_free ((gpointer)title);
+            folders = g_list_delete_link (folders, list_iter);
+
+            list_iter = g_list_first (folders);
+        }
+        while (list_iter);
+
+        if (!something_done)  /* avoid infinite loop in case of orphan folders */
+            break;
+    }
+
+    if (g_list_first (folders))
+    {
+        GList* iter;
+        g_printerr ("midori_bookmark_folder_button_new: orphan folder(s) detected in bookmarks db\n");
+
+        for (iter = g_list_first (folders) ; iter ; iter = g_list_next (iter))
+        {
+            FolderEntry* folder = iter->data;
+            const gchar* title = folder->title;
+            gint64 id = folder->id;
+            gint64 parentid = folder->parentid;
+
+            g_printerr ("  id=%" G_GINT64_FORMAT ", parentid=%" G_GINT64_FORMAT ", title=%s\n",
+                id, parentid, title);
+        }
+
+        g_list_free_full (folders, (GDestroyNotify)midori_bookmark_folder_free_folder_entry);
+    }
+
     if (n < 2)
         gtk_widget_set_sensitive (combo, FALSE);
+
     return combo;
 }
 
@@ -875,14 +1054,8 @@ midori_bookmark_folder_button_get_active (GtkWidget* combo)
 
     if (gtk_combo_box_get_active_iter (GTK_COMBO_BOX (combo), &iter))
     {
-        gchar* selected = NULL;
         GtkTreeModel* model = gtk_combo_box_get_model (GTK_COMBO_BOX (combo));
-        gtk_tree_model_get (GTK_TREE_MODEL (model), &iter, 0, &selected, 2, &id, -1);
-
-        if (g_str_equal (selected, _("Bookmarks")))
-            id = 0;
-
-        g_free (selected);
+        gtk_tree_model_get (GTK_TREE_MODEL (model), &iter, 1, &id, -1);
     }
 
     return id;
@@ -1009,7 +1182,6 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     }
 
     combo_folder = midori_bookmark_folder_button_new (browser->bookmarks,
-        katze_item_get_meta_integer (bookmark, "id"),
         katze_item_get_meta_integer (bookmark, "parentid"));
     gtk_box_pack_start (GTK_BOX (vbox), combo_folder, FALSE, FALSE, 0);
 
@@ -1319,15 +1491,19 @@ midori_browser_notify_new_tab (MidoriBrowser* browser)
 }
 
 static bool
-midori_view_forward_external (GtkWidget*   view,
-                              const gchar* uri)
+midori_view_forward_external (GtkWidget*    view,
+                              const gchar*  uri,
+                              MidoriNewView where)
 {
     if (midori_paths_get_runtime_mode () == MIDORI_RUNTIME_MODE_APP)
         return sokoke_show_uri (gtk_widget_get_screen (view), uri, 0, NULL);
     else if (midori_paths_get_runtime_mode () == MIDORI_RUNTIME_MODE_PRIVATE)
     {
-        sokoke_spawn_app (uri, TRUE);
-        return TRUE;
+        if (where == MIDORI_NEW_VIEW_WINDOW)
+        {
+            sokoke_spawn_app (uri, TRUE);
+            return TRUE;
+        }
     }
     return FALSE;
 }
@@ -1338,7 +1514,7 @@ midori_view_new_tab_cb (GtkWidget*     view,
                         gboolean       background,
                         MidoriBrowser* browser)
 {
-    if (midori_view_forward_external (view, uri))
+    if (midori_view_forward_external (view, uri, MIDORI_NEW_VIEW_TAB))
         return;
 
     GtkWidget* new_view = midori_browser_add_uri (browser, uri);
@@ -1355,7 +1531,7 @@ midori_view_new_window_cb (GtkWidget*     view,
                            const gchar*   uri,
                            MidoriBrowser* browser)
 {
-    if (midori_view_forward_external (view, uri))
+    if (midori_view_forward_external (view, uri, MIDORI_NEW_VIEW_WINDOW))
         return;
 
     MidoriBrowser* new_browser;
@@ -1372,7 +1548,8 @@ midori_view_new_view_cb (GtkWidget*     view,
                          MidoriBrowser* browser)
 {
     if (midori_view_forward_external (new_view,
-        katze_item_get_uri (midori_view_get_proxy_item (MIDORI_VIEW (new_view)))))
+        katze_item_get_uri (midori_view_get_proxy_item (MIDORI_VIEW (new_view))),
+        where))
         return;
 
     midori_browser_view_copy_history (new_view, view, TRUE);
@@ -4453,8 +4630,7 @@ _action_bookmarks_import_activate (GtkAction*     action,
     gtk_container_add (GTK_CONTAINER (content_area), hbox);
     gtk_widget_show_all (hbox);
 
-    combobox_folder = midori_bookmark_folder_button_new (browser->bookmarks,
-                                                         0, 0);
+    combobox_folder = midori_bookmark_folder_button_new (browser->bookmarks, 0);
     gtk_container_add (GTK_CONTAINER (content_area), combobox_folder);
 
     gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT);
@@ -5024,6 +5200,7 @@ midori_browser_notebook_tab_removed_cb (GtkWidget*         notebook,
                                         GraniteWidgetsTab* tab,
                                         MidoriBrowser*     browser)
 {
+
     MidoriView* view = MIDORI_VIEW (granite_widgets_tab_get_page (tab));
     if (midori_browser_tab_connected (browser, MIDORI_VIEW (view)))
         midori_browser_disconnect_tab (browser, MIDORI_VIEW (view));
@@ -5037,12 +5214,15 @@ midori_browser_move_tab_to_notebook (MidoriBrowser*     browser,
                                      GraniteWidgetsTab* tab,
                                      GtkWidget*         new_notebook)
 {
-    g_object_ref (tab);
+    GraniteWidgetsTab* new_tab = granite_widgets_tab_new ("", NULL, NULL);
+    g_object_ref (view);
     _midori_browser_remove_tab (browser, view);
     granite_widgets_dynamic_notebook_insert_tab (
-        GRANITE_WIDGETS_DYNAMIC_NOTEBOOK (new_notebook), tab, 0);
+        GRANITE_WIDGETS_DYNAMIC_NOTEBOOK (new_notebook), new_tab, 0);
+    midori_view_set_tab (MIDORI_VIEW (view), new_tab);
+    _midori_browser_update_actions (browser);
     midori_browser_connect_tab (midori_browser_get_for_widget (new_notebook), view);
-    g_object_unref (tab);
+    g_object_unref (view);
 }
 
 static void
@@ -6937,6 +7117,14 @@ midori_bookmarkbar_populate (MidoriBrowser* browser)
 
                 katze_item_set_name (KATZE_ITEM (subfolder), katze_item_get_name (item));
                 katze_item_set_meta_integer (KATZE_ITEM (subfolder), "id", id);
+                katze_item_set_meta_integer (KATZE_ITEM (subfolder), "toolbar", 1);
+                katze_item_set_meta_integer (KATZE_ITEM (subfolder), "parentid", 
+                    katze_item_get_meta_integer (item, "parentid"));
+		katze_item_set_uri (KATZE_ITEM (subfolder), NULL);
+		katze_item_set_meta_string (KATZE_ITEM (subfolder), "desc",
+		    katze_item_get_meta_string (KATZE_ITEM (item), "desc"));
+		katze_item_set_meta_integer (KATZE_ITEM (subfolder), "app",
+		    katze_item_get_meta_boolean (KATZE_ITEM (item), "app"));
                 midori_bookmarkbar_insert_item (browser->bookmarkbar, KATZE_ITEM (subfolder));
         }
     }

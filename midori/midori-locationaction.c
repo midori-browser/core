@@ -662,9 +662,11 @@ midori_location_action_popup_timeout_cb (gpointer data)
         midori_autocompleter_add (action->autocompleter,
             MIDORI_COMPLETION (midori_view_completion_new ()));
         midori_autocompleter_add (action->autocompleter,
-            MIDORI_COMPLETION (midori_history_completion_new ()));
-        midori_autocompleter_add (action->autocompleter,
             MIDORI_COMPLETION (midori_search_completion_new ()));
+        /* FIXME: Currently HistoryCompletion doesn't work in memory */
+        if (action->history != NULL)
+            midori_autocompleter_add (action->autocompleter,
+                MIDORI_COMPLETION (midori_history_completion_new ()));
     }
 
     if (!midori_autocompleter_can_complete (action->autocompleter, action->key))
@@ -714,7 +716,8 @@ midori_location_action_popup_timeout_cb (gpointer data)
         renderer = gtk_cell_renderer_pixbuf_new ();
         gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (column), renderer, FALSE);
         gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (column), renderer,
-            "pixbuf", MIDORI_AUTOCOMPLETER_COLUMNS_ICON,
+            "gicon", MIDORI_AUTOCOMPLETER_COLUMNS_ICON,
+            "stock-size", MIDORI_AUTOCOMPLETER_COLUMNS_SIZE,
             "yalign", MIDORI_AUTOCOMPLETER_COLUMNS_YALIGN,
             "cell-background", MIDORI_AUTOCOMPLETER_COLUMNS_BACKGROUND,
             NULL);

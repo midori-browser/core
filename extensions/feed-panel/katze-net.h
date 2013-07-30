@@ -12,11 +12,6 @@
 #ifndef __KATZE_NET_H__
 #define __KATZE_NET_H__
 
-#ifndef HAVE_WEBKIT2
-    #include <webkit/webkit.h>
-#else
-    #include <webkit2/webkit2.h>
-#endif
 #include "katze-utils.h"
 
 G_BEGIN_DECLS

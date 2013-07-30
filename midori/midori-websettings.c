@@ -1483,9 +1483,6 @@ midori_settings_save_to_file (MidoriWebSettings* settings,
     GType type;
     const gchar* property;
     gboolean saved;
-    KatzeArray* extensions = katze_object_get_object (app, "extensions");
-    MidoriExtension* extension;
-    gchar** _extensions;
 
     key_file = g_key_file_new ();
     class = G_OBJECT_GET_CLASS (settings);
@@ -1573,30 +1570,37 @@ midori_settings_save_to_file (MidoriWebSettings* settings,
     }
     g_free (pspecs);
 
-    /* Take frozen list of active extensions until preferences reset it */
-    if ((_extensions = g_object_get_data (G_OBJECT (app), "extensions")))
+    if (app != NULL)
     {
-        i = 0;
-        while (_extensions[i])
-            g_key_file_set_boolean (key_file, "extensions", _extensions[i++], TRUE);
+        /* Take frozen list of active extensions until preferences reset it */
+        gchar** _extensions;
+        KatzeArray* extensions;
+        if ((_extensions = g_object_get_data (G_OBJECT (app), "extensions")))
+        {
+            i = 0;
+            while (_extensions[i])
+                g_key_file_set_boolean (key_file, "extensions", _extensions[i++], TRUE);
+        }
+        else if ((extensions = katze_object_get_object (app, "extensions")))
+        {
+            MidoriExtension* extension;
+            KATZE_ARRAY_FOREACH_ITEM (extension, extensions)
+                if (midori_extension_is_active (extension))
+                {
+                    const gchar* filename = g_object_get_data (G_OBJECT (extension), "filename");
+                    g_return_val_if_fail (filename != NULL, FALSE);
+                    if (filename && strchr (filename, '/'))
+                        g_warning ("%s: %s unexpected /", G_STRFUNC, filename);
+                    gchar* key = katze_object_get_string (extension, "key");
+                    gchar* subname = key ? g_strdup_printf ("%s/%s", filename, key) : g_strdup (filename);
+                    g_key_file_set_boolean (key_file, "extensions", subname, TRUE);
+                    g_free (key);
+                    g_free (subname);
+                }
+            g_object_unref (extensions);
+        }
     }
-    else if (extensions)
-    {
-        KATZE_ARRAY_FOREACH_ITEM (extension, extensions)
-            if (midori_extension_is_active (extension))
-            {
-                const gchar* filename = g_object_get_data (G_OBJECT (extension), "filename");
-                g_return_val_if_fail (filename != NULL, FALSE);
-                if (filename && strchr (filename, '/'))
-                    g_warning ("%s: %s unexpected /", G_STRFUNC, filename);
-                gchar* key = katze_object_get_string (extension, "key");
-                gchar* subname = key ? g_strdup_printf ("%s/%s", filename, key) : g_strdup (filename);
-                g_key_file_set_boolean (key_file, "extensions", subname, TRUE);
-                g_free (key);
-                g_free (subname);
-            }
-        g_object_unref (extensions);
-    }
+
     saved = sokoke_key_file_save_to_file (key_file, filename, error);
     g_key_file_free (key_file);
     return saved;
