@@ -278,7 +278,7 @@ def configure (conf):
         conf.check_message_custom ('unique', '', 'disabled')
     conf.define ('HAVE_UNIQUE', [0,1][conf.env['UNIQUE_VERSION'] != 'No'])
 
-    check_pkg ('libsoup-2.4', '2.27.90', var='LIBSOUP')
+    check_pkg ('libsoup-gnome-2.4', '2.27.90', var='LIBSOUP')
     if check_version (conf.env['LIBSOUP_VERSION'], 2, 29, 91):
         conf.define ('HAVE_LIBSOUP_2_29_91', 1)
     if check_version (conf.env['LIBSOUP_VERSION'], 2, 34, 0):
