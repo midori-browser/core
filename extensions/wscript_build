@@ -32,7 +32,7 @@ for extension in extensions:
         source = extension
 
     # FIXME
-    if bld.env['HAVE_WEBKIT2'] and target in ['external-download-manager', 'nsplugin-manager', 'formhistory', 'adblock', 'cookie-permissions', 'addons', 'cookie-manager']:
+    if bld.env['HAVE_WEBKIT2'] and target in ['external-download-manager', 'nsplugin-manager', 'formhistory', 'adblock', 'cookie-permissions', 'addons']:
         continue
 
     obj = bld.new_task_gen ('cc', 'shlib')

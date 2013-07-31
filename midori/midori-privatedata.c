@@ -221,13 +221,17 @@ midori_remove_config_file (gint         clear_prefs,
 static void
 midori_clear_web_cookies_cb (void)
 {
-#ifndef HAVE_WEBKIT2
+#ifdef HAVE_WEBKIT2
+    WebKitWebContext* context = webkit_web_context_get_default ();
+    WebKitCookieManager* cookie_manager = webkit_web_context_get_cookie_manager (context);
+    webkit_cookie_manager_delete_all_cookies (cookie_manager);
+    /* FIXME: site data policy */
+#else
     SoupSession* session = webkit_get_default_session ();
     MidoriWebSettings* settings = g_object_get_data (G_OBJECT (session), "midori-settings");
     SoupSessionFeature* jar = soup_session_get_feature (session, SOUP_TYPE_COOKIE_JAR);
     GSList* cookies = soup_cookie_jar_all_cookies (SOUP_COOKIE_JAR (jar));
     SoupSessionFeature* feature;
-    gchar* cache;
 
     /* HTTP Cookies/ Web Cookies */
     for (; cookies != NULL; cookies = g_slist_next (cookies))
@@ -239,10 +243,12 @@ midori_clear_web_cookies_cb (void)
         soup_cookie_jar_delete_cookie ((SoupCookieJar*)jar, cookies->data);
     }
     soup_cookies_free (cookies);
+#endif
 
     /* Local shared objects/ Flash cookies */
     if (midori_web_settings_has_plugin_support ())
     {
+    gchar* cache;
     #ifdef GDK_WINDOWING_X11
     cache = g_build_filename (g_get_home_dir (), ".macromedia", "Flash_Player", NULL);
     midori_paths_remove_path (cache);
@@ -259,6 +265,9 @@ midori_clear_web_cookies_cb (void)
     #endif
     }
 
+#ifdef HAVE_WEBKIT2
+    /* TODO: clear databases and offline app caches */
+#else
     /* HTML5 databases */
     webkit_remove_all_web_databases ();
 
