@@ -255,6 +255,8 @@ namespace Midori {
     #if HAVE_WIN32
         public static string get_win32_desktop_lnk_path_for_filename (string filename);
         public static void create_win32_desktop_lnk (string prefix, string filename, string uri);
+    #else
+        public static string get_backtrace ();
     #endif
     }
 }

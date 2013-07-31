@@ -14,8 +14,56 @@ Gtk.IconTheme theme;
 namespace DevPet {
     enum TreeCells {
         MESSAGE,
+        BACKTRACE,
         STOCK,
         COUNT
+    }
+
+    private class DataWindow : Gtk.Window {
+        public string message {get; construct; }
+        public string backtrace {get; construct; }
+
+        private void create_content () {
+            this.title = this.message;
+            this.set_default_size (500, 500);
+
+            Gtk.VBox vbox = new Gtk.VBox (false, 1);
+            this.add (vbox);
+
+            Gtk.TextBuffer message_buffer = new Gtk.TextBuffer (null);
+            message_buffer.set_text (this.message);
+
+            Gtk.TextView message_text_view = new Gtk.TextView.with_buffer (message_buffer);
+            message_text_view.editable = false;
+
+            Gtk.TextBuffer backtrace_buffer = new Gtk.TextBuffer (null);
+            backtrace_buffer.set_text (this.backtrace);
+
+            Gtk.TextView backtrace_text_view = new Gtk.TextView.with_buffer (backtrace_buffer);
+            backtrace_text_view.editable = false;
+
+            Gtk.ScrolledWindow message_scroll = new Gtk.ScrolledWindow (null, null);
+            message_scroll.set_policy (Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC);
+            message_scroll.add (message_text_view);
+
+            Gtk.ScrolledWindow backtrace_scroll = new Gtk.ScrolledWindow (null, null);
+            backtrace_scroll.set_policy (Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC);
+            backtrace_scroll.add (backtrace_text_view);
+
+            vbox.pack_start (message_scroll, false, false, 0);
+            vbox.pack_end (backtrace_scroll, true, true, 0);
+
+            this.show_all ();
+        }
+
+        internal DataWindow (string message, string backtrace) {
+            GLib.Object (type: Gtk.WindowType.TOPLEVEL,
+                window_position: Gtk.WindowPosition.CENTER,
+                message: message,
+                backtrace: backtrace);
+
+            this.create_content ();
+        }
     }
 
     private class LogWindow : Gtk.Window {
@@ -26,6 +74,20 @@ namespace DevPet {
             this.destroy ();
         }
 
+        private void row_activated (Gtk.TreePath path, Gtk.TreeViewColumn column) {
+            Gtk.TreeIter iter;
+            if (this.manager.list_store.get_iter (out iter, path)) {
+                string message;
+                string backtrace;
+                this.manager.list_store.get(iter,
+                    TreeCells.MESSAGE, out message,
+                    TreeCells.BACKTRACE, out backtrace, -1);
+
+                DataWindow data_window = new DataWindow (message, backtrace);
+                data_window.show ();
+            }
+        }
+
         private void create_content () {
             this.title = "Midori - DevPet";
             this.set_default_size (500, 250);
@@ -33,6 +95,11 @@ namespace DevPet {
 
             Gtk.VBox vbox = new Gtk.VBox (false, 1);
             this.add (vbox);
+
+            #if !HAVE_WIN32
+            Gtk.Label label = new Gtk.Label (_("Double click for more information"));
+            vbox.pack_start (label, false, false, 0);
+            #endif
 
             Gtk.ScrolledWindow scroll_windows = new Gtk.ScrolledWindow (null, null);
             scroll_windows.set_policy (Gtk.PolicyType.NEVER , Gtk.PolicyType.AUTOMATIC);
@@ -55,6 +122,10 @@ namespace DevPet {
             treeview.insert_column_with_attributes (
                 -1, "Message",
                 new Gtk.CellRendererText (), "text", TreeCells.MESSAGE);
+
+            #if !HAVE_WIN32
+            treeview.row_activated.connect (this.row_activated);
+            #endif
 
             this.show_all ();
         }
@@ -104,7 +175,12 @@ namespace DevPet {
             }
 
             this.list_store.append (out iter);
-            this.list_store.set (iter, TreeCells.MESSAGE, message, TreeCells.STOCK, theme.load_icon (stock, 16, 0));
+            this.list_store.set (iter,
+                TreeCells.MESSAGE, message,
+                #if !HAVE_WIN32
+                TreeCells.BACKTRACE, Midori.Sokoke.get_backtrace (),
+                #endif
+                TreeCells.STOCK, theme.load_icon (stock, 16, 0));
 
             this.trayicon.set_visible (true);
         }
@@ -143,7 +219,7 @@ namespace DevPet {
             this.trayicon.set_tooltip_text ("Midori - DevPet");
             this.trayicon.activate.connect(this.show_error_log);
 
-            this.list_store = new Gtk.ListStore (TreeCells.COUNT, typeof(string), typeof (Gdk.Pixbuf));
+            this.list_store = new Gtk.ListStore (TreeCells.COUNT, typeof(string), typeof(string), typeof (Gdk.Pixbuf));
 
             this.activate.connect (this.activated);
             this.deactivate.connect (this.deactivated);
