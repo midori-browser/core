@@ -2406,32 +2406,35 @@ midori_view_get_page_context_action (MidoriView*          view,
         }
 
         KatzeArray* search_engines = katze_object_get_object (browser, "search-engines");
-        MidoriContextAction* searches = midori_context_action_new ("SearchWith", _("Search _with"), NULL, NULL);
-        midori_context_action_add (menu, GTK_ACTION (searches));
-
-        KatzeItem* item;
-        guint i = 0;
-        KATZE_ARRAY_FOREACH_ITEM (item, search_engines)
+        if (search_engines != NULL)
         {
-            GdkPixbuf* pixbuf;
-            gchar* search_option = g_strdup_printf ("SearchWith%u", i);
-            GtkAction* action = gtk_action_new (search_option, katze_item_get_name (item), NULL, STOCK_EDIT_FIND);
-            g_free (search_option);
-            midori_context_action_add (searches, action);
-            if ((pixbuf = katze_item_get_pixbuf (item, view->web_view)))
+            MidoriContextAction* searches = midori_context_action_new ("SearchWith", _("Search _with"), NULL, NULL);
+            midori_context_action_add (menu, GTK_ACTION (searches));
+
+            KatzeItem* item;
+            guint i = 0;
+            KATZE_ARRAY_FOREACH_ITEM (item, search_engines)
             {
-                gtk_action_set_gicon (GTK_ACTION (action), G_ICON (pixbuf));
-                g_object_unref (pixbuf);
+                GdkPixbuf* pixbuf;
+                gchar* search_option = g_strdup_printf ("SearchWith%u", i);
+                GtkAction* action = gtk_action_new (search_option, katze_item_get_name (item), NULL, STOCK_EDIT_FIND);
+                g_free (search_option);
+                midori_context_action_add (searches, action);
+                if ((pixbuf = katze_item_get_pixbuf (item, view->web_view)))
+                {
+                    gtk_action_set_gicon (GTK_ACTION (action), G_ICON (pixbuf));
+                    g_object_unref (pixbuf);
+                }
+                gtk_action_set_always_show_image (GTK_ACTION (action), TRUE);
+                g_object_set_data (G_OBJECT (action), "search", (gchar*)katze_item_get_uri (item));
+                g_signal_connect (action, "activate",
+                    G_CALLBACK (midori_web_view_menu_search_web_activate_cb), view);
+                i++;
             }
-            gtk_action_set_always_show_image (GTK_ACTION (action), TRUE);
-            g_object_set_data (G_OBJECT (action), "search", (gchar*)katze_item_get_uri (item));
-            g_signal_connect (action, "activate",
-                G_CALLBACK (midori_web_view_menu_search_web_activate_cb), view);
-            i++;
+            g_object_unref (search_engines);
         }
-        g_object_unref (search_engines);
         midori_context_action_add_simple (menu, "SearchWeb", _("_Search the Web"), NULL, GTK_STOCK_FIND,
-        midori_web_view_menu_search_web_activate_cb, view);
+            midori_web_view_menu_search_web_activate_cb, view);
     }
     #endif
 
