@@ -90,9 +90,6 @@ sokoke_widget_get_text_size             (GtkWidget*      widget,
                                          gint*           width,
                                          gint*           height);
 
-GtkWidget*
-sokoke_action_create_popup_menu_item    (GtkAction*      action);
-
 gint64
 sokoke_time_t_to_julian                 (const time_t*   timestamp);
 
