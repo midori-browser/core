@@ -177,7 +177,7 @@ namespace Midori {
         public unowned string get_icon_uri ();
         public unowned string get_link_uri ();
         public bool has_selection ();
-        public string get_selected_text ();
+        public unowned string get_selected_text ();
         public Gtk.MenuItem get_proxy_menu_item ();
         public Gtk.Widget duplicate ();
         public Gtk.Menu get_tab_menu ();
