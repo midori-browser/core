@@ -2398,7 +2398,12 @@ midori_view_get_page_context_action (MidoriView*          view,
 
         /* No need to have Copy twice, which is already in the editable menu */
         if (!(context & WEBKIT_HIT_TEST_RESULT_CONTEXT_EDITABLE))
+        {
+            /* Enforce update of copy action - there's no "selection-changed" signal */
             midori_context_action_add_by_name (menu, "Copy");
+            gtk_action_set_sensitive (gtk_action_group_get_action (actions, "Copy"),
+                webkit_web_view_can_copy_clipboard (WEBKIT_WEB_VIEW (view->web_view)));
+        }
 
         /* Ensure view->selected_text */
         midori_view_has_selection (view);

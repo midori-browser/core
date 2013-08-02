@@ -190,6 +190,7 @@ namespace Midori {
         public void populate_popup (Gtk.Menu menu, bool manual);
         public void reload (bool from_cache);
         public Gtk.Widget add_info_bar (Gtk.MessageType type, string message, GLib.Callback? callback, void* object, ...);
+        public ContextAction get_page_context_action (WebKit.HitTestResult hit_test_result);
 
         public string title { get; }
         public Gdk.Pixbuf icon { get; }
