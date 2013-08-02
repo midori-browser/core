@@ -140,11 +140,15 @@ namespace Midori {
                 cache_dir = Path.build_path (Path.DIR_SEPARATOR_S,
                     Environment.get_user_cache_dir (), PACKAGE_NAME);
                 user_data_dir = Environment.get_user_data_dir ();
+                /* Cache and extension dir MUST be set no later than here to work */
 #if HAVE_WEBKIT2_A
                 WebKit.WebContext.get_default ().set_disk_cache_directory (
                     Path.build_path (Path.DIR_SEPARATOR_S, cache_dir, "web"));
 #endif
 #if HAVE_WEBKIT2
+                WebKit.WebContext.get_default ().set_web_extensions_directory (
+                    Path.build_path (Path.DIR_SEPARATOR_S, cache_dir, "wk2ext"));
+                stdout.printf ("path %s\n", Path.build_path (Path.DIR_SEPARATOR_S, cache_dir, "wk2ext"));
                 var cookie_manager = WebKit.WebContext.get_default ().get_cookie_manager ();
                 cookie_manager.set_persistent_storage (Path.build_filename (config, "cookies.db"),
                     WebKit.CookiePersistentStorage.SQLITE);

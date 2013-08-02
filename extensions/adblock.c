@@ -12,6 +12,9 @@
 #include <midori/midori.h>
 #include "midori-core.h"
 #include <glib/gstdio.h>
+#ifdef HAVE_WEBKIT2
+    #include <webkit2/webkit-web-extension.h>
+#endif
 
 #include "config.h"
 #if HAVE_UNISTD_H
@@ -55,6 +58,7 @@ static void
 adblock_reload_rules (MidoriExtension* extension,
                       gboolean         custom_only);
 
+#ifndef HAVE_WEBKIT2
 static gchar*
 adblock_build_js (const gchar* uri)
 {
@@ -111,6 +115,7 @@ adblock_build_js (const gchar* uri)
         "}, true);");
     return g_string_free (code, FALSE);
 }
+#endif
 
 static GString*
 adblock_fixup_regexp (const gchar* prefix,
@@ -159,6 +164,7 @@ adblock_init_db ()
     blockcss = g_string_new ("z-non-exist");
 }
 
+#ifndef HAVE_WEBKIT2
 static void
 adblock_download_notify_status_cb (WebKitDownload*  download,
                                    GParamSpec*      pspec,
@@ -185,6 +191,7 @@ adblock_download_notify_status_cb (WebKitDownload*  download,
         update_done = TRUE;
     }
 }
+#endif
 
 static gchar*
 adblock_get_filename_for_uri (const gchar* uri)
@@ -244,6 +251,7 @@ adblock_reload_rules (MidoriExtension* extension,
 
             if (!adblock_file_is_up_to_date (path))
             {
+                #ifndef HAVE_WEBKIT2
                 WebKitNetworkRequest* request;
                 WebKitDownload* download;
                 gchar* destination = g_filename_to_uri (path, NULL, NULL);
@@ -257,6 +265,7 @@ adblock_reload_rules (MidoriExtension* extension,
                 g_signal_connect (download, "notify::status",
                     G_CALLBACK (adblock_download_notify_status_cb), extension);
                 webkit_download_start (download);
+                #endif
             }
             else
                 adblock_parse_file (path);
@@ -759,6 +768,7 @@ adblock_is_matched (const gchar*  req_uri,
     return FALSE;
 }
 
+#ifndef HAVE_WEBKIT2
 static gchar*
 adblock_prepare_urihider_js (GList* uris)
 {
@@ -1040,6 +1050,7 @@ adblock_window_object_cleared_cb (WebKitWebView*  web_view,
     g_free (sokoke_js_script_eval (js_context, script, NULL));
     g_free (script);
 }
+#endif
 
 static void
 adblock_add_tab_cb (MidoriBrowser*   browser,
@@ -1048,6 +1059,7 @@ adblock_add_tab_cb (MidoriBrowser*   browser,
 {
     GtkWidget* web_view = midori_view_get_web_view (view);
 
+    #ifndef HAVE_WEBKIT2
     g_signal_connect (web_view, "window-object-cleared",
         G_CALLBACK (adblock_window_object_cleared_cb), 0);
 
@@ -1059,6 +1071,7 @@ adblock_add_tab_cb (MidoriBrowser*   browser,
         G_CALLBACK (adblock_resource_request_starting_cb), view);
     g_signal_connect (web_view, "load-finished",
         G_CALLBACK (adblock_load_finished_cb), view);
+    #endif
 }
 
 static void
@@ -1700,6 +1713,7 @@ adblock_deactivate_tabs (MidoriView*      view,
 {
     GtkWidget* web_view = midori_view_get_web_view (view);
 
+    #ifndef HAVE_WEBKIT2
     g_signal_handlers_disconnect_by_func (
        web_view, adblock_window_object_cleared_cb, 0);
     g_signal_handlers_disconnect_by_func (
@@ -1710,6 +1724,7 @@ adblock_deactivate_tabs (MidoriView*      view,
        web_view, adblock_load_finished_cb, view);
     g_signal_handlers_disconnect_by_func (
        web_view, adblock_navigation_policy_decision_requested_cb, extension);
+    #endif
 }
 
 static void
@@ -1748,6 +1763,22 @@ adblock_activate_cb (MidoriExtension* extension,
 {
     KatzeArray* browsers;
     MidoriBrowser* browser;
+
+    #ifdef HAVE_WEBKIT2
+    gchar* wk2ext = g_build_filename (midori_paths_get_cache_dir (), "wk2ext", NULL);
+    katze_mkdir_with_parents (wk2ext, 0700);
+    GFile* web_extension_folder = g_file_new_for_path (wk2ext);
+    #define WK2EXTENSION "libwebkit2adblock." G_MODULE_SUFFIX
+    gchar* extension_path = g_build_filename (midori_paths_get_lib_path (PACKAGE_NAME), WK2EXTENSION, NULL);
+    GFile* web_extension_link = g_file_get_child (web_extension_folder, WK2EXTENSION);
+    GError* error = NULL;
+    if (!g_file_make_symbolic_link (web_extension_link, extension_path, NULL, &error))
+    {
+        if (error->code != G_IO_ERROR_EXISTS)
+            g_critical ("Failed to enable WebKit2 web extension symlink: %s (%d)\n", error->message, error->code);
+        g_error_free (error);
+    }
+    #endif
 
     adblock_reload_rules (extension, FALSE);
 
@@ -1932,3 +1963,4 @@ extension_init (void)
 
     return extension;
 }
+
