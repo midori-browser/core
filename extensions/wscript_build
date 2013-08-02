@@ -54,6 +54,8 @@ for extension in extensions:
             obj.packages += ' webkitgtk-3.0'
         if bld.env['HAVE_GRANITE']:
             obj.packages += ' granite'
+        if bld.env['platform'] != 'win32':
+            obj.packages += ' linux'
     obj.install_path = '${LIBDIR}/midori'
     # See LINKFLAGS in wscript: w/ o it we get several "undefined reference" errors
     if bld.env['platform'] == 'win32':
