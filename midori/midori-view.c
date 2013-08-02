@@ -1140,14 +1140,21 @@ midori_view_set_html (MidoriView*     view,
     WebKitWebView* web_view = WEBKIT_WEB_VIEW (view->web_view);
     if (!uri)
         uri = "about:blank";
-    katze_item_set_uri (view->item, uri);
-    midori_tab_set_special (MIDORI_TAB (view), TRUE);
 #ifndef HAVE_WEBKIT2
+    WebKitWebFrame* main_frame = webkit_web_view_get_main_frame (web_view);
+    if (web_frame == main_frame)
+    {
+        katze_item_set_uri (view->item, uri);
+        midori_tab_set_special (MIDORI_TAB (view), TRUE);
+    }
     if (!web_frame)
-        web_frame = webkit_web_view_get_main_frame (web_view);
+        web_frame = main_frame;
     webkit_web_frame_load_alternate_string (
         web_frame, data, uri, uri);
 #else
+    /* XXX: with webkit2 ensure child frames do not set tab URI/special/html */
+    katze_item_set_uri (view->item, uri);
+    midori_tab_set_special (MIDORI_TAB (view), TRUE);
     webkit_web_view_load_alternate_html (web_view, data, uri, uri);
 #endif
 }
