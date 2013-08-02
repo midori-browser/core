@@ -174,11 +174,24 @@ namespace DevPet {
                 this.trayicon.set_from_stock (stock);
             }
 
+            #if !HAVE_WIN32
+                string bt = "";
+                void* buffer[100];
+                int num = Linux.backtrace (buffer, 100);
+                unowned string[] symbols = Linux.backtrace_symbols (buffer, num);
+                if (symbols != null) {
+                    /* we don't need the first three lines */
+                    for (int i = 3; i < num; i++) {
+                        bt += "\r\n%s".printf(symbols[i]);
+                    }
+                }
+            #endif
+
             this.list_store.append (out iter);
             this.list_store.set (iter,
                 TreeCells.MESSAGE, message,
                 #if !HAVE_WIN32
-                TreeCells.BACKTRACE, Midori.Sokoke.get_backtrace (),
+                TreeCells.BACKTRACE, bt,
                 #endif
                 TreeCells.STOCK, theme.load_icon (stock, 16, 0));
 

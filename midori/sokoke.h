@@ -63,9 +63,6 @@ void
 sokoke_spawn_app                        (const gchar*    uri,
                                          gboolean        inherit_config);
 
-char*
-sokoke_get_backtrace                    ();
-
 gboolean
 sokoke_external_uri                     (const gchar*    uri);
 

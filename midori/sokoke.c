@@ -37,12 +37,6 @@
 #ifdef G_OS_WIN32
 #include <windows.h>
 #include <shlobj.h>
-#else
-#include <execinfo.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#define BACKTRACE_SIZE 100
 #endif
 
 static gchar*
@@ -409,32 +403,6 @@ sokoke_spawn_app (const gchar* uri,
     sokoke_spawn_program (executable, TRUE, argument, FALSE, FALSE);
     g_free (argument);
 }
-
-#ifndef G_OS_WIN32
-gchar*
-sokoke_get_backtrace (void)
-{
-
-    int nptrs;
-    void *buffer[BACKTRACE_SIZE+1];
-    gchar** strings;
-    gchar* bt;
-
-    nptrs = backtrace(buffer, BACKTRACE_SIZE);
-    strings = backtrace_symbols(buffer, nptrs);
-
-    /* g_strjoinv needs a NULL terminated array */
-
-    strings[nptrs] = NULL;
-    bt = g_strjoinv ("\r\n", strings);
-
-    g_free (strings);
-
-    /* there is some issue with vala and `gchar**`/`string[]` as return value */
-
-    return bt;
-}
-#endif
 
 static void
 sokoke_resolve_hostname_cb (SoupAddress *address,
