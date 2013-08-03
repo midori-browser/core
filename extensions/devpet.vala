@@ -178,7 +178,8 @@ namespace DevPet {
                 string bt = "";
                 void* buffer[100];
                 int num = Linux.backtrace (buffer, 100);
-                string[] symbols = Midori.Linux.backtrace_symbols (buffer, num);
+                /* Upstream bug: https://git.gnome.org/browse/vala/commit/?id=f402af94e8471c8314ee7a312260a776e4d6fbe2 */
+                unowned string[] symbols = Midori.Linux.backtrace_symbols (buffer, num);
                 if (symbols != null) {
                     /* we don't need the first three lines */
                     for (int i = 3; i < num; i++) {

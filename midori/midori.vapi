@@ -262,7 +262,7 @@ namespace Midori {
     [CCode (lower_case_cprefix = "")]
     namespace Linux {
         [CCode (cheader_filename = "execinfo.h", array_length = false)]
-        public string[] backtrace_symbols (void* buffer, int size);
+        public unowned string[] backtrace_symbols (void* buffer, int size);
     }
     #endif
 }
