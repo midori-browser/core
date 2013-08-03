@@ -1471,14 +1471,6 @@ midori_web_view_notify_icon_uri_cb (WebKitWebView* web_view,
 }
 
 static void
-webkit_web_view_notify_uri_cb (WebKitWebView* web_view,
-                               GParamSpec*    pspec,
-                               MidoriView*    view)
-{
-    midori_tab_set_uri (MIDORI_TAB (view), webkit_web_view_get_uri (web_view));
-}
-
-static void
 webkit_web_view_notify_title_cb (WebKitWebView* web_view,
                                  GParamSpec*    pspec,
                                  MidoriView*    view)
@@ -3500,8 +3492,6 @@ midori_view_constructor (GType                  type,
                       midori_view_download_requested_cb, view,
                       #endif
 
-                      "signal::notify::uri",
-                      webkit_web_view_notify_uri_cb, view,
                       "signal::notify::title",
                       webkit_web_view_notify_title_cb, view,
                       "signal::leave-notify-event",
