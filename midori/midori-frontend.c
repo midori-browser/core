@@ -587,7 +587,6 @@ midori_normal_app_new (const gchar* config,
 
     g_idle_add (midori_load_soup_session_full, settings);
     g_idle_add (midori_load_extensions, app);
-    g_idle_add (midori_load_session, session);
     return app;
 }
 
