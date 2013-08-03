@@ -905,6 +905,7 @@ midori_search_action_get_engine_for_form (WebKitWebView*     web_view,
                                           PangoEllipsizeMode ellipsize)
 {
 #ifndef HAVE_WEBKIT2
+    WebKitWebFrame* focused_frame;
     WebKitDOMDocument* doc;
     WebKitDOMHTMLFormElement* active_form;
     WebKitDOMHTMLCollection* form_nodes;
@@ -918,10 +919,13 @@ midori_search_action_get_engine_for_form (WebKitWebView*     web_view,
     KatzeItem* item;
     gchar** parts;
 
+    focused_frame = webkit_web_view_get_focused_frame (web_view);
+    if (focused_frame == NULL)
+        return NULL;
     #if WEBKIT_CHECK_VERSION (1, 9, 5)
-    doc = webkit_web_frame_get_dom_document (webkit_web_view_get_focused_frame (web_view));
+    doc = webkit_web_frame_get_dom_document (focused_frame);
     #else
-    if (webkit_web_view_get_focused_frame (web_view) != webkit_web_view_get_main_frame (web_view))
+    if (focused_frame != webkit_web_view_get_main_frame (web_view))
         return NULL;
     doc = webkit_web_view_get_dom_document (web_view);
     #endif

@@ -102,6 +102,13 @@ namespace Midori {
             }
             return menu;
         }
+
+        public Gtk.Action? get_by_name (string name) {
+            foreach (var action in children)
+                if (action.name == name)
+                    return action;
+            return null;
+        }
     }
 
     public class SeparatorContextAction : ContextAction {
