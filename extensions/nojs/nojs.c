@@ -186,12 +186,7 @@ static void _nojs_open_database(NoJS *self)
 	/* Build path to database file */
 	configDir=midori_extension_get_config_dir(priv->extension);
 	if(!configDir)
-	{
-		g_warning(_("Could not get path to configuration of extension: path is NULL"));
-
-		_nojs_error(self, _("Could not get path to configuration of extension."));
 		return;
-	}
 	
 	if(katze_mkdir_with_parents(configDir, 0700))
 	{
