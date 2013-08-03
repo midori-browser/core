@@ -178,7 +178,7 @@ namespace DevPet {
                 string bt = "";
                 void* buffer[100];
                 int num = Linux.backtrace (buffer, 100);
-                unowned string[] symbols = Linux.backtrace_symbols (buffer, num);
+                string[] symbols = Midori.Linux.backtrace_symbols (buffer, num);
                 if (symbols != null) {
                     /* we don't need the first three lines */
                     for (int i = 3; i < num; i++) {
