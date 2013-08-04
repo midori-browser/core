@@ -160,6 +160,8 @@ enum {
     NEW_VIEW,
     DOWNLOAD_REQUESTED,
     ADD_BOOKMARK,
+    ABOUT_URI,
+    ABOUT_CONTENT,
 
     LAST_SIGNAL
 };
@@ -301,6 +303,50 @@ midori_view_class_init (MidoriViewClass* class)
         NULL,
         g_cclosure_marshal_VOID__STRING,
         G_TYPE_NONE, 1,
+        G_TYPE_STRING);
+
+    /**
+     * MidoriView::about-uri:
+     * @view: the object on which the signal is emitted
+     * @uri: the about URI
+     *
+     * Emitted when deciding which about URI to use
+     *
+     * Return value: the new URI string
+     *
+     * Since: 0.5.5
+     */
+    signals[ABOUT_URI] = g_signal_new (
+        "about-uri",
+        G_TYPE_FROM_CLASS (class),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
+        0,
+        0,
+        NULL,
+        midori_cclosure_marshal_STRING__STRING,
+        G_TYPE_STRING, 1,
+        G_TYPE_STRING);
+
+    /**
+     * MidoriView::about-content:
+     * @view: the object on which the signal is emitted
+     * @uri: the about URI
+     *
+     * Emitted when loading the about content
+     *
+     * Return value: the view content as string
+     *
+     * Since: 0.5.5
+     */
+    signals[ABOUT_CONTENT] = g_signal_new (
+        "about-content",
+        G_TYPE_FROM_CLASS (class),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
+        0,
+        g_signal_accumulator_true_handled,
+        NULL,
+        midori_cclosure_marshal_BOOLEAN__STRING,
+        G_TYPE_BOOLEAN, 1,
         G_TYPE_STRING);
 
     gobject_class = G_OBJECT_CLASS (class);
@@ -3802,19 +3848,36 @@ midori_view_set_uri (MidoriView*  view,
 
     if (!midori_debug ("unarmed"))
     {
+        gboolean handled;
         gchar* temporary_uri = NULL;
-        if (!strcmp (uri, "about:new"))
-            uri = midori_settings_get_tabhome (MIDORI_SETTINGS (view->settings));
-        if (!strcmp (uri, "about:home"))
-            uri = midori_settings_get_homepage (MIDORI_SETTINGS (view->settings));
-        if (!strcmp (uri, "about:search"))
-        {
-            uri = midori_settings_get_location_entry_search (MIDORI_SETTINGS (view->settings));
-            temporary_uri = midori_uri_for_search (uri, "");
+        if (g_str_has_prefix (uri, "about:"))
+            g_signal_emit (view, signals[ABOUT_URI], 0, uri, &temporary_uri);
+
+        if (temporary_uri != NULL)
             uri = temporary_uri;
+        else
+        {
+            if (!strcmp (uri, "about:new"))
+                uri = midori_settings_get_tabhome (MIDORI_SETTINGS (view->settings));
+            if (!strcmp (uri, "about:home"))
+                uri = midori_settings_get_homepage (MIDORI_SETTINGS (view->settings));
+            if (!strcmp (uri, "about:search"))
+            {
+                uri = midori_settings_get_location_entry_search (MIDORI_SETTINGS (view->settings));
+                temporary_uri = midori_uri_for_search (uri, "");
+                uri = temporary_uri;
+            }
         }
 
-        if (!strcmp (uri, "about:dial"))
+        if (g_str_has_prefix (uri, "about:"))
+            g_signal_emit (view, signals[ABOUT_CONTENT], 0, uri, &handled);
+
+        if (handled)
+        {
+            g_free (temporary_uri);
+            return;
+        }
+        else if (!strcmp (uri, "about:dial"))
         {
             MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (view));
             MidoriSpeedDial* dial = katze_object_get_object (browser, "speed-dial");
