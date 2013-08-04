@@ -207,6 +207,7 @@ cp -a /etc/pki/tls/certs/ca-bundle.crt $workdir/share/midori/res/
 if [ "$GTK3_BUILD" == "1" ]; then
     grab_files share webkitgtk-3.0
     grab_files share schemas
+    grab_files share/themes/Greybird/ gtk-3.0
     MO_VER=30
 else
     grab_files share MS-Windows
