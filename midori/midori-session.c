@@ -18,6 +18,7 @@
 
 #include <glib/gi18n-lib.h>
 #include <libsoup/soup-cookie-jar-sqlite.h>
+#include <libsoup/soup-gnome-features.h>
 
     #define LIBSOUP_USE_UNSTABLE_REQUEST_API
     #include <libsoup/soup-cache.h>
@@ -56,23 +57,7 @@ soup_session_settings_notify_http_proxy_cb (MidoriWebSettings* settings,
 {
     MidoriProxy proxy_type = katze_object_get_enum (settings, "proxy-type");
     if (proxy_type == MIDORI_PROXY_AUTOMATIC)
-    {
-        gboolean gnome_supported = FALSE;
-        GModule* module;
-        GType (*get_type_function) (void);
-        if (g_module_supported ())
-            if ((module = g_module_open ("libsoup-gnome-2.4.so", G_MODULE_BIND_LOCAL)))
-            {
-                if (g_module_symbol (module, "soup_proxy_resolver_gnome_get_type",
-                                     (void*) &get_type_function))
-                {
-                    soup_session_add_feature_by_type (session, get_type_function ());
-                    gnome_supported = TRUE;
-                }
-            }
-        if (!gnome_supported)
-            midori_soup_session_set_proxy_uri (session, g_getenv ("http_proxy"));
-    }
+        soup_session_add_feature_by_type (session, SOUP_TYPE_PROXY_RESOLVER_GNOME);
     else if (proxy_type == MIDORI_PROXY_HTTP)
     {
         gchar* proxy = katze_object_get_string (settings, "http-proxy");
