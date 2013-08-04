@@ -258,5 +258,13 @@ namespace Midori {
         public static void create_win32_desktop_lnk (string prefix, string filename, string uri);
     #endif
     }
+
+    #if !HAVE_WIN32
+    [CCode (lower_case_cprefix = "")]
+    namespace Linux {
+        [CCode (cheader_filename = "execinfo.h", array_length = false)]
+        public unowned string[] backtrace_symbols (void* buffer, int size);
+    }
+    #endif
 }
 
