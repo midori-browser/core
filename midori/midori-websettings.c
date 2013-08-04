@@ -1009,7 +1009,7 @@ midori_web_settings_set_property (GObject*      object,
     case PROP_ENABLE_PLUGINS:
         g_object_set (web_settings,
            WEB_SETTINGS_STRING ("enable-plugins"), g_value_get_boolean (value),
-        #if HAVE_WEBKIT2
+        #ifdef HAVE_WEBKIT2
             "enable-java", g_value_get_boolean (value),
         #else
             "enable-java-applet", g_value_get_boolean (value),
