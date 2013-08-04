@@ -1296,8 +1296,8 @@ midori_view_apply_scroll_position (MidoriView* view)
 static void
 midori_view_load_finished (MidoriView* view)
 {
-    #ifndef HAVE_WEBKIT2
     midori_view_apply_scroll_position (view);
+    #ifndef HAVE_WEBKIT2
 
     {
         WebKitWebFrame* web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view));
@@ -1488,6 +1488,7 @@ webkit_web_view_notify_title_cb (WebKitWebView* web_view,
     g_object_notify (G_OBJECT (view), "title");
 }
 
+#ifndef HAVE_WEBKIT2
 static void
 webkit_web_view_statusbar_text_changed_cb (WebKitWebView* web_view,
                                            const gchar*   text,
@@ -1495,6 +1496,7 @@ webkit_web_view_statusbar_text_changed_cb (WebKitWebView* web_view,
 {
     midori_tab_set_statusbar_text (MIDORI_TAB (view), text);
 }
+#endif
 
 static gboolean
 midori_view_web_view_leave_notify_event_cb (WebKitWebView*    web_view,
@@ -2574,6 +2576,7 @@ midori_view_web_view_context_menu_cb (WebKitWebView*       web_view,
     return FALSE;
 }
 
+#ifndef HAVE_WEBKIT2
 static gboolean
 webkit_web_view_web_view_ready_cb (GtkWidget*  web_view,
                                    MidoriView* view)
@@ -2600,7 +2603,6 @@ webkit_web_view_web_view_ready_cb (GtkWidget*  web_view,
     return TRUE;
 }
 
-#ifndef HAVE_WEBKIT2
 static GtkWidget*
 webkit_web_view_create_web_view_cb (GtkWidget*      web_view,
                                     WebKitWebFrame* web_frame,
