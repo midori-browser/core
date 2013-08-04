@@ -269,7 +269,7 @@ namespace Tabby {
                 if (Sqlite.Database.open_v2 (db_path, out this.db) != Sqlite.OK)
                     critical (_("Failed to open stored session: %s"), db.errmsg);
 
-                string filename = "data/extensions/tabby/Create.sql";
+                string filename = Midori.Paths.get_res_filename ("extensions/tabby/Create.sql");
                 string schema;
                 try {
                         bool success = FileUtils.get_contents (filename, out schema, null);
