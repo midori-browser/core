@@ -19,6 +19,7 @@ namespace Tabby {
 
     public interface ISession : GLib.Object {
         public abstract Katze.Array get_tabs ();
+        public abstract void attach (Midori.Browser browser);
         public abstract void restore (Midori.Browser browser);
     }
 
@@ -52,6 +53,17 @@ namespace Tabby {
             public abstract void tab_added (Midori.Browser browser, Midori.View view);
             public abstract void tab_removed (Midori.Browser browser, Midori.View view);
             public abstract Katze.Array get_tabs ();
+
+            public void attach (Midori.Browser browser) {
+                browser.add_tab.connect (this.tab_added);
+                browser.add_tab.connect (this.helper_uri_changed);
+                browser.remove_tab.connect (this.tab_removed);
+
+                foreach (Midori.View view in browser.get_tabs ()) {
+                    this.tab_added (browser, view);
+                    this.helper_uri_changed (browser, view);
+                }
+            }
 
             public void restore (Midori.Browser browser) {
                 Katze.Array tabs = this.get_tabs ();
@@ -210,7 +222,7 @@ namespace Tabby {
             if (session == null) {
                 session = this.storage.get_new_session () as Base.Session;
                 browser.set_data<Base.Session> ("tabby-session", session);
-                session.restore (browser);
+                session.attach (browser);
             }
         }
 
