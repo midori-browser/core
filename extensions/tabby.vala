@@ -15,10 +15,12 @@ namespace Tabby {
         public abstract Katze.Array get_sessions ();
         public abstract Base.Session get_new_session ();
         public abstract void restore_last_sessions ();
+        public abstract void import_session (Katze.Array tabs);
     }
 
     public interface ISession : GLib.Object {
         public abstract Katze.Array get_tabs ();
+        public abstract void add_item (Katze.Item item);
         public abstract void attach (Midori.Browser browser);
         public abstract void restore (Midori.Browser browser);
     }
@@ -47,9 +49,18 @@ namespace Tabby {
                     session.restore (browser);
                 }
             }
+
+            public void import_session (Katze.Array tabs) {
+                Session session = this.get_new_session ();
+                GLib.List<unowned Katze.Item> items = tabs.get_items ();
+                foreach (Katze.Item item in items) {
+                    session.add_item (item);
+                }
+            }
         }
 
         public abstract class Session : GLib.Object, ISession {
+            public abstract void add_item (Katze.Item item);
             public abstract void uri_changed (Midori.View view, string uri);
             public abstract void tab_added (Midori.Browser browser, Midori.View view);
             public abstract void tab_removed (Midori.Browser browser, Midori.View view);
@@ -113,6 +124,23 @@ namespace Tabby {
             public int64 id { get; private set; }
             private unowned Sqlite.Database db;
 
+            public override void add_item (Katze.Item item) {
+                GLib.DateTime time = new DateTime.now_local ();
+                string sqlcmd = "INSERT INTO `tabs` (`crdate`, `tstamp`, `session_id`, `uri`) VALUES (:tstamp, :tstamp, :session_id, :uri);";
+                Sqlite.Statement stmt;
+                if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
+                    critical (_("Failed to update database: %s"), db.errmsg);
+                stmt.bind_int64 (stmt.bind_parameter_index (":tstamp"), time.to_unix ());
+                stmt.bind_int64 (stmt.bind_parameter_index (":session_id"), this.id);
+                stmt.bind_text (stmt.bind_parameter_index (":uri"), item.uri);
+                if (stmt.step () != Sqlite.DONE)
+                    critical (_("Failed to update database: %s"), db.errmsg);
+                else {
+                    int64 tab_id = this.db.last_insert_rowid ();
+                    item.set_meta_integer ("tabby-id", tab_id);
+                }
+            }
+
             protected override void uri_changed (Midori.View view, string uri) {
                 unowned Katze.Item item = view.get_proxy_item ();
                 int64 tab_id = item.get_meta_integer ("tabby-id");
@@ -131,22 +159,9 @@ namespace Tabby {
                 unowned Katze.Item item = view.get_proxy_item ();
                 int64 tab_id = item.get_meta_integer ("tabby-id");
                 if (tab_id < 1) {
-                    GLib.DateTime time = new DateTime.now_local ();
-                    string sqlcmd = "INSERT INTO `tabs` (`crdate`, `tstamp`, `session_id`, `uri`) VALUES (:tstamp, :tstamp, :session_id, :uri);";
-                    Sqlite.Statement stmt;
-                    if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
-                        critical (_("Failed to update database: %s"), db.errmsg);
-                    stmt.bind_int64 (stmt.bind_parameter_index (":tstamp"), time.to_unix ());
-                    stmt.bind_int64 (stmt.bind_parameter_index (":session_id"), this.id);
-                    stmt.bind_text (stmt.bind_parameter_index (":uri"), "about:blank");
-                    if (stmt.step () != Sqlite.DONE)
-                        critical (_("Failed to update database: %s"), db.errmsg);
-                    else {
-                        tab_id = this.db.last_insert_rowid ();
-                        item.set_meta_integer ("tabby-id", tab_id);
-                    }
+                    this.add_item (item);
                 }
-            }
+           }
 
             protected override void tab_removed (Midori.Browser browser, Midori.View view) {
                 unowned Katze.Item item = view.get_proxy_item ();
@@ -177,7 +192,7 @@ namespace Tabby {
                 }
 
                 while (result == Sqlite.ROW) {
-                     Katze.Item item = new Katze.Item ();
+                    Katze.Item item = new Katze.Item ();
                     int64 id = stmt.column_int64 (0);
                     string uri = stmt.column_text (1);
                     item.uri = uri;
@@ -247,19 +262,33 @@ namespace Tabby {
             internal Storage (Midori.App app) {
                 GLib.Object (app: app);
 
-                if (Sqlite.Database.open_v2 ("tabby.db", out this.db) != Sqlite.OK)
+                string db_path = Midori.Paths.get_config_filename_for_writing ("tabby.db");
+
+                /* FixMe: why does GLib.FileUtils.test(db_path, GLib.FileTest.EXISTS); randomly work or not? */
+
+                if (Sqlite.Database.open_v2 (db_path, out this.db) != Sqlite.OK)
                     critical (_("Failed to open stored session: %s"), db.errmsg);
+
                 string filename = "data/extensions/tabby/Create.sql";
                 string schema;
                 try {
-                    bool success = FileUtils.get_contents (filename, out schema, null);
-                    if (!success || schema == null)
-                        critical (_("Failed to open database schema file: %s"), filename);
-                    if (success && schema != null)
-                        if (this.db.exec (schema) != Sqlite.OK)
-                            critical (_("Failed to execute database schema: %s"), filename);
-                }
-                catch (Error error) {
+                        bool success = FileUtils.get_contents (filename, out schema, null);
+                        if (!success || schema == null)
+                            critical (_("Failed to open database schema file: %s"), filename);
+                        if (success && schema != null)
+                            if (this.db.exec (schema) != Sqlite.OK)
+                                critical (_("Failed to execute database schema: %s"), filename);
+                            else {
+                                string config_file = Midori.Paths.get_config_filename_for_reading ("session.xbel");
+
+                                Katze.Array old_session = new Katze.Array (typeof (Katze.Item));
+                                Midori.array_from_file (old_session, config_file, "xbel-tiny");
+
+                                this.import_session (old_session);
+                            }
+                } catch (GLib.FileError file_error) {
+                    /* no old session.xbel -> could be a new profile -> ignore it */
+                } catch (GLib.Error error) {
                     critical (_("Failed to open database schema file: %s"), error.message);
                 }
             }
