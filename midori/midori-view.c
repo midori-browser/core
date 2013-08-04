@@ -3825,7 +3825,7 @@ midori_view_set_uri (MidoriView*  view,
 
     if (!midori_debug ("unarmed"))
     {
-        gboolean handled;
+        gboolean handled = FALSE;
         gchar* temporary_uri = NULL;
         if (g_str_has_prefix (uri, "about:"))
             g_signal_emit (view, signals[ABOUT_CONTENT], 0, uri, &handled);
