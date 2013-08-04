@@ -60,6 +60,7 @@ soup_session_settings_notify_http_proxy_cb (MidoriWebSettings* settings,
         soup_session_add_feature_by_type (session, SOUP_TYPE_PROXY_RESOLVER_GNOME);
     else if (proxy_type == MIDORI_PROXY_HTTP)
     {
+        soup_session_remove_feature_by_type (session, SOUP_TYPE_PROXY_RESOLVER_GNOME);
         gchar* proxy = katze_object_get_string (settings, "http-proxy");
         GString* http_proxy = g_string_new (proxy);
         g_string_append_printf (http_proxy, ":%d", katze_object_get_int (settings, "http-proxy-port"));
@@ -68,7 +69,10 @@ soup_session_settings_notify_http_proxy_cb (MidoriWebSettings* settings,
         g_free (proxy);
     }
     else
+    {
+        soup_session_remove_feature_by_type (session, SOUP_TYPE_PROXY_RESOLVER_GNOME);
         midori_soup_session_set_proxy_uri (session, NULL);
+    }
 }
 #endif
 
