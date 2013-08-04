@@ -73,6 +73,16 @@ soup_session_settings_notify_http_proxy_cb (MidoriWebSettings* settings,
         soup_session_remove_feature_by_type (session, SOUP_TYPE_PROXY_RESOLVER_GNOME);
         midori_soup_session_set_proxy_uri (session, NULL);
     }
+
+    /* If a proxy server looks to be active, we disable prefetching, otherwise
+       libSoup may be prefetching outside the proxy server beyond our control.
+     */
+    GProxyResolver* resolver = g_proxy_resolver_get_default ();
+    gchar** proxies = g_proxy_resolver_lookup (resolver, "none", NULL, NULL);
+    if (proxies && g_strcmp0 (proxies[0], "direct://"))
+        g_object_set (settings, "enable-dns-prefetching", FALSE, NULL);
+    g_strfreev (proxies);
+
 }
 #endif
 
