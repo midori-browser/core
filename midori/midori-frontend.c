@@ -585,6 +585,8 @@ midori_normal_app_new (const gchar* config,
     g_signal_connect (app, "add-browser",
         G_CALLBACK (midori_app_add_browser_cb), NULL);
 
+    midori_session_persistent_settings (settings, app);
+
     g_idle_add (midori_load_soup_session_full, settings);
     g_idle_add (midori_load_extensions, app);
     return app;

@@ -379,9 +379,23 @@ settings_notify_cb (MidoriWebSettings* settings,
     g_free (config_file);
 }
 
+static void
+midori_session_accel_map_changed_cb (GtkAccelMap*    accel_map,
+                                     gchar*          accel_path,
+                                     guint           accel_key,
+                                     GdkModifierType accel_mods)
+{
+    gchar* config_file = midori_paths_get_config_filename_for_writing ("accels");
+    gtk_accel_map_save (config_file);
+    g_free (config_file);
+}
+
 void
 midori_session_persistent_settings (MidoriWebSettings* settings,
                                     MidoriApp*         app)
 {
     g_signal_connect_after (settings, "notify", G_CALLBACK (settings_notify_cb), app);
+    g_signal_connect_after (gtk_accel_map_get (), "changed",
+        G_CALLBACK (midori_session_accel_map_changed_cb), NULL);
+
 }
