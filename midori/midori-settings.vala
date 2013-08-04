@@ -65,12 +65,21 @@ namespace Midori {
         /* Since: 0.4.8 */
         public uint inactivity_reset { get; set; default = 0; }
 
+        string? default_theme_name_ = null;
+        /* Since: 0.5.5 */
+        public string? default_theme_name { get {
+            if (default_theme_name_ == null)
+                default_theme_name_ = Gtk.Settings.get_default ().gtk_theme_name;
+            return default_theme_name_;
+        } }
         string? theme_name_ = null;
         /* Since: 0.5.5 */
         public string? theme_name { get {
             return theme_name_;
         } set {
             if (theme_name != value) {
+                if (default_theme_name_ == null)
+                    default_theme_name_ = Gtk.Settings.get_default ().gtk_theme_name;
                 theme_name_ = value;
                 Gtk.Settings.get_default ().gtk_theme_name = theme_name_;
             }

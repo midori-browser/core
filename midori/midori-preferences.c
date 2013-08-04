@@ -441,17 +441,26 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     INDENTED_ADD (gtk_label_new (_("Theme:")));
     button = gtk_combo_box_text_new ();
     SPANNED_ADD (button);
-    gchar* current_theme = katze_object_get_string (gtk_settings_get_default (), "gtk-theme-name");
+    guint i = 0;
+    /* On Windows the default theme may be a built-in specific to the
+       running system. So we always add the default and skip it later.
+     */
+    const gchar* default_theme = midori_settings_get_default_theme_name (MIDORI_SETTINGS (settings));
+    gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (button), default_theme);
+    gtk_combo_box_set_active (GTK_COMBO_BOX (button), i++);
+
+    const gchar* current_theme = midori_settings_get_theme_name (MIDORI_SETTINGS (settings));
     gchar* theme_path = midori_paths_get_data_filename ("themes", FALSE);
     GDir* dir;
     if ((dir = g_dir_open (theme_path, 0, NULL)))
     {
-        guint i = 0;
         const gchar* name;
         while ((name = g_dir_read_name (dir)))
         {
+            if (!g_strcmp0 (name, default_theme))
+                continue;
             gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (button), name);
-            if (!strcmp (name, current_theme))
+            if (!g_strcmp0 (name, current_theme))
                 gtk_combo_box_set_active (GTK_COMBO_BOX (button), i);
             i++;
         }
@@ -460,7 +469,6 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
                           G_CALLBACK (midori_preferences_theme_changed_cb), settings);
     }
     g_free (theme_path);
-    g_free (current_theme);
     #endif
         INDENTED_ADD (gtk_label_new (_("Toolbar Style:")));
         button = katze_property_proxy (settings, "toolbar-style", NULL);
