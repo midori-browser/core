@@ -38,6 +38,7 @@ namespace Tabby {
                     Session session = item as Session;
                     Midori.Browser browser = this.app.create_browser ();
 
+                    /* FixMe: tabby-session should be set in .restore and .attch */
                     browser.set_data<Base.Session> ("tabby-session", session as Base.Session);
 
                     app.add_browser (browser);
@@ -74,9 +75,6 @@ namespace Tabby {
                     tabs.add_item (item);
                 }
 
-                /* FixMe: tabby-session should be set in this function */
-                //browser.set_data<Base.Session> ("tabby-session", this);// as Base.Session);
-
                 browser.add_tab.connect (this.tab_added);
                 browser.add_tab.connect (this.helper_uri_changed);
                 browser.remove_tab.connect (this.tab_removed);
@@ -102,7 +100,7 @@ namespace Tabby {
             }
 
             private void helper_uri_changed (Midori.Browser browser, Midori.View view) {
-                /* FixMe: skip first event while restrong the session */
+                /* FixMe: skip first event while restoring the session */
                 view.web_view.notify["uri"].connect ( () => {
                     this.uri_changed (view, view.web_view.uri);
                 });
@@ -141,7 +139,7 @@ namespace Tabby {
             protected override void tab_removed (Midori.Browser browser, Midori.View view) {
                 unowned Katze.Item item = view.get_proxy_item ();
                 int64 tab_id = item.get_meta_integer ("tabby-id");
-                /* FixMe: marke es deleted */
+                /* FixMe: mark as deleted */
                 this.db.execute ("DELETE FROM `tabs` WHERE session_id = :session_id AND id = :tab_id;",
                     ":session_id", typeof(int64), this.id,
                     ":tab_id", typeof (int64), tab_id);
@@ -203,7 +201,7 @@ namespace Tabby {
             internal Storage (Midori.App app) {
                 GLib.Object (app: app);
 
-                this.db = new SQLHeavy.VersionedDatabase ("tabby.db", "/var/tmp/tabby-sql/");
+                this.db = new SQLHeavy.VersionedDatabase ("tabby.db", "data/extensions/tabby/");
                 this.db.profiling_data = new SQLHeavy.ProfilingDatabase ("debug.db");
                 this.db.enable_profiling = true;
             }
