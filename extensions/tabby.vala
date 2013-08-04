@@ -111,15 +111,20 @@ namespace Tabby {
     namespace Local {
         private class Session : Base.Session {
             public int64 id { get; private set; }
-            private SQLHeavy.VersionedDatabase db;
+            private unowned Sqlite.Database db;
 
             protected override void uri_changed (Midori.View view, string uri) {
                 unowned Katze.Item item = view.get_proxy_item ();
                 int64 tab_id = item.get_meta_integer ("tabby-id");
-                this.db.execute ("UPDATE `tabs` SET uri = :uri WHERE session_id = :session_id AND id = :tab_id;",
-                    ":uri", typeof (string), uri,
-                    ":session_id", typeof (int64), this.id,
-                    ":tab_id", typeof (int64), tab_id);
+                string sqlcmd = "UPDATE `tabs` SET uri = :uri WHERE session_id = :session_id AND id = :tab_id;";
+                Sqlite.Statement stmt;
+                if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
+                    critical (_("Failed to update database: %s"), db.errmsg);
+                stmt.bind_text (stmt.bind_parameter_index (":uri"), uri);
+                stmt.bind_int64 (stmt.bind_parameter_index (":session_id"), this.id);
+                stmt.bind_int64 (stmt.bind_parameter_index (":tab_id"), tab_id);
+                if (stmt.step () != Sqlite.DONE)
+                    critical (_("Failed to update database: %s"), db.errmsg);
             }
 
             protected override void tab_added (Midori.Browser browser, Midori.View view) {
@@ -127,12 +132,19 @@ namespace Tabby {
                 int64 tab_id = item.get_meta_integer ("tabby-id");
                 if (tab_id < 1) {
                     GLib.DateTime time = new DateTime.now_local ();
-                    tab_id = this.db.execute_insert (
-                        "INSERT INTO `tabs` (`crdate`, `tstamp`, `session_id`, `uri`) VALUES (:tstamp, :tstamp, :session_id, :uri);",
-                        ":tstamp", typeof (int64), time.to_unix (),
-                        ":session_id", typeof (int64), this.id,
-                        ":uri", typeof (string), "about:blank");
-                    item.set_meta_integer ("tabby-id", tab_id);
+                    string sqlcmd = "INSERT INTO `tabs` (`crdate`, `tstamp`, `session_id`, `uri`) VALUES (:tstamp, :tstamp, :session_id, :uri);";
+                    Sqlite.Statement stmt;
+                    if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
+                        critical (_("Failed to update database: %s"), db.errmsg);
+                    stmt.bind_int64 (stmt.bind_parameter_index (":tstamp"), time.to_unix ());
+                    stmt.bind_int64 (stmt.bind_parameter_index (":session_id"), this.id);
+                    stmt.bind_text (stmt.bind_parameter_index (":uri"), "about:blank");
+                    if (stmt.step () != Sqlite.DONE)
+                        critical (_("Failed to update database: %s"), db.errmsg);
+                    else {
+                        tab_id = this.db.last_insert_rowid ();
+                        item.set_meta_integer ("tabby-id", tab_id);
+                    }
                 }
             }
 
@@ -140,53 +152,87 @@ namespace Tabby {
                 unowned Katze.Item item = view.get_proxy_item ();
                 int64 tab_id = item.get_meta_integer ("tabby-id");
                 /* FixMe: mark as deleted */
-                this.db.execute ("DELETE FROM `tabs` WHERE session_id = :session_id AND id = :tab_id;",
-                    ":session_id", typeof(int64), this.id,
-                    ":tab_id", typeof (int64), tab_id);
+                string sqlcmd = "DELETE FROM `tabs` WHERE session_id = :session_id AND id = :tab_id;";
+                Sqlite.Statement stmt;
+                if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
+                    critical (_("Failed to update database: %s"), db.errmsg);
+                stmt.bind_int64 (stmt.bind_parameter_index (":session_id"), this.id);
+                stmt.bind_int64 (stmt.bind_parameter_index (":tab_id"), tab_id);
+                if (stmt.step () != Sqlite.DONE)
+                    critical (_("Failed to update database: %s"), db.errmsg);
             }
 
             public override Katze.Array get_tabs() {
                 Katze.Array tabs = new Katze.Array (typeof (Katze.Item));
-                SQLHeavy.QueryResult results = this.db.execute ("SELECT id, uri FROM tabs WHERE session_id = :session_id", 
-                    ":session_id", typeof(int64), this.id);
 
-                for (; !results.finished; results.next ()) {
-                    Katze.Item item = new Katze.Item ();
-                    item.uri = results.fetch_string (1);
-                    item.set_meta_integer ("tabby-id", results.fetch_int64 (0));
-                    tabs.add_item (item);
+                string sqlcmd = "SELECT id, uri FROM tabs WHERE session_id = :session_id";
+                Sqlite.Statement stmt;
+                if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
+                    critical (_("Failed to select from database: %s"), db.errmsg);
+                stmt.bind_int64 (stmt.bind_parameter_index (":session_id"), this.id);
+                int result = stmt.step ();
+                if (!(result == Sqlite.DONE || result == Sqlite.ROW)) {
+                    critical (_("Failed to select from database: %s"), db.errmsg);
+                    return tabs;
                 }
 
-                return tabs;
+                while (result == Sqlite.ROW) {
+                     Katze.Item item = new Katze.Item ();
+                    int64 id = stmt.column_int64 (0);
+                    string uri = stmt.column_text (1);
+                    item.uri = uri;
+                    item.set_meta_integer ("tabby-id", id);
+                    tabs.add_item (item);
+                    result = stmt.step ();
+                 }
+
+                 return tabs;
             }
 
-            internal Session (SQLHeavy.VersionedDatabase db) {
+            internal Session (Sqlite.Database db) {
                 this.db = db;
 
                 GLib.DateTime time = new DateTime.now_local ();
 
-                this.id = this.db.execute_insert ("INSERT INTO `sessions` (`tstamp`) VALUES (:tstamp);",
-                    ":tstamp", typeof (int64), time.to_unix ());
+                string sqlcmd = "INSERT INTO `sessions` (`tstamp`) VALUES (:tstamp);";
+                Sqlite.Statement stmt;
+                if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
+                    critical (_("Failed to update database: %s"), db.errmsg);
+                stmt.bind_int64 (stmt.bind_parameter_index (":tstamp"), time.to_unix ());
+                if (stmt.step () != Sqlite.DONE)
+                    critical (_("Failed to update database: %s"), db.errmsg);
+                else
+                    this.id = this.db.last_insert_rowid ();
             }
 
-            internal Session.with_id (SQLHeavy.VersionedDatabase db, int64 id) {
+            internal Session.with_id (Sqlite.Database db, int64 id) {
                 this.db = db;
                 this.id = id;
             }
         }
 
         private class Storage : Base.Storage {
-            protected SQLHeavy.VersionedDatabase db;
+            protected Sqlite.Database db;
 
             public override Katze.Array get_sessions () {
-                SQLHeavy.QueryResult results = this.db.execute ("SELECT id FROM sessions");
-
                 Katze.Array sessions = new Katze.Array (typeof (Session));
 
-                for (; !results.finished; results.next ()) {
-                    sessions.add_item (new Session.with_id (this.db, results.fetch_int64 (0)));
+                string sqlcmd = "SELECT id FROM sessions";
+                Sqlite.Statement stmt;
+                if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
+                    critical (_("Failed to select from database: %s"), db.errmsg);
+                int result = stmt.step ();
+                if (!(result == Sqlite.DONE || result == Sqlite.ROW)) {
+                    critical (_("Failed to select from database: %s"), db.errmsg);
+                    return sessions;
                 }
 
+                while (result == Sqlite.ROW) {
+                    int64 id = stmt.column_int64 (0);
+                    sessions.add_item (new Session.with_id (this.db, id));
+                    result = stmt.step ();
+                 }
+ 
                 if (sessions.is_empty ()) {
                     sessions.add_item (new Session (this.db));
                 }
@@ -201,9 +247,21 @@ namespace Tabby {
             internal Storage (Midori.App app) {
                 GLib.Object (app: app);
 
-                this.db = new SQLHeavy.VersionedDatabase ("tabby.db", "data/extensions/tabby/");
-                this.db.profiling_data = new SQLHeavy.ProfilingDatabase ("debug.db");
-                this.db.enable_profiling = true;
+                if (Sqlite.Database.open_v2 ("tabby.db", out this.db) != Sqlite.OK)
+                    critical (_("Failed to open stored session: %s"), db.errmsg);
+                string filename = "data/extensions/tabby/Create.sql";
+                string schema;
+                try {
+                    bool success = FileUtils.get_contents (filename, out schema, null);
+                    if (!success || schema == null)
+                        critical (_("Failed to open database schema file: %s"), filename);
+                    if (success && schema != null)
+                        if (this.db.exec (schema) != Sqlite.OK)
+                            critical (_("Failed to execute database schema: %s"), filename);
+                }
+                catch (Error error) {
+                    critical (_("Failed to open database schema file: %s"), error.message);
+                }
             }
         }
     }
