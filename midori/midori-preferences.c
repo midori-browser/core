@@ -246,8 +246,9 @@ static void
 midori_preferences_theme_changed_cb (GtkWidget* button,
                                      gpointer   user_data)
 {
-    g_object_set (gtk_widget_get_settings (button), "gtk-theme-name",
-        gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT (button)), NULL);
+    MidoriSettings* settings = user_data;
+    midori_settings_set_theme_name (settings,
+        gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT (button)));
 }
 #endif
 
