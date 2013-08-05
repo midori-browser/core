@@ -25,36 +25,6 @@
  * #KatzeArray is a type aware container for items.
  */
 
-struct _KatzeArray
-{
-    KatzeItem parent_instance;
-
-    GType type;
-    GList* items;
-};
-
-struct _KatzeArrayClass
-{
-    KatzeItemClass parent_class;
-
-    /* Signals */
-    void
-    (*add_item)               (KatzeArray* array,
-                               gpointer    item);
-    void
-    (*remove_item)            (KatzeArray* array,
-                               gpointer    item);
-    void
-    (*move_item)              (KatzeArray* array,
-                               gpointer    item,
-                               gint        index);
-    void
-    (*clear)                  (KatzeArray* array);
-
-    void
-    (*update)                 (KatzeArray* array);
-};
-
 G_DEFINE_TYPE (KatzeArray, katze_array, KATZE_TYPE_ITEM);
 
 enum {

@@ -487,9 +487,9 @@ midori_normal_app_new (const gchar* config,
     }
     g_free (uri);
 
-    KatzeArray* bookmarks;
+    MidoriBookmarksDb* bookmarks;
     gchar* errmsg = NULL;
-    if (!(bookmarks = midori_bookmarks_new (&errmsg)))
+    if (!(bookmarks = midori_bookmarks_db_new (&errmsg)))
     {
         g_string_append_printf (error_messages,
             _("Bookmarks couldn't be loaded: %s\n"), errmsg);
@@ -595,11 +595,11 @@ void
 midori_normal_app_on_quit (MidoriApp* app)
 {
     MidoriWebSettings* settings = katze_object_get_object (app, "settings");
-    KatzeArray* bookmarks = katze_object_get_object (app, "bookmarks");
+    MidoriBookmarksDb* bookmarks = katze_object_get_object (app, "bookmarks");
     KatzeArray* history = katze_object_get_object (app, "history");
 
     g_object_notify (G_OBJECT (settings), "load-on-startup");
-    midori_bookmarks_on_quit (bookmarks);
+    midori_bookmarks_db_on_quit (bookmarks);
     midori_history_on_quit (history, settings);
     midori_private_data_on_quit (settings);
 
