@@ -10,7 +10,7 @@
 */
 
 #include "midori-array.h"
-#include "midori-bookmarks.h"
+#include "midori-bookmarks-db.h"
 #include "midori-history.h"
 #include "midori-preferences.h"
 #include "midori-privatedata.h"
