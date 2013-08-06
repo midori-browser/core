@@ -34,6 +34,11 @@
 #include <glib/gstdio.h>
 #include "katze/katze.h"
 
+#ifdef G_OS_WIN32
+#include <windows.h>
+#include <shlobj.h>
+#endif
+
 static gchar*
 sokoke_js_string_utf8 (JSStringRef js_string)
 {
@@ -148,14 +153,6 @@ sokoke_default_for_uri (const gchar* uri,
         return NULL;
 
     info = g_app_info_get_default_for_uri_scheme (scheme);
-    #if !GLIB_CHECK_VERSION (2, 28, 0)
-    if (!info)
-    {
-        gchar* type = g_strdup_printf ("x-scheme-handler/%s", scheme);
-        info = g_app_info_get_default_for_type (type, FALSE);
-        g_free (type);
-    }
-    #endif
     if (scheme_ptr != NULL)
         *scheme_ptr = scheme;
     else
@@ -191,10 +188,6 @@ sokoke_show_uri (GdkScreen*   screen,
     return ShellExecuteEx (&info);
     #else
 
-    #if !GLIB_CHECK_VERSION (2, 28, 0)
-    GAppInfo* info;
-    gchar* scheme;
-    #endif
     GtkWidget* dialog;
     GtkWidget* box;
     gchar* filename;
@@ -210,25 +203,6 @@ sokoke_show_uri (GdkScreen*   screen,
     /* g_app_info_launch_default_for_uri, gdk_display_get_app_launch_context */
     if (gtk_show_uri (screen, uri, timestamp, error))
         return TRUE;
-
-    #if !GLIB_CHECK_VERSION (2, 28, 0)
-    info = sokoke_default_for_uri (uri, &scheme);
-    if (info)
-    {
-        gchar* argument = g_strdup (&uri[scheme - uri]);
-        GList* uris = g_list_prepend (NULL, argument);
-        if (g_app_info_launch_uris (info, uris, NULL, NULL))
-        {
-            g_list_free (uris);
-            g_free (scheme);
-            g_object_unref (info);
-            return TRUE;
-        }
-        g_list_free (uris);
-        g_free (scheme);
-        g_object_unref (info);
-    }
-    #endif
 
     {
         gchar* command = g_strconcat ("xdg-open ", uri, NULL);
@@ -746,80 +720,6 @@ sokoke_widget_get_text_size (GtkWidget*   widget,
 }
 
 /**
- * sokoke_action_create_popup_menu_item:
- * @action: a #GtkAction
- *
- * Creates a menu item from an action, just like
- * gtk_action_create_menu_item(), but it won't
- * display an accelerator.
- *
- * Note: This menu item is not a proxy and will
- *       not reflect any changes to the action.
- *
- * Return value: a new #GtkMenuItem
- **/
-GtkWidget*
-sokoke_action_create_popup_menu_item (GtkAction* action)
-{
-    GtkWidget* menuitem;
-    GtkWidget* icon;
-    gchar* label;
-    gchar* stock_id;
-    gchar* icon_name;
-    gboolean sensitive;
-    gboolean visible;
-
-    g_return_val_if_fail (GTK_IS_ACTION (action), NULL);
-
-    if (KATZE_IS_ARRAY_ACTION (action))
-        return gtk_action_create_menu_item (action);
-
-    g_object_get (action,
-                  "label", &label,
-                  "stock-id", &stock_id,
-                  "icon-name", &icon_name,
-                  "sensitive", &sensitive,
-                  "visible", &visible,
-                  NULL);
-    if (GTK_IS_TOGGLE_ACTION (action))
-    {
-        menuitem = gtk_check_menu_item_new_with_mnemonic (label);
-        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem),
-            gtk_toggle_action_get_active (GTK_TOGGLE_ACTION (action)));
-        if (GTK_IS_RADIO_ACTION (action))
-            gtk_check_menu_item_set_draw_as_radio (GTK_CHECK_MENU_ITEM (menuitem),
-                                                   TRUE);
-    }
-    else if (stock_id)
-    {
-        if (label)
-        {
-            menuitem = gtk_image_menu_item_new_with_mnemonic (label);
-            icon = gtk_action_create_icon (action, GTK_ICON_SIZE_MENU);
-            gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), icon);
-        }
-        else
-            menuitem = gtk_image_menu_item_new_from_stock (stock_id, NULL);
-    }
-    else
-    {
-        menuitem = gtk_image_menu_item_new_with_mnemonic (label);
-        if (icon_name)
-        {
-            icon = gtk_image_new_from_icon_name (icon_name, GTK_ICON_SIZE_MENU);
-            gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), icon);
-        }
-    }
-    gtk_widget_set_sensitive (menuitem, sensitive);
-    sokoke_widget_set_visible (menuitem, visible);
-    gtk_widget_set_no_show_all (menuitem, TRUE);
-    g_signal_connect_swapped (menuitem, "activate",
-                              G_CALLBACK (gtk_action_activate), action);
-
-    return menuitem;
-}
-
-/**
  * sokoke_time_t_to_julian:
  * @timestamp: a time_t timestamp value
  *
@@ -1096,9 +996,8 @@ sokoke_entry_changed_cb (GtkEditable* editable,
     const gchar* text = gtk_entry_get_text (entry);
     gboolean visible = text && *text
       && ! sokoke_entry_has_placeholder_text (entry);
-    gtk_icon_entry_set_icon_from_stock (
-        GTK_ICON_ENTRY (entry),
-        GTK_ICON_ENTRY_SECONDARY,
+    gtk_entry_set_icon_from_stock (
+        entry, GTK_ENTRY_ICON_SECONDARY,
         visible ? GTK_STOCK_CLEAR : NULL);
 }
 
@@ -1113,11 +1012,11 @@ sokoke_entry_focus_out_event_cb (GtkEditable*   editable,
 
 static void
 sokoke_entry_icon_released_cb (GtkEntry*            entry,
-                               GtkIconEntryPosition icon_pos,
+                               GtkEntryIconPosition icon_pos,
                                GdkEvent*            event,
                                gpointer             user_data)
 {
-    if (icon_pos != GTK_ICON_ENTRY_SECONDARY)
+    if (icon_pos != GTK_ENTRY_ICON_SECONDARY)
         return;
 
     gtk_entry_set_text (entry, "");
@@ -1131,7 +1030,7 @@ sokoke_search_entry_new (const gchar* placeholder_text)
     gtk_entry_set_placeholder_text (GTK_ENTRY (entry), placeholder_text);
     gtk_entry_set_icon_from_stock (GTK_ENTRY (entry),
                                    GTK_ENTRY_ICON_PRIMARY, GTK_STOCK_FIND);
-    gtk_icon_entry_set_icon_highlight (GTK_ENTRY (entry),
+    gtk_entry_set_icon_activatable (GTK_ENTRY (entry),
         GTK_ENTRY_ICON_SECONDARY, TRUE);
     {
         g_object_connect (entry,
@@ -1148,3 +1047,65 @@ sokoke_search_entry_new (const gchar* placeholder_text)
     return entry;
 }
 
+#ifdef G_OS_WIN32
+gchar*
+sokoke_get_win32_desktop_lnk_path_for_filename (gchar* filename)
+{
+    const gchar* desktop_dir;
+    gchar* lnk_path, *lnk_file;
+
+    /* CSIDL_PROGRAMS for "start menu -> programs" instead - needs saner/shorter filename */
+    desktop_dir = g_get_user_special_dir (G_USER_DIRECTORY_DESKTOP);
+
+    lnk_file = g_strconcat (filename, ".lnk", NULL);
+    lnk_path = g_build_filename (desktop_dir, lnk_file, NULL);
+
+    g_free (lnk_file);
+
+    return lnk_path;
+}
+
+void
+sokoke_create_win32_desktop_lnk (gchar* prefix, gchar* filename, gchar* uri)
+{
+    WCHAR w[MAX_PATH];
+
+    gchar* exec_dir, *exec_path, *argument;
+    gchar* lnk_path, *launcher_type;
+
+    IShellLink* pShellLink;
+    IPersistFile* pPersistFile;
+
+    exec_dir = g_win32_get_package_installation_directory_of_module (NULL);
+    exec_path = g_build_filename (exec_dir, "bin", "midori.exe", NULL);
+
+    if (g_str_has_suffix (prefix, " -a "))
+        launcher_type = "-a";
+    else if (g_str_has_suffix (prefix, " -c "))
+        launcher_type = "-c";
+
+    argument = g_strdup_printf ("%s \"%s\"", launcher_type, uri);
+
+    /* Create link */
+    CoCreateInstance (&CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, &IID_IShellLink, (LPVOID *)&pShellLink);
+    pShellLink->lpVtbl->SetPath (pShellLink, exec_path);
+    pShellLink->lpVtbl->SetArguments (pShellLink, argument);
+    /* TODO: support adding site favicon as webapp icon */
+    /* pShellLink->lpVtbl->SetIconLocation (pShellLink, icon_path, icon_index); */
+
+    /* Save link */
+    lnk_path = sokoke_get_win32_desktop_lnk_path_for_filename (filename);
+    pShellLink->lpVtbl->QueryInterface (pShellLink, &IID_IPersistFile, (LPVOID *)&pPersistFile);
+    MultiByteToWideChar (CP_UTF8, 0, lnk_path, -1, w, MAX_PATH);
+    pPersistFile->lpVtbl->Save (pPersistFile, w, TRUE);
+
+    pPersistFile->lpVtbl->Release (pPersistFile);
+    pShellLink->lpVtbl->Release (pShellLink);
+
+    g_free (exec_dir);
+    g_free (exec_path);
+    g_free (argument);
+    g_free (lnk_path);
+    g_free (launcher_type);
+}
+#endif

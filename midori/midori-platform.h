@@ -14,7 +14,6 @@
 
 #include "midori/midori-stock.h"
 #include "katze/gtk3-compat.h"
-#include "midori/gtkiconentry.h"
 #include "midori/sokoke.h"
 
 /* Common behavior modifiers */

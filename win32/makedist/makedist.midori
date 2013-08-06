@@ -44,7 +44,7 @@ version=`grep PACKAGE_VERSION _build/default/config.h | awk '{ print $3 $4; }' |
 
 #strip sha from version if release
 if [ "$RELEASE" != "" ];then
-    version=$(echo $version| awk -F \- '{print $1}')
+    version=$(echo $version| awk -F \~ '{print $1}')
 fi
 
 if [ "$1" != "" ]; then
@@ -202,11 +202,12 @@ grab_files share mime
 grab_files share midori.mo
 
 # We need to ship our CA bundle for now
-cp /etc/pki/tls/certs/ca-bundle.crt $workdir/share/midori/res/
+cp -a /etc/pki/tls/certs/ca-bundle.crt $workdir/share/midori/res/
 
 if [ "$GTK3_BUILD" == "1" ]; then
     grab_files share webkitgtk-3.0
     grab_files share schemas
+    grab_files share/themes/Greybird/ gtk-3.0
     MO_VER=30
 else
     grab_files share MS-Windows

@@ -617,7 +617,6 @@ addons_get_toolbar (MidoriViewable* viewable)
     if (!ADDONS (viewable)->toolbar)
     {
         toolbar = gtk_toolbar_new ();
-        gtk_toolbar_set_icon_size (GTK_TOOLBAR (toolbar), GTK_ICON_SIZE_BUTTON);
         toolitem = gtk_tool_item_new ();
         gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
         gtk_widget_show (GTK_WIDGET (toolitem));

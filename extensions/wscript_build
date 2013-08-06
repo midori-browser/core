@@ -7,6 +7,10 @@ import os
 
 extensions = os.listdir ('extensions')
 for extension in extensions:
+    # FIXME In the absense of a proper mechanism, transfers is a stock extension
+    if not bld.env['addons'] and extension != 'transfers.vala':
+        continue
+
     folder = 'extensions' + os.sep + extension
     if os.path.isdir (folder):
         files = os.listdir (folder)
@@ -28,7 +32,7 @@ for extension in extensions:
         source = extension
 
     # FIXME
-    if bld.env['HAVE_WEBKIT2'] and target in ['external-download-manager', 'nsplugin-manager', 'formhistory', 'adblock', 'cookie-permissions', 'addons', 'cookie-manager']:
+    if bld.env['HAVE_WEBKIT2'] and target in ['external-download-manager', 'nsplugin-manager', 'formhistory', 'adblock', 'cookie-permissions', 'addons', 'nojs']:
         continue
 
     obj = bld.new_task_gen ('cc', 'shlib')
@@ -50,6 +54,8 @@ for extension in extensions:
             obj.packages += ' webkitgtk-3.0'
         if bld.env['HAVE_GRANITE']:
             obj.packages += ' granite'
+        if bld.env['platform'] != 'win32':
+            obj.packages += ' linux'
     obj.install_path = '${LIBDIR}/midori'
     # See LINKFLAGS in wscript: w/ o it we get several "undefined reference" errors
     if bld.env['platform'] == 'win32':

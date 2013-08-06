@@ -13,9 +13,11 @@ OLDVER=$(grep --color=no 'VERSION = VERSION_FULL = ' wscript | sed -r "s@.+ = '(
 NEWVER=$(python -c "print('0.'+str(float('$OLDVER'[2:])+.1))")
 if [ "x$1" = "xbefore" ]; then
     echo Bumping from $OLDVER to $NEWVER
-    OLDVER=0.5.1
     sed -i "s@$OLDVER@$NEWVER@g" wscript win32/makedist/midori.nsi
-    echo; echo v$NEWVER:; bzr log --line -rtag:$OLDVER.. | sed -r 's@.+2013-[0-9]+-[0-9]+ @@' | grep -v l10n | grep -v makedist | grep -v tools/release | grep -v nsi | grep -v -E 'Update .+ translation'; echo
+    echo; echo v$NEWVER:; bzr log --line -rtag:$OLDVER.. | sed -r 's@.+2013-[0-9]+-[0-9]+ @@' | sed 's@\[merge\] @@' | grep -v -E 'l10n|makedist|tools(/release)?: |nsi|translation|Bump version to|Merge lp:midori'; echo
+    curl http://wiki.xfce.org/_export/raw/midori/contribute | \
+        sed -r 's@\[\[([^|]+)\|([^]]+)\]\]@\1 \2@g' | \
+        sed -r 's@<code( bash|)>|</code>@@g' > HACKING
     curl http://wiki.xfce.org/_export/xhtml/midori/faq | \
         sed 's@This is a list of frequently asked questions@This is <a href="http://wiki.xfce.org/midori/faq">a snapshot of the online FAQ</a>@g' | \
         sed 's@<link rel="style.*>@<link rel="stylesheet" href="faq.css" />@g' > data/faq.html

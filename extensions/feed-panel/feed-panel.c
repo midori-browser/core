@@ -359,17 +359,9 @@ feed_panel_cursor_or_row_changed_cb (GtkTreeView* treeview,
                 g_assert (KATZE_IS_ARRAY (parent));
                 if (added)
                 {
-                    #if GLIB_CHECK_VERSION (2, 26, 0)
                     GDateTime* date = g_date_time_new_from_unix_local (added);
                     gchar* pretty = g_date_time_format (date, "%c");
                     g_date_time_unref (date);
-                    #else
-                    static gchar date_fmt[512];
-                    const struct tm *tm = localtime (&added);
-                    /* Some GCC versions falsely complain about "%c" */
-                    strftime (date_fmt, sizeof (date_fmt), "%c", tm);
-                    gchar* pretty = g_strdup (date_fmt);
-                    #endif
 
     /* i18n: The local date a feed was last updated */
                     gchar* last_updated = g_strdup_printf (C_("Feed", "Last updated: %s."), pretty);
@@ -675,8 +667,6 @@ feed_panel_get_toolbar (MidoriViewable* viewable)
         GtkToolItem* toolitem;
 
         toolbar = gtk_toolbar_new ();
-        gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_BOTH_HORIZ);
-        gtk_toolbar_set_icon_size (GTK_TOOLBAR (toolbar), GTK_ICON_SIZE_BUTTON);
         panel->toolbar = toolbar;
         toolitem = gtk_tool_button_new_from_stock (GTK_STOCK_ADD);
         gtk_widget_set_tooltip_text (GTK_WIDGET (toolitem), _("Add new feed"));

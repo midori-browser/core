@@ -574,9 +574,6 @@ tab_panel_app_add_browser_cb (MidoriApp*       app,
 
     toolbar = gtk_toolbar_new ();
     g_object_set_data (G_OBJECT (browser), "tab-panel-ext-toolbar", toolbar);
-    gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_BOTH_HORIZ);
-    gtk_toolbar_set_icon_size (GTK_TOOLBAR (toolbar), GTK_ICON_SIZE_BUTTON);
-    gtk_widget_show (toolbar);
 
     /*
     TODO: Implement optional thumbnail images

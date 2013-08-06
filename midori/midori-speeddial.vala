@@ -50,6 +50,7 @@ namespace Midori {
 
         public SpeedDial (string new_filename, string? fallback = null) {
             filename = new_filename;
+            thumb_queue = new GLib.List<Spec> ();
             keyfile = new GLib.KeyFile ();
             try {
                 keyfile.load_from_file (filename, GLib.KeyFileFlags.NONE);
@@ -141,12 +142,18 @@ namespace Midori {
             return "Dial %u".printf (slot_count + 1);
         }
 
-        public void add (string uri, string title, Gdk.Pixbuf img) {
+        public void add (string uri, string title, Gdk.Pixbuf? img) {
             string id = get_next_free_slot ();
-            add_with_id (id, uri, title, img);
+            uint slot = id.substring (5, -1).to_int ();
+            try {
+                save_message ("speed_dial-save-add %u %s".printf (slot, uri));
+            }
+            catch (Error error) {
+                critical ("Failed to add speed dial thumbnail: %s", error.message);
+            }
         }
 
-        public void add_with_id (string id, string uri, string title, Gdk.Pixbuf img) {
+        public void add_with_id (string id, string uri, string title, Gdk.Pixbuf? img) {
             keyfile.set_string (id, "uri", uri);
             keyfile.set_string (id, "title", title);
 
@@ -335,67 +342,81 @@ namespace Midori {
 
         void load_status (GLib.Object thumb_view_, ParamSpec pspec) {
 #if !HAVE_WEBKIT2
-            if (thumb_view.load_status != WebKit.LoadStatus.FINISHED)
+            if (thumb_view.load_status != WebKit.LoadStatus.FINISHED
+             && thumb_view.load_status != WebKit.LoadStatus.FAILED)
                 return;
+            thumb_view.notify["load-status"].disconnect (load_status);
+            /* Schedule an idle to give the offscreen time to draw */
+            Idle.add (save_thumbnail);
+#endif
+        }
 
-            return_if_fail (spec != null);
-            #if HAVE_OFFSCREEN
-            var img = (thumb_view.parent as Gtk.OffscreenWindow).get_pixbuf ();
-            var pixbuf_scaled = img.scale_simple (240, 160, Gdk.InterpType.TILES);
-            img = pixbuf_scaled;
-            #else
-            thumb_view.realize ();
-            var img = midori_view_web_view_get_snapshot (thumb_view, 240, 160);
-            #endif
-            unowned string title = thumb_view.get_title ();
-            add_with_id (spec.dial_id, spec.uri, title ?? spec.uri, img);
+        bool save_thumbnail () {
+#if !HAVE_WEBKIT2
+            return_val_if_fail (spec != null, false);
+
+            var offscreen = (thumb_view.parent as Gtk.OffscreenWindow);
+            var pixbuf = offscreen.get_pixbuf ();
+            int image_width = pixbuf.get_width (), image_height = pixbuf.get_height ();
+            int thumb_width = 240, thumb_height = 160;
+            float image_ratio = image_width / image_height;
+            float thumb_ratio = thumb_width / thumb_height;
+            int x_offset, y_offset, computed_width, computed_height;
+            if (image_ratio > thumb_ratio) {
+                computed_width = (int)(image_height * thumb_ratio);
+                computed_height = image_height;
+                x_offset = (image_width - computed_width) / 2;
+                y_offset = 0;
+            }
+            else {
+                computed_width = image_width;
+                computed_height = (int)(image_width / thumb_ratio);
+                x_offset = 0;
+                y_offset = 0;
+            }
+            var sub = pixbuf;
+            if (y_offset + computed_height <= image_height)
+                sub = new Gdk.Pixbuf.subpixbuf (pixbuf, x_offset, y_offset, computed_width, computed_height);
+            var scaled = sub.scale_simple (thumb_width, thumb_height, Gdk.InterpType.TILES);
+            add_with_id (spec.dial_id, spec.uri, thumb_view.get_title () ?? spec.uri, scaled);
 
             thumb_queue.remove (spec);
-            if (thumb_queue != null && thumb_queue.data != null) {
-                spec = thumb_queue.data;
+            if (thumb_queue.length () > 0) {
+                spec = thumb_queue.nth_data (0);
+                thumb_view.notify["load-status"].connect (load_status);
                 thumb_view.load_uri (spec.uri);
             }
-            else
-                /* disconnect_by_func (thumb_view, load_status) */;
 #endif
+            return false;
         }
 
         void get_thumb (string dial_id, string uri) {
 #if !HAVE_WEBKIT2
             if (thumb_view == null) {
                 thumb_view = new WebKit.WebView ();
-                var settings = new WebKit.WebSettings ();
-                settings. set ("enable-javascript", false,
-                               "enable-plugins", false,
-                               "auto-load-images", true,
-                               "enable-html5-database", false,
-                               "enable-html5-local-storage", false);
-                if (settings.get_class ().find_property ("enable-java-applet") != null)
-                    settings.set ("enable-java-applet", false);
-                thumb_view.settings = settings;
-                #if HAVE_OFFSCREEN
+                thumb_view.settings.set (
+                    "enable-scripts", false,
+                    "enable-plugins", false,
+                    "auto-load-images", true,
+                    "enable-html5-database", false,
+                    "enable-html5-local-storage", false,
+                    "enable-java-applet", false);
                 var offscreen = new Gtk.OffscreenWindow ();
                 offscreen.add (thumb_view);
                 thumb_view.set_size_request (800, 600);
                 offscreen.show_all ();
-                #else
-                /* What we are doing here is a bit of a hack. In order to render a
-                   thumbnail we need a new view and load the url in it. But it has
-                   to be visible and packed in a container. So we secretly pack it
-                   into the notebook of the parent browser. */
-                notebook.add (thumb_view);
-                thumb_view.destroy.connect (Gtk.widget_destroyed);
-                /* We use an empty label. It's not invisible but hard to spot. */
-                notebook.set_tab_label (thumb_view, new Gtk.EventBox ());
-                thumb_view.show ();
-                #endif
             }
 
+            /* Don't load thumbnails already queued */
+            foreach (var spec_ in thumb_queue)
+                if (spec_.dial_id == dial_id)
+                    return;
+
             thumb_queue.append (new Spec (dial_id, uri));
-            if (thumb_queue.nth_data (1) != null)
+            if (thumb_queue.length () > 1)
                 return;
 
-            spec = thumb_queue.data;
+            spec = thumb_queue.nth_data (0);
             thumb_view.notify["load-status"].connect (load_status);
             thumb_view.load_uri (spec.uri);
 #endif

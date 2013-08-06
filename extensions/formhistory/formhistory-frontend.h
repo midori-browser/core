@@ -18,17 +18,11 @@
     #include <unistd.h>
 #endif
 
-#if WEBKIT_CHECK_VERSION (1, 3, 1)
-    #define FORMHISTORY_USE_GDOM 1
-#else
-    #define FORMHISTORY_USE_JS 1
-#endif
 #define MAXPASSSIZE 64
 
 typedef struct
 {
     sqlite3* db;
-    #ifdef FORMHISTORY_USE_GDOM
     WebKitDOMElement* element;
     int completion_timeout;
     GtkTreeModel* completion_model;
@@ -36,9 +30,6 @@ typedef struct
     GtkWidget* popup;
     gchar* oldkeyword;
     glong selection_index;
-    #else
-    gchar* jsforms;
-    #endif
     gchar* master_password;
     int master_password_canceled;
 } FormHistoryPriv;
@@ -64,11 +55,9 @@ formhistory_setup_suggestions (WebKitWebView*   web_view,
                                JSContextRef     js_context,
                                MidoriExtension* extension);
 
-#ifdef FORMHISTORY_USE_GDOM
 void
 formhistory_suggestions_hide_cb (WebKitDOMElement* element,
                                  WebKitDOMEvent*   dom_event,
                                  FormHistoryPriv*  priv);
-#endif
 
 #endif

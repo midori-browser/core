@@ -17,12 +17,12 @@
 #include "sokoke.h"
 
 #include <glib/gi18n-lib.h>
+#include <libsoup/soup-cookie-jar-sqlite.h>
 
-#if WEBKIT_CHECK_VERSION (1, 3, 11)
     #define LIBSOUP_USE_UNSTABLE_REQUEST_API
     #include <libsoup/soup-cache.h>
-#endif
 
+#ifndef HAVE_WEBKIT2
 static void
 midori_soup_session_set_proxy_uri (SoupSession* session,
                                    const gchar* uri)
@@ -85,18 +85,28 @@ soup_session_settings_notify_http_proxy_cb (MidoriWebSettings* settings,
     else
         midori_soup_session_set_proxy_uri (session, NULL);
 }
+#endif
 
-#ifdef HAVE_LIBSOUP_2_29_91
+#if defined(HAVE_LIBSOUP_2_29_91) && WEBKIT_CHECK_VERSION (1, 1, 21)
 static void
 soup_session_settings_notify_first_party_cb (MidoriWebSettings* settings,
                                              GParamSpec*        pspec,
-                                             SoupSession*       session)
+                                             gpointer           user_data)
 {
-    gpointer jar = soup_session_get_feature (session, SOUP_TYPE_COOKIE_JAR);
     gboolean yes = katze_object_get_boolean (settings, "first-party-cookies-only");
+#ifdef HAVE_WEBKIT2
+    WebKitWebContext* context = webkit_web_context_get_default ();
+    WebKitCookieManager* cookie_manager = webkit_web_context_get_cookie_manager (context);
+    webkit_cookie_manager_set_accept_policy (cookie_manager,
+        yes ? WEBKIT_COOKIE_POLICY_ACCEPT_NO_THIRD_PARTY
+            : WEBKIT_COOKIE_POLICY_ACCEPT_ALWAYS);
+#else
+    SoupSession* session = webkit_get_default_session ();
+    gpointer jar = soup_session_get_feature (session, SOUP_TYPE_COOKIE_JAR);
     g_object_set (jar, "accept-policy",
         yes ? SOUP_COOKIE_JAR_ACCEPT_NO_THIRD_PARTY
             : SOUP_COOKIE_JAR_ACCEPT_ALWAYS, NULL);
+#endif
 }
 #endif
 
@@ -118,17 +128,14 @@ midori_soup_session_request_started_cb (SoupSession* session,
 #ifndef HAVE_WEBKIT2
 const gchar*
 midori_web_settings_get_accept_language    (MidoriWebSettings* settings);
-#endif
 
 static void
 midori_soup_session_settings_accept_language_cb (SoupSession*       session,
                                                  SoupMessage*       msg,
                                                  MidoriWebSettings* settings)
 {
-    #ifndef HAVE_WEBKIT2
     const gchar* accept = midori_web_settings_get_accept_language (settings);
     soup_message_headers_append (msg->request_headers, "Accept-Language", accept);
-    #endif
 
     if (katze_object_get_boolean (settings, "strip-referer"))
     {
@@ -159,10 +166,16 @@ midori_soup_session_settings_accept_language_cb (SoupSession*       session,
             soup_message_headers_remove (msg->request_headers, "Host");
     }
 }
+#endif
 
 gboolean
 midori_load_soup_session (gpointer settings)
 {
+    #if defined(HAVE_LIBSOUP_2_29_91) && WEBKIT_CHECK_VERSION (1, 1, 21)
+    g_signal_connect (settings, "notify::first-party-cookies-only",
+        G_CALLBACK (soup_session_settings_notify_first_party_cb), NULL);
+    #endif
+
 #ifndef HAVE_WEBKIT2
     SoupSession* session = webkit_get_default_session ();
 
@@ -209,25 +222,12 @@ midori_load_soup_session (gpointer settings)
     g_free (certificate_file);
     #endif
 
-    #if !WEBKIT_CHECK_VERSION (1, 3, 5)
-    /* See http://stevesouders.com/ua/index.php */
-    g_object_set (session, "max-conns", 60,
-                           "max-conns-per-host", 6,
-                           NULL);
-    #endif
-
     g_object_set_data (G_OBJECT (session), "midori-settings", settings);
     soup_session_settings_notify_http_proxy_cb (settings, NULL, session);
     g_signal_connect (settings, "notify::http-proxy",
         G_CALLBACK (soup_session_settings_notify_http_proxy_cb), session);
     g_signal_connect (settings, "notify::proxy-type",
         G_CALLBACK (soup_session_settings_notify_http_proxy_cb), session);
-    #ifdef HAVE_LIBSOUP_2_29_91
-    if (g_object_class_find_property (G_OBJECT_GET_CLASS (settings),
-        "enable-file-access-from-file-uris")) /* WebKitGTK+ >= 1.1.21 */
-        g_signal_connect (settings, "notify::first-party-cookies-only",
-            G_CALLBACK (soup_session_settings_notify_first_party_cb), session);
-    #endif
 
     #if defined (HAVE_LIBSOUP_2_34_0)
     g_signal_connect (session, "request-started",
@@ -256,10 +256,42 @@ midori_load_soup_session (gpointer settings)
     return FALSE;
 }
 
+#ifndef HAVE_WEBKIT2
+static void
+midori_session_cookie_jar_changed_cb (SoupCookieJar*     jar,
+                                      SoupCookie*        old_cookie,
+                                      SoupCookie*        new_cookie,
+                                      MidoriWebSettings* settings)
+{
+    if (new_cookie && new_cookie->expires)
+    {
+        time_t expires = soup_date_to_time_t (new_cookie->expires);
+        gint age = katze_object_get_int (settings, "maximum-cookie-age");
+        if (age > 0)
+        {
+            SoupDate* max_date = soup_date_new_from_now (
+                   age * SOUP_COOKIE_MAX_AGE_ONE_DAY);
+            if (soup_date_to_time_t (new_cookie->expires)
+                > soup_date_to_time_t (max_date))
+                   soup_cookie_set_expires (new_cookie, max_date);
+        }
+        else
+        {
+            /* An age of 0 to SoupCookie means already-expired
+            A user choosing 0 days probably expects 1 hour. */
+            soup_cookie_set_max_age (new_cookie, SOUP_COOKIE_MAX_AGE_ONE_HOUR);
+        }
+    }
+
+    if (midori_debug ("cookies"))
+        g_print ("cookie changed: old %p new %p\n", old_cookie, new_cookie);
+}
+#endif
+
 gboolean
 midori_load_soup_session_full (gpointer settings)
 {
-#ifndef HAVE_WEBKIT2
+    #ifndef HAVE_WEBKIT2
     SoupSession* session = webkit_get_default_session ();
     SoupCookieJar* jar;
     gchar* config_file;
@@ -274,43 +306,21 @@ midori_load_soup_session_full (gpointer settings)
     soup_session_add_feature (session, feature);
     g_object_unref (feature);
 
-    jar = soup_cookie_jar_new ();
-    g_object_set_data (G_OBJECT (jar), "midori-settings", settings);
+    katze_assign (config_file, midori_paths_get_config_filename_for_writing ("cookies.db"));
+    jar = soup_cookie_jar_sqlite_new (config_file, FALSE);
     soup_session_add_feature (session, SOUP_SESSION_FEATURE (jar));
+    g_signal_connect (jar, "changed",
+                      G_CALLBACK (midori_session_cookie_jar_changed_cb), settings);
     g_object_unref (jar);
 
-    katze_assign (config_file, midori_paths_get_config_filename_for_writing ("cookies.db"));
-    have_new_cookies = g_access (config_file, F_OK) == 0;
-    feature = g_object_new (KATZE_TYPE_HTTP_COOKIES_SQLITE, NULL);
-    g_object_set_data_full (G_OBJECT (feature), "filename",
-                            config_file, (GDestroyNotify)g_free);
-    soup_session_add_feature (session, feature);
-    g_object_unref (feature);
-
-    if (!have_new_cookies)
-    {
-        katze_assign (config_file, midori_paths_get_config_filename_for_writing ("cookies.txt"));
-        if (g_access (config_file, F_OK) == 0)
-        {
-            g_message ("Importing cookies from txt to sqlite3");
-            feature_import = g_object_new (KATZE_TYPE_HTTP_COOKIES, NULL);
-            g_object_set_data_full (G_OBJECT (feature_import), "filename",
-                                    config_file, (GDestroyNotify)g_free);
-            soup_session_add_feature (session, SOUP_SESSION_FEATURE (feature_import));
-            soup_session_remove_feature (session, SOUP_SESSION_FEATURE (feature_import));
-        }
-    }
-
-    #if WEBKIT_CHECK_VERSION (1, 3, 11)
     katze_assign (config_file, g_build_filename (midori_paths_get_cache_dir (), "web", NULL));
     feature = SOUP_SESSION_FEATURE (soup_cache_new (config_file, 0));
     soup_session_add_feature (session, feature);
     soup_cache_set_max_size (SOUP_CACHE (feature),
         katze_object_get_int (settings, "maximum-cache-size") * 1024 * 1024);
     soup_cache_load (SOUP_CACHE (feature));
-    #endif
     g_free (config_file);
-#endif
+    #endif
     return FALSE;
 }
 
@@ -469,6 +479,8 @@ midori_load_session (gpointer data)
     gint64 current;
     gchar** open_uris = g_object_get_data (G_OBJECT (app), "open-uris");
     gchar** execute_commands = g_object_get_data (G_OBJECT (app), "execute-commands");
+    gchar* uri;
+    guint i = 0;
     #ifdef G_ENABLE_DEBUG
     gboolean startup_timer = midori_debug ("startup");
     GTimer* timer = startup_timer ? g_timer_new () : NULL;
@@ -497,7 +509,13 @@ midori_load_session (gpointer data)
     if (katze_array_is_empty (saved_session))
     {
         item = katze_item_new ();
-        if (load_on_startup == MIDORI_STARTUP_BLANK_PAGE)
+        if (open_uris)
+        {
+            uri = sokoke_magic_uri (open_uris[i], TRUE, TRUE);
+            katze_item_set_uri (item, uri);
+            g_free (uri);
+            i++;
+        } else if (load_on_startup == MIDORI_STARTUP_BLANK_PAGE)
             katze_item_set_uri (item, "about:new");
         else
             katze_item_set_uri (item, "about:home");
@@ -526,10 +544,10 @@ midori_load_session (gpointer data)
     if (midori_uri_is_blank (katze_item_get_uri (item)))
         midori_browser_activate_action (browser, "Location");
 
-    guint i = 0;
-    for (i = 0; open_uris && open_uris[i]; i++)
+    /* `i` also used above; in that case we won't re-add the same URLs here */
+    for (; open_uris && open_uris[i]; i++)
     {
-        gchar* uri = sokoke_magic_uri (open_uris[i], TRUE, TRUE);
+        uri = sokoke_magic_uri (open_uris[i], TRUE, TRUE);
         midori_browser_add_uri (browser, uri);
         g_free (uri);
     }

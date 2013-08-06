@@ -312,8 +312,8 @@ midori_search_action_create_tool_item (GtkAction* action)
 
     toolitem = GTK_WIDGET (gtk_tool_item_new ());
     entry = sokoke_search_entry_new (NULL);
-    gtk_icon_entry_set_icon_highlight (GTK_ICON_ENTRY (entry),
-                                       GTK_ICON_ENTRY_PRIMARY, TRUE);
+    gtk_entry_set_icon_activatable (GTK_ENTRY (entry),
+                                       GTK_ENTRY_ICON_PRIMARY, TRUE);
     alignment = gtk_alignment_new (0, 0.5, 1, 0.1);
     gtk_container_add (GTK_CONTAINER (alignment), entry);
     gtk_widget_show (entry);
@@ -402,7 +402,7 @@ midori_search_action_manage_activate_cb (GtkWidget*          menuitem,
 
 static void
 midori_search_action_icon_released_cb (GtkWidget*           entry,
-                                       GtkIconEntryPosition icon_pos,
+                                       GtkEntryIconPosition icon_pos,
                                        gint                 button,
                                        GtkAction*           action)
 {
@@ -413,7 +413,7 @@ midori_search_action_icon_released_cb (GtkWidget*           entry,
     GdkPixbuf* icon;
     GtkWidget* image;
 
-    if (icon_pos == GTK_ICON_ENTRY_SECONDARY)
+    if (icon_pos == GTK_ENTRY_ICON_SECONDARY)
         return;
 
     search_engines = MIDORI_SEARCH_ACTION (action)->search_engines;
@@ -502,16 +502,16 @@ midori_search_action_set_entry_icon (MidoriSearchAction* search_action,
                 icon_name = "edit-find-option";
             else
                 icon_name = STOCK_EDIT_FIND;
-            gtk_icon_entry_set_icon_from_icon_name (GTK_ICON_ENTRY (entry),
-                GTK_ICON_ENTRY_PRIMARY, icon_name);
+            gtk_entry_set_icon_from_icon_name (GTK_ENTRY (entry),
+                GTK_ENTRY_ICON_PRIMARY, icon_name);
         }
         gtk_entry_set_placeholder_text (GTK_ENTRY (entry),
             katze_item_get_name (search_action->current_item));
     }
     else
     {
-        gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (entry),
-                                            GTK_ICON_ENTRY_PRIMARY,
+        gtk_entry_set_icon_from_stock (GTK_ENTRY (entry),
+                                            GTK_ENTRY_ICON_PRIMARY,
                                             GTK_STOCK_FIND);
         gtk_entry_set_placeholder_text (GTK_ENTRY (entry), "");
     }
@@ -905,7 +905,7 @@ midori_search_action_get_engine_for_form (WebKitWebView*     web_view,
                                           PangoEllipsizeMode ellipsize)
 {
 #ifndef HAVE_WEBKIT2
-    #if WEBKIT_CHECK_VERSION (1, 5, 0)
+    WebKitWebFrame* focused_frame;
     WebKitDOMDocument* doc;
     WebKitDOMHTMLFormElement* active_form;
     WebKitDOMHTMLCollection* form_nodes;
@@ -919,10 +919,13 @@ midori_search_action_get_engine_for_form (WebKitWebView*     web_view,
     KatzeItem* item;
     gchar** parts;
 
+    focused_frame = webkit_web_view_get_focused_frame (web_view);
+    if (focused_frame == NULL)
+        return NULL;
     #if WEBKIT_CHECK_VERSION (1, 9, 5)
-    doc = webkit_web_frame_get_dom_document (webkit_web_view_get_focused_frame (web_view));
+    doc = webkit_web_frame_get_dom_document (focused_frame);
     #else
-    if (webkit_web_view_get_focused_frame (web_view) != webkit_web_view_get_main_frame (web_view))
+    if (focused_frame != webkit_web_view_get_main_frame (web_view))
         return NULL;
     doc = webkit_web_view_get_dom_document (web_view);
     #endif
@@ -1020,9 +1023,6 @@ midori_search_action_get_engine_for_form (WebKitWebView*     web_view,
     #else
     return NULL;
     #endif
-#else
-    return NULL;
-#endif
 }
 
 void
@@ -1106,11 +1106,7 @@ midori_search_action_get_editor (MidoriSearchAction* search_action,
     gtk_size_group_add_widget (sizegroup, label);
     gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
     entry_uri = katze_uri_entry_new (
-    #if GTK_CHECK_VERSION (2, 20, 0)
         gtk_dialog_get_widget_for_response (GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT));
-    #else
-        NULL);
-    #endif
     g_object_set_data (G_OBJECT (entry_uri), "allow_%s", (void*)1);
     gtk_entry_set_activates_default (GTK_ENTRY (entry_uri), TRUE);
     gtk_entry_set_text (GTK_ENTRY (entry_uri),

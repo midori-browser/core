@@ -60,9 +60,6 @@ struct _MidoriWebSettings
     gint clear_private_data;
     gchar* clear_data;
     gchar* site_data_rules;
-    #if !WEBKIT_CHECK_VERSION (1, 3, 13)
-    gboolean enable_dns_prefetching;
-    #endif
     gboolean enforce_font_family;
     gchar* user_stylesheet_uri;
     gchar* user_stylesheet_uri_cached;
@@ -376,7 +373,6 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      TRUE,
                                      flags));
 
-    #if WEBKIT_CHECK_VERSION (1, 1, 18)
     g_object_class_install_property (gobject_class,
                                      PROP_ENABLE_PAGE_CACHE,
                                      g_param_spec_boolean ("enable-page-cache",
@@ -384,7 +380,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                                            "Whether the page cache should be used",
         !midori_web_settings_low_memory_profile (),
                                                            flags));
-    #endif
+
     if (g_object_class_find_property (gobject_class, "enable-fullscreen"))
     g_object_class_install_property (gobject_class,
                                      PROP_ENABLE_FULLSCREEN,
@@ -478,23 +474,6 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
         "Cookies, HTML5 databases, local storage and application cache blocking",
                                      NULL,
                                      flags));
-    #if !WEBKIT_CHECK_VERSION (1, 3, 13)
-    /**
-     * MidoriWebSettings:enable-dns-prefetching:
-     *
-     * Whether to resolve host names in advance.
-     *
-     * Since: 0.3.4
-     */
-    g_object_class_install_property (gobject_class,
-                                     PROP_ENABLE_DNS_PREFETCHING,
-                                     g_param_spec_boolean (
-                                     "enable-dns-prefetching",
-        "Whether to resolve host names in advance",
-        "Whether host names on a website or in bookmarks should be prefetched",
-                                     TRUE,
-                                     flags));
-    #endif
 
     /**
      * MidoriWebSettings:enforc-font-family:
@@ -567,13 +546,7 @@ midori_web_settings_init (MidoriWebSettings* web_settings)
     web_settings->user_stylesheet_uri = web_settings->user_stylesheet_uri_cached = NULL;
     web_settings->user_stylesheets = NULL;
 
-    #if WEBKIT_CHECK_VERSION (1, 2, 6) && !WEBKIT_CHECK_VERSION (1, 2, 8)
-    /* Shadows are very slow with WebKitGTK+ 1.2.7 */
-    midori_web_settings_add_style (web_settings, "box-shadow-workaround",
-        "* { -webkit-box-shadow: none !important; }");
-    #endif
-
-    #if defined (_WIN32) && WEBKIT_CHECK_VERSION (1, 7, 1) && !GTK_CHECK_VERSION (3, 0, 0)
+    #if defined (_WIN32) && !GTK_CHECK_VERSION (3, 0, 0)
     /* Try to work-around black borders on native widgets and GTK+2 on Win32 */
     midori_web_settings_add_style (web_settings, "black-widgets-workaround",
     "input[type='checkbox'] { -webkit-appearance: checkbox !important }"
@@ -617,15 +590,13 @@ midori_web_settings_finalize (GObject* object)
 gboolean
 midori_web_settings_has_plugin_support (void)
 {
-    #if !WEBKIT_CHECK_VERSION (1, 8, 2) && defined G_OS_WIN32
-    return FALSE;
-    #else
     return !midori_debug ("unarmed")  && g_strcmp0 (g_getenv ("MOZ_PLUGIN_PATH"), "/");
-    #endif
 }
 
 /**
  * midori_web_settings_skip_plugin:
+ *
+ * Tests if a plugin is redundant
  *
  * Returns: %TRUE if the passed plugin shouldn't be shown in UI listings.
  *
@@ -634,7 +605,36 @@ midori_web_settings_has_plugin_support (void)
 gboolean
 midori_web_settings_skip_plugin (const gchar* path)
 {
-    return !path || strstr (path, "npwrapper.") || strstr (path, "plugins-wrapped");
+    static GHashTable* plugins = NULL;
+    gchar* basename = NULL;
+    gchar* plugin_path = NULL;
+
+    if (!path)
+        return TRUE;
+
+    if (!plugins)
+        plugins = g_hash_table_new (g_str_hash,  g_str_equal);
+
+    basename = g_path_get_basename (path);
+
+    plugin_path = g_hash_table_lookup (plugins, basename);
+    if (g_strcmp0 (path, plugin_path) == 0)
+    {
+        return FALSE;
+    }
+
+    if (plugin_path != NULL)
+    {
+        g_free (basename);
+
+        return TRUE;
+    }
+
+    g_hash_table_insert (plugins, basename, g_strdup (path));
+
+    /* Note: do not free basename */
+
+    return FALSE;
 }
 
 /**
@@ -798,10 +798,8 @@ generate_ident_string (MidoriWebSettings* web_settings,
     const int webcore_minor = 32;
     #endif
 
-    #if WEBKIT_CHECK_VERSION (1, 1, 18)
     g_object_set (web_settings, "enable-site-specific-quirks",
         identify_as != MIDORI_IDENT_GENUINE, NULL);
-    #endif
 
     switch (identify_as)
     {
@@ -1011,19 +1009,17 @@ midori_web_settings_set_property (GObject*      object,
     case PROP_ENABLE_PLUGINS:
         g_object_set (web_settings,
            WEB_SETTINGS_STRING ("enable-plugins"), g_value_get_boolean (value),
-        #if HAVE_WEBKIT2
+        #ifdef HAVE_WEBKIT2
             "enable-java", g_value_get_boolean (value),
-        #elif WEBKIT_CHECK_VERSION (1, 1, 22)
+        #else
             "enable-java-applet", g_value_get_boolean (value),
         #endif
             NULL);
         break;
-    #if WEBKIT_CHECK_VERSION (1, 1, 18)
     case PROP_ENABLE_PAGE_CACHE:
         g_object_set (web_settings, WEB_SETTINGS_STRING ("enable-page-cache"),
                       g_value_get_boolean (value), NULL);
         break;
-    #endif
 
     case PROP_PROXY_TYPE:
         web_settings->proxy_type = g_value_get_enum (value);
@@ -1067,11 +1063,6 @@ midori_web_settings_set_property (GObject*      object,
     case PROP_SITE_DATA_RULES:
         katze_assign (web_settings->site_data_rules, g_value_dup_string (value));
         break;
-    #if !WEBKIT_CHECK_VERSION (1, 3, 13)
-    case PROP_ENABLE_DNS_PREFETCHING:
-        web_settings->enable_dns_prefetching = g_value_get_boolean (value);
-        break;
-    #endif
     case PROP_ENFORCE_FONT_FAMILY:
         if ((web_settings->enforce_font_family = g_value_get_boolean (value)))
         {
@@ -1189,12 +1180,10 @@ midori_web_settings_get_property (GObject*    object,
         g_value_set_boolean (value, katze_object_get_boolean (web_settings,
                              WEB_SETTINGS_STRING ("enable-plugins")));
         break;
-    #if WEBKIT_CHECK_VERSION (1, 1, 18)
     case PROP_ENABLE_PAGE_CACHE:
         g_value_set_boolean (value, katze_object_get_boolean (web_settings,
                              WEB_SETTINGS_STRING ("enable-page-cache")));
         break;
-    #endif
 
     case PROP_PROXY_TYPE:
         g_value_set_enum (value, web_settings->proxy_type);
@@ -1219,11 +1208,6 @@ midori_web_settings_get_property (GObject*    object,
     case PROP_SITE_DATA_RULES:
         g_value_set_string (value, web_settings->site_data_rules);
         break;
-    #if !WEBKIT_CHECK_VERSION (1, 3, 13)
-    case PROP_ENABLE_DNS_PREFETCHING:
-        g_value_set_boolean (value, web_settings->enable_dns_prefetching);
-        break;
-    #endif
     case PROP_ENFORCE_FONT_FAMILY:
         g_value_set_boolean (value, web_settings->enforce_font_family);
         break;
@@ -1442,7 +1426,7 @@ midori_settings_new_full (gchar*** extensions)
             integer = g_key_file_get_integer (key_file, "settings", property, NULL);
             g_object_set (settings, property, integer, NULL);
         }
-        else if (type == G_TYPE_PARAM_FLOAT)
+        else if (type == G_TYPE_PARAM_FLOAT || type == G_TYPE_PARAM_DOUBLE)
         {
             number = g_key_file_get_double (key_file, "settings", property, NULL);
             g_object_set (settings, property, number, NULL);
@@ -1499,9 +1483,6 @@ midori_settings_save_to_file (MidoriWebSettings* settings,
     GType type;
     const gchar* property;
     gboolean saved;
-    KatzeArray* extensions = katze_object_get_object (app, "extensions");
-    MidoriExtension* extension;
-    gchar** _extensions;
 
     key_file = g_key_file_new ();
     class = G_OBJECT_GET_CLASS (settings);
@@ -1551,6 +1532,13 @@ midori_settings_save_to_file (MidoriWebSettings* settings,
             if (integer != G_PARAM_SPEC_UINT (pspec)->default_value)
                 g_key_file_set_integer (key_file, "settings", property, integer);
         }
+        else if (type == G_TYPE_PARAM_DOUBLE)
+        {
+            gdouble number;
+            g_object_get (settings, property, &number, NULL);
+            if (number != G_PARAM_SPEC_DOUBLE (pspec)->default_value)
+                g_key_file_set_double (key_file, "settings", property, number);
+        }
         else if (type == G_TYPE_PARAM_FLOAT)
         {
             gfloat number;
@@ -1582,30 +1570,37 @@ midori_settings_save_to_file (MidoriWebSettings* settings,
     }
     g_free (pspecs);
 
-    /* Take frozen list of active extensions until preferences reset it */
-    if ((_extensions = g_object_get_data (G_OBJECT (app), "extensions")))
+    if (app != NULL)
     {
-        i = 0;
-        while (_extensions[i])
-            g_key_file_set_boolean (key_file, "extensions", _extensions[i++], TRUE);
+        /* Take frozen list of active extensions until preferences reset it */
+        gchar** _extensions;
+        KatzeArray* extensions;
+        if ((_extensions = g_object_get_data (G_OBJECT (app), "extensions")))
+        {
+            i = 0;
+            while (_extensions[i])
+                g_key_file_set_boolean (key_file, "extensions", _extensions[i++], TRUE);
+        }
+        else if ((extensions = katze_object_get_object (app, "extensions")))
+        {
+            MidoriExtension* extension;
+            KATZE_ARRAY_FOREACH_ITEM (extension, extensions)
+                if (midori_extension_is_active (extension))
+                {
+                    const gchar* filename = g_object_get_data (G_OBJECT (extension), "filename");
+                    g_return_val_if_fail (filename != NULL, FALSE);
+                    if (filename && strchr (filename, '/'))
+                        g_warning ("%s: %s unexpected /", G_STRFUNC, filename);
+                    gchar* key = katze_object_get_string (extension, "key");
+                    gchar* subname = key ? g_strdup_printf ("%s/%s", filename, key) : g_strdup (filename);
+                    g_key_file_set_boolean (key_file, "extensions", subname, TRUE);
+                    g_free (key);
+                    g_free (subname);
+                }
+            g_object_unref (extensions);
+        }
     }
-    else if (extensions)
-    {
-        KATZE_ARRAY_FOREACH_ITEM (extension, extensions)
-            if (midori_extension_is_active (extension))
-            {
-                const gchar* filename = g_object_get_data (G_OBJECT (extension), "filename");
-                g_return_val_if_fail (filename != NULL, FALSE);
-                if (filename && strchr (filename, '/'))
-                    g_warning ("%s: %s unexpected /", G_STRFUNC, filename);
-                gchar* key = katze_object_get_string (extension, "key");
-                gchar* subname = key ? g_strdup_printf ("%s/%s", filename, key) : g_strdup (filename);
-                g_key_file_set_boolean (key_file, "extensions", subname, TRUE);
-                g_free (key);
-                g_free (subname);
-            }
-        g_object_unref (extensions);
-    }
+
     saved = sokoke_key_file_save_to_file (key_file, filename, error);
     g_key_file_free (key_file);
     return saved;

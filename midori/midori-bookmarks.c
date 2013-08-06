@@ -48,19 +48,21 @@ midori_bookmarks_remove_item_cb (KatzeArray* array,
 {
     gchar* sqlcmd;
     char* errmsg = NULL;
+    gchar* id;
 
-
-    sqlcmd = sqlite3_mprintf (
-            "DELETE FROM bookmarks WHERE id = %" G_GINT64_FORMAT ";",
+    id = g_strdup_printf ("%" G_GINT64_FORMAT,
             katze_item_get_meta_integer (item, "id"));
+
+    sqlcmd = sqlite3_mprintf ("DELETE FROM bookmarks WHERE id = %q", id);
 
     if (sqlite3_exec (db, sqlcmd, NULL, NULL, &errmsg) != SQLITE_OK)
     {
-        g_printerr (_("Failed to remove history item: %s\n"), errmsg);
+        g_printerr (_("Failed to remove bookmark item: %s\n"), errmsg);
         sqlite3_free (errmsg);
     }
 
     sqlite3_free (sqlcmd);
+    g_free (id);
 }
 
 #define _APPEND_TO_SQL_ERRORMSG(custom_errmsg) \
@@ -248,6 +250,16 @@ midori_bookmarks_new (char** errmsg)
 
     if (newfile_did_exist)
     {
+        const gchar* setup_stmt = "PRAGMA foreign_keys = ON;";
+        /* initial setup */
+        if (sqlite3_exec (db, setup_stmt, NULL, NULL, &sql_errmsg) != SQLITE_OK)
+        {
+            *errmsg = g_strdup_printf (_("Couldn't setup bookmarks: %s\n"),
+                sql_errmsg ? sql_errmsg : "(err = NULL)");
+            sqlite3_free (sql_errmsg);
+            goto init_failed;
+        }
+
         /* we are done */
         goto init_success;
     }

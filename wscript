@@ -28,7 +28,7 @@ import misc
 from Configure import find_program_impl
 
 APPNAME = 'midori'
-VERSION = VERSION_FULL = '0.5.2'
+VERSION = VERSION_FULL = '0.5.4'
 VERSION_SUFFIX = ' (%s)' % VERSION
 
 try:
@@ -113,8 +113,8 @@ def configure (conf):
     conf.check_tool ('compiler_cc')
     conf.check_tool ('vala')
     conf.check_tool ('glib2')
-    if not check_version (conf.env['VALAC_VERSION'], 0, 14, 0):
-        Utils.pprint ('RED', 'Vala 0.14.0 or later is required.')
+    if not check_version (conf.env['VALAC_VERSION'], 0, 16, 0):
+        Utils.pprint ('RED', 'Vala 0.16.0 or later is required.')
         sys.exit (1)
 
     if option_enabled ('nls'):
@@ -193,12 +193,11 @@ def configure (conf):
             uselib_store=var, errmsg=name + ver_str + ' not found')][have])
         return have
 
-    if option_enabled ('libnotify'):
-        if not check_pkg ('libnotify', mandatory=False):
-            option_checkfatal ('libnotify', 'notifications')
-    else:
+    if is_win32 (os.environ):
         conf.define ('LIBNOTIFY_VERSION', 'No')
         conf.check_message_custom ('libnotify', '', 'disabled')
+    else:
+        check_pkg ('libnotify', mandatory=True)
     conf.define ('HAVE_LIBNOTIFY', [0,1][conf.env['LIBNOTIFY_VERSION'] != 'No'])
 
     if option_enabled ('granite'):
@@ -220,11 +219,7 @@ def configure (conf):
 
     conf.check (lib='m')
     check_pkg ('gmodule-2.0')
-    check_pkg ('gio-2.0', '2.22.0')
-    if check_version (conf.env['GIO_VERSION'], 2, 30, 0) \
-        and check_version (conf.env['VALAC_VERSION'], 0, 16, 0):
-        # Older Vala doesn't have GLib 2.30 bindings
-        conf.env.append_value ('VALAFLAGS', '-D HAVE_GLIB_2_30')
+    check_pkg ('gio-2.0', '2.32.3')
 
     args = ''
     if Options.platform == 'win32':
@@ -254,22 +249,20 @@ def configure (conf):
             conf.define ('HAVE_WEBKIT2', 1)
             conf.env.append_value ('VALAFLAGS', '-D HAVE_WEBKIT2')
         else:
-            check_pkg ('webkitgtk-3.0', '1.1.17', var='WEBKIT', mandatory=False)
+            check_pkg ('webkitgtk-3.0', '1.8.3', var='WEBKIT', mandatory=False)
         if not conf.env['HAVE_GTK'] or not conf.env['HAVE_WEBKIT']:
             Utils.pprint ('RED', 'GTK+3 was not found.\n' \
                 'Pass --disable-gtk3 to build without GTK+3.')
             sys.exit (1)
-        if check_version (conf.env['WEBKIT_VERSION'], 1, 5, 1):
-            check_pkg ('javascriptcoregtk-3.0', '1.5.1', args=args)
+        check_pkg ('javascriptcoregtk-3.0', '1.8.3', args=args)
         conf.env.append_value ('VALAFLAGS', '-D HAVE_GTK3')
         conf.env.append_value ('VALAFLAGS', '-D HAVE_OFFSCREEN')
         conf.env.append_value ('VALAFLAGS', '-D HAVE_DOM')
     else:
-        check_pkg ('gtk+-2.0', '2.16.0', var='GTK')
-        check_pkg ('webkit-1.0', '1.1.17', args=args)
+        check_pkg ('gtk+-2.0', '2.24.0', var='GTK')
+        check_pkg ('webkit-1.0', '1.8.3', args=args)
         conf.define ('GCR_VERSION', 'No')
-        if check_version (conf.env['WEBKIT_VERSION'], 1, 5, 1):
-            check_pkg ('javascriptcoregtk-1.0', '1.5.1', args=args)
+        check_pkg ('javascriptcoregtk-1.0', '1.8.3', args=args)
         if check_version (conf.env['GTK_VERSION'], 2, 20, 0):
             conf.env.append_value ('VALAFLAGS', '-D HAVE_OFFSCREEN')
     conf.env['HAVE_GTK3'] = have_gtk3
@@ -285,7 +278,7 @@ def configure (conf):
         conf.check_message_custom ('unique', '', 'disabled')
     conf.define ('HAVE_UNIQUE', [0,1][conf.env['UNIQUE_VERSION'] != 'No'])
 
-    check_pkg ('libsoup-2.4', '2.27.90', var='LIBSOUP')
+    check_pkg ('libsoup-gnome-2.4', '2.27.90', var='LIBSOUP')
     if check_version (conf.env['LIBSOUP_VERSION'], 2, 29, 91):
         conf.define ('HAVE_LIBSOUP_2_29_91', 1)
     if check_version (conf.env['LIBSOUP_VERSION'], 2, 34, 0):
@@ -293,13 +286,6 @@ def configure (conf):
         conf.env.append_value ('VALAFLAGS', '-D HAVE_LIBSOUP_2_34_0')
     if check_version (conf.env['LIBSOUP_VERSION'], 2, 37, 1):
         conf.define ('HAVE_LIBSOUP_2_37_1', 1)
-
-    if check_version (conf.env['WEBKIT_VERSION'], 1, 3, 8):
-        conf.env.append_value ('VALAFLAGS', '-D HAVE_WEBKIT_1_3_8')
-    if check_version (conf.env['WEBKIT_VERSION'], 1, 3, 13):
-        conf.env.append_value ('VALAFLAGS', '-D HAVE_WEBKIT_1_3_13')
-    if check_version (conf.env['WEBKIT_VERSION'], 1, 8, 0):
-        conf.env.append_value ('VALAFLAGS', '-D HAVE_WEBKIT_1_8_0')
 
     check_pkg ('libxml-2.0', '2.6')
     conf.undefine ('LIBXML_VERSION') # Defined in xmlversion.h
@@ -312,10 +298,6 @@ def configure (conf):
     conf.env['docs'] = option_enabled ('docs')
     if 'LINGUAS' in os.environ: conf.env['LINGUAS'] = os.environ['LINGUAS']
 
-    if not check_version (conf.env['GIO_VERSION'], 2, 26, 0):
-        conf.env['addons'] = False
-        Utils.pprint ('YELLOW', 'Glib < 2.26.0, disabling addons')
-
     conf.check (header_name='unistd.h')
     if not conf.env['HAVE_UNIQUE']:
         if Options.platform == 'win32':
@@ -327,6 +309,8 @@ def configure (conf):
         conf.check (function_name='inet_addr', header_name='sys/types.h sys/socket.h netinet/in.h arpa/inet.h')
     conf.define ('HAVE_OSX', int(sys.platform == 'darwin'))
     if Options.platform == 'win32':
+        conf.check (lib='ole32')
+        conf.check (lib='uuid')
         conf.env.append_value ('LINKFLAGS', '-mwindows')
         conf.env.append_value ('program_LINKFLAGS', ['-Wl,--out-implib=default/midori/libmidori.a', '-Wl,--export-all-symbols'])
     else:
@@ -376,13 +360,6 @@ def configure (conf):
         Utils.pprint ('RED', 'unique 1.0.4 found, this version is erroneous.')
         Utils.pprint ('RED', 'Please use an older or newer version.')
         sys.exit (1)
-    if check_version (conf.env['LIBSOUP_VERSION'], 2, 33, 4) \
-        and check_version (conf.env['GIO_VERSION'], 2, 32, 1) \
-        and not check_version (conf.env['GIO_VERSION'], 2, 32, 3):
-        Utils.pprint ('RED', 'libsoup >= 2.33.4 found with glib >= 2.32.1 < 2.32.3:')
-        Utils.pprint ('RED', 'This combination breaks the download GUI.')
-        Utils.pprint ('RED', 'See https://bugs.launchpad.net/midori/+bug/780133/comments/14')
-        sys.exit (1)
 
 def set_options (opt):
     def add_enable_option (option, desc, group=None, disable=False):
@@ -412,14 +389,15 @@ def set_options (opt):
 
     group = opt.add_option_group ('Localization and documentation', '')
     add_enable_option ('nls', 'native language support', group)
+    group.add_option ('--update-pot', action='store_true', default=False,
+        help='Update gettext template', dest='update_pot')
     group.add_option ('--update-po', action='store_true', default=False,
-        help='Update localization files', dest='update_po')
+        help='Update all localization files', dest='update_po')
     add_enable_option ('docs', 'informational text files', group)
     add_enable_option ('apidocs', 'API documentation', group, disable=True)
 
     group = opt.add_option_group ('Optional features', '')
     add_enable_option ('unique', 'single instance support', group, disable=is_win32 (os.environ))
-    add_enable_option ('libnotify', 'notification support', group)
     add_enable_option ('granite', 'new notebook, pop-overs', group, disable=True)
     add_enable_option ('addons', 'building of extensions', group)
     add_enable_option ('tests', 'install tests', group, disable=True)
@@ -455,21 +433,38 @@ def write_linguas_file (self):
 write_linguas_file = feature ('intltool_po')(write_linguas_file)
 
 def build (bld):
+    if Options.options.update_pot:
+        os.chdir ('./po')
+        try:
+            subprocess.call(['intltool-update', '-p', '-g', APPNAME])
+            Utils.pprint ('YELLOW', "Updated gettext template.")
+        except:
+            Utils.pprint ('RED', "Failed to update gettext template.")
+            Utils.pprint ('RED', "Make sure intltool is installed.")
+        os.chdir ('..')
+        return
+
+    if Options.options.update_po:
+        os.chdir('./po')
+        try:
+            subprocess.call(['intltool-update', '-r', '-g', APPNAME])
+            Utils.pprint ('YELLOW', "Updated translations.")
+        except:
+            Utils.pprint ('RED', "Failed to update translations.")
+            Utils.pprint ('RED', "Make sure intltool is installed.")
+        os.chdir ('..')
+        return
+
     bld.add_group ()
 
     bld.add_subdirs ('midori icons')
-
-    if bld.env['addons']:
-        bld.add_subdirs ('extensions')
+    bld.add_subdirs ('extensions')
 
     bld.add_group ()
 
     if bld.env['docs']:
         bld.install_files ('${DOCDIR}/', \
             'AUTHORS COPYING ChangeLog EXPAT README data/faq.html data/faq.css')
-
-    # Install default configuration
-    bld.install_files ('${SYSCONFDIR}/xdg/' + APPNAME + '/', 'data/search')
 
     if bld.env['INTLTOOL']:
         obj = bld.new_task_gen ('intltool_po')
@@ -480,9 +475,12 @@ def build (bld):
         bld.add_subdirs ('docs/api')
         bld.install_files ('${DOCDIR}/api/', blddir + '/docs/api/*')
 
-    for desktop in [APPNAME + '.desktop', APPNAME + '-private.desktop']:
+    for res_file in os.listdir ('data'):
         if is_win32 (bld.env):
             break
+        if not '.desktop' in res_file:
+            continue
+        desktop = res_file[:-3]
         appdir = '${MDATADIR}/applications'
         if bld.env['INTLTOOL']:
             obj = bld.new_task_gen ('intltool_in')
@@ -521,20 +519,26 @@ def build (bld):
         else:
             Utils.pprint ('BLUE', "logo-shade could not be rasterized.")
 
-    for res_file in ['about.css', 'error.html', 'close.png', 'gtk3.css', 'speeddial-head.html']:
-        bld.install_files ('${MDATADIR}/' + APPNAME + '/res', 'data/' + res_file)
+    for res_file in os.listdir ('data'):
+        if '.desktop' in res_file or 'faq.' in res_file or 'midori.' in res_file:
+            continue
+        dest = '${MDATADIR}/' + APPNAME + '/res'
+        if (os.path.isdir ('data/' + res_file)):
+            dest += '/' + res_file
+            res_file += '/*'
+        bld.install_files (dest, 'data/' + res_file)
 
-    if bld.env['addons']:
-        bld.install_files ('${MDATADIR}/' + APPNAME + '/res', 'data/autosuggestcontrol.js')
-        bld.install_files ('${MDATADIR}/' + APPNAME + '/res', 'data/autosuggestcontrol.css')
-
-        if 1:
-            extensions = os.listdir ('data/extensions')
-            for extension in extensions:
-                source = 'data/extensions/' + extension +  '/config'
-                if os.path.exists (source):
-                    bld.install_files ('${SYSCONFDIR}/xdg/' + APPNAME + \
-                                       '/extensions/' + extension, source)
+    for config_file in os.listdir ('config'):
+        dest = '${SYSCONFDIR}/xdg/' + APPNAME
+        if (os.path.isdir ('config/' + config_file)):
+            dest += '/' + config_file
+            for child in os.listdir ('config/' + config_file):
+                if (os.path.isdir ('config/' + config_file + '/' + child)):
+                    dest += '/' + child
+                    child += '/*'
+                bld.install_files (dest, 'config/' + config_file + '/' + child)
+            continue
+        bld.install_files (dest, 'config/' + config_file)
 
     if Options.commands['check'] or bld.env['tests']:
         bld.add_subdirs ('tests')
@@ -549,8 +553,6 @@ def check (ctx):
 def distclean ():
     if os.path.exists ('po/LINGUAS'):
         os.remove ('po/LINGUAS')
-    if os.path.exists ('po/midori.pot'):
-        os.remove ('po/midori.pot')
 
 def shutdown ():
     if Options.commands['install'] or Options.commands['uninstall']:
@@ -692,61 +694,3 @@ def shutdown ():
         # if test.num_tests_failed > 0 or test.num_tests_err > 0:
         #     sys.exit (1)
 
-    elif Options.options.update_po:
-        os.chdir('./po')
-        try:
-            try:
-                size_old = os.stat (APPNAME + '.pot').st_size
-            except:
-                size_old = 0
-            subprocess.call (['intltool-update', '-p', '-g', APPNAME])
-            size_new = os.stat (APPNAME + '.pot').st_size
-            if size_new != size_old:
-                Utils.pprint ('YELLOW', "Updated po template.")
-                try:
-                    command = 'intltool-update -r -g %s' % APPNAME
-                    Utils.exec_command (command)
-                    Utils.pprint ('YELLOW', "Updated translations.")
-                except:
-                    Utils.pprint ('RED', "Failed to update translations.")
-        except:
-            Utils.pprint ('RED', "Failed to generate po template.")
-            Utils.pprint ('RED', "Make sure intltool is installed.")
-        os.chdir ('..')
-    elif Options.options.run:
-        folder = os.path.abspath (blddir + '/default')
-        try:
-            relfolder = folder
-            if not is_mingw (Build.bld.env):
-                relfolder = os.path.relpath (folder)
-        except:
-            pass
-        try:
-            nls = 'MIDORI_NLSPATH=' + relfolder + os.sep + 'po'
-            lang = os.environ['LANG']
-            try:
-                for lang in os.listdir (folder + os.sep + 'po'):
-                    if lang[3:] == 'mo':
-                        lang = lang[:-3]
-                    else:
-                        continue
-                    Utils.check_dir (folder + os.sep + 'po' + os.sep + lang)
-                    Utils.check_dir (folder + os.sep + 'po' + os.sep + lang + \
-                        os.sep + 'LC_MESSAGES')
-                    os.symlink (folder + os.sep + 'po' + os.sep + lang + '.mo',
-                        folder + os.sep + 'po' + os.sep + lang + os.sep + \
-                        'LC_MESSAGES' + os.sep + APPNAME + '.mo')
-            except:
-                pass
-            command = nls + ' '
-            if is_mingw (Build.bld.env):
-                # This works only if everything is installed to that prefix
-                os.chdir (Build.bld.env['PREFIX'] + os.sep + 'bin')
-                command += ' wine cmd /k "PATH=%PATH%;' + Build.bld.env['PREFIX'] + os.sep + 'bin' + ' && ' + APPNAME + '.exe"'
-            else:
-                command += ' ' + relfolder + os.sep + APPNAME + os.sep + APPNAME
-            print (command)
-            Utils.exec_command (command)
-        except Exception:
-            msg = sys.exc_info()[1] # Python 2/3 compatibility
-            Utils.pprint ('RED', "Failed to run application: " + str (msg))

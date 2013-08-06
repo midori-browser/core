@@ -22,10 +22,8 @@
 #include <gdk/gdkkeysyms.h>
 #include <sqlite3.h>
 
-#if WEBKIT_CHECK_VERSION (1, 3, 11)
     #define LIBSOUP_USE_UNSTABLE_REQUEST_API
     #include <libsoup/soup-cache.h>
-#endif
 
 static void
 #ifdef HAVE_GRANITE
@@ -223,13 +221,17 @@ midori_remove_config_file (gint         clear_prefs,
 static void
 midori_clear_web_cookies_cb (void)
 {
-#ifndef HAVE_WEBKIT2
+#ifdef HAVE_WEBKIT2
+    WebKitWebContext* context = webkit_web_context_get_default ();
+    WebKitCookieManager* cookie_manager = webkit_web_context_get_cookie_manager (context);
+    webkit_cookie_manager_delete_all_cookies (cookie_manager);
+    /* FIXME: site data policy */
+#else
     SoupSession* session = webkit_get_default_session ();
     MidoriWebSettings* settings = g_object_get_data (G_OBJECT (session), "midori-settings");
     SoupSessionFeature* jar = soup_session_get_feature (session, SOUP_TYPE_COOKIE_JAR);
     GSList* cookies = soup_cookie_jar_all_cookies (SOUP_COOKIE_JAR (jar));
     SoupSessionFeature* feature;
-    gchar* cache;
 
     /* HTTP Cookies/ Web Cookies */
     for (; cookies != NULL; cookies = g_slist_next (cookies))
@@ -241,18 +243,12 @@ midori_clear_web_cookies_cb (void)
         soup_cookie_jar_delete_cookie ((SoupCookieJar*)jar, cookies->data);
     }
     soup_cookies_free (cookies);
-    /* Removing KatzeHttpCookies makes it save outstanding changes */
-    if ((feature = soup_session_get_feature (session, KATZE_TYPE_HTTP_COOKIES)))
-    {
-        g_object_ref (feature);
-        soup_session_remove_feature (session, feature);
-        soup_session_add_feature (session, feature);
-        g_object_unref (feature);
-    }
+#endif
 
     /* Local shared objects/ Flash cookies */
     if (midori_web_settings_has_plugin_support ())
     {
+    gchar* cache;
     #ifdef GDK_WINDOWING_X11
     cache = g_build_filename (g_get_home_dir (), ".macromedia", "Flash_Player", NULL);
     midori_paths_remove_path (cache);
@@ -269,15 +265,16 @@ midori_clear_web_cookies_cb (void)
     #endif
     }
 
+#ifdef HAVE_WEBKIT2
+    /* TODO: clear databases and offline app caches */
+#else
     /* HTML5 databases */
     webkit_remove_all_web_databases ();
 
     /* HTML5 offline application caches */
-    #if WEBKIT_CHECK_VERSION (1, 3, 13)
     /* Changing the size implies clearing the cache */
     webkit_application_cache_set_maximum_size (
         webkit_application_cache_get_maximum_size () - 1);
-    #endif
 #endif
 }
 
@@ -299,7 +296,6 @@ midori_clear_saved_logins_cb (void)
     g_free (filename);
 }
 
-#if WEBKIT_CHECK_VERSION (1, 3, 11)
 static void
 midori_clear_web_cache_cb (void)
 {
@@ -315,7 +311,6 @@ midori_clear_web_cache_cb (void)
     g_free (cache);
 #endif
 }
-#endif
 
 void
 midori_private_data_register_built_ins ()
@@ -325,11 +320,9 @@ midori_private_data_register_built_ins ()
         G_CALLBACK (midori_clear_saved_logins_cb));
     midori_private_data_register_item ("web-cookies", _("Cookies and Website data"),
         G_CALLBACK (midori_clear_web_cookies_cb));
-    #if WEBKIT_CHECK_VERSION (1, 3, 11)
     /* TODO: Preserve page icons of search engines and merge privacy items */
     midori_private_data_register_item ("web-cache", _("Web Cache"),
         G_CALLBACK (midori_clear_web_cache_cb));
-    #endif
     midori_private_data_register_item ("page-icons", _("Website icons"),
         G_CALLBACK (midori_paths_clear_icons));
 }

@@ -87,10 +87,6 @@ static void cm_create_toolbar(CookieManagerPage *cmp)
 	GtkToolItem *toolitem;
 
 	priv->toolbar = toolbar = gtk_toolbar_new();
-	gtk_toolbar_set_style(GTK_TOOLBAR(toolbar), GTK_TOOLBAR_BOTH_HORIZ);
-	gtk_toolbar_set_icon_size(GTK_TOOLBAR(toolbar), GTK_ICON_SIZE_BUTTON);
-	gtk_widget_show(toolbar);
-
 	toolitem = gtk_tool_button_new_from_stock(GTK_STOCK_DELETE);
 	gtk_tool_item_set_is_important(toolitem, TRUE);
 	g_signal_connect(toolitem, "clicked", G_CALLBACK(cm_button_delete_clicked_cb), cmp);
@@ -664,17 +660,9 @@ static gchar *cm_get_cookie_description_text(SoupCookie *cookie)
 	if (cookie->expires != NULL)
 	{
 		time_t expiration_time = soup_date_to_time_t(cookie->expires);
-		#if GLIB_CHECK_VERSION (2, 26, 0)
 		GDateTime* date = g_date_time_new_from_unix_local(expiration_time);
 		expires = g_date_time_format(date, "%c");
 		g_date_time_unref(date);
-		#else
-		static gchar date_fmt[512];
-		const struct tm *tm = localtime(&expiration_time);
-		/* Some GCC versions falsely complain about "%c" */
-		strftime(date_fmt, sizeof(date_fmt), "%c", tm);
-		expires = g_strdup(date_fmt);
-		#endif
 	}
 	else
 		expires = g_strdup(_("At the end of the session"));

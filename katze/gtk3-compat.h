@@ -41,40 +41,6 @@ G_BEGIN_DECLS
         gtk_widget_get_preferred_size(wdgt, req, NULL)
 #endif
 
-#if !GLIB_CHECK_VERSION (2, 32, 0)
-    #define G_SOURCE_REMOVE   FALSE
-    #define G_SOURCE_CONTINUE TRUE
-#endif
-
-#if !GLIB_CHECK_VERSION (2, 30, 0)
-    #define g_format_size(sz) g_format_size_for_display ((goffset)sz)
-#endif
-
-#if !GTK_CHECK_VERSION (2, 18, 0)
-    #define gtk_widget_is_toplevel(widget) GTK_WIDGET_TOPLEVEL (widget)
-    #define gtk_widget_has_focus(widget) GTK_WIDGET_HAS_FOCUS (widget)
-    #define gtk_widget_get_visible(widget) GTK_WIDGET_VISIBLE (widget)
-    #define gtk_widget_get_sensitive(widget) GTK_WIDGET_IS_SENSITIVE (widget)
-    #define gtk_widget_set_can_focus(widget,flag) \
-        GTK_WIDGET_SET_FLAGS (widget, GTK_CAN_FOCUS)
-    #define gtk_widget_get_allocation(wdgt, alloc) *alloc = wdgt->allocation
-    #define gtk_widget_get_has_window(wdgt) !GTK_WIDGET_NO_WINDOW (wdgt)
-    #define gtk_widget_get_allocation(wdgt, alloc) *alloc = wdgt->allocation
-    #define gtk_widget_set_window(wdgt, wndw) wdgt->window = wndw
-    #define gtk_widget_is_drawable GTK_WIDGET_DRAWABLE
-    #define gtk_widget_get_drawable GTK_WIDGET_VISIBLE
-    #define gtk_widget_set_has_window(wdgt, wnd) \
-        if (wnd) GTK_WIDGET_UNSET_FLAGS (wdgt, GTK_NO_WINDOW); \
-        else GTK_WIDGET_SET_FLAGS (wdgt, GTK_NO_WINDOW)
-#endif
-
-#if !GTK_CHECK_VERSION (2, 20, 0)
-    #define gtk_widget_get_realized(widget) GTK_WIDGET_REALIZED (widget)
-    #define gtk_widget_set_realized(wdgt, real) \
-        if (real) GTK_WIDGET_SET_FLAGS (wdgt, GTK_REALIZED); \
-        else GTK_WIDGET_UNSET_FLAGS (wdgt, GTK_REALIZED)
-#endif
-
 #if GTK_CHECK_VERSION (3, 0, 0)
     #define GTK_DIALOG_NO_SEPARATOR 0
 #endif
@@ -82,15 +48,6 @@ G_BEGIN_DECLS
 #if !GTK_CHECK_VERSION (3, 2, 0)
     void gtk_entry_set_placeholder_text (GtkEntry* entry, const gchar* text);
     const gchar* gtk_entry_get_placeholder_text (GtkEntry* entry);
-#endif
-
-#if !GTK_CHECK_VERSION (2, 24 ,0)
-    #define gtk_combo_box_text_append_text gtk_combo_box_append_text
-    #define gtk_combo_box_text_new gtk_combo_box_new_text
-    #define gtk_combo_box_text_new_with_entry gtk_combo_box_entry_new_text
-    #define gtk_combo_box_text_get_active_text gtk_combo_box_get_active_text
-    #define GTK_COMBO_BOX_TEXT GTK_COMBO_BOX
-    #define GtkComboBoxText GtkComboBox
 #endif
 
 #ifndef GDK_KEY_Return

@@ -9,7 +9,6 @@
    See the file COPYING for the full license text.
 */
 
-#if HAVE_WEBKIT_1_3_8
 namespace NSPlugins {
     private int active_plugins = 0;
 
@@ -53,10 +52,8 @@ namespace NSPlugins {
         }
     }
 }
-#endif
 
 public Katze.Array? extension_init () {
-#if HAVE_WEBKIT_1_3_8
     if (!Midori.WebSettings.has_plugin_support ())
         return null;
 
@@ -70,8 +67,5 @@ public Katze.Array? extension_init () {
         extensions.add_item (new NSPlugins.Extension (plugin));
     }
     return extensions;
-#else
-    return null;
-#endif
 }
 

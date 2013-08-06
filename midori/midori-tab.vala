@@ -89,6 +89,9 @@ namespace Midori {
         /* Allow the browser to provide the find bar */
         public signal void search_text (bool found, string typing);
 
+       /* Since: 0.5.5 */
+        public signal void context_menu (WebKit.HitTestResult hit_test_result, ContextAction menu);
+
         public bool is_blank () {
             return URI.is_blank (uri);
         }
@@ -109,7 +112,6 @@ namespace Midori {
 
         public void inject_stylesheet (string stylesheet) {
 #if !HAVE_WEBKIT2
-            #if HAVE_DOM
             var dom = web_view.get_dom_document ();
             try {
                 var style = dom.create_element ("style");
@@ -121,19 +123,6 @@ namespace Midori {
             catch (Error error) {
                 critical (_("Failed to inject stylesheet: %s"), error.message);
             }
-            #else
-            web_view.execute_script ("""
-                (function () {
-                var style = document.createElement ('style');
-                style.setAttribute ('type', 'text/css');
-                style.appendChild (document.createTextNode ('%s'));
-                var head = document.getElementsByTagName ('head')[0];
-                if (head) head.appendChild (style);
-                else document.documentElement.insertBefore
-                (style, document.documentElement.firstChild);
-                }) ();
-                """.printf (stylesheet));
-            #endif
 #endif
         }
 

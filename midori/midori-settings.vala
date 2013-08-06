@@ -65,6 +65,26 @@ namespace Midori {
         /* Since: 0.4.8 */
         public uint inactivity_reset { get; set; default = 0; }
 
+        string? default_theme_name_ = null;
+        /* Since: 0.5.5 */
+        public string? default_theme_name { get {
+            if (default_theme_name_ == null)
+                default_theme_name_ = Gtk.Settings.get_default ().gtk_theme_name;
+            return default_theme_name_;
+        } }
+        string? theme_name_ = null;
+        /* Since: 0.5.5 */
+        public string? theme_name { get {
+            return theme_name_;
+        } set {
+            if (theme_name != value) {
+                if (default_theme_name_ == null)
+                    default_theme_name_ = Gtk.Settings.get_default ().gtk_theme_name;
+                theme_name_ = value;
+                Gtk.Settings.get_default ().gtk_theme_name = theme_name_;
+            }
+        } }
+
         GLib.Regex? block_uris_regex = null;
         /* Since: 0.4.8 */
         public string? block_uris { get {
@@ -119,6 +139,8 @@ namespace Midori {
         /* Since: 0.1.4 */
         // [Deprecated (since = "0.4.7")]
         public bool find_while_typing { get; set; default = false; }
+        /* Since: 0.5.4 */
+        public double zoom_level { get; set; default = 1.0; }
 
         public bool open_popups_in_tabs { get; set; default = true; }
         /* Since: 0.2.0 */

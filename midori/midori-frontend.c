@@ -36,6 +36,15 @@ midori_frontend_browser_new_window_cb (MidoriBrowser* browser,
     return new_browser;
 }
 
+static void
+midori_browser_privacy_preferences_cb (MidoriBrowser*    browser,
+                                       KatzePreferences* preferences,
+                                       gpointer          user_data)
+{
+    MidoriWebSettings* settings = midori_browser_get_settings (browser);
+    midori_preferences_add_privacy_category (preferences, settings);
+}
+
 MidoriBrowser*
 midori_web_app_new (const gchar* webapp,
                     gchar**      open_uris,
@@ -50,6 +59,8 @@ midori_web_app_new (const gchar* webapp,
     MidoriBrowser* browser = midori_browser_new ();
     g_signal_connect (browser, "new-window",
         G_CALLBACK (midori_frontend_browser_new_window_cb), NULL);
+    g_signal_connect (browser, "show-preferences",
+        G_CALLBACK (midori_browser_privacy_preferences_cb), NULL);
 
     midori_browser_set_action_visible (browser, "Menubar", FALSE);
     midori_browser_set_action_visible (browser, "CompactMenu", FALSE);
@@ -170,9 +181,7 @@ midori_private_app_new (const gchar* config,
                   "enable-offline-web-application-cache", FALSE,
     /* Arguably DNS prefetching is or isn't a privacy concern. For the
      * lack of more fine-grained control we'll go the safe route. */
-    #if WEBKIT_CHECK_VERSION (1, 3, 11)
                   "enable-dns-prefetching", FALSE,
-    #endif
                   "strip-referer", TRUE,
                   "show-panel", FALSE,
                   "last-window-state", MIDORI_WINDOW_NORMAL,
@@ -245,15 +254,6 @@ midori_browser_show_preferences_cb (MidoriBrowser*    browser,
 }
 
 static void
-midori_browser_privacy_preferences_cb (MidoriBrowser*    browser,
-                                       KatzePreferences* preferences,
-                                       MidoriApp*        app)
-{
-    MidoriWebSettings* settings = midori_browser_get_settings (browser);
-    midori_preferences_add_privacy_category (preferences, settings);
-}
-
-static void
 midori_app_add_browser_cb (MidoriApp*     app,
                            MidoriBrowser* browser,
                            gpointer       user_data)
@@ -271,7 +271,7 @@ midori_app_add_browser_cb (MidoriApp*     app,
 
     /* Extensions */
     g_signal_connect (browser, "show-preferences",
-        G_CALLBACK (midori_browser_privacy_preferences_cb), app);
+        G_CALLBACK (midori_browser_privacy_preferences_cb), NULL);
     g_signal_connect (browser, "show-preferences",
         G_CALLBACK (midori_browser_show_preferences_cb), app);
 
@@ -318,7 +318,7 @@ midori_frontend_debugger_cb (GtkWidget* button,
     gtk_dialog_response (dialog, GTK_RESPONSE_HELP);
 }
 
-static MidoriStartup
+static gint
 midori_frontend_diagnostic_dialog (MidoriApp*         app,
                                    MidoriWebSettings* settings,
                                    KatzeArray*        session)
@@ -568,9 +568,10 @@ midori_normal_app_new (const gchar* config,
      && open_uris && !execute_commands)
      || diagnostic_dialog)
     {
-        load_on_startup = midori_frontend_diagnostic_dialog (app, settings, session);
-        if (load_on_startup == G_MAXINT)
+        gint response = midori_frontend_diagnostic_dialog (app, settings, session);
+        if (response == G_MAXINT)
             return NULL;
+        load_on_startup = response;
     }
     g_object_set_data (G_OBJECT (settings), "load-on-startup", GINT_TO_POINTER (load_on_startup));
 
@@ -601,11 +602,6 @@ midori_normal_app_on_quit (MidoriApp* app)
     midori_bookmarks_on_quit (bookmarks);
     midori_history_on_quit (history, settings);
     midori_private_data_on_quit (settings);
-    /* Removing KatzeHttpCookies makes it save outstanding changes */
-#ifndef HAVE_WEBKIT2
-    soup_session_remove_feature_by_type (webkit_get_default_session (),
-                                         KATZE_TYPE_HTTP_COOKIES);
-#endif
 
     MidoriStartup load_on_startup = katze_object_get_int (settings, "load-on-startup");
     if (load_on_startup < MIDORI_STARTUP_LAST_OPEN_PAGES)

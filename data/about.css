@@ -3,48 +3,53 @@
  This file is licensed under the terms of the expat license, see the file EXPAT.
  */
 body {
-   background-color: #eee;
-   margin: 0;
-   padding: 0;
-}
-
-#container {
-   background: #f6fff3;
-   min-width: 70%;
-   max-width: 70%;
-   margin: 2em auto 1em;
-   padding: 1em;
-   border: 0.2em solid #9acb7f;
-   -webkit-border-radius: 1em;
-}
-
-#icon {
-   float: left;
-   padding-left: 1%;
-   padding-top: 1%;
+   background-color: #dedede;
+    color: #222222;
+    font-family: 'Open Sans', 'Droid Sans', Arial, sans-serif;
+    font-size: 14px;
+    font-style: normal;
+    font-variant: normal;
+    font-weight: normal;
+    margin-top: 100px;
 }
 
 html[dir="rtl"] #icon {
-   float: right;
-   padding-right: 1%;
+    float: right;
+    padding-right: 1%;
+}
+
+.indent {
+    margin-left: 5%;
 }
 
 #main {
-   float: right;
-   width: 75%;
+    max-width: 50%;
+    margin-left: auto;
+    margin-right: auto;
+    min-width: 480px;
+    background-repeat: no-repeat;
+    background-color: #ffffff;
+    border: 1px solid rgba(0, 0, 0, .3);
+    padding: 25px;
+    -webkit-border-radius: 4px;
+    -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.1);
+    background-position-x: 22px;
+    background-position-y: 54px;
+}
+
+#text {
+    margin-left: 15%;
 }
 
 h1 {
-   font-size: 1.4em;
-   font-weight: bold;
-   white-space: nowrap;
-   overflow: hidden;
-   text-overflow: ellipsis;
-}
-
-#logo {
-   position: absolute; bottom: 15px;
-   z-index: -1;
+    font-family: 'Open Sans', 'Droid Sans', arial, sans-serif;
+    font-size: 32px;
+    font-style: normal;
+    font-variant: normal;
+    font-weight: 300;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 html[dir="ltr"] #logo {
@@ -61,11 +66,35 @@ button img {
     padding: 2px 1px;
 }
 
-#message {
-   font-size: 1.1em;
-   word-wrap: break-word;
+button {
+	font-size: 14px;
 }
 
-#description {
-   font-size: 1em;
+.message {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.description {
+    font-size: 1em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#suggestions {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#button {
+    text-align: right;
+}
+
+#logo {
+   position: absolute; bottom: 15px;
+   z-index: -1;
+}
+
+form {
+	margin-bottom: 0px;
 }
