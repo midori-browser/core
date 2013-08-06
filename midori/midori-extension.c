@@ -559,8 +559,8 @@ midori_extension_load_from_folder (MidoriApp* app,
         while (keys && (filename = keys[i++]))
             midori_extension_activate_gracefully (app, extension_path, filename, activate);
         /* FIXME need proper stock extension mechanism */
-        GObject* extension = midori_extension_activate_gracefully (app, extension_path, "libtransfers." G_MODULE_SUFFIX, activate);
-        g_assert (extension != NULL);
+        g_assert (midori_extension_activate_gracefully (app, extension_path, "libtransfers." G_MODULE_SUFFIX, activate));
+        g_assert (midori_extension_activate_gracefully (app, extension_path, "libapps." G_MODULE_SUFFIX, activate));
     }
     else
     {
@@ -672,7 +672,8 @@ midori_extension_add_to_list (MidoriApp*       app,
     if (katze_array_get_item_index (extensions, extension) >= 0)
         return;
     /* FIXME need proper stock extension mechanism */
-    if (!strcmp (filename, "libtransfers." G_MODULE_SUFFIX))
+    if (!strcmp (filename, "libtransfers." G_MODULE_SUFFIX)
+     || !strcmp (filename, "libapps." G_MODULE_SUFFIX))
         return;
 
     katze_array_add_item (extensions, extension);
