@@ -39,7 +39,11 @@ katze_cell_renderer_combobox_text_set_property (GObject*      object,
 static void
 katze_cell_renderer_combobox_text_get_size (GtkCellRenderer* cell,
     GtkWidget*       widget,
-    const GdkRectangle*                                      cell_area,
+#if GTK_CHECK_VERSION(3,0,0)
+    const GdkRectangle*      cell_area,
+#else
+    GdkRectangle*            cell_area,
+#endif
     gint*            x_offset,
     gint*            y_offset,
     gint*            width,
@@ -449,7 +453,11 @@ set_text(KatzeCellRendererComboBoxText* cell,
 static void
 katze_cell_renderer_combobox_text_get_size (GtkCellRenderer *cell,
 				 GtkWidget       *widget,
-				 const GdkRectangle         *cell_area,
+#if GTK_CHECK_VERSION(3,0,0)
+                                 const GdkRectangle* cell_area,
+#else
+                                 GdkRectangle*       cell_area,
+#endif
 				 gint            *x_offset,
 				 gint            *y_offset,
 				 gint            *width,
