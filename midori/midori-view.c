@@ -2506,12 +2506,11 @@ midori_view_get_page_context_action (MidoriView*          view,
         midori_context_action_add_by_name (menu, "SourceView");
         if (!g_object_get_data (G_OBJECT (browser), "midori-toolbars-visible"))
             midori_context_action_add_by_name (menu, "Navigationbar");
-        if (katze_object_get_boolean (view->settings, "enable-developer-extras"))
-            midori_context_action_add_by_name (menu, "InspectPage");
         if (state & GDK_WINDOW_STATE_FULLSCREEN)
             midori_context_action_add_by_name (menu, "Fullscreen");
     }
-    else if (katze_object_get_boolean (view->settings, "enable-developer-extras"))
+
+    if (katze_object_get_boolean (view->settings, "enable-developer-extras"))
         midori_context_action_add_simple (menu, "InspectElement", _("Inspect _Element"), NULL, NULL,
             midori_view_inspect_element_activate_cb, view);
 
