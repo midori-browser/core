@@ -85,9 +85,9 @@ namespace Apps {
                     _("You can now run <b>%s</b> from your launcher or menu").printf (name));
             }
             catch (Error error) {
-                warning (_("Failed to create new launcher: %s").printf (error.message));
+                warning (_("Failed to create new launcher (%s): %s"), file.get_path (), error.message);
                 browser.send_notification (_("Error creating launcher"),
-                    _("Failed to create new launcher: %s").printf (error.message));
+                    _("Failed to create new launcher (%s): %s").printf (file.get_path (), error.message));
             }
         }
 
@@ -204,7 +204,7 @@ namespace Apps {
 #endif
                             }
                             catch (Error error) {
-                                GLib.critical (error.message);
+                                GLib.critical ("Failed to remove launcher (%s): %s", launcher.file.get_path (), error.message);
                             }
                             return true;
                         }
@@ -338,7 +338,7 @@ namespace Apps {
                 }
             }
             catch (Error error) {
-                warning ("Application changed: %s", error.message);
+                warning ("Application changed (%s): %s", file.get_path (), error.message);
             }
         }
 
@@ -369,7 +369,7 @@ namespace Apps {
                                 array.add_item (launcher);
                         }
                         catch (Error error) {
-                            warning ("Failed to parse launcher: %s", error.message);
+                            warning ("Failed to parse launcher (%s): %s", file.get_path (), error.message);
                         }
                     }
                 }
