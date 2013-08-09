@@ -412,9 +412,9 @@ namespace Apps {
             monitors = new GLib.List<GLib.FileMonitor> ();
             app_folder = data_dir.get_child ("apps");
             populate_apps.begin (app_folder);
-#if !HAVE_WIN32
             /* FIXME: Profiles are broken on win32 because of no multi instance support */
             profile_folder = data_dir.get_child ("profiles");
+#if !HAVE_WIN32
             populate_apps.begin (profile_folder);
 #endif
             widgets = new GLib.List<Gtk.Widget> ();
