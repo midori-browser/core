@@ -1592,6 +1592,9 @@ midori_view_web_view_button_press_event_cb (WebKitWebView*  web_view,
     link_uri = midori_view_get_link_uri (view);
     view->button_press_handled = FALSE;
 
+    if (midori_debug ("mouse"))
+        g_message ("%s button %d\n", G_STRFUNC, event->button);
+
     switch (event->button)
     {
     case 1:
@@ -1715,11 +1718,19 @@ midori_view_web_view_button_press_event_cb (WebKitWebView*  web_view,
             return TRUE;
         }
         break;
+#ifdef G_OS_WIN32
+    case 4:
+#else
     case 8:
+#endif
         midori_view_go_back (view);
         view->button_press_handled = TRUE;
         return TRUE;
+#ifdef G_OS_WIN32
+    case 5:
+#else
     case 9:
+#endif
         midori_tab_go_forward (MIDORI_TAB (view));
         view->button_press_handled = TRUE;
         return TRUE;
