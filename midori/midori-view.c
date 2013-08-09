@@ -2311,6 +2311,8 @@ midori_view_get_page_context_action (MidoriView*          view,
             webkit_web_view_can_copy_clipboard (WEBKIT_WEB_VIEW (view->web_view)));
         gtk_action_set_sensitive (gtk_action_group_get_action (actions, "Paste"),
             webkit_web_view_can_paste_clipboard (WEBKIT_WEB_VIEW (view->web_view)));
+        gtk_action_set_sensitive (gtk_action_group_get_action (actions, "Delete"),
+            webkit_web_view_can_cut_clipboard (WEBKIT_WEB_VIEW (view->web_view)));
         gtk_action_set_sensitive (gtk_action_group_get_action (actions, "SelectAll"), TRUE);
         #endif
         midori_context_action_add_by_name (menu, "Undo");
