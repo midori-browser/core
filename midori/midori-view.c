@@ -2301,9 +2301,9 @@ midori_view_get_page_context_action (MidoriView*          view,
     {
         /* Enforce update of actions - there's no "selection-changed" signal */
         #ifndef HAVE_WEBKIT2
-        gtk_action_set_sensitive (gtk_action_group_get_action (actions, "Redo"),
-            webkit_web_view_can_undo (WEBKIT_WEB_VIEW (view->web_view)));
         gtk_action_set_sensitive (gtk_action_group_get_action (actions, "Undo"),
+            webkit_web_view_can_undo (WEBKIT_WEB_VIEW (view->web_view)));
+        gtk_action_set_sensitive (gtk_action_group_get_action (actions, "Redo"),
             webkit_web_view_can_redo (WEBKIT_WEB_VIEW (view->web_view)));
         gtk_action_set_sensitive (gtk_action_group_get_action (actions, "Cut"),
             webkit_web_view_can_cut_clipboard (WEBKIT_WEB_VIEW (view->web_view)));
@@ -2313,8 +2313,8 @@ midori_view_get_page_context_action (MidoriView*          view,
             webkit_web_view_can_paste_clipboard (WEBKIT_WEB_VIEW (view->web_view)));
         gtk_action_set_sensitive (gtk_action_group_get_action (actions, "SelectAll"), TRUE);
         #endif
-        midori_context_action_add_by_name (menu, "Redo");
         midori_context_action_add_by_name (menu, "Undo");
+        midori_context_action_add_by_name (menu, "Redo");
         midori_context_action_add (menu, NULL);
         midori_context_action_add_by_name (menu, "Cut");
         midori_context_action_add_by_name (menu, "Copy");
