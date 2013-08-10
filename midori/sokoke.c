@@ -864,6 +864,16 @@ sokoke_prefetch_uri (MidoriWebSettings*  settings,
     static gint host_count = G_MAXINT;
     gchar* hostname;
 
+
+#ifndef HAVE_WEBKIT2
+    SoupURI* soup_uri;
+    SoupSession* session = webkit_get_default_session ();
+
+    g_object_get (G_OBJECT (session), "proxy-uri", &soup_uri, NULL);
+    if (soup_uri)
+        return FALSE;
+#endif
+
     if (settings && !katze_object_get_boolean (settings, "enable-dns-prefetching"))
         return FALSE;
 

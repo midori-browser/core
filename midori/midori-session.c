@@ -18,6 +18,7 @@
 
 #include <glib/gi18n-lib.h>
 #include <libsoup/soup-cookie-jar-sqlite.h>
+#include <libsoup/soup-gnome-features.h>
 
     #define LIBSOUP_USE_UNSTABLE_REQUEST_API
     #include <libsoup/soup-cache.h>
@@ -54,27 +55,22 @@ soup_session_settings_notify_http_proxy_cb (MidoriWebSettings* settings,
                                             GParamSpec*        pspec,
                                             SoupSession*       session)
 {
+    gboolean uses_proxy = TRUE;
     MidoriProxy proxy_type = katze_object_get_enum (settings, "proxy-type");
     if (proxy_type == MIDORI_PROXY_AUTOMATIC)
     {
-        gboolean gnome_supported = FALSE;
-        GModule* module;
-        GType (*get_type_function) (void);
-        if (g_module_supported ())
-            if ((module = g_module_open ("libsoup-gnome-2.4.so", G_MODULE_BIND_LOCAL)))
-            {
-                if (g_module_symbol (module, "soup_proxy_resolver_gnome_get_type",
-                                     (void*) &get_type_function))
-                {
-                    soup_session_add_feature_by_type (session, get_type_function ());
-                    gnome_supported = TRUE;
-                }
-            }
-        if (!gnome_supported)
-            midori_soup_session_set_proxy_uri (session, g_getenv ("http_proxy"));
+        soup_session_add_feature_by_type (session, SOUP_TYPE_PROXY_RESOLVER_GNOME);
+
+        GProxyResolver* resolver = g_proxy_resolver_get_default ();
+        gchar** proxies = g_proxy_resolver_lookup (resolver, "none", NULL, NULL);
+
+        if (!proxies || !g_strcmp0 (proxies[0], "direct://"))
+            uses_proxy = FALSE;
+        g_strfreev (proxies);
     }
     else if (proxy_type == MIDORI_PROXY_HTTP)
     {
+        soup_session_remove_feature_by_type (session, SOUP_TYPE_PROXY_RESOLVER_GNOME);
         gchar* proxy = katze_object_get_string (settings, "http-proxy");
         GString* http_proxy = g_string_new (proxy);
         g_string_append_printf (http_proxy, ":%d", katze_object_get_int (settings, "http-proxy-port"));
@@ -83,7 +79,18 @@ soup_session_settings_notify_http_proxy_cb (MidoriWebSettings* settings,
         g_free (proxy);
     }
     else
+    {
+        uses_proxy = FALSE;
+        soup_session_remove_feature_by_type (session, SOUP_TYPE_PROXY_RESOLVER_GNOME);
         midori_soup_session_set_proxy_uri (session, NULL);
+    }
+
+    /* If a proxy server looks to be active, we disable prefetching, otherwise
+       libSoup may be prefetching outside the proxy server beyond our control.
+     */
+
+    if (uses_proxy)
+        g_object_set (settings, "enable-dns-prefetching", FALSE, NULL);
 }
 #endif
 
