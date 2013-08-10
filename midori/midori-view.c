@@ -2463,8 +2463,9 @@ midori_view_get_page_context_action (MidoriView*          view,
             }
             g_object_unref (search_engines);
         }
-        midori_context_action_add_simple (menu, "SearchWeb", _("_Search the Web"), NULL, GTK_STOCK_FIND,
-            midori_web_view_menu_search_web_activate_cb, view);
+        if (midori_settings_get_location_entry_search (MIDORI_SETTINGS (view->settings)) != NULL)
+            midori_context_action_add_simple (menu, "SearchWeb", _("_Search the Web"), NULL, GTK_STOCK_FIND,
+                midori_web_view_menu_search_web_activate_cb, view);
     }
     #endif
 
