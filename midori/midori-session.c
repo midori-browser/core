@@ -273,6 +273,10 @@ midori_session_cookie_jar_changed_cb (SoupCookieJar*     jar,
         g_free (new);
     }
 
+    /* Don't allow revival of expiring cookies */
+    if (new_cookie && old_cookie && old_cookie->expires)
+        soup_cookie_set_expires (new_cookie, old_cookie->expires);
+
     if (new_cookie && new_cookie->expires)
     {
         time_t expires = soup_date_to_time_t (new_cookie->expires);
