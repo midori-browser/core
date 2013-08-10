@@ -277,31 +277,22 @@ midori_session_cookie_jar_changed_cb (SoupCookieJar*     jar,
     {
         time_t expires = soup_date_to_time_t (new_cookie->expires);
         gint age = katze_object_get_int (settings, "maximum-cookie-age");
-        if (age > 0)
+        /* An age of 0 to SoupCookie means already-expired
+           A user choosing 0 days probably expects 1 hour.
+         */
+        int seconds = age > 0 ? age * SOUP_COOKIE_MAX_AGE_ONE_DAY : SOUP_COOKIE_MAX_AGE_ONE_HOUR;
+        SoupDate* max_date = soup_date_new_from_now (seconds);
+        if (expires > soup_date_to_time_t (max_date))
         {
-            SoupDate* max_date = soup_date_new_from_now (
-                   age * SOUP_COOKIE_MAX_AGE_ONE_DAY);
-            if (soup_date_to_time_t (new_cookie->expires)
-                > soup_date_to_time_t (max_date))
-            {
-                if (midori_debug ("cookies"))
-                {
-                    gchar* new_date = soup_date_to_string (max_date, SOUP_DATE_COOKIE);
-                    g_print ("^^ enforcing expiry: %s\n", new_date);
-                    g_free (new_date);
-                }
-                soup_cookie_set_expires (new_cookie, max_date);
-            }
-            soup_date_free (max_date);
-        }
-        else
-        {
-            /* An age of 0 to SoupCookie means already-expired
-            A user choosing 0 days probably expects 1 hour. */
-            soup_cookie_set_max_age (new_cookie, SOUP_COOKIE_MAX_AGE_ONE_HOUR);
             if (midori_debug ("cookies"))
-                g_print ("^^ enforcing max age 1h\n");
+            {
+                gchar* new_date = soup_date_to_string (max_date, SOUP_DATE_COOKIE);
+                g_print ("^^ enforcing expiry: %s\n", new_date);
+                g_free (new_date);
+            }
+            soup_cookie_set_expires (new_cookie, max_date);
         }
+        soup_date_free (max_date);
     }
 }
 #endif
