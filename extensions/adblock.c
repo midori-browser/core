@@ -936,7 +936,7 @@ adblock_custom_block_image_cb (GtkWidget*       widget,
     gtk_entry_set_text (GTK_ENTRY (entry),
                         g_object_get_data (G_OBJECT (widget), "uri"));
     gtk_box_pack_start (GTK_BOX (hbox), entry, TRUE, TRUE, 0);
-    gtk_container_add (GTK_CONTAINER (content_area), hbox);
+    gtk_box_pack_start (GTK_BOX (content_area), hbox, FALSE, TRUE, 0);
     gtk_widget_show_all (hbox);
 
     gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT);
