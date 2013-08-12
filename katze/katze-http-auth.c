@@ -226,14 +226,14 @@ katze_http_auth_session_authenticate_cb (SoupSession*   session,
     label = gtk_label_new (_("A username and a password are required\n"
                              "to open this location:"));
     gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
-    gtk_container_add (GTK_CONTAINER (gtk_dialog_get_content_area (GTK_DIALOG (dialog))), hbox);
+    gtk_box_pack_start (GTK_BOX (gtk_dialog_get_content_area (GTK_DIALOG (dialog))), hbox, FALSE, TRUE, 0);
     label = gtk_label_new (soup_auth_get_host (auth));
-    gtk_container_add (GTK_CONTAINER (gtk_dialog_get_content_area (GTK_DIALOG (dialog))), label);
+    gtk_box_pack_start (GTK_BOX (gtk_dialog_get_content_area (GTK_DIALOG (dialog))), label, FALSE, TRUE, 0);
     /* If the realm is merely the host, omit the realm label */
     if (g_strcmp0 (soup_auth_get_host (auth), soup_auth_get_realm (auth)))
     {
         label = gtk_label_new (soup_auth_get_realm (auth));
-        gtk_container_add (GTK_CONTAINER (gtk_dialog_get_content_area (GTK_DIALOG (dialog))), label);
+        gtk_box_pack_start (GTK_BOX (gtk_dialog_get_content_area (GTK_DIALOG (dialog))), label, FALSE, TRUE, 0);
     }
     sizegroup = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
     hbox = gtk_hbox_new (FALSE, 6);
@@ -248,7 +248,7 @@ katze_http_auth_session_authenticate_cb (SoupSession*   session,
     gtk_box_pack_start (GTK_BOX (hbox), entry, TRUE, TRUE, 0);
     gtk_entry_set_activates_default (GTK_ENTRY (entry), TRUE);
     g_object_set_data (G_OBJECT (dialog), "username", entry);
-    gtk_container_add (GTK_CONTAINER (gtk_dialog_get_content_area (GTK_DIALOG (dialog))), hbox);
+    gtk_box_pack_start (GTK_BOX (gtk_dialog_get_content_area (GTK_DIALOG (dialog))), hbox, FALSE, TRUE, 0);
     hbox = gtk_hbox_new (FALSE, 6);
     label = gtk_label_new (_("Password"));
     align = gtk_alignment_new (0, 0.5, 0, 0);
@@ -262,13 +262,13 @@ katze_http_auth_session_authenticate_cb (SoupSession*   session,
     gtk_box_pack_start (GTK_BOX (hbox), entry, TRUE, TRUE, 0);
     gtk_entry_set_activates_default (GTK_ENTRY (entry), TRUE);
     g_object_set_data (G_OBJECT (dialog), "password", entry);
-    gtk_container_add (GTK_CONTAINER (gtk_dialog_get_content_area (GTK_DIALOG (dialog))), hbox);
+    gtk_box_pack_start (GTK_BOX (gtk_dialog_get_content_area (GTK_DIALOG (dialog))), hbox, FALSE, TRUE, 0);
     hbox = gtk_hbox_new (FALSE, 6);
     label = gtk_check_button_new_with_mnemonic (_("_Remember password"));
     gtk_box_pack_start (GTK_BOX (hbox), label, TRUE, TRUE, 0);
     g_object_set_data (G_OBJECT (dialog), "remember", label);
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (label), (login != NULL));
-    gtk_container_add (GTK_CONTAINER (gtk_dialog_get_content_area (GTK_DIALOG (dialog))), hbox);
+    gtk_box_pack_start (GTK_BOX (gtk_dialog_get_content_area (GTK_DIALOG (dialog))), hbox, FALSE, TRUE, 0);
     gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_OK);
     gtk_widget_show_all (gtk_dialog_get_content_area (GTK_DIALOG (dialog)));
 
