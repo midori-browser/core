@@ -2494,7 +2494,7 @@ midori_view_get_page_context_action (MidoriView*          view,
                 midori_web_view_open_frame_in_new_tab_cb, view);
         #endif
 
-        midori_context_action_add_simple (menu, "OpenInNewWindow", _("Open in New _Window"), NULL, NULL,
+        midori_context_action_add_simple (menu, "OpenInNewWindow", _("Open in New _Window"), NULL, STOCK_WINDOW_NEW,
             midori_view_tab_label_menu_window_new_cb, view);
         midori_context_action_add_by_name (menu, "ZoomIn");
         midori_context_action_add_by_name (menu, "ZoomOut");
