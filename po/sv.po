@@ -10,15 +10,15 @@ msgstr ""
 "Project-Id-Version: midori\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-07-27 12:55-0500\n"
-"PO-Revision-Date: 2013-08-05 19:26+0000\n"
+"PO-Revision-Date: 2013-08-12 22:19+0000\n"
 "Last-Translator: Joachim Johansson <Unknown>\n"
 "Language-Team: Swedish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-08-06 04:46+0000\n"
-"X-Generator: Launchpad (build 16718)\n"
+"X-Launchpad-Export-Date: 2013-08-13 04:45+0000\n"
+"X-Generator: Launchpad (build 16723)\n"
 "Language: \n"
 
 #: ../data/midori.desktop.in.h:1 ../midori/main.c:142
@@ -36,7 +36,7 @@ msgstr "Webbläsaren Midori"
 
 #: ../data/midori.desktop.in.h:4
 msgid "Browse the Web"
-msgstr "Surfa på webben"
+msgstr "Surfa på nätet"
 
 #: ../data/midori.desktop.in.h:5
 msgid "Internet;WWW;Explorer"
@@ -541,6 +541,7 @@ msgstr ""
 "  Marcus Lundgren https://launchpad.net/~marcus-lundgren\n"
 "  Max Malm https://launchpad.net/~benjick\n"
 "  Olle Byström https://launchpad.net/~olle-bystrom\n"
+"  Rikard Johansson https://launchpad.net/~rikard-jo\n"
 "  Zahirovic Mensur https://launchpad.net/~nookienoq"
 
 #: ../midori/midori-browser.c:5243
@@ -1154,30 +1155,32 @@ msgstr "%s vill veta var du befinner dig"
 #: ../midori/midori-view.c:1250
 #, c-format
 msgid "'%s' can't be found"
-msgstr ""
+msgstr "'%s' kan inte hittas"
 
 #: ../midori/midori-view.c:1251
 #, c-format
 msgid "The page '%s' couldn't be loaded:"
-msgstr ""
+msgstr "Sidan '%s' kunde inte läsas in"
 
 #: ../midori/midori-view.c:1255
 msgid "Check the address for typos"
-msgstr ""
+msgstr "Kontrollera eventuella stavfel i adressen"
 
 #: ../midori/midori-view.c:1256
 msgid ""
 "Make sure that an ethernet cable is plugged in or the wireless card is "
 "activated"
 msgstr ""
+"Se till att nätverkskabeln är inkopplad eller att det trådlösa "
+"nätverkskortet är aktiverat."
 
 #: ../midori/midori-view.c:1257
 msgid "Verify that your network settings are correct"
-msgstr ""
+msgstr "Kontrollera att nätverksinställningarna är korrekta."
 
 #: ../midori/midori-view.c:1261
 msgid "Try Again"
-msgstr ""
+msgstr "Försök igen"
 
 #: ../midori/midori-view.c:1386
 #, c-format
@@ -1208,7 +1211,7 @@ msgstr "Inspektera _element"
 
 #: ../midori/midori-view.c:2472
 msgid "Open _Link"
-msgstr ""
+msgstr "Öppna _länk"
 
 #: ../midori/midori-view.c:2478
 msgid "Open Link in New _Tab"
@@ -1367,7 +1370,7 @@ msgstr ""
 
 #: ../midori/midori-view.c:4208
 msgid "Page loading delayed:"
-msgstr ""
+msgstr "Inläsningen av sidan är fördröjd:"
 
 #: ../midori/midori-view.c:4209
 msgid "Loading delayed either due to a recent crash or startup preferences."
@@ -1614,11 +1617,11 @@ msgstr "Ifall skript är tillåtna att automatiskt öppna popup-fönster"
 
 #: ../midori/midori-preferences.c:406
 msgid "Default Zoom Level"
-msgstr ""
+msgstr "Standardförstoringsgrad"
 
 #: ../midori/midori-preferences.c:410
 msgid "Initial factor to enlarge newly opened tabs by"
-msgstr ""
+msgstr "Nyöppnade flikar har en förstoringsgrad av"
 
 #: ../midori/midori-preferences.c:414
 msgid "Preferred languages"
@@ -1828,7 +1831,7 @@ msgstr "Sökmotorer kunde inte sparas. %s"
 
 #: ../midori/midori-historycompletion.vala:17
 msgid "Bookmarks and History"
-msgstr ""
+msgstr "Bokmärken och historik"
 
 #: ../midori/midori-historycompletion.vala:54
 #, c-format
@@ -2816,7 +2819,7 @@ msgstr "kunde inte DETACH "
 #: ../midori/midori-bookmarks.c:257
 #, c-format
 msgid "Couldn't setup bookmarks: %s\n"
-msgstr ""
+msgstr "Det gick inte att ställa in bokmärkena: %s\n"
 
 #: ../midori/midori-bookmarks.c:271
 #, c-format
@@ -2957,7 +2960,7 @@ msgstr "Kunde inte öppna databasen för tillägget: %s"
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:196
 #, c-format
 msgid "Failed to execute database statement: %s"
-msgstr ""
+msgstr "Misslyckades med att verkställa databas-uttrycket: %s"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:432
 msgid "Do you really want to delete all cookie permissions?"
@@ -3171,17 +3174,17 @@ msgstr ""
 
 #: ../extensions/apps.vala:84
 msgid "Launcher created"
-msgstr ""
+msgstr "Startare skapad"
 
 #: ../extensions/apps.vala:85
 #, c-format
 msgid "You can now run <b>%s</b> from your launcher or menu"
-msgstr ""
+msgstr "Du kan nu köra <b>%s</b> från startaren eller menyn"
 
 #: ../extensions/apps.vala:88 ../extensions/apps.vala:90
 #, c-format
 msgid "Failed to create new launcher: %s"
-msgstr ""
+msgstr "Misslyckades med att skapa den nya startaren: %s"
 
 #: ../extensions/apps.vala:89
 msgid "Error creating launcher"
@@ -3197,7 +3200,7 @@ msgstr "Ny _profil"
 
 #: ../extensions/apps.vala:135
 msgid "Creates a new, independant profile and a launcher"
-msgstr ""
+msgstr "Skapar en ny oberoende profil och en startare"
 
 #: ../extensions/apps.vala:144
 #, c-format
@@ -3214,7 +3217,7 @@ msgstr "Skapar en ny app för en specifik webbplats"
 
 #: ../extensions/apps.vala:175
 msgid "Error launching"
-msgstr ""
+msgstr "Ett fel uppstod med startaren"
 
 #: ../extensions/apps.vala:384
 msgid "Create _Launcher"
