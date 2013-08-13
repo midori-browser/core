@@ -97,13 +97,13 @@ katze_array_from_xmlNodePtr (xmlNodePtr cur)
         if (katze_str_equal ((gchar*)cur->name, "title"))
         {
             gchar* value = g_strstrip ((gchar*)xmlNodeGetContent (cur));
-            katze_item_set_text (KATZE_ITEM (array), value);
+            katze_item_set_name (KATZE_ITEM (array), value);
             xmlFree (value);
         }
         else if (katze_str_equal ((gchar*)cur->name, "desc"))
         {
             gchar* value = g_strstrip ((gchar*)xmlNodeGetContent (cur));
-            katze_item_set_name (KATZE_ITEM (array), value);
+            katze_item_set_text (KATZE_ITEM (array), value);
             xmlFree (value);
         }
         else if (katze_str_equal ((gchar*)cur->name, "info"))
