@@ -1,5 +1,37 @@
 This file is licensed under the terms of the expat license, see the file EXPAT.
 
+v0.5.5:
+ Fix name and text fields inversion in XBEL folder import
+ Correct packing of cookie and nojs permission dialog.
+ Don't set tab title/special when a non-main frame displays an error
+ Revise "cookies" debug output, merge expiry check and disallow revival of old cookies
+ Drop now unused cgit module.xml file
+ Use SoupProxyResolverGnome unconditionally and disable prefetching if proxy is active
+ win32: Hide gui for profiles in webapp manager, as they are currently broken on Windows
+ win32: support additional mouse buttons for going back/forward in history
+ Enrich app error messages with filenames
+ Fix segfault if url contains " %00"
+ Replace 'Run as app' in bookmark dialog with 'Create launcher'
+ Split config files and install from folders recursively
+ Implement GTK+ theme switching via Preferences (Win32)
+ Enable set_disk_cache_directory with WebKit2
+ Introduce Midori.ContextAction and refactor page menu from scratch
+ Define large dialog icon size relative to dialog icon size
+ Extension Devpet which shows error messages and backtraces in systray
+ WebKit2 cookie support
+ Check the hit test result for editable to see if , should search
+ Use SoupCookieJarSqlite and drop KatzeHttpCookies(Sqlite)
+ Show folder tree when editing bookmarks
+ Handle double value in _midori_browser_activate_action
+ Add privacy preferences in web app mode
+ Escape parentheses in adblock_fixup_regexp
+ Introduce object oriented API for access to History Database
+ Allow rss feeds with version 0.92
+ Rename History completion to Bookmarks and History
+ Don't show rss feed icon on twitter, underlying API was retired
+ Read apps/ profiles from folder, leave launchers separate
+ Fill in bookmark folder attributes in bookmarkbar populate
+
 v0.5.4:
  Refactor history step and allow multiple title updates
  Call midori_browser_connect_tab with correct type
