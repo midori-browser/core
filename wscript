@@ -28,7 +28,7 @@ import misc
 from Configure import find_program_impl
 
 APPNAME = 'midori'
-VERSION = VERSION_FULL = '0.5.4'
+VERSION = VERSION_FULL = '0.5.5'
 VERSION_SUFFIX = ' (%s)' % VERSION
 
 try:

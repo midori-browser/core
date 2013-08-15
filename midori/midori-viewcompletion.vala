@@ -28,7 +28,7 @@ namespace Midori {
         }
 
         public override bool can_action (string action) {
-            return action == "about:views";
+            return action == "complete:more/views";
         }
 
         public override async List<Suggestion>? complete (string text, string? action, Cancellable cancellable) {
@@ -77,7 +77,7 @@ namespace Midori {
 
                     n++;
                     if (n == 3 && action == null) {
-                        suggestion = new Suggestion ("about:views", _("More open tabs…"), false, background);
+                        suggestion = new Suggestion ("complete:more/views", _("More open tabs…"), false, background);
                         suggestion.action = true;
                         suggestions.append (suggestion);
                         break;

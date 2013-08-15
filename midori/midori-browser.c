@@ -2846,7 +2846,7 @@ _action_print_activate (GtkAction*     action,
     granite_widgets_contractor_view_name_blacklist (GRANITE_WIDGETS_CONTRACTOR_VIEW (
         contractor), blacklisted_contracts, -1); */
     g_free (filename);
-    gtk_container_add (GTK_CONTAINER (content_area), contractor);
+    gtk_box_pack_start (GTK_BOX (content_area), contractor, TRUE, TRUE, 0);
     gtk_widget_show (contractor);
     gtk_widget_show (dialog);
     /* FIXME: granite: "box" isn't visible by default */
@@ -4514,7 +4514,7 @@ _action_bookmarks_import_activate (GtkAction*     action,
         0, _("Import from XBEL or HTML file"), 1, NULL, 2, NULL, 3, icon_width, -1);
     gtk_combo_box_set_active (combobox, 0);
     gtk_box_pack_start (GTK_BOX (hbox), combo, TRUE, TRUE, 0);
-    gtk_container_add (GTK_CONTAINER (content_area), hbox);
+    gtk_box_pack_start (GTK_BOX (content_area), hbox, FALSE, TRUE, 0);
     gtk_widget_show_all (hbox);
 
     combobox_folder = midori_bookmark_folder_button_new (browser->bookmarks, 0);
