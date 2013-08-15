@@ -4515,11 +4515,10 @@ _action_bookmarks_import_activate (GtkAction*     action,
     gtk_combo_box_set_active (combobox, 0);
     gtk_box_pack_start (GTK_BOX (hbox), combo, TRUE, TRUE, 0);
     gtk_box_pack_start (GTK_BOX (content_area), hbox, FALSE, TRUE, 0);
-    gtk_widget_show_all (hbox);
 
     combobox_folder = midori_bookmark_folder_button_new (browser->bookmarks, 0);
     gtk_box_pack_start (GTK_BOX (content_area), combobox_folder, FALSE, TRUE, 0);
-    gtk_widget_show (combobox_folder);
+    gtk_widget_show_all (content_area);
 
     gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT);
     if (midori_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
