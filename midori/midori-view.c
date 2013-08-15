@@ -2577,9 +2577,11 @@ midori_view_web_view_context_menu_cb (WebKitWebView*       web_view,
                                       #endif
                                       MidoriView*          view)
 {
+    #ifndef HAVE_WEBKIT2
     GdkEvent* event = gtk_get_current_event();
     midori_view_ensure_link_uri (view, NULL, NULL, (GdkEventButton *)event);
     gdk_event_free (event);
+    #endif
     MidoriContextAction* menu = midori_view_get_page_context_action (view, hit_test_result);
     #ifdef HAVE_WEBKIT2
     webkit_context_menu_remove_all (context_menu);
