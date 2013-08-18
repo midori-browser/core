@@ -17,7 +17,6 @@ vala_precompile(LIBMIDORI_SOURCE_C ${CMAKE_PROJECT_NAME}
 PACKAGES
     ${PKGS}
 OPTIONS
-    --enable-deprecated
     ${VALAFLAGS}
 CUSTOM_VAPIS
     webkitgtk-3.0.vapi
@@ -27,7 +26,6 @@ GENERATE_HEADER
     "${CMAKE_PROJECT_NAME}-core"
 )
 
-set(LIBMIDORI "${CMAKE_PROJECT_NAME}-core")
 add_library(${LIBMIDORI} SHARED ${LIBMIDORI_SOURCE_C} ${LIBMIDORI_SOURCE})
 include_directories(
                     ${CMAKE_SOURCE_DIR}
@@ -51,6 +49,9 @@ set_target_properties(${LIBMIDORI} PROPERTIES
                       SOVERSION 1
                       VERSION 0.0.0
                       )
+install(TARGETS ${LIBMIDORI}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        )
 
 add_executable(${CMAKE_PROJECT_NAME} main.c)
 target_link_libraries(${CMAKE_PROJECT_NAME}
@@ -58,3 +59,6 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
 set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES
                       COMPILE_FLAGS ${CFLAGS}
                       )
+install(TARGETS ${CMAKE_PROJECT_NAME}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        )

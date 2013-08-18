@@ -7,7 +7,7 @@ add_definitions("-DPACKAGE_NAME=\"${CMAKE_PROJECT_NAME}\"")
 add_definitions("-DPACKAGE_BUGREPORT=\"https://bugs.launchpad.net/midori\"")
 set(VERSION 0.5.5)
 add_definitions("-DPACKAGE_VERSION=\"${VERSION}\"")
-add_definitions("-DMIDORI_VERSION_SUFFIX=\"-${VERSION}\"")
+add_definitions("-DMIDORI_VERSION_SUFFIX=\"${VERSION}\"")
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 # Disallow building during install to avoid permission problems
 set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY 1)
@@ -31,7 +31,7 @@ pkg_check_modules(DEPS REQUIRED
 add_definitions("-DHAVE_LIBXML")
 add_definitions("-DGIO_VERSION=\"${DEPS_gio-2.0_VERSION}\"")
 add_definitions("-DLIBSOUP_VERSION=\"${DEPS_libsoup-gnome-2.4_VERSION}\"")
-set(PKGS posix libxml-2.0 sqlite3 gmodule-2.0 gio-2.0 libsoup-2.4)
+set(PKGS posix linux libxml-2.0 sqlite3 gmodule-2.0 gio-2.0 libsoup-2.4)
 if (${DEPS_libsoup-gnome-2.4_VERSION} VERSION_GREATER "2.34.0")
     set(VALAFLAGS ${VALAFLAGS} "-D;HAVE_LIBSOUP_2_34_0")
 endif ()
@@ -61,16 +61,23 @@ if (USE_GTK3)
         add_definitions("-DUNIQUE_VERSION=\"${OPTS_GTK_unique-3.0_VERSION}\"")
     endif ()
     add_definitions("-DGCR_VERSION=\"${OPTS_GTK_gcr-3_VERSION}\"")
+    set(VALAFLAGS ${VALAFLAGS} "-D;HAVE_GTK3")
 endif ()
 
 find_package(Vala REQUIRED)
 vala_require("0.16.0")
+set(VALAFLAGS ${VALAFLAGS}
+    --enable-deprecated
+    --debug
+    )
 
 set(GETTEXT_PACKAGE ${CMAKE_PROJECT_NAME})
 add_definitions("-DGETTEXT_PACKAGE=\"${GETTEXT_PACKAGE}\"")
 
 set(CFLAGS "-w -Wno-deprecated-declarations")
+set(LIBMIDORI "${CMAKE_PROJECT_NAME}-core")
 
 add_subdirectory (midori)
 add_subdirectory (po)
 add_subdirectory (data)
+add_subdirectory (extensions)
