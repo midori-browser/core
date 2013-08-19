@@ -5,9 +5,19 @@ cmake_policy(VERSION 2.6)
 project(midori C)
 add_definitions("-DPACKAGE_NAME=\"${CMAKE_PROJECT_NAME}\"")
 add_definitions("-DPACKAGE_BUGREPORT=\"https://bugs.launchpad.net/midori\"")
+
 set(VERSION 0.5.5)
 add_definitions("-DPACKAGE_VERSION=\"${VERSION}\"")
 add_definitions("-DMIDORI_VERSION_SUFFIX=\"${VERSION}\"")
+ 
+string(REPLACE "." ";" VERSION_LIST ${VERSION})
+LIST(GET VERSION_LIST 0 MIDORI_MAJOR_VERSION)
+add_definitions("-DMIDORI_MAJOR_VERSION=${MIDORI_MAJOR_VERSION}")
+LIST(GET VERSION_LIST 1 MIDORI_MINOR_VERSION)
+add_definitions("-DMIDORI_MINOR_VERSION=${MIDORI_MINOR_VERSION}")
+LIST(GET VERSION_LIST 2 MIDORI_MICRO_VERSION)
+add_definitions("-DMIDORI_MICRO_VERSION=${MIDORI_MICRO_VERSION}")
+
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 # Disallow building during install to avoid permission problems
 set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY 1)
