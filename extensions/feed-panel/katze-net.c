@@ -66,6 +66,7 @@ typedef struct
     KatzeNetRequest* request;
 } KatzeNetPriv;
 
+#ifndef HAVE_WEBKIT2
 static void
 katze_net_priv_free (KatzeNetPriv* priv)
 {
@@ -85,7 +86,6 @@ static void
 katze_net_got_headers_cb (SoupMessage*  msg,
                           KatzeNetPriv* priv)
 {
-#ifndef HAVE_WEBKIT2
     KatzeNetRequest* request = priv->request;
 
     switch (msg->status_code)
@@ -106,7 +106,6 @@ katze_net_got_headers_cb (SoupMessage*  msg,
         g_signal_handlers_disconnect_by_func (msg, katze_net_got_body_cb, priv);
         soup_session_cancel_message (webkit_get_default_session (), msg, 1);
     }
-#endif
 }
 
 static void
@@ -144,6 +143,7 @@ katze_net_default_cb (KatzeNetPriv* priv)
     katze_net_priv_free (priv);
     return FALSE;
 }
+#endif
 
 /**
  * katze_net_load_uri:

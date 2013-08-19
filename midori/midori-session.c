@@ -18,6 +18,7 @@
 
 #include <glib/gi18n-lib.h>
 #include <libsoup/soup-cookie-jar-sqlite.h>
+#include <libsoup/soup-gnome-features.h>
 
     #define LIBSOUP_USE_UNSTABLE_REQUEST_API
     #include <libsoup/soup-cache.h>
@@ -54,27 +55,22 @@ soup_session_settings_notify_http_proxy_cb (MidoriWebSettings* settings,
                                             GParamSpec*        pspec,
                                             SoupSession*       session)
 {
+    gboolean uses_proxy = TRUE;
     MidoriProxy proxy_type = katze_object_get_enum (settings, "proxy-type");
     if (proxy_type == MIDORI_PROXY_AUTOMATIC)
     {
-        gboolean gnome_supported = FALSE;
-        GModule* module;
-        GType (*get_type_function) (void);
-        if (g_module_supported ())
-            if ((module = g_module_open ("libsoup-gnome-2.4.so", G_MODULE_BIND_LOCAL)))
-            {
-                if (g_module_symbol (module, "soup_proxy_resolver_gnome_get_type",
-                                     (void*) &get_type_function))
-                {
-                    soup_session_add_feature_by_type (session, get_type_function ());
-                    gnome_supported = TRUE;
-                }
-            }
-        if (!gnome_supported)
-            midori_soup_session_set_proxy_uri (session, g_getenv ("http_proxy"));
+        soup_session_add_feature_by_type (session, SOUP_TYPE_PROXY_RESOLVER_GNOME);
+
+        GProxyResolver* resolver = g_proxy_resolver_get_default ();
+        gchar** proxies = g_proxy_resolver_lookup (resolver, "none", NULL, NULL);
+
+        if (!proxies || !g_strcmp0 (proxies[0], "direct://"))
+            uses_proxy = FALSE;
+        g_strfreev (proxies);
     }
     else if (proxy_type == MIDORI_PROXY_HTTP)
     {
+        soup_session_remove_feature_by_type (session, SOUP_TYPE_PROXY_RESOLVER_GNOME);
         gchar* proxy = katze_object_get_string (settings, "http-proxy");
         GString* http_proxy = g_string_new (proxy);
         g_string_append_printf (http_proxy, ":%d", katze_object_get_int (settings, "http-proxy-port"));
@@ -83,7 +79,18 @@ soup_session_settings_notify_http_proxy_cb (MidoriWebSettings* settings,
         g_free (proxy);
     }
     else
+    {
+        uses_proxy = FALSE;
+        soup_session_remove_feature_by_type (session, SOUP_TYPE_PROXY_RESOLVER_GNOME);
         midori_soup_session_set_proxy_uri (session, NULL);
+    }
+
+    /* If a proxy server looks to be active, we disable prefetching, otherwise
+       libSoup may be prefetching outside the proxy server beyond our control.
+     */
+
+    if (uses_proxy)
+        g_object_set (settings, "enable-dns-prefetching", FALSE, NULL);
 }
 #endif
 
@@ -263,28 +270,41 @@ midori_session_cookie_jar_changed_cb (SoupCookieJar*     jar,
                                       SoupCookie*        new_cookie,
                                       MidoriWebSettings* settings)
 {
+
+    if (midori_debug ("cookies"))
+    {
+        gchar* old = old_cookie ? soup_cookie_to_cookie_header (old_cookie) : NULL;
+        gchar* new = new_cookie ? soup_cookie_to_cookie_header (new_cookie) : NULL;
+        g_print ("cookie changed from %s to %s\n", old, new);
+        g_free (old);
+        g_free (new);
+    }
+
+    /* Don't allow revival of expiring cookies */
+    if (new_cookie && old_cookie && old_cookie->expires)
+        soup_cookie_set_expires (new_cookie, old_cookie->expires);
+
     if (new_cookie && new_cookie->expires)
     {
         time_t expires = soup_date_to_time_t (new_cookie->expires);
         gint age = katze_object_get_int (settings, "maximum-cookie-age");
-        if (age > 0)
+        /* An age of 0 to SoupCookie means already-expired
+           A user choosing 0 days probably expects 1 hour.
+         */
+        int seconds = age > 0 ? age * SOUP_COOKIE_MAX_AGE_ONE_DAY : SOUP_COOKIE_MAX_AGE_ONE_HOUR;
+        SoupDate* max_date = soup_date_new_from_now (seconds);
+        if (expires > soup_date_to_time_t (max_date))
         {
-            SoupDate* max_date = soup_date_new_from_now (
-                   age * SOUP_COOKIE_MAX_AGE_ONE_DAY);
-            if (soup_date_to_time_t (new_cookie->expires)
-                > soup_date_to_time_t (max_date))
-                   soup_cookie_set_expires (new_cookie, max_date);
+            if (midori_debug ("cookies"))
+            {
+                gchar* new_date = soup_date_to_string (max_date, SOUP_DATE_COOKIE);
+                g_print ("^^ enforcing expiry: %s\n", new_date);
+                g_free (new_date);
+            }
+            soup_cookie_set_expires (new_cookie, max_date);
         }
-        else
-        {
-            /* An age of 0 to SoupCookie means already-expired
-            A user choosing 0 days probably expects 1 hour. */
-            soup_cookie_set_max_age (new_cookie, SOUP_COOKIE_MAX_AGE_ONE_HOUR);
-        }
+        soup_date_free (max_date);
     }
-
-    if (midori_debug ("cookies"))
-        g_print ("cookie changed: old %p new %p\n", old_cookie, new_cookie);
 }
 #endif
 

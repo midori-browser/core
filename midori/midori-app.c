@@ -1443,7 +1443,7 @@ gboolean
 midori_debug (const gchar* token)
 {
     static const gchar* debug_token = NULL;
-    const gchar* debug_tokens = "headers body referer cookies paths hsts unarmed bookmarks ";
+    const gchar* debug_tokens = "headers body referer cookies paths hsts unarmed bookmarks mouse ";
     const gchar* full_debug_tokens = "adblock:match adblock:time startup ";
     if (debug_token == NULL)
     {

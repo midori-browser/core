@@ -241,6 +241,17 @@ midori_preferences_get_spell_languages (void)
 }
 #endif
 
+#ifdef G_OS_WIN32
+static void
+midori_preferences_theme_changed_cb (GtkWidget* button,
+                                     gpointer   user_data)
+{
+    MidoriSettings* settings = user_data;
+    midori_settings_set_theme_name (settings,
+        gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT (button)));
+}
+#endif
+
 /**
  * midori_preferences_set_settings:
  * @settings: the settings
@@ -426,6 +437,39 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     /* Page "Interface" */
     PAGE_NEW (GTK_STOCK_CONVERT, _("Browsing"));
         FRAME_NEW (NULL);
+    #ifdef G_OS_WIN32
+    INDENTED_ADD (gtk_label_new (_("Theme:")));
+    button = gtk_combo_box_text_new ();
+    SPANNED_ADD (button);
+    guint i = 0;
+    /* On Windows the default theme may be a built-in specific to the
+       running system. So we always add the default and skip it later.
+     */
+    const gchar* default_theme = midori_settings_get_default_theme_name (MIDORI_SETTINGS (settings));
+    gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (button), default_theme);
+    gtk_combo_box_set_active (GTK_COMBO_BOX (button), i++);
+
+    const gchar* current_theme = midori_settings_get_theme_name (MIDORI_SETTINGS (settings));
+    gchar* theme_path = midori_paths_get_data_filename ("themes", FALSE);
+    GDir* dir;
+    if ((dir = g_dir_open (theme_path, 0, NULL)))
+    {
+        const gchar* name;
+        while ((name = g_dir_read_name (dir)))
+        {
+            if (!g_strcmp0 (name, default_theme))
+                continue;
+            gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (button), name);
+            if (!g_strcmp0 (name, current_theme))
+                gtk_combo_box_set_active (GTK_COMBO_BOX (button), i);
+            i++;
+        }
+        g_dir_close (dir);
+        g_signal_connect (button, "changed",
+                          G_CALLBACK (midori_preferences_theme_changed_cb), settings);
+    }
+    g_free (theme_path);
+    #endif
         INDENTED_ADD (gtk_label_new (_("Toolbar Style:")));
         button = katze_property_proxy (settings, "toolbar-style", NULL);
         SPANNED_ADD (button);
@@ -479,16 +523,16 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     INDENTED_ADD (label);
     entry = katze_property_proxy (settings, "http-proxy", "address");
     SPANNED_ADD (entry);
-    g_signal_connect (settings, "notify::proxy-type",
-        G_CALLBACK (midori_preferences_notify_proxy_type_cb), entry);
+    g_signal_connect_object (settings, "notify::proxy-type",
+        G_CALLBACK (midori_preferences_notify_proxy_type_cb), entry, 0);
     midori_preferences_notify_proxy_type_cb (settings, NULL, entry);
     label = gtk_label_new (_("Port"));
     gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
     INDENTED_ADD (label);
     entry = katze_property_proxy (settings, "http-proxy-port", NULL);
     SPANNED_ADD (entry);
-    g_signal_connect (settings, "notify::proxy-type",
-        G_CALLBACK (midori_preferences_notify_proxy_type_cb), entry);
+    g_signal_connect_object (settings, "notify::proxy-type",
+        G_CALLBACK (midori_preferences_notify_proxy_type_cb), entry, 0);
     midori_preferences_notify_proxy_type_cb (settings, NULL, entry);
     INDENTED_ADD (gtk_event_box_new ());
     label = gtk_label_new (NULL);
@@ -506,8 +550,8 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     gtk_label_set_markup (GTK_LABEL (label), proxy_types->str);
     g_string_free (proxy_types, TRUE);
     SPANNED_ADD (label);
-    g_signal_connect (settings, "notify::proxy-type",
-        G_CALLBACK (midori_preferences_notify_proxy_type_cb), label);
+    g_signal_connect_object (settings, "notify::proxy-type",
+        G_CALLBACK (midori_preferences_notify_proxy_type_cb), label, 0);
     midori_preferences_notify_proxy_type_cb (settings, NULL, label);
 #ifndef HAVE_WEBKIT2
     if (soup_session_get_feature (webkit_get_default_session (), SOUP_TYPE_CACHE))

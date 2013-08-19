@@ -84,10 +84,12 @@ namespace Midori {
                 else if (!unescaped.validate ())
                     return uri;
                 string path;
-                string hostname = parse_hostname (unescaped, out path);
-                string decoded = hostname_to_unicode (hostname);
-                if (decoded != null)
-                    return "http://" + decoded + path;
+                string? hostname = parse_hostname (unescaped, out path);
+                if (hostname != null) {
+                    string decoded = hostname_to_unicode (hostname);
+                    if (decoded != null)
+                        return "http://" + decoded + path;
+                }
                 return unescaped;
             }
             return uri;

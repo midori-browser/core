@@ -705,7 +705,7 @@ static void nojs_preferences_init(NoJSPreferences *self)
 	gtk_container_add(GTK_CONTAINER(hbox), priv->deleteAllButton);
 	g_signal_connect_swapped(priv->deleteAllButton, "clicked", G_CALLBACK(_nojs_preferences_on_delete_all), self);
 
-	gtk_box_pack_start(GTK_BOX(vbox), hbox, TRUE, TRUE, 5);
+	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, TRUE, 5);
 
 	/* Add "allow-all-sites" checkbox */
 	priv->allowAllSitesCheckbox=gtk_check_button_new_with_mnemonic(_("A_llow scripts at all sites"));
@@ -713,7 +713,7 @@ static void nojs_preferences_init(NoJSPreferences *self)
 																"toggled",
 																G_CALLBACK(_nojs_preferences_on_allow_all_sites_changed),
 																self);
-	gtk_box_pack_start(GTK_BOX(vbox), priv->allowAllSitesCheckbox, TRUE, TRUE, 5);
+	gtk_box_pack_start(GTK_BOX(vbox), priv->allowAllSitesCheckbox, FALSE, TRUE, 5);
 
 	/* Add "block-unknown-domains" checkbox */
 	priv->blockUnknownDomainsCheckbox=gtk_check_button_new_with_mnemonic(_("Bloc_k scripts at unknown domains by default"));
@@ -721,7 +721,7 @@ static void nojs_preferences_init(NoJSPreferences *self)
 																		"toggled",
 																		G_CALLBACK(_nojs_preferences_on_block_unknown_domains_changed),
 																		self);
-	gtk_box_pack_start(GTK_BOX(vbox), priv->blockUnknownDomainsCheckbox, TRUE, TRUE, 5);
+	gtk_box_pack_start(GTK_BOX(vbox), priv->blockUnknownDomainsCheckbox, FALSE, TRUE, 5);
 
 	/* Add "check-second-level-only" checkbox */
 	priv->checkSecondLevelOnlyCheckbox=gtk_check_button_new_with_mnemonic(_("S_et permissions on second-level domain"));
@@ -729,10 +729,10 @@ static void nojs_preferences_init(NoJSPreferences *self)
 																		"toggled",
 																		G_CALLBACK(_nojs_preferences_on_check_second_level_only_changed),
 																		self);
-	gtk_box_pack_start(GTK_BOX(vbox), priv->checkSecondLevelOnlyCheckbox, TRUE, TRUE, 5);
+	gtk_box_pack_start(GTK_BOX(vbox), priv->checkSecondLevelOnlyCheckbox, FALSE, TRUE, 5);
 
 	/* Finalize setup of content area */
-	gtk_container_add(GTK_CONTAINER(priv->contentArea), vbox);
+	gtk_box_pack_start(GTK_BOX(priv->contentArea), vbox, TRUE, TRUE, 0);
 }
 
 /* Implementation: Public API */

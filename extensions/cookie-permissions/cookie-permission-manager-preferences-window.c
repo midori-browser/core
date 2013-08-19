@@ -723,7 +723,7 @@ static void cookie_permission_manager_preferences_window_init(CookiePermissionMa
 	gtk_container_add(GTK_CONTAINER(hbox), priv->addDomainButton);
 	g_signal_connect_swapped(priv->addDomainButton, "clicked", G_CALLBACK(_cookie_permission_manager_preferences_on_add_domain_clicked), self);
 
-	gtk_box_pack_start(GTK_BOX(vbox), hbox, TRUE, TRUE, 5);
+	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, TRUE, 5);
 
 	/* Set up cookie domain list */
 	priv->list=gtk_tree_view_new_with_model(GTK_TREE_MODEL(priv->listStore));
@@ -780,7 +780,7 @@ static void cookie_permission_manager_preferences_window_init(CookiePermissionMa
 	gtk_container_add(GTK_CONTAINER(hbox), priv->deleteAllButton);
 	g_signal_connect_swapped(priv->deleteAllButton, "clicked", G_CALLBACK(_cookie_permission_manager_preferences_on_delete_all), self);
 
-	gtk_box_pack_start(GTK_BOX(vbox), hbox, TRUE, TRUE, 5);
+	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, TRUE, 5);
 
 	/* Add "ask-for-unknown-policy" checkbox */
 	priv->askForUnknownPolicyCheckbox=gtk_check_button_new_with_mnemonic(_("A_sk for policy if unknown for a domain"));
@@ -788,10 +788,10 @@ static void cookie_permission_manager_preferences_window_init(CookiePermissionMa
 																"toggled",
 																G_CALLBACK(_cookie_permission_manager_preferences_window_ask_for_unknown_policy_changed),
 																self);
-	gtk_box_pack_start(GTK_BOX(vbox), priv->askForUnknownPolicyCheckbox, TRUE, TRUE, 5);
+	gtk_box_pack_start(GTK_BOX(vbox), priv->askForUnknownPolicyCheckbox, FALSE, TRUE, 5);
 
 	/* Finalize setup of content area */
-	gtk_container_add(GTK_CONTAINER(priv->contentArea), vbox);
+	gtk_box_pack_start(GTK_BOX(priv->contentArea), vbox, TRUE, TRUE, 0);
 }
 
 /* Implementation: Public API */
