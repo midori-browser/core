@@ -35,7 +35,7 @@ foreach(UNIT_SRC ${TESTS})
     OPTIONS
         ${VALAFLAGS}
     CUSTOM_VAPIS
-        "${CMAKE_SOURCE_DIR}/midori/webkitgtk-3.0.vapi"
+        ${EXTRA_VAPIS}
         "${CMAKE_SOURCE_DIR}/midori/midori.vapi"
         "${CMAKE_SOURCE_DIR}/katze/katze.vapi"
         "${CMAKE_BINARY_DIR}/midori/${LIBMIDORI}.vapi"

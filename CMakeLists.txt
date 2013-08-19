@@ -43,6 +43,7 @@ add_definitions("-DLIBNOTIFY_VERSION=\"${OPTS_libnotify_VERSION}\"")
 add_definitions("-DGRANITE_VERSION=\"${OPTS_granite_VERSION}\"")
 set(PKGS ${PKGS} libnotify zeitgeist-1.0)
 option(USE_GTK3 "Use GTK+3" OFF)
+option(HALF_BRO_INCOM_WEBKIT2 "Serve as a guniea pig" OFF)
 if (USE_GTK3)
     pkg_check_modules(DEPS_GTK REQUIRED
                       gtk+-3.0>=3.0.0
@@ -52,6 +53,7 @@ if (USE_GTK3)
     add_definitions("-DGTK_VERSION=\"${DEPS_GTK_gtk+-3.0_VERSION}\"")
     add_definitions("-DWEBKIT_VERSION=\"${DEPS_GTK_webkitgtk-3.0_VERSION}\"")
     set(PKGS ${PKGS} gtk+-3.0)
+    set(EXTRA_VAPIS ${EXTRA_VAPIS} "${CMAKE_SOURCE_DIR}/midori/webkitgtk-3.0.vapi")
     pkg_check_modules(OPTS_GTK
                       gcr-3>=2.32
                       unique-3.0>=0.9
@@ -62,6 +64,49 @@ if (USE_GTK3)
     endif ()
     add_definitions("-DGCR_VERSION=\"${OPTS_GTK_gcr-3_VERSION}\"")
     set(VALAFLAGS ${VALAFLAGS} "-D;HAVE_GTK3")
+elseif (HALF_BRO_INCOM_WEBKIT2)
+    # Note: WebKitGTK+ 2.0.0 matches 1.11.91; 1.11.92 > 2.0.0
+    pkg_check_modules(DEPS_GTK REQUIRED
+                      gtk+-3.0>=3.0.0
+                      webkit2gtk-3.0>=1.11.91
+                      javascriptcoregtk-3.0
+                      )
+                  add_definitions("-DHAVE_WEBKIT2")
+    add_definitions("-DGTK_VERSION=\"${DEPS_GTK_gtk+-3.0_VERSION}\"")
+    add_definitions("-DWEBKIT_VERSION=\"${DEPS_GTK_webkit2gtk-3.0_VERSION}\"")
+    set(PKGS ${PKGS} gtk+-3.0)
+    set(EXTRA_VAPIS ${EXTRA_VAPIS} "${CMAKE_SOURCE_DIR}/midori/webkit2gtk-3.0.vapi")
+    pkg_check_modules(OPTS_GTK
+                      gcr-3>=2.32
+                      unique-3.0>=0.9
+                      )
+    if (OPTS_GTK_unique-3.0_VERSION)
+        add_definitions("-DHAVE_UNIQUE")
+        add_definitions("-DUNIQUE_VERSION=\"${OPTS_GTK_unique-3.0_VERSION}\"")
+    endif ()
+    add_definitions("-DGCR_VERSION=\"${OPTS_GTK_gcr-3_VERSION}\"")
+    set(VALAFLAGS ${VALAFLAGS} "-D;HAVE_GTK3")
+    set(VALAFLAGS ${VALAFLAGS} "-D;HAVE_WEBKIT2")
+else ()
+    pkg_check_modules(DEPS_GTK REQUIRED
+                      gtk+-2.0>=2.24.0
+                      webkit-1.0>=1.8.3
+                      javascriptcoregtk-1.0
+                      )
+    add_definitions("-DGTK_VERSION=\"${DEPS_GTK_gtk+-2.0_VERSION}\"")
+    add_definitions("-DWEBKIT_VERSION=\"${DEPS_GTK_webkit-1.0_VERSION}\"")
+    set(PKGS ${PKGS} gtk+-2.0)
+    set(EXTRA_VAPIS ${EXTRA_VAPIS} "${CMAKE_SOURCE_DIR}/midori/webkitgtk-3.0.vapi")
+    # Always pass >1 module, otherwise we get different variable names
+    pkg_check_modules(OPTS_GTK
+                      gtk+-2.0>=2.24.0
+                      unique-1.0>=0.9
+                      )
+    if (OPTS_GTK_unique-1.0_VERSION)
+        add_definitions("-DHAVE_UNIQUE")
+        add_definitions("-DUNIQUE_VERSION=\"${OPTS_GTK_unique-1.0_VERSION}\"")
+    endif ()
+    add_definitions("-DGCR_VERSION=\"No\"")
 endif ()
 
 find_package(Vala REQUIRED)
