@@ -79,6 +79,7 @@ set(LIBMIDORI "${CMAKE_PROJECT_NAME}-core")
 
 add_subdirectory (midori)
 add_subdirectory (po)
+add_subdirectory (icons)
 add_subdirectory (data)
 enable_testing()
 add_subdirectory (tests)
