@@ -2,6 +2,7 @@
 
 include(FindGettext)
 if (GETTEXT_FOUND)
+    add_definitions("-DENABLE_NLS")
     set(LANGUAGES $ENV{LINGUAS})
     if (NOT LANGUAGES)
         file(GLOB POTFILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "*.po")
