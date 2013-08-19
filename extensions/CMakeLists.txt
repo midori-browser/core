@@ -22,7 +22,6 @@ if (HALF_BRO_INCOM_WEBKIT2)
          "nsplugin-manager.vala"
          )
 endif ()
-message(STATUS "ext ${EXTENSIONS}")
 
 foreach(UNIT_SRC ${EXTENSIONS})
     string(FIND ${UNIT_SRC} ".c" UNIT_EXTENSION)
