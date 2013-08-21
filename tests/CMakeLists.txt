@@ -6,7 +6,10 @@ add_custom_target(check COMMAND "env" "CTEST_OUTPUT_ON_FAILURE=1" "${CMAKE_CTEST
 include_directories(
                     "${CMAKE_SOURCE_DIR}"
                     "${CMAKE_SOURCE_DIR}/midori"
+                    ${DEPS_INCLUDE_DIRS}
+                    ${OPTS_INCLUDE_DIRS}
                     ${DEPS_GTK_INCLUDE_DIRS}
+                    ${OPTS_GTK_INCLUDE_DIRS}
                     ${CMAKE_BINARY_DIR}
                     "${CMAKE_BINARY_DIR}/midori"
                     )

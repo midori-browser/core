@@ -6,7 +6,9 @@ include_directories(
                     "${CMAKE_SOURCE_DIR}/midori"
                     "${CMAKE_SOURCE_DIR}/katze"
                     ${DEPS_INCLUDE_DIRS}
+                    ${OPTS_INCLUDE_DIRS}
                     ${DEPS_GTK_INCLUDE_DIRS}
+                    ${OPTS_GTK_INCLUDE_DIRS}
                     ${CMAKE_BINARY_DIR}
                     "${CMAKE_BINARY_DIR}/midori"
                     )
