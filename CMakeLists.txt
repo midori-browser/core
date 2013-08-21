@@ -126,7 +126,8 @@ set(VALAFLAGS ${VALAFLAGS}
     --debug
     )
 
-set(GETTEXT_PACKAGE ${CMAKE_PROJECT_NAME})
+# dh_translations detects this if there's no variable used
+set (GETTEXT_PACKAGE "midori")
 add_definitions("-DGETTEXT_PACKAGE=\"${GETTEXT_PACKAGE}\"")
 
 set(CFLAGS "-w -Wno-deprecated-declarations")
