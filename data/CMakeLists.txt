@@ -1,3 +1,25 @@
 # Copyright (C) 2013 Christian Dywan <christian@twotoasts.de>
 
-install(FILES about.css DESTINATION ${CMAKE_INSTALL_DATADIR}/midori/res)
+file(GLOB_RECURSE DATA_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *)
+list(REMOVE_ITEM DATA_FILES "CMakeLists.txt")
+
+foreach(FILE ${DATA_FILES})
+    string(FIND ${FILE} "faq." FAQ_FILE)
+    string(FIND ${FILE} "midori." MIDORI_FILE)
+    string(FIND ${FILE} ".desktop" DESKTOP_FILE)
+    if (FAQ_FILE GREATER -1)
+    elseif(MIDORI_FILE GREATER -1)
+    elseif (DESKTOP_FILE GREATER -1)
+    else()
+        string(FIND ${FILE} "/" IS_DIR)
+        if (IS_DIR GREATER -1)
+            string(REPLACE "/" ";" DIR_LIST ${FILE})
+            LIST(GET DIR_LIST 0 S_DIR)
+            LIST(GET DIR_LIST 1 S_FILE)
+            install(FILES ${S_DIR}/${S_FILE} DESTINATION ${CMAKE_INSTALL_DATADIR}/midori/res/${S_DIR})
+        else ()
+            install(FILES ${FILE} DESTINATION ${CMAKE_INSTALL_DATADIR}/midori/res/)
+        endif()
+    endif()
+
+endforeach()
