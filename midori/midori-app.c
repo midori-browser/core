@@ -33,23 +33,6 @@
     #include <locale.h>
 #endif
 
-#if HAVE_UNIQUE
-    typedef gpointer MidoriAppInstance;
-    #define MidoriAppInstanceNull NULL
-    #if defined(G_DISABLE_DEPRECATED) && !defined(G_CONST_RETURN)
-        #define G_CONST_RETURN
-    #endif
-    #include <unique/unique.h>
-    #ifdef G_DISABLE_DEPRECATED
-        #undef G_CONST_RETUTN
-    #endif
-    #define MIDORI_UNIQUE_COMMAND 1
-#else
-    typedef gint MidoriAppInstance;
-    #define MidoriAppInstanceNull -1
-    #include "socket.h"
-#endif
-
 #if HAVE_LIBNOTIFY
     #include <libnotify/notify.h>
     #ifndef NOTIFY_CHECK_VERSION
@@ -63,7 +46,7 @@
 
 struct _MidoriApp
 {
-    GObject parent_instance;
+    GApplication parent_instance;
 
     MidoriWebSettings* settings;
     KatzeArray* bookmarks;
@@ -75,14 +58,13 @@ struct _MidoriApp
     KatzeArray* browsers;
 
     MidoriBrowser* browser;
-    MidoriAppInstance instance;
 };
 
 static gchar* app_name = NULL;
 
 struct _MidoriAppClass
 {
-    GObjectClass parent_class;
+    GApplicationClass parent_class;
 
     /* Signals */
     void
@@ -95,7 +77,7 @@ struct _MidoriAppClass
     (*quit)                   (MidoriApp*     app);
 };
 
-G_DEFINE_TYPE (MidoriApp, midori_app, G_TYPE_OBJECT)
+G_DEFINE_TYPE (MidoriApp, midori_app, G_TYPE_APPLICATION);
 
 enum
 {
@@ -246,12 +228,6 @@ _midori_app_add_browser (MidoriApp*     app,
     #endif
 
     app->browser = browser;
-    #if HAVE_UNIQUE
-    /* We *do not* let unique watch windows because that includes
-        bringing windows in the foreground, even from other workspaces.
-    if (app->instance)
-        unique_app_watch_window (app->instance, GTK_WINDOW (browser)); */
-    #endif
 }
 
 #ifdef HAVE_SIGNAL_H
@@ -473,265 +449,138 @@ static void
 midori_app_raise_window (GtkWindow* window,
                          GdkScreen* screen)
 {
-    gtk_window_set_screen (window, screen);
+    if (screen)
+        gtk_window_set_screen (window, screen);
     gtk_window_present (window);
     gtk_window_deiconify (window);
 }
 
-static gboolean
-midori_app_command_received (MidoriApp*   app,
-                             const gchar* command,
-                             gchar**      uris,
-                             GdkScreen*   screen)
+static void
+midori_app_activate_cb (MidoriApp* app,
+                        gpointer   user_data)
 {
-    if (!screen)
+    if (app->browser)
+        midori_app_raise_window (GTK_WINDOW (app->browser), NULL);
+}
+
+static void
+midori_app_open_cb (MidoriApp* app,
+                    GFile**    files,
+                    gint       n_files,
+                    gchar*     hint,
+                    gpointer   user_data)
+{
+    if (!g_strcmp0 (hint, "command"))
     {
-        if (app->browser && gtk_widget_has_screen (GTK_WIDGET (app->browser)))
-            screen = gtk_widget_get_screen (GTK_WIDGET (app->browser));
-        else
-            screen = gdk_screen_get_default ();
+        gint i;
+        for (i = 0; files && files[i]; i++)
+        {
+            gchar* uri = g_file_get_uri (files[i]);
+            midori_browser_activate_action (app->browser, uri);
+            g_free (uri);
+        }
+        return;
     }
 
-    if (g_str_equal (command, "activate"))
-    {
-        if (!app->browser)
-            return FALSE;
-
-        midori_app_raise_window (GTK_WINDOW (app->browser), screen);
-        return TRUE;
-    }
-    else if (g_str_equal (command, "new"))
+    if (!g_strcmp0 (hint, "window"))
     {
         MidoriBrowser* browser = midori_app_create_browser (app);
         midori_app_add_browser (app, browser);
         midori_browser_add_uri (browser, "about:home");
         midori_browser_activate_action (browser, "Location");
         gtk_widget_show (GTK_WIDGET (browser));
-        midori_app_raise_window (GTK_WINDOW (browser), screen);
-        return TRUE;
+        midori_app_raise_window (GTK_WINDOW (browser), NULL);
+        return;
     }
-    else if (g_str_equal (command, "open"))
+
+
+    MidoriBrowser* browser;
+    MidoriNewPage open_external_pages_in;
+    gboolean first;
+
+    g_object_get (app->settings, "open-new-pages-in", &open_external_pages_in, NULL);
+    if (open_external_pages_in == MIDORI_NEW_PAGE_WINDOW)
     {
-        if (!app->browser)
-            return FALSE;
+        browser = midori_app_create_browser (app);
+        midori_app_add_browser (app, browser);
+        gtk_widget_show (GTK_WIDGET (browser));
+    }
+    else
+        browser = app->browser;
+    midori_app_raise_window (GTK_WINDOW (browser), NULL);
 
-        if (!uris)
-            return FALSE;
-        else
+    first = (open_external_pages_in == MIDORI_NEW_PAGE_CURRENT);
+
+    gint i;
+    for (i = 0; files && files[i]; i++)
+    {
+        gchar* uri = g_file_get_uri (files[i]);
+        gchar* fixed_uri = g_uri_unescape_string (uri, NULL);
+        g_free (uri);
+        if (sokoke_recursive_fork_protection (fixed_uri, FALSE))
         {
-            MidoriBrowser* browser;
-            MidoriNewPage open_external_pages_in;
-            gboolean first;
-
-            g_object_get (app->settings, "open-new-pages-in",
-                          &open_external_pages_in, NULL);
-            if (open_external_pages_in == MIDORI_NEW_PAGE_WINDOW)
+            if (first)
             {
-                browser = midori_app_create_browser (app);
-                midori_app_add_browser (app, browser);
-                gtk_widget_show (GTK_WIDGET (browser));
+                midori_browser_set_current_uri (browser, fixed_uri);
+                first = FALSE;
             }
             else
-                browser = app->browser;
-
-            midori_app_raise_window (GTK_WINDOW (browser), screen);
-
-            first = (open_external_pages_in == MIDORI_NEW_PAGE_CURRENT);
-            while (*uris)
             {
-                gchar* fixed_uri = g_uri_unescape_string (*uris, NULL);
-                if (sokoke_recursive_fork_protection (fixed_uri, FALSE))
-                {
-                    if (first)
-                    {
-                        midori_browser_set_current_uri (browser, fixed_uri);
-                        first = FALSE;
-                    }
-                    else
-                    {
-                        /* Switch to already open tab if possible */
-                        KatzeArray* items = midori_browser_get_proxy_array (browser);
-                        KatzeItem* found = katze_array_find_uri (items, fixed_uri);
-                        if (found != NULL)
-                            midori_browser_set_current_item (browser, found);
-                        else
-                            midori_browser_set_current_tab (browser,
-                                midori_browser_add_uri (browser, fixed_uri));
-                    }
-                }
-                g_free (fixed_uri);
-                uris++;
-            }
-            return TRUE;
-        }
-    }
-    else if (g_str_equal (command, "command"))
-    {
-        if (!uris || !app->browser)
-            return FALSE;
-        gint i;
-        for (i = 0; uris && uris[i]; i++)
-            midori_browser_activate_action (app->browser, uris[i]);
-        return TRUE;
-    }
-
-    return FALSE;
-}
-
-#if HAVE_UNIQUE
-static UniqueResponse
-midori_browser_message_received_cb (UniqueApp*         instance,
-                                    gint               command,
-                                    UniqueMessageData* message,
-                                    guint              timestamp,
-                                    MidoriApp*         app)
-{
-  gboolean success;
-  GdkScreen* screen = unique_message_data_get_screen (message);
-
-  switch (command)
-  {
-  case UNIQUE_ACTIVATE:
-      success = midori_app_command_received (app, "activate", NULL, screen);
-      break;
-  case UNIQUE_NEW:
-      success = midori_app_command_received (app, "new", NULL, screen);
-      break;
-  case UNIQUE_OPEN:
-  {
-      gchar** uris = unique_message_data_get_uris (message);
-      success = midori_app_command_received (app, "open", uris, screen);
-      /* g_strfreev (uris); */
-      break;
-  }
-  case MIDORI_UNIQUE_COMMAND:
-  {
-      gchar** uris = unique_message_data_get_uris (message);
-      success = midori_app_command_received (app, "command", uris, screen);
-      /* g_strfreev (uris); */
-      break;
-  }
-  default:
-      success = FALSE;
-      break;
-  }
-
-  return success ? UNIQUE_RESPONSE_OK : UNIQUE_RESPONSE_FAIL;
-}
-#else
-static gboolean
-midori_app_io_channel_watch_cb (GIOChannel*  channel,
-                                GIOCondition condition,
-                                MidoriApp*   app)
-{
-    GdkScreen* screen = gtk_widget_get_screen (GTK_WIDGET (app->browser));
-    gint fd, sock;
-    gchar buf[4096];
-    struct sockaddr_in caddr;
-    guint caddr_len = sizeof(caddr);
-
-    fd = app->instance;
-    sock = accept (fd, (struct sockaddr *)&caddr, &caddr_len);
-
-    while (fd_gets (sock, buf, sizeof (buf)) != -1)
-    {
-        if (strncmp (buf, "activate", 8) == 0)
-        {
-            midori_app_command_received (app, "open", NULL, screen);
-        }
-        else if (strncmp (buf, "new", 3) == 0)
-        {
-            midori_app_command_received (app, "new", NULL, screen);
-        }
-        else if (strncmp (buf, "open", 4) == 0)
-        {
-            while (fd_gets (sock, buf, sizeof (buf)) != -1 && *buf != '.')
-            {
-                gchar** uris = g_strsplit (g_strstrip (buf), "\n", 2);
-                midori_app_command_received (app, "open", uris, screen);
-                g_strfreev (uris);
+                /* Switch to already open tab if possible */
+                KatzeArray* items = midori_browser_get_proxy_array (browser);
+                KatzeItem* found = katze_array_find_uri (items, fixed_uri);
+                if (found != NULL)
+                    midori_browser_set_current_item (browser, found);
+                else
+                    midori_browser_set_current_tab (browser,
+                        midori_browser_add_uri (browser, fixed_uri));
             }
         }
-        else if (strncmp (buf, "command", 7) == 0)
-        {
-            guint i = 0;
-            gchar** uris = g_new (gchar*, 100);
-            while (fd_gets (sock, buf, sizeof (buf)) != -1 && *buf != '.')
-            {
-                uris[i++] = g_strdup (g_strstrip (buf));
-                if (i == 99)
-                    break;
-            }
-            uris[i] = NULL;
-            midori_app_command_received (app, "command", uris, screen);
-            g_strfreev (uris);
-        }
+        g_free (fixed_uri);
     }
-
-    fd_close (sock);
-
-    return TRUE;
 }
-#endif
 
-static MidoriAppInstance
+static void
 midori_app_create_instance (MidoriApp* app)
 {
-    MidoriAppInstance instance;
-    GdkDisplay* display;
-    gchar* display_name;
-    gchar* instance_name;
-    #if !HAVE_UNIQUE
-    gboolean exists;
-    GIOChannel* channel;
-    #endif
+    if (g_application_get_is_registered (G_APPLICATION (app)))
+        return;
 
-    if (!(display = gdk_display_get_default ()))
-        return MidoriAppInstanceNull;
+    const gchar* config = midori_paths_get_config_dir_for_reading ();
+    gchar* config_hash = g_compute_checksum_for_string (G_CHECKSUM_MD5, config, -1);
+    gchar* name_hash = g_compute_checksum_for_string (G_CHECKSUM_MD5, app_name, -1);
+    katze_assign (app_name, g_strconcat (PACKAGE_NAME,
+        "_", config_hash, "_", name_hash, NULL));
+    g_free (config_hash);
+    g_free (name_hash);
+    g_object_notify (G_OBJECT (app), "name");
 
-    {
-        #if HAVE_UNIQUE
-        const gchar* config = midori_paths_get_config_dir_for_reading ();
-        gchar* config_hash = g_compute_checksum_for_string (G_CHECKSUM_MD5, config, -1);
-        gchar* name_hash = g_compute_checksum_for_string (G_CHECKSUM_MD5, app_name, -1);
-        katze_assign (app_name, g_strconcat (PACKAGE_NAME,
-            "_", config_hash, "_", name_hash, NULL));
-        g_free (config_hash);
-        g_free (name_hash);
-        #else
-        katze_assign (app_name, g_strdup (PACKAGE_NAME));
-        #endif
-        g_object_notify (G_OBJECT (app), "name");
-    }
-
+    GdkDisplay* display = gdk_display_get_default ();
     #ifdef GDK_WINDOWING_X11
     /* On X11: :0 or :0.0 which is equivalent */
-    display_name = g_strndup (gdk_display_get_name (display), 2);
+    gchar* display_name = g_strndup (gdk_display_get_name (display), 2);
     #else
-    display_name = g_strdup (gdk_display_get_name (display));
+    gchar* display_name = g_strdup (gdk_display_get_name (display));
     #endif
     g_strdelimit (display_name, ":.\\/", '_');
-    instance_name = g_strdup_printf ("de.twotoasts.%s_%s", app_name, display_name);
+    gchar* instance_name = g_strdup_printf ("de.twotoasts.%s_%s", app_name, display_name);
     g_free (display_name);
     katze_assign (app_name, instance_name);
 
-    #if HAVE_UNIQUE
-    instance = unique_app_new (instance_name, NULL);
-    unique_app_add_command (instance, "midori-command", MIDORI_UNIQUE_COMMAND);
-    g_signal_connect (instance, "message-received",
-                      G_CALLBACK (midori_browser_message_received_cb), app);
-    #else
-    instance = socket_init (instance_name, midori_paths_get_config_dir_for_writing (), &exists);
-    g_object_set_data (G_OBJECT (app), "sock-exists",
-        exists ? (gpointer)0xdeadbeef : NULL);
-    if (instance != MidoriAppInstanceNull)
+    g_object_set (app,
+                  "application-id", app_name,
+                  "flags", G_APPLICATION_HANDLES_OPEN,
+                  NULL);
+    GError* error = NULL;
+    if (!g_application_register (G_APPLICATION (app), NULL, &error))
+        midori_error (error->message);
+    if (!g_application_get_is_remote (G_APPLICATION (app)))
     {
-        channel = g_io_channel_unix_new (instance);
-        g_io_add_watch (channel, G_IO_IN | G_IO_PRI | G_IO_ERR,
-            (GIOFunc)midori_app_io_channel_watch_cb, app);
+        g_signal_connect (app, "activate",
+                          G_CALLBACK (midori_app_activate_cb), NULL);
+        g_signal_connect (app, "open",
+                          G_CALLBACK (midori_app_open_cb), NULL);
     }
-    #endif
-    return instance;
 }
 
 const gchar*
@@ -787,8 +636,6 @@ midori_app_init (MidoriApp* app)
     app->extensions = katze_array_new (KATZE_TYPE_ARRAY);
     app->browsers = katze_array_new (MIDORI_TYPE_BROWSER);
 
-    app->instance = MidoriAppInstanceNull;
-
     #if HAVE_LIBNOTIFY
     notify_init (PACKAGE_NAME);
     #endif
@@ -808,12 +655,6 @@ midori_app_finalize (GObject* object)
     app->speeddial = NULL;
     katze_object_assign (app->extensions, NULL);
     katze_object_assign (app->browsers, NULL);
-
-    #if HAVE_UNIQUE
-    katze_object_assign (app->instance, NULL);
-    #else
-    sock_cleanup ();
-    #endif
 
     #if HAVE_LIBNOTIFY
     if (notify_is_initted ())
@@ -973,14 +814,8 @@ midori_app_instance_is_running (MidoriApp* app)
     else if (instance_is_running)
         return TRUE;
 
-    if (app->instance == MidoriAppInstanceNull)
-        app->instance = midori_app_create_instance (app);
-
-    #if HAVE_UNIQUE
-    return app->instance && unique_app_is_running (app->instance);
-    #else
-    return g_object_get_data (G_OBJECT (app), "sock-exists") != NULL;
-    #endif
+    midori_app_create_instance (app);
+    return g_application_get_is_remote (G_APPLICATION (app));
 }
 
 /**
@@ -1000,21 +835,8 @@ midori_app_instance_send_activate (MidoriApp* app)
     g_return_val_if_fail (MIDORI_IS_APP (app), FALSE);
     g_return_val_if_fail (midori_app_instance_is_running (app), FALSE);
 
-    #if HAVE_UNIQUE
-    if (app->instance)
-    {
-        UniqueResponse response = unique_app_send_message (app->instance, UNIQUE_ACTIVATE, NULL);
-        if (response == UNIQUE_RESPONSE_OK)
-            return TRUE;
-    }
-    #else
-    if (app->instance > -1)
-    {
-        send_open_command (app->instance, "activate", NULL);
-        return TRUE;
-    }
-    #endif
-    return FALSE;
+    g_application_activate (G_APPLICATION (app));
+    return TRUE;
 }
 
 /**
@@ -1032,21 +854,28 @@ midori_app_instance_send_new_browser (MidoriApp* app)
     g_return_val_if_fail (MIDORI_IS_APP (app), FALSE);
     g_return_val_if_fail (midori_app_instance_is_running (app), FALSE);
 
-    #if HAVE_UNIQUE
-    if (app->instance)
-    {
-        UniqueResponse response = unique_app_send_message (app->instance, UNIQUE_NEW, NULL);
-        if (response == UNIQUE_RESPONSE_OK)
-            return TRUE;
-    }
-    #else
-    if (app->instance > -1)
-    {
-        send_open_command (app->instance, "new", NULL);
-        return TRUE;
-    }
-    #endif
+    g_application_open (G_APPLICATION (app), NULL, -1, "window");
     return FALSE;
+}
+
+static void
+midori_app_open (MidoriApp*   app,
+                 gchar**      uris,
+                 const gchar* hint)
+{
+    gint n_files = g_strv_length (uris);
+    GFile** files = g_new (GFile*, n_files);
+    /* Encode URLs to avoid GFile treating them wrongly */
+    int i;
+    for (i = 0; i < n_files; i++)
+    {
+        gchar* new_uri = sokoke_magic_uri (uris[i], TRUE, TRUE);
+        gchar* escaped_uri = g_uri_escape_string (new_uri, NULL, FALSE);
+        g_free (new_uri);
+        files[i] = g_file_new_for_uri (escaped_uri);
+        g_free (escaped_uri);
+    }
+    g_application_open (G_APPLICATION (app), files, n_files, hint);
 }
 
 /**
@@ -1069,37 +898,8 @@ midori_app_instance_send_uris (MidoriApp* app,
     g_return_val_if_fail (midori_app_instance_is_running (app), FALSE);
     g_return_val_if_fail (uris != NULL, FALSE);
 
-    #if HAVE_UNIQUE
-    if (app->instance)
-    {
-        UniqueMessageData* message;
-        UniqueResponse response;
-        /* Encode any IDN addresses because libUnique doesn't like them */
-        int i = 0;
-        while (uris[i] != NULL)
-        {
-            gchar* new_uri = sokoke_magic_uri (uris[i], TRUE, TRUE);
-            gchar* escaped_uri = g_uri_escape_string (new_uri, NULL, FALSE);
-            g_free (new_uri);
-            katze_assign (uris[i], escaped_uri);
-            i++;
-        }
-
-        message = unique_message_data_new ();
-        unique_message_data_set_uris (message, uris);
-        response = unique_app_send_message (app->instance, UNIQUE_OPEN, message);
-        unique_message_data_free (message);
-        if (response == UNIQUE_RESPONSE_OK)
-            return TRUE;
-    }
-    #else
-    if (app->instance > -1)
-    {
-        send_open_command (app->instance, "open", uris);
-        return TRUE;
-    }
-    #endif
-    return FALSE;
+    midori_app_open (app, uris, "");
+    return TRUE;
 }
 
 /**
@@ -1128,32 +928,13 @@ midori_app_send_command (MidoriApp* app,
     {
         MidoriBrowser* browser = midori_browser_new ();
         int i;
-        for (i=0; command && command[i]; i++)
+        for (i = 0; command && command[i]; i++)
             midori_browser_assert_action (browser, command[i]);
         gtk_widget_destroy (GTK_WIDGET (browser));
-        return midori_app_command_received (app, "command", command, NULL);
     }
 
-    #if HAVE_UNIQUE
-    if (app->instance)
-    {
-        UniqueResponse response;
-        UniqueMessageData* message = unique_message_data_new ();
-        unique_message_data_set_uris (message, command);
-        response = unique_app_send_message (app->instance,
-            MIDORI_UNIQUE_COMMAND, message);
-        unique_message_data_free (message);
-        if (response == UNIQUE_RESPONSE_OK)
-            return TRUE;
-    }
-    #else
-    if (app->instance > -1)
-    {
-        send_open_command (app->instance, "command", command);
-        return TRUE;
-    }
-    #endif
-    return FALSE;
+    midori_app_open (app, command, "command");
+    return TRUE;
 }
 
 /**
