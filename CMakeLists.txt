@@ -45,15 +45,23 @@ set(PKGS posix linux libxml-2.0 sqlite3 gmodule-2.0 gio-2.0 libsoup-2.4)
 if (${DEPS_libsoup-gnome-2.4_VERSION} VERSION_GREATER "2.34.0")
     set(VALAFLAGS ${VALAFLAGS} "-D;HAVE_LIBSOUP_2_34_0")
 endif ()
-pkg_check_modules(OPTS
-                  libnotify
-                  zeitgeist-1.0>=0.3.14
-                  )
+pkg_check_modules(OPTS libnotify)
 add_definitions("-DLIBNOTIFY_VERSION=\"${OPTS_libnotify_VERSION}\"")
 add_definitions("-DGRANITE_VERSION=\"${OPTS_granite_VERSION}\"")
-set(PKGS ${PKGS} libnotify zeitgeist-1.0)
+set(PKGS ${PKGS} libnotify)
+
 option(USE_GTK3 "Use GTK+3" OFF)
 option(HALF_BRO_INCOM_WEBKIT2 "Serve as a guniea pig" OFF)
+option(USE_ZEITGEIST "Zeitgeist history integration" ON)
+
+if (USE_ZEITGEIST)
+    pkg_check_modules(ZEITGEIST zeitgeist-1.0>=0.3.14)
+    set(OPTS_INCLUDE_DIRS "${OPTS_INCLUDE_DIRS};${ZEITGEIST_INCLUDE_DIRS}")
+    set(OPTS_LIBRARIES "${OPTS_LIBRARIES};${ZEITGEIST_LIBRARIES}")
+    add_definitions("-DHAVE_ZEITGEIST")
+    set(PKGS ${PKGS} zeitgeist-1.0)
+endif()
+
 if (USE_GTK3)
     pkg_check_modules(DEPS_GTK REQUIRED
                       gtk+-3.0>=3.0.0
