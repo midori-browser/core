@@ -5,6 +5,7 @@
 # Copyright (C) 2013 Christian Dywan
 
 find_program (INTLTOOL_MERGE_EXECUTABLE intltool-merge)
+find_program (INTLTOOL_UPDATE_EXECUTABLE intltool-update)
 
 if (INTLTOOL_MERGE_EXECUTABLE)
     set (INTLTOOL_MERGE_FOUND TRUE)
@@ -16,3 +17,13 @@ if (INTLTOOL_MERGE_EXECUTABLE)
         install (FILES ${CMAKE_CURRENT_BINARY_DIR}/"${desktop_id}.desktop" DESTINATION ${CMAKE_INSTALL_PREFIX}/share/applications)
     endmacro (INTLTOOL_MERGE_DESKTOP desktop_id po_dir)
 endif ()
+
+if (INTLTOOL_UPDATE_EXECUTABLE)
+    set (INTLTOOL_UPDATE_FOUND TRUE)
+    add_custom_target (pot
+        COMMAND ${INTLTOOL_UPDATE_EXECUTABLE} "-p" "-g" ${GETTEXT_PACKAGE}
+        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/po"
+        )
+endif ()
+
+

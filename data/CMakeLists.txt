@@ -3,6 +3,8 @@
 include(FindIntltool)
 if (NOT INTLTOOL_MERGE_FOUND)
     message(FATAL_ERROR "intltool-merge not found")
+elseif (NOT INTLTOOL_UPDATE_FOUND)
+    message(FATAL_ERROR "intltool-update not found")
 endif ()
 
 file(GLOB_RECURSE DATA_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *)
