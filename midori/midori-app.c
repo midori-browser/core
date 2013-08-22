@@ -473,7 +473,7 @@ midori_app_open_cb (MidoriApp* app,
     if (!g_strcmp0 (hint, "command"))
     {
         gint i;
-        for (i = 0; files && files[i]; i++)
+        for (i = 0; i < n_files; i++)
         {
             gchar* uri = g_file_get_uri (files[i]);
             midori_browser_activate_action (app->browser, uri);
@@ -512,7 +512,7 @@ midori_app_open_cb (MidoriApp* app,
     first = (open_external_pages_in == MIDORI_NEW_PAGE_CURRENT);
 
     gint i;
-    for (i = 0; files && files[i]; i++)
+    for (i = 0; i < n_files; i++)
     {
         gchar* uri = g_file_get_uri (files[i]);
         gchar* fixed_uri = g_uri_unescape_string (uri, NULL);
@@ -855,27 +855,7 @@ midori_app_instance_send_new_browser (MidoriApp* app)
     g_return_val_if_fail (midori_app_instance_is_running (app), FALSE);
 
     g_application_open (G_APPLICATION (app), NULL, -1, "window");
-    return FALSE;
-}
-
-static void
-midori_app_open (MidoriApp*   app,
-                 gchar**      uris,
-                 const gchar* hint)
-{
-    gint n_files = g_strv_length (uris);
-    GFile** files = g_new (GFile*, n_files);
-    /* Encode URLs to avoid GFile treating them wrongly */
-    int i;
-    for (i = 0; i < n_files; i++)
-    {
-        gchar* new_uri = sokoke_magic_uri (uris[i], TRUE, TRUE);
-        gchar* escaped_uri = g_uri_escape_string (new_uri, NULL, FALSE);
-        g_free (new_uri);
-        files[i] = g_file_new_for_uri (escaped_uri);
-        g_free (escaped_uri);
-    }
-    g_application_open (G_APPLICATION (app), files, n_files, hint);
+    return TRUE;
 }
 
 /**
@@ -898,7 +878,19 @@ midori_app_instance_send_uris (MidoriApp* app,
     g_return_val_if_fail (midori_app_instance_is_running (app), FALSE);
     g_return_val_if_fail (uris != NULL, FALSE);
 
-    midori_app_open (app, uris, "");
+    gint n_files = g_strv_length (uris);
+    GFile** files = g_new (GFile*, n_files);
+    /* Encode URLs to avoid GFile treating them wrongly */
+    int i;
+    for (i = 0; i < n_files; i++)
+    {
+        gchar* new_uri = sokoke_magic_uri (uris[i], TRUE, TRUE);
+        gchar* escaped_uri = g_uri_escape_string (new_uri, NULL, FALSE);
+        g_free (new_uri);
+        files[i] = g_file_new_for_uri (escaped_uri);
+        g_free (escaped_uri);
+    }
+    g_application_open (G_APPLICATION (app), files, n_files, "");
     return TRUE;
 }
 
@@ -933,7 +925,15 @@ midori_app_send_command (MidoriApp* app,
         gtk_widget_destroy (GTK_WIDGET (browser));
     }
 
-    midori_app_open (app, command, "command");
+    gint n_files = g_strv_length (command);
+    GFile** files = g_new (GFile*, n_files);
+    /* Encode URLs to avoid GFile treating them wrongly */
+    int i;
+    for (i = 0; i < n_files; i++)
+    {
+        files[i] = g_file_new_for_uri (command[i]);
+    }
+    g_application_open (G_APPLICATION (app), files, n_files, "command");
     return TRUE;
 }
 
