@@ -475,9 +475,19 @@ midori_app_open_cb (MidoriApp* app,
         gint i;
         for (i = 0; i < n_files; i++)
         {
+            /* Pseudo URIs may have been passed here internally */
             gchar* uri = g_file_get_uri (files[i]);
-            midori_browser_activate_action (app->browser, uri);
+            gchar* tmp;
+            if (g_str_has_suffix (uri, "/"))
+                tmp = g_strndup (uri, strlen (uri) - 1);
+            else
+                tmp = g_strdup (uri);
+            gchar* command = tmp;
+            if (g_str_has_prefix (command, "command://"))
+                command = &command[10];
+            midori_browser_activate_action (app->browser, command);
             g_free (uri);
+            g_free (tmp);
         }
         return;
     }
@@ -931,7 +941,10 @@ midori_app_send_command (MidoriApp* app,
     int i;
     for (i = 0; i < n_files; i++)
     {
-        files[i] = g_file_new_for_uri (command[i]);
+        /* Use pseudo URI to prevent GFile constructing filenames */
+        gchar* command_uri = g_strdup_printf ("command://%s/", command[i]);
+        files[i] = g_file_new_for_uri (command_uri);
+        g_free (command_uri);
     }
     g_application_open (G_APPLICATION (app), files, n_files, "command");
     return TRUE;
