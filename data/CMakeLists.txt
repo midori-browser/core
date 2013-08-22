@@ -1,5 +1,10 @@
 # Copyright (C) 2013 Christian Dywan <christian@twotoasts.de>
 
+include(FindIntltool)
+if (NOT INTLTOOL_MERGE_FOUND)
+    message(FATAL_ERROR "intltool-merge not found")
+endif ()
+
 file(GLOB_RECURSE DATA_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *)
 list(REMOVE_ITEM DATA_FILES "CMakeLists.txt")
 
@@ -8,8 +13,10 @@ foreach(FILE ${DATA_FILES})
     string(FIND ${FILE} "midori." MIDORI_FILE)
     string(FIND ${FILE} ".desktop" DESKTOP_FILE)
     if (FAQ_FILE GREATER -1)
-    elseif(MIDORI_FILE GREATER -1)
     elseif (DESKTOP_FILE GREATER -1)
+        string(SUBSTRING ${FILE} 0 ${DESKTOP_FILE} DESKTOP_ID)
+        INTLTOOL_MERGE_DESKTOP (${DESKTOP_ID} po)
+    elseif(MIDORI_FILE GREATER -1)
     else()
         string(FIND ${FILE} "/" IS_DIR)
         if (IS_DIR GREATER -1)
