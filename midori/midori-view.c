@@ -4398,6 +4398,8 @@ midori_view_get_tab_menu (MidoriView* view)
     g_return_val_if_fail (MIDORI_IS_VIEW (view), NULL);
 
     MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (view));
+    g_return_val_if_fail (browser != NULL, NULL);
+    
     GtkActionGroup* actions = midori_browser_get_action_group (browser);
     MidoriContextAction* menu = midori_context_action_new ("TabContextMenu", NULL, NULL, NULL);
     midori_context_action_add_action_group (menu, actions);
