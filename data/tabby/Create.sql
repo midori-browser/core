@@ -1,20 +1,24 @@
 CREATE TABLE sessions
 (
     id INTEGER PRIMARY KEY,
-    tstamp INTEGER,
-    title TEXT
+    parent_id INTEGER DEFAULT 0,
+    crdate INTEGER DEFAULT 0,
+    tstamp INTEGER DEFAULT 0,
+    closed INTEGER DEFAULT 0,
+    title TEXT DEFAULT NULL,
+    FOREIGN KEY(parent_id) REFERENCES sessions(id)
 );
 
 CREATE TABLE tabs
 (
     id INTEGER PRIMARY KEY,
-    session_id INTEGER,
-    uri TEXT,
-    icon TEXT,
-    title TEXT,
-    crdate INTEGER,
-    tstamp INTEGER,
-    closed INTEGER,
+    session_id INTEGER NOT NULL,
+    uri TEXT DEFAULT NULL,
+    icon TEXT DEFAULT NULL,
+    title TEXT DEFAULT NULL,
+    crdate INTEGER DEFAULT 0,
+    tstamp INTEGER DEFAULT 0,
+    closed INTEGER DEFAULT 0,
     FOREIGN KEY(session_id) REFERENCES sessions(id)
 );
 

@@ -23,6 +23,7 @@ namespace Tabby {
         public abstract void add_item (Katze.Item item);
         public abstract void attach (Midori.Browser browser);
         public abstract void restore (Midori.Browser browser);
+        public abstract void close ();
     }
 
     namespace Base {
@@ -64,6 +65,7 @@ namespace Tabby {
             public abstract void uri_changed (Midori.View view, string uri);
             public abstract void tab_added (Midori.Browser browser, Midori.View view);
             public abstract void tab_removed (Midori.Browser browser, Midori.View view);
+            public abstract void close ();
             public abstract Katze.Array get_tabs ();
 
             public void attach (Midori.Browser browser) {
@@ -121,6 +123,7 @@ namespace Tabby {
 
     namespace Local {
         private class Session : Base.Session {
+            public static int open_sessions = 0;
             public int64 id { get; private set; }
             private unowned Sqlite.Database db;
 
@@ -177,6 +180,22 @@ namespace Tabby {
                     critical (_("Failed to update database: %s"), db.errmsg);
             }
 
+            public override void close() {
+                if (Session.open_sessions == 1)
+                    return;
+
+                GLib.DateTime time = new DateTime.now_local ();
+                string sqlcmd = "UPDATE `sessions` SET closed = 1, tstamp = :tstamp WHERE id = :session_id;";
+                Sqlite.Statement stmt;
+                if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
+                    critical (_("Failed to update database: %s"), db.errmsg);
+
+                stmt.bind_int64 (stmt.bind_parameter_index (":session_id"), this.id);
+                stmt.bind_int64 (stmt.bind_parameter_index (":tstamp"), time.to_unix ());
+                if (stmt.step () != Sqlite.DONE)
+                    critical (_("Failed to update database: %s"), db.errmsg);
+            }
+
             public override Katze.Array get_tabs() {
                 Katze.Array tabs = new Katze.Array (typeof (Katze.Item));
 
@@ -223,7 +242,27 @@ namespace Tabby {
             internal Session.with_id (Sqlite.Database db, int64 id) {
                 this.db = db;
                 this.id = id;
+
+                GLib.DateTime time = new DateTime.now_local ();
+                string sqlcmd = "UPDATE `sessions` SET closed = 0, tstamp = :tstamp WHERE id = :session_id;";
+                Sqlite.Statement stmt;
+                if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
+                    critical (_("Failed to update database: %s"), db.errmsg);
+
+                stmt.bind_int64 (stmt.bind_parameter_index (":session_id"), this.id);
+                stmt.bind_int64 (stmt.bind_parameter_index (":tstamp"), time.to_unix ());
+                if (stmt.step () != Sqlite.DONE)
+                    critical (_("Failed to update database: %s"), db.errmsg);
             }
+
+            construct {
+                Session.open_sessions++;
+            }
+
+            ~Session () {
+                Session.open_sessions--;
+            }
+
         }
 
         private class Storage : Base.Storage {
@@ -232,7 +271,7 @@ namespace Tabby {
             public override Katze.Array get_sessions () {
                 Katze.Array sessions = new Katze.Array (typeof (Session));
 
-                string sqlcmd = "SELECT id FROM sessions";
+                string sqlcmd = "SELECT id FROM sessions WHERE closed = 0;";
                 Sqlite.Statement stmt;
                 if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
                     critical (_("Failed to select from database: %s"), db.errmsg);
@@ -311,11 +350,21 @@ namespace Tabby {
             }
         }
 
+        private void browser_removed (Midori.Browser browser) {
+            Base.Session session = browser.get_data<Base.Session> ("tabby-session");
+            if (session == null) {
+                GLib.warning ("missing session");
+            } else {
+                session.close ();
+            }
+        }
+
         private void activated (Midori.App app) {
             /* FixMe: provide an option to replace Local.Storage with IStorage based Objects */
             this.storage = new Local.Storage (this.get_app ()) as Base.Storage;
 
             app.add_browser.connect (browser_added);
+            app.remove_browser.connect (browser_removed);
 
             GLib.Idle.add (this.load_session);
         }
