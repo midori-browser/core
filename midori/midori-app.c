@@ -470,29 +470,7 @@ midori_app_open_cb (MidoriApp* app,
                     gchar*     hint,
                     gpointer   user_data)
 {
-    if (!g_strcmp0 (hint, "command"))
-    {
-        gint i;
-        for (i = 0; i < n_files; i++)
-        {
-            /* Pseudo URIs may have been passed here internally */
-            gchar* uri = g_file_get_uri (files[i]);
-            gchar* tmp;
-            if (g_str_has_suffix (uri, "/"))
-                tmp = g_strndup (uri, strlen (uri) - 1);
-            else
-                tmp = g_strdup (uri);
-            gchar* command = tmp;
-            if (g_str_has_prefix (command, "command://"))
-                command = &command[10];
-            midori_browser_activate_action (app->browser, command);
-            g_free (uri);
-            g_free (tmp);
-        }
-        return;
-    }
-
-    if (!g_strcmp0 (hint, "window"))
+    if (!strcmp (hint, "window"))
     {
         MidoriBrowser* browser = midori_app_create_browser (app);
         midori_app_add_browser (app, browser);
@@ -503,6 +481,11 @@ midori_app_open_cb (MidoriApp* app,
         return;
     }
 
+    if (n_files == 0 && strcmp (hint, ""))
+    {
+        midori_browser_activate_action (app->browser, hint);
+        return;
+    }
 
     MidoriBrowser* browser;
     MidoriNewPage open_external_pages_in;
@@ -551,6 +534,16 @@ midori_app_open_cb (MidoriApp* app,
 }
 
 static void
+midori_app_startup_cb (GApplication* app,
+                       gpointer      user_data)
+{
+    g_signal_connect (app, "activate",
+                      G_CALLBACK (midori_app_activate_cb), NULL);
+    g_signal_connect (app, "open",
+                      G_CALLBACK (midori_app_open_cb), NULL);
+}
+
+static void
 midori_app_create_instance (MidoriApp* app)
 {
     if (g_application_get_is_registered (G_APPLICATION (app)))
@@ -581,16 +574,10 @@ midori_app_create_instance (MidoriApp* app)
                   "application-id", app_name,
                   "flags", G_APPLICATION_HANDLES_OPEN,
                   NULL);
+    g_signal_connect (app, "startup", G_CALLBACK (midori_app_startup_cb), NULL);
     GError* error = NULL;
     if (!g_application_register (G_APPLICATION (app), NULL, &error))
         midori_error (error->message);
-    if (!g_application_get_is_remote (G_APPLICATION (app)))
-    {
-        g_signal_connect (app, "activate",
-                          G_CALLBACK (midori_app_activate_cb), NULL);
-        g_signal_connect (app, "open",
-                          G_CALLBACK (midori_app_open_cb), NULL);
-    }
 }
 
 const gchar*
@@ -936,17 +923,9 @@ midori_app_send_command (MidoriApp* app,
     }
 
     gint n_files = g_strv_length (command);
-    GFile** files = g_new (GFile*, n_files);
-    /* Encode URLs to avoid GFile treating them wrongly */
     int i;
     for (i = 0; i < n_files; i++)
-    {
-        /* Use pseudo URI to prevent GFile constructing filenames */
-        gchar* command_uri = g_strdup_printf ("command://%s/", command[i]);
-        files[i] = g_file_new_for_uri (command_uri);
-        g_free (command_uri);
-    }
-    g_application_open (G_APPLICATION (app), files, n_files, "command");
+        g_application_open (G_APPLICATION (app), NULL, 0, command[i]);
     return TRUE;
 }
 
