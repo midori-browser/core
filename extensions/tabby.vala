@@ -95,6 +95,8 @@ namespace Tabby {
                 GLib.List<unowned Katze.Item> items = tabs.get_items ();
                 unowned GLib.List<unowned Katze.Item> u_items = items;
 
+                bool delay = false;
+
                 GLib.Idle.add (() => {
                     /* Note: we need to use `items` for something to maintain a valid reference */
                     if (items.length () > 0) {
@@ -103,6 +105,12 @@ namespace Tabby {
                                 return false;
 
                             Katze.Item t_item = u_items.data<Katze.Item>;
+
+                            if (delay)
+                                t_item.set_meta_integer ("delay", Midori.Delay.DELAYED);
+                            else
+                                delay = true;
+
                             browser.add_item (t_item);
 
                             u_items = u_items.next;
