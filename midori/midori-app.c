@@ -508,28 +508,26 @@ midori_app_open_cb (MidoriApp* app,
     for (i = 0; i < n_files; i++)
     {
         gchar* uri = g_file_get_uri (files[i]);
-        gchar* fixed_uri = g_uri_unescape_string (uri, NULL);
-        g_free (uri);
-        if (sokoke_recursive_fork_protection (fixed_uri, FALSE))
+        if (sokoke_recursive_fork_protection (uri, FALSE))
         {
             if (first)
             {
-                midori_browser_set_current_uri (browser, fixed_uri);
+                midori_browser_set_current_uri (browser, uri);
                 first = FALSE;
             }
             else
             {
                 /* Switch to already open tab if possible */
                 KatzeArray* items = midori_browser_get_proxy_array (browser);
-                KatzeItem* found = katze_array_find_uri (items, fixed_uri);
+                KatzeItem* found = katze_array_find_uri (items, uri);
                 if (found != NULL)
                     midori_browser_set_current_item (browser, found);
                 else
                     midori_browser_set_current_tab (browser,
-                        midori_browser_add_uri (browser, fixed_uri));
+                        midori_browser_add_uri (browser, uri));
             }
         }
-        g_free (fixed_uri);
+        g_free (uri);
     }
 }
 
@@ -882,10 +880,8 @@ midori_app_instance_send_uris (MidoriApp* app,
     for (i = 0; i < n_files; i++)
     {
         gchar* new_uri = sokoke_magic_uri (uris[i], TRUE, TRUE);
-        gchar* escaped_uri = g_uri_escape_string (new_uri, NULL, FALSE);
+        files[i] = g_file_new_for_uri (new_uri);
         g_free (new_uri);
-        files[i] = g_file_new_for_uri (escaped_uri);
-        g_free (escaped_uri);
     }
     g_application_open (G_APPLICATION (app), files, n_files, "");
     return TRUE;
