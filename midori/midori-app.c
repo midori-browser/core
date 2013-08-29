@@ -456,9 +456,33 @@ midori_app_raise_window (GtkWindow* window,
 }
 
 static void
+midori_app_debug_open (MidoriApp*   app,
+                       GFile**      files,
+                       gint         n_files,
+                       const gchar* hint)
+{
+    if (midori_debug ("app"))
+    {
+        g_print ("app(%s) open: %d files [",
+                 g_application_get_is_remote (G_APPLICATION (app)) ? "running" : "remote",
+                 n_files);
+        gint i;
+        for (i = 0; i < n_files; i++)
+        {
+            gchar* uri = g_file_get_uri (files[i]);
+            g_print ("%s ", uri);
+            g_free (uri);
+        }
+        g_print ("] hint '%s'\n", hint);
+    }
+}
+
+static void
 midori_app_activate_cb (MidoriApp* app,
                         gpointer   user_data)
 {
+    if (midori_debug ("app"))
+        g_print ("app(running) activate\n");
     if (app->browser)
         midori_app_raise_window (GTK_WINDOW (app->browser), NULL);
 }
@@ -470,6 +494,8 @@ midori_app_open_cb (MidoriApp* app,
                     gchar*     hint,
                     gpointer   user_data)
 {
+    midori_app_debug_open (app, files, n_files, hint);
+
     if (!strcmp (hint, "window"))
     {
         MidoriBrowser* browser = midori_app_create_browser (app);
@@ -568,6 +594,8 @@ midori_app_create_instance (MidoriApp* app)
     g_free (display_name);
     katze_assign (app_name, instance_name);
 
+    if (midori_debug ("app"))
+        g_print ("app registering %s\n", app_name);
     g_object_set (app,
                   "application-id", app_name,
                   "flags", G_APPLICATION_HANDLES_OPEN,
@@ -830,6 +858,8 @@ midori_app_instance_send_activate (MidoriApp* app)
     g_return_val_if_fail (MIDORI_IS_APP (app), FALSE);
     g_return_val_if_fail (midori_app_instance_is_running (app), FALSE);
 
+    if (midori_debug ("app"))
+        g_print ("app(remote) activate\n");
     g_application_activate (G_APPLICATION (app));
     return TRUE;
 }
@@ -849,6 +879,7 @@ midori_app_instance_send_new_browser (MidoriApp* app)
     g_return_val_if_fail (MIDORI_IS_APP (app), FALSE);
     g_return_val_if_fail (midori_app_instance_is_running (app), FALSE);
 
+    midori_app_debug_open (app, NULL, -1, "window");
     g_application_open (G_APPLICATION (app), NULL, -1, "window");
     return TRUE;
 }
@@ -883,6 +914,7 @@ midori_app_instance_send_uris (MidoriApp* app,
         files[i] = g_file_new_for_uri (new_uri);
         g_free (new_uri);
     }
+    midori_app_debug_open (app, files, n_files, "");
     g_application_open (G_APPLICATION (app), files, n_files, "");
     return TRUE;
 }
@@ -921,7 +953,10 @@ midori_app_send_command (MidoriApp* app,
     gint n_files = g_strv_length (command);
     int i;
     for (i = 0; i < n_files; i++)
+    {
+        midori_app_debug_open (app, NULL, 0, command[i]);
         g_application_open (G_APPLICATION (app), NULL, 0, command[i]);
+    }
     return TRUE;
 }
 
@@ -1212,7 +1247,7 @@ gboolean
 midori_debug (const gchar* token)
 {
     static const gchar* debug_token = NULL;
-    const gchar* debug_tokens = "headers body referer cookies paths hsts unarmed bookmarks mouse ";
+    const gchar* debug_tokens = "headers body referer cookies paths hsts unarmed bookmarks mouse app ";
     const gchar* full_debug_tokens = "adblock:match adblock:time startup ";
     if (debug_token == NULL)
     {
