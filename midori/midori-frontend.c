@@ -446,14 +446,14 @@ midori_normal_app_new (const gchar* config,
         /* It makes no sense to show a crash dialog while running */
         if (!diagnostic_dialog)
         {
-            gboolean success = FALSE;
-            if (execute_commands != NULL && midori_app_send_command (app, execute_commands))
-                success = TRUE;
-            if (open_uris != NULL && midori_app_instance_send_uris (app, open_uris))
-                success = TRUE;
-            if (!execute_commands && !open_uris && midori_app_instance_send_new_browser (app))
-                success = TRUE;
-            if (success)
+            if (execute_commands != NULL)
+                midori_app_send_command (app, execute_commands);
+            if (open_uris != NULL)
+                midori_app_instance_send_uris (app, open_uris);
+            if (!execute_commands && !open_uris)
+                midori_app_instance_send_new_browser (app);
+
+            if (g_application_get_is_registered (G_APPLICATION (app)))
                 return NULL;
         }
 

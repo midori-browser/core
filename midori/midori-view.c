@@ -3666,13 +3666,6 @@ midori_view_list_versions (GString* markup,
         LIBNOTIFY_VERSION));
     midori_view_add_version (markup, html, g_strdup_printf ("gcr %s\tgranite %s",
         GCR_VERSION, GRANITE_VERSION));
-    midori_view_add_version (markup, html, g_strdup_printf ("single instance %s",
-        #if HAVE_UNIQUE
-        "libunique " UNIQUE_VERSION
-        #else
-        "Sockets"
-        #endif
-        ));
 }
 
 #ifdef HAVE_WEBKIT2
