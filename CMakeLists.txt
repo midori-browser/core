@@ -78,7 +78,8 @@ if (${DEPS_libsoup-gnome-2.4_VERSION} VERSION_GREATER "2.34.0")
     set(VALAFLAGS ${VALAFLAGS} "-D;HAVE_LIBSOUP_2_34_0")
 endif ()
 
-pkg_check_modules(OPTS libnotify)
+# Always pass >1 module, otherwise we get different variable names
+pkg_check_modules(OPTS gio-2.0 libnotify)
 add_definitions("-DLIBNOTIFY_VERSION=\"${OPTS_libnotify_VERSION}\"")
 set(PKGS ${PKGS} libnotify)
 
@@ -120,7 +121,9 @@ if (USE_GTK3)
     add_definitions("-DWEBKIT_VERSION=\"${DEPS_GTK_webkitgtk-3.0_VERSION}\"")
     set(PKGS ${PKGS} gtk+-3.0)
     set(EXTRA_VAPIS ${EXTRA_VAPIS} "${CMAKE_SOURCE_DIR}/midori/webkitgtk-3.0.vapi")
+    # Always pass >1 module, otherwise we get different variable names
     pkg_check_modules(OPTS_GTK
+                      gio-2.0
                       gcr-3>=2.32
                       )
     add_definitions("-DGCR_VERSION=\"${OPTS_GTK_gcr-3_VERSION}\"")
@@ -139,7 +142,7 @@ elseif (HALF_BRO_INCOM_WEBKIT2)
     set(EXTRA_VAPIS ${EXTRA_VAPIS} "${CMAKE_SOURCE_DIR}/midori/webkit2gtk-3.0.vapi")
     # Always pass >1 module, otherwise we get different variable names
     pkg_check_modules(OPTS_GTK
-                      gtk+-3.0>=3.0.0
+                      gio-2.0
                       gcr-3>=2.32
                       )
     add_definitions("-DGCR_VERSION=\"${OPTS_GTK_gcr-3_VERSION}\"")
