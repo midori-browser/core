@@ -34,9 +34,12 @@ find_file (UNISTD unistd.h)
 if (UNISTD)
     add_definitions("-DHAVE_UNISTD_H")
 endif ()
-find_file (SIGNAL signal.h)
-if (SIGNAL)
-    add_definitions("-DHAVE_SIGNAL_H")
+
+if (UNIX)
+    find_file (SIGNAL signal.h)
+    if (SIGNAL)
+        add_definitions("-DHAVE_SIGNAL_H")
+    endif ()
 endif ()
 
 find_library (X11 X11)
@@ -174,6 +177,10 @@ add_definitions("-DGETTEXT_PACKAGE=\"${GETTEXT_PACKAGE}\"")
 
 set(CFLAGS "-w -Wno-deprecated-declarations")
 set(LIBMIDORI "${CMAKE_PROJECT_NAME}-core")
+
+# CMake provides no uninstall target by design
+add_custom_target (uninstall
+    COMMAND "xargs" "rm" "-v" "<" "install_manifest.txt")
 
 add_subdirectory (midori)
 add_subdirectory (po)
