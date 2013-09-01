@@ -203,6 +203,7 @@ namespace Midori {
 
         [HasEmitter]
         public signal bool download_requested (WebKit.Download download);
+        public signal bool about_content (string uri);
 
     }
 

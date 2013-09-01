@@ -523,16 +523,16 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     INDENTED_ADD (label);
     entry = katze_property_proxy (settings, "http-proxy", "address");
     SPANNED_ADD (entry);
-    g_signal_connect (settings, "notify::proxy-type",
-        G_CALLBACK (midori_preferences_notify_proxy_type_cb), entry);
+    g_signal_connect_object (settings, "notify::proxy-type",
+        G_CALLBACK (midori_preferences_notify_proxy_type_cb), entry, 0);
     midori_preferences_notify_proxy_type_cb (settings, NULL, entry);
     label = gtk_label_new (_("Port"));
     gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
     INDENTED_ADD (label);
     entry = katze_property_proxy (settings, "http-proxy-port", NULL);
     SPANNED_ADD (entry);
-    g_signal_connect (settings, "notify::proxy-type",
-        G_CALLBACK (midori_preferences_notify_proxy_type_cb), entry);
+    g_signal_connect_object (settings, "notify::proxy-type",
+        G_CALLBACK (midori_preferences_notify_proxy_type_cb), entry, 0);
     midori_preferences_notify_proxy_type_cb (settings, NULL, entry);
     INDENTED_ADD (gtk_event_box_new ());
     label = gtk_label_new (NULL);
@@ -550,8 +550,8 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     gtk_label_set_markup (GTK_LABEL (label), proxy_types->str);
     g_string_free (proxy_types, TRUE);
     SPANNED_ADD (label);
-    g_signal_connect (settings, "notify::proxy-type",
-        G_CALLBACK (midori_preferences_notify_proxy_type_cb), label);
+    g_signal_connect_object (settings, "notify::proxy-type",
+        G_CALLBACK (midori_preferences_notify_proxy_type_cb), label, 0);
     midori_preferences_notify_proxy_type_cb (settings, NULL, label);
 #ifndef HAVE_WEBKIT2
     if (soup_session_get_feature (webkit_get_default_session (), SOUP_TYPE_CACHE))

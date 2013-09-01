@@ -160,6 +160,7 @@ enum {
     NEW_VIEW,
     DOWNLOAD_REQUESTED,
     ADD_BOOKMARK,
+    ABOUT_CONTENT,
 
     LAST_SIGNAL
 };
@@ -301,6 +302,28 @@ midori_view_class_init (MidoriViewClass* class)
         NULL,
         g_cclosure_marshal_VOID__STRING,
         G_TYPE_NONE, 1,
+        G_TYPE_STRING);
+
+    /**
+     * MidoriView::about-content:
+     * @view: the object on which the signal is emitted
+     * @uri: the about URI
+     *
+     * Emitted when loading the about content
+     *
+     * Return value: the view content as string
+     *
+     * Since: 0.5.5
+     */
+    signals[ABOUT_CONTENT] = g_signal_new (
+        "about-content",
+        G_TYPE_FROM_CLASS (class),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
+        0,
+        g_signal_accumulator_true_handled,
+        NULL,
+        midori_cclosure_marshal_BOOLEAN__STRING,
+        G_TYPE_BOOLEAN, 1,
         G_TYPE_STRING);
 
     gobject_class = G_OBJECT_CLASS (class);
@@ -2577,9 +2600,11 @@ midori_view_web_view_context_menu_cb (WebKitWebView*       web_view,
                                       #endif
                                       MidoriView*          view)
 {
+    #ifndef HAVE_WEBKIT2
     GdkEvent* event = gtk_get_current_event();
     midori_view_ensure_link_uri (view, NULL, NULL, (GdkEventButton *)event);
     gdk_event_free (event);
+    #endif
     MidoriContextAction* menu = midori_view_get_page_context_action (view, hit_test_result);
     #ifdef HAVE_WEBKIT2
     webkit_context_menu_remove_all (context_menu);
@@ -3641,13 +3666,6 @@ midori_view_list_versions (GString* markup,
         LIBNOTIFY_VERSION));
     midori_view_add_version (markup, html, g_strdup_printf ("gcr %s\tgranite %s",
         GCR_VERSION, GRANITE_VERSION));
-    midori_view_add_version (markup, html, g_strdup_printf ("single instance %s",
-        #if HAVE_UNIQUE
-        "libunique " UNIQUE_VERSION
-        #else
-        "Sockets"
-        #endif
-        ));
 }
 
 #ifdef HAVE_WEBKIT2
@@ -3817,7 +3835,14 @@ midori_view_set_uri (MidoriView*  view,
 
     if (!midori_debug ("unarmed"))
     {
+        gboolean handled = FALSE;
         gchar* temporary_uri = NULL;
+        if (g_str_has_prefix (uri, "about:"))
+            g_signal_emit (view, signals[ABOUT_CONTENT], 0, uri, &handled);
+
+        if (handled)
+            return;
+        
         if (!strcmp (uri, "about:new"))
             uri = midori_settings_get_tabhome (MIDORI_SETTINGS (view->settings));
         if (!strcmp (uri, "about:home"))
@@ -4396,6 +4421,8 @@ midori_view_get_tab_menu (MidoriView* view)
     g_return_val_if_fail (MIDORI_IS_VIEW (view), NULL);
 
     MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (view));
+    g_return_val_if_fail (browser != NULL, NULL);
+    
     GtkActionGroup* actions = midori_browser_get_action_group (browser);
     MidoriContextAction* menu = midori_context_action_new ("TabContextMenu", NULL, NULL, NULL);
     midori_context_action_add_action_group (menu, actions);
