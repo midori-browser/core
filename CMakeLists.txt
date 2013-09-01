@@ -30,6 +30,38 @@ add_definitions("-DLIBDIR=\"${CMAKE_INSTALL_FULL_LIBDIR}\"")
 add_definitions("-DDOCDIR=\"${CMAKE_INSTALL_FULL_DOCDIR}\"")
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/config.h" "/* # generated file (stub) */")
 
+find_file (UNISTD unistd.h)
+if (UNISTD)
+    add_definitions("-DHAVE_UNISTD_H")
+endif ()
+find_file (SIGNAL signal.h)
+if (SIGNAL)
+    add_definitions("-DHAVE_SIGNAL_H")
+endif ()
+
+find_library (X11 X11)
+if (X11)
+    # Pass /usr/X11R6/include for OpenBSD
+    find_file (SCRNSAVER X11/extensions/scrnsaver.h /usr/X11R6/include)
+    find_library (XSS Xss /usr/lib/X11R6/lib)
+    if (SCRNSAVER AND XSS)
+        add_definitions("-DHAVE_X11_EXTENSIONS_SCRNSAVER_H")
+    endif ()
+endif ()
+
+if (WIN32)
+    set(VALAFLAGS ${VALAFLAGS} "-D;HAVE_WIN32")
+endif ()
+
+string(FIND ${CMAKE_SYSTEM_NAME} "FreeBSD" FREEBSD)
+if (FREEBSD GREATER -1)
+    set(VALAFLAGS ${VALAFLAGS} "-D;HAVE_FREEBSD")
+endif ()
+
+if (APPLE)
+    set(VALAFLAGS ${VALAFLAGS} "-D;HAVE_OSX")
+endif ()
+
 find_package(PkgConfig)
 pkg_check_modules(DEPS REQUIRED
                   libxml-2.0>=2.6
