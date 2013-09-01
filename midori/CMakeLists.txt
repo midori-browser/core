@@ -60,7 +60,12 @@ else ()
             )
 endif ()
 
-add_executable(${CMAKE_PROJECT_NAME} main.c)
+if (WIN32)
+    add_executable(${CMAKE_PROJECT_NAME} WIN32 main.c "${CMAKE_SOURCE_DIR}/data/midori.rc")
+else()
+    add_executable(${CMAKE_PROJECT_NAME} main.c)
+endif()
+
 target_link_libraries(${CMAKE_PROJECT_NAME}
                       ${LIBMIDORI})
 set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES
