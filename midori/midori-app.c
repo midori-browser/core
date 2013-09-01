@@ -464,7 +464,7 @@ midori_app_debug_open (MidoriApp*   app,
     if (midori_debug ("app"))
     {
         g_print ("app(%s) open: %d files [",
-                 g_application_get_is_remote (G_APPLICATION (app)) ? "running" : "remote",
+                 g_application_get_is_remote (G_APPLICATION (app)) ? "send" : "receive",
                  n_files);
         gint i;
         for (i = 0; i < n_files; i++)
@@ -482,7 +482,7 @@ midori_app_activate_cb (MidoriApp* app,
                         gpointer   user_data)
 {
     if (midori_debug ("app"))
-        g_print ("app(running) activate\n");
+        g_print ("app(receive) activate\n");
     if (app->browser)
         midori_app_raise_window (GTK_WINDOW (app->browser), NULL);
 }
@@ -859,7 +859,7 @@ midori_app_instance_send_activate (MidoriApp* app)
     g_return_val_if_fail (midori_app_instance_is_running (app), FALSE);
 
     if (midori_debug ("app"))
-        g_print ("app(remote) activate\n");
+        g_print ("app(send) activate\n");
     g_application_activate (G_APPLICATION (app));
     return TRUE;
 }
