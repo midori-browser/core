@@ -122,12 +122,7 @@ if (USE_GTK3)
     set(EXTRA_VAPIS ${EXTRA_VAPIS} "${CMAKE_SOURCE_DIR}/midori/webkitgtk-3.0.vapi")
     pkg_check_modules(OPTS_GTK
                       gcr-3>=2.32
-                      unique-3.0>=0.9
                       )
-    if (OPTS_GTK_unique-3.0_VERSION)
-        add_definitions("-DHAVE_UNIQUE")
-        add_definitions("-DUNIQUE_VERSION=\"${OPTS_GTK_unique-3.0_VERSION}\"")
-    endif ()
     add_definitions("-DGCR_VERSION=\"${OPTS_GTK_gcr-3_VERSION}\"")
     set(VALAFLAGS ${VALAFLAGS} "-D;HAVE_GTK3")
 elseif (HALF_BRO_INCOM_WEBKIT2)
@@ -142,14 +137,11 @@ elseif (HALF_BRO_INCOM_WEBKIT2)
     add_definitions("-DWEBKIT_VERSION=\"${DEPS_GTK_webkit2gtk-3.0_VERSION}\"")
     set(PKGS ${PKGS} gtk+-3.0)
     set(EXTRA_VAPIS ${EXTRA_VAPIS} "${CMAKE_SOURCE_DIR}/midori/webkit2gtk-3.0.vapi")
+    # Always pass >1 module, otherwise we get different variable names
     pkg_check_modules(OPTS_GTK
+                      gtk+-3.0>=3.0.0
                       gcr-3>=2.32
-                      unique-3.0>=0.9
                       )
-    if (OPTS_GTK_unique-3.0_VERSION)
-        add_definitions("-DHAVE_UNIQUE")
-        add_definitions("-DUNIQUE_VERSION=\"${OPTS_GTK_unique-3.0_VERSION}\"")
-    endif ()
     add_definitions("-DGCR_VERSION=\"${OPTS_GTK_gcr-3_VERSION}\"")
     set(VALAFLAGS ${VALAFLAGS} "-D;HAVE_GTK3")
     set(VALAFLAGS ${VALAFLAGS} "-D;HAVE_WEBKIT2")
@@ -163,15 +155,6 @@ else ()
     add_definitions("-DWEBKIT_VERSION=\"${DEPS_GTK_webkit-1.0_VERSION}\"")
     set(PKGS ${PKGS} gtk+-2.0)
     set(EXTRA_VAPIS ${EXTRA_VAPIS} "${CMAKE_SOURCE_DIR}/midori/webkitgtk-3.0.vapi")
-    # Always pass >1 module, otherwise we get different variable names
-    pkg_check_modules(OPTS_GTK
-                      gtk+-2.0>=2.24.0
-                      unique-1.0>=0.9
-                      )
-    if (OPTS_GTK_unique-1.0_VERSION)
-        add_definitions("-DHAVE_UNIQUE")
-        add_definitions("-DUNIQUE_VERSION=\"${OPTS_GTK_unique-1.0_VERSION}\"")
-    endif ()
     add_definitions("-DGCR_VERSION=\"No\"")
 endif ()
 
