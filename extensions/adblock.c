@@ -28,12 +28,8 @@
     __filter[4] = __active ? (__filter[5] == ':' ? 's' : ':') : '-'
 #define ADBLOCK_FILTER_IS_SET(__filter) \
     (__filter[4] != '-' && __filter[5] != '-')
-#ifdef G_ENABLE_DEBUG
     #define adblock_debug(dmsg, darg1, darg2) \
         do { if (midori_debug ("adblock:match")) g_debug (dmsg, darg1, darg2); } while (0)
-#else
-    #define adblock_debug(dmsg, darg1, darg2) /* nothing */
-#endif
 
 static GHashTable* pattern = NULL;
 static GHashTable* keys = NULL;
@@ -877,10 +873,8 @@ adblock_resource_request_starting_cb (WebKitWebView*         web_view,
         }
     }
 
-    #ifdef G_ENABLE_DEBUG
     if (midori_debug ("adblock:time"))
         g_test_timer_start ();
-    #endif
     if (adblock_is_matched (req_uri, page_uri))
     {
         blocked_uris = g_object_get_data (G_OBJECT (web_view), "blocked-uris");
@@ -888,11 +882,8 @@ adblock_resource_request_starting_cb (WebKitWebView*         web_view,
         webkit_network_request_set_uri (request, "about:blank");
         g_object_set_data (G_OBJECT (web_view), "blocked-uris", blocked_uris);
     }
-    #ifdef G_ENABLE_DEBUG
     if (midori_debug ("adblock:time"))
         g_debug ("match: %f%s", g_test_timer_elapsed (), "seconds");
-    #endif
-
 }
 
 static void

@@ -1247,8 +1247,7 @@ gboolean
 midori_debug (const gchar* token)
 {
     static const gchar* debug_token = NULL;
-    const gchar* debug_tokens = "headers body referer cookies paths hsts unarmed bookmarks mouse app ";
-    const gchar* full_debug_tokens = "adblock:match adblock:time startup ";
+    const gchar* debug_tokens = "adblock:match adblock:time startup headers body referer cookies paths hsts unarmed bookmarks mouse app ";
     if (debug_token == NULL)
     {
         gchar* found_token;
@@ -1258,15 +1257,7 @@ midori_debug (const gchar* token)
             g_warning ("MIDORI_TOUCHSCREEN is obsolete: "
                 "GTK+ 3.4 enables touchscreens automatically, "
                 "older GTK+ versions aren't supported as of Midori 0.4.9");
-        if (debug && (found_token = strstr (full_debug_tokens, debug)) && *(found_token + strlen (debug)) == ' ')
-        {
-            #ifdef G_ENABLE_DEBUG
-            debug_token = g_intern_static_string (debug);
-            #else
-            g_warning ("Value '%s' for MIDORI_DEBUG requires a full debugging build.", debug);
-            #endif
-        }
-        else if (debug && (found_token = strstr (debug_tokens, debug)) && *(found_token + strlen (debug)) == ' ')
+        if (debug && (found_token = strstr (debug_tokens, debug)) && *(found_token + strlen (debug)) == ' ')
             debug_token = g_intern_static_string (debug);
         else if (debug)
             g_warning ("Unrecognized value '%s' for MIDORI_DEBUG.", debug);
@@ -1275,12 +1266,11 @@ midori_debug (const gchar* token)
         if (!debug_token)
         {
             debug_token = "INVALID";
-            g_print ("Supported values: %s\nWith full debugging: %s\n",
-                     debug_tokens, full_debug_tokens);
+            g_print ("Supported values: %s\n", debug_tokens);
         }
     }
     if (debug_token != g_intern_static_string ("NONE")
-     && !strstr (debug_tokens, token) && !strstr (full_debug_tokens, token))
+     && !strstr (debug_tokens, token))
         g_warning ("Token '%s' passed to midori_debug is not a known token.", token);
     return debug_token == g_intern_static_string (token);
 }

@@ -3859,12 +3859,10 @@ midori_view_set_uri (MidoriView*  view,
             MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (view));
             MidoriSpeedDial* dial = katze_object_get_object (browser, "speed-dial");
             const gchar* html;
-            #ifdef G_ENABLE_DEBUG
             GTimer* timer = NULL;
 
             if (midori_debug ("startup"))
                 timer = g_timer_new ();
-            #endif
 
             midori_tab_set_uri (MIDORI_TAB (view), uri);
             midori_tab_set_mime_type (MIDORI_TAB (view), "text/html");
@@ -3874,13 +3872,11 @@ midori_view_set_uri (MidoriView*  view,
             html = dial != NULL ? midori_speed_dial_get_html (dial, NULL) : "";
             midori_view_set_html (view, html, uri, NULL);
 
-            #ifdef G_ENABLE_DEBUG
             if (midori_debug ("startup"))
             {
                 g_debug ("Speed Dial: \t%fs", g_timer_elapsed (timer, NULL));
                 g_timer_destroy (timer);
             }
-            #endif
         }
         else if (midori_uri_is_blank (uri))
         {
