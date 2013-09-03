@@ -1069,6 +1069,17 @@ katze_array_from_statement (sqlite3_stmt* stmt)
         item = katze_item_new ();
         for (i = 0; i < cols; i++)
             katze_item_set_value_from_column (stmt, i, item);
+
+        if (KATZE_ITEM_IS_FOLDER (item))
+        {
+            g_object_unref (item);
+
+            item = KATZE_ITEM (katze_array_new (KATZE_TYPE_ITEM));
+
+            for (i = 0; i < cols; i++)
+                katze_item_set_value_from_column (stmt, i, item);
+        }
+
         katze_array_add_item (array, item);
     }
 
@@ -1157,12 +1168,18 @@ midori_array_query_recursive (KatzeArray*  bookmarks,
         if (KATZE_ITEM_IS_FOLDER (item))
         {
             gchar* parentid = g_strdup_printf ("%" G_GINT64_FORMAT,
-                katze_item_get_meta_integer (item, "id"));
+					       katze_item_get_meta_integer (item, "id"));
             KatzeArray* subarray = midori_array_query_recursive (bookmarks,
-                fields, "parentid=%q", parentid, TRUE);
-            katze_item_set_name (KATZE_ITEM (subarray), katze_item_get_name (item));
-            katze_array_add_item (array, subarray);
+								 fields, "parentid=%q", parentid, TRUE);
+            KatzeItem* subitem;
+            GList* sublist;
 
+            KATZE_ARRAY_FOREACH_ITEM_L (subitem, subarray, sublist)
+            {
+                katze_array_add_item (KATZE_ARRAY (item), subitem);
+            }
+
+            g_object_unref (subarray);
             g_free (parentid);
         }
     }
