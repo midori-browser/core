@@ -173,7 +173,7 @@ midori_bookmarks_import_array (KatzeArray* bookmarks,
 
     KATZE_ARRAY_FOREACH_ITEM_L (item, array, list)
     {
-        Katze_item_set_meta_integer (item, "parentid", parentid);
+        katze_item_set_meta_integer (item, "parentid", parentid);
         katze_array_add_item (bookmarks, item);
         if (KATZE_IS_ARRAY (item))
           midori_bookmarks_import_array (bookmarks, KATZE_ARRAY (item),
