@@ -57,6 +57,7 @@ if (X11)
     find_library (XSS Xss /usr/lib/X11R6/lib)
     if (SCRNSAVER AND XSS)
         add_definitions("-DHAVE_X11_EXTENSIONS_SCRNSAVER_H")
+        set(OPTS_LIBRARIES "${OPTS_LIBRARIES};${XSS}")
     endif ()
 endif ()
 
@@ -89,9 +90,10 @@ if (${DEPS_libsoup-gnome-2.4_VERSION} VERSION_GREATER "2.34.0")
     set(VALAFLAGS ${VALAFLAGS} "-D;HAVE_LIBSOUP_2_34_0")
 endif ()
 
-# Always pass >1 module, otherwise we get different variable names
-pkg_check_modules(OPTS gio-2.0 libnotify)
-add_definitions("-DLIBNOTIFY_VERSION=\"${OPTS_libnotify_VERSION}\"")
+pkg_check_modules(NOTIFY libnotify)
+add_definitions("-DLIBNOTIFY_VERSION=\"${NOTIFY_VERSION}\"")
+set(OPTS_INCLUDE_DIRS "${OPTS_INCLUDE_DIRS};${NOTIFY_INCLUDE_DIRS}")
+set(OPTS_LIBRARIES "${OPTS_LIBRARIES};${NOTIFY_LIBRARIES}")
 set(PKGS ${PKGS} libnotify)
 
 option(USE_GTK3 "Use GTK+3" OFF)
