@@ -268,16 +268,6 @@ def configure (conf):
     conf.env['HAVE_GTK3'] = have_gtk3
     conf.env['HAVE_WEBKIT2'] = option_enabled ('webkit2')
 
-    if option_enabled ('unique'):
-        if have_gtk3: unique_pkg = 'unique-3.0'
-        else: unique_pkg = 'unique-1.0'
-        if not check_pkg (unique_pkg, '0.9', mandatory=False):
-            option_checkfatal ('unique', 'single instance')
-    else:
-        conf.define ('UNIQUE_VERSION', 'No')
-        conf.check_message_custom ('unique', '', 'disabled')
-    conf.define ('HAVE_UNIQUE', [0,1][conf.env['UNIQUE_VERSION'] != 'No'])
-
     check_pkg ('libsoup-gnome-2.4', '2.27.90', var='LIBSOUP')
     if check_version (conf.env['LIBSOUP_VERSION'], 2, 29, 91):
         conf.define ('HAVE_LIBSOUP_2_29_91', 1)
@@ -299,14 +289,6 @@ def configure (conf):
     if 'LINGUAS' in os.environ: conf.env['LINGUAS'] = os.environ['LINGUAS']
 
     conf.check (header_name='unistd.h')
-    if not conf.env['HAVE_UNIQUE']:
-        if Options.platform == 'win32':
-            conf.check (lib='ws2_32')
-        conf.define ('HAVE_NETDB_H', [0,1][conf.check (header_name='netdb.h')])
-        conf.check (header_name='sys/wait.h')
-        conf.check (header_name='sys/select.h')
-        conf.check (function_name='inet_aton', header_name='sys/types.h sys/socket.h netinet/in.h arpa/inet.h')
-        conf.check (function_name='inet_addr', header_name='sys/types.h sys/socket.h netinet/in.h arpa/inet.h')
     conf.define ('HAVE_OSX', int(sys.platform == 'darwin'))
     if Options.platform == 'win32':
         conf.check (lib='ole32')
@@ -355,11 +337,6 @@ def configure (conf):
                 '-Winit-self -Wundef -Wdeclaration-after-statement '
                 '-Wmissing-format-attribute -Wnested-externs'.split ())
     conf.env.append_value ('CCFLAGS', '-Wno-unused-variable -Wno-comment'.split ())
-
-    if conf.env['UNIQUE_VERSION'] == '1.0.4':
-        Utils.pprint ('RED', 'unique 1.0.4 found, this version is erroneous.')
-        Utils.pprint ('RED', 'Please use an older or newer version.')
-        sys.exit (1)
 
 def set_options (opt):
     def add_enable_option (option, desc, group=None, disable=False):
@@ -600,7 +577,6 @@ def shutdown ():
 
         # Avoid i18n-related false failures
         os.environ['LC_ALL'] = 'C'
-        os.environ['UNIQUE_BACKEND'] = 'bacon'
         if is_mingw (Build.bld.env):
             os.environ['MIDORI_EXEC_PATH'] = Build.bld.env['PREFIX']
         test = UnitTest.unit_test ()

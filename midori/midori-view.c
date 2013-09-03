@@ -3666,13 +3666,6 @@ midori_view_list_versions (GString* markup,
         LIBNOTIFY_VERSION));
     midori_view_add_version (markup, html, g_strdup_printf ("gcr %s\tgranite %s",
         GCR_VERSION, GRANITE_VERSION));
-    midori_view_add_version (markup, html, g_strdup_printf ("single instance %s",
-        #if HAVE_UNIQUE
-        "libunique " UNIQUE_VERSION
-        #else
-        "Sockets"
-        #endif
-        ));
 }
 
 #ifdef HAVE_WEBKIT2
@@ -3866,12 +3859,10 @@ midori_view_set_uri (MidoriView*  view,
             MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (view));
             MidoriSpeedDial* dial = katze_object_get_object (browser, "speed-dial");
             const gchar* html;
-            #ifdef G_ENABLE_DEBUG
             GTimer* timer = NULL;
 
             if (midori_debug ("startup"))
                 timer = g_timer_new ();
-            #endif
 
             midori_tab_set_uri (MIDORI_TAB (view), uri);
             midori_tab_set_mime_type (MIDORI_TAB (view), "text/html");
@@ -3881,13 +3872,11 @@ midori_view_set_uri (MidoriView*  view,
             html = dial != NULL ? midori_speed_dial_get_html (dial, NULL) : "";
             midori_view_set_html (view, html, uri, NULL);
 
-            #ifdef G_ENABLE_DEBUG
             if (midori_debug ("startup"))
             {
                 g_debug ("Speed Dial: \t%fs", g_timer_elapsed (timer, NULL));
                 g_timer_destroy (timer);
             }
-            #endif
         }
         else if (midori_uri_is_blank (uri))
         {
@@ -4428,6 +4417,8 @@ midori_view_get_tab_menu (MidoriView* view)
     g_return_val_if_fail (MIDORI_IS_VIEW (view), NULL);
 
     MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (view));
+    g_return_val_if_fail (browser != NULL, NULL);
+    
     GtkActionGroup* actions = midori_browser_get_action_group (browser);
     MidoriContextAction* menu = midori_context_action_new ("TabContextMenu", NULL, NULL, NULL);
     midori_context_action_add_action_group (menu, actions);

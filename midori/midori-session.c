@@ -359,10 +359,8 @@ midori_load_extensions (gpointer data)
     MidoriApp* app = MIDORI_APP (data);
     gchar** keys = g_object_get_data (G_OBJECT (app), "extensions");
     KatzeArray* extensions;
-    #ifdef G_ENABLE_DEBUG
     gboolean startup_timer = midori_debug ("startup");
     GTimer* timer = startup_timer ? g_timer_new () : NULL;
-    #endif
 
     /* Load extensions */
     extensions = katze_array_new (MIDORI_TYPE_EXTENSION);
@@ -370,10 +368,8 @@ midori_load_extensions (gpointer data)
     g_object_set (app, "extensions", extensions, NULL);
     midori_extension_load_from_folder (app, keys, TRUE);
 
-    #ifdef G_ENABLE_DEBUG
     if (startup_timer)
         g_debug ("Extensions:\t%f", g_timer_elapsed (timer, NULL));
-    #endif
 
     return FALSE;
 }
