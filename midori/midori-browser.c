@@ -4789,6 +4789,15 @@ midori_browser_get_docs (gboolean error)
     g_free (path);
     return uri;
     #else
+    gchar* path = midori_paths_get_res_filename ("faq.html");
+    gboolean found = g_access (path, F_OK) == 0;
+    if (found)
+    {
+        gchar* uri = g_filename_to_uri (path, NULL, NULL);
+        g_free (path);
+        return uri;
+    }
+    g_free (path);
     return g_strdup ("file://" DOCDIR "/faq.html");
     #endif
 }
