@@ -161,22 +161,23 @@ midori_bookmarks_export_array_db (sqlite3*    db,
 }
 
 void
-midori_bookmarks_import_array_db (sqlite3*    db,
-                                  KatzeArray* array,
-                                  gint64      parentid)
+midori_bookmarks_import_array (KatzeArray* bookmarks,
+                               KatzeArray* array,
+                               gint64      parentid)
 {
     GList* list;
     KatzeItem* item;
-    gint64 id;
 
-    if (!db)
+    if (!bookmarks)
         return;
 
     KATZE_ARRAY_FOREACH_ITEM_L (item, array, list)
     {
-        id = midori_bookmarks_insert_item_db (db, item, parentid);
+        Katze_item_set_meta_integer (item, "parentid", parentid);
+        katze_array_add_item (bookmarks, item);
         if (KATZE_IS_ARRAY (item))
-            midori_bookmarks_import_array_db (db, KATZE_ARRAY (item), id);
+          midori_bookmarks_import_array (bookmarks, KATZE_ARRAY (item),
+                                         katze_item_get_meta_integer(item, "id"));
     }
     g_list_free (list);
 }
@@ -391,7 +392,7 @@ midori_bookmarks_row_changed_cb (GtkTreeModel*    model,
 
 static void
 midori_bookmarks_add_clicked_cb (GtkWidget* toolitem,
-				                 MidoriBookmarks* bookmarks)
+                                                 MidoriBookmarks* bookmarks)
 {
     MidoriBrowser* browser = midori_browser_get_for_widget (toolitem);
     GtkTreeView* treeview = GTK_TREE_VIEW (bookmarks->treeview);

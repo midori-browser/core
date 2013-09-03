@@ -310,24 +310,6 @@ midori_bookmarks_new (char** errmsg)
 }
 
 void
-midori_bookmarks_import (const gchar* filename,
-                         sqlite3*     db)
-{
-    KatzeArray* bookmarks;
-    GError* error = NULL;
-
-    bookmarks = katze_array_new (KATZE_TYPE_ARRAY);
-
-    if (!midori_array_from_file (bookmarks, filename, "xbel", &error))
-    {
-        g_warning (_("The bookmarks couldn't be saved. %s"), error->message);
-        g_error_free (error);
-        return;
-    }
-    midori_bookmarks_import_array_db (db, bookmarks, 0);
-}
-
-void
 midori_bookmarks_on_quit (KatzeArray* array)
 {
     g_return_if_fail (KATZE_IS_ARRAY (array));
