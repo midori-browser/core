@@ -19,6 +19,7 @@ add_definitions("-DMIDORI_MICRO_VERSION=${MIDORI_MICRO_VERSION}")
 
 execute_process(COMMAND "bzr" "revno"
                 OUTPUT_VARIABLE REVISION
+                ERROR_QUIET
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 if (REVISION)
     set(VERSION "${VERSION}~r${REVISION}")
