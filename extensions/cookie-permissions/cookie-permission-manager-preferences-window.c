@@ -43,6 +43,7 @@ struct _CookiePermissionManagerPreferencesWindowPrivate
 	GtkListStore			*listStore;
 	GtkWidget				*list;
 	GtkTreeSelection		*listSelection;
+	GtkWidget				*editingCombo;
 	GtkWidget				*deleteButton;
 	GtkWidget				*deleteAllButton;
 	GtkWidget				*askForUnknownPolicyCheckbox;
@@ -343,6 +344,93 @@ static void _cookie_permission_manager_preferences_window_ask_for_unknown_policy
 	doAsk=gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->askForUnknownPolicyCheckbox));
 	g_object_set(priv->manager, "ask-for-unknown-policy", doAsk, NULL);
 	g_signal_handler_unblock(priv->manager, priv->signalManagerAskForUnknownPolicyID);
+}
+
+static void _cookie_permission_manager_preferences_on_policy_editing_started(CookiePermissionManagerPreferencesWindow *self,
+																				GtkCellEditable *editable,
+																				gchar *path,
+																				gpointer *inUserData)
+{
+	CookiePermissionManagerPreferencesWindowPrivate	*priv=self->priv;
+
+	priv->editingCombo=NULL;
+
+	if(!GTK_IS_COMBO_BOX(editable)) return;
+
+	priv->editingCombo=GTK_WIDGET(editable);
+}
+
+static void _cookie_permission_manager_preferences_on_policy_editing_canceled(CookiePermissionManagerPreferencesWindow *self,
+																				gpointer *inUserData)
+{
+	CookiePermissionManagerPreferencesWindowPrivate	*priv=self->priv;
+
+	priv->editingCombo=NULL;
+}
+
+static void _cookie_permission_manager_preferences_on_policy_edited(CookiePermissionManagerPreferencesWindow *self,
+																		gchar *path,
+																		gchar *newText,
+																		gpointer *inUserData)
+{
+	CookiePermissionManagerPreferencesWindowPrivate	*priv=self->priv;
+	gchar											*domain;
+	GtkTreeIter										iter;
+	GtkTreeIter										policyIter;
+
+	g_return_if_fail(priv->database);
+
+	if (priv->editingCombo == NULL) return;
+
+	gtk_tree_model_get_iter_from_string(GTK_TREE_MODEL(priv->listStore), &iter, path);
+
+	gtk_tree_model_get(GTK_TREE_MODEL(priv->listStore),
+						&iter,
+						DOMAIN_COLUMN, &domain,
+						-1);
+
+	/* Get policy from combo box */
+	if(gtk_combo_box_get_active_iter(GTK_COMBO_BOX(priv->editingCombo), &policyIter))
+	{
+		gchar	*sql;
+		gchar	*error=NULL;
+		gint	success;
+		gint	policy;
+		gchar	*policyName;
+
+		/* Get policy value to set for domain */
+		gtk_tree_model_get(gtk_combo_box_get_model(GTK_COMBO_BOX(priv->editingCombo)),
+													&policyIter,
+													0, &policy,
+													1, &policyName,
+													-1);
+
+		g_return_if_fail(g_strcmp0(policyName, newText)==0);
+
+		/* Add domain name and the selected policy to database */
+		sql=sqlite3_mprintf("UPDATE policies SET value = %d WHERE domain = '%q';",
+								policy,
+								domain);
+		success=sqlite3_exec(priv->database, sql, NULL, NULL, &error);
+
+		/* Show error message if any */
+		if(success==SQLITE_OK)
+		{
+			gtk_list_store_set(priv->listStore,
+								&iter,
+								POLICY_COLUMN, newText,
+								-1);
+		}
+			else g_warning(_("SQL fails: %s"), error);
+
+
+		if(error) sqlite3_free(error);
+
+		/* Free allocated resources */
+		sqlite3_free(sql);
+	}
+
+	priv->editingCombo=NULL;
 }
 
 /* Selection in list changed */
@@ -744,7 +832,11 @@ static void cookie_permission_manager_preferences_window_init(CookiePermissionMa
 	gtk_tree_view_column_set_sort_column_id(column, DOMAIN_COLUMN);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(priv->list), column);
 
-	renderer=gtk_cell_renderer_text_new();
+	renderer=gtk_cell_renderer_combo_new();
+	g_object_set(G_OBJECT(renderer), "model", list, "text-column", 1, "has-entry", false, "editable", true, NULL);
+	g_signal_connect_swapped(renderer, "editing-started", G_CALLBACK(_cookie_permission_manager_preferences_on_policy_editing_started), self);
+	g_signal_connect_swapped(renderer, "editing-canceled", G_CALLBACK(_cookie_permission_manager_preferences_on_policy_editing_canceled), self);
+	g_signal_connect_swapped(renderer, "edited", G_CALLBACK(_cookie_permission_manager_preferences_on_policy_edited), self);
 	column=gtk_tree_view_column_new_with_attributes(_("Policy"),
 													renderer,
 													"text", POLICY_COLUMN,

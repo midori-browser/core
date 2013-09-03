@@ -43,11 +43,15 @@ struct _NoJSPreferencesPrivate
 	GtkListStore			*listStore;
 	GtkWidget				*list;
 	GtkTreeSelection		*listSelection;
+	GtkWidget				*editingCombo;
 	GtkWidget				*deleteButton;
 	GtkWidget				*deleteAllButton;
 	GtkWidget				*allowAllSitesCheckbox;
 	GtkWidget				*blockUnknownDomainsCheckbox;
 	GtkWidget				*checkSecondLevelOnlyCheckbox;
+	GtkWidget				*addDomainEntry;
+	GtkWidget				*addDomainPolicyCombo;
+	GtkWidget				*addDomainButton;
 
 	gint					signalAllowAllSitesToggledID;
 	gint					signalBlockUnknownDomainsToggledID;
@@ -68,6 +72,149 @@ enum
 
 
 /* IMPLEMENTATION: Private variables and methods */
+
+/* "Add domain"-button was pressed */
+static void _nojs_preferences_on_add_domain_clicked(NoJSPreferences *self,
+														gpointer *inUserData)
+{
+	NoJSPreferencesPrivate	*priv=self->priv;
+	gchar					*domain;
+	const gchar				*domainStart, *domainEnd;
+	gchar					*realDomain;
+	GtkTreeIter				policyIter;
+
+	g_return_if_fail(priv->database);
+
+	/* Get domain name entered */
+	domain=g_hostname_to_ascii(gtk_entry_get_text(GTK_ENTRY(priv->addDomainEntry)));
+
+	/* Trim whitespaces from start and end of entered domain name */
+	domainStart=domain;
+	while(*domainStart && g_ascii_isspace(*domainStart)) domainStart++;
+
+	domainEnd=domain+strlen(domain)-1;
+	while(*domainEnd && g_ascii_isspace(*domainEnd)) domainEnd--;
+	if(domainEnd<=domainStart) return;
+
+	/* Seperate domain name from whitespaces */
+	realDomain=g_strndup(domain, domainEnd-domainStart+1);
+	if(!realDomain) return;
+
+	/* Get policy from combo box */
+	if(gtk_combo_box_get_active_iter(GTK_COMBO_BOX(priv->addDomainPolicyCombo), &policyIter))
+	{
+		gchar	*sql;
+		gchar	*error=NULL;
+		gint	success;
+		gint	policy;
+		gchar	*policyName;
+
+		/* Get policy value to set for domain */
+		gtk_tree_model_get(gtk_combo_box_get_model(GTK_COMBO_BOX(priv->addDomainPolicyCombo)),
+													&policyIter,
+													0, &policy,
+													1, &policyName,
+													-1);
+
+		/* Add domain name and the selected policy to database */
+		sql=sqlite3_mprintf("INSERT OR REPLACE INTO policies (site, value) VALUES ('%q', %d);",
+								realDomain,
+								policy);
+		success=sqlite3_exec(priv->database, sql, NULL, NULL, &error);
+
+		/* Show error message if any */
+		if(success==SQLITE_OK)
+		{
+			gtk_list_store_append(priv->listStore, &policyIter);
+			gtk_list_store_set(priv->listStore,
+								&policyIter,
+								DOMAIN_COLUMN, realDomain,
+								POLICY_COLUMN, policyName,
+								-1);
+		}
+			else g_warning(_("SQL fails: %s"), error);
+
+
+		if(error) sqlite3_free(error);
+
+		/* Free allocated resources */
+		sqlite3_free(sql);
+	}
+
+	/* Free allocated resources */
+	g_free(realDomain);
+	g_free(domain);
+}
+
+/* Entry containing domain name which may be added to list has changed */
+static void _nojs_preferences_on_add_domain_entry_changed(NoJSPreferences *self,
+															GtkEditable *inEditable)
+{
+	NoJSPreferencesPrivate	*priv=self->priv;
+	gchar					*asciiDomain, *checkAsciiDomain;
+	gchar					*asciiDomainStart, *asciiDomainEnd;
+	gint					dots;
+	gboolean				isValid=FALSE;
+
+	/* Get ASCII representation of domain name entered */
+	asciiDomain=g_hostname_to_ascii(gtk_entry_get_text(GTK_ENTRY(priv->addDomainEntry)));
+
+	/* Trim whitespaces from start and end of entered domain name */
+	asciiDomainStart=asciiDomain;
+	while(*asciiDomainStart && g_ascii_isspace(*asciiDomainStart)) asciiDomainStart++;
+
+	asciiDomainEnd=asciiDomain+strlen(asciiDomain)-1;
+	while(*asciiDomainEnd && g_ascii_isspace(*asciiDomainEnd)) asciiDomainEnd--;
+
+	/* We allow only domain names and not cookie domain name so entered name
+	 * must not start with a dot
+	 */
+	checkAsciiDomain=asciiDomainStart;
+	isValid=(*asciiDomainStart!='.' && *asciiDomainEnd!='.');
+
+	/* Now check if ASCII domain name is valid (very very simple check)
+	 * and contains a hostname besides TLD
+	 */
+	dots=0;
+
+	while(*checkAsciiDomain &&
+			checkAsciiDomain<=asciiDomainEnd &&
+			isValid)
+	{
+		/* Check for dot as (at least the first one) seperates hostname from TLD */
+		if(*checkAsciiDomain=='.') dots++;
+			else
+			{
+				/* Check for valid characters in domain name.
+				 * Valid domain name can only contain ASCII alphabetic letters,
+				 * digits (0-9) and hyphens ('-')
+				 */
+				isValid=(g_ascii_isalpha(*checkAsciiDomain) ||
+							g_ascii_isdigit(*checkAsciiDomain) ||
+							*checkAsciiDomain=='-');
+			}
+
+		checkAsciiDomain++;
+	}
+
+	/* If we have not reached the trimmed end of string something must have gone wrong 
+	 * and domain entered is invalid. If domain name entered excluding dots is longer
+	 * than 255 character it is also invalid.
+	 */
+	if(checkAsciiDomain<asciiDomainEnd) isValid=FALSE;
+		else if((checkAsciiDomain-asciiDomainStart-dots)>255) isValid=FALSE;
+
+	/* We need at least one dot in domain name (minimum number of dots to seperate
+	 * hostname from TLD)
+	 */
+	isValid=(isValid && dots>0);
+
+	/* Activate "add" button if hostname (equal to domain name here) is valid */
+	gtk_widget_set_sensitive(priv->addDomainButton, isValid);
+
+	/* Free allocated resources */
+	g_free(asciiDomain);
+}
 
 /* Fill domain list with stored policies */
 static void _nojs_preferences_fill(NoJSPreferences *self)
@@ -284,6 +431,93 @@ static void _nojs_preferences_on_manager_only_second_level_changed(NoJSPreferenc
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->checkSecondLevelOnlyCheckbox), state);
 
 	g_signal_handler_unblock(priv->checkSecondLevelOnlyCheckbox, priv->signalCheckSecondLevelOnlyToggledID);
+}
+
+static void _nojs_preferences_on_policy_editing_started(NoJSPreferences *self,
+															GtkCellEditable *editable,
+															gchar *path,
+															gpointer *inUserData)
+{
+	NoJSPreferencesPrivate	*priv=self->priv;
+
+	priv->editingCombo=NULL;
+
+	if(!GTK_IS_COMBO_BOX(editable)) return;
+
+	priv->editingCombo=GTK_WIDGET(editable);
+}
+
+static void _nojs_preferences_on_policy_editing_canceled(NoJSPreferences *self,
+															gpointer *inUserData)
+{
+	NoJSPreferencesPrivate	*priv=self->priv;
+
+	priv->editingCombo=NULL;
+}
+
+static void _nojs_preferences_on_policy_edited(NoJSPreferences *self,
+												gchar *path,
+												gchar *newText,
+												gpointer *inUserData)
+{
+	NoJSPreferencesPrivate	*priv=self->priv;
+	gchar											*domain;
+	GtkTreeIter										iter;
+	GtkTreeIter										policyIter;
+
+	g_return_if_fail(priv->database);
+
+	if (priv->editingCombo == NULL) return;
+
+	gtk_tree_model_get_iter_from_string(GTK_TREE_MODEL(priv->listStore), &iter, path);
+
+	gtk_tree_model_get(GTK_TREE_MODEL(priv->listStore),
+						&iter,
+						DOMAIN_COLUMN, &domain,
+						-1);
+
+	/* Get policy from combo box */
+	if(gtk_combo_box_get_active_iter(GTK_COMBO_BOX(priv->editingCombo), &policyIter))
+	{
+		gchar	*sql;
+		gchar	*error=NULL;
+		gint	success;
+		gint	policy;
+		gchar	*policyName;
+
+		/* Get policy value to set for domain */
+		gtk_tree_model_get(gtk_combo_box_get_model(GTK_COMBO_BOX(priv->editingCombo)),
+													&policyIter,
+													0, &policy,
+													1, &policyName,
+													-1);
+
+		g_return_if_fail(g_strcmp0(policyName, newText)==0);
+
+		/* Add domain name and the selected policy to database */
+		sql=sqlite3_mprintf("UPDATE policies SET value = %d WHERE site = '%q';",
+								policy,
+								domain);
+		success=sqlite3_exec(priv->database, sql, NULL, NULL, &error);
+
+		/* Show error message if any */
+		if(success==SQLITE_OK)
+		{
+			gtk_list_store_set(priv->listStore,
+								&iter,
+								POLICY_COLUMN, newText,
+								-1);
+		}
+			else g_warning(_("SQL fails: %s"), error);
+
+
+		if(error) sqlite3_free(error);
+
+		/* Free allocated resources */
+		sqlite3_free(sql);
+	}
+
+	priv->editingCombo=NULL;
 }
 
 /* Selection in list changed */
@@ -595,6 +829,8 @@ static void nojs_preferences_init(NoJSPreferences *self)
 	GtkWidget					*vbox;
 	GtkWidget					*hbox;
 	gint						width, height;
+	GtkListStore				*list;
+	GtkTreeIter					listIter;
 
 	priv=self->priv=NOJS_PREFERENCES_GET_PRIVATE(self);
 
@@ -650,6 +886,42 @@ static void nojs_preferences_init(NoJSPreferences *self)
 										NULL);
 	gtk_tree_sortable_set_sort_column_id(sortableList, DOMAIN_COLUMN, GTK_SORT_ASCENDING);
 
+	/* Set up domain addition widgets */
+#ifdef HAVE_GTK3
+	hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+	gtk_box_set_homogeneous(GTK_BOX(hbox), FALSE);
+#else
+	hbox=gtk_hbox_new(FALSE, 0);
+#endif
+
+	priv->addDomainEntry=gtk_entry_new();
+	gtk_entry_set_max_length(GTK_ENTRY(priv->addDomainEntry), 64);
+	gtk_container_add(GTK_CONTAINER(hbox), priv->addDomainEntry);
+	g_signal_connect_swapped(priv->addDomainEntry, "changed", G_CALLBACK(_nojs_preferences_on_add_domain_entry_changed), self);
+
+	list=gtk_list_store_new(2, G_TYPE_INT, G_TYPE_STRING);
+	gtk_list_store_append(list, &listIter);
+	gtk_list_store_set(list, &listIter, 0, NOJS_POLICY_ACCEPT, 1, _("Accept"), -1);
+	gtk_list_store_append(list, &listIter);
+	gtk_list_store_set(list, &listIter, 0, NOJS_POLICY_ACCEPT_TEMPORARILY, 1, _("Accept for session"), -1);
+	gtk_list_store_append(list, &listIter);
+	gtk_list_store_set(list, &listIter, 0, NOJS_POLICY_BLOCK, 1, _("Block"), -1);
+
+	priv->addDomainPolicyCombo=gtk_combo_box_new_with_model(GTK_TREE_MODEL(list));
+	gtk_combo_box_set_active(GTK_COMBO_BOX(priv->addDomainPolicyCombo), 0);
+	gtk_container_add(GTK_CONTAINER(hbox), priv->addDomainPolicyCombo);
+
+	renderer=gtk_cell_renderer_text_new();
+	gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(priv->addDomainPolicyCombo), renderer, TRUE);
+	gtk_cell_layout_add_attribute(GTK_CELL_LAYOUT(priv->addDomainPolicyCombo), renderer, "text", 1);
+
+	priv->addDomainButton=gtk_button_new_from_stock(GTK_STOCK_ADD);
+	gtk_widget_set_sensitive(priv->addDomainButton, FALSE);
+	gtk_container_add(GTK_CONTAINER(hbox), priv->addDomainButton);
+	g_signal_connect_swapped(priv->addDomainButton, "clicked", G_CALLBACK(_nojs_preferences_on_add_domain_clicked), self);
+
+	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, TRUE, 5);
+
 	/* Set up domain list view */
 	priv->list=gtk_tree_view_new_with_model(GTK_TREE_MODEL(priv->listStore));
 
@@ -669,7 +941,11 @@ static void nojs_preferences_init(NoJSPreferences *self)
 	gtk_tree_view_column_set_sort_column_id(column, DOMAIN_COLUMN);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(priv->list), column);
 
-	renderer=gtk_cell_renderer_text_new();
+	renderer=gtk_cell_renderer_combo_new();
+	g_object_set(G_OBJECT(renderer), "model", list, "text-column", 1, "has-entry", false, "editable", true, NULL);
+	g_signal_connect_swapped(renderer, "editing-started", G_CALLBACK(_nojs_preferences_on_policy_editing_started), self);
+	g_signal_connect_swapped(renderer, "editing-canceled", G_CALLBACK(_nojs_preferences_on_policy_editing_canceled), self);
+	g_signal_connect_swapped(renderer, "edited", G_CALLBACK(_nojs_preferences_on_policy_edited), self);
 	column=gtk_tree_view_column_new_with_attributes(_("Policy"),
 													renderer,
 													"text", POLICY_COLUMN,
