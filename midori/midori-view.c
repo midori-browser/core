@@ -3881,24 +3881,7 @@ midori_view_set_uri (MidoriView*  view,
         else if (midori_uri_is_blank (uri))
         {
             data = NULL;
-            if (!strcmp (uri, "about:nodocs"))
-            {
-                gchar* title = g_strdup_printf (_("No documentation installed"));
-                data = g_strdup_printf (
-                    "<html><head><title>%s</title></head>"
-                    "<body><h1>%s</h1>"
-                    "<img src=\"res://logo-shade.png\" "
-                    "style=\"position: absolute; right: 15px; bottom: 15px; z-index: -9;\">"
-                    "<p />There is no documentation installed at %s. "
-                    "You may want to ask your distribution or "
-                    "package maintainer for it or if this a custom build "
-                    "verify that the build is setup properly. "
-                    "<a href=\"http://wiki.xfce.org/midori/faq\">View the FAQ online</a>"
-                    "</body></html>",
-                    title, title, DOCDIR);
-                g_free (title);
-            }
-            else if (!strcmp (uri, "about:widgets"))
+            if (!strcmp (uri, "about:widgets"))
             {
                 static const gchar* widgets[] = {
                     "<input value=\"demo\"%s>",
