@@ -3384,7 +3384,7 @@ midori_browser_has_native_menubar (void)
     static const gchar* ubuntu_menuproxy = NULL;
     if (ubuntu_menuproxy == NULL)
         ubuntu_menuproxy = g_getenv ("UBUNTU_MENUPROXY");
-    return ubuntu_menuproxy && strstr (ubuntu_menuproxy, ".so") != NULL;
+    return ubuntu_menuproxy && (strstr (ubuntu_menuproxy, ".so") || !strcmp (ubuntu_menuproxy, "1"));
 }
 
 static void
