@@ -17,6 +17,14 @@ if (INTLTOOL_MERGE_EXECUTABLE)
         install (FILES "${CMAKE_CURRENT_BINARY_DIR}/${desktop_id}.desktop"
                  DESTINATION "${CMAKE_INSTALL_PREFIX}/share/applications")
     endmacro (INTLTOOL_MERGE_DESKTOP desktop_id po_dir)
+    macro (INTLTOOL_MERGE_APPDATA desktop_id po_dir)
+        add_custom_target ("${desktop_id}.appdata.xml" ALL
+            ${INTLTOOL_MERGE_EXECUTABLE} --xml-style ${CMAKE_SOURCE_DIR}/${po_dir}
+                ${CMAKE_CURRENT_SOURCE_DIR}/${desktop_id}.appdata.xml.in ${desktop_id}.appdata.xml
+        )
+        install (FILES "${CMAKE_CURRENT_BINARY_DIR}/${desktop_id}.appdata.xml"
+                 DESTINATION "${CMAKE_INSTALL_PREFIX}/share/appdata")
+         endmacro (INTLTOOL_MERGE_APPDATA desktop_id po_dir)
 endif ()
 
 if (INTLTOOL_UPDATE_EXECUTABLE)
