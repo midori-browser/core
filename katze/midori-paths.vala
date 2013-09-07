@@ -354,7 +354,7 @@ namespace Midori {
 
             /* Fallback to build folder */
             path = Path.build_filename ((File.new_for_path (exec_path)
-                .get_parent ().get_parent ().get_path ()), "data", filename);
+                .get_parent ().get_path ()), "data", filename);
             if (Posix.access (path, Posix.F_OK) == 0)
                 return path;
 

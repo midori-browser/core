@@ -561,6 +561,8 @@ midori_extension_load_from_folder (MidoriApp* app,
         /* FIXME need proper stock extension mechanism */
         g_assert (midori_extension_activate_gracefully (app, extension_path, "libtransfers." G_MODULE_SUFFIX, activate));
         g_assert (midori_extension_activate_gracefully (app, extension_path, "libapps." G_MODULE_SUFFIX, activate));
+        g_assert (midori_extension_activate_gracefully (app, extension_path, "libdelayed-load." G_MODULE_SUFFIX, activate));
+        g_assert (midori_extension_activate_gracefully (app, extension_path, "libtabby." G_MODULE_SUFFIX, activate));
     }
     else
     {
@@ -673,7 +675,9 @@ midori_extension_add_to_list (MidoriApp*       app,
         return;
     /* FIXME need proper stock extension mechanism */
     if (!strcmp (filename, "libtransfers." G_MODULE_SUFFIX)
-     || !strcmp (filename, "libapps." G_MODULE_SUFFIX))
+     || !strcmp (filename, "libapps." G_MODULE_SUFFIX)
+     || !strcmp (filename, "libdelayed-load." G_MODULE_SUFFIX)
+     || !strcmp (filename, "libtabby." G_MODULE_SUFFIX))
         return;
 
     katze_array_add_item (extensions, extension);

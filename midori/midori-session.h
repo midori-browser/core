@@ -25,9 +25,6 @@ midori_load_soup_session_full (gpointer settings);
 gboolean
 midori_load_extensions (gpointer data);
 
-gboolean
-midori_load_session (gpointer data);
-
 void
 midori_session_persistent_settings (MidoriWebSettings* settings,
                                     MidoriApp*         app);

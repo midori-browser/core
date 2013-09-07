@@ -21,6 +21,9 @@ namespace Midori {
         [CCode (array_length = false)] string[]? uris, [CCode (array_length = false)] string[]? commands, int reset, string? block);
     public static void normal_app_on_quit (App app);
 
+    [CCode (cheader_filename = "midori/midori-array.h")]
+    public static bool array_from_file (Katze.Array array, string filename, string format) throws GLib.Error;
+
     [CCode (cheader_filename = "midori/midori.h")]
     public class App : GLib.Object {
         public App (string? name=null);

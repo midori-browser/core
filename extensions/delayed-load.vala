@@ -106,7 +106,6 @@ namespace DelayedLoad {
 
     private class Manager : Midori.Extension {
         private int timeout = 0;
-        private bool initialized = false;
         private HashTable<Midori.Browser, TabShaker> tasks;
 
         public signal void preferences_changed ();
@@ -141,37 +140,10 @@ namespace DelayedLoad {
                 item.ref();
 
                 int64 delay = item.get_meta_integer ("delay");
-                if (delay == Midori.Delay.PENDING_UNDELAY && new_view.progress < 1.0 && this.initialized) {
+                if (delay == Midori.Delay.PENDING_UNDELAY && new_view.progress < 1.0) {
                     this.schedule_reload (browser, new_view);
                 }
             }
-        }
-
-        private bool reload_first_tab () {
-            Midori.App app = get_app ();
-            Midori.Browser? browser = app.browser;
-            Midori.View? view = browser.tab as Midori.View;
-
-            if (view != null) {
-                this.initialized = true;
-                Katze.Item item = view.get_proxy_item ();
-                item.ref();
-
-                int64 delay = item.get_meta_integer ("delay");
-                if (delay != Midori.Delay.DELAYED) {
-                    if (view.load_status == Midori.LoadStatus.FINISHED) {
-                        if (this.timeout != 0)
-                            this.tasks.set (browser, new TabShaker (browser));
-
-                        if (view.progress < 1.0)
-                            this.schedule_reload (browser, view);
-
-                        return false;
-                    }
-                }
-            }
-
-            return true;
         }
 
         private void browser_added (Midori.Browser browser) {
@@ -187,12 +159,6 @@ namespace DelayedLoad {
             app.settings.load_on_startup = MidoriStartup.DELAYED_PAGES;
 
             this.preferences_changed ();
-
-            Midori.Browser? focused_browser = app.browser;
-            if (focused_browser == null)
-                Midori.Timeout.add (50, this.reload_first_tab);
-            else
-                this.initialized = true;
 
             foreach (Midori.Browser browser in app.get_browsers ()) {
                 browser_added (browser);
