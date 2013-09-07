@@ -36,6 +36,10 @@ namespace Tabby {
             public abstract Base.Session get_new_session ();
             public void restore_last_sessions () {
                 Katze.Array sessions = this.get_sessions ();
+                if (sessions.is_empty ()) {
+                    sessions.add_item (this.get_new_session ());
+                }
+
                 GLib.List<unowned Katze.Item> items = sessions.get_items ();
                 foreach (Katze.Item item in items) {
                     Session session = item as Session;
