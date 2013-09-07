@@ -33,7 +33,7 @@
     #include <locale.h>
 #endif
 
-#if HAVE_LIBNOTIFY
+#ifdef HAVE_LIBNOTIFY
     #include <libnotify/notify.h>
     #ifndef NOTIFY_CHECK_VERSION
         #define NOTIFY_CHECK_VERSION(x,y,z) 0
@@ -659,7 +659,7 @@ midori_app_init (MidoriApp* app)
     app->extensions = katze_array_new (KATZE_TYPE_ARRAY);
     app->browsers = katze_array_new (MIDORI_TYPE_BROWSER);
 
-    #if HAVE_LIBNOTIFY
+    #ifdef HAVE_LIBNOTIFY
     notify_init (PACKAGE_NAME);
     #endif
 }
@@ -679,7 +679,7 @@ midori_app_finalize (GObject* object)
     katze_object_assign (app->extensions, NULL);
     katze_object_assign (app->browsers, NULL);
 
-    #if HAVE_LIBNOTIFY
+    #ifdef HAVE_LIBNOTIFY
     if (notify_is_initted ())
         notify_uninit ();
     #endif
@@ -1097,7 +1097,7 @@ midori_app_send_notification (MidoriApp*   app,
     g_return_if_fail (MIDORI_IS_APP (app));
     g_return_if_fail (title);
 
-    #if HAVE_LIBNOTIFY
+    #ifdef HAVE_LIBNOTIFY
     if (notify_is_initted ())
     {
         #if NOTIFY_CHECK_VERSION (0, 7, 0)
