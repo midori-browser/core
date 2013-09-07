@@ -353,11 +353,13 @@ namespace Midori {
                 return path;
 
             /* Fallback to build folder */
-            path = Path.build_filename ((File.new_for_path (exec_path)
-                .get_parent ().get_path ()), "data", filename);
-            if (Posix.access (path, Posix.F_OK) == 0)
-                return path;
-
+            File? parent = File.new_for_path (exec_path).get_parent ();
+            while (parent != null) {
+                var data = parent.get_child ("data");
+                if (data.query_exists ())
+                    return data.get_child (filename).get_path ();
+                parent = parent.get_parent ();
+            }
             return Path.build_filename (MDATADIR, PACKAGE_NAME, "res", filename);
             #endif
         }
