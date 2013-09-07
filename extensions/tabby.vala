@@ -162,13 +162,13 @@ namespace Tabby {
                 string sqlcmd = "UPDATE `tabs` SET uri = :uri, title = :title WHERE session_id = :session_id AND id = :tab_id;";
                 Sqlite.Statement stmt;
                 if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
-                    critical (_("Failed to update database: %s"), db.errmsg);
+                    critical (_("Failed to update database: %s"), db.errmsg ());
                 stmt.bind_text (stmt.bind_parameter_index (":uri"), uri);
                 stmt.bind_text (stmt.bind_parameter_index (":title"), view.get_display_title ());
                 stmt.bind_int64 (stmt.bind_parameter_index (":session_id"), this.id);
                 stmt.bind_int64 (stmt.bind_parameter_index (":tab_id"), tab_id);
                 if (stmt.step () != Sqlite.DONE)
-                    critical (_("Failed to update database: %s"), db.errmsg);
+                    critical (_("Failed to update database: %s"), db.errmsg ());
             }
 
             protected override void tab_added (Midori.Browser browser, Midori.View view) {
@@ -186,11 +186,11 @@ namespace Tabby {
                 string sqlcmd = "DELETE FROM `tabs` WHERE session_id = :session_id AND id = :tab_id;";
                 Sqlite.Statement stmt;
                 if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
-                    critical (_("Failed to update database: %s"), db.errmsg);
+                    critical (_("Failed to update database: %s"), db.errmsg ());
                 stmt.bind_int64 (stmt.bind_parameter_index (":session_id"), this.id);
                 stmt.bind_int64 (stmt.bind_parameter_index (":tab_id"), tab_id);
                 if (stmt.step () != Sqlite.DONE)
-                    critical (_("Failed to update database: %s"), db.errmsg);
+                    critical (_("Failed to update database: %s"), db.errmsg ());
             }
 
             public override void close() {
@@ -201,12 +201,12 @@ namespace Tabby {
                 string sqlcmd = "UPDATE `sessions` SET closed = 1, tstamp = :tstamp WHERE id = :session_id;";
                 Sqlite.Statement stmt;
                 if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
-                    critical (_("Failed to update database: %s"), db.errmsg);
+                    critical (_("Failed to update database: %s"), db.errmsg ());
 
                 stmt.bind_int64 (stmt.bind_parameter_index (":session_id"), this.id);
                 stmt.bind_int64 (stmt.bind_parameter_index (":tstamp"), time.to_unix ());
                 if (stmt.step () != Sqlite.DONE)
-                    critical (_("Failed to update database: %s"), db.errmsg);
+                    critical (_("Failed to update database: %s"), db.errmsg ());
             }
 
             public override Katze.Array get_tabs() {
@@ -215,11 +215,11 @@ namespace Tabby {
                 string sqlcmd = "SELECT id, uri, title FROM tabs WHERE session_id = :session_id";
                 Sqlite.Statement stmt;
                 if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
-                    critical (_("Failed to select from database: %s"), db.errmsg);
+                    critical (_("Failed to select from database: %s"), db.errmsg ());
                 stmt.bind_int64 (stmt.bind_parameter_index (":session_id"), this.id);
                 int result = stmt.step ();
                 if (!(result == Sqlite.DONE || result == Sqlite.ROW)) {
-                    critical (_("Failed to select from database: %s"), db.errmsg);
+                    critical (_("Failed to select from database: %s"), db.errmsg ());
                     return tabs;
                 }
 
