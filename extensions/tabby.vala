@@ -334,16 +334,18 @@ namespace Tabby {
                                 critical (_("Failed to execute database schema: %s"), filename);
                             else {
                                 string config_file = Midori.Paths.get_config_filename_for_reading ("session.xbel");
-
-                                Katze.Array old_session = new Katze.Array (typeof (Katze.Item));
-                                Midori.array_from_file (old_session, config_file, "xbel-tiny");
-
-                                this.import_session (old_session);
+                                try {
+                                    Katze.Array old_session = new Katze.Array (typeof (Katze.Item));
+                                    Midori.array_from_file (old_session, config_file, "xbel-tiny");
+                                    this.import_session (old_session);
+                                } catch (GLib.FileError file_error) {
+                                    /* no old session.xbel -> could be a new profile -> ignore it */
+                                } catch (GLib.Error error) {
+                                    critical (_("Failed to import legacy session: %s"), error.message);
+                                }
                             }
-                } catch (GLib.FileError file_error) {
-                    /* no old session.xbel -> could be a new profile -> ignore it */
-                } catch (GLib.Error error) {
-                    critical (_("Failed to open database schema file: %s"), error.message);
+                } catch (GLib.FileError schema_error) {
+                    critical (_("Failed to open database schema file: %s"), schema_error.message);
                 }
             }
         }
