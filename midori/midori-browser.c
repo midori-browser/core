@@ -3384,7 +3384,14 @@ midori_browser_has_native_menubar (void)
     static const gchar* ubuntu_menuproxy = NULL;
     if (ubuntu_menuproxy == NULL)
         ubuntu_menuproxy = g_getenv ("UBUNTU_MENUPROXY");
-    return ubuntu_menuproxy && strstr (ubuntu_menuproxy, ".so") != NULL;
+    /*
+     * Values when the global menu is enabled
+     * UBUNTU_MENUPROXY=libappmenu.so
+     * UBUNTU_MENUPROXY=1
+     * The official way to disable the menu is
+     * UBUNTU_MENUPROXY=
+     */
+    return ubuntu_menuproxy && (strstr (ubuntu_menuproxy, ".so") || !strcmp (ubuntu_menuproxy, "1"));
 }
 
 static void
