@@ -356,8 +356,9 @@ namespace Midori {
             File? parent = File.new_for_path (exec_path).get_parent ();
             while (parent != null) {
                 var data = parent.get_child ("data");
-                if (data.query_exists ())
-                    return data.get_child (filename).get_path ();
+                var child = data.get_child (filename);
+                if (child.query_exists ())
+                    return child.get_path ();
                 parent = parent.get_parent ();
             }
             return Path.build_filename (MDATADIR, PACKAGE_NAME, "res", filename);
