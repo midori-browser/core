@@ -50,7 +50,7 @@ foreach(UNIT_SRC ${TESTS})
                           ${LIBMIDORI}
                           )
     set_target_properties(${UNIT} PROPERTIES
-                          COMPILE_FLAGS ${CFLAGS}
+                          COMPILE_FLAGS "${VALA_CFLAGS}"
                           )
 endforeach ()
 

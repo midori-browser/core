@@ -26,7 +26,19 @@ GENERATE_HEADER
     "${CMAKE_PROJECT_NAME}-core"
 )
 
-add_library(${LIBMIDORI} SHARED ${LIBMIDORI_SOURCE_C} ${LIBMIDORI_SOURCE})
+add_library("${LIBMIDORI}-vala" STATIC ${LIBMIDORI_SOURCE_C})
+target_link_libraries("${LIBMIDORI}-vala"
+                      ${DEPS_LIBRARIES}
+                      ${OPTS_LIBRARIES}
+                      ${DEPS_GTK_LIBRARIES}
+                      ${OPTS_GTK_LIBRARIES}
+                      )
+set_target_properties("${LIBMIDORI}-vala" PROPERTIES
+                      COMPILE_FLAGS "${VALA_CFLAGS}"
+                      POSITION_INDEPENDENT_CODE ON
+                      )
+
+add_library(${LIBMIDORI} SHARED ${LIBMIDORI_SOURCE})
 include_directories(
                     ${CMAKE_SOURCE_DIR}
                     ${CMAKE_CURRENT_SOURCE_DIR}
@@ -39,6 +51,7 @@ include_directories(
                     ${OPTS_GTK_INCLUDE_DIRS}
                     )
 target_link_libraries(${LIBMIDORI}
+                      "${LIBMIDORI}-vala"
                       ${DEPS_LIBRARIES}
                       ${OPTS_LIBRARIES}
                       ${DEPS_GTK_LIBRARIES}

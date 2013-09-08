@@ -190,7 +190,8 @@ set(VALAFLAGS ${VALAFLAGS}
 set (GETTEXT_PACKAGE "midori")
 add_definitions("-DGETTEXT_PACKAGE=\"${GETTEXT_PACKAGE}\"")
 
-set(CFLAGS "-w -Wno-deprecated-declarations -g")
+set(CFLAGS "-Wall -Wno-deprecated-declarations -g")
+set(VALA_CFLAGS "-w -g")
 set(LIBMIDORI "${CMAKE_PROJECT_NAME}-core")
 
 # CMake provides no uninstall target by design

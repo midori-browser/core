@@ -83,7 +83,7 @@ foreach(UNIT_SRC ${EXTENSIONS})
                               ${LIBMIDORI}
                               )
         set_target_properties(${UNIT} PROPERTIES
-                              COMPILE_FLAGS ${CFLAGS}
+                              COMPILE_FLAGS "${VALA_CFLAGS}"
                               )
         install(TARGETS ${UNIT}
                 LIBRARY DESTINATION ${EXTENSIONDIR}
