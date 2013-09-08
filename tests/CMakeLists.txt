@@ -9,7 +9,6 @@ include_directories(
                     ${DEPS_INCLUDE_DIRS}
                     ${OPTS_INCLUDE_DIRS}
                     ${DEPS_GTK_INCLUDE_DIRS}
-                    ${OPTS_GTK_INCLUDE_DIRS}
                     ${CMAKE_BINARY_DIR}
                     "${CMAKE_BINARY_DIR}/midori"
                     )
@@ -50,7 +49,7 @@ foreach(UNIT_SRC ${TESTS})
                           ${LIBMIDORI}
                           )
     set_target_properties(${UNIT} PROPERTIES
-                          COMPILE_FLAGS ${CFLAGS}
+                          COMPILE_FLAGS "${VALA_CFLAGS}"
                           )
 endforeach ()
 
