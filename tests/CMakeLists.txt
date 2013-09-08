@@ -9,7 +9,6 @@ include_directories(
                     ${DEPS_INCLUDE_DIRS}
                     ${OPTS_INCLUDE_DIRS}
                     ${DEPS_GTK_INCLUDE_DIRS}
-                    ${OPTS_GTK_INCLUDE_DIRS}
                     ${CMAKE_BINARY_DIR}
                     "${CMAKE_BINARY_DIR}/midori"
                     )

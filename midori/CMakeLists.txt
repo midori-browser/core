@@ -31,7 +31,6 @@ target_link_libraries("${LIBMIDORI}-vala"
                       ${DEPS_LIBRARIES}
                       ${OPTS_LIBRARIES}
                       ${DEPS_GTK_LIBRARIES}
-                      ${OPTS_GTK_LIBRARIES}
                       )
 set_target_properties("${LIBMIDORI}-vala" PROPERTIES
                       COMPILE_FLAGS "${VALA_CFLAGS}"
@@ -48,14 +47,12 @@ include_directories(
                     ${DEPS_INCLUDE_DIRS}
                     ${OPTS_INCLUDE_DIRS}
                     ${DEPS_GTK_INCLUDE_DIRS}
-                    ${OPTS_GTK_INCLUDE_DIRS}
                     )
 target_link_libraries(${LIBMIDORI}
                       "${LIBMIDORI}-vala"
                       ${DEPS_LIBRARIES}
                       ${OPTS_LIBRARIES}
                       ${DEPS_GTK_LIBRARIES}
-                      ${OPTS_GTK_LIBRARIES}
                       )
 set_target_properties(${LIBMIDORI} PROPERTIES
                       COMPILE_FLAGS ${CFLAGS}

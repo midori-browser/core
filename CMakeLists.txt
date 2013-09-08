@@ -62,16 +62,19 @@ if (X11)
 endif ()
 
 if (WIN32)
-    set(VALAFLAGS ${VALAFLAGS} "-D;HAVE_WIN32")
+    set(VALAFLAGS ${VALAFLAGS} -D HAVE_WIN32)
 endif ()
 
 string(FIND ${CMAKE_SYSTEM_NAME} "FreeBSD" FREEBSD)
 if (FREEBSD GREATER -1)
-    set(VALAFLAGS ${VALAFLAGS} "-D;HAVE_FREEBSD")
+    set(VALAFLAGS ${VALAFLAGS} -D HAVE_FREEBSD)
 endif ()
 
 if (APPLE)
-    set(VALAFLAGS ${VALAFLAGS} "-D;HAVE_OSX")
+    add_definitions("-DHAVE_OSX=1")
+    set(VALAFLAGS ${VALAFLAGS} -D HAVE_OSX)
+else ()
+    add_definitions("-DHAVE_OSX=0")
 endif ()
 
 find_package(PkgConfig)
@@ -86,8 +89,18 @@ add_definitions("-DHAVE_LIBXML")
 add_definitions("-DGIO_VERSION=\"${DEPS_gio-2.0_VERSION}\"")
 add_definitions("-DLIBSOUP_VERSION=\"${DEPS_libsoup-gnome-2.4_VERSION}\"")
 set(PKGS posix linux libxml-2.0 sqlite3 gmodule-2.0 gio-2.0 libsoup-2.4)
+if (${DEPS_libsoup-gnome-2.4_VERSION} VERSION_GREATER "2.29.91")
+    add_definitions("-DHAVE_LIBSOUP_2_29_91")
+endif ()
 if (${DEPS_libsoup-gnome-2.4_VERSION} VERSION_GREATER "2.34.0")
-    set(VALAFLAGS ${VALAFLAGS} "-D;HAVE_LIBSOUP_2_34_0")
+    add_definitions("-DHAVE_LIBSOUP_2_34_0")
+    set(VALAFLAGS ${VALAFLAGS} -D HAVE_LIBSOUP_2_34_0)
+endif ()
+if (${DEPS_libsoup-gnome-2.4_VERSION} VERSION_GREATER "2.37.1")
+    add_definitions("-DHAVE_LIBSOUP_2_37_1")
+endif ()
+if (${DEPS_libsoup-gnome-2.4_VERSION} VERSION_GREATER "2.40.0")
+    add_definitions("-DHAVE_LIBSOUP_2_40_0")
 endif ()
 
 if (WIN32)
@@ -116,6 +129,7 @@ if (USE_GRANITE)
     set(OPTS_LIBRARIES "${OPTS_LIBRARIES};${GRANITE_LIBRARIES}")
     add_definitions("-DHAVE_GRANITE")
     add_definitions("-DGRANITE_VERSION=\"${GRANITE_VERSION}\"")
+    set(VALAFLAGS ${VALAFLAGS} -D HAVE_GRANITE)
     set(PKGS ${PKGS} granite)
 else ()
     add_definitions("-DGRANITE_VERSION=\"No\"")
@@ -129,6 +143,21 @@ if (USE_ZEITGEIST)
     set(PKGS ${PKGS} zeitgeist-1.0)
 endif()
 
+if (USE_GTK3 OR HALF_BRO_INCOM_WEBKIT2)
+    pkg_check_modules(GCR gcr-3>=2.32)
+    if (GCR_VERSION)
+        set(OPTS_INCLUDE_DIRS "${OPTS_INCLUDE_DIRS};${GCR_INCLUDE_DIRS}")
+        set(OPTS_LIBRARIES "${OPTS_LIBRARIES};${GCR_LIBRARIES}")
+        add_definitions("-DGCR_VERSION=\"${GCR_VERSION}\"")
+        add_definitions("-DHAVE_GCR")
+        set(VALAFLAGS ${VALAFLAGS} -D HAVE_GCR)
+    else ()
+        add_definitions("-DGCR_VERSION=\"No")
+    endif ()
+else ()
+    add_definitions("-DGCR_VERSION=\"No\"")
+endif ()
+
 if (USE_GTK3)
     pkg_check_modules(DEPS_GTK REQUIRED
                       gtk+-3.0>=3.0.0
@@ -139,13 +168,7 @@ if (USE_GTK3)
     add_definitions("-DWEBKIT_VERSION=\"${DEPS_GTK_webkitgtk-3.0_VERSION}\"")
     set(PKGS ${PKGS} gtk+-3.0)
     set(EXTRA_VAPIS ${EXTRA_VAPIS} "${CMAKE_SOURCE_DIR}/midori/webkitgtk-3.0.vapi")
-    # Always pass >1 module, otherwise we get different variable names
-    pkg_check_modules(OPTS_GTK
-                      gio-2.0
-                      gcr-3>=2.32
-                      )
-    add_definitions("-DGCR_VERSION=\"${OPTS_GTK_gcr-3_VERSION}\"")
-    set(VALAFLAGS ${VALAFLAGS} "-D;HAVE_GTK3")
+    set(VALAFLAGS ${VALAFLAGS} -D HAVE_GTK3)
 elseif (HALF_BRO_INCOM_WEBKIT2)
     # Note: WebKitGTK+ 2.0.0 matches 1.11.91; 1.11.92 > 2.0.0
     pkg_check_modules(DEPS_GTK REQUIRED
@@ -153,19 +176,13 @@ elseif (HALF_BRO_INCOM_WEBKIT2)
                       webkit2gtk-3.0>=1.11.91
                       javascriptcoregtk-3.0
                       )
-                  add_definitions("-DHAVE_WEBKIT2")
+    add_definitions("-DHAVE_WEBKIT2")
     add_definitions("-DGTK_VERSION=\"${DEPS_GTK_gtk+-3.0_VERSION}\"")
     add_definitions("-DWEBKIT_VERSION=\"${DEPS_GTK_webkit2gtk-3.0_VERSION}\"")
     set(PKGS ${PKGS} gtk+-3.0)
     set(EXTRA_VAPIS ${EXTRA_VAPIS} "${CMAKE_SOURCE_DIR}/midori/webkit2gtk-3.0.vapi")
-    # Always pass >1 module, otherwise we get different variable names
-    pkg_check_modules(OPTS_GTK
-                      gio-2.0
-                      gcr-3>=2.32
-                      )
-    add_definitions("-DGCR_VERSION=\"${OPTS_GTK_gcr-3_VERSION}\"")
-    set(VALAFLAGS ${VALAFLAGS} "-D;HAVE_GTK3")
-    set(VALAFLAGS ${VALAFLAGS} "-D;HAVE_WEBKIT2")
+    set(VALAFLAGS ${VALAFLAGS} -D HAVE_GTK3)
+    set(VALAFLAGS ${VALAFLAGS} -D HAVE_WEBKIT2)
 else ()
     pkg_check_modules(DEPS_GTK REQUIRED
                       gtk+-2.0>=2.24.0
@@ -176,7 +193,6 @@ else ()
     add_definitions("-DWEBKIT_VERSION=\"${DEPS_GTK_webkit-1.0_VERSION}\"")
     set(PKGS ${PKGS} gtk+-2.0)
     set(EXTRA_VAPIS ${EXTRA_VAPIS} "${CMAKE_SOURCE_DIR}/midori/webkitgtk-3.0.vapi")
-    add_definitions("-DGCR_VERSION=\"No\"")
 endif ()
 
 find_package(Vala REQUIRED)
