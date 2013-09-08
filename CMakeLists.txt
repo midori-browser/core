@@ -36,7 +36,12 @@ add_definitions("-DMDATADIR=\"${DATADIR}\"")
 add_definitions("-DSYSCONFDIR=\"${CMAKE_INSTALL_FULL_SYSCONFDIR}\"")
 add_definitions("-DLIBDIR=\"${CMAKE_INSTALL_FULL_LIBDIR}\"")
 add_definitions("-DDOCDIR=\"${CMAKE_INSTALL_FULL_DOCDIR}\"")
+
+add_definitions("-DENABLE_NLS=1")
+add_definitions("-DLOCALEDIR=\"${CMAKE_INSTALL_LOCALEDIR}\"")
+
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/config.h" "/* # generated file (stub) */")
+add_definitions("-DHAVE_CONFIG_H=1")
 
 find_file (UNISTD unistd.h)
 if (UNISTD)
@@ -206,7 +211,7 @@ set(VALAFLAGS ${VALAFLAGS}
 set (GETTEXT_PACKAGE "midori")
 add_definitions("-DGETTEXT_PACKAGE=\"${GETTEXT_PACKAGE}\"")
 
-set(CFLAGS "-Wall -Wno-deprecated-declarations -g")
+set(CFLAGS "-Wall -Wundef -Wno-deprecated-declarations -g")
 set(VALA_CFLAGS "-w -g")
 set(LIBMIDORI "${CMAKE_PROJECT_NAME}-core")
 
