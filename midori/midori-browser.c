@@ -1066,8 +1066,19 @@ midori_browser_edit_bookmark_add_speed_dial_cb (GtkWidget* button,
                                                 KatzeItem* bookmark)
 {
     MidoriBrowser* browser = midori_browser_get_for_widget (button);
-    gtk_widget_set_sensitive (button, FALSE);
     midori_browser_add_speed_dial (browser);
+    GtkWidget* dialog = gtk_widget_get_toplevel (button);
+    gtk_dialog_response (GTK_DIALOG (dialog), GTK_RESPONSE_DELETE_EVENT);
+}
+
+static void
+midori_browser_edit_bookmark_create_launcher_cb (GtkWidget* button,
+                                                 KatzeItem* bookmark)
+{
+    GtkAction* action = g_object_get_data (G_OBJECT (button), "midori-action");
+    gtk_action_activate (action);
+    GtkWidget* dialog = gtk_widget_get_toplevel (button);
+    gtk_dialog_response (GTK_DIALOG (dialog), GTK_RESPONSE_DELETE_EVENT);
 }
 
 /* Private function, used by MidoriBookmarks and MidoriHistory */
@@ -1091,7 +1102,6 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     GtkWidget* entry_uri;
     GtkWidget* combo_folder;
     GtkWidget* check_toolbar;
-    GtkWidget* check_app;
     gboolean return_status = FALSE;
 
     if (is_folder)
@@ -1173,15 +1183,6 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         katze_item_get_meta_integer (bookmark, "parentid"));
     gtk_box_pack_start (GTK_BOX (vbox), combo_folder, FALSE, FALSE, 0);
 
-    if (new_bookmark && !is_folder)
-    {
-        label = gtk_button_new_with_mnemonic (_("Add to _Speed Dial"));
-        g_signal_connect (label, "clicked",
-            G_CALLBACK (midori_browser_edit_bookmark_add_speed_dial_cb), bookmark);
-            return_status = TRUE;
-        gtk_dialog_add_action_widget (GTK_DIALOG (dialog), label, GTK_RESPONSE_HELP);
-    }
-
     hbox = gtk_hbox_new (FALSE, 6);
     gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
     check_toolbar = gtk_check_button_new_with_mnemonic (_("Show in Bookmarks _Bar"));
@@ -1189,14 +1190,28 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         katze_item_get_meta_boolean (bookmark, "toolbar"));
     gtk_box_pack_start (GTK_BOX (hbox), check_toolbar, FALSE, FALSE, 0);
 
-    check_app = NULL;
-    if (!is_folder)
+    if (new_bookmark && !is_folder)
     {
-        check_app = gtk_check_button_new_with_mnemonic (_("Run as _web application"));
-        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (check_app),
-            katze_item_get_meta_boolean (bookmark, "app"));
-        gtk_box_pack_start (GTK_BOX (hbox), check_app, FALSE, FALSE, 0);
+        hbox = gtk_hbox_new (FALSE, 6);
+        gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
+
+        label = gtk_button_new_with_mnemonic (_("Add to _Speed Dial"));
+        g_signal_connect (label, "clicked",
+            G_CALLBACK (midori_browser_edit_bookmark_add_speed_dial_cb), bookmark);
+        gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
+
+        /* FIXME: There's no API for extending the bookmark dialog */
+        GtkAction* action = _action_by_name (browser, "CreateLauncher");
+        if (action != NULL)
+        {
+            label = gtk_button_new_with_mnemonic (gtk_action_get_label (action));
+            g_object_set_data (G_OBJECT (label), "midori-action", action);
+            g_signal_connect (label, "clicked",
+                G_CALLBACK (midori_browser_edit_bookmark_create_launcher_cb), bookmark);
+            gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
+        }
     }
+
     gtk_widget_show_all (content_area);
 
     gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT);
@@ -1209,12 +1224,8 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         katze_item_set_meta_integer (bookmark, "toolbar",
             gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (check_toolbar)));
         if (!is_folder)
-        {
             katze_item_set_uri (bookmark,
                 gtk_entry_get_text (GTK_ENTRY (entry_uri)));
-            katze_item_set_meta_integer (bookmark, "app",
-                gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (check_app)));
-        }
 
         selected = midori_bookmark_folder_button_get_active (combo_folder);
         katze_item_set_meta_integer (bookmark, "parentid", selected);
@@ -2832,7 +2843,7 @@ _action_print_activate (GtkAction*     action,
     granite_widgets_contractor_view_name_blacklist (GRANITE_WIDGETS_CONTRACTOR_VIEW (
         contractor), blacklisted_contracts, -1); */
     g_free (filename);
-    gtk_container_add (GTK_CONTAINER (content_area), contractor);
+    gtk_box_pack_start (GTK_BOX (content_area), contractor, TRUE, TRUE, 0);
     gtk_widget_show (contractor);
     gtk_widget_show (dialog);
     /* FIXME: granite: "box" isn't visible by default */
@@ -3362,7 +3373,14 @@ midori_browser_has_native_menubar (void)
     static const gchar* ubuntu_menuproxy = NULL;
     if (ubuntu_menuproxy == NULL)
         ubuntu_menuproxy = g_getenv ("UBUNTU_MENUPROXY");
-    return ubuntu_menuproxy && strstr (ubuntu_menuproxy, ".so") != NULL;
+    /*
+     * Values when the global menu is enabled
+     * UBUNTU_MENUPROXY=libappmenu.so
+     * UBUNTU_MENUPROXY=1
+     * The official way to disable the menu is
+     * UBUNTU_MENUPROXY=
+     */
+    return ubuntu_menuproxy && (strstr (ubuntu_menuproxy, ".so") || !strcmp (ubuntu_menuproxy, "1"));
 }
 
 static void
@@ -4500,11 +4518,11 @@ _action_bookmarks_import_activate (GtkAction*     action,
         0, _("Import from XBEL or HTML file"), 1, NULL, 2, NULL, 3, icon_width, -1);
     gtk_combo_box_set_active (combobox, 0);
     gtk_box_pack_start (GTK_BOX (hbox), combo, TRUE, TRUE, 0);
-    gtk_container_add (GTK_CONTAINER (content_area), hbox);
-    gtk_widget_show_all (hbox);
+    gtk_box_pack_start (GTK_BOX (content_area), hbox, FALSE, TRUE, 0);
 
     combobox_folder = midori_bookmark_folder_button_new (browser->bookmarks, 0);
-    gtk_container_add (GTK_CONTAINER (content_area), combobox_folder);
+    gtk_box_pack_start (GTK_BOX (content_area), combobox_folder, FALSE, TRUE, 0);
+    gtk_widget_show_all (content_area);
 
     gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT);
     if (midori_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)

@@ -18,6 +18,7 @@
 
 #include <glib/gi18n-lib.h>
 #include <libsoup/soup-cookie-jar-sqlite.h>
+#include <libsoup/soup-gnome-features.h>
 
     #define LIBSOUP_USE_UNSTABLE_REQUEST_API
     #include <libsoup/soup-cache.h>
@@ -54,27 +55,22 @@ soup_session_settings_notify_http_proxy_cb (MidoriWebSettings* settings,
                                             GParamSpec*        pspec,
                                             SoupSession*       session)
 {
+    gboolean uses_proxy = TRUE;
     MidoriProxy proxy_type = katze_object_get_enum (settings, "proxy-type");
     if (proxy_type == MIDORI_PROXY_AUTOMATIC)
     {
-        gboolean gnome_supported = FALSE;
-        GModule* module;
-        GType (*get_type_function) (void);
-        if (g_module_supported ())
-            if ((module = g_module_open ("libsoup-gnome-2.4.so", G_MODULE_BIND_LOCAL)))
-            {
-                if (g_module_symbol (module, "soup_proxy_resolver_gnome_get_type",
-                                     (void*) &get_type_function))
-                {
-                    soup_session_add_feature_by_type (session, get_type_function ());
-                    gnome_supported = TRUE;
-                }
-            }
-        if (!gnome_supported)
-            midori_soup_session_set_proxy_uri (session, g_getenv ("http_proxy"));
+        soup_session_add_feature_by_type (session, SOUP_TYPE_PROXY_RESOLVER_GNOME);
+
+        GProxyResolver* resolver = g_proxy_resolver_get_default ();
+        gchar** proxies = g_proxy_resolver_lookup (resolver, "none", NULL, NULL);
+
+        if (!proxies || !g_strcmp0 (proxies[0], "direct://"))
+            uses_proxy = FALSE;
+        g_strfreev (proxies);
     }
     else if (proxy_type == MIDORI_PROXY_HTTP)
     {
+        soup_session_remove_feature_by_type (session, SOUP_TYPE_PROXY_RESOLVER_GNOME);
         gchar* proxy = katze_object_get_string (settings, "http-proxy");
         GString* http_proxy = g_string_new (proxy);
         g_string_append_printf (http_proxy, ":%d", katze_object_get_int (settings, "http-proxy-port"));
@@ -83,7 +79,18 @@ soup_session_settings_notify_http_proxy_cb (MidoriWebSettings* settings,
         g_free (proxy);
     }
     else
+    {
+        uses_proxy = FALSE;
+        soup_session_remove_feature_by_type (session, SOUP_TYPE_PROXY_RESOLVER_GNOME);
         midori_soup_session_set_proxy_uri (session, NULL);
+    }
+
+    /* If a proxy server looks to be active, we disable prefetching, otherwise
+       libSoup may be prefetching outside the proxy server beyond our control.
+     */
+
+    if (uses_proxy)
+        g_object_set (settings, "enable-dns-prefetching", FALSE, NULL);
 }
 #endif
 
@@ -263,28 +270,41 @@ midori_session_cookie_jar_changed_cb (SoupCookieJar*     jar,
                                       SoupCookie*        new_cookie,
                                       MidoriWebSettings* settings)
 {
+
+    if (midori_debug ("cookies"))
+    {
+        gchar* old = old_cookie ? soup_cookie_to_cookie_header (old_cookie) : NULL;
+        gchar* new = new_cookie ? soup_cookie_to_cookie_header (new_cookie) : NULL;
+        g_print ("cookie changed from %s to %s\n", old, new);
+        g_free (old);
+        g_free (new);
+    }
+
+    /* Don't allow revival of expiring cookies */
+    if (new_cookie && old_cookie && old_cookie->expires)
+        soup_cookie_set_expires (new_cookie, old_cookie->expires);
+
     if (new_cookie && new_cookie->expires)
     {
         time_t expires = soup_date_to_time_t (new_cookie->expires);
         gint age = katze_object_get_int (settings, "maximum-cookie-age");
-        if (age > 0)
+        /* An age of 0 to SoupCookie means already-expired
+           A user choosing 0 days probably expects 1 hour.
+         */
+        int seconds = age > 0 ? age * SOUP_COOKIE_MAX_AGE_ONE_DAY : SOUP_COOKIE_MAX_AGE_ONE_HOUR;
+        SoupDate* max_date = soup_date_new_from_now (seconds);
+        if (expires > soup_date_to_time_t (max_date))
         {
-            SoupDate* max_date = soup_date_new_from_now (
-                   age * SOUP_COOKIE_MAX_AGE_ONE_DAY);
-            if (soup_date_to_time_t (new_cookie->expires)
-                > soup_date_to_time_t (max_date))
-                   soup_cookie_set_expires (new_cookie, max_date);
+            if (midori_debug ("cookies"))
+            {
+                gchar* new_date = soup_date_to_string (max_date, SOUP_DATE_COOKIE);
+                g_print ("^^ enforcing expiry: %s\n", new_date);
+                g_free (new_date);
+            }
+            soup_cookie_set_expires (new_cookie, max_date);
         }
-        else
-        {
-            /* An age of 0 to SoupCookie means already-expired
-            A user choosing 0 days probably expects 1 hour. */
-            soup_cookie_set_max_age (new_cookie, SOUP_COOKIE_MAX_AGE_ONE_HOUR);
-        }
+        soup_date_free (max_date);
     }
-
-    if (midori_debug ("cookies"))
-        g_print ("cookie changed: old %p new %p\n", old_cookie, new_cookie);
 }
 #endif
 
@@ -339,10 +359,8 @@ midori_load_extensions (gpointer data)
     MidoriApp* app = MIDORI_APP (data);
     gchar** keys = g_object_get_data (G_OBJECT (app), "extensions");
     KatzeArray* extensions;
-    #ifdef G_ENABLE_DEBUG
     gboolean startup_timer = midori_debug ("startup");
     GTimer* timer = startup_timer ? g_timer_new () : NULL;
-    #endif
 
     /* Load extensions */
     extensions = katze_array_new (MIDORI_TYPE_EXTENSION);
@@ -350,10 +368,8 @@ midori_load_extensions (gpointer data)
     g_object_set (app, "extensions", extensions, NULL);
     midori_extension_load_from_folder (app, keys, TRUE);
 
-    #ifdef G_ENABLE_DEBUG
     if (startup_timer)
         g_debug ("Extensions:\t%f", g_timer_elapsed (timer, NULL));
-    #endif
 
     return FALSE;
 }
@@ -379,38 +395,6 @@ settings_notify_cb (MidoriWebSettings* settings,
     g_free (config_file);
 }
 
-void
-midori_session_persistent_settings (MidoriWebSettings* settings,
-                                    MidoriApp*         app)
-{
-    g_signal_connect_after (settings, "notify", G_CALLBACK (settings_notify_cb), app);
-}
-
-static void
-midori_browser_action_last_session_activate_cb (GtkAction*     action,
-                                                MidoriBrowser* browser)
-{
-    KatzeArray* old_session = katze_array_new (KATZE_TYPE_ITEM);
-    gchar* config_file = midori_paths_get_config_filename_for_reading ("session.old.xbel");
-    GError* error = NULL;
-    if (midori_array_from_file (old_session, config_file, "xbel-tiny", &error))
-    {
-        KatzeItem* item;
-        KATZE_ARRAY_FOREACH_ITEM (item, old_session)
-            midori_browser_add_item (browser, item);
-    }
-    else
-    {
-        sokoke_message_dialog (GTK_MESSAGE_ERROR,
-            _("The session couldn't be loaded: %s\n"), error->message, FALSE);
-        g_error_free (error);
-    }
-    g_free (config_file);
-    gtk_action_set_sensitive (action, FALSE);
-    g_signal_handlers_disconnect_by_func (action,
-        midori_browser_action_last_session_activate_cb, browser);
-}
-
 static void
 midori_session_accel_map_changed_cb (GtkAccelMap*    accel_map,
                                      gchar*          accel_path,
@@ -422,157 +406,12 @@ midori_session_accel_map_changed_cb (GtkAccelMap*    accel_map,
     g_free (config_file);
 }
 
-static guint save_timeout = 0;
-
-static gboolean
-midori_session_save_timeout_cb (KatzeArray* session)
+void
+midori_session_persistent_settings (MidoriWebSettings* settings,
+                                    MidoriApp*         app)
 {
-    gchar* config_file = midori_paths_get_config_filename_for_writing ("session.xbel");
-    GError* error = NULL;
-    if (!midori_array_to_file (session, config_file, "xbel-tiny", &error))
-    {
-        g_warning (_("The session couldn't be saved. %s"), error->message);
-        g_error_free (error);
-    }
-    g_free (config_file);
-
-    save_timeout = 0;
-    return FALSE;
-}
-
-static void
-midori_browser_session_cb (MidoriBrowser* browser,
-                           gpointer       pspec,
-                           KatzeArray*    session)
-{
-    if (!save_timeout)
-        save_timeout = midori_timeout_add_seconds (
-            5, (GSourceFunc)midori_session_save_timeout_cb, session, NULL);
-}
-
-static void
-midori_app_quit_cb (MidoriBrowser* browser,
-                    KatzeArray*    session)
-{
-    midori_session_save_timeout_cb (session);
-}
-
-static void
-midori_browser_weak_notify_cb (MidoriBrowser* browser,
-                               KatzeArray*    session)
-{
-    g_object_disconnect (browser, "any-signal",
-                         G_CALLBACK (midori_browser_session_cb), session, NULL);
-}
-
-gboolean
-midori_load_session (gpointer data)
-{
-    KatzeArray* saved_session = KATZE_ARRAY (data);
-    MidoriBrowser* browser;
-    MidoriApp* app = katze_item_get_parent (KATZE_ITEM (saved_session));
-    MidoriWebSettings* settings = katze_object_get_object (app, "settings");
-    MidoriStartup load_on_startup;
-    gchar* config_file;
-    KatzeArray* session;
-    KatzeItem* item;
-    gint64 current;
-    gchar** open_uris = g_object_get_data (G_OBJECT (app), "open-uris");
-    gchar** execute_commands = g_object_get_data (G_OBJECT (app), "execute-commands");
-    gchar* uri;
-    guint i = 0;
-    #ifdef G_ENABLE_DEBUG
-    gboolean startup_timer = midori_debug ("startup");
-    GTimer* timer = startup_timer ? g_timer_new () : NULL;
-    #endif
-
-    browser = midori_app_create_browser (app);
-    midori_session_persistent_settings (settings, app);
-
-    config_file = midori_paths_get_config_filename_for_reading ("session.old.xbel");
-    if (g_access (config_file, F_OK) == 0)
-    {
-        GtkActionGroup* action_group = midori_browser_get_action_group (browser);
-        GtkAction* action = gtk_action_group_get_action (action_group, "LastSession");
-        g_signal_connect (action, "activate",
-            G_CALLBACK (midori_browser_action_last_session_activate_cb), browser);
-        gtk_action_set_visible (action, TRUE);
-    }
-    midori_app_add_browser (app, browser);
-    gtk_widget_show (GTK_WIDGET (browser));
-
-    katze_assign (config_file, midori_paths_get_config_filename_for_reading ("accels"));
+    g_signal_connect_after (settings, "notify", G_CALLBACK (settings_notify_cb), app);
     g_signal_connect_after (gtk_accel_map_get (), "changed",
         G_CALLBACK (midori_session_accel_map_changed_cb), NULL);
 
-    load_on_startup = (MidoriStartup)g_object_get_data (G_OBJECT (settings), "load-on-startup");
-    if (katze_array_is_empty (saved_session))
-    {
-        item = katze_item_new ();
-        if (open_uris)
-        {
-            uri = sokoke_magic_uri (open_uris[i], TRUE, TRUE);
-            katze_item_set_uri (item, uri);
-            g_free (uri);
-            i++;
-        } else if (load_on_startup == MIDORI_STARTUP_BLANK_PAGE)
-            katze_item_set_uri (item, "about:new");
-        else
-            katze_item_set_uri (item, "about:home");
-        katze_array_add_item (saved_session, item);
-        g_object_unref (item);
-    }
-
-    session = midori_browser_get_proxy_array (browser);
-    KATZE_ARRAY_FOREACH_ITEM (item, saved_session)
-    {
-        katze_item_set_meta_integer (item, "append", 1);
-        katze_item_set_meta_integer (item, "dont-write-history", 1);
-        if (load_on_startup == MIDORI_STARTUP_DELAYED_PAGES
-         || katze_item_get_meta_integer (item, "delay") == MIDORI_DELAY_PENDING_UNDELAY)
-            katze_item_set_meta_integer (item, "delay", MIDORI_DELAY_DELAYED);
-        midori_browser_add_item (browser, item);
-    }
-
-    current = katze_item_get_meta_integer (KATZE_ITEM (saved_session), "current");
-    if (!(item = katze_array_get_nth_item (saved_session, current)))
-    {
-        current = 0;
-        item = katze_array_get_nth_item (saved_session, 0);
-    }
-    midori_browser_set_current_page (browser, current);
-    if (midori_uri_is_blank (katze_item_get_uri (item)))
-        midori_browser_activate_action (browser, "Location");
-
-    /* `i` also used above; in that case we won't re-add the same URLs here */
-    for (; open_uris && open_uris[i]; i++)
-    {
-        uri = sokoke_magic_uri (open_uris[i], TRUE, TRUE);
-        midori_browser_add_uri (browser, uri);
-        g_free (uri);
-    }
-
-    g_object_unref (settings);
-    g_object_unref (saved_session);
-    g_free (config_file);
-
-    g_signal_connect_after (browser, "add-tab",
-        G_CALLBACK (midori_browser_session_cb), session);
-    g_signal_connect_after (browser, "remove-tab",
-        G_CALLBACK (midori_browser_session_cb), session);
-    g_signal_connect (app, "quit",
-        G_CALLBACK (midori_app_quit_cb), session);
-    g_object_weak_ref (G_OBJECT (session),
-        (GWeakNotify)(midori_browser_weak_notify_cb), browser);
-
-    if (execute_commands != NULL)
-        midori_app_send_command (app, execute_commands);
-
-    #ifdef G_ENABLE_DEBUG
-    if (startup_timer)
-        g_debug ("Session setup:\t%f", g_timer_elapsed (timer, NULL));
-    #endif
-
-    return FALSE;
 }
-

@@ -117,13 +117,13 @@ formhistory_check_master_password (GtkWidget*       parent,
     label = gtk_label_new (_("Master password required\n"
                              "to open password database"));
     gtk_box_pack_start (GTK_BOX (hbox), label, TRUE, TRUE, 0);
-    gtk_container_add (GTK_CONTAINER (content_area), hbox);
+    gtk_box_pack_start (GTK_BOX (content_area), hbox, FALSE, TRUE, 0);
 
     entry = gtk_entry_new ();
     g_object_set (entry, "truncate-multiline", TRUE, NULL);
     gtk_entry_set_visibility(GTK_ENTRY (entry),FALSE);
     gtk_entry_set_activates_default (GTK_ENTRY (entry), TRUE);
-    gtk_container_add (GTK_CONTAINER (content_area), entry);
+    gtk_box_pack_start (GTK_BOX (content_area), entry, FALSE, TRUE, 0);
 
     gtk_widget_show_all (entry);
     gtk_widget_show_all (hbox);
@@ -612,7 +612,7 @@ formhistory_preferences_cb (MidoriExtension* extension)
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbox),
         !midori_extension_get_boolean (extension, "always-load"));
     g_object_set_data (G_OBJECT (dialog), "always-load-checkbox", checkbox);
-    gtk_container_add (GTK_CONTAINER (content_area), checkbox);
+    gtk_box_pack_start (GTK_BOX (content_area), checkbox, FALSE, TRUE, 0);
     /* FIXME: Add pref to disable password manager */
 
     g_signal_connect (dialog,
