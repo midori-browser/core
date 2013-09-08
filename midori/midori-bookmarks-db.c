@@ -25,11 +25,6 @@
     #include <unistd.h>
 #endif
 
-static gint64
-midori_bookmarks_insert_item_db (sqlite3*   db,
-				 KatzeItem* item,
-				 gint64     parentid);
-
 static gboolean
 midori_bookmarks_update_item_db (sqlite3*   db,
 				 KatzeItem* item);
