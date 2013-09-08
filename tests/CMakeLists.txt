@@ -58,8 +58,8 @@ file(GLOB TESTS *.sh)
 foreach(UNIT_SRC ${TESTS})
     string(REPLACE ".sh" "" UNIT ${UNIT_SRC})
     add_test(NAME ${UNIT} COMMAND ${UNIT_SRC})
+    file(RELATIVE_PATH BLDDIR ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR})
     set_tests_properties(${UNIT} PROPERTIES
-                         ENVIRONMENT "SRCDIR=${CMAKE_SOURCE_DIR}"
-                         ENVIRONMENT "BLDDIR=${CMAKE_BINARY_DIR}"
+                         ENVIRONMENT "SRCDIR=${CMAKE_SOURCE_DIR};BLDDIR=${BLDDIR};"
                          )
 endforeach ()

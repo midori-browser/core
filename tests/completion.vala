@@ -113,9 +113,9 @@ void completion_history () {
     app.set ("history", history);
     Sqlite.Database db;
     Sqlite.Database.open_v2 (":memory:", out db);
-    db.exec ("CREATE TABLE history (uri TEXT, title TEXT);");
-    db.exec ("CREATE TABLE search (uri TEXT, keywords TEXT);");
-    db.exec ("CREATE TABLE bookmarks (uri TEXT, title TEXT);");
+    db.exec ("CREATE TABLE history (uri TEXT, title TEXT, date INTEGER, day INTEGER);");
+    db.exec ("CREATE TABLE search (uri TEXT, keywords TEXT, day INTEGER);");
+    db.exec ("CREATE TABLE bookmarks (uri TEXT, title TEXT, last_visit DATE);");
     history.set_data<unowned Sqlite.Database?> ("db", db);
     completion.prepare (app);
     foreach (var spec in completions)

@@ -49,7 +49,7 @@ void app_normal_custom_config () {
     var app = Midori.normal_app_new (Midori.Paths.make_tmp_dir ("custom-configXXXXXX"),
         "test-custom-config-normal", false, null, null, -1, null);
     var loop = MainContext.default ();
-    do { loop.iteration (true); } while (loop.pending ());
+    do { loop.iteration (true); } while (app.browser == null);
     assert (check_sensible_window_size (app.browser, app.settings));
     Midori.normal_app_on_quit (app);
 }
