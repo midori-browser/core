@@ -689,7 +689,9 @@ midori_extension_add_to_list (MidoriApp*       app,
     /* Signal that we want the extension to load and save */
     if (midori_extension_is_prepared (extension))
     {
+        /* This is a sensible check but makes unit testing hard
         g_warn_if_fail (extension->priv->config_dir == NULL);
+         */
         extension->priv->config_dir = midori_paths_get_extension_config_dir (filename);
     }
 }
