@@ -3792,7 +3792,6 @@ static const gchar* valid_about_uris[] = {
     "about:geolocation",
     "about:home",
     "about:new",
-    "about:nodocs",
     "about:paths",
     "about:private",
     "about:search",
