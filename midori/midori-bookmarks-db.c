@@ -10,8 +10,8 @@
  See the file COPYING for the full license text.
 */
 
-#include "midori-bookmarks.h"
-#include "panels/midori-bookmarks.h"
+#include "midori-bookmarks-db.h"
+
 #include "midori-app.h"
 #include "midori-array.h"
 #include "sokoke.h"
@@ -25,6 +25,167 @@
     #include <unistd.h>
 #endif
 
+static gboolean
+midori_bookmarks_update_item_db (sqlite3*   db,
+				 KatzeItem* item);
+
+gint64
+midori_bookmarks_insert_item_db (sqlite3*   db,
+                                 KatzeItem* item,
+                                 gint64     parentid)
+{
+    gchar* sqlcmd;
+    char* errmsg = NULL;
+    KatzeItem* old_parent;
+    gchar* new_parentid;
+    gchar* id = NULL;
+    const gchar* uri = NULL;
+    const gchar* desc = NULL;
+    gint64 seq = 0;
+
+    /* Bookmarks must have a name, import may produce invalid items */
+    g_return_val_if_fail (katze_item_get_name (item), seq);
+
+    if (!db)
+        return seq;
+
+    if (katze_item_get_meta_integer (item, "id") > 0)
+        id = g_strdup_printf ("%" G_GINT64_FORMAT, katze_item_get_meta_integer(item, "id"));
+    else
+        id = g_strdup_printf ("NULL");
+
+    if (KATZE_ITEM_IS_BOOKMARK (item))
+        uri = katze_item_get_uri (item);
+
+    if (katze_item_get_text (item))
+        desc = katze_item_get_text (item);
+
+    /* Use folder, otherwise fallback to parent folder */
+    old_parent = katze_item_get_parent (item);
+    if (parentid > 0)
+        new_parentid = g_strdup_printf ("%" G_GINT64_FORMAT, parentid);
+    else if (old_parent && katze_item_get_meta_integer (old_parent, "id") > 0)
+        new_parentid = g_strdup_printf ("%" G_GINT64_FORMAT, katze_item_get_meta_integer (old_parent, "id"));
+    else
+        new_parentid = g_strdup_printf ("NULL");
+
+    sqlcmd = sqlite3_mprintf (
+            "INSERT INTO bookmarks (id, parentid, title, uri, desc, toolbar, app) "
+            "VALUES (%q, %q, '%q', '%q', '%q', %d, %d)",
+            id,
+            new_parentid,
+            katze_item_get_name (item),
+            katze_str_non_null (uri),
+            katze_str_non_null (desc),
+            katze_item_get_meta_boolean (item, "toolbar"),
+            katze_item_get_meta_boolean (item, "app"));
+
+    if (sqlite3_exec (db, sqlcmd, NULL, NULL, &errmsg) == SQLITE_OK)
+    {
+        /* Get insert id */
+        if (g_str_equal (id, "NULL"))
+        {
+            KatzeArray* seq_array;
+
+            sqlite3_free (sqlcmd);
+            sqlcmd = sqlite3_mprintf (
+                    "SELECT seq FROM sqlite_sequence WHERE name = 'bookmarks'");
+
+            seq_array = katze_array_from_sqlite (db, sqlcmd);
+            if (katze_array_get_nth_item (seq_array, 0))
+            {
+                KatzeItem* seq_item = katze_array_get_nth_item (seq_array, 0);
+
+                seq = katze_item_get_meta_integer (seq_item, "seq");
+                katze_item_set_meta_integer (item, "id", seq);
+            }
+            g_object_unref (seq_array);
+        }
+    }
+    else
+    {
+        g_printerr (_("Failed to add bookmark item: %s\n"), errmsg);
+        sqlite3_free (errmsg);
+    }
+
+    sqlite3_free (sqlcmd);
+    g_free (new_parentid);
+    g_free (id);
+
+    return seq;
+}
+
+gboolean
+midori_bookmarks_update_item_db (sqlite3*   db,
+                                 KatzeItem* item)
+{
+    gchar* sqlcmd;
+    char* errmsg = NULL;
+    gchar* parentid;
+    gboolean updated;
+    gchar* id;
+
+    id = g_strdup_printf ("%" G_GINT64_FORMAT,
+            katze_item_get_meta_integer (item, "id"));
+
+    if (katze_item_get_meta_integer (item, "parentid") > 0)
+        parentid = g_strdup_printf ("%" G_GINT64_FORMAT,
+                                    katze_item_get_meta_integer (item, "parentid"));
+    else
+        parentid = g_strdup_printf ("NULL");
+
+    sqlcmd = sqlite3_mprintf (
+            "UPDATE bookmarks SET "
+            "parentid=%q, title='%q', uri='%q', desc='%q', toolbar=%d, app=%d "
+            "WHERE id = %q ;",
+            parentid,
+            katze_item_get_name (item),
+            katze_str_non_null (katze_item_get_uri (item)),
+            katze_str_non_null (katze_item_get_meta_string (item, "desc")),
+            katze_item_get_meta_boolean (item, "toolbar"),
+            katze_item_get_meta_boolean (item, "app"),
+            id);
+
+    updated = TRUE;
+    if (sqlite3_exec (db, sqlcmd, NULL, NULL, &errmsg) != SQLITE_OK)
+    {
+        updated = FALSE;
+        g_printerr (_("Failed to update bookmark: %s\n"), errmsg);
+        sqlite3_free (errmsg);
+    }
+
+    sqlite3_free (sqlcmd);
+    g_free (parentid);
+    g_free (id);
+
+    return updated;
+}
+
+/**
+ * midori_bookmarks_db_update_item:
+ * @bookmarks: the main bookmark array
+ * @item: #KatzeItem the item to update
+ *
+ * Updates the @item in the bookmark data base.
+ *
+ * Since: 0.5.5
+ **/
+void
+midori_array_update_item (KatzeArray* bookmarks,
+			  KatzeItem* item)
+{
+    g_return_if_fail (KATZE_IS_ARRAY (bookmarks));
+    g_return_if_fail (KATZE_IS_ITEM (item));
+    g_return_if_fail (katze_item_get_meta_string (item, "id"));
+    g_return_if_fail (0 != katze_item_get_meta_integer (item, "id"));
+
+    sqlite3* db = g_object_get_data (G_OBJECT (bookmarks), "db");
+
+    g_return_if_fail (db);
+
+    midori_bookmarks_update_item_db (db, item);
+}
+
 void
 midori_bookmarks_dbtracer (void*       dummy,
                            const char* query)
@@ -32,7 +193,7 @@ midori_bookmarks_dbtracer (void*       dummy,
     g_printerr ("%s\n", query);
 }
 
-void
+static void
 midori_bookmarks_add_item_cb (KatzeArray* array,
                               KatzeItem*  item,
                               sqlite3*    db)
@@ -41,7 +202,7 @@ midori_bookmarks_add_item_cb (KatzeArray* array,
         katze_item_get_meta_integer (item, "parentid"));
 }
 
-void
+static void
 midori_bookmarks_remove_item_cb (KatzeArray* array,
                                  KatzeItem*  item,
                                  sqlite3*    db)
@@ -319,3 +480,248 @@ midori_bookmarks_on_quit (KatzeArray* array)
     sqlite3_close (db);
 }
 
+void
+midori_bookmarks_import_array (KatzeArray* bookmarks,
+                               KatzeArray* array,
+                               gint64      parentid)
+{
+    GList* list;
+    KatzeItem* item;
+
+    if (!bookmarks)
+        return;
+
+    KATZE_ARRAY_FOREACH_ITEM_L (item, array, list)
+    {
+        katze_item_set_meta_integer (item, "parentid", parentid);
+        katze_array_add_item (bookmarks, item);
+        if (KATZE_IS_ARRAY (item))
+          midori_bookmarks_import_array (bookmarks, KATZE_ARRAY (item),
+                                         katze_item_get_meta_integer(item, "id"));
+    }
+    g_list_free (list);
+}
+
+/**
+ * midori_array_query_recursive:
+ * @array: the main bookmark array
+ * @fields: comma separated list of fields
+ * @condition: condition, like "folder = '%q'"
+ * @value: a value to be inserted if @condition contains %q
+ * @recursive: if %TRUE include children
+ *
+ * Stores the result in a #KatzeArray.
+ *
+ * Return value: a #KatzeArray on success, %NULL otherwise
+ *
+ * Since: 0.4.4
+ **/
+KatzeArray*
+midori_array_query_recursive (KatzeArray*  bookmarks,
+                              const gchar* fields,
+                              const gchar* condition,
+                              const gchar* value,
+                              gboolean     recursive)
+{
+    sqlite3* db;
+    gchar* sqlcmd;
+    char* sqlcmd_value;
+    KatzeArray* array;
+    KatzeItem* item;
+    GList* list;
+
+    g_return_val_if_fail (KATZE_IS_ARRAY (bookmarks), NULL);
+    g_return_val_if_fail (fields, NULL);
+    g_return_val_if_fail (condition, NULL);
+    db = g_object_get_data (G_OBJECT (bookmarks), "db");
+    g_return_val_if_fail (db != NULL, NULL);
+
+    sqlcmd = g_strdup_printf ("SELECT %s FROM bookmarks WHERE %s "
+                              "ORDER BY (uri='') ASC, title DESC", fields, condition);
+    if (strstr (condition, "%q"))
+    {
+        sqlcmd_value = sqlite3_mprintf (sqlcmd, value ? value : "");
+        array = katze_array_from_sqlite (db, sqlcmd_value);
+        sqlite3_free (sqlcmd_value);
+    }
+    else
+        array = katze_array_from_sqlite (db, sqlcmd);
+    g_free (sqlcmd);
+
+    if (!recursive)
+        return array;
+
+    KATZE_ARRAY_FOREACH_ITEM_L (item, array, list)
+    {
+        if (KATZE_ITEM_IS_FOLDER (item))
+        {
+            gchar* parentid = g_strdup_printf ("%" G_GINT64_FORMAT,
+					       katze_item_get_meta_integer (item, "id"));
+            KatzeArray* subarray = midori_array_query_recursive (bookmarks,
+								 fields, "parentid=%q", parentid, TRUE);
+            KatzeItem* subitem;
+            GList* sublist;
+
+            KATZE_ARRAY_FOREACH_ITEM_L (subitem, subarray, sublist)
+            {
+                katze_array_add_item (KATZE_ARRAY (item), subitem);
+            }
+
+            g_object_unref (subarray);
+            g_free (parentid);
+        }
+    }
+    g_list_free (list);
+    return array;
+}
+
+static gint64
+count_from_sqlite (sqlite3*     db,
+		   const gchar* sqlcmd)
+{
+    gint64 count = -1;
+    sqlite3_stmt* stmt;
+    gint result;
+    
+    result = sqlite3_prepare_v2 (db, sqlcmd, -1, &stmt, NULL);
+    if (result != SQLITE_OK)
+        return -1;
+
+    g_assert (sqlite3_column_count (stmt) == 1);
+    
+    if ((result = sqlite3_step (stmt)) == SQLITE_ROW)
+	count = sqlite3_column_int64(stmt, 0);
+
+    sqlite3_clear_bindings (stmt);
+    sqlite3_reset (stmt);
+
+    return count;
+}
+
+static gint64
+midori_array_count_recursive_by_id (KatzeArray*  bookmarks,
+				    const gchar* condition,
+				    const gchar* value,
+				    gint64       id,
+				    gboolean     recursive)
+{
+    gint64 count = -1;
+    sqlite3* db;
+    gchar* sqlcmd;
+    char* sqlcmd_value;
+    sqlite3_stmt* stmt;
+    gint result;
+    GList* ids;
+    GList* iter_ids;
+
+    g_return_val_if_fail (condition, -1);
+    g_return_val_if_fail (KATZE_IS_ARRAY (bookmarks), -1);
+    db = g_object_get_data (G_OBJECT (bookmarks), "db");
+    g_return_val_if_fail (db != NULL, -1);
+
+    g_assert(!strstr("parentid", condition));
+
+    if (id > 0)
+	sqlcmd = g_strdup_printf ("SELECT COUNT(*) FROM bookmarks "
+				  "WHERE parentid = %" G_GINT64_FORMAT " AND %s",
+				  id,
+				  condition);
+    else
+	sqlcmd = g_strdup_printf ("SELECT COUNT(*) FROM bookmarks "
+				  "WHERE parentid IS NULL AND %s ",
+				  condition);
+
+    if (strstr (condition, "%q"))
+    {
+        sqlcmd_value = sqlite3_mprintf (sqlcmd, value ? value : "");
+        count = count_from_sqlite (db, sqlcmd_value);
+        sqlite3_free (sqlcmd_value);
+    }
+    else
+        count = count_from_sqlite (db, sqlcmd);
+
+    g_free (sqlcmd);
+
+    if (!recursive || (count < 0))
+        return count;
+
+    ids = NULL;
+
+    if (id > 0)
+	sqlcmd_value = sqlite3_mprintf (
+	    "SELECT id FROM bookmarks "
+	    "WHERE parentid = %" G_GINT64_FORMAT " AND uri = ''", id);
+    else
+	sqlcmd_value = sqlite3_mprintf (
+	    "SELECT id FROM bookmarks "
+	    "WHERE parentid IS NULL AND uri = ''");
+
+    if (sqlite3_prepare_v2 (db, sqlcmd_value, -1, &stmt, NULL) == SQLITE_OK)
+    {
+	g_assert (sqlite3_column_count (stmt) == 1);
+    
+	if ((result = sqlite3_step (stmt)) == SQLITE_ROW)
+	{
+	    gint64* pid = g_new (gint64, 1);
+	    
+	    *pid = sqlite3_column_int64(stmt, 0);
+	    ids = g_list_append (ids, pid);
+	}
+	
+	sqlite3_clear_bindings (stmt);
+	sqlite3_reset (stmt);
+    }
+
+    sqlite3_free (sqlcmd_value);
+
+    iter_ids = ids;
+    while (iter_ids)
+    {
+	gint64 sub_count = midori_array_count_recursive_by_id (bookmarks,
+							       condition,
+							       value,
+							       *(gint64*)(iter_ids->data),
+							       recursive);
+	
+	if (sub_count < 0)
+	{
+	    g_list_free_full (ids, g_free);
+	    return -1;
+	}
+	
+	count += sub_count;
+	iter_ids = g_list_next (iter_ids);
+    }
+	
+    g_list_free_full (ids, g_free);
+    return count;
+}
+
+/**
+ * midori_array_count_recursive:
+ * @array: the main bookmark array
+ * @condition: condition, like "folder = '%q'"
+ * @value: a value to be inserted if @condition contains %q
+ * @recursive: if %TRUE include children
+ *
+ * Return value: the number of elements on success, -1 otherwise
+ *
+ * Since: 0.5.2
+ **/
+gint64
+midori_array_count_recursive (KatzeArray*  bookmarks,
+			      const gchar* condition,
+                              const gchar* value,
+			      KatzeItem*   folder,
+                              gboolean     recursive)
+{
+    gint64 id = -1;
+
+    g_return_val_if_fail (!folder || KATZE_ITEM_IS_FOLDER (folder), -1);
+    
+    id = folder ? katze_item_get_meta_integer (folder, "id") : 0;
+
+    return midori_array_count_recursive_by_id (bookmarks, condition,
+					       value, id,
+					       recursive);
+}

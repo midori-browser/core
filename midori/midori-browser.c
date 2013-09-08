@@ -26,6 +26,7 @@
 #include "midori-privatedata.h"
 #include "midori-core.h"
 #include "midori-privatedata.h"
+#include "midori-bookmarks-db.h"
 #include "katze-cellrenderercomboboxtext.h"
 
 #include "marshal.h"
@@ -163,15 +164,6 @@ midori_browser_get_property (GObject*    object,
                              guint       prop_id,
                              GValue*     value,
                              GParamSpec* pspec);
-
-void
-midori_bookmarks_import_array (KatzeArray*    bookmarks,
-                               KatzeArray* array,
-                               gint64      parentid);
-
-gboolean
-midori_bookmarks_update_item_db (sqlite3*   db,
-                                 KatzeItem* item);
 
 void
 midori_browser_open_bookmark (MidoriBrowser* browser,
@@ -1111,9 +1103,6 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     GtkWidget* combo_folder;
     GtkWidget* check_toolbar;
     gboolean return_status = FALSE;
-    sqlite3* db = g_object_get_data (G_OBJECT (browser->bookmarks), "db");
-    if (!db)
-        return FALSE;
 
     if (is_folder)
         title = new_bookmark ? _("New Folder") : _("Edit Folder");
@@ -1245,7 +1234,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
             katze_array_add_item (browser->bookmarks, bookmark);
         else
 	{
-            midori_bookmarks_update_item_db (db, bookmark);
+            midori_array_update_item (browser->bookmarks, bookmark);
 	    midori_browser_update_history (bookmark, "bookmark", "modify");
 
 	    if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (check_toolbar)))
@@ -3252,8 +3241,8 @@ _action_bookmarks_populate_folder (GtkAction*     action,
     else
         condition = "parentid = %q";
 
-    bookmarks = midori_array_query (browser->bookmarks,
-        "id, title, parentid, uri, app, pos_panel, pos_bar", condition, id);
+    bookmarks = midori_array_query_recursive  (browser->bookmarks,
+						 "id, title, parentid, uri, app, pos_panel, pos_bar", condition, id, FALSE);
     if (!bookmarks)
         return FALSE;
 
@@ -7067,8 +7056,8 @@ midori_bookmarkbar_populate_idle (MidoriBrowser* browser)
     gtk_toolbar_insert (GTK_TOOLBAR (browser->bookmarkbar),
                         gtk_separator_tool_item_new (), -1);
 
-    array = midori_array_query (browser->bookmarks,
-        "id, parentid, title, uri, desc, app, toolbar, pos_panel, pos_bar", "toolbar = 1", NULL);
+    array = midori_array_query_recursive  (browser->bookmarks,
+					     "id, parentid, title, uri, desc, app, toolbar, pos_panel, pos_bar", "toolbar = 1", NULL, FALSE);
     if (!array)
     {
         _action_set_sensitive (browser, "BookmarkAdd", FALSE);
