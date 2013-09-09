@@ -383,7 +383,8 @@ static void _nojs_on_statusbar_icon_clicked(MidoriBrowser *inBrowser, gpointer i
 
 gchar* nojs_get_icon_path (const gchar* icon)
 {
-    return midori_paths_get_res_filename (icon);
+    gchar* nojs_dir = midori_paths_get_res_filename("nojs");
+    return g_build_filename (nojs_dir, icon, NULL);
 }
 
 /* Menu icon of a view has changed */
