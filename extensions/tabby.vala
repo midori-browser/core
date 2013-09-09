@@ -141,13 +141,14 @@ namespace Tabby {
 
             public override void add_item (Katze.Item item) {
                 GLib.DateTime time = new DateTime.now_local ();
-                string sqlcmd = "INSERT INTO `tabs` (`crdate`, `tstamp`, `session_id`, `uri`) VALUES (:tstamp, :tstamp, :session_id, :uri);";
+                string sqlcmd = "INSERT INTO `tabs` (`crdate`, `tstamp`, `session_id`, `uri`, `title`) VALUES (:tstamp, :tstamp, :session_id, :uri, :title);";
                 Sqlite.Statement stmt;
                 if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
                     critical (_("Failed to update database: %s"), db.errmsg);
                 stmt.bind_int64 (stmt.bind_parameter_index (":tstamp"), time.to_unix ());
                 stmt.bind_int64 (stmt.bind_parameter_index (":session_id"), this.id);
                 stmt.bind_text (stmt.bind_parameter_index (":uri"), item.uri);
+                stmt.bind_text (stmt.bind_parameter_index (":title"), item.name);
                 if (stmt.step () != Sqlite.DONE)
                     critical (_("Failed to update database: %s"), db.errmsg);
                 else {
