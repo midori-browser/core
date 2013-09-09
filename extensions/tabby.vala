@@ -318,7 +318,7 @@ namespace Tabby {
 
                 string db_path = Midori.Paths.get_config_filename_for_writing ("tabby.db");
 
-                /* FixMe: why does GLib.FileUtils.test(db_path, GLib.FileTest.EXISTS); randomly work or not? */
+                bool db_exists = GLib.FileUtils.test(db_path, GLib.FileTest.EXISTS);
 
                 if (Sqlite.Database.open_v2 (db_path, out this.db) != Sqlite.OK)
                     critical (_("Failed to open stored session: %s"), db.errmsg);
@@ -332,7 +332,7 @@ namespace Tabby {
                         if (success && schema != null)
                             if (this.db.exec (schema) != Sqlite.OK)
                                 critical (_("Failed to execute database schema: %s"), filename);
-                            else {
+                            else if (db_exists == false) {
                                 string config_file = Midori.Paths.get_config_filename_for_reading ("session.xbel");
                                 try {
                                     Katze.Array old_session = new Katze.Array (typeof (Katze.Item));
