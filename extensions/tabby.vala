@@ -55,7 +55,7 @@ namespace Tabby {
                 }
             }
 
-            public void import_session (Katze.Array tabs) {
+            public virtual void import_session (Katze.Array tabs) {
                 Session session = this.get_new_session ();
                 GLib.List<unowned Katze.Item> items = tabs.get_items ();
                 foreach (Katze.Item item in items) {
@@ -308,6 +308,12 @@ namespace Tabby {
                 }
 
                 return sessions;
+            }
+
+            public override void import_session (Katze.Array tabs) {
+                this.db.exec ("BEGIN;");
+                base.import_session(tabs);
+                this.db.exec("COMMIT;");
             }
 
             public override Base.Session get_new_session () {
