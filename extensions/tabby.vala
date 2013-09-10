@@ -69,6 +69,8 @@ namespace Tabby {
             public abstract void uri_changed (Midori.View view, string uri);
             public abstract void tab_added (Midori.Browser browser, Midori.View view);
             public abstract void tab_removed (Midori.Browser browser, Midori.View view);
+            public abstract void tab_switched (Midori.View? old_view, Midori.View? new_view);
+
             public abstract void close ();
             public abstract Katze.Array get_tabs ();
 
@@ -76,6 +78,7 @@ namespace Tabby {
                 browser.add_tab.connect (this.tab_added);
                 browser.add_tab.connect (this.helper_uri_changed);
                 browser.remove_tab.connect (this.tab_removed);
+                browser.switch_tab.connect (this.tab_switched);
 
                 foreach (Midori.View view in browser.get_tabs ()) {
                     this.tab_added (browser, view);
@@ -95,6 +98,7 @@ namespace Tabby {
                 browser.add_tab.connect (this.tab_added);
                 browser.add_tab.connect (this.helper_uri_changed);
                 browser.remove_tab.connect (this.tab_removed);
+                browser.switch_tab.connect (this.tab_switched);
 
                 GLib.List<unowned Katze.Item> items = tabs.get_items ();
                 unowned GLib.List<unowned Katze.Item> u_items = items;
@@ -194,6 +198,21 @@ namespace Tabby {
                     critical (_("Failed to update database: %s"), db.errmsg ());
             }
 
+            protected override void tab_switched (Midori.View? old_view, Midori.View? new_view) {
+                GLib.DateTime time = new DateTime.now_local ();
+                unowned Katze.Item item = new_view.get_proxy_item ();
+                int64 tab_id = item.get_meta_integer ("tabby-id");
+                string sqlcmd = "UPDATE `tabs` SET tstamp = :tstamp WHERE session_id = :session_id AND id = :tab_id;";
+                Sqlite.Statement stmt;
+                if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
+                    critical (_("Failed to update database: %s"), db.errmsg ());
+                stmt.bind_int64 (stmt.bind_parameter_index (":session_id"), this.id);
+                stmt.bind_int64 (stmt.bind_parameter_index (":tab_id"), tab_id);
+                stmt.bind_int64 (stmt.bind_parameter_index (":tstamp"), time.to_unix ());
+                if (stmt.step () != Sqlite.DONE)
+                    critical (_("Failed to update database: %s"), db.errmsg ());
+            }
+
             public override void close() {
                 if (Session.open_sessions == 1)
                     return;
@@ -213,7 +232,7 @@ namespace Tabby {
             public override Katze.Array get_tabs() {
                 Katze.Array tabs = new Katze.Array (typeof (Katze.Item));
 
-                string sqlcmd = "SELECT id, uri, title FROM tabs WHERE session_id = :session_id";
+                string sqlcmd = "SELECT id, uri, title FROM tabs WHERE session_id = :session_id ORDER BY tstamp DESC";
                 Sqlite.Statement stmt;
                 if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
                     critical (_("Failed to select from database: %s"), db.errmsg ());
