@@ -2816,7 +2816,13 @@ static void
 _action_window_close_activate (GtkAction*     action,
                                MidoriBrowser* browser)
 {
-    gtk_widget_destroy (GTK_WIDGET (browser));
+    gboolean val = FALSE;
+    GdkEvent* event = gtk_get_current_event();
+    g_signal_emit_by_name (G_OBJECT (browser), "delete-event", event, &val);
+    gdk_event_free (event);
+
+    if (!val)
+        gtk_widget_destroy (GTK_WIDGET (browser));
 }
 
 static void
