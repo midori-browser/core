@@ -65,20 +65,24 @@ namespace Tabby {
         }
 
         public abstract class Session : GLib.Object, ISession {
+            public Midori.Browser browser { get; protected set; }
+
             public abstract void add_item (Katze.Item item);
             public abstract void uri_changed (Midori.View view, string uri);
             public abstract void tab_added (Midori.Browser browser, Midori.View view);
             public abstract void tab_removed (Midori.Browser browser, Midori.View view);
             public abstract void tab_switched (Midori.View? old_view, Midori.View? new_view);
 
-            public abstract void close ();
             public abstract Katze.Array get_tabs ();
 
             public void attach (Midori.Browser browser) {
+                this.browser = browser;
+
                 browser.add_tab.connect (this.tab_added);
                 browser.add_tab.connect (this.helper_uri_changed);
                 browser.remove_tab.connect (this.tab_removed);
                 browser.switch_tab.connect (this.tab_switched);
+                browser.delete_event.connect_after(this.delete_event);
 
                 foreach (Midori.View view in browser.get_tabs ()) {
                     this.tab_added (browser, view);
@@ -87,6 +91,8 @@ namespace Tabby {
             }
 
             public void restore (Midori.Browser browser) {
+                this.browser = browser;
+
                 Katze.Array tabs = this.get_tabs ();
 
                 if(tabs.is_empty ()) {
@@ -99,6 +105,7 @@ namespace Tabby {
                 browser.add_tab.connect (this.helper_uri_changed);
                 browser.remove_tab.connect (this.tab_removed);
                 browser.switch_tab.connect (this.tab_switched);
+                browser.delete_event.connect_after(this.delete_event);
 
                 GLib.List<unowned Katze.Item> items = tabs.get_items ();
                 unowned GLib.List<unowned Katze.Item> u_items = items;
@@ -114,6 +121,8 @@ namespace Tabby {
 
                             Katze.Item t_item = u_items.data<Katze.Item>;
 
+                            t_item.set_meta_integer ("append", 1);
+
                             if (delay)
                                 t_item.set_meta_integer ("delay", Midori.Delay.DELAYED);
                             else
@@ -126,6 +135,25 @@ namespace Tabby {
                     }
                     return u_items != null;
                 });
+            }
+
+            public virtual void close () {
+                this.browser.add_tab.disconnect (this.tab_added);
+                this.browser.add_tab.disconnect (this.helper_uri_changed);
+                this.browser.remove_tab.disconnect (this.tab_removed);
+                this.browser.switch_tab.disconnect (this.tab_switched);
+                this.browser.delete_event.disconnect (this.delete_event);
+            }
+
+#if HAVE_GTK3
+            protected bool delete_event (Gtk.Widget widget, Gdk.EventAny event) {
+#else
+            protected bool delete_event (Gtk.Widget widget, Gdk.Event event) {
+#endif
+
+                this.close();
+                return false;
+
             }
 
             private void helper_uri_changed (Midori.Browser browser, Midori.View view) {
@@ -214,6 +242,8 @@ namespace Tabby {
             }
 
             public override void close() {
+                base.close ();
+
                 if (Session.open_sessions == 1)
                     return;
 
