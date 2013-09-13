@@ -18,8 +18,12 @@ namespace Midori {
         }
 
         public override void prepare (GLib.Object app) {
-            database = new HistoryDatabase (app);
-            return_if_fail (database != null);
+            try {
+                database = new HistoryDatabase (app);
+            }
+            catch (Error error) {
+                warning (error.message);
+            }
         }
 
         public override bool can_complete (string text) {

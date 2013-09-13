@@ -282,7 +282,8 @@ namespace Tabby {
         }
 
         private class Storage : Base.Storage {
-            protected Sqlite.Database db;
+            private Midori.Database database;
+            private unowned Sqlite.Database db;
 
             public override Katze.Array get_sessions () {
                 Katze.Array sessions = new Katze.Array (typeof (Session));
@@ -323,36 +324,24 @@ namespace Tabby {
             internal Storage (Midori.App app) {
                 GLib.Object (app: app);
 
-                string db_path = Midori.Paths.get_config_filename_for_writing ("tabby.db");
-
-                bool db_exists = GLib.FileUtils.test(db_path, GLib.FileTest.EXISTS);
-
-                if (Sqlite.Database.open_v2 (db_path, out this.db) != Sqlite.OK)
-                    critical (_("Failed to open stored session: %s"), db.errmsg);
-
-                string filename = Midori.Paths.get_res_filename ("tabby/Create.sql");
-                string schema;
                 try {
-                        bool success = FileUtils.get_contents (filename, out schema, null);
-                        if (!success || schema == null)
-                            critical (_("Failed to open database schema file: %s"), filename);
-                        if (success && schema != null)
-                            if (this.db.exec (schema) != Sqlite.OK)
-                                critical (_("Failed to execute database schema: %s"), filename);
-                            else if (db_exists == false) {
-                                string config_file = Midori.Paths.get_config_filename_for_reading ("session.xbel");
-                                try {
-                                    Katze.Array old_session = new Katze.Array (typeof (Katze.Item));
-                                    Midori.array_from_file (old_session, config_file, "xbel-tiny");
-                                    this.import_session (old_session);
-                                } catch (GLib.FileError file_error) {
-                                    /* no old session.xbel -> could be a new profile -> ignore it */
-                                } catch (GLib.Error error) {
-                                    critical (_("Failed to import legacy session: %s"), error.message);
-                                }
-                            }
-                } catch (GLib.FileError schema_error) {
-                    critical (_("Failed to open database schema file: %s"), schema_error.message);
+                    database = new Midori.Database ("tabby.db");
+                } catch (Midori.DatabaseError schema_error) {
+                    error (schema_error.message);
+                }
+                db = database.db;
+
+                if (database.first_use) {
+                    string config_file = Midori.Paths.get_config_filename_for_reading ("session.xbel");
+                    try {
+                        Katze.Array old_session = new Katze.Array (typeof (Katze.Item));
+                        Midori.array_from_file (old_session, config_file, "xbel-tiny");
+                        this.import_session (old_session);
+                    } catch (GLib.FileError file_error) {
+                        /* no old session.xbel -> could be a new profile -> ignore it */
+                    } catch (GLib.Error error) {
+                        critical (_("Failed to import legacy session: %s"), error.message);
+                    }
                 }
             }
         }
