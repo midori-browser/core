@@ -4,8 +4,8 @@ find_program (RSVG_CONVERT rsvg-convert)
 if (RSVG_CONVERT)
     macro (SVG2PNG filename)
         add_custom_target ("${filename}.png" ALL
-            ${RSVG_CONVERT} --keep-aspect-ratio --format=png ${filename}.svg
-                --output ${filename}.png
+            ${RSVG_CONVERT} --keep-aspect-ratio --format=png "${CMAKE_CURRENT_SOURCE_DIR}/${filename}.svg"
+                --output "${CMAKE_CURRENT_BINARY_DIR}/${filename}.png"
         )
         install (FILES "${CMAKE_CURRENT_BINARY_DIR}/${filename}.png"
             DESTINATION "${CMAKE_INSTALL_DATADIR}/midori/res/")
