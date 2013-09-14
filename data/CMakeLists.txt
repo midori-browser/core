@@ -1,5 +1,17 @@
 # Copyright (C) 2013 Christian Dywan <christian@twotoasts.de>
 
+find_program (RSVG_CONVERT rsvg-convert)
+if (RSVG_CONVERT)
+    macro (SVG2PNG filename)
+        add_custom_target ("${filename}.png" ALL
+            ${RSVG_CONVERT} --keep-aspect-ratio --format=png ${filename}.svg
+                --output ${filename}.png
+        )
+        install (FILES "${CMAKE_CURRENT_BINARY_DIR}/${filename}.png"
+            DESTINATION "${CMAKE_INSTALL_DATADIR}/midori/res/")
+    endmacro (SVG2PNG filename)
+endif ()
+
 include(FindIntltool)
 if (NOT INTLTOOL_MERGE_FOUND)
     message(FATAL_ERROR "intltool-merge not found")
@@ -15,6 +27,7 @@ foreach(FILE ${DATA_FILES})
     string(FIND ${FILE} "midori." MIDORI_FILE)
     string(FIND ${FILE} ".desktop" DESKTOP_FILE)
     string(FIND ${FILE} ".appdata.xml" APPDATA_FILE)
+    string(FIND ${FILE} ".svg" SVG_FILE)
     if (FAQ_FILE GREATER -1)
         install(FILES ${FILE} DESTINATION ${CMAKE_INSTALL_DOCDIR})
     elseif (DESKTOP_FILE GREATER -1 AND NOT WIN32)
@@ -24,6 +37,13 @@ foreach(FILE ${DATA_FILES})
         string(SUBSTRING ${FILE} 0 ${APPDATA_FILE} DESKTOP_ID)
         INTLTOOL_MERGE_APPDATA (${DESKTOP_ID} po)
         # install(FILES ${FILE} DESTINATION ${CMAKE_INSTALL_DATADIR}/appdata/)
+    elseif (SVG_FILE GREATER -1)
+        if (RSVG_CONVERT)
+            string(SUBSTRING ${FILE} 0 ${SVG_FILE} IMG_ID)
+            SVG2PNG (${IMG_ID})
+        else ()
+            message(STATUS "${FILE} could not be rasterized.")
+        endif ()
     elseif(MIDORI_FILE GREATER -1)
     else()
         string(FIND ${FILE} "/" IS_DIR)
