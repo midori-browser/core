@@ -1,16 +1,7 @@
 # Copyright (C) 2013 Christian Dywan <christian@twotoasts.de>
 
-find_program (RSVG_CONVERT rsvg-convert)
-if (RSVG_CONVERT)
-    macro (SVG2PNG filename)
-        add_custom_target ("${filename}.png" ALL
-            ${RSVG_CONVERT} --keep-aspect-ratio --format=png "${CMAKE_CURRENT_SOURCE_DIR}/${filename}.svg"
-                --output "${CMAKE_CURRENT_BINARY_DIR}/${filename}.png"
-        )
-        install (FILES "${CMAKE_CURRENT_BINARY_DIR}/${filename}.png"
-            DESTINATION "${CMAKE_INSTALL_DATADIR}/midori/res/")
-    endmacro (SVG2PNG filename)
-else ()
+include(FindConvert)
+if (NOT CONVERT_FOUND)
     message(FATAL_ERROR "rsvg-convert not found")
 endif ()
 
@@ -41,7 +32,7 @@ foreach(FILE ${DATA_FILES})
         # install(FILES ${FILE} DESTINATION ${CMAKE_INSTALL_DATADIR}/appdata/)
     elseif (SVG_FILE GREATER -1)
         string(SUBSTRING ${FILE} 0 ${SVG_FILE} IMG_ID)
-        SVG2PNG (${IMG_ID})
+        SVG2PNG (${IMG_ID} "${CMAKE_INSTALL_DATADIR}/midori/res/")
     elseif(MIDORI_FILE GREATER -1)
     else()
         string(FIND ${FILE} "/" IS_DIR)
