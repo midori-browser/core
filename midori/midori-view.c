@@ -3960,7 +3960,7 @@ midori_view_set_uri (MidoriView*  view,
             }
             else if (!strcmp (uri, "about:paths"))
             {
-                gchar* res_dir = midori_paths_get_res_filename ("");
+                gchar* res_dir = midori_paths_get_res_filename ("about.css");
                 gchar* lib_dir = midori_paths_get_lib_path (PACKAGE_NAME);
                 data = g_markup_printf_escaped ("<body><h1>%s</h1>"
                     "<p>config: <code>%s</code></p>"
