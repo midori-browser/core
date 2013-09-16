@@ -2618,16 +2618,39 @@ midori_view_web_view_context_menu_cb (WebKitWebView*       web_view,
 
 #ifndef HAVE_WEBKIT2
 static gboolean
+midori_view_web_view_close_cb (WebKitWebView* web_view,
+                               GtkWidget*     view)
+{
+    midori_browser_close_tab (midori_browser_get_for_widget (view), view);
+    return TRUE;
+}
+
+static gboolean
 webkit_web_view_web_view_ready_cb (GtkWidget*  web_view,
                                    MidoriView* view)
 {
     MidoriNewView where = MIDORI_NEW_VIEW_TAB;
     GtkWidget* new_view = GTK_WIDGET (midori_view_get_for_widget (web_view));
 
-    /* FIXME: Open windows opened by scripts in tabs if they otherwise
+    WebKitWebWindowFeatures* features = webkit_web_view_get_window_features (web_view);
+    gboolean locationbar_visible, menubar_visible, toolbar_visible;
+    gint width, height;
+    g_object_get (features,
+                  "locationbar-visible", &locationbar_visible,
+                  "menubar-visible", &menubar_visible,
+                  "toolbar-visible", &toolbar_visible,
+                  "width", &width,
+                  "height", &height,
+                  NULL);
+    midori_tab_set_is_dialog (MIDORI_TAB (view),
+     !locationbar_visible && !menubar_visible && !toolbar_visible
+     && width > 0 && height > 0);
+
+    /* Open windows opened by scripts in tabs if they otherwise
         would be replacing the page the user opened. */
     if (view->open_new_pages_in == MIDORI_NEW_PAGE_CURRENT)
-        return TRUE;
+        if (!midori_tab_get_is_dialog (MIDORI_TAB (view)))
+            return TRUE;
 
     if (view->open_new_pages_in == MIDORI_NEW_PAGE_TAB)
     {
@@ -2639,6 +2662,15 @@ webkit_web_view_web_view_ready_cb (GtkWidget*  web_view,
 
     gtk_widget_show (new_view);
     g_signal_emit (view, signals[NEW_VIEW], 0, new_view, where, FALSE);
+
+    if (midori_tab_get_is_dialog (MIDORI_TAB (view)))
+    {
+        GtkWidget* toplevel = gtk_widget_get_toplevel (new_view);
+        if (width > 0 && height > 0)
+            gtk_widget_set_size_request (toplevel, width, height);
+        g_signal_connect (web_view, "close-web-view",
+                          G_CALLBACK (midori_view_web_view_close_cb), new_view);
+    }
 
     return TRUE;
 }
@@ -3925,6 +3957,10 @@ midori_view_set_uri (MidoriView*  view,
                 for (i = 0; i < G_N_ELEMENTS (widgets); i++)
                     g_string_append_printf (demo, widgets[i], " class=\"fallback\"");
                 g_string_append (demo, "</div>");
+                g_string_append (demo, "<p><a href=\"http://example.com\" target=\"wp\" "
+                                       "onclick=\"javascript:window.open('http://example.com','wp',"
+                                       "'width=320, height=240, toolbar=false'); return false\""
+                                       ">Popup window</a></p>");
                 data = g_string_free (demo, FALSE);
             }
             else if (!strcmp (uri, "about:private"))
