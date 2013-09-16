@@ -873,38 +873,15 @@ gchar* nojs_get_domain(NoJS *self, SoupURI *inURI)
 
 	NoJSPrivate			*priv=self->priv;
 	const gchar			*realDomain;
-	gchar				*asciiDomain, *domain;
 	gchar				*finalDomain;
 
 	/* Get domain of site to lookup */
 	realDomain=soup_uri_get_host(inURI);
 
-	domain=asciiDomain=g_hostname_to_ascii(realDomain);
-
 	if(priv->checkOnlySecondLevel)
-	{
-		/* Only get second level domain if host is not an IP address */
-		if(!g_hostname_is_ip_address(asciiDomain))
-		{
-			gint		numberDots=0;
-
-			domain=asciiDomain+strlen(asciiDomain)-1;
-			while(domain>=asciiDomain && numberDots<2)
-			{
-				if(*domain=='.') numberDots++;
-				domain--;
-			}
-			domain++;
-			if(*domain=='.') domain++;
-		}
-	}
-
-	/* Create copy for return value */
-	if(strlen(domain)>0) finalDomain=g_strdup(domain);
-		else finalDomain=NULL;
-
-	/* Free allocated resources */
-	g_free(asciiDomain);
+		finalDomain=midori_uri_get_base_domain(realDomain);
+    else
+		finalDomain=midori_uri_to_ascii(realDomain);
 
 	/* Return domain */
 	return(finalDomain);
