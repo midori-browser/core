@@ -263,7 +263,7 @@ namespace Midori {
     #endif
     }
 
-    #if !HAVE_WIN32
+    #if HAVE_EXECINFO_H
     [CCode (lower_case_cprefix = "")]
     namespace Linux {
         [CCode (cheader_filename = "execinfo.h", array_length = false)]
