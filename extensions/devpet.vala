@@ -118,7 +118,7 @@ namespace DevPet {
 
             treeview.insert_column_with_attributes (
                 -1, "Type",
-                new Gtk.CellRendererPixbuf (), "pixbuf", TreeCells.STOCK);
+                new Gtk.CellRendererPixbuf (), "stock-id", TreeCells.STOCK);
             treeview.insert_column_with_attributes (
                 -1, "Message",
                 new Gtk.CellRendererText (), "text", TreeCells.MESSAGE);
@@ -194,7 +194,7 @@ namespace DevPet {
                 #if !HAVE_WIN32
                 TreeCells.BACKTRACE, bt,
                 #endif
-                TreeCells.STOCK, theme.load_icon (stock, 16, 0));
+                TreeCells.STOCK, stock);
 
             this.trayicon.set_visible (true);
         }
@@ -233,7 +233,7 @@ namespace DevPet {
             this.trayicon.set_tooltip_text ("Midori - DevPet");
             this.trayicon.activate.connect(this.show_error_log);
 
-            this.list_store = new Gtk.ListStore (TreeCells.COUNT, typeof(string), typeof(string), typeof (Gdk.Pixbuf));
+            this.list_store = new Gtk.ListStore (TreeCells.COUNT, typeof(string), typeof(string), typeof (string));
 
             this.activate.connect (this.activated);
             this.deactivate.connect (this.deactivated);
