@@ -48,6 +48,7 @@ namespace Midori {
 
             if (db.exec ("PRAGMA journal_mode = WAL; PRAGMA cache_size = 32100;") != Sqlite.OK)
                 db.exec ("PRAGMA synchronous = NORMAL; PRAGMA temp_store = MEMORY;");
+            db.exec ("PRAGMA count_changes = OFF;");
 
             exec_script ("Create");
             first_use = !exists;

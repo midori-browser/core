@@ -457,11 +457,7 @@ formhistory_setup_suggestions (WebKitWebView*   web_view,
 void
 formhistory_private_destroy (FormHistoryPriv *priv)
 {
-    if (priv->db)
-    {
-        sqlite3_close (priv->db);
-        priv->db = NULL;
-    }
+    katze_object_assign (priv->database, NULL);
     katze_assign (priv->oldkeyword, NULL);
     gtk_widget_destroy (priv->popup);
     priv->popup = NULL;
