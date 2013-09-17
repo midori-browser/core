@@ -10,6 +10,8 @@
 */
 
 namespace Tabby {
+    int IDLE_RESTORE_COUNT;
+
     /* function called from Manager object */
     public interface IStorage : GLib.Object {
         public abstract Katze.Array get_sessions ();
@@ -104,7 +106,7 @@ namespace Tabby {
                 GLib.Idle.add (() => {
                     /* Note: we need to use `items` for something to maintain a valid reference */
                     if (items.length () > 0) {
-                        for (int i = 0; i < 3; i++) {
+                        for (int i = 0; i < IDLE_RESTORE_COUNT; i++) {
                             if (u_items == null)
                                 return false;
 
@@ -384,6 +386,8 @@ namespace Tabby {
         }
 
         private void activated (Midori.App app) {
+            IDLE_RESTORE_COUNT = this.get_integer ("IdleRestoreCount");
+
             /* FixMe: provide an option to replace Local.Storage with IStorage based Objects */
             this.storage = new Local.Storage (this.get_app ()) as Base.Storage;
 
@@ -399,7 +403,9 @@ namespace Tabby {
                          version: "0.1",
                          authors: "André Stösel <andre@stoesel.de>");
 
-            activate.connect (this.activated);
+            this.install_integer ("IdleRestoreCount", 25);
+
+            this.activate.connect (this.activated);
         }
     }
 }
