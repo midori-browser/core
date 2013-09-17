@@ -1,11 +1,11 @@
-CREATE TABLE IF NOT EXISTS history
+CREATE TABLE history
 (
     uri text,
     title text,
     date integer,
     day integer
 );
-CREATE TABLE IF NOT EXISTS search
+CREATE TABLE search
 (
     keywords text,
     uri text,

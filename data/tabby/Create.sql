@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS sessions
+CREATE TABLE sessions
 (
     id INTEGER PRIMARY KEY,
     parent_id INTEGER DEFAULT 0,
@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS sessions
     FOREIGN KEY(parent_id) REFERENCES sessions(id)
 );
 
-CREATE TABLE IF NOT EXISTS tabs
+CREATE TABLE tabs
 (
     id INTEGER PRIMARY KEY,
     session_id INTEGER NOT NULL,
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS tabs
     FOREIGN KEY(session_id) REFERENCES sessions(id)
 );
 
-CREATE TABLE IF NOT EXISTS tab_history
+CREATE TABLE tab_history
 (
     id INTEGER PRIMARY KEY,
     tab_id INTEGER,
