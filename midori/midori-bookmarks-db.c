@@ -107,15 +107,15 @@ midori_bookmarks_db_class_init (MidoriBookmarksDbClass* class)
     gobject_class->finalize = midori_bookmarks_db_finalize;
 
     signals[UPDATE_ITEM] = g_signal_new (
-	"update-item",
-	G_TYPE_FROM_CLASS (class),
-	(GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
-	G_STRUCT_OFFSET (MidoriBookmarksDbClass, update_item),
-	0,
-	NULL,
-	g_cclosure_marshal_VOID__POINTER,
-	G_TYPE_NONE, 1,
-	G_TYPE_POINTER);
+        "update-item",
+        G_TYPE_FROM_CLASS (class),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
+        G_STRUCT_OFFSET (MidoriBookmarksDbClass, update_item),
+        0,
+        NULL,
+        g_cclosure_marshal_VOID__POINTER,
+        G_TYPE_NONE, 1,
+        G_TYPE_POINTER);
 
     katze_array_class = KATZE_ARRAY_CLASS (class);
 
@@ -230,7 +230,7 @@ _midori_bookmarks_db_add_item (KatzeArray* array,
  **/
 static void
 _midori_bookmarks_db_update_item (MidoriBookmarksDb* bookmarks,
-			                      gpointer    item)
+                                  gpointer    item)
 {
     KatzeArray* parent;
 
@@ -380,15 +380,15 @@ midori_bookmarks_db_insert_item_db (sqlite3*   db,
         new_parentid = g_strdup_printf ("NULL");
 
     sqlcmd = sqlite3_mprintf (
-	"INSERT INTO bookmarks (id, parentid, title, uri, desc, toolbar, app) "
-	"VALUES (%q, %q, '%q', '%q', '%q', %d, %d)",
-	id,
-	new_parentid,
-	katze_item_get_name (item),
-	katze_str_non_null (uri),
-	katze_str_non_null (desc),
-	katze_item_get_meta_boolean (item, "toolbar"),
-	katze_item_get_meta_boolean (item, "app"));
+        "INSERT INTO bookmarks (id, parentid, title, uri, desc, toolbar, app) "
+        "VALUES (%q, %q, '%q', '%q', '%q', %d, %d)",
+        id,
+        new_parentid,
+        katze_item_get_name (item),
+        katze_str_non_null (uri),
+        katze_str_non_null (desc),
+        katze_item_get_meta_boolean (item, "toolbar"),
+        katze_item_get_meta_boolean (item, "app"));
 
     if (sqlite3_exec (db, sqlcmd, NULL, NULL, &errmsg) == SQLITE_OK)
     {
@@ -399,7 +399,7 @@ midori_bookmarks_db_insert_item_db (sqlite3*   db,
 
             sqlite3_free (sqlcmd);
             sqlcmd = sqlite3_mprintf (
-		"SELECT seq FROM sqlite_sequence WHERE name = 'bookmarks'");
+                "SELECT seq FROM sqlite_sequence WHERE name = 'bookmarks'");
 
             seq_array = katze_array_from_sqlite (db, sqlcmd);
             if (katze_array_get_nth_item (seq_array, 0))
@@ -445,7 +445,7 @@ midori_bookmarks_db_update_item_db (sqlite3*   db,
     gchar* id;
 
     id = g_strdup_printf ("%" G_GINT64_FORMAT,
-			  katze_item_get_meta_integer (item, "id"));
+                          katze_item_get_meta_integer (item, "id"));
 
     if (katze_item_get_meta_integer (item, "parentid") > 0)
         parentid = g_strdup_printf ("%" G_GINT64_FORMAT,
@@ -454,16 +454,16 @@ midori_bookmarks_db_update_item_db (sqlite3*   db,
         parentid = g_strdup_printf ("NULL");
 
     sqlcmd = sqlite3_mprintf (
-	"UPDATE bookmarks SET "
-	"parentid=%q, title='%q', uri='%q', desc='%q', toolbar=%d, app=%d "
-	"WHERE id = %q ;",
-	parentid,
-	katze_item_get_name (item),
-	katze_str_non_null (katze_item_get_uri (item)),
-	katze_str_non_null (katze_item_get_meta_string (item, "desc")),
-	katze_item_get_meta_boolean (item, "toolbar"),
-	katze_item_get_meta_boolean (item, "app"),
-	id);
+        "UPDATE bookmarks SET "
+        "parentid=%q, title='%q', uri='%q', desc='%q', toolbar=%d, app=%d "
+        "WHERE id = %q ;",
+        parentid,
+        katze_item_get_name (item),
+        katze_str_non_null (katze_item_get_uri (item)),
+        katze_str_non_null (katze_item_get_meta_string (item, "desc")),
+        katze_item_get_meta_boolean (item, "toolbar"),
+        katze_item_get_meta_boolean (item, "app"),
+        id);
 
     updated = TRUE;
     if (sqlite3_exec (db, sqlcmd, NULL, NULL, &errmsg) != SQLITE_OK)
@@ -499,7 +499,7 @@ midori_bookmarks_db_remove_item_db (sqlite3*    db,
     gchar* id;
 
     id = g_strdup_printf ("%" G_GINT64_FORMAT,
-			  katze_item_get_meta_integer (item, "id"));
+                          katze_item_get_meta_integer (item, "id"));
 
     sqlcmd = sqlite3_mprintf ("DELETE FROM bookmarks WHERE id = %q", id);
 
@@ -532,7 +532,7 @@ midori_bookmarks_db_add_item (MidoriBookmarksDb* bookmarks, KatzeItem* item)
     g_return_if_fail (NULL == katze_item_get_meta_string (item, "id"));
 
     midori_bookmarks_db_insert_item_db (bookmarks->db, item,
-					katze_item_get_meta_integer (item, "parentid"));
+                                        katze_item_get_meta_integer (item, "parentid"));
 
     katze_array_add_item (KATZE_ARRAY (bookmarks), item);
 }
@@ -603,14 +603,14 @@ midori_bookmarks_db_import_from_old_db (sqlite3*     db,
     GString* errmsg_str = g_string_new (NULL);
     gchar* attach_stmt = sqlite3_mprintf ("ATTACH DATABASE %Q AS old_db;", oldfile);
     const gchar* convert_stmts =
-     "BEGIN TRANSACTION;"
-     "INSERT INTO main.bookmarks (parentid, title, uri, desc, app, toolbar) "
-     "SELECT NULL AS parentid, title, uri, desc, app, toolbar "
-     "FROM old_db.bookmarks;"
-     "UPDATE main.bookmarks SET parentid = ("
-     "SELECT id FROM main.bookmarks AS b1 WHERE b1.title = ("
-     "SELECT folder FROM old_db.bookmarks WHERE title = main.bookmarks.title));"
-     "COMMIT;";
+        "BEGIN TRANSACTION;"
+        "INSERT INTO main.bookmarks (parentid, title, uri, desc, app, toolbar) "
+        "SELECT NULL AS parentid, title, uri, desc, app, toolbar "
+        "FROM old_db.bookmarks;"
+        "UPDATE main.bookmarks SET parentid = ("
+        "SELECT id FROM main.bookmarks AS b1 WHERE b1.title = ("
+        "SELECT folder FROM old_db.bookmarks WHERE title = main.bookmarks.title));"
+        "COMMIT;";
     const gchar* detach_stmt = "DETACH DATABASE old_db;";
 
     *errmsg = NULL;
@@ -638,7 +638,7 @@ midori_bookmarks_db_import_from_old_db (sqlite3*     db,
 
     if (failure)
     {
-      convert_failed:
+    convert_failed:
         *errmsg = g_string_free (errmsg_str, FALSE);
         g_print ("ERRORR: %s\n", errmsg_str->str);
         return FALSE;
@@ -688,7 +688,7 @@ midori_bookmarks_db_new (char** errmsg)
     if (sqlite3_open (newfile, &db) != SQLITE_OK)
     {
         *errmsg = g_strdup_printf (_("Failed to open database: %s\n"),
-				   db ? sqlite3_errmsg (db) : "(db = NULL)");
+            db ? sqlite3_errmsg (db) : "(db = NULL)");
         goto init_failed;
     }
 
@@ -696,89 +696,89 @@ midori_bookmarks_db_new (char** errmsg)
         sqlite3_trace (db, midori_bookmarks_db_dbtracer, NULL);
 
     create_stmt =     /* Table structure */
-     "CREATE TABLE IF NOT EXISTS bookmarks "
-     "(id INTEGER PRIMARY KEY AUTOINCREMENT, "
-     "parentid INTEGER DEFAULT NULL, "
-     "title TEXT, uri TEXT, desc TEXT, app INTEGER, toolbar INTEGER, "
-     "pos_panel INTEGER, pos_bar INTEGER, "
-     "created DATE DEFAULT CURRENT_TIMESTAMP, "
-     "last_visit DATE, visit_count INTEGER DEFAULT 0, "
-     "nick TEXT, "
-     "FOREIGN KEY(parentid) REFERENCES bookmarks(id) "
-     "ON DELETE CASCADE); PRAGMA foreign_keys = ON;"
+        "CREATE TABLE IF NOT EXISTS bookmarks "
+        "(id INTEGER PRIMARY KEY AUTOINCREMENT, "
+        "parentid INTEGER DEFAULT NULL, "
+        "title TEXT, uri TEXT, desc TEXT, app INTEGER, toolbar INTEGER, "
+        "pos_panel INTEGER, pos_bar INTEGER, "
+        "created DATE DEFAULT CURRENT_TIMESTAMP, "
+        "last_visit DATE, visit_count INTEGER DEFAULT 0, "
+        "nick TEXT, "
+        "FOREIGN KEY(parentid) REFERENCES bookmarks(id) "
+        "ON DELETE CASCADE); PRAGMA foreign_keys = ON;"
 
-     /* trigger: insert panel position */
-     "CREATE TRIGGER IF NOT EXISTS bookmarkInsertPosPanel "
-     "AFTER INSERT ON bookmarks FOR EACH ROW "
-     "BEGIN UPDATE bookmarks SET pos_panel = ("
-     "SELECT ifnull(MAX(pos_panel),0)+1 FROM bookmarks WHERE "
-     "(NEW.parentid IS NOT NULL AND parentid = NEW.parentid) "
-     "OR (NEW.parentid IS NULL AND parentid IS NULL)) "
-     "WHERE id = NEW.id; END;"
+        /* trigger: insert panel position */
+        "CREATE TRIGGER IF NOT EXISTS bookmarkInsertPosPanel "
+        "AFTER INSERT ON bookmarks FOR EACH ROW "
+        "BEGIN UPDATE bookmarks SET pos_panel = ("
+        "SELECT ifnull(MAX(pos_panel),0)+1 FROM bookmarks WHERE "
+        "(NEW.parentid IS NOT NULL AND parentid = NEW.parentid) "
+        "OR (NEW.parentid IS NULL AND parentid IS NULL)) "
+        "WHERE id = NEW.id; END;"
 
-     /* trigger: insert Bookmarkbar position */
-     "CREATE TRIGGER IF NOT EXISTS bookmarkInsertPosBar "
-     "AFTER INSERT ON bookmarks FOR EACH ROW WHEN NEW.toolbar=1 "
-     "BEGIN UPDATE bookmarks SET pos_bar = ("
-     "SELECT ifnull(MAX(pos_bar),0)+1 FROM bookmarks WHERE "
-     "((NEW.parentid IS NOT NULL AND parentid = NEW.parentid) "
-     "OR (NEW.parentid IS NULL AND parentid IS NULL)) AND toolbar=1) "
-     "WHERE id = NEW.id; END;"
+        /* trigger: insert Bookmarkbar position */
+        "CREATE TRIGGER IF NOT EXISTS bookmarkInsertPosBar "
+        "AFTER INSERT ON bookmarks FOR EACH ROW WHEN NEW.toolbar=1 "
+        "BEGIN UPDATE bookmarks SET pos_bar = ("
+        "SELECT ifnull(MAX(pos_bar),0)+1 FROM bookmarks WHERE "
+        "((NEW.parentid IS NOT NULL AND parentid = NEW.parentid) "
+        "OR (NEW.parentid IS NULL AND parentid IS NULL)) AND toolbar=1) "
+        "WHERE id = NEW.id; END;"
 
-     /* trigger: update panel position */
-     "CREATE TRIGGER IF NOT EXISTS bookmarkUpdatePosPanel "
-     "BEFORE UPDATE OF parentid ON bookmarks FOR EACH ROW "
-     "WHEN ((NEW.parentid IS NULL OR OLD.parentid IS NULL) "
-     "AND NEW.parentid IS NOT OLD.parentid) OR "
-     "((NEW.parentid IS NOT NULL AND OLD.parentid IS NOT NULL) "
-     "AND NEW.parentid!=OLD.parentid) "
-     "BEGIN UPDATE bookmarks SET pos_panel = pos_panel-1 "
-     "WHERE ((OLD.parentid IS NOT NULL AND parentid = OLD.parentid) "
-     "OR (OLD.parentid IS NULL AND parentid IS NULL)) AND pos_panel > OLD.pos_panel; "
-     "UPDATE bookmarks SET pos_panel = ("
-     "SELECT ifnull(MAX(pos_panel),0)+1 FROM bookmarks "
-     "WHERE (NEW.parentid IS NOT NULL AND parentid = NEW.parentid) "
-     "OR (NEW.parentid IS NULL AND parentid IS NULL)) "
-     "WHERE id = OLD.id; END;"
+        /* trigger: update panel position */
+        "CREATE TRIGGER IF NOT EXISTS bookmarkUpdatePosPanel "
+        "BEFORE UPDATE OF parentid ON bookmarks FOR EACH ROW "
+        "WHEN ((NEW.parentid IS NULL OR OLD.parentid IS NULL) "
+        "AND NEW.parentid IS NOT OLD.parentid) OR "
+        "((NEW.parentid IS NOT NULL AND OLD.parentid IS NOT NULL) "
+        "AND NEW.parentid!=OLD.parentid) "
+        "BEGIN UPDATE bookmarks SET pos_panel = pos_panel-1 "
+        "WHERE ((OLD.parentid IS NOT NULL AND parentid = OLD.parentid) "
+        "OR (OLD.parentid IS NULL AND parentid IS NULL)) AND pos_panel > OLD.pos_panel; "
+        "UPDATE bookmarks SET pos_panel = ("
+        "SELECT ifnull(MAX(pos_panel),0)+1 FROM bookmarks "
+        "WHERE (NEW.parentid IS NOT NULL AND parentid = NEW.parentid) "
+        "OR (NEW.parentid IS NULL AND parentid IS NULL)) "
+        "WHERE id = OLD.id; END;"
 
-     /* trigger: update Bookmarkbar position */
-     "CREATE TRIGGER IF NOT EXISTS bookmarkUpdatePosBar0 "
-     "AFTER UPDATE OF parentid, toolbar ON bookmarks FOR EACH ROW "
-     "WHEN ((NEW.parentid IS NULL OR OLD.parentid IS NULL) "
-     "AND NEW.parentid IS NOT OLD.parentid) "
-     "OR ((NEW.parentid IS NOT NULL AND OLD.parentid IS NOT NULL) "
-     "AND NEW.parentid!=OLD.parentid) OR (OLD.toolbar=1 AND NEW.toolbar=0) "
-     "BEGIN UPDATE bookmarks SET pos_bar = NULL WHERE id = NEW.id; "
-     "UPDATE bookmarks SET pos_bar = pos_bar-1 "
-     "WHERE ((OLD.parentid IS NOT NULL AND parentid = OLD.parentid) "
-     "OR (OLD.parentid IS NULL AND parentid IS NULL)) AND pos_bar > OLD.pos_bar; END;"
+        /* trigger: update Bookmarkbar position */
+        "CREATE TRIGGER IF NOT EXISTS bookmarkUpdatePosBar0 "
+        "AFTER UPDATE OF parentid, toolbar ON bookmarks FOR EACH ROW "
+        "WHEN ((NEW.parentid IS NULL OR OLD.parentid IS NULL) "
+        "AND NEW.parentid IS NOT OLD.parentid) "
+        "OR ((NEW.parentid IS NOT NULL AND OLD.parentid IS NOT NULL) "
+        "AND NEW.parentid!=OLD.parentid) OR (OLD.toolbar=1 AND NEW.toolbar=0) "
+        "BEGIN UPDATE bookmarks SET pos_bar = NULL WHERE id = NEW.id; "
+        "UPDATE bookmarks SET pos_bar = pos_bar-1 "
+        "WHERE ((OLD.parentid IS NOT NULL AND parentid = OLD.parentid) "
+        "OR (OLD.parentid IS NULL AND parentid IS NULL)) AND pos_bar > OLD.pos_bar; END;"
 
-     /* trigger: update Bookmarkbar position */
-     "CREATE TRIGGER IF NOT EXISTS bookmarkUpdatePosBar1 "
-     "BEFORE UPDATE OF parentid, toolbar ON bookmarks FOR EACH ROW "
-     "WHEN ((NEW.parentid IS NULL OR OLD.parentid IS NULL) "
-     "AND NEW.parentid IS NOT OLD.parentid) OR "
-     "((NEW.parentid IS NOT NULL AND OLD.parentid IS NOT NULL) "
-     "AND NEW.parentid!=OLD.parentid) OR (OLD.toolbar=0 AND NEW.toolbar=1) "
-     "BEGIN UPDATE bookmarks SET pos_bar = ("
-     "SELECT ifnull(MAX(pos_bar),0)+1 FROM bookmarks WHERE "
-     "(NEW.parentid IS NOT NULL AND parentid = NEW.parentid) "
-     "OR (NEW.parentid IS NULL AND parentid IS NULL)) "
-     "WHERE id = OLD.id; END;"
+        /* trigger: update Bookmarkbar position */
+        "CREATE TRIGGER IF NOT EXISTS bookmarkUpdatePosBar1 "
+        "BEFORE UPDATE OF parentid, toolbar ON bookmarks FOR EACH ROW "
+        "WHEN ((NEW.parentid IS NULL OR OLD.parentid IS NULL) "
+        "AND NEW.parentid IS NOT OLD.parentid) OR "
+        "((NEW.parentid IS NOT NULL AND OLD.parentid IS NOT NULL) "
+        "AND NEW.parentid!=OLD.parentid) OR (OLD.toolbar=0 AND NEW.toolbar=1) "
+        "BEGIN UPDATE bookmarks SET pos_bar = ("
+        "SELECT ifnull(MAX(pos_bar),0)+1 FROM bookmarks WHERE "
+        "(NEW.parentid IS NOT NULL AND parentid = NEW.parentid) "
+        "OR (NEW.parentid IS NULL AND parentid IS NULL)) "
+        "WHERE id = OLD.id; END;"
 
-     /* trigger: delete panel position */
-     "CREATE TRIGGER IF NOT EXISTS bookmarkDeletePosPanel "
-     "AFTER DELETE ON bookmarks FOR EACH ROW "
-     "BEGIN UPDATE bookmarks SET pos_panel = pos_panel-1 "
-     "WHERE ((OLD.parentid IS NOT NULL AND parentid = OLD.parentid) "
-     "OR (OLD.parentid IS NULL AND parentid IS NULL)) AND pos_panel > OLD.pos_panel; END;"
+        /* trigger: delete panel position */
+        "CREATE TRIGGER IF NOT EXISTS bookmarkDeletePosPanel "
+        "AFTER DELETE ON bookmarks FOR EACH ROW "
+        "BEGIN UPDATE bookmarks SET pos_panel = pos_panel-1 "
+        "WHERE ((OLD.parentid IS NOT NULL AND parentid = OLD.parentid) "
+        "OR (OLD.parentid IS NULL AND parentid IS NULL)) AND pos_panel > OLD.pos_panel; END;"
 
-     /* trigger: delete Bookmarkbar position */
-     "CREATE TRIGGER IF NOT EXISTS bookmarkDeletePosBar "
-     "AFTER DELETE ON bookmarks FOR EACH ROW WHEN OLD.toolbar=1 "
-     "BEGIN UPDATE bookmarks SET pos_bar = pos_bar-1 "
-     "WHERE ((OLD.parentid IS NOT NULL AND parentid = OLD.parentid) "
-     "OR (OLD.parentid IS NULL AND parentid IS NULL)) AND pos_bar > OLD.pos_bar; END;";
+        /* trigger: delete Bookmarkbar position */
+        "CREATE TRIGGER IF NOT EXISTS bookmarkDeletePosBar "
+        "AFTER DELETE ON bookmarks FOR EACH ROW WHEN OLD.toolbar=1 "
+        "BEGIN UPDATE bookmarks SET pos_bar = pos_bar-1 "
+        "WHERE ((OLD.parentid IS NOT NULL AND parentid = OLD.parentid) "
+        "OR (OLD.parentid IS NULL AND parentid IS NULL)) AND pos_bar > OLD.pos_bar; END;";
 
 
     if (newfile_did_exist)
@@ -788,7 +788,7 @@ midori_bookmarks_db_new (char** errmsg)
         if (sqlite3_exec (db, setup_stmt, NULL, NULL, &sql_errmsg) != SQLITE_OK)
         {
             *errmsg = g_strdup_printf (_("Couldn't setup bookmarks: %s\n"),
-				       sql_errmsg ? sql_errmsg : "(err = NULL)");
+                sql_errmsg ? sql_errmsg : "(err = NULL)");
             sqlite3_free (sql_errmsg);
             goto init_failed;
         }
@@ -802,7 +802,7 @@ midori_bookmarks_db_new (char** errmsg)
         if (sqlite3_exec (db, create_stmt, NULL, NULL, &sql_errmsg) != SQLITE_OK)
         {
             *errmsg = g_strdup_printf (_("Couldn't create bookmarks table: %s\n"),
-				       sql_errmsg ? sql_errmsg : "(err = NULL)");
+                sql_errmsg ? sql_errmsg : "(err = NULL)");
             sqlite3_free (sql_errmsg);
 
             /* we can as well remove the new file */
@@ -817,27 +817,27 @@ midori_bookmarks_db_new (char** errmsg)
         if (!midori_bookmarks_db_import_from_old_db (db, oldfile, &import_errmsg))
         {
             *errmsg = g_strdup_printf (_("Couldn't import from old database: %s\n"),
-				       import_errmsg ? import_errmsg : "(err = NULL)");
+                import_errmsg ? import_errmsg : "(err = NULL)");
             g_free (import_errmsg);
         }
 
-  init_success:
-    g_free (newfile);
-    g_free (oldfile);
-    bookmarks = MIDORI_BOOKMARKS_DB (g_object_new (TYPE_MIDORI_BOOKMARKS_DB, NULL));
-    bookmarks->db = db;
+    init_success:
+        g_free (newfile);
+        g_free (oldfile);
+        bookmarks = MIDORI_BOOKMARKS_DB (g_object_new (TYPE_MIDORI_BOOKMARKS_DB, NULL));
+        bookmarks->db = db;
 
-    g_object_set_data (G_OBJECT (bookmarks), "db", db);
-    return bookmarks;
+        g_object_set_data (G_OBJECT (bookmarks), "db", db);
+        return bookmarks;
 
-  init_failed:
-    g_free (newfile);
-    g_free (oldfile);
+    init_failed:
+        g_free (newfile);
+        g_free (oldfile);
 
-    if (db)
-	sqlite3_close (db);
+        if (db)
+            sqlite3_close (db);
 
-    return NULL;
+        return NULL;
 }
 
 /**
@@ -883,8 +883,8 @@ midori_bookmarks_db_import_array (MidoriBookmarksDb* bookmarks,
         katze_item_set_meta_integer (item, "parentid", parentid);
         midori_bookmarks_db_add_item (bookmarks, item);
         if (KATZE_IS_ARRAY (item))
-	    midori_bookmarks_db_import_array (bookmarks, KATZE_ARRAY (item),
-					      katze_item_get_meta_integer(item, "id"));
+        midori_bookmarks_db_import_array (bookmarks, KATZE_ARRAY (item),
+                          katze_item_get_meta_integer(item, "id"));
     }
     g_list_free (list);
 }
@@ -1023,9 +1023,9 @@ midori_bookmarks_db_query_recursive (MidoriBookmarksDb*  bookmarks,
         if (KATZE_ITEM_IS_FOLDER (item))
         {
             gchar* parentid = g_strdup_printf ("%" G_GINT64_FORMAT,
-					       katze_item_get_meta_integer (item, "id"));
+                                               katze_item_get_meta_integer (item, "id"));
             KatzeArray* subarray = midori_bookmarks_db_query_recursive (bookmarks,
-									fields, "parentid=%q", parentid, TRUE);
+                                                                        fields, "parentid=%q", parentid, TRUE);
             KatzeItem* subitem;
             GList* sublist;
 
@@ -1049,15 +1049,15 @@ midori_bookmarks_db_count_from_sqlite (sqlite3*     db,
     gint64 count = -1;
     sqlite3_stmt* stmt;
     gint result;
-    
+
     result = sqlite3_prepare_v2 (db, sqlcmd, -1, &stmt, NULL);
     if (result != SQLITE_OK)
         return -1;
 
     g_assert (sqlite3_column_count (stmt) == 1);
-    
+
     if ((result = sqlite3_step (stmt)) == SQLITE_ROW)
-	count = sqlite3_column_int64(stmt, 0);
+        count = sqlite3_column_int64(stmt, 0);
 
     sqlite3_clear_bindings (stmt);
     sqlite3_reset (stmt);
@@ -1067,10 +1067,10 @@ midori_bookmarks_db_count_from_sqlite (sqlite3*     db,
 
 static gint64
 midori_bookmarks_db_count_recursive_by_id (MidoriBookmarksDb*  bookmarks,
-				                           const gchar*        condition,
-				                           const gchar*        value,
-				                           gint64              id,
-				                           gboolean            recursive)
+                                           const gchar*        condition,
+                                           const gchar*        value,
+                                           gint64              id,
+                                           gboolean            recursive)
 {
     gint64 count = -1;
     gchar* sqlcmd;
@@ -1087,14 +1087,14 @@ midori_bookmarks_db_count_recursive_by_id (MidoriBookmarksDb*  bookmarks,
     g_assert(!strstr("parentid", condition));
 
     if (id > 0)
-	sqlcmd = g_strdup_printf ("SELECT COUNT(*) FROM bookmarks "
-				  "WHERE parentid = %" G_GINT64_FORMAT " AND %s",
-				  id,
-				  condition);
+        sqlcmd = g_strdup_printf ("SELECT COUNT(*) FROM bookmarks "
+                                  "WHERE parentid = %" G_GINT64_FORMAT " AND %s",
+                                  id,
+                                  condition);
     else
-	sqlcmd = g_strdup_printf ("SELECT COUNT(*) FROM bookmarks "
-				  "WHERE parentid IS NULL AND %s ",
-				  condition);
+        sqlcmd = g_strdup_printf ("SELECT COUNT(*) FROM bookmarks "
+                                  "WHERE parentid IS NULL AND %s ",
+                                  condition);
 
     if (strstr (condition, "%q"))
     {
@@ -1143,10 +1143,10 @@ midori_bookmarks_db_count_recursive_by_id (MidoriBookmarksDb*  bookmarks,
     while (iter_ids)
     {
         gint64 sub_count = midori_bookmarks_db_count_recursive_by_id (bookmarks,
-								      condition,
-								      value,
-								      *(gint64*)(iter_ids->data),
-								      recursive);
+                                                                      condition,
+                                                                      value,
+                                                                      *(gint64*)(iter_ids->data),
+                                                                      recursive);
 
         if (sub_count < 0)
         {
@@ -1157,7 +1157,7 @@ midori_bookmarks_db_count_recursive_by_id (MidoriBookmarksDb*  bookmarks,
         count += sub_count;
         iter_ids = g_list_next (iter_ids);
     }
-	
+
     g_list_free_full (ids, g_free);
     return count;
 }
@@ -1175,18 +1175,18 @@ midori_bookmarks_db_count_recursive_by_id (MidoriBookmarksDb*  bookmarks,
  **/
 gint64
 midori_bookmarks_db_count_recursive (MidoriBookmarksDb*  bookmarks,
-			                         const gchar*        condition,
+                                     const gchar*        condition,
                                      const gchar*        value,
-			                         KatzeItem*          folder,
+                                     KatzeItem*          folder,
                                      gboolean            recursive)
 {
     gint64 id = -1;
 
     g_return_val_if_fail (!folder || KATZE_ITEM_IS_FOLDER (folder), -1);
-    
+
     id = folder ? katze_item_get_meta_integer (folder, "id") : 0;
 
     return midori_bookmarks_db_count_recursive_by_id (bookmarks, condition,
-						      value, id,
-						      recursive);
+                                                      value, id,
+                                                      recursive);
 }
