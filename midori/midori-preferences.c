@@ -25,9 +25,6 @@
     #include <libsoup/soup-cache.h>
 
 #include <config.h>
-#if HAVE_LIBNOTIFY
-    #include <libnotify/notify.h>
-#endif
 
 struct _MidoriPreferences
 {
