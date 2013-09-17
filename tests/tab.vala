@@ -102,13 +102,6 @@ void tab_special () {
     assert (tab.special);
     assert (!tab.can_save ());
 
-    tab.set_uri ("about:nodocs");
-    do { loop.iteration (true); } while (tab.load_status != Midori.LoadStatus.FINISHED);
-    assert (tab.is_blank ());
-    assert (!tab.can_view_source ());
-    assert (tab.special);
-    assert (!tab.can_save ());
-
     tab.set_uri ("http://.invalid");
     do { loop.iteration (true); } while (tab.load_status != Midori.LoadStatus.FINISHED);
     assert (!tab.is_blank ());

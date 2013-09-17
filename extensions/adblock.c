@@ -28,12 +28,8 @@
     __filter[4] = __active ? (__filter[5] == ':' ? 's' : ':') : '-'
 #define ADBLOCK_FILTER_IS_SET(__filter) \
     (__filter[4] != '-' && __filter[5] != '-')
-#ifdef G_ENABLE_DEBUG
     #define adblock_debug(dmsg, darg1, darg2) \
         do { if (midori_debug ("adblock:match")) g_debug (dmsg, darg1, darg2); } while (0)
-#else
-    #define adblock_debug(dmsg, darg1, darg2) /* nothing */
-#endif
 
 static GHashTable* pattern = NULL;
 static GHashTable* keys = NULL;
@@ -877,10 +873,8 @@ adblock_resource_request_starting_cb (WebKitWebView*         web_view,
         }
     }
 
-    #ifdef G_ENABLE_DEBUG
     if (midori_debug ("adblock:time"))
         g_test_timer_start ();
-    #endif
     if (adblock_is_matched (req_uri, page_uri))
     {
         blocked_uris = g_object_get_data (G_OBJECT (web_view), "blocked-uris");
@@ -888,11 +882,8 @@ adblock_resource_request_starting_cb (WebKitWebView*         web_view,
         webkit_network_request_set_uri (request, "about:blank");
         g_object_set_data (G_OBJECT (web_view), "blocked-uris", blocked_uris);
     }
-    #ifdef G_ENABLE_DEBUG
     if (midori_debug ("adblock:time"))
         g_debug ("match: %f%s", g_test_timer_elapsed (), "seconds");
-    #endif
-
 }
 
 static void
@@ -936,7 +927,7 @@ adblock_custom_block_image_cb (GtkWidget*       widget,
     gtk_entry_set_text (GTK_ENTRY (entry),
                         g_object_get_data (G_OBJECT (widget), "uri"));
     gtk_box_pack_start (GTK_BOX (hbox), entry, TRUE, TRUE, 0);
-    gtk_container_add (GTK_CONTAINER (content_area), hbox);
+    gtk_box_pack_start (GTK_BOX (content_area), hbox, FALSE, TRUE, 0);
     gtk_widget_show_all (hbox);
 
     gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT);

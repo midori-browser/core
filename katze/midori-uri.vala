@@ -52,6 +52,17 @@ namespace Midori {
             }
             return uri;
         }
+        public static string get_base_domain (string uri) {
+            string ascii = to_ascii (uri);
+#if HAVE_LIBSOUP_2_40_0
+            try {
+                return Soup.tld_get_base_domain (ascii);
+            } catch (Error error) {
+                /* This is fine, we fallback to hostname */
+            }
+#endif
+            return parse_hostname (uri, null);
+        }
         public static string unescape (string uri) {
             /* Unescape, pass through + and %20 */
             if (uri.chr (-1, '%') != null || uri.chr (-1, ' ') != null) {
@@ -84,10 +95,12 @@ namespace Midori {
                 else if (!unescaped.validate ())
                     return uri;
                 string path;
-                string hostname = parse_hostname (unescaped, out path);
-                string decoded = hostname_to_unicode (hostname);
-                if (decoded != null)
-                    return "http://" + decoded + path;
+                string? hostname = parse_hostname (unescaped, out path);
+                if (hostname != null) {
+                    string decoded = hostname_to_unicode (hostname);
+                    if (decoded != null)
+                        return "http://" + decoded + path;
+                }
                 return unescaped;
             }
             return uri;

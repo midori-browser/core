@@ -21,7 +21,7 @@ RequestExecutionLevel admin ; set execution level for Windows Vista
 ; helper defines  ;
 ;;;;;;;;;;;;;;;;;;;
 !define PRODUCT_NAME "Midori"
-!define PRODUCT_VERSION "0.5.4"
+!define PRODUCT_VERSION "0.5.5"
 !define PRODUCT_BUILD "0"
 !define PRODUCT_VERSION_ID "${PRODUCT_VERSION}.${PRODUCT_BUILD}"
 !define PRODUCT_PUBLISHER "Christian Dywan"
@@ -262,6 +262,9 @@ Section "!Program Files" SEC01
 	!insertmacro InstallIconTheme "places\user-trash"
 
 	!insertmacro InstallIconTheme "status\dialog-password"
+	!insertmacro InstallIconTheme "status\gtk-dialog-error"
+	!insertmacro InstallIconTheme "status\gtk-dialog-info"
+	!insertmacro InstallIconTheme "status\gtk-dialog-warning"
 	!insertmacro InstallIconTheme "status\locked"
 	!insertmacro InstallIconTheme "status\network-error"
 	!insertmacro InstallIconTheme "status\network-idle"

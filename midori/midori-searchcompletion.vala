@@ -29,7 +29,7 @@ namespace Midori {
         }
 
         public override bool can_action (string action) {
-            return action == "about:search";
+            return action == "complete:more/search";
         }
 
         public override async List<Suggestion>? complete (string text, string? action, Cancellable cancellable) {
@@ -54,7 +54,7 @@ namespace Midori {
 
                 n++;
                 if (n == 3 && action == null) {
-                    suggestion = new Suggestion ("about:search", _("Search with…"), false, background);
+                    suggestion = new Suggestion ("complete:more/search", _("Search with…"), false, background);
                     suggestion.action = true;
                     suggestions.append (suggestion);
                     break;

@@ -92,6 +92,10 @@ namespace Midori {
        /* Since: 0.5.5 */
         public signal void context_menu (WebKit.HitTestResult hit_test_result, ContextAction menu);
 
+        /* A dialog tab has a fixed size, limited GUI and is transient.
+           Since: 0.5.6 */
+        public bool is_dialog { get; protected set; }
+
         public bool is_blank () {
             return URI.is_blank (uri);
         }
