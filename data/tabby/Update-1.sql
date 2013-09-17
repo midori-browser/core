@@ -1,0 +1,1 @@
+ALTER TABLE tabs ADD sorting REAL DEFAULT 0;
