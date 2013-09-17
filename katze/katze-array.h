@@ -31,13 +31,13 @@ G_BEGIN_DECLS
 
 typedef struct _KatzeArray                       KatzeArray;
 typedef struct _KatzeArrayClass                  KatzeArrayClass;
+typedef struct _KatzeArrayPrivate                KatzeArrayPrivate;
 
 struct _KatzeArray
 {
     KatzeItem parent_instance;
 
-    GType type;
-    GList* items;
+    KatzeArrayPrivate* priv;
 };
 
 struct _KatzeArrayClass

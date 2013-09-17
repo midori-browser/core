@@ -27,6 +27,12 @@
 
 G_DEFINE_TYPE (KatzeArray, katze_array, KATZE_TYPE_ITEM);
 
+struct _KatzeArrayPrivate
+{
+    GType type;
+    GList* items;
+};
+
 enum {
     ADD_ITEM,
     REMOVE_ITEM,
@@ -60,7 +66,7 @@ _katze_array_add_item (KatzeArray* array,
     if (g_type_is_a (type, KATZE_TYPE_ITEM))
         katze_item_set_parent (item, array);
 
-    array->items = g_list_append (array->items, item);
+    array->priv->items = g_list_append (array->priv->items, item);
     _katze_array_update (array);
 }
 
@@ -68,7 +74,7 @@ static void
 _katze_array_remove_item (KatzeArray* array,
                           gpointer   item)
 {
-    array->items = g_list_remove (array->items, item);
+    array->priv->items = g_list_remove (array->priv->items, item);
 
     if (KATZE_IS_ITEM (item))
         katze_item_set_parent (item, NULL);
@@ -81,8 +87,8 @@ _katze_array_move_item (KatzeArray* array,
                         gpointer    item,
                         gint        position)
 {
-    array->items = g_list_remove (array->items, item);
-    array->items = g_list_insert (array->items, item, position);
+    array->priv->items = g_list_remove (array->priv->items, item);
+    array->priv->items = g_list_insert (array->priv->items, item, position);
     _katze_array_update (array);
 }
 
@@ -91,10 +97,10 @@ _katze_array_clear (KatzeArray* array)
 {
     GObject* item;
 
-    while ((item = g_list_nth_data (array->items, 0)))
+    while ((item = g_list_nth_data (array->priv->items, 0)))
         g_signal_emit (array, signals[REMOVE_ITEM], 0, item);
-    g_list_free (array->items);
-    array->items = NULL;
+    g_list_free (array->priv->items);
+    array->priv->items = NULL;
     _katze_array_update (array);
 }
 
@@ -187,13 +193,18 @@ katze_array_class_init (KatzeArrayClass* class)
     class->move_item = _katze_array_move_item;
     class->clear = _katze_array_clear;
     class->update = _katze_array_update;
+
+    g_type_class_add_private (class, sizeof (KatzeArrayPrivate));
 }
 
 static void
 katze_array_init (KatzeArray* array)
 {
-    array->type = G_TYPE_OBJECT;
-    array->items = NULL;
+    array->priv = G_TYPE_INSTANCE_GET_PRIVATE (array,
+        KATZE_TYPE_ARRAY, KatzeArrayPrivate);
+
+    array->priv->type = G_TYPE_OBJECT;
+    array->priv->items = NULL;
 }
 
 static void
@@ -202,9 +213,9 @@ katze_array_finalize (GObject* object)
     KatzeArray* array = KATZE_ARRAY (object);
     GList* items;
 
-    for (items = array->items; items; items = g_list_next (items))
+    for (items = array->priv->items; items; items = g_list_next (items))
         g_object_unref (items->data);
-    g_list_free (array->items);
+    g_list_free (array->priv->items);
 
     G_OBJECT_CLASS (katze_array_parent_class)->finalize (object);
 }
@@ -228,7 +239,7 @@ katze_array_new (GType type)
     g_return_val_if_fail (g_type_is_a (type, G_TYPE_OBJECT), NULL);
 
     array = g_object_new (KATZE_TYPE_ARRAY, NULL);
-    array->type = type;
+    array->priv->type = type;
 
     return array;
 }
@@ -249,7 +260,7 @@ katze_array_is_a (KatzeArray* array,
 {
     g_return_val_if_fail (KATZE_IS_ARRAY (array), FALSE);
 
-    return g_type_is_a (array->type, is_a_type);
+    return g_type_is_a (array->priv->type, is_a_type);
 }
 
 /**
@@ -303,7 +314,7 @@ katze_array_get_nth_item (KatzeArray* array,
 {
     g_return_val_if_fail (KATZE_IS_ARRAY (array), NULL);
 
-    return g_list_nth_data (array->items, n);
+    return g_list_nth_data (array->priv->items, n);
 }
 
 /**
@@ -319,7 +330,7 @@ katze_array_is_empty (KatzeArray* array)
 {
     g_return_val_if_fail (KATZE_IS_ARRAY (array), TRUE);
 
-    return !g_list_nth_data (array->items, 0);
+    return !g_list_nth_data (array->priv->items, 0);
 }
 
 /**
@@ -337,7 +348,7 @@ katze_array_get_item_index (KatzeArray* array,
 {
     g_return_val_if_fail (KATZE_IS_ARRAY (array), -1);
 
-    return g_list_index (array->items, item);
+    return g_list_index (array->priv->items, item);
 }
 
 /**
@@ -371,7 +382,7 @@ katze_array_find_token (KatzeArray*  array,
     if (token_length < 1)
         token_length = strlen (token);
 
-    for (items = array->items; items; items = g_list_next (items))
+    for (items = array->priv->items; items; items = g_list_next (items))
     {
         const gchar* found_token = ((KatzeItem*)items->data)->token;
         if (found_token != NULL)
@@ -409,7 +420,7 @@ katze_array_find_uri (KatzeArray*  array,
     g_return_val_if_fail (katze_array_is_a (array, KATZE_TYPE_ITEM), NULL);
     g_return_val_if_fail (uri != NULL, NULL);
 
-    for (items = array->items; items; items = g_list_next (items))
+    for (items = array->priv->items; items; items = g_list_next (items))
     {
         const gchar* found_uri = ((KatzeItem*)items->data)->uri;
         if (found_uri != NULL && !strcmp (found_uri, uri))
@@ -431,7 +442,7 @@ katze_array_get_length (KatzeArray* array)
 {
     g_return_val_if_fail (KATZE_IS_ARRAY (array), 0);
 
-    return g_list_length (array->items);
+    return g_list_length (array->priv->items);
 }
 
 /**
@@ -469,7 +480,7 @@ katze_array_get_items (KatzeArray* array)
 {
     g_return_val_if_fail (KATZE_IS_ARRAY (array), NULL);
 
-    return g_list_copy (array->items);
+    return g_list_copy (array->priv->items);
 }
 
 GList*
@@ -477,7 +488,7 @@ katze_array_peek_items (KatzeArray* array)
 {
     g_return_val_if_fail (KATZE_IS_ARRAY (array), NULL);
 
-    return array->items;
+    return array->priv->items;
 }
 
 /**
