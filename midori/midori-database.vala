@@ -49,21 +49,26 @@ namespace Midori {
             if (db.exec ("PRAGMA journal_mode = WAL; PRAGMA cache_size = 32100;") != Sqlite.OK)
                 db.exec ("PRAGMA synchronous = NORMAL; PRAGMA temp_store = MEMORY;");
 
+            exec_script ("Create");
+            first_use = !exists;
+            return true;
+        }
+
+        public bool exec_script (string filename) throws DatabaseError {
             string basename = Path.get_basename (path);
             string[] parts = basename.split (".");
             if (!(parts != null && parts[0] != null && parts[1] != null))
                 throw new DatabaseError.SCHEMA ("Failed to deduce schema filename from %s".printf (path));
-            string schema_filename = Midori.Paths.get_res_filename (parts[0] + "/Create.sql");
+            string schema_filename = Midori.Paths.get_res_filename (parts[0] + "/" + filename + ".sql");
             string schema;
             try {
                 FileUtils.get_contents (schema_filename, out schema, null);
             } catch (Error error) {
                 throw new DatabaseError.SCHEMA ("Failed to open schema: %s".printf (schema_filename));
             }
+            schema = "BEGIN TRANSACTION; %s; COMMIT;".printf (schema);
             if (db.exec (schema) != Sqlite.OK)
                 throw new DatabaseError.EXECUTE ("Failed to execute schema: %s".printf (schema));
-
-            first_use = !exists;
             return true;
         }
 
