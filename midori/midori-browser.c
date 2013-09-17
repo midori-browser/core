@@ -1550,6 +1550,32 @@ midori_view_new_view_cb (GtkWidget*     view,
                          gboolean       user_initiated,
                          MidoriBrowser* browser)
 {
+    if (midori_tab_get_is_dialog (MIDORI_TAB (view)))
+    {
+        /* Dialog: URL, no toolbars, no tabs */
+        MidoriBrowser* new_browser;
+        g_signal_emit (browser, signals[NEW_WINDOW], 0, NULL, &new_browser);
+        g_assert (new_browser != NULL);
+        gtk_window_set_transient_for (GTK_WINDOW (new_browser), GTK_WINDOW (browser));
+        gtk_window_set_destroy_with_parent (GTK_WINDOW (new_browser), TRUE);
+        MidoriWebSettings* settings = midori_web_settings_new ();
+        g_object_set (settings,
+                      "toolbar-items", "Location",
+                      "show-menubar", FALSE,
+                      "show-bookmarkbar", FALSE,
+                      "show-statusbar", FALSE,
+                      NULL);
+        g_object_set (new_browser,
+                      "settings", settings,
+                      "show-tabs", FALSE,
+                      NULL);
+        g_object_unref (settings);
+        _action_set_visible (new_browser, "CompactMenu", FALSE);
+        midori_browser_add_tab (new_browser, new_view);
+        midori_browser_set_current_tab (new_browser, new_view);
+        return;
+    }
+
     if (midori_view_forward_external (new_view,
         katze_item_get_uri (midori_view_get_proxy_item (MIDORI_VIEW (new_view))),
         where))
@@ -2816,7 +2842,13 @@ static void
 _action_window_close_activate (GtkAction*     action,
                                MidoriBrowser* browser)
 {
-    gtk_widget_destroy (GTK_WIDGET (browser));
+    gboolean val = FALSE;
+    GdkEvent* event = gtk_get_current_event();
+    g_signal_emit_by_name (G_OBJECT (browser), "delete-event", event, &val);
+    gdk_event_free (event);
+
+    if (!val)
+        gtk_widget_destroy (GTK_WIDGET (browser));
 }
 
 static void
@@ -6795,7 +6827,6 @@ _midori_browser_update_settings (MidoriBrowser* browser)
     MidoriToolbarStyle toolbar_style;
     gchar* toolbar_items;
     gboolean close_buttons_on_tabs;
-    KatzeItem* item;
 
     g_object_get (browser->settings,
                   "remember-last-window-size", &remember_last_window_size,
@@ -6862,13 +6893,15 @@ _midori_browser_update_settings (MidoriBrowser* browser)
     {
         const gchar* default_search = midori_settings_get_location_entry_search (
             MIDORI_SETTINGS (browser->settings));
-        item = katze_array_get_nth_item (browser->search_engines,
-                                         browser->last_web_search);
-        if (item)
+        KatzeItem* item;
+
+        if ((item = katze_array_get_nth_item (browser->search_engines,
+                                              browser->last_web_search)))
             midori_search_action_set_current_item (MIDORI_SEARCH_ACTION (
                 _action_by_name (browser, "Search")), item);
 
-        if ((item = katze_array_find_uri (browser->search_engines, default_search)))
+        if (default_search != NULL
+         && (item = katze_array_find_uri (browser->search_engines, default_search)))
             midori_search_action_set_default_item (MIDORI_SEARCH_ACTION (
                 _action_by_name (browser, "Search")), item);
     }

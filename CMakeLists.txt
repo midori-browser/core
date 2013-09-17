@@ -106,6 +106,7 @@ if (${DEPS_libsoup-gnome-2.4_VERSION} VERSION_GREATER "2.37.1")
 endif ()
 if (${DEPS_libsoup-gnome-2.4_VERSION} VERSION_GREATER "2.40.0")
     add_definitions("-DHAVE_LIBSOUP_2_40_0")
+    set(VALAFLAGS ${VALAFLAGS} -D HAVE_LIBSOUP_2_40_0)
 endif ()
 
 if (WIN32)
