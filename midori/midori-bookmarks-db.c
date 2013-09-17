@@ -39,7 +39,11 @@ struct _MidoriBookmarksDb
     KatzeArray  parent_instance;
 
     sqlite3*    db;
+    GList*      pending_inserts;
+    GHashTable* pending_updates;
+    GHashTable* pending_deletes;
     GHashTable* all_items;
+    gboolean    in_idle_func;
 };
 
 struct _MidoriBookmarksDbClass
@@ -81,6 +85,9 @@ _midori_bookmarks_db_move_item (KatzeArray* array,
 
 static void
 _midori_bookmarks_db_clear (KatzeArray* array);
+
+static void
+midori_bookmarks_db_force_idle (MidoriBookmarksDb* bookmarks);
 
 static void
 midori_bookmarks_db_finalize (GObject* object);
@@ -147,7 +154,12 @@ static void
 midori_bookmarks_db_init (MidoriBookmarksDb* bookmarks)
 {
     bookmarks->db = NULL;
+    bookmarks->pending_inserts = NULL;
+    bookmarks->pending_updates = g_hash_table_new (item_hash, item_equal);
+    bookmarks->pending_deletes = g_hash_table_new (item_hash, item_equal);
     bookmarks->all_items = g_hash_table_new (item_hash, item_equal);
+
+    bookmarks->in_idle_func = FALSE;
 
     katze_item_set_meta_integer (KATZE_ITEM (bookmarks), "id", 0);
     katze_item_set_name (KATZE_ITEM (bookmarks), _("Bookmarks"));
@@ -162,9 +174,13 @@ midori_bookmarks_db_finalize (GObject* object)
 
     if (bookmarks->db)
     {
+        midori_bookmarks_db_force_idle (bookmarks);
         sqlite3_close (bookmarks->db);
     }
 
+    g_list_free (bookmarks->pending_inserts);
+    g_hash_table_unref (bookmarks->pending_updates);
+    g_hash_table_unref (bookmarks->pending_deletes);
     g_hash_table_unref (bookmarks->all_items);
 
     G_OBJECT_CLASS (midori_bookmarks_db_parent_class)->finalize (object);
@@ -224,6 +240,7 @@ _midori_bookmarks_db_add_item (KatzeArray* array,
     g_return_if_fail (KATZE_IS_ITEM (item));
 
     bookmarks = MIDORI_BOOKMARKS_DB (array);
+    g_return_if_fail (bookmarks->in_idle_func);
 
     parent = katze_item_get_parent (KATZE_ITEM (item));
 
@@ -263,6 +280,8 @@ _midori_bookmarks_db_update_item (MidoriBookmarksDb* bookmarks,
     g_return_if_fail (IS_MIDORI_BOOKMARKS_DB (bookmarks));
     g_return_if_fail (KATZE_IS_ITEM (item));
 
+    g_return_if_fail (bookmarks->in_idle_func);
+
     parent = katze_item_get_parent (KATZE_ITEM (item));
 
     g_return_if_fail (parent);
@@ -282,10 +301,14 @@ static void
 _midori_bookmarks_db_remove_item (KatzeArray* array,
                                   gpointer   item)
 {
+    MidoriBookmarksDb *bookmarks;
     KatzeArray* parent;
 
     g_return_if_fail (IS_MIDORI_BOOKMARKS_DB (array));
     g_return_if_fail (KATZE_IS_ITEM (item));
+
+    bookmarks = MIDORI_BOOKMARKS_DB (array);
+    g_return_if_fail (bookmarks->in_idle_func);
 
     parent = katze_item_get_parent (KATZE_ITEM (item));
 
@@ -357,6 +380,50 @@ midori_bookmarks_db_signal_update_item (MidoriBookmarksDb* array,
 }
 
 /**
+ * midori_bookmarks_db_begin_transaction:
+ * @db: the removed #KatzeItem
+ *
+ * Internal function that starts an SQL transaction.
+ **/
+static gboolean
+midori_bookmarks_db_begin_transaction (sqlite3* db)
+{
+    char* errmsg = NULL;
+
+    if (sqlite3_exec (db, "BEGIN TRANSACTION;", NULL, NULL, &errmsg) != SQLITE_OK)
+    {
+        g_printerr (_("Failed to begin transaction: %s\n"), errmsg);
+        sqlite3_free (errmsg);
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+/**
+ * midori_bookmarks_db_end_transaction:
+ * @db: the removed #KatzeItem
+ * @commit : boolean
+ *
+ * Internal function that ends an SQL transaction.
+ * If @commit is %TRUE, the transaction is ended by a COMMIT.
+ * It is ended by a ROLLBACK otherwise.
+ **/
+static void
+midori_bookmarks_db_end_transaction (sqlite3* db, gboolean commit)
+{
+    char* errmsg = NULL;
+    if (sqlite3_exec (db, (commit ? "COMMIT;" : "ROLLBACK;"), NULL, NULL, &errmsg) != SQLITE_OK)
+    {
+        if (commit)
+            g_printerr (_("Failed to end transaction: %s\n"), errmsg);
+        else
+            g_printerr (_("Failed to cancel transaction: %s\n"), errmsg);
+        sqlite3_free (errmsg);
+    }
+}
+
+/**
  * midori_bookmarks_db_add_item_recursive:
  * @item: the removed #KatzeItem
  * @bookmarks : the main bookmarks array
@@ -410,10 +477,24 @@ midori_bookmarks_db_remove_item_recursive (KatzeItem*  item,
                                            MidoriBookmarksDb* bookmarks)
 {
     GHashTableIter hash_iter;
+    gpointer key, value;
     gpointer found;
     KatzeArray* array;
     KatzeItem* child;
     GList* list;
+
+    if (NULL != (found = g_list_find (bookmarks->pending_inserts, item)))
+    {
+        g_object_unref (((GList*)found)->data);
+        bookmarks->pending_inserts = g_list_delete_link (bookmarks->pending_inserts,
+            ((GList*)found));
+    }
+
+    if (NULL != (found = g_hash_table_lookup (bookmarks->pending_updates, item)))
+    {
+        g_hash_table_remove (bookmarks->pending_updates, found);
+        g_object_unref (found);
+    }
 
     if (NULL != (found = g_hash_table_lookup (bookmarks->all_items, item)))
     {
@@ -432,6 +513,119 @@ midori_bookmarks_db_remove_item_recursive (KatzeItem*  item,
     }
 
     g_list_free (list);
+}
+
+/**
+ * midori_bookmarks_db_idle_func:
+ * @data: the main bookmark array
+ *
+ * Internal function executed during idle time that Packs pending database 
+ * operations in one transaction.
+ *
+ * Pending operations are either:
+ * a. a list of pending add items,
+ *    all child #KatzeItem of a #KatzeArray are recursively added.
+ *    Each added #KatzeItem is memorized for future use.
+ *    (See %midori_bookmarks_db_array_from_statement())
+ * b. a hash table of items to update,
+ * c. or a hash table of items to remove
+ *    the database CASCADE on delete takes care of removal of the childs 
+ *    #KatzeItem of a #KatzeArray in the database 
+ *
+ * When database operations are done, the #KatzeArray equivalent operations
+ * are called to:
+ * 1. update the #KatzeArray tree content
+ * 2. signal the client views of the  #KatzeArray tree content change.
+ **/
+static gboolean
+midori_bookmarks_db_idle_func (gpointer data)
+{
+    GTimer *timer = g_timer_new();
+    gint count = 0;
+    gulong microseconds;
+    gboolean with_transaction;
+    MidoriBookmarksDb* bookmarks = MIDORI_BOOKMARKS_DB (data);
+    GList* list_iter;
+    GHashTableIter hash_iter;
+    gpointer key, value;
+
+    bookmarks->in_idle_func = TRUE;
+
+    g_timer_start (timer);
+
+    with_transaction = midori_bookmarks_db_begin_transaction (bookmarks->db);
+
+    for (list_iter = bookmarks->pending_inserts; list_iter; list_iter = g_list_next (list_iter))
+    {
+        KatzeItem *item = KATZE_ITEM (list_iter->data);
+
+        count += midori_bookmarks_db_add_item_recursive (bookmarks, item);
+        katze_array_add_item (KATZE_ARRAY (bookmarks), item);
+
+        g_object_unref (item);
+    }
+
+    g_hash_table_iter_init (&hash_iter, bookmarks->pending_updates);
+
+    while (g_hash_table_iter_next (&hash_iter, &key, &value))
+    {
+        KatzeItem *item = KATZE_ITEM (value);
+
+        midori_bookmarks_db_update_item_db (bookmarks->db, item);
+        midori_bookmarks_db_signal_update_item (bookmarks, item);
+        g_object_unref (item);
+        count++;
+    }
+
+    g_hash_table_iter_init (&hash_iter, bookmarks->pending_deletes);
+
+    while (g_hash_table_iter_next (&hash_iter, &key, &value))
+    {
+        KatzeItem *item = KATZE_ITEM (value);
+
+        midori_bookmarks_db_remove_item_db (bookmarks->db, item);
+        katze_array_remove_item (KATZE_ARRAY (bookmarks), item);
+        g_object_unref (item);
+        count++;
+    }
+
+    if (with_transaction)
+        midori_bookmarks_db_end_transaction (bookmarks->db, TRUE);
+
+    g_timer_elapsed (timer, &microseconds);
+    g_print ("midori_bookmarks_db_idle: %d DB operation(s) in %lu micro-seconds\n",
+        count, microseconds);
+
+    g_timer_destroy (timer);
+
+    g_hash_table_remove_all (bookmarks->pending_deletes);
+    g_hash_table_remove_all (bookmarks->pending_updates);
+    g_list_free (bookmarks->pending_inserts);
+    bookmarks->pending_inserts = NULL;
+
+    bookmarks->in_idle_func = FALSE;
+
+    return FALSE;
+}
+
+/**
+ * midori_bookmarks_db_idle_start:
+ * @bookmarks: the main bookmark array
+ *
+ * Internal function that checks whether idle processing is pending,
+ * if not, add a new one.
+ **/
+static void
+midori_bookmarks_db_idle_start (MidoriBookmarksDb* bookmarks)
+{
+    g_return_if_fail (bookmarks->db != NULL);
+
+    if (bookmarks->pending_inserts
+        || g_hash_table_size (bookmarks->pending_updates)
+        || g_hash_table_size (bookmarks->pending_deletes))
+        return;
+
+    g_idle_add (midori_bookmarks_db_idle_func, bookmarks);
 }
 
 /**
@@ -633,11 +827,22 @@ midori_bookmarks_db_add_item (MidoriBookmarksDb* bookmarks, KatzeItem* item)
 {
     g_return_if_fail (IS_MIDORI_BOOKMARKS_DB (bookmarks));
     g_return_if_fail (KATZE_IS_ITEM (item));
-    g_return_if_fail (NULL == katze_item_get_meta_string (item, "id"));
 
-    midori_bookmarks_db_add_item_recursive (bookmarks, item);
+    /* Force NULL id for database addition */
+    if (NULL != katze_item_get_meta_string (item, "id"))
+    {
+	katze_item_set_meta_string (item, "id", NULL);
+    }
 
-    katze_array_add_item (KATZE_ARRAY (bookmarks), item);
+    gpointer found = g_list_find (bookmarks->pending_inserts, item);
+
+    if (found)
+        return;
+
+    midori_bookmarks_db_idle_start (bookmarks);
+
+    g_object_ref (item);
+    bookmarks->pending_inserts = g_list_append (bookmarks->pending_inserts, item);
 }
 
 /**
@@ -657,9 +862,15 @@ midori_bookmarks_db_update_item (MidoriBookmarksDb* bookmarks, KatzeItem* item)
     g_return_if_fail (katze_item_get_meta_string (item, "id"));
     g_return_if_fail (0 != katze_item_get_meta_integer (item, "id"));
 
-    midori_bookmarks_db_update_item_db (bookmarks->db, item);
+    gpointer found = g_hash_table_lookup (bookmarks->pending_updates, item);
 
-    midori_bookmarks_db_signal_update_item (bookmarks, item);
+    if (found)
+        return;
+
+    midori_bookmarks_db_idle_start (bookmarks);
+
+    g_object_ref (item);
+    g_hash_table_insert (bookmarks->pending_updates, item, item);
 }
 
 /**
@@ -679,10 +890,17 @@ midori_bookmarks_db_remove_item (MidoriBookmarksDb* bookmarks, KatzeItem* item)
     g_return_if_fail (katze_item_get_meta_string (item, "id"));
     g_return_if_fail (0 != katze_item_get_meta_integer (item, "id"));
 
-    midori_bookmarks_db_remove_item_recursive (item, bookmarks);
-    midori_bookmarks_db_remove_item_db (bookmarks->db, item);
+    gpointer found = g_hash_table_lookup (bookmarks->pending_deletes, item);
 
-    katze_array_remove_item (KATZE_ARRAY (bookmarks), item);
+    if (found)
+        return;
+
+    midori_bookmarks_db_idle_start (bookmarks);
+
+    midori_bookmarks_db_remove_item_recursive (item, bookmarks);
+
+    g_object_ref (item);
+    g_hash_table_insert (bookmarks->pending_deletes, item, item);
 }
 
 #define _APPEND_TO_SQL_ERRORMSG(custom_errmsg) \
@@ -987,7 +1205,26 @@ midori_bookmarks_db_import_array (MidoriBookmarksDb* bookmarks,
         katze_item_set_meta_integer (item, "parentid", parentid);
         midori_bookmarks_db_add_item (bookmarks, item);
     }
+
     g_list_free (list);
+}
+
+/**
+ * midori_bookmarks_db_force_idle:
+ * @array: the main bookmark array
+ *
+ * Internal function that checks if idle processing is pending.
+ * If it is the case, removes it from idle time processing and
+ * executes it immediately.
+ **/
+static void
+midori_bookmarks_db_force_idle (MidoriBookmarksDb* bookmarks)
+{
+    if (bookmarks->in_idle_func)
+	return;
+
+    if (g_idle_remove_by_data (bookmarks))
+        midori_bookmarks_db_idle_func (bookmarks);
 }
 
 /**
@@ -1070,7 +1307,8 @@ midori_bookmarks_db_array_from_statement (sqlite3_stmt* stmt,
  * @array: the main bookmark array
  * @sqlcmd: the sqlcmd to execute
  *
- * Internal function that process the requested @sqlcmd.
+ * Internal function that first forces pending idle processing to update the
+ * database then process the requested @sqlcmd.
  *
  * Return value: a #KatzeArray on success, %NULL otherwise
  **/
@@ -1082,6 +1320,8 @@ midori_bookmarks_db_array_from_sqlite (MidoriBookmarksDb* bookmarks,
     gint result;
 
     g_return_val_if_fail (bookmarks->db != NULL, NULL);
+
+    midori_bookmarks_db_force_idle (bookmarks);
 
     result = sqlite3_prepare_v2 (bookmarks->db, sqlcmd, -1, &stmt, NULL);
     if (result != SQLITE_OK)
