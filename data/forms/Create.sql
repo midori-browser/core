@@ -1,4 +1,4 @@
-CREATE TABLE forms
+CREATE TABLE IF NOT EXISTS forms
 (
     domain text,
     field text,
