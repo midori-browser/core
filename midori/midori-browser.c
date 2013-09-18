@@ -87,7 +87,7 @@ struct _MidoriBrowser
 
     MidoriWebSettings* settings;
     KatzeArray* proxy_array;
-    KatzeArray* bookmarks;
+    MidoriBookmarksDb* bookmarks;
     KatzeArray* trash;
     KatzeArray* search_engines;
     KatzeArray* history;
@@ -195,8 +195,8 @@ midori_panel_set_toolbar_style (MidoriPanel*    panel,
                                 GtkToolbarStyle style);
 
 static void
-midori_browser_set_bookmarks (MidoriBrowser* browser,
-                              KatzeArray*    bookmarks);
+midori_browser_set_bookmarks (MidoriBrowser*     browser,
+                              MidoriBookmarksDb* bookmarks);
 
 static void
 midori_browser_add_speed_dial (MidoriBrowser* browser);
@@ -863,7 +863,7 @@ midori_bookmark_folder_free_folder_entry (FolderEntry* folder)
 }
 
 static GtkWidget*
-midori_bookmark_folder_button_new (KatzeArray* array,
+midori_bookmark_folder_button_new (MidoriBookmarksDb* array,
                                    gint64      selected_parentid)
 {
     GtkTreeStore* model;
@@ -1231,18 +1231,9 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         katze_item_set_meta_integer (bookmark, "parentid", selected);
 
         if (new_bookmark)
-            katze_array_add_item (browser->bookmarks, bookmark);
+            midori_bookmarks_db_add_item (browser->bookmarks, bookmark);
         else
-	{
-            midori_array_update_item (browser->bookmarks, bookmark);
-	    midori_browser_update_history (bookmark, "bookmark", "modify");
-
-	    if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (check_toolbar)))
-		if (!gtk_widget_get_visible (browser->bookmarkbar))
-		    _action_set_active (browser, "Bookmarkbar", TRUE);
-	    if (gtk_widget_get_visible (browser->bookmarkbar))
-		midori_bookmarkbar_populate (browser);
-	}
+            midori_bookmarks_db_update_item (browser->bookmarks, bookmark);
 
         return_status = TRUE;
     }
@@ -2545,7 +2536,7 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      "bookmarks",
                                      "Bookmarks",
                                      "The bookmarks folder, containing all bookmarks",
-                                     KATZE_TYPE_ARRAY,
+                                     TYPE_MIDORI_BOOKMARKS_DB,
                                      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
     /**
@@ -3273,8 +3264,8 @@ _action_bookmarks_populate_folder (GtkAction*     action,
     else
         condition = "parentid = %q";
 
-    bookmarks = midori_array_query_recursive  (browser->bookmarks,
-						 "id, title, parentid, uri, app, pos_panel, pos_bar", condition, id, FALSE);
+    bookmarks = midori_bookmarks_db_query_recursive (browser->bookmarks,
+        "id, title, parentid, uri, app, pos_panel, pos_bar", condition, id, FALSE);
     if (!bookmarks)
         return FALSE;
 
@@ -4308,7 +4299,7 @@ midori_browser_bookmark_delete_activate_cb (GtkWidget*     menuitem,
     KatzeItem* item;
 
     item = (KatzeItem*)g_object_get_data (G_OBJECT (menuitem), "KatzeItem");
-    katze_array_remove_item (browser->bookmarks, item);
+    midori_bookmarks_db_remove_item (browser->bookmarks, item);
 }
 
 static void
@@ -4320,7 +4311,7 @@ midori_browser_bookmark_popup (GtkWidget*      widget,
     MidoriContextAction* menu = midori_context_action_new ("BookmarkContextMenu", NULL, NULL, NULL);
     if (KATZE_ITEM_IS_FOLDER (item))
     {
-        gint child_bookmarks_count = midori_array_count_recursive (browser->bookmarks,
+        gint child_bookmarks_count = midori_bookmarks_db_count_recursive (browser->bookmarks,
             "uri <> ''", NULL, item, FALSE);
 
         GtkAction* action = gtk_action_new ("BookmarkOpenAllTabs", _("Open all in _Tabs"), NULL, STOCK_TAB_NEW);
@@ -4590,8 +4581,7 @@ _action_bookmarks_import_activate (GtkAction*     action,
             if (error)
                 g_error_free (error);
         }
-        midori_bookmarks_import_array (browser->bookmarks, bookmarks, selected);
-
+        midori_bookmarks_db_import_array (browser->bookmarks, bookmarks, selected);
         g_object_unref (bookmarks);
         g_free (path);
     }
@@ -4645,7 +4635,7 @@ wrong_format:
         return;
 
     error = NULL;
-    bookmarks = midori_array_query_recursive (browser->bookmarks,
+    bookmarks = midori_bookmarks_db_query_recursive (browser->bookmarks,
         "*", "parentid IS NULL", NULL, TRUE);
     if (!midori_array_to_file (bookmarks, path, format, &error))
     {
@@ -7060,6 +7050,16 @@ midori_bookmarkbar_add_item_cb (KatzeArray*    bookmarks,
 }
 
 static void
+midori_bookmarkbar_update_item_cb (KatzeArray*    bookmarks,
+                                   KatzeItem*     item,
+                                   MidoriBrowser* browser)
+{
+    if (gtk_widget_get_visible (browser->bookmarkbar))
+        midori_bookmarkbar_populate (browser);
+    midori_browser_update_history (item, "bookmark", "modify");
+}
+
+static void
 midori_bookmarkbar_remove_item_cb (KatzeArray*    bookmarks,
                                    KatzeItem*     item,
                                    MidoriBrowser* browser)
@@ -7091,8 +7091,8 @@ midori_bookmarkbar_populate_idle (MidoriBrowser* browser)
     gtk_toolbar_insert (GTK_TOOLBAR (browser->bookmarkbar),
                         gtk_separator_tool_item_new (), -1);
 
-    array = midori_array_query_recursive  (browser->bookmarks,
-					     "id, parentid, title, uri, desc, app, toolbar, pos_panel, pos_bar", "toolbar = 1", NULL, FALSE);
+    array = midori_bookmarks_db_query_recursive (browser->bookmarks,
+        "id, parentid, title, uri, desc, app, toolbar, pos_panel, pos_bar", "toolbar = 1", NULL, FALSE);
     if (!array)
     {
         _action_set_sensitive (browser, "BookmarkAdd", FALSE);
@@ -7132,7 +7132,7 @@ midori_browser_show_bookmarkbar_notify_value_cb (MidoriWebSettings* settings,
 
 static void
 midori_browser_set_bookmarks (MidoriBrowser* browser,
-                              KatzeArray*    bookmarks)
+                              MidoriBookmarksDb*    bookmarks)
 {
     MidoriWebSettings* settings;
 
@@ -7140,6 +7140,8 @@ midori_browser_set_bookmarks (MidoriBrowser* browser,
     {
         g_signal_handlers_disconnect_by_func (browser->bookmarks,
             midori_bookmarkbar_add_item_cb, browser);
+        g_signal_handlers_disconnect_by_func (browser->bookmarks,
+            midori_bookmarkbar_update_item_cb, browser);
         g_signal_handlers_disconnect_by_func (browser->bookmarks,
             midori_bookmarkbar_remove_item_cb, browser);
     }
@@ -7174,6 +7176,8 @@ midori_browser_set_bookmarks (MidoriBrowser* browser,
     g_object_notify (G_OBJECT (settings), "show-bookmarkbar");
     g_signal_connect_after (bookmarks, "add-item",
         G_CALLBACK (midori_bookmarkbar_add_item_cb), browser);
+    g_signal_connect_after (bookmarks, "update-item",
+        G_CALLBACK (midori_bookmarkbar_update_item_cb), browser);
     g_signal_connect_after (bookmarks, "remove-item",
         G_CALLBACK (midori_bookmarkbar_remove_item_cb), browser);
 }

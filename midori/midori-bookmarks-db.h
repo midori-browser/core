@@ -16,33 +16,60 @@
 #include <sqlite3.h>
 #include <katze/katze.h>
 
+G_BEGIN_DECLS
+
+#define TYPE_MIDORI_BOOKMARKS_DB \
+    (midori_bookmarks_db_get_type ())
+#define MIDORI_BOOKMARKS_DB(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_MIDORI_BOOKMARKS_DB, MidoriBookmarksDb))
+#define MIDORI_BOOKMARKS_DB_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_CAST ((klass), TYPE_MIDORI_BOOKMARKS_DB, MidoriBookmarksDbClass))
+#define IS_MIDORI_BOOKMARKS_DB(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TYPE_MIDORI_BOOKMARKS_DB))
+#define IS_MIDORI_BOOKMARKS_DB_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE ((klass), TYPE_MIDORI_BOOKMARKS_DB))
+#define MIDORI_BOOKMARKS_DB_GET_CLASS(obj) \
+    (G_TYPE_INSTANCE_GET_CLASS ((obj), TYPE_MIDORI_BOOKMARKS_DB, MidoriBookmarksDbClass))
+
+typedef struct _MidoriBookmarksDb                       MidoriBookmarksDb;
+typedef struct _MidoriBookmarksDbClass                  MidoriBookmarksDbClass;
+
+GType
+midori_bookmarks_db_get_type               (void) G_GNUC_CONST;
+
+MidoriBookmarksDb*
+midori_bookmarks_db_new (char** errmsg);
+
+void
+midori_bookmarks_db_on_quit (MidoriBookmarksDb* array);
+
+void
+midori_bookmarks_db_add_item (MidoriBookmarksDb* bookmarks, KatzeItem* item);
+
+void
+midori_bookmarks_db_update_item (MidoriBookmarksDb* bookmarks, KatzeItem* item);
+
+void
+midori_bookmarks_db_remove_item (MidoriBookmarksDb* bookmarks, KatzeItem* item);
+
+void
+midori_bookmarks_db_import_array (MidoriBookmarksDb* bookmarks,
+                                  KatzeArray* array,
+                                  gint64      parentid);
+
 KatzeArray*
-midori_bookmarks_new (char** errmsg);
-
-void
-midori_bookmarks_on_quit (KatzeArray* array);
-
-void
-midori_array_update_item (KatzeArray* bookmarks, KatzeItem* item);
-
-void
-midori_bookmarks_import_array (KatzeArray* bookmarks,
-                               KatzeArray* array,
-                               gint64      parentid);
-
-KatzeArray*
-midori_array_query_recursive (KatzeArray*  bookmarks,
-			      const gchar* fields,
-			      const gchar* condition,
-			      const gchar* value,
-			      gboolean     recursive);
+midori_bookmarks_db_query_recursive (MidoriBookmarksDb*  bookmarks,
+                                     const gchar* fields,
+                                     const gchar* condition,
+                                     const gchar* value,
+                                     gboolean     recursive);
 
 gint64
-midori_array_count_recursive (KatzeArray*  bookmarks,
-			      const gchar*        condition,
-			      const gchar*        value,
-			      KatzeItem*          folder,
-			      gboolean            recursive);
+midori_bookmarks_db_count_recursive (MidoriBookmarksDb*  bookmarks,
+				     const gchar*        condition,
+                                     const gchar*        value,
+				     KatzeItem*          folder,
+				     gboolean            recursive);
 
 gint64
 midori_bookmarks_insert_item_db (sqlite3*   db,
