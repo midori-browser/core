@@ -33,11 +33,6 @@ midori_history_new (char** errmsg)
     MidoriHistoryDatabase* database;
     GError* error = NULL;
     sqlite3* db;
-    gboolean has_day = FALSE;
-    sqlite3_stmt* stmt;
-    gint result;
-    gchar* sql;
-    gchar* bookmarks_filename;
     KatzeArray* array;
 
     g_return_val_if_fail (errmsg != NULL, NULL);
@@ -52,27 +47,6 @@ midori_history_new (char** errmsg)
 
     db = midori_database_get_db (MIDORI_DATABASE (database));
     g_return_val_if_fail (db != NULL, NULL);
-
-    sqlite3_prepare_v2 (db, "SELECT day FROM history LIMIT 1", -1, &stmt, NULL);
-    result = sqlite3_step (stmt);
-    if (result == SQLITE_ROW)
-        has_day = TRUE;
-    sqlite3_finalize (stmt);
-
-    if (!has_day)
-        sqlite3_exec (db,
-                      "BEGIN TRANSACTION;"
-                      "CREATE TEMPORARY TABLE backup (uri text, title text, date integer);"
-                      "INSERT INTO backup SELECT uri,title,date FROM history;"
-                      "DROP TABLE history;"
-                      "CREATE TABLE history (uri text, title text, date integer, day integer);"
-                      "INSERT INTO history SELECT uri,title,date,"
-                      "julianday(date(date,'unixepoch','start of day','+1 day'))"
-                      " - julianday('0001-01-01','start of day')"
-                      "FROM backup;"
-                      "DROP TABLE backup;"
-                      "COMMIT;",
-                      NULL, NULL, errmsg);
 
     array = katze_array_new (KATZE_TYPE_ARRAY);
     g_object_set_data (G_OBJECT (array), "db", db);
