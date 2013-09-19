@@ -499,6 +499,7 @@ formhistory_construct_popup_gui (FormHistoryPriv* priv)
     column = gtk_tree_view_column_new_with_attributes ("suggestions", renderer, "text", 0, NULL);
     gtk_tree_view_append_column (GTK_TREE_VIEW (treeview), column);
     priv->popup = popup;
+    priv->element = NULL;
 
     g_signal_connect (treeview, "button-press-event",
         G_CALLBACK (formhistory_suggestion_selected_cb), priv);
