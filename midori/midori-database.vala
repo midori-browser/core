@@ -66,15 +66,14 @@ namespace Midori {
             }
 
             while (true) {
-                int64 new_version = user_version + 1;
                 try {
-                    exec_script ("Update" + new_version.to_string ());
+                    exec_script ("Update" + user_version.to_string ());
                 } catch (DatabaseError error) {
                     if (error is DatabaseError.FILENAME)
                         break;
                     throw error;
                 }
-                user_version = new_version;
+                user_version = user_version + 1;
                 exec ("PRAGMA user_version = " + user_version.to_string ());
             }
 
