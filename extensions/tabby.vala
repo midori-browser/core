@@ -163,6 +163,13 @@ namespace Tabby {
 
             }
 
+            protected double? get_tab_sorting (Midori.View view) {
+                int this_pos = this.browser.notebook.page_num (view);
+                //Gtk.Widget prev_view = this.browser.notebook.get_nth_page (this_pos - 1);
+                //Gtk.Widget next_view = this.browser.notebook.get_nth_page (this_pos + 1);
+                return double.parse ("%i".printf(this_pos));
+            }
+
             private void helper_uri_changed (Midori.Browser browser, Midori.View view) {
                 /* FixMe: skip first event while restoring the session */
                 view.web_view.notify["uri"].connect ( () => {
@@ -189,12 +196,15 @@ namespace Tabby {
                     unowned Katze.Item item = tab.get_proxy_item ();
 
                     double? sorting;
-                    if (double.try_parse (item.get_meta_string ("sorting"), out sorting)) {
-                        this.tab_sorting.insert_sorted_with_data (sorting, helper_compare_data);
+                    string? sorting_string = item.get_meta_string ("sorting");
+                    if (sorting_string != null) { /* we have to use a seperate if condition to avoid a `possibly unassigned local variable` error */
+                        if (double.try_parse (item.get_meta_string ("sorting"), out sorting)) {
+                            this.tab_sorting.insert_sorted_with_data (sorting, helper_compare_data);
 
-                        int index = this.tab_sorting.position (this.tab_sorting.find_custom (sorting, helper_compare_func));
+                            int index = this.tab_sorting.position (this.tab_sorting.find_custom (sorting, helper_compare_func));
 
-                        this.browser.notebook.reorder_child (tab, index);
+                            this.browser.notebook.reorder_child (tab, index);
+                        }
                     }
                 }
             }
@@ -213,7 +223,8 @@ namespace Tabby {
 
             public override void add_item (Katze.Item item) {
                 GLib.DateTime time = new DateTime.now_local ();
-                string sqlcmd = "INSERT INTO `tabs` (`crdate`, `tstamp`, `session_id`, `uri`, `title`) VALUES (:tstamp, :tstamp, :session_id, :uri, :title);";
+                string? sorting = item.get_meta_string ("sorting");
+                string sqlcmd = "INSERT INTO `tabs` (`crdate`, `tstamp`, `session_id`, `uri`, `title`, `sorting`) VALUES (:tstamp, :tstamp, :session_id, :uri, :title, :sorting);";
                 Sqlite.Statement stmt;
                 if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
                     critical (_("Failed to update database: %s"), db.errmsg);
@@ -221,6 +232,11 @@ namespace Tabby {
                 stmt.bind_int64 (stmt.bind_parameter_index (":session_id"), this.id);
                 stmt.bind_text (stmt.bind_parameter_index (":uri"), item.uri);
                 stmt.bind_text (stmt.bind_parameter_index (":title"), item.name);
+                if (sorting == null)
+                    stmt.bind_double (stmt.bind_parameter_index (":sorting"), double.parse ("1"));
+                else
+                    stmt.bind_double (stmt.bind_parameter_index (":sorting"), double.parse (sorting));
+
                 if (stmt.step () != Sqlite.DONE)
                     critical (_("Failed to update database: %s"), db.errmsg);
                 else {
@@ -248,6 +264,8 @@ namespace Tabby {
                 unowned Katze.Item item = view.get_proxy_item ();
                 int64 tab_id = item.get_meta_integer ("tabby-id");
                 if (tab_id < 1) {
+                    double? sorting = this.get_tab_sorting (view);
+                    item.set_meta_string ("sorting", sorting.to_string ());
                     this.add_item (item);
                 }
            }
