@@ -147,7 +147,10 @@ midori_private_data_get_dialog (MidoriBrowser* browser)
         G_CALLBACK (midori_private_data_dialog_response_cb), browser);
     gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT);
     #endif
+    /* Elementary */
     katze_widget_add_class (button, "noundo");
+    /* GNOME Shell */
+    katze_widget_add_class (button, "destructive-action");
     screen = gtk_widget_get_screen (GTK_WIDGET (browser));
     if (screen)
         gtk_window_set_icon_name (GTK_WINDOW (dialog), GTK_STOCK_CLEAR);

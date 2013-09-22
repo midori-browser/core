@@ -489,44 +489,25 @@ static FormHistoryPriv*
 formhistory_new (const gchar* config_dir)
 {
     gchar* filename;
-    sqlite3* db;
-    char* errmsg = NULL, *errmsg2 = NULL;
+    GError* error = NULL;
     FormHistoryPriv* priv = formhistory_private_new ();
     priv->master_password = NULL;
     priv->master_password_canceled = 0;
     formhistory_construct_popup_gui (priv);
 
     filename = g_build_filename (config_dir, "forms.db", NULL);
-    if (sqlite3_open (filename, &db) != SQLITE_OK)
-    {
-        g_warning (_("Failed to open database: %s\n"), sqlite3_errmsg (db));
-        sqlite3_close (db);
-    }
+    priv->database = midori_database_new (filename, &error);
     g_free (filename);
-    if ((sqlite3_exec (db, "CREATE TABLE IF NOT EXISTS "
-                           "forms (domain text, field text, value text)",
-                           NULL, NULL, &errmsg) == SQLITE_OK))
+    if (error != NULL)
     {
-        sqlite3_exec (db,
-            /* "PRAGMA synchronous = OFF; PRAGMA temp_store = MEMORY" */
-            "PRAGMA count_changes = OFF; PRAGMA journal_mode = TRUNCATE;",
-            NULL, NULL, &errmsg);
-        priv->db = db;
+        g_critical ("%s", error->message);
+        g_error_free (error);
+        priv->db = NULL;
+        return priv;
     }
-    else
-    {
-        if (errmsg)
-        {
-            g_critical (_("Failed to execute database statement: %s\n"), errmsg);
-            sqlite3_free (errmsg);
-            if (errmsg2)
-            {
-                g_critical (_("Failed to execute database statement: %s\n"), errmsg2);
-                sqlite3_free (errmsg2);
-            }
-        }
-        sqlite3_close (db);
-    }
+
+    priv->db = midori_database_get_db (MIDORI_DATABASE (priv->database));
+    g_warn_if_fail (priv->db != NULL);
     return priv;
 }
 

@@ -986,7 +986,17 @@ midori_array_to_file (KatzeArray*  array,
     return FALSE;
 }
 
-static void
+/**
+ * katze_item_set_value_from_columne:
+ * @stmt: prepared statement
+ * @column: column to read
+ * @item: #KatzeItem to populate
+ *
+ * Stores the column in the given #KatzeItem.
+ *
+ * Since: 0.2.7
+ **/
+void
 katze_item_set_value_from_column (sqlite3_stmt* stmt,
                                   gint          column,
                                   KatzeItem*    item)

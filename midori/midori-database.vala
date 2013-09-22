@@ -12,7 +12,8 @@
 namespace Midori {
     public errordomain DatabaseError {
         OPEN,
-        SCHEMA,
+        NAMING,
+        FILENAME,
         EXECUTE,
     }
 
@@ -48,22 +49,54 @@ namespace Midori {
 
             if (db.exec ("PRAGMA journal_mode = WAL; PRAGMA cache_size = 32100;") != Sqlite.OK)
                 db.exec ("PRAGMA synchronous = NORMAL; PRAGMA temp_store = MEMORY;");
+            db.exec ("PRAGMA count_changes = OFF;");
 
+            int64 version, user_version;
+            Sqlite.Statement stmt;
+            if (db.prepare_v2 ("PRAGMA user_version;", -1, out stmt, null) != Sqlite.OK)
+                throw new DatabaseError.EXECUTE ("Failed to compile statement %s".printf (db.errmsg ()));
+            if (stmt.step () != Sqlite.ROW)
+                throw new DatabaseError.EXECUTE ("Failed to get row %s".printf (db.errmsg ()));
+            version = user_version = stmt.column_int64 (0);
+
+            if (version == 0) {
+                exec_script ("Create");
+                user_version = version = 1;
+                exec ("PRAGMA user_version = " + user_version.to_string ());
+            }
+
+            while (true) {
+                int64 new_version = version + 1;
+                try {
+                    exec_script ("Update" + new_version.to_string ());
+                } catch (DatabaseError error) {
+                    if (error is DatabaseError.FILENAME)
+                        break;
+                    throw error;
+                }
+                user_version = new_version;
+                exec ("PRAGMA user_version = " + user_version.to_string ());
+            }
+
+            first_use = !exists;
+            return true;
+        }
+
+        public bool exec_script (string filename) throws DatabaseError {
             string basename = Path.get_basename (path);
             string[] parts = basename.split (".");
             if (!(parts != null && parts[0] != null && parts[1] != null))
-                throw new DatabaseError.SCHEMA ("Failed to deduce schema filename from %s".printf (path));
-            string schema_filename = Midori.Paths.get_res_filename (parts[0] + "/Create.sql");
+                throw new DatabaseError.NAMING ("Failed to deduce schema filename from %s".printf (path));
+            string schema_filename = Midori.Paths.get_res_filename (parts[0] + "/" + filename + ".sql");
             string schema;
             try {
                 FileUtils.get_contents (schema_filename, out schema, null);
             } catch (Error error) {
-                throw new DatabaseError.SCHEMA ("Failed to open schema: %s".printf (schema_filename));
+                throw new DatabaseError.FILENAME ("Failed to open schema: %s".printf (schema_filename));
             }
+            schema = "BEGIN TRANSACTION; %s; COMMIT;".printf (schema);
             if (db.exec (schema) != Sqlite.OK)
                 throw new DatabaseError.EXECUTE ("Failed to execute schema: %s".printf (schema));
-
-            first_use = !exists;
             return true;
         }
 
