@@ -51,22 +51,22 @@ namespace Midori {
                 db.exec ("PRAGMA synchronous = NORMAL; PRAGMA temp_store = MEMORY;");
             db.exec ("PRAGMA count_changes = OFF;");
 
-            int64 version, user_version;
+            int64 user_version;
             Sqlite.Statement stmt;
             if (db.prepare_v2 ("PRAGMA user_version;", -1, out stmt, null) != Sqlite.OK)
                 throw new DatabaseError.EXECUTE ("Failed to compile statement %s".printf (db.errmsg ()));
             if (stmt.step () != Sqlite.ROW)
                 throw new DatabaseError.EXECUTE ("Failed to get row %s".printf (db.errmsg ()));
-            version = user_version = stmt.column_int64 (0);
+            user_version = stmt.column_int64 (0);
 
-            if (version == 0) {
+            if (user_version == 0) {
                 exec_script ("Create");
-                user_version = version = 1;
+                user_version = 1;
                 exec ("PRAGMA user_version = " + user_version.to_string ());
             }
 
             while (true) {
-                int64 new_version = version + 1;
+                int64 new_version = user_version + 1;
                 try {
                     exec_script ("Update" + new_version.to_string ());
                 } catch (DatabaseError error) {
