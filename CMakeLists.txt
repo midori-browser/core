@@ -70,8 +70,7 @@ if (WIN32)
     set(VALAFLAGS ${VALAFLAGS} -D HAVE_WIN32)
 endif ()
 
-string(FIND ${CMAKE_SYSTEM_NAME} "FreeBSD" FREEBSD)
-if (FREEBSD GREATER -1)
+if (${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD")
     set(VALAFLAGS ${VALAFLAGS} -D HAVE_FREEBSD)
 endif ()
 
@@ -80,6 +79,17 @@ if (APPLE)
     set(VALAFLAGS ${VALAFLAGS} -D HAVE_OSX)
 else ()
     add_definitions("-DHAVE_OSX=0")
+endif ()
+
+# Check if execinfo.h header exists
+string(FIND ${CMAKE_SYSTEM_NAME} "BSD" BEGIN)
+if (${BEGIN} GREATER 0)
+    string(SUBSTRING ${CMAKE_SYSTEM_NAME} ${BEGIN} 3 BSD)
+else()
+    set(BSD 0)
+endif()
+if (UNIX AND NOT BSD)
+    set(VALAFLAGS ${VALAFLAGS} -D HAVE_EXECINFO_H)
 endif ()
 
 find_package(PkgConfig)
