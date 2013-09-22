@@ -80,7 +80,7 @@ namespace Tabby {
             public void attach (Midori.Browser browser) {
                 this.browser = browser;
 
-                browser.add_tab.connect (this.tab_added);
+                browser.add_tab.connect_after (this.tab_added);
                 browser.add_tab.connect (this.helper_uri_changed);
                 browser.remove_tab.connect (this.tab_removed);
                 browser.switch_tab.connect (this.tab_switched);
@@ -103,7 +103,7 @@ namespace Tabby {
                     tabs.add_item (item);
                 }
 
-                browser.add_tab.connect (this.tab_added);
+                browser.add_tab.connect_after (this.tab_added);
                 browser.add_tab.connect (this.helper_uri_changed);
                 browser.remove_tab.connect (this.tab_removed);
                 browser.switch_tab.connect (this.tab_switched);
