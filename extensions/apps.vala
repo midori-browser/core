@@ -57,21 +57,23 @@ namespace Apps {
             catch (Error error) {
                 GLib.warning (_("Failed to fetch application icon in %s: %s"), folder.get_path (), error.message);
             }
-            string contents = """
-                [Desktop Entry]
-                Version=1.0
-                Type=Application
-                Name=%s
-                Exec=%s
-                TryExec=%s
-                Icon=%s
-                Categories=Network;
-                """.printf (name, exec, PACKAGE_NAME, icon_name);
+
+            var keyfile = new GLib.KeyFile ();
+            string entry = "Desktop Entry";
+
+            keyfile.set_double (entry, "Version", 1.0);
+            keyfile.set_string (entry, "Type", "Application");
+            keyfile.set_string (entry, "Name", name);
+            keyfile.set_string (entry, "Exec", exec);
+            keyfile.set_string (entry, "TryExec", PACKAGE_NAME);
+            keyfile.set_string (entry, "Icon", icon_name);
+            keyfile.set_string (entry, "Categories", "Network;");
+
             var file = folder.get_child ("desc");
             var browser = proxy.get_toplevel () as Midori.Browser;
             try {
                 var stream = yield file.replace_async (null, false, GLib.FileCreateFlags.NONE);
-                yield stream.write_async (contents.data);
+                yield stream.write_async (keyfile.to_data().data);
                 // Create a launcher/ menu
 #if HAVE_WIN32
                 Midori.Sokoke.create_win32_desktop_lnk (prefix, filename, uri);
