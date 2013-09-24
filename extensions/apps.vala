@@ -20,10 +20,33 @@ namespace Apps {
         internal string exec;
         internal string uri;
 
-        internal static async void create (string prefix, GLib.File folder, string uri, string title, Gtk.Widget proxy, bool testing) {
-            /* Strip LRE leading character and / */
-            string name = title.delimit ("‪/", ' ').strip();
-            string filename = Midori.Download.clean_filename (name);
+        internal static string app_get_favicon_name_for_uri (string prefix, GLib.File folder, string uri)
+        {
+            string icon_name = Midori.Stock.WEB_BROWSER;
+            if (prefix != PROFILE_PREFIX)
+            {
+                try {
+                    var pixbuf = Midori.Paths.get_icon (uri, null);
+                    if (pixbuf == null)
+                        throw new FileError.EXIST ("No favicon loaded");
+                    string icon_filename = folder.get_child ("icon.png").get_path ();
+                    pixbuf.save (icon_filename, "png", null, "compression", "7", null);
+#if HAVE_WIN32
+                    string doubleslash_icon = icon_filename.replace ("\\", "\\\\");
+                    icon_name = doubleslash_icon;
+#else
+                    icon_name = icon_filename;
+#endif
+                }
+                catch (Error error) {
+                    GLib.warning (_("Failed to fetch application icon in %s: %s"), folder.get_path (), error.message);
+                }
+            }
+            return icon_name;
+        }
+
+        internal static string app_prepare_desktop_file (string prefix, GLib.File folder, string name, string uri, string title, string icon_name)
+        {
             string exec;
 #if HAVE_WIN32
             string doubleslash_uri = uri.replace ("\\", "\\\\");
@@ -32,38 +55,6 @@ namespace Apps {
 #else
             exec = prefix + uri;
 #endif
-            try {
-                folder.make_directory_with_parents (null);
-            }
-            catch (Error error) {
-                /* It's not an error if the folder already exists;
-                   any fatal problems will fail further down the line */
-            }
-
-            string icon_name = Midori.Stock.WEB_BROWSER;
-            if (testing == false)
-            {
-                if (prefix != PROFILE_PREFIX)
-                {
-                    try {
-                        var pixbuf = Midori.Paths.get_icon (uri, null);
-                        if (pixbuf == null)
-                            throw new FileError.EXIST ("No favicon loaded");
-                        string icon_filename = folder.get_child ("icon.png").get_path ();
-                        pixbuf.save (icon_filename, "png", null, "compression", "7", null);
-#if HAVE_WIN32
-                        string doubleslash_icon = icon_filename.replace ("\\", "\\\\");
-                        icon_name = doubleslash_icon;
-#else
-                        icon_name = icon_filename;
-#endif
-                    }
-                    catch (Error error) {
-                        GLib.warning (_("Failed to fetch application icon in %s: %s"), folder.get_path (), error.message);
-                    }
-                }
-            }
-
             var keyfile = new GLib.KeyFile ();
             string entry = "Desktop Entry";
 
@@ -75,19 +66,44 @@ namespace Apps {
             keyfile.set_string (entry, "Icon", icon_name);
             keyfile.set_string (entry, "Categories", "Network;");
 
+            return keyfile.to_data();
+        }
+
+        internal static async void create (string prefix, GLib.File folder, string uri, string title, Gtk.Widget proxy, bool testing) {
+            /* Strip LRE leading character and / */
+            string name = title.delimit ("‪/", ' ').strip();
+            string filename = Midori.Download.clean_filename (name);
+            string icon_name = Midori.Stock.WEB_BROWSER;
+
+            try {
+                folder.make_directory_with_parents (null);
+            }
+            catch (Error error) {
+                /* It's not an error if the folder already exists;
+                   any fatal problems will fail further down the line */
+            }
+
+            if (testing == false)
+                icon_name = app_get_favicon_name_for_uri (prefix, folder, uri);
+
+            string desktop_file = app_prepare_desktop_file (prefix, folder, name, uri, title, icon_name);
+
             var file = folder.get_child ("desc");
             var browser = proxy.get_toplevel () as Midori.Browser;
             try {
                 var stream = yield file.replace_async (null, false, GLib.FileCreateFlags.NONE);
-                yield stream.write_async (keyfile.to_data().data);
-                // Create a launcher/ menu
+                yield stream.write_async (desktop_file.data);
+                if (testing == false)
+                {
+                    // Create a launcher/ menu
 #if HAVE_WIN32
-                Midori.Sokoke.create_win32_desktop_lnk (prefix, filename, uri);
+                    Midori.Sokoke.create_win32_desktop_lnk (prefix, filename, uri);
 #else
-                var data_dir = File.new_for_path (Midori.Paths.get_user_data_dir ());
-                yield file.copy_async (data_dir.get_child ("applications").get_child (filename + ".desktop"),
-                    GLib.FileCopyFlags.NONE);
+                    var data_dir = File.new_for_path (Midori.Paths.get_user_data_dir ());
+                    yield file.copy_async (data_dir.get_child ("applications").get_child (filename + ".desktop"),
+                        GLib.FileCopyFlags.NONE);
 #endif
+                }
 
                 browser.send_notification (_("Launcher created"),
                     _("You can now run <b>%s</b> from your launcher or menu").printf (name));
