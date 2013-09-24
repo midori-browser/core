@@ -20,7 +20,7 @@ namespace Apps {
         internal string exec;
         internal string uri;
 
-        internal static async void create (string prefix, GLib.File folder, string uri, string title, Gtk.Widget proxy) {
+        internal static async void create (string prefix, GLib.File folder, string uri, string title, Gtk.Widget proxy, bool testing) {
             /* Strip LRE leading character and / */
             string name = title.delimit ("‪/", ' ').strip();
             string filename = Midori.Download.clean_filename (name);
@@ -41,21 +41,27 @@ namespace Apps {
             }
 
             string icon_name = Midori.Stock.WEB_BROWSER;
-            try {
-                var pixbuf = Midori.Paths.get_icon (uri, null);
-                if (pixbuf == null)
-                    throw new FileError.EXIST ("No favicon loaded");
-                string icon_filename = folder.get_child ("icon.png").get_path ();
-                pixbuf.save (icon_filename, "png", null, "compression", "7", null);
+            if (testing == false)
+            {
+                if (prefix != PROFILE_PREFIX)
+                {
+                    try {
+                        var pixbuf = Midori.Paths.get_icon (uri, null);
+                        if (pixbuf == null)
+                            throw new FileError.EXIST ("No favicon loaded");
+                        string icon_filename = folder.get_child ("icon.png").get_path ();
+                        pixbuf.save (icon_filename, "png", null, "compression", "7", null);
 #if HAVE_WIN32
-                string doubleslash_icon = icon_filename.replace ("\\", "\\\\");
-                icon_name = doubleslash_icon;
+                        string doubleslash_icon = icon_filename.replace ("\\", "\\\\");
+                        icon_name = doubleslash_icon;
 #else
-                icon_name = icon_filename;
+                        icon_name = icon_filename;
 #endif
-            }
-            catch (Error error) {
-                GLib.warning (_("Failed to fetch application icon in %s: %s"), folder.get_path (), error.message);
+                    }
+                    catch (Error error) {
+                        GLib.warning (_("Failed to fetch application icon in %s: %s"), folder.get_path (), error.message);
+                    }
+                }
             }
 
             var keyfile = new GLib.KeyFile ();
@@ -145,7 +151,7 @@ namespace Apps {
                     string config = Path.build_path (Path.DIR_SEPARATOR_S,
                         Midori.Paths.get_user_data_dir (), PACKAGE_NAME, "profiles", uuid);
                     Launcher.create.begin (PROFILE_PREFIX, profile_folder.get_child (uuid),
-                        config, _("Midori (%s)").printf (uuid), this);
+                        config, _("Midori (%s)").printf (uuid), this, false);
                 });
                 toolbar.insert (profile, -1);
 #endif
@@ -160,7 +166,7 @@ namespace Apps {
                     var view = (get_toplevel () as Midori.Browser).tab as Midori.View;
                     string checksum = Checksum.compute_for_string (ChecksumType.MD5, view.get_display_uri (), -1);
                     Launcher.create.begin (APP_PREFIX, app_folder.get_child (checksum),
-                        view.get_display_uri (), view.get_display_title (), this);
+                        view.get_display_uri (), view.get_display_title (), this, false);
                 });
                 toolbar.insert (app, -1);
             }
@@ -396,7 +402,7 @@ namespace Apps {
                 var view = browser.tab as Midori.View;
                 string checksum = Checksum.compute_for_string (ChecksumType.MD5, view.get_display_uri (), -1);
                 Launcher.create.begin (APP_PREFIX, app_folder.get_child (checksum),
-                    view.get_display_uri (), view.get_display_title (), browser);
+                    view.get_display_uri (), view.get_display_title (), browser, false);
             });
             action_group.add_action_with_accel (action, "<Ctrl><Shift>A");
             action.set_accel_group (accels);
@@ -456,5 +462,23 @@ namespace Apps {
 
 public Midori.Extension extension_init () {
     return new Apps.Manager ();
+}
+
+void extensions_apps_desktop () {
+    Midori.Test.log_set_fatal_handler_for_icons ();
+    var browser = new Midori.Browser ();
+    var folder = File.new_for_path (Midori.Paths.make_tmp_dir ("XXXXXX"));
+
+    Apps.Launcher.create.begin (Apps.APP_PREFIX, folder,
+        "http://example.com", "Example", browser, true);
+
+
+    string uuid = g_dbus_generate_guid ();
+    Apps.Launcher.create.begin (Apps.PROFILE_PREFIX, folder,
+        uuid, _("Midori (%s)").printf (uuid), browser, true);
+}
+
+public void extension_test () {
+    Test.add_func ("/extensions/apps/desktop", extensions_apps_desktop);
 }
 
