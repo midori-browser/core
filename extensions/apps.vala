@@ -20,7 +20,7 @@ namespace Apps {
         internal string exec;
         internal string uri;
 
-        internal static string app_get_favicon_name_for_uri (string prefix, GLib.File folder, string uri)
+        internal static string get_favicon_name_for_uri (string prefix, GLib.File folder, string uri)
         {
             string icon_name = Midori.Stock.WEB_BROWSER;
             if (prefix != PROFILE_PREFIX)
@@ -45,7 +45,7 @@ namespace Apps {
             return icon_name;
         }
 
-        internal static string app_prepare_desktop_file (string prefix, GLib.File folder, string name, string uri, string title, string icon_name)
+        internal static string prepare_desktop_file (string prefix, string name, string uri, string title, string icon_name)
         {
             string exec;
 #if HAVE_WIN32
@@ -69,7 +69,33 @@ namespace Apps {
             return keyfile.to_data();
         }
 
-        internal static async void create (string prefix, GLib.File folder, string uri, string title, Gtk.Widget proxy, bool testing) {
+        internal static File get_app_folder () {
+            var data_dir = File.new_for_path (Midori.Paths.get_user_data_dir ()).get_child (PACKAGE_NAME);
+            return data_dir.get_child ("apps");
+        }
+
+        internal static async void create_app (string uri, string title, Gtk.Widget? proxy) {
+            string checksum = Checksum.compute_for_string (ChecksumType.MD5, uri, -1);
+            var folder = get_app_folder ();
+            yield Launcher.create (APP_PREFIX, folder.get_child (checksum),
+                uri, title, proxy);
+        }
+
+        internal static File get_profile_folder () {
+            var data_dir = File.new_for_path (Midori.Paths.get_user_data_dir ()).get_child (PACKAGE_NAME);
+            return data_dir.get_child ("profiles");
+        }
+
+        internal static async void create_profile (Gtk.Widget? proxy) {
+            string uuid = g_dbus_generate_guid ();
+            string config = Path.build_path (Path.DIR_SEPARATOR_S,
+                Midori.Paths.get_user_data_dir (), PACKAGE_NAME, "profiles", uuid);
+            var folder = get_profile_folder ();
+            yield Launcher.create (PROFILE_PREFIX, folder.get_child (uuid),
+                config, _("Midori (%s)").printf (uuid), proxy);
+        }
+
+        internal static async void create (string prefix, GLib.File folder, string uri, string title, Gtk.Widget proxy) {
             /* Strip LRE leading character and / */
             string name = title.delimit ("‪/", ' ').strip();
             string filename = Midori.Download.clean_filename (name);
@@ -83,35 +109,34 @@ namespace Apps {
                    any fatal problems will fail further down the line */
             }
 
-            if (testing == false)
-                icon_name = app_get_favicon_name_for_uri (prefix, folder, uri);
-
-            string desktop_file = app_prepare_desktop_file (prefix, folder, name, uri, title, icon_name);
+            icon_name = get_favicon_name_for_uri (prefix, folder, uri);
+            string desktop_file = prepare_desktop_file (prefix, name, uri, title, icon_name);
 
             var file = folder.get_child ("desc");
-            var browser = proxy.get_toplevel () as Midori.Browser;
             try {
                 var stream = yield file.replace_async (null, false, GLib.FileCreateFlags.NONE);
                 yield stream.write_async (desktop_file.data);
-                if (testing == false)
-                {
-                    // Create a launcher/ menu
+                // Create a launcher/ menu
 #if HAVE_WIN32
-                    Midori.Sokoke.create_win32_desktop_lnk (prefix, filename, uri);
+                Midori.Sokoke.create_win32_desktop_lnk (prefix, filename, uri);
 #else
-                    var data_dir = File.new_for_path (Midori.Paths.get_user_data_dir ());
-                    yield file.copy_async (data_dir.get_child ("applications").get_child (filename + ".desktop"),
-                        GLib.FileCopyFlags.NONE);
+                var data_dir = File.new_for_path (Midori.Paths.get_user_data_dir ());
+                yield file.copy_async (data_dir.get_child ("applications").get_child (filename + ".desktop"),
+                    GLib.FileCopyFlags.NONE);
 #endif
+                if (proxy != null) {
+                    var browser = proxy.get_toplevel () as Midori.Browser;
+                    browser.send_notification (_("Launcher created"),
+                        _("You can now run <b>%s</b> from your launcher or menu").printf (name));
                 }
-
-                browser.send_notification (_("Launcher created"),
-                    _("You can now run <b>%s</b> from your launcher or menu").printf (name));
             }
             catch (Error error) {
                 warning (_("Failed to create new launcher (%s): %s"), file.get_path (), error.message);
-                browser.send_notification (_("Error creating launcher"),
-                    _("Failed to create new launcher (%s): %s").printf (file.get_path (), error.message));
+                if (proxy != null) {
+                    var browser = proxy.get_toplevel () as Midori.Browser;
+                    browser.send_notification (_("Error creating launcher"),
+                        _("Failed to create new launcher (%s): %s").printf (file.get_path (), error.message));
+                }
             }
         }
 
@@ -163,11 +188,7 @@ namespace Apps {
                 profile.is_important = true;
                 profile.show ();
                 profile.clicked.connect (() => {
-                    string uuid = g_dbus_generate_guid ();
-                    string config = Path.build_path (Path.DIR_SEPARATOR_S,
-                        Midori.Paths.get_user_data_dir (), PACKAGE_NAME, "profiles", uuid);
-                    Launcher.create.begin (PROFILE_PREFIX, profile_folder.get_child (uuid),
-                        config, _("Midori (%s)").printf (uuid), this, false);
+                    Launcher.create_profile.begin (this);
                 });
                 toolbar.insert (profile, -1);
 #endif
@@ -182,7 +203,7 @@ namespace Apps {
                     var view = (get_toplevel () as Midori.Browser).tab as Midori.View;
                     string checksum = Checksum.compute_for_string (ChecksumType.MD5, view.get_display_uri (), -1);
                     Launcher.create.begin (APP_PREFIX, app_folder.get_child (checksum),
-                        view.get_display_uri (), view.get_display_title (), this, false);
+                        view.get_display_uri (), view.get_display_title (), this);
                 });
                 toolbar.insert (app, -1);
             }
@@ -416,9 +437,7 @@ namespace Apps {
                 _("Creates a new app for a specific site"), null);
             action.activate.connect (() => {
                 var view = browser.tab as Midori.View;
-                string checksum = Checksum.compute_for_string (ChecksumType.MD5, view.get_display_uri (), -1);
-                Launcher.create.begin (APP_PREFIX, app_folder.get_child (checksum),
-                    view.get_display_uri (), view.get_display_title (), browser, false);
+                Launcher.create_app.begin (view.get_display_uri (), view.get_display_title (), view);
             });
             action_group.add_action_with_accel (action, "<Ctrl><Shift>A");
             action.set_accel_group (accels);
@@ -432,12 +451,11 @@ namespace Apps {
 
         void activated (Midori.App app) {
             array = new Katze.Array (typeof (Launcher));
-            var data_dir = File.new_for_path (Midori.Paths.get_user_data_dir ()).get_child (PACKAGE_NAME);
             monitors = new GLib.List<GLib.FileMonitor> ();
-            app_folder = data_dir.get_child ("apps");
+            app_folder = Launcher.get_app_folder ();
             populate_apps.begin (app_folder);
             /* FIXME: Profiles are broken on win32 because of no multi instance support */
-            profile_folder = data_dir.get_child ("profiles");
+            profile_folder = Launcher.get_profile_folder ();
 #if !HAVE_WIN32
             populate_apps.begin (profile_folder);
 #endif
@@ -481,17 +499,12 @@ public Midori.Extension extension_init () {
 }
 
 void extensions_apps_desktop () {
-    Midori.Test.log_set_fatal_handler_for_icons ();
-    var browser = new Midori.Browser ();
-    var folder = File.new_for_path (Midori.Paths.make_tmp_dir ("XXXXXX"));
-
-    Apps.Launcher.create.begin (Apps.APP_PREFIX, folder,
-        "http://example.com", "Example", browser, true);
-
-
-    string uuid = g_dbus_generate_guid ();
-    Apps.Launcher.create.begin (Apps.PROFILE_PREFIX, folder,
-        uuid, _("Midori (%s)").printf (uuid), browser, true);
+    try {
+        Apps.Launcher.create_app.begin ("http://example.com", "Example", null);
+        Apps.Launcher.create_profile.begin (null);
+    } catch (Error error) {
+        GLib.error (error.message);
+    }
 }
 
 public void extension_test () {
