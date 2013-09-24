@@ -58,7 +58,7 @@ namespace Apps {
             var keyfile = new GLib.KeyFile ();
             string entry = "Desktop Entry";
 
-            keyfile.set_double (entry, "Version", 1.0);
+            keyfile.set_string (entry, "Version", "1.0");
             keyfile.set_string (entry, "Type", "Application");
             keyfile.set_string (entry, "Name", name);
             keyfile.set_string (entry, "Exec", exec);
