@@ -20,9 +20,13 @@ namespace Apps {
         internal string exec;
         internal string uri;
 
-        internal static string get_favicon_name_for_uri (string prefix, GLib.File folder, string uri)
+        internal static string get_favicon_name_for_uri (string prefix, GLib.File folder, string uri, bool testing)
         {
             string icon_name = Midori.Stock.WEB_BROWSER;
+
+            if (testing == true)
+                return icon_name;
+
             if (prefix != PROFILE_PREFIX)
             {
                 try {
@@ -100,6 +104,9 @@ namespace Apps {
             string name = title.delimit ("‪/", ' ').strip();
             string filename = Midori.Download.clean_filename (name);
             string icon_name = Midori.Stock.WEB_BROWSER;
+            bool testing = false;
+            if (proxy == null)
+                testing = true;
 
             try {
                 folder.make_directory_with_parents (null);
@@ -109,7 +116,7 @@ namespace Apps {
                    any fatal problems will fail further down the line */
             }
 
-            icon_name = get_favicon_name_for_uri (prefix, folder, uri);
+            icon_name = get_favicon_name_for_uri (prefix, folder, uri, testing);
             string desktop_file = prepare_desktop_file (prefix, name, uri, title, icon_name);
 
             var file = folder.get_child ("desc");
