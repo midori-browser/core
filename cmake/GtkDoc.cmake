@@ -14,25 +14,26 @@ if (GTKDOC_SCAN_BIN AND GTKDOC_MKTMPL_BIN AND GTKDOC_MKDB_BIN
     set (GTKDOC_FOUND TRUE)
 
     macro (gtkdoc_build module)
+        # file (MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${module}")
         add_custom_target ("gtkdoc-scan_${module}" ALL
             ${GTKDOC_SCAN_BIN} --module=${module}
-                --source-dir="../../${module}"
-                --output-dir="${module}"
+                --source-dir="${CMAKE_SOURCE_DIR}/${module}"
+                --output-dir="${CMAKE_CURRENT_BINARY_DIR}"
                 --rebuild-sections --rebuild-types
-            WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+                WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 
         add_custom_target ("gtkdoc-tmpl_${module}" ALL
             ${GTKDOC_MKTMPL_BIN} --module=${module}
-            WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${module}")
+            --output-dir="${CMAKE_CURRENT_BINARY_DIR}"
+            WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 
         add_custom_target ("gtkdoc-docbook_${module}" ALL
             ${GTKDOC_MKDB_BIN} --module=${module}
-                --source-dir="."
                 --output-dir="xml"
                 --source-suffixes=c,h --output-format=xml
                 --default-includes=${module}/${module}.h
                 --sgml-mode --main-sgml-file=${module}.sgml
-            WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${module}")
+            WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 
         add_dependencies ("gtkdoc-docbook_${module}"
             "gtkdoc-tmpl_${module}"
@@ -41,19 +42,19 @@ if (GTKDOC_SCAN_BIN AND GTKDOC_MKTMPL_BIN AND GTKDOC_MKDB_BIN
         # Keep this target alone, otherwise build fails
         add_custom_target ("gtkdoc-html_${module}" ALL
             ${GTKDOC_MKHTML_BIN} ${module}
-                "../${module}.sgml"
-            WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${module}/html")
+            "${CMAKE_CURRENT_BINARY_DIR}/${module}.sgml"
+            WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${module}/html")
 
         add_dependencies ("gtkdoc-html_${module}"
             "gtkdoc-docbook_${module}")
     endmacro (gtkdoc_build module)
 
     macro (gtkdoc module)
-        file (MAKE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${module}/html")
+        file (MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${module}/html")
         gtkdoc_build (${module})
 
         set (DOC_DIR "html/midori-${MIDORI_MAJOR_VERSION}-${MIDORI_MINOR_VERSION}")
-        install (DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${module}/html/"
+        install (DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${module}/html/"
             DESTINATION "${CMAKE_INSTALL_DATADIR}/gtk-doc/${DOC_DIR}/${module}"
             PATTERN "html/*"
             PATTERN "index.sgml" EXCLUDE)
