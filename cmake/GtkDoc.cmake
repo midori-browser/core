@@ -32,6 +32,7 @@ if (GTKDOC_SCAN_BIN AND GTKDOC_MKTMPL_BIN AND GTKDOC_MKDB_BIN
         add_custom_target ("gtkdoc-docbook_${module}" ALL
             ${GTKDOC_MKDB_BIN} --module=${module}
                 --output-dir="xml"
+                --source-dir="${CMAKE_SOURCE_DIR}/${module}"
                 --source-suffixes=c,h --output-format=xml
                 --default-includes=${module}/${module}.h
                 --sgml-mode --main-sgml-file=${module}.sgml
