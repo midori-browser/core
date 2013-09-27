@@ -14,18 +14,20 @@ if (GTKDOC_SCAN_BIN AND GTKDOC_MKTMPL_BIN AND GTKDOC_MKDB_BIN
     set (GTKDOC_FOUND TRUE)
 
     macro (gtkdoc_build module)
+        message("gtkdoc: module ${module}")
         # file (MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${module}")
         add_custom_target ("gtkdoc-scan_${module}" ALL
             ${GTKDOC_SCAN_BIN} --module=${module}
                 --source-dir="${CMAKE_SOURCE_DIR}/${module}"
-                --output-dir="${CMAKE_CURRENT_BINARY_DIR}"
+                --output-dir="${CMAKE_CURRENT_BINARY_DIR}/${module}"
                 --rebuild-sections --rebuild-types
                 WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 
         add_custom_target ("gtkdoc-tmpl_${module}" ALL
             ${GTKDOC_MKTMPL_BIN} --module=${module}
             --output-dir="${CMAKE_CURRENT_BINARY_DIR}"
-            WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
+            WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${module}"
+            DEPENDS "gtkdoc-scan_${module}")
 
         add_custom_target ("gtkdoc-docbook_${module}" ALL
             ${GTKDOC_MKDB_BIN} --module=${module}
@@ -33,20 +35,16 @@ if (GTKDOC_SCAN_BIN AND GTKDOC_MKTMPL_BIN AND GTKDOC_MKDB_BIN
                 --source-suffixes=c,h --output-format=xml
                 --default-includes=${module}/${module}.h
                 --sgml-mode --main-sgml-file=${module}.sgml
-            WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
-
-        add_dependencies ("gtkdoc-docbook_${module}"
-            "gtkdoc-tmpl_${module}"
-            "gtkdoc-scan_${module}")
+            WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${module}"
+            DEPENDS "gtkdoc-tmpl_${module}")
 
         # Keep this target alone, otherwise build fails
         add_custom_target ("gtkdoc-html_${module}" ALL
             ${GTKDOC_MKHTML_BIN} ${module}
-            "${CMAKE_CURRENT_BINARY_DIR}/${module}.sgml"
-            WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${module}/html")
+            "${CMAKE_CURRENT_BINARY_DIR}/${module}/${module}.sgml"
+            WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${module}/html"
+            DEPENDS "gtkdoc-docbook_${module}")
 
-        add_dependencies ("gtkdoc-html_${module}"
-            "gtkdoc-docbook_${module}")
     endmacro (gtkdoc_build module)
 
     macro (gtkdoc module)
