@@ -165,9 +165,36 @@ namespace Tabby {
 
             protected double? get_tab_sorting (Midori.View view) {
                 int this_pos = this.browser.notebook.page_num (view);
-                //Gtk.Widget prev_view = this.browser.notebook.get_nth_page (this_pos - 1);
-                //Gtk.Widget next_view = this.browser.notebook.get_nth_page (this_pos + 1);
-                return double.parse ("%i".printf(this_pos));
+                Midori.View prev_view = this.browser.notebook.get_nth_page (this_pos - 1) as Midori.View;
+                Midori.View next_view = this.browser.notebook.get_nth_page (this_pos + 1) as Midori.View;
+
+                string? prev_meta_sorting = null;
+                string? next_meta_sorting = null;
+                double? prev_sorting, next_sorting, this_sorting;
+
+                if (prev_view != null) {
+                    unowned Katze.Item prev_item = prev_view.get_proxy_item ();
+                    prev_meta_sorting = prev_item.get_meta_string ("sorting");
+                }
+
+                if (prev_meta_sorting == null)
+                    prev_sorting = double.parse ("0");
+                else
+                    prev_sorting = double.parse (prev_meta_sorting);
+
+                if (next_view != null) {
+                    unowned Katze.Item next_item = next_view.get_proxy_item ();
+                    next_meta_sorting = next_item.get_meta_string ("sorting");
+                }
+
+                if (next_meta_sorting == null)
+                    next_sorting = prev_sorting + 2048;
+                else
+                    next_sorting = double.parse (next_meta_sorting);
+
+                this_sorting = prev_sorting + (next_sorting - prev_sorting) / 2;
+
+                return this_sorting;
             }
 
             private void helper_uri_changed (Midori.Browser browser, Midori.View view) {
