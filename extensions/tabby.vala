@@ -67,6 +67,7 @@ namespace Tabby {
         public abstract class Session : GLib.Object, ISession {
             public abstract void add_item (Katze.Item item);
             public abstract void uri_changed (Midori.View view, string uri);
+            public abstract void data_changed (Midori.View view);
             public abstract void tab_added (Midori.Browser browser, Midori.View view);
             public abstract void tab_removed (Midori.Browser browser, Midori.View view);
             public abstract void close ();
@@ -74,12 +75,12 @@ namespace Tabby {
 
             public void attach (Midori.Browser browser) {
                 browser.add_tab.connect (this.tab_added);
-                browser.add_tab.connect (this.helper_uri_changed);
+                browser.add_tab.connect (this.helper_data_changed);
                 browser.remove_tab.connect (this.tab_removed);
 
                 foreach (Midori.View view in browser.get_tabs ()) {
                     this.tab_added (browser, view);
-                    this.helper_uri_changed (browser, view);
+                    this.helper_data_changed (browser, view);
                 }
             }
 
@@ -93,7 +94,7 @@ namespace Tabby {
                 }
 
                 browser.add_tab.connect (this.tab_added);
-                browser.add_tab.connect (this.helper_uri_changed);
+                browser.add_tab.connect (this.helper_data_changed);
                 browser.remove_tab.connect (this.tab_removed);
 
                 GLib.List<unowned Katze.Item> items = tabs.get_items ();
@@ -124,10 +125,22 @@ namespace Tabby {
                 });
             }
 
-            private void helper_uri_changed (Midori.Browser browser, Midori.View view) {
-                /* FixMe: skip first event while restoring the session */
-                view.web_view.notify["uri"].connect ( () => {
-                    this.uri_changed (view, view.web_view.uri);
+            private void helper_data_changed (Midori.Browser browser, Midori.View view) {
+                ulong sig_id = 0;
+                sig_id = view.web_view.load_started.connect (() => {
+                    unowned Katze.Item item = view.get_proxy_item ();
+
+                    int64 delay = item.get_meta_integer ("delay");
+                    if (delay == Midori.Delay.UNDELAYED) {
+                        view.web_view.notify["uri"].connect ( () => {
+                            this.uri_changed (view, view.web_view.uri);
+                        });
+                        view.web_view.notify["title"].connect ( () => {
+                            this.data_changed (view);
+                        });
+
+                        GLib.SignalHandler.disconnect (view.web_view, sig_id);
+                    }
                 });
             }
         }
@@ -160,11 +173,24 @@ namespace Tabby {
             protected override void uri_changed (Midori.View view, string uri) {
                 unowned Katze.Item item = view.get_proxy_item ();
                 int64 tab_id = item.get_meta_integer ("tabby-id");
-                string sqlcmd = "UPDATE `tabs` SET uri = :uri, title = :title WHERE session_id = :session_id AND id = :tab_id;";
+                string sqlcmd = "UPDATE `tabs` SET uri = :uri WHERE session_id = :session_id AND id = :tab_id;";
                 Sqlite.Statement stmt;
                 if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
                     critical (_("Failed to update database: %s"), db.errmsg ());
                 stmt.bind_text (stmt.bind_parameter_index (":uri"), uri);
+                stmt.bind_int64 (stmt.bind_parameter_index (":session_id"), this.id);
+                stmt.bind_int64 (stmt.bind_parameter_index (":tab_id"), tab_id);
+                if (stmt.step () != Sqlite.DONE)
+                    critical (_("Failed to update database: %s"), db.errmsg ());
+            }
+
+            protected override void data_changed (Midori.View view) {
+                unowned Katze.Item item = view.get_proxy_item ();
+                int64 tab_id = item.get_meta_integer ("tabby-id");
+                string sqlcmd = "UPDATE `tabs` SET title = :title WHERE session_id = :session_id AND id = :tab_id;";
+                Sqlite.Statement stmt;
+                if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
+                    critical (_("Failed to update database: %s"), db.errmsg ());
                 stmt.bind_text (stmt.bind_parameter_index (":title"), view.get_display_title ());
                 stmt.bind_int64 (stmt.bind_parameter_index (":session_id"), this.id);
                 stmt.bind_int64 (stmt.bind_parameter_index (":tab_id"), tab_id);

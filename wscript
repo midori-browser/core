@@ -228,6 +228,8 @@ def configure (conf):
     elif sys.platform != 'darwin':
         if sys.platform.startswith ('freebsd'):
             conf.env.append_value ('VALAFLAGS', '-D HAVE_FREEBSD')
+        else:
+            conf.env.append_value ('VALAFLAGS', '-D HAVE_EXECINFO_H')
 
         check_pkg ('x11')
         # Pass /usr/X11R6/include for OpenBSD

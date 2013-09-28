@@ -82,8 +82,7 @@ namespace DelayedLoad {
                 Midori.View? view = browser.tab as Midori.View;
                 Midori.View scheduled_view = tasks.index (0) as Midori.View;
                 if (scheduled_view == view) {
-                    Katze.Item item = view.get_proxy_item ();
-                    item.ref();
+                    unowned Katze.Item item = view.get_proxy_item ();
 
                     int64 delay = item.get_meta_integer ("delay");
                     if (delay == Midori.Delay.PENDING_UNDELAY) {
@@ -136,8 +135,7 @@ namespace DelayedLoad {
                 Midori.App app = get_app ();
                 Midori.Browser browser = app.browser;
 
-                Katze.Item item = new_view.get_proxy_item ();
-                item.ref();
+                unowned Katze.Item item = new_view.get_proxy_item ();
 
                 int64 delay = item.get_meta_integer ("delay");
                 if (delay == Midori.Delay.PENDING_UNDELAY && new_view.progress < 1.0) {

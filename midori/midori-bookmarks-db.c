@@ -161,7 +161,7 @@ midori_bookmarks_db_init (MidoriBookmarksDb* bookmarks)
 
     bookmarks->in_idle_func = FALSE;
 
-    katze_item_set_meta_integer (KATZE_ITEM (bookmarks), "id", 0);
+    katze_item_set_meta_integer (KATZE_ITEM (bookmarks), "id", -1);
     katze_item_set_name (KATZE_ITEM (bookmarks), _("Bookmarks"));
     g_hash_table_insert (bookmarks->all_items, bookmarks, bookmarks);
     /* g_object_ref (bookmarks); */
@@ -246,13 +246,11 @@ _midori_bookmarks_db_add_item (KatzeArray* array,
 
     db_parent = midori_bookmarks_db_get_item_parent (bookmarks, item);
 
-    g_return_if_fail (db_parent);
-
     if (parent == db_parent)
     {
         if (IS_MIDORI_BOOKMARKS_DB (parent))
             KATZE_ARRAY_CLASS (midori_bookmarks_db_parent_class)->update (parent);
-        else
+        else if (KATZE_IS_ARRAY (parent))
             katze_array_update (parent);
         return;
     }
@@ -261,6 +259,8 @@ _midori_bookmarks_db_add_item (KatzeArray* array,
         KATZE_ARRAY_CLASS (midori_bookmarks_db_parent_class)->add_item (parent, item);
     else if (KATZE_IS_ARRAY (parent))
         katze_array_add_item (parent, item);
+
+    g_assert (parent == katze_item_get_parent (KATZE_ITEM (item)));
 }
 
 /**
