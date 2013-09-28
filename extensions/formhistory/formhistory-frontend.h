@@ -22,6 +22,7 @@
 
 typedef struct
 {
+    MidoriDatabase* database;
     sqlite3* db;
     WebKitDOMElement* element;
     int completion_timeout;

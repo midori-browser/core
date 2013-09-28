@@ -39,7 +39,11 @@ katze_cell_renderer_combobox_text_set_property (GObject*      object,
 static void
 katze_cell_renderer_combobox_text_get_size (GtkCellRenderer* cell,
     GtkWidget*       widget,
-    GdkRectangle*    cell_area,
+#if GTK_CHECK_VERSION(3,0,0)
+    const GdkRectangle*      cell_area,
+#else
+    GdkRectangle*            cell_area,
+#endif
     gint*            x_offset,
     gint*            y_offset,
     gint*            width,
@@ -49,8 +53,8 @@ static void
 katze_cell_renderer_combobox_text_render (GtkCellRenderer      *cell,
     cairo_t*             cr,
     GtkWidget            *widget,
-    GdkRectangle         *background_area,
-    GdkRectangle         *cell_area,
+    const GdkRectangle   *background_area,
+    const GdkRectangle   *cell_area,
     GtkCellRendererState  flags);
 #else
 static void
@@ -141,9 +145,6 @@ katze_cell_renderer_combobox_text_class_init (KatzeCellRendererComboBoxTextClass
     GtkCellRendererClass *cell_class = GTK_CELL_RENDERER_CLASS (class);
 
     object_class->finalize = katze_cell_renderer_combobox_text_finalize;
-
-    _cell_renderer_get_size = cell_class->get_size;
-    _cell_renderer_render = cell_class->render;
 
     object_class->get_property = katze_cell_renderer_combobox_text_get_property;
     object_class->set_property = katze_cell_renderer_combobox_text_set_property;
@@ -452,7 +453,11 @@ set_text(KatzeCellRendererComboBoxText* cell,
 static void
 katze_cell_renderer_combobox_text_get_size (GtkCellRenderer *cell,
 				 GtkWidget       *widget,
-				 GdkRectangle    *cell_area,
+#if GTK_CHECK_VERSION(3,0,0)
+                                 const GdkRectangle* cell_area,
+#else
+                                 GdkRectangle*       cell_area,
+#endif
 				 gint            *x_offset,
 				 gint            *y_offset,
 				 gint            *width,
@@ -464,7 +469,7 @@ katze_cell_renderer_combobox_text_get_size (GtkCellRenderer *cell,
 
     set_text (KATZE_CELL_RENDERER_COMBOBOX_TEXT (cell), widget, text);
 
-    _cell_renderer_get_size (cell,
+    GTK_CELL_RENDERER_CLASS (katze_cell_renderer_combobox_text_parent_class)->get_size (cell,
         widget, cell_area,
         x_offset, y_offset, width, height);
 
@@ -477,8 +482,8 @@ static void
 katze_cell_renderer_combobox_text_render (GtkCellRenderer      *cell,
 			       cairo_t*             cr,
 			       GtkWidget            *widget,
-			       GdkRectangle         *background_area,
-			       GdkRectangle         *cell_area,
+			       const GdkRectangle   *background_area,
+			       const GdkRectangle   *cell_area,
 			       GtkCellRendererState  flags)
 #else
 katze_cell_renderer_combobox_text_render (GtkCellRenderer      *cell,
@@ -497,14 +502,14 @@ katze_cell_renderer_combobox_text_render (GtkCellRenderer      *cell,
     set_text (KATZE_CELL_RENDERER_COMBOBOX_TEXT (cell), widget, text);
 
 #if GTK_CHECK_VERSION(3,0,0)
-    _cell_renderer_render (cell,
+    GTK_CELL_RENDERER_CLASS (katze_cell_renderer_combobox_text_parent_class)->render (cell,
         cr,
         widget,
         background_area,
         cell_area,
         flags);
 #else
-    _cell_renderer_render (cell,
+    GTK_CELL_RENDERER_CLASS (katze_cell_renderer_combobox_text_parent_class)->render (cell,
         window,
         widget,
         background_area,

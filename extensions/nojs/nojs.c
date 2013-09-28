@@ -186,12 +186,7 @@ static void _nojs_open_database(NoJS *self)
 	/* Build path to database file */
 	configDir=midori_extension_get_config_dir(priv->extension);
 	if(!configDir)
-	{
-		g_warning(_("Could not get path to configuration of extension: path is NULL"));
-
-		_nojs_error(self, _("Could not get path to configuration of extension."));
 		return;
-	}
 	
 	if(katze_mkdir_with_parents(configDir, 0700))
 	{
@@ -388,8 +383,8 @@ static void _nojs_on_statusbar_icon_clicked(MidoriBrowser *inBrowser, gpointer i
 
 gchar* nojs_get_icon_path (const gchar* icon)
 {
-    gchar* res_dir = midori_paths_get_res_filename ("");
-    return g_build_filename (res_dir, "nojs", icon, NULL);
+    gchar* nojs_dir = midori_paths_get_res_filename("nojs");
+    return g_build_filename (nojs_dir, icon, NULL);
 }
 
 /* Menu icon of a view has changed */
@@ -878,38 +873,15 @@ gchar* nojs_get_domain(NoJS *self, SoupURI *inURI)
 
 	NoJSPrivate			*priv=self->priv;
 	const gchar			*realDomain;
-	gchar				*asciiDomain, *domain;
 	gchar				*finalDomain;
 
 	/* Get domain of site to lookup */
 	realDomain=soup_uri_get_host(inURI);
 
-	domain=asciiDomain=g_hostname_to_ascii(realDomain);
-
 	if(priv->checkOnlySecondLevel)
-	{
-		/* Only get second level domain if host is not an IP address */
-		if(!g_hostname_is_ip_address(asciiDomain))
-		{
-			gint		numberDots=0;
-
-			domain=asciiDomain+strlen(asciiDomain)-1;
-			while(domain>=asciiDomain && numberDots<2)
-			{
-				if(*domain=='.') numberDots++;
-				domain--;
-			}
-			domain++;
-			if(*domain=='.') domain++;
-		}
-	}
-
-	/* Create copy for return value */
-	if(strlen(domain)>0) finalDomain=g_strdup(domain);
-		else finalDomain=NULL;
-
-	/* Free allocated resources */
-	g_free(asciiDomain);
+		finalDomain=midori_uri_get_base_domain(realDomain);
+    else
+		finalDomain=midori_uri_to_ascii(realDomain);
 
 	/* Return domain */
 	return(finalDomain);

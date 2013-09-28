@@ -31,6 +31,36 @@ G_BEGIN_DECLS
 
 typedef struct _KatzeArray                       KatzeArray;
 typedef struct _KatzeArrayClass                  KatzeArrayClass;
+typedef struct _KatzeArrayPrivate                KatzeArrayPrivate;
+
+struct _KatzeArray
+{
+    KatzeItem parent_instance;
+
+    KatzeArrayPrivate* priv;
+};
+
+struct _KatzeArrayClass
+{
+    KatzeItemClass parent_class;
+
+    /* Signals */
+    void
+    (*add_item)               (KatzeArray* array,
+                               gpointer    item);
+    void
+    (*remove_item)            (KatzeArray* array,
+                               gpointer    item);
+    void
+    (*move_item)              (KatzeArray* array,
+                               gpointer    item,
+                               gint        index);
+    void
+    (*clear)                  (KatzeArray* array);
+
+    void
+    (*update)                 (KatzeArray* array);
+};
 
 GType
 katze_array_get_type               (void) G_GNUC_CONST;

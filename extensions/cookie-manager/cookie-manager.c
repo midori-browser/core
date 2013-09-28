@@ -12,6 +12,7 @@
 #include "config.h"
 #include <midori/midori.h>
 #include "katze/katze.h"
+#include <libsoup/soup-cookie-jar-sqlite.h>
 
 #include "cookie-manager.h"
 #include "cookie-manager-page.h"
@@ -259,6 +260,7 @@ static void cookie_manager_finalize(GObject *object)
 
 	g_object_unref(priv->store);
 	g_free(priv->filter_text);
+	g_object_unref(priv->jar);
 
 	G_OBJECT_CLASS(cookie_manager_parent_class)->finalize(object);
 }
@@ -267,7 +269,6 @@ static void cookie_manager_finalize(GObject *object)
 static void cookie_manager_init(CookieManager *self)
 {
 	CookieManagerPrivate *priv;
-	SoupSession *session;
 
 	self->priv = G_TYPE_INSTANCE_GET_PRIVATE (self,
 	    COOKIE_MANAGER_TYPE, CookieManagerPrivate);
@@ -279,8 +280,15 @@ static void cookie_manager_init(CookieManager *self)
 		COOKIE_MANAGER_COL_NAME, GTK_SORT_ASCENDING);
 
 	/* setup soup */
-	session = webkit_get_default_session();
+#ifdef HAVE_WEBKIT2
+	gchar *filename = midori_paths_get_config_filename_for_writing ("cookies.db");
+	priv->jar = soup_cookie_jar_sqlite_new (filename, FALSE);
+	g_free(filename);
+#else
+	SoupSession *session = webkit_get_default_session();
 	priv->jar = SOUP_COOKIE_JAR(soup_session_get_feature(session, soup_cookie_jar_get_type()));
+	g_object_ref(priv->jar);
+#endif
 	g_signal_connect(priv->jar, "changed", G_CALLBACK(cookie_manager_jar_changed_cb), self);
 
 	cookie_manager_refresh_store(self);

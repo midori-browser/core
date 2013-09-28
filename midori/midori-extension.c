@@ -559,8 +559,10 @@ midori_extension_load_from_folder (MidoriApp* app,
         while (keys && (filename = keys[i++]))
             midori_extension_activate_gracefully (app, extension_path, filename, activate);
         /* FIXME need proper stock extension mechanism */
-        GObject* extension = midori_extension_activate_gracefully (app, extension_path, "libtransfers." G_MODULE_SUFFIX, activate);
-        g_assert (extension != NULL);
+        g_assert (midori_extension_activate_gracefully (app, extension_path, "libtransfers." G_MODULE_SUFFIX, activate));
+        g_assert (midori_extension_activate_gracefully (app, extension_path, "libapps." G_MODULE_SUFFIX, activate));
+        g_assert (midori_extension_activate_gracefully (app, extension_path, "libdelayed-load." G_MODULE_SUFFIX, activate));
+        g_assert (midori_extension_activate_gracefully (app, extension_path, "libtabby." G_MODULE_SUFFIX, activate));
     }
     else
     {
@@ -672,7 +674,10 @@ midori_extension_add_to_list (MidoriApp*       app,
     if (katze_array_get_item_index (extensions, extension) >= 0)
         return;
     /* FIXME need proper stock extension mechanism */
-    if (!strcmp (filename, "libtransfers." G_MODULE_SUFFIX))
+    if (!strcmp (filename, "libtransfers." G_MODULE_SUFFIX)
+     || !strcmp (filename, "libapps." G_MODULE_SUFFIX)
+     || !strcmp (filename, "libdelayed-load." G_MODULE_SUFFIX)
+     || !strcmp (filename, "libtabby." G_MODULE_SUFFIX))
         return;
 
     katze_array_add_item (extensions, extension);
@@ -684,7 +689,9 @@ midori_extension_add_to_list (MidoriApp*       app,
     /* Signal that we want the extension to load and save */
     if (midori_extension_is_prepared (extension))
     {
+        /* This is a sensible check but makes unit testing hard
         g_warn_if_fail (extension->priv->config_dir == NULL);
+         */
         extension->priv->config_dir = midori_paths_get_extension_config_dir (filename);
     }
 }

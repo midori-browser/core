@@ -85,9 +85,9 @@ namespace Apps {
                     _("You can now run <b>%s</b> from your launcher or menu").printf (name));
             }
             catch (Error error) {
-                warning (_("Failed to create new launcher: %s").printf (error.message));
+                warning (_("Failed to create new launcher (%s): %s"), file.get_path (), error.message);
                 browser.send_notification (_("Error creating launcher"),
-                    _("Failed to create new launcher: %s").printf (error.message));
+                    _("Failed to create new launcher (%s): %s").printf (file.get_path (), error.message));
             }
         }
 
@@ -130,6 +130,8 @@ namespace Apps {
             if (toolbar == null) {
                 toolbar = new Gtk.Toolbar ();
 
+#if !HAVE_WIN32
+                /* FIXME: Profiles are broken on win32 because of no multi instance support */
                 var profile = new Gtk.ToolButton.from_stock (Gtk.STOCK_ADD);
                 profile.label = _("New _Profile");
                 profile.tooltip_text = _("Creates a new, independant profile and a launcher");
@@ -144,6 +146,7 @@ namespace Apps {
                         config, _("Midori (%s)").printf (uuid), this);
                 });
                 toolbar.insert (profile, -1);
+#endif
 
                 var app = new Gtk.ToolButton.from_stock (Gtk.STOCK_ADD);
                 app.label = _("New _App");
@@ -204,7 +207,7 @@ namespace Apps {
 #endif
                             }
                             catch (Error error) {
-                                GLib.critical (error.message);
+                                GLib.critical ("Failed to remove launcher (%s): %s", launcher.file.get_path (), error.message);
                             }
                             return true;
                         }
@@ -338,7 +341,7 @@ namespace Apps {
                 }
             }
             catch (Error error) {
-                warning ("Application changed: %s", error.message);
+                warning ("Application changed (%s): %s", file.get_path (), error.message);
             }
         }
 
@@ -369,7 +372,7 @@ namespace Apps {
                                 array.add_item (launcher);
                         }
                         catch (Error error) {
-                            warning ("Failed to parse launcher: %s", error.message);
+                            warning ("Failed to parse launcher (%s): %s", file.get_path (), error.message);
                         }
                     }
                 }
@@ -380,24 +383,26 @@ namespace Apps {
             }
         }
 
-        void tool_menu_populated (Midori.Browser browser, Gtk.Menu menu) {
-            var menuitem = new Gtk.MenuItem.with_mnemonic (_("Create _Launcher"));
-            menuitem.show ();
-            menu.append (menuitem);
-            menuitem.activate.connect (() => {
+        void browser_added (Midori.Browser browser) {
+            var accels = new Gtk.AccelGroup ();
+            browser.add_accel_group (accels);
+            var action_group = browser.get_action_group ();
+
+            var action = new Gtk.Action ("CreateLauncher", _("Create _Launcher"),
+                _("Creates a new app for a specific site"), null);
+            action.activate.connect (() => {
                 var view = browser.tab as Midori.View;
                 string checksum = Checksum.compute_for_string (ChecksumType.MD5, view.get_display_uri (), -1);
                 Launcher.create.begin (APP_PREFIX, app_folder.get_child (checksum),
                     view.get_display_uri (), view.get_display_title (), browser);
             });
-        }
+            action_group.add_action_with_accel (action, "<Ctrl><Shift>A");
+            action.set_accel_group (accels);
+            action.connect_accelerator ();
 
-        void browser_added (Midori.Browser browser) {
             var viewable = new Sidebar (array, app_folder, profile_folder);
             viewable.show ();
             browser.panel.append_page (viewable);
-            browser.populate_tool_menu.connect (tool_menu_populated);
-            // TODO website context menu
             widgets.append (viewable);
         }
 
@@ -407,8 +412,11 @@ namespace Apps {
             monitors = new GLib.List<GLib.FileMonitor> ();
             app_folder = data_dir.get_child ("apps");
             populate_apps.begin (app_folder);
+            /* FIXME: Profiles are broken on win32 because of no multi instance support */
             profile_folder = data_dir.get_child ("profiles");
+#if !HAVE_WIN32
             populate_apps.begin (profile_folder);
+#endif
             widgets = new GLib.List<Gtk.Widget> ();
             foreach (var browser in app.get_browsers ())
                 browser_added (browser);
@@ -424,6 +432,12 @@ namespace Apps {
             app.add_browser.disconnect (browser_added);
             foreach (var widget in widgets)
                 widget.destroy ();
+            foreach (var browser in app.get_browsers ()) {
+                var action_group = browser.get_action_group ();
+                var action = action_group.get_action ("CreateLauncher");
+                action_group.remove_action (action);
+            }
+
         }
 
         internal Manager () {

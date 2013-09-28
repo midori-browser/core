@@ -720,80 +720,6 @@ sokoke_widget_get_text_size (GtkWidget*   widget,
 }
 
 /**
- * sokoke_action_create_popup_menu_item:
- * @action: a #GtkAction
- *
- * Creates a menu item from an action, just like
- * gtk_action_create_menu_item(), but it won't
- * display an accelerator.
- *
- * Note: This menu item is not a proxy and will
- *       not reflect any changes to the action.
- *
- * Return value: a new #GtkMenuItem
- **/
-GtkWidget*
-sokoke_action_create_popup_menu_item (GtkAction* action)
-{
-    GtkWidget* menuitem;
-    GtkWidget* icon;
-    gchar* label;
-    gchar* stock_id;
-    gchar* icon_name;
-    gboolean sensitive;
-    gboolean visible;
-
-    g_return_val_if_fail (GTK_IS_ACTION (action), NULL);
-
-    if (KATZE_IS_ARRAY_ACTION (action))
-        return gtk_action_create_menu_item (action);
-
-    g_object_get (action,
-                  "label", &label,
-                  "stock-id", &stock_id,
-                  "icon-name", &icon_name,
-                  "sensitive", &sensitive,
-                  "visible", &visible,
-                  NULL);
-    if (GTK_IS_TOGGLE_ACTION (action))
-    {
-        menuitem = gtk_check_menu_item_new_with_mnemonic (label);
-        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem),
-            gtk_toggle_action_get_active (GTK_TOGGLE_ACTION (action)));
-        if (GTK_IS_RADIO_ACTION (action))
-            gtk_check_menu_item_set_draw_as_radio (GTK_CHECK_MENU_ITEM (menuitem),
-                                                   TRUE);
-    }
-    else if (stock_id)
-    {
-        if (label)
-        {
-            menuitem = gtk_image_menu_item_new_with_mnemonic (label);
-            icon = gtk_action_create_icon (action, GTK_ICON_SIZE_MENU);
-            gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), icon);
-        }
-        else
-            menuitem = gtk_image_menu_item_new_from_stock (stock_id, NULL);
-    }
-    else
-    {
-        menuitem = gtk_image_menu_item_new_with_mnemonic (label);
-        if (icon_name)
-        {
-            icon = gtk_image_new_from_icon_name (icon_name, GTK_ICON_SIZE_MENU);
-            gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), icon);
-        }
-    }
-    gtk_widget_set_sensitive (menuitem, sensitive);
-    sokoke_widget_set_visible (menuitem, visible);
-    gtk_widget_set_no_show_all (menuitem, TRUE);
-    g_signal_connect_swapped (menuitem, "activate",
-                              G_CALLBACK (gtk_action_activate), action);
-
-    return menuitem;
-}
-
-/**
  * sokoke_time_t_to_julian:
  * @timestamp: a time_t timestamp value
  *
@@ -937,6 +863,16 @@ sokoke_prefetch_uri (MidoriWebSettings*  settings,
     static gchar* hosts = NULL;
     static gint host_count = G_MAXINT;
     gchar* hostname;
+
+
+#ifndef HAVE_WEBKIT2
+    SoupURI* soup_uri;
+    SoupSession* session = webkit_get_default_session ();
+
+    g_object_get (G_OBJECT (session), "proxy-uri", &soup_uri, NULL);
+    if (soup_uri)
+        return FALSE;
+#endif
 
     if (settings && !katze_object_get_boolean (settings, "enable-dns-prefetching"))
         return FALSE;

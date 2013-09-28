@@ -30,74 +30,24 @@ midori_history_clear_cb (KatzeArray* array,
 KatzeArray*
 midori_history_new (char** errmsg)
 {
-    gchar* filename;
+    MidoriHistoryDatabase* database;
+    GError* error = NULL;
     sqlite3* db;
-    gboolean has_day = FALSE;
-    sqlite3_stmt* stmt;
-    gint result;
-    gchar* sql;
-    gchar* bookmarks_filename;
     KatzeArray* array;
 
     g_return_val_if_fail (errmsg != NULL, NULL);
 
-    filename = midori_paths_get_config_filename_for_writing ("history.db");
-    if (sqlite3_open (filename, &db) != SQLITE_OK)
+    database = midori_history_database_new (NULL, &error);
+    if (error != NULL)
     {
-        *errmsg = g_strdup_printf (_("Failed to open database: %s\n"),
-            db ? sqlite3_errmsg (db) : "(db = NULL)");
-        g_free (filename);
-        sqlite3_close (db);
+        *errmsg = g_strdup (error->message);
+        g_error_free (error);
         return NULL;
     }
-    g_free (filename);
 
-    if (sqlite3_exec (db,
-        "PRAGMA journal_mode = WAL; PRAGMA cache_size = 32100;",
-        NULL, NULL, errmsg) != SQLITE_OK)
-        sqlite3_exec (db, "PRAGMA journal_mode = TRUNCATE;", NULL, NULL, errmsg);
-    sqlite3_exec (db,
-        "PRAGMA synchronous = NORMAL; PRAGMA temp_store = MEMORY;",
-        NULL, NULL, errmsg);
-    if (*errmsg)
-    {
-        g_warning ("Failed to set journal mode: %s", *errmsg);
-        sqlite3_free (*errmsg);
-    }
-    if (sqlite3_exec (db,
-                      "CREATE TABLE IF NOT EXISTS "
-                      "history (uri text, title text, date integer, day integer);"
-                      "CREATE TABLE IF NOT EXISTS "
-                      "search (keywords text, uri text, day integer);",
-                      NULL, NULL, errmsg) != SQLITE_OK)
-        return NULL;
+    db = midori_database_get_db (MIDORI_DATABASE (database));
+    g_return_val_if_fail (db != NULL, NULL);
 
-    sqlite3_prepare_v2 (db, "SELECT day FROM history LIMIT 1", -1, &stmt, NULL);
-    result = sqlite3_step (stmt);
-    if (result == SQLITE_ROW)
-        has_day = TRUE;
-    sqlite3_finalize (stmt);
-
-    if (!has_day)
-        sqlite3_exec (db,
-                      "BEGIN TRANSACTION;"
-                      "CREATE TEMPORARY TABLE backup (uri text, title text, date integer);"
-                      "INSERT INTO backup SELECT uri,title,date FROM history;"
-                      "DROP TABLE history;"
-                      "CREATE TABLE history (uri text, title text, date integer, day integer);"
-                      "INSERT INTO history SELECT uri,title,date,"
-                      "julianday(date(date,'unixepoch','start of day','+1 day'))"
-                      " - julianday('0001-01-01','start of day')"
-                      "FROM backup;"
-                      "DROP TABLE backup;"
-                      "COMMIT;",
-                      NULL, NULL, errmsg);
-
-    bookmarks_filename = midori_paths_get_config_filename_for_writing ("bookmarks_v2.db");
-    sql = g_strdup_printf ("ATTACH DATABASE '%s' AS bookmarks", bookmarks_filename);
-    g_free (bookmarks_filename);
-    sqlite3_exec (db, sql, NULL, NULL, errmsg);
-    g_free (sql);
     array = katze_array_new (KATZE_TYPE_ARRAY);
     g_object_set_data (G_OBJECT (array), "db", db);
     g_signal_connect (array, "clear",

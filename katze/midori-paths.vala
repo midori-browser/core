@@ -140,11 +140,9 @@ namespace Midori {
                 cache_dir = Path.build_path (Path.DIR_SEPARATOR_S,
                     Environment.get_user_cache_dir (), PACKAGE_NAME);
                 user_data_dir = Environment.get_user_data_dir ();
-#if HAVE_WEBKIT2_A
+#if HAVE_WEBKIT2
                 WebKit.WebContext.get_default ().set_disk_cache_directory (
                     Path.build_path (Path.DIR_SEPARATOR_S, cache_dir, "web"));
-#endif
-#if HAVE_WEBKIT2
                 var cookie_manager = WebKit.WebContext.get_default ().get_cookie_manager ();
                 cookie_manager.set_persistent_storage (Path.build_filename (config, "cookies.db"),
                     WebKit.CookiePersistentStorage.SQLITE);
@@ -308,7 +306,7 @@ namespace Midori {
             if (strcmp (Environment.get_variable ("MIDORI_DEBUG"), "paths") == 0) {
                 stdout.printf ("command_line: %s\nexec_path: %s\nres: %s\nlib: %s\n",
                                get_command_line_str (true), exec_path,
-                               get_res_filename (""), get_lib_path (PACKAGE_NAME));
+                               get_res_filename ("about.css"), get_lib_path (PACKAGE_NAME));
             }
         }
 
@@ -347,6 +345,7 @@ namespace Midori {
 
         public static string get_res_filename (string filename) {
             assert (command_line != null);
+            assert (filename != "");
             #if HAVE_WIN32
             return Path.build_filename (exec_path, "share", PACKAGE_NAME, "res", filename);
             #else
@@ -355,11 +354,14 @@ namespace Midori {
                 return path;
 
             /* Fallback to build folder */
-            path = Path.build_filename ((File.new_for_path (exec_path)
-                .get_parent ().get_parent ().get_path ()), "data", filename);
-            if (Posix.access (path, Posix.F_OK) == 0)
-                return path;
-
+            File? parent = File.new_for_path (exec_path).get_parent ();
+            while (parent != null) {
+                var data = parent.get_child ("data");
+                var child = data.get_child (filename);
+                if (child.query_exists ())
+                    return child.get_path ();
+                parent = parent.get_parent ();
+            }
             return Path.build_filename (MDATADIR, PACKAGE_NAME, "res", filename);
             #endif
         }

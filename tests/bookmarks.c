@@ -10,11 +10,11 @@
  */
 
 #include "midori.h"
-#include "panels/midori-bookmarks.h"
+#include "midori-bookmarks-db.h"
 
 typedef struct
 {
-    KatzeArray* db_bookmarks;
+    MidoriBookmarksDb* db_bookmarks;
     KatzeArray* test_bookmarks;
 } BookmarksFixture;
 
@@ -37,7 +37,7 @@ fixture_setup (BookmarksFixture* fixture,
     KatzeArray* folder;
     gchar *errmsg = NULL;
 
-    if (!(fixture->db_bookmarks = midori_bookmarks_new (&errmsg)))
+    if (!(fixture->db_bookmarks = midori_bookmarks_db_new (&errmsg)))
         g_error ("Bookmarks couldn't be loaded: %s\n", errmsg);
     g_assert (errmsg == NULL);
     g_assert (g_object_get_data (G_OBJECT (fixture->db_bookmarks), "db"));
@@ -84,8 +84,8 @@ static void
 fixture_teardown (BookmarksFixture* fixture,
                   const TestParameters *params)
 {
-    midori_bookmarks_on_quit (fixture->db_bookmarks);
-    g_object_unref (fixture->db_bookmarks);
+    midori_bookmarks_db_on_quit (fixture->db_bookmarks);
+    /* g_object_unref (fixture->db_bookmarks); */
     g_object_unref (fixture->test_bookmarks);
 }
 
@@ -112,7 +112,7 @@ compare_items (KatzeItem *a, KatzeItem *b)
 /* NB: assumes "title" is unique in a set */
 static void
 compare_test_and_db (KatzeArray* test_bookmarks,
-                     KatzeArray* db_bookmarks,
+                     MidoriBookmarksDb* db_bookmarks,
                      gboolean verbose)
 {
     KatzeArray* db_items;
@@ -127,7 +127,7 @@ compare_test_and_db (KatzeArray* test_bookmarks,
             g_print ("----------\n");
         }
 
-        db_items = midori_array_query_recursive (db_bookmarks,
+        db_items = midori_bookmarks_db_query_recursive (db_bookmarks,
                            "*", "title='%q'", katze_item_get_name (test_item), FALSE);
 
         /* FIXME g_assert_cmpint (katze_array_get_length (db_items), ==, 1); */
@@ -142,28 +142,33 @@ compare_test_and_db (KatzeArray* test_bookmarks,
 }
 
 static void
-insert_bookmarks (KatzeArray* test_bookmarks,
-                  KatzeArray* db_bookmarks,
-                  gboolean verbose)
+print_bookmarks (KatzeArray* test_bookmarks)
 {
     KatzeItem* item;
     GList* list;
-    sqlite3 *db = g_object_get_data (G_OBJECT (db_bookmarks), "db");
-
     KATZE_ARRAY_FOREACH_ITEM_L (item, test_bookmarks, list)
     {
-        if (verbose)
-        {
-            print_bookmark (item);
-            g_print ("----------\n");
-        }
-
-        midori_bookmarks_insert_item_db (db, item, 0);
+	print_bookmark (item);
+	g_print ("----------\n");
 
         if (KATZE_ITEM_IS_FOLDER(item))
-            insert_bookmarks (KATZE_ARRAY (item), db_bookmarks, verbose);
+            print_bookmarks (KATZE_ARRAY (item));
     }
     g_list_free (list);
+}
+
+static void
+insert_bookmarks (KatzeArray* test_bookmarks,
+                  MidoriBookmarksDb* db_bookmarks,
+                  gboolean verbose)
+{
+
+    if (verbose)
+    {
+	print_bookmarks (test_bookmarks);
+    }
+
+    midori_bookmarks_db_import_array (db_bookmarks, test_bookmarks, 0);
 }
 
 static void

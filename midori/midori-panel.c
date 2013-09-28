@@ -485,25 +485,6 @@ midori_panel_set_right_aligned (MidoriPanel* panel,
     g_object_notify (G_OBJECT (panel), "right-aligned");
 }
 
-/* Private function, used by MidoriBrowser */
-/* static */ GtkWidget*
-midori_panel_construct_menu_item (MidoriPanel*    panel,
-                                  MidoriViewable* viewable,
-                                  gboolean        popup)
-{
-    GtkAction* action;
-    GtkWidget* menuitem;
-
-    action = g_object_get_data (G_OBJECT (viewable), "midori-panel-action");
-    menuitem = popup ? sokoke_action_create_popup_menu_item (action)
-      : gtk_action_create_menu_item (action);
-    g_object_set_data (G_OBJECT (menuitem), "page", viewable);
-
-    if (gtk_widget_get_visible (GTK_WIDGET (viewable)))
-        gtk_widget_show (menuitem);
-    return menuitem;
-}
-
 static void
 midori_panel_viewable_destroy_cb (GtkWidget*   viewable,
                                   MidoriPanel* panel)

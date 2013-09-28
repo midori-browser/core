@@ -17,6 +17,7 @@
 #include "midori-platform.h"
 #include "midori-view.h"
 #include "midori-core.h"
+#include "midori-bookmarks-db.h"
 
 #include <glib/gi18n.h>
 #include <string.h>
@@ -44,7 +45,7 @@ struct _MidoriBookmarks
     GtkWidget* delete;
     GtkWidget* treeview;
     MidoriApp* app;
-    KatzeArray* array;
+    MidoriBookmarksDb* bookmarks_db;
 
     gint filter_timeout;
     gchar* filter;
@@ -124,6 +125,7 @@ midori_bookmarks_get_stock_id (MidoriViewable* viewable)
     return STOCK_BOOKMARKS;
 }
 
+#if 0 /* Make sure the following function is never used */
 /* TODO: Function never used */
 void
 midori_bookmarks_export_array_db (sqlite3*    db,
@@ -137,7 +139,7 @@ midori_bookmarks_export_array_db (sqlite3*    db,
     gchar* parent_id;
 
     parent_id = g_strdup_printf ("%" G_GINT64_FORMAT, parentid);
-    if (!(root_array = midori_array_query (array, "*", "parentid = %q", parent_id)))
+    if (!(root_array = midori_bookmarks_db_query_recursive (array, "*", "parentid = %q", parent_id, FALSE)))
     {
         g_free (parent_id);
         return;
@@ -159,27 +161,7 @@ midori_bookmarks_export_array_db (sqlite3*    db,
     g_free (parent_id);
     g_list_free (list);
 }
-
-void
-midori_bookmarks_import_array_db (sqlite3*    db,
-                                  KatzeArray* array,
-                                  gint64      parentid)
-{
-    GList* list;
-    KatzeItem* item;
-    gint64 id;
-
-    if (!db)
-        return;
-
-    KATZE_ARRAY_FOREACH_ITEM_L (item, array, list)
-    {
-        id = midori_bookmarks_insert_item_db (db, item, parentid);
-        if (KATZE_IS_ARRAY (item))
-            midori_bookmarks_import_array_db (db, KATZE_ARRAY (item), id);
-    }
-    g_list_free (list);
-}
+#endif /* 0 */
 
 static KatzeArray*
 midori_bookmarks_read_from_db (MidoriBookmarks* bookmarks,
@@ -189,21 +171,21 @@ midori_bookmarks_read_from_db (MidoriBookmarks* bookmarks,
     KatzeArray* array;
 
     if (keyword && *keyword)
-        array = midori_array_query (bookmarks->array,
-           "id, parentid, title, uri, desc, app, toolbar, pos_panel, pos_bar", "title LIKE '%%%q%%'", keyword);
+        array = midori_bookmarks_db_query_recursive (bookmarks->bookmarks_db,
+                                                     "id, parentid, title, uri, desc, app, toolbar, pos_panel, pos_bar", "title LIKE '%%%q%%'", keyword, FALSE);
     else
     {
         if (parentid > 0)
         {
             gchar* parent_id = g_strdup_printf ("%" G_GINT64_FORMAT, parentid);
-            array = midori_array_query (bookmarks->array,
-               "id, parentid, title, uri, desc, app, toolbar, pos_panel, pos_bar", "parentid = %q", parent_id);
+            array = midori_bookmarks_db_query_recursive (bookmarks->bookmarks_db,
+                                                         "id, parentid, title, uri, desc, app, toolbar, pos_panel, pos_bar", "parentid = %q", parent_id, FALSE);
 
             g_free (parent_id);
         }
         else
-            array = midori_array_query (bookmarks->array,
-               "id, parentid, title, uri, desc, app, toolbar, pos_panel, pos_bar", "parentid IS NULL", NULL);
+            array = midori_bookmarks_db_query_recursive (bookmarks->bookmarks_db,
+                                                         "id, parentid, title, uri, desc, app, toolbar, pos_panel, pos_bar", "parentid IS NULL", NULL, FALSE);
     }
     return array ? array : katze_array_new (KATZE_TYPE_ITEM);
 }
@@ -232,92 +214,6 @@ midori_bookmarks_read_from_db_to_model (MidoriBookmarks* bookmarks,
         gtk_tree_store_remove (model, &child);
     else
         g_object_unref (item);
-}
-
-gint64
-midori_bookmarks_insert_item_db (sqlite3*   db,
-                                 KatzeItem* item,
-                                 gint64     parentid)
-{
-    gchar* sqlcmd;
-    char* errmsg = NULL;
-    KatzeItem* old_parent;
-    gchar* new_parentid;
-    gchar* id = NULL;
-    const gchar* uri = NULL;
-    const gchar* desc = NULL;
-    gint64 seq = 0;
-
-    /* Bookmarks must have a name, import may produce invalid items */
-    g_return_val_if_fail (katze_item_get_name (item), seq);
-
-    if (!db)
-        return seq;
-
-    if (katze_item_get_meta_integer (item, "id") > 0)
-        id = g_strdup_printf ("%" G_GINT64_FORMAT, katze_item_get_meta_integer(item, "id"));
-    else
-        id = g_strdup_printf ("NULL");
-
-    if (KATZE_ITEM_IS_BOOKMARK (item))
-        uri = katze_item_get_uri (item);
-
-    if (katze_item_get_text (item))
-        desc = katze_item_get_text (item);
-
-    /* Use folder, otherwise fallback to parent folder */
-    old_parent = katze_item_get_parent (item);
-    if (parentid > 0)
-        new_parentid = g_strdup_printf ("%" G_GINT64_FORMAT, parentid);
-    else if (old_parent && katze_item_get_meta_integer (old_parent, "id") > 0)
-        new_parentid = g_strdup_printf ("%" G_GINT64_FORMAT, katze_item_get_meta_integer (old_parent, "id"));
-    else
-        new_parentid = g_strdup_printf ("NULL");
-
-    sqlcmd = sqlite3_mprintf (
-            "INSERT INTO bookmarks (id, parentid, title, uri, desc, toolbar, app) "
-            "VALUES (%q, %q, '%q', '%q', '%q', %d, %d)",
-            id,
-            new_parentid,
-            katze_item_get_name (item),
-            katze_str_non_null (uri),
-            katze_str_non_null (desc),
-            katze_item_get_meta_boolean (item, "toolbar"),
-            katze_item_get_meta_boolean (item, "app"));
-
-    if (sqlite3_exec (db, sqlcmd, NULL, NULL, &errmsg) == SQLITE_OK)
-    {
-        /* Get insert id */
-        if (g_str_equal (id, "NULL"))
-        {
-            KatzeArray* seq_array;
-
-            sqlite3_free (sqlcmd);
-            sqlcmd = sqlite3_mprintf (
-                    "SELECT seq FROM sqlite_sequence WHERE name = 'bookmarks'");
-
-            seq_array = katze_array_from_sqlite (db, sqlcmd);
-            if (katze_array_get_nth_item (seq_array, 0))
-            {
-                KatzeItem* seq_item = katze_array_get_nth_item (seq_array, 0);
-
-                seq = katze_item_get_meta_integer (seq_item, "seq");
-                katze_item_set_meta_integer (item, "id", seq);
-            }
-            g_object_unref (seq_array);
-        }
-    }
-    else
-    {
-        g_printerr (_("Failed to add bookmark item: %s\n"), errmsg);
-        sqlite3_free (errmsg);
-    }
-
-    sqlite3_free (sqlcmd);
-    g_free (new_parentid);
-    g_free (id);
-
-    return seq;
 }
 
 static void
@@ -380,9 +276,9 @@ midori_bookmarks_row_changed_cb (GtkTreeModel*    model,
     else
         parentid = 0;
 
-    katze_array_remove_item (bookmarks->array, item);
     katze_item_set_meta_integer (item, "parentid", parentid);
-    katze_array_add_item (bookmarks->array, item);
+
+    midori_bookmarks_db_update_item (bookmarks->bookmarks_db, item);
 
     g_object_unref (item);
     if (new_parent)
@@ -391,7 +287,7 @@ midori_bookmarks_row_changed_cb (GtkTreeModel*    model,
 
 static void
 midori_bookmarks_add_clicked_cb (GtkWidget* toolitem,
-				                 MidoriBookmarks* bookmarks)
+                                                 MidoriBookmarks* bookmarks)
 {
     MidoriBrowser* browser = midori_browser_get_for_widget (toolitem);
     GtkTreeView* treeview = GTK_TREE_VIEW (bookmarks->treeview);
@@ -522,9 +418,9 @@ midori_bookmarks_statusbar_update (MidoriBookmarks *bookmarks)
 
         if (KATZE_ITEM_IS_FOLDER (item))
         {
-            gint child_folders_count = midori_array_count_recursive (bookmarks->array,
+            gint child_folders_count = midori_bookmarks_db_count_recursive (bookmarks->bookmarks_db,
                 "uri = ''", NULL, item, FALSE);
-            gint child_bookmarks_count = midori_array_count_recursive (bookmarks->array,
+            gint child_bookmarks_count = midori_bookmarks_db_count_recursive (bookmarks->bookmarks_db,
                 "uri <> ''", NULL, item, FALSE);
             gchar* child_folders_str = midori_bookmarks_statusbar_subfolders_str (child_folders_count);
             gchar* child_bookmarks_str = midori_bookmarks_statusbar_bookmarks_str (child_bookmarks_count);
@@ -557,9 +453,9 @@ midori_bookmarks_statusbar_update (MidoriBookmarks *bookmarks)
     }
     else
     {
-        gint child_folders_count = midori_array_count_recursive (bookmarks->array,
+        gint child_folders_count = midori_bookmarks_db_count_recursive (bookmarks->bookmarks_db,
             "uri = ''", NULL, NULL, FALSE);
-        gint child_bookmarks_count = midori_array_count_recursive (bookmarks->array,
+        gint child_bookmarks_count = midori_bookmarks_db_count_recursive (bookmarks->bookmarks_db,
             "uri <> ''", NULL, NULL, FALSE);
         gchar* child_folders_str = midori_bookmarks_statusbar_subfolders_str (child_folders_count);
         gchar* child_bookmarks_str = midori_bookmarks_statusbar_bookmarks_str (child_bookmarks_count);
@@ -589,52 +485,6 @@ midori_bookmarks_statusbar_update (MidoriBookmarks *bookmarks)
     }
 }
 
-gboolean
-midori_bookmarks_update_item_db (sqlite3*   db,
-                                 KatzeItem* item)
-{
-    gchar* sqlcmd;
-    char* errmsg = NULL;
-    gchar* parentid;
-    gboolean updated;
-    gchar* id;
-
-    id = g_strdup_printf ("%" G_GINT64_FORMAT,
-            katze_item_get_meta_integer (item, "id"));
-
-    if (katze_item_get_meta_integer (item, "parentid") > 0)
-        parentid = g_strdup_printf ("%" G_GINT64_FORMAT,
-                                    katze_item_get_meta_integer (item, "parentid"));
-    else
-        parentid = g_strdup_printf ("NULL");
-
-    sqlcmd = sqlite3_mprintf (
-            "UPDATE bookmarks SET "
-            "parentid=%q, title='%q', uri='%q', desc='%q', toolbar=%d, app=%d "
-            "WHERE id = %q ;",
-            parentid,
-            katze_item_get_name (item),
-            katze_str_non_null (katze_item_get_uri (item)),
-            katze_str_non_null (katze_item_get_meta_string (item, "desc")),
-            katze_item_get_meta_boolean (item, "toolbar"),
-            katze_item_get_meta_boolean (item, "app"),
-            id);
-
-    updated = TRUE;
-    if (sqlite3_exec (db, sqlcmd, NULL, NULL, &errmsg) != SQLITE_OK)
-    {
-        updated = FALSE;
-        g_printerr (_("Failed to update bookmark: %s\n"), errmsg);
-        sqlite3_free (errmsg);
-    }
-
-    sqlite3_free (sqlcmd);
-    g_free (parentid);
-    g_free (id);
-
-    return updated;
-}
-
 static void
 midori_bookmarks_delete_clicked_cb (GtkWidget*       toolitem,
                                     MidoriBookmarks* bookmarks)
@@ -651,10 +501,10 @@ midori_bookmarks_delete_clicked_cb (GtkWidget*       toolitem,
 
         /* Manually remove the iter and block clearing the treeview */
         gtk_tree_store_remove (GTK_TREE_STORE (model), &iter);
-        g_signal_handlers_block_by_func (bookmarks->array,
+        g_signal_handlers_block_by_func (bookmarks->bookmarks_db,
             midori_bookmarks_remove_item_cb, bookmarks);
-        katze_array_remove_item (bookmarks->array, item);
-        g_signal_handlers_unblock_by_func (bookmarks->array,
+        midori_bookmarks_db_remove_item (bookmarks->bookmarks_db, item);
+        g_signal_handlers_unblock_by_func (bookmarks->bookmarks_db,
             midori_bookmarks_remove_item_cb, bookmarks);
         g_object_unref (item);
     }
@@ -737,9 +587,9 @@ midori_bookmarks_set_app (MidoriBookmarks* bookmarks,
     GtkTreeModel* model;
 
     model = gtk_tree_view_get_model (GTK_TREE_VIEW (bookmarks->treeview));
-    if (bookmarks->array)
+    if (bookmarks->bookmarks_db)
     {
-        g_object_unref (bookmarks->array);
+        g_object_unref (bookmarks->bookmarks_db);
         gtk_tree_store_clear (GTK_TREE_STORE (model));
     }
     katze_assign (bookmarks->app, app);
@@ -747,13 +597,13 @@ midori_bookmarks_set_app (MidoriBookmarks* bookmarks,
         return;
 
     g_object_ref (app);
-    bookmarks->array = katze_object_get_object (app, "bookmarks");
+    bookmarks->bookmarks_db = katze_object_get_object (app, "bookmarks");
     midori_bookmarks_read_from_db_to_model (bookmarks, GTK_TREE_STORE (model), NULL, 0, NULL);
-    g_signal_connect_after (bookmarks->array, "add-item",
-                      G_CALLBACK (midori_bookmarks_add_item_cb), bookmarks);
-    g_signal_connect (bookmarks->array, "remove-item",
+    g_signal_connect_after (bookmarks->bookmarks_db, "add-item",
+                            G_CALLBACK (midori_bookmarks_add_item_cb), bookmarks);
+    g_signal_connect (bookmarks->bookmarks_db, "remove-item",
                       G_CALLBACK (midori_bookmarks_remove_item_cb), bookmarks);
-    g_signal_connect (bookmarks->array, "update",
+    g_signal_connect (bookmarks->bookmarks_db, "update",
                       G_CALLBACK (midori_bookmarks_update_cb), bookmarks);
     g_signal_connect_after (model, "row-changed",
                             G_CALLBACK (midori_bookmarks_row_changed_cb),
@@ -987,7 +837,7 @@ midori_bookmarks_popup (GtkWidget*       widget,
     menu = gtk_menu_new ();
     if (KATZE_ITEM_IS_FOLDER (item))
     {
-        gint child_bookmarks_count = midori_array_count_recursive (bookmarks->array,
+        gint child_bookmarks_count = midori_bookmarks_db_count_recursive (bookmarks->bookmarks_db,
             "uri <> ''", NULL, item, FALSE);
 
         midori_bookmarks_popup_item (menu,

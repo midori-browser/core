@@ -28,7 +28,7 @@ import misc
 from Configure import find_program_impl
 
 APPNAME = 'midori'
-VERSION = VERSION_FULL = '0.5.4'
+VERSION = VERSION_FULL = '0.5.5'
 VERSION_SUFFIX = ' (%s)' % VERSION
 
 try:
@@ -228,6 +228,8 @@ def configure (conf):
     elif sys.platform != 'darwin':
         if sys.platform.startswith ('freebsd'):
             conf.env.append_value ('VALAFLAGS', '-D HAVE_FREEBSD')
+        else:
+            conf.env.append_value ('VALAFLAGS', '-D HAVE_EXECINFO_H')
 
         check_pkg ('x11')
         # Pass /usr/X11R6/include for OpenBSD
@@ -268,17 +270,7 @@ def configure (conf):
     conf.env['HAVE_GTK3'] = have_gtk3
     conf.env['HAVE_WEBKIT2'] = option_enabled ('webkit2')
 
-    if option_enabled ('unique'):
-        if have_gtk3: unique_pkg = 'unique-3.0'
-        else: unique_pkg = 'unique-1.0'
-        if not check_pkg (unique_pkg, '0.9', mandatory=False):
-            option_checkfatal ('unique', 'single instance')
-    else:
-        conf.define ('UNIQUE_VERSION', 'No')
-        conf.check_message_custom ('unique', '', 'disabled')
-    conf.define ('HAVE_UNIQUE', [0,1][conf.env['UNIQUE_VERSION'] != 'No'])
-
-    check_pkg ('libsoup-2.4', '2.27.90', var='LIBSOUP')
+    check_pkg ('libsoup-gnome-2.4', '2.27.90', var='LIBSOUP')
     if check_version (conf.env['LIBSOUP_VERSION'], 2, 29, 91):
         conf.define ('HAVE_LIBSOUP_2_29_91', 1)
     if check_version (conf.env['LIBSOUP_VERSION'], 2, 34, 0):
@@ -299,14 +291,6 @@ def configure (conf):
     if 'LINGUAS' in os.environ: conf.env['LINGUAS'] = os.environ['LINGUAS']
 
     conf.check (header_name='unistd.h')
-    if not conf.env['HAVE_UNIQUE']:
-        if Options.platform == 'win32':
-            conf.check (lib='ws2_32')
-        conf.define ('HAVE_NETDB_H', [0,1][conf.check (header_name='netdb.h')])
-        conf.check (header_name='sys/wait.h')
-        conf.check (header_name='sys/select.h')
-        conf.check (function_name='inet_aton', header_name='sys/types.h sys/socket.h netinet/in.h arpa/inet.h')
-        conf.check (function_name='inet_addr', header_name='sys/types.h sys/socket.h netinet/in.h arpa/inet.h')
     conf.define ('HAVE_OSX', int(sys.platform == 'darwin'))
     if Options.platform == 'win32':
         conf.check (lib='ole32')
@@ -355,11 +339,6 @@ def configure (conf):
                 '-Winit-self -Wundef -Wdeclaration-after-statement '
                 '-Wmissing-format-attribute -Wnested-externs'.split ())
     conf.env.append_value ('CCFLAGS', '-Wno-unused-variable -Wno-comment'.split ())
-
-    if conf.env['UNIQUE_VERSION'] == '1.0.4':
-        Utils.pprint ('RED', 'unique 1.0.4 found, this version is erroneous.')
-        Utils.pprint ('RED', 'Please use an older or newer version.')
-        sys.exit (1)
 
 def set_options (opt):
     def add_enable_option (option, desc, group=None, disable=False):
@@ -466,9 +445,6 @@ def build (bld):
         bld.install_files ('${DOCDIR}/', \
             'AUTHORS COPYING ChangeLog EXPAT README data/faq.html data/faq.css')
 
-    # Install default configuration
-    bld.install_files ('${SYSCONFDIR}/xdg/' + APPNAME + '/', 'data/search')
-
     if bld.env['INTLTOOL']:
         obj = bld.new_task_gen ('intltool_po')
         obj.podir = 'po'
@@ -478,9 +454,12 @@ def build (bld):
         bld.add_subdirs ('docs/api')
         bld.install_files ('${DOCDIR}/api/', blddir + '/docs/api/*')
 
-    for desktop in [APPNAME + '.desktop', APPNAME + '-private.desktop']:
+    for res_file in os.listdir ('data'):
         if is_win32 (bld.env):
             break
+        if not '.desktop' in res_file:
+            continue
+        desktop = res_file[:-3]
         appdir = '${MDATADIR}/applications'
         if bld.env['INTLTOOL']:
             obj = bld.new_task_gen ('intltool_in')
@@ -519,20 +498,26 @@ def build (bld):
         else:
             Utils.pprint ('BLUE', "logo-shade could not be rasterized.")
 
-    for res_file in ['about.css', 'error.html', 'close.png', 'gtk3.css', 'speeddial-head.html']:
-        bld.install_files ('${MDATADIR}/' + APPNAME + '/res', 'data/' + res_file)
+    for res_file in os.listdir ('data'):
+        if '.desktop' in res_file or 'faq.' in res_file or 'midori.' in res_file:
+            continue
+        dest = '${MDATADIR}/' + APPNAME + '/res'
+        if (os.path.isdir ('data/' + res_file)):
+            dest += '/' + res_file
+            res_file += '/*'
+        bld.install_files (dest, 'data/' + res_file)
 
-    if bld.env['addons']:
-        bld.install_files ('${MDATADIR}/' + APPNAME + '/res', 'data/autosuggestcontrol.js')
-        bld.install_files ('${MDATADIR}/' + APPNAME + '/res', 'data/autosuggestcontrol.css')
-
-        if 1:
-            extensions = os.listdir ('data/extensions')
-            for extension in extensions:
-                source = 'data/extensions/' + extension +  '/config'
-                if os.path.exists (source):
-                    bld.install_files ('${SYSCONFDIR}/xdg/' + APPNAME + \
-                                       '/extensions/' + extension, source)
+    for config_file in os.listdir ('config'):
+        dest = '${SYSCONFDIR}/xdg/' + APPNAME
+        if (os.path.isdir ('config/' + config_file)):
+            dest += '/' + config_file
+            for child in os.listdir ('config/' + config_file):
+                if (os.path.isdir ('config/' + config_file + '/' + child)):
+                    dest += '/' + child
+                    child += '/*'
+                bld.install_files (dest, 'config/' + config_file + '/' + child)
+            continue
+        bld.install_files (dest, 'config/' + config_file)
 
     if Options.commands['check'] or bld.env['tests']:
         bld.add_subdirs ('tests')
@@ -594,7 +579,6 @@ def shutdown ():
 
         # Avoid i18n-related false failures
         os.environ['LC_ALL'] = 'C'
-        os.environ['UNIQUE_BACKEND'] = 'bacon'
         if is_mingw (Build.bld.env):
             os.environ['MIDORI_EXEC_PATH'] = Build.bld.env['PREFIX']
         test = UnitTest.unit_test ()
