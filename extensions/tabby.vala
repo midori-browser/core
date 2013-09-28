@@ -127,7 +127,13 @@ namespace Tabby {
 
             private void helper_data_changed (Midori.Browser browser, Midori.View view) {
                 ulong sig_id = 0;
+#if !HAVE_WEBKIT2
                 sig_id = view.web_view.load_started.connect (() => {
+#else
+                sig_id = view.web_view.load_changed.connect ((web_view, load_event) => {
+		switch (load_event) {
+		case 0: // WebKit.WebView.WEBKIT_LOAD_STARTED
+#endif
                     unowned Katze.Item item = view.get_proxy_item ();
 
                     int64 delay = item.get_meta_integer ("delay");
@@ -141,7 +147,15 @@ namespace Tabby {
 
                         GLib.SignalHandler.disconnect (view.web_view, sig_id);
                     }
+#if !HAVE_WEBKIT2
                 });
+#else
+	break;
+	default:
+	break;
+	}
+});
+#endif
             }
         }
     }
