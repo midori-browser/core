@@ -3891,7 +3891,7 @@ midori_view_set_uri (MidoriView*  view,
 
         if (handled)
             return;
-        
+
         if (!strcmp (uri, "about:new"))
             uri = midori_settings_get_tabhome (MIDORI_SETTINGS (view->settings));
         if (!strcmp (uri, "about:home"))
@@ -4406,6 +4406,27 @@ midori_view_duplicate (MidoriView* view)
 }
 
 static void
+midori_view_tab_label_menu_close_tabs_right_cb (GtkAction* action,
+                                                gpointer   user_data)
+{
+    GtkWidget* view = user_data;
+    MidoriBrowser* browser = midori_browser_get_for_widget (view);
+    GList* tabs = midori_browser_get_tabs (browser);
+    gboolean found_tab = FALSE;
+    for (; tabs; tabs = g_list_next (tabs))
+    {
+        if (tabs->data == view)
+        {
+            found_tab = TRUE;
+            continue;
+        }
+        if (found_tab)
+            midori_browser_close_tab (browser, tabs->data);
+    }
+    g_list_free (tabs);
+}
+
+static void
 midori_view_tab_label_menu_close_other_tabs_cb (GtkAction* action,
                                                 gpointer   user_data)
 {
@@ -4454,7 +4475,7 @@ midori_view_get_tab_menu (MidoriView* view)
 
     MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (view));
     g_return_val_if_fail (browser != NULL, NULL);
-    
+
     GtkActionGroup* actions = midori_browser_get_action_group (browser);
     MidoriContextAction* menu = midori_context_action_new ("TabContextMenu", NULL, NULL, NULL);
     midori_context_action_add_action_group (menu, actions);
@@ -4471,6 +4492,8 @@ midori_view_get_tab_menu (MidoriView* view)
         view->minimized ? _("Show Tab _Label") : _("Show Tab _Icon Only"), NULL, NULL,
         midori_view_tab_label_menu_minimize_tab_cb, view);
     midori_context_action_add (menu, NULL);
+    midori_context_action_add_simple (menu, "TabCloseRight", _("_Close R_ightmost Tabs"), NULL, NULL,
+        midori_view_tab_label_menu_close_tabs_right_cb, view);
     GtkAction* action = gtk_action_new ("TabCloseOther", g_dngettext (NULL, "Close Ot_her Tab", "Close Ot_her Tabs", pages - 1), NULL, NULL);
     g_signal_connect (action, "activate", G_CALLBACK (midori_view_tab_label_menu_close_other_tabs_cb), view);
     gtk_action_set_sensitive (action, pages > 1);
