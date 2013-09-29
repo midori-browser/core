@@ -880,6 +880,8 @@ midori_bookmarks_db_import_array (MidoriBookmarksDb* bookmarks,
 
     KATZE_ARRAY_FOREACH_ITEM_L (item, array, list)
     {
+        /* IDs coming from previously exported database must be forgotten */
+        katze_item_set_meta_integer (item, "id", -1);
         katze_item_set_meta_integer (item, "parentid", parentid);
         midori_bookmarks_db_add_item (bookmarks, item);
         if (KATZE_IS_ARRAY (item))
