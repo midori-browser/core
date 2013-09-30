@@ -12,45 +12,42 @@ include_directories(
                     ${CMAKE_BINARY_DIR}
                     "${CMAKE_BINARY_DIR}/midori"
                     )
-file(GLOB TESTS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.c)
+file(GLOB TESTS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.c *.vala)
 foreach(UNIT_SRC ${TESTS})
-    string(REPLACE ".c" "" UNIT ${UNIT_SRC})
-    add_executable(${UNIT} ${UNIT_SRC})
-    add_test(NAME ${UNIT} COMMAND ${UNIT})
-    contain_test(${UNIT})
-    target_link_libraries(${UNIT}
-                          ${LIBMIDORI}
-                          )
-    set_target_properties(${UNIT} PROPERTIES
-                          COMPILE_FLAGS ${CFLAGS}
-                          )
-endforeach ()
+    if (${UNIT_SRC} MATCHES "(.vala)$")
+        string(REPLACE ".vala" "" UNIT ${UNIT_SRC})
+        include(ValaPrecompile)
+        vala_precompile(UNIT_SRC_C ${UNIT}
+            ${UNIT_SRC}
+        PACKAGES
+            ${PKGS}
+        OPTIONS
+            ${VALAFLAGS}
+        CUSTOM_VAPIS
+            ${EXTRA_VAPIS}
+            "${CMAKE_SOURCE_DIR}/midori/midori.vapi"
+            "${CMAKE_SOURCE_DIR}/katze/katze.vapi"
+            "${CMAKE_BINARY_DIR}/midori/${LIBMIDORI}.vapi"
+        )
 
-file(GLOB TESTS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.vala)
-foreach(UNIT_SRC ${TESTS})
-    string(REPLACE ".vala" "" UNIT ${UNIT_SRC})
-    include(ValaPrecompile)
-    vala_precompile(UNIT_SRC_C ${UNIT}
-        ${UNIT_SRC}
-    PACKAGES
-        ${PKGS}
-    OPTIONS
-        ${VALAFLAGS}
-    CUSTOM_VAPIS
-        ${EXTRA_VAPIS}
-        "${CMAKE_SOURCE_DIR}/midori/midori.vapi"
-        "${CMAKE_SOURCE_DIR}/katze/katze.vapi"
-        "${CMAKE_BINARY_DIR}/midori/${LIBMIDORI}.vapi"
-    )
-    add_executable(${UNIT} ${UNIT_SRC_C})
-    add_test(NAME ${UNIT} COMMAND ${UNIT})
-    contain_test(${UNIT})
+        add_executable(${UNIT} ${UNIT_SRC_C})
+        set_target_properties(${UNIT} PROPERTIES
+                              COMPILE_FLAGS "${VALA_CFLAGS}"
+                              )
+    else()
+        string(REPLACE ".c" "" UNIT ${UNIT_SRC})
+        add_executable(${UNIT} ${UNIT_SRC})
+        set_target_properties(${UNIT} PROPERTIES
+                              COMPILE_FLAGS ${CFLAGS}
+                              )
+    endif()
+
     target_link_libraries(${UNIT}
                           ${LIBMIDORI}
                           )
-    set_target_properties(${UNIT} PROPERTIES
-                          COMPILE_FLAGS "${VALA_CFLAGS}"
-                          )
+    add_test(NAME ${UNIT} COMMAND ${UNIT})
+    contain_test (${UNIT})
+
 endforeach ()
 
 file(GLOB TESTS *.sh)
