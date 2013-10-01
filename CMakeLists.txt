@@ -136,11 +136,12 @@ option(USE_ZEITGEIST "Zeitgeist history integration" ON)
 option(USE_GRANITE "Fancy notebook and pop-overs" OFF)
 option(USE_APIDOCS "API documentation" OFF)
 
-if (USE_GRANITE)
-    if (NOT USE_GTK3 AND NOT HALF_BRO_INCOM_WEBKIT2)
-        set(USE_GTK3 ON)
-    endif ()
+# GTK+3 is implied here, whether set or not
+if (USE_GRANITE OR HALF_BRO_INCOM_WEBKIT2)
+    set(USE_GTK3 ON)
+endif ()
 
+if (USE_GRANITE)
     pkg_check_modules(GRANITE granite>=0.2)
     set(OPTS_INCLUDE_DIRS "${OPTS_INCLUDE_DIRS};${GRANITE_INCLUDE_DIRS}")
     set(OPTS_LIBRARIES "${OPTS_LIBRARIES};${GRANITE_LIBRARIES}")
@@ -160,7 +161,7 @@ if (USE_ZEITGEIST)
     set(PKGS ${PKGS} zeitgeist-1.0)
 endif()
 
-if (USE_GTK3 OR HALF_BRO_INCOM_WEBKIT2)
+if (USE_GTK3)
     pkg_check_modules(GCR gcr-3>=2.32)
     if (GCR_VERSION)
         set(OPTS_INCLUDE_DIRS "${OPTS_INCLUDE_DIRS};${GCR_INCLUDE_DIRS}")
@@ -175,18 +176,7 @@ else ()
     add_definitions("-DGCR_VERSION=\"No\"")
 endif ()
 
-if (USE_GTK3)
-    pkg_check_modules(DEPS_GTK REQUIRED
-                      gtk+-3.0>=3.0.0
-                      webkitgtk-3.0>=1.8.3
-                      javascriptcoregtk-3.0
-                      )
-    add_definitions("-DGTK_VERSION=\"${DEPS_GTK_gtk+-3.0_VERSION}\"")
-    add_definitions("-DWEBKIT_VERSION=\"${DEPS_GTK_webkitgtk-3.0_VERSION}\"")
-    set(PKGS ${PKGS} gtk+-3.0)
-    set(EXTRA_VAPIS ${EXTRA_VAPIS} "${CMAKE_SOURCE_DIR}/midori/webkitgtk-3.0.vapi")
-    set(VALAFLAGS ${VALAFLAGS} -D HAVE_GTK3)
-elseif (HALF_BRO_INCOM_WEBKIT2)
+if (HALF_BRO_INCOM_WEBKIT2)
     # Note: WebKitGTK+ 2.0.0 matches 1.11.91; 1.11.92 > 2.0.0
     pkg_check_modules(DEPS_GTK REQUIRED
                       gtk+-3.0>=3.0.0
@@ -200,6 +190,17 @@ elseif (HALF_BRO_INCOM_WEBKIT2)
     set(EXTRA_VAPIS ${EXTRA_VAPIS} "${CMAKE_SOURCE_DIR}/midori/webkit2gtk-3.0.vapi")
     set(VALAFLAGS ${VALAFLAGS} -D HAVE_GTK3)
     set(VALAFLAGS ${VALAFLAGS} -D HAVE_WEBKIT2)
+elseif (USE_GTK3)
+    pkg_check_modules(DEPS_GTK REQUIRED
+                      gtk+-3.0>=3.0.0
+                      webkitgtk-3.0>=1.8.3
+                      javascriptcoregtk-3.0
+                      )
+    add_definitions("-DGTK_VERSION=\"${DEPS_GTK_gtk+-3.0_VERSION}\"")
+    add_definitions("-DWEBKIT_VERSION=\"${DEPS_GTK_webkitgtk-3.0_VERSION}\"")
+    set(PKGS ${PKGS} gtk+-3.0)
+    set(EXTRA_VAPIS ${EXTRA_VAPIS} "${CMAKE_SOURCE_DIR}/midori/webkitgtk-3.0.vapi")
+    set(VALAFLAGS ${VALAFLAGS} -D HAVE_GTK3)
 else ()
     pkg_check_modules(DEPS_GTK REQUIRED
                       gtk+-2.0>=2.24.0
