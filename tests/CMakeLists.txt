@@ -47,26 +47,6 @@ foreach(UNIT_SRC ${TESTS})
                           )
     add_test(NAME ${UNIT} COMMAND ${UNIT})
     contain_test (${UNIT})
-
-    add_custom_target(gdb-${UNIT}
-                      COMMAND gdb
-                      --batch -ex 'set print thread-events off'
-                      -ex 'run' -ex 'bt'
-                      ${CMAKE_BINARY_DIR}/tests/${UNIT}
-                      )
-    add_custom_target(valgrind-${UNIT}
-                      COMMAND valgrind
-                      -q --leak-check=no --num-callers=4
-                      --show-possibly-lost=no
-                      --undef-value-errors=yes
-                      --track-origins=yes
-                      ${CMAKE_BINARY_DIR}/tests/${UNIT}
-                      )
-    add_custom_target(callgrind-${UNIT}
-                      COMMAND valgrind --tool=callgrind
-                      --callgrind-out-file=${UNIT}.callgrind
-                      ${CMAKE_BINARY_DIR}/tests/${UNIT}
-                      )
 endforeach ()
 
 file(GLOB TESTS *.sh)
