@@ -1,0 +1,48 @@
+#! /bin/sh
+#
+# Copyright (C) 2013 Christian Dywan <christian@twotoasts.de>
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# See the file COPYING for the full license text.
+#
+#~  Usage:
+#~    ./configure [OPTIONS]
+#~  Options:
+#~    --enable-gtk3          Use GTK+3
+#~    --disable-zeitgeist    Disable Zeitgeist history integration
+#~    --enable-granite       Fancy notebook and pop-overs
+#~    --enable-apidocs       API documentation
+#
+
+if [ -z `command -v cmake` ]; then
+    echo Fatal: cmake not installed
+    exit 1
+fi
+
+test -z $1 && set 1
+while [ $# != 0 ]; do
+    case $1 in
+        --enable-gtk3)
+            ARGS="$ARGS -DUSE_GTK3=1";;
+        --disable-zeitgeist)
+            ARGS="$ARGS -DUSE_ZEITGEIST=0";;
+        --enable-granite)
+            ARGS="$ARGS -DUSE_GRANITE=1";;
+        --enable-apidocs)
+            ARGS="$ARGS -DUSE_APIDOCS=1";;
+        --prefix=*)
+            ARGS="$ARGS -DCMAKE_INSTALL_PREFIX=${1#*=}";;
+        *)
+            grep -e '^#~' $0 | sed s/#~//
+            exit
+    esac
+    shift
+done
+
+mkdir -p _build && cd _build || exit 1
+cmake $ARGS ..
+
