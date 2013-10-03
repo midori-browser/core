@@ -24,7 +24,6 @@ if [ -z `command -v cmake` ]; then
     exit 1
 fi
 
-test -z $1 && set 1
 while [ $# != 0 ]; do
     case $1 in
         --enable-gtk3)
