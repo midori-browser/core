@@ -898,14 +898,14 @@ midori_bookmark_folder_button_new (MidoriBookmarksDb* array,
     gtk_cell_layout_clear (GTK_CELL_LAYOUT (combo));
 
     renderer = gtk_cell_renderer_pixbuf_new ();
-    g_object_set (G_OBJECT (renderer), 
+    g_object_set (G_OBJECT (renderer),
         "stock-id", GTK_STOCK_DIRECTORY,
         "stock-size", GTK_ICON_SIZE_MENU,
         NULL);
     gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (combo), renderer, FALSE);
 
     renderer = katze_cell_renderer_combobox_text_new ();
-    g_object_set (G_OBJECT (renderer), 
+    g_object_set (G_OBJECT (renderer),
         "width-chars", 40,    /* FIXME: figure out a way to define an acceptable string length */
         "ellipsize", PANGO_ELLIPSIZE_END,
         "unfolded-text", _("Select [text]"),
@@ -2843,6 +2843,18 @@ _action_window_close_activate (GtkAction*     action,
 }
 
 static void
+_action_mail_to_activate (GtkAction*     action,
+                          MidoriBrowser* browser)
+{
+    const gchar* uri = g_markup_escape_text (midori_browser_get_current_uri (browser), -1);
+    if (!g_utf8_strlen (uri, -1))
+        return;
+    const gchar* title = g_markup_escape_text (gtk_window_get_title (&browser->parent_instance), -1);
+    sokoke_show_uri (NULL,
+                     g_strconcat ("mailto:?cc=&bcc=&subject=", title, "&body=", uri, NULL), GDK_CURRENT_TIME, NULL);
+}
+
+static void
 _action_print_activate (GtkAction*     action,
                         MidoriBrowser* browser)
 {
@@ -3341,6 +3353,7 @@ _action_compact_menu_populate_popup (GtkAction*     action,
     midori_context_action_add_by_name (menu, "Find");
     midori_context_action_add_by_name (menu, "Print");
     midori_context_action_add_by_name (menu, "Fullscreen");
+    midori_context_action_add_by_name (menu, "MailTo");
     midori_context_action_add (menu, NULL);
     gsize j = 0;
     GtkWidget* widget;
@@ -5360,6 +5373,9 @@ static const GtkActionEntry entries[] =
         NULL, "<Ctrl>p",
         N_("Print the current page"), G_CALLBACK (_action_print_activate) },
     #endif
+    { "MailTo", NULL,
+        N_("Send Page Link Via Email"), "<Ctrl>m",
+        NULL, G_CALLBACK (_action_mail_to_activate) },
     { "Quit", GTK_STOCK_QUIT,
         N_("Close a_ll Windows"), "<Ctrl><Shift>q",
         NULL, G_CALLBACK (_action_quit_activate) },
@@ -5769,6 +5785,7 @@ static const gchar* ui_markup =
                 "<menuitem action='TabClose'/>"
                 "<menuitem action='WindowClose'/>"
                 "<separator/>"
+                "<menuitem action='MailTo'/>"
                 "<menuitem action='Print'/>"
                 "<separator/>"
                 "<menuitem action='Quit'/>"
