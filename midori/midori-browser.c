@@ -2846,10 +2846,9 @@ static void
 _action_mail_to_activate (GtkAction*     action,
                           MidoriBrowser* browser)
 {
-    const gchar* uri = g_markup_escape_text (midori_browser_get_current_uri (browser), -1);
-    if (!g_utf8_strlen (uri, -1))
-        return;
-    const gchar* title = g_markup_escape_text (gtk_window_get_title (&browser->parent_instance), -1);
+    const gchar* uri = g_uri_escape_string (midori_browser_get_current_uri (browser), NULL, TRUE);
+    g_return_if_fail (g_utf8_strlen (uri, -1));
+    const gchar* title = g_uri_escape_string (gtk_window_get_title (GTK_WINDOW (browser)), NULL, TRUE);
     sokoke_show_uri (NULL,
                      g_strconcat ("mailto:?cc=&bcc=&subject=", title, "&body=", uri, NULL), GDK_CURRENT_TIME, NULL);
 }
