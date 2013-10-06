@@ -1520,6 +1520,20 @@ webkit_web_view_statusbar_text_changed_cb (WebKitWebView* web_view,
 }
 #endif
 
+#if GTK_CHECK_VERSION(3, 2, 0)
+static gboolean
+midori_view_overlay_frame_enter_notify_event_cb (GtkOverlay*       overlay,
+                                                 GdkEventCrossing* event,
+                                                 GtkWidget*        frame)
+{
+    /* Flip horizontal position of the overlay frame */
+    gtk_widget_set_halign (frame,
+        gtk_widget_get_halign (frame) == GTK_ALIGN_START
+        ? GTK_ALIGN_END : GTK_ALIGN_START);
+    return FALSE;
+}
+#endif
+
 static gboolean
 midori_view_web_view_leave_notify_event_cb (WebKitWebView*    web_view,
                                             GdkEventCrossing* event,
@@ -3629,6 +3643,10 @@ midori_view_constructor (GType                  type,
     gtk_widget_set_halign (frame, GTK_ALIGN_START);
     gtk_widget_set_valign (frame, GTK_ALIGN_END);
     gtk_overlay_add_overlay (GTK_OVERLAY (view->overlay), frame);
+    /* Enable enter-notify-event signals */
+    gtk_widget_add_events (view->overlay, GDK_ENTER_NOTIFY_MASK);
+    g_signal_connect (view->overlay, "enter-notify-event",
+        G_CALLBACK (midori_view_overlay_frame_enter_notify_event_cb), frame);
     }
     view->overlay_find = g_object_new (MIDORI_TYPE_FINDBAR, NULL);
     gtk_widget_set_halign (view->overlay_find, GTK_ALIGN_END);

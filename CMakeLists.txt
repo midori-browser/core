@@ -38,7 +38,7 @@ add_definitions("-DLIBDIR=\"${CMAKE_INSTALL_FULL_LIBDIR}\"")
 add_definitions("-DDOCDIR=\"${CMAKE_INSTALL_FULL_DOCDIR}\"")
 
 add_definitions("-DENABLE_NLS=1")
-add_definitions("-DLOCALEDIR=\"${CMAKE_INSTALL_LOCALEDIR}\"")
+add_definitions("-DLOCALEDIR=\"${CMAKE_INSTALL_FULL_LOCALEDIR}\"")
 
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/config.h" "/* # generated file (stub) */")
 add_definitions("-DHAVE_CONFIG_H=1")
@@ -70,8 +70,7 @@ if (WIN32)
     set(VALAFLAGS ${VALAFLAGS} -D HAVE_WIN32)
 endif ()
 
-string(FIND ${CMAKE_SYSTEM_NAME} "FreeBSD" FREEBSD)
-if (FREEBSD GREATER -1)
+if (${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD")
     set(VALAFLAGS ${VALAFLAGS} -D HAVE_FREEBSD)
 endif ()
 
@@ -80,6 +79,17 @@ if (APPLE)
     set(VALAFLAGS ${VALAFLAGS} -D HAVE_OSX)
 else ()
     add_definitions("-DHAVE_OSX=0")
+endif ()
+
+# Check if execinfo.h header exists
+string(FIND ${CMAKE_SYSTEM_NAME} "BSD" BEGIN)
+if (${BEGIN} GREATER 0)
+    string(SUBSTRING ${CMAKE_SYSTEM_NAME} ${BEGIN} 3 BSD)
+else()
+    set(BSD 0)
+endif()
+if (UNIX AND NOT BSD)
+    set(VALAFLAGS ${VALAFLAGS} -D HAVE_EXECINFO_H)
 endif ()
 
 find_package(PkgConfig)
@@ -106,6 +116,7 @@ if (${DEPS_libsoup-gnome-2.4_VERSION} VERSION_GREATER "2.37.1")
 endif ()
 if (${DEPS_libsoup-gnome-2.4_VERSION} VERSION_GREATER "2.40.0")
     add_definitions("-DHAVE_LIBSOUP_2_40_0")
+    set(VALAFLAGS ${VALAFLAGS} -D HAVE_LIBSOUP_2_40_0)
 endif ()
 
 if (WIN32)
@@ -123,12 +134,14 @@ option(USE_GTK3 "Use GTK+3" OFF)
 option(HALF_BRO_INCOM_WEBKIT2 "Serve as a guniea pig" OFF)
 option(USE_ZEITGEIST "Zeitgeist history integration" ON)
 option(USE_GRANITE "Fancy notebook and pop-overs" OFF)
+option(USE_APIDOCS "API documentation" OFF)
+
+# GTK+3 is implied here, whether set or not
+if (USE_GRANITE OR HALF_BRO_INCOM_WEBKIT2)
+    set(USE_GTK3 ON)
+endif ()
 
 if (USE_GRANITE)
-    if (NOT USE_GTK3 AND NOT HALF_BRO_INCOM_WEBKIT2)
-        set(USE_GTK3 ON)
-    endif ()
-
     pkg_check_modules(GRANITE granite>=0.2)
     set(OPTS_INCLUDE_DIRS "${OPTS_INCLUDE_DIRS};${GRANITE_INCLUDE_DIRS}")
     set(OPTS_LIBRARIES "${OPTS_LIBRARIES};${GRANITE_LIBRARIES}")
@@ -148,7 +161,7 @@ if (USE_ZEITGEIST)
     set(PKGS ${PKGS} zeitgeist-1.0)
 endif()
 
-if (USE_GTK3 OR HALF_BRO_INCOM_WEBKIT2)
+if (USE_GTK3)
     pkg_check_modules(GCR gcr-3>=2.32)
     if (GCR_VERSION)
         set(OPTS_INCLUDE_DIRS "${OPTS_INCLUDE_DIRS};${GCR_INCLUDE_DIRS}")
@@ -163,18 +176,7 @@ else ()
     add_definitions("-DGCR_VERSION=\"No\"")
 endif ()
 
-if (USE_GTK3)
-    pkg_check_modules(DEPS_GTK REQUIRED
-                      gtk+-3.0>=3.0.0
-                      webkitgtk-3.0>=1.8.3
-                      javascriptcoregtk-3.0
-                      )
-    add_definitions("-DGTK_VERSION=\"${DEPS_GTK_gtk+-3.0_VERSION}\"")
-    add_definitions("-DWEBKIT_VERSION=\"${DEPS_GTK_webkitgtk-3.0_VERSION}\"")
-    set(PKGS ${PKGS} gtk+-3.0)
-    set(EXTRA_VAPIS ${EXTRA_VAPIS} "${CMAKE_SOURCE_DIR}/midori/webkitgtk-3.0.vapi")
-    set(VALAFLAGS ${VALAFLAGS} -D HAVE_GTK3)
-elseif (HALF_BRO_INCOM_WEBKIT2)
+if (HALF_BRO_INCOM_WEBKIT2)
     # Note: WebKitGTK+ 2.0.0 matches 1.11.91; 1.11.92 > 2.0.0
     pkg_check_modules(DEPS_GTK REQUIRED
                       gtk+-3.0>=3.0.0
@@ -188,6 +190,17 @@ elseif (HALF_BRO_INCOM_WEBKIT2)
     set(EXTRA_VAPIS ${EXTRA_VAPIS} "${CMAKE_SOURCE_DIR}/midori/webkit2gtk-3.0.vapi")
     set(VALAFLAGS ${VALAFLAGS} -D HAVE_GTK3)
     set(VALAFLAGS ${VALAFLAGS} -D HAVE_WEBKIT2)
+elseif (USE_GTK3)
+    pkg_check_modules(DEPS_GTK REQUIRED
+                      gtk+-3.0>=3.0.0
+                      webkitgtk-3.0>=1.8.3
+                      javascriptcoregtk-3.0
+                      )
+    add_definitions("-DGTK_VERSION=\"${DEPS_GTK_gtk+-3.0_VERSION}\"")
+    add_definitions("-DWEBKIT_VERSION=\"${DEPS_GTK_webkitgtk-3.0_VERSION}\"")
+    set(PKGS ${PKGS} gtk+-3.0)
+    set(EXTRA_VAPIS ${EXTRA_VAPIS} "${CMAKE_SOURCE_DIR}/midori/webkitgtk-3.0.vapi")
+    set(VALAFLAGS ${VALAFLAGS} -D HAVE_GTK3)
 else ()
     pkg_check_modules(DEPS_GTK REQUIRED
                       gtk+-2.0>=2.24.0
@@ -225,6 +238,11 @@ add_subdirectory (midori)
 add_subdirectory (po)
 add_subdirectory (icons)
 add_subdirectory (data)
+add_subdirectory (config)
 enable_testing()
 add_subdirectory (tests)
 add_subdirectory (extensions)
+
+if (USE_APIDOCS)
+    add_subdirectory (docs/api)
+endif ()

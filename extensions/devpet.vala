@@ -96,7 +96,7 @@ namespace DevPet {
             Gtk.VBox vbox = new Gtk.VBox (false, 1);
             this.add (vbox);
 
-            #if !HAVE_WIN32
+            #if HAVE_EXECINFO_H
             Gtk.Label label = new Gtk.Label (_("Double click for more information"));
             vbox.pack_start (label, false, false, 0);
             #endif
@@ -118,12 +118,12 @@ namespace DevPet {
 
             treeview.insert_column_with_attributes (
                 -1, "Type",
-                new Gtk.CellRendererPixbuf (), "pixbuf", TreeCells.STOCK);
+                new Gtk.CellRendererPixbuf (), "stock-id", TreeCells.STOCK);
             treeview.insert_column_with_attributes (
                 -1, "Message",
                 new Gtk.CellRendererText (), "text", TreeCells.MESSAGE);
 
-            #if !HAVE_WIN32
+            #if HAVE_EXECINFO_H
             treeview.row_activated.connect (this.row_activated);
             #endif
 
@@ -174,7 +174,7 @@ namespace DevPet {
                 this.trayicon.set_from_stock (stock);
             }
 
-            #if !HAVE_WIN32
+            #if HAVE_EXECINFO_H
                 string bt = "";
                 void* buffer[100];
                 int num = Linux.backtrace (buffer, 100);
@@ -191,10 +191,10 @@ namespace DevPet {
             this.list_store.append (out iter);
             this.list_store.set (iter,
                 TreeCells.MESSAGE, message,
-                #if !HAVE_WIN32
+                #if HAVE_EXECINFO_H
                 TreeCells.BACKTRACE, bt,
                 #endif
-                TreeCells.STOCK, theme.load_icon (stock, 16, 0));
+                TreeCells.STOCK, stock);
 
             this.trayicon.set_visible (true);
         }
@@ -233,7 +233,7 @@ namespace DevPet {
             this.trayicon.set_tooltip_text ("Midori - DevPet");
             this.trayicon.activate.connect(this.show_error_log);
 
-            this.list_store = new Gtk.ListStore (TreeCells.COUNT, typeof(string), typeof(string), typeof (Gdk.Pixbuf));
+            this.list_store = new Gtk.ListStore (TreeCells.COUNT, typeof(string), typeof(string), typeof (string));
 
             this.activate.connect (this.activated);
             this.deactivate.connect (this.deactivated);

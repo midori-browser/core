@@ -35,15 +35,18 @@ namespace Midori {
         public int64 date { get; set; }
     }
 
-    public class HistoryDatabase : GLib.Object {
-        unowned Sqlite.Database db = null;
+    public class HistoryDatabase : Midori.Database {
+        public HistoryDatabase (GLib.Object? app) throws DatabaseError {
+            Object (path: "history.db");
+            init ();
+            string bookmarks_filename = Midori.Paths.get_config_filename_for_writing ("bookmarks_v2.db");
+            exec ("ATTACH DATABASE '%s' AS bookmarks".printf (bookmarks_filename));
 
-        public HistoryDatabase (GLib.Object app) {
-            GLib.Object history;
-            app.get ("history", out history);
-            return_val_if_fail (history != null, null);
-            db = history.get_data<Sqlite.Database?> ("db");
-            return_val_if_fail (db != null, null);
+            try {
+                exec ("SELECT day FROM history LIMIT 1");
+            } catch (Error error) {
+                exec_script ("Day");
+            }
         }
 
         public async List<HistoryItem>? query (string sqlcmd, string? filter, int day, int max_items, Cancellable cancellable) {
