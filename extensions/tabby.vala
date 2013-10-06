@@ -555,7 +555,7 @@ namespace Tabby {
                          version: "0.1",
                          authors: "André Stösel <andre@stoesel.de>");
 
-            this.install_integer ("IdleRestoreCount", 25);
+            this.install_integer ("IdleRestoreCount", 12);
 
             this.activate.connect (this.activated);
         }
