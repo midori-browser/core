@@ -75,6 +75,7 @@ namespace Tabby {
             public abstract void tab_added (Midori.Browser browser, Midori.View view);
             public abstract void tab_removed (Midori.Browser browser, Midori.View view);
             public abstract void tab_switched (Midori.View? old_view, Midori.View? new_view);
+            public abstract void tab_reordered (Gtk.Widget tab, uint pos);
 
             public abstract Katze.Array get_tabs ();
 
@@ -87,6 +88,7 @@ namespace Tabby {
                 browser.remove_tab.connect (this.tab_removed);
                 browser.switch_tab.connect (this.tab_switched);
                 browser.delete_event.connect_after(this.delete_event);
+                browser.notebook.page_reordered.connect_after (this.tab_reordered);
 
                 foreach (Midori.View view in browser.get_tabs ()) {
                     this.tab_added (browser, view);
@@ -111,6 +113,7 @@ namespace Tabby {
                 browser.remove_tab.connect (this.tab_removed);
                 browser.switch_tab.connect (this.tab_switched);
                 browser.delete_event.connect_after(this.delete_event);
+                browser.notebook.page_reordered.connect_after (this.tab_reordered);
 
                 GLib.List<unowned Katze.Item> items = tabs.get_items ();
                 unowned GLib.List<unowned Katze.Item> u_items = items;
@@ -153,6 +156,7 @@ namespace Tabby {
                 this.browser.remove_tab.disconnect (this.tab_removed);
                 this.browser.switch_tab.disconnect (this.tab_switched);
                 this.browser.delete_event.disconnect (this.delete_event);
+                this.browser.notebook.page_reordered.disconnect (this.tab_reordered);
             }
 
 #if HAVE_GTK3
@@ -232,6 +236,7 @@ namespace Tabby {
                     return a == b ? 0 : -1;
                 };
 
+                this.browser.notebook.page_reordered.disconnect (this.tab_reordered);
                 for(var i = 0; i < new_tabs.len; i++) {
                     Midori.View tab = new_tabs.index(i) as Midori.View;
 
@@ -249,6 +254,7 @@ namespace Tabby {
                         }
                     }
                 }
+                this.browser.notebook.page_reordered.connect_after (this.tab_reordered);
             }
 
             construct {
@@ -352,6 +358,26 @@ namespace Tabby {
                 stmt.bind_int64 (stmt.bind_parameter_index (":tstamp"), time.to_unix ());
                 if (stmt.step () != Sqlite.DONE)
                     critical (_("Failed to update database: %s"), db.errmsg ());
+            }
+
+            protected override void tab_reordered (Gtk.Widget tab, uint pos) {
+                Midori.View view = tab as Midori.View;
+
+                double? sorting = this.get_tab_sorting (view);
+                unowned Katze.Item item = view.get_proxy_item ();
+                int64 tab_id = item.get_meta_integer ("tabby-id");
+                string sqlcmd = "UPDATE `tabs` SET sorting = :sorting WHERE session_id = :session_id AND id = :tab_id;";
+                Sqlite.Statement stmt;
+                if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
+                    critical (_("Failed to update database: %s"), db.errmsg ());
+                stmt.bind_int64 (stmt.bind_parameter_index (":session_id"), this.id);
+                stmt.bind_int64 (stmt.bind_parameter_index (":tab_id"), tab_id);
+                stmt.bind_double (stmt.bind_parameter_index (":sorting"), sorting);
+
+                if (stmt.step () != Sqlite.DONE)
+                    critical (_("Failed to update database: %s"), db.errmsg ());
+
+                item.set_meta_string ("sorting", sorting.to_string ());
             }
 
             public override void close() {
