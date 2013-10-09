@@ -100,8 +100,9 @@ namespace Tabby {
                 this.browser = browser;
 
                 Katze.Array tabs = this.get_tabs ();
+                unowned Katze.Array? open_uris = browser.get_data ("tabby-open-uris");
 
-                if(tabs.is_empty ()) {
+                if(tabs.is_empty () && open_uris == null) {
                     Katze.Item item = new Katze.Item ();
                     item.uri = "about:home";
                     tabs.add_item (item);
@@ -115,7 +116,11 @@ namespace Tabby {
                 browser.delete_event.connect_after(this.delete_event);
                 browser.notebook.page_reordered.connect_after (this.tab_reordered);
 
-                GLib.List<unowned Katze.Item> items = tabs.get_items ();
+                GLib.List<unowned Katze.Item> items = new GLib.List<unowned Katze.Item> ();//tabs.get_items ();
+                if (open_uris != null) {
+                    items.concat (open_uris.get_items ());
+                }
+                items.concat (tabs.get_items ());
                 unowned GLib.List<unowned Katze.Item> u_items = items;
 
                 bool delay = false;
@@ -543,6 +548,29 @@ namespace Tabby {
             return false;
         }
 
+        private void set_open_uris (Midori.Browser browser) {
+            Midori.App app = this.get_app ();
+            unowned string?[] uris = app.get_data ("open-uris");
+
+            if (uris != null) {
+                Katze.Array tabs = new Katze.Array (typeof (Katze.Item));
+
+                for(int i = 0; uris[i] != null; i++) {
+                    Katze.Item item = new Katze.Item ();
+                    item.name = uris[i];
+                    item.uri = Midori.Sokoke.magic_uri (uris[i], true, true);
+                    if (item.uri != null) {
+                        tabs.add_item (item);
+                    }
+                }
+                if (!tabs.is_empty()) {
+                    browser.set_data ("tabby-open-uris", tabs);
+                }
+            }
+
+            app.add_browser.disconnect (this.set_open_uris);
+        }
+
         private void browser_added (Midori.Browser browser) {
             Base.Session session = browser.get_data<Base.Session> ("tabby-session");
             if (session == null) {
@@ -565,8 +593,9 @@ namespace Tabby {
             /* FixMe: provide an option to replace Local.Storage with IStorage based Objects */
             this.storage = new Local.Storage (this.get_app ()) as Base.Storage;
 
-            app.add_browser.connect (browser_added);
-            app.remove_browser.connect (browser_removed);
+            app.add_browser.connect (this.set_open_uris);
+            app.add_browser.connect (this.browser_added);
+            app.remove_browser.connect (this.browser_removed);
 
             GLib.Idle.add (this.load_session);
         }
