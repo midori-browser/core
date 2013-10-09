@@ -39,7 +39,7 @@ namespace Midori {
         public HistoryDatabase (GLib.Object? app) throws DatabaseError {
             Object (path: "history.db");
             init ();
-            string bookmarks_filename = Midori.Paths.get_config_filename_for_writing ("bookmarks_v2.db");
+            string bookmarks_filename = Midori.Paths.get_config_filename_for_reading ("bookmarks.db");
             exec ("ATTACH DATABASE '%s' AS bookmarks".printf (bookmarks_filename));
 
             try {

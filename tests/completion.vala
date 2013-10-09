@@ -108,8 +108,8 @@ async void complete_spec (Midori.Completion completion, TestCaseCompletion spec)
 
 void completion_history () {
     Sqlite.Database db;
-    assert (Sqlite.Database.open_v2 (Midori.Paths.get_config_filename_for_writing ("bookmarks_v2.db"), out db) == Sqlite.OK);
-    assert (db.exec ("CREATE TABLE bookmarks (uri TEXT, title TEXT, last_visit DATE);") == Sqlite.OK);
+    assert (Sqlite.Database.open_v2 (Midori.Paths.get_config_filename_for_writing ("bookmarks.db"), out db) == Sqlite.OK);
+    assert (db.exec ("CREATE TABLE IF NOT EXISTS bookmarks (uri TEXT, title TEXT, last_visit DATE);") == Sqlite.OK);
 
     var completion = new Midori.HistoryCompletion ();
     var app = new Midori.App ();

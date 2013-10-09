@@ -62,7 +62,7 @@ namespace Midori {
             if (user_version == 0) {
                 exec_script ("Create");
                 user_version = 1;
-                exec ("PRAGMA user_version = " + user_version.to_string ());
+                exec ("PRAGMA user_version = " + user_version.to_string () + ";");
             }
 
             while (true) {
@@ -74,7 +74,7 @@ namespace Midori {
                     throw error;
                 }
                 user_version = user_version + 1;
-                exec ("PRAGMA user_version = " + user_version.to_string ());
+                exec ("PRAGMA user_version = " + user_version.to_string () + ";");
             }
 
             first_use = !exists;
