@@ -43,6 +43,14 @@ while [ $# != 0 ]; do
     shift
 done
 
-mkdir -p _build && cd _build || exit 1
+BUILD_DIR="_build"
+
+if [ ! -f GNUmakefile ]; then
+    cp -v GNUmakefile.in GNUmakefile
+fi
+
+mkdir -p $BUILD_DIR && cd $BUILD_DIR || exit 1
 cmake $ARGS ..
 
+echo
+echo "Configuring done, run \"make\" to compile"
