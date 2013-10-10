@@ -126,7 +126,7 @@ namespace Tabby {
                 browser.delete_event.connect_after(this.delete_event);
                 browser.notebook.page_reordered.connect_after (this.tab_reordered);
 
-                GLib.List<unowned Katze.Item> items = new GLib.List<unowned Katze.Item> ();//tabs.get_items ();
+                GLib.List<unowned Katze.Item> items = new GLib.List<unowned Katze.Item> ();
                 if (open_uris != null) {
                     items.concat (open_uris.get_items ());
                 }
