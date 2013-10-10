@@ -4492,7 +4492,7 @@ midori_view_get_tab_menu (MidoriView* view)
         view->minimized ? _("Show Tab _Label") : _("Show Tab _Icon Only"), NULL, NULL,
         midori_view_tab_label_menu_minimize_tab_cb, view);
     midori_context_action_add (menu, NULL);
-    midori_context_action_add_simple (menu, "TabCloseRight", _("_Close R_ightmost Tabs"), NULL, NULL,
+    midori_context_action_add_simple (menu, "TabCloseRight", _("Close Tabs to the R_ight"), NULL, NULL,
         midori_view_tab_label_menu_close_tabs_right_cb, view);
     GtkAction* action = gtk_action_new ("TabCloseOther", g_dngettext (NULL, "Close Ot_her Tab", "Close Ot_her Tabs", pages - 1), NULL, NULL);
     g_signal_connect (action, "activate", G_CALLBACK (midori_view_tab_label_menu_close_other_tabs_cb), view);
