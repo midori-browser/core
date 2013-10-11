@@ -1,4 +1,5 @@
 /*
+ Copyright (C) 2013 Andre Auzi <aauzi@free.fr>
  Copyright (C) 2013 Christian Dywan <christian@twotoats.de>
 
  This library is free software; you can redistribute it and/or
@@ -18,7 +19,7 @@ namespace Midori {
             exec ("PRAGMA foreign_keys = ON;");
         }
 
-        protected void preinit ()  throws DatabaseError {
+        protected void preinit () throws DatabaseError {
             string dbfile = Paths.get_config_filename_for_writing (path);
             string olddbfile = dbfile + ".old";
             string dbfile_v2 = Paths.get_config_filename_for_reading ("bookmarks_v2.db");
@@ -72,24 +73,17 @@ namespace Midori {
 
                     exec_script ("Create");
 
-
                     if (db.exec ("ATTACH DATABASE '%s' AS old_db;".printf (olddbfile)) != Sqlite.OK)
                         throw new DatabaseError.EXECUTE ("Failed to attach old database : %s (%s)".printf (olddbfile, db.errmsg ()));
                     
                     bool failure = false;
                     try {
-                        string query = """BEGIN TRANSACTION;
-INSERT INTO main.bookmarks (parentid, title, uri, desc, app, toolbar)
-SELECT NULL AS parentid, title, uri, desc, app, toolbar 
-FROM old_db.bookmarks;
-UPDATE main.bookmarks SET parentid = (
-SELECT id FROM main.bookmarks AS b1 WHERE b1.title = (
-SELECT folder FROM old_db.bookmarks WHERE title = main.bookmarks.title));
-COMMIT;""";
-                        exec (query);
-                        
+                        exec_script ("Import_old_db_bookmarks");
                     } catch (DatabaseError error) {
-                        failure = true;
+                        if (error is DatabaseError.EXECUTE)
+                            failure = true;
+                        else
+                            throw error;
                     }
                     
                     /* try to get back to previous state */

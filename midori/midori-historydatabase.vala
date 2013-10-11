@@ -37,10 +37,10 @@ namespace Midori {
 
     public class HistoryDatabase : Midori.Database {
         public HistoryDatabase (GLib.Object? app) throws DatabaseError {
-            Object (path: "history.db");
+			Object (path: "history.db");
             init ();
-            string bookmarks_filename = Midori.Paths.get_config_filename_for_reading ("bookmarks.db");
-            exec ("ATTACH DATABASE '%s' AS bookmarks".printf (bookmarks_filename));
+            Midori.BookmarksDatabase bookmarks_database = new Midori.BookmarksDatabase ();
+            exec ("ATTACH DATABASE '%s' AS bookmarks".printf (bookmarks_database.path));
 
             try {
                 exec ("SELECT day FROM history LIMIT 1");
