@@ -1448,11 +1448,13 @@ midori_location_action_icon_released_cb (GtkWidget*           widget,
                                          gint                 button,
                                          GtkAction*           action)
 {
-    /* The dialog should "toggle" like a menu, as far as users go
-       FIXME: Half-working: the dialog closes but re-opens */
+    /* The dialog should "toggle" like a menu, as far as users go */
     static GtkWidget* dialog = NULL;
     if (icon_pos == GTK_ENTRY_ICON_PRIMARY && dialog != NULL)
+    {
         gtk_widget_destroy (dialog);
+        return; // Previously code was running on and the widget was being rebuilt
+    }
 
     if (icon_pos == GTK_ENTRY_ICON_PRIMARY)
     {
