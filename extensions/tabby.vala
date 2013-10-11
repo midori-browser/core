@@ -204,23 +204,29 @@ namespace Tabby {
                 return this_sorting;
             }
 
-            private void helper_data_changed (Midori.Browser browser, Midori.View view) {
-                ulong sig_id = 0;
-                sig_id = view.web_view.load_started.connect (() => {
-                    unowned Katze.Item item = view.get_proxy_item ();
+            private void load_status (GLib.Object _view, ParamSpec pspec) {
+                Midori.View view = (Midori.View)_view;
 
+                if (view.load_status == Midori.LoadStatus.PROVISIONAL) {
+                    unowned Katze.Item item = view.get_proxy_item ();
+                    
                     int64 delay = item.get_meta_integer ("delay");
                     if (delay == Midori.Delay.UNDELAYED) {
                         view.web_view.notify["uri"].connect ( () => {
-                            this.uri_changed (view, view.web_view.uri);
-                        });
+                                this.uri_changed (view, view.web_view.uri);
+                            });
                         view.web_view.notify["title"].connect ( () => {
-                            this.data_changed (view);
-                        });
+                                this.data_changed (view);
+                            });
 
-                        GLib.SignalHandler.disconnect (view.web_view, sig_id);
                     }
-                });
+
+                    view.notify["load-status"].disconnect (load_status);
+                }
+            }
+
+            private void helper_data_changed (Midori.Browser browser, Midori.View view) {
+               view.notify["load-status"].connect (load_status);
             }
 
             private void helper_reorder_tabs (GLib.PtrArray new_tabs) {
