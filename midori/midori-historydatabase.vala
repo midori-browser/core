@@ -37,7 +37,7 @@ namespace Midori {
 
     public class HistoryDatabase : Midori.Database {
         public HistoryDatabase (GLib.Object? app) throws DatabaseError {
-			Object (path: "history.db");
+            Object (path: "history.db");
             init ();
             Midori.BookmarksDatabase bookmarks_database = new Midori.BookmarksDatabase ();
             exec ("ATTACH DATABASE '%s' AS bookmarks".printf (bookmarks_database.path));
