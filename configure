@@ -46,11 +46,11 @@ done
 BUILD_DIR="_build"
 
 if [ ! -f GNUmakefile ]; then
-    cp -v GNUmakefile.in GNUmakefile
+    cp -v GNUmakefile.in GNUmakefile || exit 1
 fi
 
 mkdir -p $BUILD_DIR && cd $BUILD_DIR || exit 1
-cmake $ARGS ..
+cmake $ARGS .. || exit 1
 
 echo
 echo "Configuring done, run \"make\" to compile"
