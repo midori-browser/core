@@ -64,10 +64,10 @@ namespace Tabby {
             public virtual void import_session (Katze.Array tabs) {
                 Session session = this.get_new_session ();
                 GLib.List<unowned Katze.Item> items = tabs.get_items ();
-                int i=0;
+                double i = 0;
                 foreach (Katze.Item item in items) {
                     item.set_meta_string ("sorting", i.to_string());
-                    i++;
+                    i += 1024;
                     session.add_item (item);
                 }
             }
