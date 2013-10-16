@@ -541,10 +541,8 @@ static void
 midori_view_update_load_status (MidoriView*      view,
                                 MidoriLoadStatus load_status)
 {
-    if (midori_tab_get_load_status (MIDORI_TAB (view)) == load_status)
-        return;
-
-    midori_tab_set_load_status (MIDORI_TAB (view), load_status);
+    if (midori_tab_get_load_status (MIDORI_TAB (view)) != load_status)
+        midori_tab_set_load_status (MIDORI_TAB (view), load_status);
 
     #ifdef HAVE_GRANITE
     if (view->tab)
