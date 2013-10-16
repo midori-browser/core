@@ -141,14 +141,15 @@ namespace DevPet {
 
     private class Manager : Midori.Extension {
         public Gtk.ListStore list_store;
-        private Gtk.StatusIcon trayicon;
+        private Gtk.StatusIcon? trayicon = null;
         private LogWindow? log_window;
         private GLib.LogFunc default_log_func;
         private GLib.LogLevelFlags icon_flag = GLib.LogLevelFlags.LEVEL_DEBUG;
 
         public void clear_list() {
             this.icon_flag = GLib.LogLevelFlags.LEVEL_DEBUG;
-            this.trayicon.set_visible (false);
+            if(this.trayicon != null)
+                this.trayicon.set_visible (false);
             this.list_store.clear ();
         }
 
@@ -165,9 +166,20 @@ namespace DevPet {
             return Gtk.Stock.DIALOG_INFO;
         }
 
+        private void ensure_trayicon() {
+            if(this.trayicon != null)
+                return;
+
+            this.trayicon = new Gtk.StatusIcon ();
+            this.trayicon.set_tooltip_text ("Midori - DevPet");
+            this.trayicon.activate.connect(this.show_error_log);
+        }
+
         private void log_handler(string? domain, GLib.LogLevelFlags flags, string message) {
             Gtk.TreeIter iter;
             unowned string stock = this.get_stock_from_log_level (flags);
+
+            this.ensure_trayicon();
 
             if (flags < this.icon_flag) {
                 this.icon_flag = flags;
@@ -213,13 +225,15 @@ namespace DevPet {
         }
 
         private void activated (Midori.App app) {
-            this.trayicon.set_visible (false);
             this.default_log_func = GLib.Log.default_handler;
             GLib.Log.set_default_handler (this.log_handler);
         }
 
         private void deactivated () {
-            this.trayicon.set_visible (false);
+            if(this.trayicon != null)
+                this.trayicon.set_visible (false);
+            this.list_store.clear();
+
             GLib.Log.set_default_handler (this.default_log_func);
         }
 
@@ -228,10 +242,6 @@ namespace DevPet {
                          description: _("This extension shows glib error messages in systray."),
                          version: "0.1",
                          authors: "André Stösel <andre@stoesel.de>");
-
-            this.trayicon = new Gtk.StatusIcon ();
-            this.trayicon.set_tooltip_text ("Midori - DevPet");
-            this.trayicon.activate.connect(this.show_error_log);
 
             this.list_store = new Gtk.ListStore (TreeCells.COUNT, typeof(string), typeof(string), typeof (string));
 
