@@ -10,7 +10,7 @@
 */
 
 namespace Tabby {
-    int IDLE_RESTORE_COUNT;
+    int IDLE_RESTORE_COUNT = 13;
 
     /* function called from Manager object */
     public interface IStorage : GLib.Object {
@@ -643,7 +643,13 @@ namespace Tabby {
         }
 
         private void activated (Midori.App app) {
-            IDLE_RESTORE_COUNT = this.get_integer ("IdleRestoreCount");
+            unowned string? restore_count = GLib.Environment.get_variable ("TABBY_RESTORE_COUNT");
+            if (restore_count != null) {
+                int count = int.parse (restore_count);
+                if (count >= 1) {
+                    IDLE_RESTORE_COUNT = count;
+                }
+            }
 
             /* FixMe: provide an option to replace Local.Storage with IStorage based Objects */
             this.storage = new Local.Storage (this.get_app ()) as Base.Storage;
@@ -660,8 +666,6 @@ namespace Tabby {
                          description: _("Tab and session management."),
                          version: "0.1",
                          authors: "André Stösel <andre@stoesel.de>");
-
-            this.install_integer ("IdleRestoreCount", 12);
 
             this.activate.connect (this.activated);
         }
