@@ -256,6 +256,7 @@ namespace Midori {
 
     [CCode (cheader_filename = "midori/sokoke.h", lower_case_cprefix = "sokoke_")]
     namespace Sokoke {
+        public static string magic_uri (string uri, bool allow_search, bool allow_relative);
         public static uint gtk_action_count_modifiers (Gtk.Action action);
     #if HAVE_WIN32
         public static string get_win32_desktop_lnk_path_for_filename (string filename);
