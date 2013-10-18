@@ -34,6 +34,7 @@ foreach(FILE ${DATA_FILES})
     # These are being handled in add_executable for the "midori" binary
     elseif (${FILE} MATCHES ".ico")
     elseif (${FILE} MATCHES ".rc")
+    # This is only meant for testing, and not used in production
     elseif (${FILE} MATCHES ".swf")
     else()
         string(FIND ${FILE} "/" IS_DIR)
