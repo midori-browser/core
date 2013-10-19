@@ -18,8 +18,10 @@ dropbox_dir=$HOME/Dropbox/Public
 export MINGW_PREFIX="/usr/i686-w64-mingw32/sys-root/mingw"
 eval `rpm --eval %{mingw32_env}`
 
-PKG_CONFIG_PATH="$MINGW_PREFIX/lib/pkgconfig/" ./configure --prefix=$MINGW_PREFIX --enable-gtk3
-make clean
+rm -fr _mingw32
+mkdir _mingw32 && cd _mingw32
+mingw32-cmake -DUSE_ZEITGEIST=0 -DUSE_GTK3=1 -DCMAKE_INSTALL_PREFIX=$MINGW_PREFIX ../
+make
 sudo make install || exit
 
 rpmquery -qa mingw32* > midori-${version}-deps-i686.txt
@@ -38,8 +40,10 @@ if [ "$DO_64BIT" != "" ]; then
     export MINGW_PREFIX="/usr/x86_64-w64-mingw32/sys-root/mingw"
     eval `rpm --eval %{mingw64_env}`
 
-    PKG_CONFIG_PATH="$MINGW_PREFIX/lib/pkgconfig/" ./configure --prefix=$MINGW_PREFIX --enable-gtk3
-    make clean
+    rm -fr _mingw64
+    mkdir _mingw64 && cd _mingw64
+    mingw64-cmake -DUSE_ZEITGEIST=0 -DUSE_GTK3=1 -DCMAKE_INSTALL_PREFIX=$MINGW_PREFIX ../
+    make
     sudo make install || exit
 
     rpmquery -qa mingw64* > midori-${version}-deps-x86_64.txt
