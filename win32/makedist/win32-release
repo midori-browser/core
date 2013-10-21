@@ -10,7 +10,6 @@
 # See the file COPYING for the full license text.
 
 
-version=$(grep --color=no 'VERSION = VERSION_FULL = ' wscript | sed -r "s@.+ = '(.+)'@\1@")
 dropbox_dir=$HOME/Dropbox/Public
 
 # 32-bit build
@@ -24,17 +23,20 @@ mingw32-cmake -DUSE_ZEITGEIST=0 -DUSE_GTK3=1 -DCMAKE_INSTALL_PREFIX=$MINGW_PREFI
 make
 sudo make install || exit
 
-rpmquery -qa mingw32* > midori-${version}-deps-i686.txt
-rm -f midori-$version.sha1
+version=$(grep set\(VERSION ../CMakeLists.txt|head -n1|sed -e 's/^.*set(VERSION \([0-9.]*\)).*$/\1/')
 
-MINGW_PREFIX=${MINGW_PREFIX} RELEASE=1 NSIS=1 ./win32/makedist/makedist.midori
+rpmquery -qa mingw32* > ../midori-${version}-deps-i686.txt
+rm -f ../midori-$version.sha1
+
+MINGW_PREFIX=${MINGW_PREFIX} RELEASE=1 NSIS=1 ../win32/makedist/makedist.midori
 mv -v midori-${version}.7z $dropbox_dir
 mv -v Midori-${version}_setup.exe $dropbox_dir
 
-dropbox puburl $dropbox_dir/midori-${version}.7z >  release_links.txt
-dropbox puburl $dropbox_dir/Midori-${version}_setup.exe >> release_links.txt
+dropbox puburl $dropbox_dir/midori-${version}.7z >  ../release_links.txt
+dropbox puburl $dropbox_dir/Midori-${version}_setup.exe >> ../release_links.txt
 
 if [ "$DO_64BIT" != "" ]; then
+    cd ..
     # 64-bit build
     #mingw64-env
     export MINGW_PREFIX="/usr/x86_64-w64-mingw32/sys-root/mingw"
@@ -46,11 +48,13 @@ if [ "$DO_64BIT" != "" ]; then
     make
     sudo make install || exit
 
-    rpmquery -qa mingw64* > midori-${version}-deps-x86_64.txt
-    MINGW_PREFIX=${MINGW_PREFIX} RELEASE=1 sh ./win32/makedist/makedist.midori x86_64-portable
+    rpmquery -qa mingw64* > ../midori-${version}-deps-x86_64.txt
+    MINGW_PREFIX=${MINGW_PREFIX} RELEASE=1 sh ../win32/makedist/makedist.midori x86_64-portable
     mv -v midori-${version}-x86_64-portable.7z $dropbox_dir
-    dropbox puburl $dropbox_dir/midori-${version}-x86_64-portable.7z >> release_links.txt
+    dropbox puburl $dropbox_dir/midori-${version}-x86_64-portable.7z >> ../release_links.txt
 fi
+
+cd ..
 
 echo
 echo "============================="
