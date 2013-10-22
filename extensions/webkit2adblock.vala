@@ -56,10 +56,12 @@ namespace Adblock {
                             parse_line (line.chomp ());
                     }
                     catch (GLib.Error io_error) {
+                        stdout.printf ("Error reading file for %s: %s\n", filter, io_error.message);
                     }
                 }
             }
-            catch (GLib.Error io_error) {
+            catch (GLib.Error settings_error) {
+                stdout.printf ("Error reading settings: %s\n", settings_error.message);
             }
         }
 
