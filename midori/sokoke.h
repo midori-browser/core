@@ -90,9 +90,6 @@ sokoke_widget_get_text_size             (GtkWidget*      widget,
                                          gint*           width,
                                          gint*           height);
 
-GtkWidget*
-sokoke_action_create_popup_menu_item    (GtkAction*      action);
-
 gint64
 sokoke_time_t_to_julian                 (const time_t*   timestamp);
 
@@ -127,5 +124,13 @@ sokoke_widget_copy_clipboard (GtkWidget*          widget,
 
 GtkWidget*
 sokoke_search_entry_new               (const gchar*        placeholder_text);
+
+#ifdef G_OS_WIN32
+gchar*
+sokoke_get_win32_desktop_lnk_path_for_filename (gchar* filename);
+
+void
+sokoke_create_win32_desktop_lnk (gchar* prefix, gchar* filename, gchar* uri);
+#endif
 
 #endif /* !__SOKOKE_H__ */

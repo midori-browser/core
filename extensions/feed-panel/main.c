@@ -13,6 +13,7 @@
 #include "feed-atom.h"
 #include "feed-rss.h"
 
+#include "katze-net.h"
 #include <midori/midori.h>
 
 #define EXTENSION_NAME "Feed Panel"
@@ -365,7 +366,7 @@ panel_add_feed_cb (FeedPanel*   panel,
     gtk_entry_set_activates_default (GTK_ENTRY (entry), TRUE);
     gtk_entry_set_text (GTK_ENTRY (entry), "");
     gtk_box_pack_start (GTK_BOX (hbox), entry, TRUE, TRUE, 0);
-    gtk_container_add (GTK_CONTAINER(gtk_dialog_get_content_area (GTK_DIALOG (dialog))), hbox);
+    gtk_box_pack_start (GTK_BOX(gtk_dialog_get_content_area (GTK_DIALOG (dialog))), hbox, FALSE, TRUE, 0);
     gtk_widget_show_all (hbox);
 
     gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT);

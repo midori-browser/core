@@ -905,6 +905,7 @@ midori_search_action_get_engine_for_form (WebKitWebView*     web_view,
                                           PangoEllipsizeMode ellipsize)
 {
 #ifndef HAVE_WEBKIT2
+    WebKitWebFrame* focused_frame;
     WebKitDOMDocument* doc;
     WebKitDOMHTMLFormElement* active_form;
     WebKitDOMHTMLCollection* form_nodes;
@@ -918,10 +919,13 @@ midori_search_action_get_engine_for_form (WebKitWebView*     web_view,
     KatzeItem* item;
     gchar** parts;
 
+    focused_frame = webkit_web_view_get_focused_frame (web_view);
+    if (focused_frame == NULL)
+        return NULL;
     #if WEBKIT_CHECK_VERSION (1, 9, 5)
-    doc = webkit_web_frame_get_dom_document (webkit_web_view_get_focused_frame (web_view));
+    doc = webkit_web_frame_get_dom_document (focused_frame);
     #else
-    if (webkit_web_view_get_focused_frame (web_view) != webkit_web_view_get_main_frame (web_view))
+    if (focused_frame != webkit_web_view_get_main_frame (web_view))
         return NULL;
     doc = webkit_web_view_get_dom_document (web_view);
     #endif
@@ -1080,7 +1084,7 @@ midori_search_action_get_editor (MidoriSearchAction* search_action,
     gtk_entry_set_text (GTK_ENTRY (entry_name),
         katze_str_non_null (katze_item_get_name (item)));
     gtk_box_pack_start (GTK_BOX (hbox), entry_name, TRUE, TRUE, 0);
-    gtk_container_add (GTK_CONTAINER (content_area), hbox);
+    gtk_box_pack_start (GTK_BOX (content_area), hbox, FALSE, TRUE, 0);
     gtk_widget_show_all (hbox);
 
     hbox = gtk_hbox_new (FALSE, 8);
@@ -1093,7 +1097,7 @@ midori_search_action_get_editor (MidoriSearchAction* search_action,
     gtk_entry_set_text (GTK_ENTRY (entry_description)
          , katze_str_non_null (katze_item_get_text (item)));
     gtk_box_pack_start (GTK_BOX (hbox), entry_description, TRUE, TRUE, 0);
-    gtk_container_add (GTK_CONTAINER (content_area), hbox);
+    gtk_box_pack_start (GTK_BOX (content_area), hbox, FALSE, TRUE, 0);
     gtk_widget_show_all (hbox);
 
     hbox = gtk_hbox_new (FALSE, 8);
@@ -1108,7 +1112,7 @@ midori_search_action_get_editor (MidoriSearchAction* search_action,
     gtk_entry_set_text (GTK_ENTRY (entry_uri),
         katze_str_non_null (katze_item_get_uri (item)));
     gtk_box_pack_start (GTK_BOX (hbox), entry_uri, TRUE, TRUE, 0);
-    gtk_container_add (GTK_CONTAINER (content_area), hbox);
+    gtk_box_pack_start (GTK_BOX (content_area), hbox, FALSE, TRUE, 0);
     gtk_widget_show_all (hbox);
 
     hbox = gtk_hbox_new (FALSE, 8);
@@ -1121,7 +1125,7 @@ midori_search_action_get_editor (MidoriSearchAction* search_action,
     gtk_entry_set_text (GTK_ENTRY (entry_token)
          , katze_str_non_null (katze_item_get_token (item)));
     gtk_box_pack_start (GTK_BOX (hbox), entry_token, TRUE, TRUE, 0);
-    gtk_container_add (GTK_CONTAINER (content_area), hbox);
+    gtk_box_pack_start (GTK_BOX (content_area), hbox, FALSE, TRUE, 0);
     gtk_widget_show_all (hbox);
 
     gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT);

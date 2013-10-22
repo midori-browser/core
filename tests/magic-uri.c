@@ -420,6 +420,16 @@ magic_uri_protocols (void)
     g_assert (sokoke_external_uri ("httparty:woo") == uri_has_default ("httparty:woo"));
 }
 
+static void
+magic_uri_base_domain (void)
+{
+    #ifdef HAVE_LIBSOUP_2_40_0
+    g_assert_cmpstr ("bbc.co.uk", ==, midori_uri_get_base_domain ("http://www.bbc.co.uk"));
+    g_assert_cmpstr ("zeit.de", ==, midori_uri_get_base_domain ("http://www.zeit.de"));
+    #endif
+    g_assert_cmpstr ("123.456.789.100", ==, midori_uri_get_base_domain ("http://123.456.789.100"));
+}
+
 int
 main (int    argc,
       char** argv)
@@ -439,6 +449,7 @@ main (int    argc,
     g_test_add_func ("/magic-uri/prefetch", magic_uri_prefetch);
     g_test_add_func ("/magic-uri/commands", magic_uri_commands);
     g_test_add_func ("/magic-uri/protocols", magic_uri_protocols);
+    g_test_add_func ("/magic-uri/base-domain", magic_uri_base_domain);
 
     return g_test_run ();
 }

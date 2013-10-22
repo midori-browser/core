@@ -107,16 +107,15 @@ async void complete_spec (Midori.Completion completion, TestCaseCompletion spec)
 }
 
 void completion_history () {
+    try {
+        var bookmarks_database = new Midori.BookmarksDatabase ();
+        assert (bookmarks_database.db != null);
+    } catch (Midori.DatabaseError error) {
+        assert_not_reached();
+    }
+
     var completion = new Midori.HistoryCompletion ();
     var app = new Midori.App ();
-    var history = new Katze.Array (typeof (Katze.Item));
-    app.set ("history", history);
-    Sqlite.Database db;
-    Sqlite.Database.open_v2 (":memory:", out db);
-    db.exec ("CREATE TABLE history (uri TEXT, title TEXT);");
-    db.exec ("CREATE TABLE search (uri TEXT, keywords TEXT);");
-    db.exec ("CREATE TABLE bookmarks (uri TEXT, title TEXT);");
-    history.set_data<unowned Sqlite.Database?> ("db", db);
     completion.prepare (app);
     foreach (var spec in completions)
         complete_spec.begin (completion, spec);
@@ -152,6 +151,7 @@ void completion_location_action () {
 void main (string[] args) {
     Test.init (ref args);
     Midori.App.setup (ref args, null);
+    Midori.Paths.init (Midori.RuntimeMode.NORMAL, null);
     Test.add_func ("/completion/autocompleter", completion_autocompleter);
     Test.add_func ("/completion/history", completion_history);
     Test.add_func ("/completion/location-action", completion_location_action);

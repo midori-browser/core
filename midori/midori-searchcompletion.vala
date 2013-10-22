@@ -29,7 +29,7 @@ namespace Midori {
         }
 
         public override bool can_action (string action) {
-            return action == "about:search";
+            return action == "complete:more/search";
         }
 
         public override async List<Suggestion>? complete (string text, string? action, Cancellable cancellable) {
@@ -39,16 +39,13 @@ namespace Midori {
             var suggestions = new List<Suggestion> ();
             uint n = 0;
             foreach (var item in items) {
-                string icon, uri, title, desc;
-                item.get ("icon", out icon);
+                string uri, title, desc;
                 item.get ("uri", out uri);
                 item.get ("name", out title);
                 item.get ("text", out desc);
                 string search_uri = URI.for_search (uri, text);
                 string search_title = _("Search with %s").printf (title);
-                Gdk.Pixbuf? pixbuf = Midori.Paths.get_icon (icon, null);
-                if (pixbuf == null)
-                    pixbuf = Midori.Paths.get_icon (uri, null);
+                Gdk.Pixbuf? pixbuf = Midori.Paths.get_icon (uri, null);
                 string search_desc = search_title + "\n" + desc ?? uri;
                 /* FIXME: Theming? Win32? */
                 string background = "gray";
@@ -57,7 +54,7 @@ namespace Midori {
 
                 n++;
                 if (n == 3 && action == null) {
-                    suggestion = new Suggestion ("about:search", _("Search with…"), false, background);
+                    suggestion = new Suggestion ("complete:more/search", _("Search with…"), false, background);
                     suggestion.action = true;
                     suggestions.append (suggestion);
                     break;

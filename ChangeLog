@@ -1,5 +1,102 @@
 This file is licensed under the terms of the expat license, see the file EXPAT.
 
+v0.5.5:
+ Fix name and text fields inversion in XBEL folder import
+ Correct packing of cookie and nojs permission dialog.
+ Don't set tab title/special when a non-main frame displays an error
+ Revise "cookies" debug output, merge expiry check and disallow revival of old cookies
+ Drop now unused cgit module.xml file
+ Use SoupProxyResolverGnome unconditionally and disable prefetching if proxy is active
+ win32: Hide gui for profiles in webapp manager, as they are currently broken on Windows
+ win32: support additional mouse buttons for going back/forward in history
+ Enrich app error messages with filenames
+ Fix segfault if url contains " %00"
+ Replace 'Run as app' in bookmark dialog with 'Create launcher'
+ Split config files and install from folders recursively
+ Implement GTK+ theme switching via Preferences (Win32)
+ Enable set_disk_cache_directory with WebKit2
+ Introduce Midori.ContextAction and refactor page menu from scratch
+ Define large dialog icon size relative to dialog icon size
+ Extension Devpet which shows error messages and backtraces in systray
+ WebKit2 cookie support
+ Check the hit test result for editable to see if , should search
+ Use SoupCookieJarSqlite and drop KatzeHttpCookies(Sqlite)
+ Show folder tree when editing bookmarks
+ Handle double value in _midori_browser_activate_action
+ Add privacy preferences in web app mode
+ Escape parentheses in adblock_fixup_regexp
+ Introduce object oriented API for access to History Database
+ Allow rss feeds with version 0.92
+ Rename History completion to Bookmarks and History
+ Don't show rss feed icon on twitter, underlying API was retired
+ Read apps/ profiles from folder, leave launchers separate
+ Fill in bookmark folder attributes in bookmarkbar populate
+
+v0.5.4:
+ Refactor history step and allow multiple title updates
+ Call midori_browser_connect_tab with correct type
+ Don't add HistoryCompletion if there's no history
+ Restore reload button icon in error pages
+ Don't insert folders into the log
+ If an url is specified the fallback url should not be loaded
+ Fixed crashes when closing a loading tab + granite's tab moving
+ Test if plugins are redundant instead of skipping them all
+ Avoid selecting bookmark uris that begin by 'javascript:' for completion
+ Set FOREIGN_KEYS pragma on db initialization
+ Implement a default zoom level preference
+ Fix tautological use of G_MAXINT with enum
+ Take current selection into account for bookmark folders when adding/editing bookmark
+ Improve error page visuals, show suggestions on network errors
+ Bump vala to 0.16.0
+ Downgrade glib requirement to 2.32.3 to re-enable building under Ubuntu 12.04 (LTS)
+ Bump glib2 version to 2.32.4
+ Improve and unify thumbnail generation
+ Omit speed dial and blank pages from view completion
+ Makes the elements of the speed dial non-selectable
+ Use NULL-safe comparison in katze_item_icon_loaded_cb
+ Drop non-DOM style sheet injection code path
+ Clean small leftovers from GTK and WebKit version bumps
+ Bump GTK+ requirement to 2.24 and drop support for earlier versions
+ Check for app mode to set browser icon instead of readonly
+ Escape square brackets in adblock_fixup_regexp
+ Fix showing (sub)folders in bookmarkbar
+ Bump WebKit requirement to 1.8.3 and drop support for earlier versions
+ Set menu on dynamic notebook tab
+ Do not run toolbar editor's GtkDialog in its own main loop by prevent calling gtk_dialog_run(). Instead just set the GtkDialog modal and show it.
+ Remove unnecesary harmful code from tab_switched_cb
+ Fix segfault when deleteing tabs with history list
+ Specify int64 id item as a string in bookmark remove/update queries
+ Distinguish between box and event box in the tab label when colouring tabs
+ Show visual feedback when hovering over items in bookmark panel
+ Replace INSTALL/ HACKING with exported Contribute wiki page
+ Delete tabs from history list with Del
+ Check brightness of backgroung color when deciding foreground color of given tab
+ Clean launcher filenames, double-click to open and delete button
+ Avoid declaring browser twice within the same function
+ Add ./waf --update-pot
+ Fix memory leak introduced in r6184
+ Use old function name g_dbus_generate_guid for old valac
+ Move Import and Export into menu Bookmarks
+ Collect multiple download notifications within a minute
+ Fix segfault when right clicking on a web view.
+ Make libnotify mandatory except on Windows
+ Remove the rather unnecessary ./waf --run feature
+ Send a notification after creating a launcher
+ Ambiguous 'Open as App' context menu item was removed
+ Apply label color to label rather than event box
+ Store data of app mode based on URL in ~/.local/share/midori/apps
+ Split colorful tabs code into helper functions and add unit tests
+ Fix History List memory leak  when closing Midori window.
+ Replace .gitignore with a .bzrignore
+ Always define GCR_VERSION in GTK+2 build
+ Fix bookmarks dialog rename regression introduced in r6167.
+ Drop check for gcr-3-gtk2 which isn't being maintained.
+ Scrap unneeded background variables in location renderer callbacks
+ Title case and proper packing in bookmark dialog
+ Delete PO files Launchpad spewed into root directory when it couldn't find po/*.pot file.
+ Issue a warning when trying to use MIDORI_DEBUG while running
+ Update dates to 2013 to fix bug #1167075.
+
 v0.5.2:
  Re-release with a proper version number and changelog
 

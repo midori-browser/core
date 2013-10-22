@@ -14,7 +14,7 @@
 
 #include "midori-app.h"
 #include "midori-array.h"
-#include "midori-bookmarks.h"
+#include "midori-bookmarks-db.h"
 #include "midori-browser.h"
 #include "midori-extension.h"
 #include "midori-frontend.h"

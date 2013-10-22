@@ -662,9 +662,11 @@ midori_location_action_popup_timeout_cb (gpointer data)
         midori_autocompleter_add (action->autocompleter,
             MIDORI_COMPLETION (midori_view_completion_new ()));
         midori_autocompleter_add (action->autocompleter,
-            MIDORI_COMPLETION (midori_history_completion_new ()));
-        midori_autocompleter_add (action->autocompleter,
             MIDORI_COMPLETION (midori_search_completion_new ()));
+        /* FIXME: Currently HistoryCompletion doesn't work in memory */
+        if (action->history != NULL)
+            midori_autocompleter_add (action->autocompleter,
+                MIDORI_COMPLETION (midori_history_completion_new ()));
     }
 
     if (!midori_autocompleter_can_complete (action->autocompleter, action->key))
@@ -714,7 +716,8 @@ midori_location_action_popup_timeout_cb (gpointer data)
         renderer = gtk_cell_renderer_pixbuf_new ();
         gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (column), renderer, FALSE);
         gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (column), renderer,
-            "pixbuf", MIDORI_AUTOCOMPLETER_COLUMNS_ICON,
+            "gicon", MIDORI_AUTOCOMPLETER_COLUMNS_ICON,
+            "stock-size", MIDORI_AUTOCOMPLETER_COLUMNS_SIZE,
             "yalign", MIDORI_AUTOCOMPLETER_COLUMNS_YALIGN,
             "cell-background", MIDORI_AUTOCOMPLETER_COLUMNS_BACKGROUND,
             NULL);
@@ -1445,11 +1448,13 @@ midori_location_action_icon_released_cb (GtkWidget*           widget,
                                          gint                 button,
                                          GtkAction*           action)
 {
-    /* The dialog should "toggle" like a menu, as far as users go
-       FIXME: Half-working: the dialog closes but re-opens */
+    /* The dialog should "toggle" like a menu, as far as users go */
     static GtkWidget* dialog = NULL;
     if (icon_pos == GTK_ENTRY_ICON_PRIMARY && dialog != NULL)
+    {
         gtk_widget_destroy (dialog);
+        return; // Previously code was running on and the widget was being rebuilt
+    }
 
     if (icon_pos == GTK_ENTRY_ICON_PRIMARY)
     {
@@ -1536,8 +1541,11 @@ midori_location_action_populate_popup_cb (GtkWidget*            entry,
     menuitem = gtk_separator_menu_item_new ();
     gtk_widget_show (menuitem);
     gtk_menu_shell_append (menu, menuitem);
-    menuitem = sokoke_action_create_popup_menu_item (
+    menuitem = gtk_action_create_menu_item (
         gtk_action_group_get_action (actions, "ManageSearchEngines"));
+    GtkWidget* accel_label = gtk_bin_get_child (GTK_BIN (menuitem));
+    if (accel_label != NULL)
+        gtk_accel_label_set_accel_closure (GTK_ACCEL_LABEL (accel_label), NULL);
     gtk_menu_shell_append (menu, menuitem);
     /* i18n: Right-click on Location, Open an URL from the clipboard */
     menuitem = gtk_menu_item_new_with_mnemonic (_("Paste and p_roceed"));

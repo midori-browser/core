@@ -21,6 +21,9 @@ namespace Midori {
         [CCode (array_length = false)] string[]? uris, [CCode (array_length = false)] string[]? commands, int reset, string? block);
     public static void normal_app_on_quit (App app);
 
+    [CCode (cheader_filename = "midori/midori-array.h")]
+    public static bool array_from_file (Katze.Array array, string filename, string format) throws GLib.Error;
+
     [CCode (cheader_filename = "midori/midori.h")]
     public class App : GLib.Object {
         public App (string? name=null);
@@ -177,7 +180,7 @@ namespace Midori {
         public unowned string get_icon_uri ();
         public unowned string get_link_uri ();
         public bool has_selection ();
-        public string get_selected_text ();
+        public unowned string get_selected_text ();
         public Gtk.MenuItem get_proxy_menu_item ();
         public Gtk.Widget duplicate ();
         public Gtk.Menu get_tab_menu ();
@@ -190,6 +193,7 @@ namespace Midori {
         public void populate_popup (Gtk.Menu menu, bool manual);
         public void reload (bool from_cache);
         public Gtk.Widget add_info_bar (Gtk.MessageType type, string message, GLib.Callback? callback, void* object, ...);
+        public ContextAction get_page_context_action (WebKit.HitTestResult hit_test_result);
 
         public string title { get; }
         public Gdk.Pixbuf icon { get; }
@@ -202,6 +206,7 @@ namespace Midori {
 
         [HasEmitter]
         public signal bool download_requested (WebKit.Download download);
+        public signal bool about_content (string uri);
 
     }
 
@@ -251,7 +256,20 @@ namespace Midori {
 
     [CCode (cheader_filename = "midori/sokoke.h", lower_case_cprefix = "sokoke_")]
     namespace Sokoke {
+        public static string magic_uri (string uri, bool allow_search, bool allow_relative);
         public static uint gtk_action_count_modifiers (Gtk.Action action);
+    #if HAVE_WIN32
+        public static string get_win32_desktop_lnk_path_for_filename (string filename);
+        public static void create_win32_desktop_lnk (string prefix, string filename, string uri);
+    #endif
     }
+
+    #if HAVE_EXECINFO_H
+    [CCode (lower_case_cprefix = "")]
+    namespace Linux {
+        [CCode (cheader_filename = "execinfo.h", array_length = false)]
+        public unowned string[] backtrace_symbols (void* buffer, int size);
+    }
+    #endif
 }
 

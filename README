@@ -1,20 +1,23 @@
 This file is licensed under the terms of the expat license, see the file EXPAT.
 
-Midori is a lightweight web browser.
+Midori is a fast little WebKit browser with support for HTML5. It can manage
+many open tabs and windows. The URL bar completes history, bookmarks, search
+engines and open tabs out of the box. Web developers can use the powerful
+web inspector that is a part of WebKit. Individual pages can easily be turned
+into web apps and new profiles can be created on demand.
 
-* Full integration with GTK+2 and GTK+3.
-* Fast rendering with WebKit and HTML5 video with GStreamer.
-* Tabs, windows and session management.
-* History completion and configurable Web Search.
-* User scripts and user styles support.
-* Adblock Plus compatible, external download manager support.
-* Straightforward bookmark management.
-* Customizable interface, extensions written in C and Vala.
+A number of extensions are included by default:
 
-Requirements: GLib 2.22, GTK+ 2.24, WebkitGTK+ 1.8.3, libXML2,
-              libsoup 2.27.90, sqlite 3.0, Vala 0.14, libnotify
+* Adblock with support for ABP filter lists and custom rules is built-in.
+* You can download files with Aria2 or SteadyFlow.
+* User scripts and styles support a la Greasemonkey.
+* Managing cookies and scripts via NoJS and Cookie Security Manager.
+* Switching open tabs in a vertical panel or a popup window.
 
-Optional: GTK+ 3.0, Unique 0.9, gcr, Granite 0.2, WebKit2GTK+ 1.11.91/ 2.0.0
+Requirements: GLib 2.32.3, GTK+ 2.24, WebkitGTK+ 1.8.3, libXML2,
+              libsoup 2.27.90, sqlite 3.0, Vala 0.16, libnotify
+
+Optional: GTK+ 3.0, gcr, Granite 0.2, WebKit2GTK+ 1.11.91/ 2.0.0
 
 For installation instructions read INSTALL.
 
@@ -24,4 +27,4 @@ Please report comments, suggestions and bugs to:
 And join the IRC channel #midori on irc.freenode.net
 
 Check for new versions at:
-    http://www.twotoasts.de
+    http://www.midori-browser.org

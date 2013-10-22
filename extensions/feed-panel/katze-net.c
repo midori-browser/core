@@ -66,6 +66,7 @@ typedef struct
     KatzeNetRequest* request;
 } KatzeNetPriv;
 
+#ifndef HAVE_WEBKIT2
 static void
 katze_net_priv_free (KatzeNetPriv* priv)
 {
@@ -85,7 +86,6 @@ static void
 katze_net_got_headers_cb (SoupMessage*  msg,
                           KatzeNetPriv* priv)
 {
-#ifndef HAVE_WEBKIT2
     KatzeNetRequest* request = priv->request;
 
     switch (msg->status_code)
@@ -106,7 +106,6 @@ katze_net_got_headers_cb (SoupMessage*  msg,
         g_signal_handlers_disconnect_by_func (msg, katze_net_got_body_cb, priv);
         soup_session_cancel_message (webkit_get_default_session (), msg, 1);
     }
-#endif
 }
 
 static void
@@ -133,42 +132,6 @@ katze_net_finished_cb (SoupMessage*  msg,
 }
 
 static gboolean
-katze_net_local_cb (KatzeNetPriv* priv)
-{
-    KatzeNetRequest* request = priv->request;
-    gchar* filename = g_filename_from_uri (request->uri, NULL, NULL);
-
-    if (!filename || g_access (filename, F_OK) != 0)
-    {
-        request->status = KATZE_NET_NOT_FOUND;
-        if (priv->status_cb)
-            priv->status_cb (request, priv->user_data);
-    }
-    else if (!(priv->status_cb && !priv->status_cb (request, priv->user_data))
-           &&  priv->transfer_cb)
-    {
-        gchar* contents = NULL;
-        gsize length;
-
-        request->status = KATZE_NET_VERIFIED;
-        if (!g_file_get_contents (filename, &contents, &length, NULL))
-        {
-            request->status = KATZE_NET_FAILED;
-        }
-        else
-        {
-            request->status = KATZE_NET_DONE;
-            request->data = contents;
-            request->length = length;
-        }
-        priv->transfer_cb (request, priv->user_data);
-    }
-    g_free (filename);
-    katze_net_priv_free (priv);
-    return FALSE;
-}
-
-static gboolean
 katze_net_default_cb (KatzeNetPriv* priv)
 {
     KatzeNetRequest* request;
@@ -180,6 +143,7 @@ katze_net_default_cb (KatzeNetPriv* priv)
     katze_net_priv_free (priv);
     return FALSE;
 }
+#endif
 
 /**
  * katze_net_load_uri:
@@ -244,10 +208,7 @@ katze_net_load_uri (KatzeNet*          net,
         return;
     }
 
-    if (g_str_has_prefix (uri, "file://"))
-        g_idle_add ((GSourceFunc)katze_net_local_cb, priv);
-    else
-        g_idle_add ((GSourceFunc)katze_net_default_cb, priv);
+    g_idle_add ((GSourceFunc)katze_net_default_cb, priv);
 #endif
 }
 

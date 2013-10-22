@@ -10,7 +10,7 @@
 */
 
 #include "midori-array.h"
-#include "midori-bookmarks.h"
+#include "midori-bookmarks-db.h"
 #include "midori-history.h"
 #include "midori-preferences.h"
 #include "midori-privatedata.h"
@@ -36,6 +36,15 @@ midori_frontend_browser_new_window_cb (MidoriBrowser* browser,
     return new_browser;
 }
 
+static void
+midori_browser_privacy_preferences_cb (MidoriBrowser*    browser,
+                                       KatzePreferences* preferences,
+                                       gpointer          user_data)
+{
+    MidoriWebSettings* settings = midori_browser_get_settings (browser);
+    midori_preferences_add_privacy_category (preferences, settings);
+}
+
 MidoriBrowser*
 midori_web_app_new (const gchar* webapp,
                     gchar**      open_uris,
@@ -50,6 +59,8 @@ midori_web_app_new (const gchar* webapp,
     MidoriBrowser* browser = midori_browser_new ();
     g_signal_connect (browser, "new-window",
         G_CALLBACK (midori_frontend_browser_new_window_cb), NULL);
+    g_signal_connect (browser, "show-preferences",
+        G_CALLBACK (midori_browser_privacy_preferences_cb), NULL);
 
     midori_browser_set_action_visible (browser, "Menubar", FALSE);
     midori_browser_set_action_visible (browser, "CompactMenu", FALSE);
@@ -243,15 +254,6 @@ midori_browser_show_preferences_cb (MidoriBrowser*    browser,
 }
 
 static void
-midori_browser_privacy_preferences_cb (MidoriBrowser*    browser,
-                                       KatzePreferences* preferences,
-                                       MidoriApp*        app)
-{
-    MidoriWebSettings* settings = midori_browser_get_settings (browser);
-    midori_preferences_add_privacy_category (preferences, settings);
-}
-
-static void
 midori_app_add_browser_cb (MidoriApp*     app,
                            MidoriBrowser* browser,
                            gpointer       user_data)
@@ -269,7 +271,7 @@ midori_app_add_browser_cb (MidoriApp*     app,
 
     /* Extensions */
     g_signal_connect (browser, "show-preferences",
-        G_CALLBACK (midori_browser_privacy_preferences_cb), app);
+        G_CALLBACK (midori_browser_privacy_preferences_cb), NULL);
     g_signal_connect (browser, "show-preferences",
         G_CALLBACK (midori_browser_show_preferences_cb), app);
 
@@ -337,7 +339,7 @@ midori_frontend_diagnostic_dialog (MidoriApp*         app,
     gtk_window_set_title (GTK_WINDOW (dialog), g_get_application_name ());
     content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
     align = gtk_alignment_new (0.5, 0.5, 0.5, 0.5);
-    gtk_container_add (GTK_CONTAINER (content_area), align);
+    gtk_box_pack_start (GTK_BOX (content_area), align, FALSE, TRUE, 0);
     box = gtk_hbox_new (FALSE, 0);
     gtk_container_add (GTK_CONTAINER (align), box);
     button = gtk_button_new_with_mnemonic (_("Modify _preferences"));
@@ -355,7 +357,7 @@ midori_frontend_diagnostic_dialog (MidoriApp*         app,
     button = katze_property_proxy (settings, "show-crash-dialog", NULL);
     gtk_button_set_label (GTK_BUTTON (button), _("Show a dialog after Midori crashed"));
     gtk_widget_show (button);
-    gtk_container_add (GTK_CONTAINER (content_area), button);
+    gtk_box_pack_start (GTK_BOX (content_area), button, FALSE, TRUE, 0);
     gtk_container_set_focus_child (GTK_CONTAINER (dialog), gtk_dialog_get_action_area (GTK_DIALOG (dialog)));
     gtk_dialog_add_buttons (GTK_DIALOG (dialog),
         _("Discard old tabs"), MIDORI_STARTUP_BLANK_PAGE,
@@ -444,14 +446,14 @@ midori_normal_app_new (const gchar* config,
         /* It makes no sense to show a crash dialog while running */
         if (!diagnostic_dialog)
         {
-            gboolean success = FALSE;
-            if (execute_commands != NULL && midori_app_send_command (app, execute_commands))
-                success = TRUE;
-            if (open_uris != NULL && midori_app_instance_send_uris (app, open_uris))
-                success = TRUE;
-            if (!execute_commands && !open_uris && midori_app_instance_send_new_browser (app))
-                success = TRUE;
-            if (success)
+            if (execute_commands != NULL)
+                midori_app_send_command (app, execute_commands);
+            if (open_uris != NULL)
+                midori_app_instance_send_uris (app, open_uris);
+            if (!execute_commands && !open_uris)
+                midori_app_instance_send_new_browser (app);
+
+            if (g_application_get_is_registered (G_APPLICATION (app)))
                 return NULL;
         }
 
@@ -485,9 +487,9 @@ midori_normal_app_new (const gchar* config,
     }
     g_free (uri);
 
-    KatzeArray* bookmarks;
+    MidoriBookmarksDb* bookmarks;
     gchar* errmsg = NULL;
-    if (!(bookmarks = midori_bookmarks_new (&errmsg)))
+    if (!(bookmarks = midori_bookmarks_db_new (&errmsg)))
     {
         g_string_append_printf (error_messages,
             _("Bookmarks couldn't be loaded: %s\n"), errmsg);
@@ -583,9 +585,10 @@ midori_normal_app_new (const gchar* config,
     g_signal_connect (app, "add-browser",
         G_CALLBACK (midori_app_add_browser_cb), NULL);
 
+    midori_session_persistent_settings (settings, app);
+
     g_idle_add (midori_load_soup_session_full, settings);
     g_idle_add (midori_load_extensions, app);
-    g_idle_add (midori_load_session, session);
     return app;
 }
 
@@ -593,11 +596,11 @@ void
 midori_normal_app_on_quit (MidoriApp* app)
 {
     MidoriWebSettings* settings = katze_object_get_object (app, "settings");
-    KatzeArray* bookmarks = katze_object_get_object (app, "bookmarks");
+    MidoriBookmarksDb* bookmarks = katze_object_get_object (app, "bookmarks");
     KatzeArray* history = katze_object_get_object (app, "history");
 
     g_object_notify (G_OBJECT (settings), "load-on-startup");
-    midori_bookmarks_on_quit (bookmarks);
+    midori_bookmarks_db_on_quit (bookmarks);
     midori_history_on_quit (history, settings);
     midori_private_data_on_quit (settings);
 

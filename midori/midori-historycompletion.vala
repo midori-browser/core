@@ -11,22 +11,23 @@
 
 namespace Midori {
     public class HistoryCompletion : Completion {
-        unowned Sqlite.Database db;
+        HistoryDatabase? database = null;
 
         public HistoryCompletion () {
-            GLib.Object (description: _("History"));
+            GLib.Object (description: _("Bookmarks and History"));
         }
 
         public override void prepare (GLib.Object app) {
-            GLib.Object history;
-            app.get ("history", out history);
-            return_if_fail (history != null);
-            db = history.get_data<Sqlite.Database?> ("db");
-            return_if_fail (db != null);
+            try {
+                database = new HistoryDatabase (app);
+            }
+            catch (Error error) {
+                warning (error.message);
+            }
         }
 
         public override bool can_complete (string text) {
-            return db != null;
+            return database != null;
         }
 
         public override bool can_action (string action) {
@@ -34,71 +35,26 @@ namespace Midori {
         }
 
         public override async List<Suggestion>? complete (string text, string? action, Cancellable cancellable) {
-            return_val_if_fail (db != null, null);
+            return_val_if_fail (database != null, null);
 
-            Sqlite.Statement stmt;
-            unowned string sqlcmd = """
-                SELECT type, uri, title FROM (
-                SELECT 1 AS type, uri, title, count() AS ct FROM history
-                WHERE uri LIKE ?1 OR title LIKE ?1 GROUP BY uri
-                UNION ALL
-                SELECT 2 AS type, replace(uri, '%s', keywords) AS uri,
-                       keywords AS title, count() AS ct FROM search
-                WHERE uri LIKE ?1 OR title LIKE ?1 GROUP BY uri
-                UNION ALL
-                SELECT 1 AS type, uri, title, 50 AS ct FROM bookmarks
-                WHERE title LIKE ?1 OR uri LIKE ?1 AND uri !='' AND uri NOT LIKE 'javascript:%'
-                ) GROUP BY uri ORDER BY ct DESC LIMIT ?2
-                """;
-            if (db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK) {
-                critical (_("Failed to initialize history: %s"), db.errmsg ());
+            List<HistoryItem> items = yield database.list_by_count_with_bookmarks (text, max_items, cancellable);
+            if (items == null)
                 return null;
-            }
-
-            string query = "%" + text.replace (" ", "%") + "%";
-            stmt.bind_text (1, query);
-            stmt.bind_int64 (2, max_items);
-
-            int result = stmt.step ();
-            if (result != Sqlite.ROW) {
-                if (result == Sqlite.ERROR)
-                    critical (_("Failed to select from history: %s"), db.errmsg ());
-                return null;
-            }
 
             var suggestions = new List<Suggestion> ();
-            while (result == Sqlite.ROW) {
-                int64 type = stmt.column_int64 (0);
-                unowned string uri = stmt.column_text (1);
-                unowned string title = stmt.column_text (2);
-                Gdk.Pixbuf? icon = Midori.Paths.get_icon (uri, null);
-                Suggestion suggestion;
-
-                switch (type) {
-                    case 1: /* history_view */
-                        suggestion = new Suggestion (uri, title, false, null, icon);
-                        suggestions.append (suggestion);
-                        break;
-                    case 2: /* search_view */
-                        string desc = _("Search for %s").printf (title) + "\n" + uri;
-                        /* FIXME: Theming? Win32? */
-                        string background = "gray";
-                        suggestion = new Suggestion (uri, desc, false, background, icon);
-                        suggestions.append (suggestion);
-                        break;
-                    default:
-                        warn_if_reached ();
-                        break;
+            foreach (var item in items) {
+                if (item is Midori.HistoryWebsite) {
+                    var website = item as Midori.HistoryWebsite;
+                    suggestions.append (new Suggestion (website.uri, website.title,
+                        false, null, Midori.Paths.get_icon (website.uri, null)));
                 }
-
-                uint src = Idle.add (complete.callback);
-                yield;
-                Source.remove (src);
-
-                if (cancellable.is_cancelled ())
-                    return null;
-
-                result = stmt.step ();
+                else if (item is Midori.HistorySearch) {
+                    var search = item as Midori.HistorySearch;
+                    suggestions.append (new Suggestion (search.uri, search.title + "\n" + search.uri,
+                        false, "gray", Midori.Paths.get_icon (search.uri, null)));
+                }
+                else
+                    warn_if_reached ();
             }
 
             if (cancellable.is_cancelled ())

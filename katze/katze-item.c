@@ -15,8 +15,6 @@
 
 #include <glib/gi18n.h>
 
-#include "katze/katze.h"
-
 /**
  * SECTION:katze-item
  * @short_description: A useful item
@@ -316,6 +314,9 @@ katze_item_set_name (KatzeItem*   item,
 {
     g_return_if_fail (KATZE_IS_ITEM (item));
 
+    if (!g_strcmp0 (item->name, name))
+        return;
+
     katze_assign (item->name, g_strdup (name));
     if (item->parent)
         katze_array_update ((KatzeArray*)item->parent);
@@ -420,6 +421,9 @@ katze_item_set_icon (KatzeItem*   item,
 {
     g_return_if_fail (KATZE_IS_ITEM (item));
 
+    if (!g_strcmp0 (katze_item_get_meta_string (item, "icon"), icon))
+        return;
+
     katze_item_set_meta_string (item, "icon", icon);
     if (item->parent)
         katze_array_update ((KatzeArray*)item->parent);
@@ -447,8 +451,6 @@ katze_item_get_pixbuf (KatzeItem* item,
 
     if (widget && KATZE_ITEM_IS_FOLDER (item))
         return gtk_widget_render_icon (widget, GTK_STOCK_DIRECTORY, GTK_ICON_SIZE_MENU, NULL);
-    if ((pixbuf = midori_paths_get_icon (katze_item_get_icon (item), NULL)))
-        return pixbuf;
     if ((pixbuf = midori_paths_get_icon (item->uri, widget)))
         return pixbuf;
     return NULL;
