@@ -188,10 +188,12 @@ namespace Adblock {
         }
 
         string? fixup_regex (string prefix, string? src) {
-            if (src != null)
+            if (src == null)
                 return null;
 
             var fixed = new StringBuilder ();
+            fixed.append(prefix);
+
             uint i = 0;
             if (src[0] == '*')
                 i++;
@@ -239,6 +241,7 @@ namespace Adblock {
         }
 
         bool check_rule (Regex regex, string pattern, string request_uri, string page_uri) {
+            stdout.printf ("check rule: patt %s req_uri %s, page uri %s\n", pattern, request_uri, page_uri);
             if (regex.match_full (request_uri))
                 return false;
 
