@@ -15,7 +15,6 @@ include_directories(
 file(GLOB EXTENSIONS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *)
 if (HALF_BRO_INCOM_WEBKIT2)
     list(REMOVE_ITEM EXTENSIONS
-         "adblock.c"
          "cookie-permissions"
          "addons.c"
          "formhistory"
