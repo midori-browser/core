@@ -37,7 +37,10 @@ namespace Midori {
             close = new Gtk.Button ();
             close.relief = Gtk.ReliefStyle.NONE;
             close.focus_on_click = false;
+#if !HAVE_GTK3
             close.name = "midori-close-button";
+            close.style_set.connect (close_style_set);
+#endif
             icon = new Gtk.Image.from_gicon (new ThemedIcon.with_default_fallbacks ("window-close-symbolic"), Gtk.IconSize.MENU);
             close.add (icon);
             align = new Gtk.Alignment (1.0f, 0.5f, 0.0f, 0.0f);
@@ -71,6 +74,14 @@ namespace Midori {
             Gtk.drag_dest_add_uri_targets (this);
             drag_data_received.connect (uri_dragged);
         }
+
+#if !HAVE_GTK3
+        void close_style_set (Gtk.Style? previous_style) {
+            Gtk.Requisition size;
+            close.child.size_request (out size);
+            close.set_size_request (size.width, size.height);
+        }
+#endif
 
         void close_clicked () {
             tab.destroy ();
