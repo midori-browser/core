@@ -482,11 +482,6 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     button = katze_property_proxy (settings, "close-buttons-on-tabs", NULL);
     gtk_button_set_label (GTK_BUTTON (button), _("Close Buttons on Tabs"));
     INDENTED_ADD (button);
-    #ifndef HAVE_GRANITE
-    button = katze_property_proxy (settings, "always-show-tabbar", NULL);
-    gtk_button_set_label (GTK_BUTTON (button), _("Always Show Tabbar"));
-    SPANNED_ADD (button);
-    #endif
     button = katze_property_proxy (settings, "open-tabs-next-to-current", NULL);
     gtk_button_set_label (GTK_BUTTON (button), _("Open Tabs next to Current"));
     gtk_widget_set_tooltip_text (button, _("Whether to open new tabs next to the current tab or after the last one"));

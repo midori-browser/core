@@ -197,7 +197,6 @@ namespace Midori {
 
         public string title { get; }
         public Gdk.Pixbuf icon { get; }
-        public bool minimized { get; }
         public float zoom_level { get; }
         public Katze.Array news_feeds { get; }
         [NoAccessorMethod]

@@ -51,6 +51,9 @@ namespace Midori {
 
         /* Special is an error, blank or delayed page */
         public bool special { get; protected set; default = false; }
+        /* Minimizing a tab indicates that only the icon should be shown.
+           Since: 0.1.8 */
+        public bool minimized { get; set; default = false; }
         /* Since: 0.4.8 */
         public string mime_type { get; protected set; default = "text/plain"; }
         /* Since: 0.1.2 */
