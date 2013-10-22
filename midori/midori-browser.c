@@ -443,8 +443,7 @@ _midori_browser_update_progress (MidoriBrowser* browser,
                       "tooltip", _("Stop loading the current page"), NULL);
     }
 
-    gtk_widget_set_sensitive (browser->throbber, loading);
-    katze_throbber_set_animated (KATZE_THROBBER (browser->throbber), loading);
+    g_object_set (browser->throbber, "active", loading, "visible", loading, NULL);
 }
 
 /**
@@ -5961,10 +5960,8 @@ midori_browser_init (MidoriBrowser* browser)
 
     menuitem = gtk_menu_item_new ();
     gtk_widget_show (menuitem);
-    browser->throbber = katze_throbber_new ();
-    gtk_widget_show (browser->throbber);
+    browser->throbber = gtk_spinner_new ();
     gtk_container_add (GTK_CONTAINER (menuitem), browser->throbber);
-    gtk_widget_set_sensitive (menuitem, FALSE);
     #if GTK_CHECK_VERSION (3, 2, 0)
     /* FIXME: Doesn't work */
     gtk_widget_set_hexpand (menuitem, TRUE);
