@@ -40,14 +40,14 @@ namespace Adblock {
             blacklist = new List<Regex> ();
 
             // FIXME
-            string filename = "/home/kalikiana/.config/midori/extensions/libadblock.so/config";
+            string filename = GLib.Path.build_filename (GLib.Environment.get_home_dir (), ".config", "midori", "extensions", "libadblock.so", "config"); // use midori vapi
             var keyfile = new GLib.KeyFile ();
             try {
                 keyfile.load_from_file (filename, GLib.KeyFileFlags.NONE);
                 string[] filters = keyfile.get_string_list ("settings", "filters");
                 foreach (string filter in filters) {
                     try {
-                        string filter_filename = "/home/kalikiana/.cache/midori/adblock/" + Checksum.compute_for_string (ChecksumType.MD5, filter, -1); // FIXME
+                        string filter_filename = GLib.Path.build_filename (GLib.Environment.get_home_dir (), ".cache", "midori", "adblock", Checksum.compute_for_string (ChecksumType.MD5, filter, -1)); // FIXME
                         stdout.printf ("Parsing %s (%s)\n", filter, filter_filename);
                         var filter_file = File.new_for_path (filter_filename);
                         var stream = new DataInputStream (filter_file.read ());
