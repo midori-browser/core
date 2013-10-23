@@ -394,14 +394,14 @@ namespace Midori {
         void close_buttons_visible_changed (GLib.ParamSpec pspec) {
             foreach (var child in notebook.get_children ()) {
                 var tally = notebook.get_tab_label (child) as Tally;
-                tally.close_button_left = close_buttons_left;
+                tally.close_button_visible = close_buttons_visible;
             }
         }
 
         void close_buttons_left_changed (GLib.ParamSpec pspec) {
             foreach (var child in notebook.get_children ()) {
                 var tally = notebook.get_tab_label (child) as Tally;
-                tally.close_button_visible = close_buttons_visible;
+                tally.close_button_left = close_buttons_left;
             }
         }
 
