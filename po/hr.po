@@ -9,16 +9,16 @@ msgstr ""
 "Project-Id-Version: Midori\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-07-27 12:55-0500\n"
-"PO-Revision-Date: 2013-10-19 07:12+0000\n"
-"Last-Translator: WebKit Team <Unknown>\n"
+"PO-Revision-Date: 2013-10-24 00:08+0000\n"
+"Last-Translator: zvacet <ikoli@yahoo.com>\n"
 "Language-Team: Croatian <>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2013-10-20 04:33+0000\n"
-"X-Generator: Launchpad (build 16807)\n"
+"X-Launchpad-Export-Date: 2013-10-24 04:32+0000\n"
+"X-Generator: Launchpad (build 16810)\n"
 "Language: hr\n"
 
 #: ../data/midori.desktop.in.h:1 ../midori/main.c:142
@@ -296,7 +296,7 @@ msgstr "Uredi Direktorij"
 
 #: ../midori/midori-browser.c:951
 msgid "New Bookmark"
-msgstr ""
+msgstr "Nova zabilješka"
 
 #: ../midori/midori-browser.c:951
 msgid "Edit Bookmark"
@@ -304,11 +304,11 @@ msgstr ""
 
 #: ../midori/midori-browser.c:973
 msgid "Type a name for this bookmark, and choose where to keep it."
-msgstr ""
+msgstr "Ime za ovu zabilješku, i izaberite gdje će te je držati."
 
 #: ../midori/midori-browser.c:975
 msgid "Type a name for this folder, and choose where to keep it."
-msgstr ""
+msgstr "Upišite ime za ovu mapu, i odaberite gdje ćete je držati."
 
 #: ../midori/midori-browser.c:1030
 msgid "Add to _Speed Dial"
@@ -316,7 +316,7 @@ msgstr "Dodaj u _brzo biranje"
 
 #: ../midori/midori-browser.c:1039
 msgid "Show in Bookmarks _Bar"
-msgstr ""
+msgstr "Pokaži u kartici _zabilješki"
 
 #: ../midori/midori-browser.c:1047
 msgid "Run as _web application"
@@ -699,19 +699,19 @@ msgstr "Dodaj novu _mapu"
 
 #: ../midori/midori-browser.c:5406
 msgid "_Import bookmarks…"
-msgstr ""
+msgstr "_Uvezi zabilješke..."
 
 #: ../midori/midori-browser.c:5409
 msgid "_Export bookmarks…"
-msgstr ""
+msgstr "_Izvezi zabilješke..."
 
 #: ../midori/midori-browser.c:5412
 msgid "_Manage Search Engines…"
-msgstr ""
+msgstr "_Upravljaj tražilicama..."
 
 #: ../midori/midori-browser.c:5415
 msgid "_Clear Private Data…"
-msgstr ""
+msgstr "_Očisti privatne podatke..."
 
 #: ../midori/midori-browser.c:5418
 msgid "_Inspect Page"
@@ -1131,12 +1131,12 @@ msgstr "%s želi znati vašu lokaciju."
 #: ../midori/midori-view.c:1250
 #, c-format
 msgid "'%s' can't be found"
-msgstr ""
+msgstr "'%s' ne može biti nađen"
 
 #: ../midori/midori-view.c:1251
 #, c-format
 msgid "The page '%s' couldn't be loaded:"
-msgstr ""
+msgstr "Stranica '%s' se ne može učitati:"
 
 #: ../midori/midori-view.c:1255
 msgid "Check the address for typos"
@@ -1150,7 +1150,7 @@ msgstr ""
 
 #: ../midori/midori-view.c:1257
 msgid "Verify that your network settings are correct"
-msgstr ""
+msgstr "Provjerite da su vaše mrežne postavke ispravne"
 
 #: ../midori/midori-view.c:1261
 msgid "Try Again"
@@ -1185,7 +1185,7 @@ msgstr ""
 
 #: ../midori/midori-view.c:2472
 msgid "Open _Link"
-msgstr ""
+msgstr "Otvori _poveznicu"
 
 #: ../midori/midori-view.c:2478
 msgid "Open Link in New _Tab"
@@ -1801,7 +1801,7 @@ msgstr "Tražilice ne mogu biti spremljene. %s"
 
 #: ../midori/midori-historycompletion.vala:17
 msgid "Bookmarks and History"
-msgstr ""
+msgstr "Zabilješke i povijest"
 
 #: ../midori/midori-historycompletion.vala:54
 #, c-format
@@ -1878,16 +1878,18 @@ msgstr "Neuspjeh u dodavanju stavki zabilješki: %s\n"
 #, c-format
 msgid "%d bookmark"
 msgid_plural "%d bookmarks"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%d zabilješka"
+msgstr[1] "%d zabilješke"
+msgstr[2] "%d zabilješki"
 
 #. i18n: [n] subfolder(s)
 #: ../panels/midori-bookmarks.c:506
 #, c-format
 msgid "%d subfolder"
 msgid_plural "%d subfolders"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%d pšodmapa"
+msgstr[1] "%d podmape"
+msgstr[2] "%d podmapa"
 
 #. i18n: Empty folder
 #: ../panels/midori-bookmarks.c:534
@@ -1899,19 +1901,19 @@ msgstr ""
 #: ../panels/midori-bookmarks.c:537
 #, c-format
 msgid "Folder containing %s and no bookmark"
-msgstr ""
+msgstr "Mapa sadrži %s i njednu zabilješku"
 
 #. i18n: Folder containing [[n] bookmark(s)]
 #: ../panels/midori-bookmarks.c:541
 #, c-format
 msgid "Folder containing %s"
-msgstr ""
+msgstr "Mapa sadrži %s"
 
 #. i18n: Folder containing [[n] bookmark(s)] and [[n] folder(s)]
 #: ../panels/midori-bookmarks.c:544
 #, c-format
 msgid "Folder containing %s and %s"
-msgstr ""
+msgstr "Mapa sadrži %s i %s"
 
 #. i18n: Bookmark leading to: [bookmark uri]
 #: ../panels/midori-bookmarks.c:555
@@ -1934,7 +1936,7 @@ msgstr ""
 #: ../panels/midori-bookmarks.c:627
 #, c-format
 msgid "Failed to update bookmark: %s\n"
-msgstr ""
+msgstr "Neuspjelo ažuriranje zabilješki: %s\n"
 
 #: ../panels/midori-bookmarks.c:686
 msgid "Edit the selected bookmark"
@@ -2706,7 +2708,7 @@ msgstr "Jednostavno uređivanje izgleda alatnih traka"
 #: ../katze/katze-http-cookies-sqlite.c:129
 #, c-format
 msgid "Failed to load cookies\n"
-msgstr ""
+msgstr "Neuspjelo učitavanje kolačića\n"
 
 #. FIXME: granite: should return GtkWidget* like GTK+
 #. i18n: Dialog: Clear Private Data, in the Tools menu
@@ -2749,7 +2751,7 @@ msgstr "Otvori kartice"
 
 #: ../midori/midori-viewcompletion.vala:80
 msgid "More open tabs…"
-msgstr ""
+msgstr "Još otvorenih kartica..."
 
 #: ../midori/midori-history.c:25
 #, c-format
@@ -2765,7 +2767,7 @@ msgstr "Neuspjelo uklanjanje starih stavki povijesti: %s\n"
 #: ../midori/midori-bookmarks.c:60
 #, c-format
 msgid "Failed to remove bookmark item: %s\n"
-msgstr ""
+msgstr "Neuspjelo uklanjanje stavke zabilješke:%s\n"
 
 #: ../midori/midori-bookmarks.c:106
 msgid "failed to ATTACH old db"
@@ -3127,7 +3129,7 @@ msgstr ""
 
 #: ../extensions/apps.vala:84
 msgid "Launcher created"
-msgstr ""
+msgstr "Pokretač je napravljrn"
 
 #: ../extensions/apps.vala:85
 #, c-format
@@ -3137,11 +3139,11 @@ msgstr ""
 #: ../extensions/apps.vala:88 ../extensions/apps.vala:90
 #, c-format
 msgid "Failed to create new launcher: %s"
-msgstr ""
+msgstr "Neuspjelo stvaranje novog pokretača:%s"
 
 #: ../extensions/apps.vala:89
 msgid "Error creating launcher"
-msgstr ""
+msgstr "Greška pri stvaranju pokretača"
 
 #: ../extensions/apps.vala:126
 msgid "Applications"
@@ -3149,20 +3151,20 @@ msgstr "_Programi"
 
 #: ../extensions/apps.vala:134
 msgid "New _Profile"
-msgstr ""
+msgstr "Novi _profil"
 
 #: ../extensions/apps.vala:135
 msgid "Creates a new, independant profile and a launcher"
-msgstr ""
+msgstr "Stvara novi, nezavisni profil i pokretač"
 
 #: ../extensions/apps.vala:144
 #, c-format
 msgid "Midori (%s)"
-msgstr ""
+msgstr "Midori (%s)"
 
 #: ../extensions/apps.vala:149
 msgid "New _App"
-msgstr ""
+msgstr "Novi _program"
 
 #: ../extensions/apps.vala:150
 msgid "Creates a new app for a specific site"
@@ -3170,7 +3172,7 @@ msgstr ""
 
 #: ../extensions/apps.vala:175
 msgid "Error launching"
-msgstr ""
+msgstr "Greška pri pokretanju"
 
 #: ../extensions/apps.vala:384
 msgid "Create _Launcher"
@@ -3208,7 +3210,7 @@ msgstr "Datoteka '<b>%s</b>' je preuzeta."
 #: ../extensions/transfers.vala:433
 #, c-format
 msgid "'<b>%s</b>' and %d other files have been downloaded."
-msgstr ""
+msgstr "'<b>%s</b>' i %d ostale datoteke su preuzete."
 
 #: ../extensions/transfers.vala:434
 msgid "Transfer completed"
