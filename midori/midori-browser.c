@@ -3965,7 +3965,6 @@ _action_location_submit_uri (GtkAction*     action,
                              MidoriBrowser* browser)
 {
     gchar* new_uri;
-    gint n;
 
     /* Switch to already open tab if possible */
     KatzeItem* found = katze_array_find_uri (browser->proxy_array, uri);
@@ -4241,7 +4240,6 @@ midori_browser_bookmark_open_in_tab_activate_cb (GtkWidget*     menuitem,
 {
     KatzeItem* item;
     const gchar* uri;
-    guint n;
 
     item = (KatzeItem*)g_object_get_data (G_OBJECT (menuitem), "KatzeItem");
     if (KATZE_IS_ARRAY (item))

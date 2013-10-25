@@ -335,7 +335,6 @@ katze_app_info_get_all_for_category (const gchar* category)
     GList* all_apps = g_app_info_get_all ();
     #endif
     GList* apps = NULL;
-    GAppInfo* info;
     GList* app;
     for (app = apps; app; app = g_list_next (app))
     {

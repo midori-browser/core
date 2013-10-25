@@ -1073,8 +1073,6 @@ adblock_app_add_browser_cb (MidoriApp*       app,
     GtkWidget* statusbar;
     GtkWidget* image;
     GList* children;
-    GtkWidget* view;
-    gint i;
 
     statusbar = katze_object_get_object (browser, "statusbar");
     image = NULL;
@@ -1714,7 +1712,6 @@ adblock_deactivate_cb (MidoriExtension* extension,
                        MidoriBrowser*   browser)
 {
     GList* children;
-    GtkWidget* view;
     MidoriApp* app = midori_extension_get_app (extension);
     MidoriWebSettings* settings = katze_object_get_object (app, "settings");
 

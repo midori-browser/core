@@ -899,11 +899,6 @@ midori_view_web_view_resource_request_cb (WebKitWebView*         web_view,
         GdkPixbuf* pixbuf;
         const gchar* icon_name = &uri[8] ? &uri[8] : "";
         gint icon_size = GTK_ICON_SIZE_MENU;
-        GdkScreen* screen = gtk_widget_get_screen (GTK_WIDGET (view));
-        GtkIconTheme* icon_theme = gtk_icon_theme_get_for_screen (screen);
-        gint real_icon_size;
-        GtkIconInfo* icon_info;
-        const gchar* icon_filename;
         static gint icon_size_large_dialog = 0;
 
         if (!icon_size_large_dialog)
@@ -2644,7 +2639,7 @@ webkit_web_view_web_view_ready_cb (GtkWidget*  web_view,
     MidoriNewView where = MIDORI_NEW_VIEW_TAB;
     GtkWidget* new_view = GTK_WIDGET (midori_view_get_for_widget (web_view));
 
-    WebKitWebWindowFeatures* features = webkit_web_view_get_window_features (web_view);
+    WebKitWebWindowFeatures* features = webkit_web_view_get_window_features (WEBKIT_WEB_VIEW (web_view));
     gboolean locationbar_visible, menubar_visible, toolbar_visible;
     gint width, height;
     g_object_get (features,
@@ -3393,8 +3388,6 @@ midori_view_web_inspector_construct_window (gpointer       inspector,
     const gchar* label;
     GtkWidget* window;
     GtkWidget* toplevel;
-    GdkScreen* screen;
-    gint width, height;
     const gchar* icon_name;
     GtkIconTheme* icon_theme;
     GdkPixbuf* icon;

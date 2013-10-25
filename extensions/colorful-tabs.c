@@ -158,7 +158,6 @@ colorful_tabs_deactivate_cb (MidoriExtension* extension,
                              MidoriBrowser*   browser)
 {
     GList* children;
-    GtkWidget* view;
     MidoriApp* app = midori_extension_get_app (extension);
 
     g_signal_handlers_disconnect_by_func (
