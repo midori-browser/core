@@ -394,7 +394,8 @@ namespace Midori {
         }
 
         void tab_minimized (GLib.ParamSpec pspec) {
-            relayout ();
+            var tally = notebook.get_tab_label (tab) as Tally;
+            tally.set_size_request (tab.minimized ? -1 : last_tab_size, -1);
         }
 
         public Midori.Tab get_nth_tab (int index) {
