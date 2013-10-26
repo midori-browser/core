@@ -329,6 +329,29 @@ namespace Midori {
             else if (event.button == 3) {
                 var menu = new Midori.ContextAction ("TabContextMenu", null, null, null);
                 tab_context_menu (tally.tab, menu);
+                var action_window = new Midori.ContextAction ("TabWindowNew", _("Open in New _Window"), null, "window-new");
+                action_window.activate.connect (()=>{
+                    tab_detached (tally.tab, 128, 128);
+                });
+                menu.add (action_window);
+                var action_minimize = new Midori.ContextAction ("TabMinimize", tally.tab.minimized ? _("Show Tab _Label") : _("Show Tab _Icon Only"), null, null);
+                action_minimize.activate.connect (()=>{
+                    tally.tab.minimized = !tally.tab.minimized;
+                });
+                menu.add (action_minimize);
+                var action_other = new Midori.ContextAction ("TabCloseOther", ngettext ("Close Ot_her Tab", "Close Ot_her Tabs", count - 1), null, null);
+                action_other.sensitive = count > 1;
+                action_other.activate.connect (()=>{
+                    foreach (var child in notebook.get_children ())
+                        if (child != tally.tab)
+                            child.destroy ();
+                });
+                menu.add (action_other);
+                var action_close = new Midori.ContextAction ("TabClose", null, null, Gtk.STOCK_CLOSE);
+                action_close.activate.connect (()=>{
+                    tally.tab.destroy ();
+                });
+                menu.add (action_close);
                 var popup = menu.create_menu (null, false);
                 popup.show ();
                 popup.attach_to_widget (this, null);

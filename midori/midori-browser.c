@@ -4654,7 +4654,9 @@ static void
 _action_tab_duplicate_activate (GtkAction*     action,
                                 MidoriBrowser* browser)
 {
-    GtkWidget* view = midori_browser_get_current_tab (browser);
+    GtkWidget* view = g_object_get_data (G_OBJECT (action), "tab");
+    if (view == NULL)
+        view = midori_browser_get_current_tab (browser);
     midori_view_duplicate (MIDORI_VIEW (view));
 }
 
@@ -4991,7 +4993,14 @@ midori_browser_notebook_tab_context_menu_cb (MidoriNotebook*      notebook,
     midori_context_action_add (menu, NULL);
     midori_context_action_add_by_name (menu, "TabNew");
     midori_context_action_add_by_name (menu, "UndoTabClose");
-    /* TODO: see midori_view_get_tab_menu */
+    if (MIDORI_IS_VIEW (tab))
+    {
+        GtkAction* action = gtk_action_new ("TabDuplicate", _("_Duplicate Current Tab"), NULL, NULL);
+        g_object_set_data (G_OBJECT (action), "tab", tab);
+        g_signal_connect (action, "activate",
+            G_CALLBACK (_action_tab_duplicate_activate), browser);
+        midori_context_action_add (menu, action);
+    }
 }
 
 static void

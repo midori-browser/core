@@ -4290,14 +4290,6 @@ midori_view_get_proxy_menu_item (MidoriView* view)
     return view->menu_item;
 }
 
-static void
-midori_view_tab_label_menu_duplicate_tab_cb (GtkAction* action,
-                                             gpointer   user_data)
-{
-    MidoriView* view = user_data;
-    midori_view_duplicate (view);
-}
-
 GtkWidget*
 midori_view_duplicate (MidoriView* view)
 {
@@ -4308,37 +4300,6 @@ midori_view_duplicate (MidoriView* view)
     g_signal_emit (view, signals[NEW_VIEW], 0, new_view, where, TRUE);
     midori_view_set_uri (MIDORI_VIEW (new_view), midori_tab_get_uri (MIDORI_TAB (view)));
     return new_view;
-}
-
-static void
-midori_view_tab_label_menu_close_other_tabs_cb (GtkAction* action,
-                                                gpointer   user_data)
-{
-    GtkWidget* view = user_data;
-    MidoriBrowser* browser = midori_browser_get_for_widget (view);
-    GList* tabs = midori_browser_get_tabs (browser);
-    for (; tabs; tabs = g_list_next (tabs))
-    {
-        if (tabs->data != view)
-            midori_browser_close_tab (browser, tabs->data);
-    }
-    g_list_free (tabs);
-}
-
-static void
-midori_view_tab_label_menu_minimize_tab_cb (GtkAction* action,
-                                            gpointer   user_data)
-{
-    MidoriView* view = user_data;
-    midori_tab_set_minimized (MIDORI_TAB (view), !midori_tab_get_minimized (MIDORI_TAB (view)));
-}
-
-static void
-midori_view_tab_label_menu_close_cb (GtkAction* action,
-                                     gpointer   user_data)
-{
-    GtkWidget* view = user_data;
-    midori_browser_close_tab (midori_browser_get_for_widget (view), view);
 }
 
 /**
@@ -4358,33 +4319,7 @@ midori_view_get_tab_menu (MidoriView* view)
 {
     g_return_val_if_fail (MIDORI_IS_VIEW (view), NULL);
 
-    MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (view));
-    g_return_val_if_fail (browser != NULL, NULL);
-    
-    GtkActionGroup* actions = midori_browser_get_action_group (browser);
-    MidoriContextAction* menu = midori_context_action_new ("TabContextMenu", NULL, NULL, NULL);
-    midori_context_action_add_action_group (menu, actions);
-    gint pages = midori_browser_get_n_pages (browser);
-
-    midori_context_action_add_by_name (menu, "TabNew");
-    midori_context_action_add_by_name (menu, "UndoTabClose");
-    midori_context_action_add (menu, NULL);
-    midori_context_action_add_simple (menu, "TabWindowNew", _("Open in New _Window"), NULL, STOCK_WINDOW_NEW,
-        midori_view_tab_label_menu_window_new_cb, view);
-    midori_context_action_add_simple (menu, "TabDuplicate", _("_Duplicate Tab"), NULL, NULL,
-        midori_view_tab_label_menu_duplicate_tab_cb, view);
-    midori_context_action_add_simple (menu, "TabMinimize",
-        midori_tab_get_minimized (MIDORI_TAB (view)) ? _("Show Tab _Label") : _("Show Tab _Icon Only"), NULL, NULL,
-        midori_view_tab_label_menu_minimize_tab_cb, view);
-    midori_context_action_add (menu, NULL);
-    GtkAction* action = gtk_action_new ("TabCloseOther", g_dngettext (NULL, "Close Ot_her Tab", "Close Ot_her Tabs", pages - 1), NULL, NULL);
-    g_signal_connect (action, "activate", G_CALLBACK (midori_view_tab_label_menu_close_other_tabs_cb), view);
-    gtk_action_set_sensitive (action, pages > 1);
-    midori_context_action_add (menu, action);
-    midori_context_action_add_simple (menu, "TabClose", NULL, NULL, GTK_STOCK_CLOSE,
-        midori_view_tab_label_menu_close_cb, view);
-
-    return GTK_WIDGET (midori_context_action_create_menu (menu, NULL, FALSE));
+    return gtk_menu_new ();
 }
 
 /**
