@@ -1782,7 +1782,7 @@ static void
 _midori_browser_remove_tab (MidoriBrowser* browser,
                             GtkWidget*     widget)
 {
-    gtk_widget_destroy (widget);
+    midori_notebook_remove (MIDORI_NOTEBOOK (browser->notebook), MIDORI_TAB (widget));
 }
 
 static void

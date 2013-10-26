@@ -384,10 +384,13 @@ namespace Midori {
                 callback (child);
         }
 
-        public override void remove (Gtk.Widget widget) {
-            notebook.remove (widget);
+        /* Can't override Gtk.Container.remove because it checks the parent */
+        public new void remove (Midori.Tab tab) {
+            notebook.remove (tab);
+            tab.destroy.disconnect (tab_removed);
+            tab.notify["minimized"].disconnect (tab_minimized);
             tab_removed ();
-            widget.unref ();
+            tab.unref ();
         }
 
         void tab_minimized (GLib.ParamSpec pspec) {
