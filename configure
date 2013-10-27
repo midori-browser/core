@@ -49,6 +49,25 @@ if [ ! -f GNUmakefile ]; then
     cp -v GNUmakefile.in GNUmakefile || exit 1
 fi
 
+# cmake was invoked in toplevel folder before
+# clean up cmake generated build files to prevent conflicts
+if [ -f CMakeCache.txt ]; then
+    echo
+    echo '####################################################################################'
+    echo 'CMake build files detected in toplevel folder !!'
+    echo 'Please always run "cmake" command from distinct folder when you use cmake yourself.'
+    echo '####################################################################################'
+    echo
+    echo 'Cleaning up...'
+    echo
+
+    rm -fr $BUILD_DIR
+    rm CMakeCache.txt config.h Makefile
+    find . -iname CMakeFiles -type d|xargs rm -fr
+    find . -iname cmake_install.cmake -exec rm {} \;
+    find . -iname CTestTestfile.cmake -exec rm {} \;
+fi
+
 mkdir -p $BUILD_DIR && cd $BUILD_DIR || exit 1
 cmake $ARGS .. || exit 1
 
