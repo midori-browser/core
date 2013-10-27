@@ -66,6 +66,9 @@ if [ -f CMakeCache.txt ]; then
     find . -iname CMakeFiles -type d|xargs rm -fr
     find . -iname cmake_install.cmake -exec rm {} \;
     find . -iname CTestTestfile.cmake -exec rm {} \;
+
+    find . -iname *-folders -type d|xargs rm -fr
+    rm -fr data/logo-shade
 fi
 
 mkdir -p $BUILD_DIR && cd $BUILD_DIR || exit 1
