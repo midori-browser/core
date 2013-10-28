@@ -91,21 +91,21 @@ void tab_special () {
     tab.set_uri ("about:blank");
     do { loop.iteration (true); } while (tab.load_status != Midori.LoadStatus.FINISHED);
     assert (tab.is_blank ());
-    assert (!tab.can_view_source ());
+    assert (tab.can_view_source ());
     assert (tab.special);
     assert (!tab.can_save ());
 
     tab.set_uri ("about:private");
     do { loop.iteration (true); } while (tab.load_status != Midori.LoadStatus.FINISHED);
     assert (tab.is_blank ());
-    assert (!tab.can_view_source ());
+    assert (tab.can_view_source ());
     assert (tab.special);
     assert (!tab.can_save ());
 
     tab.set_uri ("http://.invalid");
     do { loop.iteration (true); } while (tab.load_status != Midori.LoadStatus.FINISHED);
     assert (!tab.is_blank ());
-    assert (!tab.can_view_source ());
+    assert (tab.can_view_source ());
     assert (tab.special);
     assert (!tab.can_save ());
 
@@ -214,7 +214,7 @@ void tab_http () {
     source.set_uri ("http://.invalid");
     do { loop.iteration (true); } while (source.load_status != Midori.LoadStatus.FINISHED);
     assert (!source.is_blank ());
-    assert (!source.can_view_source ());
+    assert (source.can_view_source ());
     assert (source.special);
     assert (!source.can_save ());
     assert (!source.view_source);
