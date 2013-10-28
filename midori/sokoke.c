@@ -127,6 +127,7 @@ sokoke_message_dialog (GtkMessageType message_type,
 
 }
 
+#ifndef G_OS_WIN32
 static void
 sokoke_open_with_response_cb (GtkWidget* dialog,
                               gint       response,
@@ -140,6 +141,7 @@ sokoke_open_with_response_cb (GtkWidget* dialog,
     }
     gtk_widget_destroy (dialog);
 }
+#endif
 
 GAppInfo*
 sokoke_default_for_uri (const gchar* uri,
