@@ -2052,7 +2052,6 @@ midori_browser_key_press_event (GtkWidget*   widget,
     MidoriBrowser* browser = MIDORI_BROWSER (widget);
     GtkWidgetClass* widget_class;
     guint clean_state;
-    GtkWidget* focus;
 
     /* Interpret Ctrl(+Shift)+Tab as tab switching for compatibility */
     if (midori_browser_get_nth_tab (browser, 1) != NULL
@@ -2084,7 +2083,7 @@ midori_browser_key_press_event (GtkWidget*   widget,
     }
 
 #ifndef HAVE_WEBKIT2
-    focus = gtk_window_get_focus (GTK_WINDOW (widget));
+    GtkWidget* focus = gtk_window_get_focus (GTK_WINDOW (widget));
     if (focus == NULL)
         gtk_widget_grab_focus (midori_browser_get_current_tab (MIDORI_BROWSER (widget)));
     else if (G_OBJECT_TYPE (focus) == WEBKIT_TYPE_WEB_VIEW
@@ -6540,6 +6539,7 @@ _midori_browser_set_toolbar_style (MidoriBrowser*     browser,
                                     gtk_toolbar_style);
 }
 
+#ifndef HAVE_WEBKIT2
 static void
 midori_browser_toolbar_popup_context_menu_history_cb (GtkMenuItem* menu_item,
                                                       MidoriBrowser* browser)
@@ -6548,6 +6548,7 @@ midori_browser_toolbar_popup_context_menu_history_cb (GtkMenuItem* menu_item,
     MidoriView* view = MIDORI_VIEW (midori_browser_get_current_tab (browser));
     midori_view_go_back_or_forward (view, steps);
 }
+#endif
 
 static void
 midori_browser_toolbar_popup_context_menu_history (MidoriBrowser* browser,

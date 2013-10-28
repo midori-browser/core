@@ -859,12 +859,7 @@ sokoke_prefetch_uri (MidoriWebSettings*  settings,
                      GCallback           callback,
                      gpointer            user_data)
 {
-    #define MAXHOSTS 50
-    static gchar* hosts = NULL;
-    static gint host_count = G_MAXINT;
     gchar* hostname;
-
-
 #ifndef HAVE_WEBKIT2
     SoupURI* soup_uri;
     SoupSession* session = webkit_get_default_session ();
@@ -891,6 +886,10 @@ sokoke_prefetch_uri (MidoriWebSettings*  settings,
     g_free (hostname);
     return FALSE;
 #else
+    #define MAXHOSTS 50
+    static gchar* hosts = NULL;
+    static gint host_count = G_MAXINT;
+
     if (!hosts ||
         !g_regex_match_simple (hostname, hosts,
                                G_REGEX_CASELESS, G_REGEX_MATCH_NOTEMPTY))

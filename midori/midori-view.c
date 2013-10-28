@@ -1610,9 +1610,6 @@ midori_view_web_view_button_press_event_cb (WebKitWebView*  web_view,
                                             GdkEventButton* event,
                                             MidoriView*     view)
 {
-    GtkClipboard* clipboard;
-    gchar* uri;
-    gchar* new_uri;
     const gchar* link_uri;
     gboolean background;
 
@@ -1678,7 +1675,8 @@ midori_view_web_view_button_press_event_cb (WebKitWebView*  web_view,
             g_object_unref (result);
             if (!is_editable)
             {
-                clipboard = gtk_clipboard_get_for_display (
+                gchar* uri;
+                GtkClipboard* clipboard = gtk_clipboard_get_for_display (
                     gtk_widget_get_display (GTK_WIDGET (view)),
                     GDK_SELECTION_PRIMARY);
                 if ((uri = gtk_clipboard_wait_for_text (clipboard)))
@@ -1692,7 +1690,7 @@ midori_view_web_view_button_press_event_cb (WebKitWebView*  web_view,
                     /* Hold Alt to search for the selected word */
                     if (event->state & GDK_MOD1_MASK)
                     {
-                        new_uri = sokoke_magic_uri (uri, TRUE, FALSE);
+                        gchar* new_uri = sokoke_magic_uri (uri, TRUE, FALSE);
                         if (!new_uri)
                         {
                             gchar* search = katze_object_get_string (
@@ -2096,10 +2094,10 @@ midori_view_get_data_for_uri (MidoriView*  view,
                               const gchar* uri)
 {
     GList* resources = midori_view_get_resources (view);
-    GList* list;
     GString* result = NULL;
 
 #ifndef HAVE_WEBKIT2
+    GList* list;
     for (list = resources; list; list = g_list_next (list))
     {
         WebKitWebResource* resource = WEBKIT_WEB_RESOURCE (list->data);
@@ -2204,6 +2202,7 @@ midori_web_view_menu_video_save_activate_cb (GtkAction* action,
     g_free (uri);
 }
 
+#ifndef HAVE_WEBKIT2
 static void
 midori_view_menu_open_email_activate_cb (GtkAction* action,
                                          gpointer   user_data)
@@ -2215,6 +2214,7 @@ midori_view_menu_open_email_activate_cb (GtkAction* action,
                      uri, GDK_CURRENT_TIME, NULL);
     g_free (uri);
 }
+#endif
 
 static void
 midori_view_menu_open_link_tab_activate_cb (GtkAction* action,
@@ -3516,7 +3516,6 @@ midori_view_constructor (GType                  type,
                          guint                  n_construct_properties,
                          GObjectConstructParam* construct_properties)
 {
-    gpointer inspector;
     GObject* object = G_OBJECT_CLASS (midori_view_parent_class)->constructor (
         type, n_construct_properties, construct_properties);
     MidoriView* view = MIDORI_VIEW (object);
@@ -3652,7 +3651,7 @@ midori_view_constructor (GType                  type,
     #ifndef HAVE_WEBKIT2
     gtk_container_add (GTK_CONTAINER (view->scrolled_window), view->web_view);
 
-    inspector = webkit_web_view_get_inspector ((WebKitWebView*)view->web_view);
+    gpointer inspector = webkit_web_view_get_inspector ((WebKitWebView*)view->web_view);
     g_object_connect (inspector,
                       "signal::inspect-web-view",
                       midori_view_web_inspector_inspect_web_view_cb, view,
