@@ -1094,6 +1094,8 @@ sokoke_create_win32_desktop_lnk (gchar* prefix, gchar* filename, gchar* uri)
         launcher_type = "-a";
     else if (g_str_has_suffix (prefix, " -c "))
         launcher_type = "-c";
+    else
+        g_assert_not_reached ();
 
     argument = g_strdup_printf ("%s \"%s\"", launcher_type, uri);
 
