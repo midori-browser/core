@@ -128,8 +128,7 @@ namespace Midori {
                 }
                 catch (KeyFileError error) { }
             }
-            if (&count != null)
-                count = slot_count;
+            count = slot_count;
 
             uint slot = 1;
             while (slot <= slot_count) {
