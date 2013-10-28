@@ -30,6 +30,13 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 # Disallow building during install to avoid permission problems
 set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY 1)
 
+find_package(Vala REQUIRED)
+vala_require("0.16.0")
+set(VALAFLAGS ${VALAFLAGS}
+    --enable-deprecated
+    --debug
+    )
+
 include(GNUInstallDirs)
 set(DATADIR ${CMAKE_INSTALL_FULL_DATADIR})
 add_definitions("-DMDATADIR=\"${DATADIR}\"")
@@ -116,7 +123,11 @@ if (${DEPS_libsoup-gnome-2.4_VERSION} VERSION_GREATER "2.37.1")
 endif ()
 if (${DEPS_libsoup-gnome-2.4_VERSION} VERSION_GREATER "2.40.0")
     add_definitions("-DHAVE_LIBSOUP_2_40_0")
-    set(VALAFLAGS ${VALAFLAGS} -D HAVE_LIBSOUP_2_40_0)
+    # valac 0.16 didn't have the bindings yet
+    message(STATUS "vala: ${VALA_VERSION}")
+    if (${VALA_VERSION} VERSION_GREATER "0.17.0")
+        set(VALAFLAGS ${VALAFLAGS} -D HAVE_LIBSOUP_2_40_0)
+    endif ()
 endif ()
 
 if (WIN32)
@@ -212,13 +223,6 @@ else ()
     set(PKGS ${PKGS} gtk+-2.0)
     set(EXTRA_VAPIS ${EXTRA_VAPIS} "${CMAKE_SOURCE_DIR}/midori/webkitgtk-3.0.vapi")
 endif ()
-
-find_package(Vala REQUIRED)
-vala_require("0.16.0")
-set(VALAFLAGS ${VALAFLAGS}
-    --enable-deprecated
-    --debug
-    )
 
 # dh_translations detects this if there's no variable used
 set (GETTEXT_PACKAGE "midori")
