@@ -1380,7 +1380,6 @@ adblock_parse_line (gchar* line)
      * Block URL:
      *   http://example.com/ads/banner123.gif
      *   http://example.com/ads/banner*.gif
-     *   http://example.com/ads/*
      * Partial match for "ad":
      *   *ad*
      *   ad
