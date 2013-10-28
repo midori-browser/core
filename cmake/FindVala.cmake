@@ -1,6 +1,6 @@
 # Copyright (C) 2013 Christian Dywan <christian@twotoasts.de>
 
-find_program(VALA_EXECUTABLE NAMES valac)
+find_program(VALA_EXECUTABLE NAMES $ENV{VALAC} valac)
 if (NOT VALA_NOTFOUND)
     execute_process(COMMAND ${VALA_EXECUTABLE} "--version" OUTPUT_VARIABLE "VALA_VERSION")
     string(REPLACE "Vala " "" VALA_VERSION ${VALA_VERSION})
