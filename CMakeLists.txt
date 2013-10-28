@@ -122,10 +122,10 @@ if (${DEPS_libsoup-gnome-2.4_VERSION} VERSION_GREATER "2.37.1")
     add_definitions("-DHAVE_LIBSOUP_2_37_1")
 endif ()
 if (${DEPS_libsoup-gnome-2.4_VERSION} VERSION_GREATER "2.40.0")
-    add_definitions("-DHAVE_LIBSOUP_2_40_0")
     # valac 0.16 didn't have the bindings yet
-    message(STATUS "vala: ${VALA_VERSION}")
+    # For consistency we need to ensure C code makes the same assumptions
     if (${VALA_VERSION} VERSION_GREATER "0.17.0")
+        add_definitions("-DHAVE_LIBSOUP_2_40_0")
         set(VALAFLAGS ${VALAFLAGS} -D HAVE_LIBSOUP_2_40_0)
     endif ()
 endif ()
