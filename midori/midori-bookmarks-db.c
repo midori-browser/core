@@ -408,7 +408,6 @@ static void
 midori_bookmarks_db_remove_item_recursive (KatzeItem*  item,
                                            MidoriBookmarksDb* bookmarks)
 {
-    GHashTableIter hash_iter;
     gpointer found;
     KatzeArray* array;
     KatzeItem* child;
@@ -812,6 +811,7 @@ midori_bookmarks_db_array_from_statement (sqlite3_stmt* stmt,
     {
         gint i;
         KatzeItem* item;
+        gpointer found;
 
         item = katze_item_new ();
         for (i = 0; i < cols; i++)
