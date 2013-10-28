@@ -14,7 +14,11 @@ string get_test_file (string contents) {
         tmp_folder = Midori.Paths.make_tmp_dir ("speeddialXXXXXX");
     string checksum = Checksum.compute_for_string (ChecksumType.MD5, contents);
     string file = Path.build_path (Path.DIR_SEPARATOR_S, tmp_folder, checksum);
-    FileUtils.set_contents (file, contents, -1);
+    try {
+        FileUtils.set_contents (file, contents, -1);
+    } catch (Error file_error) {
+        GLib.error (file_error.message);
+    }
     return file;
 }
 
@@ -57,12 +61,16 @@ static void speeddial_load () {
     }
     catch (Error error) { /* Error expected: pass */ }
 
-    dial_data.save_message ("speed_dial-save-rename 1 Lorem");
-    Katze.assert_str_equal (data, dial_data.keyfile.get_string ("Dial 1", "title"), "Lorem");
-    dial_data.save_message ("speed_dial-save-rename 1 Lorem Ipsum Dolomit");
-    Katze.assert_str_equal (data, dial_data.keyfile.get_string ("Dial 1", "title"), "Lorem Ipsum Dolomit");
-    dial_data.save_message ("speed_dial-save-delete 1");
-    Katze.assert_str_equal (data, dial_data.get_next_free_slot (), "Dial 1");
+    try {
+        dial_data.save_message ("speed_dial-save-rename 1 Lorem");
+        Katze.assert_str_equal (data, dial_data.keyfile.get_string ("Dial 1", "title"), "Lorem");
+        dial_data.save_message ("speed_dial-save-rename 1 Lorem Ipsum Dolomit");
+        Katze.assert_str_equal (data, dial_data.keyfile.get_string ("Dial 1", "title"), "Lorem Ipsum Dolomit");
+        dial_data.save_message ("speed_dial-save-delete 1");
+        Katze.assert_str_equal (data, dial_data.get_next_free_slot (), "Dial 1");
+    } catch (Error message_error) {
+        GLib.error (message_error.message);
+    }
 
     data = get_test_file ("""
             [settings]
@@ -79,9 +87,13 @@ static void speeddial_load () {
         """);
     dial_data = new Midori.SpeedDial (data, "");
     FileUtils.remove (data);
-    Katze.assert_str_equal (data, dial_data.get_next_free_slot (), "Dial 1");
-    dial_data.save_message ("speed_dial-save-swap 2 4");
-    Katze.assert_str_equal (data, dial_data.keyfile.get_string ("Dial 2", "title"), "IT-News");
+    try {
+        Katze.assert_str_equal (data, dial_data.get_next_free_slot (), "Dial 1");
+        dial_data.save_message ("speed_dial-save-swap 2 4");
+        Katze.assert_str_equal (data, dial_data.keyfile.get_string ("Dial 2", "title"), "IT-News");
+    } catch (Error message_error) {
+        GLib.error (message_error.message);
+    }
 }
 
 void main (string[] args) {
