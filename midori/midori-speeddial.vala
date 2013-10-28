@@ -32,8 +32,10 @@ namespace Midori {
         string filename;
         string? html = null;
         List<Spec> thumb_queue = null;
+#if !HAVE_WEBKIT2
         WebKit.WebView thumb_view = null;
         Spec? spec = null;
+#endif
 
         public GLib.KeyFile keyfile;
         public bool close_buttons_left { get; set; default = false; }
@@ -339,19 +341,19 @@ namespace Midori {
             refresh ();
         }
 
-        void load_status (GLib.Object thumb_view_, ParamSpec pspec) {
 #if !HAVE_WEBKIT2
+        void load_status (GLib.Object thumb_view_, ParamSpec pspec) {
             if (thumb_view.load_status != WebKit.LoadStatus.FINISHED
              && thumb_view.load_status != WebKit.LoadStatus.FAILED)
                 return;
             thumb_view.notify["load-status"].disconnect (load_status);
             /* Schedule an idle to give the offscreen time to draw */
             Idle.add (save_thumbnail);
-#endif
         }
+#endif
 
-        bool save_thumbnail () {
 #if !HAVE_WEBKIT2
+        bool save_thumbnail () {
             return_val_if_fail (spec != null, false);
 
             var offscreen = (thumb_view.parent as Gtk.OffscreenWindow);
@@ -385,9 +387,9 @@ namespace Midori {
                 thumb_view.notify["load-status"].connect (load_status);
                 thumb_view.load_uri (spec.uri);
             }
-#endif
             return false;
         }
+#endif
 
         void get_thumb (string dial_id, string uri) {
 #if !HAVE_WEBKIT2

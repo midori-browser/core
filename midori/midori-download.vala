@@ -10,8 +10,10 @@
 */
 
 namespace Sokoke {
+#if !HAVE_WEBKIT2
     extern static bool show_uri (Gdk.Screen screen, string uri, uint32 timestamp) throws Error;
     extern static bool message_dialog (Gtk.MessageType type, string short, string detailed, bool modal);
+#endif
 }
 
 namespace Midori {
