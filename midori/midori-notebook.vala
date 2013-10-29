@@ -249,6 +249,7 @@ namespace Midori {
             });
 
             button_press_event.connect (button_pressed);
+            scroll_event.connect (scrolled);
         }
 
         ~Notebook () {
@@ -284,6 +285,24 @@ namespace Midori {
                 popup.attach_to_widget (this, null);
                 popup.popup (null, null, null, event.button, event.time);
                 return true;
+            }
+            return false;
+        }
+
+        bool scrolled (Gdk.EventScroll event) {
+            switch (event.direction) {
+                case Gdk.ScrollDirection.UP:
+                case Gdk.ScrollDirection.LEFT:
+                    index--;
+                    return true;
+                case Gdk.ScrollDirection.DOWN:
+                case Gdk.ScrollDirection.RIGHT:
+                    /* Jump from last to first tab */
+                    if (index - count == -1)
+                        index = 0;
+                    else
+                        index++;
+                    return true;
             }
             return false;
         }
