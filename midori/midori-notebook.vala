@@ -56,8 +56,8 @@ namespace Midori {
             tab.notify["icon"].connect (icon_changed);
             tab.notify["minimized"].connect (minimized_changed);
             tab.notify["progress"].connect (progress_changed);
-            tab.notify["fg-color"].connect (color_changed);
-            tab.notify["bg-color"].connect (color_changed);
+            // fg-color and bg-color aren't properties
+            tab.notify["icon"].connect (color_changed);
             update_label ();
             label.visible = !tab.minimized;
             spinner.visible = tab.progress > 0.0;
