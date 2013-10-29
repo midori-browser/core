@@ -4910,6 +4910,7 @@ midori_browser_switched_tab_cb (MidoriNotebook* notebook,
     }
 
     g_return_if_fail (MIDORI_IS_VIEW (new_view));
+    g_return_if_fail (new_view != MIDORI_VIEW (old_widget));
 
     uri = g_object_get_data (G_OBJECT (new_view), "midori-browser-typed-text");
     if (!uri)

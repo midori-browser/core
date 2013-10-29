@@ -188,6 +188,8 @@ namespace Midori {
         public int index { get; set; default = -1; }
         /* Since: 0.5.6 */
         public Midori.Tab? tab {  get; set; default = null; }
+        /* Since: 0.5.6 */
+        private Midori.Tab? previous {  get; set; default = null; }
 
         /* Since: 0.5.6 */
         public bool close_buttons_left { get; set; default = true; }
@@ -478,12 +480,14 @@ namespace Midori {
 #else
         void page_switched (Gtk.NotebookPage new_tab, uint new_index) {
 #endif
-            tab_switched (tab, new_tab as Tab);
+            tab_switched (previous, new_tab as Tab);
+            previous = (Midori.Tab)new_tab;
+
             notify["index"].disconnect (index_changed);
-            index = (int)new_index;
-            notify["index"].connect (index_changed);
             notify["tab"].disconnect (tab_changed);
+            index = (int)new_index;
             tab = (Midori.Tab)new_tab;
+            notify["index"].connect (index_changed);
             notify["tab"].connect (tab_changed);
         }
 
