@@ -25,7 +25,7 @@ if (REVISION)
     set(VERSION "${VERSION}~r${REVISION}")
     # All warnings are errors in development builds
     set(VALAFLAGS ${VALAFLAGS} --fatal-warnings)
-    set(CFLAGS "${CFLAGS} -Werror")
+    set(CFLAGS "${CFLAGS}")
 endif ()
 add_definitions("-DPACKAGE_VERSION=\"${VERSION}\"")
 
@@ -149,6 +149,7 @@ option(HALF_BRO_INCOM_WEBKIT2 "Serve as a guniea pig" OFF)
 option(USE_ZEITGEIST "Zeitgeist history integration" ON)
 option(USE_GRANITE "Fancy notebook and pop-overs" OFF)
 option(USE_APIDOCS "API documentation" OFF)
+option(EXTRA_WARNINGS "Additional compiler warnings" OFF)
 
 # GTK+3 is implied here, whether set or not
 if (USE_GRANITE OR HALF_BRO_INCOM_WEBKIT2)
@@ -232,6 +233,28 @@ set (GETTEXT_PACKAGE "midori")
 add_definitions("-DGETTEXT_PACKAGE=\"${GETTEXT_PACKAGE}\"")
 
 set(CFLAGS "${CFLAGS} -Wall -Wundef -Wno-deprecated-declarations -g")
+
+if (EXTRA_WARNINGS)
+    LIST(APPEND EXTRA_CFLAGS_LIST
+        -Wextra
+        -Wno-unused-parameter
+        -Wno-missing-field-initializers
+        -Wno-comment
+        -Waggregate-return
+        -Wredundant-decls -Wmissing-noreturn
+        -Wshadow -Wpointer-arith -Wcast-align
+        -Winline -Wformat-security -fno-common
+        -Winit-self -Wundef
+        -Wmissing-format-attribute -Wnested-externs
+    )
+    string(REPLACE ";" " " EXTRA_CFLAGS "${EXTRA_CFLAGS_LIST}")
+    set(CFLAGS "${CFLAGS} ${EXTRA_CFLAGS}")
+else ()
+    if (REVISION)
+        set(CFLAGS "${CFLAGS} -Werror")
+    endif()
+endif ()
+
 set(VALA_CFLAGS "-w -g")
 set(LIBMIDORI "${CMAKE_PROJECT_NAME}-core")
 

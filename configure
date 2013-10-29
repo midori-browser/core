@@ -37,6 +37,8 @@ while [ $# != 0 ]; do
             ARGS="$ARGS -DUSE_GRANITE=1";;
         --enable-apidocs)
             ARGS="$ARGS -DUSE_APIDOCS=1";;
+        --extra-warnings)
+            ARGS="$ARGS -DEXTRA_WARNINGS=1";;
         --prefix=*)
             ARGS="$ARGS -DCMAKE_INSTALL_PREFIX=${1#*=}";;
         *)
