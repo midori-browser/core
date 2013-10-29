@@ -23,6 +23,9 @@ execute_process(COMMAND "bzr" "revno"
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 if (REVISION)
     set(VERSION "${VERSION}~r${REVISION}")
+    # All warnings are errors in development builds
+    set(VALAFLAGS ${VALAFLAGS} --fatal-warnings)
+    set(CFLAGS "${CFLAGS} -Werror")
 endif ()
 add_definitions("-DPACKAGE_VERSION=\"${VERSION}\"")
 
@@ -228,7 +231,7 @@ endif ()
 set (GETTEXT_PACKAGE "midori")
 add_definitions("-DGETTEXT_PACKAGE=\"${GETTEXT_PACKAGE}\"")
 
-set(CFLAGS "-Wall -Wundef -Wno-deprecated-declarations -g")
+set(CFLAGS "${CFLAGS} -Wall -Wundef -Wno-deprecated-declarations -g")
 set(VALA_CFLAGS "-w -g")
 set(LIBMIDORI "${CMAKE_PROJECT_NAME}-core")
 
