@@ -260,6 +260,19 @@ namespace Midori {
         }
 
         bool button_pressed (Gdk.EventButton event) {
+            /* Propagate events in logical label area */
+            foreach (var child in notebook.get_children ()) {
+                var tally = notebook.get_tab_label (tab) as Tally;
+                Gtk.Allocation size;
+                tally.get_allocation (out size);
+                if (tally.get_mapped ()
+                 && event.x_root >= size.x
+                 && event.x_root <= (size.x + size.width)) {
+                    tally.button_press_event (event);
+                    return true;
+                }
+            }
+
             if (event.type == Gdk.EventType.2BUTTON_PRESS && event.button == 1
              || event.button == 2) {
                 new_tab ();
