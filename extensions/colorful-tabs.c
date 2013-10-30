@@ -12,15 +12,15 @@
 
 #include <midori/midori.h>
 
-static GdkColor
-get_foreground_color_for_GdkColor (GdkColor color)
+static void
+get_foreground_color_for_GdkColor (GdkColor* color,
+                                   GdkColor* fgcolor)
 {
-    GdkColor fgcolor;
     gfloat brightness, r, g, b;
 
-    r = color.red / 255;
-    g = color.green / 255;
-    b = color.blue / 255;
+    r = color->red / 255;
+    g = color->green / 255;
+    b = color->blue / 255;
 
     /* For math used see algorithms for converting from rgb to yuv */
     brightness = 0.299 * r + 0.587 * g + 0.114 * b;
@@ -28,82 +28,75 @@ get_foreground_color_for_GdkColor (GdkColor color)
     /* Ensure high contrast by enforcing black/ white text colour. */
     /* Brigthness (range 0-255) equals value of y from YUV color space. */
     if (brightness < 128)
-        gdk_color_parse ("white", &fgcolor);
+        gdk_color_parse ("white", fgcolor);
     else
-        gdk_color_parse ("black", &fgcolor);
-
-    return fgcolor;
+        gdk_color_parse ("black", fgcolor);
 }
 
-static GdkColor adjust_brightness (GdkColor color)
+static void
+adjust_brightness (GdkColor* color)
 {
     guint dark_grey = 137 * 255;
     guint adjustment = 78 * 255;
     guint blue = 39 * 255;
     guint readjust = 19 * 255;
 
-    if ((color.red   < dark_grey)
-     && (color.green < dark_grey)
-     && (color.blue  < dark_grey))
+    if ((color->red   < dark_grey)
+     && (color->green < dark_grey)
+     && (color->blue  < dark_grey))
     {
-        color.red   += adjustment;
-        color.green += adjustment;
-        color.blue  += adjustment;
+        color->red   += adjustment;
+        color->green += adjustment;
+        color->blue  += adjustment;
     }
 
-    if (color.red < blue)
-        color.red = readjust;
+    if (color->red < blue)
+        color->red = readjust;
     else
-        color.red -= readjust;
+        color->red -= readjust;
 
-    if (color.blue < blue)
-        color.blue = readjust;
+    if (color->blue < blue)
+        color->blue = readjust;
     else
-        color.blue -= readjust;
+        color->blue -= readjust;
 
-    if (color.green < blue)
-        color.green = readjust;
+    if (color->green < blue)
+        color->green = readjust;
     else
-        color.green -= readjust;
-
-    return color;
+        color->green -= readjust;
 }
 
-static GdkColor
-view_get_bgcolor_for_favicon (GdkPixbuf* icon)
+static void
+view_get_bgcolor_for_favicon (GdkPixbuf* icon,
+                              GdkColor*  color)
 {
-    GdkColor color;
     GdkPixbuf* newpix;
     guchar* pixels;
 
     newpix = gdk_pixbuf_scale_simple (icon, 1, 1, GDK_INTERP_BILINEAR);
     pixels = gdk_pixbuf_get_pixels (newpix);
-    color.red = pixels[0] * 255;
-    color.green = pixels[1] * 255;
-    color.blue = pixels[2] * 255;
+    color->red = pixels[0] * 255;
+    color->green = pixels[1] * 255;
+    color->blue = pixels[2] * 255;
 
-    color = adjust_brightness (color);
-
-    return color;
+    adjust_brightness (color);
 }
 
-static GdkColor
-view_get_bgcolor_for_hostname (gchar* hostname)
+static void
+view_get_bgcolor_for_hostname (gchar*    hostname,
+                               GdkColor* color)
 {
     gchar* hash, *colorstr;
-    GdkColor color;
 
     hash = g_compute_checksum_for_string (G_CHECKSUM_MD5, hostname, 1);
     colorstr = g_strndup (hash, 6 + 1);
     colorstr[0] = '#';
-    gdk_color_parse (colorstr, &color);
+    gdk_color_parse (colorstr, color);
 
     g_free (hash);
     g_free (colorstr);
 
-    color = adjust_brightness (color);
-
-    return color;
+    adjust_brightness (color);
 }
 
 static void
@@ -124,11 +117,11 @@ colorful_tabs_view_notify_uri_cb (MidoriView*      view,
             GdkPixbuf* icon = midori_view_get_icon (view);
 
             if (icon)
-                color = view_get_bgcolor_for_favicon (icon);
+                view_get_bgcolor_for_favicon (icon, &color);
             else
-                color = view_get_bgcolor_for_hostname (hostname);
+                view_get_bgcolor_for_hostname (hostname, &color);
 
-            fgcolor = get_foreground_color_for_GdkColor (color);
+            get_foreground_color_for_GdkColor (&color, &fgcolor);
             midori_view_set_colors (view, &fgcolor, &color);
 
             g_free (hostname);
@@ -236,8 +229,8 @@ void test_colour_for_hostname (void)
     guint i;
     for (i = 0; i < G_N_ELEMENTS (items); i++)
     {
-        color = view_get_bgcolor_for_hostname ((gchar*)items[i].host);
-        fgcolor = get_foreground_color_for_GdkColor (color);
+        view_get_bgcolor_for_hostname ((gchar*)items[i].host, &color);
+        get_foreground_color_for_GdkColor (&color, &fgcolor);
 
         g_assert_cmpstr (items[i].color, ==, gdk_color_to_string (&color));
         g_assert_cmpstr (items[i].fgcolor, ==, gdk_color_to_string (&fgcolor));
