@@ -3801,8 +3801,9 @@ _action_navigation_activate (GtkAction*     action,
             WebKitWebHistoryItem* item = webkit_web_back_forward_list_get_forward_item (list);
             const gchar* back_uri = webkit_web_history_item_get_uri (item);
             #endif
-            GtkWidget* view = midori_browser_add_uri (browser, back_uri);
-            midori_browser_set_current_tab_smartly (browser, view);
+
+            GtkWidget* new_view = midori_browser_add_uri (browser, back_uri);
+            midori_browser_set_current_tab_smartly (browser, new_view);
         }
         else
             midori_view_go_back (view);
@@ -3823,8 +3824,9 @@ _action_navigation_activate (GtkAction*     action,
             WebKitWebHistoryItem* item = webkit_web_back_forward_list_get_forward_item (list);
             const gchar* forward_uri = webkit_web_history_item_get_uri (item);
             #endif
-            GtkWidget* view = midori_browser_add_uri (browser, forward_uri);
-            midori_browser_set_current_tab_smartly (browser, view);
+
+            GtkWidget* new_view = midori_browser_add_uri (browser, forward_uri);
+            midori_browser_set_current_tab_smartly (browser, new_view);
         }
         else
           midori_tab_go_forward (MIDORI_TAB (view));
@@ -3838,8 +3840,8 @@ _action_navigation_activate (GtkAction*     action,
 
         if (middle_click)
         {
-            GtkWidget* view = midori_browser_add_uri (browser, uri);
-            midori_browser_set_current_tab_smartly (browser, view);
+            GtkWidget* new_view = midori_browser_add_uri (browser, uri);
+            midori_browser_set_current_tab_smartly (browser, new_view);
         }
         else
             midori_view_set_uri (view, uri);
@@ -3854,8 +3856,8 @@ _action_navigation_activate (GtkAction*     action,
 
         if (middle_click)
         {
-            GtkWidget* view = midori_browser_add_uri (browser, uri);
-            midori_browser_set_current_tab_smartly (browser, view);
+            GtkWidget* new_view = midori_browser_add_uri (browser, uri);
+            midori_browser_set_current_tab_smartly (browser, new_view);
         }
         else
             midori_view_set_uri (view, uri);
@@ -3867,8 +3869,8 @@ _action_navigation_activate (GtkAction*     action,
     {
         if (middle_click)
         {
-            GtkWidget* view = midori_browser_add_uri (browser, "about:home");
-            midori_browser_set_current_tab_smartly (browser, view);
+            GtkWidget* new_view = midori_browser_add_uri (browser, "about:home");
+            midori_browser_set_current_tab_smartly (browser, new_view);
         }
         else
             midori_view_set_uri (view, "about:home");
