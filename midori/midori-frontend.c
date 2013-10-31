@@ -368,12 +368,12 @@ midori_frontend_diagnostic_dialog (MidoriApp*         app,
     gchar* crash_log = g_build_filename (midori_paths_get_runtime_dir (), "gdb.bt", NULL);
     if (g_access (crash_log, F_OK) == 0)
     {
-        GtkWidget* button = gtk_button_new_with_mnemonic (_("Show last crash _log"));
-        g_signal_connect_data (button, "clicked",
+        GtkWidget* log_button = gtk_button_new_with_mnemonic (_("Show last crash _log"));
+        g_signal_connect_data (log_button, "clicked",
             G_CALLBACK (midori_frontend_crash_log_cb), crash_log,
             (GClosureNotify)g_free, 0);
-        gtk_widget_show (button);
-        gtk_box_pack_start (GTK_BOX (box), button, FALSE, FALSE, 4);
+        gtk_widget_show (log_button);
+        gtk_box_pack_start (GTK_BOX (box), log_button, FALSE, FALSE, 4);
     }
     else
         g_free (crash_log);
