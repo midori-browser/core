@@ -20,7 +20,7 @@ eval `rpm --eval %{mingw32_env}`
 
 rm -fr _mingw32
 mkdir _mingw32 && cd _mingw32
-mingw32-cmake -DUSE_ZEITGEIST=0 -DUSE_GTK3=1 -DCMAKE_INSTALL_PREFIX=$MINGW_PREFIX $SRCDIR
+mingw32-cmake -DUSE_ZEITGEIST=0 -DUSE_GTK3=1 -DCMAKE_INSTALL_PREFIX=$MINGW_PREFIX -DCMAKE_VERBOSE_MAKEFILE=0 $SRCDIR
 make
 sudo make install || exit
 
@@ -46,7 +46,7 @@ if [ "$DO_64BIT" != "" ]; then
 
     rm -fr _mingw64
     mkdir _mingw64 && cd _mingw64
-    mingw64-cmake -DUSE_ZEITGEIST=0 -DUSE_GTK3=1 -DCMAKE_INSTALL_PREFIX=$MINGW_PREFIX $SRCDIR
+    mingw64-cmake -DUSE_ZEITGEIST=0 -DUSE_GTK3=1 -DCMAKE_INSTALL_PREFIX=$MINGW_PREFIX -DCMAKE_VERBOSE_MAKEFILE=0 $SRCDIR
     make
     sudo make install || exit
 
