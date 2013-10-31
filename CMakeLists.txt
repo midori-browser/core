@@ -241,7 +241,7 @@ if (EXTRA_WARNINGS)
         -Wno-missing-field-initializers
         -Wno-comment
         -Waggregate-return
-        -Wredundant-decls -Wmissing-noreturn
+        -Wredundant-decls
         -Wshadow -Wpointer-arith -Wcast-align
         -Winline -Wformat-security -fno-common
         -Winit-self -Wundef
