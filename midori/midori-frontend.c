@@ -381,11 +381,11 @@ midori_frontend_diagnostic_dialog (MidoriApp*         app,
     gchar* gdb = g_find_program_in_path ("gdb");
     if (gdb != NULL)
     {
-        GtkWidget* button = gtk_button_new_with_mnemonic (_("Run in _debugger"));
+        GtkWidget* gdb_button = gtk_button_new_with_mnemonic (_("Run in _debugger"));
         g_signal_connect (button, "clicked",
             G_CALLBACK (midori_frontend_debugger_cb), dialog);
-        gtk_widget_show (button);
-        gtk_box_pack_start (GTK_BOX (box), button, FALSE, FALSE, 4);
+        gtk_widget_show (gdb_button);
+        gtk_box_pack_start (GTK_BOX (box), gdb_button, FALSE, FALSE, 4);
     }
     gtk_dialog_set_default_response (GTK_DIALOG (dialog),
         load_on_startup == MIDORI_STARTUP_HOMEPAGE
