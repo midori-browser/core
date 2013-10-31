@@ -117,13 +117,8 @@ namespace Midori {
             visible_window = tab.fg_color != null || tab.bg_color != null;
             label.modify_fg (Gtk.StateType.NORMAL, tab.fg_color);
             label.modify_fg (Gtk.StateType.ACTIVE, tab.fg_color);
-#if HAVE_GTK3
             modify_bg (Gtk.StateType.NORMAL, tab.bg_color);
             modify_bg (Gtk.StateType.ACTIVE, tab.bg_color);
-#else
-            box.modify_bg (Gtk.StateType.NORMAL, tab.bg_color);
-            box.modify_bg (Gtk.StateType.ACTIVE, tab.bg_color);
-#endif
         }
 
         void close_button_left_changed (GLib.ParamSpec pspec) {
