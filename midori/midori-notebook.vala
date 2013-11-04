@@ -351,9 +351,10 @@ namespace Midori {
 
         bool tab_button_pressed (Gtk.Widget label, Gdk.EventButton event) {
             Tally tally = label as Tally;
-            if (event.button == 1)
-                notebook.set_current_page (notebook.page_num (tally.tab));
-            else if (event.button == 2)
+            if (event.button == 1) {
+                /* Leave switching and dragging up to the notebook */
+                return false;
+            } else if (event.button == 2)
                 tally.tab.destroy ();
             else if (event.button == 3) {
                 var menu = new Midori.ContextAction ("TabContextMenu", null, null, null);
