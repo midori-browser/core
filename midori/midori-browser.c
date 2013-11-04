@@ -311,6 +311,8 @@ _midori_browser_update_interface (MidoriBrowser* browser,
         midori_tab_can_view_source (MIDORI_TAB (view)));
     _action_set_sensitive (browser, "SourceView",
         midori_tab_can_view_source (MIDORI_TAB (view)));
+    _action_set_sensitive (browser, "SourceViewDom",
+        midori_tab_can_view_source (MIDORI_TAB (view)));
 
     action = _action_by_name (browser, "NextForward");
     if (midori_tab_can_go_forward (MIDORI_TAB (view)))
@@ -1356,12 +1358,12 @@ midori_browser_save_uri (MidoriBrowser* browser,
         if (!file_only)
         {
             gchar* fullname = g_strconcat (filename, ".html", NULL);
-            midori_view_save_source (view, uri, fullname);
+            midori_view_save_source (view, uri, fullname, FALSE);
             g_free (fullname);
             midori_browser_save_resources (resources, filename);
         }
         else
-            midori_view_save_source (view, uri, filename);
+            midori_view_save_source (view, uri, filename, FALSE);
         katze_assign (last_dir,
             gtk_file_chooser_get_current_folder (GTK_FILE_CHOOSER (dialog)));
     }
@@ -3578,15 +3580,16 @@ _action_view_encoding_activate (GtkAction*     action,
 }
 
 static void
-_action_source_view_activate (GtkAction*     action,
-                              MidoriBrowser* browser)
+_action_source_view (GtkAction*     action,
+                     MidoriBrowser* browser,
+                     gboolean       use_dom)
 {
     GtkWidget* view;
     gchar* text_editor;
     gchar* filename = NULL;
 
     view = midori_browser_get_current_tab (browser);
-    filename = midori_view_save_source (MIDORI_VIEW (view), NULL, NULL);
+    filename = midori_view_save_source (MIDORI_VIEW (view), NULL, NULL, use_dom);
     g_object_get (browser->settings, "text-editor", &text_editor, NULL);
     if (!(text_editor && *text_editor))
     {
@@ -3610,6 +3613,21 @@ _action_source_view_activate (GtkAction*     action,
     }
     g_free (text_editor);
 }
+
+static void
+_action_source_view_activate (GtkAction*     action,
+                              MidoriBrowser* browser)
+{
+    _action_source_view (action, browser, FALSE);
+}
+
+static void
+_action_source_view_dom_activate (GtkAction*     action,
+                                  MidoriBrowser* browser)
+{
+    _action_source_view (action, browser, TRUE);
+}
+
 
 static void
 _action_caret_browsing_activate (GtkAction*     action,
@@ -5426,6 +5444,9 @@ static const GtkActionEntry entries[] =
     { "SourceView", NULL,
         N_("View So_urce"), "<Ctrl><Alt>U",
         NULL, G_CALLBACK (_action_source_view_activate) },
+    { "SourceViewDom", NULL,
+        N_("View DOM Source"), "<Ctrl><Shift>U",
+        NULL, G_CALLBACK (_action_source_view_dom_activate) },
     { "CaretBrowsing", NULL,
         N_("Ca_ret Browsing"), "F7",
         NULL, G_CALLBACK (_action_caret_browsing_activate) },
@@ -5819,6 +5840,7 @@ static const gchar* ui_markup =
                     "<menuitem action='EncodingCustom'/>"
                 "</menu>"
                 "<menuitem action='SourceView'/>"
+                "<menuitem action='SourceViewDom'/>"
                 "<menuitem action='Fullscreen'/>"
                 "<menuitem action='Readable'/>"
             "</menu>"
