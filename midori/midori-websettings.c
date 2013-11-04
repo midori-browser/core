@@ -870,11 +870,9 @@ sokoke_add_quality_value (const gchar *str,
 static gchar *
 sokoke_accept_languages (const gchar* const * lang_names)
 {
-    GArray *langs_garray = NULL;
+    GString* langs = NULL;
     char *cur_lang = NULL;
     char *prev_lang = NULL;
-    char **langs_array;
-    char *langs_str;
     float delta;
     int i, n_lang_names;
 
@@ -883,7 +881,7 @@ sokoke_accept_languages (const gchar* const * lang_names)
     delta = 0.999 / (n_lang_names - 1);
 
     /* Build the array of languages */
-    langs_garray = g_array_new (TRUE, FALSE, sizeof (char*));
+    langs = g_string_sized_new (n_lang_names);
     for (i = 0; lang_names[i] != NULL; i++)
     {
         cur_lang = sokoke_posix_lang_to_rfc2616 (lang_names[i]);
@@ -901,21 +899,17 @@ sokoke_accept_languages (const gchar* const * lang_names)
 
             /* Add the quality value and append it */
             qv_lang = sokoke_add_quality_value (cur_lang, 1 - i * delta);
-            g_array_append_val (langs_garray, qv_lang);
+            if (langs->len > 0)
+                g_string_append_c (langs, ',');
+            g_string_append (langs, qv_lang);
         }
     }
 
     /* Fallback: add "en" if list is empty */
-    if (langs_garray->len == 0)
-    {
-        gchar* fallback = g_strdup ("en");
-        g_array_append_val (langs_garray, fallback);
-    }
+    if (langs->len == 0)
+        g_string_append (langs, "en");
 
-    langs_array = (char **) g_array_free (langs_garray, FALSE);
-    langs_str = g_strjoinv (", ", langs_array);
-
-    return langs_str;
+    return g_string_free (langs, FALSE);
 }
 
 
