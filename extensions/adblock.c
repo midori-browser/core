@@ -647,7 +647,7 @@ adblock_open_preferences_cb (MidoriExtension* extension)
     adblock_show_preferences_dialog (extension, NULL);
 }
 
-static inline gint
+static gint
 adblock_check_rule (GRegex*      regex,
                     const gchar* patt,
                     const gchar* req_uri,
@@ -670,7 +670,7 @@ adblock_check_rule (GRegex*      regex,
     return TRUE;
 }
 
-static inline gboolean
+static gboolean
 adblock_is_matched_by_pattern (const gchar* req_uri,
                                const gchar* page_uri)
 {
@@ -689,7 +689,7 @@ adblock_is_matched_by_pattern (const gchar* req_uri,
     return FALSE;
 }
 
-static inline gboolean
+static gboolean
 adblock_is_matched_by_key (const gchar* req_uri,
                            const gchar* page_uri)
 {
@@ -1234,7 +1234,7 @@ adblock_compile_regexp (GString* gpatt,
     }
 }
 
-static inline gchar*
+static gchar*
 adblock_add_url_pattern (gchar* prefix,
                          gchar* type,
                          gchar* line)
@@ -1293,7 +1293,7 @@ adblock_add_url_pattern (gchar* prefix,
     return g_string_free (format_patt, should_free);
 }
 
-static inline void
+static void
 adblock_frame_add (gchar* line)
 {
     const gchar* separator = " , ";
@@ -1327,7 +1327,7 @@ adblock_update_css_hash (gchar* domain,
         g_hash_table_insert (blockcssprivate, g_strdup (domain), g_strdup (value));
 }
 
-static inline void
+static void
 adblock_frame_add_private (const gchar* line,
                            const gchar* sep)
 {
