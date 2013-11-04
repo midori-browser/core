@@ -29,11 +29,11 @@ namespace Midori {
 
             spinner = new Gtk.Spinner ();
             spinner.active = true;
-            box.add (spinner);
+            box.pack_start (spinner, false, false, 0);
             label = new Gtk.Label (null);
             label.set_alignment (0.0f, 0.5f);
             label.set_padding (0, 0);
-            box.add (label);
+            box.pack_start (label, true, true, 0);
             close = new Gtk.Button ();
             close.relief = Gtk.ReliefStyle.NONE;
             close.focus_on_click = false;
@@ -45,10 +45,10 @@ namespace Midori {
             close.add (icon);
             align = new Gtk.Alignment (1.0f, 0.5f, 0.0f, 0.0f);
             align.add (close);
-            box.add (align);
+            box.pack_start (align, false, false, 0);
             close.clicked.connect (close_clicked);
             icon = new Gtk.Image.from_gicon (new ThemedIcon.with_default_fallbacks ("text-html-symbolic"), Gtk.IconSize.MENU);
-            box.add (icon);
+            box.pack_start (icon, false, false, 0);
             box.show_all ();
 
             tab.notify["uri"].connect (uri_changed);
