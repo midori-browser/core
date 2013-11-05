@@ -25,6 +25,7 @@ namespace Tabby {
         public abstract void add_item (Katze.Item item);
         public abstract void attach (Midori.Browser browser);
         public abstract void restore (Midori.Browser browser);
+        public abstract void remove ();
         public abstract void close ();
     }
 
@@ -88,6 +89,8 @@ namespace Tabby {
             public abstract void tab_removed (Midori.Browser browser, Midori.View view);
             public abstract void tab_switched (Midori.View? old_view, Midori.View? new_view);
             public abstract void tab_reordered (Gtk.Widget tab, uint pos);
+
+            public abstract void remove ();
 
             public abstract Katze.Array get_tabs ();
             public abstract double? get_max_sorting ();
@@ -416,6 +419,25 @@ namespace Tabby {
                 item.set_meta_string ("sorting", sorting.to_string ());
             }
 
+            public override void remove() {
+                string sqlcmd = "DELETE FROM `tabs` WHERE session_id = :session_id;";
+                Sqlite.Statement stmt;
+                if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
+                    critical (_("Failed to update database: %s"), db.errmsg ());
+                stmt.bind_int64 (stmt.bind_parameter_index (":session_id"), this.id);
+
+                if (stmt.step () != Sqlite.DONE)
+                    critical (_("Failed to update database: %s"), db.errmsg ());
+
+                sqlcmd = "DELETE FROM `sessions` WHERE id = :session_id;";
+                if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
+                    critical (_("Failed to update database: %s"), db.errmsg ());
+                stmt.bind_int64 (stmt.bind_parameter_index (":session_id"), this.id);
+
+                if (stmt.step () != Sqlite.DONE)
+                    critical (_("Failed to update database: %s"), db.errmsg ());
+            }
+
             public override void close() {
                 base.close ();
 
@@ -639,6 +661,10 @@ namespace Tabby {
                 GLib.warning ("missing session");
             } else {
                 session.close ();
+                if (browser.destroy_with_parent) {
+                    /* remove js popup sessions */
+                    session.remove ();
+                }
             }
         }
 
