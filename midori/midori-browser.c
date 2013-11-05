@@ -5636,7 +5636,6 @@ midori_inactivity_timeout (gpointer data)
         XScreenSaverQueryInfo (xdisplay, RootWindow (xdisplay, 0), mit_info);
         if (mit_info->idle / 1000 > mit->timeout)
         {
-            GtkWidget* view;
             midori_private_data_clear_all (mit->browser);
             midori_browser_activate_action (mit->browser, "Homepage");
         }
