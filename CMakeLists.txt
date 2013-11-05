@@ -245,7 +245,7 @@ if (EXTRA_WARNINGS)
         -Wshadow -Wpointer-arith -Wcast-align
         -Winline -Wformat-security -fno-common
         -Winit-self -Wundef
-        -Wmissing-format-attribute -Wnested-externs
+        -Wnested-externs
     )
     string(REPLACE ";" " " EXTRA_CFLAGS "${EXTRA_CFLAGS_LIST}")
     set(CFLAGS "${CFLAGS} ${EXTRA_CFLAGS}")
