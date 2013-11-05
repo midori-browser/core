@@ -2052,7 +2052,6 @@ midori_browser_key_press_event (GtkWidget*   widget,
     MidoriBrowser* browser = MIDORI_BROWSER (widget);
     GtkWidgetClass* widget_class;
     guint clean_state;
-    GtkWidget* focus;
 
     /* Interpret Ctrl(+Shift)+Tab as tab switching for compatibility */
     if (midori_browser_get_nth_tab (browser, 1) != NULL
@@ -2084,7 +2083,7 @@ midori_browser_key_press_event (GtkWidget*   widget,
     }
 
 #ifndef HAVE_WEBKIT2
-    focus = gtk_window_get_focus (GTK_WINDOW (widget));
+    GtkWidget* focus = gtk_window_get_focus (GTK_WINDOW (widget));
     if (focus == NULL)
         gtk_widget_grab_focus (midori_browser_get_current_tab (MIDORI_BROWSER (widget)));
     else if (G_OBJECT_TYPE (focus) == WEBKIT_TYPE_WEB_VIEW
@@ -3802,8 +3801,9 @@ _action_navigation_activate (GtkAction*     action,
             WebKitWebHistoryItem* item = webkit_web_back_forward_list_get_forward_item (list);
             const gchar* back_uri = webkit_web_history_item_get_uri (item);
             #endif
-            GtkWidget* view = midori_browser_add_uri (browser, back_uri);
-            midori_browser_set_current_tab_smartly (browser, view);
+
+            GtkWidget* new_view = midori_browser_add_uri (browser, back_uri);
+            midori_browser_set_current_tab_smartly (browser, new_view);
         }
         else
             midori_view_go_back (view);
@@ -3824,8 +3824,9 @@ _action_navigation_activate (GtkAction*     action,
             WebKitWebHistoryItem* item = webkit_web_back_forward_list_get_forward_item (list);
             const gchar* forward_uri = webkit_web_history_item_get_uri (item);
             #endif
-            GtkWidget* view = midori_browser_add_uri (browser, forward_uri);
-            midori_browser_set_current_tab_smartly (browser, view);
+
+            GtkWidget* new_view = midori_browser_add_uri (browser, forward_uri);
+            midori_browser_set_current_tab_smartly (browser, new_view);
         }
         else
           midori_tab_go_forward (MIDORI_TAB (view));
@@ -3839,8 +3840,8 @@ _action_navigation_activate (GtkAction*     action,
 
         if (middle_click)
         {
-            GtkWidget* view = midori_browser_add_uri (browser, uri);
-            midori_browser_set_current_tab_smartly (browser, view);
+            GtkWidget* new_view = midori_browser_add_uri (browser, uri);
+            midori_browser_set_current_tab_smartly (browser, new_view);
         }
         else
             midori_view_set_uri (view, uri);
@@ -3855,8 +3856,8 @@ _action_navigation_activate (GtkAction*     action,
 
         if (middle_click)
         {
-            GtkWidget* view = midori_browser_add_uri (browser, uri);
-            midori_browser_set_current_tab_smartly (browser, view);
+            GtkWidget* new_view = midori_browser_add_uri (browser, uri);
+            midori_browser_set_current_tab_smartly (browser, new_view);
         }
         else
             midori_view_set_uri (view, uri);
@@ -3868,8 +3869,8 @@ _action_navigation_activate (GtkAction*     action,
     {
         if (middle_click)
         {
-            GtkWidget* view = midori_browser_add_uri (browser, "about:home");
-            midori_browser_set_current_tab_smartly (browser, view);
+            GtkWidget* new_view = midori_browser_add_uri (browser, "about:home");
+            midori_browser_set_current_tab_smartly (browser, new_view);
         }
         else
             midori_view_set_uri (view, "about:home");
@@ -3965,7 +3966,6 @@ _action_location_submit_uri (GtkAction*     action,
                              MidoriBrowser* browser)
 {
     gchar* new_uri;
-    gint n;
 
     /* Switch to already open tab if possible */
     KatzeItem* found = katze_array_find_uri (browser->proxy_array, uri);
@@ -4241,7 +4241,6 @@ midori_browser_bookmark_open_in_tab_activate_cb (GtkWidget*     menuitem,
 {
     KatzeItem* item;
     const gchar* uri;
-    guint n;
 
     item = (KatzeItem*)g_object_get_data (G_OBJECT (menuitem), "KatzeItem");
     if (KATZE_IS_ARRAY (item))
@@ -6542,6 +6541,7 @@ _midori_browser_set_toolbar_style (MidoriBrowser*     browser,
                                     gtk_toolbar_style);
 }
 
+#ifndef HAVE_WEBKIT2
 static void
 midori_browser_toolbar_popup_context_menu_history_cb (GtkMenuItem* menu_item,
                                                       MidoriBrowser* browser)
@@ -6550,6 +6550,7 @@ midori_browser_toolbar_popup_context_menu_history_cb (GtkMenuItem* menu_item,
     MidoriView* view = MIDORI_VIEW (midori_browser_get_current_tab (browser));
     midori_view_go_back_or_forward (view, steps);
 }
+#endif
 
 static void
 midori_browser_toolbar_popup_context_menu_history (MidoriBrowser* browser,

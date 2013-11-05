@@ -28,12 +28,22 @@ execute_process(COMMAND "bzr" "revno"
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 if (REVISION)
     set(VERSION "${VERSION}~r${REVISION}")
+    # All warnings are errors in development builds
+    set(VALAFLAGS ${VALAFLAGS} --fatal-warnings)
+    set(CFLAGS "${CFLAGS}")
 endif ()
 add_definitions("-DPACKAGE_VERSION=\"${VERSION}\"")
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 # Disallow building during install to avoid permission problems
 set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY 1)
+
+find_package(Vala REQUIRED)
+vala_require("0.16.0")
+set(VALAFLAGS ${VALAFLAGS}
+    --enable-deprecated
+    --debug
+    )
 
 include(GNUInstallDirs)
 set(DATADIR ${CMAKE_INSTALL_FULL_DATADIR})
@@ -120,8 +130,12 @@ if (${DEPS_libsoup-gnome-2.4_VERSION} VERSION_GREATER "2.37.1")
     add_definitions("-DHAVE_LIBSOUP_2_37_1")
 endif ()
 if (${DEPS_libsoup-gnome-2.4_VERSION} VERSION_GREATER "2.40.0")
-    add_definitions("-DHAVE_LIBSOUP_2_40_0")
-    set(VALAFLAGS ${VALAFLAGS} -D HAVE_LIBSOUP_2_40_0)
+    # valac 0.16 didn't have the bindings yet
+    # For consistency we need to ensure C code makes the same assumptions
+    if (${VALA_VERSION} VERSION_GREATER "0.17.0")
+        add_definitions("-DHAVE_LIBSOUP_2_40_0")
+        set(VALAFLAGS ${VALAFLAGS} -D HAVE_LIBSOUP_2_40_0)
+    endif ()
 endif ()
 
 if (WIN32)
@@ -140,6 +154,7 @@ option(HALF_BRO_INCOM_WEBKIT2 "Serve as a guniea pig" OFF)
 option(USE_ZEITGEIST "Zeitgeist history integration" ON)
 option(USE_GRANITE "Fancy notebook and pop-overs" OFF)
 option(USE_APIDOCS "API documentation" OFF)
+option(EXTRA_WARNINGS "Additional compiler warnings" OFF)
 
 # GTK+3 is implied here, whether set or not
 if (USE_GRANITE OR HALF_BRO_INCOM_WEBKIT2)
@@ -218,18 +233,33 @@ else ()
     set(EXTRA_VAPIS ${EXTRA_VAPIS} "${CMAKE_SOURCE_DIR}/midori/webkitgtk-3.0.vapi")
 endif ()
 
-find_package(Vala REQUIRED)
-vala_require("0.16.0")
-set(VALAFLAGS ${VALAFLAGS}
-    --enable-deprecated
-    --debug
-    )
-
 # dh_translations detects this if there's no variable used
 set (GETTEXT_PACKAGE "midori")
 add_definitions("-DGETTEXT_PACKAGE=\"${GETTEXT_PACKAGE}\"")
 
-set(CFLAGS "-Wall -Wundef -Wno-deprecated-declarations -g")
+set(CFLAGS "${CFLAGS} -Wall -Wundef -Wno-deprecated-declarations -g")
+
+if (EXTRA_WARNINGS)
+    LIST(APPEND EXTRA_CFLAGS_LIST
+        -Wextra
+        -Wno-unused-parameter
+        -Wno-missing-field-initializers
+        -Wno-comment
+        -Waggregate-return
+        -Wredundant-decls
+        -Wshadow -Wpointer-arith -Wcast-align
+        -Winline -Wformat-security -fno-common
+        -Winit-self -Wundef
+        -Wnested-externs
+    )
+    string(REPLACE ";" " " EXTRA_CFLAGS "${EXTRA_CFLAGS_LIST}")
+    set(CFLAGS "${CFLAGS} ${EXTRA_CFLAGS}")
+else ()
+    if (REVISION)
+        set(CFLAGS "${CFLAGS} -Werror")
+    endif()
+endif ()
+
 set(VALA_CFLAGS "-w -g")
 set(LIBMIDORI "${CMAKE_PROJECT_NAME}-core")
 

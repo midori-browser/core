@@ -633,7 +633,6 @@ midori_preferences_add_extension_category (KatzePreferences*  preferences,
                                            MidoriApp*         app)
 {
     KatzeArray* array;
-    gchar* extension_path;
     GtkWidget* scrolled;
     GtkWidget* addon;
     GList* children;

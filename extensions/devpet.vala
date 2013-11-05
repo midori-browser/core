@@ -74,6 +74,7 @@ namespace DevPet {
             this.destroy ();
         }
 
+        #if HAVE_EXECINFO_H
         private void row_activated (Gtk.TreePath path, Gtk.TreeViewColumn column) {
             Gtk.TreeIter iter;
             if (this.manager.list_store.get_iter (out iter, path)) {
@@ -87,6 +88,7 @@ namespace DevPet {
                 data_window.show ();
             }
         }
+        #endif
 
         private void create_content () {
             this.title = "Midori - DevPet";

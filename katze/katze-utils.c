@@ -335,7 +335,6 @@ katze_app_info_get_all_for_category (const gchar* category)
     GList* all_apps = g_app_info_get_all ();
     #endif
     GList* apps = NULL;
-    GAppInfo* info;
     GList* app;
     for (app = apps; app; app = g_list_next (app))
     {
@@ -394,7 +393,7 @@ proxy_populate_apps (GtkWidget* widget)
         GList* app;
         for (app = apps; app; app = g_list_next (app))
         {
-            GAppInfo* info = app->data;
+            info = app->data;
             const gchar* name = g_app_info_get_name (info);
             GIcon* icon = g_app_info_get_icon (info);
             gchar* icon_name;

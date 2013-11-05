@@ -10,8 +10,10 @@
 */
 
 namespace Sokoke {
+#if !HAVE_WEBKIT2
     extern static bool show_uri (Gdk.Screen screen, string uri, uint32 timestamp) throws Error;
     extern static bool message_dialog (Gtk.MessageType type, string short, string detailed, bool modal);
+#endif
 }
 
 namespace Midori {
@@ -263,8 +265,7 @@ namespace Midori {
         }
 
         public static string? get_extension_for_uri (string uri, out string basename = null) {
-            if (&basename != null)
-                basename = null;
+            basename = null;
             /* Find the last slash and the last period *after* the last slash. */
             int last_slash = uri.last_index_of_char ('/');
             /* Huh, URI without slashes? */
@@ -277,8 +278,7 @@ namespace Midori {
             int query = uri.last_index_of_char ('?', period);
             /* The extension, or "." if it ended with a period */
             string extension = uri.substring (period, query - period);
-            if (&basename != null)
-                basename = uri.substring (0, period);
+            basename = uri.substring (0, period);
             return extension;
 
         }
