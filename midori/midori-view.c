@@ -2547,6 +2547,7 @@ midori_view_get_page_context_action (MidoriView*          view,
             midori_context_action_add_by_name (menu, "AddSpeedDial");
         midori_context_action_add_by_name (menu, "SaveAs");
         midori_context_action_add_by_name (menu, "SourceView");
+        midori_context_action_add_by_name (menu, "SourceViewDom");
         if (!g_object_get_data (G_OBJECT (browser), "midori-toolbars-visible"))
             midori_context_action_add_by_name (menu, "Navigationbar");
         if (state & GDK_WINDOW_STATE_FULLSCREEN)
@@ -4916,9 +4917,10 @@ midori_view_can_zoom_out (MidoriView* view)
  * Since: 0.4.4
  **/
 gchar*
-midori_view_save_source (MidoriView* view,
+midori_view_save_source (MidoriView*  view,
                          const gchar* uri,
-                         const gchar* outfile)
+                         const gchar* outfile,
+                         gboolean     use_dom)
 {
 #ifndef HAVE_WEBKIT2
     WebKitWebFrame *frame;
@@ -4932,8 +4934,24 @@ midori_view_save_source (MidoriView* view,
     g_return_val_if_fail (MIDORI_IS_VIEW (view), NULL);
 
     frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view));
-    data_source = webkit_web_frame_get_data_source (frame);
-    data = webkit_web_data_source_get_data (data_source);
+
+    if (use_dom)
+    {
+        WebKitDOMDocument* doc;
+
+        #if WEBKIT_CHECK_VERSION (1, 9, 5)
+        doc = webkit_web_frame_get_dom_document (frame);
+        #else
+        doc = webkit_web_view_get_dom_document (view->web_view);
+        #endif
+
+        WebKitDOMElement* root = webkit_dom_document_query_selector (doc, ":root", NULL);
+        const gchar* content = webkit_dom_html_element_get_outer_html (root);
+        data = g_string_new (content);
+    } else {
+        data_source = webkit_web_frame_get_data_source (frame);
+        data = webkit_web_data_source_get_data (data_source);
+    }
 
     if (uri == NULL)
         uri = midori_view_get_display_uri (view);

@@ -43,7 +43,7 @@ browser_create (void)
     midori_settings_set_download_folder (MIDORI_SETTINGS (settings), temporary_downloads);
     midori_browser_save_uri (browser, MIDORI_VIEW (view), NULL);
 
-    filename = midori_view_save_source (MIDORI_VIEW (view), NULL, NULL);
+    filename = midori_view_save_source (MIDORI_VIEW (view), NULL, NULL, FALSE);
     filename2 = g_filename_from_uri (uri, NULL, NULL);
     g_assert_cmpstr (filename, ==, filename2);
     g_free (filename);

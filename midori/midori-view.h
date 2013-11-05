@@ -195,7 +195,8 @@ midori_view_can_view_source            (MidoriView*        view);
 gchar*
 midori_view_save_source                (MidoriView*        view,
                                         const gchar*       uri,
-                                        const gchar*       outfile);
+                                        const gchar*       outfile,
+                                        gboolean           use_dom);
 
 void
 midori_view_search_text                (MidoriView*        view,
