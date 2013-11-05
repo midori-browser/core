@@ -4946,7 +4946,7 @@ midori_view_save_source (MidoriView*  view,
         #endif
 
         WebKitDOMElement* root = webkit_dom_document_query_selector (doc, ":root", NULL);
-        const gchar* content = webkit_dom_html_element_get_outer_html (root);
+        const gchar* content = webkit_dom_html_element_get_outer_html (WEBKIT_DOM_HTML_ELEMENT (root));
         data = g_string_new (content);
     } else {
         data_source = webkit_web_frame_get_data_source (frame);
