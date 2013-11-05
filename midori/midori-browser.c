@@ -5445,7 +5445,7 @@ static const GtkActionEntry entries[] =
         N_("View So_urce"), "<Ctrl><Alt>U",
         NULL, G_CALLBACK (_action_source_view_activate) },
     { "SourceViewDom", NULL,
-        N_("View DOM Source"), "<Ctrl><Alt><Shift>U",
+        N_("View _DOM Source"), "<Ctrl><Alt><Shift>U",
         NULL, G_CALLBACK (_action_source_view_dom_activate) },
     { "CaretBrowsing", NULL,
         N_("Ca_ret Browsing"), "F7",
