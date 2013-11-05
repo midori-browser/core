@@ -11,6 +11,8 @@
 
 namespace Tabby {
     int IDLE_RESTORE_COUNT = 13;
+    /* FixMe: don't use a global object */
+    Midori.App? APP;
 
     /* function called from Manager object */
     public interface IStorage : GLib.Object {
@@ -301,7 +303,6 @@ namespace Tabby {
 
     namespace Local {
         private class Session : Base.Session {
-            public static int open_sessions = 0;
             public int64 id { get; private set; }
             private unowned Sqlite.Database db;
 
@@ -419,8 +420,19 @@ namespace Tabby {
             public override void close() {
                 base.close ();
 
-                if (Session.open_sessions == 1)
-                    return;
+                bool should_break = true;
+                if (!this.browser.destroy_with_parent) {
+                    foreach (Midori.Browser browser in APP.get_browsers ()) {
+                        if (browser != this.browser && !browser.destroy_with_parent) {
+                            should_break = false;
+                            break;
+                        }
+                    }
+
+                    if (should_break) {
+                        return;
+                    }
+                }
 
                 GLib.DateTime time = new DateTime.now_local ();
                 string sqlcmd = "UPDATE `sessions` SET closed = 1, tstamp = :tstamp WHERE id = :session_id;";
@@ -517,15 +529,6 @@ namespace Tabby {
                 if (stmt.step () != Sqlite.DONE)
                     critical (_("Failed to update database: %s"), db.errmsg);
             }
-
-            construct {
-                Session.open_sessions++;
-            }
-
-            ~Session () {
-                Session.open_sessions--;
-            }
-
         }
 
         private class Storage : Base.Storage {
@@ -643,6 +646,7 @@ namespace Tabby {
         }
 
         private void activated (Midori.App app) {
+            APP = app;
             unowned string? restore_count = GLib.Environment.get_variable ("TABBY_RESTORE_COUNT");
             if (restore_count != null) {
                 int count = int.parse (restore_count);
