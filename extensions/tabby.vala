@@ -536,7 +536,7 @@ namespace Tabby {
                 Katze.Array sessions = new Katze.Array (typeof (Session));
 
                 string sqlcmd = """
-                    SELECT * FROM (SELECT id, closed FROM sessions WHERE closed = 0)
+                    SELECT id, closed FROM sessions WHERE closed = 0
                     UNION
                     SELECT * FROM (SELECT id, closed FROM sessions WHERE closed = 1 ORDER BY tstamp DESC LIMIT 1)
                     ORDER BY closed;
