@@ -535,7 +535,12 @@ namespace Tabby {
             public override Katze.Array get_sessions () {
                 Katze.Array sessions = new Katze.Array (typeof (Session));
 
-                string sqlcmd = "SELECT id FROM sessions WHERE closed = 0;";
+                string sqlcmd = """
+                    SELECT id, closed FROM sessions WHERE closed = 0
+                    UNION
+                    SELECT * FROM (SELECT id, closed FROM sessions WHERE closed = 1 ORDER BY tstamp DESC LIMIT 1)
+                    ORDER BY closed;
+                """;
                 Sqlite.Statement stmt;
                 if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
                     critical (_("Failed to select from database: %s"), db.errmsg);
@@ -547,7 +552,10 @@ namespace Tabby {
 
                 while (result == Sqlite.ROW) {
                     int64 id = stmt.column_int64 (0);
-                    sessions.add_item (new Session.with_id (this.db, id));
+                    int64 closed = stmt.column_int64 (1);
+                    if (closed == 0 || sessions.is_empty ()) {
+                        sessions.add_item (new Session.with_id (this.db, id));
+                    }
                     result = stmt.step ();
                  }
  
