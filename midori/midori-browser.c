@@ -4635,11 +4635,15 @@ wrong_format:
     if (midori_dialog_run (GTK_DIALOG (file_dialog)) == GTK_RESPONSE_OK)
         path = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (file_dialog));
     gtk_widget_destroy (file_dialog);
+
+    if (path == NULL)
+        return;
+
     if (g_str_has_suffix (path, ".xbel"))
         format = "xbel";
     else if (g_str_has_suffix (path, ".html"))
         format = "netscape";
-    else if (path != NULL)
+    else
     {
         sokoke_message_dialog (GTK_MESSAGE_ERROR,
             _("Midori can only export to XBEL (*.xbel) and Netscape (*.html)"),
@@ -4647,9 +4651,6 @@ wrong_format:
         katze_assign (path, NULL);
         goto wrong_format;
     }
-
-    if (path == NULL)
-        return;
 
     error = NULL;
     bookmarks = midori_bookmarks_db_query_recursive (browser->bookmarks,
