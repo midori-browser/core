@@ -213,7 +213,7 @@ if (HALF_BRO_INCOM_WEBKIT2)
 elseif (USE_GTK3)
     pkg_check_modules(DEPS_GTK REQUIRED
                       gtk+-3.0>=3.0.0
-                      webkitgtk-3.0>=1.8.3
+                      webkitgtk-3.0>=1.8.1
                       javascriptcoregtk-3.0
                       )
     add_definitions("-DGTK_VERSION=\"${DEPS_GTK_gtk+-3.0_VERSION}\"")
@@ -224,7 +224,7 @@ elseif (USE_GTK3)
 else ()
     pkg_check_modules(DEPS_GTK REQUIRED
                       gtk+-2.0>=2.24.0
-                      webkit-1.0>=1.8.3
+                      webkit-1.0>=1.8.1
                       javascriptcoregtk-1.0
                       )
     add_definitions("-DGTK_VERSION=\"${DEPS_GTK_gtk+-2.0_VERSION}\"")
