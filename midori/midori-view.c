@@ -1734,7 +1734,10 @@ midori_view_web_view_button_press_event_cb (WebKitWebView*  web_view,
         return FALSE;
         break;
     case 3:
+        /* Older versions don't have the context-menu signal */
+        #if WEBKIT_CHECK_VERSION (1, 10, 0)
         if (event->state & GDK_CONTROL_MASK)
+        #endif
         {
             /* Ctrl + Right-click suppresses javascript button handling */
             GtkWidget* menu = gtk_menu_new ();
@@ -2595,6 +2598,7 @@ midori_view_populate_popup (MidoriView* view,
     midori_context_action_create_menu (context_action, GTK_MENU (menu), FALSE);
 }
 
+#if WEBKIT_CHECK_VERSION (1, 10, 0)
 static gboolean
 midori_view_web_view_context_menu_cb (WebKitWebView*       web_view,
                                       #ifdef HAVE_WEBKIT2
@@ -2623,6 +2627,7 @@ midori_view_web_view_context_menu_cb (WebKitWebView*       web_view,
     #endif
     return FALSE;
 }
+#endif
 
 #ifndef HAVE_WEBKIT2
 static gboolean
@@ -3571,8 +3576,10 @@ midori_view_constructor (GType                  type,
                       webkit_web_view_hovering_over_link_cb, view,
                       "signal::status-bar-text-changed",
                       webkit_web_view_statusbar_text_changed_cb, view,
+                      #if WEBKIT_CHECK_VERSION (1, 10, 0)
                       "signal::context-menu",
                       midori_view_web_view_context_menu_cb, view,
+                      #endif
                       "signal::console-message",
                       webkit_web_view_console_message_cb, view,
                       "signal::download-requested",
