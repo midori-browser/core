@@ -5219,9 +5219,19 @@ midori_view_print (MidoriView* view)
     GtkPrintSettings* settings = gtk_print_settings_new ();
     webkit_print_operation_set_print_settings (operation, settings);
     g_object_unref (settings);
-    webkit_print_operation_run_dialog (operation,
-        GTK_WINDOW (midori_browser_get_for_widget (view->web_view)));
+
+/* Code below edited by Isaac Smith for dialog-free printing */
+    if (katze_object_get_boolean (view->settings, "print-without-dialog")) {
+        webkit_print_operation_run (operation);
+    }
+    else {
+        webkit_print_operation_run_dialog (operation,
+            GTK_WINDOW (midori_browser_get_for_widget (view->web_view)));
+    }
     g_object_unref (operation);
+
+/* End of edited code */
+
 #else
     WebKitWebFrame* frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view));
     GtkPrintOperation* operation = gtk_print_operation_new ();
@@ -5230,8 +5240,15 @@ midori_view_print (MidoriView* view)
     g_signal_connect (operation, "create-custom-widget",
         G_CALLBACK (midori_view_print_create_custom_widget_cb), view);
     GError* error = NULL;
-    webkit_web_frame_print_full (frame, operation,
-        GTK_PRINT_OPERATION_ACTION_PRINT_DIALOG, &error);
+
+    if (katze_object_get_boolean (view->settings, "print-without-dialog")) {
+        webkit_web_frame_print_full (frame, operation,
+            GTK_PRINT_OPERATION_ACTION_PRINT, &error);
+    }
+    else {
+        webkit_web_frame_print_full (frame, operation,
+            GTK_PRINT_OPERATION_ACTION_PRINT_DIALOG, &error);
+    }
     g_object_unref (operation);
 
     if (error)
