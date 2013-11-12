@@ -4942,7 +4942,7 @@ midori_view_save_source (MidoriView*  view,
         #if WEBKIT_CHECK_VERSION (1, 9, 5)
         doc = webkit_web_frame_get_dom_document (frame);
         #else
-        doc = webkit_web_view_get_dom_document (view->web_view);
+        doc = webkit_web_view_get_dom_document (WEBKIT_WEB_VIEW (view->web_view));
         #endif
 
         WebKitDOMElement* root = webkit_dom_document_query_selector (doc, ":root", NULL);

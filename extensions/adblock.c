@@ -1541,7 +1541,9 @@ adblock_file_is_up_to_date (gchar* path)
 
         for (i = 0; i <= 15; i++)
         {
-            fgets (line, 2000, file);
+            if (!fgets (line, 2000, file))
+                break;
+
             if (strncmp ("! Expires", line, 9) == 0)
             {
                 gchar** parts = g_strsplit (line, " ", 4);
