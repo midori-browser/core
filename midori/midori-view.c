@@ -5220,7 +5220,6 @@ midori_view_print (MidoriView* view)
     webkit_print_operation_set_print_settings (operation, settings);
     g_object_unref (settings);
 
-/* Code below edited by Isaac Smith for dialog-free printing */
     if (katze_object_get_boolean (view->settings, "print-without-dialog")) {
         webkit_print_operation_run (operation);
     }
@@ -5230,7 +5229,6 @@ midori_view_print (MidoriView* view)
     }
     g_object_unref (operation);
 
-/* End of edited code */
 
 #else
     WebKitWebFrame* frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view));

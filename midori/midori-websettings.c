@@ -493,11 +493,6 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      FALSE,
                                      flags));
 
-    /**
-     * Added by Isaac Smith, probably horribly broken
-     * Whether to suppress print dialog box when printing.
-     */
-
     g_object_class_install_property (gobject_class,
                                      PROP_PRINT_WITHOUT_DIALOG,
                                      g_param_spec_boolean (
