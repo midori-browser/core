@@ -1199,6 +1199,13 @@ midori_view_display_error (MidoriView*     view,
         const gchar* icon;
         gchar* favicon;
         gchar* result;
+        gboolean is_main_frame;
+
+        #ifdef HAVE_WEBKIT2
+        is_main_frame = TRUE;
+        #else
+        is_main_frame = web_frame && (webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view)) == web_frame);
+        #endif
 
         #if !GTK_CHECK_VERSION (3, 0, 0)
         /* g_object_get_valist: object class `GtkSettings' has no property named `gtk-button-images' */
@@ -1226,6 +1233,7 @@ midori_view_display_error (MidoriView*     view,
             "{tryagain}", try_again,
             "{uri}", uri,
             "{hide-button-images}", show_button_images ? "" : "display:none",
+            "{autofocus}", is_main_frame ? "autofocus=\"true\" " : "",
             NULL);
         g_free (favicon);
         g_free (title_escaped);
@@ -1254,6 +1262,10 @@ webkit_web_view_load_error_cb (WebKitWebView*  web_view,
                                GError*         error,
                                MidoriView*     view)
 {
+    /*in WebKit2's UIProcess/API/gtk/WebKitLoaderClient.cpp,
+    didFailProvisionalLoadWithErrorForFrame early-returns if the frame isn't
+    main, so we know that the pertinent frame here is the view's main frame--so
+    it's safe for midori_view_display_error to assume it fills in a main frame*/
     #ifdef HAVE_WEBKIT2
     void* web_frame = NULL;
     #endif

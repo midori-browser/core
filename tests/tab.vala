@@ -259,6 +259,36 @@ void tab_download_dialog () {
     assert (!did_request_download);
 }
 
+void tab_scroll () {
+    /* ensure that no scrolls occur due to error iframes */
+    var markup = "<style>p{height: 90%}</style><p></p><iframe src=\"http://.invalid/\" height=\"90%\"/>";
+    Midori.Test.grab_max_timeout ();
+
+    Midori.Test.idle_timeouts ();
+    Midori.Test.log_set_fatal_handler_for_icons ();
+    var browser = new Midori.Browser ();
+    var settings = new Midori.WebSettings ();
+    browser.set ("settings", settings);
+    var loop = MainContext.default ();
+    do { loop.iteration (true); } while (loop.pending ());
+    for (var i = 0 ; i < 7; i++) {
+        var tab = browser.add_uri ("data:text/html;charset=utf-8;base64," + 
+                                       GLib.Base64.encode (markup.data)) as Midori.Tab;
+        #if HAVE_GTK3
+        var vadj = (tab.web_view as Gtk.Scrollable).get_vadjustment ();
+        #else
+        var vadj = (tab.web_view.get_parent () as Gtk.ScrolledWindow).get_vadjustment ();
+        #endif
+        vadj.value_changed.connect ((vadj) => {
+            assert(vadj.get_value () == vadj.get_lower ());
+        });
+        do { loop.iteration (true); } while (tab.progress != 0.0);
+        browser.close_tab (tab as Midori.View);
+    }
+
+    Midori.Test.release_max_timeout ();
+}
+
 void main (string[] args) {
     Test.init (ref args);
     Midori.App.setup (ref args, null);
@@ -274,6 +304,7 @@ void main (string[] args) {
     Test.add_func ("/tab/http", tab_http);
     Test.add_func ("/tab/movement", tab_movement);
     Test.add_func ("/tab/download", tab_download_dialog);
+    Test.add_func ("/tab/scroll", tab_scroll);
     Test.run ();
 }
 
