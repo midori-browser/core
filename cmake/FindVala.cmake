@@ -1,12 +1,12 @@
 # Copyright (C) 2013 Christian Dywan <christian@twotoasts.de>
 
 find_program(VALA_EXECUTABLE NAMES $ENV{VALAC} valac)
-if (NOT VALA_NOTFOUND)
+if (VALA_EXECUTABLE)
     execute_process(COMMAND ${VALA_EXECUTABLE} "--version" OUTPUT_VARIABLE "VALA_VERSION")
     string(REPLACE "Vala " "" VALA_VERSION ${VALA_VERSION})
     string(STRIP ${VALA_VERSION} VALA_VERSION)
 else ()
-    message(FATAL_ERROR "valac not found")
+    message(FATAL_ERROR "valac not found - re-run with VALAC=valac-0.20 with an available valac version")
 endif ()
 
 macro(vala_require VALA_REQUIRED)
