@@ -6,7 +6,7 @@ if (VALA_EXECUTABLE)
     string(REPLACE "Vala " "" VALA_VERSION ${VALA_VERSION})
     string(STRIP ${VALA_VERSION} VALA_VERSION)
 else ()
-    message(FATAL_ERROR "valac not found - re-run with VALAC=valac-0.20 with an available valac version")
+    message(FATAL_ERROR "valac not found - install Vala compiler or specify compiler name eg. VALAC=valac-0.20")
 endif ()
 
 macro(vala_require VALA_REQUIRED)
