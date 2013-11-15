@@ -5485,8 +5485,8 @@ static const GtkActionEntry entries[] =
         /* i18n: Visit the following logical page, ie. in a forum or blog */
         N_("Go to the next sub-page"), G_CALLBACK (_action_navigation_activate) },
     { "NextForward", GTK_STOCK_MEDIA_NEXT,
-        NULL, "",
-        N_("Go to the next sub-page"), G_CALLBACK (_action_navigation_activate) },
+        N_("Next or Forward"), "",
+        N_("Go to the next sub-page or next page in history"), G_CALLBACK (_action_navigation_activate) },
     { "Homepage", GTK_STOCK_HOME,
         N_("_Homepage"), "<Alt>Home",
         N_("Go to your homepage"), G_CALLBACK (_action_navigation_activate) },
