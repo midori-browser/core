@@ -270,6 +270,16 @@ gtk-toolbar-style = GTK_TOOLBAR_ICONS
 gtk-toolbar-icon-size = GTK_ICON_SIZE_MENU
 _EOF
 
+mkdir -p $workdir/etc/midori
+
+cat >> $workdir/etc/midori/config << _EOF
+[settings]
+default-font-family=Times New Roman
+monospace-font-family=Courier New
+default-font-size=14
+default-monospace-font-size=14
+_EOF
+
 popd > /dev/null
 
 echo "<*> Copying docs..."
