@@ -677,7 +677,7 @@ namespace Tabby {
                 int load_on_startup;
                 APP.settings.get ("load-on-startup", out load_on_startup);
 
-                if (browser.destroy_with_parent)
+                if (browser.destroy_with_parent
                  || load_on_startup < Midori.MidoriStartup.LAST_OPEN_PAGES) {
                     /* Remove js popups and close if not restoring on startup */
                     session.remove ();
