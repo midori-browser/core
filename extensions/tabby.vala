@@ -696,7 +696,21 @@ namespace Tabby {
             app.add_browser.connect (this.browser_added);
             app.remove_browser.connect (this.browser_removed);
 
-            GLib.Idle.add (this.load_session);
+            /* Using get here to avoid MidoriMidoriStartup in generated C with Vala 0.20.1 */
+            int load_on_startup;
+            app.settings.get ("load-on-startup", out load_on_startup);
+            if (load_on_startup == Midori.MidoriStartup.BLANK_PAGE) {
+                var browser = app.create_browser ();
+                app.add_browser (browser);
+                browser.add_uri ("about:blank");
+                browser.show ();
+            } else if (load_on_startup == Midori.MidoriStartup.HOMEPAGE) {
+                var browser = app.create_browser ();
+                app.add_browser (browser);
+                browser.add_uri ("about:home");
+                browser.show ();
+            } else
+                GLib.Idle.add (this.load_session);
         }
 
         internal Manager () {
