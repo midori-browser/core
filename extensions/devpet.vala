@@ -148,7 +148,8 @@ namespace DevPet {
 
         public void clear_list() {
             this.icon_flag = GLib.LogLevelFlags.LEVEL_DEBUG;
-            this.trayicon.set_visible (false);
+            if(this.trayicon != null)
+                this.trayicon.set_visible (false);
             this.list_store.clear ();
         }
 
@@ -165,9 +166,20 @@ namespace DevPet {
             return Gtk.Stock.DIALOG_INFO;
         }
 
+        private void ensure_trayicon() {
+            if(this.trayicon != null)
+                return;
+
+            this.trayicon = new Gtk.StatusIcon ();
+            this.trayicon.set_tooltip_text ("Midori - DevPet");
+            this.trayicon.activate.connect(this.show_error_log);
+        }
+
         private void log_handler(string? domain, GLib.LogLevelFlags flags, string message) {
             Gtk.TreeIter iter;
             unowned string stock = this.get_stock_from_log_level (flags);
+
+            this.ensure_trayicon();
 
             if (flags < this.icon_flag) {
                 this.icon_flag = flags;
@@ -213,21 +225,15 @@ namespace DevPet {
         }
 
         private void activated (Midori.App app) {
-            if (this.trayicon == null) {
-                this.trayicon = new Gtk.StatusIcon ();
-                this.trayicon.set_tooltip_text ("Midori - DevPet");
-                this.trayicon.activate.connect(this.show_error_log);
-            }
-
-            Gtk.TreeIter iter;
-            this.trayicon.set_visible (this.list_store.get_iter_first (out iter));
-
             this.default_log_func = GLib.Log.default_handler;
             GLib.Log.set_default_handler (this.log_handler);
         }
 
         private void deactivated () {
-            this.trayicon.set_visible (false);
+            if(this.trayicon != null)
+                this.trayicon.set_visible (false);
+            this.list_store.clear();
+
             GLib.Log.set_default_handler (this.default_log_func);
         }
 
