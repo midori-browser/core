@@ -354,7 +354,7 @@ namespace Midori {
                 return path;
 
             /* Fallback to build folder */
-            File? parent = File.new_for_path (exec_path).get_parent ();
+            File? parent = File.new_for_path (exec_path);
             while (parent != null) {
                 var data = parent.get_child ("data");
                 var child = data.get_child (filename);

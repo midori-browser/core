@@ -422,8 +422,6 @@ midori_search_action_icon_released_cb (GtkWidget*           entry,
     {
         KATZE_ARRAY_FOREACH_ITEM (item, search_engines)
         {
-            const gchar* icon_name;
-
             menuitem = gtk_image_menu_item_new_with_label (
                 katze_item_get_name (item));
             image = gtk_image_new ();

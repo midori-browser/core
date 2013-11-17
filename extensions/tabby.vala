@@ -10,6 +10,10 @@
 */
 
 namespace Tabby {
+    int IDLE_RESTORE_COUNT = 13;
+    /* FixMe: don't use a global object */
+    Midori.App? APP;
+
     /* function called from Manager object */
     public interface IStorage : GLib.Object {
         public abstract Katze.Array get_sessions ();
@@ -23,6 +27,7 @@ namespace Tabby {
         public abstract void add_item (Katze.Item item);
         public abstract void attach (Midori.Browser browser);
         public abstract void restore (Midori.Browser browser);
+        public abstract void remove ();
         public abstract void close ();
     }
 
@@ -87,6 +92,8 @@ namespace Tabby {
             public abstract void tab_switched (Midori.View? old_view, Midori.View? new_view);
             public abstract void tab_reordered (Gtk.Widget tab, uint pos);
 
+            public abstract void remove ();
+
             public abstract Katze.Array get_tabs ();
             public abstract double? get_max_sorting ();
 
@@ -144,7 +151,7 @@ namespace Tabby {
                     /* Note: we need to use `items` for something to maintain a valid reference */
                     GLib.PtrArray new_tabs = new GLib.PtrArray ();
                     if (items.length () > 0) {
-                        for (int i = 0; i < 3; i++) {
+                        for (int i = 0; i < IDLE_RESTORE_COUNT; i++) {
                             if (u_items == null) {
                                 this.helper_reorder_tabs (new_tabs);
                                 this.state = SessionState.OPEN;
@@ -299,7 +306,6 @@ namespace Tabby {
 
     namespace Local {
         private class Session : Base.Session {
-            public static int open_sessions = 0;
             public int64 id { get; private set; }
             private unowned Sqlite.Database db;
 
@@ -414,11 +420,41 @@ namespace Tabby {
                 item.set_meta_string ("sorting", sorting.to_string ());
             }
 
+            public override void remove() {
+                string sqlcmd = "DELETE FROM `tabs` WHERE session_id = :session_id;";
+                Sqlite.Statement stmt;
+                if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
+                    critical (_("Failed to update database: %s"), db.errmsg ());
+                stmt.bind_int64 (stmt.bind_parameter_index (":session_id"), this.id);
+
+                if (stmt.step () != Sqlite.DONE)
+                    critical (_("Failed to update database: %s"), db.errmsg ());
+
+                sqlcmd = "DELETE FROM `sessions` WHERE id = :session_id;";
+                if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
+                    critical (_("Failed to update database: %s"), db.errmsg ());
+                stmt.bind_int64 (stmt.bind_parameter_index (":session_id"), this.id);
+
+                if (stmt.step () != Sqlite.DONE)
+                    critical (_("Failed to update database: %s"), db.errmsg ());
+            }
+
             public override void close() {
                 base.close ();
 
-                if (Session.open_sessions == 1)
-                    return;
+                bool should_break = true;
+                if (!this.browser.destroy_with_parent) {
+                    foreach (Midori.Browser browser in APP.get_browsers ()) {
+                        if (browser != this.browser && !browser.destroy_with_parent) {
+                            should_break = false;
+                            break;
+                        }
+                    }
+
+                    if (should_break) {
+                        return;
+                    }
+                }
 
                 GLib.DateTime time = new DateTime.now_local ();
                 string sqlcmd = "UPDATE `sessions` SET closed = 1, tstamp = :tstamp WHERE id = :session_id;";
@@ -515,15 +551,6 @@ namespace Tabby {
                 if (stmt.step () != Sqlite.DONE)
                     critical (_("Failed to update database: %s"), db.errmsg);
             }
-
-            construct {
-                Session.open_sessions++;
-            }
-
-            ~Session () {
-                Session.open_sessions--;
-            }
-
         }
 
         private class Storage : Base.Storage {
@@ -533,7 +560,12 @@ namespace Tabby {
             public override Katze.Array get_sessions () {
                 Katze.Array sessions = new Katze.Array (typeof (Session));
 
-                string sqlcmd = "SELECT id FROM sessions WHERE closed = 0;";
+                string sqlcmd = """
+                    SELECT id, closed FROM sessions WHERE closed = 0
+                    UNION
+                    SELECT * FROM (SELECT id, closed FROM sessions WHERE closed = 1 ORDER BY tstamp DESC LIMIT 1)
+                    ORDER BY closed;
+                """;
                 Sqlite.Statement stmt;
                 if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
                     critical (_("Failed to select from database: %s"), db.errmsg);
@@ -545,7 +577,10 @@ namespace Tabby {
 
                 while (result == Sqlite.ROW) {
                     int64 id = stmt.column_int64 (0);
-                    sessions.add_item (new Session.with_id (this.db, id));
+                    int64 closed = stmt.column_int64 (1);
+                    if (closed == 0 || sessions.is_empty ()) {
+                        sessions.add_item (new Session.with_id (this.db, id));
+                    }
                     result = stmt.step ();
                  }
  
@@ -637,10 +672,23 @@ namespace Tabby {
                 GLib.warning ("missing session");
             } else {
                 session.close ();
+                if (browser.destroy_with_parent) {
+                    /* remove js popup sessions */
+                    session.remove ();
+                }
             }
         }
 
         private void activated (Midori.App app) {
+            APP = app;
+            unowned string? restore_count = GLib.Environment.get_variable ("TABBY_RESTORE_COUNT");
+            if (restore_count != null) {
+                int count = int.parse (restore_count);
+                if (count >= 1) {
+                    IDLE_RESTORE_COUNT = count;
+                }
+            }
+
             /* FixMe: provide an option to replace Local.Storage with IStorage based Objects */
             this.storage = new Local.Storage (this.get_app ()) as Base.Storage;
 
@@ -657,7 +705,7 @@ namespace Tabby {
                          version: "0.1",
                          authors: "André Stösel <andre@stoesel.de>");
 
-            activate.connect (this.activated);
+            this.activate.connect (this.activated);
         }
     }
 }

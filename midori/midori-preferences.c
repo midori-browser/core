@@ -399,7 +399,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
         gchar* supports_web_gl = sokoke_js_script_eval (js_context,
             "!!window.WebGLRenderingContext", NULL);
         if (g_strcmp0 (supports_web_gl, "true"))
-            gtk_widget_set_sensitive (button, FALSE);
+            gtk_widget_hide (button);
         g_free (supports_web_gl);
     }
     #endif
@@ -633,7 +633,6 @@ midori_preferences_add_extension_category (KatzePreferences*  preferences,
                                            MidoriApp*         app)
 {
     KatzeArray* array;
-    gchar* extension_path;
     GtkWidget* scrolled;
     GtkWidget* addon;
     GList* children;

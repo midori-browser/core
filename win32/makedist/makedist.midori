@@ -39,8 +39,12 @@ temp_dir=`mktemp -d`
 # check if we can use 7zip
 have_7zip=`which 7za`
 
-grep -q gtk-3.0 _build/config.log && GTK3_BUILD=1
-version=`grep PACKAGE_VERSION _build/default/config.h | awk '{ print $3 $4; }' | sed 's@(debug)@-debug@g'|sed 's@"@@g'`
+GTK3=$(grep GTK3 CMakeCache.txt | awk -F \= '{print $2}')
+if [ "$GTK3" == "ON" ];then
+    GTK3_BUILD=1
+fi
+
+version=$(grep PACKAGE_VERSION ./midori/CMakeFiles/midori.dir/DependInfo.cmake|sed -e 's/^.*PACKAGE_VERSION=\\"\([^"]*\)\\".*$/\1/')
 
 #strip sha from version if release
 if [ "$RELEASE" != "" ];then
@@ -72,8 +76,8 @@ fi
 
 if [ "NSIS" != "" ];then
     where_am_i=$PWD
-    cp -a $where_am_i/win32/makedist/midori.nsi $temp_dir
-    cp -a $where_am_i/win32/makedist/midori.ico $temp_dir
+    cp -a $where_am_i/../win32/makedist/midori.nsi $temp_dir
+    cp -a $where_am_i/../win32/makedist/midori.ico $temp_dir
 fi
 
 # function: dll-recursive <list of exe and dll files ...>
@@ -264,6 +268,16 @@ fi
 cat >> $gtk_rc_file << _EOF
 gtk-toolbar-style = GTK_TOOLBAR_ICONS
 gtk-toolbar-icon-size = GTK_ICON_SIZE_MENU
+_EOF
+
+mkdir -p $workdir/etc/midori
+
+cat >> $workdir/etc/midori/config << _EOF
+[settings]
+default-font-family=Times New Roman
+monospace-font-family=Courier New
+default-font-size=14
+default-monospace-font-size=14
 _EOF
 
 popd > /dev/null
