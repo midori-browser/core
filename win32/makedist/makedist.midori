@@ -270,9 +270,9 @@ gtk-toolbar-style = GTK_TOOLBAR_ICONS
 gtk-toolbar-icon-size = GTK_ICON_SIZE_MENU
 _EOF
 
-mkdir -p $workdir/etc/midori
+mkdir -p $workdir/etc/xdg/midori
 
-cat >> $workdir/etc/midori/config << _EOF
+cat >> $workdir/etc/xdg/midori/config << _EOF
 [settings]
 default-font-family=Times New Roman
 monospace-font-family=Courier New
