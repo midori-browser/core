@@ -541,10 +541,8 @@ static void
 midori_view_update_load_status (MidoriView*      view,
                                 MidoriLoadStatus load_status)
 {
-    if (midori_tab_get_load_status (MIDORI_TAB (view)) == load_status)
-        return;
-
-    midori_tab_set_load_status (MIDORI_TAB (view), load_status);
+    if (midori_tab_get_load_status (MIDORI_TAB (view)) != load_status)
+        midori_tab_set_load_status (MIDORI_TAB (view), load_status);
 
     #ifdef HAVE_GRANITE
     if (view->tab)
@@ -901,11 +899,6 @@ midori_view_web_view_resource_request_cb (WebKitWebView*         web_view,
         GdkPixbuf* pixbuf;
         const gchar* icon_name = &uri[8] ? &uri[8] : "";
         gint icon_size = GTK_ICON_SIZE_MENU;
-        GdkScreen* screen = gtk_widget_get_screen (GTK_WIDGET (view));
-        GtkIconTheme* icon_theme = gtk_icon_theme_get_for_screen (screen);
-        gint real_icon_size;
-        GtkIconInfo* icon_info;
-        const gchar* icon_filename;
         static gint icon_size_large_dialog = 0;
 
         if (!icon_size_large_dialog)
@@ -1165,13 +1158,13 @@ midori_view_set_html (MidoriView*     view,
         uri = "about:blank";
 #ifndef HAVE_WEBKIT2
     WebKitWebFrame* main_frame = webkit_web_view_get_main_frame (web_view);
+    if (!web_frame)
+        web_frame = main_frame;
     if (web_frame == main_frame)
     {
         katze_item_set_uri (view->item, uri);
         midori_tab_set_special (MIDORI_TAB (view), TRUE);
     }
-    if (!web_frame)
-        web_frame = main_frame;
     webkit_web_frame_load_alternate_string (
         web_frame, data, uri, uri);
 #else
@@ -1206,6 +1199,13 @@ midori_view_display_error (MidoriView*     view,
         const gchar* icon;
         gchar* favicon;
         gchar* result;
+        gboolean is_main_frame;
+
+        #ifdef HAVE_WEBKIT2
+        is_main_frame = TRUE;
+        #else
+        is_main_frame = web_frame && (webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view)) == web_frame);
+        #endif
 
         #if !GTK_CHECK_VERSION (3, 0, 0)
         /* g_object_get_valist: object class `GtkSettings' has no property named `gtk-button-images' */
@@ -1233,6 +1233,7 @@ midori_view_display_error (MidoriView*     view,
             "{tryagain}", try_again,
             "{uri}", uri,
             "{hide-button-images}", show_button_images ? "" : "display:none",
+            "{autofocus}", is_main_frame ? "autofocus=\"true\" " : "",
             NULL);
         g_free (favicon);
         g_free (title_escaped);
@@ -1261,6 +1262,10 @@ webkit_web_view_load_error_cb (WebKitWebView*  web_view,
                                GError*         error,
                                MidoriView*     view)
 {
+    /*in WebKit2's UIProcess/API/gtk/WebKitLoaderClient.cpp,
+    didFailProvisionalLoadWithErrorForFrame early-returns if the frame isn't
+    main, so we know that the pertinent frame here is the view's main frame--so
+    it's safe for midori_view_display_error to assume it fills in a main frame*/
     #ifdef HAVE_WEBKIT2
     void* web_frame = NULL;
     #endif
@@ -1617,9 +1622,6 @@ midori_view_web_view_button_press_event_cb (WebKitWebView*  web_view,
                                             GdkEventButton* event,
                                             MidoriView*     view)
 {
-    GtkClipboard* clipboard;
-    gchar* uri;
-    gchar* new_uri;
     const gchar* link_uri;
     gboolean background;
 
@@ -1685,7 +1687,8 @@ midori_view_web_view_button_press_event_cb (WebKitWebView*  web_view,
             g_object_unref (result);
             if (!is_editable)
             {
-                clipboard = gtk_clipboard_get_for_display (
+                gchar* uri;
+                GtkClipboard* clipboard = gtk_clipboard_get_for_display (
                     gtk_widget_get_display (GTK_WIDGET (view)),
                     GDK_SELECTION_PRIMARY);
                 if ((uri = gtk_clipboard_wait_for_text (clipboard)))
@@ -1699,7 +1702,7 @@ midori_view_web_view_button_press_event_cb (WebKitWebView*  web_view,
                     /* Hold Alt to search for the selected word */
                     if (event->state & GDK_MOD1_MASK)
                     {
-                        new_uri = sokoke_magic_uri (uri, TRUE, FALSE);
+                        gchar* new_uri = sokoke_magic_uri (uri, TRUE, FALSE);
                         if (!new_uri)
                         {
                             gchar* search = katze_object_get_string (
@@ -1743,7 +1746,10 @@ midori_view_web_view_button_press_event_cb (WebKitWebView*  web_view,
         return FALSE;
         break;
     case 3:
+        /* Older versions don't have the context-menu signal */
+        #if WEBKIT_CHECK_VERSION (1, 10, 0)
         if (event->state & GDK_CONTROL_MASK)
+        #endif
         {
             /* Ctrl + Right-click suppresses javascript button handling */
             GtkWidget* menu = gtk_menu_new ();
@@ -2103,10 +2109,10 @@ midori_view_get_data_for_uri (MidoriView*  view,
                               const gchar* uri)
 {
     GList* resources = midori_view_get_resources (view);
-    GList* list;
     GString* result = NULL;
 
 #ifndef HAVE_WEBKIT2
+    GList* list;
     for (list = resources; list; list = g_list_next (list))
     {
         WebKitWebResource* resource = WEBKIT_WEB_RESOURCE (list->data);
@@ -2211,6 +2217,7 @@ midori_web_view_menu_video_save_activate_cb (GtkAction* action,
     g_free (uri);
 }
 
+#ifndef HAVE_WEBKIT2
 static void
 midori_view_menu_open_email_activate_cb (GtkAction* action,
                                          gpointer   user_data)
@@ -2222,6 +2229,7 @@ midori_view_menu_open_email_activate_cb (GtkAction* action,
                      uri, GDK_CURRENT_TIME, NULL);
     g_free (uri);
 }
+#endif
 
 static void
 midori_view_menu_open_link_tab_activate_cb (GtkAction* action,
@@ -2554,6 +2562,7 @@ midori_view_get_page_context_action (MidoriView*          view,
             midori_context_action_add_by_name (menu, "AddSpeedDial");
         midori_context_action_add_by_name (menu, "SaveAs");
         midori_context_action_add_by_name (menu, "SourceView");
+        midori_context_action_add_by_name (menu, "SourceViewDom");
         if (!g_object_get_data (G_OBJECT (browser), "midori-toolbars-visible"))
             midori_context_action_add_by_name (menu, "Navigationbar");
         if (state & GDK_WINDOW_STATE_FULLSCREEN)
@@ -2601,6 +2610,7 @@ midori_view_populate_popup (MidoriView* view,
     midori_context_action_create_menu (context_action, GTK_MENU (menu), FALSE);
 }
 
+#if WEBKIT_CHECK_VERSION (1, 10, 0)
 static gboolean
 midori_view_web_view_context_menu_cb (WebKitWebView*       web_view,
                                       #ifdef HAVE_WEBKIT2
@@ -2629,6 +2639,7 @@ midori_view_web_view_context_menu_cb (WebKitWebView*       web_view,
     #endif
     return FALSE;
 }
+#endif
 
 #ifndef HAVE_WEBKIT2
 static gboolean
@@ -2646,7 +2657,7 @@ webkit_web_view_web_view_ready_cb (GtkWidget*  web_view,
     MidoriNewView where = MIDORI_NEW_VIEW_TAB;
     GtkWidget* new_view = GTK_WIDGET (midori_view_get_for_widget (web_view));
 
-    WebKitWebWindowFeatures* features = webkit_web_view_get_window_features (web_view);
+    WebKitWebWindowFeatures* features = webkit_web_view_get_window_features (WEBKIT_WEB_VIEW (web_view));
     gboolean locationbar_visible, menubar_visible, toolbar_visible;
     gint width, height;
     g_object_get (features,
@@ -3395,8 +3406,6 @@ midori_view_web_inspector_construct_window (gpointer       inspector,
     const gchar* label;
     GtkWidget* window;
     GtkWidget* toplevel;
-    GdkScreen* screen;
-    gint width, height;
     const gchar* icon_name;
     GtkIconTheme* icon_theme;
     GdkPixbuf* icon;
@@ -3525,7 +3534,6 @@ midori_view_constructor (GType                  type,
                          guint                  n_construct_properties,
                          GObjectConstructParam* construct_properties)
 {
-    gpointer inspector;
     GObject* object = G_OBJECT_CLASS (midori_view_parent_class)->constructor (
         type, n_construct_properties, construct_properties);
     MidoriView* view = MIDORI_VIEW (object);
@@ -3580,8 +3588,10 @@ midori_view_constructor (GType                  type,
                       webkit_web_view_hovering_over_link_cb, view,
                       "signal::status-bar-text-changed",
                       webkit_web_view_statusbar_text_changed_cb, view,
+                      #if WEBKIT_CHECK_VERSION (1, 10, 0)
                       "signal::context-menu",
                       midori_view_web_view_context_menu_cb, view,
+                      #endif
                       "signal::console-message",
                       webkit_web_view_console_message_cb, view,
                       "signal::download-requested",
@@ -3661,7 +3671,7 @@ midori_view_constructor (GType                  type,
     #ifndef HAVE_WEBKIT2
     gtk_container_add (GTK_CONTAINER (view->scrolled_window), view->web_view);
 
-    inspector = webkit_web_view_get_inspector ((WebKitWebView*)view->web_view);
+    gpointer inspector = webkit_web_view_get_inspector ((WebKitWebView*)view->web_view);
     g_object_connect (inspector,
                       "signal::inspect-web-view",
                       midori_view_web_inspector_inspect_web_view_cb, view,
@@ -4926,9 +4936,10 @@ midori_view_can_zoom_out (MidoriView* view)
  * Since: 0.4.4
  **/
 gchar*
-midori_view_save_source (MidoriView* view,
+midori_view_save_source (MidoriView*  view,
                          const gchar* uri,
-                         const gchar* outfile)
+                         const gchar* outfile,
+                         gboolean     use_dom)
 {
 #ifndef HAVE_WEBKIT2
     WebKitWebFrame *frame;
@@ -4942,8 +4953,24 @@ midori_view_save_source (MidoriView* view,
     g_return_val_if_fail (MIDORI_IS_VIEW (view), NULL);
 
     frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view));
-    data_source = webkit_web_frame_get_data_source (frame);
-    data = webkit_web_data_source_get_data (data_source);
+
+    if (use_dom)
+    {
+        WebKitDOMDocument* doc;
+
+        #if WEBKIT_CHECK_VERSION (1, 9, 5)
+        doc = webkit_web_frame_get_dom_document (frame);
+        #else
+        doc = webkit_web_view_get_dom_document (WEBKIT_WEB_VIEW (view->web_view));
+        #endif
+
+        WebKitDOMElement* root = webkit_dom_document_query_selector (doc, ":root", NULL);
+        const gchar* content = webkit_dom_html_element_get_outer_html (WEBKIT_DOM_HTML_ELEMENT (root));
+        data = g_string_new (content);
+    } else {
+        data_source = webkit_web_frame_get_data_source (frame);
+        data = webkit_web_data_source_get_data (data_source);
+    }
 
     if (uri == NULL)
         uri = midori_view_get_display_uri (view);

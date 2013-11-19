@@ -151,7 +151,7 @@ namespace Midori {
 #endif
 
         public bool can_view_source () {
-            if (is_blank () || special || view_source)
+            if (view_source)
                 return false;
             string content_type = ContentType.from_mime_type (mime_type);
 #if HAVE_WIN32

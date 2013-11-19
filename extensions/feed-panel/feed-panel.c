@@ -440,7 +440,6 @@ feed_panel_open_in_tab_activate_cb (GtkWidget* menuitem,
 {
     KatzeItem* item;
     const gchar* uri;
-    guint n;
 
     item = (KatzeItem*)g_object_get_data (G_OBJECT (menuitem), "KatzeItem");
 

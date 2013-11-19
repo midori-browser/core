@@ -74,6 +74,7 @@ namespace DevPet {
             this.destroy ();
         }
 
+        #if HAVE_EXECINFO_H
         private void row_activated (Gtk.TreePath path, Gtk.TreeViewColumn column) {
             Gtk.TreeIter iter;
             if (this.manager.list_store.get_iter (out iter, path)) {
@@ -87,6 +88,7 @@ namespace DevPet {
                 data_window.show ();
             }
         }
+        #endif
 
         private void create_content () {
             this.title = "Midori - DevPet";
@@ -227,12 +229,22 @@ namespace DevPet {
         private void activated (Midori.App app) {
             this.default_log_func = GLib.Log.default_handler;
             GLib.Log.set_default_handler (this.log_handler);
+            if (this.trayicon != null) {
+                int length = 0;
+                this.list_store.foreach((model, path, iter) => {
+                    length++;
+                    return false;
+                });
+
+                if (length > 0) {
+                    this.trayicon.set_visible (true);
+                }
+            }
         }
 
         private void deactivated () {
-            if(this.trayicon != null)
+            if (this.trayicon != null)
                 this.trayicon.set_visible (false);
-            this.list_store.clear();
 
             GLib.Log.set_default_handler (this.default_log_func);
         }

@@ -73,7 +73,7 @@ namespace Midori {
     }
 
     public class FileChooserDialog : Gtk.FileChooserDialog {
-        public FileChooserDialog (string title, Gtk.Window window, Gtk.FileChooserAction action) {
+        public FileChooserDialog (string title, Gtk.Window? window, Gtk.FileChooserAction action) {
             /* Creates a new file chooser dialog to Open or Save and Cancel.
                The positive response is %Gtk.ResponseType.OK. */
             unowned string stock_id = Gtk.Stock.OPEN;

@@ -126,7 +126,7 @@ statusbar_features_property_proxy (MidoriWebSettings* settings,
     else if (!strcmp (property, "zoom-level"))
     {
         MidoriBrowser* browser = midori_browser_get_for_widget (toolbar);
-        gint i;
+        guint i;
         button = gtk_combo_box_text_new_with_entry ();
         gtk_entry_set_width_chars (GTK_ENTRY (gtk_bin_get_child (GTK_BIN (button))), 4);
         for (i = 0; i < G_N_ELEMENTS (zoom_levels); i++)
