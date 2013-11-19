@@ -325,7 +325,7 @@ namespace Transfers {
             progress.show_text = true;
 #endif
             progress.ellipsize = Pango.EllipsizeMode.MIDDLE;
-            string filename = GLib.File.new_for_uri (transfer.destination).get_basename ();
+            string filename = Midori.URI.get_basename (transfer.destination);
             progress.text = filename;
             int width;
             Sokoke.widget_get_text_size (progress, "M", out width, null);
@@ -469,7 +469,7 @@ namespace Transfers {
                 }
 
                 string uri = transfer.destination;
-                string filename = GLib.File.new_for_uri (transfer.destination).get_basename ();
+                string filename = Midori.URI.get_basename (transfer.destination);
                 var item = new Katze.Item ();
                 item.uri = uri;
                 item.name = filename;

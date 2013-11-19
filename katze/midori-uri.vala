@@ -178,6 +178,15 @@ namespace Midori {
             return null;
         }
 
+        public static string get_basename (string uri) {
+            try {
+                string filename = Filename.from_uri (uri);
+                return Path.get_basename (filename ?? ".");
+            } catch (Error error) {
+                return ".";
+            }
+        }
+
         public static GLib.ChecksumType get_fingerprint (string uri,
             out string checksum, out string label) {
 
