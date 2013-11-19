@@ -132,15 +132,15 @@ grab_icons()
   categories=$(grep InstallIconTheme $list | sed -r 's@.+"(.+)"@\1@g' | grep -v InstallIconTheme|awk -F '\' '{print $1}'|sort|uniq)
 
 	
-  for i in $categories
+  for category in $categories
   do
-     category_icons=$(grep InstallIconTheme $list | sed -r 's@.+"(.+)"@\1@g' | grep -v InstallIconTheme|grep $i|awk -F '\' '{print $2}')
-     for j in $sizes
+     category_icons=$(grep InstallIconTheme $list | sed -r 's@.+"(.+)"@\1@g' | grep -v InstallIconTheme|grep $category|awk -F '\' '{print $2}')
+     for size in $sizes
      do
-	mkdir -p $workdir/share/icons/$theme/$i/$j
-	for k in $category_icons
+	mkdir -p $workdir/share/icons/$theme/$category/$size
+	for icon in $category_icons
         do
-	  cp -L /usr/share/icons/$theme/$i/$j/$k.* $workdir/share/icons/$theme/$i/$j/
+	  cp -L /usr/share/icons/$theme/$category/$size/$icon.* $workdir/share/icons/$theme/$category/$size/
         done
      done
   done
