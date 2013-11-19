@@ -636,7 +636,8 @@ namespace Tabby {
             if (load_on_startup == Midori.MidoriStartup.BLANK_PAGE) {
                 Midori.Browser browser = APP.create_browser ();
                 APP.add_browser (browser);
-                browser.add_uri ("about:blank");
+                /* The API from the old days says blank but means speed dial */
+                browser.add_uri ("about:dial");
                 browser.show ();
             } else if (load_on_startup == Midori.MidoriStartup.HOMEPAGE) {
                 Midori.Browser browser = APP.create_browser ();
