@@ -334,7 +334,7 @@ echo "<*> Copying docs..."
 # copy doc files to root
 cp -L $workdir/share/doc/midori/{COPYING,AUTHORS} $workdir
 
-cat $temp_dir/packages_used.lst | sort | uniq > $workdir/share/doc/midori/Packages_Used
+cat $temp_dir/packages_used.lst | sort | uniq > $workdir/share/doc/midori/README.packages
 rm $temp_dir/packages_used.lst
 
 #drop a/la files, we don't do static builds anyway
