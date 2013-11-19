@@ -144,6 +144,11 @@ namespace Tabby {
                 unowned GLib.List<unowned Katze.Item> u_items = items;
 
                 bool delay = false;
+                bool should_delay = false;
+
+                int load_on_startup;
+                APP.settings.get ("load-on-startup", out load_on_startup);
+                should_delay = load_on_startup == Midori.MidoriStartup.DELAYED_PAGES;
 
                 this.state = SessionState.RESTORING;
 
@@ -162,7 +167,7 @@ namespace Tabby {
 
                             t_item.set_meta_integer ("append", 1);
 
-                            if (delay)
+                            if (delay && should_delay)
                                 t_item.set_meta_integer ("delay", Midori.Delay.DELAYED);
                             else
                                 delay = true;
@@ -643,7 +648,24 @@ namespace Tabby {
     private class Manager : Midori.Extension {
         private Base.Storage storage;
         private bool load_session () {
-            this.storage.restore_last_sessions ();
+            /* Using get here to avoid MidoriMidoriStartup in generated C with Vala 0.20.1 */
+            int load_on_startup;
+            APP.settings.get ("load-on-startup", out load_on_startup);
+            if (load_on_startup == Midori.MidoriStartup.BLANK_PAGE) {
+                Midori.Browser browser = APP.create_browser ();
+                APP.add_browser (browser);
+                /* The API from the old days says blank but means speed dial */
+                browser.add_uri ("about:dial");
+                browser.show ();
+            } else if (load_on_startup == Midori.MidoriStartup.HOMEPAGE) {
+                Midori.Browser browser = APP.create_browser ();
+                APP.add_browser (browser);
+                browser.add_uri ("about:home");
+                browser.show ();
+            } else {
+                this.storage.restore_last_sessions ();
+            }
+
             return false;
         }
 
@@ -685,8 +707,14 @@ namespace Tabby {
                 GLib.warning ("missing session");
             } else {
                 session.close ();
-                if (browser.destroy_with_parent) {
-                    /* remove js popup sessions */
+
+                /* Using get here to avoid MidoriMidoriStartup in generated C with Vala 0.20.1 */
+                int load_on_startup;
+                APP.settings.get ("load-on-startup", out load_on_startup);
+
+                if (browser.destroy_with_parent
+                 || load_on_startup < Midori.MidoriStartup.LAST_OPEN_PAGES) {
+                    /* Remove js popups and close if not restoring on startup */
                     session.remove ();
                 }
             }
