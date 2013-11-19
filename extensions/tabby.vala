@@ -244,7 +244,7 @@ namespace Tabby {
 
                 if (view.load_status == Midori.LoadStatus.PROVISIONAL) {
                     unowned Katze.Item item = view.get_proxy_item ();
-                    
+
                     int64 delay = item.get_meta_integer ("delay");
                     if (delay == Midori.Delay.UNDELAYED) {
                         view.web_view.notify["uri"].connect ( () => {
@@ -262,6 +262,8 @@ namespace Tabby {
 
             private void helper_data_changed (Midori.Browser browser, Midori.View view) {
                view.notify["load-status"].connect (load_status);
+
+               view.new_view.connect (this.helper_duplicate_tab);
             }
 
             private void helper_reorder_tabs (GLib.PtrArray new_tabs) {
@@ -296,6 +298,17 @@ namespace Tabby {
                     }
                 }
                 this.browser.notebook.page_reordered.connect_after (this.tab_reordered);
+            }
+
+            private void helper_duplicate_tab (Midori.View view, Midori.View new_view, Midori.NewView where, bool user_initiated) {
+                unowned Katze.Item item = view.get_proxy_item ();
+                unowned Katze.Item new_item = new_view.get_proxy_item ();
+                int64 tab_id = item.get_meta_integer ("tabby-id");
+                int64 new_tab_id = new_item.get_meta_integer ("tabby-id");
+
+                if (tab_id > 0 && tab_id == new_tab_id) {
+                    new_item.set_meta_integer ("tabby-id", 0);
+                }
             }
 
             construct {
@@ -583,7 +596,7 @@ namespace Tabby {
                     }
                     result = stmt.step ();
                  }
- 
+
                 if (sessions.is_empty ()) {
                     sessions.add_item (new Session (this.db));
                 }
