@@ -131,12 +131,12 @@ grab_icons()
   local list="$2"
   
   sizes=$(grep CreateDirectory $list |awk -F '"' '{print $2}' |awk -F '\' '{print $6}')
-  categories=$(grep InstallIconTheme $list | sed -r 's@.+"(.+)"@\1@g' | grep -v InstallIconTheme|awk -F '\' '{print $1}'|sort|uniq)
+  categories=$(grep InstallIconTheme $list | awk -F '"' '{print $2}'|sort|uniq)
 
 	
   for category in $categories
   do
-     category_icons=$(grep InstallIconTheme $list | sed -r 's@.+"(.+)"@\1@g' | grep -v InstallIconTheme|grep $category|awk -F '\' '{print $2}')
+     category_icons=$(grep InstallIconTheme $list |grep $category|awk -F '"' '{print $4}')
      for size in $sizes
      do
 	mkdir -p $workdir/share/icons/$theme/$category/$size
