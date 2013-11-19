@@ -40,9 +40,11 @@ temp_dir=`mktemp -d`
 # check if we can use 7zip
 have_7zip=`which 7za`
 
+GTK3_BUILD=1
+# Default to gtk3 but check just in case
 GTK3=$(grep GTK3 CMakeCache.txt | awk -F \= '{print $2}')
-if [ "$GTK3" == "ON" ];then
-    GTK3_BUILD=1
+if [ "$GTK3" != "ON" ] && [ "$GTK3" != "1" ];then
+    GTK3_BUILD=0
 fi
 
 version=$(grep PACKAGE_VERSION ./midori/CMakeFiles/midori.dir/DependInfo.cmake|sed -e 's/^.*PACKAGE_VERSION=\\"\([^"]*\)\\".*$/\1/')
