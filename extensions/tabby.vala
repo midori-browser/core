@@ -144,6 +144,11 @@ namespace Tabby {
                 unowned GLib.List<unowned Katze.Item> u_items = items;
 
                 bool delay = false;
+                bool should_delay = false;
+
+                int load_on_startup;
+                APP.settings.get ("load-on-startup", out load_on_startup);
+                should_delay = load_on_startup == Midori.MidoriStartup.DELAYED_PAGES;
 
                 this.state = SessionState.RESTORING;
 
@@ -162,7 +167,7 @@ namespace Tabby {
 
                             t_item.set_meta_integer ("append", 1);
 
-                            if (delay)
+                            if (delay && should_delay)
                                 t_item.set_meta_integer ("delay", Midori.Delay.DELAYED);
                             else
                                 delay = true;
