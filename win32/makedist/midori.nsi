@@ -158,16 +158,16 @@ Section "!Program Files" SEC01
 !macroend
 
 !macro CreateIconThemeSectionsSmall SectionPath
-	CreateDirectory "$INSTDIR\share\icons\${ICON_THEME}\16x16\${SectionPath}"
-	CreateDirectory "$INSTDIR\share\icons\${ICON_THEME}\22x22\${SectionPath}"
-	CreateDirectory "$INSTDIR\share\icons\${ICON_THEME}\24x24\${SectionPath}"
-	CreateDirectory "$INSTDIR\share\icons\${ICON_THEME}\32x32\${SectionPath}"
+	CreateDirectory "$INSTDIR\share\icons\${ICON_THEME}\${SectionPath}\16"
+	CreateDirectory "$INSTDIR\share\icons\${ICON_THEME}\${SectionPath}\22"
+	CreateDirectory "$INSTDIR\share\icons\${ICON_THEME}\${SectionPath}\24"
+	CreateDirectory "$INSTDIR\share\icons\${ICON_THEME}\${SectionPath}\32"
 !macroend
 
 !macro CreateIconThemeSections SectionPath
 	!insertmacro CreateIconThemeSectionsSmall ${SectionPath}
-	CreateDirectory "$INSTDIR\share\icons\${ICON_THEME}\48x48\${SectionPath}"
-	CreateDirectory "$INSTDIR\share\icons\${ICON_THEME}\scalable\${SectionPath}"
+	CreateDirectory "$INSTDIR\share\icons\${ICON_THEME}\${SectionPath}\48"
+	CreateDirectory "$INSTDIR\share\icons\${ICON_THEME}\${SectionPath}\scalable"
 !macroend
 
 	SetOutPath "$INSTDIR\share\icons\${ICON_THEME}"
