@@ -280,6 +280,10 @@ default-font-size=14
 default-monospace-font-size=14
 _EOF
 
+# Don't hardcode mingw path, otherwise fontconfig uses fallback settings
+# which tend to look very bad on Windows
+sed -r 's@>.+(conf\.d)<@>\1@g' -i $workdir/etc/fonts/fonts.conf
+
 popd > /dev/null
 
 echo "<*> Copying docs..."
