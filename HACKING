@@ -22,38 +22,45 @@ Join irc://irc.freenode.net/midori #midori on Freenode https://kiwiirc.com/clien
   * https://www.bountysource.com/#trackers/130181-midori Add a bounty for a feature or bug you'd like to support
   * https://translations.launchpad.net/midori/trunk/+pots/trunk Translate to your own language
   * https://github.com/eustasy/midori-browser.org/issues Report website bugs
+  * Write tutorial your own extension - granted that's code, too, but maybe a little easier than hacking the core.
 ====== Build the code ======
 
-./waf configure --prefix=/usr
-./waf build
-sudo ./waf install
+mkdir _build
+cd _build
+cmake -DCMAKE_INSTALL_PREFIX=/usr ..
+make
+sudo make install
+
+//Advanced Tip: Pass "-G Ninja" to cmake to use http://martine.github.io/ninja/ Ninja instead of make (usually packaged as ninja or ninja-build).//
+
+If using GTK+3 you'll want to add -DUSE_GTK3 to the cmake command line.
 
 Midori can be **run without being installed**.
 
-_build/default/midori/midori
+_build/midori/midori
 
 You can use a **temporary folder for testing** without affecting normal settings
 
-_build/default/midori/midori -c /tmp/midoridev
+_build/midori/midori -c /tmp/midoridev
 
 You'll want to **unit test** the code if you're testing a new version or contributed your own changes:
 
-xvfb-run ./waf check
+xvfb-run make check
 
 Automated daily builds in Launchpad (https://launchpad.net/~elementary-os/+archive/daily ppa:elementary-os/daily and https://launchpad.net/~midori/+archive/midori-dev ppa:midori/midori-dev) run these tests as well.
 ====== Debugging issues ======
 
 Testing an installed release may reveal crashers or memory corruption which require investigating from a local build and obtaining a stacktrace (backtrace, crash log).
 
-_build/default/midori/midori -g [OPTIONAL ARGUMENTS]
+_build/midori/midori -g [OPTIONAL ARGUMENTS]
 
 If the problem is a warning, not a crash GLib has a handy feature
 
-env G_DEBUG=all _build/default/midori/midori -g
+env G_DEBUG=all _build/midori/midori -g
 
 For more specific debugging output, depending on the feature in question you may use
 
-env MIDORI_DEBUG=help _build/default/midori/midori
+env MIDORI_DEBUG=help _build/midori/midori
 
 To verify a regression you might need to revert a particular change:
 
@@ -188,7 +195,7 @@ As of Midori 0.5.4 the formula is:
 | soup | 2.38.1 | 2.40 |
 | webkit | 1.8.3-1.fc17 | 1.10.0-0ubuntu1 |
 ====== Midori with(out) Granite ======
-When built with Granite (--enable-granite) there're a few key differences:
+When built with Granite (-DUSE_GRANITE=1 or --enable-granite) there're a few key differences:
   * Preferences uses a http://valadoc.elementaryos.org/Granite/Granite.Widgets.StaticNotebook.html Granite.Widgets.StaticNotebook
   * URL completion styling is slightly different
   * Clear Private Data uses **Granite.Widgets.LightWindow**
@@ -238,7 +245,7 @@ For testing your changes unfortuantely a real system is needed because Midori an
 One way around it is to virtualize Windows on a Linux host and mount your MinGW directories as a network drive or shared folder.
 
 ====== Jargon ======
-    * freeze: the 4th week of a 4 week release cycle, bug fixes only
+    * freeze: a period of bug fixes only eg. 4/2 cycle means 4 weeks of features and 2 weeks to focus on resolving existing problems
     * MR: merge request, a branch proposed for review
     * ninja: an internal tab, usually empty label, used for taking screenshots
     * fortress: user of an ancient release like 0.4.3 as found on Raspberry Pie, Debian, Ubuntu
