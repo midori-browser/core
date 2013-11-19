@@ -22,6 +22,7 @@ if [ "x$1" = "xbefore" ]; then
         sed 's@This is a list of frequently asked questions@This is <a href="http://wiki.xfce.org/midori/faq">a snapshot of the online FAQ</a>@g' | \
         sed 's@<link rel="style.*>@<link rel="stylesheet" href="faq.css" />@g' > data/faq.html
 elif [ "x$1" = "xafter" ]; then
+    NEWVER=$OLDVER
     echo -n bzr commit -p -m "'Bump version to $NEWVER'"
     case $SHELL in
     *fish*)
