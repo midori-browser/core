@@ -23,6 +23,7 @@
 
 # a bit of configuration
 root_dir=$MINGW_PREFIX
+where_am_i=$PWD
 
 if [ "$GSTREAMER_API_VERSION" == "" ]; then
     GSTREAMER_API_VERSION=0.10
@@ -75,7 +76,6 @@ else
 fi
 
 if [ "NSIS" != "" ];then
-    where_am_i=$PWD
     cp -a $where_am_i/../win32/makedist/midori.nsi $temp_dir
     cp -a $where_am_i/../win32/makedist/midori.ico $temp_dir
 fi
@@ -121,6 +121,32 @@ grab_files ()
        shift
    done
    popd > /dev/null
+}
+
+grab_icons()
+{
+  local theme="$1"
+  local list="$2"
+  
+  sizes=$(grep CreateDirectory $list |awk -F '"' '{print $2}' |awk -F '\' '{print $6}')
+  categories=$(grep InstallIconTheme $list | sed -r 's@.+"(.+)"@\1@g' | grep -v InstallIconTheme|awk -F '\' '{print $1}'|sort|uniq)
+
+	
+  for i in $categories
+  do
+     category_icons=$(grep InstallIconTheme $list | sed -r 's@.+"(.+)"@\1@g' | grep -v InstallIconTheme|grep $i|awk -F '\' '{print $2}')
+     for j in $sizes
+     do
+	mkdir -p $workdir/share/icons/$theme/$i/$j
+	for k in $category_icons
+        do
+	  cp -L /usr/share/icons/$theme/$i/$j/$k.* $workdir/share/icons/$theme/$i/$j/
+        done
+     done
+  done
+
+  cp -L /usr/share/icons/$theme/icon.theme $workdir/share/icons/$theme 
+
 }
 
 echo "Creating $ARCHIVE"
@@ -201,9 +227,10 @@ echo "<*> Copying resources and translations..."
 
 # copy share
 grab_files share midori
-grab_files share icons
 grab_files share mime
 grab_files share midori.mo
+
+grab_icons Faenza $where_am_i/../win32/makedist/midori.nsi
 
 # We need to ship our CA bundle for now
 cp -a /etc/pki/tls/certs/ca-bundle.crt $workdir/share/midori/res/
