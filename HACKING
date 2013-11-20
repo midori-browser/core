@@ -33,7 +33,7 @@ sudo make install
 
 //Advanced Tip: Pass "-G Ninja" to cmake to use http://martine.github.io/ninja/ Ninja instead of make (usually packaged as ninja or ninja-build).//
 
-If using GTK+3 you'll want to add -DUSE_GTK3 to the cmake command line.
+If using GTK+3 you'll want to add -DUSE_GTK3=1 to the cmake command line.
 
 Midori can be **run without being installed**.
 
@@ -211,25 +211,26 @@ For a native build
 yum install libsoup-devel webkitgtk3-devel sqlite-devel
 
 For cross-compilation
-yum install mingw{32,64}-webkitgtk3 mingw{32,64}-glib-networking mingw{32,64}-gdb
+yum install mingw{32,64}-webkitgtk3 mingw{32,64}-glib-networking mingw{32,64}-gdb mingw{32,64}-gstreamer-plugins-good
 
 Packages needed when assembling the archive
- yum install faenza-icon-theme p7zip mingw32-nsis
+ yum install faenza-icon-theme p7zip mingw32-nsis greybird-gtk3-theme
 
 Installing those should get you the packages needed to successfully build and develop Midori for Win32.
-
 ===== Building =====
 For 32-bit builds:
 
-mingw32-env
-./configure --enable-gtk3 --prefix=/usr/i686-w64-mingw32/sys-root/mingw/
+mkdir _mingw32
+cd _mingw32
+mingw32-cmake .. -DUSE_ZEITGEIST=0 -DUSE_GTK3=1 -DCMAKE_INSTALL_PREFIX=/usr/i686-w64-mingw32/sys-root/mingw -DCMAKE_VERBOSE_MAKEFILE=0
 make
 sudo make install
 
 For 64-bit builds:
 
-mingw64-env
-./configure --enable-gtk3 --prefix=/usr/x86_64-w64-mingw32/sys-root/mingw/
+mkdir _mingw64
+cd _mingw64
+mingw64-cmake .. -DUSE_ZEITGEIST=0 -DUSE_GTK3=1 -DCMAKE_INSTALL_PREFIX=/usr/x86_64-w64-mingw32/sys-root/mingw -DCMAKE_VERBOSE_MAKEFILE=0
 make
 sudo make install
 
@@ -238,7 +239,6 @@ Once built and tested you can assemble the Midori archive with a helper script
 env MINGW_PREFIX="/usr/i686-w64-mingw32/sys-root/mingw" ./win32/makedist/makedist.midori
 64-bit build:
 env MINGW_PREFIX="/usr/x86_64-w64-mingw32/sys-root/mingw/" ./win32/makedist/makedist.midori x64
-
 ===== Testing =====
 For testing your changes unfortuantely a real system is needed because Midori and WebKitGTK+ don't work properly under Wine. Even if it works some problems are not visible when using Wine, but are present when running under a real Windows system and vice versa.
 
