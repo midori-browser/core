@@ -1,5 +1,102 @@
 This file is licensed under the terms of the expat license, see the file EXPAT.
 
+v0.5.6:
+ instead of creating devpet status icon on extension load, create it only to show new messages
+ Open speed dial or homepage according to preference
+ handle tab duplication
+ Add copyright note to appdata file
+ Tweak searching for resources when running from build folder
+ Swap NULL-check with main frame check
+ Use correct signal when clearing the trash
+ Hide WEbGL preference if it is unavailable
+ Remove stored popup sessions from the database
+ Check all browsers for opened sessions and whether they're popups
+ removed unused preference dialog and related code
+ Fix check for found valac and mention VALAC variable
+ Fix autoscrolling if page contains a frame with our custom error page
+ Don't use context-menu signal in WebKitGTK+ < 1.10.0
+ Fix building on Ubuntu 12.04
+ Reset item ids when re-importing bookmarks
+ Check path being NULL in export before trying to inspect it
+ restore the last closed sessions if no session is opened
+ Cast WebKitDOMHtmlElement for getting source content
+ Use font-set signal and font family for GTK+ 3.2 font chooser
+ add function to view dom source
+ remove unused variable
+ Resolve compiler warnings in current trunk
+ Update win32-release script for cmake, move unused docs/scripts to old folder
+ Try to handle previous runs of cmake in configure wrapper
+ Correct view source assertions in tab unit test
+ Build fix: found undeclared in midori_bookmarks_db_remove_item_recursive
+ Cache bookmark items to avoid their recreation on database reads
+ allow "view source" on about pages
+ Enable old target policy on cmake < 2.8.8
+ Re-arrange data file installing to be more explicit
+ option to modify the number of tabs which will be restored in each idle callback
+ Implement MidoriBookmarksDatabase class by inheritence from MidoriDatabase
+ Ensure tab spinners update as often as the menubar spinner to avoid desync
+ Use tabby sorting increment when importing session.xbel tabs
+ Only install config files to /etc if prefix equals /usr
+ handle urls as argument when starting midori
+ Make tabby compile with Webkit2
+ Drop waf build system and provide cmake-based "configure" script
+ midori_panel_action_activate_cb forgot to update the action group
+ Fixes bug where certificate Security overlay failed to close
+ handle tab movement
+ add tab sorting
+ Untangle implicit GTK+3 for Granite and WebKit2
+ Allow running test under debug tools with cmake
+ Install config files to /etc when install prefix is /usr
+ Add missing PO_FILES argument to GETTEXT_PROCESS_PO_FILES
+ Add USE_APIDOCS to build API docs with CMake
+ Rasterize SVG to PNG with rsvg-convert
+ fix bookmarks test regression after fix-1179200-4
+ Add CMakeLists.txt for config directory
+ Install mo files in locale dir
+ don't change uri/title if the tab isn't loaded
+ use a separate signal to store the tab title
+ Check if execinfo.h header exists on BSD
+ fix endless loop in Midori.Database.init
+ Use destructive-action style class in ClearPrivateData
+ Initialize priv->element to avoid crash when freeing
+ Introduces KatzeArray::update-item to handle metadata changes
+ Refactor excuting schema from file into a function
+ Use stock as string in liststore
+ Drop needless (and wrong) HAVE_LIBNOTIFY in preferences
+ Flip horizontal position of the overlay when hit by the mouse
+ Add Midori.URI.get_base_domain and use it in NoJS
+ Introduce Midori.Database and use for history and tabby
+ ctrl+shift+w should trigger a delete-event
+ Implement dialog windows opened via javascript
+ Make get_res_filename work with different hierarchies
+ fix check for new database
+ Speed up session import
+ Import tab title from old sessions
+ Separate CFLAGS for C and add missing HAVE_
+ Install top-level text files and FAQ html/ css to doc dir
+ Provide and install .appdata.xml file for app stores
+ Move bookmarks db handling to midori-bookmarks-db
+ Add XSS to OPTS_LIBRARIES
+ Update condition for UBUNTU_MENUPROXY to work on Saucy
+ Introduce tabby, the new session manager
+ Fix typo in katze_item_set_meta_integer call
+ Allow bookmark bar update on additions resulting from imports
+ Re-work midori_array_query_recursive to not include folder items twice
+ Fix syntax of icon sizes passed to foreach
+ Add bzr revision number to version if available
+ Unify nojs and cookie policy dialogs, make policy changeable within the list
+ Drop all G_ENABLE_DEBUG guards
+ Add -g to CFLAGS to enable debugging symbols
+ Adjust cmake build for Win32
+ Implement CMake build setup
+ Port MidoriApp from Unique/ sockets to GApplication
+ New signal about-content to provide content for about uris
+ Check if browser is NULL in midori_view_get_tab_menu to prevent a crash. Fixes bug #1215652.
+ Ensure proxy setting widgets callbacks don't outlive the widgets themselves
+ Fix webkit2 build error
+ Show the bookmarks import location combobox.
+ Rename internal completion URLs to avoid confusion
+
 v0.5.5:
  Fix name and text fields inversion in XBEL folder import
  Correct packing of cookie and nojs permission dialog.
