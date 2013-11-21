@@ -139,6 +139,7 @@ namespace ClipNotes {
 
         void activated (Midori.App app) {
             widgets = new GLib.List<Gtk.Widget> ();
+            app.add_browser.connect (browser_added);
             foreach (var browser in app.get_browsers ())
                 browser_added (browser);
         } // activated
