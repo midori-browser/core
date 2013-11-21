@@ -111,7 +111,7 @@ namespace ClipNotes {
                 return;
 
             var view = tab as Midori.View;
-            var action = new Gtk.Action ("Notes", _("Copy text to note"), null, null);
+            var action = new Gtk.Action ("Notes", _("Copy selection as note"), null, null);
             action.activate.connect ((action)=> {
                 if (view.has_selection () == true)
                 {
