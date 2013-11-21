@@ -92,7 +92,9 @@ namespace ClipNotes {
     } // Sidebar
 
     private class Manager : Midori.Extension {
-            internal GLib.List<Gtk.Widget> widgets;
+        internal GLib.List<Gtk.Widget> widgets;
+        Midori.Database database;
+        unowned Sqlite.Database db;
 
         void tab_added (Midori.Browser browser, Midori.Tab tab) {
 
@@ -102,8 +104,18 @@ namespace ClipNotes {
 
         void note_add_new (string title, string uri, string note_content)
         {
-//            GLib.DateTime time = new DateTime.now_local ();
-            stdout.printf ("add note title %s uri %s note: %s \n", title, uri, note_content);
+            GLib.DateTime time = new DateTime.now_local ();
+            string sqlcmd = "INSERT INTO `notes` (`uri`, `title`, `note_content`, `tstamp` ) VALUES (:uri, :title, :note_content, :tstamp);";
+            Sqlite.Statement stmt;
+            if (this.db.prepare_v2 (sqlcmd, -1, out stmt) != Sqlite.OK)
+                critical (_("Failed to update database: %s"), db.errmsg);
+            stmt.bind_text (stmt.bind_parameter_index (":uri"), uri);
+            stmt.bind_text (stmt.bind_parameter_index (":title"), title);
+            stmt.bind_text (stmt.bind_parameter_index (":note_content"), note_content);
+            stmt.bind_int64 (stmt.bind_parameter_index (":tstamp"), time.to_unix ());
+
+            if (stmt.step () != Sqlite.DONE)
+                critical (_("Failed to update database: %s"), db.errmsg);
         }
 
         void add_menu_items (Midori.Tab tab, WebKit.HitTestResult hit_test_result, Midori.ContextAction menu) {
@@ -142,6 +154,14 @@ namespace ClipNotes {
             app.add_browser.connect (browser_added);
             foreach (var browser in app.get_browsers ())
                 browser_added (browser);
+
+            string db_path = GLib.Path.build_path (Path.DIR_SEPARATOR_S, this.get_config_dir (), "notes.db");
+            try {
+                database = new Midori.Database (db_path);
+            } catch (Midori.DatabaseError schema_error) {
+                error (schema_error.message);
+            }
+            db = database.db;
         } // activated
 
         void deactivated () {
