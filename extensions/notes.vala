@@ -114,8 +114,8 @@ namespace ClipNotes {
                 notes_list_store.get (iter, 1, out uri);
                 notes_list_store.get (iter, 3, out note_text);
 
-                string label = _("Note clipped from: %s").printf (uri);
-                note_label.set_text (label);
+                string label = _("Note clipped from: <a href=\"%s\">%s</a>").printf (uri, uri);
+                note_label.set_markup (label);
                 note_text_view.buffer.text = note_text;
             }
         }
