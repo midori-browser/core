@@ -93,6 +93,7 @@ namespace ClipNotes {
             note_label.show ();
             pack_start (note_label, false, false, 0);
 
+            note_text_view.set_wrap_mode (Gtk.WrapMode.WORD);
             note_text_view.show ();
             pack_start (note_text_view, true, true, 0);
         } // Sidebar()
