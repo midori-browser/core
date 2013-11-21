@@ -15,13 +15,15 @@ using WebKit;
 using Sqlite;
 
 namespace ClipNotes {
+        Midori.Database database;
+        unowned Sqlite.Database db;
 
         private class Sidebar : Gtk.VBox, Midori.Viewable {
         Gtk.Toolbar? toolbar = null;
         Gtk.Label note_label;
         Gtk.TreeView notes_tree_view;
         Gtk.TextView note_text_view = new Gtk.TextView ();
-        Gtk.ListStore notes_list_store = new Gtk.ListStore (2, typeof (string), typeof (string));
+        Gtk.ListStore notes_list_store = new Gtk.ListStore (4, typeof (int), typeof (string), typeof (string), typeof (string));
 
         public unowned string get_stock_id () {
             return Gtk.STOCK_EDIT;
@@ -54,6 +56,7 @@ namespace ClipNotes {
 
             notes_tree_view = new Gtk.TreeView.with_model (notes_list_store);
             notes_tree_view.headers_visible = true;
+            notes_tree_view.row_activated.connect (row_activated);
 
             column = new Gtk.TreeViewColumn ();
             Gtk.CellRendererText renderer_title = new Gtk.CellRendererText ();
@@ -63,17 +66,30 @@ namespace ClipNotes {
             notes_tree_view.append_column (column);
 
 
-            notes_list_store.append (out iter);
-            notes_list_store.set (iter, 0, "test note nr1");
-            notes_list_store.append (out iter);
-            notes_list_store.set (iter, 0, "test note nr2");
+            string sqlcmd = "SELECT id, uri, title, note_content FROM notes ORDER by title ASC";
+            Sqlite.Statement stmt;
+            if (db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
+                critical (_("Failed to select from database: %s"), db.errmsg);
+            int result = stmt.step ();
+            if (!(result == Sqlite.DONE || result == Sqlite.ROW)) {
+                critical (_("Failed to select from database: %s"), db.errmsg ());
+            }
 
+            while (result == Sqlite.ROW) {
+                notes_list_store.append (out iter);
+                notes_list_store.set (iter, 0, stmt.column_int64 (0));
+                notes_list_store.set (iter, 1, stmt.column_text (1));
+                notes_list_store.set (iter, 2, stmt.column_text (2));
+                notes_list_store.set (iter, 3, stmt.column_text (3));
+
+                result = stmt.step ();
+
+            }
 
             notes_tree_view.show ();
             pack_start (notes_tree_view, false, false, 0);
 
             note_label = new Gtk.Label (null);
-            note_label.set_text (_("Note clipped from: some_uri"));
             note_label.show ();
             pack_start (note_label, false, false, 0);
 
@@ -85,16 +101,28 @@ namespace ClipNotes {
             Gtk.TreeModel model, Gtk.TreeIter iter) {
 
             string note_title;
-            model.get (iter, 0, out note_title);
+            model.get (iter, 2, out note_title);
             renderer.set ("text", note_title,
                 "ellipsize", Pango.EllipsizeMode.END);
         } // on_renderer_note_title
+
+        void row_activated (Gtk.TreePath path, Gtk.TreeViewColumn column) {
+            Gtk.TreeIter iter;
+            string uri;
+            string note_text;
+            if (notes_list_store.get_iter (out iter, path)) {
+                notes_list_store.get (iter, 1, out uri);
+                notes_list_store.get (iter, 3, out note_text);
+
+                string label = _("Note clipped from: %s").printf (uri);
+                note_label.set_text (label);
+                note_text_view.buffer.text = note_text;
+            }
+        }
     } // Sidebar
 
     private class Manager : Midori.Extension {
         internal GLib.List<Gtk.Widget> widgets;
-        Midori.Database database;
-        unowned Sqlite.Database db;
 
         void tab_added (Midori.Browser browser, Midori.Tab tab) {
 
@@ -107,7 +135,7 @@ namespace ClipNotes {
             GLib.DateTime time = new DateTime.now_local ();
             string sqlcmd = "INSERT INTO `notes` (`uri`, `title`, `note_content`, `tstamp` ) VALUES (:uri, :title, :note_content, :tstamp);";
             Sqlite.Statement stmt;
-            if (this.db.prepare_v2 (sqlcmd, -1, out stmt) != Sqlite.OK)
+            if (db.prepare_v2 (sqlcmd, -1, out stmt) != Sqlite.OK)
                 critical (_("Failed to update database: %s"), db.errmsg);
             stmt.bind_text (stmt.bind_parameter_index (":uri"), uri);
             stmt.bind_text (stmt.bind_parameter_index (":title"), title);
