@@ -141,6 +141,7 @@ namespace Midori {
         public void set_boolean (string name, bool value);
         public void set_integer (string name, int value);
         public void set_string (string name, string value);
+        public unowned string get_config_dir ();
 
         [NoAccessorMethod]
         public string? stock_id { get; set; }
