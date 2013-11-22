@@ -54,7 +54,7 @@ namespace Midori {
 
         public static string get_tooltip (WebKit.Download download) {
 #if !HAVE_WEBKIT2
-            string filename = Midori.URI.get_basename (download.destination_uri);
+            string filename = Midori.URI.get_basename_for_display (download.destination_uri);
             /* i18n: Download tooltip (size): 4KB of 43MB */
             string size = _("%s of %s").printf (
                 format_size (download.current_size),
@@ -258,7 +258,7 @@ namespace Midori {
 
         public string get_filename_suggestion_for_uri (string mime_type, string uri) {
             return_val_if_fail (Midori.URI.is_location (uri), uri);
-            string filename = Midori.URI.get_basename (uri);
+            string filename = Midori.URI.get_basename_for_display (uri);
             if (uri.index_of_char ('.') == -1)
                 return Path.build_filename (filename, fallback_extension (null, mime_type));
             return filename;
@@ -337,12 +337,12 @@ namespace Midori {
                 string detailed_message;
                 if (!can_write) {
                     message = _("The file \"%s\" can't be saved in this folder.").printf (
-                        Midori.URI.get_basename (uri));
+                        Midori.URI.get_basename_for_display (uri));
                     detailed_message = _("You don't have permission to write in this location.");
                 }
                 else if (free_space < download.total_size) {
                     message = _("There is not enough free space to download \"%s\".").printf (
-                        Midori.URI.get_basename (uri));
+                        Midori.URI.get_basename_for_display (uri));
                     detailed_message = _("The file needs %s but only %s are left.").printf (
                         format_size (download.total_size), format_size (free_space));
                 }
