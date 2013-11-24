@@ -177,36 +177,36 @@ namespace Midori {
             """;
 #endif
 
-        /* Since: 0.5.6 */
+        /* Since: 0.5.7 */
         public uint count { get; private set; default = 0; }
-        /* Since: 0.5.6 */
+        /* Since: 0.5.7 */
         public int index { get; set; default = -1; }
-        /* Since: 0.5.6 */
+        /* Since: 0.5.7 */
         public Midori.Tab? tab {  get; set; default = null; }
-        /* Since: 0.5.6 */
+        /* Since: 0.5.7 */
         private Midori.Tab? previous {  get; set; default = null; }
 
-        /* Since: 0.5.6 */
+        /* Since: 0.5.7 */
         public bool close_buttons_left { get; set; default = true; }
-        /* Since: 0.5.6 */
+        /* Since: 0.5.7 */
         public bool close_buttons_visible { get; set; default = true; }
-        /* Since: 0.5.6 */
+        /* Since: 0.5.7 */
         public bool labels_visible { get; set; default = true; }
 
-        /* Since: 0.5.6 */
+        /* Since: 0.5.7 */
         public signal void tab_context_menu (Midori.Tab tab, ContextAction menu);
-        /* Since: 0.5.6 */
+        /* Since: 0.5.7 */
         public signal void context_menu (ContextAction menu);
         /* The current tab is about to switch, but the old tab still has focus.
-           Since: 0.5.6 */
+           Since: 0.5.7 */
         public signal void tab_switched (Midori.Tab? old, Midori.Tab @new);
         /* A tab is about to move to a new position.
-           Since: 0.5.6 */
+           Since: 0.5.7 */
         public signal void tab_moved (Midori.Tab tab, uint new_index);
         /* A tab is being dragging out of the window.
-           Since: 0.5.6 */
+           Since: 0.5.7 */
         public signal void tab_detached (Midori.Tab tab, int x, int y);
-        /* Since: 0.5.6 */
+        /* Since: 0.5.7 */
         public signal void new_tab ();
 
         [CCode (type = "GtkWidget*")]

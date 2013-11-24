@@ -4324,7 +4324,7 @@ midori_view_duplicate (MidoriView* view)
  * Return value: a #GtkMenu
  *
  * Since: 0.1.8
- * Deprecated: 0.5.6: Use MidoriNotebook API instead.
+ * Deprecated: 0.5.7: Use MidoriNotebook API instead.
  **/
 GtkWidget*
 midori_view_get_tab_menu (MidoriView* view)
@@ -4343,7 +4343,7 @@ midori_view_get_tab_menu (MidoriView* view)
  *
  * Return value: the proxy #GtkEventBox
  *
- * Deprecated: 0.5.6: Don't use this label.
+ * Deprecated: 0.5.7: Don't use this label.
  **/
 GtkWidget*
 midori_view_get_proxy_tab_label (MidoriView* view)
@@ -4984,7 +4984,7 @@ midori_view_get_for_widget (GtkWidget* web_view)
  *
  * Sets colors on the label.
  *
- * Deprecated: 0.5.6: Use fg_color/ bg_color on Midori.Tab.
+ * Deprecated: 0.5.7: Use fg_color/ bg_color on Midori.Tab.
  **/
 void
 midori_view_set_colors (MidoriView* view,
