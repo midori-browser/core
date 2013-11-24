@@ -5263,7 +5263,7 @@ midori_view_print (MidoriView* view)
     g_object_unref (settings);
 
     if (katze_object_get_boolean (view->settings, "print-without-dialog")) {
-        webkit_print_operation_run (operation);
+        webkit_print_operation_print (operation);
     }
     else {
         webkit_print_operation_run_dialog (operation,
