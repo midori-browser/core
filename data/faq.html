@@ -4,8 +4,8 @@
   <meta charset="utf-8" />
   <title>midori:faq</title>
 <meta name="generator" content="DokuWiki"/>
-<meta name="robots" content="noindex,nofollow"/>
-<meta name="date" content="2013-08-13T17:48:26+0200"/>
+<meta name="robots" content="index,follow"/>
+<meta name="date" content="2013-10-18T05:46:11+0200"/>
 <meta name="keywords" content="midori,faq"/>
 <link rel="search" type="application/opensearchdescription+xml" href="/lib/exe/opensearch.php" title="Xfce Wiki"/>
 <link rel="start" href="/"/>
@@ -169,6 +169,18 @@ Ideally Google would follow <a href="http://code.google.com/p/doctype/wiki/Artic
 The set of themed icons Midori can use is very limited. For instance icons for a new tab or the throbber are not guaranteed to be available. To fix this, install a Freedesktop.org <abbr title="specification">spec</abbr> compliant icon theme, such as Elementary, Faenza, Buuf or GNOME.
 </p>
 
+<p>
+if you need to set a custom path for these to be “searched in” (Kiosks and embedded devices for example):
+</p>
+
+<p>
+XDG_DATA_HOME=/path/to/location  
+</p>
+
+<p>
+will add an extra path for the icons/.. directory
+</p>
+
 </div>
 
 <h4 id="tweaking_midori_on_the_gtk_level">Tweaking Midori on the Gtk level</h4>
@@ -238,7 +250,7 @@ export XDG_CACHE_HOME=/dev/shm
 </p>
 
 </div>
-<!-- EDIT3 SECTION "Common problems" [1189-3545] -->
+<!-- EDIT3 SECTION "Common problems" [1189-3737] -->
 <h2 class="sectionedit4" id="security_features">Security features</h2>
 <div class="level2">
 
@@ -283,7 +295,7 @@ No key store is available or it&#039;s incorrectly setup. By default GNOME keyri
 </p>
 
 </div>
-<!-- EDIT4 SECTION "Security features" [3546-4763] -->
+<!-- EDIT4 SECTION "Security features" [3738-4955] -->
 <h2 class="sectionedit5" id="flash_doesn_t_work">Flash doesn&#039;t work</h2>
 <div class="level2">
 
@@ -322,9 +334,11 @@ You can either run that above line and run Midori in the same terminal afterward
 <p>
 nspluginwrapper is a program that runs Flash and other Netscape plugins in a separate process. So a crash can&#039;t crash the whole browser and Flash, which is GTK+2 can run in GTK+3.
 </p>
-<pre class="code bash"><span class="kw2">sudo</span> <span class="kw2">apt-get install</span> flashplugin-installer nspluginwrapper
-<span class="kw2">sudo</span> nspluginwrapper <span class="re5">-i</span> <span class="sy0">/</span>usr<span class="sy0">/</span>lib<span class="sy0">/</span>flashplugin-installer<span class="sy0">/</span>libflashplayer.so
-nspluginwrapper <span class="re5">-v</span> <span class="re5">-a</span> <span class="re5">-n</span> <span class="re5">-i</span></pre>
+<pre class="code bash"><span class="kw2">sudo</span> <span class="kw2">apt-get install</span> nspluginwrapper
+<span class="co0"># On Debian/ Ubuntu - on other systems http://get.adobe.com/de/flashplayer/</span>
+<span class="kw2">sudo</span> <span class="kw2">apt-get install</span> flashplugin-installer
+<span class="co0"># cd into the folder where the plugin was installed</span>
+nspluginwrapper <span class="re5">-v</span> <span class="re5">-a</span> <span class="re5">-n</span> <span class="re5">-i</span> libflashplayer.so</pre>
 
 <p>
 ~/.mozilla can also be used with Adobe&#039;s tarball if system-wide install is not an option. The approach is confirmed to work with x86-64 as well.
@@ -612,12 +626,12 @@ Most settings listed at <a href="http://webkitgtk.org/reference/webkitgtk/stable
 </p>
 
 </div>
-<!-- EDIT5 SECTION "Flash doesn't work" [4764-13226] -->
+<!-- EDIT5 SECTION "Flash doesn't work" [4956-13512] -->
 <h1 class="sectionedit6" id="privacy">Privacy</h1>
 <div class="level1">
 
 </div>
-<!-- EDIT6 SECTION "Privacy" [13227-13249] -->
+<!-- EDIT6 SECTION "Privacy" [13513-13535] -->
 <h2 class="sectionedit7" id="blacklist_cookies">Blacklist cookies</h2>
 <div class="level2">
 
@@ -643,7 +657,7 @@ The feature is currently experimental and will change in future versions.
 </p>
 
 </div>
-<!-- EDIT7 SECTION "Blacklist cookies" [13250-13786] -->
+<!-- EDIT7 SECTION "Blacklist cookies" [13536-14072] -->
 <h2 class="sectionedit8" id="adblock">Adblock</h2>
 <div class="level2">
 
@@ -652,12 +666,12 @@ The Advertisement Blocker can be activated under Extensions. It uses the same li
 </p>
 
 </div>
-<!-- EDIT8 SECTION "Adblock" [13787-14042] -->
+<!-- EDIT8 SECTION "Adblock" [14073-14328] -->
 <h1 class="sectionedit9" id="modes">Modes</h1>
 <div class="level1">
 
 </div>
-<!-- EDIT9 SECTION "Modes" [14043-14063] -->
+<!-- EDIT9 SECTION "Modes" [14329-14349] -->
 <h2 class="sectionedit10" id="web_applications">Web Applications</h2>
 <div class="level2">
 
@@ -678,7 +692,7 @@ There are two closely related features to open websites as dedicated windows of 
 </p>
 
 </div>
-<!-- EDIT10 SECTION "Web Applications" [14064-14580] -->
+<!-- EDIT10 SECTION "Web Applications" [14350-14866] -->
 <h2 class="sectionedit11" id="private_browsing">Private Browsing</h2>
 <div class="level2">
 
@@ -704,7 +718,7 @@ The same options available to -a/ –app can be used for private browsing mode.
 </p>
 
 </div>
-<!-- EDIT11 SECTION "Private Browsing" [14581-15500] -->
+<!-- EDIT11 SECTION "Private Browsing" [14867-15786] -->
 <h2 class="sectionedit12" id="portable_modewin32">Portable mode/ Win32</h2>
 <div class="level2">
 
@@ -713,7 +727,7 @@ On Windows builds, -P/ –portable causes all data to be written to the “profi
 </p>
 
 </div>
-<!-- EDIT12 SECTION "Portable mode/ Win32" [15501-15814] -->
+<!-- EDIT12 SECTION "Portable mode/ Win32" [15787-16100] -->
 <h2 class="sectionedit13" id="kiosk_mode">Kiosk mode</h2>
 <div class="level2">
 
@@ -745,7 +759,7 @@ Any links outside end up in an error page. All images and other files won&#039;t
 </p>
 
 </div>
-<!-- EDIT13 SECTION "Kiosk mode" [15815-16852] -->
+<!-- EDIT13 SECTION "Kiosk mode" [16101-17138] -->
 <h2 class="sectionedit14" id="always_open_midori_in_fullscreen">Always open Midori in Fullscreen</h2>
 <div class="level2">
 
@@ -778,7 +792,7 @@ If for whatever reason this isn&#039;t enough, <a href="https://live.gnome.org/D
 </p>
 
 </div>
-<!-- EDIT14 SECTION "Always open Midori in Fullscreen" [16853-17380] -->
+<!-- EDIT14 SECTION "Always open Midori in Fullscreen" [17139-17666] -->
 <h2 class="sectionedit15" id="overriding_settings_and_loading_extensions">Overriding settings and loading extensions</h2>
 <div class="level2">
 
@@ -795,7 +809,7 @@ As of Midori 0.5.0 the –execute command line switch got more powerful:
 </p>
 
 </div>
-<!-- EDIT15 SECTION "Overriding settings and loading extensions" [17381-17588] -->
+<!-- EDIT15 SECTION "Overriding settings and loading extensions" [17667-17874] -->
 <h1 class="sectionedit16" id="proxy_servers">Proxy servers</h1>
 <div class="level1">
 
@@ -879,7 +893,7 @@ server_port = 5555</pre>
 </ol>
 
 </div>
-<!-- EDIT16 SECTION "Proxy servers" [17589-19410] -->
+<!-- EDIT16 SECTION "Proxy servers" [17875-19696] -->
 <h1 class="sectionedit17" id="keyboard_hotkeys">Keyboard Hotkeys</h1>
 <div class="level1">
 
@@ -961,7 +975,7 @@ When using Ctrl+f to bring up Find, use Ctrl+f again or ESC. When using ”/” 
 </p>
 
 </div>
-<!-- EDIT17 SECTION "Keyboard Hotkeys" [19411-20743] -->
+<!-- EDIT17 SECTION "Keyboard Hotkeys" [19697-21029] -->
 <h1 class="sectionedit18" id="mouse_gestures">Mouse Gestures</h1>
 <div class="level1">
 
@@ -995,7 +1009,7 @@ Additionally, there are programs allowing mouse gestures system-wide, for exampl
 </p>
 
 </div>
-<!-- EDIT18 SECTION "Mouse Gestures" [20744-21676] -->
+<!-- EDIT18 SECTION "Mouse Gestures" [21030-21962] -->
 <h1 class="sectionedit19" id="user_scripts_and_styles">User scripts and styles</h1>
 <div class="level1">
 
@@ -1056,7 +1070,7 @@ You can also use <a href="http://rightfootin.blogspot.com/2009/04/flashblock-wan
 </p>
 
 </div>
-<!-- EDIT19 SECTION "User scripts and styles" [21677-24231] -->
+<!-- EDIT19 SECTION "User scripts and styles" [21963-24517] -->
 <h2 class="sectionedit20" id="user_styles">User styles</h2>
 <div class="level2">
 
@@ -1102,23 +1116,23 @@ This user css is used to display the corresponding url when a link is hovered. T
 <p>
 Customize as needed:
 </p>
-<pre class="code">a[href]:hover {
-            text-decoration: none !important;
-        }
-        a[href]:hover:after {
-            content: attr(href);
-            position: fixed; left: 4px; bottom: 4px;
-            padding: 0 6px !important;
-            max-width: 95%; overflow: hidden;
-            white-space: nowrap; text-overflow: ellipsis;
-            font:10pt sans-serif !important; text-shadow: 0 0 12px white;
-            background-color: ButtonFace !important; color: ButtonText !important;
-            opacity: 0.8; outline: ButtonFace solid thick;
-            z-index: 9999;
-        }</pre>
+<pre class="code css">a<span class="br0">&#91;</span>href<span class="br0">&#93;</span><span class="re2">:hover </span><span class="br0">&#123;</span>
+            <span class="kw1">text-decoration</span><span class="sy0">:</span> <span class="kw2">none</span> !important<span class="sy0">;</span>
+        <span class="br0">&#125;</span>
+        a<span class="br0">&#91;</span>href<span class="br0">&#93;</span><span class="re2">:hover</span><span class="re2">:after </span><span class="br0">&#123;</span>
+            <span class="kw1">content</span><span class="sy0">:</span> attr<span class="br0">&#40;</span>href<span class="br0">&#41;</span><span class="sy0">;</span>
+            <span class="kw1">position</span><span class="sy0">:</span> <span class="kw2">fixed</span><span class="sy0">;</span> <span class="kw1">left</span><span class="sy0">:</span> <span class="re3">4px</span><span class="sy0">;</span> <span class="kw1">bottom</span><span class="sy0">:</span> <span class="re3">4px</span><span class="sy0">;</span>
+            <span class="kw1">padding</span><span class="sy0">:</span> <span class="nu0">0</span> <span class="re3">6px</span> !important<span class="sy0">;</span>
+            <span class="kw1">max-width</span><span class="sy0">:</span> <span class="re3">95%</span><span class="sy0">;</span> <span class="kw1">overflow</span><span class="sy0">:</span> <span class="kw2">hidden</span><span class="sy0">;</span>
+            <span class="kw1">white-space</span><span class="sy0">:</span> <span class="kw2">nowrap</span><span class="sy0">;</span> text-overflow<span class="sy0">:</span> ellipsis<span class="sy0">;</span>
+            <span class="kw1">font</span><span class="sy0">:</span><span class="re3">10pt</span> <span class="kw2">sans-serif</span> !important<span class="sy0">;</span> <span class="kw1">text-shadow</span><span class="sy0">:</span> <span class="nu0">0</span> <span class="nu0">0</span> <span class="re3">12px</span> <span class="kw2">white</span><span class="sy0">;</span>
+            <span class="kw1">background-color</span><span class="sy0">:</span> ButtonFace !important<span class="sy0">;</span> <span class="kw1">color</span><span class="sy0">:</span> ButtonText !important<span class="sy0">;</span>
+            opacity<span class="sy0">:</span> <span class="nu0">0.8</span><span class="sy0">;</span> <span class="kw1">outline</span><span class="sy0">:</span> ButtonFace <span class="kw2">solid</span> <span class="kw2">thick</span><span class="sy0">;</span>
+            <span class="kw1">z-index</span><span class="sy0">:</span> <span class="nu0">9999</span><span class="sy0">;</span>
+        <span class="br0">&#125;</span></pre>
 
 </div>
-<!-- EDIT20 SECTION "User styles" [24232-26469] -->
+<!-- EDIT20 SECTION "User styles" [24518-26759] -->
 <h2 class="sectionedit21" id="understanding_webkit_version_numbers">Understanding WebKit Version Numbers</h2>
 <div class="level2">
 
@@ -1156,6 +1170,6 @@ Midori&#039;s support for WebKit2 is still provisional, and likely unsuitable fo
 </p>
 
 </div>
-<!-- EDIT21 SECTION "Understanding WebKit Version Numbers" [26470-] --></div>
+<!-- EDIT21 SECTION "Understanding WebKit Version Numbers" [26760-] --></div>
 </body>
 </html>

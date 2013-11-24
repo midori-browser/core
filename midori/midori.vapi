@@ -206,7 +206,7 @@ namespace Midori {
         [HasEmitter]
         public signal bool download_requested (WebKit.Download download);
         public signal bool about_content (string uri);
-
+        public signal void new_view (Midori.View new_view, Midori.NewView where, bool user_initiated);
     }
 
     [CCode (cheader_filename = "midori/midori.h")]

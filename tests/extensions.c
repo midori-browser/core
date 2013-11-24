@@ -160,6 +160,7 @@ extension_settings (void)
     midori_extension_set_string_list (extension, "pets", names, 2);
     g_strfreev (names);
     names = midori_extension_get_string_list (extension, "pets", &names_n);
+    g_strfreev (names);
     g_assert_cmpint (names_n, ==, 2);
     midori_extension_deactivate (extension);
 }

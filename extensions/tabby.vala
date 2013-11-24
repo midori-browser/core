@@ -11,6 +11,8 @@
 
 namespace Tabby {
     int IDLE_RESTORE_COUNT = 13;
+    /* FixMe: don't use a global object */
+    Midori.App? APP;
 
     /* function called from Manager object */
     public interface IStorage : GLib.Object {
@@ -25,6 +27,7 @@ namespace Tabby {
         public abstract void add_item (Katze.Item item);
         public abstract void attach (Midori.Browser browser);
         public abstract void restore (Midori.Browser browser);
+        public abstract void remove ();
         public abstract void close ();
     }
 
@@ -89,6 +92,8 @@ namespace Tabby {
             public abstract void tab_switched (Midori.View? old_view, Midori.View? new_view);
             public abstract void tab_reordered (Gtk.Widget tab, uint pos);
 
+            public abstract void remove ();
+
             public abstract Katze.Array get_tabs ();
             public abstract double? get_max_sorting ();
 
@@ -139,6 +144,11 @@ namespace Tabby {
                 unowned GLib.List<unowned Katze.Item> u_items = items;
 
                 bool delay = false;
+                bool should_delay = false;
+
+                int load_on_startup;
+                APP.settings.get ("load-on-startup", out load_on_startup);
+                should_delay = load_on_startup == Midori.MidoriStartup.DELAYED_PAGES;
 
                 this.state = SessionState.RESTORING;
 
@@ -157,7 +167,7 @@ namespace Tabby {
 
                             t_item.set_meta_integer ("append", 1);
 
-                            if (delay)
+                            if (delay && should_delay)
                                 t_item.set_meta_integer ("delay", Midori.Delay.DELAYED);
                             else
                                 delay = true;
@@ -239,7 +249,7 @@ namespace Tabby {
 
                 if (view.load_status == Midori.LoadStatus.PROVISIONAL) {
                     unowned Katze.Item item = view.get_proxy_item ();
-                    
+
                     int64 delay = item.get_meta_integer ("delay");
                     if (delay == Midori.Delay.UNDELAYED) {
                         view.web_view.notify["uri"].connect ( () => {
@@ -257,6 +267,8 @@ namespace Tabby {
 
             private void helper_data_changed (Midori.Browser browser, Midori.View view) {
                view.notify["load-status"].connect (load_status);
+
+               view.new_view.connect (this.helper_duplicate_tab);
             }
 
             private void helper_reorder_tabs (GLib.PtrArray new_tabs) {
@@ -293,6 +305,17 @@ namespace Tabby {
                 this.browser.notebook.page_reordered.connect_after (this.tab_reordered);
             }
 
+            private void helper_duplicate_tab (Midori.View view, Midori.View new_view, Midori.NewView where, bool user_initiated) {
+                unowned Katze.Item item = view.get_proxy_item ();
+                unowned Katze.Item new_item = new_view.get_proxy_item ();
+                int64 tab_id = item.get_meta_integer ("tabby-id");
+                int64 new_tab_id = new_item.get_meta_integer ("tabby-id");
+
+                if (tab_id > 0 && tab_id == new_tab_id) {
+                    new_item.set_meta_integer ("tabby-id", 0);
+                }
+            }
+
             construct {
                 this.tab_sorting = new GLib.SList<double?> ();
             }
@@ -301,7 +324,6 @@ namespace Tabby {
 
     namespace Local {
         private class Session : Base.Session {
-            public static int open_sessions = 0;
             public int64 id { get; private set; }
             private unowned Sqlite.Database db;
 
@@ -416,11 +438,41 @@ namespace Tabby {
                 item.set_meta_string ("sorting", sorting.to_string ());
             }
 
+            public override void remove() {
+                string sqlcmd = "DELETE FROM `tabs` WHERE session_id = :session_id;";
+                Sqlite.Statement stmt;
+                if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
+                    critical (_("Failed to update database: %s"), db.errmsg ());
+                stmt.bind_int64 (stmt.bind_parameter_index (":session_id"), this.id);
+
+                if (stmt.step () != Sqlite.DONE)
+                    critical (_("Failed to update database: %s"), db.errmsg ());
+
+                sqlcmd = "DELETE FROM `sessions` WHERE id = :session_id;";
+                if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
+                    critical (_("Failed to update database: %s"), db.errmsg ());
+                stmt.bind_int64 (stmt.bind_parameter_index (":session_id"), this.id);
+
+                if (stmt.step () != Sqlite.DONE)
+                    critical (_("Failed to update database: %s"), db.errmsg ());
+            }
+
             public override void close() {
                 base.close ();
 
-                if (Session.open_sessions == 1)
-                    return;
+                bool should_break = true;
+                if (!this.browser.destroy_with_parent) {
+                    foreach (Midori.Browser browser in APP.get_browsers ()) {
+                        if (browser != this.browser && !browser.destroy_with_parent) {
+                            should_break = false;
+                            break;
+                        }
+                    }
+
+                    if (should_break) {
+                        return;
+                    }
+                }
 
                 GLib.DateTime time = new DateTime.now_local ();
                 string sqlcmd = "UPDATE `sessions` SET closed = 1, tstamp = :tstamp WHERE id = :session_id;";
@@ -517,15 +569,6 @@ namespace Tabby {
                 if (stmt.step () != Sqlite.DONE)
                     critical (_("Failed to update database: %s"), db.errmsg);
             }
-
-            construct {
-                Session.open_sessions++;
-            }
-
-            ~Session () {
-                Session.open_sessions--;
-            }
-
         }
 
         private class Storage : Base.Storage {
@@ -535,7 +578,12 @@ namespace Tabby {
             public override Katze.Array get_sessions () {
                 Katze.Array sessions = new Katze.Array (typeof (Session));
 
-                string sqlcmd = "SELECT id FROM sessions WHERE closed = 0;";
+                string sqlcmd = """
+                    SELECT id, closed FROM sessions WHERE closed = 0
+                    UNION
+                    SELECT * FROM (SELECT id, closed FROM sessions WHERE closed = 1 ORDER BY tstamp DESC LIMIT 1)
+                    ORDER BY closed;
+                """;
                 Sqlite.Statement stmt;
                 if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
                     critical (_("Failed to select from database: %s"), db.errmsg);
@@ -547,10 +595,13 @@ namespace Tabby {
 
                 while (result == Sqlite.ROW) {
                     int64 id = stmt.column_int64 (0);
-                    sessions.add_item (new Session.with_id (this.db, id));
+                    int64 closed = stmt.column_int64 (1);
+                    if (closed == 0 || sessions.is_empty ()) {
+                        sessions.add_item (new Session.with_id (this.db, id));
+                    }
                     result = stmt.step ();
                  }
- 
+
                 if (sessions.is_empty ()) {
                     sessions.add_item (new Session (this.db));
                 }
@@ -597,7 +648,24 @@ namespace Tabby {
     private class Manager : Midori.Extension {
         private Base.Storage storage;
         private bool load_session () {
-            this.storage.restore_last_sessions ();
+            /* Using get here to avoid MidoriMidoriStartup in generated C with Vala 0.20.1 */
+            int load_on_startup;
+            APP.settings.get ("load-on-startup", out load_on_startup);
+            if (load_on_startup == Midori.MidoriStartup.BLANK_PAGE) {
+                Midori.Browser browser = APP.create_browser ();
+                APP.add_browser (browser);
+                /* The API from the old days says blank but means speed dial */
+                browser.add_uri ("about:dial");
+                browser.show ();
+            } else if (load_on_startup == Midori.MidoriStartup.HOMEPAGE) {
+                Midori.Browser browser = APP.create_browser ();
+                APP.add_browser (browser);
+                browser.add_uri ("about:home");
+                browser.show ();
+            } else {
+                this.storage.restore_last_sessions ();
+            }
+
             return false;
         }
 
@@ -639,10 +707,21 @@ namespace Tabby {
                 GLib.warning ("missing session");
             } else {
                 session.close ();
+
+                /* Using get here to avoid MidoriMidoriStartup in generated C with Vala 0.20.1 */
+                int load_on_startup;
+                APP.settings.get ("load-on-startup", out load_on_startup);
+
+                if (browser.destroy_with_parent
+                 || load_on_startup < Midori.MidoriStartup.LAST_OPEN_PAGES) {
+                    /* Remove js popups and close if not restoring on startup */
+                    session.remove ();
+                }
             }
         }
 
         private void activated (Midori.App app) {
+            APP = app;
             unowned string? restore_count = GLib.Environment.get_variable ("TABBY_RESTORE_COUNT");
             if (restore_count != null) {
                 int count = int.parse (restore_count);

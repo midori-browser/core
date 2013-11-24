@@ -10,8 +10,10 @@
 */
 
 namespace Sokoke {
+#if !HAVE_WEBKIT2
     extern static bool show_uri (Gdk.Screen screen, string uri, uint32 timestamp) throws Error;
     extern static bool message_dialog (Gtk.MessageType type, string short, string detailed, bool modal);
+#endif
 }
 
 namespace Midori {
@@ -52,7 +54,7 @@ namespace Midori {
 
         public static string get_tooltip (WebKit.Download download) {
 #if !HAVE_WEBKIT2
-            string filename = Path.get_basename (download.destination_uri);
+            string filename = Midori.URI.get_basename_for_display (download.destination_uri);
             /* i18n: Download tooltip (size): 4KB of 43MB */
             string size = _("%s of %s").printf (
                 format_size (download.current_size),
@@ -256,15 +258,14 @@ namespace Midori {
 
         public string get_filename_suggestion_for_uri (string mime_type, string uri) {
             return_val_if_fail (Midori.URI.is_location (uri), uri);
-            string filename = File.new_for_uri (uri).get_basename ();
+            string filename = Midori.URI.get_basename_for_display (uri);
             if (uri.index_of_char ('.') == -1)
                 return Path.build_filename (filename, fallback_extension (null, mime_type));
             return filename;
         }
 
         public static string? get_extension_for_uri (string uri, out string basename = null) {
-            if (&basename != null)
-                basename = null;
+            basename = null;
             /* Find the last slash and the last period *after* the last slash. */
             int last_slash = uri.last_index_of_char ('/');
             /* Huh, URI without slashes? */
@@ -277,8 +278,7 @@ namespace Midori {
             int query = uri.last_index_of_char ('?', period);
             /* The extension, or "." if it ended with a period */
             string extension = uri.substring (period, query - period);
-            if (&basename != null)
-                basename = uri.substring (0, period);
+            basename = uri.substring (0, period);
             return extension;
 
         }
@@ -299,7 +299,7 @@ namespace Midori {
 
         public string prepare_destination_uri (WebKit.Download download, string? folder) {
             string suggested_filename = get_suggested_filename (download);
-            string basename = File.new_for_uri (suggested_filename).get_basename ();
+            string basename = Path.get_basename (suggested_filename);
             string download_dir;
             if (folder == null) {
                 download_dir = Paths.get_tmp_dir ();
@@ -337,12 +337,12 @@ namespace Midori {
                 string detailed_message;
                 if (!can_write) {
                     message = _("The file \"%s\" can't be saved in this folder.").printf (
-                        Path.get_basename (uri));
+                        Midori.URI.get_basename_for_display (uri));
                     detailed_message = _("You don't have permission to write in this location.");
                 }
                 else if (free_space < download.total_size) {
                     message = _("There is not enough free space to download \"%s\".").printf (
-                        Path.get_basename (uri));
+                        Midori.URI.get_basename_for_display (uri));
                     detailed_message = _("The file needs %s but only %s are left.").printf (
                         format_size (download.total_size), format_size (free_space));
                 }

@@ -150,8 +150,8 @@ namespace Midori {
         }
 
         void uri_dragged (Gdk.DragContext context, int x, int y, Gtk.SelectionData data, uint ttype, uint timestamp) {
-            string[] uri = data.get_uris ();
             /* FIXME: Navigate to the URI
+            string[] uri = data.get_uris ();
             if (uri != null)
                 tab.uri = uri[0];
             else
@@ -369,6 +369,18 @@ namespace Midori {
                     tally.tab.minimized = !tally.tab.minimized;
                 });
                 menu.add (action_minimize);
+                var action_right = new Midori.ContextAction ("TabCloseRight", ngettext ("Close Tab to the R_ight", "Close Tabs to the R_ight", count - 1), null, null);
+                action_right.sensitive = count > 1;
+                action_right.activate.connect (()=>{
+                    bool found_tab = false;
+                    foreach (var child in notebook.get_children ()) {
+                        if (found_tab)
+                            child.destroy ();
+                        else
+                            found_tab = child == tally.tab;
+                    }
+                });
+                menu.add (action_right);
                 var action_other = new Midori.ContextAction ("TabCloseOther", ngettext ("Close Ot_her Tab", "Close Ot_her Tabs", count - 1), null, null);
                 action_other.sensitive = count > 1;
                 action_other.activate.connect (()=>{
