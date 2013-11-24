@@ -428,6 +428,8 @@ namespace Midori {
 
         /* Can't override Gtk.Container.remove because it checks the parent */
         public new void remove (Midori.Tab tab) {
+            return_if_fail (notebook.get_children ().find (tab) != null);
+
             notebook.remove (tab);
             tab.destroy.disconnect (tab_removed);
             tab.notify["minimized"].disconnect (tab_minimized);

@@ -219,10 +219,6 @@ midori_browser_disconnect_tab (MidoriBrowser* browser,
                                MidoriView*    view);
 
 static gboolean
-midori_browser_tab_connected (MidoriBrowser* browser,
-                              MidoriView*    view);
-
-static gboolean
 midori_browser_is_fullscreen (MidoriBrowser* browser)
 {
     GdkWindow* window = gtk_widget_get_window (GTK_WIDGET (browser));
@@ -1380,8 +1376,19 @@ static void
 midori_view_destroy_cb (GtkWidget*     view,
                         MidoriBrowser* browser)
 {
-    if (midori_browser_tab_connected (browser, MIDORI_VIEW (view)))
+    if (browser->proxy_array)
+    {
+        KatzeItem* item = midori_view_get_proxy_item (MIDORI_VIEW (view));
+        if (katze_array_get_item_index (browser->proxy_array, item) != -1
+         && !midori_tab_is_blank (MIDORI_TAB (view)))
+        {
+            if (browser->trash)
+                katze_array_add_item (browser->trash, item);
+            midori_browser_update_history (item, "website", "leave");
+        }
         midori_browser_disconnect_tab (browser, MIDORI_VIEW (view));
+        g_signal_emit (browser, signals[REMOVE_TAB], 0, view);
+    }
 }
 
 static void
@@ -1772,19 +1779,11 @@ midori_browser_get_n_pages (MidoriBrowser* browser)
     return midori_notebook_get_count (MIDORI_NOTEBOOK (browser->notebook));
 }
 
-static gboolean
-midori_browser_tab_connected (MidoriBrowser* browser,
-                              MidoriView*    view)
-{
-    return browser->proxy_array &&
-        (katze_array_get_item_index (browser->proxy_array, midori_view_get_proxy_item (view)) != -1);
-}
-
 static void
 _midori_browser_remove_tab (MidoriBrowser* browser,
                             GtkWidget*     widget)
 {
-    midori_notebook_remove (MIDORI_NOTEBOOK (browser->notebook), MIDORI_TAB (widget));
+    gtk_widget_destroy (widget);
 }
 
 static void
@@ -1828,25 +1827,6 @@ midori_browser_connect_tab (MidoriBrowser* browser,
                       "signal::destroy",
                       midori_view_destroy_cb, browser,
                       NULL);
-}
-
-static void
-midori_browser_add_tab_to_trash (MidoriBrowser* browser,
-                                 MidoriView*    view)
-{
-    if (browser->proxy_array)
-    {
-        KatzeItem* item = midori_view_get_proxy_item (view);
-        if (katze_array_get_item_index (browser->proxy_array, item) != -1)
-        {
-            if (!midori_view_is_blank (view))
-            {
-                if (browser->trash)
-                    katze_array_add_item (browser->trash, item);
-                midori_browser_update_history (item, "website", "leave");
-            }
-        }
-    }
 }
 
 static void
@@ -7110,7 +7090,6 @@ midori_browser_close_tab (MidoriBrowser* browser,
     g_return_if_fail (MIDORI_IS_BROWSER (browser));
     g_return_if_fail (GTK_IS_WIDGET (view));
 
-    midori_browser_add_tab_to_trash (browser, MIDORI_VIEW (view));
     g_signal_emit (browser, signals[REMOVE_TAB], 0, view);
 }
 
