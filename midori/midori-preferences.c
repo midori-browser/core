@@ -515,7 +515,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     INDENTED_ADD (label);
     button = katze_property_proxy (settings, "proxy-type", NULL);
     SPANNED_ADD (button);
-    label = gtk_label_new (_("Hostname"));
+    label = gtk_label_new (_("URI"));
     gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
     INDENTED_ADD (label);
     entry = katze_property_proxy (settings, "http-proxy", "address");
