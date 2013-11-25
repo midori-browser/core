@@ -256,9 +256,13 @@ namespace Midori {
 #endif
         }
 
+        /**
+         * Returns a filename of the form "name.ext" to use as a suggested name for
+         * a download of the given uri
+         */
         public string get_filename_suggestion_for_uri (string mime_type, string uri) {
             return_val_if_fail (Midori.URI.is_location (uri), uri);
-            string filename = Midori.URI.get_basename_for_display (uri);
+            string filename = File.new_for_uri (uri).get_basename ();
             if (uri.index_of_char ('.') == -1)
                 return Path.build_filename (filename, fallback_extension (null, mime_type));
             return filename;
