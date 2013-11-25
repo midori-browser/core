@@ -61,8 +61,18 @@ namespace Midori {
         public LoadStatus load_status { get; protected set; default = LoadStatus.FINISHED; }
         public string? statusbar_text { get; protected set; default = null; }
         /* Since: 0.5.0 */
+
         public Gdk.Color? fg_color { get; protected set; default = null; }
-        public Gdk.Color? bg_color { get; protected set; default = null; }
+        private Gdk.Color? bg_color_ = null;
+        public Gdk.Color? bg_color { get {
+            return bg_color_;
+        } protected set {
+            bg_color_ = value;
+            colors_changed ();
+        } }
+        /* After fg_color and bg_color have changed.
+           Since: 0.5.7 */
+        public signal void colors_changed ();
 
         /* Special pages don't convey progress */
         private double current_progress = 0.0;

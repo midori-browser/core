@@ -56,8 +56,7 @@ namespace Midori {
             tab.notify["icon"].connect (icon_changed);
             tab.notify["minimized"].connect (minimized_changed);
             tab.notify["progress"].connect (progress_changed);
-            // fg-color and bg-color aren't properties
-            tab.notify["icon"].connect (color_changed);
+            tab.colors_changed.connect (colors_changed);
             update_label ();
             label.visible = !tab.minimized;
             spinner.visible = tab.progress > 0.0;
@@ -109,7 +108,7 @@ namespace Midori {
             this.icon.set_from_gicon (icon, Gtk.IconSize.MENU);
         }
 
-        void color_changed (GLib.ParamSpec pspec) {
+        void colors_changed () {
             update_color ();
         }
 
