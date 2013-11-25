@@ -98,7 +98,8 @@ namespace Midori {
             string? title;
             tab.get ("title", out title);
             label.label = Midori.Tab.get_display_title (title, tab.uri);
-            label.ellipsize = Midori.Tab.get_display_ellipsize (title, tab.uri);
+            /* Use computed label below! */
+            label.ellipsize = Midori.Tab.get_display_ellipsize (label.label, tab.uri);
             tooltip_text = label.label;
         }
 
