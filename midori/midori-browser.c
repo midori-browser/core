@@ -4957,7 +4957,8 @@ midori_browser_notebook_create_window_cb (GtkWidget*     notebook,
     {
         gtk_window_move (GTK_WINDOW (new_browser), x, y);
         g_object_ref (view);
-        _midori_browser_remove_tab (browser, view);
+        midori_browser_disconnect_tab (browser, MIDORI_VIEW (view));
+        midori_notebook_remove (MIDORI_NOTEBOOK (browser->notebook), MIDORI_TAB (view));
         midori_browser_add_tab (new_browser, view);
         g_object_unref (view);
     }
