@@ -557,6 +557,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
         gtk_widget_set_tooltip_text (label, _("The maximum size of cached pages on disk"));
         INDENTED_ADD (label);
         button = katze_property_proxy (settings, "maximum-cache-size", NULL);
+        gtk_spin_button_set_range (GTK_SPIN_BUTTON (button), 0, G_MAXINT);
         gtk_widget_set_tooltip_text (button, _("The maximum size of cached pages on disk"));
         SPANNED_ADD (button);
         label = gtk_label_new (_("MB"));
