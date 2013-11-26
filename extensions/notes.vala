@@ -190,7 +190,7 @@ namespace ClipNotes {
 
             string config_path = this.get_config_dir ();
             if (config_path != null) {
-                string db_path = GLib.Path.build_path (Path.DIR_SEPARATOR_S, this.get_config_dir (), "notes.db");
+                string db_path = GLib.Path.build_path (Path.DIR_SEPARATOR_S, config_path, "notes.db");
                 try {
                     database = new Midori.Database (db_path);
                 } catch (Midori.DatabaseError schema_error) {
