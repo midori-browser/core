@@ -18,6 +18,22 @@ namespace ClipNotes {
         Midori.Database database;
         unowned Sqlite.Database db;
 
+        void note_add_new (string title, string? uri, string note_content)
+        {
+            GLib.DateTime time = new DateTime.now_local ();
+            string sqlcmd = "INSERT INTO `notes` (`uri`, `title`, `note_content`, `tstamp` ) VALUES (:uri, :title, :note_content, :tstamp);";
+            Sqlite.Statement stmt;
+            if (db.prepare_v2 (sqlcmd, -1, out stmt) != Sqlite.OK)
+                critical (_("Failed to update database: %s"), db.errmsg);
+            stmt.bind_text (stmt.bind_parameter_index (":uri"), uri);
+            stmt.bind_text (stmt.bind_parameter_index (":title"), title);
+            stmt.bind_text (stmt.bind_parameter_index (":note_content"), note_content);
+            stmt.bind_int64 (stmt.bind_parameter_index (":tstamp"), time.to_unix ());
+
+            if (stmt.step () != Sqlite.DONE)
+                critical (_("Failed to update database: %s"), db.errmsg);
+        }
+
         private class Sidebar : Gtk.VBox, Midori.Viewable {
         Gtk.Toolbar? toolbar = null;
         Gtk.Label note_label;
@@ -43,7 +59,9 @@ namespace ClipNotes {
                 new_note_button.is_important = true;
                 new_note_button.show ();
                 new_note_button.clicked.connect (() => {
+		    
                     stdout.printf ("IMPLEMENT ME: would add new empty note INSERT INTO NOTES ....\n");
+		    note_add_new ("Dummy tittle", null, "Lorem ipsum blaablalbla");
                 });
                 toolbar.insert (new_note_button, -1);
             } // if (toolbar != null)
@@ -131,21 +149,7 @@ namespace ClipNotes {
 
         } // tab_added
 
-        void note_add_new (string title, string uri, string note_content)
-        {
-            GLib.DateTime time = new DateTime.now_local ();
-            string sqlcmd = "INSERT INTO `notes` (`uri`, `title`, `note_content`, `tstamp` ) VALUES (:uri, :title, :note_content, :tstamp);";
-            Sqlite.Statement stmt;
-            if (db.prepare_v2 (sqlcmd, -1, out stmt) != Sqlite.OK)
-                critical (_("Failed to update database: %s"), db.errmsg);
-            stmt.bind_text (stmt.bind_parameter_index (":uri"), uri);
-            stmt.bind_text (stmt.bind_parameter_index (":title"), title);
-            stmt.bind_text (stmt.bind_parameter_index (":note_content"), note_content);
-            stmt.bind_int64 (stmt.bind_parameter_index (":tstamp"), time.to_unix ());
 
-            if (stmt.step () != Sqlite.DONE)
-                critical (_("Failed to update database: %s"), db.errmsg);
-        }
 
         void add_menu_items (Midori.Tab tab, WebKit.HitTestResult hit_test_result, Midori.ContextAction menu) {
             if ((hit_test_result.context & WebKit.HitTestResultContext.SELECTION) == 0)
@@ -184,13 +188,16 @@ namespace ClipNotes {
             foreach (var browser in app.get_browsers ())
                 browser_added (browser);
 
-            string db_path = GLib.Path.build_path (Path.DIR_SEPARATOR_S, this.get_config_dir (), "notes.db");
-            try {
-                database = new Midori.Database (db_path);
-            } catch (Midori.DatabaseError schema_error) {
-                error (schema_error.message);
-            }
-            db = database.db;
+            string config_path = this.get_config_dir ();
+            if (config_path != null) {
+                string db_path = GLib.Path.build_path (Path.DIR_SEPARATOR_S, this.get_config_dir (), "notes.db");
+                try {
+                    database = new Midori.Database (db_path);
+                } catch (Midori.DatabaseError schema_error) {
+                    error (schema_error.message);
+                }
+                db = database.db;
+	    }
         } // activated
 
         void deactivated () {
