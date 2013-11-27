@@ -260,6 +260,7 @@ else ()
     endif()
 endif ()
 
+set(VALA_CFLAGS "-w -g")
 
 # Work around build error on 64 bit and old gcc
 if (CMAKE_COMPILER_IS_GNUCC)
@@ -269,9 +270,7 @@ if (CMAKE_COMPILER_IS_GNUCC)
     LIST(GET COMPILER_VERSION_LIST 1 GCC_MINOR_VERSION)
 
     if ("${GCC_MAJOR_VERSION}.${GCC_MINOR_VERSION}" VERSION_LESS "4.7")
-        set(VALA_CFLAGS "-w -g -fPIC")
-    else()
-        set(VALA_CFLAGS "-w -g")
+        set(VALA_CFLAGS "${VALA_CFLAGS} -fPIC")
     endif()
 endif()
 
