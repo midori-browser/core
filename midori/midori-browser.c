@@ -3357,8 +3357,8 @@ _action_compact_menu_populate_popup (GtkAction*     action,
     midori_context_action_add_by_name (menu, "HelpFAQ");
     midori_context_action_add_by_name (menu, "HelpBugs");
     #endif
-    midori_context_action_add_by_name (menu, "About");
     midori_context_action_add_by_name (menu, "Preferences");
+    midori_context_action_add_by_name (menu, "About");
     midori_context_action_create_menu (menu, default_menu, FALSE);
 }
 
