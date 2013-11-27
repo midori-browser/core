@@ -270,7 +270,7 @@ if (CMAKE_COMPILER_IS_GNUCC)
 
     if ("${GCC_MAJOR_VERSION}.${GCC_MINOR_VERSION}" VERSION_LESS "4.7")
         set(VALA_CFLAGS "-w -g -fPIC")
-    else
+    else()
         set(VALA_CFLAGS "-w -g")
     endif()
 endif()
