@@ -523,7 +523,7 @@ namespace Midori {
             Gtk.icon_size_lookup_for_settings (get_settings (),
                 Gtk.IconSize.MENU, out icon_size, null);
             int max_size = 150;
-            int min_size = icon_size * 2;
+            int min_size = icon_size;
             if (close_buttons_visible)
                 min_size += icon_size;
             new_size = new_size.clamp (min_size, max_size);
