@@ -260,19 +260,8 @@ else ()
     endif()
 endif ()
 
-set(VALA_CFLAGS "-w -g")
-
-# Work around build error on 64 bit and old gcc
-if (CMAKE_COMPILER_IS_GNUCC)
-    exec_program (${CMAKE_C_COMPILER} ARGS "-dumpversion" OUTPUT_VARIABLE COMPILER_VER)
-    string(REPLACE "." ";" COMPILER_VERSION_LIST ${COMPILER_VER})
-    LIST(GET COMPILER_VERSION_LIST 0 GCC_MAJOR_VERSION)
-    LIST(GET COMPILER_VERSION_LIST 1 GCC_MINOR_VERSION)
-
-    if ("${GCC_MAJOR_VERSION}.${GCC_MINOR_VERSION}" VERSION_LESS "4.7")
-        set(VALA_CFLAGS "${VALA_CFLAGS} -fPIC")
-    endif()
-endif()
+# Explicitly add -fPIC for older toolchains
+set(VALA_CFLAGS "-w -g -fPIC")
 
 set(LIBMIDORI "${CMAKE_PROJECT_NAME}-core")
 
