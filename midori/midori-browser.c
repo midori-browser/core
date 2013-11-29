@@ -1898,7 +1898,7 @@ _midori_browser_add_tab (MidoriBrowser* browser,
         katze_array_move_item (browser->proxy_array, item, n);
     }
     else
-        n = midori_browser_get_n_pages (browser);
+        n = -1;
     katze_item_set_meta_integer (item, "append", -1);
 
     midori_notebook_insert (MIDORI_NOTEBOOK (browser->notebook), MIDORI_TAB (view), n);
