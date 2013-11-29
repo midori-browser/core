@@ -508,11 +508,10 @@ namespace Midori {
 
         void page_moved (Gtk.Widget moving_tab, uint new_index) {
             tab_moved (moving_tab as Midori.Tab, new_index);
-            if (moving_tab == tab) {
-                notify["index"].disconnect (index_changed);
-                index = (int)new_index;
-                notify["index"].connect (index_changed);
-            }
+            /* Indices change, current tab is not in the same position */
+            notify["index"].disconnect (index_changed);
+            index = (int)get_tab_index (tab);
+            notify["index"].connect (index_changed);
         }
 
         unowned Gtk.Notebook window_created (Gtk.Widget tab, int x, int y) {
