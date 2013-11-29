@@ -29,6 +29,11 @@ namespace Midori {
 
             spinner = new Gtk.Spinner ();
             spinner.active = true;
+            /* Ensure the spinner is the size of the icon */
+            int icon_size = 16;
+            Gtk.icon_size_lookup_for_settings (get_settings (),
+                Gtk.IconSize.MENU, out icon_size, null);
+            spinner.set_size_request (icon_size, icon_size);
             box.pack_start (spinner, false, false, 0);
             label = new Gtk.Label (null);
             label.set_alignment (0.0f, 0.5f);
