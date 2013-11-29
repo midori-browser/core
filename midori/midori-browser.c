@@ -4919,9 +4919,6 @@ midori_browser_switched_tab_cb (MidoriNotebook* notebook,
     if (midori_paths_get_runtime_mode () == MIDORI_RUNTIME_MODE_APP)
         gtk_window_set_icon (GTK_WINDOW (browser), midori_view_get_icon (new_view));
 
-    int new_page = midori_notebook_get_tab_index (MIDORI_NOTEBOOK (browser->notebook), MIDORI_TAB (new_view));
-    if (browser->proxy_array)
-        katze_item_set_meta_integer (KATZE_ITEM (browser->proxy_array), "current", new_page);
     g_object_freeze_notify (G_OBJECT (browser));
     g_object_notify (G_OBJECT (browser), "uri");
     g_object_notify (G_OBJECT (browser), "tab");
