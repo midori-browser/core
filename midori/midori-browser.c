@@ -5970,7 +5970,16 @@ midori_browser_init (MidoriBrowser* browser)
     menuitem = gtk_menu_item_new ();
     gtk_widget_show (menuitem);
     browser->throbber = gtk_spinner_new ();
-    gtk_container_add (GTK_CONTAINER (menuitem), browser->throbber);
+    /* Wrap the spinner in an event box to retain its size when hidden */
+    GtkWidget* throbber_box = gtk_event_box_new ();
+    gtk_event_box_set_visible_window (GTK_EVENT_BOX (throbber_box), FALSE);
+    gint icon_size = 16;
+    gtk_icon_size_lookup_for_settings (gtk_widget_get_settings (GTK_WIDGET (browser)),
+                                       GTK_ICON_SIZE_MENU, &icon_size, NULL);
+    gtk_widget_set_size_request (throbber_box, icon_size, icon_size);
+    gtk_container_add (GTK_CONTAINER (throbber_box), browser->throbber);
+    gtk_widget_show (throbber_box);
+    gtk_container_add (GTK_CONTAINER (menuitem), throbber_box);
     #if GTK_CHECK_VERSION (3, 2, 0)
     /* FIXME: Doesn't work */
     gtk_widget_set_hexpand (menuitem, TRUE);
