@@ -305,6 +305,10 @@ namespace Midori {
         }
 
         bool scrolled (Gdk.EventScroll event) {
+            var widget = Gtk.get_event_widget (Gtk.get_current_event ());
+            if (widget == null || widget == tab || widget.is_ancestor (tab))
+                return false;
+
             switch (event.direction) {
                 case Gdk.ScrollDirection.UP:
                 case Gdk.ScrollDirection.LEFT:
