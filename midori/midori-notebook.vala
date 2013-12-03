@@ -308,14 +308,12 @@ namespace Midori {
             switch (event.direction) {
                 case Gdk.ScrollDirection.UP:
                 case Gdk.ScrollDirection.LEFT:
-                    index--;
+                    if (index > 0)
+                        index--;
                     return true;
                 case Gdk.ScrollDirection.DOWN:
                 case Gdk.ScrollDirection.RIGHT:
-                    /* Jump from last to first tab */
-                    if (index - count == -1)
-                        index = 0;
-                    else
+                    if (index < count - 1)
                         index++;
                     return true;
             }
