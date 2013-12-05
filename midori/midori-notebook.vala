@@ -251,7 +251,6 @@ namespace Midori {
             });
 
             button_press_event.connect (button_pressed);
-            scroll_event.connect (scrolled);
         }
 
         ~Notebook () {
@@ -300,26 +299,6 @@ namespace Midori {
                 popup.attach_to_widget (this, null);
                 popup.popup (null, null, null, event.button, event.time);
                 return true;
-            }
-            return false;
-        }
-
-        bool scrolled (Gdk.EventScroll event) {
-            var widget = Gtk.get_event_widget (Gtk.get_current_event ());
-            if (widget == null || widget == tab || widget.is_ancestor (tab))
-                return false;
-
-            switch (event.direction) {
-                case Gdk.ScrollDirection.UP:
-                case Gdk.ScrollDirection.LEFT:
-                    if (index > 0)
-                        index--;
-                    return true;
-                case Gdk.ScrollDirection.DOWN:
-                case Gdk.ScrollDirection.RIGHT:
-                    if (index < count - 1)
-                        index++;
-                    return true;
             }
             return false;
         }
