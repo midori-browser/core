@@ -2715,32 +2715,7 @@ _action_print_activate (GtkAction*     action,
 {
     GtkWidget* view = midori_browser_get_current_tab (browser);
 
-    #if 0 // def HAVE_GRANITE
-    /* FIXME: Blacklist/ custom contract doesn't work
-    gchar* blacklisted_contracts[] = { "print", NULL }; */
-    /* FIXME: granite: should return GtkWidget* like GTK+ */
-    GtkWidget* dialog = (GtkWidget*)granite_widgets_light_window_new (_("Share this page"));
-    /* FIXME: granite: should return GtkWidget* like GTK+ */
-    GtkWidget* content_area = (GtkWidget*)granite_widgets_decorated_window_get_box (GRANITE_WIDGETS_DECORATED_WINDOW (dialog));
-    gchar* filename = midori_view_save_source (MIDORI_VIEW (view), NULL, NULL);
-    const gchar* mime_type = katze_item_get_meta_string (
-        midori_view_get_proxy_item (MIDORI_VIEW (view)), "mime-type");
-    GtkWidget* contractor = (GtkWidget*)granite_widgets_contractor_view_new (
-        filename, mime_type, 32, TRUE);
-    /* granite_widgets_contractor_view_add_item (GRANITE_WIDGETS_CONTRACTOR_VIEW (
-        contractor), _("_Print"), _("Send document to the printer"), "document-print",
-        32, G_MAXINT, midori_view_print, view);
-    granite_widgets_contractor_view_name_blacklist (GRANITE_WIDGETS_CONTRACTOR_VIEW (
-        contractor), blacklisted_contracts, -1); */
-    g_free (filename);
-    gtk_box_pack_start (GTK_BOX (content_area), contractor, TRUE, TRUE, 0);
-    gtk_widget_show (contractor);
-    gtk_widget_show (dialog);
-    /* FIXME: granite: "box" isn't visible by default */
-    gtk_widget_show_all (dialog);
-    #else
     midori_view_print (MIDORI_VIEW (view));
-    #endif
 }
 
 static void
@@ -5058,15 +5033,9 @@ static const GtkActionEntry entries[] =
     { "WindowClose", NULL,
         N_("C_lose Window"), "<Ctrl><Shift>w",
         NULL, G_CALLBACK (_action_window_close_activate) },
-    #if 0 // def HAVE_GRANITE
-    { "Print", "document-export",
-        N_("_Share"), "<Ctrl>p",
-        N_("Share this page"), G_CALLBACK (_action_print_activate) },
-    #else
     { "Print", GTK_STOCK_PRINT,
         NULL, "<Ctrl>p",
         N_("Print the current page"), G_CALLBACK (_action_print_activate) },
-    #endif
     { "Quit", GTK_STOCK_QUIT,
         N_("Close a_ll Windows"), "<Ctrl><Shift>q",
         NULL, G_CALLBACK (_action_quit_activate) },
