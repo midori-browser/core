@@ -28,20 +28,20 @@ namespace Flummi {
 
                 Sqlite.Statement stmt;
                 if (db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK) {
-                    GLib.critical (_("Failed to select from database: %s"), db.errmsg);
+                    GLib.critical ("Failed to select from database: %s", db.errmsg ());
                     return false;
                 }
 
                 int result = stmt.step ();
                 if (!(result == Sqlite.DONE || result == Sqlite.ROW)) {
-                    GLib.critical (_("Failed to select from database: %s"), db.errmsg);
+                    GLib.critical ("Failed to select from database: %s", db.errmsg ());
                     return false;
                 }
 
                 Sqlite.Statement del_stmt;
                 sqlcmd = "DELETE FROM `tasks` WHERE id = :task_id;";
                 if (db.prepare_v2 (sqlcmd, -1, out del_stmt, null) != Sqlite.OK) {
-                    critical (_("Failed to update database: %s"), db.errmsg ());
+                    GLib.critical ("Failed to update database: %s", db.errmsg ());
                     return false;
                 }
 
@@ -60,7 +60,7 @@ namespace Flummi {
                     if (once > 0) {
                         del_stmt.bind_int64 (del_stmt.bind_parameter_index (":task_id"), id);
                         if (del_stmt.step () != Sqlite.DONE) {
-                            GLib.critical (_("Failed to delete record %lf.\nError: %s"), db.errmsg ());
+                            GLib.critical ("Failed to delete record %lf.\nError: %s", id, db.errmsg ());
                             return false;
                         }
                     }
@@ -79,8 +79,8 @@ namespace Flummi {
         }
 
         internal Manager () {
-            GLib.Object (name: "Flummi",
-                         description: "This extension provides a task queue for update jobs or recurring events.",
+            GLib.Object (name: _("Flummi"),
+                         description: _("This extension provides a task queue for update jobs or recurring events."),
                          version: "0.1",
                          authors: "André Stösel <andre@stoesel.de>");
 
