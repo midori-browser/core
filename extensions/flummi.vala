@@ -53,7 +53,7 @@ namespace Flummi {
                     string[] commands = { command };
 
                     if (!app.send_command (commands)) {
-                        GLib.critical ("Command faild: %s\n", command);
+                        GLib.critical ("Command failed: %s\n", command);
                         return false;
                     }
 
@@ -79,8 +79,8 @@ namespace Flummi {
         }
 
         internal Manager () {
-            GLib.Object (name: _("Flummi"),
-                         description: _("This extensions provides a task queue for update jobs or recurring events."),
+            GLib.Object (name: "Flummi",
+                         description: "This extension provides a task queue for update jobs or recurring events.",
                          version: "0.1",
                          authors: "André Stösel <andre@stoesel.de>");
 
