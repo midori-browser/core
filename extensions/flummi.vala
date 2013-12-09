@@ -53,7 +53,7 @@ namespace Flummi {
                     string[] commands = { command };
 
                     if (!app.send_command (commands)) {
-                        GLib.critical ("Command failed: %s\n", command);
+                        GLib.critical ("Command failed: %s", command);
                         return false;
                     }
 
