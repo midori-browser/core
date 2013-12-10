@@ -10,13 +10,120 @@
 */
 
 namespace Midori {
+    /*
+     * Since: 0.5.6
+     */
     public errordomain DatabaseError {
         OPEN,
         NAMING,
         FILENAME,
         EXECUTE,
+        COMPILE,
+        TYPE,
     }
 
+    /*
+     * Since: 0.5.7
+     */
+    public class DatabaseStatement : GLib.Object, GLib.Initable {
+        public Sqlite.Statement? stmt { get { return _stmt; } }
+        protected Sqlite.Statement _stmt = null;
+        public Database? database { get; set construct; }
+        public string? query { get; set construct; }
+
+        public DatabaseStatement (Database database, string query) throws DatabaseError {
+            Object (database: database, query: query);
+            init ();
+        }
+
+        public virtual bool init (GLib.Cancellable? cancellable = null) throws DatabaseError {
+            int result = database.db.prepare_v2 (query, -1, out _stmt, null);
+            if (result != Sqlite.OK)
+                throw new DatabaseError.COMPILE ("Failed to compile statement: %s".printf (query));
+            return true;
+        }
+
+        /*
+         * Bind values to named parameters.
+         * SQL: "SELECT foo FROM bar WHERE id = :session_id"
+         * Vala: statement.bind(":session_id", typeof (int64), 12345);
+         * Supported types: string, int64, double
+         */
+        public void bind (string pname, ...) throws DatabaseError {
+            int pindex = stmt.bind_parameter_index (pname);
+            var args = va_list ();
+            Type ptype = args.arg ();
+            if (ptype == typeof (string))
+                stmt.bind_text (pindex, args.arg ());
+            else if (ptype == typeof (int64))
+                stmt.bind_int64 (pindex, args.arg ());
+            else if (ptype == typeof (double))
+                stmt.bind_double (pindex, args.arg ());
+            else
+                throw new DatabaseError.TYPE ("Invalid type '%s' for '%s' in statement: %s".printf (ptype.name (), pname, query));
+        }
+
+        /*
+         * Execute the statement, it's an error if there are more rows.
+         */
+        public bool exec () throws DatabaseError {
+            if (step ())
+                throw new DatabaseError.EXECUTE ("More rows available - use step instead of exec");
+            return true;
+        }
+
+        /*
+         * Proceed to the next row, returns false when the end is nigh.
+         */
+        public bool step () throws DatabaseError {
+            int result = stmt.step ();
+            if (result != Sqlite.DONE && result != Sqlite.ROW)
+                throw new DatabaseError.EXECUTE (database.db.errmsg ());
+            return result == Sqlite.ROW;
+        }
+
+        private int column_index (string name) throws DatabaseError {
+            for (int i = 0; i < stmt.column_count (); i++) {
+                if (name == stmt.column_name (i))
+                    return i;
+            }
+            throw new DatabaseError.TYPE ("No such column '%s' in row: %s".printf (name, query));
+        }
+
+        /*
+         * Get a string value by its named parameter, for example ":uri".
+         */
+        public string? get_string (string name) throws DatabaseError {
+            int index = column_index (name);
+            if (stmt.column_type (index) != Sqlite.TEXT)
+                throw new DatabaseError.TYPE ("Getting '%s' with wrong type in row: %s".printf (name, query));
+            return stmt.column_text (index);
+        }
+
+        /*
+         * Get an integer value by its named parameter, for example ":day".
+         */
+        public int64 get_int64 (string name) throws DatabaseError {
+            int index = column_index (name);
+            if (stmt.column_type (index) != Sqlite.INTEGER)
+                throw new DatabaseError.TYPE ("Getting '%s' with wrong type in row: %s".printf (name, query));
+            return stmt.column_int64 (index);
+        }
+
+        /*
+         * Get a double value by its named parameter, for example ":session_id".
+         */
+        public double get_double (string name) throws DatabaseError {
+            int index = column_index (name);
+            if (stmt.column_type (index) != Sqlite.FLOAT)
+                throw new DatabaseError.TYPE ("Getting '%s' with wrong type in row: %s".printf (name, query));
+            return stmt.column_double (index);
+        }
+    }
+
+    /*
+     * Since: 0.5.6
+     */
     public class Database : GLib.Object, GLib.Initable {
         public Sqlite.Database? db { get { return _db; } }
         protected Sqlite.Database? _db = null;
@@ -103,6 +210,33 @@ namespace Midori {
             if (db.exec (query) != Sqlite.OK)
                 throw new DatabaseError.EXECUTE (db.errmsg ());
             return true;
+        }
+
+        /*
+         * Prepare a statement with optionally binding parameters by name.
+         * See also DatabaseStatement.bind().
+         * Since: 0.5.7
+         */
+        public DatabaseStatement prepare (string query, ...) throws DatabaseError {
+            var statement = new DatabaseStatement (this, query);
+            var args = va_list ();
+            unowned string? pname = args.arg ();
+            while (pname != null) {
+                Type ptype = args.arg ();
+                if (ptype == typeof (string)) {
+                    string pvalue = args.arg ();
+                    statement.bind (pname, ptype, pvalue);
+                } else if (ptype == typeof (int64)) {
+                    int64 pvalue = args.arg ();
+                    statement.bind (pname, ptype, pvalue);
+                } else if (ptype == typeof (double)) {
+                    double pvalue = args.arg ();
+                    statement.bind (pname, ptype, pvalue);
+                } else
+                    throw new DatabaseError.TYPE ("Invalid type '%s' in statement: %s".printf (ptype.name (), query));
+                pname = args.arg ();
+            }
+            return statement;
         }
     }
 }
