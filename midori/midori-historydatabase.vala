@@ -52,58 +52,49 @@ namespace Midori {
         public async List<HistoryItem>? query (string sqlcmd, string? filter, int day, int max_items, Cancellable cancellable) {
             return_val_if_fail (db != null, null);
 
-            Sqlite.Statement stmt;
-            int result;
+            Midori.DatabaseStatement statement;
 
-            result = db.prepare_v2 (sqlcmd, -1, out stmt, null);
-            if (result != Sqlite.OK) {
-                critical (_("Failed to select from history: %s"), db.errmsg ());
-                return null;
-            }
-
-            if (":filter" in sqlcmd) {
+            try {
                 string real_filter = "%" + filter.replace (" ", "%") + "%";
-                stmt.bind_text (stmt.bind_parameter_index (":filter"), real_filter);
-            }
-            if (":day" in sqlcmd)
-                stmt.bind_int64 (stmt.bind_parameter_index (":day"), day);
-            if (":limit" in sqlcmd)
-                stmt.bind_int64 (stmt.bind_parameter_index (":limit"), max_items);
-
-            result = stmt.step ();
-            if (!(result == Sqlite.DONE || result == Sqlite.ROW)) {
-                critical (_("Failed to select from history: %s"), db.errmsg ());
+                statement = prepare (sqlcmd,
+                    ":filter", typeof (string), real_filter,
+                    ":day", typeof (int64), day,
+                    ":limit", typeof (int64), max_items);
+            } catch (Error error) {
+                critical (_("Failed to select from history: %s"), error.message);
                 return null;
             }
 
             var items = new List<HistoryItem> ();
-            while (result == Sqlite.ROW) {
-                int64 type = stmt.column_int64 (0);
-                int64 date = stmt.column_int64 (1);
-                switch (type) {
-                    case 1:
-                        string uri = stmt.column_text (2);
-                        string title = stmt.column_text (3);
-                        items.append (new HistoryWebsite (uri, title, date));
-                        break;
-                    case 2:
-                        string uri = stmt.column_text (2);
-                        string title = stmt.column_text (3);
-                        items.append (new HistorySearch (uri, title, date));
-                        break;
-                    default:
-                        warn_if_reached ();
-                        break;
+            try {
+                while (statement.step ()) {
+                    int64 type = statement.get_int64 ("type");
+                    int64 date = statement.get_int64 ("date");
+                    switch (type) {
+                        case 1:
+                            string uri = statement.get_string ("uri");
+                            string title = statement.get_string ("title");
+                            items.append (new HistoryWebsite (uri, title, date));
+                            break;
+                        case 2:
+                            string uri = statement.get_string ("uri");
+                            string title = statement.get_string ("title");
+                            items.append (new HistorySearch (uri, title, date));
+                            break;
+                        default:
+                            warn_if_reached ();
+                            break;
+                    }
+
+                    uint src = Idle.add (query.callback);
+                    yield;
+                    Source.remove (src);
+
+                    if (cancellable.is_cancelled ())
+                        return null;
                 }
-
-                uint src = Idle.add (query.callback);
-                yield;
-                Source.remove (src);
-
-                if (cancellable.is_cancelled ())
-                    return null;
-
-                result = stmt.step ();
+            } catch (Error error) {
+                critical (_("Failed to select from history: %s"), error.message);
             }
 
             if (cancellable.is_cancelled ())
