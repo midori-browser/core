@@ -666,6 +666,20 @@ namespace Tabby {
                 this.storage.restore_last_sessions ();
             }
 
+            /* FIXME: execute_commands should be called before session creation */
+            GLib.Idle.add (this.execute_commands);
+
+            return false;
+        }
+
+        private bool execute_commands () {
+            Midori.App app = this.get_app ();
+            unowned string?[] commands = app.get_data ("execute-commands");
+
+            if (commands != null) {
+                app.send_command (commands);
+            }
+
             return false;
         }
 
