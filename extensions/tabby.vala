@@ -45,8 +45,18 @@ namespace Tabby {
 
             public abstract Katze.Array get_sessions ();
             public abstract Base.Session get_new_session ();
+
+            public void start_new_session () {
+                Katze.Array sessions = new Katze.Array (typeof (Session));
+                this.init_sessions (sessions);
+            }
+
             public void restore_last_sessions () {
                 Katze.Array sessions = this.get_sessions ();
+                this.init_sessions (sessions);
+            }
+
+            private void init_sessions (Katze.Array sessions) {
                 if (sessions.is_empty ()) {
                     sessions.add_item (this.get_new_session ());
                 }
@@ -123,8 +133,18 @@ namespace Tabby {
                 unowned Katze.Array? open_uris = browser.get_data ("tabby-open-uris");
 
                 if(tabs.is_empty () && open_uris == null) {
+                    /* Using get here to avoid MidoriMidoriStartup in generated C with Vala 0.20.1 */
+                    int load_on_startup;
+                    APP.settings.get ("load-on-startup", out load_on_startup);
+
                     Katze.Item item = new Katze.Item ();
-                    item.uri = "about:home";
+
+                    if (load_on_startup == Midori.MidoriStartup.BLANK_PAGE) {
+                        item.uri = "about:dial";
+                    } else if (load_on_startup == Midori.MidoriStartup.HOMEPAGE) {
+                        item.uri = "about:home";
+                    }
+
                     tabs.add_item (item);
                 }
 
@@ -651,19 +671,25 @@ namespace Tabby {
             /* Using get here to avoid MidoriMidoriStartup in generated C with Vala 0.20.1 */
             int load_on_startup;
             APP.settings.get ("load-on-startup", out load_on_startup);
-            if (load_on_startup == Midori.MidoriStartup.BLANK_PAGE) {
-                Midori.Browser browser = APP.create_browser ();
-                APP.add_browser (browser);
-                /* The API from the old days says blank but means speed dial */
-                browser.add_uri ("about:dial");
-                browser.show ();
-            } else if (load_on_startup == Midori.MidoriStartup.HOMEPAGE) {
-                Midori.Browser browser = APP.create_browser ();
-                APP.add_browser (browser);
-                browser.add_uri ("about:home");
-                browser.show ();
+            if (load_on_startup == Midori.MidoriStartup.BLANK_PAGE
+             || load_on_startup == Midori.MidoriStartup.HOMEPAGE) {
+                this.storage.start_new_session ();
             } else {
                 this.storage.restore_last_sessions ();
+            }
+
+            /* FIXME: execute_commands should be called before session creation */
+            GLib.Idle.add (this.execute_commands);
+
+            return false;
+        }
+
+        private bool execute_commands () {
+            Midori.App app = this.get_app ();
+            unowned string?[] commands = app.get_data ("execute-commands");
+
+            if (commands != null) {
+                app.send_command (commands);
             }
 
             return false;

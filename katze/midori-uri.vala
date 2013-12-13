@@ -178,6 +178,25 @@ namespace Midori {
             return null;
         }
 
+        /**
+         * Returns a string showing a file:// URI's intended filename on
+         * disk, suited for displaying to a user.
+         * 
+         * The string returned is the basename (final path segment) of the
+         * filename of the uri. If the uri is invalid, not file://, or has no
+         * basename, the uri itself is returned.
+         * 
+         * Since: 0.5.7
+         **/
+        public static string get_basename_for_display (string uri) {
+            try {
+                string filename = Filename.from_uri (uri);
+                if(filename != null && filename != "")
+                    return Path.get_basename (filename);
+            } catch (Error error) { }
+            return uri;
+        }
+
         public static GLib.ChecksumType get_fingerprint (string uri,
             out string checksum, out string label) {
 

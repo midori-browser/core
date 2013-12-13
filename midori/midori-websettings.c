@@ -64,6 +64,7 @@ struct _MidoriWebSettings
     gchar* user_stylesheet_uri;
     gchar* user_stylesheet_uri_cached;
     GHashTable* user_stylesheets;
+    gboolean print_without_dialog;
 };
 
 struct _MidoriWebSettingsClass
@@ -99,6 +100,7 @@ enum
     PROP_ENABLE_DNS_PREFETCHING,
     PROP_ENFORCE_FONT_FAMILY,
     PROP_USER_STYLESHEET_URI,
+    PROP_PRINT_WITHOUT_DIALOG,
 };
 
 GType
@@ -490,6 +492,16 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("Override fonts picked by websites with user preferences"),
                                      FALSE,
                                      flags));
+
+    g_object_class_install_property (gobject_class,
+                                     PROP_PRINT_WITHOUT_DIALOG,
+                                     g_param_spec_boolean (
+                                     "print-without-dialog",
+                                     "Print without dialog",
+                                     "Print without showing a dialog box",
+                                     FALSE,
+                                     flags));
+
 
     g_object_class_install_property (gobject_class,
                                      PROP_USER_STYLESHEET_URI,
@@ -1017,7 +1029,7 @@ midori_web_settings_set_property (GObject*      object,
 
     case PROP_PROXY_TYPE:
         web_settings->proxy_type = g_value_get_enum (value);
-    break;
+        break;
     case PROP_IDENTIFY_AS:
         web_settings->identify_as = g_value_get_enum (value);
         if (web_settings->identify_as != MIDORI_IDENT_CUSTOM)
@@ -1100,6 +1112,9 @@ midori_web_settings_set_property (GObject*      object,
                 web_settings->user_stylesheet_uri);
             midori_web_settings_process_stylesheets (web_settings, new_len - old_len);
         }
+        break;
+    case PROP_PRINT_WITHOUT_DIALOG:
+        web_settings->print_without_dialog = g_value_get_boolean(value);
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -1216,6 +1231,9 @@ midori_web_settings_get_property (GObject*    object,
         g_value_take_string (value, katze_object_get_string (web_settings,
             WEB_SETTINGS_STRING ("user-stylesheet-uri")));
 #endif
+        break;
+    case PROP_PRINT_WITHOUT_DIALOG:
+        g_value_set_boolean (value, web_settings->print_without_dialog);
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);

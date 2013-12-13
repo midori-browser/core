@@ -36,10 +36,6 @@ namespace Midori {
     public class Tab : Gtk.VBox {
         public WebKit.WebView web_view { get; private set; }
 
-        #if HAVE_GRANITE_CLUTTER
-        public Granite.Widgets.NavigationBox navigation_box { get; private set; }
-        #endif
-
         private string current_uri = "about:blank";
         public string uri { get {
             return current_uri;
@@ -51,6 +47,9 @@ namespace Midori {
 
         /* Special is an error, blank or delayed page */
         public bool special { get; protected set; default = false; }
+        /* Minimizing a tab indicates that only the icon should be shown.
+           Since: 0.1.8 */
+        public bool minimized { get; set; default = false; }
         /* Since: 0.4.8 */
         public string mime_type { get; protected set; default = "text/plain"; }
         /* Since: 0.1.2 */
@@ -58,8 +57,18 @@ namespace Midori {
         public LoadStatus load_status { get; protected set; default = LoadStatus.FINISHED; }
         public string? statusbar_text { get; protected set; default = null; }
         /* Since: 0.5.0 */
+
         public Gdk.Color? fg_color { get; protected set; default = null; }
-        public Gdk.Color? bg_color { get; protected set; default = null; }
+        private Gdk.Color? bg_color_ = null;
+        public Gdk.Color? bg_color { get {
+            return bg_color_;
+        } protected set {
+            bg_color_ = value;
+            colors_changed ();
+        } }
+        /* After fg_color and bg_color have changed.
+           Since: 0.5.7 */
+        public signal void colors_changed ();
 
         /* Special pages don't convey progress */
         private double current_progress = 0.0;
@@ -103,10 +112,6 @@ namespace Midori {
         construct {
             #if HAVE_GTK3
             orientation = Gtk.Orientation.VERTICAL;
-            #endif
-
-            #if HAVE_GRANITE_CLUTTER
-            navigation_box = new Granite.Widgets.NavigationBox ();
             #endif
 
             web_view = new WebKit.WebView ();
@@ -221,9 +226,6 @@ namespace Midori {
         }
 
         public void go_forward () {
-            #if HAVE_GRANITE_CLUTTER
-            navigation_box.forward ();
-            #endif
             web_view.go_forward ();
         }
 

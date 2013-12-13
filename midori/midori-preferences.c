@@ -482,11 +482,6 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     button = katze_property_proxy (settings, "close-buttons-on-tabs", NULL);
     gtk_button_set_label (GTK_BUTTON (button), _("Close Buttons on Tabs"));
     INDENTED_ADD (button);
-    #ifndef HAVE_GRANITE
-    button = katze_property_proxy (settings, "always-show-tabbar", NULL);
-    gtk_button_set_label (GTK_BUTTON (button), _("Always Show Tabbar"));
-    SPANNED_ADD (button);
-    #endif
     button = katze_property_proxy (settings, "open-tabs-next-to-current", NULL);
     gtk_button_set_label (GTK_BUTTON (button), _("Open Tabs next to Current"));
     gtk_widget_set_tooltip_text (button, _("Whether to open new tabs next to the current tab or after the last one"));
@@ -515,7 +510,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     INDENTED_ADD (label);
     button = katze_property_proxy (settings, "proxy-type", NULL);
     SPANNED_ADD (button);
-    label = gtk_label_new (_("Hostname"));
+    label = gtk_label_new (_("URI"));
     gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
     INDENTED_ADD (label);
     entry = katze_property_proxy (settings, "http-proxy", "address");
@@ -557,6 +552,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
         gtk_widget_set_tooltip_text (label, _("The maximum size of cached pages on disk"));
         INDENTED_ADD (label);
         button = katze_property_proxy (settings, "maximum-cache-size", NULL);
+        gtk_spin_button_set_range (GTK_SPIN_BUTTON (button), 0, G_MAXINT);
         gtk_widget_set_tooltip_text (button, _("The maximum size of cached pages on disk"));
         SPANNED_ADD (button);
         label = gtk_label_new (_("MB"));

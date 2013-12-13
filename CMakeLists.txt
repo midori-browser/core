@@ -260,7 +260,9 @@ else ()
     endif()
 endif ()
 
-set(VALA_CFLAGS "-w -g")
+# Explicitly add -fPIC for older toolchains
+set(VALA_CFLAGS "-w -g -fPIC")
+
 set(LIBMIDORI "${CMAKE_PROJECT_NAME}-core")
 
 # CMake provides no uninstall target by design
