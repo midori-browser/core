@@ -137,6 +137,8 @@ namespace ClipNotes {
                 if (uri != null) {
                     string label = _("Note clipped from: <a href=\"%s\">%s</a>").printf (uri, uri);
                     note_label.set_markup (label);
+                } else {
+                    note_label.set_markup ("");
                 }
 
                 note_text_view.buffer.text = note_text;
