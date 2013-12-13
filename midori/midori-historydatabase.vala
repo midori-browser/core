@@ -49,7 +49,7 @@ namespace Midori {
             }
         }
 
-        public async List<HistoryItem>? query (string sqlcmd, string? filter, int day, int max_items, Cancellable cancellable) {
+        public async List<HistoryItem>? query (string sqlcmd, string? filter, int64 day, int64 max_items, Cancellable cancellable) {
             return_val_if_fail (db != null, null);
 
             Midori.DatabaseStatement statement;
