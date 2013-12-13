@@ -106,19 +106,47 @@ async void complete_spec (Midori.Completion completion, TestCaseCompletion spec)
             spec.expected_count, spec.prefix, spec.text, suggestions.length ());
 }
 
+async void complete_history (Midori.HistoryDatabase history) {
+    try {
+        history.insert ("http://example.com", "Ejemplo", 0, 0);
+    } catch (Error error) {
+        assert_not_reached ();
+    }
+    var cancellable = new Cancellable ();
+    var results = yield history.list_by_count_with_bookmarks ("example", 1, cancellable);
+    assert (results.length () == 1);
+    var first = results.nth_data (0);
+    assert (first.title == "Ejemplo");
+    results = yield history.list_by_count_with_bookmarks ("ejemplo", 1, cancellable);
+    assert (results.length () == 1);
+    first = results.nth_data (0);
+    assert (first.title == "Ejemplo");
+    complete_history_done = true;
+}
+
+bool complete_history_done = false;
 void completion_history () {
+    var app = new Midori.App ();
+    Midori.HistoryDatabase history;
     try {
         var bookmarks_database = new Midori.BookmarksDatabase ();
         assert (bookmarks_database.db != null);
+        history = new Midori.HistoryDatabase (app);
+        assert (history.db != null);
     } catch (Midori.DatabaseError error) {
         assert_not_reached();
     }
 
     var completion = new Midori.HistoryCompletion ();
-    var app = new Midori.App ();
     completion.prepare (app);
     foreach (var spec in completions)
         complete_spec.begin (completion, spec);
+
+    Midori.Test.grab_max_timeout ();
+    var loop = MainContext.default ();
+    complete_history.begin (history);
+    do { loop.iteration (true); } while (!complete_history_done);
+    Midori.Test.release_max_timeout ();
 }
 
 struct TestCaseRender {
