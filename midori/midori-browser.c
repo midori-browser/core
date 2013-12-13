@@ -177,10 +177,6 @@ static void
 midori_bookmarkbar_clear (GtkWidget* toolbar);
 
 static void
-midori_browser_new_history_item (MidoriBrowser* browser,
-                                 KatzeItem*     item);
-
-static void
 _midori_browser_set_toolbar_style (MidoriBrowser*     browser,
                                    MidoriToolbarStyle toolbar_style);
 
@@ -759,8 +755,36 @@ midori_browser_step_history (MidoriBrowser* browser,
     if (katze_item_get_meta_integer (proxy, "history-step") == -1
      && !katze_item_get_meta_boolean (proxy, "dont-write-history"))
     {
-        midori_browser_new_history_item (browser, proxy);
+        MidoriApp* app = midori_app_new_proxy (NULL);
+        g_object_set (app,
+            "bookmarks", browser->bookmarks,
+            NULL);
+        GError* error = NULL;
+        MidoriHistoryDatabase* database = midori_history_database_new (G_OBJECT (app), &error);
+        g_object_unref (app);
+        if (error != NULL)
+        {
+            g_printerr (_("Failed to insert new history item: %s\n"), error->message);
+            g_error_free (error);
+            return;
+        }
+        time_t now = time (NULL);
+        katze_item_set_added (proxy, now);
+        gint64 day = sokoke_time_t_to_julian (&now);
+        midori_history_database_insert (database,
+            katze_item_get_uri (proxy),
+            katze_item_get_name (proxy),
+            katze_item_get_added (proxy), day, &error);
+        if (error != NULL)
+        {
+            g_printerr (_("Failed to insert new history item: %s\n"), error->message);
+            g_error_free (error);
+            return;
+        }
         katze_item_set_meta_integer (proxy, "history-step", 1);
+        /* FIXME: No signal for adding/ removing */
+        katze_array_add_item (browser->history, proxy);
+        katze_array_remove_item (browser->history, proxy);
     }
     else if (katze_item_get_name (proxy)
      && katze_item_get_meta_integer (proxy, "history-step") >= 1)
@@ -5565,46 +5589,6 @@ midori_browser_realize_cb (GtkStyle*      style,
         else
             gtk_window_set_icon_name (GTK_WINDOW (browser), MIDORI_STOCK_WEB_BROWSER);
     }
-}
-
-static void
-midori_browser_new_history_item (MidoriBrowser* browser,
-                                 KatzeItem*     item)
-{
-    time_t now;
-    gint64 day;
-    sqlite3* db;
-    static sqlite3_stmt* stmt = NULL;
-
-    g_return_if_fail (katze_item_get_uri (item) != NULL);
-
-    now = time (NULL);
-    katze_item_set_added (item, now);
-    day = sokoke_time_t_to_julian (&now);
-
-    db = g_object_get_data (G_OBJECT (browser->history), "db");
-    g_return_if_fail (db != NULL);
-    if (!stmt)
-    {
-        const gchar* sqlcmd;
-
-        sqlcmd = "INSERT INTO history (uri, title, date, day) VALUES (?,?,?,?)";
-        sqlite3_prepare_v2 (db, sqlcmd, -1, &stmt, NULL);
-    }
-    sqlite3_bind_text (stmt, 1, katze_item_get_uri (item), -1, 0);
-    sqlite3_bind_text (stmt, 2, katze_item_get_name (item), -1, 0);
-    sqlite3_bind_int64 (stmt, 3, katze_item_get_added (item));
-    sqlite3_bind_int64 (stmt, 4, day);
-
-    if (sqlite3_step (stmt) != SQLITE_DONE)
-        g_printerr (_("Failed to insert new history item: %s\n"),
-                    sqlite3_errmsg (db));
-    sqlite3_reset (stmt);
-    sqlite3_clear_bindings (stmt);
-
-    /* FIXME: Workaround for the lack of a database interface */
-    katze_array_add_item (browser->history, item);
-    katze_array_remove_item (browser->history, item);
 }
 
 static void

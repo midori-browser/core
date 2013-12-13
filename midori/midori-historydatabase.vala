@@ -118,5 +118,15 @@ namespace Midori {
                 """;
             return yield query (sqlcmd, filter, 0, max_items, cancellable);
         }
+
+        public bool insert (string uri, string title, int64 date, int64 day) throws DatabaseError {
+            unowned string sqlcmd = "INSERT INTO history (uri, title, date, day) VALUES (:uri, :title, :date, :day)";
+            var statement = prepare (sqlcmd,
+                ":uri", typeof (string), uri,
+                ":title", typeof (string), title,
+                ":date", typeof (int64), date,
+                ":day", typeof (int64), day);
+            return statement.exec ();
+        }
    }
 }
