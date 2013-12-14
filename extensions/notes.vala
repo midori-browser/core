@@ -195,13 +195,13 @@ namespace ClipNotes {
         bool show_popup_menu (Gdk.EventButton? event) {
             Gtk.TreeIter iter;
             if (notes_tree_view.get_selection ().get_selected (null, out iter)) {
-                int64 id;
-                notes_list_store.get (iter, 0, out id);
 
                 var menu = new Gtk.Menu ();
 
                 var menuitem = new Gtk.ImageMenuItem.from_stock (Gtk.STOCK_DELETE, null);
                 menuitem.activate.connect (() => {
+                    int64 id;
+                    notes_list_store.get (iter, 0, out id);
                     note_delete (id);
                 });
                 menu.append (menuitem);
