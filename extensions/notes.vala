@@ -199,11 +199,21 @@ namespace ClipNotes {
                 notes_list_store.get (iter, 0, out id);
 
                 var menu = new Gtk.Menu ();
+
                 var menuitem = new Gtk.ImageMenuItem.from_stock (Gtk.STOCK_DELETE, null);
                 menuitem.activate.connect (() => {
                     note_delete (id);
                 });
                 menu.append (menuitem);
+
+                menuitem = new Gtk.ImageMenuItem.from_stock (Gtk.STOCK_COPY, null);
+                menuitem.activate.connect (() => {
+                    string note_content;
+                    notes_list_store.get (iter, 3, out note_content);
+                    get_clipboard (Gdk.SELECTION_CLIPBOARD).set_text (note_content, -1);
+                });
+                menu.append (menuitem);
+
                 menu.show_all ();
                 Katze.widget_popup (notes_tree_view, menu, null, Katze.MenuPos.CURSOR);
                 return true;
