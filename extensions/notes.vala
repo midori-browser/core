@@ -39,6 +39,19 @@ namespace ClipNotes {
                 append_note (id, uri, title, note_content);
         }
 
+        void note_delete (int64 id)
+        {
+            string sqlcmd = "DELETE FROM `notes` WHERE id= :id;";
+            Sqlite.Statement stmt;
+            if (db.prepare_v2 (sqlcmd, -1, out stmt) != Sqlite.OK)
+                critical (_("Failed to remove from database: %s"), db.errmsg);
+            stmt.bind_int64 (stmt.bind_parameter_index (":id"), id);
+            if (stmt.step () != Sqlite.DONE)
+                critical (_("Failed to remove from database: %s"), db.errmsg);
+            else
+                remove_note (id);
+        }
+
         void append_note (int64 id, string? uri, string title, string note_content)
         {
             Gtk.TreeIter iter;
@@ -47,6 +60,21 @@ namespace ClipNotes {
             notes_list_store.set (iter, 1, uri);
             notes_list_store.set (iter, 2, title);
             notes_list_store.set (iter, 3, note_content);
+         }
+
+         void remove_note (int64 id)
+         {
+            Gtk.TreeIter iter;
+            if (notes_list_store.iter_children (out iter, null)) {
+                do {
+                    int64 iter_id;
+                    notes_list_store.get (iter, 0, out iter_id);
+                    if (id == iter_id) {
+                        notes_list_store.remove (iter);
+                    }
+
+                } while (notes_list_store.iter_next (ref iter));
+            }
          }
 
         private class Sidebar : Gtk.VBox, Midori.Viewable {
@@ -87,6 +115,7 @@ namespace ClipNotes {
             notes_tree_view = new Gtk.TreeView.with_model (notes_list_store);
             notes_tree_view.headers_visible = true;
             notes_tree_view.row_activated.connect (row_activated);
+            notes_tree_view.button_release_event.connect (button_released);
 
             column = new Gtk.TreeViewColumn ();
             Gtk.CellRendererText renderer_title = new Gtk.CellRendererText ();
@@ -155,6 +184,31 @@ namespace ClipNotes {
 
                 note_text_view.buffer.text = note_text;
             }
+        }
+
+        bool button_released (Gdk.EventButton event) {
+            if (event.button == 3)
+                return show_popup_menu (event);
+            return false;
+        }
+
+        bool show_popup_menu (Gdk.EventButton? event) {
+            Gtk.TreeIter iter;
+            if (notes_tree_view.get_selection ().get_selected (null, out iter)) {
+                int64 id;
+                notes_list_store.get (iter, 0, out id);
+
+                var menu = new Gtk.Menu ();
+                var menuitem = new Gtk.ImageMenuItem.from_stock (Gtk.STOCK_DELETE, null);
+                menuitem.activate.connect (() => {
+                    note_delete (id);
+                });
+                menu.append (menuitem);
+                menu.show_all ();
+                Katze.widget_popup (notes_tree_view, menu, null, Katze.MenuPos.CURSOR);
+                return true;
+            }
+            return false;
         }
     } // Sidebar
 
