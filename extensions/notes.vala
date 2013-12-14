@@ -52,6 +52,21 @@ namespace ClipNotes {
                 remove_note (id);
         }
 
+
+        void note_rename (int64 id, string new_title)
+        {
+            string sqlcmd = "UPDATE `notes` SET title= :title WHERE id = :id;";
+            Sqlite.Statement stmt;
+            if (db.prepare_v2 (sqlcmd, -1, out stmt) != Sqlite.OK)
+                critical (_("Failed to update database: %s"), db.errmsg);
+            stmt.bind_int64 (stmt.bind_parameter_index (":id"), id);
+            stmt.bind_text (stmt.bind_parameter_index (":title"), new_title);
+            if (stmt.step () != Sqlite.DONE)
+                critical (_("Failed to update database: %s"), db.errmsg);
+
+                //remove_note (id);
+        }
+
         void append_note (int64 id, string? uri, string title, string note_content)
         {
             Gtk.TreeIter iter;
@@ -211,6 +226,41 @@ namespace ClipNotes {
                     string note_content;
                     notes_list_store.get (iter, 3, out note_content);
                     get_clipboard (Gdk.SELECTION_CLIPBOARD).set_text (note_content, -1);
+                });
+                menu.append (menuitem);
+
+                menuitem = new Gtk.ImageMenuItem.from_stock (Gtk.STOCK_EDIT, null);
+                menuitem.activate.connect (() => {
+                    int64 id;
+                    string title;
+                    notes_list_store.get (iter, 0, out id);
+                    notes_list_store.get (iter, 2, out title);
+
+                    var dialog = new Gtk.Dialog. with_buttons (_("Rename"), null,
+                        Gtk.DialogFlags.DESTROY_WITH_PARENT, Gtk.Stock.CANCEL, Gtk.ResponseType.CANCEL,
+                        Gtk.Stock.OK, Gtk.ResponseType.OK);
+                    Gtk.Box content = (Gtk.Box) dialog.get_content_area ();
+                    dialog.set_default_response (Gtk.ResponseType.OK);
+                    dialog.resizable = false;
+                    dialog.icon_name = Gtk.STOCK_EDIT;
+
+                    var entry = new Gtk.Entry ();
+                    entry.text = title;
+                    entry.activates_default = true;
+                    content.add (entry);
+                    content.show_all ();
+
+                    int response = dialog.run ();
+                    dialog.hide ();
+                    if (response == Gtk.ResponseType.OK) {
+                        string new_title = entry.text;
+                        if (entry.text != null && new_title != title) {
+                            note_rename (id, new_title);
+                            notes_list_store.set (iter, 2, new_title);
+                        }
+                    }
+                    dialog.destroy ();
+
                 });
                 menu.append (menuitem);
 
