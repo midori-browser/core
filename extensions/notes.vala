@@ -60,7 +60,6 @@ namespace ClipNotes {
                 new_note_button.show ();
                 new_note_button.clicked.connect (() => {
 		    
-                    stdout.printf ("IMPLEMENT ME: would add new empty note INSERT INTO NOTES ....\n");
 		    note_add_new ("Dummy tittle", null, "Lorem ipsum blaablalbla");
                 });
                 toolbar.insert (new_note_button, -1);
