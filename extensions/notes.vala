@@ -116,7 +116,7 @@ namespace ClipNotes {
                 new_note_button.is_important = true;
                 new_note_button.show ();
                 new_note_button.clicked.connect (() => {
-                    note_add_new ("Dummy tittle", null, "Lorem ipsum blaablalbla");
+                    note_add_new (_("New note"), null, "");
                 });
                 toolbar.insert (new_note_button, -1);
             } // if (toolbar != null)
