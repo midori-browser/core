@@ -17,29 +17,43 @@ using Sqlite;
 namespace ClipNotes {
         Midori.Database database;
         unowned Sqlite.Database db;
+        Gtk.ListStore notes_list_store;
 
         void note_add_new (string title, string? uri, string note_content)
         {
             GLib.DateTime time = new DateTime.now_local ();
             string sqlcmd = "INSERT INTO `notes` (`uri`, `title`, `note_content`, `tstamp` ) VALUES (:uri, :title, :note_content, :tstamp);";
             Sqlite.Statement stmt;
+            int64 id;
             if (db.prepare_v2 (sqlcmd, -1, out stmt) != Sqlite.OK)
                 critical (_("Failed to update database: %s"), db.errmsg);
             stmt.bind_text (stmt.bind_parameter_index (":uri"), uri);
             stmt.bind_text (stmt.bind_parameter_index (":title"), title);
             stmt.bind_text (stmt.bind_parameter_index (":note_content"), note_content);
             stmt.bind_int64 (stmt.bind_parameter_index (":tstamp"), time.to_unix ());
+            id = db.last_insert_rowid ();
 
             if (stmt.step () != Sqlite.DONE)
                 critical (_("Failed to update database: %s"), db.errmsg);
+            else
+                append_note (id, uri, title, note_content);
         }
+
+        void append_note (int64 id, string? uri, string title, string note_content)
+        {
+            Gtk.TreeIter iter;
+            notes_list_store.append (out iter);
+            notes_list_store.set (iter, 0, id);
+            notes_list_store.set (iter, 1, uri);
+            notes_list_store.set (iter, 2, title);
+            notes_list_store.set (iter, 3, note_content);
+         }
 
         private class Sidebar : Gtk.VBox, Midori.Viewable {
         Gtk.Toolbar? toolbar = null;
         Gtk.Label note_label;
         Gtk.TreeView notes_tree_view;
         Gtk.TextView note_text_view = new Gtk.TextView ();
-        Gtk.ListStore notes_list_store = new Gtk.ListStore (4, typeof (int), typeof (string), typeof (string), typeof (string));
 
         public unowned string get_stock_id () {
             return Gtk.STOCK_EDIT;
@@ -68,8 +82,8 @@ namespace ClipNotes {
 
         public Sidebar () {
             Gtk.TreeViewColumn column;
-            Gtk.TreeIter iter;
 
+            notes_list_store = new Gtk.ListStore (4, typeof (int64), typeof (string), typeof (string), typeof (string));
             notes_tree_view = new Gtk.TreeView.with_model (notes_list_store);
             notes_tree_view.headers_visible = true;
             notes_tree_view.row_activated.connect (row_activated);
@@ -92,11 +106,12 @@ namespace ClipNotes {
                 }
 
                 while (result == Sqlite.ROW) {
-                    notes_list_store.append (out iter);
-                    notes_list_store.set (iter, 0, stmt.column_int64 (0));
-                    notes_list_store.set (iter, 1, stmt.column_text (1));
-                    notes_list_store.set (iter, 2, stmt.column_text (2));
-                    notes_list_store.set (iter, 3, stmt.column_text (3));
+                    int64 id = stmt.column_int64 (0);
+                    string? uri = stmt.column_text (1);
+                    string title = stmt.column_text (2);
+                    string note_content = stmt.column_text (3);
+
+                    append_note (id, uri, title, note_content);
 
                     result = stmt.step ();
                 }
