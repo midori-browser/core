@@ -59,8 +59,7 @@ namespace ClipNotes {
                 new_note_button.is_important = true;
                 new_note_button.show ();
                 new_note_button.clicked.connect (() => {
-		    
-		    note_add_new ("Dummy tittle", null, "Lorem ipsum blaablalbla");
+                    note_add_new ("Dummy tittle", null, "Lorem ipsum blaablalbla");
                 });
                 toolbar.insert (new_note_button, -1);
             } // if (toolbar != null)
@@ -82,26 +81,25 @@ namespace ClipNotes {
             column.set_cell_data_func (renderer_title, on_renderer_note_title);
             notes_tree_view.append_column (column);
 
-	    if (database != null && !database.first_use) {
-		    string sqlcmd = "SELECT id, uri, title, note_content FROM notes ORDER BY title ASC";
-		    Sqlite.Statement stmt;
-		    if (db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
-			critical (_("Failed to select from database: %s"), db.errmsg);
-		    int result = stmt.step ();
-		    if (!(result == Sqlite.DONE || result == Sqlite.ROW)) {
-			critical (_("Failed to select from database: %s"), db.errmsg ());
-		    }
+            if (database != null && !database.first_use) {
+                string sqlcmd = "SELECT id, uri, title, note_content FROM notes ORDER BY title ASC";
+                Sqlite.Statement stmt;
+                if (db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
+                    critical (_("Failed to select from database: %s"), db.errmsg);
+                int result = stmt.step ();
+                if (!(result == Sqlite.DONE || result == Sqlite.ROW)) {
+                    critical (_("Failed to select from database: %s"), db.errmsg ());
+                }
 
-		    while (result == Sqlite.ROW) {
-			notes_list_store.append (out iter);
-			notes_list_store.set (iter, 0, stmt.column_int64 (0));
-			notes_list_store.set (iter, 1, stmt.column_text (1));
-			notes_list_store.set (iter, 2, stmt.column_text (2));
-			notes_list_store.set (iter, 3, stmt.column_text (3));
+                while (result == Sqlite.ROW) {
+                    notes_list_store.append (out iter);
+                    notes_list_store.set (iter, 0, stmt.column_int64 (0));
+                    notes_list_store.set (iter, 1, stmt.column_text (1));
+                    notes_list_store.set (iter, 2, stmt.column_text (2));
+                    notes_list_store.set (iter, 3, stmt.column_text (3));
 
-			result = stmt.step ();
-
-		    }
+                    result = stmt.step ();
+                }
             }
 
             notes_tree_view.show ();
@@ -202,7 +200,7 @@ namespace ClipNotes {
                     error (schema_error.message);
                 }
                 db = database.db;
-	    }
+            }
         } // activated
 
         void deactivated () {
