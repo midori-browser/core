@@ -87,25 +87,6 @@ void completion_autocompleter () {
         error ("Expected %d but got %d", 3, n);
 }
 
-struct TestCaseCompletion {
-    public string prefix;
-    public string text;
-    public int expected_count;
-}
-
-const TestCaseCompletion[] completions = {
-    { "history", "example", 1 }
-};
-
-async void complete_spec (Midori.Completion completion, TestCaseCompletion spec) {
-    assert (completion.can_complete (spec.text));
-    var cancellable = new Cancellable ();
-    var suggestions = yield completion.complete (spec.text, null, cancellable);
-    if (spec.expected_count != suggestions.length ())
-        error ("%u expected for %s/ %s but got %u",
-            spec.expected_count, spec.prefix, spec.text, suggestions.length ());
-}
-
 async void complete_history (Midori.HistoryDatabase history) {
     try {
         history.insert ("http://example.com", "Ejemplo", 0, 0);
@@ -133,14 +114,10 @@ void completion_history () {
         assert (bookmarks_database.db != null);
         history = new Midori.HistoryDatabase (app);
         assert (history.db != null);
+        history.clear (0);
     } catch (Midori.DatabaseError error) {
         assert_not_reached();
     }
-
-    var completion = new Midori.HistoryCompletion ();
-    completion.prepare (app);
-    foreach (var spec in completions)
-        complete_spec.begin (completion, spec);
 
     Midori.Test.grab_max_timeout ();
     var loop = MainContext.default ();

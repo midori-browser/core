@@ -128,5 +128,19 @@ namespace Midori {
                 ":day", typeof (int64), day);
             return statement.exec ();
         }
+
+        public bool clear (int64 maximum_age=0) throws DatabaseError {
+            unowned string sqlcmd = """
+                DELETE FROM history WHERE
+                (julianday(date('now')) - julianday(date(date,'unixepoch')))
+                >= :maximum_age;
+                DELETE FROM search WHERE
+                (julianday(date('now')) - julianday(date(date,'unixepoch')))
+                >= :maximum_age;
+                """;
+            var statement = prepare (sqlcmd,
+                ":maximum_age", typeof (int64), maximum_age);
+            return statement.exec ();
+        }
    }
 }
