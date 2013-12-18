@@ -90,6 +90,7 @@ struct _MidoriBrowser
     KatzeArray* trash;
     KatzeArray* search_engines;
     KatzeArray* history;
+    MidoriHistoryDatabase* history_database;
     MidoriSpeedDial* dial;
     gboolean show_tabs;
 
@@ -744,7 +745,7 @@ midori_browser_step_history (MidoriBrowser* browser,
 {
     if (midori_view_get_load_status (view) != MIDORI_LOAD_COMMITTED)
         return;
-    if (!browser->history || !browser->maximum_history_age)
+    if (!browser->history_database || !browser->maximum_history_age)
         return;
 
     KatzeItem* proxy = midori_view_get_proxy_item (view);
@@ -755,23 +756,11 @@ midori_browser_step_history (MidoriBrowser* browser,
     if (katze_item_get_meta_integer (proxy, "history-step") == -1
      && !katze_item_get_meta_boolean (proxy, "dont-write-history"))
     {
-        MidoriApp* app = midori_app_new_proxy (NULL);
-        g_object_set (app,
-            "bookmarks", browser->bookmarks,
-            NULL);
         GError* error = NULL;
-        MidoriHistoryDatabase* database = midori_history_database_new (G_OBJECT (app), &error);
-        g_object_unref (app);
-        if (error != NULL)
-        {
-            g_printerr (_("Failed to insert new history item: %s\n"), error->message);
-            g_error_free (error);
-            return;
-        }
         time_t now = time (NULL);
         katze_item_set_added (proxy, now);
         gint64 day = sokoke_time_t_to_julian (&now);
-        midori_history_database_insert (database,
+        midori_history_database_insert (browser->history_database,
             katze_item_get_uri (proxy),
             katze_item_get_name (proxy),
             katze_item_get_added (proxy), day, &error);
@@ -5601,10 +5590,20 @@ midori_browser_set_history (MidoriBrowser* browser,
     if (history)
         g_object_ref (history);
     katze_object_assign (browser->history, history);
+    katze_object_assign (browser->history_database, NULL);
 
     if (!history)
         return;
 
+    GError* error = NULL;
+    browser->history_database = midori_history_database_new (NULL, &error);
+    if (error != NULL)
+    {
+        g_printerr (_("Failed to initialize history: %s"), error->message);
+        g_printerr ("\n");
+        g_error_free (error);
+        return;
+    }
     g_object_set (_action_by_name (browser, "Location"), "history",
                   browser->history, NULL);
 }
@@ -5719,6 +5718,8 @@ midori_browser_init (MidoriBrowser* browser)
     browser->settings = midori_web_settings_new ();
     browser->proxy_array = katze_array_new (KATZE_TYPE_ARRAY);
     browser->bookmarks = NULL;
+    browser->history = NULL;
+    browser->history_database = NULL;
     browser->trash = NULL;
     browser->search_engines = NULL;
     browser->dial = NULL;
@@ -6106,6 +6107,7 @@ midori_browser_finalize (GObject* object)
     katze_object_assign (browser->trash, NULL);
     katze_object_assign (browser->search_engines, NULL);
     katze_object_assign (browser->history, NULL);
+    katze_object_assign (browser->history_database, NULL);
     katze_object_assign (browser->dial, NULL);
 
     g_idle_remove_by_data (browser);
