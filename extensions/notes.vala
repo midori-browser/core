@@ -250,6 +250,9 @@ namespace ClipNotes {
                 }
 
                 return true;
+            } else {
+                note_label.set_markup ("");
+                note_text_view.buffer.text = "";
             }
             return false;
         }
