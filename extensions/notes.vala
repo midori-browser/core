@@ -65,6 +65,21 @@ namespace ClipNotes {
                 critical (_("Failed to update database: %s"), db.errmsg);
         }
 
+        string note_get_content_by_id (int64 id)
+        {
+            string sqlcmd = "SELECT note_content FROM notes WHERE id = :id";
+            Sqlite.Statement stmt;
+            if (db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
+                critical (_("Failed to select from database: %s"), db.errmsg);
+                stmt.bind_int64 (stmt.bind_parameter_index (":id"), id);
+            int result = stmt.step ();
+            string? content = null;
+            if (result == Sqlite.ROW)
+                content = stmt.column_text (0);
+            return content ?? "";
+        }
+
+
         void append_note (int64 id, string? uri, string title, string note_content)
         {
             Gtk.TreeIter iter;
@@ -182,11 +197,12 @@ namespace ClipNotes {
 
         void row_activated (Gtk.TreePath path, Gtk.TreeViewColumn column) {
             Gtk.TreeIter iter;
-            string uri;
-            string note_text;
             if (notes_list_store.get_iter (out iter, path)) {
+                int64 id;
+                string uri;
+
+                notes_list_store.get (iter, 0, out id);
                 notes_list_store.get (iter, 1, out uri);
-                notes_list_store.get (iter, 3, out note_text);
 
                 if (uri != null) {
                     string label = _("Note clipped from: <a href=\"%s\">%s</a>").printf (uri, uri);
@@ -195,7 +211,7 @@ namespace ClipNotes {
                     note_label.set_markup ("");
                 }
 
-                note_text_view.buffer.text = note_text;
+                note_text_view.buffer.text = note_get_content_by_id (id);
             }
         }
 
