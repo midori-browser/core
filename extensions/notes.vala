@@ -273,8 +273,10 @@ namespace ClipNotes {
 
                 menuitem = new Gtk.ImageMenuItem.from_stock (Gtk.STOCK_COPY, null);
                 menuitem.activate.connect (() => {
+                    int64 id;
                     string note_content;
-                    notes_list_store.get (iter, 3, out note_content);
+                    notes_list_store.get (iter, 0, out id);
+                    note_content = note_get_content_by_id (id);
                     get_clipboard (Gdk.SELECTION_CLIPBOARD).set_text (note_content, -1);
                 });
                 menu.append (menuitem);
