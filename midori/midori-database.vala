@@ -105,8 +105,10 @@ namespace Midori {
          */
         public int64 get_int64 (string name) throws DatabaseError {
             int index = column_index (name);
-            if (stmt.column_type (index) != Sqlite.INTEGER)
-                throw new DatabaseError.TYPE ("Getting '%s' with wrong type in row: %s".printf (name, query));
+            int type = stmt.column_type (index);
+            if (type != Sqlite.INTEGER && type != Sqlite.NULL)
+                throw new DatabaseError.TYPE ("Getting '%s' with value '%s' of wrong type %d in row: %s".printf (
+                                              name, stmt.column_text (index), type, query));
             return stmt.column_int64 (index);
         }
 
