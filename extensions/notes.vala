@@ -63,8 +63,6 @@ namespace ClipNotes {
             stmt.bind_text (stmt.bind_parameter_index (":title"), new_title);
             if (stmt.step () != Sqlite.DONE)
                 critical (_("Failed to update database: %s"), db.errmsg);
-
-                //remove_note (id);
         }
 
         void append_note (int64 id, string? uri, string title, string note_content)
