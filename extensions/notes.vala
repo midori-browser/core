@@ -27,7 +27,7 @@ namespace ClipNotes {
             Sqlite.Statement stmt;
             int64 id;
             if (db.prepare_v2 (sqlcmd, -1, out stmt) != Sqlite.OK)
-                critical (_("Failed to update database: %s"), db.errmsg);
+                critical (_("Failed to add new note to database (prepare): %s"), db.errmsg);
             stmt.bind_text (stmt.bind_parameter_index (":uri"), uri);
             stmt.bind_text (stmt.bind_parameter_index (":title"), title);
             stmt.bind_text (stmt.bind_parameter_index (":note_content"), note_content);
@@ -35,7 +35,7 @@ namespace ClipNotes {
             id = db.last_insert_rowid ();
 
             if (stmt.step () != Sqlite.DONE)
-                critical (_("Failed to update database: %s"), db.errmsg);
+                critical (_("Failed to add new note to database: %s"), db.errmsg);
             else
                 append_note (id, uri, title, note_content);
         }
@@ -45,10 +45,10 @@ namespace ClipNotes {
             string sqlcmd = "DELETE FROM `notes` WHERE id= :id;";
             Sqlite.Statement stmt;
             if (db.prepare_v2 (sqlcmd, -1, out stmt) != Sqlite.OK)
-                critical (_("Failed to remove from database: %s"), db.errmsg);
+                critical (_("Failed to remove from notes database (prepare): %s"), db.errmsg);
             stmt.bind_int64 (stmt.bind_parameter_index (":id"), id);
             if (stmt.step () != Sqlite.DONE)
-                critical (_("Failed to remove from database: %s"), db.errmsg);
+                critical (_("Failed to remove from notes database: %s"), db.errmsg);
             else
                 remove_note (id);
         }
@@ -58,11 +58,11 @@ namespace ClipNotes {
             string sqlcmd = "UPDATE `notes` SET title= :title WHERE id = :id;";
             Sqlite.Statement stmt;
             if (db.prepare_v2 (sqlcmd, -1, out stmt) != Sqlite.OK)
-                critical (_("Failed to update database: %s"), db.errmsg);
+                critical (_("Failed to rename notes (prepare): %s"), db.errmsg);
             stmt.bind_int64 (stmt.bind_parameter_index (":id"), id);
             stmt.bind_text (stmt.bind_parameter_index (":title"), new_title);
             if (stmt.step () != Sqlite.DONE)
-                critical (_("Failed to update database: %s"), db.errmsg);
+                critical (_("Failed to rename notes: %s"), db.errmsg);
         }
 
         string note_get_content_by_id (int64 id)
@@ -70,7 +70,7 @@ namespace ClipNotes {
             string sqlcmd = "SELECT note_content FROM notes WHERE id = :id";
             Sqlite.Statement stmt;
             if (db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
-                critical (_("Failed to select from database: %s"), db.errmsg);
+                critical (_("Failed to select from notes database: %s"), db.errmsg);
                 stmt.bind_int64 (stmt.bind_parameter_index (":id"), id);
             int result = stmt.step ();
             string? content = null;
@@ -84,11 +84,11 @@ namespace ClipNotes {
             string sqlcmd = "UPDATE `notes` SET note_content = :content WHERE id = :id;";
             Sqlite.Statement stmt;
             if (db.prepare_v2 (sqlcmd, -1, out stmt) != Sqlite.OK)
-                critical (_("Failed to update database: %s"), db.errmsg);
+                critical (_("Failed to update notes database (prepare): %s"), db.errmsg);
             stmt.bind_int64 (stmt.bind_parameter_index (":id"), id);
             stmt.bind_text (stmt.bind_parameter_index (":content"), new_content);
             if (stmt.step () != Sqlite.DONE)
-                critical (_("Failed to update database: %s"), db.errmsg);
+                critical (_("Failed to update notes database: %s"), db.errmsg);
         }
 
         void append_note (int64 id, string? uri, string title, string note_content)
@@ -166,10 +166,10 @@ namespace ClipNotes {
                 string sqlcmd = "SELECT id, uri, title, note_content FROM notes ORDER BY title ASC";
                 Sqlite.Statement stmt;
                 if (db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
-                    critical (_("Failed to select from database: %s"), db.errmsg);
+                    critical (_("Failed to select from notes database (prepare): %s"), db.errmsg);
                 int result = stmt.step ();
                 if (!(result == Sqlite.DONE || result == Sqlite.ROW)) {
-                    critical (_("Failed to select from database: %s"), db.errmsg ());
+                    critical (_("Failed to select from notes database: %s"), db.errmsg ());
                 }
 
                 while (result == Sqlite.ROW) {
