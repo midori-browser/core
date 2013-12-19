@@ -263,7 +263,10 @@ namespace ClipNotes {
 
                 var menu = new Gtk.Menu ();
 
-                var menuitem = new Gtk.ImageMenuItem.from_stock (Gtk.STOCK_DELETE, null);
+                var menuitem = new Gtk.ImageMenuItem.with_label (_("Remove note"));
+                var image = new Gtk.Image.from_stock (Gtk.STOCK_DELETE, Gtk.IconSize.MENU);
+                menuitem.always_show_image = true;
+                menuitem.set_image (image);
                 menuitem.activate.connect (() => {
                     int64 id;
                     notes_list_store.get (iter, 0, out id);
@@ -271,7 +274,10 @@ namespace ClipNotes {
                 });
                 menu.append (menuitem);
 
-                menuitem = new Gtk.ImageMenuItem.from_stock (Gtk.STOCK_COPY, null);
+                menuitem = new Gtk.ImageMenuItem.with_label (_("Copy note to clipboard"));
+                image = new Gtk.Image.from_stock (Gtk.STOCK_COPY, Gtk.IconSize.MENU);
+                menuitem.always_show_image = true;
+                menuitem.set_image (image);
                 menuitem.activate.connect (() => {
                     int64 id;
                     string note_content;
@@ -281,14 +287,17 @@ namespace ClipNotes {
                 });
                 menu.append (menuitem);
 
-                menuitem = new Gtk.ImageMenuItem.from_stock (Gtk.STOCK_EDIT, null);
+                menuitem = new Gtk.ImageMenuItem.with_label (_("Rename note"));
+                image = new Gtk.Image.from_stock (Gtk.STOCK_EDIT, Gtk.IconSize.MENU);
+                menuitem.always_show_image = true;
+                menuitem.set_image (image);
                 menuitem.activate.connect (() => {
                     int64 id;
                     string title;
                     notes_list_store.get (iter, 0, out id);
                     notes_list_store.get (iter, 2, out title);
 
-                    var dialog = new Gtk.Dialog. with_buttons (_("Rename"), null,
+                    var dialog = new Gtk.Dialog. with_buttons (_("Rename note"), null,
                         Gtk.DialogFlags.DESTROY_WITH_PARENT, Gtk.Stock.CANCEL, Gtk.ResponseType.CANCEL,
                         Gtk.Stock.OK, Gtk.ResponseType.OK);
                     Gtk.Box content = (Gtk.Box) dialog.get_content_area ();
