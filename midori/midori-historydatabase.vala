@@ -49,7 +49,7 @@ namespace Midori {
             }
         }
 
-        public async List<HistoryItem>? query (string sqlcmd, string? filter, int day, int max_items, Cancellable cancellable) {
+        public async List<HistoryItem>? query (string sqlcmd, string? filter, int64 day, int64 max_items, Cancellable cancellable) {
             return_val_if_fail (db != null, null);
 
             Midori.DatabaseStatement statement;
@@ -117,6 +117,30 @@ namespace Midori {
                 ) GROUP BY uri ORDER BY ct DESC LIMIT :limit
                 """;
             return yield query (sqlcmd, filter, 0, max_items, cancellable);
+        }
+
+        public bool insert (string uri, string title, int64 date, int64 day) throws DatabaseError {
+            unowned string sqlcmd = "INSERT INTO history (uri, title, date, day) VALUES (:uri, :title, :date, :day)";
+            var statement = prepare (sqlcmd,
+                ":uri", typeof (string), uri,
+                ":title", typeof (string), title,
+                ":date", typeof (int64), date,
+                ":day", typeof (int64), day);
+            return statement.exec ();
+        }
+
+        public bool clear (int64 maximum_age=0) throws DatabaseError {
+            unowned string sqlcmd = """
+                DELETE FROM history WHERE
+                (julianday(date('now')) - julianday(date(date,'unixepoch')))
+                >= :maximum_age;
+                DELETE FROM search WHERE
+                (julianday(date('now')) - julianday(date(date,'unixepoch')))
+                >= :maximum_age;
+                """;
+            var statement = prepare (sqlcmd,
+                ":maximum_age", typeof (int64), maximum_age);
+            return statement.exec ();
         }
    }
 }
