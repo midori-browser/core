@@ -153,7 +153,6 @@ namespace ClipNotes {
             notes_list_store = new Gtk.ListStore (4, typeof (int64), typeof (string), typeof (string), typeof (string));
             notes_tree_view = new Gtk.TreeView.with_model (notes_list_store);
             notes_tree_view.headers_visible = true;
-            notes_tree_view.row_activated.connect (row_activated);
             notes_tree_view.button_release_event.connect (button_released);
 
             column = new Gtk.TreeViewColumn ();
@@ -223,29 +222,35 @@ namespace ClipNotes {
                 "ellipsize", Pango.EllipsizeMode.END);
         } // on_renderer_note_title
 
-        void row_activated (Gtk.TreePath path, Gtk.TreeViewColumn column) {
+        bool button_released (Gdk.EventButton event) {
+            if (event.button == 1)
+                return show_note_content (event);
+            if (event.button == 3)
+                return show_popup_menu (event);
+            return false;
+        }
+
+        bool show_note_content (Gdk.EventButton? event) {
             Gtk.TreeIter iter;
-            if (notes_list_store.get_iter (out iter, path)) {
+            if (notes_tree_view.get_selection ().get_selected (null, out iter)) {
                 int64 id;
                 string uri;
-
+                string label = "";
                 notes_list_store.get (iter, 0, out id);
                 notes_list_store.get (iter, 1, out uri);
 
                 if (uri != null) {
-                    string label = _("Note clipped from: <a href=\"%s\">%s</a>").printf (uri, uri);
-                    note_label.set_markup (label);
-                } else {
-                    note_label.set_markup ("");
+                    label = _("Note clipped from: <a href=\"%s\">%s</a>").printf (uri, uri);
                 }
 
-                note_text_view.buffer.text = note_get_content_by_id (id);
-            }
-        }
+                if (last_used_id != id) {
+                    note_label.set_markup (label);
+                    note_text_view.buffer.text = note_get_content_by_id (id);
+                    last_used_id = id;
+                }
 
-        bool button_released (Gdk.EventButton event) {
-            if (event.button == 3)
-                return show_popup_menu (event);
+                return true;
+            }
             return false;
         }
 
