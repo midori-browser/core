@@ -18,6 +18,7 @@ namespace ClipNotes {
         Midori.Database database;
         unowned Sqlite.Database db;
         Gtk.ListStore notes_list_store;
+        int64 last_used_id;
 
         void note_add_new (string title, string? uri, string note_content)
         {
@@ -52,7 +53,6 @@ namespace ClipNotes {
                 remove_note (id);
         }
 
-
         void note_rename (int64 id, string new_title)
         {
             string sqlcmd = "UPDATE `notes` SET title= :title WHERE id = :id;";
@@ -79,6 +79,17 @@ namespace ClipNotes {
             return content ?? "";
         }
 
+        void note_update (int64 id, string new_content)
+        {
+            string sqlcmd = "UPDATE `notes` SET note_content = :content WHERE id = :id;";
+            Sqlite.Statement stmt;
+            if (db.prepare_v2 (sqlcmd, -1, out stmt) != Sqlite.OK)
+                critical (_("Failed to update database: %s"), db.errmsg);
+            stmt.bind_int64 (stmt.bind_parameter_index (":id"), id);
+            stmt.bind_text (stmt.bind_parameter_index (":content"), new_content);
+            if (stmt.step () != Sqlite.DONE)
+                critical (_("Failed to update database: %s"), db.errmsg);
+        }
 
         void append_note (int64 id, string? uri, string title, string note_content)
         {
@@ -183,8 +194,25 @@ namespace ClipNotes {
 
             note_text_view.set_wrap_mode (Gtk.WrapMode.WORD);
             note_text_view.show ();
+            note_text_view.focus_out_event.connect (focus_lost);
             pack_start (note_text_view, true, true, 0);
         } // Sidebar()
+
+        bool focus_lost (Gdk.EventFocus event) {
+            Gtk.TreePath? path;
+            notes_tree_view.get_cursor (out path, null);
+            return_val_if_fail (path != null, false);
+            Gtk.TreeIter iter;
+            if (notes_list_store.get_iter (out iter, path)) {
+                int64 id;
+                notes_list_store.get (iter, 0, out id);
+                if (last_used_id == id) {
+                    string note_content = note_text_view.buffer.text;
+                    note_update (id, note_content);
+                }
+            }
+            return false;
+        }
 
         private void on_renderer_note_title (Gtk.CellLayout column, Gtk.CellRenderer renderer,
             Gtk.TreeModel model, Gtk.TreeIter iter) {
