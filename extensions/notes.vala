@@ -263,32 +263,8 @@ namespace ClipNotes {
 
                 var menu = new Gtk.Menu ();
 
-                var menuitem = new Gtk.ImageMenuItem.with_label (_("Remove note"));
-                var image = new Gtk.Image.from_stock (Gtk.STOCK_DELETE, Gtk.IconSize.MENU);
-                menuitem.always_show_image = true;
-                menuitem.set_image (image);
-                menuitem.activate.connect (() => {
-                    int64 id;
-                    notes_list_store.get (iter, 0, out id);
-                    note_delete (id);
-                });
-                menu.append (menuitem);
-
-                menuitem = new Gtk.ImageMenuItem.with_label (_("Copy note to clipboard"));
-                image = new Gtk.Image.from_stock (Gtk.STOCK_COPY, Gtk.IconSize.MENU);
-                menuitem.always_show_image = true;
-                menuitem.set_image (image);
-                menuitem.activate.connect (() => {
-                    int64 id;
-                    string note_content;
-                    notes_list_store.get (iter, 0, out id);
-                    note_content = note_get_content_by_id (id);
-                    get_clipboard (Gdk.SELECTION_CLIPBOARD).set_text (note_content, -1);
-                });
-                menu.append (menuitem);
-
-                menuitem = new Gtk.ImageMenuItem.with_label (_("Rename note"));
-                image = new Gtk.Image.from_stock (Gtk.STOCK_EDIT, Gtk.IconSize.MENU);
+                var menuitem = new Gtk.ImageMenuItem.with_label (_("Rename note"));
+                var image = new Gtk.Image.from_stock (Gtk.STOCK_EDIT, Gtk.IconSize.MENU);
                 menuitem.always_show_image = true;
                 menuitem.set_image (image);
                 menuitem.activate.connect (() => {
@@ -322,6 +298,32 @@ namespace ClipNotes {
                     }
                     dialog.destroy ();
 
+                });
+                menu.append (menuitem);
+
+
+                menuitem = new Gtk.ImageMenuItem.with_label (_("Copy note to clipboard"));
+                image = new Gtk.Image.from_stock (Gtk.STOCK_COPY, Gtk.IconSize.MENU);
+                menuitem.always_show_image = true;
+                menuitem.set_image (image);
+                menuitem.activate.connect (() => {
+                    int64 id;
+                    string note_content;
+                    notes_list_store.get (iter, 0, out id);
+                    note_content = note_get_content_by_id (id);
+                    get_clipboard (Gdk.SELECTION_CLIPBOARD).set_text (note_content, -1);
+                });
+                menu.append (menuitem);
+
+
+                menuitem = new Gtk.ImageMenuItem.with_label (_("Remove note"));
+                image = new Gtk.Image.from_stock (Gtk.STOCK_DELETE, Gtk.IconSize.MENU);
+                menuitem.always_show_image = true;
+                menuitem.set_image (image);
+                menuitem.activate.connect (() => {
+                    int64 id;
+                    notes_list_store.get (iter, 0, out id);
+                    note_delete (id);
                 });
                 menu.append (menuitem);
 
