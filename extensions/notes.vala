@@ -24,71 +24,82 @@ namespace ClipNotes {
         {
             GLib.DateTime time = new DateTime.now_local ();
             string sqlcmd = "INSERT INTO `notes` (`uri`, `title`, `note_content`, `tstamp` ) VALUES (:uri, :title, :note_content, :tstamp);";
-            Sqlite.Statement stmt;
+            Midori.DatabaseStatement statement;
             int64 id;
-            if (db.prepare_v2 (sqlcmd, -1, out stmt) != Sqlite.OK)
-                critical (_("Failed to add new note to database (prepare): %s"), db.errmsg);
-            stmt.bind_text (stmt.bind_parameter_index (":uri"), uri);
-            stmt.bind_text (stmt.bind_parameter_index (":title"), title);
-            stmt.bind_text (stmt.bind_parameter_index (":note_content"), note_content);
-            stmt.bind_int64 (stmt.bind_parameter_index (":tstamp"), time.to_unix ());
-            id = db.last_insert_rowid ();
+            try {
+                statement = database.prepare (sqlcmd,
+                    ":uri", typeof (string), uri,
+                    ":title", typeof (string), title,
+                    ":note_content", typeof (string), note_content,
+                    ":tstamp", typeof (int64), time.to_unix ());
 
-            if (stmt.step () != Sqlite.DONE)
-                critical (_("Failed to add new note to database: %s"), db.errmsg);
-            else
+                id = db.last_insert_rowid ();
+                statement.step ();
                 append_note (id, uri, title, note_content);
+            } catch (Error error) {
+                critical (_("Failed to add new note to database: %s\n"), error.message);
+            }
         }
 
         void note_delete (int64 id)
         {
             string sqlcmd = "DELETE FROM `notes` WHERE id= :id;";
-            Sqlite.Statement stmt;
-            if (db.prepare_v2 (sqlcmd, -1, out stmt) != Sqlite.OK)
-                critical (_("Failed to remove from notes database (prepare): %s"), db.errmsg);
-            stmt.bind_int64 (stmt.bind_parameter_index (":id"), id);
-            if (stmt.step () != Sqlite.DONE)
-                critical (_("Failed to remove from notes database: %s"), db.errmsg);
-            else
+            Midori.DatabaseStatement statement;
+            try {
+                statement = database.prepare (sqlcmd,
+                    ":id", typeof (int64), id);
+
+                statement.step ();
                 remove_note (id);
+            } catch (Error error) {
+                critical (_("Falied to remove note from database: %s\n"), error.message);
+            }
         }
 
         void note_rename (int64 id, string new_title)
         {
             string sqlcmd = "UPDATE `notes` SET title= :title WHERE id = :id;";
-            Sqlite.Statement stmt;
-            if (db.prepare_v2 (sqlcmd, -1, out stmt) != Sqlite.OK)
-                critical (_("Failed to rename notes (prepare): %s"), db.errmsg);
-            stmt.bind_int64 (stmt.bind_parameter_index (":id"), id);
-            stmt.bind_text (stmt.bind_parameter_index (":title"), new_title);
-            if (stmt.step () != Sqlite.DONE)
-                critical (_("Failed to rename notes: %s"), db.errmsg);
+            Midori.DatabaseStatement statement;
+            try {
+                statement = database.prepare (sqlcmd,
+                    ":id", typeof (int64), id,
+                    ":title", typeof (string), new_title);
+            statement.step ();
+            } catch (Error error) {
+                critical (_("Falied to rename note: %s\n"), error.message);
+            }
         }
 
         string note_get_content_by_id (int64 id)
         {
             string sqlcmd = "SELECT note_content FROM notes WHERE id = :id";
-            Sqlite.Statement stmt;
-            if (db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
-                critical (_("Failed to select from notes database: %s"), db.errmsg);
-                stmt.bind_int64 (stmt.bind_parameter_index (":id"), id);
-            int result = stmt.step ();
+            Midori.DatabaseStatement statement;
             string? content = null;
-            if (result == Sqlite.ROW)
-                content = stmt.column_text (0);
+            try {
+                statement = database.prepare (sqlcmd,
+                    ":id", typeof (int64), id);
+
+                if (statement.step ())
+                    content = statement.get_string ("note_content");
+            } catch (Error error) {
+                critical (_("Failed to select from notes database: %s"), error.message);
+            }
+
             return content ?? "";
         }
 
         void note_update (int64 id, string new_content)
         {
-            string sqlcmd = "UPDATE `notes` SET note_content = :content WHERE id = :id;";
-            Sqlite.Statement stmt;
-            if (db.prepare_v2 (sqlcmd, -1, out stmt) != Sqlite.OK)
-                critical (_("Failed to update notes database (prepare): %s"), db.errmsg);
-            stmt.bind_int64 (stmt.bind_parameter_index (":id"), id);
-            stmt.bind_text (stmt.bind_parameter_index (":content"), new_content);
-            if (stmt.step () != Sqlite.DONE)
-                critical (_("Failed to update notes database: %s"), db.errmsg);
+            string sqlcmd = "UPDATE `notes` SET note_content= :content WHERE id = :id;";
+            Midori.DatabaseStatement statement;
+            try {
+                statement = database.prepare (sqlcmd,
+                    ":id", typeof (int64), id,
+                    ":content", typeof (string), new_content);
+            statement.step ();
+            } catch (Error error) {
+                critical (_("Falied to update note: %s\n"), error.message);
+            }
         }
 
         void append_note (int64 id, string? uri, string title, string note_content)
@@ -164,23 +175,26 @@ namespace ClipNotes {
 
             if (database != null && !database.first_use) {
                 string sqlcmd = "SELECT id, uri, title, note_content FROM notes ORDER BY title ASC";
-                Sqlite.Statement stmt;
-                if (db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
-                    critical (_("Failed to select from notes database (prepare): %s"), db.errmsg);
-                int result = stmt.step ();
-                if (!(result == Sqlite.DONE || result == Sqlite.ROW)) {
-                    critical (_("Failed to select from notes database: %s"), db.errmsg ());
-                }
+                Midori.DatabaseStatement statement;
+                try {
+                    int64 id;
+                    string? uri = null;
+                    string title;
+                    string note_content;
 
-                while (result == Sqlite.ROW) {
-                    int64 id = stmt.column_int64 (0);
-                    string? uri = stmt.column_text (1);
-                    string title = stmt.column_text (2);
-                    string note_content = stmt.column_text (3);
+                    statement = database.prepare (sqlcmd);
+                    while (statement.step ()) {
+                        id = statement.get_int64 ("id");
+                        uri = statement.get_string ("uri");
+                        title = statement.get_string ("title");
+                        note_content = statement.get_string ("note_content");
 
-                    append_note (id, uri, title, note_content);
+                        append_note (id, uri, title, note_content);
 
-                    result = stmt.step ();
+                    }
+
+                } catch (Error error) {
+                    critical (_("Failed to select from notes database: %s\n"), error.message);
                 }
             }
 
