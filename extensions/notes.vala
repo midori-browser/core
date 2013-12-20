@@ -33,8 +33,8 @@ namespace ClipNotes {
                     ":note_content", typeof (string), note_content,
                     ":tstamp", typeof (int64), time.to_unix ());
 
-                id = db.last_insert_rowid ();
                 statement.step ();
+                id = db.last_insert_rowid ();
                 append_note (id, uri, title, note_content);
             } catch (Error error) {
                 critical (_("Failed to add new note to database: %s\n"), error.message);
