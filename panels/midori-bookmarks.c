@@ -406,9 +406,6 @@ static void
 midori_bookmarks_statusbar_update (MidoriBookmarks *bookmarks)
 {
     gchar* text = NULL;
-    GtkTreeModel* model;
-    GtkTreeIter   iter;
-    gboolean selected;
 
     if (bookmarks->hovering_item)
     {

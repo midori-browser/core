@@ -342,36 +342,6 @@ katze_array_action_activate_item (KatzeArrayAction* action,
             free_event = TRUE;
     }
 
-    if (!event)
-    {            /* Simulate a button 1 press event */
-        gint x;
-        gint y;
-        gint x_root;
-        gint y_root;
-
-        free_event = TRUE;
-        event = (GdkEventButton*)gdk_event_new (GDK_BUTTON_PRESS);
-        event->type = GDK_BUTTON_PRESS;
-        event->window = proxy->window;
-        event->send_event = FALSE;
-        event->time = gtk_get_current_event_time();
-        gdk_window_get_pointer (proxy->window,
-            &x, &y,
-            NULL);
-        event->x = x;
-        event->y = y;
-        gtk_get_current_event_state (&event->state);
-
-        event->button = 1;
-        event->device = NULL; /* FIXME: find the mouse device */
-        gdk_window_get_root_coords (proxy->window,
-            x, y,
-            &x_root,
-            &y_root);
-        event->x_root = x_root;
-        event->y_root = y_root;
-    }
-
     g_signal_emit (action, signals[ACTIVATE_ITEM_FULL], 0, item,
         event, proxy, &handled);
     if (!handled)
@@ -406,46 +376,10 @@ katze_array_action_menu_item_button_press_cb (GtkWidget*        proxy,
 }
 
 static gboolean
-pointer_in_menu_window (GtkWidget *widget,
-                        gdouble    x_root,
-                        gdouble    y_root)
-{
-    GtkMenu *menu = GTK_MENU (widget);
-
-    if (gtk_widget_get_mapped (menu->toplevel))
-    {
-        GtkMenuShell *menu_shell;
-        gint          window_x, window_y;
-
-        gdk_window_get_position (menu->toplevel->window, &window_x, &window_y);
-
-        if (x_root >= window_x && x_root < window_x + widget->allocation.width &&
-            y_root >= window_y && y_root < window_y + widget->allocation.height)
-            return TRUE;
-
-        menu_shell = GTK_MENU_SHELL (widget);
-
-        if (GTK_IS_MENU (menu_shell->parent_menu_shell))
-            return pointer_in_menu_window (menu_shell->parent_menu_shell,
-                x_root, y_root);
-    }
-
-    return FALSE;
-}
-
-static gboolean
 katze_array_action_menu_button_press_cb (GtkWidget*        proxy,
                                          GdkEventButton*   event,
                                          KatzeArrayAction* array_action)
 {
-    /* Take precedence over menu button-press-event handling to avoid
-       menu item activation and menu disparition for popup opening
-    */
-
-    if (GTK_IS_MENU_SHELL (gtk_get_event_widget ((GdkEvent *) event)) &&
-        pointer_in_menu_window (proxy, event->x_root, event->y_root))
-        return FALSE;
-
     return katze_array_action_menu_item_button_press_cb (gtk_get_event_widget ((GdkEvent *) event), event, array_action);
 }
 
@@ -454,7 +388,7 @@ katze_array_action_tool_item_child_button_press_cb (GtkWidget*        proxy,
 						                            GdkEventButton*   event,
 						                            KatzeArrayAction* array_action)
 {
-    GtkWidget* toolitem = proxy->parent;
+    GtkWidget* toolitem = gtk_widget_get_parent(proxy);
     KatzeItem* item = g_object_get_data (G_OBJECT (toolitem), "KatzeItem");
 
     /* let the 'clicked' signal be processed normally */

@@ -37,11 +37,6 @@ typedef struct _MidoriBookmarksClass           MidoriBookmarksClass;
 GType
 midori_bookmarks_get_type               (void);
 
-gint64
-midori_bookmarks_insert_item_db (sqlite3*   db,
-                                 KatzeItem* item,
-                                 gint64     parentid);
-
 gboolean
 midori_bookmarks_update_item_db (sqlite3*   db,
                                  KatzeItem* item);

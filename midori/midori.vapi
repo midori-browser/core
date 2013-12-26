@@ -31,6 +31,8 @@ namespace Midori {
         public static void set_instance_is_running (bool is_running);
         public Browser create_browser ();
         public GLib.List<weak Browser> get_browsers ();
+        public void send_notification (string title, string message);
+        public bool send_command ([CCode (array_length = false)] string[] command);
 
         [NoAccessorMethod]
         public string name { get; set; }
@@ -55,7 +57,6 @@ namespace Midori {
         public signal void remove_browser (Browser browser);
         [HasEmitter]
         public signal void quit ();
-        public void send_notification (string title, string message);
     }
 
     [CCode (cheader_filename = "midori/midori.h")]
@@ -197,7 +198,6 @@ namespace Midori {
 
         public string title { get; }
         public Gdk.Pixbuf icon { get; }
-        public bool minimized { get; }
         public float zoom_level { get; }
         public Katze.Array news_feeds { get; }
         [NoAccessorMethod]
@@ -207,7 +207,7 @@ namespace Midori {
         [HasEmitter]
         public signal bool download_requested (WebKit.Download download);
         public signal bool about_content (string uri);
-
+        public signal void new_view (Midori.View new_view, Midori.NewView where, bool user_initiated);
     }
 
     [CCode (cheader_filename = "midori/midori.h")]
@@ -256,6 +256,7 @@ namespace Midori {
 
     [CCode (cheader_filename = "midori/sokoke.h", lower_case_cprefix = "sokoke_")]
     namespace Sokoke {
+        public static string magic_uri (string uri, bool allow_search, bool allow_relative);
         public static uint gtk_action_count_modifiers (Gtk.Action action);
     #if HAVE_WIN32
         public static string get_win32_desktop_lnk_path_for_filename (string filename);

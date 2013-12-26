@@ -67,34 +67,6 @@ katze_cell_renderer_combobox_text_render (GtkCellRenderer      *cell,
     GtkCellRendererState  flags);
 #endif
 
-static void
-(*_cell_renderer_get_size) (GtkCellRenderer* cell,
-    GtkWidget*       widget,
-    GdkRectangle*    cell_area,
-    gint*            x_offset,
-    gint*            y_offset,
-    gint*            width,
-    gint*            height);
-
-#if GTK_CHECK_VERSION(3,0,0)
-static void
-(*_cell_renderer_render) (GtkCellRenderer      *cell,
-    cairo_t*             cr,
-    GtkWidget            *widget,
-    GdkRectangle         *background_area,
-    GdkRectangle         *cell_area,
-    GtkCellRendererState  flags) = NULL;
-#else
-static void
-(*_cell_renderer_render) (GtkCellRenderer      *cell,
-    GdkDrawable          *window,
-    GtkWidget            *widget,
-    GdkRectangle         *background_area,
-    GdkRectangle         *cell_area,
-    GdkRectangle         *expose_area,
-    GtkCellRendererState  flags) = NULL;
-#endif
-
 enum {
     PROP_0,
 

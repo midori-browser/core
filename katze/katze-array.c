@@ -371,7 +371,7 @@ gpointer
 katze_array_find_token (KatzeArray*  array,
                         const gchar* token)
 {
-    goffset token_length;
+    size_t token_length;
     GList* items;
 
     g_return_val_if_fail (KATZE_IS_ARRAY (array), NULL);

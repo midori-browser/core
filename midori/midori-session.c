@@ -316,8 +316,6 @@ midori_load_soup_session_full (gpointer settings)
     SoupCookieJar* jar;
     gchar* config_file;
     SoupSessionFeature* feature;
-    gboolean have_new_cookies;
-    SoupSessionFeature* feature_import;
 
     midori_load_soup_session (settings);
 

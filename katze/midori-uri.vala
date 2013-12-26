@@ -17,9 +17,7 @@ namespace GLib {
 namespace Midori {
     public class URI : Object {
         public static string? parse_hostname (string? uri, out string path) {
-            /* path may be null. */
-            if (&path != null)
-                path = null;
+            path = null;
             if (uri == null)
                 return uri;
             unowned string? hostname = uri.chr (-1, '/');
@@ -27,10 +25,8 @@ namespace Midori {
              || hostname.chr (-1, ' ') != null)
                 return null;
             hostname = hostname.offset (2);
-            if (&path != null) {
-                if ((path = hostname.chr (-1, '/')) != null)
-                    return hostname.split ("/")[0];
-            }
+            if ((path = hostname.chr (-1, '/')) != null)
+                return hostname.split ("/")[0];
             return hostname;
         }
         /* Deprecated: 0.4.3 */
@@ -53,9 +49,9 @@ namespace Midori {
             return uri;
         }
         public static string get_base_domain (string uri) {
-            string ascii = to_ascii (uri);
 #if HAVE_LIBSOUP_2_40_0
             try {
+                string ascii = to_ascii (uri);
                 return Soup.tld_get_base_domain (ascii);
             } catch (Error error) {
                 /* This is fine, we fallback to hostname */
@@ -182,6 +178,25 @@ namespace Midori {
             return null;
         }
 
+        /**
+         * Returns a string showing a file:// URI's intended filename on
+         * disk, suited for displaying to a user.
+         * 
+         * The string returned is the basename (final path segment) of the
+         * filename of the uri. If the uri is invalid, not file://, or has no
+         * basename, the uri itself is returned.
+         * 
+         * Since: 0.5.7
+         **/
+        public static string get_basename_for_display (string uri) {
+            try {
+                string filename = Filename.from_uri (uri);
+                if(filename != null && filename != "")
+                    return Path.get_basename (filename);
+            } catch (Error error) { }
+            return uri;
+        }
+
         public static GLib.ChecksumType get_fingerprint (string uri,
             out string checksum, out string label) {
 
@@ -205,11 +220,8 @@ namespace Midori {
 
             /* No SHA256: no known usage and no need for strong encryption */
 
-            if (&checksum != null)
-                checksum = fragment != null
-                    ? fragment.offset (delimiter.length) : null;
-            if (&label != null)
-                label = display;
+            checksum = fragment != null ? fragment.offset (delimiter.length) : null;
+            label = display;
             return type;
         }
     }

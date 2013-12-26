@@ -77,7 +77,7 @@ namespace HistoryList {
         protected bool is_dirty = false;
         protected Gtk.ScrolledWindow? scroll_windows;
 
-        protected void store_append_row (GLib.PtrArray list, Gtk.ListStore store, out Gtk.TreeIter iter) {
+        protected void store_append_row (GLib.PtrArray list, Gtk.ListStore store) {
             for (var i = list.len; i > 0; i--) {
                 Midori.View view = list.index (i - 1) as Midori.View;
 
@@ -86,6 +86,7 @@ namespace HistoryList {
 
                 unowned string title = view.get_display_title ();
 
+                Gtk.TreeIter iter;
                 store.append (out iter);
                 store.set (iter, TabTreeCells.TREE_CELL_PIXBUF, icon,
                                  TabTreeCells.TREE_CELL_STRING, title,
@@ -96,11 +97,10 @@ namespace HistoryList {
         }
 
         protected virtual void insert_rows (Gtk.ListStore store) {
-            Gtk.TreeIter iter;
             unowned GLib.PtrArray list = this.browser.get_data<GLib.PtrArray> ("history-list-tab-history");
             unowned GLib.PtrArray list_new = this.browser.get_data<GLib.PtrArray> ("history-list-tab-history-new");
-            store_append_row (list, store, out iter);
-            store_append_row (list_new, store, out iter);
+            store_append_row (list, store);
+            store_append_row (list_new, store);
         }
 
         protected void resize_treeview () {
@@ -243,16 +243,15 @@ namespace HistoryList {
         protected bool first_step = true;
 
         protected override void insert_rows (Gtk.ListStore store) {
-            Gtk.TreeIter iter;
             unowned GLib.PtrArray list = this.browser.get_data<GLib.PtrArray> ("history-list-tab-history-new");
-            store_append_row (list, store, out iter);
+            store_append_row (list, store);
 
             if ((int)list.len == 0) {
                 this.old_tabs = true;
                 var label = new Gtk.Label (_("There are no unvisited tabs"));
                 this.vbox.pack_start (label, true, true, 0);
                 unowned GLib.PtrArray list_old = this.browser.get_data<GLib.PtrArray> ("history-list-tab-history");
-                store_append_row (list_old, store, out iter);
+                store_append_row (list_old, store);
             }
         }
 
