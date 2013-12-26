@@ -52,7 +52,6 @@ enum
     POPULATE_FOLDER,
     ACTIVATE_ITEM,
     ACTIVATE_ITEM_ALT,
-    ACTIVATE_ITEM_FULL,
     LAST_SIGNAL
 };
 
@@ -160,6 +159,7 @@ katze_array_action_class_init (KatzeArrayActionClass* class)
     /**
      * KatzeArrayAction::activate-item-alt:
      * @array: the object on which the signal is emitted
+     * @proxy: the %GtkWidget that caught the event
      * @item: the item being activated
      * @button: the mouse button pressed
      *
@@ -167,8 +167,6 @@ katze_array_action_class_init (KatzeArrayActionClass* class)
      *
      * Return value: %TRUE if the event was handled. If %FALSE is returned,
      *               the default "activate-item" signal is emitted.
-     *
-     * Deprecated: 0.5.2: Use "activate-item-full" instead.
      **/
     signals[ACTIVATE_ITEM_ALT] = g_signal_new ("activate-item-alt",
                                        G_TYPE_FROM_CLASS (class),
@@ -176,37 +174,9 @@ katze_array_action_class_init (KatzeArrayActionClass* class)
                                        0,
                                        0,
                                        NULL,
-                                       midori_cclosure_marshal_BOOLEAN__OBJECT_UINT,
-                                       G_TYPE_BOOLEAN, 2,
-                                       KATZE_TYPE_ITEM, G_TYPE_UINT);
-
-    /**
-     * KatzeArrayAction::activate-item-full:
-     * @array: the object on which the signal is emitted
-     * @item: the item being activated
-     * @event: the %GdkButtonEvent pressed
-     * @proxy: the %GtkWidget that caught the event
-     *
-     * An item was clicked, with the specified @button.
-     *
-     * Return value: %TRUE if the event was handled. If %FALSE is returned,
-     *               the default "activate-item-alt" signal is emitted. If
-     *               "activate-item-alt" is not handled on its turn, the
-     *               "activate-item" signal is finally emitted.
-     *
-     * Since: 0.5.2
-     **/
-    signals[ACTIVATE_ITEM_FULL] = g_signal_new ("activate-item-full",
-                                       G_TYPE_FROM_CLASS (class),
-                                       (GSignalFlags) (G_SIGNAL_RUN_LAST),
-                                       0,
-                                       0,
-                                       NULL,
-                                       midori_cclosure_marshal_BOOLEAN__OBJECT_POINTER_OBJECT,
+                                       midori_cclosure_marshal_BOOLEAN__OBJECT_OBJECT_POINTER,
                                        G_TYPE_BOOLEAN, 3,
-				                       KATZE_TYPE_ITEM,
-				                       GDK_TYPE_EVENT,
-				                       GTK_TYPE_WIDGET);
+                                               KATZE_TYPE_ITEM, GTK_TYPE_WIDGET, G_TYPE_UINT);
 
     gobject_class = G_OBJECT_CLASS (class);
     gobject_class->finalize = katze_array_action_finalize;
@@ -314,44 +284,33 @@ katze_array_action_activate (GtkAction* action)
         GTK_ACTION_CLASS (katze_array_action_parent_class)->activate (action);
 }
 
-static gboolean
+static void
 katze_array_action_activate_item (KatzeArrayAction* action,
-                                  KatzeItem*        item,
-                                  GdkEventButton*   event,
-				                  GtkWidget*        proxy)
+                                  KatzeItem*        item)
+{
+    g_signal_emit (action, signals[ACTIVATE_ITEM], 0, item);
+}
+
+static gboolean
+katze_array_action_activate_item_alt (KatzeArrayAction* action,
+                                      KatzeItem*        item,
+                                      GdkEventButton*   event,
+                                      GtkWidget*        proxy)
 {
     /* katze_array_action_activate_item emits the signal.
      * It can result from "clicked" event where the button event
      * is not provided.
-     * We need to check if the current event is usable.
-     * If it's not we just synthetize a usable button event.
      */
 
-    gboolean free_event = FALSE;
     gboolean handled = FALSE;
 
-    if (!event)
-    {
-        event = (GdkEventButton*)gtk_get_current_event ();
-        if (event->type != GDK_BUTTON_PRESS)
-        {
-            gdk_event_free ((GdkEvent*)event);
-            event = NULL;
-        }
-        else
-            free_event = TRUE;
-    }
+    g_assert (event);
 
-    g_signal_emit (action, signals[ACTIVATE_ITEM_FULL], 0, item,
-        event, proxy, &handled);
-    if (!handled)
-        g_signal_emit (action, signals[ACTIVATE_ITEM_ALT], 0, item,
-            event->button, &handled);
-    if (!handled)
-        g_signal_emit (action, signals[ACTIVATE_ITEM], 0, item);
+    g_signal_emit (action, signals[ACTIVATE_ITEM_ALT], 0, item,
+                       proxy, event, &handled);
 
-    if (free_event)
-        gdk_event_free ((GdkEvent*)event);
+    if (!handled)
+        katze_array_action_activate_item (action, item);
 
     return handled;
 }
@@ -362,7 +321,7 @@ katze_array_action_menu_activate_cb  (GtkWidget*        proxy,
 {
     KatzeItem* item = g_object_get_data (G_OBJECT (proxy), "KatzeItem");
 
-    katze_array_action_activate_item (array_action, item, NULL, proxy);
+    katze_array_action_activate_item (array_action, item);
 }
 
 static gboolean
@@ -372,7 +331,7 @@ katze_array_action_menu_item_button_press_cb (GtkWidget*        proxy,
 {
     KatzeItem* item = g_object_get_data (G_OBJECT (proxy), "KatzeItem");
 
-    return katze_array_action_activate_item (array_action, item, event, proxy);
+    return katze_array_action_activate_item_alt (array_action, item, event, proxy);
 }
 
 static gboolean
@@ -380,22 +339,26 @@ katze_array_action_menu_button_press_cb (GtkWidget*        proxy,
                                          GdkEventButton*   event,
                                          KatzeArrayAction* array_action)
 {
+    /* Take precedence over menu button-press-event handling to avoid
+       menu item activation and menu disparition for popup opening
+    */
+
     return katze_array_action_menu_item_button_press_cb (gtk_get_event_widget ((GdkEvent *) event), event, array_action);
 }
 
 static gboolean
 katze_array_action_tool_item_child_button_press_cb (GtkWidget*        proxy,
-						                            GdkEventButton*   event,
-						                            KatzeArrayAction* array_action)
+                                                                            GdkEventButton*   event,
+                                                                            KatzeArrayAction* array_action)
 {
-    GtkWidget* toolitem = gtk_widget_get_parent(proxy);
+    GtkWidget* toolitem = gtk_widget_get_parent (proxy);
     KatzeItem* item = g_object_get_data (G_OBJECT (toolitem), "KatzeItem");
 
     /* let the 'clicked' signal be processed normally */
     if (event->button == 1)
         return FALSE;
 
-    return katze_array_action_activate_item (array_action, item, event, proxy);
+    return katze_array_action_activate_item_alt (array_action, item, event, proxy);
 }
 
 static void
@@ -589,7 +552,7 @@ katze_array_action_proxy_clicked_cb (GtkWidget*        proxy,
 
     if (KATZE_IS_ITEM (array) && katze_item_get_uri ((KatzeItem*)array))
     {
-        katze_array_action_activate_item (array_action, KATZE_ITEM (array), NULL, proxy);
+        katze_array_action_activate_item (array_action, KATZE_ITEM (array));
         return;
     }
 
