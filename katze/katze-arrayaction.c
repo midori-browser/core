@@ -161,7 +161,7 @@ katze_array_action_class_init (KatzeArrayActionClass* class)
      * @array: the object on which the signal is emitted
      * @proxy: the %GtkWidget that caught the event
      * @item: the item being activated
-     * @button: the mouse button pressed
+     * @event: the mouse button pressed event
      *
      * An item was clicked, with the specified @button.
      *
@@ -174,9 +174,9 @@ katze_array_action_class_init (KatzeArrayActionClass* class)
                                        0,
                                        0,
                                        NULL,
-                                       midori_cclosure_marshal_BOOLEAN__OBJECT_OBJECT_POINTER,
-                                       G_TYPE_BOOLEAN, 3,
-                                               KATZE_TYPE_ITEM, GTK_TYPE_WIDGET, G_TYPE_UINT);
+				       midori_cclosure_marshal_BOOLEAN__OBJECT_OBJECT_POINTER,
+				       G_TYPE_BOOLEAN, 3,
+                                       KATZE_TYPE_ITEM, GTK_TYPE_WIDGET, G_TYPE_POINTER);
 
     gobject_class = G_OBJECT_CLASS (class);
     gobject_class->finalize = katze_array_action_finalize;
