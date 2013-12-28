@@ -100,24 +100,6 @@ namespace ClipNotes {
         }
 
 
-        string note_get_content_by_id (int64 id)
-        {
-            string sqlcmd = "SELECT note_content FROM notes WHERE id = :id";
-            Midori.DatabaseStatement statement;
-            string? content = null;
-            try {
-                statement = database.prepare (sqlcmd,
-                    ":id", typeof (int64), id);
-
-                if (statement.step ())
-                    content = statement.get_string ("note_content");
-            } catch (Error error) {
-                critical (_("Failed to select from notes database: %s"), error.message);
-            }
-
-            return content ?? "";
-        }
-
         void append_note (Note note)
         {
             Gtk.TreeIter iter;
@@ -266,7 +248,7 @@ namespace ClipNotes {
 
                 if (last_used_id != note.id) {
                     note_label.set_markup (label);
-                    note_text_view.buffer.text = note_get_content_by_id (note.id);
+                    note_text_view.buffer.text = note.content;
                     last_used_id = note.id;
                 }
 
