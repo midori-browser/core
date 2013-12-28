@@ -163,10 +163,16 @@ namespace ClipNotes {
             notes_tree_view.button_release_event.connect (button_released);
 
             column = new Gtk.TreeViewColumn ();
+            Gtk.CellRendererPixbuf renderer_icon = new Gtk.CellRendererPixbuf ();
+            column.pack_start (renderer_icon, false);
+            column.set_cell_data_func (renderer_icon, on_render_icon);
+            notes_tree_view.append_column (column);
+
+            column = new Gtk.TreeViewColumn ();
             Gtk.CellRendererText renderer_title = new Gtk.CellRendererText ();
             column.set_title (_("Notes"));
             column.pack_start (renderer_title, true);
-            column.set_cell_data_func (renderer_title, on_renderer_note_title);
+            column.set_cell_data_func (renderer_title, on_render_note_title);
             notes_tree_view.append_column (column);
 
             if (database != null && !database.first_use) {
@@ -218,14 +224,30 @@ namespace ClipNotes {
             return false;
         }
 
-        private void on_renderer_note_title (Gtk.CellLayout column, Gtk.CellRenderer renderer,
+        private void on_render_note_title (Gtk.CellLayout column, Gtk.CellRenderer renderer,
             Gtk.TreeModel model, Gtk.TreeIter iter) {
 
             Note note;
             model.get (iter, 0, out note);
-            renderer.set ("text", note.title,
+            renderer.set ("markup", GLib.Markup.printf_escaped ("%s", note.title),
                 "ellipsize", Pango.EllipsizeMode.END);
         } // on_renderer_note_title
+
+        private void on_render_icon (Gtk.CellLayout column, Gtk.CellRenderer renderer,
+            Gtk.TreeModel model, Gtk.TreeIter iter) {
+
+            Note note;
+            model.get (iter, 0, out note);
+
+            if (note.uri != null) {
+                var pixbuf = Midori.Paths.get_icon (note.uri, null);
+                if (pixbuf == null) {
+                    renderer.set ("icon-name", Midori.Stock.WEB_BROWSER);
+                }
+                renderer.set ("pixbuf", pixbuf);
+                renderer.set ("stock-size", Gtk.IconSize.MENU);
+            }
+        }
 
         bool button_released (Gdk.EventButton event) {
             if (event.button == 1)
@@ -239,22 +261,15 @@ namespace ClipNotes {
             Gtk.TreeIter iter;
             if (notes_tree_view.get_selection ().get_selected (null, out iter)) {
                 Note note;
-                string label = "";
                 notes_list_store.get (iter, 0, out note);
 
-                if (note.uri != null) {
-                    label = _("Note clipped from: <a href=\"%s\">%s</a>").printf (note.uri, note.uri);
-                }
-
                 if (last_used_id != note.id) {
-                    note_label.set_markup (label);
                     note_text_view.buffer.text = note.content;
                     last_used_id = note.id;
                 }
 
                 return true;
             } else {
-                note_label.set_markup ("");
                 note_text_view.buffer.text = "";
             }
             return false;
