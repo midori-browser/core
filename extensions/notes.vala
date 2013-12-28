@@ -20,55 +20,85 @@ namespace ClipNotes {
         Gtk.ListStore notes_list_store;
         int64 last_used_id;
 
-        void note_add_new (string title, string? uri, string note_content)
-        {
-            GLib.DateTime time = new DateTime.now_local ();
-            string sqlcmd = "INSERT INTO `notes` (`uri`, `title`, `note_content`, `tstamp` ) VALUES (:uri, :title, :note_content, :tstamp);";
-            Midori.DatabaseStatement statement;
-            int64 id;
-            try {
-                statement = database.prepare (sqlcmd,
-                    ":uri", typeof (string), uri,
-                    ":title", typeof (string), title,
-                    ":note_content", typeof (string), note_content,
-                    ":tstamp", typeof (int64), time.to_unix ());
+        class Note : GLib.Object {
+            public int64 id { get; set; }
+            public string title { get; set; }
+            public string? uri { get; set; default = null; }
+            public string content { get; set; }
 
+            public void add (string title, string? uri, string note_content)
+            {
+                GLib.DateTime time = new DateTime.now_local ();
+                string sqlcmd = "INSERT INTO `notes` (`uri`, `title`, `note_content`, `tstamp` ) VALUES (:uri, :title, :note_content, :tstamp);";
+                Midori.DatabaseStatement statement;
+                try {
+                    statement = database.prepare (sqlcmd,
+                        ":uri", typeof (string), uri,
+                        ":title", typeof (string), title,
+                        ":note_content", typeof (string), note_content,
+                        ":tstamp", typeof (int64), time.to_unix ());
+
+                    statement.step ();
+
+                    append_note (this);
+                } catch (Error error) {
+                    critical (_("Failed to add new note to database: %s\n"), error.message);
+                }
+
+                this.id = db.last_insert_rowid ();
+                this.uri = uri;
+                this.title = title;
+                this.content = note_content;
+            }
+
+            public void remove ()
+            {
+                string sqlcmd = "DELETE FROM `notes` WHERE id= :id;";
+                Midori.DatabaseStatement statement;
+                try {
+                    statement = database.prepare (sqlcmd,
+                        ":id", typeof (int64), this.id);
+
+                    statement.step ();
+                    remove_note (this.id);
+                } catch (Error error) {
+                    critical (_("Falied to remove note from database: %s\n"), error.message);
+                }
+            }
+
+            public void rename (string new_title)
+            {
+                string sqlcmd = "UPDATE `notes` SET title= :title WHERE id = :id;";
+                Midori.DatabaseStatement statement;
+                try {
+                    statement = database.prepare (sqlcmd,
+                        ":id", typeof (int64), this.id,
+                        ":title", typeof (string), new_title);
                 statement.step ();
-                id = db.last_insert_rowid ();
-                append_note (id, uri, title, note_content);
-            } catch (Error error) {
-                critical (_("Failed to add new note to database: %s\n"), error.message);
+                } catch (Error error) {
+                    critical (_("Falied to rename note: %s\n"), error.message);
+                }
+
+                this.title = new_title;
             }
-        }
 
-        void note_delete (int64 id)
-        {
-            string sqlcmd = "DELETE FROM `notes` WHERE id= :id;";
-            Midori.DatabaseStatement statement;
-            try {
-                statement = database.prepare (sqlcmd,
-                    ":id", typeof (int64), id);
-
+            public void update (string new_content)
+            {
+                string sqlcmd = "UPDATE `notes` SET note_content= :content WHERE id = :id;";
+                Midori.DatabaseStatement statement;
+                try {
+                    statement = database.prepare (sqlcmd,
+                        ":id", typeof (int64), this.id,
+                        ":content", typeof (string), new_content);
                 statement.step ();
-                remove_note (id);
-            } catch (Error error) {
-                critical (_("Falied to remove note from database: %s\n"), error.message);
+                } catch (Error error) {
+                    critical (_("Falied to update note: %s\n"), error.message);
+                }
+
+                this.content = new_content;
             }
         }
 
-        void note_rename (int64 id, string new_title)
-        {
-            string sqlcmd = "UPDATE `notes` SET title= :title WHERE id = :id;";
-            Midori.DatabaseStatement statement;
-            try {
-                statement = database.prepare (sqlcmd,
-                    ":id", typeof (int64), id,
-                    ":title", typeof (string), new_title);
-            statement.step ();
-            } catch (Error error) {
-                critical (_("Falied to rename note: %s\n"), error.message);
-            }
-        }
 
         string note_get_content_by_id (int64 id)
         {
@@ -88,38 +118,21 @@ namespace ClipNotes {
             return content ?? "";
         }
 
-        void note_update (int64 id, string new_content)
-        {
-            string sqlcmd = "UPDATE `notes` SET note_content= :content WHERE id = :id;";
-            Midori.DatabaseStatement statement;
-            try {
-                statement = database.prepare (sqlcmd,
-                    ":id", typeof (int64), id,
-                    ":content", typeof (string), new_content);
-            statement.step ();
-            } catch (Error error) {
-                critical (_("Falied to update note: %s\n"), error.message);
-            }
-        }
-
-        void append_note (int64 id, string? uri, string title, string note_content)
+        void append_note (Note note)
         {
             Gtk.TreeIter iter;
             notes_list_store.append (out iter);
-            notes_list_store.set (iter, 0, id);
-            notes_list_store.set (iter, 1, uri);
-            notes_list_store.set (iter, 2, title);
-            notes_list_store.set (iter, 3, note_content);
-         }
+            notes_list_store.set (iter, 0, note);
+        }
 
-         void remove_note (int64 id)
-         {
+        void remove_note (int64 id)
+        {
             Gtk.TreeIter iter;
             if (notes_list_store.iter_children (out iter, null)) {
                 do {
-                    int64 iter_id;
-                    notes_list_store.get (iter, 0, out iter_id);
-                    if (id == iter_id) {
+                    Note note;
+                    notes_list_store.get (iter, 0, out note);
+                    if (id == note.id) {
                         notes_list_store.remove (iter);
                     }
 
@@ -151,7 +164,8 @@ namespace ClipNotes {
                 new_note_button.is_important = true;
                 new_note_button.show ();
                 new_note_button.clicked.connect (() => {
-                    note_add_new (_("New note"), null, "");
+                    var note = new Note ();
+                    note.add (_("New note"), null, "");
                 });
                 toolbar.insert (new_note_button, -1);
             } // if (toolbar != null)
@@ -161,7 +175,7 @@ namespace ClipNotes {
         public Sidebar () {
             Gtk.TreeViewColumn column;
 
-            notes_list_store = new Gtk.ListStore (4, typeof (int64), typeof (string), typeof (string), typeof (string));
+            notes_list_store = new Gtk.ListStore (1, typeof (Note));
             notes_tree_view = new Gtk.TreeView.with_model (notes_list_store);
             notes_tree_view.headers_visible = true;
             notes_tree_view.button_release_event.connect (button_released);
@@ -177,20 +191,15 @@ namespace ClipNotes {
                 string sqlcmd = "SELECT id, uri, title, note_content FROM notes ORDER BY title ASC";
                 Midori.DatabaseStatement statement;
                 try {
-                    int64 id;
-                    string? uri = null;
-                    string title;
-                    string note_content;
-
                     statement = database.prepare (sqlcmd);
                     while (statement.step ()) {
-                        id = statement.get_int64 ("id");
-                        uri = statement.get_string ("uri");
-                        title = statement.get_string ("title");
-                        note_content = statement.get_string ("note_content");
+                        var note = new Note ();
+                        note.id = statement.get_int64 ("id");
+                        note.uri = statement.get_string ("uri");
+                        note.title = statement.get_string ("title");
+                        note.content = statement.get_string ("note_content");
 
-                        append_note (id, uri, title, note_content);
-
+                        append_note (note);
                     }
 
                 } catch (Error error) {
@@ -217,11 +226,11 @@ namespace ClipNotes {
             return_val_if_fail (path != null, false);
             Gtk.TreeIter iter;
             if (notes_list_store.get_iter (out iter, path)) {
-                int64 id;
-                notes_list_store.get (iter, 0, out id);
-                if (last_used_id == id) {
+                Note note;
+                notes_list_store.get (iter, 0, out note);
+                if (last_used_id == note.id) {
                     string note_content = note_text_view.buffer.text;
-                    note_update (id, note_content);
+                    note.update (note_content);
                 }
             }
             return false;
@@ -230,9 +239,9 @@ namespace ClipNotes {
         private void on_renderer_note_title (Gtk.CellLayout column, Gtk.CellRenderer renderer,
             Gtk.TreeModel model, Gtk.TreeIter iter) {
 
-            string note_title;
-            model.get (iter, 2, out note_title);
-            renderer.set ("text", note_title,
+            Note note;
+            model.get (iter, 0, out note);
+            renderer.set ("text", note.title,
                 "ellipsize", Pango.EllipsizeMode.END);
         } // on_renderer_note_title
 
@@ -247,20 +256,18 @@ namespace ClipNotes {
         bool show_note_content (Gdk.EventButton? event) {
             Gtk.TreeIter iter;
             if (notes_tree_view.get_selection ().get_selected (null, out iter)) {
-                int64 id;
-                string uri;
+                Note note;
                 string label = "";
-                notes_list_store.get (iter, 0, out id);
-                notes_list_store.get (iter, 1, out uri);
+                notes_list_store.get (iter, 0, out note);
 
-                if (uri != null) {
-                    label = _("Note clipped from: <a href=\"%s\">%s</a>").printf (uri, uri);
+                if (note.uri != null) {
+                    label = _("Note clipped from: <a href=\"%s\">%s</a>").printf (note.uri, note.uri);
                 }
 
-                if (last_used_id != id) {
+                if (last_used_id != note.id) {
                     note_label.set_markup (label);
-                    note_text_view.buffer.text = note_get_content_by_id (id);
-                    last_used_id = id;
+                    note_text_view.buffer.text = note_get_content_by_id (note.id);
+                    last_used_id = note.id;
                 }
 
                 return true;
@@ -282,10 +289,8 @@ namespace ClipNotes {
                 menuitem.always_show_image = true;
                 menuitem.set_image (image);
                 menuitem.activate.connect (() => {
-                    int64 id;
-                    string title;
-                    notes_list_store.get (iter, 0, out id);
-                    notes_list_store.get (iter, 2, out title);
+                    Note note;
+                    notes_list_store.get (iter, 0, out note);
 
                     var dialog = new Gtk.Dialog. with_buttons (_("Rename note"), null,
                         Gtk.DialogFlags.DESTROY_WITH_PARENT, Gtk.Stock.CANCEL, Gtk.ResponseType.CANCEL,
@@ -296,7 +301,7 @@ namespace ClipNotes {
                     dialog.icon_name = Gtk.STOCK_EDIT;
 
                     var entry = new Gtk.Entry ();
-                    entry.text = title;
+                    entry.text = note.title;
                     entry.activates_default = true;
                     content.add (entry);
                     content.show_all ();
@@ -305,9 +310,9 @@ namespace ClipNotes {
                     dialog.hide ();
                     if (response == Gtk.ResponseType.OK) {
                         string new_title = entry.text;
-                        if (entry.text != null && new_title != title) {
-                            note_rename (id, new_title);
-                            notes_list_store.set (iter, 2, new_title);
+                        if (entry.text != null && new_title != note.title) {
+                            note.rename (new_title);
+                            notes_list_store.set (iter, 0, note);
                         }
                     }
                     dialog.destroy ();
@@ -321,11 +326,9 @@ namespace ClipNotes {
                 menuitem.always_show_image = true;
                 menuitem.set_image (image);
                 menuitem.activate.connect (() => {
-                    int64 id;
-                    string note_content;
-                    notes_list_store.get (iter, 0, out id);
-                    note_content = note_get_content_by_id (id);
-                    get_clipboard (Gdk.SELECTION_CLIPBOARD).set_text (note_content, -1);
+                    Note note;
+                    notes_list_store.get (iter, 0, out note);
+                    get_clipboard (Gdk.SELECTION_CLIPBOARD).set_text (note.content, -1);
                 });
                 menu.append (menuitem);
 
@@ -335,9 +338,9 @@ namespace ClipNotes {
                 menuitem.always_show_image = true;
                 menuitem.set_image (image);
                 menuitem.activate.connect (() => {
-                    int64 id;
-                    notes_list_store.get (iter, 0, out id);
-                    note_delete (id);
+                    Note note;
+                    notes_list_store.get (iter, 0, out note);
+                    note.remove ();
                 });
                 menu.append (menuitem);
 
@@ -372,7 +375,8 @@ namespace ClipNotes {
                     string selected_text = view.get_selected_text ();
                     string uri = view.get_display_uri ();
                     string title = view.get_display_title ();
-                    note_add_new (title, uri, selected_text);
+                    var note = new Note();
+                    note.add (title, uri, selected_text);
                 }
             });
 
