@@ -24,7 +24,7 @@ namespace ClipNotes {
             public int64 id { get; set; }
             public string title { get; set; }
             public string? uri { get; set; default = null; }
-            public string content { get; set; }
+            public string content { get; set; default = ""; }
 
             public void add (string title, string? uri, string note_content)
             {
