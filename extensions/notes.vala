@@ -160,7 +160,7 @@ namespace ClipNotes {
             notes_list_store = new Gtk.ListStore (1, typeof (Note));
             notes_tree_view = new Gtk.TreeView.with_model (notes_list_store);
             notes_tree_view.headers_visible = true;
-            notes_tree_view.button_release_event.connect (button_released);
+            notes_tree_view.button_press_event.connect (button_pressed);
 
             column = new Gtk.TreeViewColumn ();
             Gtk.CellRendererPixbuf renderer_icon = new Gtk.CellRendererPixbuf ();
@@ -249,9 +249,16 @@ namespace ClipNotes {
             }
         }
 
-        bool button_released (Gdk.EventButton event) {
-            if (event.button == 1)
-                return show_note_content (event);
+        bool button_pressed (Gdk.EventButton event) {
+            if (event.button == 1) {
+                if (event.type == Gdk.EventType.2BUTTON_PRESS) {
+                    return show_note_webpage_in_new_tab (event, false);
+                } else {
+                    return show_note_content (event);
+                }
+            }
+            if (event.button == 2)
+                return show_note_webpage_in_new_tab (event, true);
             if (event.button == 3)
                 return show_popup_menu (event);
             return false;
@@ -271,6 +278,25 @@ namespace ClipNotes {
                 return true;
             } else {
                 note_text_view.buffer.text = "";
+            }
+            return false;
+        }
+
+        bool show_note_webpage_in_new_tab (Gdk.EventButton? event, bool new_tab) {
+            Gtk.TreeIter iter;
+            if (notes_tree_view.get_selection ().get_selected (null, out iter)) {
+                Note note;
+                notes_list_store.get (iter, 0, out note);
+                if (note.uri != null) {
+                    var browser = Midori.Browser.get_for_widget (notes_tree_view);
+                    if (new_tab) {
+                        browser.add_uri (note.uri);
+                    } else {
+                        var tab = browser.tab as Midori.View;
+                        tab.set_uri (note.uri);
+                    }
+                    return true;
+                }
             }
             return false;
         }
