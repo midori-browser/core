@@ -150,9 +150,9 @@ namespace ClipNotes {
                     note.add (_("New note"), null, "");
                 });
                 toolbar.insert (new_note_button, -1);
-            } // if (toolbar != null)
+            }
             return toolbar;
-        } // get_toolbar
+        }
 
         public Sidebar () {
             Gtk.TreeViewColumn column;
@@ -206,7 +206,7 @@ namespace ClipNotes {
             note_text_view.show ();
             note_text_view.focus_out_event.connect (focus_lost);
             pack_start (note_text_view, true, true, 0);
-        } // Sidebar()
+        }
 
         bool focus_lost (Gdk.EventFocus event) {
             Gtk.TreePath? path;
@@ -231,7 +231,7 @@ namespace ClipNotes {
             model.get (iter, 0, out note);
             renderer.set ("markup", GLib.Markup.printf_escaped ("%s", note.title),
                 "ellipsize", Pango.EllipsizeMode.END);
-        } // on_renderer_note_title
+        }
 
         private void on_render_icon (Gtk.CellLayout column, Gtk.CellRenderer renderer,
             Gtk.TreeModel model, Gtk.TreeIter iter) {
@@ -373,7 +373,7 @@ namespace ClipNotes {
             }
             return false;
         }
-    } // Sidebar
+    }
 
     private class Manager : Midori.Extension {
         internal GLib.List<Gtk.Widget> widgets;
@@ -382,7 +382,7 @@ namespace ClipNotes {
 
             tab.context_menu.connect (add_menu_items);
 
-        } // tab_added
+        }
 
 
 
@@ -404,7 +404,7 @@ namespace ClipNotes {
             });
 
             menu.add (action);
-        } // add_menu_items
+        }
 
         void browser_added (Midori.Browser browser) {
             var viewable = new Sidebar ();
@@ -416,7 +416,7 @@ namespace ClipNotes {
                 tab_added (browser, tab);
 
             browser.add_tab.connect (tab_added);
-        } // browser_added
+        }
 
         void activated (Midori.App app) {
             widgets = new GLib.List<Gtk.Widget> ();
@@ -434,14 +434,14 @@ namespace ClipNotes {
                 }
                 db = database.db;
             }
-        } // activated
+        }
 
         void deactivated () {
             var app = get_app ();
             app.add_browser.disconnect (browser_added);
             foreach (var widget in widgets)
                 widget.destroy ();
-        } // deactivated
+        }
 
         internal Manager () {
             GLib.Object (name: _("Notes"),
@@ -451,9 +451,9 @@ namespace ClipNotes {
 
             this.activate.connect (activated);
             this.deactivate.connect (deactivated);
-        } // Manager ()
-    } // Manager : Midori.Extension
-} // namespace Clipnotes
+        }
+    }
+}
 
 public Midori.Extension extension_init () {
     return new ClipNotes.Manager ();
