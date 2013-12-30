@@ -15,114 +15,113 @@ using WebKit;
 using Sqlite;
 
 namespace ClipNotes {
-        Midori.Database database;
-        unowned Sqlite.Database db;
-        Gtk.ListStore notes_list_store;
-        int64 last_used_id;
 
-        class Note : GLib.Object {
-            public int64 id { get; set; }
-            public string title { get; set; }
-            public string? uri { get; set; default = null; }
-            public string content { get; set; default = ""; }
+    Midori.Database database;
+    unowned Sqlite.Database db;
+    Gtk.ListStore notes_list_store;
+    int64 last_used_id;
 
-            public void add (string title, string? uri, string note_content)
-            {
-                GLib.DateTime time = new DateTime.now_local ();
-                string sqlcmd = "INSERT INTO `notes` (`uri`, `title`, `note_content`, `tstamp` ) VALUES (:uri, :title, :note_content, :tstamp);";
-                Midori.DatabaseStatement statement;
-                try {
-                    statement = database.prepare (sqlcmd,
-                        ":uri", typeof (string), uri,
-                        ":title", typeof (string), title,
-                        ":note_content", typeof (string), note_content,
-                        ":tstamp", typeof (int64), time.to_unix ());
+    class Note : GLib.Object {
+        public int64 id { get; set; }
+        public string title { get; set; }
+        public string? uri { get; set; default = null; }
+        public string content { get; set; default = ""; }
 
-                    statement.step ();
+        public void add (string title, string? uri, string note_content)
+        {
+            GLib.DateTime time = new DateTime.now_local ();
+            string sqlcmd = "INSERT INTO `notes` (`uri`, `title`, `note_content`, `tstamp` ) VALUES (:uri, :title, :note_content, :tstamp);";
+            Midori.DatabaseStatement statement;
+            try {
+                statement = database.prepare (sqlcmd,
+                    ":uri", typeof (string), uri,
+                    ":title", typeof (string), title,
+                    ":note_content", typeof (string), note_content,
+                    ":tstamp", typeof (int64), time.to_unix ());
 
-                    append_note (this);
-                } catch (Error error) {
-                    critical (_("Failed to add new note to database: %s\n"), error.message);
-                }
-
-                this.id = db.last_insert_rowid ();
-                this.uri = uri;
-                this.title = title;
-                this.content = note_content;
-            }
-
-            public void remove ()
-            {
-                string sqlcmd = "DELETE FROM `notes` WHERE id= :id;";
-                Midori.DatabaseStatement statement;
-                try {
-                    statement = database.prepare (sqlcmd,
-                        ":id", typeof (int64), this.id);
-
-                    statement.step ();
-                    remove_note (this.id);
-                } catch (Error error) {
-                    critical (_("Falied to remove note from database: %s\n"), error.message);
-                }
-            }
-
-            public void rename (string new_title)
-            {
-                string sqlcmd = "UPDATE `notes` SET title= :title WHERE id = :id;";
-                Midori.DatabaseStatement statement;
-                try {
-                    statement = database.prepare (sqlcmd,
-                        ":id", typeof (int64), this.id,
-                        ":title", typeof (string), new_title);
                 statement.step ();
-                } catch (Error error) {
-                    critical (_("Falied to rename note: %s\n"), error.message);
-                }
 
-                this.title = new_title;
+                append_note (this);
+            } catch (Error error) {
+                critical (_("Failed to add new note to database: %s\n"), error.message);
             }
 
-            public void update (string new_content)
-            {
-                string sqlcmd = "UPDATE `notes` SET note_content= :content WHERE id = :id;";
-                Midori.DatabaseStatement statement;
-                try {
-                    statement = database.prepare (sqlcmd,
-                        ":id", typeof (int64), this.id,
-                        ":content", typeof (string), new_content);
-                statement.step ();
-                } catch (Error error) {
-                    critical (_("Falied to update note: %s\n"), error.message);
-                }
+            this.id = db.last_insert_rowid ();
+            this.uri = uri;
+            this.title = title;
+            this.content = note_content;
+        }
 
-                this.content = new_content;
+        public void remove ()
+        {
+            string sqlcmd = "DELETE FROM `notes` WHERE id= :id;";
+            Midori.DatabaseStatement statement;
+            try {
+                statement = database.prepare (sqlcmd,
+                    ":id", typeof (int64), this.id);
+
+                statement.step ();
+                remove_note (this.id);
+            } catch (Error error) {
+                critical (_("Falied to remove note from database: %s\n"), error.message);
             }
         }
 
-
-        void append_note (Note note)
+        public void rename (string new_title)
         {
-            Gtk.TreeIter iter;
-            notes_list_store.append (out iter);
-            notes_list_store.set (iter, 0, note);
+            string sqlcmd = "UPDATE `notes` SET title= :title WHERE id = :id;";
+            Midori.DatabaseStatement statement;
+            try {
+                statement = database.prepare (sqlcmd,
+                    ":id", typeof (int64), this.id,
+                    ":title", typeof (string), new_title);
+                statement.step ();
+            } catch (Error error) {
+                critical (_("Falied to rename note: %s\n"), error.message);
+            }
+
+            this.title = new_title;
         }
 
-        void remove_note (int64 id)
+        public void update (string new_content)
         {
-            Gtk.TreeIter iter;
-            if (notes_list_store.iter_children (out iter, null)) {
-                do {
-                    Note note;
-                    notes_list_store.get (iter, 0, out note);
-                    if (id == note.id) {
-                        notes_list_store.remove (iter);
-                    }
-
-                } while (notes_list_store.iter_next (ref iter));
+            string sqlcmd = "UPDATE `notes` SET note_content= :content WHERE id = :id;";
+            Midori.DatabaseStatement statement;
+            try {
+                statement = database.prepare (sqlcmd,
+                    ":id", typeof (int64), this.id,
+                    ":content", typeof (string), new_content);
+                statement.step ();
+            } catch (Error error) {
+                critical (_("Falied to update note: %s\n"), error.message);
             }
-         }
+            this.content = new_content;
+        }
+    }
 
-        private class Sidebar : Gtk.VBox, Midori.Viewable {
+    void append_note (Note note)
+    {
+        Gtk.TreeIter iter;
+        notes_list_store.append (out iter);
+        notes_list_store.set (iter, 0, note);
+    }
+
+    void remove_note (int64 id)
+    {
+        Gtk.TreeIter iter;
+        if (notes_list_store.iter_children (out iter, null)) {
+            do {
+                Note note;
+                notes_list_store.get (iter, 0, out note);
+                if (id == note.id) {
+                    notes_list_store.remove (iter);
+                }
+            } while (notes_list_store.iter_next (ref iter));
+        }
+     }
+
+
+    private class Sidebar : Gtk.VBox, Midori.Viewable {
         Gtk.Toolbar? toolbar = null;
         Gtk.Label note_label;
         Gtk.TreeView notes_tree_view;
@@ -375,6 +374,7 @@ namespace ClipNotes {
         }
     }
 
+
     private class Manager : Midori.Extension {
         internal GLib.List<Gtk.Widget> widgets;
 
@@ -383,8 +383,6 @@ namespace ClipNotes {
             tab.context_menu.connect (add_menu_items);
 
         }
-
-
 
         void add_menu_items (Midori.Tab tab, WebKit.HitTestResult hit_test_result, Midori.ContextAction menu) {
             if ((hit_test_result.context & WebKit.HitTestResultContext.SELECTION) == 0)
@@ -453,6 +451,7 @@ namespace ClipNotes {
             this.deactivate.connect (deactivated);
         }
     }
+
 }
 
 public Midori.Extension extension_init () {
