@@ -141,7 +141,7 @@ namespace Tabby {
 
                     if (load_on_startup == Midori.MidoriStartup.BLANK_PAGE) {
                         item.uri = "about:dial";
-                    } else if (load_on_startup == Midori.MidoriStartup.HOMEPAGE) {
+                    } else {
                         item.uri = "about:home";
                     }
 
