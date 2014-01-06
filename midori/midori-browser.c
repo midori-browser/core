@@ -1562,11 +1562,12 @@ midori_view_new_view_cb (GtkWidget*     view,
         g_object_set (new_browser,
                       "show-tabs", FALSE,
                       NULL);
-        _action_set_visible (new_browser, "Menubar", FALSE);
-        _action_set_visible (new_browser, "Bookmarkbar", FALSE);
-        _action_set_visible (new_browser, "Statusbar", FALSE);
+        sokoke_widget_set_visible (new_browser->menubar, FALSE);
+        sokoke_widget_set_visible (new_browser->bookmarkbar, FALSE);
+        sokoke_widget_set_visible (new_browser->statusbar, FALSE);
         _action_set_visible (new_browser, "CompactMenu", FALSE);
         _midori_browser_set_toolbar_items (new_browser, "Location");
+        sokoke_widget_set_visible (new_browser->panel, FALSE);
         midori_browser_add_tab (new_browser, new_view);
         midori_browser_set_current_tab (new_browser, new_view);
         return;
