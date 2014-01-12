@@ -615,6 +615,11 @@ midori_app_get_name (MidoriApp* app)
 gboolean
 midori_app_get_crashed (MidoriApp* app)
 {
+    static gint cache = -1;
+
+    if (cache != -1)
+        return (gboolean) cache;
+
     if (!midori_paths_is_readonly ())
     {
         /* We test for the presence of a dummy file which is created once
@@ -624,9 +629,13 @@ midori_app_get_crashed (MidoriApp* app)
         if (!crashed)
             g_file_set_contents (config_file, "RUNNING", -1, NULL);
         g_free (config_file);
-        if (crashed)
+        if (crashed) {
+            cache = 1;
             return TRUE;
+        }
     }
+
+    cache = 0;
 
     return FALSE;
 }
