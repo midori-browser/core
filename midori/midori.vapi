@@ -51,6 +51,7 @@ namespace Midori {
         [NoAccessorMethod]
         public Katze.Array browsers { get; }
         public Browser? browser { get; }
+        public bool crashed { get; }
 
         [HasEmitter]
         public signal void add_browser (Browser browser);
