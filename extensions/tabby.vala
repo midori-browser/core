@@ -170,6 +170,11 @@ namespace Tabby {
                 APP.settings.get ("load-on-startup", out load_on_startup);
                 should_delay = load_on_startup == Midori.MidoriStartup.DELAYED_PAGES;
 
+                if (APP.crashed == true) {
+                    delay = true;
+                    should_delay = true;
+                }
+
                 this.state = SessionState.RESTORING;
 
                 GLib.Idle.add (() => {
