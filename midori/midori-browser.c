@@ -1541,6 +1541,10 @@ midori_view_new_window_cb (GtkWidget*     view,
 }
 
 static void
+_midori_browser_set_toolbar_items (MidoriBrowser* browser,
+                                   const gchar*   items);
+
+static void
 midori_view_new_view_cb (GtkWidget*     view,
                          GtkWidget*     new_view,
                          MidoriNewView  where,
@@ -1555,19 +1559,15 @@ midori_view_new_view_cb (GtkWidget*     view,
         g_assert (new_browser != NULL);
         gtk_window_set_transient_for (GTK_WINDOW (new_browser), GTK_WINDOW (browser));
         gtk_window_set_destroy_with_parent (GTK_WINDOW (new_browser), TRUE);
-        MidoriWebSettings* settings = midori_web_settings_new ();
-        g_object_set (settings,
-                      "toolbar-items", "Location",
-                      "show-menubar", FALSE,
-                      "show-bookmarkbar", FALSE,
-                      "show-statusbar", FALSE,
-                      NULL);
         g_object_set (new_browser,
-                      "settings", settings,
                       "show-tabs", FALSE,
                       NULL);
-        g_object_unref (settings);
+        sokoke_widget_set_visible (new_browser->menubar, FALSE);
+        sokoke_widget_set_visible (new_browser->bookmarkbar, FALSE);
+        sokoke_widget_set_visible (new_browser->statusbar, FALSE);
         _action_set_visible (new_browser, "CompactMenu", FALSE);
+        _midori_browser_set_toolbar_items (new_browser, "Location");
+        sokoke_widget_set_visible (new_browser->panel, FALSE);
         midori_browser_add_tab (new_browser, new_view);
         midori_browser_set_current_tab (new_browser, new_view);
         return;
