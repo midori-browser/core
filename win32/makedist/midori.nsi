@@ -275,6 +275,8 @@ SectionEnd
 
 Section "Desktop Shortcuts" SEC03
 	SectionIn 1
+	# CreateShortCut implicitly sets content of OUTDIR as working directory for shortcut, set it to bin
+	SetOutPath "$INSTDIR\bin"
 	CreateShortCut "$DESKTOP\Midori.lnk" "${PRODUCT_EXE}"
 	CreateShortCut "$QUICKLAUNCH\Midori.lnk" "${PRODUCT_EXE}"
 SectionEnd
