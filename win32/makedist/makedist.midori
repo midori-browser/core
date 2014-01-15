@@ -354,7 +354,7 @@ fi
 if [ "$NSIS" != "" ];then
     nsis_file=Midori-${version}_setup.exe
     echo "Creating $nsis_file"
-    makensis -NOCD -V2 ./midori.nsi
+    makensis -NOCD -V4 ./midori.nsi
     mv $nsis_file $where_am_i
 fi
 popd > /dev/null
