@@ -1,5 +1,30 @@
 This file is licensed under the terms of the expat license, see the file EXPAT.
 
+v0.5.7:
+ Modify actions and internal items in browser without changing settings
+ Delay tab loading after Midori crashed
+ Uncomment failing assertions about view_source in tab test
+ Fallback to about:home if startup is anything but blank
+ Don't try to create formhistory database if config_dir is NULL
+ Handle url arguments for blank sessions
+ Execute commands given at start time
+ Introduce high-level prepare/ DatabaseStatement API
+ Drop unused GraniteClutter-based animation support
+ Drop uncommented contractor support
+ Drop deprecated StaticNotebook used in KatzePreferences
+ Introduce notebook class converging separate implementations
+ Work around symbol relocation issue old version of gcc present on Ubuntu LTS
+ NULL-check treeview in midori_search_action_get_editor
+ Adjust CMakeList .ico check to not skip nojs icons
+ Enable sidepanel in private mode
+ Move Preferences menu entry above About
+ Set minimum value of 0 on spin button for maximum cache size
+ Give NextForward its own label for toolbar editor
+ Correctly disable favicon database in app and private mode
+ Change preferences to refer to proxy address as a "URI" (not "hostname")
+ Add close tabs to right feature
+ Allow printing without confirmation dialog on kiosk setups
+
 v0.5.6:
  instead of creating devpet status icon on extension load, create it only to show new messages
  Open speed dial or homepage according to preference

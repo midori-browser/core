@@ -5,20 +5,20 @@
   <title>midori:faq</title>
 <meta name="generator" content="DokuWiki"/>
 <meta name="robots" content="index,follow"/>
-<meta name="date" content="2013-10-18T05:46:11+0200"/>
+<meta name="date" content="2013-12-20T22:56:39+0100"/>
 <meta name="keywords" content="midori,faq"/>
 <link rel="search" type="application/opensearchdescription+xml" href="/lib/exe/opensearch.php" title="Xfce Wiki"/>
 <link rel="start" href="/"/>
 <link rel="contents" href="/midori/faq?do=index" title="Sitemap"/>
-<link rel="alternate" type="application/rss+xml" title="Recent Changes" href="/feed.php"/>
-<link rel="alternate" type="application/rss+xml" title="Current Namespace" href="/feed.php?mode=list&amp;ns=midori"/>
+<link rel="alternate" type="application/rss+xml" title="Recent changes" href="/feed.php"/>
+<link rel="alternate" type="application/rss+xml" title="Current namespace" href="/feed.php?mode=list&amp;ns=midori"/>
 <link rel="alternate" type="text/html" title="Plain HTML" href="/_export/xhtml/midori/faq"/>
 <link rel="alternate" type="text/plain" title="Wiki Markup" href="/_export/raw/midori/faq"/>
 <link rel="canonical" href="http://wiki.xfce.org/midori/faq"/>
 <link rel="stylesheet" href="faq.css" />
 <script type="text/javascript">/*<![CDATA[*/var NS='midori';var JSINFO = {"id":"midori:faq","namespace":"midori"};
 /*!]]>*/</script>
-<script type="text/javascript" charset="utf-8" src="/lib/exe/js.php?tseed=1371413028"></script>
+<script type="text/javascript" charset="utf-8" src="/lib/exe/js.php?tseed=34912f2e1a4daa1bfa9afb3096df0197"></script>
 </head>
 <body>
 <div class="dokuwiki export">
@@ -1132,7 +1132,25 @@ Customize as needed:
         <span class="br0">&#125;</span></pre>
 
 </div>
-<!-- EDIT20 SECTION "User styles" [24518-26759] -->
+
+<h4 id="tweaking_fonts_via_css">Tweaking fonts via CSS</h4>
+<div class="level4">
+
+<p>
+If changing system-wide font settings isn&#039;t bringing the desired results or rendering should be tweaked only for websites <abbr title="Cascading Style Sheets">CSS</abbr> can be an alternative. Add the following to <strong>~/.local/share/midori/styles</strong>, then restart Midori and make sure that it is enabled Tools → Userstyles.
+</p>
+
+<p>
+Customize as needed:
+</p>
+<pre class="code css"><span class="sy0">*</span> <span class="br0">&#123;</span>
+    font-smooth<span class="sy0">:</span><span class="kw2">always</span><span class="sy0">;</span>
+    -webkit-font-smoothing<span class="sy0">:</span> antialiased<span class="sy0">;</span>
+    text-rendering<span class="sy0">:</span> optimizeLegibility
+<span class="br0">&#125;</span></pre>
+
+</div>
+<!-- EDIT20 SECTION "User styles" [24518-27222] -->
 <h2 class="sectionedit21" id="understanding_webkit_version_numbers">Understanding WebKit Version Numbers</h2>
 <div class="level2">
 
@@ -1170,6 +1188,6 @@ Midori&#039;s support for WebKit2 is still provisional, and likely unsuitable fo
 </p>
 
 </div>
-<!-- EDIT21 SECTION "Understanding WebKit Version Numbers" [26760-] --></div>
+<!-- EDIT21 SECTION "Understanding WebKit Version Numbers" [27223-] --></div>
 </body>
 </html>
