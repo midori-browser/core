@@ -384,7 +384,7 @@ mouse_gestures_load_config (MidoriExtension* extension)
     for(i = 0; keys[i]; i++)
     {
         gsize n_strokes;
-        int j;
+        guint j;
         gchar** stroke_strings = g_key_file_get_string_list (keyfile, "gestures", keys[i], &n_strokes,
                                                              NULL);
 

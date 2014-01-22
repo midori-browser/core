@@ -495,6 +495,12 @@ formhistory_new (const gchar* config_dir)
     priv->master_password_canceled = 0;
     formhistory_construct_popup_gui (priv);
 
+    if (config_dir == NULL)
+    {
+        priv->db = NULL;
+        return priv;
+    }
+
     filename = g_build_filename (config_dir, "forms.db", NULL);
     priv->database = midori_database_new (filename, &error);
     g_free (filename);

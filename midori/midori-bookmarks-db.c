@@ -39,6 +39,7 @@ struct _MidoriBookmarksDb
     KatzeArray  parent_instance;
 
     sqlite3*    db;
+    GHashTable* all_items;
 };
 
 struct _MidoriBookmarksDbClass
@@ -97,6 +98,21 @@ static gboolean
 midori_bookmarks_db_remove_item_db (sqlite3*   db,
                                     KatzeItem* item);
 
+static guint
+item_hash (gconstpointer item)
+{
+    gint64 id = katze_item_get_meta_integer (KATZE_ITEM (item), "id");
+    return g_int64_hash (&id);
+}
+
+static gboolean
+item_equal (gconstpointer item_a, gconstpointer item_b)
+{
+    gint64 id_a = katze_item_get_meta_integer (KATZE_ITEM (item_a), "id");
+    gint64 id_b = katze_item_get_meta_integer (KATZE_ITEM (item_b), "id");
+    return (id_a == id_b)? TRUE : FALSE;
+}
+
 static void
 midori_bookmarks_db_class_init (MidoriBookmarksDbClass* class)
 {
@@ -131,9 +147,11 @@ static void
 midori_bookmarks_db_init (MidoriBookmarksDb* bookmarks)
 {
     bookmarks->db = NULL;
+    bookmarks->all_items = g_hash_table_new (item_hash, item_equal);
 
-    katze_item_set_meta_integer (KATZE_ITEM (bookmarks), "id", 0);
+    katze_item_set_meta_integer (KATZE_ITEM (bookmarks), "id", -1);
     katze_item_set_name (KATZE_ITEM (bookmarks), _("Bookmarks"));
+    g_hash_table_insert (bookmarks->all_items, bookmarks, bookmarks);
     /* g_object_ref (bookmarks); */
 }
 
@@ -146,6 +164,8 @@ midori_bookmarks_db_finalize (GObject* object)
     {
         sqlite3_close (bookmarks->db);
     }
+
+    g_hash_table_unref (bookmarks->all_items);
 
     G_OBJECT_CLASS (midori_bookmarks_db_parent_class)->finalize (object);
 }
@@ -172,7 +192,13 @@ midori_bookmarks_db_get_item_parent (MidoriBookmarksDb* bookmarks,
     }
     else
     {
-        parent = NULL;
+        KatzeItem *search = katze_item_new ();
+
+        katze_item_set_meta_integer(search, "id", parentid);
+
+        parent = KATZE_ARRAY (g_hash_table_lookup (bookmarks->all_items, search));
+
+        g_object_unref (search);
     }
 
     return parent;
@@ -203,21 +229,21 @@ _midori_bookmarks_db_add_item (KatzeArray* array,
 
     db_parent = midori_bookmarks_db_get_item_parent (bookmarks, item);
 
-    g_return_if_fail (db_parent);
-
     if (parent == db_parent)
     {
         if (IS_MIDORI_BOOKMARKS_DB (parent))
             KATZE_ARRAY_CLASS (midori_bookmarks_db_parent_class)->update (parent);
-        else
+        else if (KATZE_IS_ARRAY (parent))
             katze_array_update (parent);
         return;
     }
 
     if (IS_MIDORI_BOOKMARKS_DB (parent))
         KATZE_ARRAY_CLASS (midori_bookmarks_db_parent_class)->add_item (parent, item);
-    else
+    else if (KATZE_IS_ARRAY (parent))
         katze_array_add_item (parent, item);
+
+    g_assert (parent == katze_item_get_parent (KATZE_ITEM (item)));
 }
 
 /**
@@ -267,7 +293,7 @@ _midori_bookmarks_db_remove_item (KatzeArray* array,
 
     if (IS_MIDORI_BOOKMARKS_DB (parent))
         KATZE_ARRAY_CLASS (midori_bookmarks_db_parent_class)->remove_item (parent, item);
-    else
+    else if (KATZE_IS_ARRAY (parent))
         katze_array_remove_item (parent, item);
 }
 
@@ -285,7 +311,6 @@ _midori_bookmarks_db_move_item (KatzeArray* array,
                                 gpointer    item,
                                 gint        position)
 {
-    MidoriBookmarksDb *bookmarks;
     KatzeArray* parent;
 
     g_return_if_fail (IS_MIDORI_BOOKMARKS_DB (array));
@@ -328,6 +353,83 @@ midori_bookmarks_db_signal_update_item (MidoriBookmarksDb* array,
     g_return_if_fail (IS_MIDORI_BOOKMARKS_DB (array));
 
     g_signal_emit (array, signals[UPDATE_ITEM], 0, item);
+}
+
+/**
+ * midori_bookmarks_db_add_item_recursive:
+ * @item: the removed #KatzeItem
+ * @bookmarks : the main bookmarks array
+ *
+ * Internal function that creates memory records of the added @item.
+ * If @item is a #KatzeArray, the function recursiveley adds records
+ * of all its childs.
+ **/
+static gint
+midori_bookmarks_db_add_item_recursive (MidoriBookmarksDb* bookmarks,
+                                        KatzeItem* item)
+{
+    GList* list;
+    KatzeArray* array;
+    gint64 id = 0;
+    gint count = 0;
+    gint64 parentid = katze_item_get_meta_integer (item, "parentid");
+
+    id = midori_bookmarks_db_insert_item_db (bookmarks->db, item, parentid);
+    count++;
+
+    g_object_ref (item);
+    g_hash_table_insert (bookmarks->all_items, item, item);
+
+    if (!KATZE_IS_ARRAY (item))
+        return count;
+
+    array = KATZE_ARRAY (item);
+
+    KATZE_ARRAY_FOREACH_ITEM_L (item, array, list)
+    {
+        katze_item_set_meta_integer (item, "parentid", id);
+        count += midori_bookmarks_db_add_item_recursive (bookmarks, item);
+    }
+
+    g_list_free (list);
+    return count;
+}
+
+/**
+ * midori_bookmarks_db_remove_item_recursive:
+ * @item: the removed #KatzeItem
+ * @bookmarks : the main bookmarks array
+ *
+ * Internal function that removes memory records of the removed @item.
+ * If @item is a #KatzeArray, the function recursiveley removes records
+ * of all its childs.
+ **/
+static void
+midori_bookmarks_db_remove_item_recursive (KatzeItem*  item,
+                                           MidoriBookmarksDb* bookmarks)
+{
+    gpointer found;
+    KatzeArray* array;
+    KatzeItem* child;
+    GList* list;
+
+    if (NULL != (found = g_hash_table_lookup (bookmarks->all_items, item)))
+    {
+        g_hash_table_remove (bookmarks->all_items, found);
+        g_object_unref (found);
+    }
+
+    if (!KATZE_IS_ARRAY (item))
+        return;
+
+    array = KATZE_ARRAY (item);
+
+    KATZE_ARRAY_FOREACH_ITEM_L (child, array, list)
+    {
+        midori_bookmarks_db_remove_item_recursive (child, bookmarks);
+    }
+
+    g_list_free (list);
 }
 
 /**
@@ -531,8 +633,7 @@ midori_bookmarks_db_add_item (MidoriBookmarksDb* bookmarks, KatzeItem* item)
     g_return_if_fail (KATZE_IS_ITEM (item));
     g_return_if_fail (NULL == katze_item_get_meta_string (item, "id"));
 
-    midori_bookmarks_db_insert_item_db (bookmarks->db, item,
-                                        katze_item_get_meta_integer (item, "parentid"));
+    midori_bookmarks_db_add_item_recursive (bookmarks, item);
 
     katze_array_add_item (KATZE_ARRAY (bookmarks), item);
 }
@@ -576,77 +677,11 @@ midori_bookmarks_db_remove_item (MidoriBookmarksDb* bookmarks, KatzeItem* item)
     g_return_if_fail (katze_item_get_meta_string (item, "id"));
     g_return_if_fail (0 != katze_item_get_meta_integer (item, "id"));
 
+    midori_bookmarks_db_remove_item_recursive (item, bookmarks);
     midori_bookmarks_db_remove_item_db (bookmarks->db, item);
 
     katze_array_remove_item (KATZE_ARRAY (bookmarks), item);
 }
-
-#define _APPEND_TO_SQL_ERRORMSG(custom_errmsg) \
-    do { \
-        if (sql_errmsg) \
-        { \
-            g_string_append_printf (errmsg_str, "%s : %s\n", custom_errmsg, sql_errmsg); \
-            sqlite3_free (sql_errmsg); \
-        } \
-        else \
-            g_string_append (errmsg_str, custom_errmsg); \
-    } while (0)
-
-static gboolean
-midori_bookmarks_db_import_from_old_db (sqlite3*     db,
-                                     const gchar* oldfile,
-                                     gchar**      errmsg)
-{
-    gint sql_errcode;
-    gboolean failure = FALSE;
-    gchar* sql_errmsg = NULL;
-    GString* errmsg_str = g_string_new (NULL);
-    gchar* attach_stmt = sqlite3_mprintf ("ATTACH DATABASE %Q AS old_db;", oldfile);
-    const gchar* convert_stmts =
-        "BEGIN TRANSACTION;"
-        "INSERT INTO main.bookmarks (parentid, title, uri, desc, app, toolbar) "
-        "SELECT NULL AS parentid, title, uri, desc, app, toolbar "
-        "FROM old_db.bookmarks;"
-        "UPDATE main.bookmarks SET parentid = ("
-        "SELECT id FROM main.bookmarks AS b1 WHERE b1.title = ("
-        "SELECT folder FROM old_db.bookmarks WHERE title = main.bookmarks.title));"
-        "COMMIT;";
-    const gchar* detach_stmt = "DETACH DATABASE old_db;";
-
-    *errmsg = NULL;
-    sql_errcode = sqlite3_exec (db, attach_stmt, NULL, NULL, &sql_errmsg);
-    sqlite3_free (attach_stmt);
-
-    if (sql_errcode != SQLITE_OK)
-    {
-        _APPEND_TO_SQL_ERRORMSG (_("failed to ATTACH old db"));
-        goto convert_failed;
-    }
-
-    if (sqlite3_exec (db, convert_stmts, NULL, NULL, &sql_errmsg) != SQLITE_OK)
-    {
-        failure = TRUE;
-        _APPEND_TO_SQL_ERRORMSG (_("failed to import from old db"));
-
-        /* try to get back to previous state */
-        if (sqlite3_exec (db, "ROLLBACK TRANSACTION;", NULL, NULL, &sql_errmsg) != SQLITE_OK)
-            _APPEND_TO_SQL_ERRORMSG (_("failed to rollback the transaction"));
-    }
-
-    if (sqlite3_exec (db, detach_stmt, NULL, NULL, &sql_errmsg) != SQLITE_OK)
-        _APPEND_TO_SQL_ERRORMSG (_("failed to DETACH "));
-
-    if (failure)
-    {
-    convert_failed:
-        *errmsg = g_string_free (errmsg_str, FALSE);
-        g_print ("ERRORR: %s\n", errmsg_str->str);
-        return FALSE;
-    }
-
-    return TRUE;
-}
-#undef _APPEND_TO_SQL_ERRORMSG
 
 static void
 midori_bookmarks_db_dbtracer (void*       dummy,
@@ -667,177 +702,33 @@ midori_bookmarks_db_dbtracer (void*       dummy,
 MidoriBookmarksDb*
 midori_bookmarks_db_new (char** errmsg)
 {
-    sqlite3* db;
-    gchar* oldfile;
-    gchar* newfile;
-    gboolean newfile_did_exist, oldfile_exists;
-    const gchar* create_stmt;
-    gchar* sql_errmsg = NULL;
-    gchar* import_errmsg = NULL;
-    KatzeArray* array;
-    MidoriBookmarksDb* bookmarks;
+    MidoriBookmarksDatabase* database;
+    GError*                  error = NULL;
+    sqlite3*                 db;
+    MidoriBookmarksDb*       bookmarks;
 
     g_return_val_if_fail (errmsg != NULL, NULL);
 
-    oldfile = midori_paths_get_config_filename_for_writing ("bookmarks.db");
-    oldfile_exists = g_access (oldfile, F_OK) == 0;
-    newfile = midori_paths_get_config_filename_for_writing ("bookmarks_v2.db");
-    newfile_did_exist = g_access (newfile, F_OK) == 0;
-
-    /* sqlite3_open will create the file if it did not exists already */
-    if (sqlite3_open (newfile, &db) != SQLITE_OK)
+    database = midori_bookmarks_database_new (&error);
+    
+    if (error != NULL)
     {
-        *errmsg = g_strdup_printf (_("Failed to open database: %s\n"),
-            db ? sqlite3_errmsg (db) : "(db = NULL)");
-        goto init_failed;
+	*errmsg = g_strdup (error->message);
+        g_error_free (error);
+        return NULL;
     }
+
+    db = midori_database_get_db (MIDORI_DATABASE (database));
+    g_return_val_if_fail (db != NULL, NULL);
 
     if (midori_debug ("bookmarks"))
         sqlite3_trace (db, midori_bookmarks_db_dbtracer, NULL);
 
-    create_stmt =     /* Table structure */
-        "CREATE TABLE IF NOT EXISTS bookmarks "
-        "(id INTEGER PRIMARY KEY AUTOINCREMENT, "
-        "parentid INTEGER DEFAULT NULL, "
-        "title TEXT, uri TEXT, desc TEXT, app INTEGER, toolbar INTEGER, "
-        "pos_panel INTEGER, pos_bar INTEGER, "
-        "created DATE DEFAULT CURRENT_TIMESTAMP, "
-        "last_visit DATE, visit_count INTEGER DEFAULT 0, "
-        "nick TEXT, "
-        "FOREIGN KEY(parentid) REFERENCES bookmarks(id) "
-        "ON DELETE CASCADE); PRAGMA foreign_keys = ON;"
+    bookmarks = MIDORI_BOOKMARKS_DB (g_object_new (TYPE_MIDORI_BOOKMARKS_DB, NULL));
+    bookmarks->db = db;
 
-        /* trigger: insert panel position */
-        "CREATE TRIGGER IF NOT EXISTS bookmarkInsertPosPanel "
-        "AFTER INSERT ON bookmarks FOR EACH ROW "
-        "BEGIN UPDATE bookmarks SET pos_panel = ("
-        "SELECT ifnull(MAX(pos_panel),0)+1 FROM bookmarks WHERE "
-        "(NEW.parentid IS NOT NULL AND parentid = NEW.parentid) "
-        "OR (NEW.parentid IS NULL AND parentid IS NULL)) "
-        "WHERE id = NEW.id; END;"
-
-        /* trigger: insert Bookmarkbar position */
-        "CREATE TRIGGER IF NOT EXISTS bookmarkInsertPosBar "
-        "AFTER INSERT ON bookmarks FOR EACH ROW WHEN NEW.toolbar=1 "
-        "BEGIN UPDATE bookmarks SET pos_bar = ("
-        "SELECT ifnull(MAX(pos_bar),0)+1 FROM bookmarks WHERE "
-        "((NEW.parentid IS NOT NULL AND parentid = NEW.parentid) "
-        "OR (NEW.parentid IS NULL AND parentid IS NULL)) AND toolbar=1) "
-        "WHERE id = NEW.id; END;"
-
-        /* trigger: update panel position */
-        "CREATE TRIGGER IF NOT EXISTS bookmarkUpdatePosPanel "
-        "BEFORE UPDATE OF parentid ON bookmarks FOR EACH ROW "
-        "WHEN ((NEW.parentid IS NULL OR OLD.parentid IS NULL) "
-        "AND NEW.parentid IS NOT OLD.parentid) OR "
-        "((NEW.parentid IS NOT NULL AND OLD.parentid IS NOT NULL) "
-        "AND NEW.parentid!=OLD.parentid) "
-        "BEGIN UPDATE bookmarks SET pos_panel = pos_panel-1 "
-        "WHERE ((OLD.parentid IS NOT NULL AND parentid = OLD.parentid) "
-        "OR (OLD.parentid IS NULL AND parentid IS NULL)) AND pos_panel > OLD.pos_panel; "
-        "UPDATE bookmarks SET pos_panel = ("
-        "SELECT ifnull(MAX(pos_panel),0)+1 FROM bookmarks "
-        "WHERE (NEW.parentid IS NOT NULL AND parentid = NEW.parentid) "
-        "OR (NEW.parentid IS NULL AND parentid IS NULL)) "
-        "WHERE id = OLD.id; END;"
-
-        /* trigger: update Bookmarkbar position */
-        "CREATE TRIGGER IF NOT EXISTS bookmarkUpdatePosBar0 "
-        "AFTER UPDATE OF parentid, toolbar ON bookmarks FOR EACH ROW "
-        "WHEN ((NEW.parentid IS NULL OR OLD.parentid IS NULL) "
-        "AND NEW.parentid IS NOT OLD.parentid) "
-        "OR ((NEW.parentid IS NOT NULL AND OLD.parentid IS NOT NULL) "
-        "AND NEW.parentid!=OLD.parentid) OR (OLD.toolbar=1 AND NEW.toolbar=0) "
-        "BEGIN UPDATE bookmarks SET pos_bar = NULL WHERE id = NEW.id; "
-        "UPDATE bookmarks SET pos_bar = pos_bar-1 "
-        "WHERE ((OLD.parentid IS NOT NULL AND parentid = OLD.parentid) "
-        "OR (OLD.parentid IS NULL AND parentid IS NULL)) AND pos_bar > OLD.pos_bar; END;"
-
-        /* trigger: update Bookmarkbar position */
-        "CREATE TRIGGER IF NOT EXISTS bookmarkUpdatePosBar1 "
-        "BEFORE UPDATE OF parentid, toolbar ON bookmarks FOR EACH ROW "
-        "WHEN ((NEW.parentid IS NULL OR OLD.parentid IS NULL) "
-        "AND NEW.parentid IS NOT OLD.parentid) OR "
-        "((NEW.parentid IS NOT NULL AND OLD.parentid IS NOT NULL) "
-        "AND NEW.parentid!=OLD.parentid) OR (OLD.toolbar=0 AND NEW.toolbar=1) "
-        "BEGIN UPDATE bookmarks SET pos_bar = ("
-        "SELECT ifnull(MAX(pos_bar),0)+1 FROM bookmarks WHERE "
-        "(NEW.parentid IS NOT NULL AND parentid = NEW.parentid) "
-        "OR (NEW.parentid IS NULL AND parentid IS NULL)) "
-        "WHERE id = OLD.id; END;"
-
-        /* trigger: delete panel position */
-        "CREATE TRIGGER IF NOT EXISTS bookmarkDeletePosPanel "
-        "AFTER DELETE ON bookmarks FOR EACH ROW "
-        "BEGIN UPDATE bookmarks SET pos_panel = pos_panel-1 "
-        "WHERE ((OLD.parentid IS NOT NULL AND parentid = OLD.parentid) "
-        "OR (OLD.parentid IS NULL AND parentid IS NULL)) AND pos_panel > OLD.pos_panel; END;"
-
-        /* trigger: delete Bookmarkbar position */
-        "CREATE TRIGGER IF NOT EXISTS bookmarkDeletePosBar "
-        "AFTER DELETE ON bookmarks FOR EACH ROW WHEN OLD.toolbar=1 "
-        "BEGIN UPDATE bookmarks SET pos_bar = pos_bar-1 "
-        "WHERE ((OLD.parentid IS NOT NULL AND parentid = OLD.parentid) "
-        "OR (OLD.parentid IS NULL AND parentid IS NULL)) AND pos_bar > OLD.pos_bar; END;";
-
-
-    if (newfile_did_exist)
-    {
-        const gchar* setup_stmt = "PRAGMA foreign_keys = ON;";
-        /* initial setup */
-        if (sqlite3_exec (db, setup_stmt, NULL, NULL, &sql_errmsg) != SQLITE_OK)
-        {
-            *errmsg = g_strdup_printf (_("Couldn't setup bookmarks: %s\n"),
-                sql_errmsg ? sql_errmsg : "(err = NULL)");
-            sqlite3_free (sql_errmsg);
-            goto init_failed;
-        }
-
-        /* we are done */
-        goto init_success;
-    }
-    else
-    {
-        /* initial creation */
-        if (sqlite3_exec (db, create_stmt, NULL, NULL, &sql_errmsg) != SQLITE_OK)
-        {
-            *errmsg = g_strdup_printf (_("Couldn't create bookmarks table: %s\n"),
-                sql_errmsg ? sql_errmsg : "(err = NULL)");
-            sqlite3_free (sql_errmsg);
-
-            /* we can as well remove the new file */
-            g_unlink (newfile);
-            goto init_failed;
-        }
-
-    }
-
-    if (oldfile_exists)
-        /* import from old db */
-        if (!midori_bookmarks_db_import_from_old_db (db, oldfile, &import_errmsg))
-        {
-            *errmsg = g_strdup_printf (_("Couldn't import from old database: %s\n"),
-                import_errmsg ? import_errmsg : "(err = NULL)");
-            g_free (import_errmsg);
-        }
-
-    init_success:
-        g_free (newfile);
-        g_free (oldfile);
-        bookmarks = MIDORI_BOOKMARKS_DB (g_object_new (TYPE_MIDORI_BOOKMARKS_DB, NULL));
-        bookmarks->db = db;
-
-        g_object_set_data (G_OBJECT (bookmarks), "db", db);
-        return bookmarks;
-
-    init_failed:
-        g_free (newfile);
-        g_free (oldfile);
-
-        if (db)
-            sqlite3_close (db);
-
-        return NULL;
+    g_object_set_data (G_OBJECT (bookmarks), "db", db);
+    return bookmarks;
 }
 
 /**
@@ -880,11 +771,10 @@ midori_bookmarks_db_import_array (MidoriBookmarksDb* bookmarks,
 
     KATZE_ARRAY_FOREACH_ITEM_L (item, array, list)
     {
+        /* IDs coming from previously exported database must be forgotten */
+        katze_item_set_meta_integer (item, "id", -1);
         katze_item_set_meta_integer (item, "parentid", parentid);
         midori_bookmarks_db_add_item (bookmarks, item);
-        if (KATZE_IS_ARRAY (item))
-        midori_bookmarks_db_import_array (bookmarks, KATZE_ARRAY (item),
-                          katze_item_get_meta_integer(item, "id"));
     }
     g_list_free (list);
 }
@@ -923,13 +813,22 @@ midori_bookmarks_db_array_from_statement (sqlite3_stmt* stmt,
     {
         gint i;
         KatzeItem* item;
-        KatzeItem* found;
+        gpointer found;
 
         item = katze_item_new ();
         for (i = 0; i < cols; i++)
             katze_item_set_value_from_column (stmt, i, item);
 
-        if (KATZE_ITEM_IS_FOLDER (item))
+        if (NULL != (found = g_hash_table_lookup (bookmarks->all_items, item)))
+        {
+            for (i = 0; i < cols; i++)
+                katze_item_set_value_from_column (stmt, i, found);
+
+            g_object_unref (item);
+
+            item = found;
+        }
+        else if (KATZE_ITEM_IS_FOLDER (item))
         {
             g_object_unref (item);
 
@@ -937,6 +836,14 @@ midori_bookmarks_db_array_from_statement (sqlite3_stmt* stmt,
 
             for (i = 0; i < cols; i++)
                 katze_item_set_value_from_column (stmt, i, item);
+
+            g_object_ref (item);
+            g_hash_table_insert (bookmarks->all_items, item, item);
+        }
+        else
+        {
+            g_object_ref (item);
+            g_hash_table_insert (bookmarks->all_items, item, item);
         }
 
         katze_array_add_item (array, item);

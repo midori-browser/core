@@ -87,35 +87,43 @@ void completion_autocompleter () {
         error ("Expected %d but got %d", 3, n);
 }
 
-struct TestCaseCompletion {
-    public string prefix;
-    public string text;
-    public int expected_count;
-}
-
-const TestCaseCompletion[] completions = {
-    { "history", "example", 1 }
-};
-
-async void complete_spec (Midori.Completion completion, TestCaseCompletion spec) {
-    assert (completion.can_complete (spec.text));
+async void complete_history (Midori.HistoryDatabase history) {
+    try {
+        history.insert ("http://example.com", "Ejemplo", 0, 0);
+    } catch (Error error) {
+        assert_not_reached ();
+    }
     var cancellable = new Cancellable ();
-    var suggestions = yield completion.complete (spec.text, null, cancellable);
-    if (spec.expected_count != suggestions.length ())
-        error ("%u expected for %s/ %s but got %u",
-            spec.expected_count, spec.prefix, spec.text, suggestions.length ());
+    var results = yield history.list_by_count_with_bookmarks ("example", 1, cancellable);
+    assert (results.length () == 1);
+    var first = results.nth_data (0);
+    assert (first.title == "Ejemplo");
+    results = yield history.list_by_count_with_bookmarks ("ejemplo", 1, cancellable);
+    assert (results.length () == 1);
+    first = results.nth_data (0);
+    assert (first.title == "Ejemplo");
+    complete_history_done = true;
 }
 
+bool complete_history_done = false;
 void completion_history () {
-    Sqlite.Database db;
-    assert (Sqlite.Database.open_v2 (Midori.Paths.get_config_filename_for_writing ("bookmarks_v2.db"), out db) == Sqlite.OK);
-    assert (db.exec ("CREATE TABLE bookmarks (uri TEXT, title TEXT, last_visit DATE);") == Sqlite.OK);
-
-    var completion = new Midori.HistoryCompletion ();
     var app = new Midori.App ();
-    completion.prepare (app);
-    foreach (var spec in completions)
-        complete_spec.begin (completion, spec);
+    Midori.HistoryDatabase history;
+    try {
+        var bookmarks_database = new Midori.BookmarksDatabase ();
+        assert (bookmarks_database.db != null);
+        history = new Midori.HistoryDatabase (app);
+        assert (history.db != null);
+        history.clear (0);
+    } catch (Midori.DatabaseError error) {
+        assert_not_reached();
+    }
+
+    Midori.Test.grab_max_timeout ();
+    var loop = MainContext.default ();
+    complete_history.begin (history);
+    do { loop.iteration (true); } while (!complete_history_done);
+    Midori.Test.release_max_timeout ();
 }
 
 struct TestCaseRender {

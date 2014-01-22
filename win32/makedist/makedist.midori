@@ -23,6 +23,7 @@
 
 # a bit of configuration
 root_dir=$MINGW_PREFIX
+where_am_i=$PWD
 
 if [ "$GSTREAMER_API_VERSION" == "" ]; then
     GSTREAMER_API_VERSION=0.10
@@ -39,8 +40,14 @@ temp_dir=`mktemp -d`
 # check if we can use 7zip
 have_7zip=`which 7za`
 
-grep -q gtk-3.0 _build/config.log && GTK3_BUILD=1
-version=`grep PACKAGE_VERSION _build/default/config.h | awk '{ print $3 $4; }' | sed 's@(debug)@-debug@g'|sed 's@"@@g'`
+GTK3_BUILD=1
+# Default to gtk3 but check just in case
+GTK3=$(grep GTK3 CMakeCache.txt | awk -F \= '{print $2}')
+if [ "$GTK3" != "ON" ] && [ "$GTK3" != "1" ];then
+    GTK3_BUILD=0
+fi
+
+version=$(grep PACKAGE_VERSION ./midori/CMakeFiles/midori.dir/DependInfo.cmake|sed -e 's/^.*PACKAGE_VERSION=\\"\([^"]*\)\\".*$/\1/')
 
 #strip sha from version if release
 if [ "$RELEASE" != "" ];then
@@ -71,9 +78,8 @@ else
 fi
 
 if [ "NSIS" != "" ];then
-    where_am_i=$PWD
-    cp -a $where_am_i/win32/makedist/midori.nsi $temp_dir
-    cp -a $where_am_i/win32/makedist/midori.ico $temp_dir
+    cp -a $where_am_i/../win32/makedist/midori.nsi $temp_dir
+    cp -a $where_am_i/../win32/makedist/midori.ico $temp_dir
 fi
 
 # function: dll-recursive <list of exe and dll files ...>
@@ -119,6 +125,32 @@ grab_files ()
    popd > /dev/null
 }
 
+grab_icons()
+{
+  local theme="$1"
+  local list="$2"
+  
+  sizes=$(grep CreateDirectory $list |awk -F '"' '{print $2}' |awk -F '\' '{print $6}')
+  categories=$(grep InstallIconTheme $list | awk -F '"' '{print $2}'|sort|uniq)
+
+	
+  for category in $categories
+  do
+     category_icons=$(grep InstallIconTheme $list |grep $category|awk -F '"' '{print $4}')
+     for size in $sizes
+     do
+	mkdir -p $workdir/share/icons/$theme/$category/$size
+	for icon in $category_icons
+        do
+	  cp -L /usr/share/icons/$theme/$category/$size/$icon.* $workdir/share/icons/$theme/$category/$size/
+        done
+     done
+  done
+
+  cp -L /usr/share/icons/$theme/index.theme $workdir/share/icons/$theme 
+
+}
+
 echo "Creating $ARCHIVE"
 
 # create destination folder
@@ -132,9 +164,18 @@ pushd $root_dir/bin > /dev/null
 dll_recursive midori*.exe gspawn-*-helper*.exe libhunspell*.dll > $temp_dir/midori.exe.lst
 dll_recursive ../lib/gio/modules/*.dll >> $temp_dir/midori.exe.lst
 dll_recursive iconv.dll >> $temp_dir/midori.exe.lst
-dll_recursive ../lib/gstreamer-$GSTREAMER_API_VERSION/*.dll >> $temp_dir/midori.exe.lst
 # we ship gdb now for -g and diagnostic button
 dll_recursive gdb.exe >> $temp_dir/midori.exe.lst
+
+for i in $(cat $temp_dir/midori.exe.lst | grep -v midori | sort | uniq)
+do
+  if [ -f $root_dir/bin/$i ]; then
+  rpm -qf $root_dir/bin/$i >> $temp_dir/packages_used.lst
+  fi
+done
+
+dll_recursive ../lib/gstreamer-$GSTREAMER_API_VERSION/*.dll >> $temp_dir/midori.exe.lst
+rpm -qf $root_dir/lib/gstreamer-$GSTREAMER_API_VERSION/*.dll >> $temp_dir/packages_used.lst
 
 if [ "$DEBUG_BUILD" != "" ]; then
     dll_recursive GtkLauncher.exe >> $temp_dir/midori.exe.lst
@@ -197,9 +238,10 @@ echo "<*> Copying resources and translations..."
 
 # copy share
 grab_files share midori
-grab_files share icons
 grab_files share mime
 grab_files share midori.mo
+
+grab_icons Faenza $where_am_i/../win32/makedist/midori.nsi
 
 # We need to ship our CA bundle for now
 cp -a /etc/pki/tls/certs/ca-bundle.crt $workdir/share/midori/res/
@@ -207,7 +249,8 @@ cp -a /etc/pki/tls/certs/ca-bundle.crt $workdir/share/midori/res/
 if [ "$GTK3_BUILD" == "1" ]; then
     grab_files share webkitgtk-3.0
     grab_files share schemas
-    grab_files share/themes/Greybird/ gtk-3.0
+    mkdir -p $workdir/share/themes/Greybird
+    cp -Lr /usr/share/themes/Greybird/gtk-3.0 $workdir/share/themes/Greybird
     MO_VER=30
 else
     grab_files share MS-Windows
@@ -220,6 +263,10 @@ if [ "$DEBUG_BUILD" == "" ];then
     find -iname *.debug -exec rm {} \;
     popd > /dev/null
 fi
+
+rpm -qf /etc/pki/tls/certs/ca-bundle.crt >> $temp_dir/packages_used.lst
+rpm -qf /usr/share/icons/Faenza/ >> $temp_dir/packages_used.lst
+rpm -qf /usr/share/themes/Greybird/gtk-3.0 >> $temp_dir/packages_used.lst
 
 # copy locales for gtk
 # so we have translated stock items, file dialogs
@@ -266,6 +313,20 @@ gtk-toolbar-style = GTK_TOOLBAR_ICONS
 gtk-toolbar-icon-size = GTK_ICON_SIZE_MENU
 _EOF
 
+mkdir -p $workdir/etc/xdg/midori
+
+cat >> $workdir/etc/xdg/midori/config << _EOF
+[settings]
+default-font-family=Times New Roman
+monospace-font-family=Courier New
+default-font-size=14
+default-monospace-font-size=14
+_EOF
+
+# Don't hardcode mingw path, otherwise fontconfig uses fallback settings
+# which tend to look very bad on Windows
+sed -r 's@>.+(conf\.d)<@>\1@g' -i $workdir/etc/fonts/fonts.conf
+
 popd > /dev/null
 
 echo "<*> Copying docs..."
@@ -273,6 +334,8 @@ echo "<*> Copying docs..."
 # copy doc files to root
 cp -L $workdir/share/doc/midori/{COPYING,AUTHORS} $workdir
 
+cat $temp_dir/packages_used.lst | sort | uniq > $workdir/share/doc/midori/README.packages
+rm $temp_dir/packages_used.lst
 
 #drop a/la files, we don't do static builds anyway
 find $workdir -iname *.*a -exec rm {} \;
@@ -291,7 +354,7 @@ fi
 if [ "$NSIS" != "" ];then
     nsis_file=Midori-${version}_setup.exe
     echo "Creating $nsis_file"
-    makensis -NOCD -V2 ./midori.nsi
+    makensis -NOCD -V4 ./midori.nsi
     mv $nsis_file $where_am_i
 fi
 popd > /dev/null

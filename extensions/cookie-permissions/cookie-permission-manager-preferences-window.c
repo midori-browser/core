@@ -46,14 +46,14 @@ struct _CookiePermissionManagerPreferencesWindowPrivate
 	GtkWidget				*editingCombo;
 	GtkWidget				*deleteButton;
 	GtkWidget				*deleteAllButton;
-	GtkWidget				*askForUnknownPolicyCheckbox;
+	GtkWidget				*unknownPolicyCombo;
 	GtkWidget				*addDomainEntry;
 	GtkWidget				*addDomainPolicyCombo;
 	GtkWidget				*addDomainButton;
 
 	gint					signalManagerChangedDatabaseID;
-	gint					signalManagerAskForUnknownPolicyID;
-	gint					signalAskForUnknownPolicyID;
+	gint					signalManagerUnknownPolicyID;
+	gint					signalUnknownPolicyID;
 };
 
 enum
@@ -315,35 +315,43 @@ static void _cookie_permission_manager_preferences_window_manager_database_chang
 	return;
 }
 
-/* Ask-for-unknown-policy in manager changed or check-box changed */
-static void _cookie_permission_manager_preferences_window_manager_ask_for_unknown_policy_changed(CookiePermissionManagerPreferencesWindow *self,
-																									GParamSpec *inSpec,
-																									gpointer inUserData)
+/* unknown-policy in manager changed or drop-down changed */
+static void _cookie_permission_manager_preferences_window_manager_unknown_policy_changed(CookiePermissionManagerPreferencesWindow *self,
+																							GParamSpec *inSpec,
+																							gpointer inUserData)
 {
 	CookiePermissionManagerPreferencesWindowPrivate	*priv=self->priv;
 	CookiePermissionManager							*manager=COOKIE_PERMISSION_MANAGER(inUserData);
-	gboolean										doAsk;
+	CookiePermissionManagerPolicy					policy;
 
-	/* Get new ask-for-unknown-policy value */
-	g_object_get(manager, "ask-for-unknown-policy", &doAsk, NULL);
+	/* Get new unknown-policy value */
+	g_object_get(manager, "unknown-policy", &policy, NULL);
 
-	/* Set toogle in widget (but block signal for toggle) */
-	g_signal_handler_block(priv->askForUnknownPolicyCheckbox, priv->signalAskForUnknownPolicyID);
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->askForUnknownPolicyCheckbox), doAsk);
-	g_signal_handler_unblock(priv->askForUnknownPolicyCheckbox, priv->signalAskForUnknownPolicyID);
+	/* Set value in combobox (blocking signal to avoid loops) */
+	g_signal_handler_block(priv->unknownPolicyCombo, priv->signalUnknownPolicyID);
+	gtk_combo_box_set_active(GTK_COMBO_BOX(priv->unknownPolicyCombo), policy);
+	g_signal_handler_unblock(priv->unknownPolicyCombo, priv->signalUnknownPolicyID);
 }
 
-static void _cookie_permission_manager_preferences_window_ask_for_unknown_policy_changed(CookiePermissionManagerPreferencesWindow *self,
-																							gpointer *inUserData)
+static void _cookie_permission_manager_preferences_window_unknown_policy_changed(CookiePermissionManagerPreferencesWindow *self,
+																					gpointer *inUserData)
 {
 	CookiePermissionManagerPreferencesWindowPrivate	*priv=self->priv;
-	gboolean										doAsk;
+	CookiePermissionManagerPolicy					policy;
+	GtkTreeIter										policyIter;
+
+	if(!gtk_combo_box_get_active_iter(GTK_COMBO_BOX(priv->unknownPolicyCombo), &policyIter))
+		return;
+
+	gtk_tree_model_get(gtk_combo_box_get_model(GTK_COMBO_BOX(priv->unknownPolicyCombo)),
+												&policyIter,
+												0, &policy,
+												-1);
 
 	/* Get toogle state of widget (but block signal for manager) and set in manager */
-	g_signal_handler_block(priv->manager, priv->signalManagerAskForUnknownPolicyID);
-	doAsk=gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->askForUnknownPolicyCheckbox));
-	g_object_set(priv->manager, "ask-for-unknown-policy", doAsk, NULL);
-	g_signal_handler_unblock(priv->manager, priv->signalManagerAskForUnknownPolicyID);
+	g_signal_handler_block(priv->manager, priv->signalManagerUnknownPolicyID);
+	g_object_set(priv->manager, "unknown-policy", policy, NULL);
+	g_signal_handler_unblock(priv->manager, priv->signalManagerUnknownPolicyID);
 }
 
 static void _cookie_permission_manager_preferences_on_policy_editing_started(CookiePermissionManagerPreferencesWindow *self,
@@ -588,8 +596,8 @@ static void cookie_permission_manager_preferences_window_finalize(GObject *inObj
 		if(priv->signalManagerChangedDatabaseID) g_signal_handler_disconnect(priv->manager, priv->signalManagerChangedDatabaseID);
 		priv->signalManagerChangedDatabaseID=0;
 
-		if(priv->signalManagerAskForUnknownPolicyID) g_signal_handler_disconnect(priv->manager, priv->signalManagerAskForUnknownPolicyID);
-		priv->signalManagerAskForUnknownPolicyID=0;
+		if(priv->signalManagerUnknownPolicyID) g_signal_handler_disconnect(priv->manager, priv->signalManagerUnknownPolicyID);
+		priv->signalManagerUnknownPolicyID=0;
 
 		g_object_unref(priv->manager);
 		priv->manager=NULL;
@@ -619,8 +627,8 @@ static void cookie_permission_manager_preferences_window_set_property(GObject *i
 				if(priv->signalManagerChangedDatabaseID) g_signal_handler_disconnect(priv->manager, priv->signalManagerChangedDatabaseID);
 				priv->signalManagerChangedDatabaseID=0;
 
-				if(priv->signalManagerAskForUnknownPolicyID) g_signal_handler_disconnect(priv->manager, priv->signalManagerAskForUnknownPolicyID);
-				priv->signalManagerAskForUnknownPolicyID=0;
+				if(priv->signalManagerUnknownPolicyID) g_signal_handler_disconnect(priv->manager, priv->signalManagerUnknownPolicyID);
+				priv->signalManagerUnknownPolicyID=0;
 
 				g_object_unref(priv->manager);
 				priv->manager=NULL;
@@ -641,12 +649,12 @@ static void cookie_permission_manager_preferences_window_set_property(GObject *i
 												self);
 				_cookie_permission_manager_preferences_window_manager_database_changed(self, NULL, priv->manager);
 
-				priv->signalManagerAskForUnknownPolicyID=
+				priv->signalManagerUnknownPolicyID=
 					g_signal_connect_swapped(priv->manager,
-												"notify::ask-for-unknown-policy",
-												G_CALLBACK(_cookie_permission_manager_preferences_window_manager_ask_for_unknown_policy_changed),
+												"notify::unknown-policy",
+												G_CALLBACK(_cookie_permission_manager_preferences_window_manager_unknown_policy_changed),
 												self);
-				_cookie_permission_manager_preferences_window_manager_ask_for_unknown_policy_changed(self, NULL, priv->manager);
+				_cookie_permission_manager_preferences_window_manager_unknown_policy_changed(self, NULL, priv->manager);
 			}
 			break;
 
@@ -874,13 +882,39 @@ static void cookie_permission_manager_preferences_window_init(CookiePermissionMa
 
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, TRUE, 5);
 
-	/* Add "ask-for-unknown-policy" checkbox */
-	priv->askForUnknownPolicyCheckbox=gtk_check_button_new_with_mnemonic(_("A_sk for policy if unknown for a domain"));
-	priv->signalAskForUnknownPolicyID=g_signal_connect_swapped(priv->askForUnknownPolicyCheckbox,
-																"toggled",
-																G_CALLBACK(_cookie_permission_manager_preferences_window_ask_for_unknown_policy_changed),
-																self);
-	gtk_box_pack_start(GTK_BOX(vbox), priv->askForUnknownPolicyCheckbox, FALSE, TRUE, 5);
+	/* Add "unknown-policy" combo */
+#ifdef HAVE_GTK3
+	hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+	gtk_box_set_homogeneous(GTK_BOX(hbox), FALSE);
+#else
+	hbox=gtk_hbox_new(FALSE, 0);
+#endif
+	widget=gtk_label_new(_("Policy for cookies from domains not in the list: "));
+	gtk_container_add(GTK_CONTAINER(hbox), widget);
+	
+	list=gtk_list_store_new(2, G_TYPE_INT, G_TYPE_STRING);
+	gtk_list_store_append(list, &listIter);
+	gtk_list_store_set(list, &listIter, 0, COOKIE_PERMISSION_MANAGER_POLICY_UNDETERMINED, 1, _("Ask for a decision"), -1);
+	gtk_list_store_append(list, &listIter);
+	gtk_list_store_set(list, &listIter, 0, COOKIE_PERMISSION_MANAGER_POLICY_ACCEPT, 1, _("Accept"), -1);
+	gtk_list_store_append(list, &listIter);
+	gtk_list_store_set(list, &listIter, 0, COOKIE_PERMISSION_MANAGER_POLICY_ACCEPT_FOR_SESSION, 1, _("Accept for session"), -1);
+	gtk_list_store_append(list, &listIter);
+	gtk_list_store_set(list, &listIter, 0, COOKIE_PERMISSION_MANAGER_POLICY_BLOCK, 1, _("Block"), -1);
+
+	priv->unknownPolicyCombo=gtk_combo_box_new_with_model(GTK_TREE_MODEL(list));
+	gtk_combo_box_set_active(GTK_COMBO_BOX(priv->unknownPolicyCombo), 0);
+	gtk_container_add(GTK_CONTAINER(hbox), priv->unknownPolicyCombo);
+
+	renderer=gtk_cell_renderer_text_new();
+	gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(priv->unknownPolicyCombo), renderer, TRUE);
+	gtk_cell_layout_add_attribute(GTK_CELL_LAYOUT(priv->unknownPolicyCombo), renderer, "text", 1);
+
+	priv->signalUnknownPolicyID=g_signal_connect_swapped(priv->unknownPolicyCombo,
+															"changed",
+															G_CALLBACK(_cookie_permission_manager_preferences_window_unknown_policy_changed),
+															self);
+	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, TRUE, 5);
 
 	/* Finalize setup of content area */
 	gtk_box_pack_start(GTK_BOX(priv->contentArea), vbox, TRUE, TRUE, 0);

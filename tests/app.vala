@@ -18,40 +18,38 @@ bool check_sensible_window_size (Gtk.Window window, Midori.WebSettings settings)
 
 void app_normal () {
     Midori.Test.grab_max_timeout ();
-
     Midori.Test.idle_timeouts ();
     Midori.Test.log_set_fatal_handler_for_icons ();
     Midori.Paths.Test.reset_runtime_mode ();
     Midori.App.set_instance_is_running (false);
     var app = Midori.normal_app_new (null, "test-normal", false, null, null, -1, null);
     var loop = MainContext.default ();
-    do { loop.iteration (true); } while (loop.pending ());
-    for (var i = 0 ; i < 7; i++) {
+    do { loop.iteration (true); } while (app.browser == null);
+    for (var i = 0 ; i < 3; i++) {
         var tab = app.browser.add_uri ("about:blank") as Midori.View;
         app.browser.close_tab (tab);
         do { loop.iteration (true); } while (loop.pending ());
     }
     Midori.normal_app_on_quit (app);
-    /* FIXME
-    for (var i = 0 ; i < 7; i++) {
-        app.settings.maximum_cache_size++;
-        do { loop.iteration (true); } while (loop.pending ());
-    }
-    */
-
     Midori.Test.release_max_timeout ();
 }
 
 void app_normal_custom_config () {
+    Midori.Test.grab_max_timeout ();
+    Midori.Test.idle_timeouts ();
     Midori.Test.log_set_fatal_handler_for_icons ();
     Midori.Paths.Test.reset_runtime_mode ();
     Midori.App.set_instance_is_running (false);
-    var app = Midori.normal_app_new (Midori.Paths.make_tmp_dir ("custom-configXXXXXX"),
+    string? config_dir = null;
+    try {
+        config_dir = DirUtils.make_tmp ("custom-configXXXXXX");
+    } catch (Error error) {
+        GLib.error (error.message);
+    }
+    var app = Midori.normal_app_new (config_dir,
         "test-custom-config-normal", false, null, null, -1, null);
-    var loop = MainContext.default ();
-    do { loop.iteration (true); } while (app.browser == null);
-    assert (check_sensible_window_size (app.browser, app.settings));
     Midori.normal_app_on_quit (app);
+    Midori.Test.release_max_timeout ();
 }
 
 void app_private () {
@@ -82,94 +80,6 @@ void app_web_custom_config () {
     assert (check_sensible_window_size (browser, browser.settings));
 }
 
-
-void app_extensions_load () {
-    Midori.Test.grab_max_timeout ();
-
-    Midori.Test.idle_timeouts ();
-    Midori.Test.log_set_fatal_handler_for_icons ();
-    Midori.Paths.Test.reset_runtime_mode ();
-    Midori.App.set_instance_is_running (false);
-    var app = Midori.normal_app_new (null, "test-extensions-normal", false, null, null, -1, null);
-    var loop = MainContext.default ();
-    do { loop.iteration (true); } while (loop.pending ());
-    /* No extensions loaded */
-    assert (app.extensions.get_length () == 0);
-    Midori.Extension.load_from_folder (app, null, false);
-    /* All extensions loaded, inactive */
-    assert (app.extensions.get_length () > 0);
-
-    /* Number of expected extensions matches */
-    /* FIXME Counting .so/dll doesn't see multiple extensions in one binary
-    Dir dir;
-    try {
-        dir = Dir.open (Midori.Paths.get_lib_path (PACKAGE_NAME), 0);
-    }
-    catch (Error error) {
-        GLib.error (error.message);
-    }
-    uint count = 0;
-    string? name;
-    while ((name = dir.read_name ()) != null) {
-        if (name.has_suffix (GLib.Module.SUFFIX))
-            count++;
-    }
-    assert (app.extensions.get_length () == count); */
-
-    foreach (var item in app.extensions.get_items ())
-        assert (!(item as Midori.Extension).is_active ());
-
-    for (var i = 0 ; i < 7; i++) {
-        var tab = app.browser.add_uri ("about:blank") as Midori.View;
-        app.browser.close_tab (tab);
-    }
-    do { loop.iteration (true); } while (loop.pending ());
-
-    /*
-    Midori.Test.release_max_timeout ();
-}
-
-void app_extensions_activate () {
-    Midori.Test.grab_max_timeout ();
-
-    Midori.Test.idle_timeouts ();
-    Midori.Test.log_set_fatal_handler_for_icons ();
-    Midori.Paths.Test.reset_runtime_mode ();
-    Midori.App.set_instance_is_running (false);
-    var app = Midori.normal_app_new (null, "test-extensions-normal", false, null, null, -1, null);
-    var loop = MainContext.default ();
-    do { loop.iteration (true); } while (loop.pending ());
-    Midori.Extension.load_from_folder (app, null, false);
-
-    assert (app.extensions.get_length () > 0);
-    */
-
-    foreach (var item in app.extensions.get_items ()) {
-        stdout.printf ("- %s\n", (item as Midori.Extension).name);
-        (item as Midori.Extension).activate (app);
-    }
-    do { loop.iteration (true); } while (loop.pending ());
-
-    for (var i = 0 ; i < 7; i++) {
-        var tab = app.browser.add_uri ("about:blank") as Midori.View;
-        app.browser.close_tab (tab);
-    }
-    do { loop.iteration (true); } while (loop.pending ());
-
-    foreach (var item in app.extensions.get_items ())
-        (item as Midori.Extension).deactivate ();
-    do { loop.iteration (true); } while (loop.pending ());
-
-    for (var i = 0 ; i < 7; i++) {
-        var tab = app.browser.add_uri ("about:blank") as Midori.View;
-        app.browser.close_tab (tab);
-        do { loop.iteration (true); } while (loop.pending ());
-    }
-
-    Midori.Test.release_max_timeout ();
-}
-
-
 void main (string[] args) {
     Test.init (ref args);
     Midori.App.setup (ref args, null);
@@ -178,8 +88,6 @@ void main (string[] args) {
     Test.add_func ("/app/private", app_private);
     Test.add_func ("/app/web", app_web);
     Test.add_func ("/app/web-custom-config", app_web_custom_config);
-    Test.add_func ("/app/extensions-load", app_extensions_load);
-    /* Test.add_func ("/app/extensions-activate", app_extensions_activate); */
     Test.run ();
 }
 
