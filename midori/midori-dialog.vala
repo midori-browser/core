@@ -50,6 +50,26 @@ namespace Midori {
             test_idle_timeouts = true;
         }
 
+        public abstract class Job : GLib.Object {
+            bool done;
+            public abstract async void run (Cancellable cancellable) throws GLib.Error;
+            async void run_wrapped (Cancellable cancellable) {
+                try {
+                    yield run (cancellable);
+                } catch (Error error) {
+                    GLib.error (error.message);
+                }
+                done = true;
+            }
+            public void run_sync () {
+                var loop = MainContext.default ();
+                var cancellable = new Cancellable ();
+                done = false;
+                run_wrapped.begin (cancellable);
+                do { loop.iteration (true); } while (!done);
+            }
+        }
+
         public void log_set_fatal_handler_for_icons () {
             GLib.Test.log_set_fatal_handler ((domain, log_levels, message)=> {
                 return !message.contains ("Error loading theme icon")

@@ -505,16 +505,15 @@ public Midori.Extension extension_init () {
     return new Apps.Manager ();
 }
 
-void extensions_apps_desktop () {
-    try {
-        Apps.Launcher.create_app.begin ("http://example.com", "Example", null);
-        Apps.Launcher.create_profile.begin (null);
-    } catch (Error error) {
-        GLib.error (error.message);
+class ExtensionsAppsDesktop : Midori.Test.Job {
+    public static void test () { new ExtensionsAppsDesktop ().run_sync (); }
+    public override async void run (Cancellable cancellable) throws GLib.Error {
+        yield Apps.Launcher.create_app ("http://example.com", "Example", null);
+        yield Apps.Launcher.create_profile (null);
     }
 }
 
 public void extension_test () {
-    Test.add_func ("/extensions/apps/desktop", extensions_apps_desktop);
+    Test.add_func ("/extensions/apps/desktop", ExtensionsAppsDesktop.test);
 }
 
