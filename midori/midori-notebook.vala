@@ -36,7 +36,11 @@ namespace Midori {
             spinner.set_size_request (icon_size, icon_size);
             box.pack_start (spinner, false, false, 0);
             label = new Gtk.Label (null);
+#if HAVE_GRANITE
+            label.set_alignment (0.5f, 0.5f);
+#else
             label.set_alignment (0.0f, 0.5f);
+#endif
             label.set_padding (0, 0);
             box.pack_start (label, true, true, 0);
             close = new Gtk.Button ();
@@ -223,6 +227,10 @@ namespace Midori {
             notebook.set ("group-name", PACKAGE_NAME);
             add (notebook);
 
+#if HAVE_GRANITE
+            get_style_context ().add_class ("dynamic-notebook");
+#endif
+
 #if !HAVE_GTK3
             /* Remove the inner border between scrollbars and window border */
             Gtk.RcStyle rcstyle = new Gtk.RcStyle ();
@@ -243,7 +251,11 @@ namespace Midori {
 
             var add = new Gtk.Button ();
             add.relief = Gtk.ReliefStyle.NONE;
+#if HAVE_GRANITE
+            add.add (new Gtk.Image.from_gicon (new ThemedIcon.with_default_fallbacks ("list-add-symbolic"), Gtk.IconSize.MENU));
+#else
             add.add (new Gtk.Image.from_gicon (new ThemedIcon.with_default_fallbacks ("tab-new-symbolic"), Gtk.IconSize.MENU));
+#endif
             add.show_all ();
             notebook.set_action_widget (add, Gtk.PackType.START);
             add.clicked.connect (()=>{
@@ -395,6 +407,9 @@ namespace Midori {
         /* Chain up drawing manually to circumvent parent checks */
 #if HAVE_GTK3
         public override bool draw (Cairo.Context cr) {
+#if HAVE_GRANITE
+            get_style_context ().render_activity (cr, 0, 0, get_allocated_width (), 27);
+#endif
             notebook.draw (cr);
             return true;
         }
