@@ -8,7 +8,7 @@
 echo Checking POTFILES.in for completeness
 test -n "$SRCDIR" && cd $SRCDIR
 test -z "$BLDDIR" && BLDDIR=_build
-for i in $(find . -regextype posix-egrep \! -regex "./($BLDDIR|debian|tests)/.+" -a -regex './[^.]+.+[.](vala|c)'); do
+for i in $(find . -regextype posix-egrep \! -regex "./($BLDDIR|_.+|debian|tests)/.+" -a -regex './[^.]+.+[.](vala|c)'); do
     grep -q $(basename $i) po/POTFILES.in || FILES="$FILES$i\n"
 done
 test -n "$FILES" && echo "$FILES...FAILED"

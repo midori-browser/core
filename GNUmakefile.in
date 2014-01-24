@@ -1,0 +1,27 @@
+# Based on "http://iany.me/wiki/Makefile/" by "Ian Yang" licensed under "CC by 3.0"
+
+BUILD_FOLDER := _build
+
+CUSTOM_TARGETS := cmake
+
+# Do not try to use custom target when invoking external makefile
+EXTERNAL_TARGETS := $(filter-out $(CUSTOM_TARGETS), $(MAKECMDGOALS))
+
+# Call all targets using `Makefile` in build directory in one `make` command.
+$(or $(lastword $(EXTERNAL_TARGETS)),all):
+	$(MAKE) -C $(BUILD_FOLDER) $(EXTERNAL_TARGETS)
+
+# If no targets are specified, use the dummy `all` target
+.PHONY: $(EXTERNAL_TARGETS) all
+
+# Do nothing for all targets but last. Also quiet the message "Noting to be done on xxx"
+$(filter-out $(lastword $(EXTERNAL_TARGETS)), $(EXTERNAL_TARGETS)):
+	@cd .
+
+cmake: $(BUILD_FOLDER)
+	cd $(BUILD_FOLDER) && cmake ..
+
+$(BUILD_FOLDER):
+	mkdir $(BUILD_FOLDER)
+
+.PHONY: cmake

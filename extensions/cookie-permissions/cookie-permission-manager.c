@@ -31,7 +31,7 @@ enum
 
 	PROP_DATABASE,
 	PROP_DATABASE_FILENAME,
-	PROP_ASK_FOR_UNKNOWN_POLICY,
+	PROP_UNKNOWN_POLICY,
 
 	PROP_LAST
 };
@@ -49,7 +49,7 @@ struct _CookiePermissionManagerPrivate
 	MidoriApp						*application;
 	sqlite3							*database;
 	gchar							*databaseFilename;
-	gboolean						askForUnknownPolicy;
+	CookiePermissionManagerPolicy	unknownPolicy;
 
 	/* Cookie jar related */
 	SoupSession						*session;
@@ -225,7 +225,7 @@ static void _cookie_permission_manager_open_database(CookiePermissionManager *se
 			uri=soup_uri_new(NULL);
 			soup_uri_set_host(uri, domain);
 			cookies=soup_cookie_jar_get_cookie_list(priv->cookieJar, uri, TRUE);
-			for(cookie=cookies; cookie; cookie->next)
+			for(cookie=cookies; cookie; cookie=cookie->next)
 			{
 				soup_cookie_jar_delete_cookie(priv->cookieJar, (SoupCookie*)cookie->data);
 			}
@@ -294,24 +294,23 @@ static gint _cookie_permission_manager_get_policy(CookiePermissionManager *self,
 	sqlite3_finalize(statement);
 
 	/* Check if policy is undetermined. If it is then check if this policy was set by user.
-	 * If it was not set by user check if we should ask user for his decision
+	 * If it was not set by user, check what to do.
 	 */
-	if(!priv->askForUnknownPolicy && !foundPolicy)
+	if(!foundPolicy)
 	{
-		switch(soup_cookie_jar_get_accept_policy(priv->cookieJar))
+		/* A SoupCookieJar that doesn't want to accept any cookies should override the user's
+		 * choice, in case of e.g. private mode, to err on the side of caution. */
+		SoupCookieJarAcceptPolicy soup_policy=soup_cookie_jar_get_accept_policy(priv->cookieJar);
+
+		if(soup_policy==SOUP_COOKIE_JAR_ACCEPT_ALWAYS || soup_policy==SOUP_COOKIE_JAR_ACCEPT_NO_THIRD_PARTY)
 		{
-			case SOUP_COOKIE_JAR_ACCEPT_ALWAYS:
-			case SOUP_COOKIE_JAR_ACCEPT_NO_THIRD_PARTY:
-				policy=COOKIE_PERMISSION_MANAGER_POLICY_ACCEPT;
-				break;
-
-			case SOUP_COOKIE_JAR_ACCEPT_NEVER:
-				policy=COOKIE_PERMISSION_MANAGER_POLICY_BLOCK;
-				break;
-
-			default:
+			policy=priv->unknownPolicy;
+		}
+		else
+		{
+			if(soup_policy!=SOUP_COOKIE_JAR_ACCEPT_NEVER)
 				g_critical(_("Could not determine global cookie policy to set for domain: %s"), domain);
-				break;
+			policy=COOKIE_PERMISSION_MANAGER_POLICY_BLOCK;
 		}
 	}
 
@@ -941,8 +940,8 @@ static void cookie_permission_manager_set_property(GObject *inObject,
 			_cookie_permission_manager_on_application_changed(self);
 			break;
 
-		case PROP_ASK_FOR_UNKNOWN_POLICY:
-			cookie_permission_manager_set_ask_for_unknown_policy(self, g_value_get_boolean(inValue));
+		case PROP_UNKNOWN_POLICY:
+			cookie_permission_manager_set_unknown_policy(self, g_value_get_int(inValue));
 			break;
 
 		default:
@@ -976,8 +975,8 @@ static void cookie_permission_manager_get_property(GObject *inObject,
 			g_value_set_string(outValue, self->priv->databaseFilename);
 			break;
 
-		case PROP_ASK_FOR_UNKNOWN_POLICY:
-			g_value_set_boolean(outValue, self->priv->askForUnknownPolicy);
+		case PROP_UNKNOWN_POLICY:
+			g_value_set_int(outValue, self->priv->unknownPolicy);
 			break;
 
 		default:
@@ -1029,12 +1028,14 @@ static void cookie_permission_manager_class_init(CookiePermissionManagerClass *k
 								NULL,
 								G_PARAM_READABLE);
 
-	CookiePermissionManagerProperties[PROP_ASK_FOR_UNKNOWN_POLICY]=
-		g_param_spec_boolean("ask-for-unknown-policy",
-								_("Ask for unknown policy"),
-								_("If true this extension ask for policy for every unknown domain."
-								  "If false this extension uses the global cookie policy set in Midori settings."),
-								TRUE,
+	CookiePermissionManagerProperties[PROP_UNKNOWN_POLICY]=
+		g_param_spec_int("unknown-policy",
+								_("Unknown domain policy"),
+								_("The policy to use for domains not individually configured."
+								  " This only acts to further restrict the global cookie policy set in Midori settings."),
+								COOKIE_PERMISSION_MANAGER_POLICY_UNDETERMINED,
+								COOKIE_PERMISSION_MANAGER_POLICY_BLOCK,
+								COOKIE_PERMISSION_MANAGER_POLICY_UNDETERMINED,
 								G_PARAM_READWRITE | G_PARAM_CONSTRUCT);
 
 	g_object_class_install_properties(gobjectClass, PROP_LAST, CookiePermissionManagerProperties);
@@ -1052,7 +1053,7 @@ static void cookie_permission_manager_init(CookiePermissionManager *self)
 	/* Set up default values */
 	priv->database=NULL;
 	priv->databaseFilename=NULL;
-	priv->askForUnknownPolicy=TRUE;
+	priv->unknownPolicy=COOKIE_PERMISSION_MANAGER_POLICY_UNDETERMINED;
 
 	/* Hijack session's cookie jar to handle cookies requests on our own in HTTP streams
 	 * but remember old handlers to restore them on deactivation
@@ -1078,22 +1079,22 @@ CookiePermissionManager* cookie_permission_manager_new(MidoriExtension *inExtens
 }
 
 /* Get/set policy to ask for policy if unknown for a domain */
-gboolean cookie_permission_manager_get_ask_for_unknown_policy(CookiePermissionManager *self)
+CookiePermissionManagerPolicy cookie_permission_manager_get_unknown_policy(CookiePermissionManager *self)
 {
-	g_return_val_if_fail(IS_COOKIE_PERMISSION_MANAGER(self), FALSE);
+	g_return_val_if_fail(IS_COOKIE_PERMISSION_MANAGER(self), COOKIE_PERMISSION_MANAGER_POLICY_UNDETERMINED);
 
-	return(self->priv->askForUnknownPolicy);
+	return(self->priv->unknownPolicy);
 }
 
-void cookie_permission_manager_set_ask_for_unknown_policy(CookiePermissionManager *self, gboolean inDoAsk)
+void cookie_permission_manager_set_unknown_policy(CookiePermissionManager *self, CookiePermissionManagerPolicy inPolicy)
 {
 	g_return_if_fail(IS_COOKIE_PERMISSION_MANAGER(self));
 
-	if(inDoAsk!=self->priv->askForUnknownPolicy)
+	if(inPolicy!=self->priv->unknownPolicy)
 	{
-		self->priv->askForUnknownPolicy=inDoAsk;
-		midori_extension_set_boolean(self->priv->extension, "ask-for-unknown-policy", inDoAsk);
-		g_object_notify_by_pspec(G_OBJECT(self), CookiePermissionManagerProperties[PROP_ASK_FOR_UNKNOWN_POLICY]);
+		self->priv->unknownPolicy=inPolicy;
+		midori_extension_set_integer(self->priv->extension, "unknown-policy", inPolicy);
+		g_object_notify_by_pspec(G_OBJECT(self), CookiePermissionManagerProperties[PROP_UNKNOWN_POLICY]);
 	}
 }
 

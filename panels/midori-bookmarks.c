@@ -366,7 +366,6 @@ static void
 midori_bookmarks_add_item (KatzeItem*       item,
                            MidoriBookmarks* bookmarks)
 {
-    gint64 id = katze_item_get_meta_integer (item, "id");
     gint64 parentid = katze_item_get_meta_integer (item, "parentid");
     GtkTreeModel* model = gtk_tree_view_get_model (GTK_TREE_VIEW (bookmarks->treeview));
     GtkTreeIter iter;
@@ -649,9 +648,6 @@ static void
 midori_bookmarks_statusbar_update (MidoriBookmarks *bookmarks)
 {
     gchar* text = NULL;
-    GtkTreeModel* model;
-    GtkTreeIter   iter;
-    gboolean selected;
 
     if (bookmarks->hovering_item)
     {

@@ -41,7 +41,7 @@ fi
 
 case $CMD in
   bzr)
-    exec ./waf build --run "$@" >& $LOG
+    exec _build/midori/midori "$@" >& $LOG
     ;;
   gdb)
     gdb $BIN core

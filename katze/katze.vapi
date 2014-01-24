@@ -33,6 +33,8 @@ namespace Katze {
         public bool get_meta_boolean (string key);
         public int64 get_meta_integer (string key);
         public void set_meta_integer (string key, int64 value);
+        public unowned string? get_meta_string (string key);
+        public void set_meta_string (string key, string value);
     }
 }
 

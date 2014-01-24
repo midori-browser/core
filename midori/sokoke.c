@@ -127,6 +127,7 @@ sokoke_message_dialog (GtkMessageType message_type,
 
 }
 
+#ifndef G_OS_WIN32
 static void
 sokoke_open_with_response_cb (GtkWidget* dialog,
                               gint       response,
@@ -140,6 +141,7 @@ sokoke_open_with_response_cb (GtkWidget* dialog,
     }
     gtk_widget_destroy (dialog);
 }
+#endif
 
 GAppInfo*
 sokoke_default_for_uri (const gchar* uri,
@@ -859,12 +861,7 @@ sokoke_prefetch_uri (MidoriWebSettings*  settings,
                      GCallback           callback,
                      gpointer            user_data)
 {
-    #define MAXHOSTS 50
-    static gchar* hosts = NULL;
-    static gint host_count = G_MAXINT;
     gchar* hostname;
-
-
 #ifndef HAVE_WEBKIT2
     SoupURI* soup_uri;
     SoupSession* session = webkit_get_default_session ();
@@ -891,6 +888,10 @@ sokoke_prefetch_uri (MidoriWebSettings*  settings,
     g_free (hostname);
     return FALSE;
 #else
+    #define MAXHOSTS 50
+    static gchar* hosts = NULL;
+    static gint host_count = G_MAXINT;
+
     if (!hosts ||
         !g_regex_match_simple (hostname, hosts,
                                G_REGEX_CASELESS, G_REGEX_MATCH_NOTEMPTY))
@@ -1093,6 +1094,8 @@ sokoke_create_win32_desktop_lnk (gchar* prefix, gchar* filename, gchar* uri)
         launcher_type = "-a";
     else if (g_str_has_suffix (prefix, " -c "))
         launcher_type = "-c";
+    else
+        g_assert_not_reached ();
 
     argument = g_strdup_printf ("%s \"%s\"", launcher_type, uri);
 

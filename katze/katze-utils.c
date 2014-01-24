@@ -73,10 +73,12 @@ proxy_uri_file_set_cb (GtkFileChooser* button,
 #if GTK_CHECK_VERSION (3, 2, 0)
 static void
 proxy_font_chooser_font_activated_cb (GtkFontChooser* chooser,
-                                      const gchar*    font_name,
                                       GObject*        object)
 {
-    gtk_font_chooser_set_font (chooser, font_name);
+    PangoFontFamily* font_family = gtk_font_chooser_get_font_family (GTK_FONT_CHOOSER (chooser));
+    const gchar* font_name = pango_font_family_get_name (font_family);
+    const gchar* property = g_object_get_data (G_OBJECT (chooser), "property");
+    g_object_set (object, property, font_name, NULL);
 }
 
 static gboolean
@@ -335,7 +337,6 @@ katze_app_info_get_all_for_category (const gchar* category)
     GList* all_apps = g_app_info_get_all ();
     #endif
     GList* apps = NULL;
-    GAppInfo* info;
     GList* app;
     for (app = apps; app; app = g_list_next (app))
     {
@@ -394,7 +395,7 @@ proxy_populate_apps (GtkWidget* widget)
         GList* app;
         for (app = apps; app; app = g_list_next (app))
         {
-            GAppInfo* info = app->data;
+            info = app->data;
             const gchar* name = g_app_info_get_name (info);
             GIcon* icon = g_app_info_get_icon (info);
             gchar* icon_name;
@@ -615,7 +616,8 @@ katze_property_proxy (gpointer     object,
         widget = gtk_font_button_new ();
         gtk_font_button_set_show_size (GTK_FONT_BUTTON (widget), FALSE);
         gtk_font_chooser_set_font (GTK_FONT_CHOOSER (widget), string);
-        g_signal_connect (widget, "font-activated",
+        /* font-activated doesn't work with at least GTK+ 3.8.4 */
+        g_signal_connect (widget, "font-set",
                           G_CALLBACK (proxy_font_chooser_font_activated_cb), object);
         gtk_font_chooser_set_filter_func (GTK_FONT_CHOOSER (widget),
             (GtkFontFilterFunc)proxy_font_chooser_filter_monospace_cb, GINT_TO_POINTER (monospace), NULL);
