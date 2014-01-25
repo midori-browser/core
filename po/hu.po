@@ -9,15 +9,15 @@ msgstr ""
 "Project-Id-Version: midori master\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-07-27 12:55-0500\n"
-"PO-Revision-Date: 2013-11-12 09:38+0000\n"
-"Last-Translator: Christian Dywan <christian@twotoasts.de>\n"
+"PO-Revision-Date: 2013-12-29 11:34+0000\n"
+"Last-Translator: Úr Balázs <urbalazs@gmail.com>\n"
 "Language-Team: Magyar <gnome-hu-list at gnome dot org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-11-13 05:23+0000\n"
-"X-Generator: Launchpad (build 16820)\n"
+"X-Launchpad-Export-Date: 2014-01-22 05:17+0000\n"
+"X-Generator: Launchpad (build 16901)\n"
 "Language: \n"
 
 #: ../data/midori.desktop.in.h:1 ../midori/main.c:142
@@ -51,7 +51,7 @@ msgstr "Új ablak"
 
 #: ../data/midori.desktop.in.h:8
 msgid "New Private Browsing Window"
-msgstr "Új privát böngészési ablak megnyitása"
+msgstr "Új privát böngészési ablak"
 
 #: ../data/midori-private.desktop.in.h:1
 msgid "Midori Private Browsing"
@@ -106,6 +106,7 @@ msgstr "Diagnosztikai ablak megjelenítése"
 #: ../midori/main.c:93
 msgid "Run within gdb and save a backtrace on crash"
 msgstr ""
+"Futtatás a gdb-ben és a visszakövetési információk mentése összeomláskor"
 
 #: ../midori/main.c:95
 msgid "Run the specified filename as javascript"
@@ -243,7 +244,7 @@ msgstr "Ugrás a következő aloldalra"
 
 #: ../midori/midori-browser.c:345
 msgid "Web Search…"
-msgstr ""
+msgstr "Keresés a weben…"
 
 #: ../midori/midori-browser.c:449 ../midori/midori-browser.c:5326
 #: ../midori/midori-browser.c:5335
@@ -288,27 +289,28 @@ msgstr "Könyvjelzők"
 
 #: ../midori/midori-browser.c:949
 msgid "New Folder"
-msgstr ""
+msgstr "Új mappa"
 
 #: ../midori/midori-browser.c:949
 msgid "Edit Folder"
-msgstr ""
+msgstr "Mappa szerkesztése"
 
 #: ../midori/midori-browser.c:951
 msgid "New Bookmark"
-msgstr ""
+msgstr "Új könyvjelző"
 
 #: ../midori/midori-browser.c:951
 msgid "Edit Bookmark"
-msgstr ""
+msgstr "Könyvjelző szerkesztése"
 
 #: ../midori/midori-browser.c:973
 msgid "Type a name for this bookmark, and choose where to keep it."
 msgstr ""
+"Adjon nevet a könyvjelzőnek, és válassza ki, hogy hol szeretné tárolni."
 
 #: ../midori/midori-browser.c:975
 msgid "Type a name for this folder, and choose where to keep it."
-msgstr ""
+msgstr "Adjon nevet a mappának, és válassza ki, hogy hol szeretné tárolni."
 
 #: ../midori/midori-browser.c:1030
 msgid "Add to _Speed Dial"
@@ -316,7 +318,7 @@ msgstr "Felvétel a _gyorstárcsázásba"
 
 #: ../midori/midori-browser.c:1039
 msgid "Show in Bookmarks _Bar"
-msgstr ""
+msgstr "Megjelenítés a _könyvjelzősávon"
 
 #: ../midori/midori-browser.c:1047
 msgid "Run as _web application"
@@ -531,6 +533,7 @@ msgstr ""
 "Kelemen Gábor <kelemeng at gnome dot hu>\n"
 "\n"
 "Launchpad Contributions:\n"
+"  Balazs Varga https://launchpad.net/~thebalu1\n"
 "  Chipong Luo https://launchpad.net/~chipong-l\n"
 "  Christian Dywan https://launchpad.net/~kalikiana\n"
 "  Cody Garver https://launchpad.net/~codygarver\n"
@@ -539,7 +542,8 @@ msgstr ""
 "  Gyönki Bendegúz https://launchpad.net/~gyonkibendeguz\n"
 "  Laszlo Espadas https://launchpad.net/~kardi-web\n"
 "  Rafael Ferreira https://launchpad.net/~rafael-f-f1\n"
-"  moonwatcher https://launchpad.net/~moonwatcher2k1"
+"  moonwatcher https://launchpad.net/~moonwatcher2k1\n"
+"  Úr Balázs https://launchpad.net/~urbalazs"
 
 #: ../midori/midori-browser.c:5243
 msgid "_File"
@@ -716,19 +720,19 @@ msgstr "Új mappa _hozzáadása"
 
 #: ../midori/midori-browser.c:5406
 msgid "_Import bookmarks…"
-msgstr ""
+msgstr "_Könyvjelzők importálása…"
 
 #: ../midori/midori-browser.c:5409
 msgid "_Export bookmarks…"
-msgstr ""
+msgstr "_Könyvjelzők exportálása…"
 
 #: ../midori/midori-browser.c:5412
 msgid "_Manage Search Engines…"
-msgstr ""
+msgstr "Kereső_motorok kezelése…"
 
 #: ../midori/midori-browser.c:5415
 msgid "_Clear Private Data…"
-msgstr ""
+msgstr "_Személyes adatok törlése…"
 
 #: ../midori/midori-browser.c:5418
 msgid "_Inspect Page"
@@ -1153,40 +1157,42 @@ msgstr "%s tudni szeretné az Ön tartózkodási helyét."
 #: ../midori/midori-view.c:1250
 #, c-format
 msgid "'%s' can't be found"
-msgstr ""
+msgstr "„%s” nem található"
 
 #: ../midori/midori-view.c:1251
 #, c-format
 msgid "The page '%s' couldn't be loaded:"
-msgstr ""
+msgstr "A(z) „%s” oldal nem tölthető be:"
 
 #: ../midori/midori-view.c:1255
 msgid "Check the address for typos"
-msgstr ""
+msgstr "Ellenőrizze, hogy jól írta-e be a címet"
 
 #: ../midori/midori-view.c:1256
 msgid ""
 "Make sure that an ethernet cable is plugged in or the wireless card is "
 "activated"
 msgstr ""
+"Győződjön meg arról, hogy van-e ethernet kábel csatlakoztatva vagy a vezeték "
+"nélküli kártya aktiválva van-e"
 
 #: ../midori/midori-view.c:1257
 msgid "Verify that your network settings are correct"
-msgstr ""
+msgstr "Ellenőrizze, hogy a hálózati beállítások helyesek-e"
 
 #: ../midori/midori-view.c:1261
 msgid "Try Again"
-msgstr ""
+msgstr "Próbálja újra"
 
 #: ../midori/midori-view.c:1386
 #, c-format
 msgid "Oops - %s"
-msgstr ""
+msgstr "Upsz - %s"
 
 #: ../midori/midori-view.c:1387
 #, c-format
 msgid "Something went wrong with '%s'."
-msgstr ""
+msgstr "Valami probléma van a következővel: „%s”."
 
 #: ../midori/midori-view.c:1389
 msgid "Try again"
@@ -1207,7 +1213,7 @@ msgstr "Elem _vizsgálata"
 
 #: ../midori/midori-view.c:2472
 msgid "Open _Link"
-msgstr ""
+msgstr "_Hivatkozás megnyitása"
 
 #: ../midori/midori-view.c:2478
 msgid "Open Link in New _Tab"
@@ -1235,7 +1241,7 @@ msgstr "_Mentés másként…"
 
 #: ../midori/midori-view.c:2507
 msgid "Open _Image in New Window"
-msgstr ""
+msgstr "_Kép megnyitása új ablakban"
 
 #: ../midori/midori-view.c:2508
 msgid "Open _Image in New Tab"
@@ -1369,7 +1375,7 @@ msgstr ""
 
 #: ../midori/midori-view.c:4208
 msgid "Page loading delayed:"
-msgstr ""
+msgstr "Oldalbetöltés késleltetve:"
 
 #: ../midori/midori-view.c:4209
 msgid "Loading delayed either due to a recent crash or startup preferences."
@@ -1618,11 +1624,11 @@ msgstr "A parancsfájlok megnyithatnak-e automatikusan felugró ablakokat"
 
 #: ../midori/midori-preferences.c:406
 msgid "Default Zoom Level"
-msgstr ""
+msgstr "Alapértelmezett nagyítási szint"
 
 #: ../midori/midori-preferences.c:410
 msgid "Initial factor to enlarge newly opened tabs by"
-msgstr ""
+msgstr "Az újonnan megnyitott lapok kezdeti nagyítási tényezője"
 
 #: ../midori/midori-preferences.c:414
 msgid "Preferred languages"
@@ -1706,7 +1712,7 @@ msgstr "Port"
 
 #: ../midori/midori-preferences.c:497
 msgid "Supported proxy types:"
-msgstr ""
+msgstr "Támogatott proxytípusok:"
 
 #. TODO: Preserve page icons of search engines and merge privacy items
 #: ../midori/midori-preferences.c:515 ../midori/midori-privatedata.c:323
@@ -1832,7 +1838,7 @@ msgstr "A keresőmotorok nem menthetők. %s"
 
 #: ../midori/midori-historycompletion.vala:17
 msgid "Bookmarks and History"
-msgstr ""
+msgstr "Könyvjelzők és előzmények"
 
 #: ../midori/midori-historycompletion.vala:54
 #, c-format
@@ -1909,63 +1915,63 @@ msgstr "A könyvjelzőelem hozzáadása meghiúsult: %s\n"
 #, c-format
 msgid "%d bookmark"
 msgid_plural "%d bookmarks"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%d könyvjelző"
+msgstr[1] "%d könyvjelző"
 
 #. i18n: [n] subfolder(s)
 #: ../panels/midori-bookmarks.c:506
 #, c-format
 msgid "%d subfolder"
 msgid_plural "%d subfolders"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%d almappa"
+msgstr[1] "%d almappa"
 
 #. i18n: Empty folder
 #: ../panels/midori-bookmarks.c:534
 #, c-format
 msgid "Empty folder"
-msgstr ""
+msgstr "Üres mapa"
 
 #. i18n: Folder containing [[n] folder(s)] and no bookmark
 #: ../panels/midori-bookmarks.c:537
 #, c-format
 msgid "Folder containing %s and no bookmark"
-msgstr ""
+msgstr "A mappa tartalma %s és nincs könyvjelző"
 
 #. i18n: Folder containing [[n] bookmark(s)]
 #: ../panels/midori-bookmarks.c:541
 #, c-format
 msgid "Folder containing %s"
-msgstr ""
+msgstr "A mappa tartalma %s"
 
 #. i18n: Folder containing [[n] bookmark(s)] and [[n] folder(s)]
 #: ../panels/midori-bookmarks.c:544
 #, c-format
 msgid "Folder containing %s and %s"
-msgstr ""
+msgstr "A mappa tartalma %s és %s"
 
 #. i18n: Bookmark leading to: [bookmark uri]
 #: ../panels/midori-bookmarks.c:555
 #, c-format
 msgid "Bookmark leading to: %s"
-msgstr ""
+msgstr "A könyvjelző erre mutat: %s"
 
 #. i18n: [[n] folder(s)] and no bookmark
 #: ../panels/midori-bookmarks.c:569
 #, c-format
 msgid "%s and no bookmark"
-msgstr ""
+msgstr "%s és nincs könyvjelző"
 
 #. i18n: [[n] bookmark(s)] and [[n] folder(s)]
 #: ../panels/midori-bookmarks.c:575
 #, c-format
 msgid "%s and %s"
-msgstr ""
+msgstr "%s és %s"
 
 #: ../panels/midori-bookmarks.c:627
 #, c-format
 msgid "Failed to update bookmark: %s\n"
-msgstr ""
+msgstr "Nem sikerült a könyvjelző frissítése: %s\n"
 
 #: ../panels/midori-bookmarks.c:686
 msgid "Edit the selected bookmark"
@@ -2643,7 +2649,7 @@ msgstr "Gyorsbillentyűk személyre szabása"
 
 #: ../extensions/shortcuts.c:275
 msgid "Customize Sh_ortcuts…"
-msgstr ""
+msgstr "_Gyorsbillentyűk személyre szabása…"
 
 #: ../extensions/shortcuts.c:312
 msgid "Shortcuts"
@@ -2799,7 +2805,7 @@ msgstr "A régi előzményelemek eltávolítása meghiúsult: %s\n"
 #: ../midori/midori-bookmarks.c:60
 #, c-format
 msgid "Failed to remove bookmark item: %s\n"
-msgstr ""
+msgstr "Nem sikerült a könyvjelző eltávolítása: %s\n"
 
 #: ../midori/midori-bookmarks.c:106
 msgid "failed to ATTACH old db"
@@ -2820,7 +2826,7 @@ msgstr "sikertelen LEVÁLASZTÁS "
 #: ../midori/midori-bookmarks.c:257
 #, c-format
 msgid "Couldn't setup bookmarks: %s\n"
-msgstr ""
+msgstr "Nem sikerült beállítani a könyvjelzőket: %s\n"
 
 #: ../midori/midori-bookmarks.c:271
 #, c-format
@@ -2870,6 +2876,8 @@ msgstr "A Kuka nem menthető. %s"
 msgid ""
 "Midori crashed the last time it was opened. You can report the problem at %s."
 msgstr ""
+"A Midori összeomlott a legutóbbi megnyitáskor. Itt jelentheti a problémát: "
+"%s."
 
 #: ../midori/midori-frontend.c:343
 msgid "Modify _preferences"
@@ -2889,11 +2897,11 @@ msgstr "Régi lapok eldobása"
 
 #: ../midori/midori-frontend.c:369
 msgid "Show last crash _log"
-msgstr ""
+msgstr "A legutóbbi összeomlási _napló megjelenítése"
 
 #: ../midori/midori-frontend.c:382
 msgid "Run in _debugger"
-msgstr ""
+msgstr "Futtatás a _hibakeresőben"
 
 #: ../midori/midori-frontend.c:460
 msgid "An instance of Midori is already running but not responding.\n"
@@ -3088,7 +3096,7 @@ msgstr "Meg_tagadás"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:530
 msgid "Deny _this time"
-msgstr ""
+msgstr "Megtagadás _erre az alkalomra"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:559
 msgid "Path"
@@ -3108,7 +3116,7 @@ msgstr "Kiterjesztés példány"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1008
 msgid "The Midori extension instance for this extension"
-msgstr ""
+msgstr "A Midori kiterjesztés példány ehhez a kiterjesztéshez"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1014
 msgid "Application instance"
@@ -3116,7 +3124,7 @@ msgstr "Alkalmazás példány"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1015
 msgid "The Midori application instance this extension belongs to"
-msgstr ""
+msgstr "Ehhez a kiterjesztéshez tartozó Midori alkalmazás példány"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1021
 msgid "Database instance"
@@ -3125,14 +3133,16 @@ msgstr "Adatbázis példány"
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1022
 msgid "Pointer to sqlite database instance used by this extension"
 msgstr ""
+"Ezen kiterjesztés által használt mutató az sqlite adatbázis példányra"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1027
 msgid "Database path"
-msgstr ""
+msgstr "Adatbázis útvonala"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1028
 msgid "Path to sqlite database instance used by this extension"
 msgstr ""
+"Ezen kiterjesztés által használt útvonal az sqlite adatbázis példányhoz"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1034
 msgid "Ask for unknown policy"
@@ -3159,54 +3169,55 @@ msgstr "Sütijogosultság kezelése oldalanként"
 #: ../extensions/apps.vala:58
 #, c-format
 msgid "Failed to fetch application icon in %s: %s"
-msgstr ""
+msgstr "Nem sikerült letölteni az alkalmazásikont itt: %s: %s"
 
 #: ../extensions/apps.vala:84
 msgid "Launcher created"
-msgstr ""
+msgstr "Gyorsindító létrehozva"
 
 #: ../extensions/apps.vala:85
 #, c-format
 msgid "You can now run <b>%s</b> from your launcher or menu"
 msgstr ""
+"Most már lehetséges <b>%s</b> futtatása a gyorsindítóból vagy a menüből"
 
 #: ../extensions/apps.vala:88 ../extensions/apps.vala:90
 #, c-format
 msgid "Failed to create new launcher: %s"
-msgstr ""
+msgstr "Nem sikerült az új gyorsindító létrehozása: %s"
 
 #: ../extensions/apps.vala:89
 msgid "Error creating launcher"
-msgstr ""
+msgstr "Hiba a gyorsindító létrehozásakor"
 
 #: ../extensions/apps.vala:126
 msgid "Applications"
-msgstr ""
+msgstr "Alkalmazások"
 
 #: ../extensions/apps.vala:134
 msgid "New _Profile"
-msgstr ""
+msgstr "Új _profil"
 
 #: ../extensions/apps.vala:135
 msgid "Creates a new, independant profile and a launcher"
-msgstr ""
+msgstr "Új, önálló profilt és egy gyorsindítót hoz létre"
 
 #: ../extensions/apps.vala:144
 #, c-format
 msgid "Midori (%s)"
-msgstr ""
+msgstr "Midori (%s)"
 
 #: ../extensions/apps.vala:149
 msgid "New _App"
-msgstr ""
+msgstr "Új _alkalmazás"
 
 #: ../extensions/apps.vala:150
 msgid "Creates a new app for a specific site"
-msgstr ""
+msgstr "Egy új alkalmazást hoz létre egy megadott oldalhoz"
 
 #: ../extensions/apps.vala:175
 msgid "Error launching"
-msgstr ""
+msgstr "Hiba az indításkor"
 
 #: ../extensions/apps.vala:384
 msgid "Create _Launcher"
@@ -3214,11 +3225,11 @@ msgstr "_Parancsikon létrehozása"
 
 #: ../extensions/apps.vala:430
 msgid "Web App Manager"
-msgstr ""
+msgstr "Webalkalmazás kezelő"
 
 #: ../extensions/apps.vala:431
 msgid "Manage websites installed as applications"
-msgstr ""
+msgstr "Alkalmazásként telepített weboldalak kezelése"
 
 #: ../extensions/transfers.vala:98
 msgid "Transfers"
@@ -3244,7 +3255,7 @@ msgstr "A(z) „<b>%s</b>” fájl letöltve."
 #: ../extensions/transfers.vala:433
 #, c-format
 msgid "'<b>%s</b>' and %d other files have been downloaded."
-msgstr ""
+msgstr "„<b>%s</b>” és %d egyéb fájl került letöltésre."
 
 #: ../extensions/transfers.vala:434
 msgid "Transfer completed"
@@ -3264,8 +3275,8 @@ msgstr "Az átvitel meg fog szakadni, ha kilép a Midoriból."
 
 #: ../extensions/transfers.vala:538
 msgid "Transfer Manager"
-msgstr ""
+msgstr "Átvitelkezelő"
 
 #: ../extensions/transfers.vala:539
 msgid "View downloaded files"
-msgstr ""
+msgstr "Letöltött fájlok megtekintése"

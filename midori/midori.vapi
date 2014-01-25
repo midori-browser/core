@@ -31,6 +31,8 @@ namespace Midori {
         public static void set_instance_is_running (bool is_running);
         public Browser create_browser ();
         public GLib.List<weak Browser> get_browsers ();
+        public void send_notification (string title, string message);
+        public bool send_command ([CCode (array_length = false)] string[] command);
 
         [NoAccessorMethod]
         public string name { get; set; }
@@ -49,13 +51,13 @@ namespace Midori {
         [NoAccessorMethod]
         public Katze.Array browsers { get; }
         public Browser? browser { get; }
+        public bool crashed { get; }
 
         [HasEmitter]
         public signal void add_browser (Browser browser);
         public signal void remove_browser (Browser browser);
         [HasEmitter]
         public signal void quit ();
-        public void send_notification (string title, string message);
     }
 
     [CCode (cheader_filename = "midori/midori.h")]

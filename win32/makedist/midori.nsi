@@ -21,7 +21,7 @@ RequestExecutionLevel admin ; set execution level for Windows Vista
 ; helper defines  ;
 ;;;;;;;;;;;;;;;;;;;
 !define PRODUCT_NAME "Midori"
-!define PRODUCT_VERSION "0.5.6"
+!define PRODUCT_VERSION "0.5.7"
 !define PRODUCT_BUILD "0"
 !define PRODUCT_VERSION_ID "${PRODUCT_VERSION}.${PRODUCT_BUILD}"
 !define PRODUCT_PUBLISHER "Christian Dywan"
@@ -275,6 +275,8 @@ SectionEnd
 
 Section "Desktop Shortcuts" SEC03
 	SectionIn 1
+	# CreateShortCut implicitly sets content of OUTDIR as working directory for shortcut, set it to bin
+	SetOutPath "$INSTDIR\bin"
 	CreateShortCut "$DESKTOP\Midori.lnk" "${PRODUCT_EXE}"
 	CreateShortCut "$QUICKLAUNCH\Midori.lnk" "${PRODUCT_EXE}"
 SectionEnd

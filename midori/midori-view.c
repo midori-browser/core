@@ -22,10 +22,6 @@
 
 #include <config.h>
 
-#ifdef HAVE_GRANITE
-#include <granite.h>
-#endif
-
 #ifdef HAVE_GCR
     #define GCR_API_SUBJECT_TO_CHANGE
     #include <gcr/gcr.h>
@@ -683,11 +679,6 @@ midori_location_action_tls_flags_to_string (GTlsCertificateFlags flags);
 static void
 midori_view_load_committed (MidoriView* view)
 {
-    #ifdef HAVE_GRANITE_CLUTTER
-    GraniteWidgetsNavigationBox* navigation_box = midori_tab_get_navigation_box (MIDORI_TAB (view));
-    granite_widgets_navigation_box_transition_ready (navigation_box);
-    #endif
-
     katze_assign (view->icon_uri, NULL);
 
     GList* children = gtk_container_get_children (GTK_CONTAINER (view));
@@ -3538,16 +3529,7 @@ midori_view_constructor (GType                  type,
     #if GTK_CHECK_VERSION(3, 2, 0)
     view->overlay = gtk_overlay_new ();
     gtk_widget_show (view->overlay);
-    #ifdef HAVE_GRANITE_CLUTTER
-    {
-    GraniteWidgetsNavigationBox* navigation_box = midori_tab_get_navigation_box (MIDORI_TAB (view));
-    granite_widgets_navigation_box_add (navigation_box, GTK_WIDGET (view->scrolled_window));
-    gtk_widget_show (GTK_WIDGET (view->scrolled_window));
-    gtk_container_add (GTK_CONTAINER (view->overlay), GTK_WIDGET (navigation_box));
-    }
-    #else
     gtk_container_add (GTK_CONTAINER (view->overlay), view->scrolled_window);
-    #endif
     gtk_box_pack_start (GTK_BOX (view), view->overlay, TRUE, TRUE, 0);
 
     /* Overlays must be created before showing GtkOverlay as of GTK+ 3.2 */
@@ -4618,11 +4600,6 @@ void
 midori_view_go_back (MidoriView* view)
 {
     g_return_if_fail (MIDORI_IS_VIEW (view));
-
-    #ifdef HAVE_GRANITE_CLUTTER
-    GraniteWidgetsNavigationBox* navigation_box = midori_tab_get_navigation_box (MIDORI_TAB (view));
-    granite_widgets_navigation_box_back (navigation_box);
-    #endif
 
     webkit_web_view_go_back (WEBKIT_WEB_VIEW (view->web_view));
     /* Force the speed dial to kick in if going back to a blank page */
