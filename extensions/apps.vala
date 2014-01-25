@@ -78,11 +78,12 @@ namespace Apps {
             return data_dir.get_child ("apps");
         }
 
-        internal static async void create_app (string uri, string title, Gtk.Widget? proxy) {
+        internal static async File create_app (string uri, string title, Gtk.Widget? proxy) {
             string checksum = Checksum.compute_for_string (ChecksumType.MD5, uri, -1);
             var folder = get_app_folder ();
             yield Launcher.create (APP_PREFIX, folder.get_child (checksum),
                 uri, title, proxy);
+            return folder.get_child (checksum);
         }
 
         internal static File get_profile_folder () {
@@ -90,13 +91,14 @@ namespace Apps {
             return data_dir.get_child ("profiles");
         }
 
-        internal static async void create_profile (Gtk.Widget? proxy) {
+        internal static async File create_profile (Gtk.Widget? proxy) {
             string uuid = g_dbus_generate_guid ();
             string config = Path.build_path (Path.DIR_SEPARATOR_S,
                 Midori.Paths.get_user_data_dir (), PACKAGE_NAME, "profiles", uuid);
             var folder = get_profile_folder ();
             yield Launcher.create (PROFILE_PREFIX, folder.get_child (uuid),
                 config, _("Midori (%s)").printf (uuid), proxy);
+            return folder.get_child (uuid);
         }
 
         internal static async void create (string prefix, GLib.File folder, string uri, string title, Gtk.Widget proxy) {
@@ -107,19 +109,19 @@ namespace Apps {
             bool testing = false;
             if (proxy == null)
                 testing = true;
+            var file = folder.get_child ("desc");
 
             try {
                 folder.make_directory_with_parents (null);
-            }
-            catch (Error error) {
-                /* It's not an error if the folder already exists;
-                   any fatal problems will fail further down the line */
+            } catch (IOError.EXISTS exist_error) {
+                /* It's no error if the folder already exists */
+            } catch (Error error) {
+                warning (_("Failed to create new launcher (%s): %s"), file.get_path (), error.message);
             }
 
             icon_name = get_favicon_name_for_uri (prefix, folder, uri, testing);
             string desktop_file = prepare_desktop_file (prefix, name, uri, title, icon_name);
 
-            var file = folder.get_child ("desc");
             try {
                 var stream = yield file.replace_async (null, false, GLib.FileCreateFlags.NONE);
                 yield stream.write_async (desktop_file.data);
@@ -131,7 +133,7 @@ namespace Apps {
                 var desktop_dir = data_dir.get_child ("applications");
                 try {
                     desktop_dir.make_directory_with_parents (null);
-                } catch (FileError.EXIST exist_error) {
+                } catch (IOError.EXISTS exist_error) {
                     /* It's no error if the folder already exists */
                 }
 
@@ -408,10 +410,8 @@ namespace Apps {
             try {
                 try {
                     app_folder.make_directory_with_parents (null);
-                }
-                catch (IOError folder_error) {
-                    if (!(folder_error is IOError.EXISTS))
-                        throw folder_error;
+                } catch (IOError.EXISTS exist_error) {
+                    /* It's no error if the folder already exists */
                 }
 
                 var monitor = app_folder.monitor_directory (0, null);
@@ -515,7 +515,10 @@ public Midori.Extension extension_init () {
 class ExtensionsAppsDesktop : Midori.Test.Job {
     public static void test () { new ExtensionsAppsDesktop ().run_sync (); }
     public override async void run (Cancellable cancellable) throws GLib.Error {
-        yield Apps.Launcher.create_app ("http://example.com", "Example", null);
+        var folder = yield Apps.Launcher.create_app ("http://example.com", "Example", null);
+        var launcher = new Apps.Launcher (folder);
+        launcher.init ();
+        Katze.assert_str_equal (folder.get_path (), launcher.uri, "http://example.com");
         yield Apps.Launcher.create_profile (null);
     }
 }
