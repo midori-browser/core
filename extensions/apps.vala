@@ -128,7 +128,14 @@ namespace Apps {
                 Midori.Sokoke.create_win32_desktop_lnk (prefix, filename, uri);
 #else
                 var data_dir = File.new_for_path (Midori.Paths.get_user_data_dir ());
-                yield file.copy_async (data_dir.get_child ("applications").get_child (filename + ".desktop"),
+                var desktop_dir = data_dir.get_child ("applications");
+                try {
+                    desktop_dir.make_directory_with_parents (null);
+                } catch (FileError.EXIST exist_error) {
+                    /* It's no error if the folder already exists */
+                }
+
+                yield file.copy_async (desktop_dir.get_child (filename + ".desktop"),
                     GLib.FileCopyFlags.NONE);
 #endif
                 if (proxy != null) {
