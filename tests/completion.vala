@@ -137,7 +137,7 @@ void completion_location_action () {
 }
 
 void main (string[] args) {
-    Test.init (ref args);
+    Midori.Test.init (ref args);
     Midori.App.setup (ref args, null);
     Midori.Paths.init (Midori.RuntimeMode.NORMAL, null);
     Test.add_func ("/completion/autocompleter", completion_autocompleter);
