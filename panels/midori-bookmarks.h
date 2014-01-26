@@ -37,10 +37,6 @@ typedef struct _MidoriBookmarksClass           MidoriBookmarksClass;
 GType
 midori_bookmarks_get_type               (void);
 
-gboolean
-midori_bookmarks_update_item_db (sqlite3*   db,
-                                 KatzeItem* item);
-
 G_END_DECLS
 
 #endif /* __MIDORI_BOOKMARKS_PANEL_H__ */
