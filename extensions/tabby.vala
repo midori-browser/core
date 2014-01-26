@@ -141,7 +141,7 @@ namespace Tabby {
 
                     if (load_on_startup == Midori.MidoriStartup.BLANK_PAGE) {
                         item.uri = "about:dial";
-                    } else if (load_on_startup == Midori.MidoriStartup.HOMEPAGE) {
+                    } else {
                         item.uri = "about:home";
                     }
 
@@ -169,6 +169,11 @@ namespace Tabby {
                 int load_on_startup;
                 APP.settings.get ("load-on-startup", out load_on_startup);
                 should_delay = load_on_startup == Midori.MidoriStartup.DELAYED_PAGES;
+
+                if (APP.crashed == true) {
+                    delay = true;
+                    should_delay = true;
+                }
 
                 this.state = SessionState.RESTORING;
 
