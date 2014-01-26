@@ -161,6 +161,9 @@ namespace ClipNotes {
             notes_tree_view.headers_visible = true;
             notes_tree_view.button_press_event.connect (button_pressed);
 
+            notes_list_store.set_sort_column_id (0, Gtk.SortType.ASCENDING);
+            notes_list_store.set_sort_func (0, tree_sort_func);
+
             column = new Gtk.TreeViewColumn ();
             Gtk.CellRendererPixbuf renderer_icon = new Gtk.CellRendererPixbuf ();
             column.pack_start (renderer_icon, false);
@@ -175,7 +178,7 @@ namespace ClipNotes {
             notes_tree_view.append_column (column);
 
             if (database != null && !database.first_use) {
-                string sqlcmd = "SELECT id, uri, title, note_content FROM notes ORDER BY title ASC";
+                string sqlcmd = "SELECT id, uri, title, note_content FROM notes";
                 Midori.DatabaseStatement statement;
                 try {
                     statement = database.prepare (sqlcmd);
@@ -205,6 +208,13 @@ namespace ClipNotes {
             note_text_view.show ();
             note_text_view.focus_out_event.connect (focus_lost);
             pack_start (note_text_view, true, true, 0);
+        }
+
+        int tree_sort_func (Gtk.TreeModel model, Gtk.TreeIter a, Gtk.TreeIter b) {
+            Note note1, note2;
+            model.get (a, 0, out note1);
+            model.get (b, 0, out note2);
+            return strcmp (note1.title, note2.title);
         }
 
         bool focus_lost (Gdk.EventFocus event) {
