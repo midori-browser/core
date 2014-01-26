@@ -101,6 +101,9 @@ namespace ClipNotes {
 
     void append_note (Note note)
     {
+        /* Strip LRE leading character */
+        note.title = note.title.replace ("‪", "");
+
         Gtk.TreeIter iter;
         notes_list_store.append (out iter);
         notes_list_store.set (iter, 0, note);
