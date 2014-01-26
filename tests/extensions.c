@@ -216,7 +216,7 @@ int
 main (int    argc,
       char** argv)
 {
-    g_test_init (&argc, &argv, NULL);
+    midori_test_init (&argc, &argv);
     midori_app_setup (&argc, &argv, NULL);
     midori_paths_init (MIDORI_RUNTIME_MODE_NORMAL, NULL);
     #ifndef HAVE_WEBKIT2

@@ -87,43 +87,26 @@ void completion_autocompleter () {
         error ("Expected %d but got %d", 3, n);
 }
 
-async void complete_history (Midori.HistoryDatabase history) {
-    try {
-        history.insert ("http://example.com", "Ejemplo", 0, 0);
-    } catch (Error error) {
-        assert_not_reached ();
-    }
-    var cancellable = new Cancellable ();
-    var results = yield history.list_by_count_with_bookmarks ("example", 1, cancellable);
-    assert (results.length () == 1);
-    var first = results.nth_data (0);
-    assert (first.title == "Ejemplo");
-    results = yield history.list_by_count_with_bookmarks ("ejemplo", 1, cancellable);
-    assert (results.length () == 1);
-    first = results.nth_data (0);
-    assert (first.title == "Ejemplo");
-    complete_history_done = true;
-}
-
-bool complete_history_done = false;
-void completion_history () {
-    var app = new Midori.App ();
-    Midori.HistoryDatabase history;
-    try {
+class CompletionHistory : Midori.Test.Job {
+    public static void test () { new CompletionHistory ().run_sync (); }
+    public override async void run (Cancellable cancellable) throws GLib.Error {
         var bookmarks_database = new Midori.BookmarksDatabase ();
         assert (bookmarks_database.db != null);
-        history = new Midori.HistoryDatabase (app);
+
+        Midori.HistoryDatabase history = new Midori.HistoryDatabase (null);
         assert (history.db != null);
         history.clear (0);
-    } catch (Midori.DatabaseError error) {
-        assert_not_reached();
-    }
 
-    Midori.Test.grab_max_timeout ();
-    var loop = MainContext.default ();
-    complete_history.begin (history);
-    do { loop.iteration (true); } while (!complete_history_done);
-    Midori.Test.release_max_timeout ();
+        history.insert ("http://example.com", "Ejemplo", 0, 0);
+        var results = yield history.list_by_count_with_bookmarks ("example", 1, cancellable);
+        assert (results.length () == 1);
+        var first = results.nth_data (0);
+        assert (first.title == "Ejemplo");
+        results = yield history.list_by_count_with_bookmarks ("ejemplo", 1, cancellable);
+        assert (results.length () == 1);
+        first = results.nth_data (0);
+        assert (first.title == "Ejemplo");
+    }
 }
 
 struct TestCaseRender {
@@ -154,11 +137,11 @@ void completion_location_action () {
 }
 
 void main (string[] args) {
-    Test.init (ref args);
+    Midori.Test.init (ref args);
     Midori.App.setup (ref args, null);
     Midori.Paths.init (Midori.RuntimeMode.NORMAL, null);
     Test.add_func ("/completion/autocompleter", completion_autocompleter);
-    Test.add_func ("/completion/history", completion_history);
+    Test.add_func ("/completion/history", CompletionHistory.test);
     Test.add_func ("/completion/location-action", completion_location_action);
     Test.run ();
 }
