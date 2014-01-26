@@ -249,8 +249,13 @@ namespace ClipNotes {
             model.get (iter, 0, out note);
 
             var pixbuf = Midori.Paths.get_icon (note.uri, null);
+            if (pixbuf != null) {
+                int icon_width = 16, icon_height = 16;
+                Gtk.icon_size_lookup_for_settings (get_settings (),
+                    Gtk.IconSize.MENU, out icon_width, out icon_height);
+                pixbuf = pixbuf.scale_simple (icon_width, icon_height, Gdk.InterpType.TILES);
+            }
             renderer.set ("pixbuf", pixbuf);
-            renderer.set ("stock-size", Gtk.IconSize.MENU);
         }
 
         bool button_pressed (Gdk.EventButton event) {
