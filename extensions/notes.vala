@@ -181,24 +181,20 @@ namespace ClipNotes {
             column.set_cell_data_func (renderer_title, on_render_note_title);
             notes_tree_view.append_column (column);
 
-            if (database != null && !database.first_use) {
+            try {
                 string sqlcmd = "SELECT id, uri, title, note_content FROM notes";
-                Midori.DatabaseStatement statement;
-                try {
-                    statement = database.prepare (sqlcmd);
-                    while (statement.step ()) {
-                        var note = new Note ();
-                        note.id = statement.get_int64 ("id");
-                        note.uri = statement.get_string ("uri");
-                        note.title = statement.get_string ("title");
-                        note.content = statement.get_string ("note_content");
+                var statement = database.prepare (sqlcmd);
+                while (statement.step ()) {
+                    var note = new Note ();
+                    note.id = statement.get_int64 ("id");
+                    note.uri = statement.get_string ("uri");
+                    note.title = statement.get_string ("title");
+                    note.content = statement.get_string ("note_content");
 
-                        append_note (note);
-                    }
-
-                } catch (Error error) {
-                    critical (_("Failed to select from notes database: %s\n"), error.message);
+                    append_note (note);
                 }
+            } catch (Error error) {
+                critical (_("Failed to select from notes database: %s\n"), error.message);
             }
 
             notes_tree_view.show ();
@@ -426,21 +422,19 @@ namespace ClipNotes {
         }
 
         void activated (Midori.App app) {
+            string? config_path = this.get_config_dir ();
+            string? db_path = config_path != null ? GLib.Path.build_path (Path.DIR_SEPARATOR_S, config_path, "notes.db") : null;
+            try {
+                database = new Midori.Database (db_path);
+            } catch (Midori.DatabaseError schema_error) {
+                error (schema_error.message);
+            }
+            db = database.db;
+
             widgets = new GLib.List<Gtk.Widget> ();
             app.add_browser.connect (browser_added);
             foreach (var browser in app.get_browsers ())
                 browser_added (browser);
-
-            string config_path = this.get_config_dir ();
-            if (config_path != null) {
-                string db_path = GLib.Path.build_path (Path.DIR_SEPARATOR_S, config_path, "notes.db");
-                try {
-                    database = new Midori.Database (db_path);
-                } catch (Midori.DatabaseError schema_error) {
-                    error (schema_error.message);
-                }
-                db = database.db;
-            }
         }
 
         void deactivated () {
