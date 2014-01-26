@@ -30,6 +30,7 @@ namespace Midori {
         protected Sqlite.Statement _stmt = null;
         public Database? database { get; set construct; }
         public string? query { get; set construct; }
+        private int64 last_row_id = -1;
 
         public DatabaseStatement (Database database, string query) throws DatabaseError {
             Object (database: database, query: query);
@@ -79,7 +80,19 @@ namespace Midori {
             int result = stmt.step ();
             if (result != Sqlite.DONE && result != Sqlite.ROW)
                 throw new DatabaseError.EXECUTE (database.db.errmsg ());
+            last_row_id = database.db.last_insert_rowid ();
             return result == Sqlite.ROW;
+        }
+
+        /*
+         * Returns the id of the last inserted row.
+         * It is an error to ask for an id without having inserted a row.
+         * Since: 0.5.8
+         */
+        public int64 row_id () throws DatabaseError {
+            if (last_row_id == -1)
+                throw new DatabaseError.EXECUTE ("No row id");
+            return last_row_id;
         }
 
         private int column_index (string name) throws DatabaseError {

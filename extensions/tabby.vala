@@ -359,13 +359,14 @@ namespace Tabby {
                 string sqlcmd = "INSERT INTO `tabs` (`crdate`, `tstamp`, `session_id`, `uri`, `title`, `sorting`) VALUES (:tstamp, :tstamp, :session_id, :uri, :title, :sorting);";
 
                 try {
-                    database.prepare (sqlcmd,
-                                      ":tstamp", typeof (int64), time.to_unix (),
-                                      ":session_id", typeof (int64), this.id,
-                                      ":uri", typeof (string), item.uri,
-                                      ":title", typeof (string), item.name,
-                                      ":sorting", typeof (double), double.parse (sorting)).exec ();
-                    int64 tab_id = this.db.last_insert_rowid ();
+                    var statement = database.prepare (sqlcmd,
+                        ":tstamp", typeof (int64), time.to_unix (),
+                        ":session_id", typeof (int64), this.id,
+                        ":uri", typeof (string), item.uri,
+                        ":title", typeof (string), item.name,
+                        ":sorting", typeof (double), double.parse (sorting));
+                    statement.exec ();
+                    int64 tab_id = statement.row_id ();
                     item.set_meta_integer ("tabby-id", tab_id);
                 } catch (Error error) {
                     critical (_("Failed to update database: %s"), error.message);
@@ -561,14 +562,15 @@ namespace Tabby {
                 GLib.DateTime time = new DateTime.now_local ();
 
                 string sqlcmd = "INSERT INTO `sessions` (`tstamp`) VALUES (:tstamp);";
-                Sqlite.Statement stmt;
-                if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
-                    critical (_("Failed to update database: %s"), db.errmsg);
-                stmt.bind_int64 (stmt.bind_parameter_index (":tstamp"), time.to_unix ());
-                if (stmt.step () != Sqlite.DONE)
-                    critical (_("Failed to update database: %s"), db.errmsg);
-                else
-                    this.id = this.db.last_insert_rowid ();
+
+                try {
+                    var statement = database.prepare (sqlcmd,
+                        ":tstamp", typeof (int64), time.to_unix ());
+                    statement.exec ();
+                    this.id = statement.row_id ();
+                } catch (Error error) {
+                    critical (_("Failed to update database: %s"), error.message);
+                }
             }
 
             internal Session.with_id (Midori.Database database, int64 id) {
