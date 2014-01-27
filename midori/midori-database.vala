@@ -130,7 +130,7 @@ namespace Midori {
     public class Database : GLib.Object, GLib.Initable {
         public Sqlite.Database? db { get { return _db; } }
         protected Sqlite.Database? _db = null;
-        public string? path { get; protected set; default = ":memory:"; }
+        public string? path { get; protected set; default = null; }
 
         /*
          * A new database successfully opened for the first time.
@@ -148,14 +148,15 @@ namespace Midori {
         }
 
         public virtual bool init (GLib.Cancellable? cancellable = null) throws DatabaseError {
-            if (path == null)
-                path = ":memory:";
+            string real_path = path;
+            if (path == null || path.has_prefix (":memory:"))
+                real_path = ":memory:";
             else if (!Path.is_absolute (path))
-                path = Midori.Paths.get_config_filename_for_writing (path);
-            bool exists = Posix.access (path, Posix.F_OK) == 0;
+                real_path = Midori.Paths.get_config_filename_for_writing (path);
+            bool exists = Posix.access (real_path, Posix.F_OK) == 0;
 
-            if (Sqlite.Database.open_v2 (path, out _db) != Sqlite.OK)
-                throw new DatabaseError.OPEN ("Failed to open database %s".printf (path));
+            if (Sqlite.Database.open_v2 (real_path, out _db) != Sqlite.OK)
+                throw new DatabaseError.OPEN ("Failed to open database %s".printf (real_path));
 
             if (db.exec ("PRAGMA journal_mode = WAL; PRAGMA cache_size = 32100;") != Sqlite.OK)
                 db.exec ("PRAGMA synchronous = NORMAL; PRAGMA temp_store = MEMORY;");
