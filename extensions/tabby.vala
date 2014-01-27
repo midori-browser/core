@@ -391,14 +391,14 @@ namespace Tabby {
                 unowned Katze.Item item = view.get_proxy_item ();
                 int64 tab_id = item.get_meta_integer ("tabby-id");
                 string sqlcmd = "UPDATE `tabs` SET title = :title WHERE session_id = :session_id AND id = :tab_id;";
-                Sqlite.Statement stmt;
-                if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
-                    critical (_("Failed to update database: %s"), db.errmsg ());
-                stmt.bind_text (stmt.bind_parameter_index (":title"), view.get_display_title ());
-                stmt.bind_int64 (stmt.bind_parameter_index (":session_id"), this.id);
-                stmt.bind_int64 (stmt.bind_parameter_index (":tab_id"), tab_id);
-                if (stmt.step () != Sqlite.DONE)
-                    critical (_("Failed to update database: %s"), db.errmsg ());
+                try {
+                    database.prepare (sqlcmd,
+                                      ":title", typeof (string), view.get_display_title (),
+                                      ":session_id", typeof (int64), this.id,
+                                      ":tab_id", typeof (int64), tab_id).exec ();
+                } catch (Error error) {
+                    critical (_("Failed to update database: %s"), error.message);
+                }
             }
 
             protected override void tab_added (Midori.Browser browser, Midori.View view) {
@@ -416,13 +416,13 @@ namespace Tabby {
                 int64 tab_id = item.get_meta_integer ("tabby-id");
                 /* FixMe: mark as deleted */
                 string sqlcmd = "DELETE FROM `tabs` WHERE session_id = :session_id AND id = :tab_id;";
-                Sqlite.Statement stmt;
-                if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
-                    critical (_("Failed to update database: %s"), db.errmsg ());
-                stmt.bind_int64 (stmt.bind_parameter_index (":session_id"), this.id);
-                stmt.bind_int64 (stmt.bind_parameter_index (":tab_id"), tab_id);
-                if (stmt.step () != Sqlite.DONE)
-                    critical (_("Failed to update database: %s"), db.errmsg ());
+                try {
+                    database.prepare (sqlcmd,
+                                      ":session_id", typeof (int64), this.id,
+                                      ":tab_id", typeof (int64), tab_id).exec ();
+                } catch (Error error) {
+                    critical (_("Failed to update database: %s"), error.message);
+                }
             }
 
             protected override void tab_switched (Midori.View? old_view, Midori.View? new_view) {
@@ -430,14 +430,14 @@ namespace Tabby {
                 unowned Katze.Item item = new_view.get_proxy_item ();
                 int64 tab_id = item.get_meta_integer ("tabby-id");
                 string sqlcmd = "UPDATE `tabs` SET tstamp = :tstamp WHERE session_id = :session_id AND id = :tab_id;";
-                Sqlite.Statement stmt;
-                if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
-                    critical (_("Failed to update database: %s"), db.errmsg ());
-                stmt.bind_int64 (stmt.bind_parameter_index (":session_id"), this.id);
-                stmt.bind_int64 (stmt.bind_parameter_index (":tab_id"), tab_id);
-                stmt.bind_int64 (stmt.bind_parameter_index (":tstamp"), time.to_unix ());
-                if (stmt.step () != Sqlite.DONE)
-                    critical (_("Failed to update database: %s"), db.errmsg ());
+                try {
+                    database.prepare (sqlcmd,
+                        ":session_id", typeof (int64), this.id,
+                        ":tab_id", typeof (int64), tab_id,
+                        ":tstamp", typeof (int64), time.to_unix ()).exec ();
+                } catch (Error error) {
+                    critical (_("Failed to update database: %s"), error.message);
+                }
             }
 
             protected override void tab_reordered (Gtk.Widget tab, uint pos) {
@@ -447,36 +447,29 @@ namespace Tabby {
                 unowned Katze.Item item = view.get_proxy_item ();
                 int64 tab_id = item.get_meta_integer ("tabby-id");
                 string sqlcmd = "UPDATE `tabs` SET sorting = :sorting WHERE session_id = :session_id AND id = :tab_id;";
-                Sqlite.Statement stmt;
-                if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
-                    critical (_("Failed to update database: %s"), db.errmsg ());
-                stmt.bind_int64 (stmt.bind_parameter_index (":session_id"), this.id);
-                stmt.bind_int64 (stmt.bind_parameter_index (":tab_id"), tab_id);
-                stmt.bind_double (stmt.bind_parameter_index (":sorting"), sorting);
-
-                if (stmt.step () != Sqlite.DONE)
-                    critical (_("Failed to update database: %s"), db.errmsg ());
+                try {
+                    database.prepare (sqlcmd,
+                        ":session_id", typeof (int64), this.id,
+                        ":tab_id", typeof (int64), tab_id,
+                        ":sorting", typeof (double), sorting).exec ();
+                } catch (Error error) {
+                    critical (_("Failed to update database: %s"), error.message);
+                }
 
                 item.set_meta_string ("sorting", sorting.to_string ());
             }
 
             public override void remove() {
-                string sqlcmd = "DELETE FROM `tabs` WHERE session_id = :session_id;";
-                Sqlite.Statement stmt;
-                if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
-                    critical (_("Failed to update database: %s"), db.errmsg ());
-                stmt.bind_int64 (stmt.bind_parameter_index (":session_id"), this.id);
-
-                if (stmt.step () != Sqlite.DONE)
-                    critical (_("Failed to update database: %s"), db.errmsg ());
-
-                sqlcmd = "DELETE FROM `sessions` WHERE id = :session_id;";
-                if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
-                    critical (_("Failed to update database: %s"), db.errmsg ());
-                stmt.bind_int64 (stmt.bind_parameter_index (":session_id"), this.id);
-
-                if (stmt.step () != Sqlite.DONE)
-                    critical (_("Failed to update database: %s"), db.errmsg ());
+                string sqlcmd = """
+                    DELETE FROM `tabs` WHERE session_id = :session_id;
+                    DELETE FROM `sessions` WHERE id = :session_id;
+                    """;
+                try {
+                    database.prepare (sqlcmd,
+                        ":session_id", typeof (int64), this.id). exec ();
+                } catch (Error error) {
+                    critical (_("Failed to update database: %s"), error.message);
+                }
             }
 
             public override void close() {
@@ -498,13 +491,13 @@ namespace Tabby {
 
                 GLib.DateTime time = new DateTime.now_local ();
                 string sqlcmd = "UPDATE `sessions` SET closed = 1, tstamp = :tstamp WHERE id = :session_id;";
-                Sqlite.Statement stmt;
-                if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
-                    critical (_("Failed to update database: %s"), db.errmsg ());
-
-                stmt.bind_int64 (stmt.bind_parameter_index (":session_id"), this.id);
-                stmt.bind_int64 (stmt.bind_parameter_index (":tstamp"), time.to_unix ());
-                if (stmt.step () != Sqlite.DONE)
+                try {
+                    database.prepare (sqlcmd,
+                        ":session_id", typeof (int64), this.id,
+                        ":tstamp", typeof (int64), time.to_unix ()).exec ();
+                } catch (Error error) {
+                    critical (_("Failed to update database: %s"), error.message);
+                }
                     critical (_("Failed to update database: %s"), db.errmsg ());
             }
 
@@ -535,22 +528,22 @@ namespace Tabby {
 
             public override double? get_max_sorting () {
                 string sqlcmd = "SELECT MAX(sorting) FROM tabs WHERE session_id = :session_id";
-                Sqlite.Statement stmt;
-                if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
-                    critical (_("Failed to select from database: %s"), db.errmsg ());
-                stmt.bind_int64 (stmt.bind_parameter_index (":session_id"), this.id);
-                int result = stmt.step ();
-                if (!(result == Sqlite.DONE || result == Sqlite.ROW)) {
-                    critical (_("Failed to select from database: %s"), db.errmsg ());
-                } else if (result == Sqlite.ROW) {
+                try {
+                    var statement = database.prepare (sqlcmd,
+                        ":session_id", typeof (int64), this.id);
+                    statement.step ();
                     double? sorting;
-                    string? sorting_string = stmt.column_double (0).to_string ();
-                    if (sorting_string != null) { /* we have to use a seperate if condition to avoid a `possibly unassigned local variable` error */
+                    string? sorting_string = statement.get_int64 ("MAX(sorting)").to_string ();
+                    if (sorting_string != null) {
+                        /* we have to use a seperate if condition to avoid
+                           a `possibly unassigned local variable` error */
                         if (double.try_parse (sorting_string, out sorting)) {
                             return sorting;
                         }
                     }
-                 }
+                } catch (Error error) {
+                    critical (_("Failed to select from database: %s"), error.message);
+                }
 
                  return double.parse ("0");
             }
@@ -580,14 +573,14 @@ namespace Tabby {
 
                 GLib.DateTime time = new DateTime.now_local ();
                 string sqlcmd = "UPDATE `sessions` SET closed = 0, tstamp = :tstamp WHERE id = :session_id;";
-                Sqlite.Statement stmt;
-                if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
-                    critical (_("Failed to update database: %s"), db.errmsg);
 
-                stmt.bind_int64 (stmt.bind_parameter_index (":session_id"), this.id);
-                stmt.bind_int64 (stmt.bind_parameter_index (":tstamp"), time.to_unix ());
-                if (stmt.step () != Sqlite.DONE)
-                    critical (_("Failed to update database: %s"), db.errmsg);
+                try {
+                    database.prepare (sqlcmd,
+                        ":session_id", typeof (int64), this.id,
+                        ":tstamp", typeof (int64), time.to_unix ()).exec ();
+                } catch (Error error) {
+                    critical (_("Failed to update database: %s"), error.message);
+                }
             }
         }
 
@@ -604,23 +597,18 @@ namespace Tabby {
                     SELECT * FROM (SELECT id, closed FROM sessions WHERE closed = 1 ORDER BY tstamp DESC LIMIT 1)
                     ORDER BY closed;
                 """;
-                Sqlite.Statement stmt;
-                if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
-                    critical (_("Failed to select from database: %s"), db.errmsg);
-                int result = stmt.step ();
-                if (!(result == Sqlite.DONE || result == Sqlite.ROW)) {
-                    critical (_("Failed to select from database: %s"), db.errmsg);
-                    return sessions;
-                }
-
-                while (result == Sqlite.ROW) {
-                    int64 id = stmt.column_int64 (0);
-                    int64 closed = stmt.column_int64 (1);
-                    if (closed == 0 || sessions.is_empty ()) {
-                        sessions.add_item (new Session.with_id (this.database, id));
+                try {
+                    var statement = database.prepare (sqlcmd);
+                    while (statement.step ()) {
+                        int64 id = statement.get_int64 ("id");
+                        int64 closed = statement.get_int64 ("closed");
+                        if (closed == 0 || sessions.is_empty ()) {
+                            sessions.add_item (new Session.with_id (this.database, id));
+                        }
                     }
-                    result = stmt.step ();
-                 }
+                } catch (Error error) {
+                    critical (_("Failed to select from database: %s"), error.message);
+                }
 
                 if (sessions.is_empty ()) {
                     sessions.add_item (new Session (this.database));
