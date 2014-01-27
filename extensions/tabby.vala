@@ -351,7 +351,6 @@ namespace Tabby {
         private class Session : Base.Session {
             public int64 id { get; private set; }
             private Midori.Database database;
-            private unowned Sqlite.Database db;
 
             public override void add_item (Katze.Item item) {
                 GLib.DateTime time = new DateTime.now_local ();
@@ -498,7 +497,6 @@ namespace Tabby {
                 } catch (Error error) {
                     critical (_("Failed to update database: %s"), error.message);
                 }
-                    critical (_("Failed to update database: %s"), db.errmsg ());
             }
 
             public override Katze.Array get_tabs() {
@@ -550,7 +548,6 @@ namespace Tabby {
 
             internal Session (Midori.Database database) {
                 this.database = database;
-                this.db = database.db;
 
                 GLib.DateTime time = new DateTime.now_local ();
 
@@ -568,7 +565,6 @@ namespace Tabby {
 
             internal Session.with_id (Midori.Database database, int64 id) {
                 this.database = database;
-                this.db = database.db;
                 this.id = id;
 
                 GLib.DateTime time = new DateTime.now_local ();
@@ -586,7 +582,6 @@ namespace Tabby {
 
         private class Storage : Base.Storage {
             private Midori.Database database;
-            private unowned Sqlite.Database db;
 
             public override Katze.Array get_sessions () {
                 Katze.Array sessions = new Katze.Array (typeof (Session));
@@ -639,7 +634,6 @@ namespace Tabby {
                 } catch (Midori.DatabaseError schema_error) {
                     error (schema_error.message);
                 }
-                db = database.db;
 
                 if (database.first_use) {
                     string config_file = Midori.Paths.get_config_filename_for_reading ("session.xbel");
