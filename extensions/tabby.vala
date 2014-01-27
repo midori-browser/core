@@ -630,9 +630,13 @@ namespace Tabby {
             }
 
             public override void import_session (Katze.Array tabs) {
-                this.db.exec ("BEGIN;");
-                base.import_session(tabs);
-                this.db.exec("COMMIT;");
+                try {
+                    database.transaction (()=>{
+                        base.import_session(tabs); return true;
+                    });
+                } catch (Error error) {
+                    critical (_("Failed to select from database: %s"), error.message);
+                }
             }
 
             public override Base.Session get_new_session () {

@@ -23,6 +23,11 @@ namespace Midori {
     }
 
     /*
+     * Since: 0.5.8
+     */
+    public delegate bool DatabaseCallback () throws DatabaseError;
+
+    /*
      * Since: 0.5.7
      */
     public class DatabaseStatement : GLib.Object, GLib.Initable {
@@ -216,9 +221,14 @@ namespace Midori {
             } catch (Error error) {
                 throw new DatabaseError.FILENAME ("Failed to open schema: %s".printf (schema_filename));
             }
-            schema = "BEGIN TRANSACTION; %s; COMMIT;".printf (schema);
-            if (db.exec (schema) != Sqlite.OK)
-                throw new DatabaseError.EXECUTE ("Failed to execute schema: %s".printf (schema));
+            transaction (()=> { return exec (schema); });
+            return true;
+        }
+
+        public bool transaction (DatabaseCallback callback) throws DatabaseError {
+            exec ("BEGIN TRANSACTION;");
+            callback ();
+            exec ("COMMIT;");
             return true;
         }
 
