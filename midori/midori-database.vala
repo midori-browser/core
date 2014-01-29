@@ -147,12 +147,16 @@ namespace Midori {
             init ();
         }
 
-        public virtual bool init (GLib.Cancellable? cancellable = null) throws DatabaseError {
-            string real_path = path;
+        string resolve_path (string? path) {
             if (path == null || path.has_prefix (":memory:"))
-                real_path = ":memory:";
+                return ":memory:";
             else if (!Path.is_absolute (path))
-                real_path = Midori.Paths.get_config_filename_for_writing (path);
+                return Midori.Paths.get_config_filename_for_writing (path);
+            return path;
+        }
+
+        public virtual bool init (GLib.Cancellable? cancellable = null) throws DatabaseError {
+            string real_path = resolve_path (path);
             bool exists = Posix.access (real_path, Posix.F_OK) == 0;
 
             if (Sqlite.Database.open_v2 (real_path, out _db) != Sqlite.OK)
@@ -190,6 +194,17 @@ namespace Midori {
 
             first_use = !exists;
             return true;
+        }
+
+        /*
+         * Since: 0.5.8
+         */
+        public bool attach (string path, string alias) throws DatabaseError {
+            string real_path = resolve_path (path);
+            bool exists = Posix.access (real_path, Posix.F_OK) == 0;
+            if (!exists)
+                throw new DatabaseError.OPEN ("Failed to attach database %s".printf (path));
+            return exec ("ATTACH DATABASE '%s' AS '%s';".printf (real_path, alias));
         }
 
         public bool exec_script (string filename) throws DatabaseError {

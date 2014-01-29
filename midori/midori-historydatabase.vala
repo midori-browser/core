@@ -40,7 +40,7 @@ namespace Midori {
             Object (path: "history.db");
             init ();
             Midori.BookmarksDatabase bookmarks_database = new Midori.BookmarksDatabase ();
-            exec ("ATTACH DATABASE '%s' AS bookmarks".printf (bookmarks_database.path));
+            attach (bookmarks_database.path, "bookmarks");
 
             try {
                 exec ("SELECT day FROM history LIMIT 1");
