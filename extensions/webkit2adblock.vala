@@ -219,12 +219,14 @@ namespace Adblock {
 
             Directive? directive = cache.lookup (request_uri);
             if (directive == null) {
-                if (matched_by_key (request_uri, page_uri)
-                 || matched_by_pattern (request_uri, page_uri)) {
-                    directive = Directive.BLOCK;
+                directive = Directive.ALLOW;
+                try {
+                    if (matched_by_key (request_uri, page_uri)
+                     || matched_by_pattern (request_uri, page_uri))
+                        directive = Directive.BLOCK;
+                } catch (Error error) {
+                    warning ("Adblock match error: %s", error.message);
                 }
-                else
-                    directive = Directive.ALLOW;
                 cache.insert (request_uri, directive);
             }
 
@@ -263,7 +265,7 @@ namespace Adblock {
             return fixed.str;
         }
 
-        bool matched_by_key (string request_uri, string page_uri) {
+        bool matched_by_key (string request_uri, string page_uri) throws Error {
             string? uri = fixup_regex ("", request_uri);
             if (uri == null)
                 return false;
@@ -284,7 +286,7 @@ namespace Adblock {
             return false;
         }
 
-        bool check_rule (Regex regex, string pattern, string request_uri, string page_uri) {
+        bool check_rule (Regex regex, string pattern, string request_uri, string page_uri) throws Error {
             stdout.printf ("check rule: patt %s req_uri %s, page uri %s\n", pattern, request_uri, page_uri);
             if (regex.match_full (request_uri))
                 return false;
@@ -299,7 +301,7 @@ namespace Adblock {
             return true;
         }
 
-        bool matched_by_pattern (string request_uri, string page_uri) {
+        bool matched_by_pattern (string request_uri, string page_uri) throws Error {
             foreach (var patt in pattern.get_keys ())
                 if (check_rule (pattern.lookup (patt), patt, request_uri, page_uri))
                     return true;
