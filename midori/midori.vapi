@@ -135,6 +135,7 @@ namespace Midori {
         public void install_boolean (string name, bool default_value);
         public void install_integer (string name, int default_value);
         public void install_string (string name, string default_value);
+        public void install_string_list (string name, string[]? default_value);
 
         public bool get_boolean (string name);
         public int get_integer (string name);

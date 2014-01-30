@@ -10,14 +10,13 @@
  See the file COPYING for the full license text.
 */
 
-#if HAVE_WEBKIT2
 namespace Adblock {
     enum Directive {
         ALLOW,
         BLOCK
     }
 
-    public class Filter {
+    public class Filter : Midori.Extension {
         bool debug_match;
         HashTable<string, Directive?> cache;
         HashTable<string, Regex?> pattern;
@@ -25,11 +24,58 @@ namespace Adblock {
         HashTable<string, string?> optslist;
         List<Regex> blacklist;
 
+#if HAVE_WEBKIT2
         public Filter (WebKit.WebExtension web_extension) {
+            init ();
+            web_extension.page_created.connect (page_created);
+        }
+
+        void page_created (WebKit.WebPage web_page) {
+            web_page.send_request.connect (send_request);
+        }
+
+        bool send_request (WebKit.WebPage web_page, WebKit.URIRequest request, WebKit.URIResponse? redirected_response) {
+            return request_handled (web_page.uri, request.uri);
+        }
+#else
+        public Filter () {
+            GLib.Object (name: _("Advertisement blocker"),
+                         description: _("Block advertisements according to a filter list"),
+                         version: "0.6",
+                         authors: "Christian Dywan <christian@twotoasts.de>");
+            install_string_list ("filters", null);
+            activate.connect (extension_activated);
+        }
+
+        void extension_activated (Midori.App app) {
+            init ();
+            foreach (var browser in app.get_browsers ())
+                browser_added (browser);
+            app.add_browser.connect (browser_added);
+        }
+
+        void browser_added (Midori.Browser browser) {
+            foreach (var tab in browser.get_tabs ())
+                tab_added (tab);
+            browser.add_tab.connect (tab_added);
+        }
+
+        void tab_added (Midori.View view) {
+            view.web_view.resource_request_starting.connect (resource_requested);
+        }
+
+        void resource_requested (WebKit.WebView web_view, WebKit.WebFrame frame,
+            WebKit.WebResource resource, WebKit.NetworkRequest request, WebKit.NetworkResponse response) {
+
+            if (request_handled (web_view.uri, request.uri))
+                request.set_uri ("about:blank");
+        }
+#endif
+
+        void init () {
             debug_match = "adblock:match" in (Environment.get_variable ("MIDORI_DEBUG") ?? "");
             stdout.printf ("WebKit2Adblock%s\n", debug_match ? " debug" : "");
             reload_rules ();
-            web_extension.page_created.connect (page_created);
         }
 
         void reload_rules () {
@@ -166,24 +212,20 @@ namespace Adblock {
             }
         }
 
-        void page_created (WebKit.WebPage web_page) {
-            web_page.send_request.connect (send_request);
-        }
-
-        bool send_request (WebKit.WebPage web_page, WebKit.URIRequest request, WebKit.URIResponse? redirected_response) {
+        bool request_handled (string page_uri, string request_uri) {
             /* Always allow the main page */
-            if (request.uri == web_page.uri)
+            if (request_uri == page_uri)
                 return false;
 
-            Directive? directive = cache.lookup (request.uri);
+            Directive? directive = cache.lookup (request_uri);
             if (directive == null) {
-                if (matched_by_key (request.uri, web_page.uri)
-                 || matched_by_pattern (request.uri, web_page.uri)) {
+                if (matched_by_key (request_uri, page_uri)
+                 || matched_by_pattern (request_uri, page_uri)) {
                     directive = Directive.BLOCK;
                 }
                 else
                     directive = Directive.ALLOW;
-                cache.insert (request.uri, directive);
+                cache.insert (request_uri, directive);
             }
 
             return directive == Directive.BLOCK;
@@ -266,9 +308,14 @@ namespace Adblock {
     }
 }
 
+#if HAVE_WEBKIT2
 Adblock.Filter? filter;
 public static void webkit_web_extension_initialize (WebKit.WebExtension web_extension) {
     filter = new Adblock.Filter (web_extension);
+}
+#else
+public Midori.Extension extension_init () {
+    return new Adblock.Filter ();
 }
 #endif
 
