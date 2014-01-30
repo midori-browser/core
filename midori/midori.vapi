@@ -139,7 +139,6 @@ namespace Midori {
         public bool get_boolean (string name);
         public int get_integer (string name);
         public unowned string get_string (string name);
-        public unowned string get_config_dir ();
 
         public void set_boolean (string name, bool value);
         public void set_integer (string name, int value);
