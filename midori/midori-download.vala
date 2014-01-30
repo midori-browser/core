@@ -10,8 +10,10 @@
 */
 
 namespace Sokoke {
+#if !HAVE_WEBKIT2
     extern static bool show_uri (Gdk.Screen screen, string uri, uint32 timestamp) throws Error;
     extern static bool message_dialog (Gtk.MessageType type, string short, string detailed, bool modal);
+#endif
 }
 
 namespace Midori {
@@ -52,7 +54,7 @@ namespace Midori {
 
         public static string get_tooltip (WebKit.Download download) {
 #if !HAVE_WEBKIT2
-            string filename = Path.get_basename (download.destination_uri);
+            string filename = Midori.Download.get_basename_for_display (download.destination_uri);
             /* i18n: Download tooltip (size): 4KB of 43MB */
             string size = _("%s of %s").printf (
                 format_size (download.current_size),
@@ -254,6 +256,10 @@ namespace Midori {
 #endif
         }
 
+        /**
+         * Returns a filename of the form "name.ext" to use as a suggested name for
+         * a download of the given uri
+         */
         public string get_filename_suggestion_for_uri (string mime_type, string uri) {
             return_val_if_fail (Midori.URI.is_location (uri), uri);
             string filename = File.new_for_uri (uri).get_basename ();
@@ -263,8 +269,7 @@ namespace Midori {
         }
 
         public static string? get_extension_for_uri (string uri, out string basename = null) {
-            if (&basename != null)
-                basename = null;
+            basename = null;
             /* Find the last slash and the last period *after* the last slash. */
             int last_slash = uri.last_index_of_char ('/');
             /* Huh, URI without slashes? */
@@ -277,8 +282,7 @@ namespace Midori {
             int query = uri.last_index_of_char ('?', period);
             /* The extension, or "." if it ended with a period */
             string extension = uri.substring (period, query - period);
-            if (&basename != null)
-                basename = uri.substring (0, period);
+            basename = uri.substring (0, period);
             return extension;
 
         }
@@ -297,9 +301,28 @@ namespace Midori {
             return filename;
         }
 
+        /**
+         * Returns a string showing a file:// URI's intended filename on
+         * disk, suited for displaying to a user.
+         * 
+         * The string returned is the basename (final path segment) of the
+         * filename of the uri. If the uri is invalid, not file://, or has no
+         * basename, the uri itself is returned.
+         * 
+         * Since: 0.5.7
+         **/
+        public static string get_basename_for_display (string uri) {
+            try {
+                string filename = Filename.from_uri (uri);
+                if(filename != null && filename != "")
+                    return Path.get_basename (filename);
+            } catch (Error error) { }
+            return uri;
+        }
+
         public string prepare_destination_uri (WebKit.Download download, string? folder) {
             string suggested_filename = get_suggested_filename (download);
-            string basename = File.new_for_uri (suggested_filename).get_basename ();
+            string basename = Path.get_basename (suggested_filename);
             string download_dir;
             if (folder == null) {
                 download_dir = Paths.get_tmp_dir ();
@@ -316,9 +339,13 @@ namespace Midori {
             }
         }
 
-        public static bool has_enough_space (WebKit.Download download, string uri) {
+        /**
+         * Returns whether it seems possible to save @download to the path specified by
+         * @destination_uri, considering space on disk and permissions
+         */
+        public static bool has_enough_space (WebKit.Download download, string destination_uri) {
 #if !HAVE_WEBKIT2
-            var folder = File.new_for_uri (uri).get_parent ();
+            var folder = File.new_for_uri (destination_uri).get_parent ();
             bool can_write;
             uint64 free_space;
             try {
@@ -337,12 +364,12 @@ namespace Midori {
                 string detailed_message;
                 if (!can_write) {
                     message = _("The file \"%s\" can't be saved in this folder.").printf (
-                        Path.get_basename (uri));
+                        Midori.Download.get_basename_for_display (destination_uri));
                     detailed_message = _("You don't have permission to write in this location.");
                 }
                 else if (free_space < download.total_size) {
                     message = _("There is not enough free space to download \"%s\".").printf (
-                        Path.get_basename (uri));
+                        Midori.Download.get_basename_for_display (destination_uri));
                     detailed_message = _("The file needs %s but only %s are left.").printf (
                         format_size (download.total_size), format_size (free_space));
                 }

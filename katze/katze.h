@@ -13,7 +13,6 @@
 #define __KATZE_H__
 
 #include "katze-http-auth.h"
-#include "katze-throbber.h"
 #include "katze-utils.h"
 #include "katze-item.h"
 #include "katze-array.h"

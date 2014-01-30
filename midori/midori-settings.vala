@@ -153,6 +153,7 @@ namespace Midori {
         public bool close_buttons_on_tabs { get; set; default = true; }
         public bool open_tabs_in_the_background { get; set; default = true; }
         public bool open_tabs_next_to_current { get; set; default = true; }
+        // [Deprecated (since = "0.5.7")]
         public bool always_show_tabbar { get; set; default = true; }
 
         public string homepage { get; set; default = "about:search"; }

@@ -656,7 +656,7 @@ adblock_open_preferences_cb (MidoriExtension* extension)
     adblock_show_preferences_dialog (extension, NULL);
 }
 
-static inline gint
+static gint
 adblock_check_rule (GRegex*      regex,
                     const gchar* patt,
                     const gchar* req_uri,
@@ -679,7 +679,7 @@ adblock_check_rule (GRegex*      regex,
     return TRUE;
 }
 
-static inline gboolean
+static gboolean
 adblock_is_matched_by_pattern (const gchar* req_uri,
                                const gchar* page_uri)
 {
@@ -698,7 +698,7 @@ adblock_is_matched_by_pattern (const gchar* req_uri,
     return FALSE;
 }
 
-static inline gboolean
+static gboolean
 adblock_is_matched_by_key (const gchar* req_uri,
                            const gchar* page_uri)
 {
@@ -1086,8 +1086,6 @@ adblock_app_add_browser_cb (MidoriApp*       app,
     GtkWidget* statusbar;
     GtkWidget* image;
     GList* children;
-    GtkWidget* view;
-    gint i;
 
     statusbar = katze_object_get_object (browser, "statusbar");
     image = NULL;
@@ -1249,7 +1247,7 @@ adblock_compile_regexp (GString* gpatt,
     }
 }
 
-static inline gchar*
+static gchar*
 adblock_add_url_pattern (gchar* prefix,
                          gchar* type,
                          gchar* line)
@@ -1308,7 +1306,7 @@ adblock_add_url_pattern (gchar* prefix,
     return g_string_free (format_patt, should_free);
 }
 
-static inline void
+static void
 adblock_frame_add (gchar* line)
 {
     const gchar* separator = " , ";
@@ -1342,7 +1340,7 @@ adblock_update_css_hash (gchar* domain,
         g_hash_table_insert (blockcssprivate, g_strdup (domain), g_strdup (value));
 }
 
-static inline void
+static void
 adblock_frame_add_private (const gchar* line,
                            const gchar* sep)
 {
@@ -1395,7 +1393,6 @@ adblock_parse_line (gchar* line)
      * Block URL:
      *   http://example.com/ads/banner123.gif
      *   http://example.com/ads/banner*.gif
-     *   http://example.com/ads/*
      * Partial match for "ad":
      *   *ad*
      *   ad
@@ -1557,7 +1554,9 @@ adblock_file_is_up_to_date (gchar* path)
 
         for (i = 0; i <= 15; i++)
         {
-            fgets (line, 2000, file);
+            if (!fgets (line, 2000, file))
+                break;
+
             if (strncmp ("! Expires", line, 9) == 0)
             {
                 gchar** parts = g_strsplit (line, " ", 4);
@@ -1729,7 +1728,6 @@ adblock_deactivate_cb (MidoriExtension* extension,
                        MidoriBrowser*   browser)
 {
     GList* children;
-    GtkWidget* view;
     MidoriApp* app = midori_extension_get_app (extension);
     MidoriWebSettings* settings = katze_object_get_object (app, "settings");
 

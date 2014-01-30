@@ -17,6 +17,9 @@
 #~    --disable-zeitgeist    Disable Zeitgeist history integration
 #~    --enable-granite       Fancy notebook and pop-overs
 #~    --enable-apidocs       API documentation
+#~
+#~  Environment:
+#~    VALAC if defined the valac executable to use, for example valac-0.16
 #
 
 if [ -z `command -v cmake` ]; then
@@ -34,6 +37,8 @@ while [ $# != 0 ]; do
             ARGS="$ARGS -DUSE_GRANITE=1";;
         --enable-apidocs)
             ARGS="$ARGS -DUSE_APIDOCS=1";;
+        --extra-warnings)
+            ARGS="$ARGS -DEXTRA_WARNINGS=1";;
         --prefix=*)
             ARGS="$ARGS -DCMAKE_INSTALL_PREFIX=${1#*=}";;
         *)
@@ -47,6 +52,28 @@ BUILD_DIR="_build"
 
 if [ ! -f GNUmakefile ]; then
     cp -v GNUmakefile.in GNUmakefile || exit 1
+fi
+
+# cmake was invoked in toplevel folder before
+# clean up cmake generated build files to prevent conflicts
+if [ -f CMakeCache.txt ]; then
+    echo
+    echo '####################################################################################'
+    echo 'CMake build files detected in toplevel folder !!'
+    echo 'Please always run "cmake" command from distinct folder when you use cmake yourself.'
+    echo '####################################################################################'
+    echo
+    echo 'Cleaning up...'
+    echo
+
+    rm -fr $BUILD_DIR
+    rm CMakeCache.txt config.h Makefile
+    find . -iname CMakeFiles -type d|xargs rm -fr
+    find . -iname cmake_install.cmake -exec rm {} \;
+    find . -iname CTestTestfile.cmake -exec rm {} \;
+
+    find . -iname *-folders -type d|xargs rm -fr
+    rm -fr data/logo-shade
 fi
 
 mkdir -p $BUILD_DIR && cd $BUILD_DIR || exit 1

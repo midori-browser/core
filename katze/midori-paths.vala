@@ -162,6 +162,18 @@ namespace Midori {
                 WebKit.get_favicon_database ().set_path (folder);
 #endif
             }
+            else
+            {
+#if HAVE_WEBKIT2
+                /* with wk2 set_favicon_database_directory can only be called once and actually
+                initializes and enables the favicon database, so we do not call it in this case */
+#else
+                /* wk1 documentation claims that the favicon database is not enabled unless
+                a call to favicon_database.set_path is made, but in fact it must be explicitly
+                disabled by setting to null (verified as of webkitgtk 2.3.1) */
+                WebKit.get_favicon_database ().set_path (null);
+#endif
+            }
             if (strcmp (Environment.get_variable ("MIDORI_DEBUG"), "paths") == 0) {
                 stdout.printf ("config: %s\ncache: %s\nuser_data: %s\ntmp: %s\n",
                                config_dir, cache_dir, user_data_dir, tmp_dir);
@@ -359,7 +371,7 @@ namespace Midori {
                 return path;
 
             /* Fallback to build folder */
-            File? parent = File.new_for_path (exec_path).get_parent ();
+            File? parent = File.new_for_path (exec_path);
             while (parent != null) {
                 var data = parent.get_child ("data");
                 var child = data.get_child (filename);

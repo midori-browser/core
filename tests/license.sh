@@ -9,5 +9,5 @@ echo Running 'licensecheck'
 test -z $(which licensecheck) && echo ...SKIPPED: not installed && return 0
 test -n "$SRCDIR" && cd $SRCDIR
 test -z "$BLDDIR" && BLDDIR=_build
-find . \! -path './.*/*' -a \! -path "./$BLDDIR/*" -a \! -path "./debian/*" | xargs licensecheck | grep UNKNOWN && exit 1
+find . \! -path './.*/*' -a \! -path "./$BLDDIR/*" -a \! -path "./_*/*" -a \! -path "./debian/*" | xargs licensecheck | grep UNKNOWN && exit 1
 echo ...OK
