@@ -19,7 +19,7 @@ namespace Adblock {
     public class Filter : Midori.Extension {
         bool debug_match;
         HashTable<string, Directive?> cache;
-        HashTable<string, Regex?> pattern;
+        internal HashTable<string, Regex?> pattern;
         HashTable<string, Regex?> keys;
         HashTable<string, string?> optslist;
         List<Regex> blacklist;
@@ -72,7 +72,7 @@ namespace Adblock {
         }
 #endif
 
-        void init () {
+        internal void init () {
             debug_match = "adblock:match" in (Environment.get_variable ("MIDORI_DEBUG") ?? "");
             stdout.printf ("WebKit2Adblock%s\n", debug_match ? " debug" : "");
             reload_rules ();
@@ -166,7 +166,7 @@ namespace Adblock {
             /* TODO */
         }
 
-        void add_url_pattern (string prefix, string type, string line) {
+        void add_url_pattern (string prefix, string type, string line) throws Error {
             string[]? data = line.split ("$");
             if (data == null || data[0] == null)
                 return;
@@ -196,7 +196,7 @@ namespace Adblock {
             /* return format_patt */
         }
 
-        bool compile_regexp (string? patt, string opts) {
+        bool compile_regexp (string? patt, string opts) throws Error {
             if (patt == null)
                 return false;
             try {
@@ -238,7 +238,7 @@ namespace Adblock {
             return directive == Directive.BLOCK;
         }
 
-        string? fixup_regex (string prefix, string? src) {
+        internal string? fixup_regex (string prefix, string? src) {
             if (src == null)
                 return null;
 
@@ -325,4 +325,50 @@ public Midori.Extension extension_init () {
     return new Adblock.Filter ();
 }
 #endif
+
+struct TestCaseLine {
+    public string line;
+    public string fixed;
+    public bool added;
+}
+
+const TestCaseLine[] lines = {
+    { null, null, false },
+    { "!", "!", false },
+    { "@@", "@@", false },
+    { "##", "##", false },
+    { "[", "\\[", false },
+    { "+advert/", "advert/", false },
+    { "*foo", "foo", false },
+    // TODO:
+};
+
+void test_adblock_parse () {
+    var filter = new Adblock.Filter ();
+    filter.init ();
+    foreach (var line in lines) {
+        try {
+            uint i = filter.pattern.size ();
+            Katze.assert_str_equal (line.line, filter.fixup_regex ("", line.line), line.fixed);
+            filter.parse_line (line.line);
+            // Added a pattern?
+            if (line.added)
+                assert (filter.pattern.size () == i + 1);
+        } catch (Error error) {
+            GLib.error ("Line '%s' didn't parse: %s", line.line, error.message);
+        }
+    }
+}
+
+void test_adblock_pattern () {
+}
+
+void test_subscription_update () {
+}
+
+public void extension_test () {
+    Test.add_func ("/extensions/adblock2/parse", test_adblock_parse);
+    Test.add_func ("/extensions/adblock2/pattern", test_adblock_pattern);
+    Test.add_func ("/extensions/adblock2/update", test_subscription_update);
+}
 
