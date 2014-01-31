@@ -85,8 +85,12 @@ namespace Adblock {
             optslist = new HashTable<string, string?> (str_hash, str_equal);
             blacklist = new List<Regex> ();
 
-            // FIXME
-            string filename = GLib.Path.build_filename (GLib.Environment.get_home_dir (), ".config", "midori", "extensions", "libadblock.so", "config"); // use midori vapi
+#if HAVE_WEBKIT2
+            string config_dir = GLib.Path.build_filename (GLib.Environment.get_user_config_dir (), "midori", "extensions", "libadblock.so"); // FIXME
+#else
+            string? config_dir = get_config_dir ();
+#endif
+            string filename = GLib.Path.build_filename (config_dir, "config"); // use midori vapi
             var keyfile = new GLib.KeyFile ();
             try {
                 keyfile.load_from_file (filename, GLib.KeyFileFlags.NONE);
@@ -105,13 +109,14 @@ namespace Adblock {
                         stdout.printf ("Error reading file for %s: %s\n", filter, io_error.message);
                     }
                 }
-            }
-            catch (GLib.Error settings_error) {
-                stdout.printf ("Error reading settings: %s\n", settings_error.message);
+            } catch (FileError.NOENT exist_error) {
+                /* It's no error if no config file exists */
+            } catch (GLib.Error settings_error) {
+                stderr.printf ("Error reading settings from %s: %s\n", filename, settings_error.message);
             }
         }
 
-        void parse_line (string line) {
+        internal void parse_line (string? line) throws Error {
             /* Empty or comment */
             if (!(line != null && line[0] != ' ' && line[0] != '!' && line[0] != '\0'))
                 return;
