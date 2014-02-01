@@ -65,7 +65,7 @@ namespace Adblock {
         }
 
         void resource_requested (WebKit.WebView web_view, WebKit.WebFrame frame,
-            WebKit.WebResource resource, WebKit.NetworkRequest request, WebKit.NetworkResponse response) {
+            WebKit.WebResource resource, WebKit.NetworkRequest request, WebKit.NetworkResponse? response) {
 
             if (request_handled (web_view.uri, request.uri))
                 request.set_uri ("about:blank");
@@ -275,8 +275,8 @@ namespace Adblock {
             if (uri == null)
                 return false;
 
-            uint signature_size = 8;
-            uint pos, l = uri.length;
+            int signature_size = 8;
+            int pos, l = uri.length;
             for (pos = l - signature_size; pos >= 0; pos--) {
                 string signature = uri.offset (pos).ndup (signature_size);
                 var regex = keys.lookup (signature);
