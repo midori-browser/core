@@ -43,7 +43,7 @@ namespace Adblock {
                          description: _("Block advertisements according to a filter list"),
                          version: "2.0",
                          authors: "Christian Dywan <christian@twotoasts.de>");
-            install_string_list ("filters", null);
+            // TODO: install_string_list ("filters", null);
             activate.connect (extension_activated);
         }
 
