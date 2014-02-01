@@ -41,7 +41,7 @@ namespace Adblock {
         public Filter () {
             GLib.Object (name: _("Advertisement blocker"),
                          description: _("Block advertisements according to a filter list"),
-                         version: "0.6",
+                         version: "2.0",
                          authors: "Christian Dywan <christian@twotoasts.de>");
             install_string_list ("filters", null);
             activate.connect (extension_activated);
