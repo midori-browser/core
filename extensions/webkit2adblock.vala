@@ -308,7 +308,7 @@ namespace Adblock {
 
         bool check_rule (Regex regex, string pattern, string request_uri, string page_uri) throws Error {
             stdout.printf ("check rule: patt %s req_uri %s, page uri %s\n", pattern, request_uri, page_uri);
-            if (regex.match_full (request_uri))
+            if (!regex.match_full (request_uri))
                 return false;
 
             var opts = optslist.lookup (pattern);
