@@ -167,23 +167,16 @@ namespace Adblock {
         }
 
         void add_url_pattern (string prefix, string type, string line) throws Error {
-            string[]? data = line.split ("$");
+            string[]? data = line.split ("$", 2);
             if (data == null || data[0] == null)
                 return;
 
             string patt, opts;
-            if (data[1] != null && data[2] != null) {
-                patt = data[0] + data[1];
-                opts = type + "," + data[2];
-            }
-            else if (data[1] != null) {
-                patt = data[0];
+            patt = data[0];
+            opts = type;
+
+            if (data[1] != null)
                 opts = type + "," + data[1];
-            }
-            else {
-                patt = data[0];
-                opts = type;
-            }
 
             if (Regex.match_simple ("subdocument", opts,
                 RegexCompileFlags.CASELESS, RegexMatchFlags.NOTEMPTY))
