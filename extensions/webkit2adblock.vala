@@ -194,14 +194,36 @@ namespace Adblock {
                 return false;
             try {
                 var regex = new Regex (patt, RegexCompileFlags.OPTIMIZE, RegexMatchFlags.NOTEMPTY);
+                /* is pattern is already a regex? */
                 if (Regex.match_simple ("^/.*[\\^\\$\\*].*/$", patt, RegexCompileFlags.UNGREEDY, RegexMatchFlags.NOTEMPTY)) {
                     if (debug_match)
                         debug ("patt: %s", patt);
-                    /* Pattern is a regexp chars */
                     pattern.insert (patt, regex);
                     optslist.insert (patt, opts);
+                    return false;
+                } else { /* nope, no regex */
+                    int pos = 0, len;
+                    int signature_size = 8;
+                    string sig;
+                    len = patt.length;
+
+                    /* chop up pattern into substrings for faster matching */
+                    for (pos = len - signature_size; pos>=0; pos--)
+                    {
+                        sig = patt.offset (pos).ndup (signature_size);
+                        /* we don't have a * nor \\, does not look like regex, save chunk as "key" */
+                        if (!Regex.match_simple ("[\\*]", sig, RegexCompileFlags.UNGREEDY, RegexMatchFlags.NOTEMPTY) && keys.lookup (sig) == null) {
+                            keys.insert (sig, regex);
+                            optslist.insert (sig, opts);
+                        } else {
+                            /* starts with * or \\ - save as regex */
+                            if ((sig.has_prefix ("*") || sig.has_prefix("\\")) && pattern.lookup (patt) == null) {
+                                pattern.insert (patt, regex);
+                                optslist.insert (patt, opts);
+                            }
+                        }
+                    }
                 }
-                /* TODO */
                 return false;
             }
             catch (Error error) {
