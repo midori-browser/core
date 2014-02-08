@@ -146,14 +146,18 @@ namespace Adblock {
             }
 
             /* URL blocker rule */
-            if (line.has_prefix ("||")) {
-                add_url_pattern ("", "fulluri", line.offset (2));
+            if (line.has_prefix ("|")) {
+                /* TODO: handle options and domains excludes */
+                if (line.contains("$"))
+                    return;
+
+                if (line.has_prefix ("||"))
+                    add_url_pattern ("", "fulluri", line.offset (2));
+                else
+                    add_url_pattern ("^", "fulluri", line.offset (1));
                 return /* add_url_pattern */;
             }
-            if (line[0] == '|') {
-                add_url_pattern ("^", "fulluri", line.offset (1));
-                return /* add_url_pattern */;
-            }
+
             add_url_pattern ("", "uri", line);
             return /* add_url_pattern */;
         }
