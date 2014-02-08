@@ -221,9 +221,9 @@ namespace Adblock {
                             optslist.insert (sig, opts);
                         } else {
                             /* starts with * or \\ - save as regex */
-                            if ((sig.has_prefix ("*") || sig.has_prefix("\\")) && pattern.lookup (patt) == null) {
-                                pattern.insert (patt, regex);
-                                optslist.insert (patt, opts);
+                            if ((sig.has_prefix ("*") || sig.has_prefix("\\")) && pattern.lookup (sig) == null) {
+                                pattern.insert (sig, regex);
+                                optslist.insert (sig, opts);
                             }
                         }
                     }
