@@ -344,6 +344,8 @@ public Midori.Extension extension_init () {
 }
 #endif
 
+// FIXME: Allow test to build with WK2
+#if !HAVE_WEBKIT2
 struct TestCaseLine {
     public string line;
     public string fixed;
@@ -389,4 +391,5 @@ public void extension_test () {
     Test.add_func ("/extensions/adblock2/pattern", test_adblock_pattern);
     Test.add_func ("/extensions/adblock2/update", test_subscription_update);
 }
+#endif
 

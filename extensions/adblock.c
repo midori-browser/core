@@ -41,8 +41,10 @@ static GHashTable* urlcache = NULL;
 static GHashTable* blockcssprivate = NULL;
 static GHashTable* navigationwhitelist = NULL;
 static GString* blockcss = NULL;
+#ifndef HAVE_WEBKIT2
 static GList* update_list = NULL;
 static gboolean update_done = FALSE;
+#endif
 
 static void
 adblock_parse_file (gchar* path);
@@ -1048,9 +1050,9 @@ adblock_add_tab_cb (MidoriBrowser*   browser,
                     MidoriView*      view,
                     MidoriExtension* extension)
 {
+    #ifndef HAVE_WEBKIT2
     GtkWidget* web_view = midori_view_get_web_view (view);
 
-    #ifndef HAVE_WEBKIT2
     g_signal_connect (web_view, "window-object-cleared",
         G_CALLBACK (adblock_window_object_cleared_cb), 0);
 
@@ -1707,9 +1709,9 @@ adblock_deactivate_tabs (MidoriView*      view,
                          MidoriBrowser*   browser,
                          MidoriExtension* extension)
 {
+    #ifndef HAVE_WEBKIT2
     GtkWidget* web_view = midori_view_get_web_view (view);
 
-    #ifndef HAVE_WEBKIT2
     g_signal_handlers_disconnect_by_func (
        web_view, adblock_window_object_cleared_cb, 0);
     g_signal_handlers_disconnect_by_func (
