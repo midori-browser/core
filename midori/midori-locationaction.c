@@ -661,12 +661,12 @@ midori_location_action_popup_timeout_cb (gpointer data)
         g_object_unref (app);
         midori_autocompleter_add (action->autocompleter,
             MIDORI_COMPLETION (midori_view_completion_new ()));
-        midori_autocompleter_add (action->autocompleter,
-            MIDORI_COMPLETION (midori_search_completion_new ()));
         /* FIXME: Currently HistoryCompletion doesn't work in memory */
         if (action->history != NULL)
             midori_autocompleter_add (action->autocompleter,
                 MIDORI_COMPLETION (midori_history_completion_new ()));
+        midori_autocompleter_add (action->autocompleter,
+            MIDORI_COMPLETION (midori_search_completion_new ()));
     }
 
     if (!midori_autocompleter_can_complete (action->autocompleter, action->key))

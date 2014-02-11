@@ -56,6 +56,7 @@ namespace Midori {
                 if (n == 3 && action == null) {
                     suggestion = new Suggestion ("complete:more/search", _("Search with…"), false, background);
                     suggestion.action = true;
+                    suggestion.priority = this.position;
                     suggestions.append (suggestion);
                     break;
                 }
