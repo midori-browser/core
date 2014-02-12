@@ -45,13 +45,30 @@ foreach(UNIT_SRC ${EXTENSIONS})
     string(FIND ${UNIT_SRC} "." UNIT_EXTENSION)
     if (UNIT_EXTENSION EQUAL -1)
         file(GLOB UNIT_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "${UNIT_SRC}/*.c")
+        file(GLOB UNIT_FILES_VALA RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "${UNIT_SRC}/*.vala")
+        if (UNIT_FILES_VALA)
+            include(ValaPrecompile)
+            vala_precompile(UNIT_SRC_C ${UNIT_SRC}
+                ${UNIT_FILES_VALA}
+            PACKAGES
+                ${PKGS}
+            OPTIONS
+                ${VALAFLAGS}
+            CUSTOM_VAPIS
+                ${EXTRA_VAPIS}
+                "${CMAKE_SOURCE_DIR}/midori/midori.vapi"
+                "${CMAKE_SOURCE_DIR}/katze/katze.vapi"
+                "${CMAKE_BINARY_DIR}/midori/${LIBMIDORI}.vapi"
+            )
+            set(UNIT_FILES ${UNIT_FILES} ${UNIT_SRC_C})
+        endif ()
         if (UNIT_FILES)
             add_library(${UNIT_SRC} MODULE ${UNIT_FILES})
             target_link_libraries(${UNIT_SRC}
                                   ${LIBMIDORI}
                                   )
             set_target_properties(${UNIT_SRC} PROPERTIES
-                                  COMPILE_FLAGS ${CFLAGS}
+                                  COMPILE_FLAGS ${VALA_CFLAGS}
                                   )
             install(TARGETS ${UNIT_SRC}
                     LIBRARY DESTINATION ${EXTENSIONDIR}
