@@ -1925,6 +1925,19 @@ _midori_browser_quit (MidoriBrowser* browser)
     /* Nothing to do */
 }
 
+static void
+_update_tooltip_if_changed (GtkAction* action,
+                            const gchar* text)
+{
+    gchar *old;
+    g_object_get (action, "tooltip", &old, NULL);
+    if (g_strcmp0(old, text)) {
+        g_object_set (action,
+                      "tooltip", text, NULL);
+    }
+    g_free (old);
+}
+
 static void 
 _update_reload_tooltip (GtkWidget*   widget,
                         GdkEventKey* event,
@@ -1937,20 +1950,18 @@ _update_reload_tooltip (GtkWidget*   widget,
     GtkAction *reload = _action_by_name (browser, "Reload");
     GdkModifierType mask;
     gdk_window_get_pointer (gtk_widget_get_window (widget), NULL, NULL, &mask);
+    const gchar *target;
+    
     if ( mask & GDK_SHIFT_MASK)
     {
-        g_object_set (reload_stop,
-                      "tooltip", _("Reload page without caching"), NULL);
-        g_object_set (reload,
-                      "tooltip", _("Reload page without caching"), NULL);
+        target = _("Reload page without caching");
     }
     else 
     {
-        g_object_set (reload_stop,
-                      "tooltip", _("Reload the current page"), NULL);
-        g_object_set (reload,
-                      "tooltip", _("Reload the current page"), NULL);
+        target = _("Reload the current page");
     }
+    _update_tooltip_if_changed (reload_stop, target);
+    _update_tooltip_if_changed (reload, target);
 }
 
 static gboolean
