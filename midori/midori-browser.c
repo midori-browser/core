@@ -1933,21 +1933,24 @@ _update_reload_tooltip (GtkWidget*   widget,
     MidoriBrowser* browser = MIDORI_BROWSER (widget);
 
     /* Update the reload/stop tooltip in case we are holding the hard refresh modifiers*/
-    GtkAction *reload = _action_by_name (browser, "ReloadStop");
-    #define IS_SHIFT(key) (key == GDK_KEY_Shift_R || key == GDK_KEY_Shift_L)
-    
-    if (( (!released || !IS_SHIFT(event->keyval)) && (event->state & GDK_SHIFT_MASK)) || // if shift is held down and shift was not released
-          (!released && IS_SHIFT(event->keyval))) // shift was just pressed
+    GtkAction *reload_stop = _action_by_name (browser, "ReloadStop");
+    GtkAction *reload = _action_by_name (browser, "Reload");
+    GdkModifierType mask;
+    gdk_window_get_pointer (gtk_widget_get_window (widget), NULL, NULL, &mask);
+    if ( mask & GDK_SHIFT_MASK)
     {
+        g_object_set (reload_stop,
+                      "tooltip", _("Reload page without caching"), NULL);
         g_object_set (reload,
                       "tooltip", _("Reload page without caching"), NULL);
     }
     else 
     {
+        g_object_set (reload_stop,
+                      "tooltip", _("Reload the current page"), NULL);
         g_object_set (reload,
                       "tooltip", _("Reload the current page"), NULL);
     }
-    #undef IS_SHIFT
 }
 
 static gboolean
