@@ -21,6 +21,7 @@ namespace Adblock {
         internal Pattern pattern;
         Keys keys;
         Options optslist;
+        Whitelist whitelist;
 
 #if HAVE_WEBKIT2
         public Extension (WebKit.WebExtension web_extension) {
@@ -80,6 +81,7 @@ namespace Adblock {
             optslist = new Options ();
             pattern = new Pattern (optslist);
             keys = new Keys (optslist);
+            whitelist = new Whitelist (optslist);
 
 #if HAVE_WEBKIT2
             string config_dir = GLib.Path.build_filename (GLib.Environment.get_user_config_dir (), "midori", "extensions", "libadblock.so"); // FIXME
@@ -116,9 +118,17 @@ namespace Adblock {
             /* Empty or comment */
             if (!(line != null && line[0] != ' ' && line[0] != '!' && line[0] != '\0'))
                 return;
-            /* TODO: Whitelisting */
-            if (line.has_prefix ("@@"))
+            if (line.has_prefix ("@@")) {
+                if (line.contains("$") && line.contains ("domain"))
+                    return;
+                if (line.has_prefix ("@@||"))
+                    add_url_pattern ("^", "whitelist", line.offset (4));
+                else if (line.has_prefix ("@@|"))
+                    add_url_pattern ("^", "whitelist", line.offset (3));
+                else
+                    add_url_pattern ("", "whitelist", line.offset (2));
                 return;
+            }
             /* TODO: [include] [exclude] */
             if (line[0] == '[')
                 return;
@@ -194,9 +204,14 @@ namespace Adblock {
             try {
                 var regex = new Regex (patt, RegexCompileFlags.OPTIMIZE, RegexMatchFlags.NOTEMPTY);
                 /* is pattern is already a regex? */
-                if (Regex.match_simple ("^/.*[\\^\\$\\*].*/$", patt, RegexCompileFlags.UNGREEDY, RegexMatchFlags.NOTEMPTY)) {
+                if (Regex.match_simple ("^/.*[\\^\\$\\*].*/$", patt,
+                    RegexCompileFlags.UNGREEDY, RegexMatchFlags.NOTEMPTY)
+                 || opts != null && opts.contains ("whitelist")) {
                     debug ("patt: %s", patt);
-                    pattern.insert (patt, regex);
+                    if (opts.contains ("whitelist"))
+                        whitelist.insert (patt, regex);
+                    else
+                        pattern.insert (patt, regex);
                     optslist.insert (patt, opts);
                     return false;
                 } else { /* nope, no regex */
@@ -239,7 +254,9 @@ namespace Adblock {
             if (directive == null) {
                 directive = Directive.ALLOW;
                 try {
-                    if (keys.match (request_uri, page_uri)
+                    if (whitelist.match (request_uri, page_uri))
+                        directive = Directive.ALLOW;
+                    else if (keys.match (request_uri, page_uri)
                      || pattern.match (request_uri, page_uri))
                         directive = Directive.BLOCK;
                 } catch (Error error) {
