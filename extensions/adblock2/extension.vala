@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2009-2013 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2009-2014 Christian Dywan <christian@twotoasts.de>
  Copyright (C) 2009-2012 Alexander Butenko <a.butenka@gmail.com>
 
  This library is free software; you can redistribute it and/or
@@ -16,16 +16,14 @@ namespace Adblock {
         BLOCK
     }
 
-    public class Filter : Midori.Extension {
-        bool debug_match;
+    public class Extension : Midori.Extension {
         HashTable<string, Directive?> cache;
-        internal HashTable<string, Regex?> pattern;
-        HashTable<string, Regex?> keys;
-        HashTable<string, string?> optslist;
-        List<Regex> blacklist;
+        internal Pattern pattern;
+        Keys keys;
+        Options optslist;
 
 #if HAVE_WEBKIT2
-        public Filter (WebKit.WebExtension web_extension) {
+        public Extension (WebKit.WebExtension web_extension) {
             init ();
             web_extension.page_created.connect (page_created);
         }
@@ -38,7 +36,7 @@ namespace Adblock {
             return request_handled (web_page.uri, request.uri);
         }
 #else
-        public Filter () {
+        public Extension () {
             GLib.Object (name: _("Advertisement blocker"),
                          description: _("Block advertisements according to a filter list"),
                          version: "2.0",
@@ -73,17 +71,15 @@ namespace Adblock {
 #endif
 
         internal void init () {
-            debug_match = "adblock:match" in (Environment.get_variable ("MIDORI_DEBUG") ?? "");
-            stdout.printf ("WebKit2Adblock%s\n", debug_match ? " debug" : "");
+            debug ("Adblock2");
             reload_rules ();
         }
 
         void reload_rules () {
             cache = new HashTable<string, Directive?> (str_hash, str_equal);
-            pattern = new HashTable<string, Regex?> (str_hash, str_equal);
-            keys = new HashTable<string, Regex?> (str_hash, str_equal);
-            optslist = new HashTable<string, string?> (str_hash, str_equal);
-            blacklist = new List<Regex> ();
+            optslist = new Options ();
+            pattern = new Pattern (optslist);
+            keys = new Keys (optslist);
 
 #if HAVE_WEBKIT2
             string config_dir = GLib.Path.build_filename (GLib.Environment.get_user_config_dir (), "midori", "extensions", "libadblock.so"); // FIXME
@@ -187,8 +183,7 @@ namespace Adblock {
                 return;
 
             string format_patt = fixup_regex (prefix, patt);
-            if (debug_match)
-                debug ("got: %s opts %s", format_patt, opts);
+            debug ("got: %s opts %s", format_patt, opts);
             compile_regexp (format_patt, opts);
             /* return format_patt */
         }
@@ -200,8 +195,7 @@ namespace Adblock {
                 var regex = new Regex (patt, RegexCompileFlags.OPTIMIZE, RegexMatchFlags.NOTEMPTY);
                 /* is pattern is already a regex? */
                 if (Regex.match_simple ("^/.*[\\^\\$\\*].*/$", patt, RegexCompileFlags.UNGREEDY, RegexMatchFlags.NOTEMPTY)) {
-                    if (debug_match)
-                        debug ("patt: %s", patt);
+                    debug ("patt: %s", patt);
                     pattern.insert (patt, regex);
                     optslist.insert (patt, opts);
                     return false;
@@ -245,8 +239,8 @@ namespace Adblock {
             if (directive == null) {
                 directive = Directive.ALLOW;
                 try {
-                    if (matched_by_key (request_uri, page_uri)
-                     || matched_by_pattern (request_uri, page_uri))
+                    if (keys.match (request_uri, page_uri)
+                     || pattern.match (request_uri, page_uri))
                         directive = Directive.BLOCK;
                 } catch (Error error) {
                     warning ("Adblock match error: %s", error.message);
@@ -256,91 +250,58 @@ namespace Adblock {
 
             return directive == Directive.BLOCK;
         }
+    }
 
-        internal string? fixup_regex (string prefix, string? src) {
-            if (src == null)
-                return null;
+    static void debug (string format, ...) {
+        bool debug_match = "adblock:match" in (Environment.get_variable ("MIDORI_DEBUG") ?? "");
+        if (!debug_match)
+            return;
 
-            var fixed = new StringBuilder ();
-            fixed.append(prefix);
+        var args = va_list ();
+        stdout.vprintf (format + "\n", args);
+    }
 
-            uint i = 0;
-            if (src[0] == '*')
-                i++;
-            uint l = src.length;
-            while (i < l) {
-                char c = src[i];
-                switch (c) {
-                    case '*':
-                        fixed.append (".*"); break;
-                    case '|':
-                    case '^':
-                    case '+':
-                        break;
-                    case '?':
-                    case '[':
-                    case ']':
-                        fixed.append_printf ("\\%c", c); break;
-                    default:
-                        fixed.append_c (c); break;
-                }
-                i++;
+    internal static string? fixup_regex (string prefix, string? src) {
+        if (src == null)
+            return null;
+
+        var fixed = new StringBuilder ();
+        fixed.append(prefix);
+
+        uint i = 0;
+        if (src[0] == '*')
+            i++;
+        uint l = src.length;
+        while (i < l) {
+            char c = src[i];
+            switch (c) {
+                case '*':
+                    fixed.append (".*"); break;
+                case '|':
+                case '^':
+                case '+':
+                    break;
+                case '?':
+                case '[':
+                case ']':
+                    fixed.append_printf ("\\%c", c); break;
+                default:
+                    fixed.append_c (c); break;
             }
-            return fixed.str;
+            i++;
         }
-
-        bool matched_by_key (string request_uri, string page_uri) throws Error {
-            string? uri = fixup_regex ("", request_uri);
-            if (uri == null)
-                return false;
-
-            int signature_size = 8;
-            int pos, l = uri.length;
-            for (pos = l - signature_size; pos >= 0; pos--) {
-                string signature = uri.offset (pos).ndup (signature_size);
-                var regex = keys.lookup (signature);
-                if (regex == null || blacklist.find (regex) != null)
-                    continue;
-
-                if (check_rule (regex, uri, request_uri, page_uri))
-                    return true;
-                blacklist.prepend (regex);
-            }
-
-            return false;
-        }
-
-        bool check_rule (Regex regex, string pattern, string request_uri, string page_uri) throws Error {
-            if (!regex.match_full (request_uri))
-                return false;
-
-            var opts = optslist.lookup (pattern);
-            if (opts != null && Regex.match_simple (",third-party", opts,
-                RegexCompileFlags.CASELESS, RegexMatchFlags.NOTEMPTY))
-                if (page_uri != null && regex.match_full (page_uri))
-                    return false;
-            if (debug_match)
-                debug ("blocked by pattern regexp=%s -- %s", regex.get_pattern (), request_uri);
-            return true;
-        }
-
-        bool matched_by_pattern (string request_uri, string page_uri) throws Error {
-            foreach (var patt in pattern.get_keys ())
-                if (check_rule (pattern.lookup (patt), patt, request_uri, page_uri))
-                    return true;
-            return false;
-        }
+        return fixed.str;
     }
 }
 
 #if HAVE_WEBKIT2
-Adblock.Filter? filter;
+Adblock.Extension? filter;
 public static void webkit_web_extension_initialize (WebKit.WebExtension web_extension) {
-    filter = new Adblock.Filter (web_extension);
+    filter = new Adblock.Extension (web_extension);
 }
 #else
 public Midori.Extension extension_init () {
-    return new Adblock.Filter ();
+    return new Adblock.Extension ();
 }
 #endif
 
@@ -364,12 +325,12 @@ const TestCaseLine[] lines = {
 };
 
 void test_adblock_parse () {
-    var filter = new Adblock.Filter ();
+    var filter = new Adblock.Extension ();
     filter.init ();
     foreach (var line in lines) {
         try {
             uint i = filter.pattern.size ();
-            Katze.assert_str_equal (line.line, filter.fixup_regex ("", line.line), line.fixed);
+            Katze.assert_str_equal (line.line, Adblock.fixup_regex ("", line.line), line.fixed);
             filter.parse_line (line.line);
             // Added a pattern?
             if (line.added)
