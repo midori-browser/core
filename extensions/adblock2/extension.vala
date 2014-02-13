@@ -11,17 +11,14 @@
 */
 
 namespace Adblock {
-    enum Directive {
+    public enum Directive {
         ALLOW,
         BLOCK
     }
 
     public class Extension : Midori.Extension {
         HashTable<string, Directive?> cache;
-        internal Pattern pattern;
-        Keys keys;
-        Options optslist;
-        Whitelist whitelist;
+        GLib.List <Subscription> subscriptions;
 
 #if HAVE_WEBKIT2
         public Extension (WebKit.WebExtension web_extension) {
@@ -78,10 +75,6 @@ namespace Adblock {
 
         void reload_rules () {
             cache = new HashTable<string, Directive?> (str_hash, str_equal);
-            optslist = new Options ();
-            pattern = new Pattern (optslist);
-            keys = new Keys (optslist);
-            whitelist = new Whitelist (optslist);
 
 #if HAVE_WEBKIT2
             string config_dir = GLib.Path.build_filename (GLib.Environment.get_user_config_dir (), "midori", "extensions", "libadblock.so"); // FIXME
@@ -93,15 +86,15 @@ namespace Adblock {
             try {
                 keyfile.load_from_file (filename, GLib.KeyFileFlags.NONE);
                 string[] filters = keyfile.get_string_list ("settings", "filters");
+                subscriptions = new GLib.List<Subscription> ();
                 foreach (string filter in filters) {
                     try {
-                        string filter_filename = GLib.Path.build_filename (GLib.Environment.get_home_dir (), ".cache", "midori", "adblock", Checksum.compute_for_string (ChecksumType.MD5, filter, -1)); // FIXME
-                        stdout.printf ("Parsing %s (%s)\n", filter, filter_filename);
-                        var filter_file = File.new_for_path (filter_filename);
-                        var stream = new DataInputStream (filter_file.read ());
-                        string? line;
-                        while ((line = stream.read_line (null)) != null)
-                            parse_line (line.chomp ());
+                        Subscription sub = new Subscription();
+                        sub.uri = filter;
+                        stdout.printf ("Parsing %s (%s)\n", filter, sub.get_path ());
+                        sub.init ();
+                        sub.parse ();
+                        subscriptions.append (sub);
                     }
                     catch (GLib.Error io_error) {
                         stdout.printf ("Error reading file for %s: %s\n", filter, io_error.message);
@@ -114,137 +107,6 @@ namespace Adblock {
             }
         }
 
-        internal void parse_line (string? line) throws Error {
-            /* Empty or comment */
-            if (!(line != null && line[0] != ' ' && line[0] != '!' && line[0] != '\0'))
-                return;
-            if (line.has_prefix ("@@")) {
-                if (line.contains("$") && line.contains ("domain"))
-                    return;
-                if (line.has_prefix ("@@||"))
-                    add_url_pattern ("^", "whitelist", line.offset (4));
-                else if (line.has_prefix ("@@|"))
-                    add_url_pattern ("^", "whitelist", line.offset (3));
-                else
-                    add_url_pattern ("", "whitelist", line.offset (2));
-                return;
-            }
-            /* TODO: [include] [exclude] */
-            if (line[0] == '[')
-                return;
-
-            /* CSS block hider */
-            if (line.has_prefix ("##")) {
-                frame_add (line);
-                return;
-            }
-            if (line[0] == '#')
-                return;
-
-            /* Per domain CSS hider rule */
-            if ("##" in line) {
-                frame_add_private (line, "##");
-                return;
-            }
-            if ("#" in line) {
-                frame_add_private (line, "#");
-                return;
-            }
-
-            /* URL blocker rule */
-            if (line.has_prefix ("|")) {
-                /* TODO: handle options and domains excludes */
-                if (line.contains("$"))
-                    return;
-
-                if (line.has_prefix ("||"))
-                    add_url_pattern ("", "fulluri", line.offset (2));
-                else
-                    add_url_pattern ("^", "fulluri", line.offset (1));
-                return /* add_url_pattern */;
-            }
-
-            add_url_pattern ("", "uri", line);
-            return /* add_url_pattern */;
-        }
-
-        void frame_add (string line) {
-            /* TODO */
-        }
-
-        void frame_add_private (string line, string sep) {
-            /* TODO */
-        }
-
-        void add_url_pattern (string prefix, string type, string line) throws Error {
-            string[]? data = line.split ("$", 2);
-            if (data == null || data[0] == null)
-                return;
-
-            string patt, opts;
-            patt = data[0];
-            opts = type;
-
-            if (data[1] != null)
-                opts = type + "," + data[1];
-
-            if (Regex.match_simple ("subdocument", opts,
-                RegexCompileFlags.CASELESS, RegexMatchFlags.NOTEMPTY))
-                return;
-
-            string format_patt = fixup_regex (prefix, patt);
-            debug ("got: %s opts %s", format_patt, opts);
-            compile_regexp (format_patt, opts);
-            /* return format_patt */
-        }
-
-        bool compile_regexp (string? patt, string opts) throws Error {
-            if (patt == null)
-                return false;
-            try {
-                var regex = new Regex (patt, RegexCompileFlags.OPTIMIZE, RegexMatchFlags.NOTEMPTY);
-                /* is pattern is already a regex? */
-                if (Regex.match_simple ("^/.*[\\^\\$\\*].*/$", patt,
-                    RegexCompileFlags.UNGREEDY, RegexMatchFlags.NOTEMPTY)
-                 || opts != null && opts.contains ("whitelist")) {
-                    debug ("patt: %s", patt);
-                    if (opts.contains ("whitelist"))
-                        whitelist.insert (patt, regex);
-                    else
-                        pattern.insert (patt, regex);
-                    optslist.insert (patt, opts);
-                    return false;
-                } else { /* nope, no regex */
-                    int pos = 0, len;
-                    int signature_size = 8;
-                    string sig;
-                    len = patt.length;
-
-                    /* chop up pattern into substrings for faster matching */
-                    for (pos = len - signature_size; pos>=0; pos--)
-                    {
-                        sig = patt.offset (pos).ndup (signature_size);
-                        /* we don't have a * nor \\, does not look like regex, save chunk as "key" */
-                        if (!Regex.match_simple ("[\\*]", sig, RegexCompileFlags.UNGREEDY, RegexMatchFlags.NOTEMPTY) && keys.lookup (sig) == null) {
-                            keys.insert (sig, regex);
-                            optslist.insert (sig, opts);
-                        } else {
-                            /* starts with * or \\ - save as regex */
-                            if ((sig.has_prefix ("*") || sig.has_prefix("\\")) && pattern.lookup (sig) == null) {
-                                pattern.insert (sig, regex);
-                                optslist.insert (sig, opts);
-                            }
-                        }
-                    }
-                }
-                return false;
-            }
-            catch (Error error) {
-                warning ("Adblock compile regexp: %s", error.message);
-                return true;
-            }
-        }
-
         bool request_handled (string page_uri, string request_uri) {
             /* Always allow the main page */
             if (request_uri == page_uri)
@@ -253,18 +115,16 @@ namespace Adblock {
             Directive? directive = cache.lookup (request_uri);
             if (directive == null) {
                 directive = Directive.ALLOW;
-                try {
-                    if (whitelist.match (request_uri, page_uri))
-                        directive = Directive.ALLOW;
-                    else if (keys.match (request_uri, page_uri)
-                     || pattern.match (request_uri, page_uri))
-                        directive = Directive.BLOCK;
-                } catch (Error error) {
-                    warning ("Adblock match error: %s", error.message);
+
+                foreach (Subscription sub in subscriptions) {
+                    if (sub.matches (request_uri, page_uri)) {
+                        directive = sub.get_directive (request_uri, page_uri);
+                        cache.insert (request_uri, directive);
+                        return true;
+                    }
                 }
                 cache.insert (request_uri, directive);
             }
-
             return directive == Directive.BLOCK;
         }
     }
@@ -327,34 +187,22 @@ public Midori.Extension extension_init () {
 struct TestCaseLine {
     public string line;
     public string fixed;
-    public bool added;
 }
 
 const TestCaseLine[] lines = {
-    { null, null, false },
-    { "!", "!", false },
-    { "@@", "@@", false },
-    { "##", "##", false },
-    { "[", "\\[", false },
-    { "+advert/", "advert/", false },
-    { "*foo", "foo", false },
+    { null, null },
+    { "!", "!" },
+    { "@@", "@@" },
+    { "##", "##" },
+    { "[", "\\[" },
+    { "+advert/", "advert/" },
+    { "*foo", "foo" },
     // TODO:
 };
 
-void test_adblock_parse () {
-    var filter = new Adblock.Extension ();
-    filter.init ();
+void test_adblock_fixup_regexp () {
     foreach (var line in lines) {
-        try {
-            uint i = filter.pattern.size ();
-            Katze.assert_str_equal (line.line, Adblock.fixup_regex ("", line.line), line.fixed);
-            filter.parse_line (line.line);
-            // Added a pattern?
-            if (line.added)
-                assert (filter.pattern.size () == i + 1);
-        } catch (Error error) {
-            GLib.error ("Line '%s' didn't parse: %s", line.line, error.message);
-        }
+        Katze.assert_str_equal (line.line, Adblock.fixup_regex ("", line.line), line.fixed);
     }
 }
 
@@ -365,7 +213,7 @@ void test_subscription_update () {
 }
 
 public void extension_test () {
-    Test.add_func ("/extensions/adblock2/parse", test_adblock_parse);
+    Test.add_func ("/extensions/adblock2/parse", test_adblock_fixup_regexp);
     Test.add_func ("/extensions/adblock2/pattern", test_adblock_pattern);
     Test.add_func ("/extensions/adblock2/update", test_subscription_update);
 }
