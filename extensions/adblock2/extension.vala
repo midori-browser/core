@@ -21,7 +21,7 @@ namespace Adblock {
         internal Pattern pattern;
         Keys keys;
         Options optslist;
-        internal Pattern whitelist;
+        Whitelist whitelist;
 
 #if HAVE_WEBKIT2
         public Extension (WebKit.WebExtension web_extension) {
@@ -81,7 +81,7 @@ namespace Adblock {
             optslist = new Options ();
             pattern = new Pattern (optslist);
             keys = new Keys (optslist);
-            whitelist = new Pattern (optslist);
+            whitelist = new Whitelist (optslist);
 
 #if HAVE_WEBKIT2
             string config_dir = GLib.Path.build_filename (GLib.Environment.get_user_config_dir (), "midori", "extensions", "libadblock.so"); // FIXME
