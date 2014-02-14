@@ -19,6 +19,7 @@ namespace Adblock {
         public Keys keys;
         public Options optslist;
         public Whitelist whitelist;
+        WebKit.Download? download;
 
         public Subscription (string uri) {
             this.uri = uri;
@@ -172,6 +173,18 @@ namespace Adblock {
             debug ("Header '%s' says '%s'", key, value);
         }
 
+        void download_status (ParamSpec pspec) {
+            if (download.get_status () != WebKit.DownloadStatus.FINISHED)
+                return;
+
+            download = null;
+            try {
+                parse ();
+            } catch (Error error) {
+                warning ("Error parsing %s: %s", uri, error.message);
+            }
+        }
+
         public void parse () throws Error
         {
             if (!active)
@@ -182,11 +195,30 @@ namespace Adblock {
             clear ();
 
             string cache_dir = GLib.Path.build_filename (GLib.Environment.get_home_dir (), ".cache", "midori", "adblock");
+            Midori.Paths.mkdir_with_parents (cache_dir);
             string filename = Checksum.compute_for_string (ChecksumType.MD5, this.uri, -1);
             path = GLib.Path.build_filename (cache_dir, filename);
 
-            var filter_file = File.new_for_path (path);
-            var stream = new DataInputStream (filter_file.read ());
+            File filter_file = File.new_for_path (path);
+            DataInputStream stream;
+            try  {
+                stream = new DataInputStream (filter_file.read ());
+            } catch (IOError.NOT_FOUND exist_error) {
+#if HAVE_WEBKIT2
+                /* TODO */
+#else
+                if (download != null)
+                    return;
+
+                download = new WebKit.Download (new WebKit.NetworkRequest (uri));
+                download.destination_uri = Filename.to_uri (path, null);
+                download.notify["status"].connect (download_status);
+                debug ("Fetching %s to %s now", uri, download.destination_uri);
+                download.start ();
+#endif
+                return;
+            }
+
             string? line;
             while ((line = stream.read_line (null)) != null) {
                 if (line == null)
