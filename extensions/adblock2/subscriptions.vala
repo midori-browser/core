@@ -34,9 +34,6 @@ namespace Adblock {
         }
 
         internal void parse_line (string? line) throws Error {
-            /* Empty or comment */
-            if (!(line != null && line[0] != ' ' && line[0] != '!' && line[0] != '\0'))
-                return;
             if (line.has_prefix ("@@")) {
                 if (line.contains("$") && line.contains ("domain"))
                     return;
@@ -164,6 +161,17 @@ namespace Adblock {
             }
         }
 
+        public void parse_header (string header) throws Error {
+            if (!header.contains (":"))
+                return;
+            string[] parts = header.split (":", 2);
+            if (parts[0] == null)
+                return;
+            string key = parts[0].substring (2, -1);
+            string value = parts[1].substring (1, -1);
+            debug ("Header '%s' says '%s'", key, value);
+        }
+
         public void parse () throws Error
         {
             if (!active)
@@ -181,8 +189,15 @@ namespace Adblock {
             var stream = new DataInputStream (filter_file.read ());
             string? line;
             while ((line = stream.read_line (null)) != null) {
-                if (line != "" && line[0] != '!')
-                    parse_line (line.chomp ());
+                if (line == null)
+                    continue;
+                string chomped = line.chomp ();
+                if (chomped == "")
+                    continue;
+                if (line[0] == '!')
+                    parse_header (chomped);
+                else
+                    parse_line (chomped);
             }
         }
 
