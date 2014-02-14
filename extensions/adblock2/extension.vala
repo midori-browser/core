@@ -150,14 +150,10 @@ namespace Adblock {
 
         internal void init () {
             debug ("Adblock2");
-            reload_rules ();
-        }
-
-        void reload_rules () {
-            cache = new HashTable<string, Directive?> (str_hash, str_equal);
+            subscriptions = new GLib.List<Subscription> ();
 
 #if HAVE_WEBKIT2
-            string config_dir = GLib.Path.build_filename (GLib.Environment.get_user_config_dir (), "midori", "extensions", "libadblock.so"); // FIXME
+            string config_dir = GLib.Path.build_filename (GLib.Environment.get_user_config_dir (), "midori", "extensions", "libadblock2.so");
 #else
             string? config_dir = get_config_dir ();
 #endif
@@ -166,26 +162,28 @@ namespace Adblock {
             try {
                 keyfile.load_from_file (filename, GLib.KeyFileFlags.NONE);
                 string[] filters = keyfile.get_string_list ("settings", "filters");
-                subscriptions = new GLib.List<Subscription> ();
                 foreach (string filter in filters) {
-                    try {
-                        Subscription sub = new Subscription();
-                        sub.uri = filter;
-                        stdout.printf ("Parsing %s (%s)\n", filter, sub.get_path ());
-                        sub.init ();
-                        sub.parse ();
-                        subscriptions.append (sub);
-                    }
-                    catch (GLib.Error io_error) {
-                        stdout.printf ("Error reading file for %s: %s\n", filter, io_error.message);
-                    }
+                    Subscription sub = new Subscription (filter);
+                    subscriptions.append (sub);
                 }
+                reload_rules ();
             } catch (FileError.NOENT exist_error) {
                 /* It's no error if no config file exists */
             } catch (GLib.Error settings_error) {
                 stderr.printf ("Error reading settings from %s: %s\n", filename, settings_error.message);
             }
         }
+
+        void reload_rules () {
+            cache = new HashTable<string, Directive?> (str_hash, str_equal);
+            foreach (Subscription sub in subscriptions) {
+                try {
+                    sub.parse ();
+                } catch (GLib.Error error) {
+                    warning ("Error parsing %s: %s", sub.uri, error.message);
+                }
+            }
+       }
 
         bool request_handled (string page_uri, string request_uri) {
             /* Always allow the main page */

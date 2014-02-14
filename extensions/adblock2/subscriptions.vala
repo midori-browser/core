@@ -13,30 +13,24 @@
 namespace Adblock {
     public class Subscription : GLib.Object {
         public string? path;
-        public string? uri { get; set; default = null; }
+        public string uri { get; set; default = null; }
+        public bool active { get; set; default = true; }
         public Pattern pattern;
         public Keys keys;
         public Options optslist;
         public Whitelist whitelist;
 
-        public void init () {
+        public Subscription (string uri) {
+            this.uri = uri;
+            active = uri[4] != '-' && uri[5] != '-';
+            clear ();
+        }
+
+        public void clear () {
             this.optslist = new Options ();
             this.pattern = new Pattern (optslist);
             this.keys = new Keys (optslist);
             this.whitelist = new Whitelist (optslist);
-        }
-
-        public string? get_path ()
-        {
-            if (this.uri == null)
-                return null;
-
-            string cache_dir = GLib.Path.build_filename (GLib.Environment.get_home_dir (), ".cache", "midori", "adblock");
-            string filename = Checksum.compute_for_string (ChecksumType.MD5, this.uri, -1);
-            string path = GLib.Path.build_filename (cache_dir, filename);
-            this.path = path;
-
-            return this.path;
         }
 
         internal void parse_line (string? line) throws Error {
@@ -172,13 +166,18 @@ namespace Adblock {
 
         public void parse () throws Error
         {
-            if (this.uri == null)
+            if (!active)
                 return;
 
-            if (this.path == null && this.uri != null)
-                this.path = get_path ();
+            debug ("Parsing %s (%s)", uri, path);
 
-            var filter_file = File.new_for_path (this.path);
+            clear ();
+
+            string cache_dir = GLib.Path.build_filename (GLib.Environment.get_home_dir (), ".cache", "midori", "adblock");
+            string filename = Checksum.compute_for_string (ChecksumType.MD5, this.uri, -1);
+            path = GLib.Path.build_filename (cache_dir, filename);
+
+            var filter_file = File.new_for_path (path);
             var stream = new DataInputStream (filter_file.read ());
             string? line;
             while ((line = stream.read_line (null)) != null) {
