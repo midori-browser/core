@@ -41,6 +41,86 @@ namespace Adblock {
                          authors: "Christian Dywan <christian@twotoasts.de>");
             // TODO: install_string_list ("filters", null);
             activate.connect (extension_activated);
+            open_preferences.connect (extension_preferences);
+        }
+
+        void extension_preferences () {
+            var dialog = new Gtk.Dialog.with_buttons (_("Configure Advertisement filters"),
+                null,
+#if !HAVE_GTK3
+                Gtk.DialogFlags.NO_SEPARATOR |
+#endif
+                Gtk.DialogFlags.DESTROY_WITH_PARENT,
+                Gtk.STOCK_HELP, Gtk.ResponseType.HELP,
+                Gtk.STOCK_CLOSE, Gtk.ResponseType.CLOSE);
+#if HAVE_GTK3
+            dialog.get_widget_for_response (Gtk.ResponseType.HELP).get_style_context ().add_class ("help_button");
+#endif
+            dialog.set_icon_name (Gtk.STOCK_PROPERTIES);
+            /* TODO: Help */
+            dialog.set_response_sensitive (Gtk.ResponseType.HELP, false);
+
+            var hbox = new Gtk.HBox (false, 0);
+            (dialog.get_content_area () as Gtk.Box).pack_start (hbox, true, true, 12);
+            var vbox = new Gtk.VBox (false, 0);
+            hbox.pack_start (vbox, true, true, 4);
+            var button = new Gtk.Label (null);
+            string description = """
+                Type the address of a preconfigured filter list in the text entry
+                and click "Add" to add it to the list.
+                You can find more lists at %s %s.
+                """.printf (
+                "<a href=\"http://adblockplus.org/en/subscriptions\">adblockplus.org/en/subscriptions</a>",
+                "<a href=\"http://easylist.adblockplus.org/\">easylist.adblockplus.org</a>");
+            button.activate_link.connect ((uri)=>{
+                var browser = Midori.Browser.get_for_widget (button);
+                var view = browser.add_uri (uri);
+                browser.tab = view;
+                return true;
+            });
+            button.set_markup (description);
+            button.set_line_wrap (true);
+            vbox.pack_start (button, false, false, 4);
+
+            var entry = new Gtk.Entry ();
+            vbox.pack_start (entry, false, false, 4);
+
+            var liststore = new Gtk.ListStore (1, typeof (Subscription));
+            var treeview = new Gtk.TreeView.with_model (liststore);
+            treeview.set_headers_visible (false);
+            var column = new Gtk.TreeViewColumn ();
+            var renderer_toggle = new Gtk.CellRendererToggle ();
+            column.pack_start (renderer_toggle, false);
+            // TODO: column.set_cell_data_func
+            // TODO: column.toggled.connect
+            treeview.append_column (column);
+
+            column = new Gtk.TreeViewColumn ();
+            var renderer_text = new Gtk.CellRendererText ();
+            column.pack_start (renderer_text, false);
+            renderer_text.set ("editable", true);
+            // TODO: renderer_text.edited.connect
+            column.set_cell_data_func (renderer_text, (column, renderer, model, iter) => {
+                Subscription sub;
+                liststore.get (iter, 0, out sub);
+                renderer.set ("text", sub.uri);
+            });
+            treeview.append_column (column);
+
+            var scrolled = new Gtk.ScrolledWindow (null, null);
+            scrolled.set_policy (Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC);
+            scrolled.add (treeview);
+            vbox.pack_start (scrolled);
+
+            foreach (Subscription sub in subscriptions)
+                liststore.insert_with_values (null, 0, 0, sub);
+            // TODO: row-inserted row-changed row-deleted
+            // TODO vbox with add/ edit/ remove/ down/ up
+
+            dialog.get_content_area ().show_all ();
+
+            dialog.response.connect ((response)=>{ dialog.destroy (); });
+            dialog.show ();
         }
 
         void extension_activated (Midori.App app) {

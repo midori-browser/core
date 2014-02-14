@@ -11,7 +11,7 @@
 */
 
 namespace Adblock {
-    public class Subscription {
+    public class Subscription : GLib.Object {
         public string? path;
         public string? uri { get; set; default = null; }
         public Pattern pattern;
