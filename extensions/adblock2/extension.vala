@@ -45,6 +45,10 @@ namespace Adblock {
         }
 
         void extension_preferences () {
+            open_dialog (null);
+        }
+
+        void open_dialog (string? uri) {
             var dialog = new Gtk.Dialog.with_buttons (_("Configure Advertisement filters"),
                 null,
 #if !HAVE_GTK3
@@ -83,6 +87,8 @@ namespace Adblock {
             vbox.pack_start (button, false, false, 4);
 
             var entry = new Gtk.Entry ();
+            if (uri != null)
+                entry.set_text (uri);
             vbox.pack_start (entry, false, false, 4);
 
             var liststore = new Gtk.ListStore (1, typeof (Subscription));
@@ -138,6 +144,7 @@ namespace Adblock {
 
         void tab_added (Midori.View view) {
             view.web_view.resource_request_starting.connect (resource_requested);
+            view.web_view.navigation_policy_decision_requested.connect (navigation_requested);
         }
 
         void resource_requested (WebKit.WebView web_view, WebKit.WebFrame frame,
@@ -145,6 +152,23 @@ namespace Adblock {
 
             if (request_handled (web_view.uri, request.uri))
                 request.set_uri ("about:blank");
+        }
+
+        bool navigation_requested (WebKit.WebFrame frame, WebKit.NetworkRequest request,
+            WebKit.WebNavigationAction action, WebKit.WebPolicyDecision decision) {
+
+            string uri = request.uri;
+            if (uri.has_prefix ("abp:")) {
+                uri = uri.replace ("abp://", "abp:");
+                if (uri.has_prefix ("abp:subscribe?location=")) {
+                    /* abp://subscripe?location=http://example.com&title=foo */
+                    string[] parts = uri.substring (23, -1).split ("&", 2);
+                    decision.ignore ();
+                    open_dialog (parts[0]);
+                    return true;
+                }
+            }
+            return false;
         }
 #endif
 
