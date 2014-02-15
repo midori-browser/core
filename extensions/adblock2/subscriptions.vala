@@ -194,10 +194,14 @@ namespace Adblock {
 
             clear ();
 
-            string cache_dir = GLib.Path.build_filename (GLib.Environment.get_home_dir (), ".cache", "midori", "adblock");
-            Midori.Paths.mkdir_with_parents (cache_dir);
-            string filename = Checksum.compute_for_string (ChecksumType.MD5, this.uri, -1);
-            path = GLib.Path.build_filename (cache_dir, filename);
+            if (uri.has_prefix ("file://"))
+                path = Filename.from_uri (uri);
+            else {
+                string cache_dir = GLib.Path.build_filename (GLib.Environment.get_home_dir (), ".cache", "midori", "adblock");
+                Midori.Paths.mkdir_with_parents (cache_dir);
+                string filename = Checksum.compute_for_string (ChecksumType.MD5, this.uri, -1);
+                path = GLib.Path.build_filename (cache_dir, filename);
+            }
 
             File filter_file = File.new_for_path (path);
             DataInputStream stream;

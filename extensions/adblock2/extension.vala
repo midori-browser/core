@@ -157,6 +157,14 @@ namespace Adblock {
 #else
             string? config_dir = get_config_dir ();
 #endif
+
+            string custom_list = GLib.Path.build_filename (config_dir, "custom.list");
+            try {
+                subscriptions.append (new Subscription (Filename.to_uri (custom_list, null)));
+            } catch (Error error) {
+                warning ("Failed to add custom list %s: %s", custom_list, error.message);
+            }
+
             string filename = GLib.Path.build_filename (config_dir, "config"); // use midori vapi
             var keyfile = new GLib.KeyFile ();
             try {
