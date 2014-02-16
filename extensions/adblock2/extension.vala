@@ -200,12 +200,13 @@ namespace Adblock {
                     Subscription sub = new Subscription (filter);
                     subscriptions.append (sub);
                 }
-                reload_rules ();
             } catch (FileError.NOENT exist_error) {
                 /* It's no error if no config file exists */
             } catch (GLib.Error settings_error) {
                 stderr.printf ("Error reading settings from %s: %s\n", filename, settings_error.message);
             }
+
+            reload_rules ();
         }
 
         void reload_rules () {
