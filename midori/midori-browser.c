@@ -1925,6 +1925,53 @@ _midori_browser_quit (MidoriBrowser* browser)
     /* Nothing to do */
 }
 
+static void
+_update_tooltip_if_changed (GtkAction* action,
+                            const gchar* text)
+{
+    gchar *old;
+    g_object_get (action, "tooltip", &old, NULL);
+    if (g_strcmp0(old, text)) {
+        g_object_set (action,
+                      "tooltip", text, NULL);
+    }
+    g_free (old);
+}
+
+static void 
+_update_reload_tooltip (GtkWidget*   widget,
+                        GdkEventKey* event,
+                        gboolean released)
+{
+    MidoriBrowser* browser = MIDORI_BROWSER (widget);
+
+    /* Update the reload/stop tooltip in case we are holding the hard refresh modifiers*/
+    GtkAction *reload_stop = _action_by_name (browser, "ReloadStop");
+    GtkAction *reload = _action_by_name (browser, "Reload");
+    GdkModifierType mask;
+    gdk_window_get_pointer (gtk_widget_get_window (widget), NULL, NULL, &mask);
+    const gchar *target;
+    
+    if ( mask & GDK_SHIFT_MASK)
+    {
+        target = _("Reload page without caching");
+    }
+    else 
+    {
+        target = _("Reload the current page");
+    }
+    _update_tooltip_if_changed (reload_stop, target);
+    _update_tooltip_if_changed (reload, target);
+}
+
+static gboolean
+midori_browser_key_release_event (GtkWidget*   widget,
+                                  GdkEventKey* event)
+{
+    _update_reload_tooltip (widget, event, TRUE);
+    return FALSE;
+}
+
 static gboolean
 midori_browser_key_press_event (GtkWidget*   widget,
                                 GdkEventKey* event)
@@ -1934,6 +1981,7 @@ midori_browser_key_press_event (GtkWidget*   widget,
     GtkWidgetClass* widget_class;
     guint clean_state;
 
+    _update_reload_tooltip(widget, event, FALSE);
     /* Interpret Ctrl(+Shift)+Tab as tab switching for compatibility */
     if (midori_browser_get_nth_tab (browser, 1) != NULL
      && event->keyval == GDK_KEY_Tab
@@ -2259,6 +2307,7 @@ midori_browser_class_init (MidoriBrowserClass* class)
 
     gtkwidget_class = GTK_WIDGET_CLASS (class);
     gtkwidget_class->key_press_event = midori_browser_key_press_event;
+    gtkwidget_class->key_release_event = midori_browser_key_release_event;
 
     gobject_class = G_OBJECT_CLASS (class);
     gobject_class->dispose = midori_browser_dispose;
