@@ -308,7 +308,13 @@ const TestCaseLine[] lines = {
     { "[", "\\[" },
     { "+advert/", "advert/" },
     { "*foo", "foo" },
-    // TODO:
+    { "f*oo", "f.*oo" },
+    { "?foo", "\\?foo" },
+    { "foo?", "foo\\?" },
+    { ".*foo/bar", "..*foo/bar" },
+    { "http://bla.blub/*", "http://bla.blub/.*" },
+    { "bag?r[]=*cpa", "bag\\?r\\[\\]=.*cpa" },
+    { "(facebookLike,", "(facebookLike," },
 };
 
 void test_adblock_fixup_regexp () {
