@@ -323,7 +323,68 @@ void test_adblock_fixup_regexp () {
     }
 }
 
+struct TestCasePattern {
+    public string uri;
+    public Adblock.Directive directive;
+}
+
+const TestCasePattern[] patterns = {
+    { "http://www.engadget.com/_uac/adpage.html", Adblock.Directive.BLOCK },
+    { "http://test.dom/test?var=1", Adblock.Directive.BLOCK },
+    { "http://ads.foo.bar/teddy", Adblock.Directive.BLOCK },
+    { "http://ads.fuu.bar/teddy", Adblock.Directive.ALLOW },
+    { "https://ads.bogus.name/blub", Adblock.Directive.BLOCK },
+    // FIXME { "http://ads.bla.blub/kitty", Adblock.Directive.BLOCK },
+    // FIXME { "http://ads.blub.boing/soda", Adblock.Directive.BLOCK },
+    { "http://ads.foo.boing/beer", Adblock.Directive.ALLOW },
+    { "https://testsub.engine.adct.ru/test?id=1", Adblock.Directive.BLOCK },
+    { "http://test.ltd/addyn/test/test?var=adtech;&var2=1", Adblock.Directive.BLOCK },
+    { "http://add.doubleclick.net/pfadx/aaaa.mtvi", Adblock.Directive.BLOCK },
+    { "http://add.doubleclick.net/pfadx/aaaa.mtv", Adblock.Directive.ALLOW },
+    { "http://objects.tremormedia.com/embed/xml/list.xml?r=", Adblock.Directive.BLOCK },
+    { "http://qq.videostrip.c/sub/admatcherclient.php", Adblock.Directive.ALLOW },
+    { "http://qq.videostrip.com/sub/admatcherclient.php", Adblock.Directive.BLOCK },
+    { "http://qq.videostrip.com/sub/admatcherclient.php", Adblock.Directive.BLOCK },
+    { "http://br.gcl.ru/cgi-bin/br/test", Adblock.Directive.BLOCK },
+    { "https://bugs.webkit.org/buglist.cgi?query_format=advanced&short_desc_type=allwordssubstr&short_desc=&long_desc_type=substring&long_desc=&bug_file_loc_type=allwordssubstr&bug_file_loc=&keywords_type=allwords&keywords=&bug_status=UNCONFIRMED&bug_status=NEW&bug_status=ASSIGNED&bug_status=REOPENED&emailassigned_to1=1&emailtype1=substring&email1=&emailassigned_to2=1&emailreporter2=1&emailcc2=1&emailtype2=substring&email2=&bugidtype=include&bug_id=&votes=&chfieldfrom=&chfieldto=Now&chfieldvalue=&query_based_on=gtkport&field0-0-0=keywords&type0-0-0=anywordssubstr&value0-0-0=Gtk%20Cairo%20soup&field0-0-1=short_desc&type0-0-1=anywordssubstr&value0-0-1=Gtk%20Cairo%20soup%20autoconf%20automake%20autotool&field0-0-2=component&type0-0-2=equals&value0-0-2=WebKit%20Gtk", Adblock.Directive.ALLOW },
+    { "http://www.engadget.com/2009/09/24/google-hits-android-rom-modder-with-a-cease-and-desist-letter/", Adblock.Directive.ALLOW },
+    { "http://karibik-invest.com/es/bienes_raices/search.php?sqT=19&sqN=&sqMp=&sqL=0&qR=1&sqMb=&searchMode=1&action=B%FAsqueda", Adblock.Directive.ALLOW },
+    { "http://google.com", Adblock.Directive.ALLOW },
+};
+
+string pretty_directive (Adblock.Directive? directive) {
+    if (directive == null)
+        return "none";
+    if (directive == Adblock.Directive.ALLOW)
+        return "allow";
+    return "block";
+}
+ 
 void test_adblock_pattern () {
+    string path = Midori.Paths.get_res_filename ("adblock.list");
+    string uri;
+    try {
+        uri = Filename.to_uri (path, null);
+    } catch (Error error) {
+        GLib.error (error.message);
+    }
+    var sub = new Adblock.Subscription (uri);
+    stderr.printf ("sub %s\n", uri);
+    try {
+        sub.parse ();
+    } catch (Error error) {
+        GLib.error (error.message);
+    }
+    foreach (var pattern in patterns) {
+        stderr.printf ("checking %s\n", pattern.uri);
+        Adblock.Directive? directive = sub.get_directive (pattern.uri, "");
+        if (directive == null)
+            directive = Adblock.Directive.ALLOW;
+        if (directive != pattern.directive) {
+            error ("%s expected for %s but got %s",
+                   pretty_directive (pattern.directive), pattern.uri, pretty_directive (directive));
+        }
+    }
 }
 
 void test_subscription_update () {
