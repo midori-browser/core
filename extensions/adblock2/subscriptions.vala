@@ -237,23 +237,7 @@ namespace Adblock {
             }
         }
 
-        public bool matches (string request_uri, string page_uri) {
-            try {
-                if (this.whitelist.match (request_uri, page_uri))
-                    return true;
-
-                if (this.keys.match (request_uri, page_uri))
-                    return true;
-
-                if (this.pattern.match (request_uri, page_uri))
-                    return true;
-            } catch (Error error) {
-                warning ("Adblock match err %s\n", error.message);
-            }
-            return false;
-        }
-
-        public Directive get_directive (string request_uri, string page_uri) {
+        public Directive? get_directive (string request_uri, string page_uri) {
             try {
                 if (this.whitelist.match (request_uri, page_uri))
                     return Directive.ALLOW;
@@ -266,7 +250,7 @@ namespace Adblock {
             } catch (Error error) {
                 warning ("Adblock match error: %s\n", error.message);
             }
-            return Directive.ALLOW;
+            return null;
         }
     }
 }

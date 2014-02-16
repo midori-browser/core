@@ -227,15 +227,13 @@ namespace Adblock {
 
             Directive? directive = cache.lookup (request_uri);
             if (directive == null) {
-                directive = Directive.ALLOW;
-
                 foreach (Subscription sub in subscriptions) {
-                    if (sub.matches (request_uri, page_uri)) {
-                        directive = sub.get_directive (request_uri, page_uri);
-                        cache.insert (request_uri, directive);
-                        return true;
-                    }
+                    directive = sub.get_directive (request_uri, page_uri);
+                    if (directive != null)
+                        break;
                 }
+                if (directive == null)
+                    directive = Directive.ALLOW;
                 cache.insert (request_uri, directive);
             }
             return directive == Directive.BLOCK;
