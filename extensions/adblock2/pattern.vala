@@ -12,30 +12,15 @@
 
 namespace Adblock {
     public class Pattern : Filter {
-        HashTable<string, Regex?> pattern;
-
         public Pattern (Options options) {
             base (options);
-            pattern = new HashTable<string, Regex> (str_hash, str_equal);
         }
 
-        public override void insert (string sig, Regex regex) {
-            pattern.insert (sig, regex);
-        }
-
-        public override Regex? lookup (string sig) {
-            return pattern.lookup (sig);
-        }
-
-        public override uint size () {
-            return pattern.size ();
-        }
-
-        public override bool match (string request_uri, string page_uri) throws Error {
-            foreach (var patt in pattern.get_keys ())
-                if (check_rule (pattern.lookup (patt), patt, request_uri, page_uri))
-                    return true;
-            return false;
+        public override Directive? match (string request_uri, string page_uri) throws Error {
+            foreach (var patt in rules.get_keys ())
+                if (check_rule (rules.lookup (patt), patt, request_uri, page_uri))
+                    return Directive.BLOCK;
+            return null;
         }
     }
 }

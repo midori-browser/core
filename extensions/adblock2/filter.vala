@@ -11,16 +11,29 @@
 */
 
 namespace Adblock {
-    public abstract class Filter : GLib.Object {
+    public abstract class Filter : Feature {
         Options optslist;
+        protected HashTable<string, Regex?> rules;
 
-        public abstract void insert (string sig, Regex regex);
-        public abstract Regex? lookup (string sig);
-        public abstract uint size ();
-        public abstract bool match (string request_uri, string page_uri) throws Error;
+        public virtual void insert (string sig, Regex regex) {
+            rules.insert (sig, regex);
+        }
+
+        public virtual Regex? lookup (string sig) {
+            return rules.lookup (sig);
+        }
+
+        public virtual uint size () {
+            return rules.size ();
+        }
 
         protected Filter (Options options) {
             optslist = options;
+            clear ();
+        }
+
+        public override void clear () {
+            rules = new HashTable<string, Regex> (str_hash, str_equal);
         }
 
         protected bool check_rule (Regex regex, string pattern, string request_uri, string page_uri) throws Error {

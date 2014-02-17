@@ -12,46 +12,36 @@
 
 namespace Adblock {
     public class Keys : Filter {
-        HashTable<string, Regex?> keys;
         List<Regex> blacklist;
 
         public Keys (Options options) {
             base (options);
-            keys = new HashTable<string, Regex> (str_hash, str_equal);
+        }
+
+        public override void clear () {
+            base.clear ();
             blacklist = new List<Regex> ();
         }
 
-        public override void insert (string sig, Regex regex) {
-            keys.insert (sig, regex);
-        }
-
-        public override Regex? lookup (string sig) {
-            return keys.lookup (sig);
-        }
-
-        public override uint size () {
-            return keys.size ();
-        }
-
-        public override bool match (string request_uri, string page_uri) throws Error {
+        public override Directive? match (string request_uri, string page_uri) throws Error {
             string? uri = fixup_regex ("", request_uri);
             if (uri == null)
-                return false;
+                return null;
 
             int signature_size = 8;
             int pos, l = uri.length;
             for (pos = l - signature_size; pos >= 0; pos--) {
                 string signature = uri.offset (pos).ndup (signature_size);
-                var regex = keys.lookup (signature);
+                var regex = rules.lookup (signature);
                 if (regex == null || blacklist.find (regex) != null)
                     continue;
 
                 if (check_rule (regex, uri, request_uri, page_uri))
-                    return true;
+                    return Directive.BLOCK;
                 blacklist.prepend (regex);
             }
 
-            return false;
+            return null;
         }
     }
 }

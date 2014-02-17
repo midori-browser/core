@@ -12,7 +12,14 @@
 
 namespace Adblock {
     public abstract class Feature : GLib.Object {
-        public abstract bool header (string key, string value);
+        public virtual bool header (string key, string value) {
+            return false;
+        }
+        public virtual Directive? match (string request_uri, string page_uri) throws Error {
+            return null;
+        }
+        public virtual void clear () {
+        }
     }
 
     public class Subscription : GLib.Object {
@@ -29,6 +36,14 @@ namespace Adblock {
         public Subscription (string uri) {
             this.uri = uri;
             active = uri[4] != '-' && uri[5] != '-';
+
+            this.optslist = new Options ();
+            this.whitelist = new Whitelist (optslist);
+            add_feature (this.whitelist);
+            this.keys = new Keys (optslist);
+            add_feature (this.keys);
+            this.pattern = new Pattern (optslist);
+            add_feature (this.pattern);
             clear ();
         }
 
@@ -37,10 +52,9 @@ namespace Adblock {
         }
 
         public void clear () {
-            this.optslist = new Options ();
-            this.pattern = new Pattern (optslist);
-            this.keys = new Keys (optslist);
-            this.whitelist = new Whitelist (optslist);
+            foreach (var feature in features)
+                feature.clear ();
+            optslist.clear ();
         }
 
         internal void parse_line (string? line) throws Error {
@@ -258,14 +272,14 @@ namespace Adblock {
 
         public Directive? get_directive (string request_uri, string page_uri) {
             try {
-                if (this.whitelist.match (request_uri, page_uri))
-                    return Directive.ALLOW;
-
-                if (this.keys.match (request_uri, page_uri))
-                    return Directive.BLOCK;
-
-                if (this.pattern.match (request_uri, page_uri))
-                    return Directive.BLOCK;
+                foreach (var feature in features) {
+                    Directive? directive = feature.match (request_uri, page_uri);
+                    if (directive != null) {
+                        log ("%s gave %s for %s (%s)\n",
+                               feature.get_type ().name (), directive.to_string (), request_uri, page_uri);
+                        return directive;
+                    }
+                }
             } catch (Error error) {
                 warning ("Adblock match error: %s\n", error.message);
             }

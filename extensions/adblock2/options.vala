@@ -14,7 +14,7 @@ namespace Adblock {
         HashTable<string, string?> optslist;
 
         public Options () {
-            optslist = new HashTable<string, string?> (str_hash, str_equal);
+            clear ();
         }
 
         public void insert (string sig, string? opts) {
@@ -23,6 +23,10 @@ namespace Adblock {
 
         public string? lookup (string sig) {
             return optslist.lookup (sig);
+        }
+
+        public void clear () {
+            optslist = new HashTable<string, string?> (str_hash, str_equal);
         }
     }
 }

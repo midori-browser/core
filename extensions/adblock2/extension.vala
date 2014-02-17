@@ -330,9 +330,7 @@ const TestCasePattern[] patterns = {
 string pretty_directive (Adblock.Directive? directive) {
     if (directive == null)
         return "none";
-    if (directive == Adblock.Directive.ALLOW)
-        return "allow";
-    return "block";
+    return directive.to_string ();
 }
  
 void test_adblock_pattern () {

@@ -12,34 +12,19 @@
 
 namespace Adblock {
     public class Whitelist : Filter {
-        HashTable<string, Regex?> white;
-
         public Whitelist (Options options) {
             base (options);
-            white = new HashTable<string, Regex> (str_hash, str_equal);
         }
 
-        public override void insert (string sig, Regex regex) {
-            white.insert (sig, regex);
-        }
-
-        public override Regex? lookup (string sig) {
-            return white.lookup (sig);
-        }
-
-        public override uint size () {
-            return white.size ();
-        }
-
-        public override bool match (string request_uri, string page_uri) throws Error {
-            foreach (var wht in white.get_keys ()) {
-                var regex = white.lookup (wht);
+        public override Directive? match (string request_uri, string page_uri) throws Error {
+            foreach (var white in rules.get_keys ()) {
+                var regex = rules.lookup (white);
                 if (!regex.match_full (request_uri))
-                    return false;
+                    return null;
                 if (Regex.match_simple (regex.get_pattern (), request_uri, RegexCompileFlags.UNGREEDY, RegexMatchFlags.NOTEMPTY))
-                    return true;
+                    return Directive.ALLOW;
             }
-            return false;
+            return null;
         }
     }
 }
