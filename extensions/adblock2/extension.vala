@@ -17,8 +17,8 @@ namespace Adblock {
     }
 
     public class Extension : Midori.Extension {
+        Config config;
         HashTable<string, Directive?> cache;
-        GLib.List <Subscription> subscriptions;
 
 #if HAVE_WEBKIT2
         public Extension (WebKit.WebExtension web_extension) {
@@ -118,7 +118,7 @@ namespace Adblock {
             scrolled.add (treeview);
             vbox.pack_start (scrolled);
 
-            foreach (Subscription sub in subscriptions)
+            foreach (Subscription sub in config)
                 liststore.insert_with_values (null, 0, 0, sub);
             // TODO: row-inserted row-changed row-deleted
             // TODO vbox with add/ edit/ remove/ down/ up
@@ -174,44 +174,19 @@ namespace Adblock {
 
         internal void init () {
             debug ("Adblock2");
-            subscriptions = new GLib.List<Subscription> ();
 
 #if HAVE_WEBKIT2
             string config_dir = GLib.Path.build_filename (GLib.Environment.get_user_config_dir (), "midori", "extensions", "libadblock2.so");
 #else
             string? config_dir = get_config_dir ();
 #endif
-
-            if (config_dir != null) {
-                string custom_list = GLib.Path.build_filename (config_dir, "custom.list");
-                try {
-                    subscriptions.append (new Subscription (Filename.to_uri (custom_list, null)));
-                } catch (Error error) {
-                    warning ("Failed to add custom list %s: %s", custom_list, error.message);
-                }
-            }
-
-            string filename = GLib.Path.build_filename (config_dir, "config"); // use midori vapi
-            var keyfile = new GLib.KeyFile ();
-            try {
-                keyfile.load_from_file (filename, GLib.KeyFileFlags.NONE);
-                string[] filters = keyfile.get_string_list ("settings", "filters");
-                foreach (string filter in filters) {
-                    Subscription sub = new Subscription (filter);
-                    subscriptions.append (sub);
-                }
-            } catch (FileError.NOENT exist_error) {
-                /* It's no error if no config file exists */
-            } catch (GLib.Error settings_error) {
-                stderr.printf ("Error reading settings from %s: %s\n", filename, settings_error.message);
-            }
-
+            config = new Config (config_dir);
             reload_rules ();
         }
 
         void reload_rules () {
             cache = new HashTable<string, Directive?> (str_hash, str_equal);
-            foreach (Subscription sub in subscriptions) {
+            foreach (Subscription sub in config) {
                 try {
                     sub.parse ();
                 } catch (GLib.Error error) {
@@ -227,7 +202,7 @@ namespace Adblock {
 
             Directive? directive = cache.lookup (request_uri);
             if (directive == null) {
-                foreach (Subscription sub in subscriptions) {
+                foreach (Subscription sub in config) {
                     directive = sub.get_directive (request_uri, page_uri);
                     if (directive != null)
                         break;
