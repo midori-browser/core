@@ -36,6 +36,7 @@ namespace Adblock {
                 string[] filters = keyfile.get_string_list ("settings", "filters");
                 foreach (string filter in filters) {
                     Subscription sub = new Subscription (filter);
+                    sub.add_feature (new Updater ());
                     subscriptions.append (sub);
                 }
             } catch (FileError.NOENT exist_error) {

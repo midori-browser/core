@@ -11,25 +11,29 @@
 */
 
 namespace Adblock {
+    public abstract class Feature : GLib.Object {
+        public abstract bool header (string key, string value);
+    }
+
     public class Subscription : GLib.Object {
         public string? path;
         public string uri { get; set; default = null; }
         public bool active { get; set; default = true; }
+        List<Feature> features;
         public Pattern pattern;
         public Keys keys;
         public Options optslist;
         public Whitelist whitelist;
         WebKit.Download? download;
-        string expires_meta { get; set; default = null; }
-        string last_mod_meta { get; set; default = null; }
-        public int64 update_tstamp { get; set; default = 0; }
-        public int64 last_mod_tstamp { get; set; default = 0; }
-        public int64 last_check_tstamp { get; set; default = 0; }
 
         public Subscription (string uri) {
             this.uri = uri;
             active = uri[4] != '-' && uri[5] != '-';
             clear ();
+        }
+
+        public void add_feature (Feature feature) {
+            features.append (feature);
         }
 
         public void clear () {
@@ -168,126 +172,24 @@ namespace Adblock {
         }
 
         public void parse_header (string header) throws Error {
-            if (!header.contains (":"))
-                return;
-            string[] parts = header.split (":", 2);
-            if (parts[0] == null)
-                return;
-            string key = parts[0].substring (2, -1);
-            string value = parts[1].substring (1, -1);
-            if (key.contains ("xpires"))
-                this.expires_meta = value;
-            if (key.has_prefix ("Last mod") || key.has_prefix ("Updated"))
-                this.last_mod_meta = value;
-            debug ("Header '%s' says '%s'", key, value);
-        }
-
-        int get_month_from_string (string? month) {
-            if (month == null)
-                return 0;
-
-            string[] months = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
-            for (int i = 0; i<= months.length; i++)
-            {
-                if (month.has_prefix (months[i]))
-                    return i+1;
-            }
-            return 0;
-        }
-
-        public bool needs_updating () {
-            DateTime now = new DateTime.now_local ();
-            DateTime expire_date = null;
-            DateTime last_mod_date = null;
-            string? last_mod = this.last_mod_meta;
-            string? expires = this.expires_meta;
-
-            /* We have "last modification" metadata */
-            if (last_mod != null) {
-                int h = 0, min = 0, d, m, y;
-                /* Date in a form of: 20.08.2012 12:34 */
-                if (last_mod.contains (".") || last_mod.contains("-")) {
-                    string[] parts = last_mod.split (" ", 2);
-                    string[] date_parts;
-                    string split_char = " ";
-
-                    /* contains time part ? */
-                    if (parts[1] != "" && parts[1].contains (":")) {
-                        string[] time_parts = parts[1].split (":", 2);
-                        h = int.parse(time_parts[0]);
-                        min = int.parse(time_parts[1]);
-                    }
-
-                    /* check if dot or dash was used as a delimiter */
-                    if (parts[0].contains ("."))
-                        split_char = ".";
-                    else if (parts[0].contains ("-"))
-                        split_char = "-";
-
-                    date_parts = parts[0].split (split_char, 3);
-                    m = int.parse(date_parts[1]);
-                    if (date_parts[2].length == 4) {
-                        y = int.parse(date_parts[2]);
-                        d = int.parse(date_parts[0]);
-                    } else {
-                        y = int.parse(date_parts[0]);
-                        d = int.parse(date_parts[2]);
-                    }
-                } else { /* Date in a form of: 20 Mar 2012 12:34 */
-                    string[] parts = last_mod.split (" ", 4);
-                    /* contains time part ? */
-                    if (parts[3] != null && parts[3].contains (":")) {
-                        string[] time_parts = parts[3].split (":", 2);
-                        h = int.parse(time_parts[0]);
-                        min = int.parse(time_parts[1]);
-                    }
-
-                    m = get_month_from_string (parts[1]);
-                    if (parts[2].length == 4) {
-                        y = int.parse(parts[2]);
-                        d = int.parse(parts[0]);
-                    } else {
-                        y = int.parse(parts[0]);
-                        d = int.parse(parts[2]);
-                    }
+            /* Headers come in two forms
+               ! Foo: Bar
+               ! Some freeform text
+             */
+            string key = header;
+            string value = "";
+            if (header.contains (":")) {
+                string[] parts = header.split (":", 2);
+                if (parts[0] != null) {
+                    key = parts[0].substring (2, -1);
+                    value = parts[1].substring (1, -1);
                 }
-
-                last_mod_date = new DateTime.local (y, m, d, h, min, 0.0);
             }
-
-            if (last_mod_date == null)
-                last_mod_date = now;
-
-            expire_date = last_mod_date;
-
-            /* We have "expires" metadata */
-
-            /* Data in form: Expires: 5 days (update frequency) */
-            if (expires.has_prefix ("Expires:")) {
-                string[] parts = expires.split (" ", 4);
-                expire_date.add_days (int.parse (parts[1]));
-            } else if (expires.contains ("expires after")) { /*  This list expires after 14 days|hours */
-                string[] parts = expires.split (" ", 7);
-                if (parts[5] == "hours")
-                    expire_date.add_hours (int.parse (parts[4]));
-                else if (parts[5] == "days")
-                    expire_date.add_days (int.parse (parts[4]));
-            } else { /* No expire metadata found, assume x days */
-                /* XXX: user could control this? */
-                int days_to_expire = 7;
-                expire_date.add_days (days_to_expire);
+            debug ("Header '%s' says '%s'", key, value);
+            foreach (var feature in features) {
+                if (feature.header (key, value))
+                    break;
             }
-
-            /* TODO: save "last modification timestamp" to keyfile */
-            this.last_mod_tstamp = last_mod_date.to_unix ();
-            this.last_check_tstamp = now.to_unix ();
-            this.update_tstamp = expire_date.to_unix ();
-
-            /* Check if we are past expire date */
-            if (now.compare (expire_date) != -1)
-                return false;
-
-            return true;
         }
 
         void download_status (ParamSpec pspec) {

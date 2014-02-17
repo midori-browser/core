@@ -344,14 +344,12 @@ void test_adblock_pattern () {
         GLib.error (error.message);
     }
     var sub = new Adblock.Subscription (uri);
-    stderr.printf ("sub %s\n", uri);
     try {
         sub.parse ();
     } catch (Error error) {
         GLib.error (error.message);
     }
     foreach (var pattern in patterns) {
-        stderr.printf ("checking %s\n", pattern.uri);
         Adblock.Directive? directive = sub.get_directive (pattern.uri, "");
         if (directive == null)
             directive = Adblock.Directive.ALLOW;
@@ -363,48 +361,28 @@ void test_adblock_pattern () {
 }
 
 void test_subscription_update () {
-}
-
-void test_subscription_header_parse () {
-    string? path;
+    string path = Midori.Paths.get_res_filename ("adblock.list");
+    string uri;
     try {
-        /* FIXME: use temp dir and file */
-        path = "/tmp/subscription-XXXXXX";
-        File sub_file = File.new_for_path (path);
-        string uri = sub_file.get_uri ();
-
-        string contents = """
-        [Adblock Plus 2.0]
-! Checksum: Wo8YP7cu8aORCwMkFlcR2g
-! Version: 201402151830
-! Title: EasyList
-! Last modified: 21 Feb 2012 18:30 UTC
-! Expires: 4 days (update frequency)
-! Homepage: https://easylist.adblockplus.org/
-! Licence: https://easylist-downloads.adblockplus.org/COPYING
-!
-!-----------------------General advert blocking filters-----------------------!
-! *** easylist:easylist/easylist_general_block.txt ***
-&ad_box_
-! comment
-&ad_channel=
-""";
-
-        sub_file.replace_contents (contents.data, null, false, FileCreateFlags.NONE, null);
-        Adblock.Subscription sub = new Adblock.Subscription (uri);
-        sub.parse ();
-        assert (sub.needs_updating());
+        uri = Filename.to_uri (path, null);
     } catch (Error error) {
         GLib.error (error.message);
     }
-
+    var sub = new Adblock.Subscription (uri);
+    var updater = new Adblock.Updater ();
+    sub.add_feature (updater);
+    try {
+        sub.parse ();
+    } catch (Error error) {
+        GLib.error (error.message);
+    }
+    assert (updater.needs_updating());
 }
 
 public void extension_test () {
     Test.add_func ("/extensions/adblock2/parse", test_adblock_fixup_regexp);
     Test.add_func ("/extensions/adblock2/pattern", test_adblock_pattern);
     Test.add_func ("/extensions/adblock2/update", test_subscription_update);
-    Test.add_func ("/extensions/adblock2/header", test_subscription_header_parse);
 }
 #endif
 
