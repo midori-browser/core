@@ -31,6 +31,7 @@ namespace Adblock {
         public Keys keys;
         public Options optslist;
         public Whitelist whitelist;
+        public Element element;
         WebKit.Download? download;
 
         public Subscription (string uri) {
@@ -44,12 +45,21 @@ namespace Adblock {
             add_feature (this.keys);
             this.pattern = new Pattern (optslist);
             add_feature (this.pattern);
+            this.element = new Element ();
+            add_feature (this.element);
             clear ();
         }
 
         public void add_feature (Feature feature) {
             features.append (feature);
+            size++;
         }
+
+        /* foreach support */
+        public new Feature? get (uint index) {
+            return features.nth_data (index);
+        }
+        public uint size { get; private set; }
 
         public void clear () {
             foreach (var feature in features)
@@ -113,7 +123,41 @@ namespace Adblock {
         }
 
         void frame_add_private (string line, string sep) {
-            /* TODO */
+            string[] data = line.split (sep, 2);
+            if (!(data[1] != null && data[1] != "")
+             ||  data[1].chr (-1, '\'') != null
+             || (data[1].chr (-1, ':') != null
+             && !Regex.match_simple (".*\\[.*:.*\\].*", data[1],
+                RegexCompileFlags.CASELESS, RegexMatchFlags.NOTEMPTY))) {
+                return;
+            }
+
+            if (data[0].chr (-1, ',') != null) {
+                string[] domains = data[0].split (",", -1);
+
+                foreach (string domain in domains) {
+                    /* Ignore Firefox-specific option */
+                    if (domain == "~pregecko2")
+                        continue;
+                    /* FIXME: ~ should negate match */
+                    if (domain[0] == '~')
+                        domain = domain.substring (1, -1);
+                    update_css_hash (domain.strip (), data[1]);
+                }
+            }
+            else {
+                update_css_hash (data[0], data[1]);
+            }
+        }
+
+        void update_css_hash (string domain, string value) {
+            string? olddata = element.lookup (domain);
+            if (olddata != null) {
+                string newdata = olddata + " , " + value;
+                element.insert (domain, newdata);
+            } else {
+                element.insert (domain, value);
+            }
         }
 
         void add_url_pattern (string prefix, string type, string line) throws Error {
@@ -275,7 +319,7 @@ namespace Adblock {
                 foreach (var feature in features) {
                     Directive? directive = feature.match (request_uri, page_uri);
                     if (directive != null) {
-                        log ("%s gave %s for %s (%s)\n",
+                        debug ("%s gave %s for %s (%s)\n",
                                feature.get_type ().name (), directive.to_string (), request_uri, page_uri);
                         return directive;
                     }
