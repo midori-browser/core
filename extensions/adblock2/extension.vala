@@ -212,10 +212,12 @@ namespace Adblock {
                 return;
             code.truncate (code.len - 1);
             bool debug_element = "adblock:element" in (Environment.get_variable ("MIDORI_DEBUG") ?? "");
-            if (debug_element)
-                code.append ("{ color: red !important }");
+            if (debug_element) {
+                code.append (" { background-color: red !important; border: 4px solid green !important; }");
+                stdout.printf ("css: %s\n", code.str);
+            }
             else
-                code.append ("{ display: none !important }");
+                code.append (" { display: none !important }");
             view.inject_stylesheet (code.str);
         }
 #endif
