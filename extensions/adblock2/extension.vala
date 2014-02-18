@@ -145,6 +145,10 @@ namespace Adblock {
         void tab_added (Midori.View view) {
             view.web_view.resource_request_starting.connect (resource_requested);
             view.web_view.navigation_policy_decision_requested.connect (navigation_requested);
+            view.notify["load-status"].connect ((pspec) => {
+                if (view.load_status == Midori.LoadStatus.FINISHED)
+                    inject_css (view, view.uri);
+            });
         }
 
         void resource_requested (WebKit.WebView web_view, WebKit.WebFrame frame,
@@ -169,6 +173,50 @@ namespace Adblock {
                 }
             }
             return false;
+        }
+
+        void inject_css (Midori.View view, string page_uri) {
+            /* Don't block ads on internal pages */
+            if (!Midori.URI.is_http (page_uri))
+                return;
+            string domain = Midori.URI.parse_hostname (page_uri, null);
+            string[] subdomains = domain.split (".");
+            if (subdomains == null)
+                return;
+            int cnt = subdomains.length - 1;
+            var subdomain = new StringBuilder (subdomains[cnt]);
+            subdomain.prepend_c ('.');
+            cnt--;
+            int blockscnt = 0;
+            var code = new StringBuilder ();
+            while (cnt >= 0) {
+                subdomain.prepend (subdomains[cnt]);
+                string? style = null;
+                foreach (Subscription sub in config) {
+                    foreach (var feature in sub) {
+                        if (feature is Adblock.Element) {
+                            style = (feature as Adblock.Element).lookup (subdomain.str);
+                            break;
+                        }
+                    }
+                }
+                if (style != null) {
+                    code.append (style);
+                    code.append_c (',');
+                    blockscnt++;
+                }
+                subdomain.prepend_c ('.');
+                cnt--;
+            }
+            if (blockscnt == 0)
+                return;
+            code.truncate (code.len - 1);
+            bool debug_element = "adblock:element" in (Environment.get_variable ("MIDORI_DEBUG") ?? "");
+            if (debug_element)
+                code.append ("{ color: red !important }");
+            else
+                code.append ("{ display: none !important }");
+            view.inject_stylesheet (code.str);
         }
 #endif
 
