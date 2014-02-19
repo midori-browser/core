@@ -187,8 +187,28 @@ namespace Adblock {
             var subdomain = new StringBuilder (subdomains[cnt]);
             subdomain.prepend_c ('.');
             cnt--;
-            int blockscnt = 0;
             var code = new StringBuilder ();
+            bool debug_element = "adblock:element" in (Environment.get_variable ("MIDORI_DEBUG") ?? "");
+            string hider_css;
+
+            /* Hide elements that were blocked, otherwise we will get "broken image" icon */
+            cache.foreach ((key, val) => {
+                if (val == Adblock.Directive.BLOCK)
+                    code.append ("img[src*=\"%s\"] , iframe[src*=\"%s\"] , ".printf (key, key));
+            });
+            if (debug_element)
+                hider_css = " { background-color: red; border: 4px solid green; }";
+            else
+                hider_css = " { visiblility: hidden; width: 0; height: 0; }";
+
+            code.truncate (code.len -3);
+            code.append (hider_css);
+            if (debug_element)
+                stdout.printf ("hider css: %s\n", code.str);
+            view.inject_stylesheet (code.str);
+
+            code.erase ();
+            int blockscnt = 0;
             while (cnt >= 0) {
                 subdomain.prepend (subdomains[cnt]);
                 string? style = null;
@@ -211,14 +231,16 @@ namespace Adblock {
             if (blockscnt == 0)
                 return;
             code.truncate (code.len - 1);
-            bool debug_element = "adblock:element" in (Environment.get_variable ("MIDORI_DEBUG") ?? "");
-            if (debug_element) {
-                code.append (" { background-color: red !important; border: 4px solid green !important; }");
-                stdout.printf ("css: %s\n", code.str);
-            }
+
+            if (debug_element)
+                hider_css = " { background-color: red !important; border: 4px solid green !important; }";
             else
-                code.append (" { display: none !important }");
+                hider_css = " { display: none !important }";
+
+            code.append (hider_css);
             view.inject_stylesheet (code.str);
+            if (debug_element)
+                stdout.printf ("css: %s\n", code.str);
         }
 #endif
 
