@@ -303,11 +303,7 @@ namespace Adblock {
         internal void init () {
             debug ("Adblock2");
 
-#if HAVE_WEBKIT2
-            string config_dir = GLib.Path.build_filename (GLib.Environment.get_user_config_dir (), "midori", "extensions", "libadblock2.so");
-#else
-            string? config_dir = get_config_dir ();
-#endif
+            string config_dir = Midori.Paths.get_extension_config_dir ("libadblock.so");
             config = new Config (config_dir);
             reload_rules ();
         }
