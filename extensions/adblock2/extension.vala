@@ -149,7 +149,63 @@ namespace Adblock {
                 if (view.load_status == Midori.LoadStatus.FINISHED)
                     inject_css (view, view.uri);
             });
+            view.context_menu.connect (context_menu);
         }
+
+        void context_menu (WebKit.HitTestResult hit_test_result, Midori.ContextAction menu) {
+            string label, uri;
+            if ((hit_test_result.context & WebKit.HitTestResultContext.IMAGE) != 0) {
+                label = _("Bl_ock image");
+                uri = hit_test_result.image_uri;
+            } else if ((hit_test_result.context & WebKit.HitTestResultContext.LINK) != 0)  {
+                label = _("Bl_ock link");
+                uri = hit_test_result.link_uri;
+            } else
+                return;
+            var action = new Gtk.Action ("BlockElement", label, null, null);
+            action.activate.connect ((action) => {
+                edit_rule_dialog (uri);
+            });
+            menu.add (action);
+        }
+
+        void edit_rule_dialog (string uri) {
+            var dialog = new Gtk.Dialog.with_buttons (_("Edit rule"),
+                null,
+#if !HAVE_GTK3
+                Gtk.DialogFlags.NO_SEPARATOR |
+#endif
+                Gtk.DialogFlags.DESTROY_WITH_PARENT,
+                Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                Gtk.STOCK_ADD, Gtk.ResponseType.ACCEPT);
+            dialog.set_icon_name (Gtk.STOCK_ADD);
+            dialog.resizable = false;
+
+            var hbox = new Gtk.HBox (false, 8);
+            var sizegroup = new Gtk.SizeGroup (Gtk.SizeGroupMode.HORIZONTAL);
+            hbox.border_width = 5;
+            var label = new Gtk.Label.with_mnemonic (_("_Rule:"));
+            sizegroup.add_widget (label);
+            hbox.pack_start (label, false, false, 0);
+            (dialog.get_content_area () as Gtk.Box).pack_start (hbox, false, true, 0);
+
+            var entry = new Gtk.Entry ();
+            sizegroup.add_widget (entry);
+            entry.activates_default = true;
+            entry.set_text (uri);
+            hbox.pack_start (entry, true, true, 0);
+
+            dialog.get_content_area ().show_all ();
+
+            dialog.set_default_response (Gtk.ResponseType.ACCEPT);
+            if (dialog.run () != Gtk.ResponseType.ACCEPT)
+                return;
+
+            string new_rule = entry.get_text ();
+            dialog.destroy ();
+            config.add_custom_rule (new_rule);
+        }
+
 
         void resource_requested (WebKit.WebView web_view, WebKit.WebFrame frame,
             WebKit.WebResource resource, WebKit.NetworkRequest request, WebKit.NetworkResponse? response) {

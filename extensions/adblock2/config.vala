@@ -14,6 +14,7 @@ namespace Adblock {
         List<Subscription> subscriptions;
         string? path;
         KeyFile keyfile;
+        Subscription? custom;
 
         public Config (string? path) {
             subscriptions = new GLib.List<Subscription> ();
@@ -24,8 +25,10 @@ namespace Adblock {
 
             string custom_list = GLib.Path.build_filename (path, "custom.list");
             try {
-                subscriptions.append (new Subscription (Filename.to_uri (custom_list, null)));
+                custom = new Subscription (Filename.to_uri (custom_list, null));
+                subscriptions.append (custom);
             } catch (Error error) {
+                custom = null;
                 warning ("Failed to add custom list %s: %s", custom_list, error.message);
             }
 
@@ -46,6 +49,15 @@ namespace Adblock {
             }
 
             size = subscriptions.length ();
+        }
+
+        public void add_custom_rule (string rule) {
+            try {
+                var file = File.new_for_uri (custom.uri);
+                file.append_to (FileCreateFlags.NONE).write (("%s\n".printf (rule)).data);
+            } catch (Error error) {
+                warning ("Failed to add custom rule: %s", error.message);
+            }
         }
 
         /* foreach support */
