@@ -12,9 +12,11 @@
 namespace Adblock {
     public class Element : Feature {
         public HashTable<string, string> blockcssprivate;
+        bool debug_element;
 
         public Element () {
             base ();
+            debug_element = "adblock:element" in (Environment.get_variable ("MIDORI_DEBUG") ?? "");
         }
 
         public override void clear () {
@@ -26,7 +28,8 @@ namespace Adblock {
         }
 
         public void insert (string domain, string value) {
-            stderr.printf ("Element to be blocked %s => %s\n", domain, value);
+            if (debug_element)
+                stdout.printf ("Element to be blocked %s => %s\n", domain, value);
             blockcssprivate.insert (domain, value);
         }
     }
