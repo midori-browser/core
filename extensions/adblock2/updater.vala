@@ -12,8 +12,8 @@
 
 namespace Adblock {
     public class Updater : Feature {
-        string expires_meta { get; set; default = null; }
-        string last_mod_meta { get; set; default = null; }
+        public string expires_meta { get; set; default = null; }
+        public string last_mod_meta { get; set; default = null; }
         public int64 update_tstamp { get; set; default = 0; }
         public int64 last_mod_tstamp { get; set; default = 0; }
         public int64 last_check_tstamp { get; set; default = 0; }
@@ -114,13 +114,14 @@ namespace Adblock {
                 last_mod_date = now;
 
             /* We have "expires" metadata */
-
-            if (expires.contains ("days")) {
-                string[] parts = expires.split (" ");
-                expire_date = last_mod_date.add_days (int.parse (parts[0]));
-            } else if (expires.contains ("hours")) {
-                string[] parts = expires.split (" ");
-                expire_date = last_mod_date.add_hours (int.parse (parts[0]));
+            if (expires != null) {
+                if (expires.contains ("days")) {
+                    string[] parts = expires.split (" ");
+                    expire_date = last_mod_date.add_days (int.parse (parts[0]));
+                } else if (expires.contains ("hours")) {
+                    string[] parts = expires.split (" ");
+                    expire_date = last_mod_date.add_hours (int.parse (parts[0]));
+                }
             } else {
                 /* No expire metadata found, assume x days */
                 int days_to_expire = 7;

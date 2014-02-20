@@ -482,23 +482,49 @@ void test_adblock_pattern () {
     }
 }
 
+struct TestUpdateExample {
+    public string content;
+    public bool result;
+}
+
+ const TestUpdateExample[] examples = {
+        { "[Adblock Plus 1.1]\n! Last modified: 05 Sep 2010 11:00 UTC\n! This list expires after 48 hours\n", true },
+        { "[Adblock Plus 1.1]\n! Last modified: 05.09.2010 11:00 UTC\n! Expires: 2 days (update frequency)\n", true },
+        { "[Adblock Plus 1.1]\n! Updated: 05 Nov 2024 11:00 UTC\n! Expires: 5 days (update frequency)\n", false },
+        { "[Adblock]\n! dutchblock v3\n! This list expires after 14 days\n|http://b*.mookie1.com/\n", false },
+        { "[Adblock Plus 2.0]\n! Last modification time (GMT): 2012.11.05 13:33\n! Expires: 5 days (update frequency)\n", true },
+        { "[Adblock Plus 2.0]\n! Last modification time (GMT): 2012.11.05 13:33\n", true },
+        { "[Adblock]\n ! dummy,  i dont have any dates\n", false },
+    };
+
 void test_subscription_update () {
-    string path = Midori.Paths.get_res_filename ("adblock.list");
     string uri;
+    FileIOStream iostream;
+    File file;
     try {
-        uri = Filename.to_uri (path, null);
+        file = File.new_tmp ("midori_adblock_update_test_XXXXXX", out iostream);
+        uri = file.get_uri ();
     } catch (Error error) {
         GLib.error (error.message);
     }
     var sub = new Adblock.Subscription (uri);
     var updater = new Adblock.Updater ();
     sub.add_feature (updater);
-    try {
-        sub.parse ();
-    } catch (Error error) {
-        GLib.error (error.message);
+
+    foreach (var example in examples) {
+        try {
+            file.replace_contents (example.content.data, null, false, FileCreateFlags.NONE, null);
+            updater.last_mod_meta = null;
+            updater.expires_meta = null;
+            sub.parse ();
+        } catch (Error error) {
+            GLib.error (error.message);
+        }
+        if (example.result == true)
+            assert (updater.needs_updating());
+        else
+            assert (!updater.needs_updating());
     }
-    assert (updater.needs_updating());
 }
 
 public void extension_test () {
