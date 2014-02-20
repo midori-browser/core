@@ -97,8 +97,20 @@ namespace Adblock {
             var column = new Gtk.TreeViewColumn ();
             var renderer_toggle = new Gtk.CellRendererToggle ();
             column.pack_start (renderer_toggle, false);
-            // TODO: column.set_cell_data_func
-            // TODO: column.toggled.connect
+            column.set_cell_data_func (renderer_toggle, (column, renderer, model, iter) => {
+                Subscription sub;
+                liststore.get (iter, 0, out sub);
+                renderer.set ("active", sub.active,
+                              "sensitive", !sub.uri.has_suffix ("custom.list"));
+            });
+            renderer_toggle.toggled.connect ((path) => {
+                Gtk.TreeIter iter;
+                if (liststore.get_iter_from_string (out iter, path)) {
+                    Subscription sub;
+                    liststore.get (iter, 0, out sub);
+                    sub.active = !sub.active;
+                }
+            });
             treeview.append_column (column);
 
             column = new Gtk.TreeViewColumn ();

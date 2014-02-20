@@ -38,8 +38,20 @@ namespace Adblock {
                 keyfile.load_from_file (filename, GLib.KeyFileFlags.NONE);
                 string[] filters = keyfile.get_string_list ("settings", "filters");
                 foreach (string filter in filters) {
-                    Subscription sub = new Subscription (filter);
+                    bool active = false;
+                    string uri = filter;
+                    if (filter.has_prefix ("http-"))
+                        uri = "http:" + filter.substring (6);
+                    else if (filter.has_prefix ("file-"))
+                        uri = "file:" + filter.substring (6);
+                    else if (filter.has_prefix ("https-"))
+                        uri = "https:" + filter.substring (7);
+                    else
+                        active = true;
+                    Subscription sub = new Subscription (uri);
+                    sub.active = active;
                     sub.add_feature (new Updater ());
+                    sub.notify["active"].connect (active_changed);
                     subscriptions.append (sub);
                 }
             } catch (FileError.NOENT exist_error) {
@@ -49,6 +61,32 @@ namespace Adblock {
             }
 
             size = subscriptions.length ();
+        }
+
+        void active_changed (Object subscription, ParamSpec pspec) {
+            var filters = new StringBuilder ();
+            foreach (var sub in subscriptions) {
+                if (sub == custom)
+                    continue;
+                if (sub.uri.has_prefix ("http:") && !sub.active)
+                    filters.append ("http-" + sub.uri.substring (4));
+                else if (sub.uri.has_prefix ("file:") && !sub.active)
+                    filters.append ("file-" + sub.uri.substring (4));
+                else if (sub.uri.has_prefix ("https:") && !sub.active)
+                    filters.append ("https-" + sub.uri.substring (5));
+                else
+                    filters.append (sub.uri);
+                filters.append_c (';');
+            }
+
+            string[] list = (filters.str.slice (0, -1)).split (";");
+            keyfile.set_string_list ("settings", "filters", list);
+            try {
+                string filename = GLib.Path.build_filename (path, "config");
+                FileUtils.set_contents (filename, keyfile.to_data ());
+            } catch (Error error) {
+                warning ("Failed to save settings: %s", error.message);
+            }
         }
 
         public void add_custom_rule (string rule) {

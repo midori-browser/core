@@ -36,7 +36,6 @@ namespace Adblock {
 
         public Subscription (string uri) {
             this.uri = uri;
-            active = uri[4] != '-' && uri[5] != '-';
 
             this.optslist = new Options ();
             this.whitelist = new Whitelist (optslist);
