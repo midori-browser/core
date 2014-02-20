@@ -57,7 +57,7 @@ namespace Adblock {
             } catch (FileError.NOENT exist_error) {
                 /* It's no error if no config file exists */
             } catch (GLib.Error settings_error) {
-                stderr.printf ("Error reading settings from %s: %s\n", filename, settings_error.message);
+                warning ("Error reading settings from %s: %s\n", filename, settings_error.message);
             }
 
             size = subscriptions.length ();

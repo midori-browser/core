@@ -84,7 +84,7 @@ namespace Adblock {
 
             /* CSS block hider */
             if (line.has_prefix ("##")) {
-                frame_add (line);
+                /* TODO */
                 return;
             }
             if (line[0] == '#')
@@ -115,10 +115,6 @@ namespace Adblock {
 
             add_url_pattern ("", "uri", line);
             return /* add_url_pattern */;
-        }
-
-        void frame_add (string line) {
-            /* TODO */
         }
 
         void frame_add_private (string line, string sep) {

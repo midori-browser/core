@@ -39,7 +39,6 @@ namespace Adblock {
                          description: _("Block advertisements according to a filter list"),
                          version: "2.0",
                          authors: "Christian Dywan <christian@twotoasts.de>");
-            // TODO: install_string_list ("filters", null);
             activate.connect (extension_activated);
             open_preferences.connect (extension_preferences);
         }
@@ -61,7 +60,6 @@ namespace Adblock {
             dialog.get_widget_for_response (Gtk.ResponseType.HELP).get_style_context ().add_class ("help_button");
 #endif
             dialog.set_icon_name (Gtk.STOCK_PROPERTIES);
-            /* TODO: Help */
             dialog.set_response_sensitive (Gtk.ResponseType.HELP, false);
 
             var hbox = new Gtk.HBox (false, 0);
@@ -404,7 +402,6 @@ public Midori.Extension extension_init () {
 }
 #endif
 
-// FIXME: Allow test to build with WK2
 #if !HAVE_WEBKIT2
 struct TestCaseLine {
     public string line;

@@ -395,11 +395,8 @@ namespace ClipNotes {
         }
 
         void add_menu_items (Midori.Tab tab, WebKit.HitTestResult hit_test_result, Midori.ContextAction menu) {
-#if !HAVE_WEBKIT2
-            // FIXME
             if ((hit_test_result.context & WebKit.HitTestResultContext.SELECTION) == 0)
                 return;
-#endif
 
             var view = tab as Midori.View;
             var action = new Gtk.Action ("Notes", _("Copy selection as note"), null, null);
