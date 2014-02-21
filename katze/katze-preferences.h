@@ -16,6 +16,13 @@
 
 G_BEGIN_DECLS
 
+#if defined(USE_STACK_SWITCHER) && USE_STACK_SWITCHER
+#undef USE_STACK_SWITCHER
+#define USE_STACK_SWITCHER ( HAVE_OSX || GTK_MAJOR_VERSION > 3 || ( GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION >= 10 ))
+#else
+#define USE_STACK_SWITCHER 0
+#endif
+
 #define KATZE_TYPE_PREFERENCES \
     (katze_preferences_get_type ())
 #define KATZE_PREFERENCES(obj) \
