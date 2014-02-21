@@ -46,6 +46,16 @@ namespace ExternalApplications {
                     continue;
                 launcher_added (app_info);
             }
+
+            if (store.iter_n_children (null) < 1) {
+                foreach (var app_info in AppInfo.get_all ()) {
+                    if (!uri.has_prefix ("file://") && !app_info.supports_uris ())
+                        continue;
+                    if (!app_info.should_show ())
+                        continue;
+                    launcher_added (app_info);
+                }
+            }
         }
 
         public AppInfo get_app_info () {
@@ -106,6 +116,20 @@ namespace ExternalApplications {
     }
 
     private class Manager : Midori.Extension {
+        bool open_app_info (AppInfo app_info, string uri, string content_type) {
+            try {
+                var uris = new List<File> ();
+                uris.append (File.new_for_uri (uri));
+                app_info.launch (uris, null);
+                app_info.set_as_last_used_for_type (content_type);
+                app_info.set_as_default_for_type (content_type);
+                return true;
+            } catch (Error error) {
+                warning ("Failed to open \"%s\": %s", uri, error.message);
+                return false;
+            }
+        }
+
         bool navigation_requested (WebKit.WebView web_view, WebKit.WebFrame frame, WebKit.NetworkRequest request,
             WebKit.WebNavigationAction action, WebKit.WebPolicyDecision decision) {
 
@@ -113,35 +137,34 @@ namespace ExternalApplications {
             if (Midori.URI.is_http (uri) || Midori.URI.is_blank (uri))
                 return false;
 
-            try {
-                Gtk.show_uri (web_view.get_screen (), uri, 0);
-                decision.ignore ();
+            decision.ignore ();
+
+            string content_type = get_content_type (uri, null);
+            var app_info = AppInfo.get_default_for_type (content_type, !uri.has_prefix ("file://"));
+            if (app_info != null && open_app_info (app_info, uri, content_type))
                 return true;
-            } catch (Error error) {
-                if (open_with (uri, null, web_view)) {
-                    decision.ignore ();
-                    return true;
-                }
-            }
-            return false;
+            if (open_with (uri, content_type, web_view))
+                return true;
+            return true;
         }
 
-        bool open_with (string uri, string? mime_type, Gtk.Widget widget) {
+        string get_content_type (string uri, string? mime_type) {
+            if (!uri.has_prefix ("file://")) {
+                string protocol = uri.split(":", 2)[0];
+                return "x-scheme-handler/" + protocol;
+            } else if (mime_type == null) {
+                bool uncertain;
+                return ContentType.guess (uri, null, out uncertain);
+            }
+            return ContentType.from_mime_type (mime_type);
+        }
+
+        bool open_with (string uri, string content_type, Gtk.Widget widget) {
             string filename;
             if (uri.has_prefix ("file://"))
                 filename = Midori.Download.get_basename_for_display (uri);
             else
                 filename = uri;
-
-            string content_type;
-            if (!uri.has_prefix ("file://")) {
-                string protocol = uri.split(":", 2)[0];
-                content_type = "x-scheme-handler/" + protocol;
-            } else if (mime_type == null) {
-                bool uncertain;
-                content_type = ContentType.guess (filename, null, out uncertain);
-            } else
-                content_type = ContentType.from_mime_type (mime_type);
 
             var browser = Midori.Browser.get_for_widget (widget);
             var dialog = new Gtk.Dialog.with_buttons (_("Choose application"),
@@ -169,7 +192,7 @@ namespace ExternalApplications {
             chooser.selected.connect ((app_info) => {
                 dialog.response (Gtk.ResponseType.ACCEPT);
             });
-            bool accept = dialog.run () != Gtk.ResponseType.CANCEL;
+            bool accept = dialog.run () == Gtk.ResponseType.ACCEPT;
 
             var app_info = chooser.get_app_info ();
             dialog.destroy ();
@@ -177,17 +200,7 @@ namespace ExternalApplications {
             if (!accept)
                 return false;
 
-            try {
-                var uris = new List<File> ();
-                uris.append (File.new_for_uri (uri));
-                app_info.launch (uris, null);
-                app_info.set_as_last_used_for_type (content_type);
-                app_info.set_as_default_for_type (content_type);
-                return true;
-            } catch (Error error) {
-                warning ("Failed to open \"%s\": %s", uri, error.message);
-                return false;
-            }
+            return open_app_info (app_info, uri, content_type);
         }
 
         void context_menu (Midori.Tab tab, WebKit.HitTestResult hit_test_result, Midori.ContextAction menu) {
@@ -198,7 +211,7 @@ namespace ExternalApplications {
                 return;
             var action = new Gtk.Action ("OpenWith", _("Open _with…"), null, null);
             action.activate.connect ((action) => {
-                open_with (uri, tab.mime_type, tab);
+                open_with (uri, get_content_type (uri, tab.mime_type), tab);
             });
             menu.add (action);
         }
