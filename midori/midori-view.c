@@ -558,19 +558,6 @@ midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view
         g_free (new_uri);
         return TRUE;
     }
-    else if (sokoke_external_uri (uri))
-    {
-        if (sokoke_show_uri (gtk_widget_get_screen (GTK_WIDGET (web_view)),
-                             uri, GDK_CURRENT_TIME, NULL))
-        {
-            #ifdef HAVE_WEBKIT2
-            webkit_policy_decision_ignore (decision);
-            #else
-            webkit_web_policy_decision_ignore (decision);
-            #endif
-            return TRUE;
-        }
-    }
     else if (g_str_has_prefix (uri, "data:image/"))
     {
         /* For security reasons, main content served as data: is limited to images

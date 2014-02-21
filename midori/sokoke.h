@@ -30,13 +30,6 @@ sokoke_message_dialog                   (GtkMessageType  message_type,
                                          gboolean        modal);
 
 gboolean
-sokoke_show_uri_with_mime_type          (GdkScreen*      screen,
-                                         const gchar*    uri,
-                                         const gchar*    mime_type,
-                                         guint32         timestamp,
-                                         GError**        error);
-
-gboolean
 sokoke_show_uri                         (GdkScreen*      screen,
                                          const gchar*    uri,
                                          guint32         timestamp,
