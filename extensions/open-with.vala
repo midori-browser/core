@@ -39,7 +39,13 @@ namespace ExternalApplications {
 
             treeview.row_activated.connect (row_activated);
             treeview.show ();
-            pack_start (treeview, true, true, 0);
+            var scrolled = new Gtk.ScrolledWindow (null, null);
+            scrolled.set_policy (Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC);
+            scrolled.add (treeview);
+            pack_start (scrolled);
+            int height;
+            treeview.create_pango_layout ("a\nb").get_pixel_size (null, out height);
+            scrolled.set_size_request (-1, height * 5);
 
             foreach (var app_info in AppInfo.get_all_for_type (content_type)) {
                 if (!uri.has_prefix ("file://") && !app_info.supports_uris ())
