@@ -1613,37 +1613,6 @@ midori_view_new_view_cb (GtkWidget*     view,
     }
 }
 
-static void
-midori_browser_download_status_cb (WebKitDownload*  download,
-                                   GParamSpec*      pspec,
-                                   GtkWidget*       widget)
-{
-#ifndef HAVE_WEBKIT2
-    const gchar* uri = webkit_download_get_destination_uri (download);
-    switch (webkit_download_get_status (download))
-    {
-        case WEBKIT_DOWNLOAD_STATUS_FINISHED:
-            if (!sokoke_show_uri (gtk_widget_get_screen (widget), uri, 0, NULL))
-            {
-                sokoke_message_dialog (GTK_MESSAGE_ERROR,
-                    _("Error opening the image!"),
-                    _("Can not open selected image in a default viewer."), FALSE);
-            }
-            break;
-        case WEBKIT_DOWNLOAD_STATUS_ERROR:
-            webkit_download_cancel (download);
-            sokoke_message_dialog (GTK_MESSAGE_ERROR,
-                _("Error downloading the image!"),
-                _("Can not download selected image."), FALSE);
-            break;
-        case WEBKIT_DOWNLOAD_STATUS_CREATED:
-        case WEBKIT_DOWNLOAD_STATUS_STARTED:
-        case WEBKIT_DOWNLOAD_STATUS_CANCELLED:
-            break;
-    }
-#endif
-}
-
 #ifdef HAVE_WEBKIT2
 static void
 midori_browser_close_tab_idle (GObject*      resource,
@@ -1678,18 +1647,6 @@ midori_view_download_requested_cb (GtkWidget*      view,
     if (type == MIDORI_DOWNLOAD_CANCEL)
     {
         handled = FALSE;
-    }
-    else if (type == MIDORI_DOWNLOAD_OPEN_IN_VIEWER)
-    {
-        gchar* destination_uri =
-            midori_download_prepare_destination_uri (download, NULL);
-        midori_browser_prepare_download (browser, download, destination_uri);
-        g_signal_connect (download, "notify::status",
-            G_CALLBACK (midori_browser_download_status_cb), GTK_WIDGET (browser));
-        g_free (destination_uri);
-        #ifndef HAVE_WEBKIT2
-        webkit_download_start (download);
-        #endif
     }
     #ifdef HAVE_WEBKIT2
     else if (!webkit_download_get_destination (download))

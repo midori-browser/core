@@ -146,11 +146,7 @@ namespace ExternalApplications {
             decision.ignore ();
 
             string content_type = get_content_type (uri, null);
-            var app_info = AppInfo.get_default_for_type (content_type, !uri.has_prefix ("file://"));
-            if (app_info != null && open_app_info (app_info, uri, content_type))
-                return true;
-            if (open_with (uri, content_type, web_view))
-                return true;
+            try_open (uri, content_type, web_view);
             return true;
         }
 
@@ -163,6 +159,15 @@ namespace ExternalApplications {
                 return ContentType.guess (uri, null, out uncertain);
             }
             return ContentType.from_mime_type (mime_type);
+        }
+
+        bool try_open (string uri, string content_type, Gtk.Widget widget) {
+            var app_info = AppInfo.get_default_for_type (content_type, !uri.has_prefix ("file://"));
+            if (app_info != null && open_app_info (app_info, uri, content_type))
+                return true;
+            if (open_with (uri, content_type, widget))
+                return true;
+            return false;
         }
 
         bool open_with (string uri, string content_type, Gtk.Widget widget) {
@@ -210,16 +215,37 @@ namespace ExternalApplications {
         }
 
         void context_menu (Midori.Tab tab, WebKit.HitTestResult hit_test_result, Midori.ContextAction menu) {
-            string uri;
             if ((hit_test_result.context & WebKit.HitTestResultContext.LINK) != 0)  {
-                uri = hit_test_result.link_uri;
-            } else
-                return;
-            var action = new Gtk.Action ("OpenWith", _("Open _with…"), null, null);
-            action.activate.connect ((action) => {
-                open_with (uri, get_content_type (uri, tab.mime_type), tab);
-            });
-            menu.add (action);
+                string uri = hit_test_result.link_uri;
+                var action = new Gtk.Action ("OpenWith", _("Open _with…"), null, null);
+                action.activate.connect ((action) => {
+                    open_with (uri, get_content_type (uri, tab.mime_type), tab);
+                });
+                menu.add (action);
+            }
+#if !HAVE_WEBKIT2
+            if ((hit_test_result.context & WebKit.HitTestResultContext.IMAGE) != 0) {
+                string uri = hit_test_result.image_uri;
+                var action = new Gtk.Action ("OpenImageInViewer", _("Open in Image _Viewer"), null, null);
+                action.activate.connect ((action) => {
+                    var download = new WebKit.Download (new WebKit.NetworkRequest (uri));
+                    download.destination_uri = Midori.Download.prepare_destination_uri (download, null);
+                    if (!Midori.Download.has_enough_space (download, download.destination_uri))
+                        return;
+                    download.notify["status"].connect ((pspec) => {
+                        if (download.status == WebKit.DownloadStatus.FINISHED) {
+                            try_open (download.destination_uri, get_content_type (download.destination_uri, null), tab);
+                        }
+                        else if (download.status == WebKit.DownloadStatus.ERROR)
+                            Midori.show_message_dialog (Gtk.MessageType.ERROR,
+                                _("Error downloading the image!"),
+                                _("Can not download selected image."), false);
+                    });
+                    download.start ();
+                });
+                menu.add (action);
+            }
+#endif
         }
 
         public void tab_added (Midori.Browser browser, Midori.View view) {

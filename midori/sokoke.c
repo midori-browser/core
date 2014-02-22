@@ -109,22 +109,7 @@ sokoke_message_dialog (GtkMessageType message_type,
                        const gchar*   detailed_message,
                        gboolean       modal)
 {
-    GtkWidget* dialog = gtk_message_dialog_new (
-        NULL, 0, message_type, GTK_BUTTONS_OK, "%s", short_message);
-    gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
-                                              "%s", detailed_message);
-    if (modal)
-    {
-        gtk_dialog_run (GTK_DIALOG (dialog));
-        gtk_widget_destroy (dialog);
-    }
-    else
-    {
-        g_signal_connect_swapped (dialog, "response",
-            G_CALLBACK (gtk_widget_destroy), dialog);
-        gtk_widget_show (dialog);
-    }
-
+    midori_show_message_dialog (message_type, short_message, detailed_message, modal);
 }
 
 GAppInfo*

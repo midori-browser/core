@@ -2096,16 +2096,6 @@ midori_web_view_menu_image_save_activate_cb (GtkAction* action,
 }
 
 static void
-midori_web_view_open_in_viewer_cb (GtkAction* action,
-                                   gpointer   user_data)
-{
-    MidoriView* view = user_data;
-    gchar* uri = katze_object_get_string (view->hit_test, "image-uri");
-    midori_view_download_uri (view, MIDORI_DOWNLOAD_OPEN_IN_VIEWER, uri);
-    g_free (uri);
-}
-
-static void
 midori_web_view_menu_video_copy_activate_cb (GtkAction* action,
                                              gpointer   user_data)
 {
@@ -2345,8 +2335,6 @@ midori_view_get_page_context_action (MidoriView*          view,
             midori_web_view_menu_image_copy_activate_cb, view);
         midori_context_action_add_simple (menu, "SaveImage", _("Save I_mage"), NULL, GTK_STOCK_SAVE,
             midori_web_view_menu_image_save_activate_cb, view);
-        midori_context_action_add_simple (menu, "OpenImageInViewer", _("Open in Image _Viewer"), NULL, GTK_STOCK_OPEN,
-            midori_web_view_open_in_viewer_cb, view);
     }
 
     if (context & WEBKIT_HIT_TEST_RESULT_CONTEXT_MEDIA)
