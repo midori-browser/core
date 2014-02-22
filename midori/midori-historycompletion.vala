@@ -51,7 +51,7 @@ namespace Midori {
                 else if (item is Midori.HistorySearch) {
                     var search = item as Midori.HistorySearch;
                     suggestions.append (new Suggestion (search.uri, search.title + "\n" + search.uri,
-                        false, "gray", Midori.Paths.get_icon (search.uri, null)));
+                        false, "gray", Midori.Paths.get_icon (search.uri, null), this.position));
                 }
                 else
                     warn_if_reached ();
