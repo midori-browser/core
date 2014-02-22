@@ -248,6 +248,23 @@ namespace ExternalApplications {
 #endif
         }
 
+        void show_preferences (Katze.Preferences preferences) {
+            var settings = get_app ().settings;
+            preferences.add_category (_("File Types"), Gtk.STOCK_FILE);
+            preferences.add_group (null);
+            var label = new Gtk.Label (_("Text Editor"));
+            label.set_alignment (0.0f, 0.5f);
+            preferences.add_widget (label, "indented");
+            var entry = Katze.property_proxy (settings, "text-editor", "application-text/plain");
+            preferences.add_widget (entry, "spanned");
+
+            label = new Gtk.Label (_("News Aggregator"));
+            label.set_alignment (0.0f, 0.5f);
+            preferences.add_widget (label, "indented");
+            entry = Katze.property_proxy (settings, "news-aggregator", "application-News");
+            preferences.add_widget (entry, "spanned");
+        }
+
         public void tab_added (Midori.Browser browser, Midori.View view) {
             view.web_view.navigation_policy_decision_requested.connect (navigation_requested);
             view.context_menu.connect (context_menu);
@@ -263,6 +280,7 @@ namespace ExternalApplications {
                 tab_added (browser, tab);
             browser.add_tab.connect (tab_added);
             browser.remove_tab.connect (tab_removed);
+            browser.show_preferences.connect (show_preferences);
         }
 
         void activated (Midori.App app) {
@@ -276,6 +294,7 @@ namespace ExternalApplications {
                 tab_removed (browser, tab);
             browser.add_tab.disconnect (tab_added);
             browser.remove_tab.disconnect (tab_removed);
+            browser.show_preferences.disconnect (show_preferences);
         }
 
         void deactivated () {
