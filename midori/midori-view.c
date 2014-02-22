@@ -2123,8 +2123,8 @@ midori_view_menu_open_email_activate_cb (GtkAction* action,
     MidoriView* view = user_data;
     gchar* data = (gchar*)g_object_get_data (G_OBJECT (action), "uri");
     gchar* uri = g_strconcat ("mailto:", data, NULL);
-    sokoke_show_uri (gtk_widget_get_screen (view->web_view),
-                     uri, GDK_CURRENT_TIME, NULL);
+    gboolean handled = FALSE;
+    g_signal_emit_by_name (view, "open-uri", uri, &handled);
     g_free (uri);
 }
 #endif
@@ -3988,12 +3988,19 @@ midori_view_set_uri (MidoriView*  view,
                 g_free (exception);
             }
         }
-        else if (sokoke_external_uri (uri))
-        {
-            sokoke_show_uri (NULL, uri, GDK_CURRENT_TIME, NULL);
-        }
         else
         {
+            if (sokoke_external_uri (uri))
+            {
+                gboolean handled = FALSE;
+                g_signal_emit_by_name (view, "open-uri", uri, &handled);
+                if (handled)
+                {
+                    g_free (temporary_uri);
+                    return;
+                }
+            }
+
             midori_tab_set_uri (MIDORI_TAB (view), uri);
             katze_item_set_uri (view->item, midori_tab_get_uri (MIDORI_TAB (view)));
             katze_assign (view->title, NULL);

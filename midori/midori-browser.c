@@ -1496,7 +1496,11 @@ midori_view_forward_external (GtkWidget*    view,
                               MidoriNewView where)
 {
     if (midori_paths_get_runtime_mode () == MIDORI_RUNTIME_MODE_APP)
-        return sokoke_show_uri (gtk_widget_get_screen (view), uri, 0, NULL);
+    {
+        gboolean handled = FALSE;
+        g_signal_emit_by_name (view, "open-uri", uri, &handled);
+        return handled;
+    }
     else if (midori_paths_get_runtime_mode () == MIDORI_RUNTIME_MODE_PRIVATE)
     {
         if (where == MIDORI_NEW_VIEW_WINDOW)

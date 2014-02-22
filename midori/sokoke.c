@@ -133,42 +133,6 @@ sokoke_default_for_uri (const gchar* uri,
 }
 
 /**
- * sokoke_show_uri:
- * @screen: a #GdkScreen, or %NULL
- * @uri: the URI to show
- * @timestamp: the timestamp of the event
- * @error: the location of a #GError, or %NULL
- *
- * Shows the specified URI with an application or xdg-open.
- * x-scheme-handler is supported for GLib < 2.28 as of 0.3.3.
- *
- * Return value: %TRUE on success, %FALSE if an error occurred
- **/
-gboolean
-sokoke_show_uri (GdkScreen*   screen,
-                 const gchar* uri,
-                 guint32      timestamp,
-                 GError**     error)
-{
-    #ifdef G_OS_WIN32
-    CoInitializeEx (NULL, COINIT_APARTMENTTHREADED);
-    SHELLEXECUTEINFO info = { sizeof (info) };
-    info.nShow = SW_SHOWNORMAL;
-    info.lpFile = uri;
-
-    return ShellExecuteEx (&info);
-    #else
-    g_return_val_if_fail (GDK_IS_SCREEN (screen) || !screen, FALSE);
-    g_return_val_if_fail (uri != NULL, FALSE);
-    g_return_val_if_fail (!error || !*error, FALSE);
-
-    sokoke_recursive_fork_protection (uri, TRUE);
-
-    return gtk_show_uri (screen, uri, timestamp, error);
-    #endif
-}
-
-/**
  * sokoke_prepare_command:
  * @command: the command, properly quoted
  * @argument: any arguments, properly quoted

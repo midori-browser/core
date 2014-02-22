@@ -11,7 +11,6 @@
 
 namespace Sokoke {
 #if !HAVE_WEBKIT2
-    extern static bool show_uri (Gdk.Screen screen, string uri, uint32 timestamp) throws Error;
     extern static bool message_dialog (Gtk.MessageType type, string short, string detailed, bool modal);
 #endif
 }
@@ -212,9 +211,13 @@ namespace Midori {
 
         public static bool open (WebKit.Download download, Gtk.Widget widget) throws Error {
 #if !HAVE_WEBKIT2
-            if (!has_wrong_checksum (download))
-                return Sokoke.show_uri (widget.get_screen (),
-                    download.destination_uri, Gtk.get_current_event_time ());
+            if (!has_wrong_checksum (download)) {
+                var browser = widget.get_toplevel ();
+                Tab? tab = null;
+                browser.get ("tab", tab);
+                if (tab != null)
+                    tab.open_uri (download.destination_uri);
+            }
 
             Sokoke.message_dialog (Gtk.MessageType.WARNING,
                 _("The downloaded file is erroneous."),

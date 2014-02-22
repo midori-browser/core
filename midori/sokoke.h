@@ -29,12 +29,6 @@ sokoke_message_dialog                   (GtkMessageType  message_type,
                                          const gchar*    detailed_message,
                                          gboolean        modal);
 
-gboolean
-sokoke_show_uri                         (GdkScreen*      screen,
-                                         const gchar*    uri,
-                                         guint32         timestamp,
-                                         GError**        error);
-
 gchar*
 sokoke_prepare_command                  (const gchar*    command,
                                          gboolean        quote_command,

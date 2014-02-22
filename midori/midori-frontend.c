@@ -302,7 +302,7 @@ midori_frontend_crash_log_cb (GtkWidget* button,
                               gchar*     crash_log)
 {
     GError* error = NULL;
-    if (!sokoke_show_uri (gtk_widget_get_screen (button), crash_log, 0, &error))
+    if (!gtk_show_uri (gtk_widget_get_screen (button), crash_log, 0, &error))
     {
         sokoke_message_dialog (GTK_MESSAGE_ERROR,
                                _("Could not run external program."),

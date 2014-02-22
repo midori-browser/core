@@ -485,8 +485,8 @@ addons_open_in_editor_clicked_cb (GtkWidget* toolitem,
         else
         {
             gchar* element_uri = g_filename_to_uri (element->fullpath, NULL, NULL);
-            sokoke_show_uri (NULL, element_uri,
-                             gtk_get_current_event_time (), NULL);
+            gboolean handled = FALSE;
+            g_signal_emit_by_name (midori_browser_get_current_tab (browser), "open-uri", element_uri, &handled);
             g_free (element_uri);
         }
 
@@ -522,8 +522,9 @@ addons_open_target_folder_clicked_cb (GtkWidget* toolitem,
     folder_uri = g_filename_to_uri (folder, NULL, NULL);
     g_free (folder);
 
-    sokoke_show_uri (gtk_widget_get_screen (GTK_WIDGET (addons->treeview)),
-                     folder_uri, gtk_get_current_event_time (), NULL);
+    MidoriBrowser* browser = midori_browser_get_for_widget (addons->treeview);
+    gboolean handled = FALSE;
+    g_signal_emit_by_name (midori_browser_get_current_tab (browser), "open-uri", folder_uri, &handled);
     g_free (folder_uri);
 }
 
