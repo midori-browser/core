@@ -121,6 +121,153 @@ namespace ExternalApplications {
         public signal void selected (AppInfo app_info);
     }
 
+    class Types : Gtk.VBox {
+        public Gtk.ListStore store = new Gtk.ListStore (2, typeof (string), typeof (AppInfo));
+        Gtk.TreeView treeview;
+
+        public Types () {
+            Gtk.TreeViewColumn column;
+
+            treeview = new Gtk.TreeView.with_model (store);
+            treeview.headers_visible = false;
+
+            store.set_sort_column_id (0, Gtk.SortType.ASCENDING);
+            store.set_sort_func (0, tree_sort_func);
+
+            column = new Gtk.TreeViewColumn ();
+            column.set_sizing (Gtk.TreeViewColumnSizing.AUTOSIZE);
+            Gtk.CellRendererPixbuf renderer_type_icon = new Gtk.CellRendererPixbuf ();
+            column.pack_start (renderer_type_icon, false);
+            column.set_cell_data_func (renderer_type_icon, on_render_type_icon);
+            treeview.append_column (column);
+
+            column = new Gtk.TreeViewColumn ();
+            column.set_sizing (Gtk.TreeViewColumnSizing.AUTOSIZE);
+            Gtk.CellRendererText renderer_type_text = new Gtk.CellRendererText ();
+            column.pack_start (renderer_type_text, true);
+            column.set_cell_data_func (renderer_type_text, on_render_type_text);
+            treeview.append_column (column);
+
+            column = new Gtk.TreeViewColumn ();
+            column.set_sizing (Gtk.TreeViewColumnSizing.AUTOSIZE);
+            Gtk.CellRendererPixbuf renderer_icon = new Gtk.CellRendererPixbuf ();
+            column.pack_start (renderer_icon, false);
+            column.set_cell_data_func (renderer_icon, on_render_icon);
+            treeview.append_column (column);
+
+            column = new Gtk.TreeViewColumn ();
+            column.set_sizing (Gtk.TreeViewColumnSizing.AUTOSIZE);
+            Gtk.CellRendererText renderer_text = new Gtk.CellRendererText ();
+            column.pack_start (renderer_text, true);
+            column.set_expand (true);
+            column.set_cell_data_func (renderer_text, on_render_text);
+            treeview.append_column (column);
+
+            treeview.row_activated.connect (row_activated);
+            treeview.show ();
+            var scrolled = new Gtk.ScrolledWindow (null, null);
+            scrolled.set_policy (Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC);
+            scrolled.add (treeview);
+            pack_start (scrolled);
+            int height;
+            treeview.create_pango_layout ("a\nb").get_pixel_size (null, out height);
+            scrolled.set_size_request (-1, height * 5);
+
+            foreach (string content_type in ContentType.list_registered ())
+                launcher_added (content_type);
+            foreach (string scheme in Vfs.get_default ().get_supported_uri_schemes ())
+                launcher_added ("x-scheme-handler/" + scheme);
+
+            treeview.size_allocate.connect_after ((allocation) => {
+                treeview.columns_autosize ();
+            });
+        }
+
+        void on_render_type_icon (Gtk.CellLayout column, Gtk.CellRenderer renderer,
+            Gtk.TreeModel model, Gtk.TreeIter iter) {
+
+            string content_type;
+            store.get (iter, 0, out content_type);
+
+            renderer.set ("gicon", ContentType.get_icon (content_type),
+                          "stock-size", Gtk.IconSize.BUTTON,
+                          "xpad", 4);
+        }
+
+        void on_render_type_text (Gtk.CellLayout column, Gtk.CellRenderer renderer,
+            Gtk.TreeModel model, Gtk.TreeIter iter) {
+
+            string content_type;
+            AppInfo app_info;
+            store.get (iter, 0, out content_type, 1, out app_info);
+
+            string desc, mime_type;
+            if (content_type.has_prefix ("x-scheme-handler/")) {
+                desc = content_type.split ("/")[1] + "://";
+                mime_type = "";
+            } else {
+                desc = ContentType.get_description (content_type);
+                mime_type = ContentType.get_mime_type (content_type);
+            }
+
+            renderer.set ("markup",
+                Markup.printf_escaped ("<b>%s</b>\n%s",
+                    desc, mime_type),
+                          "ellipsize", Pango.EllipsizeMode.END);
+        }
+
+        void on_render_icon (Gtk.CellLayout column, Gtk.CellRenderer renderer,
+            Gtk.TreeModel model, Gtk.TreeIter iter) {
+
+            AppInfo app_info;
+            model.get (iter, 1, out app_info);
+
+            renderer.set ("gicon", app_info.get_icon (),
+                          "stock-size", Gtk.IconSize.MENU,
+                          "xpad", 4);
+        }
+
+        void on_render_text (Gtk.CellLayout column, Gtk.CellRenderer renderer,
+            Gtk.TreeModel model, Gtk.TreeIter iter) {
+
+            AppInfo app_info;
+            model.get (iter, 1, out app_info);
+            renderer.set ("markup",
+                Markup.printf_escaped ("<b>%s</b>\n%s",
+                    app_info.get_display_name (), app_info.get_description ()),
+                          "ellipsize", Pango.EllipsizeMode.END);
+        }
+
+        void launcher_added (string content_type) {
+            var app_info = AppInfo.get_default_for_type (content_type, false);
+            if (app_info == null)
+                return;
+
+            Gtk.TreeIter iter;
+            store.append (out iter);
+            store.set (iter, 0, content_type, 1, app_info);
+        }
+
+        int tree_sort_func (Gtk.TreeModel model, Gtk.TreeIter a, Gtk.TreeIter b) {
+            string content_type1, content_type2;
+            model.get (a, 0, out content_type1);
+            model.get (b, 0, out content_type2);
+            return strcmp (content_type1, content_type2);
+        }
+
+        void row_activated (Gtk.TreePath path, Gtk.TreeViewColumn column) {
+            Gtk.TreeIter iter;
+            if (store.get_iter (out iter, path)) {
+                string content_type;
+                store.get (iter, 0, out content_type);
+                selected (content_type, iter);
+            }
+        }
+
+        public signal void selected (string content_type, Gtk.TreeIter iter);
+    }
+
+
     private class Manager : Midori.Extension {
         bool open_app_info (AppInfo app_info, string uri, string content_type) {
             try {
@@ -165,12 +312,12 @@ namespace ExternalApplications {
             var app_info = AppInfo.get_default_for_type (content_type, !uri.has_prefix ("file://"));
             if (app_info != null && open_app_info (app_info, uri, content_type))
                 return true;
-            if (open_with (uri, content_type, widget))
+            if (open_with (uri, content_type, widget) != null)
                 return true;
             return false;
         }
 
-        bool open_with (string uri, string content_type, Gtk.Widget widget) {
+        AppInfo? open_with (string uri, string content_type, Gtk.Widget widget) {
             string filename;
             if (uri.has_prefix ("file://"))
                 filename = Midori.Download.get_basename_for_display (uri);
@@ -195,6 +342,8 @@ namespace ExternalApplications {
             var label = new Gtk.Label (_("Select an application to open \"%s\"".printf (filename)));
             label.ellipsize = Pango.EllipsizeMode.END;
             vbox.pack_start (label, false, false, 0);
+            if (uri == "")
+                label.no_show_all = true;
             var chooser = new Chooser (uri, content_type);
             vbox.pack_start (chooser, true, true, 0);
 
@@ -209,9 +358,12 @@ namespace ExternalApplications {
             dialog.destroy ();
 
             if (!accept)
-                return false;
+                return null;
 
-            return open_app_info (app_info, uri, content_type);
+            if (uri == "")
+                return app_info;
+
+            return open_app_info (app_info, uri, content_type) ? app_info : null;
         }
 
         void context_menu (Midori.Tab tab, WebKit.HitTestResult hit_test_result, Midori.ContextAction menu) {
@@ -250,7 +402,7 @@ namespace ExternalApplications {
 
         void show_preferences (Katze.Preferences preferences) {
             var settings = get_app ().settings;
-            preferences.add_category (_("File Types"), Gtk.STOCK_FILE);
+            var category = preferences.add_category (_("File Types"), Gtk.STOCK_FILE);
             preferences.add_group (null);
             var label = new Gtk.Label (_("Text Editor"));
             label.set_alignment (0.0f, 0.5f);
@@ -263,6 +415,19 @@ namespace ExternalApplications {
             preferences.add_widget (label, "indented");
             entry = Katze.property_proxy (settings, "news-aggregator", "application-News");
             preferences.add_widget (entry, "spanned");
+
+            var types = new Types ();
+            types.selected.connect ((content_type, iter) => {
+                try {
+                    var app_info = open_with ("", content_type, preferences);
+                    app_info.set_as_default_for_type (content_type);
+                    types.store.set (iter, 1, app_info);
+                } catch (Error error) {
+                    warning ("Failed to select default for \"%s\": %s", content_type, error.message);
+                }
+            });
+            category.pack_start (types, true, true, 0);
+            types.show_all ();
         }
 
         public void tab_added (Midori.Browser browser, Midori.View view) {
