@@ -808,36 +808,6 @@ sokoke_prefetch_uri (MidoriWebSettings*  settings,
 #endif
 }
 
-/**
- * sokoke_recursive_fork_protection
- * @uri: the URI to check
- * @set_uri: if TRUE the URI will be saved
- *
- * Protects against recursive invokations of the Midori executable
- * with the same URI.
- *
- * As an example, consider having an URI starting with 'tel://'. You
- * could attempt to open it with sokoke_show_uri. In turn, 'exo-open'
- * might be called. Now quite possibly 'exo-open' is unable to handle
- * 'tel://' and might well fall back to 'midori' as default browser.
- *
- * To protect against this scenario, call this function with the
- * URI and %TRUE before calling any external tool.
- * #MidoriApp calls sokoke_recursive_fork_protection() with %FALSE
- * and bails out if %FALSE is returned.
- *
- * Return value: %TRUE if @uri is new, %FALSE on recursion
- **/
-gboolean
-sokoke_recursive_fork_protection (const gchar* uri,
-                                  gboolean     set_uri)
-{
-    static gchar* fork_uri = NULL;
-    if (set_uri)
-        katze_assign (fork_uri, g_strdup (uri));
-    return g_strcmp0 (fork_uri, uri) == 0 ? FALSE : TRUE;
-}
-
 static void
 sokoke_widget_clipboard_owner_clear_func (GtkClipboard* clipboard,
                                           gpointer      user_data)

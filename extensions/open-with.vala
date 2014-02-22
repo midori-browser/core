@@ -270,6 +270,8 @@ namespace ExternalApplications {
 
     private class Manager : Midori.Extension {
         bool open_app_info (AppInfo app_info, string uri, string content_type) {
+            Midori.URI.recursive_fork_protection (uri, true);
+
             try {
                 var uris = new List<File> ();
                 uris.append (File.new_for_uri (uri));

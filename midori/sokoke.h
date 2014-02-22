@@ -99,10 +99,6 @@ sokoke_prefetch_uri                     (MidoriWebSettings*  settings,
 gboolean
 sokoke_resolve_hostname                 (const gchar*        hostname);
 
-gboolean
-sokoke_recursive_fork_protection        (const gchar*         uri,
-                                         gboolean             set_uri);
-
 void
 sokoke_widget_copy_clipboard (GtkWidget*          widget,
                               const gchar*        text,
