@@ -335,7 +335,7 @@ namespace Adblock {
                 return false;
 
             /* Skip adblock on internal pages */
-            if (page_uri.has_prefix ("about:"))
+            if (Midori.URI.is_blank (page_uri))
                 return false;
 
             /* Skip adblock on favicons and non http schemes */
