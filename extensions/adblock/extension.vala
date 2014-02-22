@@ -334,6 +334,14 @@ namespace Adblock {
             if (request_uri == page_uri)
                 return false;
 
+            /* Skip adblock on internal pages */
+            if (Midori.URI.is_blank (page_uri))
+                return false;
+
+            /* Skip adblock on favicons and non http schemes */
+            if (!Midori.URI.is_http (request_uri) || request_uri.has_suffix ("favicon.ico"))
+                return false;
+
             Directive? directive = cache.lookup (request_uri);
             if (directive == null) {
                 foreach (Subscription sub in config) {
