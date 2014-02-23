@@ -16,6 +16,80 @@ namespace Sokoke {
 #endif
 
 namespace ExternalApplications {
+    bool open_app_info (AppInfo app_info, string uri, string content_type) {
+        Midori.URI.recursive_fork_protection (uri, true);
+
+        try {
+            var uris = new List<File> ();
+            uris.append (File.new_for_uri (uri));
+            app_info.launch (uris, null);
+            new Associations ().remember (content_type, app_info);
+            return true;
+        } catch (Error error) {
+            warning ("Failed to open \"%s\": %s", uri, error.message);
+            return false;
+        }
+    }
+
+    class Associations : Object {
+#if HAVE_WIN32
+        string config_dir;
+        string filename;
+        KeyFile keyfile;
+
+        public Associations () {
+            config_dir = Midori.Paths.get_extension_config_dir ("libopen-with.so");
+            filename = Path.build_filename (config_dir, "config");
+            keyfile = new KeyFile ();
+
+            try {
+                keyfile.load_from_file (filename, KeyFileFlags.NONE);
+            } catch (FileError.NOENT exist_error) {
+                /* It's no error if no config file exists */
+            } catch (Error error) {
+                warning ("Failed to load associations: %s", error.message);
+            }
+        }
+
+        public bool open (string content_type, string uri) {
+            Midori.URI.recursive_fork_protection (uri, true);
+            try {
+                string commandline = keyfile.get_string ("mimes", content_type);
+                if ("%u" in commandline)
+                    commandline = commandline.replace ("%u", Shell.quote (uri));
+                else if ("%F" in commandline)
+                    commandline = commandline.replace ("%F", Shell.quote (Filename.from_uri (uri)));
+                return Process.spawn_command_line_async (commandline);
+            } catch (KeyFileError error) {
+                /* Not remembered before */
+                return false;
+            } catch (Error error) {
+                warning ("Failed to open \"%s\": %s", uri, error.message);
+                return false;
+            }
+        }
+
+        public void remember (string content_type, AppInfo app_info) throws Error {
+            keyfile.set_string ("mimes", content_type, get_commandline (app_info));
+            FileUtils.set_contents (filename, keyfile.to_data ());
+        }
+    }
+#else
+        public Associations () {
+        }
+
+        public bool open (string content_type, string uri) {
+            var app_info = AppInfo.get_default_for_type (content_type, false);
+            return open_app_info (app_info, uri, content_type);
+        }
+
+        public void remember (string content_type, AppInfo app_info) throws Error {
+            app_info.set_as_last_used_for_type (content_type);
+            app_info.set_as_default_for_type (content_type);
+        }
+    }
+#endif
+
     static string get_commandline (AppInfo app_info) {
         return app_info.get_commandline () ?? app_info.get_executable ();
     }
@@ -393,26 +467,6 @@ namespace ExternalApplications {
             OPEN_WITH
         }
 
-        bool open_app_info (AppInfo app_info, string uri, string content_type) {
-            Midori.URI.recursive_fork_protection (uri, true);
-
-            try {
-                var uris = new List<File> ();
-                uris.append (File.new_for_uri (uri));
-                app_info.launch (uris, null);
-                try {
-                    app_info.set_as_last_used_for_type (content_type);
-                    app_info.set_as_default_for_type (content_type);
-                } catch (IOError.NOT_SUPPORTED io_error) {
-                    warning ("Failed to update defaults for \"%s\": %s", content_type, io_error.message);
-                }
-                return true;
-            } catch (Error error) {
-                warning ("Failed to open \"%s\": %s", uri, error.message);
-                return false;
-            }
-        }
-
         bool open_uri (Midori.Tab tab, string uri) {
             return open_with_type (uri, get_content_type (uri, null), tab, NextStep.TRY_OPEN);
         }
@@ -475,8 +529,7 @@ namespace ExternalApplications {
         }
 
         bool open_now (string uri, string content_type, Gtk.Widget widget, NextStep next_step) {
-            var app_info = AppInfo.get_default_for_type (content_type, !uri.has_prefix ("file://"));
-            if (next_step == NextStep.TRY_OPEN && app_info != null && open_app_info (app_info, uri, content_type))
+            if (next_step == NextStep.TRY_OPEN && (new Associations ()).open (content_type, uri))
                 return true;
             if (open_with (uri, content_type, widget) != null)
                 return true;
