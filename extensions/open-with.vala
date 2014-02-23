@@ -463,7 +463,7 @@ namespace ExternalApplications {
                 string uri = hit_test_result.link_uri;
                 var action = new Gtk.Action ("OpenWith", _("Open _with…"), null, null);
                 action.activate.connect ((action) => {
-                    open_with (uri, get_content_type (uri, tab.mime_type), tab);
+                    open_with (uri, get_content_type (uri, null), tab);
                 });
                 menu.add (action);
             }
