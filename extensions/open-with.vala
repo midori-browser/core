@@ -314,8 +314,14 @@ namespace ExternalApplications {
                 string protocol = uri.split(":", 2)[0];
                 return "x-scheme-handler/" + protocol;
             } else if (mime_type == null) {
+                string filename;
                 bool uncertain;
-                return ContentType.guess (uri, null, out uncertain);
+                try {
+                    filename = Filename.from_uri (uri);
+                } catch (Error error) {
+                    filename = uri;
+                }
+                return ContentType.guess (filename, null, out uncertain);
             }
             return ContentType.from_mime_type (mime_type);
         }
