@@ -38,7 +38,7 @@ namespace ExternalApplications {
         KeyFile keyfile;
 
         public Associations () {
-            config_dir = Midori.Paths.get_extension_config_dir ("libopen-with.so");
+            config_dir = Midori.Paths.get_extension_config_dir ("open-with");
             filename = Path.build_filename (config_dir, "config");
             keyfile = new KeyFile ();
 
