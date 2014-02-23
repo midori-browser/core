@@ -452,6 +452,9 @@ namespace ExternalApplications {
             if (uri == "")
                 return app_info;
 
+            if (app_info == null)
+                return app_info;
+
             return open_app_info (app_info, uri, content_type) ? app_info : null;
         }
 
