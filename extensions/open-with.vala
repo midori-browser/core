@@ -103,11 +103,6 @@ namespace ExternalApplications {
         }
 
         void launcher_added (AppInfo app_info, string uri) {
-#if !HAVE_WIN32
-            /* On Win32 supports_uris is not implemented */
-            if (!uri.has_prefix ("file://") && !app_info.supports_uris ())
-                return;
-#endif
             if (!app_info.should_show ())
                 return;
 
@@ -435,6 +430,32 @@ namespace ExternalApplications {
         }
 
         bool try_open (string uri, string content_type, Gtk.Widget widget) {
+            #if HAVE_WEBKIT2
+            return open_now (uri, content_type, widget);
+            #else
+            if (!Midori.URI.is_http (uri))
+                return open_now (uri, content_type, widget);
+
+            var download = new WebKit.Download (new WebKit.NetworkRequest (uri));
+            download.destination_uri = Midori.Download.prepare_destination_uri (download, null);
+            if (!Midori.Download.has_enough_space (download, download.destination_uri))
+                return false;
+
+            download.notify["status"].connect ((pspec) => {
+                if (download.status == WebKit.DownloadStatus.FINISHED) {
+                    open_now (download.destination_uri, content_type, widget);
+                }
+                else if (download.status == WebKit.DownloadStatus.ERROR)
+                    Midori.show_message_dialog (Gtk.MessageType.ERROR,
+                        _("Error downloading the image!"),
+                        _("Can not download selected image."), false);
+            });
+            download.start ();
+            return true;
+            #endif
+        }
+
+        bool open_now (string uri, string content_type, Gtk.Widget widget) {
             var app_info = AppInfo.get_default_for_type (content_type, !uri.has_prefix ("file://"));
             if (app_info != null && open_app_info (app_info, uri, content_type))
                 return true;
@@ -472,20 +493,7 @@ namespace ExternalApplications {
                 string uri = hit_test_result.image_uri;
                 var action = new Gtk.Action ("OpenImageInViewer", _("Open in Image _Viewer"), null, null);
                 action.activate.connect ((action) => {
-                    var download = new WebKit.Download (new WebKit.NetworkRequest (uri));
-                    download.destination_uri = Midori.Download.prepare_destination_uri (download, null);
-                    if (!Midori.Download.has_enough_space (download, download.destination_uri))
-                        return;
-                    download.notify["status"].connect ((pspec) => {
-                        if (download.status == WebKit.DownloadStatus.FINISHED) {
-                            try_open (download.destination_uri, get_content_type (download.destination_uri, null), tab);
-                        }
-                        else if (download.status == WebKit.DownloadStatus.ERROR)
-                            Midori.show_message_dialog (Gtk.MessageType.ERROR,
-                                _("Error downloading the image!"),
-                                _("Can not download selected image."), false);
-                    });
-                    download.start ();
+                    try_open (uri, get_content_type (uri, null), tab);
                 });
                 menu.add (action);
             }
