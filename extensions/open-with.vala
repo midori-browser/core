@@ -278,8 +278,12 @@ namespace ExternalApplications {
                 var uris = new List<File> ();
                 uris.append (File.new_for_uri (uri));
                 app_info.launch (uris, null);
-                app_info.set_as_last_used_for_type (content_type);
-                app_info.set_as_default_for_type (content_type);
+                try {
+                    app_info.set_as_last_used_for_type (content_type);
+                    app_info.set_as_default_for_type (content_type);
+                } catch (IOError.NOT_SUPPORTED io_error) {
+                    warning ("Failed to update defaults for \"%s\": %s", content_type, io_error.message);
+                }
                 return true;
             } catch (Error error) {
                 warning ("Failed to open \"%s\": %s", uri, error.message);
