@@ -418,7 +418,7 @@ namespace ExternalApplications {
         }
 
         string get_content_type (string uri, string? mime_type) {
-            if (!uri.has_prefix ("file://")) {
+            if (!uri.has_prefix ("file://") && !Midori.URI.is_http (uri)) {
                 string protocol = uri.split(":", 2)[0];
                 return "x-scheme-handler/" + protocol;
             } else if (mime_type == null) {
