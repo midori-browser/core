@@ -53,20 +53,12 @@ namespace ExternalApplications {
             treeview.create_pango_layout ("a\nb").get_pixel_size (null, out height);
             scrolled.set_size_request (-1, height * 5);
 
-            foreach (var app_info in AppInfo.get_all_for_type (content_type)) {
-                if (!uri.has_prefix ("file://") && !app_info.supports_uris ())
-                    continue;
-                launcher_added (app_info);
-            }
+            foreach (var app_info in AppInfo.get_all_for_type (content_type))
+                launcher_added (app_info, uri);
 
             if (store.iter_n_children (null) < 1) {
-                foreach (var app_info in AppInfo.get_all ()) {
-                    if (!uri.has_prefix ("file://") && !app_info.supports_uris ())
-                        continue;
-                    if (!app_info.should_show ())
-                        continue;
-                    launcher_added (app_info);
-                }
+                foreach (var app_info in AppInfo.get_all ())
+                    launcher_added (app_info, uri);
             }
         }
 
@@ -100,7 +92,15 @@ namespace ExternalApplications {
                           "ellipsize", Pango.EllipsizeMode.END);
         }
 
-        void launcher_added (AppInfo app_info) {
+        void launcher_added (AppInfo app_info, string uri) {
+#if !HAVE_WIN32
+            /* On Win32 supports_uris is not implemented */
+            if (!uri.has_prefix ("file://") && !app_info.supports_uris ())
+                return;
+#endif
+            if (!app_info.should_show ())
+                return;
+
             Gtk.TreeIter iter;
             store.append (out iter);
             store.set (iter, 0, app_info);
