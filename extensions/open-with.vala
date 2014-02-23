@@ -10,6 +10,12 @@
 */
 
 namespace ExternalApplications {
+    static string describe_app_info (AppInfo app_info) {
+        string name = app_info.get_display_name () ?? (Path.get_basename (app_info.get_executable ()));
+        string desc = app_info.get_description () ?? app_info.get_executable ();
+        return Markup.printf_escaped ("<b>%s</b>\n%s", name, desc);
+    }
+
     private class Chooser : Gtk.VBox {
         Gtk.ListStore store = new Gtk.ListStore (1, typeof (AppInfo));
         Gtk.TreeView treeview;
@@ -90,9 +96,7 @@ namespace ExternalApplications {
 
             AppInfo app_info;
             model.get (iter, 0, out app_info);
-            renderer.set ("markup",
-                Markup.printf_escaped ("<b>%s</b>\n%s",
-                    app_info.get_display_name (), app_info.get_description ()),
+            renderer.set ("markup", describe_app_info (app_info),
                           "ellipsize", Pango.EllipsizeMode.END);
         }
 
@@ -232,9 +236,7 @@ namespace ExternalApplications {
 
             AppInfo app_info;
             model.get (iter, 1, out app_info);
-            renderer.set ("markup",
-                Markup.printf_escaped ("<b>%s</b>\n%s",
-                    app_info.get_display_name (), app_info.get_description ()),
+            renderer.set ("markup", describe_app_info (app_info),
                           "ellipsize", Pango.EllipsizeMode.END);
         }
 
