@@ -10,15 +10,20 @@
 */
 
 namespace ExternalApplications {
+    static string get_commandline (AppInfo app_info) {
+        return app_info.get_commandline () ?? app_info.get_executable ();
+    }
+
     static string describe_app_info (AppInfo app_info) {
         string name = app_info.get_display_name () ?? (Path.get_basename (app_info.get_executable ()));
-        string desc = app_info.get_description () ?? app_info.get_executable ();
+        string desc = app_info.get_description () ?? get_commandline (app_info);
         return Markup.printf_escaped ("<b>%s</b>\n%s", name, desc);
     }
 
     private class Chooser : Gtk.VBox {
         Gtk.ListStore store = new Gtk.ListStore (1, typeof (AppInfo));
         Gtk.TreeView treeview;
+        List<AppInfo> available;
 
         public Chooser (string uri, string content_type) {
             Gtk.TreeViewColumn column;
@@ -53,6 +58,7 @@ namespace ExternalApplications {
             treeview.create_pango_layout ("a\nb").get_pixel_size (null, out height);
             scrolled.set_size_request (-1, height * 5);
 
+            available = new List<AppInfo> ();
             foreach (var app_info in AppInfo.get_all_for_type (content_type))
                 launcher_added (app_info, uri);
 
@@ -60,6 +66,10 @@ namespace ExternalApplications {
                 foreach (var app_info in AppInfo.get_all ())
                     launcher_added (app_info, uri);
             }
+        }
+
+        public List<AppInfo> get_available () {
+            return available.copy ();
         }
 
         public AppInfo get_app_info () {
@@ -104,6 +114,8 @@ namespace ExternalApplications {
             Gtk.TreeIter iter;
             store.append (out iter);
             store.set (iter, 0, app_info);
+
+            available.append (app_info);
         }
 
         int tree_sort_func (Gtk.TreeModel model, Gtk.TreeIter a, Gtk.TreeIter b) {
@@ -123,6 +135,102 @@ namespace ExternalApplications {
         }
 
         public signal void selected (AppInfo app_info);
+    }
+
+    class ChooserDialog : Gtk.Dialog {
+        public Chooser chooser { get; private set; }
+
+        public ChooserDialog (string uri, string content_type, Gtk.Widget widget) {
+            string filename;
+            if (uri.has_prefix ("file://"))
+                filename = Midori.Download.get_basename_for_display (uri);
+            else
+                filename = uri;
+
+            var browser = Midori.Browser.get_for_widget (widget);
+            transient_for = browser;
+
+            title = _("Choose application");
+#if !HAVE_GTK3
+            has_separator = false;
+#endif
+            destroy_with_parent = true;
+            set_icon_name (Gtk.STOCK_OPEN);
+            resizable = false;
+            add_buttons (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                         Gtk.STOCK_OPEN, Gtk.ResponseType.ACCEPT);
+
+            var vbox = new Gtk.VBox (false, 8);
+            vbox.border_width = 8;
+            (get_content_area () as Gtk.Box).pack_start (vbox, true, true, 8);
+            var label = new Gtk.Label (_("Select an application to open \"%s\"".printf (filename)));
+            label.ellipsize = Pango.EllipsizeMode.END;
+            vbox.pack_start (label, false, false, 0);
+            if (uri == "")
+                label.no_show_all = true;
+            chooser = new Chooser (uri, content_type);
+            vbox.pack_start (chooser, true, true, 0);
+
+            get_content_area ().show_all ();
+            set_default_response (Gtk.ResponseType.ACCEPT);
+            chooser.selected.connect ((app_info) => {
+                response (Gtk.ResponseType.ACCEPT);
+            });
+        }
+
+        public AppInfo? open_with () {
+            show ();
+            bool accept = run () == Gtk.ResponseType.ACCEPT;
+            hide ();
+
+            if (!accept)
+                return null;
+            return chooser.get_app_info ();
+        }
+    }
+
+    class ChooserButton : Gtk.Button {
+        public AppInfo? app_info { get; set; }
+        public string? commandline { get; set; }
+        ChooserDialog dialog;
+        Gtk.Label app_name;
+        Gtk.Image icon;
+
+        public ChooserButton (string mime_type, string? commandline) {
+            string content_type = ContentType.from_mime_type (mime_type);
+            dialog = new ChooserDialog ("", content_type, this);
+            app_info = null;
+            foreach (var candidate in dialog.chooser.get_available ()) {
+                if (get_commandline (candidate) == commandline)
+                    app_info = candidate;
+            }
+
+            var hbox = new Gtk.HBox (false, 4);
+            icon = new Gtk.Image ();
+            hbox.pack_start (icon, true, true, 0);
+            app_name = new Gtk.Label (null);
+            app_name.use_markup = true;
+            app_name.ellipsize = Pango.EllipsizeMode.END;
+            hbox.pack_start (app_name, true, true, 0);
+            add (hbox);
+            show_all ();
+            update_label ();
+
+            clicked.connect (() => {
+                app_info = dialog.open_with ();
+                string new_commandline = app_info != null ? get_commandline (app_info) : null;
+                commandline = new_commandline;
+                selected (new_commandline);
+                update_label ();
+            });
+        }
+
+        void update_label () {
+            app_name.label = app_info != null ? describe_app_info (app_info).replace ("\n", " ") : _("None");
+            icon.set_from_gicon (app_info != null ? app_info.get_icon () : null, Gtk.IconSize.BUTTON);
+        }
+
+        public signal void selected (string? commandline);
     }
 
     class Types : Gtk.VBox {
@@ -336,47 +444,10 @@ namespace ExternalApplications {
         }
 
         AppInfo? open_with (string uri, string content_type, Gtk.Widget widget) {
-            string filename;
-            if (uri.has_prefix ("file://"))
-                filename = Midori.Download.get_basename_for_display (uri);
-            else
-                filename = uri;
+            var dialog = new ChooserDialog (uri, content_type, widget);
 
-            var browser = Midori.Browser.get_for_widget (widget);
-            var dialog = new Gtk.Dialog.with_buttons (_("Choose application"),
-                browser,
-#if !HAVE_GTK3
-                Gtk.DialogFlags.NO_SEPARATOR |
-#endif
-                Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
-                Gtk.STOCK_OPEN, Gtk.ResponseType.ACCEPT);
-            dialog.set_icon_name (Gtk.STOCK_OPEN);
-            dialog.resizable = false;
-
-            var vbox = new Gtk.VBox (false, 8);
-            vbox.border_width = 8;
-            (dialog.get_content_area () as Gtk.Box).pack_start (vbox, true, true, 8);
-            var label = new Gtk.Label (_("Select an application to open \"%s\"".printf (filename)));
-            label.ellipsize = Pango.EllipsizeMode.END;
-            vbox.pack_start (label, false, false, 0);
-            if (uri == "")
-                label.no_show_all = true;
-            var chooser = new Chooser (uri, content_type);
-            vbox.pack_start (chooser, true, true, 0);
-
-            dialog.get_content_area ().show_all ();
-            dialog.set_default_response (Gtk.ResponseType.ACCEPT);
-            chooser.selected.connect ((app_info) => {
-                dialog.response (Gtk.ResponseType.ACCEPT);
-            });
-            bool accept = dialog.run () == Gtk.ResponseType.ACCEPT;
-
-            var app_info = chooser.get_app_info ();
+            var app_info = dialog.open_with ();
             dialog.destroy ();
-
-            if (!accept)
-                return null;
 
             if (uri == "")
                 return app_info;
@@ -425,19 +496,27 @@ namespace ExternalApplications {
             var label = new Gtk.Label (_("Text Editor"));
             label.set_alignment (0.0f, 0.5f);
             preferences.add_widget (label, "indented");
-            var entry = Katze.property_proxy (settings, "text-editor", "application-text/plain");
+            var entry = new ChooserButton ("text/plain", settings.text_editor);
+            entry.selected.connect ((commandline) => {
+                settings.text_editor = commandline;
+            });
             preferences.add_widget (entry, "spanned");
 
             label = new Gtk.Label (_("News Aggregator"));
             label.set_alignment (0.0f, 0.5f);
             preferences.add_widget (label, "indented");
-            entry = Katze.property_proxy (settings, "news-aggregator", "application-News");
+            entry = new ChooserButton ("application/rss+xml", settings.news_aggregator);
+            entry.selected.connect ((commandline) => {
+                settings.news_aggregator = commandline;
+            });
             preferences.add_widget (entry, "spanned");
 
             var types = new Types ();
             types.selected.connect ((content_type, iter) => {
+                var app_info = open_with ("", content_type, preferences);
+                if (app_info == null)
+                    return;
                 try {
-                    var app_info = open_with ("", content_type, preferences);
                     app_info.set_as_default_for_type (content_type);
                     types.store.set (iter, 1, app_info);
                 } catch (Error error) {
