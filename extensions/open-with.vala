@@ -164,7 +164,7 @@ namespace ExternalApplications {
             vbox.border_width = 8;
             (get_content_area () as Gtk.Box).pack_start (vbox, true, true, 8);
             var label = new Gtk.Label (_("Select an application to open \"%s\"".printf (filename)));
-            label.ellipsize = Pango.EllipsizeMode.END;
+            label.ellipsize = Pango.EllipsizeMode.MIDDLE;
             vbox.pack_start (label, false, false, 0);
             if (uri == "")
                 label.no_show_all = true;
