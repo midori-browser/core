@@ -374,6 +374,11 @@ namespace ExternalApplications {
 
 
     private class Manager : Midori.Extension {
+        enum NextStep {
+            TRY_OPEN,
+            OPEN_WITH
+        }
+
         bool open_app_info (AppInfo app_info, string uri, string content_type) {
             Midori.URI.recursive_fork_protection (uri, true);
 
@@ -395,7 +400,7 @@ namespace ExternalApplications {
         }
 
         bool open_uri (Midori.Tab tab, string uri) {
-            return try_open (uri, get_content_type (uri, null), tab);
+            return open_with_type (uri, get_content_type (uri, null), tab, NextStep.TRY_OPEN);
         }
 
         bool navigation_requested (WebKit.WebView web_view, WebKit.WebFrame frame, WebKit.NetworkRequest request,
@@ -408,7 +413,7 @@ namespace ExternalApplications {
             decision.ignore ();
 
             string content_type = get_content_type (uri, null);
-            try_open (uri, content_type, web_view);
+            open_with_type (uri, content_type, web_view, NextStep.TRY_OPEN);
             return true;
         }
 
@@ -429,12 +434,12 @@ namespace ExternalApplications {
             return ContentType.from_mime_type (mime_type);
         }
 
-        bool try_open (string uri, string content_type, Gtk.Widget widget) {
+        bool open_with_type (string uri, string content_type, Gtk.Widget widget, NextStep next_step) {
             #if HAVE_WEBKIT2
-            return open_now (uri, content_type, widget);
+            return open_now (uri, content_type, widget, next_step);
             #else
             if (!Midori.URI.is_http (uri))
-                return open_now (uri, content_type, widget);
+                return open_now (uri, content_type, widget, next_step);
 
             var download = new WebKit.Download (new WebKit.NetworkRequest (uri));
             download.destination_uri = Midori.Download.prepare_destination_uri (download, null);
@@ -443,7 +448,7 @@ namespace ExternalApplications {
 
             download.notify["status"].connect ((pspec) => {
                 if (download.status == WebKit.DownloadStatus.FINISHED) {
-                    open_now (download.destination_uri, content_type, widget);
+                    open_now (download.destination_uri, content_type, widget, next_step);
                 }
                 else if (download.status == WebKit.DownloadStatus.ERROR)
                     Midori.show_message_dialog (Gtk.MessageType.ERROR,
@@ -455,9 +460,9 @@ namespace ExternalApplications {
             #endif
         }
 
-        bool open_now (string uri, string content_type, Gtk.Widget widget) {
+        bool open_now (string uri, string content_type, Gtk.Widget widget, NextStep next_step) {
             var app_info = AppInfo.get_default_for_type (content_type, !uri.has_prefix ("file://"));
-            if (app_info != null && open_app_info (app_info, uri, content_type))
+            if (next_step == NextStep.TRY_OPEN && app_info != null && open_app_info (app_info, uri, content_type))
                 return true;
             if (open_with (uri, content_type, widget) != null)
                 return true;
@@ -484,7 +489,7 @@ namespace ExternalApplications {
                 string uri = hit_test_result.link_uri;
                 var action = new Gtk.Action ("OpenWith", _("Open _with…"), null, null);
                 action.activate.connect ((action) => {
-                    open_with (uri, get_content_type (uri, null), tab);
+                    open_with_type (uri, get_content_type (uri, null), tab, NextStep.OPEN_WITH);
                 });
                 menu.add (action);
             }
@@ -493,7 +498,7 @@ namespace ExternalApplications {
                 string uri = hit_test_result.image_uri;
                 var action = new Gtk.Action ("OpenImageInViewer", _("Open in Image _Viewer"), null, null);
                 action.activate.connect ((action) => {
-                    try_open (uri, get_content_type (uri, null), tab);
+                    open_with_type (uri, get_content_type (uri, null), tab, NextStep.TRY_OPEN);
                 });
                 menu.add (action);
             }
