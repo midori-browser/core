@@ -9,6 +9,12 @@
    See the file COPYING for the full license text.
 */
 
+#if HAVE_WIN32
+namespace Sokoke {
+    extern static Gdk.Pixbuf get_gdk_pixbuf_from_win32_executable (string path);
+}
+#endif
+
 namespace ExternalApplications {
     static string get_commandline (AppInfo app_info) {
         return app_info.get_commandline () ?? app_info.get_executable ();
@@ -18,6 +24,14 @@ namespace ExternalApplications {
         string name = app_info.get_display_name () ?? (Path.get_basename (app_info.get_executable ()));
         string desc = app_info.get_description () ?? get_commandline (app_info);
         return Markup.printf_escaped ("<b>%s</b>\n%s", name, desc);
+    }
+
+    static Icon? app_info_get_icon (AppInfo app_info) {
+        #if HAVE_WIN32
+        return Sokoke.get_gdk_pixbuf_from_win32_executable (app_info.get_executable ());
+        #else
+        return app_info.get_icon ();
+        #endif
     }
 
     private class Chooser : Gtk.VBox {
@@ -88,7 +102,7 @@ namespace ExternalApplications {
             AppInfo app_info;
             model.get (iter, 0, out app_info);
 
-            renderer.set ("gicon", app_info.get_icon (),
+            renderer.set ("gicon", app_info_get_icon (app_info),
                           "stock-size", Gtk.IconSize.DIALOG,
                           "xpad", 4);
         }
@@ -222,7 +236,7 @@ namespace ExternalApplications {
 
         void update_label () {
             app_name.label = app_info != null ? describe_app_info (app_info).replace ("\n", " ") : _("None");
-            icon.set_from_gicon (app_info != null ? app_info.get_icon () : null, Gtk.IconSize.BUTTON);
+            icon.set_from_gicon (app_info != null ? app_info_get_icon (app_info) : null, Gtk.IconSize.BUTTON);
         }
 
         public signal void selected (string? commandline);
@@ -329,7 +343,7 @@ namespace ExternalApplications {
             AppInfo app_info;
             model.get (iter, 1, out app_info);
 
-            renderer.set ("gicon", app_info.get_icon (),
+            renderer.set ("gicon", app_info_get_icon (app_info),
                           "stock-size", Gtk.IconSize.MENU,
                           "xpad", 4);
         }

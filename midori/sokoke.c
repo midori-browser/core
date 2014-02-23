@@ -37,6 +37,7 @@
 #ifdef G_OS_WIN32
 #include <windows.h>
 #include <shlobj.h>
+#include <gdk/gdkwin32.h>
 #endif
 
 static gchar*
@@ -979,5 +980,16 @@ sokoke_create_win32_desktop_lnk (gchar* prefix, gchar* filename, gchar* uri)
     g_free (argument);
     g_free (lnk_path);
     g_free (launcher_type);
+}
+
+GdkPixbuf*
+sokoke_get_gdk_pixbuf_from_win32_executable (gchar* path)
+{
+    GdkPixbuf* pixbuf = NULL;
+    HICON hicon = NULL;
+    HINSTANCE hInstance = NULL;
+    hicon = ExtractIcon (hInstance, (LPCSTR)path, 0);
+    pixbuf = gdk_win32_icon_to_pixbuf_libgtk_only (hicon);
+    return pixbuf;
 }
 #endif
