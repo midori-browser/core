@@ -13,6 +13,7 @@
 #ifdef _WIN32
     #define _WIN32_WINNT 0x0501
     #include <unistd.h>
+    #include <windows.h>
 #endif
 
 #if HAVE_CONFIG_H
