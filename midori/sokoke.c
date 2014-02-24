@@ -985,11 +985,15 @@ sokoke_create_win32_desktop_lnk (gchar* prefix, gchar* filename, gchar* uri)
 GdkPixbuf*
 sokoke_get_gdk_pixbuf_from_win32_executable (gchar* path)
 {
+    if (path == NULL)
+        return NULL;
+
     GdkPixbuf* pixbuf = NULL;
-    HICON hicon = NULL;
+    HICON hIcon = NULL;
     HINSTANCE hInstance = NULL;
-    hicon = ExtractIcon (hInstance, (LPCSTR)path, 0);
-    pixbuf = gdk_win32_icon_to_pixbuf_libgtk_only (hicon);
+    hIcon = ExtractIcon (hInstance, (LPCSTR)path, 0);
+    pixbuf = gdk_win32_icon_to_pixbuf_libgtk_only (hIcon);
+
     return pixbuf;
 }
 #endif
