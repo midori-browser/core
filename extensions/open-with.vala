@@ -408,6 +408,11 @@ namespace ExternalApplications {
             renderer.set ("markup",
                 Markup.printf_escaped ("<b>%s</b>\n%s",
                     desc, mime_type),
+#if HAVE_GTK3
+                          "max-width-chars", 30,
+#else
+                          "width-chars", 30,
+#endif
                           "ellipsize", Pango.EllipsizeMode.END);
         }
 
