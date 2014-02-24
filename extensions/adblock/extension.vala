@@ -313,7 +313,7 @@ namespace Adblock {
         internal void init () {
             debug ("Adblock2");
 
-            string config_dir = Midori.Paths.get_extension_config_dir ("libadblock.so");
+            string config_dir = Midori.Paths.get_extension_config_dir ("adblock");
             config = new Config (config_dir);
             reload_rules ();
         }
