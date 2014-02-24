@@ -290,7 +290,7 @@ namespace ExternalApplications {
 
             var hbox = new Gtk.HBox (false, 4);
             icon = new Gtk.Image ();
-            hbox.pack_start (icon, true, true, 0);
+            hbox.pack_start (icon, false, false, 0);
             app_name = new Gtk.Label (null);
             app_name.use_markup = true;
             app_name.ellipsize = Pango.EllipsizeMode.END;
@@ -576,19 +576,25 @@ namespace ExternalApplications {
             var settings = get_app ().settings;
             var category = preferences.add_category (_("File Types"), Gtk.STOCK_FILE);
             preferences.add_group (null);
+
+            var sizegroup = new Gtk.SizeGroup (Gtk.SizeGroupMode.HORIZONTAL);
             var label = new Gtk.Label (_("Text Editor"));
+            sizegroup.add_widget (label);
             label.set_alignment (0.0f, 0.5f);
             preferences.add_widget (label, "indented");
             var entry = new ChooserButton ("text/plain", settings.text_editor);
+            sizegroup.add_widget (entry);
             entry.selected.connect ((commandline) => {
                 settings.text_editor = commandline;
             });
             preferences.add_widget (entry, "spanned");
 
             label = new Gtk.Label (_("News Aggregator"));
+            sizegroup.add_widget (label);
             label.set_alignment (0.0f, 0.5f);
             preferences.add_widget (label, "indented");
             entry = new ChooserButton ("application/rss+xml", settings.news_aggregator);
+            sizegroup.add_widget (entry);
             entry.selected.connect ((commandline) => {
                 settings.news_aggregator = commandline;
             });
