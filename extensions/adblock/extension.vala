@@ -313,7 +313,7 @@ namespace Adblock {
         internal void init () {
             debug ("Adblock2");
 
-            string config_dir = Midori.Paths.get_extension_config_dir ("libadblock.so");
+            string config_dir = Midori.Paths.get_extension_config_dir ("adblock");
             config = new Config (config_dir);
             reload_rules ();
         }
@@ -332,6 +332,14 @@ namespace Adblock {
         bool request_handled (string page_uri, string request_uri) {
             /* Always allow the main page */
             if (request_uri == page_uri)
+                return false;
+
+            /* Skip adblock on internal pages */
+            if (Midori.URI.is_blank (page_uri))
+                return false;
+
+            /* Skip adblock on favicons and non http schemes */
+            if (!Midori.URI.is_http (request_uri) || request_uri.has_suffix ("favicon.ico"))
                 return false;
 
             Directive? directive = cache.lookup (request_uri);
@@ -422,7 +430,7 @@ const TestCaseLine[] lines = {
     { ".*foo/bar", "..*foo/bar" },
     { "http://bla.blub/*", "http://bla.blub/.*" },
     { "bag?r[]=*cpa", "bag\\?r\\[\\]=.*cpa" },
-    { "(facebookLike,", "(facebookLike," },
+    { "(facebookLike,", "(facebookLike," }
 };
 
 void test_adblock_fixup_regexp () {
@@ -457,7 +465,7 @@ const TestCasePattern[] patterns = {
     { "https://bugs.webkit.org/buglist.cgi?query_format=advanced&short_desc_type=allwordssubstr&short_desc=&long_desc_type=substring&long_desc=&bug_file_loc_type=allwordssubstr&bug_file_loc=&keywords_type=allwords&keywords=&bug_status=UNCONFIRMED&bug_status=NEW&bug_status=ASSIGNED&bug_status=REOPENED&emailassigned_to1=1&emailtype1=substring&email1=&emailassigned_to2=1&emailreporter2=1&emailcc2=1&emailtype2=substring&email2=&bugidtype=include&bug_id=&votes=&chfieldfrom=&chfieldto=Now&chfieldvalue=&query_based_on=gtkport&field0-0-0=keywords&type0-0-0=anywordssubstr&value0-0-0=Gtk%20Cairo%20soup&field0-0-1=short_desc&type0-0-1=anywordssubstr&value0-0-1=Gtk%20Cairo%20soup%20autoconf%20automake%20autotool&field0-0-2=component&type0-0-2=equals&value0-0-2=WebKit%20Gtk", Adblock.Directive.ALLOW },
     { "http://www.engadget.com/2009/09/24/google-hits-android-rom-modder-with-a-cease-and-desist-letter/", Adblock.Directive.ALLOW },
     { "http://karibik-invest.com/es/bienes_raices/search.php?sqT=19&sqN=&sqMp=&sqL=0&qR=1&sqMb=&searchMode=1&action=B%FAsqueda", Adblock.Directive.ALLOW },
-    { "http://google.com", Adblock.Directive.ALLOW },
+    { "http://google.com", Adblock.Directive.ALLOW }
 };
 
 string pretty_directive (Adblock.Directive? directive) {
@@ -503,7 +511,7 @@ struct TestUpdateExample {
         { "[Adblock]\n! dutchblock v3\n! This list expires after 14 days\n|http://b*.mookie1.com/\n", false },
         { "[Adblock Plus 2.0]\n! Last modification time (GMT): 2012.11.05 13:33\n! Expires: 5 days (update frequency)\n", true },
         { "[Adblock Plus 2.0]\n! Last modification time (GMT): 2012.11.05 13:33\n", true },
-        { "[Adblock]\n ! dummy,  i dont have any dates\n", false },
+        { "[Adblock]\n ! dummy,  i dont have any dates\n", false }
     };
 
 void test_subscription_update () {

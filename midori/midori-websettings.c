@@ -33,6 +33,10 @@
     #include <sys/sysctl.h>
 #endif
 
+#if defined (G_OS_WIN32)
+    #include <sysinfoapi.h>
+#endif
+
 #ifdef HAVE_WEBKIT2
 #define WEB_SETTINGS_STRING(x) "WebKitSettings::"x""
 #else
