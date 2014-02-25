@@ -16,6 +16,8 @@ namespace GLib {
 
 namespace Midori {
     public class URI : Object {
+        static string? fork_uri = null;
+
         public static string? parse_hostname (string? uri, out string path) {
             path = null;
             if (uri == null)
@@ -204,6 +206,21 @@ namespace Midori {
             checksum = fragment != null ? fragment.offset (delimiter.length) : null;
             label = display;
             return type;
+        }
+
+        /*
+          Protects against recursive invokations of Midori with the same URI.
+          Consider a tel:// URI opened via Tab.open_uri, being handed off to GIO,
+          which in turns calls exo-open, which in turn can't open tel:// and falls
+          back to the browser ie. Midori.
+          So: code opening URIs calls this function with %true, #Midori.App passes %false.
+
+          Since: 0.5.8
+         */
+        public static bool recursive_fork_protection (string uri, bool set_uri) {
+            if (set_uri)
+                fork_uri = uri;
+            return fork_uri != uri;
         }
     }
 }

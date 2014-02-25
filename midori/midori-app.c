@@ -535,7 +535,7 @@ midori_app_open_cb (MidoriApp* app,
     for (i = 0; i < n_files; i++)
     {
         gchar* uri = g_file_get_uri (files[i]);
-        if (sokoke_recursive_fork_protection (uri, FALSE))
+        if (midori_uri_recursive_fork_protection (uri, FALSE))
         {
             if (first)
             {

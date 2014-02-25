@@ -118,6 +118,7 @@ namespace Midori {
         public signal void quit ();
         public signal void send_notification (string title, string message);
         public static void update_history (Katze.Item item, string type, string event);
+        public signal void show_preferences (Katze.Preferences preferences);
     }
 
     [CCode (cheader_filename = "midori/midori.h")]
