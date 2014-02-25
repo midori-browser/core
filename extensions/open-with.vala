@@ -222,6 +222,7 @@ namespace ExternalApplications {
             treeview.create_pango_layout ("a\nb").get_pixel_size (null, out height);
             scrolled.set_size_request (-1, height * 5);
             treeview.button_release_event.connect (button_released);
+            treeview.tooltip_text = _("Right-click a suggestion to customize it");
 
             available = new List<AppInfo> ();
             foreach (var app_info in AppInfo.get_all_for_type (content_type))
