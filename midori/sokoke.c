@@ -992,7 +992,11 @@ sokoke_get_gdk_pixbuf_from_win32_executable (gchar* path)
     HICON hIcon = NULL;
     HINSTANCE hInstance = NULL;
     hIcon = ExtractIcon (hInstance, (LPCSTR)path, 0);
-    pixbuf = gdk_win32_icon_to_pixbuf_libgtk_only (hIcon);
+    if (hIcon == NULL)
+        return NULL;
+
+    pixbuf = gdk_win32_icon_to_pixbuf_libgtk_only (hIcon, NULL, NULL);
+    DestroyIcon (hIcon);
 
     return pixbuf;
 }
