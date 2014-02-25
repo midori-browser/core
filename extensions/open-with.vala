@@ -73,6 +73,16 @@ namespace ExternalApplications {
             keyfile.set_string ("mimes", content_type, get_commandline (app_info));
             FileUtils.set_contents (filename, keyfile.to_data ());
         }
+
+        public void custom (string content_type, string commandline, string name, string uri) {
+            keyfile.set_string ("mimes", content_type, commandline);
+            try {
+                FileUtils.set_contents (filename, keyfile.to_data ());
+            } catch (Error error) {
+                warning ("Failed to add remember custom command line for \"%s\": %s", uri, error.message);
+            }
+            open (content_type, uri);
+        }
     }
 #else
         public Associations () {
@@ -80,12 +90,24 @@ namespace ExternalApplications {
 
         public bool open (string content_type, string uri) {
             var app_info = AppInfo.get_default_for_type (content_type, false);
+            if (app_info == null)
+                return false;
             return open_app_info (app_info, uri, content_type);
         }
 
         public void remember (string content_type, AppInfo app_info) throws Error {
             app_info.set_as_last_used_for_type (content_type);
             app_info.set_as_default_for_type (content_type);
+        }
+
+        public void custom (string content_type, string commandline, string name, string uri) {
+            try {
+                var app_info = AppInfo.create_from_commandline (commandline, name,
+                    "%u" in commandline ? AppInfoCreateFlags.SUPPORTS_URIS : AppInfoCreateFlags.NONE);
+                open_app_info (app_info, uri, content_type);
+            } catch (Error error) {
+                warning ("Failed to add custom command line for \"%s\": %s", uri, error.message);
+            }
         }
     }
 #endif
@@ -108,12 +130,66 @@ namespace ExternalApplications {
         #endif
     }
 
+    class CustomizerDialog : Gtk.Dialog {
+        public Gtk.Entry name_entry;
+        public Gtk.Entry commandline_entry;
+
+        public CustomizerDialog (AppInfo app_info, Gtk.Widget widget) {
+            var browser = Midori.Browser.get_for_widget (widget);
+            transient_for = browser;
+
+            title = _("Custom…");
+#if !HAVE_GTK3
+            has_separator = false;
+#endif
+            destroy_with_parent = true;
+            set_icon_name (Gtk.STOCK_OPEN);
+            resizable = false;
+            add_buttons (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                         Gtk.STOCK_SAVE, Gtk.ResponseType.ACCEPT);
+
+            var vbox = new Gtk.VBox (false, 8);
+            vbox.border_width = 8;
+            (get_content_area () as Gtk.Box).pack_start (vbox, true, true, 8);
+
+            var sizegroup = new Gtk.SizeGroup (Gtk.SizeGroupMode.HORIZONTAL);
+            var label = new Gtk.Label (_("Name:"));
+            sizegroup.add_widget (label);
+            label.set_alignment (0.0f, 0.5f);
+            vbox.pack_start (label, false, false, 0);
+            name_entry = new Gtk.Entry ();
+            name_entry.activates_default = true;
+            sizegroup.add_widget (name_entry);
+            vbox.pack_start (name_entry, true, true, 0);
+
+            label = new Gtk.Label (_("Command Line:"));
+            sizegroup.add_widget (label);
+            label.set_alignment (0.0f, 0.5f);
+            vbox.pack_start (label, false, false, 0);
+            commandline_entry = new Gtk.Entry ();
+            commandline_entry.activates_default = true;
+            sizegroup.add_widget (name_entry);
+            sizegroup.add_widget (commandline_entry);
+            vbox.pack_start (commandline_entry, true, true, 0);
+            get_content_area ().show_all ();
+            set_default_response (Gtk.ResponseType.ACCEPT);
+
+            name_entry.text = app_info.get_name ();
+            commandline_entry.text = get_commandline (app_info);
+        }
+    }
+
     private class Chooser : Gtk.VBox {
         Gtk.ListStore store = new Gtk.ListStore (1, typeof (AppInfo));
         Gtk.TreeView treeview;
         List<AppInfo> available;
+        string content_type;
+        string uri;
 
         public Chooser (string uri, string content_type) {
+            this.content_type = content_type;
+            this.uri = uri;
+
             Gtk.TreeViewColumn column;
 
             treeview = new Gtk.TreeView.with_model (store);
@@ -145,6 +221,7 @@ namespace ExternalApplications {
             int height;
             treeview.create_pango_layout ("a\nb").get_pixel_size (null, out height);
             scrolled.set_size_request (-1, height * 5);
+            treeview.button_release_event.connect (button_released);
 
             available = new List<AppInfo> ();
             foreach (var app_info in AppInfo.get_all_for_type (content_type))
@@ -154,6 +231,45 @@ namespace ExternalApplications {
                 foreach (var app_info in AppInfo.get_all ())
                     launcher_added (app_info, uri);
             }
+        }
+
+        bool button_released (Gdk.EventButton event) {
+            if (event.button == 3)
+                return show_popup_menu (event);
+            return false;
+        }
+
+        bool show_popup_menu (Gdk.EventButton? event) {
+            Gtk.TreeIter iter;
+            if (treeview.get_selection ().get_selected (null, out iter)) {
+                AppInfo app_info;
+                store.get (iter, 0, out app_info);
+
+                var menu = new Gtk.Menu ();
+                var menuitem = new Gtk.ImageMenuItem.with_mnemonic (_("Custom…"));
+                menuitem.image = new Gtk.Image.from_stock (Gtk.STOCK_EDIT, Gtk.IconSize.MENU);
+                menuitem.activate.connect (() => {
+                    customize_app_info (app_info, content_type, uri);
+                });
+                menu.append (menuitem);
+                menu.show_all ();
+                Katze.widget_popup (treeview, menu, null, Katze.MenuPos.CURSOR);
+
+                return true;
+            }
+            return false;
+        }
+
+        void customize_app_info (AppInfo app_info, string content_type, string uri) {
+            var dialog = new CustomizerDialog (app_info, this);
+            bool accept = dialog.run () == Gtk.ResponseType.ACCEPT;
+            if (accept) {
+                string name = dialog.name_entry.text;
+                string commandline = dialog.commandline_entry.text;
+                new Associations ().custom (content_type, commandline, name, uri);
+                customized (app_info, content_type, uri);
+            }
+            dialog.destroy ();
         }
 
         public List<AppInfo> get_available () {
@@ -218,6 +334,7 @@ namespace ExternalApplications {
         }
 
         public signal void selected (AppInfo app_info);
+        public signal void customized (AppInfo app_info, string content_type, string uri);
     }
 
     class ChooserDialog : Gtk.Dialog {
@@ -258,6 +375,9 @@ namespace ExternalApplications {
             set_default_response (Gtk.ResponseType.ACCEPT);
             chooser.selected.connect ((app_info) => {
                 response (Gtk.ResponseType.ACCEPT);
+            });
+            chooser.customized.connect ((app_info, content_type, uri) => {
+                response (Gtk.ResponseType.CANCEL);
             });
         }
 
