@@ -924,10 +924,10 @@ midori_bookmark_folder_button_new (MidoriBookmarksDb* array,
     /* FIXME: here we should have the root bookmark array's name and id, not hard encoded values */
 
     gtk_tree_store_insert_with_values (model, &tree_iter, NULL, G_MAXINT,
-        0, _("Bookmarks"), 1, (gint64)0, -1);
+        0, _("Bookmarks"), 1, (gint64)-1, -1);
     gtk_combo_box_set_active_iter (GTK_COMBO_BOX (combo), &tree_iter);
 
-    current_parentid = 0;
+    current_parentid = -1;
     parent_iter = NULL;
     n = 1;
     while (g_list_first (folders))
@@ -948,7 +948,7 @@ midori_bookmark_folder_button_new (MidoriBookmarksDb* array,
                 {
                     /* folder's parent is the stree store root */
 
-                    current_parentid = 0;
+                    current_parentid = -1;
                     parent_iter = NULL;
                 }
                 else if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (model), &tree_iter))

@@ -251,12 +251,12 @@ _midori_bookmarks_db_add_item (KatzeArray* array,
         return;
     }
 
-    if (IS_MIDORI_BOOKMARKS_DB (parent))
-        KATZE_ARRAY_CLASS (midori_bookmarks_db_parent_class)->add_item (parent, item);
-    else if (KATZE_IS_ARRAY (parent))
-        katze_array_add_item (parent, item);
+    if (IS_MIDORI_BOOKMARKS_DB (db_parent))
+        KATZE_ARRAY_CLASS (midori_bookmarks_db_parent_class)->add_item (db_parent, item);
+    else if (KATZE_IS_ARRAY (db_parent))
+        katze_array_add_item (db_parent, item);
 
-    g_assert (parent == katze_item_get_parent (KATZE_ITEM (item)));
+    g_assert (db_parent == katze_item_get_parent (KATZE_ITEM (item)));
 }
 
 /**
