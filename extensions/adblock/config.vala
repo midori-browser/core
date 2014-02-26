@@ -51,8 +51,7 @@ namespace Adblock {
                     Subscription sub = new Subscription (uri);
                     sub.active = active;
                     sub.add_feature (new Updater ());
-                    sub.notify["active"].connect (active_changed);
-                    subscriptions.append (sub);
+                    add (sub);
                 }
             } catch (FileError.NOENT exist_error) {
                 /* It's no error if no config file exists */
@@ -103,5 +102,14 @@ namespace Adblock {
             return subscriptions.nth_data (index);
         }
         public uint size { get; private set; }
+
+        public bool add (Subscription sub) {
+            if (subscriptions.find (sub) != null)
+                return false;
+            sub.notify["active"].connect (active_changed);
+            subscriptions.append (sub);
+            size++;
+            return true;
+        }
     }
 }

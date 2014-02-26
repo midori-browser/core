@@ -315,6 +315,10 @@ namespace Adblock {
 
             string config_dir = Midori.Paths.get_extension_config_dir ("adblock");
             config = new Config (config_dir);
+            string presets = Midori.Paths.get_extension_preset_filename ("adblock", "config");
+            var default_config = new Config (Path.get_dirname (presets));
+            foreach (var sub in default_config)
+                config.add (sub);
             reload_rules ();
         }
 
