@@ -143,6 +143,7 @@ namespace Midori {
 #if HAVE_WEBKIT2
                 WebKit.WebContext.get_default ().set_disk_cache_directory (
                     Path.build_path (Path.DIR_SEPARATOR_S, cache_dir, "web"));
+
                 var cookie_manager = WebKit.WebContext.get_default ().get_cookie_manager ();
                 cookie_manager.set_persistent_storage (Path.build_filename (config, "cookies.db"),
                     WebKit.CookiePersistentStorage.SQLITE);
@@ -155,6 +156,18 @@ namespace Midori {
                 WebKit.WebContext.get_default ().set_favicon_database_directory (folder);
 #else
                 WebKit.get_favicon_database ().set_path (folder);
+#endif
+            }
+            else
+            {
+#if HAVE_WEBKIT2
+                /* with wk2 set_favicon_database_directory can only be called once and actually
+                initializes and enables the favicon database, so we do not call it in this case */
+#else
+                /* wk1 documentation claims that the favicon database is not enabled unless
+                a call to favicon_database.set_path is made, but in fact it must be explicitly
+                disabled by setting to null (verified as of webkitgtk 2.3.1) */
+                WebKit.get_favicon_database ().set_path (null);
 #endif
             }
             if (strcmp (Environment.get_variable ("MIDORI_DEBUG"), "paths") == 0) {
@@ -354,7 +367,7 @@ namespace Midori {
                 return path;
 
             /* Fallback to build folder */
-            File? parent = File.new_for_path (exec_path).get_parent ();
+            File? parent = File.new_for_path (exec_path);
             while (parent != null) {
                 var data = parent.get_child ("data");
                 var child = data.get_child (filename);

@@ -536,6 +536,10 @@ static void
 midori_panel_action_activate_cb (GtkRadioAction* action,
                                  MidoriPanel*    panel)
 {
+    MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (panel));
+    GtkActionGroup* actions = midori_browser_get_action_group (browser);
+    GtkAction* panel_action = gtk_action_group_get_action (actions, "Panel");
+    gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (panel_action), TRUE);
     GtkWidget* viewable = g_object_get_data (G_OBJECT (action), "viewable");
     gint n = midori_panel_page_num (panel, viewable);
 

@@ -2,11 +2,16 @@
 
 cmake_minimum_required(VERSION 2.6)
 cmake_policy(VERSION 2.6)
+# Work-around a bug in the included FindGettext fixed with 2.8.8
+# See http://www.cmake.org/pipermail/cmake-commits/2012-February/012117.html
+if ("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION}" VERSION_LESS "2.8.8")
+    cmake_policy(SET CMP0002 OLD)
+endif ()
 project(midori C)
 add_definitions("-DPACKAGE_NAME=\"${CMAKE_PROJECT_NAME}\"")
 add_definitions("-DPACKAGE_BUGREPORT=\"https://bugs.launchpad.net/midori\"")
 
-set(VERSION 0.5.5)
+set(VERSION 0.5.7)
 add_definitions("-DMIDORI_VERSION_SUFFIX=\"${VERSION}\"")
  
 string(REPLACE "." ";" VERSION_LIST ${VERSION})
@@ -23,12 +28,22 @@ execute_process(COMMAND "bzr" "revno"
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 if (REVISION)
     set(VERSION "${VERSION}~r${REVISION}")
+    # All warnings are errors in development builds
+    set(VALAFLAGS ${VALAFLAGS} --fatal-warnings)
+    set(CFLAGS "${CFLAGS}")
 endif ()
 add_definitions("-DPACKAGE_VERSION=\"${VERSION}\"")
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 # Disallow building during install to avoid permission problems
 set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY 1)
+
+find_package(Vala REQUIRED)
+vala_require("0.16.0")
+set(VALAFLAGS ${VALAFLAGS}
+    --enable-deprecated
+    --debug
+    )
 
 include(GNUInstallDirs)
 set(DATADIR ${CMAKE_INSTALL_FULL_DATADIR})
@@ -74,6 +89,11 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD")
     set(VALAFLAGS ${VALAFLAGS} -D HAVE_FREEBSD)
 endif ()
 
+if (${CMAKE_SYSTEM_NAME} MATCHES "DragonFly")
+    set(VALAFLAGS ${VALAFLAGS} -D HAVE_DRAGONFLY)
+    set(DFLY 1)
+endif ()
+
 if (APPLE)
     add_definitions("-DHAVE_OSX=1")
     set(VALAFLAGS ${VALAFLAGS} -D HAVE_OSX)
@@ -88,7 +108,7 @@ if (${BEGIN} GREATER 0)
 else()
     set(BSD 0)
 endif()
-if (UNIX AND NOT BSD)
+if (UNIX AND NOT BSD AND NOT DFLY)
     set(VALAFLAGS ${VALAFLAGS} -D HAVE_EXECINFO_H)
 endif ()
 
@@ -115,8 +135,12 @@ if (${DEPS_libsoup-gnome-2.4_VERSION} VERSION_GREATER "2.37.1")
     add_definitions("-DHAVE_LIBSOUP_2_37_1")
 endif ()
 if (${DEPS_libsoup-gnome-2.4_VERSION} VERSION_GREATER "2.40.0")
-    add_definitions("-DHAVE_LIBSOUP_2_40_0")
-    set(VALAFLAGS ${VALAFLAGS} -D HAVE_LIBSOUP_2_40_0)
+    # valac 0.16 didn't have the bindings yet
+    # For consistency we need to ensure C code makes the same assumptions
+    if (${VALA_VERSION} VERSION_GREATER "0.17.0")
+        add_definitions("-DHAVE_LIBSOUP_2_40_0")
+        set(VALAFLAGS ${VALAFLAGS} -D HAVE_LIBSOUP_2_40_0)
+    endif ()
 endif ()
 
 if (WIN32)
@@ -135,6 +159,7 @@ option(HALF_BRO_INCOM_WEBKIT2 "Serve as a guniea pig" OFF)
 option(USE_ZEITGEIST "Zeitgeist history integration" ON)
 option(USE_GRANITE "Fancy notebook and pop-overs" OFF)
 option(USE_APIDOCS "API documentation" OFF)
+option(EXTRA_WARNINGS "Additional compiler warnings" OFF)
 
 # GTK+3 is implied here, whether set or not
 if (USE_GRANITE OR HALF_BRO_INCOM_WEBKIT2)
@@ -193,7 +218,7 @@ if (HALF_BRO_INCOM_WEBKIT2)
 elseif (USE_GTK3)
     pkg_check_modules(DEPS_GTK REQUIRED
                       gtk+-3.0>=3.0.0
-                      webkitgtk-3.0>=1.8.3
+                      webkitgtk-3.0>=1.8.1
                       javascriptcoregtk-3.0
                       )
     add_definitions("-DGTK_VERSION=\"${DEPS_GTK_gtk+-3.0_VERSION}\"")
@@ -204,7 +229,7 @@ elseif (USE_GTK3)
 else ()
     pkg_check_modules(DEPS_GTK REQUIRED
                       gtk+-2.0>=2.24.0
-                      webkit-1.0>=1.8.3
+                      webkit-1.0>=1.8.1
                       javascriptcoregtk-1.0
                       )
     add_definitions("-DGTK_VERSION=\"${DEPS_GTK_gtk+-2.0_VERSION}\"")
@@ -213,19 +238,36 @@ else ()
     set(EXTRA_VAPIS ${EXTRA_VAPIS} "${CMAKE_SOURCE_DIR}/midori/webkitgtk-3.0.vapi")
 endif ()
 
-find_package(Vala REQUIRED)
-vala_require("0.16.0")
-set(VALAFLAGS ${VALAFLAGS}
-    --enable-deprecated
-    --debug
-    )
-
 # dh_translations detects this if there's no variable used
 set (GETTEXT_PACKAGE "midori")
 add_definitions("-DGETTEXT_PACKAGE=\"${GETTEXT_PACKAGE}\"")
 
-set(CFLAGS "-Wall -Wundef -Wno-deprecated-declarations -g")
-set(VALA_CFLAGS "-w -g")
+set(CFLAGS "${CFLAGS} -Wall -Wundef -Wno-deprecated-declarations -g")
+
+if (EXTRA_WARNINGS)
+    LIST(APPEND EXTRA_CFLAGS_LIST
+        -Wextra
+        -Wno-unused-parameter
+        -Wno-missing-field-initializers
+        -Wno-comment
+        -Waggregate-return
+        -Wredundant-decls
+        -Wshadow -Wpointer-arith -Wcast-align
+        -Winline -Wformat-security -fno-common
+        -Winit-self -Wundef
+        -Wnested-externs
+    )
+    string(REPLACE ";" " " EXTRA_CFLAGS "${EXTRA_CFLAGS_LIST}")
+    set(CFLAGS "${CFLAGS} ${EXTRA_CFLAGS}")
+else ()
+    if (REVISION)
+        set(CFLAGS "${CFLAGS} -Werror")
+    endif()
+endif ()
+
+# Explicitly add -fPIC for older toolchains
+set(VALA_CFLAGS "-w -g -fPIC")
+
 set(LIBMIDORI "${CMAKE_PROJECT_NAME}-core")
 
 # CMake provides no uninstall target by design
@@ -235,13 +277,13 @@ add_custom_target (uninstall
 install(FILES AUTHORS COPYING ChangeLog EXPAT README DESTINATION ${CMAKE_INSTALL_DOCDIR})
 
 add_subdirectory (midori)
+add_subdirectory (extensions)
+enable_testing()
+add_subdirectory (tests)
 add_subdirectory (po)
 add_subdirectory (icons)
 add_subdirectory (data)
 add_subdirectory (config)
-enable_testing()
-add_subdirectory (tests)
-add_subdirectory (extensions)
 
 if (USE_APIDOCS)
     add_subdirectory (docs/api)

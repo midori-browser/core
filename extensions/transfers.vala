@@ -14,7 +14,6 @@ namespace Gtk {
 }
 
 namespace Sokoke {
-    extern static bool show_uri (Gdk.Screen screen, string uri, uint32 timestamp) throws Error;
     extern static void widget_get_text_size (Gtk.Widget widget, string sample, out int width, out int height);
 }
 
@@ -174,8 +173,13 @@ namespace Transfers {
                 Transfer transfer;
                 store.get (iter, 0, out transfer);
 
-                if (Midori.Download.action_clear (transfer.download, treeview))
-                    transfer.remove ();
+                try {
+                    if (Midori.Download.action_clear (transfer.download, treeview))
+                        transfer.remove ();
+                } catch (Error error) {
+                    // Failure to open is the only known possibility here
+                    GLib.warning (_("Failed to open download: %s"), error.message);
+                }
             }
         }
 
@@ -198,7 +202,11 @@ namespace Transfers {
                 var menu = new Gtk.Menu ();
                 var menuitem = new Gtk.ImageMenuItem.from_stock (Gtk.STOCK_OPEN, null);
                 menuitem.activate.connect (() => {
-                    Midori.Download.open (transfer.download, treeview);
+                    try {
+                        Midori.Download.open (transfer.download, treeview);
+                    } catch (Error error_open) {
+                        GLib.warning (_("Failed to open download: %s"), error_open.message);
+                    }
                 });
                 menuitem.sensitive = transfer.succeeded;
                 menu.append (menuitem);
@@ -206,7 +214,7 @@ namespace Transfers {
                 menuitem.image = new Gtk.Image.from_stock (Gtk.STOCK_DIRECTORY, Gtk.IconSize.MENU);
                 menuitem.activate.connect (() => {
                     var folder = GLib.File.new_for_uri (transfer.destination);
-                    Sokoke.show_uri (get_screen (), folder.get_parent ().get_uri (), 0);
+                    (Midori.Browser.get_for_widget (this).tab as Midori.Tab).open_uri (folder.get_parent ().get_uri ());
                 });
                 menu.append (menuitem);
                 menuitem = new Gtk.ImageMenuItem.with_mnemonic (_("Copy Link Loc_ation"));
@@ -312,7 +320,7 @@ namespace Transfers {
             progress.show_text = true;
 #endif
             progress.ellipsize = Pango.EllipsizeMode.MIDDLE;
-            string filename = Path.get_basename (transfer.destination);
+            string filename = Midori.Download.get_basename_for_display (transfer.destination);
             progress.text = filename;
             int width;
             Sokoke.widget_get_text_size (progress, "M", out width, null);
@@ -336,8 +344,13 @@ namespace Transfers {
         }
 
         void button_clicked () {
-            if (Midori.Download.action_clear (transfer.download, button))
-                transfer.remove ();
+            try {
+                if (Midori.Download.action_clear (transfer.download, button))
+                    transfer.remove ();
+            } catch (Error error) {
+                // Failure to open is the only known possibility here
+                GLib.warning (_("Failed to open download: %s"), error.message);
+            }
         }
 
         void transfer_changed () {
@@ -441,12 +454,17 @@ namespace Transfers {
             if (transfer.succeeded) {
                 /* FIXME: The following 2 blocks ought to be done in core */
                 if (transfer.action == Midori.DownloadType.OPEN) {
-                    if (Midori.Download.action_clear (transfer.download, widgets.nth_data (0)))
-                        transfer.remove ();
+                    try {
+                        if (Midori.Download.action_clear (transfer.download, widgets.nth_data (0)))
+                            transfer.remove ();
+                    } catch (Error error) {
+                        // Failure to open is the only known possibility here
+                        GLib.warning (_("Failed to open download: %s"), error.message);
+                    }
                 }
 
                 string uri = transfer.destination;
-                string filename = Path.get_basename (uri);
+                string filename = Midori.Download.get_basename_for_display (uri);
                 var item = new Katze.Item ();
                 item.uri = uri;
                 item.name = filename;

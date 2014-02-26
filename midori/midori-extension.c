@@ -563,6 +563,8 @@ midori_extension_load_from_folder (MidoriApp* app,
         g_assert (midori_extension_activate_gracefully (app, extension_path, "libapps." G_MODULE_SUFFIX, activate));
         g_assert (midori_extension_activate_gracefully (app, extension_path, "libdelayed-load." G_MODULE_SUFFIX, activate));
         g_assert (midori_extension_activate_gracefully (app, extension_path, "libtabby." G_MODULE_SUFFIX, activate));
+        g_assert (midori_extension_activate_gracefully (app, extension_path, "libopen-with." G_MODULE_SUFFIX, activate));
+        g_assert (midori_extension_activate_gracefully (app, extension_path, "libflummi." G_MODULE_SUFFIX, activate));
     }
     else
     {
@@ -674,13 +676,14 @@ midori_extension_add_to_list (MidoriApp*       app,
     if (katze_array_get_item_index (extensions, extension) >= 0)
         return;
     /* FIXME need proper stock extension mechanism */
-    if (!strcmp (filename, "libtransfers." G_MODULE_SUFFIX)
-     || !strcmp (filename, "libapps." G_MODULE_SUFFIX)
-     || !strcmp (filename, "libdelayed-load." G_MODULE_SUFFIX)
-     || !strcmp (filename, "libtabby." G_MODULE_SUFFIX))
-        return;
+    if (strcmp (filename, "libtransfers." G_MODULE_SUFFIX)
+     && strcmp (filename, "libapps." G_MODULE_SUFFIX)
+     && strcmp (filename, "libdelayed-load." G_MODULE_SUFFIX)
+     && strcmp (filename, "libtabby." G_MODULE_SUFFIX)
+     && strcmp (filename, "libopen-with." G_MODULE_SUFFIX)
+     && strcmp (filename, "libflummi." G_MODULE_SUFFIX))
+        katze_array_add_item (extensions, extension);
 
-    katze_array_add_item (extensions, extension);
     g_object_unref (extensions);
 
     if (midori_paths_is_readonly ())

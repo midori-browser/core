@@ -219,7 +219,7 @@ main (int    argc,
             else if (type == G_TYPE_PARAM_ENUM)
             {
                 GEnumClass* enum_class = G_ENUM_CLASS (g_type_class_peek (pspec->value_type));
-                gint j = 0;
+                guint j = 0;
                 tname_string = g_string_new ("");
                 for (j = 0; j < enum_class->n_values; j++)
                 {

@@ -24,13 +24,24 @@ namespace Midori {
     }
 
     namespace Test {
+        public void init ([CCode (array_length_pos = 0.9)] ref unowned string[] args) {
+            GLib.Test.init (ref args);
+
+            /* Always log to stderr */
+            Log.set_handler (null,
+                LogLevelFlags.LEVEL_MASK | LogLevelFlags.FLAG_FATAL | LogLevelFlags.FLAG_RECURSION,
+                (domain, log_levels, message) => {
+                stderr.printf ("** %s\n", message);
+            });
+        }
+
         internal static uint test_max_timeout = 0;
         internal static string? test_first_try = null;
         public void grab_max_timeout () {
             int seconds = (Environment.get_variable ("MIDORI_TIMEOUT") ?? "42").to_int ();
             test_first_try = "once";
             test_max_timeout = GLib.Timeout.add_seconds (seconds > 0 ? seconds / 2 : 0, ()=>{
-                stdout.printf ("Timed out %s%s\n", test_first_try,
+                stderr.printf ("Timed out %s%s\n", test_first_try,
                     MainContext.default ().pending () ? " (loop)" : "");
                 if (test_first_try == "twice")
                     Process.exit (0);
@@ -48,6 +59,26 @@ namespace Midori {
         internal static bool test_idle_timeouts = false;
         public void idle_timeouts () {
             test_idle_timeouts = true;
+        }
+
+        public abstract class Job : GLib.Object {
+            bool done;
+            public abstract async void run (Cancellable cancellable) throws GLib.Error;
+            async void run_wrapped (Cancellable cancellable) {
+                try {
+                    yield run (cancellable);
+                } catch (Error error) {
+                    GLib.error (error.message);
+                }
+                done = true;
+            }
+            public void run_sync () {
+                var loop = MainContext.default ();
+                var cancellable = new Cancellable ();
+                done = false;
+                run_wrapped.begin (cancellable);
+                do { loop.iteration (true); } while (!done);
+            }
         }
 
         public void log_set_fatal_handler_for_icons () {
@@ -72,8 +103,22 @@ namespace Midori {
         }
     }
 
+    public static void show_message_dialog (Gtk.MessageType type, string short, string detailed, bool modal) {
+        var dialog = new Gtk.MessageDialog (null, 0, type, Gtk.ButtonsType.OK, "%s", short);
+        dialog.format_secondary_text ("%s", detailed);
+        if (modal) {
+            dialog.run ();
+            dialog.destroy ();
+        } else {
+            dialog.response.connect ((response) => {
+                dialog.destroy ();
+            });
+            dialog.show ();
+        }
+    }
+
     public class FileChooserDialog : Gtk.FileChooserDialog {
-        public FileChooserDialog (string title, Gtk.Window window, Gtk.FileChooserAction action) {
+        public FileChooserDialog (string title, Gtk.Window? window, Gtk.FileChooserAction action) {
             /* Creates a new file chooser dialog to Open or Save and Cancel.
                The positive response is %Gtk.ResponseType.OK. */
             unowned string stock_id = Gtk.Stock.OPEN;

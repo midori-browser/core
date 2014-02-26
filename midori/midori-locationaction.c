@@ -661,12 +661,12 @@ midori_location_action_popup_timeout_cb (gpointer data)
         g_object_unref (app);
         midori_autocompleter_add (action->autocompleter,
             MIDORI_COMPLETION (midori_view_completion_new ()));
-        midori_autocompleter_add (action->autocompleter,
-            MIDORI_COMPLETION (midori_search_completion_new ()));
         /* FIXME: Currently HistoryCompletion doesn't work in memory */
         if (action->history != NULL)
             midori_autocompleter_add (action->autocompleter,
                 MIDORI_COMPLETION (midori_history_completion_new ()));
+        midori_autocompleter_add (action->autocompleter,
+            MIDORI_COMPLETION (midori_search_completion_new ()));
     }
 
     if (!midori_autocompleter_can_complete (action->autocompleter, action->key))
@@ -1322,22 +1322,22 @@ midori_location_action_cert_response_cb (GtkWidget*      dialog,
     {
         /* FIXME: Would be nice if GcrCertificateExporter became public */
         gchar* filename = g_strconcat (peer, ".crt", NULL);
-        GtkWidget* dialog = (GtkWidget*)midori_file_chooser_dialog_new (_("Export certificate"),
+        GtkWidget* export_dialog = (GtkWidget*)midori_file_chooser_dialog_new (_("Export certificate"),
             NULL, GTK_FILE_CHOOSER_ACTION_SAVE);
-        gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (dialog), TRUE);
-        gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (dialog), filename);
+        gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (export_dialog), TRUE);
+        gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (export_dialog), filename);
         g_free (filename);
 
-        if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK)
+        if (gtk_dialog_run (GTK_DIALOG (export_dialog)) == GTK_RESPONSE_OK)
         {
             gsize n_data;
             gconstpointer data = gcr_certificate_get_der_data (gcr_cert, &n_data);
             g_return_if_fail (data);
-            filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
+            filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (export_dialog));
             g_file_set_contents (filename, data, n_data, NULL);
             g_free (filename);
         }
-        gtk_widget_destroy (dialog);
+        gtk_widget_destroy (export_dialog);
     }
     if (error != NULL)
     {
@@ -1448,11 +1448,13 @@ midori_location_action_icon_released_cb (GtkWidget*           widget,
                                          gint                 button,
                                          GtkAction*           action)
 {
-    /* The dialog should "toggle" like a menu, as far as users go
-       FIXME: Half-working: the dialog closes but re-opens */
+    /* The dialog should "toggle" like a menu, as far as users go */
     static GtkWidget* dialog = NULL;
     if (icon_pos == GTK_ENTRY_ICON_PRIMARY && dialog != NULL)
+    {
         gtk_widget_destroy (dialog);
+        return; // Previously code was running on and the widget was being rebuilt
+    }
 
     if (icon_pos == GTK_ENTRY_ICON_PRIMARY)
     {

@@ -13,6 +13,7 @@
 #ifdef _WIN32
     #define _WIN32_WINNT 0x0501
     #include <unistd.h>
+    #include <windows.h>
 #endif
 
 #if HAVE_CONFIG_H
@@ -534,7 +535,7 @@ midori_app_open_cb (MidoriApp* app,
     for (i = 0; i < n_files; i++)
     {
         gchar* uri = g_file_get_uri (files[i]);
-        if (sokoke_recursive_fork_protection (uri, FALSE))
+        if (midori_uri_recursive_fork_protection (uri, FALSE))
         {
             if (first)
             {
@@ -615,6 +616,11 @@ midori_app_get_name (MidoriApp* app)
 gboolean
 midori_app_get_crashed (MidoriApp* app)
 {
+    static gint cache = -1;
+
+    if (cache != -1)
+        return (gboolean) cache;
+
     if (!midori_paths_is_readonly ())
     {
         /* We test for the presence of a dummy file which is created once
@@ -624,9 +630,13 @@ midori_app_get_crashed (MidoriApp* app)
         if (!crashed)
             g_file_set_contents (config_file, "RUNNING", -1, NULL);
         g_free (config_file);
-        if (crashed)
+        if (crashed) {
+            cache = 1;
             return TRUE;
+        }
     }
+
+    cache = 0;
 
     return FALSE;
 }
@@ -1247,7 +1257,7 @@ gboolean
 midori_debug (const gchar* token)
 {
     static const gchar* debug_token = NULL;
-    const gchar* debug_tokens = "adblock:match adblock:time startup headers body referer cookies paths hsts unarmed bookmarks mouse app ";
+    const gchar* debug_tokens = "adblock:match adblock:time adblock:element startup headers body referer cookies paths hsts unarmed bookmarks mouse app ";
     if (debug_token == NULL)
     {
         gchar* found_token;
