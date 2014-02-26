@@ -286,10 +286,13 @@ namespace Adblock {
                 if (download != null)
                     return;
 
+                string destination_uri = Filename.to_uri (path, null);
+                debug ("Fetching %s to %s now", uri, destination_uri);
                 download = new WebKit.Download (new WebKit.NetworkRequest (uri));
-                download.destination_uri = Filename.to_uri (path, null);
+                if (!Midori.Download.has_enough_space (download, destination_uri, true))
+                     throw new FileError.EXIST ("Can't download to \"%s\"", path);
+                download.destination_uri = destination_uri;
                 download.notify["status"].connect (download_status);
-                debug ("Fetching %s to %s now", uri, download.destination_uri);
                 download.start ();
 #endif
                 return;

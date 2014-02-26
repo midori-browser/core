@@ -346,7 +346,7 @@ namespace Midori {
          * Returns whether it seems possible to save @download to the path specified by
          * @destination_uri, considering space on disk and permissions
          */
-        public static bool has_enough_space (WebKit.Download download, string destination_uri) {
+        public static bool has_enough_space (WebKit.Download download, string destination_uri, bool quiet=false) {
 #if !HAVE_WEBKIT2
             var folder = File.new_for_uri (destination_uri).get_parent ();
             bool can_write;
@@ -378,7 +378,8 @@ namespace Midori {
                 }
                 else
                     assert_not_reached ();
-                Sokoke.message_dialog (Gtk.MessageType.ERROR, message, detailed_message, false);
+                if (!quiet)
+                    Sokoke.message_dialog (Gtk.MessageType.ERROR, message, detailed_message, false);
                 return false;
             }
 #endif
