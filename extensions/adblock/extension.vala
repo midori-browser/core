@@ -133,6 +133,13 @@ namespace Adblock {
             // TODO: row-inserted row-changed row-deleted
             // TODO vbox with add/ edit/ remove/ down/ up
 
+            entry.activate.connect (() => {
+                var sub = new Subscription (entry.text);
+                config.add (sub);
+                liststore.insert_with_values (null, 0, 0, sub);
+                entry.text = "";
+            });
+
             dialog.get_content_area ().show_all ();
 
             dialog.response.connect ((response)=>{ dialog.destroy (); });
