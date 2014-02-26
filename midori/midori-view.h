@@ -251,6 +251,11 @@ midori_view_list_plugins               (MidoriView*        view,
                                         gboolean           html);
 
 void
+midori_view_list_video_formats         (MidoriView*        view,
+                                        GString*           formats,
+                                        gboolean           html);
+
+void
 midori_view_set_colors                 (MidoriView*        view,
                                         GdkColor*          fg_color,
                                         GdkColor*          bg_color);
