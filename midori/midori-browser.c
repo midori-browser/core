@@ -1025,7 +1025,7 @@ midori_bookmark_folder_button_new (MidoriBookmarksDb* array,
 static gint64
 midori_bookmark_folder_button_get_active (GtkWidget* combo)
 {
-    gint64 id = 0;
+    gint64 id = -1;
     GtkTreeIter iter;
 
     g_return_val_if_fail (GTK_IS_COMBO_BOX (combo), 0);
@@ -3117,29 +3117,17 @@ _action_bookmarks_populate_folder (GtkAction*     action,
                                    KatzeArray*    folder,
                                    MidoriBrowser* browser)
 {
-    KatzeArray* bookmarks;
-    const gchar* id = katze_item_get_meta_string (KATZE_ITEM (folder), "id");
-    gchar* condition;
-
     if (browser->bookmarks == NULL)
         return FALSE;
 
-    if (id == NULL)
-        condition = "parentid is NULL";
-    else
-        condition = "parentid = %q";
-
-    bookmarks = midori_bookmarks_db_query_recursive (browser->bookmarks,
-        "id, title, parentid, uri, app, pos_panel, pos_bar", condition, id, FALSE);
-    if (!bookmarks)
-        return FALSE;
+    midori_bookmarks_db_populate_folder (browser->bookmarks, folder);
 
     /* Clear items from dummy array here */
     gtk_container_foreach (GTK_CONTAINER (menu),
         (GtkCallback)(gtk_widget_destroy), NULL);
 
     /* "Import Bookmarks" and "Export Bookmarks" at the top */
-    if (id == NULL)
+    if (folder == KATZE_ARRAY (browser->bookmarks))
     {
         GtkWidget* menuitem;
         menuitem = gtk_action_create_menu_item (_action_by_name (browser, "BookmarksImport"));
@@ -3153,7 +3141,7 @@ _action_bookmarks_populate_folder (GtkAction*     action,
         gtk_widget_show (menuitem);
     }
 
-    if (katze_array_is_empty (bookmarks))
+    if (katze_array_is_empty (folder))
     {
         GtkWidget* menuitem = gtk_image_menu_item_new_with_label (_("Empty"));
         gtk_widget_set_sensitive (menuitem, FALSE);
@@ -3162,7 +3150,7 @@ _action_bookmarks_populate_folder (GtkAction*     action,
         return TRUE;
     }
 
-    katze_array_action_generate_menu (KATZE_ARRAY_ACTION (action), bookmarks,
+    katze_array_action_generate_menu (KATZE_ARRAY_ACTION (action), folder,
                                       menu, GTK_WIDGET (browser));
     return TRUE;
 }
@@ -6765,6 +6753,10 @@ midori_browser_set_bookmarks (MidoriBrowser* browser,
         g_signal_handlers_disconnect_by_func (browser->bookmarks,
             midori_bookmarkbar_remove_item_cb, browser);
     }
+
+    g_object_set (G_OBJECT (_action_by_name (browser, "Bookmarks")),
+        "array", KATZE_ARRAY (bookmarks),
+        NULL);
 
     settings = midori_browser_get_settings (browser);
     g_signal_handlers_disconnect_by_func (settings,

@@ -767,12 +767,14 @@ katze_array_action_set_array (KatzeArrayAction* array_action,
                               KatzeArray*       array)
 {
     GSList* proxies;
+    KatzeArray *old_array = NULL;
 
     g_return_if_fail (KATZE_IS_ARRAY_ACTION (array_action));
     g_return_if_fail (!array || katze_array_is_a (array, KATZE_TYPE_ITEM));
 
     /* FIXME: Disconnect old array */
 
+    old_array = array_action->array;
     if (array)
         g_object_ref (array);
     katze_object_assign (array_action->array, array);
@@ -793,7 +795,15 @@ katze_array_action_set_array (KatzeArrayAction* array_action,
 
     do
     {
+        KatzeArray* item = g_object_get_data (G_OBJECT (proxies->data), "KatzeItem");
+
+        if (item && (item == old_array))
+            g_object_set_data (G_OBJECT (proxies->data), "KatzeItem", array);
+
         gtk_widget_set_sensitive (proxies->data, array != NULL);
     }
     while ((proxies = g_slist_next (proxies)));
+
+    if (array)
+        katze_array_update (KATZE_ARRAY (array));
 }

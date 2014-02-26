@@ -370,7 +370,7 @@ midori_bookmarks_add_item (KatzeItem*       item,
     GtkTreeModel* model = gtk_tree_view_get_model (GTK_TREE_VIEW (bookmarks->treeview));
     GtkTreeIter iter;
 
-    if (!parentid)
+    if (parentid == -1)
     {
         midori_bookmarks_add_item_to_model (GTK_TREE_STORE (model), NULL, item);
     }
