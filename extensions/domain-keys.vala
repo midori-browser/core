@@ -1,12 +1,12 @@
 /*
-   Copyright (C) 2014 James Axl <bilimish@yandex.ru>
+ Copyright (C) 2014 James Axl <bilimish@yandex.ru>
 
-   This library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Lesser General Public
-   License as published by the Free Software Foundation; either
-   version 2.1 of the License, or (at your option) any later version.
+ This library is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 2.1 of the License, or (at your option) any later version.
 
-   See the file COPYING for the full license text.
+ See the file COPYING for the full license text.
 */
 
 namespace DomainHotkeys {
@@ -23,9 +23,10 @@ namespace DomainHotkeys {
         bool key_press_event (Midori.LocationAction action, Gdk.EventKey event_key) {
             if (event_key.keyval == Gdk.Key.Return) {
                 if ((bool)(event_key.state & Gdk.ModifierType.CONTROL_MASK)) {
-                    var old_text = action.get_text ();
-                    var new_text = "www." + old_text + ".com";
-                    action.submit_uri(new_text, false);
+                    var host_name = action.get_text ();
+                    var domain = C_("Domain", ".com");
+                    var url = "www." + host_name + domain;
+                    action.submit_uri(url, false);
                     return true;
                 }
             }
