@@ -143,6 +143,7 @@ static void
 katze_preferences_prepare (KatzePreferences* preferences)
 {
     KatzePreferencesPrivate* priv = preferences->priv;
+    
     #if GTK_CHECK_VERSION (3, 10, 0) & !HAVE_OSX
     priv->notebook = gtk_stack_new ();
     #else
@@ -162,6 +163,7 @@ katze_preferences_prepare (KatzePreferences* preferences)
     #if GTK_CHECK_VERSION (3, 10, 0) & !HAVE_OSX
         priv->toolbar = gtk_stack_switcher_new ();
         gtk_stack_switcher_set_stack (GTK_STACK_SWITCHER (priv->toolbar), GTK_STACK (priv->notebook));
+        gtk_widget_set_halign (priv->toolbar, GTK_ALIGN_CENTER);
         gtk_box_pack_start (GTK_BOX (gtk_dialog_get_content_area (GTK_DIALOG (preferences))),
                         priv->toolbar, FALSE, FALSE, 0);
     #else
