@@ -155,7 +155,6 @@ else ()
 endif ()
 
 option(USE_GTK3 "Use GTK+3" OFF)
-option(USE_STACK_SWITCHER "Use stack switcher in preferences" OFF)
 option(HALF_BRO_INCOM_WEBKIT2 "Serve as a guniea pig" OFF)
 option(USE_ZEITGEIST "Zeitgeist history integration" ON)
 option(USE_GRANITE "Fancy notebook and pop-overs" OFF)
@@ -163,7 +162,7 @@ option(USE_APIDOCS "API documentation" OFF)
 option(EXTRA_WARNINGS "Additional compiler warnings" OFF)
 
 # GTK+3 is implied here, whether set or not
-if (USE_GRANITE OR HALF_BRO_INCOM_WEBKIT2 OR USE_STACK_SWITCHER)
+if (USE_GRANITE OR HALF_BRO_INCOM_WEBKIT2)
     set(USE_GTK3 ON)
 endif ()
 
@@ -237,10 +236,6 @@ else ()
     add_definitions("-DWEBKIT_VERSION=\"${DEPS_GTK_webkit-1.0_VERSION}\"")
     set(PKGS ${PKGS} gtk+-2.0)
     set(EXTRA_VAPIS ${EXTRA_VAPIS} "${CMAKE_SOURCE_DIR}/midori/webkitgtk-3.0.vapi")
-endif ()
-
-if (USE_STACK_SWITCHER)
-    add_definitions("-DUSE_STACK_SWITCHER=1")
 endif ()
 
 # dh_translations detects this if there's no variable used
