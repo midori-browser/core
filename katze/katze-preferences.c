@@ -163,7 +163,7 @@ katze_preferences_prepare (KatzePreferences* preferences)
         priv->toolbar = gtk_stack_switcher_new ();
         gtk_stack_switcher_set_stack (GTK_STACK_SWITCHER (priv->toolbar), GTK_STACK (priv->notebook));
         gtk_box_pack_start (GTK_BOX (gtk_dialog_get_content_area (GTK_DIALOG (preferences))),
-                        priv->toolbar, TRUE, FALSE, 0);
+                        priv->toolbar, FALSE, FALSE, 0);
     #else
         priv->toolbar = NULL;
     #endif
