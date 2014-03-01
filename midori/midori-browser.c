@@ -289,6 +289,7 @@ _midori_browser_update_interface (MidoriBrowser* browser,
 
     _action_set_sensitive (browser, "AddSpeedDial", !midori_view_is_blank (view));
     _action_set_sensitive (browser, "BookmarkAdd", !midori_view_is_blank (view));
+    _action_set_sensitive (browser, "MailTo", !midori_view_is_blank (view));
     _action_set_sensitive (browser, "SaveAs", midori_tab_can_save (MIDORI_TAB (view)));
     _action_set_sensitive (browser, "ZoomIn", midori_view_can_zoom_in (view));
     _action_set_sensitive (browser, "ZoomOut", midori_view_can_zoom_out (view));
