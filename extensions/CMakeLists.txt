@@ -54,6 +54,8 @@ foreach(UNIT_SRC ${EXTENSIONS})
                 ${PKGS}
             OPTIONS
                 ${VALAFLAGS}
+            GENERATE_HEADER
+                ${UNIT}
             CUSTOM_VAPIS
                 ${EXTRA_VAPIS}
                 "${CMAKE_SOURCE_DIR}/midori/midori.vapi"
@@ -88,6 +90,8 @@ foreach(UNIT_SRC ${EXTENSIONS})
             ${PKGS}
         OPTIONS
             ${VALAFLAGS}
+        GENERATE_HEADER
+            ${UNIT}
         CUSTOM_VAPIS
             ${EXTRA_VAPIS}
             "${CMAKE_SOURCE_DIR}/midori/midori.vapi"
