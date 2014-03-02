@@ -13,7 +13,7 @@ namespace Adblock {
     public class Config : GLib.Object {
         List<Subscription> subscriptions;
         string? path;
-        KeyFile keyfile;
+        public KeyFile keyfile;
         bool should_save;
 
         public Config (string? path) {
@@ -56,10 +56,10 @@ namespace Adblock {
         }
 
         void active_changed (Object subscription, ParamSpec pspec) {
-            save ();
+            update_filters ();
         }
 
-        void save () {
+        void update_filters () {
             var filters = new StringBuilder ();
             foreach (var sub in subscriptions) {
                 if (!sub.mutable)
@@ -77,6 +77,12 @@ namespace Adblock {
 
             string[] list = (filters.str.slice (0, -1)).split (";");
             keyfile.set_string_list ("settings", "filters", list);
+
+            save ();
+        }
+
+
+        public void save () {
             try {
                 string filename = GLib.Path.build_filename (path, "config");
                 FileUtils.set_contents (filename, keyfile.to_data ());
@@ -106,7 +112,7 @@ namespace Adblock {
             subscriptions.append (sub);
             size++;
             if (should_save)
-                save ();
+                update_filters ();
             return true;
         }
 
@@ -116,7 +122,7 @@ namespace Adblock {
 
             subscriptions.remove (sub);
             sub.notify["active"].disconnect (active_changed);
-            save ();
+            update_filters ();
             size--;
         }
     }

@@ -277,13 +277,13 @@ add_custom_target (uninstall
 install(FILES AUTHORS COPYING ChangeLog EXPAT README DESTINATION ${CMAKE_INSTALL_DOCDIR})
 
 add_subdirectory (midori)
+add_subdirectory (extensions)
+enable_testing()
+add_subdirectory (tests)
 add_subdirectory (po)
 add_subdirectory (icons)
 add_subdirectory (data)
 add_subdirectory (config)
-enable_testing()
-add_subdirectory (tests)
-add_subdirectory (extensions)
 
 if (USE_APIDOCS)
     add_subdirectory (docs/api)
