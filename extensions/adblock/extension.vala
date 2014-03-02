@@ -35,7 +35,7 @@ namespace Adblock {
             }
 
             public void set_status (string status) {
-                string filename = Midori.Paths.get_res_filename ("adblock/adblock-%s.svg".printf (status));
+                string filename = Midori.Paths.get_res_filename ("adblock/%s.svg".printf (status));
                 icon.set_from_file (filename);
             }
         }
@@ -224,9 +224,12 @@ namespace Adblock {
             toggle_buttons.append (toggle_button);
         }
 
-        void update_buttons () {
+        void update_buttons (string page_uri="") {
             foreach (var toggle_button in toggle_buttons) {
-                toggle_button.set_status (disable_toggled ? "disabled" : "enabled");
+                if (cache.lookup (page_uri) == Directive.BLOCK)
+                    toggle_button.set_status ("blocked");
+                else
+                    toggle_button.set_status (disable_toggled ? "disabled" : "enabled");
             }
         }
 
@@ -327,8 +330,10 @@ namespace Adblock {
         void resource_requested (WebKit.WebView web_view, WebKit.WebFrame frame,
             WebKit.WebResource resource, WebKit.NetworkRequest request, WebKit.NetworkResponse? response) {
 
-            if (request_handled (web_view.uri, request.uri))
+            if (request_handled (web_view.uri, request.uri)) {
                 request.set_uri ("about:blank");
+                update_buttons (web_view.uri);
+            }
         }
 
         bool navigation_requested (WebKit.WebFrame frame, WebKit.NetworkRequest request,
@@ -345,6 +350,7 @@ namespace Adblock {
                     return true;
                 }
             }
+            update_buttons (request.uri);
             return false;
         }
 
@@ -483,6 +489,8 @@ namespace Adblock {
                 if (directive == null)
                     directive = Directive.ALLOW;
                 cache.insert (request_uri, directive);
+                if (directive == Directive.BLOCK)
+                    cache.insert (page_uri, directive);
             }
             return directive == Directive.BLOCK;
         }
