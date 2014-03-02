@@ -579,9 +579,8 @@ midori_app_network_changed (GNetworkMonitor* monitor,
         KATZE_ARRAY_FOREACH_ITEM (browser, app->browsers) {
             GList* tabs = midori_browser_get_tabs (browser);
             for (; tabs != NULL; tabs = g_list_next (tabs))
-            {
-                midori_view_reload (tabs->data, FALSE);
-            }
+                if (midori_tab_get_load_error (MIDORI_TAB (tabs->data)) == MIDORI_LOAD_ERROR_NETWORK)
+                    midori_view_reload (tabs->data, FALSE);
             g_list_free (tabs);
         }
     }
