@@ -13,7 +13,7 @@ namespace Adblock {
     public class Config : GLib.Object {
         List<Subscription> subscriptions;
         string? path;
-        KeyFile keyfile;
+        public KeyFile keyfile;
         Subscription? custom;
 
         public Config (string? path) {
@@ -81,6 +81,12 @@ namespace Adblock {
 
             string[] list = (filters.str.slice (0, -1)).split (";");
             keyfile.set_string_list ("settings", "filters", list);
+
+            save ();
+        }
+
+
+        public void save () {
             try {
                 string filename = GLib.Path.build_filename (path, "config");
                 FileUtils.set_contents (filename, keyfile.to_data ());

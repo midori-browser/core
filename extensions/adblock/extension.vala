@@ -26,7 +26,6 @@ namespace Adblock {
         public Extension (WebKit.WebExtension web_extension) {
             init ();
             web_extension.page_created.connect (page_created);
-            disable_toggled = false;
         }
 
         void page_created (WebKit.WebPage web_page) {
@@ -184,6 +183,9 @@ namespace Adblock {
                 Gtk.Image img = get_icon_image_for_state (disable_toggled);
                 toggle_button.set_image (img);
                 toggle_button.show ();
+
+                config.keyfile.set_boolean ("settings", "disabled", disable_toggled);
+                config.save ();
             });
             menu.append (checkitem);
 
@@ -367,6 +369,12 @@ namespace Adblock {
             string config_dir = Midori.Paths.get_extension_config_dir ("adblock");
             config = new Config (config_dir);
             reload_rules ();
+
+            try {
+                disable_toggled = config.keyfile.get_boolean ("settings", "disabled");
+            } catch (GLib.Error settings_error) {
+                warning ("Error reading settings: %s\n", settings_error.message);
+            }
         }
 
         void reload_rules () {
