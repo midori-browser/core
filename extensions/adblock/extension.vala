@@ -199,7 +199,7 @@ namespace Adblock {
             menu.append (menuitem);
 
             menu.show_all ();
-            Katze.widget_popup (null, menu, null, Katze.MenuPos.CURSOR);
+            Katze.widget_popup (toggle_button, menu, null, Katze.MenuPos.CURSOR);
         }
 
         void tab_added (Midori.View view) {
