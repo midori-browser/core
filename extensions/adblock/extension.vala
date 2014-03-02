@@ -197,14 +197,8 @@ namespace Adblock {
         }
 
         Gtk.Image get_icon_image_for_state (bool disable_toggled) {
-            string res_dir = Midori.Paths.get_res_filename ("adblock");
-            string filename;
-
-            if (disable_toggled)
-                filename = GLib.Path.build_filename (res_dir, "adblock-disabled.svg");
-            else
-                filename = GLib.Path.build_filename (res_dir, "adblock-enabled.svg");
-
+            string state = disable_toggled ? "disabled" : "enabled";
+            string filename = Midori.Paths.get_res_filename ("adblock/adblock-%s.svg".printf (state));
             return new Gtk.Image.from_file (filename);
         }
 
