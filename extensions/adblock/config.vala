@@ -14,23 +14,15 @@ namespace Adblock {
         List<Subscription> subscriptions;
         string? path;
         KeyFile keyfile;
-        Subscription? custom;
+        bool should_save;
 
         public Config (string? path) {
+            should_save = false;
             subscriptions = new GLib.List<Subscription> ();
 
             this.path = path;
             if (path == null)
                 return;
-
-            string custom_list = GLib.Path.build_filename (path, "custom.list");
-            try {
-                custom = new Subscription (Filename.to_uri (custom_list, null));
-                subscriptions.append (custom);
-            } catch (Error error) {
-                custom = null;
-                warning ("Failed to add custom list %s: %s", custom_list, error.message);
-            }
 
             string filename = GLib.Path.build_filename (path, "config");
             keyfile = new GLib.KeyFile ();
@@ -60,12 +52,17 @@ namespace Adblock {
             }
 
             size = subscriptions.length ();
+            should_save = true;
         }
 
         void active_changed (Object subscription, ParamSpec pspec) {
+            save ();
+        }
+
+        void save () {
             var filters = new StringBuilder ();
             foreach (var sub in subscriptions) {
-                if (sub == custom)
+                if (!sub.mutable)
                     continue;
                 if (sub.uri.has_prefix ("http:") && !sub.active)
                     filters.append ("http-" + sub.uri.substring (4));
@@ -88,28 +85,39 @@ namespace Adblock {
             }
         }
 
-        public void add_custom_rule (string rule) {
-            try {
-                var file = File.new_for_uri (custom.uri);
-                file.append_to (FileCreateFlags.NONE).write (("%s\n".printf (rule)).data);
-            } catch (Error error) {
-                warning ("Failed to add custom rule: %s", error.message);
-            }
-        }
-
         /* foreach support */
         public new Subscription? get (uint index) {
             return subscriptions.nth_data (index);
         }
         public uint size { get; private set; }
 
+        bool contains (Subscription subscription) {
+            foreach (var sub in subscriptions)
+                if (sub.uri == subscription.uri)
+                    return true;
+            return false;
+        }
+
         public bool add (Subscription sub) {
-            if (subscriptions.find (sub) != null)
+            if (contains (sub))
                 return false;
+
             sub.notify["active"].connect (active_changed);
             subscriptions.append (sub);
             size++;
+            if (should_save)
+                save ();
             return true;
+        }
+
+        public void remove (Subscription sub) {
+            if (!contains (sub))
+                return;
+
+            subscriptions.remove (sub);
+            sub.notify["active"].disconnect (active_changed);
+            save ();
+            size--;
         }
     }
 }

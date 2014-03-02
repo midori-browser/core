@@ -26,6 +26,7 @@ namespace Adblock {
         public string? path;
         public string uri { get; set; default = null; }
         public bool active { get; set; default = true; }
+        public bool mutable { get; set; default = true; }
         List<Feature> features;
         public Pattern pattern;
         public Keys keys;
@@ -326,6 +327,16 @@ namespace Adblock {
                 warning ("Adblock match error: %s\n", error.message);
             }
             return null;
+        }
+
+        public void add_rule (string rule) {
+            try {
+                var file = File.new_for_uri (uri);
+                file.append_to (FileCreateFlags.NONE).write (("%s\n".printf (rule)).data);
+                parse ();
+            } catch (Error error) {
+                warning ("Failed to add custom rule: %s", error.message);
+            }
         }
     }
 }

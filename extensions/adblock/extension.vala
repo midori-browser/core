@@ -18,7 +18,10 @@ namespace Adblock {
 
     public class Extension : Midori.Extension {
         Config config;
+        Subscription custom;
         HashTable<string, Directive?> cache;
+        Gtk.TreeView treeview;
+        Gtk.ListStore liststore;
 
 #if HAVE_WEBKIT2
         public Extension (WebKit.WebExtension web_extension) {
@@ -89,8 +92,8 @@ namespace Adblock {
                 entry.set_text (uri);
             vbox.pack_start (entry, false, false, 4);
 
-            var liststore = new Gtk.ListStore (1, typeof (Subscription));
-            var treeview = new Gtk.TreeView.with_model (liststore);
+            liststore = new Gtk.ListStore (1, typeof (Subscription));
+            treeview = new Gtk.TreeView.with_model (liststore);
             treeview.set_headers_visible (false);
             var column = new Gtk.TreeViewColumn ();
             var renderer_toggle = new Gtk.CellRendererToggle ();
@@ -99,7 +102,7 @@ namespace Adblock {
                 Subscription sub;
                 liststore.get (iter, 0, out sub);
                 renderer.set ("active", sub.active,
-                              "sensitive", !sub.uri.has_suffix ("custom.list"));
+                              "sensitive", sub.mutable);
             });
             renderer_toggle.toggled.connect ((path) => {
                 Gtk.TreeIter iter;
@@ -123,6 +126,12 @@ namespace Adblock {
             });
             treeview.append_column (column);
 
+            column = new Gtk.TreeViewColumn ();
+            Gtk.CellRendererPixbuf renderer_button = new Gtk.CellRendererPixbuf ();
+            column.pack_start (renderer_button, false);
+            column.set_cell_data_func (renderer_button, on_render_button);
+            treeview.append_column (column);
+
             var scrolled = new Gtk.ScrolledWindow (null, null);
             scrolled.set_policy (Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC);
             scrolled.add (treeview);
@@ -130,8 +139,7 @@ namespace Adblock {
 
             foreach (Subscription sub in config)
                 liststore.insert_with_values (null, 0, 0, sub);
-            // TODO: row-inserted row-changed row-deleted
-            // TODO vbox with add/ edit/ remove/ down/ up
+            treeview.button_release_event.connect (button_released);
 
             entry.activate.connect (() => {
                 var sub = new Subscription (entry.text);
@@ -145,6 +153,39 @@ namespace Adblock {
             dialog.response.connect ((response)=>{ dialog.destroy (); });
             dialog.show ();
         }
+
+        void on_render_button (Gtk.CellLayout column, Gtk.CellRenderer renderer,
+            Gtk.TreeModel model, Gtk.TreeIter iter) {
+
+            Subscription sub;
+            liststore.get (iter, 0, out sub);
+
+            renderer.set ("stock-id", sub.mutable ? Gtk.STOCK_DELETE : null,
+                          "stock-size", Gtk.IconSize.MENU);
+        }
+
+        bool button_released (Gdk.EventButton event) {
+            Gtk.TreePath? path;
+            Gtk.TreeViewColumn column;
+            if (treeview.get_path_at_pos ((int)event.x, (int)event.y, out path, out column, null, null)) {
+                if (path != null) {
+                    if (column == treeview.get_column (2)) {
+                        Gtk.TreeIter iter;
+                        if (liststore.get_iter (out iter, path)) {
+                            Subscription sub;
+                            liststore.get (iter, 0, out sub);
+                            if (sub.mutable) {
+                                config.remove (sub);
+                                liststore.remove (iter);
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
 
         void extension_activated (Midori.App app) {
             init ();
@@ -220,7 +261,7 @@ namespace Adblock {
 
             string new_rule = entry.get_text ();
             dialog.destroy ();
-            config.add_custom_rule (new_rule);
+            custom.add_rule (new_rule);
         }
 
 
@@ -322,6 +363,16 @@ namespace Adblock {
 
             string config_dir = Midori.Paths.get_extension_config_dir ("adblock");
             config = new Config (config_dir);
+            string custom_list = GLib.Path.build_filename (config_dir, "custom.list");
+            try {
+                custom = new Subscription (Filename.to_uri (custom_list, null));
+                custom.mutable = false;
+                config.add (custom);
+            } catch (Error error) {
+                custom = null;
+                warning ("Failed to add custom list %s: %s", custom_list, error.message);
+            }
+
             string presets = Midori.Paths.get_extension_preset_filename ("adblock", "config");
             var default_config = new Config (Path.get_dirname (presets));
             foreach (var sub in default_config)
