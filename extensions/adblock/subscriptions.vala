@@ -25,6 +25,7 @@ namespace Adblock {
     public class Subscription : GLib.Object {
         public string? path;
         public string uri { get; set; default = null; }
+        public string title { get; set; default = null; }
         public bool active { get; set; default = true; }
         public bool mutable { get; set; default = true; }
         List<Feature> features;
@@ -240,6 +241,8 @@ namespace Adblock {
                 }
             }
             debug ("Header '%s' says '%s'", key, value);
+            if (key == "Title")
+                title = value;
             foreach (var feature in features) {
                 if (feature.header (key, value))
                     break;

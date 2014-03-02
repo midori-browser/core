@@ -139,7 +139,7 @@ namespace Adblock {
             column.set_cell_data_func (renderer_text, (column, renderer, model, iter) => {
                 Subscription sub;
                 liststore.get (iter, 0, out sub);
-                renderer.set ("text", sub.uri);
+                renderer.set ("text", sub.title ?? sub.uri);
             });
             treeview.append_column (column);
 
@@ -426,6 +426,7 @@ namespace Adblock {
             try {
                 custom = new Subscription (Filename.to_uri (custom_list, null));
                 custom.mutable = false;
+                custom.title = _("Custom");
                 config.add (custom);
             } catch (Error error) {
                 custom = null;
