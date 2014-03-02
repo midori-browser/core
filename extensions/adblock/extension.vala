@@ -23,7 +23,22 @@ namespace Adblock {
         Gtk.TreeView treeview;
         Gtk.ListStore liststore;
         bool disable_toggled;
-        Gtk.Button toggle_button;
+        List<IconButton> toggle_buttons;
+
+        public class IconButton : Gtk.Button {
+            Gtk.Image icon;
+
+            public IconButton () {
+                icon = new Gtk.Image ();
+                add (icon);
+                icon.show ();
+            }
+
+            public void set_status (string status) {
+                string filename = Midori.Paths.get_res_filename ("adblock/adblock-%s.svg".printf (status));
+                icon.set_from_file (filename);
+            }
+        }
 
 #if HAVE_WEBKIT2
         public Extension (WebKit.WebExtension web_extension) {
@@ -196,35 +211,32 @@ namespace Adblock {
             app.add_browser.connect (browser_added);
         }
 
-        Gtk.Image get_icon_image_for_state (bool disable_toggled) {
-            string state = disable_toggled ? "disabled" : "enabled";
-            string filename = Midori.Paths.get_res_filename ("adblock/adblock-%s.svg".printf (state));
-            return new Gtk.Image.from_file (filename);
-        }
-
         void browser_added (Midori.Browser browser) {
             foreach (var tab in browser.get_tabs ())
                 tab_added (tab);
             browser.add_tab.connect (tab_added);
 
-            toggle_button = new Gtk.Button ();
-            Gtk.Image img = get_icon_image_for_state (disable_toggled);
-            toggle_button.set_image (img);
+            var toggle_button = new IconButton ();
+            toggle_button.set_status (disable_toggled ? "disabled" : "enabled");
             browser.statusbar.pack_start (toggle_button, false, false, 3);
             toggle_button.show ();
-
             toggle_button.clicked.connect (icon_clicked);
+            toggle_buttons.append (toggle_button);
         }
 
-        void icon_clicked () {
+        void update_buttons () {
+            foreach (var toggle_button in toggle_buttons) {
+                toggle_button.set_status (disable_toggled ? "disabled" : "enabled");
+            }
+        }
+
+        void icon_clicked (Gtk.Button toggle_button) {
             var menu = new Gtk.Menu ();
             var checkitem = new Gtk.CheckMenuItem.with_label (_("Disabled"));
             checkitem.set_active (disable_toggled);
             checkitem.toggled.connect (() => {
                 disable_toggled = checkitem.active;
-                Gtk.Image img = get_icon_image_for_state (disable_toggled);
-                toggle_button.set_image (img);
-                toggle_button.show ();
+                update_buttons ();
 
                 config.keyfile.set_boolean ("settings", "disabled", disable_toggled);
                 config.save ();
