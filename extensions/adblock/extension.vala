@@ -19,11 +19,14 @@ namespace Adblock {
     public class Extension : Midori.Extension {
         Config config;
         HashTable<string, Directive?> cache;
+        bool disable_toggled;
+        Gtk.Button toggle_button;
 
 #if HAVE_WEBKIT2
         public Extension (WebKit.WebExtension web_extension) {
             init ();
             web_extension.page_created.connect (page_created);
+            disable_toggled = false;
         }
 
         void page_created (WebKit.WebPage web_page) {
@@ -146,18 +149,66 @@ namespace Adblock {
             app.add_browser.connect (browser_added);
         }
 
+        Gtk.Image get_icon_image_for_state (bool disable_toggled) {
+            string res_dir = Midori.Paths.get_res_filename ("adblock");
+            string filename;
+
+            if (disable_toggled)
+                filename = GLib.Path.build_filename (res_dir, "adblock-disabled.svg");
+            else
+                filename = GLib.Path.build_filename (res_dir, "adblock-enabled.svg");
+
+            return new Gtk.Image.from_file (filename);
+        }
+
         void browser_added (Midori.Browser browser) {
             foreach (var tab in browser.get_tabs ())
                 tab_added (tab);
             browser.add_tab.connect (tab_added);
+
+            toggle_button = new Gtk.Button ();
+            Gtk.Image img = get_icon_image_for_state (disable_toggled);
+            toggle_button.set_image (img);
+            browser.statusbar.pack_start (toggle_button, false, false, 3);
+            toggle_button.show ();
+
+            toggle_button.clicked.connect (icon_clicked);
+        }
+
+        void icon_clicked () {
+            var menu = new Gtk.Menu ();
+            var checkitem = new Gtk.CheckMenuItem.with_label (_("Disable adblock"));
+            checkitem.set_active (disable_toggled);
+            checkitem.toggled.connect (() => {
+                disable_toggled = checkitem.active;
+                Gtk.Image img = get_icon_image_for_state (disable_toggled);
+                toggle_button.set_image (img);
+                toggle_button.show ();
+            });
+            menu.append (checkitem);
+
+            var menuitem = new Gtk.ImageMenuItem.with_label (_("Preferences"));
+            var image = new Gtk.Image.from_stock (Gtk.STOCK_PREFERENCES, Gtk.IconSize.MENU);
+            menuitem.always_show_image = true;
+            menuitem.set_image (image);
+            menuitem.activate.connect (() => {
+                open_preferences ();
+            });
+            menu.append (menuitem);
+
+            menu.show_all ();
+            Katze.widget_popup (null, menu, null, Katze.MenuPos.CURSOR);
         }
 
         void tab_added (Midori.View view) {
             view.web_view.resource_request_starting.connect (resource_requested);
             view.web_view.navigation_policy_decision_requested.connect (navigation_requested);
             view.notify["load-status"].connect ((pspec) => {
-                if (view.load_status == Midori.LoadStatus.FINISHED)
-                    inject_css (view, view.uri);
+                if (!disable_toggled)
+                {
+                    if (view.load_status == Midori.LoadStatus.FINISHED)
+                        inject_css (view, view.uri);
+                }
             });
             view.context_menu.connect (context_menu);
         }
@@ -330,6 +381,9 @@ namespace Adblock {
        }
 
         bool request_handled (string page_uri, string request_uri) {
+            if (disable_toggled)
+                return false;
+
             /* Always allow the main page */
             if (request_uri == page_uri)
                 return false;
