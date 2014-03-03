@@ -171,9 +171,9 @@ namespace Adblock {
         }
 
         void tab_added (Midori.View view) {
+            view.navigation_requested.connect (navigation_requested);
 #if !HAVE_WEBKIT2
             view.web_view.resource_request_starting.connect (resource_requested);
-            view.web_view.navigation_policy_decision_requested.connect (navigation_requested);
             view.notify["load-status"].connect ((pspec) => {
                 if (view.load_status == Midori.LoadStatus.FINISHED)
                     inject_css (view, view.uri);
@@ -236,6 +236,18 @@ namespace Adblock {
             config.add_custom_rule (new_rule);
         }
 
+        bool navigation_requested (Midori.Tab tab, string uri) {
+            if (uri.has_prefix ("abp:")) {
+                string new_uri = uri.replace ("abp://", "abp:");
+                if (new_uri.has_prefix ("abp:subscribe?location=")) {
+                    /* abp://subscripe?location=http://example.com&title=foo */
+                    string[] parts = new_uri.substring (23, -1).split ("&", 2);
+                    open_dialog (parts[0]);
+                    return true;
+                }
+            }
+            return false;
+        }
 
 #if !HAVE_WEBKIT2
         void resource_requested (WebKit.WebView web_view, WebKit.WebFrame frame,
@@ -243,23 +255,6 @@ namespace Adblock {
 
             if (request_handled (web_view.uri, request.uri))
                 request.set_uri ("about:blank");
-        }
-
-        bool navigation_requested (WebKit.WebFrame frame, WebKit.NetworkRequest request,
-            WebKit.WebNavigationAction action, WebKit.WebPolicyDecision decision) {
-
-            string uri = request.uri;
-            if (uri.has_prefix ("abp:")) {
-                uri = uri.replace ("abp://", "abp:");
-                if (uri.has_prefix ("abp:subscribe?location=")) {
-                    /* abp://subscripe?location=http://example.com&title=foo */
-                    string[] parts = uri.substring (23, -1).split ("&", 2);
-                    decision.ignore ();
-                    open_dialog (parts[0]);
-                    return true;
-                }
-            }
-            return false;
         }
 
         void inject_css (Midori.View view, string page_uri) {
