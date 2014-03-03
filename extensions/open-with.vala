@@ -601,7 +601,7 @@ namespace ExternalApplications {
             WebKit.WebNavigationAction action, WebKit.WebPolicyDecision decision) {
 
             string uri = request.uri;
-            if (Midori.URI.is_http (uri) || Midori.URI.is_blank (uri))
+            if (uri.has_prefix ("file://") || Midori.URI.is_http (uri) || Midori.URI.is_blank (uri))
                 return false;
 
             decision.ignore ();
