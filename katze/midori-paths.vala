@@ -141,6 +141,9 @@ namespace Midori {
                     Environment.get_user_cache_dir (), PACKAGE_NAME);
                 user_data_dir = Environment.get_user_data_dir ();
 #if HAVE_WEBKIT2
+                /* Cache and extension dir MUST be set no later than here to work */
+                WebKit.WebContext.get_default ().set_web_extensions_directory (
+                    Path.build_path (Path.DIR_SEPARATOR_S, cache_dir, "wk2ext"));
                 WebKit.WebContext.get_default ().set_disk_cache_directory (
                     Path.build_path (Path.DIR_SEPARATOR_S, cache_dir, "web"));
 
