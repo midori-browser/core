@@ -13,7 +13,7 @@ namespace DomainHotkeys {
     class Manager : Midori.Extension {
         internal Manager () {
             GLib.Object (name: _("Domain Hotkeys"),
-                         description: _("Add www. and .com/.country_domain and proceed with Ctrl+Enter/Ctrl+Shift"),
+                         description: _("Add www. and .com/.country_domain and proceed with Ctrl+Enter/Shift+Enter"),
                          version: "0.1" + Midori.VERSION_SUFFIX,
                          authors: "James Axl <bilimish@yandex.ru>");
             activate.connect (this.activated);
@@ -21,28 +21,24 @@ namespace DomainHotkeys {
         }
 
         bool key_press_event (Midori.LocationAction action, Gdk.EventKey event_key) {
-            if (event_key.keyval == Gdk.Key.Return) {
+            if (event_key.keyval == Gdk.keyval_from_name ("Return")) {
                 if ((bool)(event_key.state & Gdk.ModifierType.CONTROL_MASK)) {
-                    submit_uri(action);
+                    location_action_submit_uri_with_suffix (action, ".com");
                     return true;
                 } else if((bool)(event_key.state & Gdk.ModifierType.SHIFT_MASK)) {
-                    submit_uri(action, true);
+                    var domain = C_("Domain", ".com");
+                    location_action_submit_uri_with_suffix (action, domain);
                     return true;
                 }
             }
             return false;
         }
-        
-        void submit_uri(Midori.LocationAction action, bool locale = false) {
-			var url = action.get_text ();
-			if (locale){
-				var domain = C_("Domain", ".com");
-				url = "www." + url + domain;
-			} else {
-				url = "www." + url + ".com";
-			}
-			action.submit_uri(url, false);
-		}
+
+        void location_action_submit_uri_with_suffix (Midori.LocationAction action, string suffix) {
+            var url = action.get_text ();
+            string completed_url = "www." + url + suffix;
+            action.submit_uri (completed_url, false);
+        }
 
         void browser_added (Midori.Browser browser) {
             var action_group = browser.get_action_group ();
