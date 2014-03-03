@@ -3226,7 +3226,6 @@ _action_compact_menu_populate_popup (GtkAction*     action,
 {
     MidoriContextAction* menu = midori_context_action_new ("CompactMenu", NULL, NULL, NULL);
     midori_context_action_add_action_group (menu, browser->action_group);
-    midori_context_action_add_by_name (menu, "TabNew");
     midori_context_action_add_by_name (menu, "WindowNew");
     midori_context_action_add_by_name (menu, "PrivateBrowsing");
     midori_context_action_add (menu, NULL);
