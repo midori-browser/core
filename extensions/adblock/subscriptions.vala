@@ -32,7 +32,9 @@ namespace Adblock {
         public Options optslist;
         public Whitelist whitelist;
         public Element element;
+#if !HAVE_WEBKIT2
         WebKit.Download? download;
+#endif
 
         public Subscription (string uri) {
             this.uri = uri;
@@ -245,6 +247,7 @@ namespace Adblock {
             }
         }
 
+#if !HAVE_WEBKIT2
         void download_status (ParamSpec pspec) {
             if (download.get_status () != WebKit.DownloadStatus.FINISHED)
                 return;
@@ -256,6 +259,7 @@ namespace Adblock {
                 warning ("Error parsing %s: %s", uri, error.message);
             }
         }
+#endif
 
         public void parse () throws Error
         {
