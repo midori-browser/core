@@ -13,7 +13,7 @@ namespace DomainHotkeys {
     class Manager : Midori.Extension {
         internal Manager () {
             GLib.Object (name: _("Domain Hotkeys"),
-                         description: _("Add www. and .com/.country_domain and proceed with Ctrl+Enter/Ctrl+Shift"),
+                         description: _("Add www. and .com/.country_domain and proceed with Ctrl+Enter/Shift+Enter"),
                          version: "0.1" + Midori.VERSION_SUFFIX,
                          authors: "James Axl <bilimish@yandex.ru>");
             activate.connect (this.activated);
