@@ -90,6 +90,8 @@ namespace Midori {
 
         /* Since: 0.5.8 */
         public signal bool open_uri (string uri);
+        /* Since: 0.5.8 */
+        public signal bool navigation_requested (string uri);
         public signal void console_message (string message, int line, string source_id);
         public signal void attach_inspector (WebKit.WebView inspector_view);
         /* Emitted when an open inspector that was previously

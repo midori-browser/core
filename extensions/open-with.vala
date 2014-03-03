@@ -597,17 +597,12 @@ namespace ExternalApplications {
             return open_with_type (uri, get_content_type (uri, null), tab, NextStep.TRY_OPEN);
         }
 
-        bool navigation_requested (WebKit.WebView web_view, WebKit.WebFrame frame, WebKit.NetworkRequest request,
-            WebKit.WebNavigationAction action, WebKit.WebPolicyDecision decision) {
-
-            string uri = request.uri;
+        bool navigation_requested (Midori.Tab tab, string uri) {
             if (Midori.URI.is_http (uri) || Midori.URI.is_blank (uri))
                 return false;
 
-            decision.ignore ();
-
             string content_type = get_content_type (uri, null);
-            open_with_type (uri, content_type, web_view, NextStep.TRY_OPEN);
+            open_with_type (uri, content_type, tab, NextStep.TRY_OPEN);
             return true;
         }
 
@@ -743,13 +738,13 @@ namespace ExternalApplications {
         }
 
         public void tab_added (Midori.Browser browser, Midori.View view) {
-            view.web_view.navigation_policy_decision_requested.connect (navigation_requested);
+            view.navigation_requested.connect (navigation_requested);
             view.open_uri.connect (open_uri);
             view.context_menu.connect (context_menu);
         }
 
         public void tab_removed (Midori.Browser browser, Midori.View view) {
-            view.web_view.navigation_policy_decision_requested.disconnect (navigation_requested);
+            view.navigation_requested.disconnect (navigation_requested);
             view.open_uri.disconnect (open_uri);
             view.context_menu.disconnect (context_menu);
         }
