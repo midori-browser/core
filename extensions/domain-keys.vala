@@ -21,7 +21,7 @@ namespace DomainHotkeys {
         }
 
         bool key_press_event (Midori.LocationAction action, Gdk.EventKey event_key) {
-            if (event_key.keyval == Gdk.Key.Return) {
+            if (event_key.keyval == Gdk.keyval_from_name ("Return")) {
                 if ((bool)(event_key.state & Gdk.ModifierType.CONTROL_MASK)) {
                     submit_uri(action);
                     return true;
