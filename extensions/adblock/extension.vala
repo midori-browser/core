@@ -21,7 +21,9 @@ namespace Adblock {
         HashTable<string, Directive?> cache;
 
 #if HAVE_WEBKIT2
-        public Extension (WebKit.WebExtension web_extension) {
+        public Extension.WebExtension (WebKit.WebExtension web_extension) {
+            /* FIXME: mode, config */
+            Midori.Paths.init (Midori.RuntimeMode.NORMAL, null);
             init ();
             web_extension.page_created.connect (page_created);
         }
@@ -33,7 +35,8 @@ namespace Adblock {
         bool send_request (WebKit.WebPage web_page, WebKit.URIRequest request, WebKit.URIResponse? redirected_response) {
             return request_handled (web_page.uri, request.uri);
         }
-#else
+#endif
+
         public Extension () {
             GLib.Object (name: _("Advertisement blocker"),
                          description: _("Block advertisements according to a filter list"),
@@ -140,6 +143,21 @@ namespace Adblock {
         }
 
         void extension_activated (Midori.App app) {
+#if HAVE_WEBKIT2
+            string cache_dir = Midori.Paths.get_cache_dir ();
+            string wk2path = Path.build_path (Path.DIR_SEPARATOR_S, cache_dir, "wk2ext");
+            Midori.Paths.mkdir_with_parents (wk2path);
+            string filename = "libadblock." + GLib.Module.SUFFIX;
+            var wk2link = File.new_for_path (wk2path).get_child (filename);
+            var library = File.new_for_path (Midori.Paths.get_lib_path (PACKAGE_NAME)).get_child (filename);
+            try {
+                wk2link.make_symbolic_link (library.get_path ());
+            } catch (IOError.EXISTS exist_error) {
+                /* It's no error if the file already exists. */
+            } catch (Error error) {
+                critical ("Failed to create WebKit2 link: %s", error.message);
+            }
+#endif
             init ();
             foreach (var browser in app.get_browsers ())
                 browser_added (browser);
@@ -153,12 +171,14 @@ namespace Adblock {
         }
 
         void tab_added (Midori.View view) {
+#if !HAVE_WEBKIT2
             view.web_view.resource_request_starting.connect (resource_requested);
             view.web_view.navigation_policy_decision_requested.connect (navigation_requested);
             view.notify["load-status"].connect ((pspec) => {
                 if (view.load_status == Midori.LoadStatus.FINISHED)
                     inject_css (view, view.uri);
             });
+#endif
             view.context_menu.connect (context_menu);
         }
 
@@ -217,6 +237,7 @@ namespace Adblock {
         }
 
 
+#if !HAVE_WEBKIT2
         void resource_requested (WebKit.WebView web_view, WebKit.WebFrame frame,
             WebKit.WebResource resource, WebKit.NetworkRequest request, WebKit.NetworkResponse? response) {
 
@@ -402,15 +423,14 @@ namespace Adblock {
 #if HAVE_WEBKIT2
 Adblock.Extension? filter;
 public static void webkit_web_extension_initialize (WebKit.WebExtension web_extension) {
-    filter = new Adblock.Extension (web_extension);
-}
-#else
-public Midori.Extension extension_init () {
-    return new Adblock.Extension ();
+    filter = new Adblock.Extension.WebExtension (web_extension);
 }
 #endif
 
-#if !HAVE_WEBKIT2
+public Midori.Extension extension_init () {
+    return new Adblock.Extension ();
+}
+
 struct TestCaseLine {
     public string line;
     public string fixed;
@@ -549,5 +569,4 @@ public void extension_test () {
     Test.add_func ("/extensions/adblock2/pattern", test_adblock_pattern);
     Test.add_func ("/extensions/adblock2/update", test_subscription_update);
 }
-#endif
 
