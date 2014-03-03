@@ -160,8 +160,8 @@ namespace Adblock {
 
             entry.activate.connect (() => {
                 var sub = new Subscription (entry.text);
-                config.add (sub);
-                liststore.insert_with_values (null, 0, 0, sub);
+                if (config.add (sub))
+                    liststore.insert_with_values (null, 0, 0, sub);
                 entry.text = "";
             });
 
