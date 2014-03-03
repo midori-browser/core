@@ -13,7 +13,7 @@ namespace DomainHotkeys {
     class Manager : Midori.Extension {
         internal Manager () {
             GLib.Object (name: _("Domain Hotkeys"),
-                         description: _("Add www. and .com/.country_domain and proceed with Ctrl+Enter/Ctrl+Shift"),
+                         description: _("Add www. and .com/.country_domain and proceed with Ctrl+Enter/Shift+Enter"),
                          version: "0.1" + Midori.VERSION_SUFFIX,
                          authors: "James Axl <bilimish@yandex.ru>");
             activate.connect (this.activated);
@@ -21,7 +21,7 @@ namespace DomainHotkeys {
         }
 
         bool key_press_event (Midori.LocationAction action, Gdk.EventKey event_key) {
-            if (event_key.keyval == Gdk.Key.Return) {
+            if (event_key.keyval == Gdk.keyval_from_name ("Return")) {
                 if ((bool)(event_key.state & Gdk.ModifierType.CONTROL_MASK)) {
                     submit_uri(action);
                     return true;
