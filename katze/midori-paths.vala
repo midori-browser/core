@@ -435,6 +435,12 @@ namespace Midori {
             remove_path (Path.build_filename (user_data_dir, "webkit", "icondatabase"));
         }
 
+        /**
+         * Looks up a pixbuf for the given @uri. If @widget is given a generic
+         * file icon is used in case there's no icon.
+         *
+         * Deprecated: 0.5.8: Use Midori.URI.Icon or Midori.URI.get_icon instead.
+         **/
         public static Gdk.Pixbuf? get_icon (string? uri, Gtk.Widget? widget) {
             if (!Midori.URI.is_resource (uri))
                 return null;
@@ -445,9 +451,7 @@ namespace Midori {
             else
                 icon_width = icon_height = 0 /* maximum size */;
 #if HAVE_WEBKIT2
-            /* TODO async
-            var database = WebKit.WebContext.get_default ().get_favicon_database ();
-            database.get_favicon.begin (uri, null); */
+            /* There is no sync API for WebKit2 */
 #else
             Gdk.Pixbuf? pixbuf = WebKit.get_favicon_database ()
                 .try_get_favicon_pixbuf (uri, icon_width, icon_height);

@@ -45,11 +45,11 @@ namespace Midori {
                 item.get ("text", out desc);
                 string search_uri = URI.for_search (uri, text);
                 string search_title = _("Search with %s").printf (title);
-                Gdk.Pixbuf? pixbuf = Midori.Paths.get_icon (uri, null);
+                Icon? icon = yield Midori.URI.get_icon_fallback (uri, null, cancellable);
                 string search_desc = search_title + "\n" + desc ?? uri;
                 /* FIXME: Theming? Win32? */
                 string background = "gray";
-                var suggestion = new Suggestion (search_uri, search_desc, false, background, pixbuf);
+                var suggestion = new Suggestion (search_uri, search_desc, false, background, icon);
                 suggestions.append (suggestion);
 
                 n++;
