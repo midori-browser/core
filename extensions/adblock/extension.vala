@@ -433,10 +433,15 @@ namespace Adblock {
 #endif
 
         internal void init () {
-            debug ("Adblock2");
+            load_config ();
+            reload_rules ();
+        }
 
+        void load_config () {
             string config_dir = Midori.Paths.get_extension_config_dir ("adblock");
-            config = new Config (config_dir);
+            string presets = Midori.Paths.get_extension_preset_filename ("adblock", "config");
+            string filename = Path.build_filename (config_dir, "config");
+            config = new Config (filename, presets);
             string custom_list = GLib.Path.build_filename (config_dir, "custom.list");
             try {
                 custom = new Subscription (Filename.to_uri (custom_list, null));
@@ -447,12 +452,6 @@ namespace Adblock {
                 custom = null;
                 warning ("Failed to add custom list %s: %s", custom_list, error.message);
             }
-
-            string presets = Midori.Paths.get_extension_preset_filename ("adblock", "config");
-            var default_config = new Config (Path.get_dirname (presets));
-            foreach (var sub in default_config)
-                config.add (sub);
-            reload_rules ();
 
             try {
                 if (config.keyfile.has_key ("settings", "disabled"))
@@ -562,6 +561,41 @@ public Midori.Extension extension_init () {
 #endif
 
 #if !HAVE_WEBKIT2
+static string? tmp_folder = null;
+string get_test_file (string contents) {
+    if (tmp_folder == null)
+        tmp_folder = Midori.Paths.make_tmp_dir ("adblockXXXXXX");
+    string checksum = Checksum.compute_for_string (ChecksumType.MD5, contents);
+    string file = Path.build_path (Path.DIR_SEPARATOR_S, tmp_folder, checksum);
+    try {
+        FileUtils.set_contents (file, contents, -1);
+    } catch (Error file_error) {
+        GLib.error (file_error.message);
+    }
+    return file;
+}
+
+struct TestCaseConfig {
+    public string content;
+    public uint size;
+}
+
+const TestCaseConfig[] configs = {
+    { "", 0 },
+    { "[settings]", 0 },
+    { "[settings]\nfilters=foo;", 1 },
+    { "[settings]\nfilters=foo;\ndisabled=true", 1 },
+};
+
+void test_adblock_config () {
+    assert (new Adblock.Config (null, null).size == 0);
+
+    foreach (var conf in configs) {
+        var config = new Adblock.Config (get_test_file (conf.content), null);
+        assert (config.size == conf.size);
+    }
+}
+
 struct TestCaseLine {
     public string line;
     public string fixed;
@@ -701,6 +735,7 @@ void test_subscription_update () {
 }
 
 public void extension_test () {
+    Test.add_func ("/extensions/adblock2/config", test_adblock_config);
     Test.add_func ("/extensions/adblock2/parse", test_adblock_fixup_regexp);
     Test.add_func ("/extensions/adblock2/pattern", test_adblock_pattern);
     Test.add_func ("/extensions/adblock2/update", test_subscription_update);

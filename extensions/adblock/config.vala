@@ -16,15 +16,21 @@ namespace Adblock {
         public KeyFile keyfile;
         bool should_save;
 
-        public Config (string? path) {
+        public Config (string? path, string? presets) {
             should_save = false;
             subscriptions = new GLib.List<Subscription> ();
-
             this.path = path;
-            if (path == null)
+            load_file (path);
+            load_file (presets);
+
+            size = subscriptions.length ();
+            should_save = true;
+        }
+
+        void load_file (string? filename) {
+            if (filename == null)
                 return;
 
-            string filename = GLib.Path.build_filename (path, "config");
             keyfile = new GLib.KeyFile ();
             try {
                 keyfile.load_from_file (filename, GLib.KeyFileFlags.NONE);
@@ -45,14 +51,15 @@ namespace Adblock {
                     sub.add_feature (new Updater ());
                     add (sub);
                 }
+            } catch (KeyFileError.KEY_NOT_FOUND key_error) {
+                /* It's no error if a key is missing */
+            } catch (KeyFileError.GROUP_NOT_FOUND group_error) {
+                /* It's no error if a group is missing */
             } catch (FileError.NOENT exist_error) {
                 /* It's no error if no config file exists */
             } catch (GLib.Error settings_error) {
                 warning ("Error reading settings from %s: %s\n", filename, settings_error.message);
             }
-
-            size = subscriptions.length ();
-            should_save = true;
         }
 
         void active_changed (Object subscription, ParamSpec pspec) {
@@ -86,8 +93,7 @@ namespace Adblock {
 
         public void save () {
             try {
-                string filename = GLib.Path.build_filename (path, "config");
-                FileUtils.set_contents (filename, keyfile.to_data ());
+                FileUtils.set_contents (path, keyfile.to_data ());
             } catch (Error error) {
                 warning ("Failed to save settings: %s", error.message);
             }
