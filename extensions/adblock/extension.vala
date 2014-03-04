@@ -95,7 +95,7 @@ namespace Adblock {
                 "<a href=\"http://adblockplus.org/en/subscriptions\">adblockplus.org/en/subscriptions</a>",
                 "<a href=\"http://easylist.adblockplus.org/\">easylist.adblockplus.org</a>");
             button.activate_link.connect ((uri)=>{
-                var browser = Midori.Browser.get_for_widget (button);
+                var browser = get_app ().browser;
                 var view = browser.add_uri (uri);
                 browser.tab = view;
                 return true;
