@@ -287,18 +287,21 @@ namespace Adblock {
 #if HAVE_WEBKIT2
                 /* TODO */
 #else
-                if (download != null)
-                    return;
+                /* Don't bother trying to download local files */
+                if (!uri.has_prefix ("file://")) {
+                    if (download != null)
+                        return;
 
-                string destination_uri = Filename.to_uri (path, null);
-                debug ("Fetching %s to %s now", uri, destination_uri);
-                download = new WebKit.Download (new WebKit.NetworkRequest (uri));
-                if (!Midori.Download.has_enough_space (download, destination_uri, true))
-                     throw new FileError.EXIST ("Can't download to \"%s\"", path);
-                download.destination_uri = destination_uri;
-                download.notify["status"].connect (download_status);
-                download.start ();
+                    string destination_uri = Filename.to_uri (path, null);
+                    debug ("Fetching %s to %s now", uri, destination_uri);
+                    download = new WebKit.Download (new WebKit.NetworkRequest (uri));
+                    if (!Midori.Download.has_enough_space (download, destination_uri, true))
+                         throw new FileError.EXIST ("Can't download to \"%s\"", path);
+                    download.destination_uri = destination_uri;
+                    download.notify["status"].connect (download_status);
+                    download.start ();
 #endif
+                }
                 return;
             }
 
