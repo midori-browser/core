@@ -446,7 +446,10 @@ namespace Adblock {
             reload_rules ();
 
             try {
-                disable_toggled = config.keyfile.get_boolean ("settings", "disabled");
+                if (config.keyfile.has_key ("settings", "disabled"))
+                    disable_toggled = config.keyfile.get_boolean ("settings", "disabled");
+                else
+                    disable_toggled = false;
             } catch (GLib.Error settings_error) {
                 warning ("Error reading settings: %s\n", settings_error.message);
             }
