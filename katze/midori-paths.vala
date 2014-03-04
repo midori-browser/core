@@ -143,6 +143,7 @@ namespace Midori {
 #if HAVE_WEBKIT2
                 WebKit.WebContext.get_default ().set_disk_cache_directory (
                     Path.build_path (Path.DIR_SEPARATOR_S, cache_dir, "web"));
+
                 var cookie_manager = WebKit.WebContext.get_default ().get_cookie_manager ();
                 cookie_manager.set_persistent_storage (Path.build_filename (config, "cookies.db"),
                     WebKit.CookiePersistentStorage.SQLITE);

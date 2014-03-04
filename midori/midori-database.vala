@@ -130,7 +130,7 @@ namespace Midori {
     public class Database : GLib.Object, GLib.Initable {
         public Sqlite.Database? db { get { return _db; } }
         protected Sqlite.Database? _db = null;
-        public string? path { get; protected set; default = ":memory:"; }
+        public string? path { get; protected set; default = null; }
 
         /*
          * A new database successfully opened for the first time.
@@ -147,15 +147,20 @@ namespace Midori {
             init ();
         }
 
-        public virtual bool init (GLib.Cancellable? cancellable = null) throws DatabaseError {
-            if (path == null)
-                path = ":memory:";
+        string resolve_path (string? path) {
+            if (path == null || path.has_prefix (":memory:"))
+                return ":memory:";
             else if (!Path.is_absolute (path))
-                path = Midori.Paths.get_config_filename_for_writing (path);
-            bool exists = Posix.access (path, Posix.F_OK) == 0;
+                return Midori.Paths.get_config_filename_for_writing (path);
+            return path;
+        }
 
-            if (Sqlite.Database.open_v2 (path, out _db) != Sqlite.OK)
-                throw new DatabaseError.OPEN ("Failed to open database %s".printf (path));
+        public virtual bool init (GLib.Cancellable? cancellable = null) throws DatabaseError {
+            string real_path = resolve_path (path);
+            bool exists = Posix.access (real_path, Posix.F_OK) == 0;
+
+            if (Sqlite.Database.open_v2 (real_path, out _db) != Sqlite.OK)
+                throw new DatabaseError.OPEN ("Failed to open database %s".printf (real_path));
 
             if (db.exec ("PRAGMA journal_mode = WAL; PRAGMA cache_size = 32100;") != Sqlite.OK)
                 db.exec ("PRAGMA synchronous = NORMAL; PRAGMA temp_store = MEMORY;");
@@ -189,6 +194,17 @@ namespace Midori {
 
             first_use = !exists;
             return true;
+        }
+
+        /*
+         * Since: 0.5.8
+         */
+        public bool attach (string path, string alias) throws DatabaseError {
+            string real_path = resolve_path (path);
+            bool exists = Posix.access (real_path, Posix.F_OK) == 0;
+            if (!exists)
+                throw new DatabaseError.OPEN ("Failed to attach database %s".printf (path));
+            return exec ("ATTACH DATABASE '%s' AS '%s';".printf (real_path, alias));
         }
 
         public bool exec_script (string filename) throws DatabaseError {

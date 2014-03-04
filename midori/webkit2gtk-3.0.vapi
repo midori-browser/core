@@ -552,6 +552,22 @@ namespace WebKit {
 		[CCode (has_construct_function = false)]
 		protected WebViewBase ();
 	}
+	[CCode (cheader_filename = "webkit2/webkit-web-extension.h", type_id = "webkit_web_extension_get_type ()")]
+	public class WebExtension : GLib.Object {
+		[CCode (has_construct_function = false)]
+		protected WebExtension ();
+		public WebKit.WebPage get_page (uint64 page_id);
+		public signal void page_created (WebKit.WebPage web_page);
+	}
+	[CCode (cheader_filename = "webkit2/webkit-web-extension.h", type_id = "webkit_web_extension_get_type ()")]
+	public class WebPage : GLib.Object {
+		[CCode (has_construct_function = false)]
+		protected WebPage ();
+		public uint64 get_id ();
+		public string uri { get; }
+		public signal bool send_request (WebKit.URIRequest request, WebKit.URIResponse? redirected_response);
+		public signal void document_loaded ();
+	}
 	[CCode (cheader_filename = "webkit2/webkit2.h", type_id = "webkit_window_properties_get_type ()")]
 	public class WindowProperties : GLib.Object {
 		[CCode (has_construct_function = false)]

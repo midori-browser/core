@@ -118,6 +118,7 @@ namespace Midori {
         public signal void quit ();
         public signal void send_notification (string title, string message);
         public static void update_history (Katze.Item item, string type, string event);
+        public signal void show_preferences (Katze.Preferences preferences);
     }
 
     [CCode (cheader_filename = "midori/midori.h")]
@@ -135,6 +136,7 @@ namespace Midori {
         public void install_boolean (string name, bool default_value);
         public void install_integer (string name, int default_value);
         public void install_string (string name, string default_value);
+        public void install_string_list (string name, string[]? default_value);
 
         public bool get_boolean (string name);
         public int get_integer (string name);
@@ -216,6 +218,15 @@ namespace Midori {
     public class LocationAction : Gtk.Action {
         public static string render_uri ([CCode (array_length = false)] string[] keys, string uri_escaped);
         public static string render_title ([CCode (array_length = false)] string[] keys, string title);
+
+        public double progress { get; set; }
+        public string secondary_icon { get; set; }
+
+        public unowned string get_text ();
+        public void set_text (string text);
+
+        public signal void submit_uri (string uri, bool new_tab);
+        public signal bool key_press_event (Gdk.EventKey event);
     }
 
     [CCode (cheader_filename = "midori/midori.h")]

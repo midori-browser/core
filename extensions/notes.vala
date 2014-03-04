@@ -427,8 +427,8 @@ namespace ClipNotes {
         }
 
         void activated (Midori.App app) {
-            string? config_path = this.get_config_dir ();
-            string? db_path = config_path != null ? GLib.Path.build_path (Path.DIR_SEPARATOR_S, config_path, "notes.db") : null;
+            string config_path = this.get_config_dir () ?? ":memory:";
+            string db_path = GLib.Path.build_path (Path.DIR_SEPARATOR_S, config_path, "notes.db");
             try {
                 database = new Midori.Database (db_path);
             } catch (Midori.DatabaseError schema_error) {
