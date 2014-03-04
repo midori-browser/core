@@ -285,7 +285,7 @@ namespace Midori {
                 foreach (var child in notebook.get_children ()) {
                     var tab = child as Midori.Tab;
                     var tally = notebook.get_tab_label (tab) as Tally;
-                    var action = new Gtk.Action ("Tab%u".printf (counter), tally.label.label, null, null);
+                    var action = new Midori.ContextAction.escaped ("Tab%u".printf (counter), tally.label.label, null, null);
                     action.gicon = tally.icon.gicon;
                     action.activate.connect (()=>{
                         notebook.set_current_page (notebook.page_num (tab));
