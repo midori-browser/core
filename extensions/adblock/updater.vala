@@ -12,22 +12,32 @@
 
 namespace Adblock {
     public class Updater : Feature {
-        public string expires_meta { get; set; default = null; }
-        public string last_mod_meta { get; set; default = null; }
-        public int64 update_tstamp { get; set; default = 0; }
-        public int64 last_mod_tstamp { get; set; default = 0; }
-        public int64 last_check_tstamp { get; set; default = 0; }
+        string expires_meta;
+        string last_mod_meta;
+        public DateTime last_updated { get; set; }
+        public DateTime expires { get; set; }
+        public bool needs_update { get; set; }
 
         public Updater () {
+        }
+
+        public override void clear () {
+            expires_meta = null;
+            last_mod_meta = null;
+            last_updated = null;
+            expires = null;
+            needs_update = false;
         }
 
         public override bool header (string key, string value) {
             if (key.has_prefix ("Last mod") || key == "Updated") {
                 last_mod_meta = value;
+                process_dates ();
                 return true;
             } else if (key == "Expires") {
                 /* ! Expires: 5 days (update frequency) */
                 expires_meta = value;
+                process_dates ();
                 return true;
             } else if (key.has_prefix ("! This list expires after")) {
                 /* ! This list expires after 14 days */
@@ -50,19 +60,17 @@ namespace Adblock {
             return 0;
         }
 
-        public bool needs_updating () {
+        void process_dates () {
             DateTime now = new DateTime.now_local ();
-            DateTime expire_date = null;
-            DateTime last_mod_date = null;
-            string? last_mod = last_mod_meta;
-            string? expires = expires_meta;
+            last_updated = null;
+            expires = null;
 
             /* We have "last modification" metadata */
-            if (last_mod != null) {
+            if (last_mod_meta != null) {
                 int h = 0, min = 0, d, m, y;
                 /* Date in a form of: 20.08.2012 12:34 */
-                if (last_mod.contains (".") || last_mod.contains("-")) {
-                    string[] parts = last_mod.split (" ", 2);
+                if (last_mod_meta.contains (".") || last_mod_meta.contains("-")) {
+                    string[] parts = last_mod_meta.split (" ", 2);
                     string[] date_parts;
                     string split_char = " ";
 
@@ -89,7 +97,7 @@ namespace Adblock {
                         d = int.parse(date_parts[2]);
                     }
                 } else { /* Date in a form of: 20 Mar 2012 12:34 */
-                    string[] parts = last_mod.split (" ", 4);
+                    string[] parts = last_mod_meta.split (" ", 4);
                     /* contains time part ? */
                     if (parts[3] != null && parts[3].contains (":")) {
                         string[] time_parts = parts[3].split (":", 2);
@@ -107,33 +115,29 @@ namespace Adblock {
                     }
                 }
 
-                last_mod_date = new DateTime.local (y, m, d, h, min, 0.0);
+                last_updated = new DateTime.local (y, m, d, h, min, 0.0);
             }
 
-            if (last_mod_date == null)
-                last_mod_date = now;
+            if (last_updated == null)
+                last_updated = now;
 
             /* We have "expires" metadata */
-            if (expires != null) {
-                if (expires.contains ("days")) {
-                    string[] parts = expires.split (" ");
-                    expire_date = last_mod_date.add_days (int.parse (parts[0]));
-                } else if (expires.contains ("hours")) {
-                    string[] parts = expires.split (" ");
-                    expire_date = last_mod_date.add_hours (int.parse (parts[0]));
+            if (expires_meta != null) {
+                if (expires_meta.contains ("days")) {
+                    string[] parts = expires_meta.split (" ");
+                    expires = last_updated.add_days (int.parse (parts[0]));
+                } else if (expires_meta.contains ("hours")) {
+                    string[] parts = expires_meta.split (" ");
+                    expires = last_updated.add_hours (int.parse (parts[0]));
                 }
             } else {
                 /* No expire metadata found, assume x days */
                 int days_to_expire = 7;
-                expire_date = last_mod_date.add_days (days_to_expire);
+                expires = last_updated.add_days (days_to_expire);
             }
 
-            last_mod_tstamp = last_mod_date.to_unix ();
-            last_check_tstamp = now.to_unix ();
-            update_tstamp = expire_date.to_unix ();
-
             /* Check if we are past expire date */
-            return now.compare (expire_date) == 1;
+            needs_update = now.compare (expires) == 1;
         }
     }
 }

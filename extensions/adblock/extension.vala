@@ -139,7 +139,16 @@ namespace Adblock {
             column.set_cell_data_func (renderer_text, (column, renderer, model, iter) => {
                 Subscription sub;
                 liststore.get (iter, 0, out sub);
-                renderer.set ("text", sub.title ?? sub.uri);
+                string status = "";
+                foreach (var feature in sub) {
+                    if (feature is Adblock.Updater) {
+                        var updater = feature as Adblock.Updater;
+                        if (updater.last_updated != null)
+                            status = updater.last_updated.format (_("Last update: %x %X"));
+                    }
+                }
+                renderer.set ("markup", (Markup.printf_escaped ("<b>%s</b>\n%s",
+                    sub.title ?? sub.uri, status)));
             });
             treeview.append_column (column);
 
@@ -641,6 +650,12 @@ void test_adblock_pattern () {
     }
 }
 
+string pretty_date (DateTime? date) {
+    if (date == null)
+        return "N/A";
+    return date.to_string ();
+}
+
 struct TestUpdateExample {
     public string content;
     public bool result;
@@ -673,16 +688,15 @@ void test_subscription_update () {
     foreach (var example in examples) {
         try {
             file.replace_contents (example.content.data, null, false, FileCreateFlags.NONE, null);
-            updater.last_mod_meta = null;
-            updater.expires_meta = null;
+            sub.clear ();
             sub.parse ();
         } catch (Error error) {
             GLib.error (error.message);
         }
-        if (example.result == true)
-            assert (updater.needs_updating());
-        else
-            assert (!updater.needs_updating());
+        if (example.result != updater.needs_update)
+            error ("Update%s expected for:\n%s\nLast Updated: %s\nExpires: %s",
+                   example.result ? "" : " not", example.content,
+                   pretty_date (updater.last_updated), pretty_date (updater.expires));
     }
 }
 
