@@ -75,7 +75,9 @@ namespace Adblock {
                 filters.append_c (';');
             }
 
-            string[] list = (filters.str.slice (0, -1)).split (";");
+            if (filters.str.has_suffix (";"))
+                filters.truncate (filters.len - 1);
+            string[] list = filters.str.split (";");
             keyfile.set_string_list ("settings", "filters", list);
 
             save ();
