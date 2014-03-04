@@ -17,7 +17,8 @@ if (GIR_SCANNER_BIN AND GIR_COMPILER_BIN)
                 --warn-all -iGObject-2.0 -iGLib-2.0 -iGtk-2.0
                 --nsversion ${GIR_VERSION}
                 -o ${CMAKE_CURRENT_BINARY_DIR}/${namespace}-${GIR_VERSION}.gir
-                WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
+                WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
+                DEPENDS ${CMAKE_PROJECT_NAME})
 
     endmacro (gir_build module namespace)
 
