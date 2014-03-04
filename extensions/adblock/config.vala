@@ -15,10 +15,12 @@ namespace Adblock {
         string? path;
         public KeyFile keyfile;
         bool should_save;
+        public bool enabled { get; set; }
 
         public Config (string? path, string? presets) {
             should_save = false;
             subscriptions = new GLib.List<Subscription> ();
+            enabled = true;
             this.path = path;
             load_file (path);
             load_file (presets);
@@ -51,6 +53,7 @@ namespace Adblock {
                     sub.add_feature (new Updater ());
                     add (sub);
                 }
+                enabled = !keyfile.get_boolean ("settings", "disabled");
             } catch (KeyFileError.KEY_NOT_FOUND key_error) {
                 /* It's no error if a key is missing */
             } catch (KeyFileError.GROUP_NOT_FOUND group_error) {
@@ -60,6 +63,13 @@ namespace Adblock {
             } catch (GLib.Error settings_error) {
                 warning ("Error reading settings from %s: %s\n", filename, settings_error.message);
             }
+
+            notify["enabled"].connect (enabled_changed);
+        }
+
+        void enabled_changed (ParamSpec pspec) {
+            keyfile.set_boolean ("settings", "disabled", !enabled);
+            save ();
         }
 
         void active_changed (Object subscription, ParamSpec pspec) {

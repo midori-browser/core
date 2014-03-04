@@ -22,7 +22,6 @@ namespace Adblock {
         HashTable<string, Directive?> cache;
         Gtk.TreeView treeview;
         Gtk.ListStore liststore;
-        bool disable_toggled;
         List<IconButton> toggle_buttons;
 
         public class IconButton : Gtk.Button {
@@ -226,7 +225,7 @@ namespace Adblock {
             browser.add_tab.connect (tab_added);
 
             var toggle_button = new IconButton ();
-            toggle_button.set_status (disable_toggled ? "disabled" : "enabled");
+            toggle_button.set_status (config.enabled ? "enabled" : "disabled");
             browser.statusbar.pack_start (toggle_button, false, false, 3);
             toggle_button.show ();
             toggle_button.clicked.connect (icon_clicked);
@@ -238,20 +237,17 @@ namespace Adblock {
                 if (cache.lookup (page_uri) == Directive.BLOCK)
                     toggle_button.set_status ("blocked");
                 else
-                    toggle_button.set_status (disable_toggled ? "disabled" : "enabled");
+                    toggle_button.set_status (config.enabled ? "enabled" : "disabled");
             }
         }
 
         void icon_clicked (Gtk.Button toggle_button) {
             var menu = new Gtk.Menu ();
             var checkitem = new Gtk.CheckMenuItem.with_label (_("Disabled"));
-            checkitem.set_active (disable_toggled);
+            checkitem.set_active (!config.enabled);
             checkitem.toggled.connect (() => {
-                disable_toggled = checkitem.active;
+                config.enabled = !checkitem.active;
                 update_buttons ();
-
-                config.keyfile.set_boolean ("settings", "disabled", disable_toggled);
-                config.save ();
             });
             menu.append (checkitem);
 
@@ -272,8 +268,7 @@ namespace Adblock {
             view.web_view.resource_request_starting.connect (resource_requested);
             view.web_view.navigation_policy_decision_requested.connect (navigation_requested);
             view.notify["load-status"].connect ((pspec) => {
-                if (!disable_toggled)
-                {
+                if (config.enabled) {
                     if (view.load_status == Midori.LoadStatus.FINISHED)
                         inject_css (view, view.uri);
                 }
@@ -452,15 +447,6 @@ namespace Adblock {
                 custom = null;
                 warning ("Failed to add custom list %s: %s", custom_list, error.message);
             }
-
-            try {
-                if (config.keyfile.has_key ("settings", "disabled"))
-                    disable_toggled = config.keyfile.get_boolean ("settings", "disabled");
-                else
-                    disable_toggled = false;
-            } catch (GLib.Error settings_error) {
-                warning ("Error reading settings: %s\n", settings_error.message);
-            }
         }
 
         void reload_rules () {
@@ -475,7 +461,7 @@ namespace Adblock {
        }
 
         bool request_handled (string page_uri, string request_uri) {
-            if (disable_toggled)
+            if (!config.enabled)
                 return false;
 
             /* Always allow the main page */
@@ -578,13 +564,14 @@ string get_test_file (string contents) {
 struct TestCaseConfig {
     public string content;
     public uint size;
+    public bool enabled;
 }
 
 const TestCaseConfig[] configs = {
-    { "", 0 },
-    { "[settings]", 0 },
-    { "[settings]\nfilters=foo;", 1 },
-    { "[settings]\nfilters=foo;\ndisabled=true", 1 },
+    { "", 0, true },
+    { "[settings]", 0, true },
+    { "[settings]\nfilters=foo;", 1, true },
+    { "[settings]\nfilters=foo;\ndisabled=true", 1, false },
 };
 
 void test_adblock_config () {
@@ -592,7 +579,12 @@ void test_adblock_config () {
 
     foreach (var conf in configs) {
         var config = new Adblock.Config (get_test_file (conf.content), null);
-        assert (config.size == conf.size);
+        if (config.size != conf.size)
+            error ("Wrong size %s rather than %s:\n%s",
+                   config.size.to_string (), conf.size.to_string (), conf.content);
+        if (config.enabled != conf.enabled)
+            error ("Wrongly got enabled=%s rather than %s:\n%s",
+                   config.enabled.to_string (), conf.enabled.to_string (), conf.content);
     }
 }
 
