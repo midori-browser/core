@@ -17,9 +17,9 @@ namespace Adblock {
     }
 
     public class Extension : Midori.Extension {
-        Config config;
+        internal Config config;
         Subscription custom;
-        HashTable<string, Directive?> cache;
+        internal HashTable<string, Directive?> cache;
         Gtk.TreeView treeview;
         Gtk.ListStore liststore;
         List<IconButton> toggle_buttons;
@@ -169,8 +169,14 @@ namespace Adblock {
 
             entry.activate.connect (() => {
                 var sub = new Subscription (entry.text);
-                if (config.add (sub))
+                if (config.add (sub)) {
                     liststore.insert_with_values (null, 0, 0, sub);
+                    try {
+                        sub.parse ();
+                    } catch (GLib.Error error) {
+                        warning ("Error parsing %s: %s", sub.uri, error.message);
+                    }
+                }
                 entry.text = "";
             });
 
@@ -447,8 +453,20 @@ namespace Adblock {
 #endif
 
         internal void init () {
+            cache = new HashTable<string, Directive?> (str_hash, str_equal);
             load_config ();
-            reload_rules ();
+            foreach (Subscription sub in config) {
+                try {
+                    sub.parse ();
+                } catch (GLib.Error error) {
+                    warning ("Error parsing %s: %s", sub.uri, error.message);
+                }
+            }
+            config.notify["size"].connect (subscriptions_added_removed);
+        }
+
+        void subscriptions_added_removed (ParamSpec pspec) {
+            cache.remove_all ();
         }
 
         void load_config () {
@@ -469,18 +487,7 @@ namespace Adblock {
             debug_element_toggled = false;
         }
 
-        void reload_rules () {
-            cache = new HashTable<string, Directive?> (str_hash, str_equal);
-            foreach (Subscription sub in config) {
-                try {
-                    sub.parse ();
-                } catch (GLib.Error error) {
-                    warning ("Error parsing %s: %s", sub.uri, error.message);
-                }
-            }
-       }
-
-        bool request_handled (string page_uri, string request_uri) {
+        internal bool request_handled (string page_uri, string request_uri) {
             if (!config.enabled)
                 return false;
 
@@ -671,6 +678,49 @@ filters=http://foo.com;http-//bar.com;https://spam.com;http-://eggs.com;file:///
     assert (config.size == 7);
 }
 
+void test_adblock_init () {
+    /* No config */
+    var extension = new Adblock.Extension ();
+    extension.init ();
+    assert (extension.config.enabled);
+    /* Defaults plus custom */
+    if (extension.config.size != 3)
+        error ("Expected 3 initial subs, got %s".printf (
+               extension.config.size.to_string ()));
+    assert (extension.cache.size () == 0);
+
+    /* Add new subscription */
+    string path = Midori.Paths.get_res_filename ("adblock.list");
+    string uri;
+    try {
+        uri = Filename.to_uri (path, null);
+    } catch (Error error) {
+        GLib.error (error.message);
+    }
+    var sub = new Adblock.Subscription (uri);
+    extension.config.add (sub);
+    assert (extension.cache.size () == 0);
+    assert (extension.config.size == 4);
+    try {
+        sub.parse ();
+    } catch (GLib.Error error) {
+        GLib.error (error.message);
+    }
+    /* The page itself never hits */
+    assert (!extension.request_handled ("https://ads.bogus.name/blub", "https://ads.bogus.name/blub"));
+    assert (extension.cache.size () == 0);
+    /* A rule hit should add to the cache */
+    // FIXME: assert (extension.request_handled ("https://ads.bogus.name/blub", ""));
+    // FIXME: assert (extension.cache.size () > 0);
+    /* Disabled means no request should be handled */
+    extension.config.enabled = false;
+    assert (!extension.request_handled ("https://ads.bogus.name/blub", ""));
+    /* Removing a subscription should clear the cache */
+    extension.config.remove (sub);
+    assert (extension.cache.size () == 0);
+    assert (extension.config.size == 3);
+ }
+
 struct TestCaseLine {
     public string line;
     public string fixed;
@@ -812,6 +862,7 @@ void test_subscription_update () {
 public void extension_test () {
     Test.add_func ("/extensions/adblock2/config", test_adblock_config);
     Test.add_func ("/extensions/adblock2/subs", test_adblock_subs);
+    Test.add_func ("/extensions/adblock2/init", test_adblock_init);
     Test.add_func ("/extensions/adblock2/parse", test_adblock_fixup_regexp);
     Test.add_func ("/extensions/adblock2/pattern", test_adblock_pattern);
     Test.add_func ("/extensions/adblock2/update", test_subscription_update);
