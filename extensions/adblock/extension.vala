@@ -591,7 +591,7 @@ const TestCaseConfig[] configs = {
     { "", 0, true },
     { "[settings]", 0, true },
     { "[settings]\nfilters=foo;", 1, true },
-    { "[settings]\nfilters=foo;\ndisabled=true", 1, false },
+    { "[settings]\nfilters=foo;\ndisabled=true", 1, false }
 };
 
 void test_adblock_config () {
