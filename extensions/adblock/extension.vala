@@ -18,7 +18,7 @@ namespace Adblock {
 
     public class Extension : Midori.Extension {
         internal Config config;
-        Subscription custom;
+        internal Subscription custom;
         internal HashTable<string, Directive?> cache;
         Gtk.TreeView treeview;
         Gtk.ListStore liststore;
@@ -708,17 +708,27 @@ void test_adblock_init () {
     }
     /* The page itself never hits */
     assert (!extension.request_handled ("https://ads.bogus.name/blub", "https://ads.bogus.name/blub"));
+    /* Favicons don't either */
+    assert (!extension.request_handled ("https://foo.com", "https://ads.bogus.name/blub/favicon.ico"));
     assert (extension.cache.size () == 0);
+    /* Some sanity checks to be sure there's no earlier problem */
+    assert (sub.title == "Exercise");
+    assert (sub.get_directive ("https://ads.bogus.name/blub", "") == Adblock.Directive.BLOCK);
     /* A rule hit should add to the cache */
-    // FIXME: assert (extension.request_handled ("https://ads.bogus.name/blub", ""));
-    // FIXME: assert (extension.cache.size () > 0);
+    assert (extension.request_handled ("https://foo.com", "https://ads.bogus.name/blub"));
+    assert (extension.cache.size () > 0);
     /* Disabled means no request should be handled */
     extension.config.enabled = false;
-    assert (!extension.request_handled ("https://ads.bogus.name/blub", ""));
+    assert (!extension.request_handled ("https://foo.com", "https://ads.bogus.name/blub"));
     /* Removing a subscription should clear the cache */
     extension.config.remove (sub);
     assert (extension.cache.size () == 0);
     assert (extension.config.size == 3);
+    /* Now let's add a custom rule */
+    extension.config.enabled = true;
+    extension.custom.add_rule ("*.png");
+    assert (!extension.request_handled ("https://foo.com", "http://alpha.beta.com/images/yota.png"));
+    assert (extension.cache.size () > 0);
  }
 
 struct TestCaseLine {

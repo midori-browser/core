@@ -22,10 +22,9 @@ namespace Adblock {
             subscriptions = new GLib.List<Subscription> ();
             enabled = true;
             this.path = path;
+            size = 0;
             load_file (path);
             load_file (presets);
-
-            size = subscriptions.length ();
             should_save = true;
         }
 
