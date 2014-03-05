@@ -588,6 +588,54 @@ void test_adblock_config () {
     }
 }
 
+struct TestCaseSub {
+    public string uri;
+    public bool active;
+}
+
+const TestCaseSub[] subs = {
+    { "http://foo.com", true },
+    { "http://bar.com", false },
+    { "https://spam.com", true },
+    { "https://eggs.com", false },
+    { "file:///bla", true },
+    { "file:///blub", false }
+};
+
+void test_adblock_subs () {
+    var config = new Adblock.Config (get_test_file ("""
+[settings]
+filters=http://foo.com;http-//bar.com;https://spam.com;http-://eggs.com;file:///bla;file-///blub;http://foo.com;
+"""), null);
+
+    foreach (var sub in subs) {
+        bool found = false;
+        foreach (var subscription in config) {
+            if (subscription.uri == sub.uri) {
+                assert (subscription.active == sub.active);
+                found = true;
+            }
+        }
+        if (!found)
+            error ("%s not found", sub.uri);
+    }
+
+    /* 6 unique URLs, 1 duplicate */
+    assert (config.size == 6);
+    /* Duplicates aren't added again either */
+    assert (!config.add (new Adblock.Subscription ("https://spam.com")));
+
+    /* Adding and removing works, changes size */
+    var s = new Adblock.Subscription ("http://en.de");
+    assert (config.add (s));
+    assert (config.size == 7);
+    config.remove (s);
+    assert (config.size == 6);
+    /* If it was removed before we should be able to add it again */
+    assert (config.add (s));
+    assert (config.size == 7);
+}
+
 struct TestCaseLine {
     public string line;
     public string fixed;
@@ -728,6 +776,7 @@ void test_subscription_update () {
 
 public void extension_test () {
     Test.add_func ("/extensions/adblock2/config", test_adblock_config);
+    Test.add_func ("/extensions/adblock2/subs", test_adblock_subs);
     Test.add_func ("/extensions/adblock2/parse", test_adblock_fixup_regexp);
     Test.add_func ("/extensions/adblock2/pattern", test_adblock_pattern);
     Test.add_func ("/extensions/adblock2/update", test_subscription_update);

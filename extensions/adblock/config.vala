@@ -40,12 +40,12 @@ namespace Adblock {
                 foreach (string filter in filters) {
                     bool active = false;
                     string uri = filter;
-                    if (filter.has_prefix ("http-"))
-                        uri = "http:" + filter.substring (6);
-                    else if (filter.has_prefix ("file-"))
-                        uri = "file:" + filter.substring (6);
-                    else if (filter.has_prefix ("https-"))
-                        uri = "https:" + filter.substring (7);
+                    if (filter.has_prefix ("http-/"))
+                        uri = "http:" + filter.substring (5);
+                    else if (filter.has_prefix ("file-/"))
+                        uri = "file:" + filter.substring (5);
+                    else if (filter.has_prefix ("http-:"))
+                        uri = "https" + filter.substring (5);
                     else
                         active = true;
                     Subscription sub = new Subscription (uri);
