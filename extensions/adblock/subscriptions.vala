@@ -38,7 +38,7 @@ namespace Adblock {
         WebKit.Download? download;
 
         public Subscription (string uri) {
-            debug_parse = "adblock:parse" in (Environment.get_variable ("MIDORI_DEBUG"));
+            debug_parse = "adblock:parse" in (Environment.get_variable ("MIDORI_DEBUG") ?? "");
 
             this.uri = uri;
 

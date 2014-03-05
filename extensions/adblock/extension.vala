@@ -388,7 +388,7 @@ namespace Adblock {
             string hider_css;
 
             bool debug_element;
-            if ("adblock:element" in (Environment.get_variable ("MIDORI_DEBUG")))
+            if ("adblock:element" in (Environment.get_variable ("MIDORI_DEBUG") ?? ""))
                 debug_element = true;
             else
                 debug_element = debug_element_toggled;
