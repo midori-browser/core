@@ -24,6 +24,7 @@ namespace Adblock {
 
     public class Subscription : GLib.Object {
         public string? path;
+        bool debug_parse;
         public string uri { get; set; default = null; }
         public string title { get; set; default = null; }
         public bool active { get; set; default = true; }
@@ -37,6 +38,8 @@ namespace Adblock {
         WebKit.Download? download;
 
         public Subscription (string uri) {
+            debug_parse = "adblock:parse" in (Environment.get_variable ("MIDORI_DEBUG"));
+
             this.uri = uri;
 
             this.optslist = new Options ();
@@ -174,7 +177,8 @@ namespace Adblock {
                 return;
 
             string format_patt = fixup_regex (prefix, patt);
-            debug ("got: %s opts %s", format_patt, opts);
+            if (debug_parse)
+                stdout.printf ("got: %s opts %s\n", format_patt, opts);
             compile_regexp (format_patt, opts);
             /* return format_patt */
         }
@@ -188,7 +192,8 @@ namespace Adblock {
                 if (Regex.match_simple ("^/.*[\\^\\$\\*].*/$", patt,
                     RegexCompileFlags.UNGREEDY, RegexMatchFlags.NOTEMPTY)
                  || opts != null && opts.contains ("whitelist")) {
-                    debug ("patt: %s", patt);
+                    if (debug_parse)
+                        stdout.printf ("patt: %s\n", patt);
                     if (opts.contains ("whitelist"))
                         this.whitelist.insert (patt, regex);
                     else
