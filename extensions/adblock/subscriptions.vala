@@ -15,6 +15,9 @@ namespace Adblock {
         public virtual bool header (string key, string value) {
             return false;
         }
+        public virtual bool parsed () {
+            return true;
+        }
         public virtual Directive? match (string request_uri, string page_uri) throws Error {
             return null;
         }
@@ -29,6 +32,7 @@ namespace Adblock {
         public string title { get; set; default = null; }
         public bool active { get; set; default = true; }
         public bool mutable { get; set; default = true; }
+        public bool valid { get; private set; default = true; }
         List<Feature> features;
         public Pattern pattern;
         public Keys keys;
@@ -322,6 +326,12 @@ namespace Adblock {
                     parse_header (chomped);
                 else
                     parse_line (chomped);
+            }
+
+            valid = true;
+            foreach (var feature in features) {
+                if (!feature.parsed ())
+                    valid = false;
             }
         }
 

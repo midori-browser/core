@@ -147,6 +147,8 @@ namespace Adblock {
                             status = updater.last_updated.format (_("Last update: %x %X"));
                     }
                 }
+                if (!sub.valid)
+                    status = _("File incomplete - broken download?");
                 renderer.set ("markup", (Markup.printf_escaped ("<b>%s</b>\n%s",
                     sub.title ?? sub.uri, status)));
             });
@@ -828,16 +830,17 @@ string pretty_date (DateTime? date) {
 struct TestUpdateExample {
     public string content;
     public bool result;
+    public bool valid;
 }
 
  const TestUpdateExample[] examples = {
-        { "[Adblock Plus 1.1]\n! Last modified: 05 Sep 2010 11:00 UTC\n! This list expires after 48 hours\n", true },
-        { "[Adblock Plus 1.1]\n! Last modified: 05.09.2010 11:00 UTC\n! Expires: 2 days (update frequency)\n", true },
-        { "[Adblock Plus 1.1]\n! Updated: 05 Nov 2024 11:00 UTC\n! Expires: 5 days (update frequency)\n", false },
-        { "[Adblock]\n! dutchblock v3\n! This list expires after 14 days\n|http://b*.mookie1.com/\n", false },
-        { "[Adblock Plus 2.0]\n! Last modification time (GMT): 2012.11.05 13:33\n! Expires: 5 days (update frequency)\n", true },
-        { "[Adblock Plus 2.0]\n! Last modification time (GMT): 2012.11.05 13:33\n", true },
-        { "[Adblock]\n ! dummy,  i dont have any dates\n", false }
+        { "[Adblock Plus 1.1]\n! Last modified: 05 Sep 2010 11:00 UTC\n! This list expires after 48 hours\n", true, true },
+        { "[Adblock Plus 1.1]\n! Last modified: 05.09.2010 11:00 UTC\n! Expires: 2 days (update frequency)\n", true, true },
+        { "[Adblock Plus 1.1]\n! Updated: 05 Nov 2024 11:00 UTC\n! Expires: 5 days (update frequency)\n", false, true },
+        { "[Adblock]\n! dutchblock v3\n! This list expires after 14 days\n|http://b*.mookie1.com/\n", false, true },
+        { "[Adblock Plus 2.0]\n! Last modification time (GMT): 2012.11.05 13:33\n! Expires: 5 days (update frequency)\n", true, true },
+        { "[Adblock Plus 2.0]\n! Last modification time (GMT): 2012.11.05 13:33\n", true, true },
+        { "[Adblock]\n ! dummy,  i dont have any dates\n", false, false }
     };
 
 void test_subscription_update () {
@@ -862,6 +865,9 @@ void test_subscription_update () {
         } catch (Error error) {
             GLib.error (error.message);
         }
+        if (example.valid != sub.valid)
+            error ("Subscription expected to be %svalid but %svalid:\n%s",
+                   example.valid ? "" : "in", sub.valid ? "" : "in", example.content);
         if (example.result != updater.needs_update)
             error ("Update%s expected for:\n%s\nLast Updated: %s\nExpires: %s",
                    example.result ? "" : " not", example.content,

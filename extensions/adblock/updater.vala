@@ -32,12 +32,10 @@ namespace Adblock {
         public override bool header (string key, string value) {
             if (key.has_prefix ("Last mod") || key == "Updated") {
                 last_mod_meta = value;
-                process_dates ();
                 return true;
             } else if (key == "Expires") {
                 /* ! Expires: 5 days (update frequency) */
                 expires_meta = value;
-                process_dates ();
                 return true;
             } else if (key.has_prefix ("! This list expires after")) {
                 /* ! This list expires after 14 days */
@@ -45,6 +43,12 @@ namespace Adblock {
                 return true;
             }
             return false;
+        }
+
+        public override bool parsed () {
+            if (last_mod_meta != null || expires_meta != null)
+                process_dates ();
+            return last_updated != null || expires != null;
         }
 
         int get_month_from_string (string? month) {
