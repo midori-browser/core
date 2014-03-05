@@ -12,8 +12,8 @@
 namespace Adblock {
     public class Config : GLib.Object {
         List<Subscription> subscriptions;
-        string? path;
-        public KeyFile keyfile;
+        public string? path { get; private set; }
+        KeyFile keyfile;
         bool should_save;
         public bool enabled { get; set; }
 

@@ -628,6 +628,7 @@ void test_adblock_subs () {
 filters=http://foo.com;http-//bar.com;https://spam.com;http-://eggs.com;file:///bla;file-///blub;http://foo.com;
 """), null);
 
+    assert (config.enabled);
     foreach (var sub in subs) {
         bool found = false;
         foreach (var subscription in config) {
@@ -644,6 +645,20 @@ filters=http://foo.com;http-//bar.com;https://spam.com;http-://eggs.com;file:///
     assert (config.size == 6);
     /* Duplicates aren't added again either */
     assert (!config.add (new Adblock.Subscription ("https://spam.com")));
+
+    /* Saving the config and loading it should give back identical results */
+    config.save ();
+    var copy = new Adblock.Config (config.path, null);
+    assert (copy.size == config.size);
+    assert (copy.enabled == config.enabled);
+    for (int i = 0; i < config.size; i++) {
+        assert (copy[i].uri == config[i].uri);
+        assert (copy[i].active == config[i].active);
+    }
+    /* Enabled status should be saved and loaded */
+    config.enabled = false;
+    copy = new Adblock.Config (config.path, null);
+    assert (copy.enabled == config.enabled);
 
     /* Adding and removing works, changes size */
     var s = new Adblock.Subscription ("http://en.de");
