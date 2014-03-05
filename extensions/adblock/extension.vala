@@ -23,6 +23,7 @@ namespace Adblock {
         Gtk.TreeView treeview;
         Gtk.ListStore liststore;
         List<IconButton> toggle_buttons;
+        bool debug_element_toggled;
 
         public class IconButton : Gtk.Button {
             Gtk.Image icon;
@@ -251,6 +252,13 @@ namespace Adblock {
             });
             menu.append (checkitem);
 
+            checkitem = new Gtk.CheckMenuItem.with_label (_("Display hidden elements"));
+            checkitem.set_active (debug_element_toggled);
+            checkitem.toggled.connect (() => {
+                debug_element_toggled = checkitem.active;
+            });
+            menu.append (checkitem);
+
             var menuitem = new Gtk.ImageMenuItem.with_label (_("Preferences"));
             var image = new Gtk.Image.from_stock (Gtk.STOCK_PREFERENCES, Gtk.IconSize.MENU);
             menuitem.always_show_image = true;
@@ -371,8 +379,13 @@ namespace Adblock {
             subdomain.prepend_c ('.');
             cnt--;
             var code = new StringBuilder ();
-            bool debug_element = "adblock:element" in (Environment.get_variable ("MIDORI_DEBUG") ?? "");
             string hider_css;
+
+            bool debug_element;
+            if ("adblock:element" in (Environment.get_variable ("MIDORI_DEBUG")))
+                debug_element = true;
+            else
+                debug_element = debug_element_toggled;
 
             /* Hide elements that were blocked, otherwise we will get "broken image" icon */
             cache.foreach ((key, val) => {
@@ -447,6 +460,7 @@ namespace Adblock {
                 custom = null;
                 warning ("Failed to add custom list %s: %s", custom_list, error.message);
             }
+            debug_element_toggled = false;
         }
 
         void reload_rules () {
