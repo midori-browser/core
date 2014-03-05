@@ -258,12 +258,12 @@ namespace Adblock {
             });
             menu.append (checkitem);
 
-            checkitem = new Gtk.CheckMenuItem.with_label (_("Display hidden elements"));
-            checkitem.set_active (debug_element_toggled);
-            checkitem.toggled.connect (() => {
-                debug_element_toggled = checkitem.active;
+            var hideritem = new Gtk.CheckMenuItem.with_label (_("Display hidden elements"));
+            hideritem.set_active (debug_element_toggled);
+            hideritem.toggled.connect (() => {
+                debug_element_toggled = hideritem.active;
             });
-            menu.append (checkitem);
+            menu.append (hideritem);
 
             var menuitem = new Gtk.ImageMenuItem.with_label (_("Preferences"));
             var image = new Gtk.Image.from_stock (Gtk.STOCK_PREFERENCES, Gtk.IconSize.MENU);
