@@ -240,7 +240,8 @@ namespace Adblock {
             string value = "";
             if (header.contains (":")) {
                 string[] parts = header.split (":", 2);
-                if (parts[0] != null) {
+                if (parts[0] != null && parts[0] != ""
+                 && parts[1] != null && parts[1] != "") {
                     key = parts[0].substring (2, -1);
                     value = parts[1].substring (1, -1);
                 }
