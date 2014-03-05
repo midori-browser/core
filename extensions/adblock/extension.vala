@@ -234,11 +234,17 @@ namespace Adblock {
         }
 
         void update_buttons (string page_uri="") {
+            string state;
             foreach (var toggle_button in toggle_buttons) {
-                if (cache.lookup (page_uri) == Directive.BLOCK)
+                if (cache.lookup (page_uri) == Directive.BLOCK) {
                     toggle_button.set_status ("blocked");
-                else
+                    state = _("Blocking");
+                }
+                else {
                     toggle_button.set_status (config.enabled ? "enabled" : "disabled");
+                    state = config.enabled ? _("Enabled") : _("Disabled");
+                }
+                toggle_button.set_tooltip_text (_("Adblock state: %s").printf (state));
             }
         }
 
