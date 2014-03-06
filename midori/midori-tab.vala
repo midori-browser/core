@@ -88,7 +88,11 @@ namespace Midori {
         }
         }
 
-        /* Since: 0.5.8 */
+        /* Emitted when a uri is attempted to be loaded.
+           Returns FALSE if the URI could not be handled by Midori or any
+           external application.
+           Since: 0.5.8
+         */
         public signal bool open_uri (string uri);
         /* Since: 0.5.8 */
         public signal bool navigation_requested (string uri);

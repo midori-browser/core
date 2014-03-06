@@ -4308,7 +4308,11 @@ midori_view_get_tab_menu (MidoriView* view)
 {
     g_return_val_if_fail (MIDORI_IS_VIEW (view), NULL);
 
-    return gtk_menu_new ();
+    GtkWidget* notebook = gtk_widget_get_parent (gtk_widget_get_parent (GTK_WIDGET (view)));
+    MidoriContextAction* context_action = midori_notebook_get_tab_context_action (MIDORI_NOTEBOOK (notebook), MIDORI_TAB (view));
+    GtkMenu* menu = midori_context_action_create_menu (context_action, NULL, FALSE);
+    g_object_unref (context_action);
+    return GTK_WIDGET (menu);
 }
 
 /**
