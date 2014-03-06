@@ -15,7 +15,7 @@ namespace Adblock {
         public virtual bool header (string key, string value) {
             return false;
         }
-        public virtual bool parsed () {
+        public virtual bool parsed (File file) {
             return true;
         }
         public virtual Directive? match (string request_uri, string page_uri) throws Error {
@@ -315,6 +315,7 @@ namespace Adblock {
                 return;
             }
 
+            valid = false;
             string? line;
             while ((line = stream.read_line (null)) != null) {
                 if (line == null)
@@ -326,11 +327,12 @@ namespace Adblock {
                     parse_header (chomped);
                 else
                     parse_line (chomped);
+                /* The file isn't completely empty */
+                valid = true;
             }
 
-            valid = true;
             foreach (var feature in features) {
-                if (!feature.parsed ())
+                if (!feature.parsed (filter_file))
                     valid = false;
             }
         }

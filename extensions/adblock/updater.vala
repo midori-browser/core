@@ -45,10 +45,10 @@ namespace Adblock {
             return false;
         }
 
-        public override bool parsed () {
-            if (last_mod_meta != null || expires_meta != null)
-                process_dates ();
-            return last_updated != null || expires != null;
+        public override bool parsed (File file) {
+            process_dates (file);
+            /* It's not an error to have no update headers, we go for defaults */
+            return true;
         }
 
         int get_month_from_string (string? month) {
@@ -64,7 +64,7 @@ namespace Adblock {
             return 0;
         }
 
-        void process_dates () {
+        void process_dates (File file) {
             DateTime now = new DateTime.now_local ();
             last_updated = null;
             expires = null;
@@ -120,10 +120,18 @@ namespace Adblock {
                 }
 
                 last_updated = new DateTime.local (y, m, d, h, min, 0.0);
-            }
-
-            if (last_updated == null)
+            } else {
+                /* FIXME: use file modification date if there's no update header
+                try {
+                    string modified = FileAttribute.TIME_MODIFIED;
+                    var info = file.query_filesystem_info (modified);
+                    last_updated = new DateTime.from_timeval_local (info.get_modification_time ());
+                } catch (Error error) {
+                    last_updated = now;
+                }
+                 */
                 last_updated = now;
+            }
 
             /* We have "expires" metadata */
             if (expires_meta != null) {

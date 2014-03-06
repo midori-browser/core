@@ -856,7 +856,8 @@ struct TestUpdateExample {
         { "[Adblock]\n! dutchblock v3\n! This list expires after 14 days\n|http://b*.mookie1.com/\n", false, true },
         { "[Adblock Plus 2.0]\n! Last modification time (GMT): 2012.11.05 13:33\n! Expires: 5 days (update frequency)\n", true, true },
         { "[Adblock Plus 2.0]\n! Last modification time (GMT): 2012.11.05 13:33\n", true, true },
-        { "[Adblock]\n ! dummy,  i dont have any dates\n", false, false }
+        { "[Adblock]\n ! dummy,  i dont have any dates\n", false, true },
+        { "\n", false, false }
     };
 
 void test_subscription_update () {
