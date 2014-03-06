@@ -209,20 +209,22 @@ namespace Midori {
 #endif
         }
 
+        /* returns whether an application was successfully launched to handle the file */
         public static bool open (WebKit.Download download, Gtk.Widget widget) throws Error {
 #if !HAVE_WEBKIT2
-            if (!has_wrong_checksum (download)) {
+            if (has_wrong_checksum (download)) {
+                Sokoke.message_dialog (Gtk.MessageType.WARNING,
+                     _("The downloaded file is erroneous."),
+                     _("The checksum provided with the link did not match. This means the file is probably incomplete or was modified afterwards."),
+                     true);
+                return true;
+            } else {
                 var browser = widget.get_toplevel ();
                 Tab? tab = null;
-                browser.get ("tab", tab);
+                browser.get ("tab", &tab);
                 if (tab != null)
-                    tab.open_uri (download.destination_uri);
+                    return tab.open_uri (download.destination_uri);
             }
-
-            Sokoke.message_dialog (Gtk.MessageType.WARNING,
-                _("The downloaded file is erroneous."),
-    _("The checksum provided with the link did not match. This means the file is probably incomplete or was modified afterwards."),
-                true);
 #endif
             return false;
         }

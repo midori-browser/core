@@ -159,6 +159,7 @@ option(HALF_BRO_INCOM_WEBKIT2 "Serve as a guniea pig" OFF)
 option(USE_ZEITGEIST "Zeitgeist history integration" ON)
 option(USE_GRANITE "Fancy notebook and pop-overs" OFF)
 option(USE_APIDOCS "API documentation" OFF)
+option(USE_GIR "Generate GObject Introspection bindings" OFF)
 option(EXTRA_WARNINGS "Additional compiler warnings" OFF)
 
 # GTK+3 is implied here, whether set or not
@@ -287,4 +288,7 @@ add_subdirectory (config)
 
 if (USE_APIDOCS)
     add_subdirectory (docs/api)
+endif ()
+if (USE_GIR)
+    add_subdirectory (gir)
 endif ()
