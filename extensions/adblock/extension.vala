@@ -668,6 +668,22 @@ filters=http://foo.com;http-//bar.com;https://spam.com;http-://eggs.com;file:///
     config.enabled = false;
     copy = new Adblock.Config (config.path, null);
     assert (copy.enabled == config.enabled);
+    /* Flipping individual active values should be retained after saving */
+    foreach (var sub in config)
+        sub.active = !sub.active;
+    copy = new Adblock.Config (config.path, null);
+    for (uint i = 0; i < config.size; i++) {
+        if (config[i].active != copy[i].active) {
+            string contents;
+            try {
+                FileUtils.get_contents (config.path, out contents, null);
+            } catch (Error file_error) {
+                error (file_error.message);
+            }
+            error ("%s is %s but should be %s:\n%s",
+                   copy[i].uri, copy[i].active ? "active" : "disabled", config[i].active ? "active" : "disabled", contents);
+        }
+    }
 
     /* Adding and removing works, changes size */
     var s = new Adblock.Subscription ("http://en.de");

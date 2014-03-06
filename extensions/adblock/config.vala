@@ -83,9 +83,9 @@ namespace Adblock {
                 if (sub.uri.has_prefix ("http:") && !sub.active)
                     filters.append ("http-" + sub.uri.substring (4));
                 else if (sub.uri.has_prefix ("file:") && !sub.active)
-                    filters.append ("file-" + sub.uri.substring (4));
+                    filters.append ("file-" + sub.uri.substring (5));
                 else if (sub.uri.has_prefix ("https:") && !sub.active)
-                    filters.append ("https-" + sub.uri.substring (5));
+                    filters.append ("http-" + sub.uri.substring (5));
                 else
                     filters.append (sub.uri);
                 filters.append_c (';');
