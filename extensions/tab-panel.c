@@ -289,20 +289,6 @@ tab_panel_settings_notify_cb (MidoriWebSettings* settings,
 }
 
 static void
-tab_panel_toggle_toolbook (GtkWidget* toolbar)
-{
-        /* Hack to ensure correct toolbar visibility */
-        GtkWidget* toolbook = gtk_widget_get_parent (toolbar);
-        if (gtk_notebook_get_current_page (GTK_NOTEBOOK (toolbook))
-         == gtk_notebook_page_num (GTK_NOTEBOOK (toolbook), toolbar))
-        {
-            GList* items = gtk_container_get_children (GTK_CONTAINER (toolbar));
-            sokoke_widget_set_visible (toolbook, items != NULL);
-            g_list_free (items);
-        }
-}
-
-static void
 tab_panel_remove_view (MidoriBrowser* browser,
                        GtkWidget*     view,
                        gboolean       minimized)
@@ -310,9 +296,7 @@ tab_panel_remove_view (MidoriBrowser* browser,
     if (minimized)
     {
         GtkToolItem* toolitem = tab_panel_get_toolitem_for_view (view);
-        GtkWidget* toolbar = tab_panel_get_toolbar_for_browser (browser);
         gtk_widget_destroy (GTK_WIDGET (toolitem));
-        tab_panel_toggle_toolbook (toolbar);
     }
     else
     {
@@ -443,7 +427,6 @@ tab_panel_browser_add_tab_cb (MidoriBrowser*   browser,
         g_object_set_data (G_OBJECT (view), "tab-panel-ext-toolitem", toolitem);
         gtk_widget_show (GTK_WIDGET (toolitem));
         gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
-        tab_panel_toggle_toolbook (toolbar);
         g_signal_connect (toolitem, "clicked",
             G_CALLBACK (tab_panel_toolitem_clicked_cb), view);
         g_signal_connect (gtk_bin_get_child (GTK_BIN (toolitem)), "button-press-event",
@@ -574,6 +557,16 @@ tab_panel_app_add_browser_cb (MidoriApp*       app,
 
     toolbar = gtk_toolbar_new ();
     g_object_set_data (G_OBJECT (browser), "tab-panel-ext-toolbar", toolbar);
+    gtk_widget_show (toolbar);
+
+    GtkActionGroup* actions = midori_browser_get_action_group (browser);
+    GtkAction* action = gtk_action_group_get_action (actions, "TabNew");
+    GtkWidget* toolitem = gtk_action_create_tool_item (action);
+    gtk_toolbar_insert (GTK_TOOLBAR (toolbar), GTK_TOOL_ITEM (toolitem), -1);
+
+    action = gtk_action_group_get_action (actions, "Separator");
+    toolitem = gtk_action_create_tool_item (action);
+    gtk_toolbar_insert (GTK_TOOLBAR (toolbar), GTK_TOOL_ITEM (toolitem), -1);
 
     /*
     TODO: Implement optional thumbnail images
