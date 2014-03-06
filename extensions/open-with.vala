@@ -768,7 +768,7 @@ namespace ExternalApplications {
         }
 
         public void tab_added (Midori.Browser browser, Midori.View view) {
-            view.web_view.navigation_policy_decision_requested.connect (navigation_requested);
+            view.web_view.navigation_policy_decision_requested.connect_after (navigation_requested);
             view.open_uri.connect (open_uri);
             view.context_menu.connect (context_menu);
         }
