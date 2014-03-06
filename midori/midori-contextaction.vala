@@ -9,10 +9,6 @@
  See the file COPYING for the full license text.
 */
 
-namespace Katze {
-    extern static string? strip_mnemonics (string? original);
-}
-
 namespace Midori {
     /* A context action represents an item that can be shown in a menu
        or toolbar. Context actions can be nested as needed.
@@ -26,9 +22,14 @@ namespace Midori {
             children = new List<ContextAction> ();
         }
 
-        /* Since: 0.5.8 */
-        public ContextAction.escaped (string name, string? label, string? tooltip, string? stock_id) {
-            string? escaped_label = Katze.strip_mnemonics (label);
+        /*
+           The action label will be escaped for mnemonics so for example
+           "a_fairy_tale" will not get accel keys on "f" or "t".
+
+           Since: 0.5.8
+         */
+        public ContextAction.escaped (string name, string label, string? tooltip, string? stock_id) {
+            string? escaped_label = label.replace ("_", "__");
             GLib.Object (name: name, label: escaped_label, tooltip: tooltip, stock_id: stock_id);
             action_groups = new List<Gtk.ActionGroup> ();
             children = new List<ContextAction> ();

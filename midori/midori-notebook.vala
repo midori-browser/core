@@ -260,6 +260,25 @@ namespace Midori {
             notebook.create_window.disconnect (window_created);
         }
 
+        /* Since: 0.5.8 */
+        public ContextAction get_context_action () {
+            var menu = new Midori.ContextAction ("NotebookContextMenu", null, null, null);
+            uint counter = 0;
+            foreach (var child in notebook.get_children ()) {
+                var tab = child as Midori.Tab;
+                var tally = notebook.get_tab_label (tab) as Tally;
+                var action = new Midori.ContextAction.escaped ("Tab%u".printf (counter), tally.label.label, null, null);
+                action.gicon = tally.icon.gicon;
+                action.activate.connect (()=>{
+                    notebook.set_current_page (notebook.page_num (tab));
+                });
+                menu.add (action);
+                counter++;
+            }
+            context_menu (menu);
+            return menu;
+        }
+
         bool button_pressed (Gdk.EventButton event) {
             /* Propagate events in logical label area */
             foreach (var child in notebook.get_children ()) {
@@ -280,20 +299,7 @@ namespace Midori {
                 return true;
             }
             else if (event.button == 3) {
-                var menu = new Midori.ContextAction ("NotebookContextMenu", null, null, null);
-                uint counter = 0;
-                foreach (var child in notebook.get_children ()) {
-                    var tab = child as Midori.Tab;
-                    var tally = notebook.get_tab_label (tab) as Tally;
-                    var action = new Midori.ContextAction.escaped ("Tab%u".printf (counter), tally.label.label, null, null);
-                    action.gicon = tally.icon.gicon;
-                    action.activate.connect (()=>{
-                        notebook.set_current_page (notebook.page_num (tab));
-                    });
-                    menu.add (action);
-                    counter++;
-                }
-                context_menu (menu);
+                var menu = get_context_action ();
                 var popup = menu.create_menu (null, false);
                 popup.show ();
                 popup.attach_to_widget (this, null);
