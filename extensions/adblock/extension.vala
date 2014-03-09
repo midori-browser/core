@@ -22,6 +22,28 @@ namespace Adblock {
         BLOCKED
     }
 
+    public string? parse_subscription_uri (string? uri) {
+        if (uri == null)
+            return null;
+
+        if (uri.has_prefix ("http") || uri.has_prefix ("abp") || uri.has_prefix ("file"))
+        {
+            string sub_uri = uri;
+            if (uri.has_prefix ("abp:")) {
+                uri.replace ("abp://", "abp:");
+                if (uri.has_prefix ("abp:subscribe?location=")) {
+                    /* abp://subscripe?location=http://example.com&title=foo */
+                    string[] parts = uri.substring (23, -1).split ("&", 2);
+                    sub_uri = parts[0];
+                }
+            }
+
+            string decoded_uri = Soup.URI.decode (sub_uri);
+            return decoded_uri;
+        }
+        return null;
+    }
+
     public class Extension : Midori.Extension {
         internal Config config;
         internal Subscription custom;
@@ -135,7 +157,7 @@ namespace Adblock {
             string uri = request.uri;
             if (uri.has_prefix ("abp:")) {
                 decision.ignore ();
-                string parsed_uri = manager.parse_uri (uri);
+                string parsed_uri = parse_subscription_uri (uri);
                 manager.add_subscription (parsed_uri);
                 return true;
             }
@@ -688,10 +710,8 @@ const TestSubUri[] suburis =
 
 void test_subscription_uri_parsing () {
     string? parsed_uri;
-    var extension = new Adblock.Extension ();
-    var manager = new Adblock.SubscriptionManager (extension.config);
     foreach (var example in suburis) {
-        parsed_uri = manager.parse_uri (example.src_uri);
+        parsed_uri = Adblock.parse_subscription_uri (example.src_uri);
         if (parsed_uri != example.dst_uri)
             error ("Subscription expected to be %svalid but %svalid:\n%s",
                    example.dst_uri, parsed_uri, example.src_uri);

@@ -113,28 +113,6 @@ namespace Adblock {
             ));
         }
 
-        public string? parse_uri (string? uri) {
-            if (uri == null)
-                return null;
-
-            if (uri.has_prefix ("http") || uri.has_prefix ("abp") || uri.has_prefix ("file"))
-            {
-                string sub_uri = uri;
-                if (uri.has_prefix ("abp:")) {
-                    uri.replace ("abp://", "abp:");
-                    if (uri.has_prefix ("abp:subscribe?location=")) {
-                        /* abp://subscripe?location=http://example.com&title=foo */
-                        string[] parts = uri.substring (23, -1).split ("&", 2);
-                        sub_uri = parts[0];
-                    }
-                }
-
-                string decoded_uri = Soup.URI.decode (sub_uri);
-                return decoded_uri;
-            }
-            return null;
-        }
-
         public void add_subscription (string? uri) {
             var dialog = new Gtk.Dialog.with_buttons (_("Configure Advertisement filters"),
                 null,
@@ -224,7 +202,7 @@ namespace Adblock {
             treeview.button_release_event.connect (button_released);
 
             entry.activate.connect (() => {
-                string? parsed_uri = parse_uri (entry.text);
+                string? parsed_uri = Adblock.parse_subscription_uri (entry.text);
                 if (parsed_uri != null) {
                     var sub = new Subscription (parsed_uri);
                     if (config.add (sub)) {
