@@ -134,14 +134,10 @@ namespace Adblock {
 
             string uri = request.uri;
             if (uri.has_prefix ("abp:")) {
-                uri = uri.replace ("abp://", "abp:");
-                if (uri.has_prefix ("abp:subscribe?location=")) {
-                    /* abp://subscripe?location=http://example.com&title=foo */
-                    string[] parts = uri.substring (23, -1).split ("&", 2);
-                    decision.ignore ();
-                    manager.add_subscription (parts[0]);
-                    return true;
-                }
+                decision.ignore ();
+                string parsed_uri = manager.parse_uri (uri);
+                manager.add_subscription (parsed_uri);
+                return true;
             }
             state = adblock_get_state (get_directive_for_uri (request.uri));
             status_icon.set_state (state);
@@ -677,6 +673,31 @@ void test_subscription_update () {
     }
 }
 
+struct TestSubUri {
+    public string? src_uri;
+    public string? dst_uri;
+}
+
+const TestSubUri[] suburis =
+{
+    { null, null },
+    { "not-a-link", null },
+    { "http://some.uri", "http://some.uri" },
+    { "abp:subscribe?location=https%3A%2F%2Feasylist-downloads.adblockplus.org%2Fabpindo%2Beasylist.txt&title=ABPindo%2BEasyList", "https://easylist-downloads.adblockplus.org/abpindo+easylist.txt" }
+};
+
+void test_subscription_uri_parsing () {
+    string? parsed_uri;
+    var extension = new Adblock.Extension ();
+    var manager = new Adblock.SubscriptionManager (extension.config);
+    foreach (var example in suburis) {
+        parsed_uri = manager.parse_uri (example.src_uri);
+        if (parsed_uri != example.dst_uri)
+            error ("Subscription expected to be %svalid but %svalid:\n%s",
+                   example.dst_uri, parsed_uri, example.src_uri);
+    }
+}
+
 public void extension_test () {
     Test.add_func ("/extensions/adblock2/config", test_adblock_config);
     Test.add_func ("/extensions/adblock2/subs", test_adblock_subs);
@@ -684,6 +705,7 @@ public void extension_test () {
     Test.add_func ("/extensions/adblock2/parse", test_adblock_fixup_regexp);
     Test.add_func ("/extensions/adblock2/pattern", test_adblock_pattern);
     Test.add_func ("/extensions/adblock2/update", test_subscription_update);
+    Test.add_func ("/extensions/adblock2/subsparse", test_subscription_uri_parsing);
 }
 #endif
 
