@@ -262,5 +262,34 @@ namespace Midori {
             return found;
 #endif
         }
+
+        /*
+          Updates all editing actions with regard to text selection.
+
+          Since: 0.5.8
+         */
+        public async void update_actions (Gtk.ActionGroup actions) {
+#if HAVE_WEBKIT2
+            try {
+                actions.get_action ("Undo").sensitive = yield web_view.can_execute_editing_command ("Undo", null);
+                actions.get_action ("Redo").sensitive = yield web_view.can_execute_editing_command ("Redo", null);
+                actions.get_action ("Cut").sensitive = yield web_view.can_execute_editing_command ("Cut", null);
+                actions.get_action ("Copy").sensitive = yield web_view.can_execute_editing_command ("Copy", null);
+                actions.get_action ("Paste").sensitive = yield web_view.can_execute_editing_command ("Paste", null);
+                actions.get_action ("Delete").sensitive = yield web_view.can_execute_editing_command ("Cut", null);
+                actions.get_action ("SelectAll").sensitive = yield web_view.can_execute_editing_command ("SelectAll", null);
+            } catch (Error error) {
+                critical ("Failed to update actions: %s", error.message);
+            }
+#else
+            actions.get_action ("Undo").sensitive = web_view.can_undo ();
+            actions.get_action ("Redo").sensitive = web_view.can_redo ();
+            actions.get_action ("Cut").sensitive = web_view.can_cut_clipboard ();
+            actions.get_action ("Copy").sensitive = web_view.can_copy_clipboard ();
+            actions.get_action ("Paste").sensitive = web_view.can_paste_clipboard ();
+            actions.get_action ("Delete").sensitive = true;
+            actions.get_action ("SelectAll").sensitive = true;
+#endif
+        }
     }
 }
