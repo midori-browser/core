@@ -16,29 +16,19 @@ namespace Adblock {
         BLOCK
     }
 
+    public enum State {
+        ENABLED,
+        DISABLED,
+        BLOCKED
+    }
+
     public class Extension : Midori.Extension {
         internal Config config;
         internal Subscription custom;
         internal HashTable<string, Directive?> cache;
-        Gtk.TreeView treeview;
-        Gtk.ListStore liststore;
-        List<IconButton> toggle_buttons;
-        bool debug_element_toggled;
-
-        public class IconButton : Gtk.Button {
-            Gtk.Image icon;
-
-            public IconButton () {
-                icon = new Gtk.Image ();
-                add (icon);
-                icon.show ();
-            }
-
-            public void set_status (string status) {
-                string filename = Midori.Paths.get_res_filename ("adblock/%s.svg".printf (status));
-                icon.set_from_file (filename);
-            }
-        }
+        internal StatusIcon status_icon;
+        internal SubscriptionManager manager;
+        internal State state;
 
 #if HAVE_WEBKIT2
         public Extension (WebKit.WebExtension web_extension) {
@@ -64,162 +54,8 @@ namespace Adblock {
         }
 
         void extension_preferences () {
-            open_dialog (null);
+            manager.add_subscription (null);
         }
-
-        void open_dialog (string? uri) {
-            var dialog = new Gtk.Dialog.with_buttons (_("Configure Advertisement filters"),
-                null,
-#if !HAVE_GTK3
-                Gtk.DialogFlags.NO_SEPARATOR |
-#endif
-                Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                Gtk.STOCK_HELP, Gtk.ResponseType.HELP,
-                Gtk.STOCK_CLOSE, Gtk.ResponseType.CLOSE);
-#if HAVE_GTK3
-            dialog.get_widget_for_response (Gtk.ResponseType.HELP).get_style_context ().add_class ("help_button");
-#endif
-            dialog.set_icon_name (Gtk.STOCK_PROPERTIES);
-            dialog.set_response_sensitive (Gtk.ResponseType.HELP, false);
-
-            var hbox = new Gtk.HBox (false, 0);
-            (dialog.get_content_area () as Gtk.Box).pack_start (hbox, true, true, 12);
-            var vbox = new Gtk.VBox (false, 0);
-            hbox.pack_start (vbox, true, true, 4);
-            var button = new Gtk.Label (null);
-            string description = """
-                Type the address of a preconfigured filter list in the text entry
-                and click "Add" to add it to the list.
-                You can find more lists at %s %s.
-                """.printf (
-                "<a href=\"http://adblockplus.org/en/subscriptions\">adblockplus.org/en/subscriptions</a>",
-                "<a href=\"http://easylist.adblockplus.org/\">easylist.adblockplus.org</a>");
-            button.activate_link.connect ((uri)=>{
-                var browser = get_app ().browser;
-                var view = browser.add_uri (uri);
-                browser.tab = view;
-                return true;
-            });
-            button.set_markup (description);
-            button.set_line_wrap (true);
-            vbox.pack_start (button, false, false, 4);
-
-            var entry = new Gtk.Entry ();
-            if (uri != null)
-                entry.set_text (uri);
-            vbox.pack_start (entry, false, false, 4);
-
-            liststore = new Gtk.ListStore (1, typeof (Subscription));
-            treeview = new Gtk.TreeView.with_model (liststore);
-            treeview.set_headers_visible (false);
-            var column = new Gtk.TreeViewColumn ();
-            var renderer_toggle = new Gtk.CellRendererToggle ();
-            column.pack_start (renderer_toggle, false);
-            column.set_cell_data_func (renderer_toggle, (column, renderer, model, iter) => {
-                Subscription sub;
-                liststore.get (iter, 0, out sub);
-                renderer.set ("active", sub.active,
-                              "sensitive", sub.mutable);
-            });
-            renderer_toggle.toggled.connect ((path) => {
-                Gtk.TreeIter iter;
-                if (liststore.get_iter_from_string (out iter, path)) {
-                    Subscription sub;
-                    liststore.get (iter, 0, out sub);
-                    sub.active = !sub.active;
-                }
-            });
-            treeview.append_column (column);
-
-            column = new Gtk.TreeViewColumn ();
-            var renderer_text = new Gtk.CellRendererText ();
-            column.pack_start (renderer_text, false);
-            renderer_text.set ("editable", true);
-            // TODO: renderer_text.edited.connect
-            column.set_cell_data_func (renderer_text, (column, renderer, model, iter) => {
-                Subscription sub;
-                liststore.get (iter, 0, out sub);
-                string status = "";
-                foreach (var feature in sub) {
-                    if (feature is Adblock.Updater) {
-                        var updater = feature as Adblock.Updater;
-                        if (updater.last_updated != null)
-                            status = updater.last_updated.format (_("Last update: %x %X"));
-                    }
-                }
-                if (!sub.valid)
-                    status = _("File incomplete - broken download?");
-                renderer.set ("markup", (Markup.printf_escaped ("<b>%s</b>\n%s",
-                    sub.title ?? sub.uri, status)));
-            });
-            treeview.append_column (column);
-
-            column = new Gtk.TreeViewColumn ();
-            Gtk.CellRendererPixbuf renderer_button = new Gtk.CellRendererPixbuf ();
-            column.pack_start (renderer_button, false);
-            column.set_cell_data_func (renderer_button, on_render_button);
-            treeview.append_column (column);
-
-            var scrolled = new Gtk.ScrolledWindow (null, null);
-            scrolled.set_policy (Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC);
-            scrolled.add (treeview);
-            vbox.pack_start (scrolled);
-
-            foreach (Subscription sub in config)
-                liststore.insert_with_values (null, 0, 0, sub);
-            treeview.button_release_event.connect (button_released);
-
-            entry.activate.connect (() => {
-                var sub = new Subscription (entry.text);
-                if (config.add (sub)) {
-                    liststore.insert_with_values (null, 0, 0, sub);
-                    try {
-                        sub.parse ();
-                    } catch (GLib.Error error) {
-                        warning ("Error parsing %s: %s", sub.uri, error.message);
-                    }
-                }
-                entry.text = "";
-            });
-
-            dialog.get_content_area ().show_all ();
-
-            dialog.response.connect ((response)=>{ dialog.destroy (); });
-            dialog.show ();
-        }
-
-        void on_render_button (Gtk.CellLayout column, Gtk.CellRenderer renderer,
-            Gtk.TreeModel model, Gtk.TreeIter iter) {
-
-            Subscription sub;
-            liststore.get (iter, 0, out sub);
-
-            renderer.set ("stock-id", sub.mutable ? Gtk.STOCK_DELETE : null,
-                          "stock-size", Gtk.IconSize.MENU);
-        }
-
-        bool button_released (Gdk.EventButton event) {
-            Gtk.TreePath? path;
-            Gtk.TreeViewColumn column;
-            if (treeview.get_path_at_pos ((int)event.x, (int)event.y, out path, out column, null, null)) {
-                if (path != null) {
-                    if (column == treeview.get_column (2)) {
-                        Gtk.TreeIter iter;
-                        if (liststore.get_iter (out iter, path)) {
-                            Subscription sub;
-                            liststore.get (iter, 0, out sub);
-                            if (sub.mutable) {
-                                config.remove (sub);
-                                liststore.remove (iter);
-                                return true;
-                            }
-                        }
-                    }
-                }
-            }
-            return false;
-        }
-
 
         void extension_activated (Midori.App app) {
             init ();
@@ -233,58 +69,14 @@ namespace Adblock {
                 tab_added (tab);
             browser.add_tab.connect (tab_added);
 
-            var toggle_button = new IconButton ();
+            var toggle_button = new StatusIcon.IconButton ();
             toggle_button.set_status (config.enabled ? "enabled" : "disabled");
             browser.statusbar.pack_start (toggle_button, false, false, 3);
             toggle_button.show ();
-            toggle_button.clicked.connect (icon_clicked);
-            toggle_buttons.append (toggle_button);
+            toggle_button.clicked.connect (status_icon.icon_clicked);
+            status_icon.toggle_buttons.append (toggle_button);
         }
 
-        void update_buttons (string page_uri="") {
-            string state;
-            foreach (var toggle_button in toggle_buttons) {
-                if (cache.lookup (page_uri) == Directive.BLOCK) {
-                    toggle_button.set_status ("blocked");
-                    state = _("Blocking");
-                }
-                else {
-                    toggle_button.set_status (config.enabled ? "enabled" : "disabled");
-                    state = config.enabled ? _("Enabled") : _("Disabled");
-                }
-                toggle_button.set_tooltip_text (_("Adblock state: %s").printf (state));
-            }
-        }
-
-        void icon_clicked (Gtk.Button toggle_button) {
-            var menu = new Gtk.Menu ();
-            var checkitem = new Gtk.CheckMenuItem.with_label (_("Disabled"));
-            checkitem.set_active (!config.enabled);
-            checkitem.toggled.connect (() => {
-                config.enabled = !checkitem.active;
-                update_buttons ();
-            });
-            menu.append (checkitem);
-
-            var hideritem = new Gtk.CheckMenuItem.with_label (_("Display hidden elements"));
-            hideritem.set_active (debug_element_toggled);
-            hideritem.toggled.connect (() => {
-                debug_element_toggled = hideritem.active;
-            });
-            menu.append (hideritem);
-
-            var menuitem = new Gtk.ImageMenuItem.with_label (_("Preferences"));
-            var image = new Gtk.Image.from_stock (Gtk.STOCK_PREFERENCES, Gtk.IconSize.MENU);
-            menuitem.always_show_image = true;
-            menuitem.set_image (image);
-            menuitem.activate.connect (() => {
-                open_preferences ();
-            });
-            menu.append (menuitem);
-
-            menu.show_all ();
-            Katze.widget_popup (toggle_button, menu, null, Katze.MenuPos.CURSOR);
-        }
 
         void tab_added (Midori.View view) {
             view.web_view.resource_request_starting.connect (resource_requested);
@@ -310,55 +102,30 @@ namespace Adblock {
                 return;
             var action = new Gtk.Action ("BlockElement", label, null, null);
             action.activate.connect ((action) => {
-                edit_rule_dialog (uri);
+                CustomRulesEditor custom_rules_editor = new CustomRulesEditor (custom);
+                custom_rules_editor.set_uri (uri);
+                custom_rules_editor.show();
             });
             menu.add (action);
         }
 
-        void edit_rule_dialog (string uri) {
-            var dialog = new Gtk.Dialog.with_buttons (_("Edit rule"),
-                null,
-#if !HAVE_GTK3
-                Gtk.DialogFlags.NO_SEPARATOR |
-#endif
-                Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
-                Gtk.STOCK_ADD, Gtk.ResponseType.ACCEPT);
-            dialog.set_icon_name (Gtk.STOCK_ADD);
-            dialog.resizable = false;
-
-            var hbox = new Gtk.HBox (false, 8);
-            var sizegroup = new Gtk.SizeGroup (Gtk.SizeGroupMode.HORIZONTAL);
-            hbox.border_width = 5;
-            var label = new Gtk.Label.with_mnemonic (_("_Rule:"));
-            sizegroup.add_widget (label);
-            hbox.pack_start (label, false, false, 0);
-            (dialog.get_content_area () as Gtk.Box).pack_start (hbox, false, true, 0);
-
-            var entry = new Gtk.Entry ();
-            sizegroup.add_widget (entry);
-            entry.activates_default = true;
-            entry.set_text (uri);
-            hbox.pack_start (entry, true, true, 0);
-
-            dialog.get_content_area ().show_all ();
-
-            dialog.set_default_response (Gtk.ResponseType.ACCEPT);
-            if (dialog.run () != Gtk.ResponseType.ACCEPT)
-                return;
-
-            string new_rule = entry.get_text ();
-            dialog.destroy ();
-            custom.add_rule (new_rule);
+        Adblock.State adblock_get_state (Adblock.Directive directive)
+        {
+            if (directive == Directive.BLOCK)
+                return State.BLOCKED;
+            if (config.enabled)
+                return State.ENABLED;
+            else
+                return State.DISABLED;
         }
-
 
         void resource_requested (WebKit.WebView web_view, WebKit.WebFrame frame,
             WebKit.WebResource resource, WebKit.NetworkRequest request, WebKit.NetworkResponse? response) {
 
             if (request_handled (web_view.uri, request.uri)) {
                 request.set_uri ("about:blank");
-                update_buttons (web_view.uri);
+                state = adblock_get_state (get_directive_for_uri (web_view.uri));
+                status_icon.set_state (state);
             }
         }
 
@@ -372,11 +139,12 @@ namespace Adblock {
                     /* abp://subscripe?location=http://example.com&title=foo */
                     string[] parts = uri.substring (23, -1).split ("&", 2);
                     decision.ignore ();
-                    open_dialog (parts[0]);
+                    manager.add_subscription (parts[0]);
                     return true;
                 }
             }
-            update_buttons (request.uri);
+            state = adblock_get_state (get_directive_for_uri (request.uri));
+            status_icon.set_state (state);
             return false;
         }
 
@@ -399,7 +167,7 @@ namespace Adblock {
             if ("adblock:element" in (Environment.get_variable ("MIDORI_DEBUG") ?? ""))
                 debug_element = true;
             else
-                debug_element = debug_element_toggled;
+                debug_element = status_icon.debug_element_toggled;
 
             /* Hide elements that were blocked, otherwise we will get "broken image" icon */
             cache.foreach ((key, val) => {
@@ -457,6 +225,8 @@ namespace Adblock {
         internal void init () {
             cache = new HashTable<string, Directive?> (str_hash, str_equal);
             load_config ();
+            status_icon = new StatusIcon (config);
+            manager = new SubscriptionManager (config);
             foreach (Subscription sub in config) {
                 try {
                     sub.parse ();
@@ -465,6 +235,14 @@ namespace Adblock {
                 }
             }
             config.notify["size"].connect (subscriptions_added_removed);
+            manager.description_label.activate_link.connect (open_link);
+        }
+
+        bool open_link (string uri) {
+            var browser = get_app ().browser;
+            var view = browser.add_uri (uri);
+            browser.tab = view;
+            return true;
         }
 
         void subscriptions_added_removed (ParamSpec pspec) {
@@ -486,28 +264,31 @@ namespace Adblock {
                 custom = null;
                 warning ("Failed to add custom list %s: %s", custom_list, error.message);
             }
-            debug_element_toggled = false;
         }
 
-        internal bool request_handled (string page_uri, string request_uri) {
+        public Adblock.Directive get_directive_for_uri (string request_uri, string? page_uri = null) {
             if (!config.enabled)
-                return false;
+                return Directive.ALLOW;
 
-            /* Always allow the main page */
-            if (request_uri == page_uri)
-                return false;
+            if (page_uri != null) {
+                /* Always allow the main page */
+                if (request_uri == page_uri)
+                    return Directive.ALLOW;
 
-            /* Skip adblock on internal pages */
-            if (Midori.URI.is_blank (page_uri))
-                return false;
+                /* Skip adblock on internal pages */
+                if (Midori.URI.is_blank (page_uri))
+                    return Directive.ALLOW;
+            }
 
             /* Skip adblock on favicons and non http schemes */
             if (!Midori.URI.is_http (request_uri) || request_uri.has_suffix ("favicon.ico"))
-                return false;
+                return Directive.ALLOW;
 
             Directive? directive = cache.lookup (request_uri);
             if (directive == null) {
                 foreach (Subscription sub in config) {
+                    if (page_uri == null)
+                        page_uri = request_uri;
                     directive = sub.get_directive (request_uri, page_uri);
                     if (directive != null)
                         break;
@@ -518,7 +299,11 @@ namespace Adblock {
                 if (directive == Directive.BLOCK)
                     cache.insert (page_uri, directive);
             }
-            return directive == Directive.BLOCK;
+            return directive;
+        }
+
+        internal bool request_handled (string page_uri, string request_uri) {
+            return get_directive_for_uri (request_uri, page_uri) == Directive.BLOCK;
         }
     }
 
