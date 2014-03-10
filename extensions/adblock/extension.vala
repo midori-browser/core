@@ -175,6 +175,9 @@ namespace Adblock {
                     code.append ("img[src*=\"%s\"] , iframe[src*=\"%s\"] , ".printf (key, key));
             });
 
+            if (code.str == "")
+                return null;
+
             string hider_css;
             if (debug_element)
                 hider_css = " { background-color: red; border: 4px solid green; }";
