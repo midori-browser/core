@@ -73,6 +73,7 @@ namespace Adblock {
                          version: "2.0",
                          authors: "Christian Dywan <christian@twotoasts.de>");
             activate.connect (extension_activated);
+            deactivate.connect (extension_deactivated);
             open_preferences.connect (extension_preferences);
         }
 
@@ -85,32 +86,57 @@ namespace Adblock {
             foreach (var browser in app.get_browsers ())
                 browser_added (browser);
             app.add_browser.connect (browser_added);
+            app.remove_browser.connect (browser_removed);
+        }
+
+        void extension_deactivated () {
+            var app = get_app ();
+            foreach (var browser in app.get_browsers ())
+                browser_removed (browser);
+            app.add_browser.disconnect (browser_added);
+            app.remove_browser.disconnect (browser_removed);
+            foreach (var button in status_icon.toggle_buttons)
+                button.destroy ();
         }
 
         void browser_added (Midori.Browser browser) {
             foreach (var tab in browser.get_tabs ())
                 tab_added (tab);
             browser.add_tab.connect (tab_added);
+            browser.remove_tab.connect (tab_removed);
 
-            var toggle_button = new StatusIcon.IconButton ();
-            toggle_button.set_status (config.enabled ? "enabled" : "disabled");
+            var toggle_button = status_icon.add_button ();
             browser.statusbar.pack_start (toggle_button, false, false, 3);
             toggle_button.show ();
-            toggle_button.clicked.connect (status_icon.icon_clicked);
-            status_icon.toggle_buttons.append (toggle_button);
         }
 
+        void browser_removed (Midori.Browser browser) {
+            foreach (var tab in browser.get_tabs ())
+                tab_removed (tab);
+            browser.add_tab.disconnect (tab_added);
+            browser.remove_tab.disconnect (tab_removed);
+        }
 
         void tab_added (Midori.View view) {
             view.web_view.resource_request_starting.connect (resource_requested);
             view.web_view.navigation_policy_decision_requested.connect (navigation_requested);
-            view.notify["load-status"].connect ((pspec) => {
-                if (config.enabled) {
-                    if (view.load_status == Midori.LoadStatus.FINISHED)
-                        inject_css (view, view.uri);
-                }
-            });
+            view.notify["load-status"].connect (load_status_changed);
             view.context_menu.connect (context_menu);
+        }
+
+        void tab_removed (Midori.View view) {
+            view.web_view.resource_request_starting.disconnect (resource_requested);
+            view.web_view.navigation_policy_decision_requested.disconnect (navigation_requested);
+            view.notify["load-status"].disconnect (load_status_changed);
+            view.context_menu.disconnect (context_menu);
+        }
+
+        void load_status_changed (Object object, ParamSpec pspec) {
+            var view = object as Midori.View;
+            if (config.enabled) {
+                if (view.load_status == Midori.LoadStatus.FINISHED)
+                    inject_css (view, view.uri);
+            }
         }
 
         void context_menu (WebKit.HitTestResult hit_test_result, Midori.ContextAction menu) {

@@ -44,6 +44,15 @@ namespace Adblock {
             }
         }
 
+        public IconButton add_button () {
+            var button = new IconButton ();
+            button.set_status (config.enabled ? "enabled" : "disabled");
+            button.clicked.connect (icon_clicked);
+            button.destroy.connect (()=> { toggle_buttons.remove (button); });
+            toggle_buttons.append (button);
+            return button;
+        }
+
         public void update_buttons () {
             string state = "";
             foreach (var toggle_button in toggle_buttons) {
