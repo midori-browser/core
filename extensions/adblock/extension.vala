@@ -22,8 +22,6 @@ namespace Adblock {
 
 #if HAVE_WEBKIT2
         public Extension.WebExtension (WebKit.WebExtension web_extension) {
-            /* FIXME: mode, config */
-            Midori.Paths.init (Midori.RuntimeMode.NORMAL, null);
             init ();
             web_extension.page_created.connect (page_created);
         }
@@ -144,7 +142,7 @@ namespace Adblock {
 
         void extension_activated (Midori.App app) {
 #if HAVE_WEBKIT2
-            string cache_dir = Midori.Paths.get_cache_dir ();
+            string cache_dir = Environment.get_user_cache_dir ();
             string wk2path = Path.build_path (Path.DIR_SEPARATOR_S, cache_dir, "wk2ext");
             Midori.Paths.mkdir_with_parents (wk2path);
             string filename = "libadblock." + GLib.Module.SUFFIX;
@@ -329,7 +327,12 @@ namespace Adblock {
         internal void init () {
             debug ("Adblock2");
 
-            string config_dir = Midori.Paths.get_extension_config_dir ("adblock");
+#if HAVE_WEBKIT2
+            string config_dir = Path.build_filename (Environment.get_user_config_dir (), "midori", "extensions", "libadblock." + GLib.Module.SUFFIX);
+            Midori.Paths.mkdir_with_parents (config_dir);
+#else
+            string? config_dir = Midori.Paths.get_extension_config_dir ("adblock");
+#endif
             config = new Config (config_dir);
             reload_rules ();
         }

@@ -140,19 +140,23 @@ namespace Midori {
                 cache_dir = Path.build_path (Path.DIR_SEPARATOR_S,
                     Environment.get_user_cache_dir (), PACKAGE_NAME);
                 user_data_dir = Environment.get_user_data_dir ();
+                tmp_dir = get_runtime_dir ();
+            }
 #if HAVE_WEBKIT2
+            if (cache_dir != null) {
                 /* Cache and extension dir MUST be set no later than here to work */
                 WebKit.WebContext.get_default ().set_web_extensions_directory (
                     Path.build_path (Path.DIR_SEPARATOR_S, cache_dir, "wk2ext"));
                 WebKit.WebContext.get_default ().set_disk_cache_directory (
                     Path.build_path (Path.DIR_SEPARATOR_S, cache_dir, "web"));
-
-                var cookie_manager = WebKit.WebContext.get_default ().get_cookie_manager ();
-                cookie_manager.set_persistent_storage (Path.build_filename (config, "cookies.db"),
-                    WebKit.CookiePersistentStorage.SQLITE);
-#endif
-                tmp_dir = get_runtime_dir ();
             }
+
+            if (config_dir != null) {
+                var cookie_manager = WebKit.WebContext.get_default ().get_cookie_manager ();
+                cookie_manager.set_persistent_storage (Path.build_filename (config_dir, "cookies.db"),
+                    WebKit.CookiePersistentStorage.SQLITE);
+            }
+#endif
             if (user_data_dir != null) {
                 string folder = Path.build_filename (user_data_dir, "webkit", "icondatabase");
 #if HAVE_WEBKIT2
