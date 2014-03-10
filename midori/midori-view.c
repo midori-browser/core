@@ -544,10 +544,24 @@ midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view
             webkit_policy_decision_download (decision);
             return TRUE;
         }
+        webkit_policy_decision_use (decision);
+        return TRUE;
+    }
+    else if (decision_type == WEBKIT_POLICY_DECISION_TYPE_NEW_WINDOW_ACTION)
+    {
+    }
+    else if (decision_type == WEBKIT_POLICY_DECISION_TYPE_NAVIGATION_ACTION)
+    {
+    }
+    else
+    {
+        g_debug ("Unhandled policy decision type %d", decision_type);
+        return FALSE;
     }
 
     void* request = NULL;
-    const gchar* uri = webkit_web_view_get_uri (web_view);
+    const gchar* uri = webkit_uri_request_get_uri (
+        webkit_navigation_policy_decision_get_request (WEBKIT_NAVIGATION_POLICY_DECISION (decision)));
     #else
     const gchar* uri = webkit_network_request_get_uri (request);
     #endif
@@ -2544,6 +2558,7 @@ midori_view_web_view_close_cb (WebKitWebView* web_view,
     midori_browser_close_tab (midori_browser_get_for_widget (view), view);
     return TRUE;
 }
+#endif
 
 static gboolean
 webkit_web_view_web_view_ready_cb (GtkWidget*  web_view,
@@ -2552,7 +2567,11 @@ webkit_web_view_web_view_ready_cb (GtkWidget*  web_view,
     MidoriNewView where = MIDORI_NEW_VIEW_TAB;
     GtkWidget* new_view = GTK_WIDGET (midori_view_get_for_widget (web_view));
 
+#ifdef HAVE_WEBKIT2
+    WebKitWindowProperties* features = webkit_web_view_get_window_properties (WEBKIT_WEB_VIEW (web_view));
+#else
     WebKitWebWindowFeatures* features = webkit_web_view_get_window_features (WEBKIT_WEB_VIEW (web_view));
+#endif
     gboolean locationbar_visible, menubar_visible, toolbar_visible;
     gint width, height;
     g_object_get (features,
@@ -2588,8 +2607,10 @@ webkit_web_view_web_view_ready_cb (GtkWidget*  web_view,
         GtkWidget* toplevel = gtk_widget_get_toplevel (new_view);
         if (width > 0 && height > 0)
             gtk_widget_set_size_request (toplevel, width, height);
+#ifndef HAVE_WEBKIT2
         g_signal_connect (web_view, "close-web-view",
                           G_CALLBACK (midori_view_web_view_close_cb), new_view);
+#endif
     }
 
     return TRUE;
@@ -2597,26 +2618,38 @@ webkit_web_view_web_view_ready_cb (GtkWidget*  web_view,
 
 static GtkWidget*
 webkit_web_view_create_web_view_cb (GtkWidget*      web_view,
+#ifndef HAVE_WEBKIT2
                                     WebKitWebFrame* web_frame,
+#endif
                                     MidoriView*     view)
 {
     MidoriView* new_view;
 
+#ifdef HAVE_WEBKIT2
+    const gchar* uri = webkit_web_view_get_uri (WEBKIT_WEB_VIEW (web_view));
+#else
+    const gchar* uri = webkit_web_frame_get_uri (web_frame);
+#endif
     if (view->open_new_pages_in == MIDORI_NEW_PAGE_CURRENT)
         new_view = view;
     else
     {
         KatzeItem* item = katze_item_new ();
-        item->uri = g_strdup (webkit_web_frame_get_uri (web_frame));
+        item->uri = g_strdup (uri);
         new_view = (MidoriView*)midori_view_new_with_item (item, view->settings);
+#ifdef HAVE_WEBKIT2
+        g_signal_connect (new_view->web_view, "ready-to-show",
+                          G_CALLBACK (webkit_web_view_web_view_ready_cb), view);
+#else
         g_signal_connect (new_view->web_view, "web-view-ready",
                           G_CALLBACK (webkit_web_view_web_view_ready_cb), view);
+#endif
     }
-    g_object_set_data_full (G_OBJECT (new_view), "opener-uri",
-        g_strdup (webkit_web_frame_get_uri (web_frame)), g_free);
+    g_object_set_data_full (G_OBJECT (new_view), "opener-uri", g_strdup (uri), g_free);
     return new_view->web_view;
 }
 
+#ifndef HAVE_WEBKIT2
 static gboolean
 webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
                                        WebKitWebFrame*          web_frame,
@@ -3429,6 +3462,8 @@ midori_view_constructor (GType                  type,
                       midori_view_web_view_permission_request_cb, view,
                       "signal::context-menu",
                       midori_view_web_view_context_menu_cb, view,
+                      "signal::create",
+                      webkit_web_view_create_web_view_cb, view,
                       #else
                       "signal::notify::load-status",
                       midori_view_web_view_notify_load_status_cb, view,
