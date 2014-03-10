@@ -207,6 +207,9 @@ namespace Adblock {
             scrolled.set_policy (Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC);
             scrolled.add (treeview);
             vbox.pack_start (scrolled);
+            int height;
+            treeview.create_pango_layout ("a\nb").get_pixel_size (null, out height);
+            scrolled.set_size_request (-1, height * 5);
 
             foreach (Subscription sub in config)
                 liststore.insert_with_values (null, 0, 0, sub);
