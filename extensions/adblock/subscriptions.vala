@@ -15,6 +15,9 @@ namespace Adblock {
         public virtual bool header (string key, string value) {
             return false;
         }
+        public virtual bool parsed (File file) {
+            return true;
+        }
         public virtual Directive? match (string request_uri, string page_uri) throws Error {
             return null;
         }
@@ -24,8 +27,12 @@ namespace Adblock {
 
     public class Subscription : GLib.Object {
         public string? path;
+        bool debug_parse;
         public string uri { get; set; default = null; }
+        public string title { get; set; default = null; }
         public bool active { get; set; default = true; }
+        public bool mutable { get; set; default = true; }
+        public bool valid { get; private set; default = true; }
         List<Feature> features;
         public Pattern pattern;
         public Keys keys;
@@ -35,6 +42,8 @@ namespace Adblock {
         WebKit.Download? download;
 
         public Subscription (string uri) {
+            debug_parse = "adblock:parse" in (Environment.get_variable ("MIDORI_DEBUG") ?? "");
+
             this.uri = uri;
 
             this.optslist = new Options ();
@@ -172,7 +181,8 @@ namespace Adblock {
                 return;
 
             string format_patt = fixup_regex (prefix, patt);
-            debug ("got: %s opts %s", format_patt, opts);
+            if (debug_parse)
+                stdout.printf ("got: %s opts %s\n", format_patt, opts);
             compile_regexp (format_patt, opts);
             /* return format_patt */
         }
@@ -186,7 +196,8 @@ namespace Adblock {
                 if (Regex.match_simple ("^/.*[\\^\\$\\*].*/$", patt,
                     RegexCompileFlags.UNGREEDY, RegexMatchFlags.NOTEMPTY)
                  || opts != null && opts.contains ("whitelist")) {
-                    debug ("patt: %s", patt);
+                    if (debug_parse)
+                        stdout.printf ("patt: %s\n", patt);
                     if (opts.contains ("whitelist"))
                         this.whitelist.insert (patt, regex);
                     else
@@ -233,12 +244,15 @@ namespace Adblock {
             string value = "";
             if (header.contains (":")) {
                 string[] parts = header.split (":", 2);
-                if (parts[0] != null) {
+                if (parts[0] != null && parts[0] != ""
+                 && parts[1] != null && parts[1] != "") {
                     key = parts[0].substring (2, -1);
                     value = parts[1].substring (1, -1);
                 }
             }
             debug ("Header '%s' says '%s'", key, value);
+            if (key == "Title")
+                title = value;
             foreach (var feature in features) {
                 if (feature.header (key, value))
                     break;
@@ -283,18 +297,25 @@ namespace Adblock {
 #if HAVE_WEBKIT2
                 /* TODO */
 #else
-                if (download != null)
-                    return;
+                /* Don't bother trying to download local files */
+                if (!uri.has_prefix ("file://")) {
+                    if (download != null)
+                        return;
 
-                download = new WebKit.Download (new WebKit.NetworkRequest (uri));
-                download.destination_uri = Filename.to_uri (path, null);
-                download.notify["status"].connect (download_status);
-                debug ("Fetching %s to %s now", uri, download.destination_uri);
-                download.start ();
+                    string destination_uri = Filename.to_uri (path, null);
+                    debug ("Fetching %s to %s now", uri, destination_uri);
+                    download = new WebKit.Download (new WebKit.NetworkRequest (uri));
+                    if (!Midori.Download.has_enough_space (download, destination_uri, true))
+                         throw new FileError.EXIST ("Can't download to \"%s\"", path);
+                    download.destination_uri = destination_uri;
+                    download.notify["status"].connect (download_status);
+                    download.start ();
 #endif
+                }
                 return;
             }
 
+            valid = false;
             string? line;
             while ((line = stream.read_line (null)) != null) {
                 if (line == null)
@@ -306,6 +327,13 @@ namespace Adblock {
                     parse_header (chomped);
                 else
                     parse_line (chomped);
+                /* The file isn't completely empty */
+                valid = true;
+            }
+
+            foreach (var feature in features) {
+                if (!feature.parsed (filter_file))
+                    valid = false;
             }
         }
 
@@ -323,6 +351,16 @@ namespace Adblock {
                 warning ("Adblock match error: %s\n", error.message);
             }
             return null;
+        }
+
+        public void add_rule (string rule) {
+            try {
+                var file = File.new_for_uri (uri);
+                file.append_to (FileCreateFlags.NONE).write (("%s\n".printf (rule)).data);
+                parse ();
+            } catch (Error error) {
+                warning ("Failed to add custom rule: %s", error.message);
+            }
         }
     }
 }

@@ -1237,7 +1237,7 @@ midori_browser_prepare_download (MidoriBrowser*  browser,
 
 {
 #ifndef HAVE_WEBKIT2
-    if (!midori_download_has_enough_space (download, uri))
+    if (!midori_download_has_enough_space (download, uri, FALSE))
         return FALSE;
     webkit_download_set_destination_uri (download, uri);
     g_signal_emit (browser, signals[ADD_DOWNLOAD], 0, download);

@@ -16,9 +16,42 @@ namespace Adblock {
         BLOCK
     }
 
+    public enum State {
+        ENABLED,
+        DISABLED,
+        BLOCKED
+    }
+
+    public string? parse_subscription_uri (string? uri) {
+        if (uri == null)
+            return null;
+
+        if (uri.has_prefix ("http") || uri.has_prefix ("abp") || uri.has_prefix ("file"))
+        {
+            string sub_uri = uri;
+            if (uri.has_prefix ("abp:")) {
+                uri.replace ("abp://", "abp:");
+                if (uri.has_prefix ("abp:subscribe?location=")) {
+                    /* abp://subscripe?location=http://example.com&title=foo */
+                    string[] parts = uri.substring (23, -1).split ("&", 2);
+                    sub_uri = parts[0];
+                }
+            }
+
+            string decoded_uri = Soup.URI.decode (sub_uri);
+            return decoded_uri;
+        }
+        return null;
+    }
+
     public class Extension : Midori.Extension {
-        Config config;
-        HashTable<string, Directive?> cache;
+        internal Config config;
+        internal Subscription custom;
+        internal HashTable<string, Directive?> cache;
+        internal StatusIcon status_icon;
+        internal SubscriptionManager manager;
+        internal State state;
+        internal bool debug_element;
 
 #if HAVE_WEBKIT2
         public Extension (WebKit.WebExtension web_extension) {
@@ -44,99 +77,7 @@ namespace Adblock {
         }
 
         void extension_preferences () {
-            open_dialog (null);
-        }
-
-        void open_dialog (string? uri) {
-            var dialog = new Gtk.Dialog.with_buttons (_("Configure Advertisement filters"),
-                null,
-#if !HAVE_GTK3
-                Gtk.DialogFlags.NO_SEPARATOR |
-#endif
-                Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                Gtk.STOCK_HELP, Gtk.ResponseType.HELP,
-                Gtk.STOCK_CLOSE, Gtk.ResponseType.CLOSE);
-#if HAVE_GTK3
-            dialog.get_widget_for_response (Gtk.ResponseType.HELP).get_style_context ().add_class ("help_button");
-#endif
-            dialog.set_icon_name (Gtk.STOCK_PROPERTIES);
-            dialog.set_response_sensitive (Gtk.ResponseType.HELP, false);
-
-            var hbox = new Gtk.HBox (false, 0);
-            (dialog.get_content_area () as Gtk.Box).pack_start (hbox, true, true, 12);
-            var vbox = new Gtk.VBox (false, 0);
-            hbox.pack_start (vbox, true, true, 4);
-            var button = new Gtk.Label (null);
-            string description = """
-                Type the address of a preconfigured filter list in the text entry
-                and click "Add" to add it to the list.
-                You can find more lists at %s %s.
-                """.printf (
-                "<a href=\"http://adblockplus.org/en/subscriptions\">adblockplus.org/en/subscriptions</a>",
-                "<a href=\"http://easylist.adblockplus.org/\">easylist.adblockplus.org</a>");
-            button.activate_link.connect ((uri)=>{
-                var browser = Midori.Browser.get_for_widget (button);
-                var view = browser.add_uri (uri);
-                browser.tab = view;
-                return true;
-            });
-            button.set_markup (description);
-            button.set_line_wrap (true);
-            vbox.pack_start (button, false, false, 4);
-
-            var entry = new Gtk.Entry ();
-            if (uri != null)
-                entry.set_text (uri);
-            vbox.pack_start (entry, false, false, 4);
-
-            var liststore = new Gtk.ListStore (1, typeof (Subscription));
-            var treeview = new Gtk.TreeView.with_model (liststore);
-            treeview.set_headers_visible (false);
-            var column = new Gtk.TreeViewColumn ();
-            var renderer_toggle = new Gtk.CellRendererToggle ();
-            column.pack_start (renderer_toggle, false);
-            column.set_cell_data_func (renderer_toggle, (column, renderer, model, iter) => {
-                Subscription sub;
-                liststore.get (iter, 0, out sub);
-                renderer.set ("active", sub.active,
-                              "sensitive", !sub.uri.has_suffix ("custom.list"));
-            });
-            renderer_toggle.toggled.connect ((path) => {
-                Gtk.TreeIter iter;
-                if (liststore.get_iter_from_string (out iter, path)) {
-                    Subscription sub;
-                    liststore.get (iter, 0, out sub);
-                    sub.active = !sub.active;
-                }
-            });
-            treeview.append_column (column);
-
-            column = new Gtk.TreeViewColumn ();
-            var renderer_text = new Gtk.CellRendererText ();
-            column.pack_start (renderer_text, false);
-            renderer_text.set ("editable", true);
-            // TODO: renderer_text.edited.connect
-            column.set_cell_data_func (renderer_text, (column, renderer, model, iter) => {
-                Subscription sub;
-                liststore.get (iter, 0, out sub);
-                renderer.set ("text", sub.uri);
-            });
-            treeview.append_column (column);
-
-            var scrolled = new Gtk.ScrolledWindow (null, null);
-            scrolled.set_policy (Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC);
-            scrolled.add (treeview);
-            vbox.pack_start (scrolled);
-
-            foreach (Subscription sub in config)
-                liststore.insert_with_values (null, 0, 0, sub);
-            // TODO: row-inserted row-changed row-deleted
-            // TODO vbox with add/ edit/ remove/ down/ up
-
-            dialog.get_content_area ().show_all ();
-
-            dialog.response.connect ((response)=>{ dialog.destroy (); });
-            dialog.show ();
+            manager.add_subscription (null);
         }
 
         void extension_activated (Midori.App app) {
@@ -150,14 +91,24 @@ namespace Adblock {
             foreach (var tab in browser.get_tabs ())
                 tab_added (tab);
             browser.add_tab.connect (tab_added);
+
+            var toggle_button = new StatusIcon.IconButton ();
+            toggle_button.set_status (config.enabled ? "enabled" : "disabled");
+            browser.statusbar.pack_start (toggle_button, false, false, 3);
+            toggle_button.show ();
+            toggle_button.clicked.connect (status_icon.icon_clicked);
+            status_icon.toggle_buttons.append (toggle_button);
         }
+
 
         void tab_added (Midori.View view) {
             view.web_view.resource_request_starting.connect (resource_requested);
             view.web_view.navigation_policy_decision_requested.connect (navigation_requested);
             view.notify["load-status"].connect ((pspec) => {
-                if (view.load_status == Midori.LoadStatus.FINISHED)
-                    inject_css (view, view.uri);
+                if (config.enabled) {
+                    if (view.load_status == Midori.LoadStatus.FINISHED)
+                        inject_css (view, view.uri);
+                }
             });
             view.context_menu.connect (context_menu);
         }
@@ -174,54 +125,31 @@ namespace Adblock {
                 return;
             var action = new Gtk.Action ("BlockElement", label, null, null);
             action.activate.connect ((action) => {
-                edit_rule_dialog (uri);
+                CustomRulesEditor custom_rules_editor = new CustomRulesEditor (custom);
+                custom_rules_editor.set_uri (uri);
+                custom_rules_editor.show();
             });
             menu.add (action);
         }
 
-        void edit_rule_dialog (string uri) {
-            var dialog = new Gtk.Dialog.with_buttons (_("Edit rule"),
-                null,
-#if !HAVE_GTK3
-                Gtk.DialogFlags.NO_SEPARATOR |
-#endif
-                Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
-                Gtk.STOCK_ADD, Gtk.ResponseType.ACCEPT);
-            dialog.set_icon_name (Gtk.STOCK_ADD);
-            dialog.resizable = false;
-
-            var hbox = new Gtk.HBox (false, 8);
-            var sizegroup = new Gtk.SizeGroup (Gtk.SizeGroupMode.HORIZONTAL);
-            hbox.border_width = 5;
-            var label = new Gtk.Label.with_mnemonic (_("_Rule:"));
-            sizegroup.add_widget (label);
-            hbox.pack_start (label, false, false, 0);
-            (dialog.get_content_area () as Gtk.Box).pack_start (hbox, false, true, 0);
-
-            var entry = new Gtk.Entry ();
-            sizegroup.add_widget (entry);
-            entry.activates_default = true;
-            entry.set_text (uri);
-            hbox.pack_start (entry, true, true, 0);
-
-            dialog.get_content_area ().show_all ();
-
-            dialog.set_default_response (Gtk.ResponseType.ACCEPT);
-            if (dialog.run () != Gtk.ResponseType.ACCEPT)
-                return;
-
-            string new_rule = entry.get_text ();
-            dialog.destroy ();
-            config.add_custom_rule (new_rule);
+        Adblock.State adblock_get_state (Adblock.Directive directive)
+        {
+            if (directive == Directive.BLOCK)
+                return State.BLOCKED;
+            if (config.enabled)
+                return State.ENABLED;
+            else
+                return State.DISABLED;
         }
-
 
         void resource_requested (WebKit.WebView web_view, WebKit.WebFrame frame,
             WebKit.WebResource resource, WebKit.NetworkRequest request, WebKit.NetworkResponse? response) {
 
-            if (request_handled (web_view.uri, request.uri))
+            if (request_handled (web_view.uri, request.uri)) {
                 request.set_uri ("about:blank");
+                state = adblock_get_state (get_directive_for_uri (web_view.uri));
+                status_icon.set_state (state);
+            }
         }
 
         bool navigation_requested (WebKit.WebFrame frame, WebKit.NetworkRequest request,
@@ -229,39 +157,28 @@ namespace Adblock {
 
             string uri = request.uri;
             if (uri.has_prefix ("abp:")) {
-                uri = uri.replace ("abp://", "abp:");
-                if (uri.has_prefix ("abp:subscribe?location=")) {
-                    /* abp://subscripe?location=http://example.com&title=foo */
-                    string[] parts = uri.substring (23, -1).split ("&", 2);
-                    decision.ignore ();
-                    open_dialog (parts[0]);
-                    return true;
-                }
+                decision.ignore ();
+                string parsed_uri = parse_subscription_uri (uri);
+                manager.add_subscription (parsed_uri);
+                return true;
             }
+            state = adblock_get_state (get_directive_for_uri (request.uri));
+            status_icon.set_state (state);
             return false;
         }
 
-        void inject_css (Midori.View view, string page_uri) {
-            /* Don't block ads on internal pages */
-            if (!Midori.URI.is_http (page_uri))
-                return;
-            string domain = Midori.URI.parse_hostname (page_uri, null);
-            string[] subdomains = domain.split (".");
-            if (subdomains == null)
-                return;
-            int cnt = subdomains.length - 1;
-            var subdomain = new StringBuilder (subdomains[cnt]);
-            subdomain.prepend_c ('.');
-            cnt--;
-            var code = new StringBuilder ();
-            bool debug_element = "adblock:element" in (Environment.get_variable ("MIDORI_DEBUG") ?? "");
-            string hider_css;
-
+        string? get_hider_css_for_blocked_resources () {
             /* Hide elements that were blocked, otherwise we will get "broken image" icon */
+            var code = new StringBuilder ();
             cache.foreach ((key, val) => {
                 if (val == Adblock.Directive.BLOCK)
                     code.append ("img[src*=\"%s\"] , iframe[src*=\"%s\"] , ".printf (key, key));
             });
+
+            if (code.str == "")
+                return null;
+
+            string hider_css;
             if (debug_element)
                 hider_css = " { background-color: red; border: 4px solid green; }";
             else
@@ -271,55 +188,96 @@ namespace Adblock {
             code.append (hider_css);
             if (debug_element)
                 stdout.printf ("hider css: %s\n", code.str);
-            view.inject_stylesheet (code.str);
+            return code.str;
+        }
 
-            code.erase ();
-            int blockscnt = 0;
+        string[]? get_domains_for_uri (string uri) {
+            if (uri == null)
+                return null;
+            string[]? domains = null;
+            string domain = Midori.URI.parse_hostname (uri, null);
+            string[] subdomains = domain.split (".");
+            if (subdomains == null)
+                return null;
+            int cnt = subdomains.length - 1;
+            var subdomain = new StringBuilder (subdomains[cnt]);
+            subdomain.prepend_c ('.');
+            cnt--;
             while (cnt >= 0) {
                 subdomain.prepend (subdomains[cnt]);
-                string? style = null;
-                foreach (Subscription sub in config) {
-                    foreach (var feature in sub) {
-                        if (feature is Adblock.Element) {
-                            style = (feature as Adblock.Element).lookup (subdomain.str);
-                            break;
-                        }
-                    }
-                }
-                if (style != null) {
-                    code.append (style);
-                    code.append_c (',');
-                    blockscnt++;
-                }
+                domains += subdomain.str;
                 subdomain.prepend_c ('.');
                 cnt--;
             }
+            return domains;
+        }
+
+        string? get_hider_css_rules_for_uri (string page_uri) {
+            if (page_uri == null)
+                return null;
+            string[]? domains = get_domains_for_uri (page_uri);
+            if (domains == null)
+                return null;
+            var code = new StringBuilder ();
+            int blockscnt = 0;
+            string? style = null;
+            foreach (Subscription sub in config) {
+                foreach (var feature in sub) {
+                    if (feature is Adblock.Element) {
+                        foreach (var subdomain in domains) {
+                            style = (feature as Adblock.Element).lookup (subdomain);
+                            if (style != null) {
+                                code.append (style);
+                                code.append_c (',');
+                                blockscnt++;
+                            }
+                        }
+                    }
+                }
+            }
+
             if (blockscnt == 0)
-                return;
+                return null;
             code.truncate (code.len - 1);
 
+            string hider_css;
             if (debug_element)
                 hider_css = " { background-color: red !important; border: 4px solid green !important; }";
             else
                 hider_css = " { display: none !important }";
 
             code.append (hider_css);
-            view.inject_stylesheet (code.str);
             if (debug_element)
                 stdout.printf ("css: %s\n", code.str);
+
+            return code.str;
+        }
+
+        void inject_css (Midori.View view, string page_uri) {
+            /* Don't block ads on internal pages */
+            if (!Midori.URI.is_http (page_uri))
+                return;
+
+            if ("adblock:element" in (Environment.get_variable ("MIDORI_DEBUG") ?? ""))
+                debug_element = true;
+            else
+                debug_element = status_icon.debug_element_toggled;
+
+            string? blocked_css = get_hider_css_for_blocked_resources ();
+            if (blocked_css != null)
+                view.inject_stylesheet (blocked_css);
+
+            string? style = get_hider_css_rules_for_uri (page_uri);
+            if (style != null)
+                view.inject_stylesheet (style);
         }
 #endif
 
         internal void init () {
-            debug ("Adblock2");
-
-            string config_dir = Midori.Paths.get_extension_config_dir ("adblock");
-            config = new Config (config_dir);
-            reload_rules ();
-        }
-
-        void reload_rules () {
             cache = new HashTable<string, Directive?> (str_hash, str_equal);
+            load_config ();
+            status_icon = new StatusIcon (config);
+            manager = new SubscriptionManager (config);
             foreach (Subscription sub in config) {
                 try {
                     sub.parse ();
@@ -327,24 +285,61 @@ namespace Adblock {
                     warning ("Error parsing %s: %s", sub.uri, error.message);
                 }
             }
-       }
+            config.notify["size"].connect (subscriptions_added_removed);
+            manager.description_label.activate_link.connect (open_link);
+        }
 
-        bool request_handled (string page_uri, string request_uri) {
-            /* Always allow the main page */
-            if (request_uri == page_uri)
-                return false;
+        bool open_link (string uri) {
+            var browser = get_app ().browser;
+            var view = browser.add_uri (uri);
+            browser.tab = view;
+            return true;
+        }
 
-            /* Skip adblock on internal pages */
-            if (Midori.URI.is_blank (page_uri))
-                return false;
+        void subscriptions_added_removed (ParamSpec pspec) {
+            cache.remove_all ();
+        }
+
+        void load_config () {
+            string config_dir = Midori.Paths.get_extension_config_dir ("adblock");
+            string presets = Midori.Paths.get_extension_preset_filename ("adblock", "config");
+            string filename = Path.build_filename (config_dir, "config");
+            config = new Config (filename, presets);
+            string custom_list = GLib.Path.build_filename (config_dir, "custom.list");
+            try {
+                custom = new Subscription (Filename.to_uri (custom_list, null));
+                custom.mutable = false;
+                custom.title = _("Custom");
+                config.add (custom);
+            } catch (Error error) {
+                custom = null;
+                warning ("Failed to add custom list %s: %s", custom_list, error.message);
+            }
+        }
+
+        public Adblock.Directive get_directive_for_uri (string request_uri, string? page_uri = null) {
+            if (!config.enabled)
+                return Directive.ALLOW;
+
+            if (page_uri != null) {
+                /* Always allow the main page */
+                if (request_uri == page_uri)
+                    return Directive.ALLOW;
+
+                /* Skip adblock on internal pages */
+                if (Midori.URI.is_blank (page_uri))
+                    return Directive.ALLOW;
+            }
 
             /* Skip adblock on favicons and non http schemes */
             if (!Midori.URI.is_http (request_uri) || request_uri.has_suffix ("favicon.ico"))
-                return false;
+                return Directive.ALLOW;
 
             Directive? directive = cache.lookup (request_uri);
             if (directive == null) {
                 foreach (Subscription sub in config) {
+                    if (page_uri == null)
+                        page_uri = request_uri;
                     directive = sub.get_directive (request_uri, page_uri);
                     if (directive != null)
                         break;
@@ -352,8 +347,14 @@ namespace Adblock {
                 if (directive == null)
                     directive = Directive.ALLOW;
                 cache.insert (request_uri, directive);
+                if (directive == Directive.BLOCK)
+                    cache.insert (page_uri, directive);
             }
-            return directive == Directive.BLOCK;
+            return directive;
+        }
+
+        internal bool request_handled (string page_uri, string request_uri) {
+            return get_directive_for_uri (request_uri, page_uri) == Directive.BLOCK;
         }
     }
 
@@ -411,6 +412,179 @@ public Midori.Extension extension_init () {
 #endif
 
 #if !HAVE_WEBKIT2
+static string? tmp_folder = null;
+string get_test_file (string contents) {
+    if (tmp_folder == null)
+        tmp_folder = Midori.Paths.make_tmp_dir ("adblockXXXXXX");
+    string checksum = Checksum.compute_for_string (ChecksumType.MD5, contents);
+    string file = Path.build_path (Path.DIR_SEPARATOR_S, tmp_folder, checksum);
+    try {
+        FileUtils.set_contents (file, contents, -1);
+    } catch (Error file_error) {
+        GLib.error (file_error.message);
+    }
+    return file;
+}
+
+struct TestCaseConfig {
+    public string content;
+    public uint size;
+    public bool enabled;
+}
+
+const TestCaseConfig[] configs = {
+    { "", 0, true },
+    { "[settings]", 0, true },
+    { "[settings]\nfilters=foo;", 1, true },
+    { "[settings]\nfilters=foo;\ndisabled=true", 1, false }
+};
+
+void test_adblock_config () {
+    assert (new Adblock.Config (null, null).size == 0);
+
+    foreach (var conf in configs) {
+        var config = new Adblock.Config (get_test_file (conf.content), null);
+        if (config.size != conf.size)
+            error ("Wrong size %s rather than %s:\n%s",
+                   config.size.to_string (), conf.size.to_string (), conf.content);
+        if (config.enabled != conf.enabled)
+            error ("Wrongly got enabled=%s rather than %s:\n%s",
+                   config.enabled.to_string (), conf.enabled.to_string (), conf.content);
+    }
+}
+
+struct TestCaseSub {
+    public string uri;
+    public bool active;
+}
+
+const TestCaseSub[] subs = {
+    { "http://foo.com", true },
+    { "http://bar.com", false },
+    { "https://spam.com", true },
+    { "https://eggs.com", false },
+    { "file:///bla", true },
+    { "file:///blub", false }
+};
+
+void test_adblock_subs () {
+    var config = new Adblock.Config (get_test_file ("""
+[settings]
+filters=http://foo.com;http-//bar.com;https://spam.com;http-://eggs.com;file:///bla;file-///blub;http://foo.com;
+"""), null);
+
+    assert (config.enabled);
+    foreach (var sub in subs) {
+        bool found = false;
+        foreach (var subscription in config) {
+            if (subscription.uri == sub.uri) {
+                assert (subscription.active == sub.active);
+                found = true;
+            }
+        }
+        if (!found)
+            error ("%s not found", sub.uri);
+    }
+
+    /* 6 unique URLs, 1 duplicate */
+    assert (config.size == 6);
+    /* Duplicates aren't added again either */
+    assert (!config.add (new Adblock.Subscription ("https://spam.com")));
+
+    /* Saving the config and loading it should give back identical results */
+    config.save ();
+    var copy = new Adblock.Config (config.path, null);
+    assert (copy.size == config.size);
+    assert (copy.enabled == config.enabled);
+    for (int i = 0; i < config.size; i++) {
+        assert (copy[i].uri == config[i].uri);
+        assert (copy[i].active == config[i].active);
+    }
+    /* Enabled status should be saved and loaded */
+    config.enabled = false;
+    copy = new Adblock.Config (config.path, null);
+    assert (copy.enabled == config.enabled);
+    /* Flipping individual active values should be retained after saving */
+    foreach (var sub in config)
+        sub.active = !sub.active;
+    copy = new Adblock.Config (config.path, null);
+    for (uint i = 0; i < config.size; i++) {
+        if (config[i].active != copy[i].active) {
+            string contents;
+            try {
+                FileUtils.get_contents (config.path, out contents, null);
+            } catch (Error file_error) {
+                error (file_error.message);
+            }
+            error ("%s is %s but should be %s:\n%s",
+                   copy[i].uri, copy[i].active ? "active" : "disabled", config[i].active ? "active" : "disabled", contents);
+        }
+    }
+
+    /* Adding and removing works, changes size */
+    var s = new Adblock.Subscription ("http://en.de");
+    assert (config.add (s));
+    assert (config.size == 7);
+    config.remove (s);
+    assert (config.size == 6);
+    /* If it was removed before we should be able to add it again */
+    assert (config.add (s));
+    assert (config.size == 7);
+}
+
+void test_adblock_init () {
+    /* No config */
+    var extension = new Adblock.Extension ();
+    extension.init ();
+    assert (extension.config.enabled);
+    /* Defaults plus custom */
+    if (extension.config.size != 3)
+        error ("Expected 3 initial subs, got %s".printf (
+               extension.config.size.to_string ()));
+    assert (extension.cache.size () == 0);
+
+    /* Add new subscription */
+    string path = Midori.Paths.get_res_filename ("adblock.list");
+    string uri;
+    try {
+        uri = Filename.to_uri (path, null);
+    } catch (Error error) {
+        GLib.error (error.message);
+    }
+    var sub = new Adblock.Subscription (uri);
+    extension.config.add (sub);
+    assert (extension.cache.size () == 0);
+    assert (extension.config.size == 4);
+    try {
+        sub.parse ();
+    } catch (GLib.Error error) {
+        GLib.error (error.message);
+    }
+    /* The page itself never hits */
+    assert (!extension.request_handled ("https://ads.bogus.name/blub", "https://ads.bogus.name/blub"));
+    /* Favicons don't either */
+    assert (!extension.request_handled ("https://foo.com", "https://ads.bogus.name/blub/favicon.ico"));
+    assert (extension.cache.size () == 0);
+    /* Some sanity checks to be sure there's no earlier problem */
+    assert (sub.title == "Exercise");
+    assert (sub.get_directive ("https://ads.bogus.name/blub", "") == Adblock.Directive.BLOCK);
+    /* A rule hit should add to the cache */
+    assert (extension.request_handled ("https://foo.com", "https://ads.bogus.name/blub"));
+    assert (extension.cache.size () > 0);
+    /* Disabled means no request should be handled */
+    extension.config.enabled = false;
+    assert (!extension.request_handled ("https://foo.com", "https://ads.bogus.name/blub"));
+    /* Removing a subscription should clear the cache */
+    extension.config.remove (sub);
+    assert (extension.cache.size () == 0);
+    assert (extension.config.size == 3);
+    /* Now let's add a custom rule */
+    extension.config.enabled = true;
+    extension.custom.add_rule ("*.png");
+    assert (!extension.request_handled ("https://foo.com", "http://alpha.beta.com/images/yota.png"));
+    assert (extension.cache.size () > 0);
+ }
+
 struct TestCaseLine {
     public string line;
     public string fixed;
@@ -499,19 +673,27 @@ void test_adblock_pattern () {
     }
 }
 
+string pretty_date (DateTime? date) {
+    if (date == null)
+        return "N/A";
+    return date.to_string ();
+}
+
 struct TestUpdateExample {
     public string content;
     public bool result;
+    public bool valid;
 }
 
  const TestUpdateExample[] examples = {
-        { "[Adblock Plus 1.1]\n! Last modified: 05 Sep 2010 11:00 UTC\n! This list expires after 48 hours\n", true },
-        { "[Adblock Plus 1.1]\n! Last modified: 05.09.2010 11:00 UTC\n! Expires: 2 days (update frequency)\n", true },
-        { "[Adblock Plus 1.1]\n! Updated: 05 Nov 2024 11:00 UTC\n! Expires: 5 days (update frequency)\n", false },
-        { "[Adblock]\n! dutchblock v3\n! This list expires after 14 days\n|http://b*.mookie1.com/\n", false },
-        { "[Adblock Plus 2.0]\n! Last modification time (GMT): 2012.11.05 13:33\n! Expires: 5 days (update frequency)\n", true },
-        { "[Adblock Plus 2.0]\n! Last modification time (GMT): 2012.11.05 13:33\n", true },
-        { "[Adblock]\n ! dummy,  i dont have any dates\n", false }
+        { "[Adblock Plus 1.1]\n! Last modified: 05 Sep 2010 11:00 UTC\n! This list expires after 48 hours\n", true, true },
+        { "[Adblock Plus 1.1]\n! Last modified: 05.09.2010 11:00 UTC\n! Expires: 2 days (update frequency)\n", true, true },
+        { "[Adblock Plus 1.1]\n! Updated: 05 Nov 2024 11:00 UTC\n! Expires: 5 days (update frequency)\n", false, true },
+        { "[Adblock]\n! dutchblock v3\n! This list expires after 14 days\n|http://b*.mookie1.com/\n", false, true },
+        { "[Adblock Plus 2.0]\n! Last modification time (GMT): 2012.11.05 13:33\n! Expires: 5 days (update frequency)\n", true, true },
+        { "[Adblock Plus 2.0]\n! Last modification time (GMT): 2012.11.05 13:33\n", true, true },
+        { "[Adblock]\n ! dummy,  i dont have any dates\n", false, true },
+        { "\n", false, false }
     };
 
 void test_subscription_update () {
@@ -531,23 +713,52 @@ void test_subscription_update () {
     foreach (var example in examples) {
         try {
             file.replace_contents (example.content.data, null, false, FileCreateFlags.NONE, null);
-            updater.last_mod_meta = null;
-            updater.expires_meta = null;
+            sub.clear ();
             sub.parse ();
         } catch (Error error) {
             GLib.error (error.message);
         }
-        if (example.result == true)
-            assert (updater.needs_updating());
-        else
-            assert (!updater.needs_updating());
+        if (example.valid != sub.valid)
+            error ("Subscription expected to be %svalid but %svalid:\n%s",
+                   example.valid ? "" : "in", sub.valid ? "" : "in", example.content);
+        if (example.result != updater.needs_update)
+            error ("Update%s expected for:\n%s\nLast Updated: %s\nExpires: %s",
+                   example.result ? "" : " not", example.content,
+                   pretty_date (updater.last_updated), pretty_date (updater.expires));
+    }
+}
+
+struct TestSubUri {
+    public string? src_uri;
+    public string? dst_uri;
+}
+
+const TestSubUri[] suburis =
+{
+    { null, null },
+    { "not-a-link", null },
+    { "http://some.uri", "http://some.uri" },
+    { "abp:subscribe?location=https%3A%2F%2Feasylist-downloads.adblockplus.org%2Fabpindo%2Beasylist.txt&title=ABPindo%2BEasyList", "https://easylist-downloads.adblockplus.org/abpindo+easylist.txt" }
+};
+
+void test_subscription_uri_parsing () {
+    string? parsed_uri;
+    foreach (var example in suburis) {
+        parsed_uri = Adblock.parse_subscription_uri (example.src_uri);
+        if (parsed_uri != example.dst_uri)
+            error ("Subscription expected to be %svalid but %svalid:\n%s",
+                   example.dst_uri, parsed_uri, example.src_uri);
     }
 }
 
 public void extension_test () {
+    Test.add_func ("/extensions/adblock2/config", test_adblock_config);
+    Test.add_func ("/extensions/adblock2/subs", test_adblock_subs);
+    Test.add_func ("/extensions/adblock2/init", test_adblock_init);
     Test.add_func ("/extensions/adblock2/parse", test_adblock_fixup_regexp);
     Test.add_func ("/extensions/adblock2/pattern", test_adblock_pattern);
     Test.add_func ("/extensions/adblock2/update", test_subscription_update);
+    Test.add_func ("/extensions/adblock2/subsparse", test_subscription_uri_parsing);
 }
 #endif
 
