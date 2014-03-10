@@ -101,7 +101,8 @@ namespace Adblock {
             menu.append (menuitem);
 
             menu.show_all ();
-            Katze.widget_popup (toggle_button, menu, null, Katze.MenuPos.CURSOR);
+            menu.attach_to_widget (toggle_button, null);
+            menu.popup (null, null, null, 1, Gtk.get_current_event_time ());
         }
     }
 
