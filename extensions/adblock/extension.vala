@@ -302,8 +302,8 @@ namespace Adblock {
         internal void init () {
             cache = new HashTable<string, Directive?> (str_hash, str_equal);
             load_config ();
-            status_icon = new StatusIcon (config);
             manager = new SubscriptionManager (config);
+            status_icon = new StatusIcon (config, manager);
             foreach (Subscription sub in config) {
                 try {
                     sub.parse ();

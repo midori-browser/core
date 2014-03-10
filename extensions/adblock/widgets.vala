@@ -15,12 +15,14 @@ namespace Adblock {
 
     public class StatusIcon {
         Config config;
+        SubscriptionManager manager;
         State state;
         public bool debug_element_toggled;
         public List<IconButton> toggle_buttons;
 
-        public StatusIcon (Adblock.Config config) {
+        public StatusIcon (Adblock.Config config, SubscriptionManager manager) {
             this.config = config;
+            this.manager = manager;
             this.debug_element_toggled = false;
         }
 
@@ -94,7 +96,6 @@ namespace Adblock {
             menuitem.always_show_image = true;
             menuitem.set_image (image);
             menuitem.activate.connect (() => {
-                SubscriptionManager manager = new SubscriptionManager (config);
                 manager.add_subscription (null);
             });
             menu.append (menuitem);
