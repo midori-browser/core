@@ -191,8 +191,11 @@ namespace Adblock {
             return code.str;
         }
 
-        string? get_hider_css_rules_for_uri (string page_uri) {
-            string domain = Midori.URI.parse_hostname (page_uri, null);
+        string[]? get_domains_for_uri (string uri) {
+            if (uri == null)
+                return null;
+            string[]? domains = null;
+            string domain = Midori.URI.parse_hostname (uri, null);
             string[] subdomains = domain.split (".");
             if (subdomains == null)
                 return null;
@@ -200,27 +203,37 @@ namespace Adblock {
             var subdomain = new StringBuilder (subdomains[cnt]);
             subdomain.prepend_c ('.');
             cnt--;
-            var code = new StringBuilder ();
-
-            int blockscnt = 0;
             while (cnt >= 0) {
                 subdomain.prepend (subdomains[cnt]);
-                string? style = null;
-                foreach (Subscription sub in config) {
-                    foreach (var feature in sub) {
-                        if (feature is Adblock.Element) {
-                            style = (feature as Adblock.Element).lookup (subdomain.str);
-                            break;
+                domains += subdomain.str;
+                subdomain.prepend_c ('.');
+                cnt--;
+            }
+            return domains;
+        }
+
+        string? get_hider_css_rules_for_uri (string page_uri) {
+            if (page_uri == null)
+                return null;
+            string[]? domains = get_domains_for_uri (page_uri);
+            if (domains == null)
+                return null;
+            var code = new StringBuilder ();
+            int blockscnt = 0;
+            string? style = null;
+            foreach (Subscription sub in config) {
+                foreach (var feature in sub) {
+                    if (feature is Adblock.Element) {
+                        foreach (var subdomain in domains) {
+                            style = (feature as Adblock.Element).lookup (subdomain);
+                            if (style != null) {
+                                code.append (style);
+                                code.append_c (',');
+                                blockscnt++;
+                            }
                         }
                     }
                 }
-                if (style != null) {
-                    code.append (style);
-                    code.append_c (',');
-                    blockscnt++;
-                }
-                subdomain.prepend_c ('.');
-                cnt--;
             }
 
             if (blockscnt == 0)
