@@ -51,6 +51,7 @@ namespace Adblock {
         internal StatusIcon status_icon;
         internal SubscriptionManager manager;
         internal State state;
+        internal bool debug_element;
 
 #if HAVE_WEBKIT2
         public Extension (WebKit.WebExtension web_extension) {
@@ -166,32 +167,15 @@ namespace Adblock {
             return false;
         }
 
-        void inject_css (Midori.View view, string page_uri) {
-            /* Don't block ads on internal pages */
-            if (!Midori.URI.is_http (page_uri))
-                return;
-            string domain = Midori.URI.parse_hostname (page_uri, null);
-            string[] subdomains = domain.split (".");
-            if (subdomains == null)
-                return;
-            int cnt = subdomains.length - 1;
-            var subdomain = new StringBuilder (subdomains[cnt]);
-            subdomain.prepend_c ('.');
-            cnt--;
-            var code = new StringBuilder ();
-            string hider_css;
-
-            bool debug_element;
-            if ("adblock:element" in (Environment.get_variable ("MIDORI_DEBUG") ?? ""))
-                debug_element = true;
-            else
-                debug_element = status_icon.debug_element_toggled;
-
+        string? get_hider_css_for_blocked_resources () {
             /* Hide elements that were blocked, otherwise we will get "broken image" icon */
+            var code = new StringBuilder ();
             cache.foreach ((key, val) => {
                 if (val == Adblock.Directive.BLOCK)
                     code.append ("img[src*=\"%s\"] , iframe[src*=\"%s\"] , ".printf (key, key));
             });
+
+            string hider_css;
             if (debug_element)
                 hider_css = " { background-color: red; border: 4px solid green; }";
             else
@@ -201,9 +185,20 @@ namespace Adblock {
             code.append (hider_css);
             if (debug_element)
                 stdout.printf ("hider css: %s\n", code.str);
-            view.inject_stylesheet (code.str);
+            return code.str;
+        }
 
-            code.erase ();
+        string? get_hider_css_rules_for_uri (string page_uri) {
+            string domain = Midori.URI.parse_hostname (page_uri, null);
+            string[] subdomains = domain.split (".");
+            if (subdomains == null)
+                return null;
+            int cnt = subdomains.length - 1;
+            var subdomain = new StringBuilder (subdomains[cnt]);
+            subdomain.prepend_c ('.');
+            cnt--;
+            var code = new StringBuilder ();
+
             int blockscnt = 0;
             while (cnt >= 0) {
                 subdomain.prepend (subdomains[cnt]);
@@ -224,19 +219,41 @@ namespace Adblock {
                 subdomain.prepend_c ('.');
                 cnt--;
             }
+
             if (blockscnt == 0)
-                return;
+                return null;
             code.truncate (code.len - 1);
 
+            string hider_css;
             if (debug_element)
                 hider_css = " { background-color: red !important; border: 4px solid green !important; }";
             else
                 hider_css = " { display: none !important }";
 
             code.append (hider_css);
-            view.inject_stylesheet (code.str);
             if (debug_element)
                 stdout.printf ("css: %s\n", code.str);
+
+            return code.str;
+        }
+
+        void inject_css (Midori.View view, string page_uri) {
+            /* Don't block ads on internal pages */
+            if (!Midori.URI.is_http (page_uri))
+                return;
+
+            if ("adblock:element" in (Environment.get_variable ("MIDORI_DEBUG") ?? ""))
+                debug_element = true;
+            else
+                debug_element = status_icon.debug_element_toggled;
+
+            string? blocked_css = get_hider_css_for_blocked_resources ();
+            if (blocked_css != null)
+                view.inject_stylesheet (blocked_css);
+
+            string? style = get_hider_css_rules_for_uri (page_uri);
+            if (style != null)
+                view.inject_stylesheet (style);
         }
 #endif
 
