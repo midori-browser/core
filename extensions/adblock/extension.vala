@@ -21,6 +21,7 @@ namespace Adblock {
         HashTable<string, Directive?> cache;
 
 #if HAVE_WEBKIT2
+#if !HAVE_WEBKIT2_3_91
         public Extension.WebExtension (WebKit.WebExtension web_extension) {
             init ();
             web_extension.page_created.connect (page_created);
@@ -33,6 +34,7 @@ namespace Adblock {
         bool send_request (WebKit.WebPage web_page, WebKit.URIRequest request, WebKit.URIResponse? redirected_response) {
             return request_handled (web_page.uri, request.uri);
         }
+#endif
 #endif
 
         public Extension () {
@@ -348,6 +350,7 @@ namespace Adblock {
             }
        }
 
+#if !HAVE_WEBKIT2_3_91
         bool request_handled (string page_uri, string request_uri) {
             /* Always allow the main page */
             if (request_uri == page_uri)
@@ -374,6 +377,7 @@ namespace Adblock {
             }
             return directive == Directive.BLOCK;
         }
+#endif
     }
 
     static void debug (string format, ...) {
@@ -419,10 +423,12 @@ namespace Adblock {
 }
 
 #if HAVE_WEBKIT2
+#if !HAVE_WEBKIT2_3_91
 Adblock.Extension? filter;
 public static void webkit_web_extension_initialize (WebKit.WebExtension web_extension) {
     filter = new Adblock.Extension.WebExtension (web_extension);
 }
+#endif
 #endif
 
 public Midori.Extension extension_init () {

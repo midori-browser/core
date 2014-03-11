@@ -216,6 +216,9 @@ if (HALF_BRO_INCOM_WEBKIT2)
     set(EXTRA_VAPIS ${EXTRA_VAPIS} "${CMAKE_SOURCE_DIR}/midori/webkit2gtk-3.0.vapi")
     set(VALAFLAGS ${VALAFLAGS} -D HAVE_GTK3)
     set(VALAFLAGS ${VALAFLAGS} -D HAVE_WEBKIT2)
+    if (${DEPS_GTK_webkit2gtk-3.0_VERSION} VERSION_GREATER "2.3.90")
+        set(VALAFLAGS ${VALAFLAGS} -D HAVE_WEBKIT2_3_91)
+    endif ()
 elseif (USE_GTK3)
     pkg_check_modules(DEPS_GTK REQUIRED
                       gtk+-3.0>=3.0.0
