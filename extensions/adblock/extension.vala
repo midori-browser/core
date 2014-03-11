@@ -50,7 +50,6 @@ namespace Adblock {
         internal HashTable<string, Directive?> cache;
         internal StatusIcon status_icon;
         internal SubscriptionManager manager;
-        internal State state;
         internal bool debug_element;
 
 #if HAVE_WEBKIT2
@@ -158,23 +157,11 @@ namespace Adblock {
             menu.add (action);
         }
 
-        Adblock.State adblock_get_state (Adblock.Directive directive)
-        {
-            if (directive == Directive.BLOCK)
-                return State.BLOCKED;
-            if (config.enabled)
-                return State.ENABLED;
-            else
-                return State.DISABLED;
-        }
-
         void resource_requested (WebKit.WebView web_view, WebKit.WebFrame frame,
             WebKit.WebResource resource, WebKit.NetworkRequest request, WebKit.NetworkResponse? response) {
 
             if (request_handled (web_view.uri, request.uri)) {
                 request.set_uri ("about:blank");
-                state = adblock_get_state (get_directive_for_uri (web_view.uri));
-                status_icon.set_state (state);
             }
         }
 
@@ -188,8 +175,7 @@ namespace Adblock {
                 manager.add_subscription (parsed_uri);
                 return true;
             }
-            state = adblock_get_state (get_directive_for_uri (request.uri));
-            status_icon.set_state (state);
+            status_icon.set_state (config.enabled ? State.ENABLED : State.DISABLED);
             return false;
         }
 
@@ -343,19 +329,17 @@ namespace Adblock {
             }
         }
 
-        public Adblock.Directive get_directive_for_uri (string request_uri, string? page_uri = null) {
+        public Adblock.Directive get_directive_for_uri (string request_uri, string page_uri) {
             if (!config.enabled)
                 return Directive.ALLOW;
 
-            if (page_uri != null) {
-                /* Always allow the main page */
-                if (request_uri == page_uri)
-                    return Directive.ALLOW;
+            /* Always allow the main page */
+            if (request_uri == page_uri)
+                return Directive.ALLOW;
 
-                /* Skip adblock on internal pages */
-                if (Midori.URI.is_blank (page_uri))
-                    return Directive.ALLOW;
-            }
+            /* Skip adblock on internal pages */
+            if (Midori.URI.is_blank (page_uri))
+                return Directive.ALLOW;
 
             /* Skip adblock on favicons and non http schemes */
             if (!Midori.URI.is_http (request_uri) || request_uri.has_suffix ("favicon.ico"))
@@ -364,8 +348,6 @@ namespace Adblock {
             Directive? directive = cache.lookup (request_uri);
             if (directive == null) {
                 foreach (Subscription sub in config) {
-                    if (page_uri == null)
-                        page_uri = request_uri;
                     directive = sub.get_directive (request_uri, page_uri);
                     if (directive != null)
                         break;
@@ -376,6 +358,8 @@ namespace Adblock {
                 if (directive == Directive.BLOCK)
                     cache.insert (page_uri, directive);
             }
+            if (directive == Directive.BLOCK)
+                status_icon.set_state (State.BLOCKED);
             return directive;
         }
 
