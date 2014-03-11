@@ -47,7 +47,7 @@ namespace Adblock {
     public class Extension : Midori.Extension {
         internal Config config;
         internal Subscription custom;
-        internal HashTable<string, Directive?> cache;
+        internal StringBuilder hider_selectors;
         internal StatusIcon status_icon;
         internal SubscriptionManager manager;
         internal bool debug_element;
@@ -63,7 +63,7 @@ namespace Adblock {
         }
 
         bool send_request (WebKit.WebPage web_page, WebKit.URIRequest request, WebKit.URIResponse? redirected_response) {
-            return request_handled (web_page.uri, request.uri);
+            return request_handled (request.uri, web_page.uri);
         }
 #else
         public Extension () {
@@ -160,7 +160,7 @@ namespace Adblock {
         void resource_requested (WebKit.WebView web_view, WebKit.WebFrame frame,
             WebKit.WebResource resource, WebKit.NetworkRequest request, WebKit.NetworkResponse? response) {
 
-            if (request_handled (web_view.uri, request.uri)) {
+            if (request_handled (request.uri, web_view.uri)) {
                 request.set_uri ("about:blank");
             }
         }
@@ -180,16 +180,11 @@ namespace Adblock {
         }
 
         string? get_hider_css_for_blocked_resources () {
-            /* Hide elements that were blocked, otherwise we will get "broken image" icon */
-            var code = new StringBuilder ();
-            cache.foreach ((key, val) => {
-                if (val == Adblock.Directive.BLOCK)
-                    code.append ("img[src*=\"%s\"] , iframe[src*=\"%s\"] , ".printf (key, key));
-            });
-
-            if (code.str == "")
+            if (hider_selectors.str == "")
                 return null;
 
+            /* Hide elements that were blocked, otherwise we will get "broken image" icon */
+            var code = new StringBuilder (hider_selectors.str);
             string hider_css;
             if (debug_element)
                 hider_css = " { background-color: red; border: 4px solid green; }";
@@ -286,7 +281,7 @@ namespace Adblock {
 #endif
 
         internal void init () {
-            cache = new HashTable<string, Directive?> (str_hash, str_equal);
+            hider_selectors = new StringBuilder ();
             load_config ();
             manager = new SubscriptionManager (config);
             status_icon = new StatusIcon (config, manager);
@@ -309,7 +304,7 @@ namespace Adblock {
         }
 
         void subscriptions_added_removed (ParamSpec pspec) {
-            cache.remove_all ();
+            hider_selectors = new StringBuilder ();
         }
 
         void load_config () {
@@ -345,25 +340,23 @@ namespace Adblock {
             if (!Midori.URI.is_http (request_uri) || request_uri.has_suffix ("favicon.ico"))
                 return Directive.ALLOW;
 
-            Directive? directive = cache.lookup (request_uri);
-            if (directive == null) {
-                foreach (Subscription sub in config) {
-                    directive = sub.get_directive (request_uri, page_uri);
-                    if (directive != null)
-                        break;
-                }
-                if (directive == null)
-                    directive = Directive.ALLOW;
-                cache.insert (request_uri, directive);
-                if (directive == Directive.BLOCK)
-                    cache.insert (page_uri, directive);
+            Directive? directive = null;
+            foreach (Subscription sub in config) {
+                directive = sub.get_directive (request_uri, page_uri);
+                if (directive != null)
+                    break;
             }
-            if (directive == Directive.BLOCK)
+
+            if (directive == null)
+                directive = Directive.ALLOW;
+            else if (directive == Directive.BLOCK) {
                 status_icon.set_state (State.BLOCKED);
+                hider_selectors.append ("img[src*=\"%s\"] , iframe[src*=\"%s\"] , ".printf (request_uri, request_uri));
+            }
             return directive;
         }
 
-        internal bool request_handled (string page_uri, string request_uri) {
+        internal bool request_handled (string request_uri, string page_uri) {
             return get_directive_for_uri (request_uri, page_uri) == Directive.BLOCK;
         }
     }
@@ -551,7 +544,7 @@ void test_adblock_init () {
     if (extension.config.size != 3)
         error ("Expected 3 initial subs, got %s".printf (
                extension.config.size.to_string ()));
-    assert (extension.cache.size () == 0);
+    assert (extension.status_icon.state == Adblock.State.ENABLED);
 
     /* Add new subscription */
     string path = Midori.Paths.get_res_filename ("adblock.list");
@@ -563,7 +556,7 @@ void test_adblock_init () {
     }
     var sub = new Adblock.Subscription (uri);
     extension.config.add (sub);
-    assert (extension.cache.size () == 0);
+    assert (extension.status_icon.state == Adblock.State.ENABLED);
     assert (extension.config.size == 4);
     try {
         sub.parse ();
@@ -574,25 +567,37 @@ void test_adblock_init () {
     assert (!extension.request_handled ("https://ads.bogus.name/blub", "https://ads.bogus.name/blub"));
     /* Favicons don't either */
     assert (!extension.request_handled ("https://foo.com", "https://ads.bogus.name/blub/favicon.ico"));
-    assert (extension.cache.size () == 0);
+    assert (extension.status_icon.state == Adblock.State.ENABLED);
     /* Some sanity checks to be sure there's no earlier problem */
     assert (sub.title == "Exercise");
     assert (sub.get_directive ("https://ads.bogus.name/blub", "") == Adblock.Directive.BLOCK);
     /* A rule hit should add to the cache */
-    assert (extension.request_handled ("https://foo.com", "https://ads.bogus.name/blub"));
-    assert (extension.cache.size () > 0);
+    assert (extension.request_handled ("https://ads.bogus.name/blub", "https://foo.com"));
+    assert (extension.status_icon.state == Adblock.State.BLOCKED);
+    assert (extension.hider_selectors.str != "");
     /* Disabled means no request should be handled */
     extension.config.enabled = false;
-    assert (!extension.request_handled ("https://foo.com", "https://ads.bogus.name/blub"));
-    /* Removing a subscription should clear the cache */
+    assert (!extension.request_handled ("https://ads.bogus.name/blub", "https://foo.com"));
+    // FIXME: assert (extension.status_icon.state == Adblock.State.DISABLED);
+    /* Removing a subscription should clear the cached CSS */
     extension.config.remove (sub);
-    assert (extension.cache.size () == 0);
+    assert (extension.hider_selectors.str == "");
     assert (extension.config.size == 3);
     /* Now let's add a custom rule */
     extension.config.enabled = true;
+    extension.custom.add_rule ("/adpage.");
+    assert (extension.custom.get_directive ("http://www.engadget.com/_uac/adpage.html", "http://foo.com") == Adblock.Directive.BLOCK);
+    assert (extension.request_handled ("http://www.engadget.com/_uac/adpage.html", "http://foo.com"));
+    assert (extension.status_icon.state == Adblock.State.BLOCKED);
+    /* Second attempt, from cache, same result */
+    assert (extension.custom.get_directive ("http://www.engadget.com/_uac/adpage.html", "http://foo.com") == Adblock.Directive.BLOCK);
+    assert (extension.request_handled ("http://www.engadget.com/_uac/adpage.html", "http://foo.com"));
+    /* Another custom rule */
     extension.custom.add_rule ("*.png");
-    assert (!extension.request_handled ("https://foo.com", "http://alpha.beta.com/images/yota.png"));
-    assert (extension.cache.size () > 0);
+    // FIXME: assert (extension.custom.get_directive ("http://alpha.beta.com/images/yota.png", "https://foo.com") == Adblock.Directive.BLOCK);
+    // FIXME: assert (extension.request_handled ("http://alpha.beta.com/images/yota.png", "https://foo.com"));
+    /* Second attempt, from cache, same result */
+    // FIXME: assert (extension.request_handled ("http://alpha.beta.com/images/yota.png", "https://foo.com"));
  }
 
 struct TestCaseLine {

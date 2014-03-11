@@ -33,6 +33,7 @@ namespace Adblock {
         public bool active { get; set; default = true; }
         public bool mutable { get; set; default = true; }
         public bool valid { get; private set; default = true; }
+        HashTable<string, Directive?> cache;
         List<Feature> features;
         public Pattern pattern;
         public Keys keys;
@@ -70,6 +71,7 @@ namespace Adblock {
         public uint size { get; private set; }
 
         public void clear () {
+            cache = new HashTable<string, Directive?> (str_hash, str_equal);
             foreach (var feature in features)
                 feature.clear ();
             optslist.clear ();
@@ -339,8 +341,11 @@ namespace Adblock {
 
         public Directive? get_directive (string request_uri, string page_uri) {
             try {
+                Directive? directive = cache.lookup (request_uri);
+                if (directive != null)
+                    return directive;
                 foreach (var feature in features) {
-                    Directive? directive = feature.match (request_uri, page_uri);
+                    directive = feature.match (request_uri, page_uri);
                     if (directive != null) {
                         debug ("%s gave %s for %s (%s)\n",
                                feature.get_type ().name (), directive.to_string (), request_uri, page_uri);

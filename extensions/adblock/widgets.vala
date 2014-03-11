@@ -16,7 +16,7 @@ namespace Adblock {
     public class StatusIcon {
         Config config;
         SubscriptionManager manager;
-        State state;
+        public State state;
         public bool debug_element_toggled;
         public List<IconButton> toggle_buttons;
 
