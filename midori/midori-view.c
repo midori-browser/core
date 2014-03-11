@@ -1194,14 +1194,29 @@ webkit_web_view_load_error_cb (WebKitWebView*  web_view,
         return FALSE;
     }
 
-    title = g_strdup_printf (_("'%s' can't be found"), midori_uri_parse_hostname(uri, NULL));
-    message = g_strdup_printf (_("The page '%s' couldn't be loaded:"), midori_uri_parse_hostname(uri, NULL));
-
-    suggestions = g_string_new ("<ul id=\"suggestions\"><li>");
-    g_string_append_printf (suggestions, "%s</li><li>%s</li><li>%s</li></ul>",
-        _("Check the address for typos"),
-        _("Make sure that an ethernet cable is plugged in or the wireless card is activated"),
-        _("Verify that your network settings are correct"));
+    suggestions = g_string_new ("<ul id=\"suggestions\">");
+    if (!g_network_monitor_get_network_available (g_network_monitor_get_default ()))
+    {
+        title = g_strdup_printf (_("You are not connected to a network"));
+        message = g_strdup_printf (_("Your computer is not connected to a network that has Internet access."));
+        g_string_append_printf (suggestions, "<li>%s</li>", _("Connect to a wireless access point or attach a network cable and try again."));
+    } 
+    else if (!g_network_monitor_can_reach (g_network_monitor_get_default (), 
+                                           g_network_address_parse_uri ("http://midori-browser.org/", 80, NULL), 
+                                           NULL, 
+                                           NULL))
+    {
+        title = g_strdup_printf (_("You are not connected to the Internet"));
+        message = g_strdup_printf (_("Your computer appears to be connected to a network, but can't reach the Internet."));
+        g_string_append_printf (suggestions, "<li>%s</li>", _("Check your network settings and try again."));
+    } 
+    else
+    {
+        title = g_strdup_printf (_("Midori can't find the page you're looking for"));
+        message = g_strdup_printf (_("There isn’t anything located at '%s'."), midori_uri_parse_hostname(uri, NULL));
+        g_string_append_printf (suggestions, "<li>%s</li>", _("Check the web address for misspelled words and try again."));
+    }
+    g_string_append (suggestions, "</ul>");
 
     result = midori_view_display_error (view, uri, "stock://dialog/network-error", title,
                                         message, error->message, g_string_free (suggestions, FALSE),
