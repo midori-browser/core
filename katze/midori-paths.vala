@@ -133,6 +133,10 @@ namespace Midori {
                 tmp_dir = get_runtime_dir ();
             }
             else {
+#if HAVE_WEBKIT2_3_91
+                /* Allow WebKit to spawn more than one rendering process */
+                WebKit.WebContext.get_default ().set_process_model (WebKit.ProcessModel.MULTIPLE_SECONDARY_PROCESSES);
+#endif
                 string? real_config = config != null && !Path.is_absolute (config)
                     ? Path.build_filename (Environment.get_current_dir (), config) : config;
                 config_dir = real_config ?? Path.build_path (Path.DIR_SEPARATOR_S,
