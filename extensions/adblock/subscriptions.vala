@@ -101,6 +101,10 @@ namespace Adblock {
             if (line[0] == '#')
                 return;
 
+            /* TODO: CSS hider whitelist */
+            if ("#@#" in line)
+                return;
+
             /* Per domain CSS hider rule */
             if ("##" in line) {
                 frame_add_private (line, "##");
