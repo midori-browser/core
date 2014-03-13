@@ -159,7 +159,7 @@ namespace Adblock {
         void update_css_hash (string domain, string value) {
             if (!value.has_prefix (".") && !value.has_prefix ("#")
              && !(value.split("[")[0] in "td img iframe div a"))
-                  critical ("Adblock: Invalid selector: %s\n", value);
+                  critical ("Adblock: Invalid selector: %s", value);
             string? olddata = element.lookup (domain);
             if (olddata != null) {
                 string newdata = olddata + " , " + value;
