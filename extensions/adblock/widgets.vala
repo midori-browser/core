@@ -76,7 +76,7 @@ namespace Adblock {
 
         public void icon_clicked (Gtk.Button toggle_button) {
             var menu = new Gtk.Menu ();
-            var checkitem = new Gtk.CheckMenuItem.with_label (_("Disabled"));
+            var checkitem = new Gtk.CheckMenuItem.with_label (_("Disable"));
             checkitem.set_active (!config.enabled);
             checkitem.toggled.connect (() => {
                 config.enabled = !checkitem.active;
