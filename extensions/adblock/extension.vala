@@ -628,11 +628,22 @@ void test_adblock_init () {
     assert (extension.custom.get_directive ("http://www.engadget.com/_uac/adpage.html", "http://foo.com") == Adblock.Directive.BLOCK);
     assert (extension.request_handled ("http://www.engadget.com/_uac/adpage.html", "http://foo.com"));
     /* Another custom rule */
-    extension.custom.add_rule ("*.png");
-    // FIXME: assert (extension.custom.get_directive ("http://alpha.beta.com/images/yota.png", "https://foo.com") == Adblock.Directive.BLOCK);
-    // FIXME: assert (extension.request_handled ("http://alpha.beta.com/images/yota.png", "https://foo.com"));
+    extension.custom.add_rule ("/images/*.png");
+    assert (extension.custom.get_directive ("http://alpha.beta.com/images/yota.png", "https://foo.com") == Adblock.Directive.BLOCK);
+    assert (extension.request_handled ("http://alpha.beta.com/images/yota.png", "https://foo.com"));
     /* Second attempt, from cache, same result */
-    // FIXME: assert (extension.request_handled ("http://alpha.beta.com/images/yota.png", "https://foo.com"));
+    assert (extension.request_handled ("http://alpha.beta.com/images/yota.png", "https://foo.com"));
+    /* Similar uri but .jpg should pass */
+    assert (!extension.request_handled ("http://alpha.beta.com/images/yota.jpg", "https://foo.com"));
+    assert (extension.custom.get_directive ("http://alpha.beta.com/images/yota.jpg", "https://foo.com") != Adblock.Directive.BLOCK);
+    /* Add whitelist rule */
+    extension.custom.add_rule ("@@http://alpha.beta.com/images/drop*bear.png");
+    assert (!extension.request_handled ("http://alpha.beta.com/images/drop-bear.png", "https://foo.com"));
+    assert (!extension.request_handled ("http://alpha.beta.com/images/dropzone_bear.png", "https://foo.com"));
+    assert (extension.custom.get_directive ("http://alpha.beta.com/images/drop-bear.png", "https://foo.com") != Adblock.Directive.BLOCK);
+    /* Doesn't match whitelist, matches *.png rule, should be blocked */
+    assert (extension.request_handled ("http://alpha.beta.com/images/bear.png", "https://foo.com"));
+    assert (extension.custom.get_directive ("http://alpha.beta.com/images/bear.png", "https://foo.com") == Adblock.Directive.BLOCK);
  }
 
 struct TestCaseLine {
@@ -697,7 +708,7 @@ string pretty_directive (Adblock.Directive? directive) {
         return "none";
     return directive.to_string ();
 }
- 
+
 void test_adblock_pattern () {
     string path = Midori.Paths.get_res_filename ("adblock.list");
     string uri;
