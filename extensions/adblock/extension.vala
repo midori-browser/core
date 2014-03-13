@@ -179,6 +179,7 @@ namespace Adblock {
             return false;
         }
 
+#if USE_CSS_SELECTOR_FOR_BLOCKED_RESOURCES
         string? get_hider_css_for_blocked_resources () {
             if (hider_selectors.str == "")
                 return null;
@@ -197,6 +198,31 @@ namespace Adblock {
                 stdout.printf ("hider css: %s\n", code.str);
             return code.str;
         }
+#else
+        string? get_hider_js_for_blocked_resorces () {
+            if (hider_selectors.str == "")
+                return null;
+
+            string filename = Midori.Paths.get_res_filename ("adblock/element_hider.js");
+            File js_file = GLib.File.new_for_path (filename);
+            try {
+                uint8[] function_body;
+                js_file.load_contents (null, out function_body, null);
+                var js =  new StringBuilder ("(function() {");
+                js.append ((string)function_body);
+                js.append ("var uris=new Array ();");
+                js.append (hider_selectors.str);
+                js.append (" hideElementBySrc (uris);})();");
+
+                return js.str;
+            }
+            catch (Error error) {
+                warning ("Error while loading adblock hider js: %s\n", error.message);
+            }
+
+            return null;
+        }
+#endif
 
         string[]? get_domains_for_uri (string uri) {
             if (uri == null)
@@ -270,10 +296,15 @@ namespace Adblock {
             else
                 debug_element = status_icon.debug_element_toggled;
 
+#if USE_CSS_SELECTOR_FOR_BLOCKED_RESOURCES
             string? blocked_css = get_hider_css_for_blocked_resources ();
             if (blocked_css != null)
                 view.inject_stylesheet (blocked_css);
-
+#else
+            string? blocked_js = get_hider_js_for_blocked_resorces ();
+            if (blocked_js != null)
+                view.execute_script (blocked_js, null);
+#endif
             string? style = get_hider_css_rules_for_uri (page_uri);
             if (style != null)
                 view.inject_stylesheet (style);
@@ -351,7 +382,11 @@ namespace Adblock {
                 directive = Directive.ALLOW;
             else if (directive == Directive.BLOCK) {
                 status_icon.set_state (State.BLOCKED);
+#if USE_CSS_SELECTOR_FOR_BLOCKED_RESOURCES
                 hider_selectors.append ("img[src*=\"%s\"] , iframe[src*=\"%s\"] , ".printf (request_uri, request_uri));
+#else
+                hider_selectors.append (" uris.push ('%s');\n".printf (request_uri));
+#endif
             }
             return directive;
         }
