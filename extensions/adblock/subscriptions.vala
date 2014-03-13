@@ -204,7 +204,7 @@ namespace Adblock {
                 /* is pattern is already a regex? */
                 if (Regex.match_simple ("^/.*[\\^\\$\\*].*/$", patt,
                     RegexCompileFlags.UNGREEDY, RegexMatchFlags.NOTEMPTY)
-                 || opts != null && opts.contains ("whitelist")) {
+                 || (opts != null && opts.contains ("whitelist"))) {
                     if (debug_parse)
                         stdout.printf ("patt: %s\n", patt);
                     if (opts.contains ("whitelist"))
