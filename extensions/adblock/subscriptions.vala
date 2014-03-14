@@ -161,8 +161,15 @@ namespace Adblock {
         }
 
         void update_css_hash (string domain, string value) {
+            string[] valid_elements = { "::after", "::before", "a", "abbr", "address", "article", "aside",
+                "b", "blockquote", "caption", "center", "cite", "code", "div", "dl", "dt", "dd", "em",
+                "feed", "fieldset", "figcaption", "figure", "font", "footer", "form", "h1", "h2", "h3", "h4", "h5", "h6",
+                "header", "hgroup", "i", "iframe", "iframe html *", "img", "kbd", "label", "legend", "li",
+                "m", "main", "marquee", "menu", "nav", "ol", "option", "p", "pre", "q", "samp", "section",
+                "small", "span", "strong", "summary", "table", "tr", "tbody", "td", "th", "thead", "tt", "ul" };
+
             if (!value.has_prefix (".") && !value.has_prefix ("#")
-             && !(value.split("[")[0] in "td img iframe div a"))
+             && !(value.split("[")[0] in valid_elements))
                   message ("Adblock: Invalid selector: %s", value);
             string? olddata = element.lookup (domain);
             if (olddata != null) {
