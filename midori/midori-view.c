@@ -2636,7 +2636,7 @@ webkit_web_view_create_web_view_cb (GtkWidget*      web_view,
     {
         KatzeItem* item = katze_item_new ();
         item->uri = g_strdup (uri);
-        new_view = (MidoriView*)midori_view_new_with_item (item, view->settings);
+        new_view = (MidoriView*)midori_view_new_from_view (view, item, NULL);
 #ifdef HAVE_WEBKIT2
         g_signal_connect (new_view->web_view, "ready-to-show",
                           G_CALLBACK (webkit_web_view_web_view_ready_cb), view);
@@ -3179,14 +3179,55 @@ midori_view_new_with_title (const gchar*       title,
  * Return value: a new #MidoriView
  *
  * Since: 0.4.3
+ * Deprecated: 0.5.8: Use midori_view_new_from_view instead.
  **/
 GtkWidget*
 midori_view_new_with_item (KatzeItem*         item,
                            MidoriWebSettings* settings)
 {
+    return midori_view_new_from_view (NULL, item, settings);
+}
+
+/**
+ * midori_view_new_with_item:
+ * @view: a predating, related #MidoriView, or %NULL
+ * @item: a #KatzeItem, or %NULL
+ * @settings: a #MidoriWebSettings, or %NULL
+ *
+ * Creates a new view, visible by default.
+ *
+ * If a @view is specified the returned new view will share
+ * its settings and if applicable re-use the rendering process.
+ *
+ * When @view should be passed:
+ *     The new one created is a new tab/ window for the old @view
+ *     A tab was duplicated
+ *
+ * When @view may be passed:
+ *     Old and new view belong to the same website or group
+ *
+ * Don't pass a @view if:
+ *     The new view is a completely new website
+ *
+ * The @item may contain title, URI and minimized status and will be copied.
+ *
+ * Usually @settings should be passed from an existing view or browser.
+ *
+ * Return value: a new #MidoriView
+ *
+ * Since: 0.5.8
+ **/
+GtkWidget*
+midori_view_new_from_view (MidoriView*        related,
+                           KatzeItem*         item,
+                           MidoriWebSettings* settings)
+{
     MidoriView* view = g_object_new (MIDORI_TYPE_VIEW,
+                                     "related", MIDORI_TAB (related),
                                      "title", item ? katze_item_get_name (item) : NULL,
                                      NULL);
+    if (!settings && related)
+        settings = related->settings;
     if (settings)
         _midori_view_set_settings (view, settings);
     if (item)

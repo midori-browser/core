@@ -34,6 +34,7 @@ namespace Midori {
     }
 
     public class Tab : Gtk.VBox {
+        public Tab related { get; set construct; }
         public WebKit.WebView web_view { get; private set; }
 
         private string current_uri = "about:blank";
@@ -122,7 +123,12 @@ namespace Midori {
             orientation = Gtk.Orientation.VERTICAL;
             #endif
 
+#if HAVE_WEBKIT2
+            web_view = related != null ?
+              new WebKit.WebView.with_related_view (related.web_view) : new WebKit.WebView ();
+#else
             web_view = new WebKit.WebView ();
+#endif
             /* Load something to avoid a bug where WebKit might not set a main frame */
             web_view.load_uri ("");
         }
