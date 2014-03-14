@@ -76,6 +76,19 @@ namespace Adblock {
 
         public void icon_clicked (Gtk.Button toggle_button) {
             var menu = new Gtk.Menu ();
+
+            var menuitem = new Gtk.ImageMenuItem.with_label (_("Preferences"));
+            var image = new Gtk.Image.from_stock (Gtk.STOCK_PREFERENCES, Gtk.IconSize.MENU);
+            menuitem.always_show_image = true;
+            menuitem.set_image (image);
+            menuitem.activate.connect (() => {
+                manager.add_subscription (null);
+            });
+            menu.append (menuitem);
+
+            var separator = new Gtk.SeparatorMenuItem ();
+            menu.append (separator);
+
             var checkitem = new Gtk.CheckMenuItem.with_label (_("Disable"));
             checkitem.set_active (!config.enabled);
             checkitem.toggled.connect (() => {
@@ -90,15 +103,6 @@ namespace Adblock {
                 this.debug_element_toggled = hideritem.active;
             });
             menu.append (hideritem);
-
-            var menuitem = new Gtk.ImageMenuItem.with_label (_("Preferences"));
-            var image = new Gtk.Image.from_stock (Gtk.STOCK_PREFERENCES, Gtk.IconSize.MENU);
-            menuitem.always_show_image = true;
-            menuitem.set_image (image);
-            menuitem.activate.connect (() => {
-                manager.add_subscription (null);
-            });
-            menu.append (menuitem);
 
             menu.show_all ();
             menu.attach_to_widget (toggle_button, null);
