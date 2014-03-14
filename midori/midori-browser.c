@@ -3012,6 +3012,15 @@ midori_browser_bookmark_popup (GtkWidget*      proxy,
                                MidoriBrowser*  browser);
 
 static gboolean
+midori_bookmarkbar_activate_item (GtkAction* action,
+                                  KatzeItem* item,
+                                  MidoriBrowser* browser)
+{
+    midori_browser_open_bookmark (browser, item);
+    return TRUE;
+}
+
+static gboolean
 midori_bookmarkbar_activate_item_alt (GtkAction*      action,
                                       KatzeItem*      item,
                                       GtkWidget*      proxy,
@@ -3031,7 +3040,7 @@ midori_bookmarkbar_activate_item_alt (GtkAction*      action,
     }
     else if (event->button == 1)
     {
-        midori_browser_open_bookmark (browser, item);
+        midori_bookmarkbar_activate_item (action, item, browser);
     }
 
     return TRUE;
@@ -5904,6 +5913,8 @@ midori_browser_init (MidoriBrowser* browser)
                       _action_bookmarks_populate_folder, browser,
                       "signal::activate-item-alt",
                       midori_bookmarkbar_activate_item_alt, browser,
+                      "signal::activate-item",
+                      midori_bookmarkbar_activate_item, browser,
                       NULL);
     gtk_action_group_add_action_with_accel (browser->action_group, action, "");
     g_object_unref (action);
