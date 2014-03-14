@@ -51,6 +51,9 @@ namespace Adblock {
         internal StatusIcon status_icon;
         internal SubscriptionManager manager;
         internal bool debug_element;
+#if !USE_CSS_SELECTOR_FOR_BLOCKED_RESOURCES
+        internal string? js_hider_function_body;
+#endif
 
 #if HAVE_WEBKIT2
         public Extension (WebKit.WebExtension web_extension) {
@@ -199,28 +202,34 @@ namespace Adblock {
             return code.str;
         }
 #else
-        string? get_hider_js_for_blocked_resorces () {
-            if (hider_selectors.str == "")
-                return null;
-
+        string? fetch_js_hider_function_body () {
             string filename = Midori.Paths.get_res_filename ("adblock/element_hider.js");
             File js_file = GLib.File.new_for_path (filename);
             try {
                 uint8[] function_body;
                 js_file.load_contents (null, out function_body, null);
-                var js =  new StringBuilder ("(function() {");
-                js.append ((string)function_body);
-                js.append ("var uris=new Array ();");
-                js.append (hider_selectors.str);
-                js.append (" hideElementBySrc (uris);})();");
-
-                return js.str;
+                return (string)function_body;
             }
             catch (Error error) {
                 warning ("Error while loading adblock hider js: %s\n", error.message);
             }
-
             return null;
+        }
+
+        string? get_hider_js_for_blocked_resorces () {
+            if (hider_selectors.str == "")
+                return null;
+
+            if (js_hider_function_body == null || js_hider_function_body == "")
+                return null;
+
+            var js =  new StringBuilder ("(function() {");
+            js.append (js_hider_function_body);
+            js.append ("var uris=new Array ();");
+            js.append (hider_selectors.str);
+            js.append (" hideElementBySrc (uris);})();");
+
+            return js.str;
         }
 #endif
 
@@ -325,6 +334,9 @@ namespace Adblock {
             }
             config.notify["size"].connect (subscriptions_added_removed);
             manager.description_label.activate_link.connect (open_link);
+#if !USE_CSS_SELECTOR_FOR_BLOCKED_RESOURCES
+            js_hider_function_body = fetch_js_hider_function_body ();
+#endif
         }
 
         bool open_link (string uri) {
