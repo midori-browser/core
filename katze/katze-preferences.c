@@ -144,7 +144,7 @@ katze_preferences_prepare (KatzePreferences* preferences)
 {
     KatzePreferencesPrivate* priv = preferences->priv;
     
-    #if GTK_CHECK_VERSION (3, 10, 0) & !HAVE_OSX
+    #if GTK_CHECK_VERSION (3, 10, 0) && !HAVE_OSX
     priv->notebook = gtk_stack_new ();
     #else
     priv->notebook = gtk_notebook_new ();
@@ -160,7 +160,7 @@ katze_preferences_prepare (KatzePreferences* preferences)
     gtk_box_pack_start (GTK_BOX (gtk_dialog_get_content_area (GTK_DIALOG (preferences))),
                         priv->toolbar, FALSE, FALSE, 0);
     #else
-    #if GTK_CHECK_VERSION (3, 10, 0) & !HAVE_OSX
+    #if GTK_CHECK_VERSION (3, 10, 0) && !HAVE_OSX
         priv->toolbar = gtk_stack_switcher_new ();
         gtk_stack_switcher_set_stack (GTK_STACK_SWITCHER (priv->toolbar), GTK_STACK (priv->notebook));
         gtk_widget_set_halign (priv->toolbar, GTK_ALIGN_CENTER);
@@ -207,11 +207,11 @@ update_button function in gtk/gtkstackswitcher.c */
 static void
 clear_size_request (GtkWidget* widget)
 {
-    gtk_widget_set_size_request(widget, -1, -1);
+    gtk_widget_set_size_request (widget, -1, -1);
 }
 
 static void
-fix_stack_switcher_buttons(GtkStackSwitcher* switcher)
+fix_stack_switcher_buttons (GtkStackSwitcher* switcher)
 {
     gtk_container_forall (GTK_CONTAINER (switcher), (GtkCallback)clear_size_request, NULL);
 }
