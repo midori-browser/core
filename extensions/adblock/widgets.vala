@@ -15,12 +15,14 @@ namespace Adblock {
 
     public class StatusIcon {
         Config config;
-        State state;
+        SubscriptionManager manager;
+        public State state;
         public bool debug_element_toggled;
         public List<IconButton> toggle_buttons;
 
-        public StatusIcon (Adblock.Config config) {
+        public StatusIcon (Adblock.Config config, SubscriptionManager manager) {
             this.config = config;
+            this.manager = manager;
             this.debug_element_toggled = false;
         }
 
@@ -44,6 +46,15 @@ namespace Adblock {
             }
         }
 
+        public IconButton add_button () {
+            var button = new IconButton ();
+            button.set_status (config.enabled ? "enabled" : "disabled");
+            button.clicked.connect (icon_clicked);
+            button.destroy.connect (()=> { toggle_buttons.remove (button); });
+            toggle_buttons.append (button);
+            return button;
+        }
+
         public void update_buttons () {
             string state = "";
             foreach (var toggle_button in toggle_buttons) {
@@ -65,7 +76,20 @@ namespace Adblock {
 
         public void icon_clicked (Gtk.Button toggle_button) {
             var menu = new Gtk.Menu ();
-            var checkitem = new Gtk.CheckMenuItem.with_label (_("Disabled"));
+
+            var menuitem = new Gtk.ImageMenuItem.with_label (_("Preferences"));
+            var image = new Gtk.Image.from_stock (Gtk.STOCK_PREFERENCES, Gtk.IconSize.MENU);
+            menuitem.always_show_image = true;
+            menuitem.set_image (image);
+            menuitem.activate.connect (() => {
+                manager.add_subscription (null);
+            });
+            menu.append (menuitem);
+
+            var separator = new Gtk.SeparatorMenuItem ();
+            menu.append (separator);
+
+            var checkitem = new Gtk.CheckMenuItem.with_label (_("Disable"));
             checkitem.set_active (!config.enabled);
             checkitem.toggled.connect (() => {
                 config.enabled = !checkitem.active;
@@ -80,18 +104,9 @@ namespace Adblock {
             });
             menu.append (hideritem);
 
-            var menuitem = new Gtk.ImageMenuItem.with_label (_("Preferences"));
-            var image = new Gtk.Image.from_stock (Gtk.STOCK_PREFERENCES, Gtk.IconSize.MENU);
-            menuitem.always_show_image = true;
-            menuitem.set_image (image);
-            menuitem.activate.connect (() => {
-                SubscriptionManager manager = new SubscriptionManager (config);
-                manager.add_subscription (null);
-            });
-            menu.append (menuitem);
-
             menu.show_all ();
-            Katze.widget_popup (toggle_button, menu, null, Katze.MenuPos.CURSOR);
+            menu.attach_to_widget (toggle_button, null);
+            menu.popup (null, null, null, 1, Gtk.get_current_event_time ());
         }
     }
 
@@ -196,6 +211,9 @@ namespace Adblock {
             scrolled.set_policy (Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC);
             scrolled.add (treeview);
             vbox.pack_start (scrolled);
+            int height;
+            treeview.create_pango_layout ("a\nb").get_pixel_size (null, out height);
+            scrolled.set_size_request (-1, height * 5);
 
             foreach (Subscription sub in config)
                 liststore.insert_with_values (null, 0, 0, sub);

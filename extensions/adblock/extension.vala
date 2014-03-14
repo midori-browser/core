@@ -47,11 +47,13 @@ namespace Adblock {
     public class Extension : Midori.Extension {
         internal Config config;
         internal Subscription custom;
-        internal HashTable<string, Directive?> cache;
+        internal StringBuilder hider_selectors;
         internal StatusIcon status_icon;
         internal SubscriptionManager manager;
-        internal State state;
         internal bool debug_element;
+#if !USE_CSS_SELECTOR_FOR_BLOCKED_RESOURCES
+        internal string? js_hider_function_body;
+#endif
 
 #if HAVE_WEBKIT2
         public Extension (WebKit.WebExtension web_extension) {
@@ -64,7 +66,7 @@ namespace Adblock {
         }
 
         bool send_request (WebKit.WebPage web_page, WebKit.URIRequest request, WebKit.URIResponse? redirected_response) {
-            return request_handled (web_page.uri, request.uri);
+            return request_handled (request.uri, web_page.uri);
         }
 #else
         public Extension () {
@@ -73,6 +75,7 @@ namespace Adblock {
                          version: "2.0",
                          authors: "Christian Dywan <christian@twotoasts.de>");
             activate.connect (extension_activated);
+            deactivate.connect (extension_deactivated);
             open_preferences.connect (extension_preferences);
         }
 
@@ -85,32 +88,57 @@ namespace Adblock {
             foreach (var browser in app.get_browsers ())
                 browser_added (browser);
             app.add_browser.connect (browser_added);
+            app.remove_browser.connect (browser_removed);
+        }
+
+        void extension_deactivated () {
+            var app = get_app ();
+            foreach (var browser in app.get_browsers ())
+                browser_removed (browser);
+            app.add_browser.disconnect (browser_added);
+            app.remove_browser.disconnect (browser_removed);
+            foreach (var button in status_icon.toggle_buttons)
+                button.destroy ();
         }
 
         void browser_added (Midori.Browser browser) {
             foreach (var tab in browser.get_tabs ())
                 tab_added (tab);
             browser.add_tab.connect (tab_added);
+            browser.remove_tab.connect (tab_removed);
 
-            var toggle_button = new StatusIcon.IconButton ();
-            toggle_button.set_status (config.enabled ? "enabled" : "disabled");
+            var toggle_button = status_icon.add_button ();
             browser.statusbar.pack_start (toggle_button, false, false, 3);
             toggle_button.show ();
-            toggle_button.clicked.connect (status_icon.icon_clicked);
-            status_icon.toggle_buttons.append (toggle_button);
         }
 
+        void browser_removed (Midori.Browser browser) {
+            foreach (var tab in browser.get_tabs ())
+                tab_removed (tab);
+            browser.add_tab.disconnect (tab_added);
+            browser.remove_tab.disconnect (tab_removed);
+        }
 
         void tab_added (Midori.View view) {
             view.web_view.resource_request_starting.connect (resource_requested);
             view.web_view.navigation_policy_decision_requested.connect (navigation_requested);
-            view.notify["load-status"].connect ((pspec) => {
-                if (config.enabled) {
-                    if (view.load_status == Midori.LoadStatus.FINISHED)
-                        inject_css (view, view.uri);
-                }
-            });
+            view.notify["load-status"].connect (load_status_changed);
             view.context_menu.connect (context_menu);
+        }
+
+        void tab_removed (Midori.View view) {
+            view.web_view.resource_request_starting.disconnect (resource_requested);
+            view.web_view.navigation_policy_decision_requested.disconnect (navigation_requested);
+            view.notify["load-status"].disconnect (load_status_changed);
+            view.context_menu.disconnect (context_menu);
+        }
+
+        void load_status_changed (Object object, ParamSpec pspec) {
+            var view = object as Midori.View;
+            if (config.enabled) {
+                if (view.load_status == Midori.LoadStatus.FINISHED)
+                    inject_css (view, view.uri);
+            }
         }
 
         void context_menu (WebKit.HitTestResult hit_test_result, Midori.ContextAction menu) {
@@ -132,23 +160,11 @@ namespace Adblock {
             menu.add (action);
         }
 
-        Adblock.State adblock_get_state (Adblock.Directive directive)
-        {
-            if (directive == Directive.BLOCK)
-                return State.BLOCKED;
-            if (config.enabled)
-                return State.ENABLED;
-            else
-                return State.DISABLED;
-        }
-
         void resource_requested (WebKit.WebView web_view, WebKit.WebFrame frame,
             WebKit.WebResource resource, WebKit.NetworkRequest request, WebKit.NetworkResponse? response) {
 
-            if (request_handled (web_view.uri, request.uri)) {
+            if (request_handled (request.uri, web_view.uri)) {
                 request.set_uri ("about:blank");
-                state = adblock_get_state (get_directive_for_uri (web_view.uri));
-                status_icon.set_state (state);
             }
         }
 
@@ -162,22 +178,17 @@ namespace Adblock {
                 manager.add_subscription (parsed_uri);
                 return true;
             }
-            state = adblock_get_state (get_directive_for_uri (request.uri));
-            status_icon.set_state (state);
+            status_icon.set_state (config.enabled ? State.ENABLED : State.DISABLED);
             return false;
         }
 
+#if USE_CSS_SELECTOR_FOR_BLOCKED_RESOURCES
         string? get_hider_css_for_blocked_resources () {
-            /* Hide elements that were blocked, otherwise we will get "broken image" icon */
-            var code = new StringBuilder ();
-            cache.foreach ((key, val) => {
-                if (val == Adblock.Directive.BLOCK)
-                    code.append ("img[src*=\"%s\"] , iframe[src*=\"%s\"] , ".printf (key, key));
-            });
-
-            if (code.str == "")
+            if (hider_selectors.str == "")
                 return null;
 
+            /* Hide elements that were blocked, otherwise we will get "broken image" icon */
+            var code = new StringBuilder (hider_selectors.str);
             string hider_css;
             if (debug_element)
                 hider_css = " { background-color: red; border: 4px solid green; }";
@@ -190,6 +201,37 @@ namespace Adblock {
                 stdout.printf ("hider css: %s\n", code.str);
             return code.str;
         }
+#else
+        string? fetch_js_hider_function_body () {
+            string filename = Midori.Paths.get_res_filename ("adblock/element_hider.js");
+            File js_file = GLib.File.new_for_path (filename);
+            try {
+                uint8[] function_body;
+                js_file.load_contents (null, out function_body, null);
+                return (string)function_body;
+            }
+            catch (Error error) {
+                warning ("Error while loading adblock hider js: %s\n", error.message);
+            }
+            return null;
+        }
+
+        string? get_hider_js_for_blocked_resorces () {
+            if (hider_selectors.str == "")
+                return null;
+
+            if (js_hider_function_body == null || js_hider_function_body == "")
+                return null;
+
+            var js =  new StringBuilder ("(function() {");
+            js.append (js_hider_function_body);
+            js.append ("var uris=new Array ();");
+            js.append (hider_selectors.str);
+            js.append (" hideElementBySrc (uris);})();");
+
+            return js.str;
+        }
+#endif
 
         string[]? get_domains_for_uri (string uri) {
             if (uri == null)
@@ -263,10 +305,15 @@ namespace Adblock {
             else
                 debug_element = status_icon.debug_element_toggled;
 
+#if USE_CSS_SELECTOR_FOR_BLOCKED_RESOURCES
             string? blocked_css = get_hider_css_for_blocked_resources ();
             if (blocked_css != null)
                 view.inject_stylesheet (blocked_css);
-
+#else
+            string? blocked_js = get_hider_js_for_blocked_resorces ();
+            if (blocked_js != null)
+                view.execute_script (blocked_js, null);
+#endif
             string? style = get_hider_css_rules_for_uri (page_uri);
             if (style != null)
                 view.inject_stylesheet (style);
@@ -274,10 +321,10 @@ namespace Adblock {
 #endif
 
         internal void init () {
-            cache = new HashTable<string, Directive?> (str_hash, str_equal);
+            hider_selectors = new StringBuilder ();
             load_config ();
-            status_icon = new StatusIcon (config);
             manager = new SubscriptionManager (config);
+            status_icon = new StatusIcon (config, manager);
             foreach (Subscription sub in config) {
                 try {
                     sub.parse ();
@@ -287,6 +334,9 @@ namespace Adblock {
             }
             config.notify["size"].connect (subscriptions_added_removed);
             manager.description_label.activate_link.connect (open_link);
+#if !USE_CSS_SELECTOR_FOR_BLOCKED_RESOURCES
+            js_hider_function_body = fetch_js_hider_function_body ();
+#endif
         }
 
         bool open_link (string uri) {
@@ -297,7 +347,7 @@ namespace Adblock {
         }
 
         void subscriptions_added_removed (ParamSpec pspec) {
-            cache.remove_all ();
+            hider_selectors = new StringBuilder ();
         }
 
         void load_config () {
@@ -317,43 +367,43 @@ namespace Adblock {
             }
         }
 
-        public Adblock.Directive get_directive_for_uri (string request_uri, string? page_uri = null) {
+        public Adblock.Directive get_directive_for_uri (string request_uri, string page_uri) {
             if (!config.enabled)
                 return Directive.ALLOW;
 
-            if (page_uri != null) {
-                /* Always allow the main page */
-                if (request_uri == page_uri)
-                    return Directive.ALLOW;
+            /* Always allow the main page */
+            if (request_uri == page_uri)
+                return Directive.ALLOW;
 
-                /* Skip adblock on internal pages */
-                if (Midori.URI.is_blank (page_uri))
-                    return Directive.ALLOW;
-            }
+            /* Skip adblock on internal pages */
+            if (Midori.URI.is_blank (page_uri))
+                return Directive.ALLOW;
 
             /* Skip adblock on favicons and non http schemes */
             if (!Midori.URI.is_http (request_uri) || request_uri.has_suffix ("favicon.ico"))
                 return Directive.ALLOW;
 
-            Directive? directive = cache.lookup (request_uri);
-            if (directive == null) {
-                foreach (Subscription sub in config) {
-                    if (page_uri == null)
-                        page_uri = request_uri;
-                    directive = sub.get_directive (request_uri, page_uri);
-                    if (directive != null)
-                        break;
-                }
-                if (directive == null)
-                    directive = Directive.ALLOW;
-                cache.insert (request_uri, directive);
-                if (directive == Directive.BLOCK)
-                    cache.insert (page_uri, directive);
+            Directive? directive = null;
+            foreach (Subscription sub in config) {
+                directive = sub.get_directive (request_uri, page_uri);
+                if (directive != null)
+                    break;
+            }
+
+            if (directive == null)
+                directive = Directive.ALLOW;
+            else if (directive == Directive.BLOCK) {
+                status_icon.set_state (State.BLOCKED);
+#if USE_CSS_SELECTOR_FOR_BLOCKED_RESOURCES
+                hider_selectors.append ("img[src*=\"%s\"] , iframe[src*=\"%s\"] , ".printf (request_uri, request_uri));
+#else
+                hider_selectors.append (" uris.push ('%s');\n".printf (request_uri));
+#endif
             }
             return directive;
         }
 
-        internal bool request_handled (string page_uri, string request_uri) {
+        internal bool request_handled (string request_uri, string page_uri) {
             return get_directive_for_uri (request_uri, page_uri) == Directive.BLOCK;
         }
     }
@@ -541,7 +591,7 @@ void test_adblock_init () {
     if (extension.config.size != 3)
         error ("Expected 3 initial subs, got %s".printf (
                extension.config.size.to_string ()));
-    assert (extension.cache.size () == 0);
+    assert (extension.status_icon.state == Adblock.State.ENABLED);
 
     /* Add new subscription */
     string path = Midori.Paths.get_res_filename ("adblock.list");
@@ -553,7 +603,7 @@ void test_adblock_init () {
     }
     var sub = new Adblock.Subscription (uri);
     extension.config.add (sub);
-    assert (extension.cache.size () == 0);
+    assert (extension.status_icon.state == Adblock.State.ENABLED);
     assert (extension.config.size == 4);
     try {
         sub.parse ();
@@ -564,25 +614,48 @@ void test_adblock_init () {
     assert (!extension.request_handled ("https://ads.bogus.name/blub", "https://ads.bogus.name/blub"));
     /* Favicons don't either */
     assert (!extension.request_handled ("https://foo.com", "https://ads.bogus.name/blub/favicon.ico"));
-    assert (extension.cache.size () == 0);
+    assert (extension.status_icon.state == Adblock.State.ENABLED);
     /* Some sanity checks to be sure there's no earlier problem */
     assert (sub.title == "Exercise");
     assert (sub.get_directive ("https://ads.bogus.name/blub", "") == Adblock.Directive.BLOCK);
     /* A rule hit should add to the cache */
-    assert (extension.request_handled ("https://foo.com", "https://ads.bogus.name/blub"));
-    assert (extension.cache.size () > 0);
+    assert (extension.request_handled ("https://ads.bogus.name/blub", "https://foo.com"));
+    assert (extension.status_icon.state == Adblock.State.BLOCKED);
+    assert (extension.hider_selectors.str != "");
     /* Disabled means no request should be handled */
     extension.config.enabled = false;
-    assert (!extension.request_handled ("https://foo.com", "https://ads.bogus.name/blub"));
-    /* Removing a subscription should clear the cache */
+    assert (!extension.request_handled ("https://ads.bogus.name/blub", "https://foo.com"));
+    // FIXME: assert (extension.status_icon.state == Adblock.State.DISABLED);
+    /* Removing a subscription should clear the cached CSS */
     extension.config.remove (sub);
-    assert (extension.cache.size () == 0);
+    assert (extension.hider_selectors.str == "");
     assert (extension.config.size == 3);
     /* Now let's add a custom rule */
     extension.config.enabled = true;
-    extension.custom.add_rule ("*.png");
-    assert (!extension.request_handled ("https://foo.com", "http://alpha.beta.com/images/yota.png"));
-    assert (extension.cache.size () > 0);
+    extension.custom.add_rule ("/adpage.");
+    assert (extension.custom.get_directive ("http://www.engadget.com/_uac/adpage.html", "http://foo.com") == Adblock.Directive.BLOCK);
+    assert (extension.request_handled ("http://www.engadget.com/_uac/adpage.html", "http://foo.com"));
+    assert (extension.status_icon.state == Adblock.State.BLOCKED);
+    /* Second attempt, from cache, same result */
+    assert (extension.custom.get_directive ("http://www.engadget.com/_uac/adpage.html", "http://foo.com") == Adblock.Directive.BLOCK);
+    assert (extension.request_handled ("http://www.engadget.com/_uac/adpage.html", "http://foo.com"));
+    /* Another custom rule */
+    extension.custom.add_rule ("/images/*.png");
+    assert (extension.custom.get_directive ("http://alpha.beta.com/images/yota.png", "https://foo.com") == Adblock.Directive.BLOCK);
+    assert (extension.request_handled ("http://alpha.beta.com/images/yota.png", "https://foo.com"));
+    /* Second attempt, from cache, same result */
+    assert (extension.request_handled ("http://alpha.beta.com/images/yota.png", "https://foo.com"));
+    /* Similar uri but .jpg should pass */
+    assert (!extension.request_handled ("http://alpha.beta.com/images/yota.jpg", "https://foo.com"));
+    assert (extension.custom.get_directive ("http://alpha.beta.com/images/yota.jpg", "https://foo.com") != Adblock.Directive.BLOCK);
+    /* Add whitelist rule */
+    extension.custom.add_rule ("@@http://alpha.beta.com/images/drop*bear.png");
+    assert (!extension.request_handled ("http://alpha.beta.com/images/drop-bear.png", "https://foo.com"));
+    assert (!extension.request_handled ("http://alpha.beta.com/images/dropzone_bear.png", "https://foo.com"));
+    assert (extension.custom.get_directive ("http://alpha.beta.com/images/drop-bear.png", "https://foo.com") != Adblock.Directive.BLOCK);
+    /* Doesn't match whitelist, matches *.png rule, should be blocked */
+    assert (extension.request_handled ("http://alpha.beta.com/images/bear.png", "https://foo.com"));
+    assert (extension.custom.get_directive ("http://alpha.beta.com/images/bear.png", "https://foo.com") == Adblock.Directive.BLOCK);
  }
 
 struct TestCaseLine {
@@ -647,7 +720,7 @@ string pretty_directive (Adblock.Directive? directive) {
         return "none";
     return directive.to_string ();
 }
- 
+
 void test_adblock_pattern () {
     string path = Midori.Paths.get_res_filename ("adblock.list");
     string uri;
