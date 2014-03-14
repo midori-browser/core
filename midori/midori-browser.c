@@ -736,7 +736,10 @@ midori_view_notify_title_cb (GtkWidget*     widget,
 {
     MidoriView* view = MIDORI_VIEW (widget);
     if (widget == midori_browser_get_current_tab (browser))
+    {
         midori_browser_set_title (browser, midori_view_get_display_title (view));
+        g_object_notify (G_OBJECT (browser), "title");
+    }
     midori_browser_step_history (browser, view);
 }
 
@@ -4947,15 +4950,22 @@ midori_browser_switched_tab_cb (MidoriNotebook* notebook,
     if (midori_paths_get_runtime_mode () == MIDORI_RUNTIME_MODE_APP)
         gtk_window_set_icon (GTK_WINDOW (browser), midori_view_get_icon (new_view));
 
-    g_object_freeze_notify (G_OBJECT (browser));
-    g_object_notify (G_OBJECT (browser), "uri");
-    g_object_notify (G_OBJECT (browser), "tab");
-    g_object_thaw_notify (G_OBJECT (browser));
     g_signal_emit (browser, signals[SWITCH_TAB], 0, old_widget, new_view);
-
     _midori_browser_set_statusbar_text (browser, new_view, NULL);
     _midori_browser_update_interface (browser, new_view);
     _midori_browser_update_progress (browser, new_view);
+}
+
+static void
+midori_browser_notify_tab_cb (GtkWidget*     notebook,
+                              GParamSpec*    pspec,
+                              MidoriBrowser* browser)
+{
+    g_object_freeze_notify (G_OBJECT (browser));
+    g_object_notify (G_OBJECT (browser), "uri");
+    g_object_notify (G_OBJECT (browser), "title");
+    g_object_notify (G_OBJECT (browser), "tab");
+    g_object_thaw_notify (G_OBJECT (browser));
 }
 
 static void
@@ -4966,7 +4976,6 @@ midori_browser_tab_moved_cb (GtkWidget*     notebook,
 {
     KatzeItem* item = midori_view_get_proxy_item (view);
     katze_array_move_item (browser->proxy_array, item, page_num);
-    g_object_notify (G_OBJECT (browser), "tab");
 }
 
 static void
@@ -6080,6 +6089,8 @@ midori_browser_init (MidoriBrowser* browser)
     g_signal_connect (browser->notebook, "tab-switched",
                       G_CALLBACK (midori_browser_switched_tab_cb),
                       browser);
+    g_signal_connect (browser->notebook, "notify::tab",
+                      G_CALLBACK (midori_browser_notify_tab_cb), browser);
     g_signal_connect (browser->notebook, "tab-moved",
                       G_CALLBACK (midori_browser_tab_moved_cb),
                       browser);
@@ -7381,10 +7392,7 @@ midori_browser_set_current_tab (MidoriBrowser* browser,
     else
         gtk_widget_grab_focus (view);
 
-    g_object_freeze_notify (G_OBJECT (browser));
-    g_object_notify (G_OBJECT (browser), "uri");
-    g_object_notify (G_OBJECT (browser), "tab");
-    g_object_thaw_notify (G_OBJECT (browser));
+    midori_browser_notify_tab_cb (browser->notebook, NULL, browser);
 }
 
 /**
