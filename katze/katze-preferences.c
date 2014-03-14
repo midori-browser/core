@@ -211,7 +211,7 @@ clear_size_request (GtkWidget* widget)
 }
 
 static void
-fix_stack_switcher_buttons (GtkStackSwitcher* switcher)
+workaround_stack_switcher_sizing (GtkStackSwitcher* switcher)
 {
     gtk_container_forall (GTK_CONTAINER (switcher), (GtkCallback)clear_size_request, NULL);
 }
@@ -252,7 +252,7 @@ katze_preferences_add_category (KatzePreferences* preferences,
     #if GTK_CHECK_VERSION (3, 10, 0) & !HAVE_OSX
     gtk_stack_add_titled (GTK_STACK (priv->notebook), 
                          priv->page, label, label);
-    fix_stack_switcher_buttons (GTK_STACK_SWITCHER (priv->toolbar));
+    workaround_stack_switcher_sizing (GTK_STACK_SWITCHER (priv->toolbar));
     #else
     gtk_notebook_append_page (GTK_NOTEBOOK (priv->notebook),
                               priv->page, gtk_label_new (label));
