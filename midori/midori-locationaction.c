@@ -69,6 +69,7 @@ enum
     SECONDARY_ICON_RELEASED,
     RESET_URI,
     SUBMIT_URI,
+    KEY_PRESS_EVENT,
     LAST_SIGNAL
 };
 
@@ -175,6 +176,23 @@ midori_location_action_class_init (MidoriLocationActionClass* class)
                                         G_TYPE_NONE, 2,
                                         G_TYPE_STRING,
                                         G_TYPE_BOOLEAN);
+
+    /**
+     * MidoriLocationAction:key-press-event:
+     *
+     * A key (combination) was pressed in an entry of the action.
+     *
+     * Since 0.5.8
+     */
+    signals[KEY_PRESS_EVENT] = g_signal_new ("key-press-event",
+                                             G_TYPE_FROM_CLASS (class),
+                                             (GSignalFlags) (G_SIGNAL_RUN_LAST),
+                                             0,
+                                             0,
+                                             NULL,
+                                             midori_cclosure_marshal_BOOLEAN__POINTER,
+                                             G_TYPE_BOOLEAN, 1,
+                                             GDK_TYPE_EVENT);
 
     gobject_class = G_OBJECT_CLASS (class);
     gobject_class->finalize = midori_location_action_finalize;
@@ -661,12 +679,12 @@ midori_location_action_popup_timeout_cb (gpointer data)
         g_object_unref (app);
         midori_autocompleter_add (action->autocompleter,
             MIDORI_COMPLETION (midori_view_completion_new ()));
-        midori_autocompleter_add (action->autocompleter,
-            MIDORI_COMPLETION (midori_search_completion_new ()));
         /* FIXME: Currently HistoryCompletion doesn't work in memory */
         if (action->history != NULL)
             midori_autocompleter_add (action->autocompleter,
                 MIDORI_COMPLETION (midori_history_completion_new ()));
+        midori_autocompleter_add (action->autocompleter,
+            MIDORI_COMPLETION (midori_search_completion_new ()));
     }
 
     if (!midori_autocompleter_can_complete (action->autocompleter, action->key))
@@ -1025,6 +1043,11 @@ midori_location_action_key_press_event_cb (GtkEntry*    entry,
                                            GdkEventKey* event,
                                            GtkAction*   action)
 {
+    gboolean handled = FALSE;
+    g_signal_emit (action, signals[KEY_PRESS_EVENT], 0, event, &handled);
+    if (handled)
+        return TRUE;
+
     GtkWidget* widget = GTK_WIDGET (entry);
     MidoriLocationAction* location_action = MIDORI_LOCATION_ACTION (action);
     const gchar* text;
@@ -1068,8 +1091,10 @@ midori_location_action_key_press_event_cb (GtkEntry*    entry,
         }
 
         if (is_enter && (text = gtk_entry_get_text (entry)) && *text)
+        {
             g_signal_emit (action, signals[SUBMIT_URI], 0, text,
                            MIDORI_MOD_NEW_TAB (event->state));
+        }
         break;
     case GDK_KEY_Escape:
     {

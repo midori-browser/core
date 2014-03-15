@@ -15,13 +15,6 @@
     #include <config.h>
 #endif
 
-#ifdef HAVE_GRANITE
-    #if HAVE_OSX
-        #error FIXME granite on OSX is not implemented
-    #endif
-    #include <granite.h>
-#endif
-
 #include <string.h>
 #include <glib/gi18n.h>
 
@@ -150,10 +143,9 @@ static void
 katze_preferences_prepare (KatzePreferences* preferences)
 {
     KatzePreferencesPrivate* priv = preferences->priv;
-
-    #ifdef HAVE_GRANITE
-    /* FIXME: granite: should return GtkWidget* like GTK+ */
-    priv->notebook = (GtkWidget*)granite_widgets_static_notebook_new (FALSE);
+    
+    #if GTK_CHECK_VERSION (3, 10, 0) & !HAVE_OSX
+    priv->notebook = gtk_stack_new ();
     #else
     priv->notebook = gtk_notebook_new ();
     #endif
@@ -168,7 +160,16 @@ katze_preferences_prepare (KatzePreferences* preferences)
     gtk_box_pack_start (GTK_BOX (gtk_dialog_get_content_area (GTK_DIALOG (preferences))),
                         priv->toolbar, FALSE, FALSE, 0);
     #else
-    priv->toolbar = NULL;
+    #if GTK_CHECK_VERSION (3, 10, 0) & !HAVE_OSX
+        priv->toolbar = gtk_stack_switcher_new ();
+        gtk_stack_switcher_set_stack (GTK_STACK_SWITCHER (priv->toolbar), GTK_STACK (priv->notebook));
+        gtk_widget_set_halign (priv->toolbar, GTK_ALIGN_CENTER);
+        gtk_box_pack_start (GTK_BOX (gtk_dialog_get_content_area (GTK_DIALOG (preferences))),
+                        priv->toolbar, FALSE, FALSE, 0);
+    #else
+        priv->toolbar = NULL;
+    #endif
+
     #endif
     priv->toolbutton = NULL;
     gtk_box_pack_end (GTK_BOX (gtk_dialog_get_content_area (GTK_DIALOG (preferences))),
@@ -231,14 +232,15 @@ katze_preferences_add_category (KatzePreferences* preferences,
     priv->sizegroup = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
     gtk_widget_show (priv->page);
     gtk_container_set_border_width (GTK_CONTAINER (priv->page), 4);
-    #ifdef HAVE_GRANITE
-    granite_widgets_static_notebook_append_page (
-        GRANITE_WIDGETS_STATIC_NOTEBOOK (priv->notebook),
-        priv->page, GTK_LABEL (gtk_label_new (label)));
+    #if GTK_CHECK_VERSION (3, 10, 0) & !HAVE_OSX
+    gtk_stack_add_titled (GTK_STACK (priv->notebook), 
+                         priv->page, label, label);
     #else
     gtk_notebook_append_page (GTK_NOTEBOOK (priv->notebook),
                               priv->page, gtk_label_new (label));
+
     #endif
+
     #if HAVE_OSX
     priv->toolbutton = GTK_WIDGET (priv->toolbutton ?
         gtk_radio_tool_button_new_from_widget (

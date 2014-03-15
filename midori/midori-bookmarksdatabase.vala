@@ -73,8 +73,7 @@ namespace Midori {
 
                     exec_script ("Create");
 
-                    if (db.exec ("ATTACH DATABASE '%s' AS old_db;".printf (olddbfile)) != Sqlite.OK)
-                        throw new DatabaseError.EXECUTE ("Failed to attach old database : %s (%s)".printf (olddbfile, db.errmsg ()));
+                    attach (olddbfile, "old_db");
                     
                     bool failure = false;
                     try {

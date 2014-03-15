@@ -14,7 +14,6 @@ namespace Gtk {
 }
 
 namespace Sokoke {
-    extern static bool show_uri (Gdk.Screen screen, string uri, uint32 timestamp) throws Error;
     extern static void widget_get_text_size (Gtk.Widget widget, string sample, out int width, out int height);
 }
 
@@ -214,12 +213,8 @@ namespace Transfers {
                 menuitem = new Gtk.ImageMenuItem.with_mnemonic (_("Open Destination _Folder"));
                 menuitem.image = new Gtk.Image.from_stock (Gtk.STOCK_DIRECTORY, Gtk.IconSize.MENU);
                 menuitem.activate.connect (() => {
-                    try {
-                        var folder = GLib.File.new_for_uri (transfer.destination);
-                        Sokoke.show_uri (get_screen (), folder.get_parent ().get_uri (), 0);
-                    } catch (Error error_folder) {
-                        GLib.warning (_("Failed to open download: %s"), error_folder.message);
-                    }
+                    var folder = GLib.File.new_for_uri (transfer.destination);
+                    (Midori.Browser.get_for_widget (this).tab as Midori.Tab).open_uri (folder.get_parent ().get_uri ());
                 });
                 menu.append (menuitem);
                 menuitem = new Gtk.ImageMenuItem.with_mnemonic (_("Copy Link Loc_ation"));
@@ -325,7 +320,7 @@ namespace Transfers {
             progress.show_text = true;
 #endif
             progress.ellipsize = Pango.EllipsizeMode.MIDDLE;
-            string filename = Path.get_basename (transfer.destination);
+            string filename = Midori.Download.get_basename_for_display (transfer.destination);
             progress.text = filename;
             int width;
             Sokoke.widget_get_text_size (progress, "M", out width, null);
@@ -469,7 +464,7 @@ namespace Transfers {
                 }
 
                 string uri = transfer.destination;
-                string filename = Path.get_basename (uri);
+                string filename = Midori.Download.get_basename_for_display (uri);
                 var item = new Katze.Item ();
                 item.uri = uri;
                 item.name = filename;

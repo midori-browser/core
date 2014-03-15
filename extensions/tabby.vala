@@ -45,8 +45,18 @@ namespace Tabby {
 
             public abstract Katze.Array get_sessions ();
             public abstract Base.Session get_new_session ();
+
+            public void start_new_session () {
+                Katze.Array sessions = new Katze.Array (typeof (Session));
+                this.init_sessions (sessions);
+            }
+
             public void restore_last_sessions () {
                 Katze.Array sessions = this.get_sessions ();
+                this.init_sessions (sessions);
+            }
+
+            private void init_sessions (Katze.Array sessions) {
                 if (sessions.is_empty ()) {
                     sessions.add_item (this.get_new_session ());
                 }
@@ -123,8 +133,18 @@ namespace Tabby {
                 unowned Katze.Array? open_uris = browser.get_data ("tabby-open-uris");
 
                 if(tabs.is_empty () && open_uris == null) {
+                    /* Using get here to avoid MidoriMidoriStartup in generated C with Vala 0.20.1 */
+                    int load_on_startup;
+                    APP.settings.get ("load-on-startup", out load_on_startup);
+
                     Katze.Item item = new Katze.Item ();
-                    item.uri = "about:home";
+
+                    if (load_on_startup == Midori.MidoriStartup.BLANK_PAGE) {
+                        item.uri = "about:dial";
+                    } else {
+                        item.uri = "about:home";
+                    }
+
                     tabs.add_item (item);
                 }
 
@@ -144,6 +164,16 @@ namespace Tabby {
                 unowned GLib.List<unowned Katze.Item> u_items = items;
 
                 bool delay = false;
+                bool should_delay = false;
+
+                int load_on_startup;
+                APP.settings.get ("load-on-startup", out load_on_startup);
+                should_delay = load_on_startup == Midori.MidoriStartup.DELAYED_PAGES;
+
+                if (APP.crashed == true) {
+                    delay = true;
+                    should_delay = true;
+                }
 
                 this.state = SessionState.RESTORING;
 
@@ -162,7 +192,7 @@ namespace Tabby {
 
                             t_item.set_meta_integer ("append", 1);
 
-                            if (delay)
+                            if (delay && should_delay)
                                 t_item.set_meta_integer ("delay", Midori.Delay.DELAYED);
                             else
                                 delay = true;
@@ -244,7 +274,7 @@ namespace Tabby {
 
                 if (view.load_status == Midori.LoadStatus.PROVISIONAL) {
                     unowned Katze.Item item = view.get_proxy_item ();
-                    
+
                     int64 delay = item.get_meta_integer ("delay");
                     if (delay == Midori.Delay.UNDELAYED) {
                         view.web_view.notify["uri"].connect ( () => {
@@ -262,6 +292,8 @@ namespace Tabby {
 
             private void helper_data_changed (Midori.Browser browser, Midori.View view) {
                view.notify["load-status"].connect (load_status);
+
+               view.new_view.connect (this.helper_duplicate_tab);
             }
 
             private void helper_reorder_tabs (GLib.PtrArray new_tabs) {
@@ -296,6 +328,17 @@ namespace Tabby {
                     }
                 }
                 this.browser.notebook.page_reordered.connect_after (this.tab_reordered);
+            }
+
+            private void helper_duplicate_tab (Midori.View view, Midori.View new_view, Midori.NewView where, bool user_initiated) {
+                unowned Katze.Item item = view.get_proxy_item ();
+                unowned Katze.Item new_item = new_view.get_proxy_item ();
+                int64 tab_id = item.get_meta_integer ("tabby-id");
+                int64 new_tab_id = new_item.get_meta_integer ("tabby-id");
+
+                if (tab_id > 0 && tab_id == new_tab_id) {
+                    new_item.set_meta_integer ("tabby-id", 0);
+                }
             }
 
             construct {
@@ -583,7 +626,7 @@ namespace Tabby {
                     }
                     result = stmt.step ();
                  }
- 
+
                 if (sessions.is_empty ()) {
                     sessions.add_item (new Session (this.db));
                 }
@@ -630,7 +673,30 @@ namespace Tabby {
     private class Manager : Midori.Extension {
         private Base.Storage storage;
         private bool load_session () {
-            this.storage.restore_last_sessions ();
+            /* Using get here to avoid MidoriMidoriStartup in generated C with Vala 0.20.1 */
+            int load_on_startup;
+            APP.settings.get ("load-on-startup", out load_on_startup);
+            if (load_on_startup == Midori.MidoriStartup.BLANK_PAGE
+             || load_on_startup == Midori.MidoriStartup.HOMEPAGE) {
+                this.storage.start_new_session ();
+            } else {
+                this.storage.restore_last_sessions ();
+            }
+
+            /* FIXME: execute_commands should be called before session creation */
+            GLib.Idle.add (this.execute_commands);
+
+            return false;
+        }
+
+        private bool execute_commands () {
+            Midori.App app = this.get_app ();
+            unowned string?[] commands = app.get_data ("execute-commands");
+
+            if (commands != null) {
+                app.send_command (commands);
+            }
+
             return false;
         }
 
@@ -672,8 +738,14 @@ namespace Tabby {
                 GLib.warning ("missing session");
             } else {
                 session.close ();
-                if (browser.destroy_with_parent) {
-                    /* remove js popup sessions */
+
+                /* Using get here to avoid MidoriMidoriStartup in generated C with Vala 0.20.1 */
+                int load_on_startup;
+                APP.settings.get ("load-on-startup", out load_on_startup);
+
+                if (browser.destroy_with_parent
+                 || load_on_startup < Midori.MidoriStartup.LAST_OPEN_PAGES) {
+                    /* Remove js popups and close if not restoring on startup */
                     session.remove ();
                 }
             }

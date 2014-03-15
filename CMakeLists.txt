@@ -11,7 +11,7 @@ project(midori C)
 add_definitions("-DPACKAGE_NAME=\"${CMAKE_PROJECT_NAME}\"")
 add_definitions("-DPACKAGE_BUGREPORT=\"https://bugs.launchpad.net/midori\"")
 
-set(VERSION 0.5.5)
+set(VERSION 0.5.7)
 add_definitions("-DMIDORI_VERSION_SUFFIX=\"${VERSION}\"")
  
 string(REPLACE "." ";" VERSION_LIST ${VERSION})
@@ -89,6 +89,11 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD")
     set(VALAFLAGS ${VALAFLAGS} -D HAVE_FREEBSD)
 endif ()
 
+if (${CMAKE_SYSTEM_NAME} MATCHES "DragonFly")
+    set(VALAFLAGS ${VALAFLAGS} -D HAVE_DRAGONFLY)
+    set(DFLY 1)
+endif ()
+
 if (APPLE)
     add_definitions("-DHAVE_OSX=1")
     set(VALAFLAGS ${VALAFLAGS} -D HAVE_OSX)
@@ -103,7 +108,7 @@ if (${BEGIN} GREATER 0)
 else()
     set(BSD 0)
 endif()
-if (UNIX AND NOT BSD)
+if (UNIX AND NOT BSD AND NOT DFLY)
     set(VALAFLAGS ${VALAFLAGS} -D HAVE_EXECINFO_H)
 endif ()
 
@@ -154,6 +159,7 @@ option(HALF_BRO_INCOM_WEBKIT2 "Serve as a guniea pig" OFF)
 option(USE_ZEITGEIST "Zeitgeist history integration" ON)
 option(USE_GRANITE "Fancy notebook and pop-overs" OFF)
 option(USE_APIDOCS "API documentation" OFF)
+option(USE_GIR "Generate GObject Introspection bindings" OFF)
 option(EXTRA_WARNINGS "Additional compiler warnings" OFF)
 
 # GTK+3 is implied here, whether set or not
@@ -260,7 +266,9 @@ else ()
     endif()
 endif ()
 
-set(VALA_CFLAGS "-w -g")
+# Explicitly add -fPIC for older toolchains
+set(VALA_CFLAGS "-w -g -fPIC")
+
 set(LIBMIDORI "${CMAKE_PROJECT_NAME}-core")
 
 # CMake provides no uninstall target by design
@@ -270,14 +278,17 @@ add_custom_target (uninstall
 install(FILES AUTHORS COPYING ChangeLog EXPAT README DESTINATION ${CMAKE_INSTALL_DOCDIR})
 
 add_subdirectory (midori)
+add_subdirectory (extensions)
+enable_testing()
+add_subdirectory (tests)
 add_subdirectory (po)
 add_subdirectory (icons)
 add_subdirectory (data)
 add_subdirectory (config)
-enable_testing()
-add_subdirectory (tests)
-add_subdirectory (extensions)
 
 if (USE_APIDOCS)
     add_subdirectory (docs/api)
+endif ()
+if (USE_GIR)
+    add_subdirectory (gir)
 endif ()

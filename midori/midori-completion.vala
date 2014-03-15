@@ -17,12 +17,13 @@ namespace Midori {
         public string? background { get; set; }
         public GLib.Icon? icon {  get; set; }
         public bool action { get; set; default = false; }
+        public int priority {get; set; default = 0; }
 
         public Suggestion (string? uri, string? markup, bool use_markup=false,
-            string? background=null, GLib.Icon? icon=null) {
+            string? background=null, GLib.Icon? icon=null, int? priority=0) {
 
             GLib.Object (uri: uri, markup: markup, use_markup: use_markup,
-                         background: background, icon: icon);
+                         background: background, icon: icon, priority: priority);
         }
     }
 
@@ -53,6 +54,7 @@ namespace Midori {
             BACKGROUND,
             YALIGN,
             SIZE,
+            PRIORITY,
             N
         }
 
@@ -62,7 +64,7 @@ namespace Midori {
             next_position = 0;
             model = new Gtk.ListStore (Columns.N,
                 typeof (GLib.Icon), typeof (string), typeof (string),
-                typeof (string), typeof (float), typeof (uint));
+                typeof (string), typeof (float), typeof (uint), typeof (int));
         }
 
         public void add (Completion completion) {
@@ -96,20 +98,34 @@ namespace Midori {
                 need_to_clear = false;
                 current_count = 0;
             }
+            int start = 0;
+            // find the first index with priority greater than the current one
+            Gtk.TreeModelForeachFunc find_index = (model, path, iter) => {
+                GLib.Value priority;
 
+                model.get_value (iter,Columns.PRIORITY, out priority);
+                if ((int)priority < completion.position) {
+                    start++;
+                    return false;
+                }
+                return true;
+            };
+            model.foreach(find_index);
+            int count = 0;
 #if HAVE_GRANITE
             if (completion.description != null) {
-                model.insert_with_values (null, completion.position,
+                model.insert_with_values (null, start,
                     Columns.URI, "about:completion-description",
                     Columns.MARKUP, "<b>%s</b>\n".printf (Markup.escape_text (completion.description)),
                     Columns.ICON, null,
                     Columns.SIZE, Gtk.IconSize.MENU,
                     Columns.BACKGROUND, null,
-                    Columns.YALIGN, 0.25);
+                    Columns.YALIGN, 0.25,
+                    Columns.PRIORITY, completion.position);
+                count++;
             }
 #endif
 
-            int count = 1;
             foreach (var suggestion in suggestions) {
                 if (suggestion.uri == null) {
                     warning ("suggestion.uri != null");
@@ -119,14 +135,15 @@ namespace Midori {
                     warning ("suggestion.markup != null");
                     continue;
                 }
-                model.insert_with_values (null, completion.position + count,
+                model.insert_with_values (null, start + count,
                     Columns.URI, suggestion.uri,
                     Columns.MARKUP, suggestion.use_markup
                     ? suggestion.markup : Markup.escape_text (suggestion.markup),
                     Columns.ICON, scale_if_needed (suggestion.icon),
                     Columns.SIZE, Gtk.IconSize.MENU,
                     Columns.BACKGROUND, suggestion.background,
-                    Columns.YALIGN, 0.25);
+                    Columns.YALIGN, 0.25,
+                    Columns.PRIORITY, completion.position);
 
                 count++;
                 if (count > completion.max_items)

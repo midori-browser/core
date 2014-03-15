@@ -37,6 +37,7 @@
 #ifdef G_OS_WIN32
 #include <windows.h>
 #include <shlobj.h>
+#include <gdk/gdkwin32.h>
 #endif
 
 static gchar*
@@ -109,39 +110,8 @@ sokoke_message_dialog (GtkMessageType message_type,
                        const gchar*   detailed_message,
                        gboolean       modal)
 {
-    GtkWidget* dialog = gtk_message_dialog_new (
-        NULL, 0, message_type, GTK_BUTTONS_OK, "%s", short_message);
-    gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
-                                              "%s", detailed_message);
-    if (modal)
-    {
-        gtk_dialog_run (GTK_DIALOG (dialog));
-        gtk_widget_destroy (dialog);
-    }
-    else
-    {
-        g_signal_connect_swapped (dialog, "response",
-            G_CALLBACK (gtk_widget_destroy), dialog);
-        gtk_widget_show (dialog);
-    }
-
+    midori_show_message_dialog (message_type, short_message, detailed_message, modal);
 }
-
-#ifndef G_OS_WIN32
-static void
-sokoke_open_with_response_cb (GtkWidget* dialog,
-                              gint       response,
-                              GtkEntry*  entry)
-{
-    if (response == GTK_RESPONSE_ACCEPT)
-    {
-        const gchar* command = gtk_entry_get_text (entry);
-        const gchar* uri = g_object_get_data (G_OBJECT (dialog), "uri");
-        sokoke_spawn_program (command, FALSE, uri, TRUE, FALSE);
-    }
-    gtk_widget_destroy (dialog);
-}
-#endif
 
 GAppInfo*
 sokoke_default_for_uri (const gchar* uri,
@@ -161,86 +131,6 @@ sokoke_default_for_uri (const gchar* uri,
         g_free (scheme);
     return info;
 
-}
-
-/**
- * sokoke_show_uri:
- * @screen: a #GdkScreen, or %NULL
- * @uri: the URI to show
- * @timestamp: the timestamp of the event
- * @error: the location of a #GError, or %NULL
- *
- * Shows the specified URI with an application or xdg-open.
- * x-scheme-handler is supported for GLib < 2.28 as of 0.3.3.
- *
- * Return value: %TRUE on success, %FALSE if an error occurred
- **/
-gboolean
-sokoke_show_uri (GdkScreen*   screen,
-                 const gchar* uri,
-                 guint32      timestamp,
-                 GError**     error)
-{
-    #ifdef G_OS_WIN32
-    CoInitializeEx (NULL, COINIT_APARTMENTTHREADED);
-    SHELLEXECUTEINFO info = { sizeof (info) };
-    info.nShow = SW_SHOWNORMAL;
-    info.lpFile = uri;
-
-    return ShellExecuteEx (&info);
-    #else
-
-    GtkWidget* dialog;
-    GtkWidget* box;
-    gchar* filename;
-    gchar* ms;
-    GtkWidget* entry;
-
-    g_return_val_if_fail (GDK_IS_SCREEN (screen) || !screen, FALSE);
-    g_return_val_if_fail (uri != NULL, FALSE);
-    g_return_val_if_fail (!error || !*error, FALSE);
-
-    sokoke_recursive_fork_protection (uri, TRUE);
-
-    /* g_app_info_launch_default_for_uri, gdk_display_get_app_launch_context */
-    if (gtk_show_uri (screen, uri, timestamp, error))
-        return TRUE;
-
-    {
-        gchar* command = g_strconcat ("xdg-open ", uri, NULL);
-        gboolean result = g_spawn_command_line_async (command, error);
-        g_free (command);
-        if (result)
-            return TRUE;
-        if (error)
-            *error = NULL;
-    }
-
-    dialog = gtk_dialog_new_with_buttons (_("Open with"), NULL, 0,
-        GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-        GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL);
-    box = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
-    if (g_str_has_prefix (uri, "file:///"))
-        filename = g_filename_from_uri (uri, NULL, NULL);
-    else
-        filename = g_strdup (uri);
-    ms = g_strdup_printf (_("Choose an application or command to open \"%s\":"),
-                          filename);
-    gtk_box_pack_start (GTK_BOX (box), gtk_label_new (ms), TRUE, FALSE, 4);
-    g_free (ms);
-    entry = gtk_entry_new ();
-    gtk_entry_set_activates_default (GTK_ENTRY (entry), TRUE);
-    gtk_box_pack_start (GTK_BOX (box), entry, TRUE, FALSE, 4);
-    g_signal_connect (dialog, "response",
-                      G_CALLBACK (sokoke_open_with_response_cb), entry);
-    g_object_set_data_full (G_OBJECT (dialog), "uri",
-                            filename, (GDestroyNotify)g_free);
-    gtk_widget_show_all (dialog);
-    gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT);
-    gtk_widget_grab_focus (entry);
-
-    return TRUE;
-    #endif
 }
 
 /**
@@ -919,36 +809,6 @@ sokoke_prefetch_uri (MidoriWebSettings*  settings,
 #endif
 }
 
-/**
- * sokoke_recursive_fork_protection
- * @uri: the URI to check
- * @set_uri: if TRUE the URI will be saved
- *
- * Protects against recursive invokations of the Midori executable
- * with the same URI.
- *
- * As an example, consider having an URI starting with 'tel://'. You
- * could attempt to open it with sokoke_show_uri. In turn, 'exo-open'
- * might be called. Now quite possibly 'exo-open' is unable to handle
- * 'tel://' and might well fall back to 'midori' as default browser.
- *
- * To protect against this scenario, call this function with the
- * URI and %TRUE before calling any external tool.
- * #MidoriApp calls sokoke_recursive_fork_protection() with %FALSE
- * and bails out if %FALSE is returned.
- *
- * Return value: %TRUE if @uri is new, %FALSE on recursion
- **/
-gboolean
-sokoke_recursive_fork_protection (const gchar* uri,
-                                  gboolean     set_uri)
-{
-    static gchar* fork_uri = NULL;
-    if (set_uri)
-        katze_assign (fork_uri, g_strdup (uri));
-    return g_strcmp0 (fork_uri, uri) == 0 ? FALSE : TRUE;
-}
-
 static void
 sokoke_widget_clipboard_owner_clear_func (GtkClipboard* clipboard,
                                           gpointer      user_data)
@@ -1120,5 +980,24 @@ sokoke_create_win32_desktop_lnk (gchar* prefix, gchar* filename, gchar* uri)
     g_free (argument);
     g_free (lnk_path);
     g_free (launcher_type);
+}
+
+GdkPixbuf*
+sokoke_get_gdk_pixbuf_from_win32_executable (gchar* path)
+{
+    if (path == NULL)
+        return NULL;
+
+    GdkPixbuf* pixbuf = NULL;
+    HICON hIcon = NULL;
+    HINSTANCE hInstance = NULL;
+    hIcon = ExtractIcon (hInstance, (LPCSTR)path, 0);
+    if (hIcon == NULL)
+        return NULL;
+
+    pixbuf = gdk_win32_icon_to_pixbuf_libgtk_only (hIcon, NULL, NULL);
+    DestroyIcon (hIcon);
+
+    return pixbuf;
 }
 #endif

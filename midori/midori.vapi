@@ -31,6 +31,8 @@ namespace Midori {
         public static void set_instance_is_running (bool is_running);
         public Browser create_browser ();
         public GLib.List<weak Browser> get_browsers ();
+        public void send_notification (string title, string message);
+        public bool send_command ([CCode (array_length = false)] string[] command);
 
         [NoAccessorMethod]
         public string name { get; set; }
@@ -49,13 +51,13 @@ namespace Midori {
         [NoAccessorMethod]
         public Katze.Array browsers { get; }
         public Browser? browser { get; }
+        public bool crashed { get; }
 
         [HasEmitter]
         public signal void add_browser (Browser browser);
         public signal void remove_browser (Browser browser);
         [HasEmitter]
         public signal void quit ();
-        public void send_notification (string title, string message);
     }
 
     [CCode (cheader_filename = "midori/midori.h")]
@@ -116,6 +118,7 @@ namespace Midori {
         public signal void quit ();
         public signal void send_notification (string title, string message);
         public static void update_history (Katze.Item item, string type, string event);
+        public signal void show_preferences (Katze.Preferences preferences);
     }
 
     [CCode (cheader_filename = "midori/midori.h")]
@@ -133,6 +136,7 @@ namespace Midori {
         public void install_boolean (string name, bool default_value);
         public void install_integer (string name, int default_value);
         public void install_string (string name, string default_value);
+        public void install_string_list (string name, string[]? default_value);
 
         public bool get_boolean (string name);
         public int get_integer (string name);
@@ -141,6 +145,7 @@ namespace Midori {
         public void set_boolean (string name, bool value);
         public void set_integer (string name, int value);
         public void set_string (string name, string value);
+        public unowned string get_config_dir ();
 
         [NoAccessorMethod]
         public string? stock_id { get; set; }
@@ -197,7 +202,6 @@ namespace Midori {
 
         public string title { get; }
         public Gdk.Pixbuf icon { get; }
-        public bool minimized { get; }
         public float zoom_level { get; }
         public Katze.Array news_feeds { get; }
         [NoAccessorMethod]
@@ -207,13 +211,22 @@ namespace Midori {
         [HasEmitter]
         public signal bool download_requested (WebKit.Download download);
         public signal bool about_content (string uri);
-
+        public signal void new_view (Midori.View new_view, Midori.NewView where, bool user_initiated);
     }
 
     [CCode (cheader_filename = "midori/midori.h")]
     public class LocationAction : Gtk.Action {
         public static string render_uri ([CCode (array_length = false)] string[] keys, string uri_escaped);
         public static string render_title ([CCode (array_length = false)] string[] keys, string title);
+
+        public double progress { get; set; }
+        public string secondary_icon { get; set; }
+
+        public unowned string get_text ();
+        public void set_text (string text);
+
+        public signal void submit_uri (string uri, bool new_tab);
+        public signal bool key_press_event (Gdk.EventKey event);
     }
 
     [CCode (cheader_filename = "midori/midori.h")]

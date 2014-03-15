@@ -31,9 +31,6 @@ namespace DelayedLoad {
         }
 
         public void activated (Midori.App app) {
-            /* FIXME: override behavior without changing the preference */
-            app.settings.load_on_startup = Midori.MidoriStartup.DELAYED_PAGES;
-
             foreach (Midori.Browser browser in app.get_browsers ()) {
                 browser_added (browser);
             }
