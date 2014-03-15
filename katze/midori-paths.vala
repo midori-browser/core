@@ -377,17 +377,24 @@ namespace Midori {
             if (Posix.access (path, Posix.F_OK) == 0)
                 return path;
 
+            return build_folder ("data", null, filename) ??
+              Path.build_filename (MDATADIR, PACKAGE_NAME, "res", filename);
+            #endif
+        }
+
+        string? build_folder (string folder, string? middle, string filename) {
             /* Fallback to build folder */
             File? parent = File.new_for_path (exec_path);
             while (parent != null) {
-                var data = parent.get_child ("data");
+                var data = parent.get_child (folder);
+                if (middle != null)
+                    data = data.get_child (middle);
                 var child = data.get_child (filename);
                 if (child.query_exists ())
                     return child.get_path ();
                 parent = parent.get_parent ();
             }
-            return Path.build_filename (MDATADIR, PACKAGE_NAME, "res", filename);
-            #endif
+            return null;
         }
 
         /* returns the path to a file containing read-only data installed with the application
@@ -427,7 +434,8 @@ namespace Midori {
                     return path;
             }
 
-            return Path.build_filename (SYSCONFDIR, "xdg", PACKAGE_NAME, folder ?? "", filename);
+            return build_folder ("config", folder, filename) ??
+              Path.build_filename (SYSCONFDIR, "xdg", PACKAGE_NAME, folder ?? "", filename);
             #endif
         }
 

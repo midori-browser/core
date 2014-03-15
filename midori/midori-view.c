@@ -2383,7 +2383,7 @@ midori_view_get_page_context_action (MidoriView*          view,
               && strstr (view->selected_text, "://") == NULL))
             {
                 gchar* text = g_strdup_printf (_("Send a message to %s"), view->selected_text);
-                GtkAction* action = gtk_action_new ("SendMessage", text, NULL, GTK_STOCK_JUMP_TO);
+                GtkAction* action = (GtkAction*)midori_context_action_new_escaped ("SendMessage", text, NULL, GTK_STOCK_JUMP_TO);
                 g_object_set_data_full (G_OBJECT (action), "uri", g_strdup (view->selected_text), (GDestroyNotify)g_free);
                 g_signal_connect (action, "activate", G_CALLBACK (midori_view_menu_open_email_activate_cb), view);
                 midori_context_action_add (menu, action);
@@ -2410,7 +2410,7 @@ midori_view_get_page_context_action (MidoriView*          view,
             {
                 GdkPixbuf* pixbuf;
                 gchar* search_option = g_strdup_printf ("SearchWith%u", i);
-                GtkAction* action = gtk_action_new (search_option, katze_item_get_name (item), NULL, STOCK_EDIT_FIND);
+                GtkAction* action = (GtkAction*)midori_context_action_new_escaped (search_option, katze_item_get_name (item), NULL, STOCK_EDIT_FIND);
                 g_free (search_option);
                 midori_context_action_add (searches, action);
                 if ((pixbuf = katze_item_get_pixbuf (item, view->web_view)))

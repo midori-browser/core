@@ -22,6 +22,19 @@ namespace Midori {
             children = new List<ContextAction> ();
         }
 
+        /*
+           The action label will be escaped for mnemonics so for example
+           "a_fairy_tale" will not get accel keys on "f" or "t".
+
+           Since: 0.5.8
+         */
+        public ContextAction.escaped (string name, string label, string? tooltip, string? stock_id) {
+            string? escaped_label = label.replace ("_", "__");
+            GLib.Object (name: name, label: escaped_label, tooltip: tooltip, stock_id: stock_id);
+            action_groups = new List<Gtk.ActionGroup> ();
+            children = new List<ContextAction> ();
+        }
+
         public delegate void ActionActivateCallback (Gtk.Action action);
         public void add_simple (string name, string? label, string? tooltip, string? stock_id, ActionActivateCallback callback) {
             var action = new ContextAction (name, label, tooltip, stock_id);

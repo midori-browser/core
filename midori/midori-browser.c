@@ -1237,7 +1237,7 @@ midori_browser_prepare_download (MidoriBrowser*  browser,
 
 {
 #ifndef HAVE_WEBKIT2
-    if (!midori_download_has_enough_space (download, uri))
+    if (!midori_download_has_enough_space (download, uri, FALSE))
         return FALSE;
     webkit_download_set_destination_uri (download, uri);
     g_signal_emit (browser, signals[ADD_DOWNLOAD], 0, download);
@@ -1523,7 +1523,8 @@ midori_view_new_tab_cb (GtkWidget*     view,
         return;
 
     GtkWidget* new_view = midori_browser_add_uri (browser, uri);
-    midori_browser_view_copy_history (new_view, view, FALSE);
+    if (view != NULL)
+        midori_browser_view_copy_history (new_view, view, FALSE);
 
     if (!background)
         midori_browser_set_current_tab (browser, new_view);
@@ -1536,7 +1537,9 @@ midori_view_new_window_cb (GtkWidget*     view,
                            const gchar*   uri,
                            MidoriBrowser* browser)
 {
-    if (midori_view_forward_external (view, uri, MIDORI_NEW_VIEW_WINDOW))
+    if (midori_view_forward_external (
+        view ? view : midori_browser_get_current_tab (browser),
+        uri, MIDORI_NEW_VIEW_WINDOW))
         return;
 
     MidoriBrowser* new_browser;

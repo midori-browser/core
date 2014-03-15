@@ -661,7 +661,8 @@ namespace ExternalApplications {
                 else if (download.status == WebKit.DownloadStatus.ERROR)
                     Midori.show_message_dialog (Gtk.MessageType.ERROR,
                         _("Download error"),
-                        _("Cannot open '%s' because the download failed.") + download.destination_uri, false);
+                        _("Cannot open '%s' because the download failed."
+                          ).printf (download.destination_uri), false);
             });
             download.start ();
             return true;
