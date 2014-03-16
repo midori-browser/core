@@ -17,10 +17,6 @@
 
 #include <katze/katze.h>
 
-#ifdef HAVE_GRANITE
-    #include <granite/granite.h>
-#endif
-
 G_BEGIN_DECLS
 
 typedef enum
@@ -127,15 +123,6 @@ midori_view_duplicate                  (MidoriView*        view);
 
 PangoEllipsizeMode
 midori_view_get_label_ellipsize        (MidoriView*        view);
-
-#ifdef HAVE_GRANITE
-GraniteWidgetsTab*
-midori_view_get_tab                    (MidoriView*        view);
-
-void
-midori_view_set_tab                    (MidoriView*        view,
-                                        GraniteWidgetsTab* tab);
-#endif
 
 GtkWidget*
 midori_view_get_proxy_tab_label        (MidoriView*        view);
