@@ -2550,7 +2550,6 @@ midori_view_web_view_context_menu_cb (WebKitWebView*       web_view,
 }
 #endif
 
-#ifndef HAVE_WEBKIT2
 static gboolean
 midori_view_web_view_close_cb (WebKitWebView* web_view,
                                GtkWidget*     view)
@@ -2558,7 +2557,6 @@ midori_view_web_view_close_cb (WebKitWebView* web_view,
     midori_browser_close_tab (midori_browser_get_for_widget (view), view);
     return TRUE;
 }
-#endif
 
 static gboolean
 webkit_web_view_web_view_ready_cb (GtkWidget*  web_view,
@@ -2607,7 +2605,10 @@ webkit_web_view_web_view_ready_cb (GtkWidget*  web_view,
         GtkWidget* toplevel = gtk_widget_get_toplevel (new_view);
         if (width > 0 && height > 0)
             gtk_widget_set_size_request (toplevel, width, height);
-#ifndef HAVE_WEBKIT2
+#ifdef HAVE_WEBKIT2
+        g_signal_connect (web_view, "close",
+                          G_CALLBACK (midori_view_web_view_close_cb), new_view);
+#else
         g_signal_connect (web_view, "close-web-view",
                           G_CALLBACK (midori_view_web_view_close_cb), new_view);
 #endif
