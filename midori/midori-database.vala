@@ -128,6 +128,7 @@ namespace Midori {
      * Since: 0.5.6
      */
     public class Database : GLib.Object, GLib.Initable {
+        bool trace = false;
         public Sqlite.Database? db { get { return _db; } }
         protected Sqlite.Database? _db = null;
         public string? path { get; protected set; default = null; }
@@ -161,6 +162,19 @@ namespace Midori {
 
             if (Sqlite.Database.open_v2 (real_path, out _db) != Sqlite.OK)
                 throw new DatabaseError.OPEN ("Failed to open database %s".printf (real_path));
+
+            string token = Environment.get_variable ("MIDORI_DEBUG") ?? "";
+            string basename = Path.get_basename (path);
+            string[] parts = basename.split (".");
+            trace = ("db:" + parts[0]) in token;
+            if (trace) {
+                stdout.printf ("§§ Tracing %s\n", path);
+                db.profile ((sql, nanoseconds) => {
+                    /* sqlite as of this writing isn't more precise than ms */
+                    string milliseconds = (nanoseconds / 1000000).to_string ();
+                    stdout.printf ("§§ %s: %s (%sms)\n", path, sql, milliseconds);
+                });
+            }
 
             if (db.exec ("PRAGMA journal_mode = WAL; PRAGMA cache_size = 32100;") != Sqlite.OK)
                 db.exec ("PRAGMA synchronous = NORMAL; PRAGMA temp_store = MEMORY;");
