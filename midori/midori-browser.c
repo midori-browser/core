@@ -3490,11 +3490,18 @@ _action_source_view (GtkAction*     action,
                      MidoriBrowser* browser,
                      gboolean       use_dom)
 {
-    GtkWidget* view;
+    GtkWidget* view = midori_browser_get_current_tab (browser);
+    #ifdef HAVE_WEBKIT2
+    /* TODO: midori_view_save_source isn't async and not WebKit2-friendly */
+    GtkWidget* source = midori_view_new_with_item (NULL, browser->settings);
+    GtkWidget* source_view = midori_view_get_web_view (MIDORI_VIEW (source));
+    midori_tab_set_view_source (MIDORI_TAB (source), TRUE);
+    webkit_web_view_load_uri (WEBKIT_WEB_VIEW (source_view), midori_tab_get_uri (MIDORI_TAB (view)));
+    midori_browser_add_tab (browser, source);
+    #else
     gchar* text_editor;
     gchar* filename = NULL;
 
-    view = midori_browser_get_current_tab (browser);
     filename = midori_view_save_source (MIDORI_VIEW (view), NULL, NULL, use_dom);
     g_object_get (browser->settings, "text-editor", &text_editor, NULL);
     if (!(text_editor && *text_editor))
@@ -3518,6 +3525,7 @@ _action_source_view (GtkAction*     action,
         g_free (filename);
     }
     g_free (text_editor);
+    #endif
 }
 
 static void
