@@ -82,6 +82,8 @@ namespace Tabby {
                 double i = 0;
                 foreach (Katze.Item item in items) {
                     item.set_meta_string ("sorting", i.to_string());
+                    // See midori_browser_step_history: don't add to history
+                    item.set_meta_string ("history-step", "ignore");
                     i += 1024;
                     session.add_item (item);
                 }
