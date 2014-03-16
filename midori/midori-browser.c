@@ -673,7 +673,6 @@ midori_view_notify_load_status_cb (GtkWidget*      widget,
             GtkAction* action = _action_by_name (browser, "Location");
             midori_location_action_set_text (
                 MIDORI_LOCATION_ACTION (action), uri);
-            g_object_notify (G_OBJECT (browser), "uri");
         }
 
         _midori_browser_update_interface (browser, view);
@@ -709,6 +708,7 @@ midori_view_notify_uri_cb (GtkWidget*     widget,
         midori_location_action_set_text (MIDORI_LOCATION_ACTION (action), uri);
         _action_set_sensitive (browser, "Back", midori_view_can_go_back (view));
         _action_set_sensitive (browser, "Forward", midori_tab_can_go_forward (MIDORI_TAB (view)));
+        g_object_notify (G_OBJECT (browser), "uri");
     }
 }
 
