@@ -429,8 +429,6 @@ _midori_browser_update_progress (MidoriBrowser* browser,
         g_object_set (action,
                       "stock-id", GTK_STOCK_REFRESH,
                       "tooltip", _("Reload the current page"), NULL);
-        katze_item_set_meta_integer (midori_view_get_proxy_item (view),
-                                     "dont-write-history", -1);
     }
     else
     {
@@ -662,11 +660,11 @@ midori_view_notify_load_status_cb (GtkWidget*      widget,
                                    GParamSpec*     pspec,
                                    MidoriBrowser*  browser)
 {
+    MidoriView* view = MIDORI_VIEW (widget);
+    MidoriLoadStatus load_status = midori_view_get_load_status (view);
+
     if (widget == midori_browser_get_current_tab (browser))
     {
-        MidoriView* view = MIDORI_VIEW (widget);
-        MidoriLoadStatus load_status = midori_view_get_load_status (view);
-
         if (load_status == MIDORI_LOAD_COMMITTED)
         {
             const gchar* uri = midori_view_get_display_uri (view);
@@ -683,6 +681,10 @@ midori_view_notify_load_status_cb (GtkWidget*      widget,
         if (midori_view_is_blank (view))
             midori_browser_activate_action (browser, "Location");
     }
+
+    if (load_status == MIDORI_LOAD_FINISHED)
+        katze_item_set_meta_string (midori_view_get_proxy_item (view),
+                                    "history-step", NULL);
 
     g_object_notify (G_OBJECT (browser), "load-status");
 }
@@ -754,8 +756,8 @@ midori_browser_step_history (MidoriBrowser* browser,
     if (midori_uri_is_blank (proxy_uri))
         return;
 
-    if (katze_item_get_meta_integer (proxy, "history-step") == -1
-     && !katze_item_get_meta_boolean (proxy, "dont-write-history"))
+    const gchar* history_step = katze_item_get_meta_string (proxy, "history-step");
+    if (history_step == NULL)
     {
         GError* error = NULL;
         time_t now = time (NULL);
@@ -771,17 +773,22 @@ midori_browser_step_history (MidoriBrowser* browser,
             g_error_free (error);
             return;
         }
-        katze_item_set_meta_integer (proxy, "history-step", 1);
+        katze_item_set_meta_string (proxy, "history-step", "update");
         /* FIXME: No signal for adding/ removing */
         katze_array_add_item (browser->history, proxy);
         katze_array_remove_item (browser->history, proxy);
     }
-    else if (katze_item_get_name (proxy)
-     && katze_item_get_meta_integer (proxy, "history-step") >= 1)
+    else if (!strcmp (history_step, "update"))
     {
-        midori_browser_update_history_title (browser, proxy);
-        katze_item_set_meta_integer (proxy, "history-step", 2);
+        if (proxy->name != NULL)
+            midori_browser_update_history_title (browser, proxy);
     }
+    else if (!strcmp (history_step, "ignore"))
+    {
+        /* This is set when restoring sessions */
+    }
+    else
+        g_warning ("Unexpected history-step: %s", history_step);
 }
 
 static void

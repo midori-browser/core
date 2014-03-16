@@ -684,10 +684,7 @@ midori_view_load_committed (MidoriView* view)
     }
 
     katze_item_set_added (view->item, time (NULL));
-    katze_item_set_meta_integer (view->item, "history-step", -1);
-
     g_object_set (view, "title", NULL, NULL);
-
     midori_view_unset_icon (view);
 
     if (!strncmp (uri, "https", 5))

@@ -82,6 +82,8 @@ namespace Tabby {
                 double i = 0;
                 foreach (Katze.Item item in items) {
                     item.set_meta_string ("sorting", i.to_string());
+                    // See midori_browser_step_history: don't add to history
+                    item.set_meta_string ("history-step", "ignore");
                     i += 1024;
                     session.add_item (item);
                 }
@@ -516,6 +518,8 @@ namespace Tabby {
                         item.name = title;
                         item.set_meta_integer ("tabby-id", id);
                         item.set_meta_string ("sorting", sorting.to_string ());
+                        // See midori_browser_step_history: don't add to history
+                        item.set_meta_string ("history-step", "ignore");
                         tabs.add_item (item);
                     }
                 } catch (Error error) {
