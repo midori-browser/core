@@ -23,6 +23,11 @@ namespace Midori {
     }
 
     /*
+     * Since: 0.5.8
+     */
+    public delegate bool DatabaseCallback () throws DatabaseError;
+
+    /*
      * Since: 0.5.7
      */
     public class DatabaseStatement : GLib.Object, GLib.Initable {
@@ -30,6 +35,7 @@ namespace Midori {
         protected Sqlite.Statement _stmt = null;
         public Database? database { get; set construct; }
         public string? query { get; set construct; }
+        private int64 last_row_id = -1;
 
         public DatabaseStatement (Database database, string query) throws DatabaseError {
             Object (database: database, query: query);
@@ -79,7 +85,19 @@ namespace Midori {
             int result = stmt.step ();
             if (result != Sqlite.DONE && result != Sqlite.ROW)
                 throw new DatabaseError.EXECUTE (database.db.errmsg ());
+            last_row_id = database.db.last_insert_rowid ();
             return result == Sqlite.ROW;
+        }
+
+        /*
+         * Returns the id of the last inserted row.
+         * It is an error to ask for an id without having inserted a row.
+         * Since: 0.5.8
+         */
+        public int64 row_id () throws DatabaseError {
+            if (last_row_id == -1)
+                throw new DatabaseError.EXECUTE ("No row id");
+            return last_row_id;
         }
 
         private int column_index (string name) throws DatabaseError {
@@ -233,9 +251,14 @@ namespace Midori {
             } catch (Error error) {
                 throw new DatabaseError.FILENAME ("Failed to open schema: %s".printf (schema_filename));
             }
-            schema = "BEGIN TRANSACTION; %s; COMMIT;".printf (schema);
-            if (db.exec (schema) != Sqlite.OK)
-                throw new DatabaseError.EXECUTE ("Failed to execute schema: %s".printf (schema));
+            transaction (()=> { return exec (schema); });
+            return true;
+        }
+
+        public bool transaction (DatabaseCallback callback) throws DatabaseError {
+            exec ("BEGIN TRANSACTION;");
+            callback ();
+            exec ("COMMIT;");
             return true;
         }
 
