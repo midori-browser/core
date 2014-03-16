@@ -101,76 +101,10 @@ proxy_combo_box_text_changed_cb (GtkComboBoxText* button,
 }
 #endif
 
-static const gchar*
-katze_app_info_get_commandline (GAppInfo* info)
-{
-    const gchar* exe;
-
-    exe = g_app_info_get_commandline (info);
-    if (!exe)
-        exe = g_app_info_get_executable (info);
-    if (!exe)
-        exe = g_app_info_get_name (info);
-    return exe;
-}
-
 static gboolean
 proxy_entry_focus_out_event_cb (GtkEntry*      entry,
                                 GdkEventFocus* event,
                                 GObject*       object);
-
-static void
-proxy_combo_box_apps_changed_cb (GtkComboBox* button,
-                                 GObject*     object)
-{
-    guint active = gtk_combo_box_get_active (button);
-    GtkTreeModel* model = gtk_combo_box_get_model (button);
-    GtkTreeIter iter;
-
-    if (gtk_tree_model_iter_nth_child (model, &iter, NULL, active))
-    {
-        GAppInfo* info;
-        gboolean use_entry;
-        GtkWidget* child;
-        const gchar* exe;
-        const gchar* property = g_object_get_data (G_OBJECT (button), "property");
-
-        gtk_tree_model_get (model, &iter, 0, &info, -1);
-
-        use_entry = info && !g_app_info_get_icon (info);
-        child = gtk_bin_get_child (GTK_BIN (button));
-        if (use_entry && GTK_IS_CELL_VIEW (child))
-        {
-            GtkWidget* entry = gtk_entry_new ();
-            exe = g_app_info_get_executable (info);
-            if (exe && *exe && strcmp (exe, "%f"))
-                gtk_entry_set_text (GTK_ENTRY (entry), exe);
-            gtk_widget_show (entry);
-            gtk_container_add (GTK_CONTAINER (button), entry);
-            gtk_widget_grab_focus (entry);
-            g_signal_connect (entry, "focus-out-event",
-                G_CALLBACK (proxy_entry_focus_out_event_cb), object);
-            g_object_set_data_full (G_OBJECT (entry), "property",
-                                    g_strdup (property), g_free);
-        }
-        else if (!use_entry && GTK_IS_ENTRY (child))
-        {
-            /* Force the combo to change the item again */
-            gtk_widget_destroy (child);
-            gtk_combo_box_set_active (button, 0);
-            gtk_combo_box_set_active_iter (button, &iter);
-        }
-
-        if (info)
-        {
-            exe = katze_app_info_get_commandline (info);
-            g_object_set (object, property, exe, NULL);
-            g_object_unref (info);
-        }
-        else
-            g_object_set (object, property, "", NULL);
-    }
-}
 
 static void
 proxy_entry_activate_cb (GtkEntry* entry,
@@ -326,130 +260,6 @@ proxy_widget_string_destroy_cb (GtkWidget* proxy,
         proxy_object_notify_string_cb, proxy);
 }
 
-static GList*
-katze_app_info_get_all_for_category (const gchar* category)
-{
-    #ifdef _WIN32
-    /* FIXME: Real filtering by category would be better */
-    const gchar* content_type = g_content_type_from_mime_type (category);
-    GList* all_apps = g_app_info_get_all_for_type (content_type);
-    #else
-    GList* all_apps = g_app_info_get_all ();
-    #endif
-    GList* apps = NULL;
-    GList* app;
-    for (app = apps; app; app = g_list_next (app))
-    {
-        GAppInfo* info = app->data;
-        #ifdef GDK_WINDOWING_X11
-        gchar* filename = g_strconcat ("applications/", g_app_info_get_id (info), NULL);
-        GKeyFile* file = g_key_file_new ();
-
-        if (g_key_file_load_from_data_dirs (file, filename, NULL, G_KEY_FILE_NONE, NULL))
-        {
-            gchar* cat = g_key_file_get_string (file, "Desktop Entry",
-                                                "Categories", NULL);
-            if (cat && g_strrstr (cat, category))
-                apps = g_list_append (apps, info);
-
-            g_free (cat);
-        }
-        g_key_file_free (file);
-        g_free (filename);
-        #else
-        apps = g_list_append (apps, info);
-        #endif
-    }
-    g_list_free (all_apps);
-    return apps;
-}
-
-static gboolean
-proxy_populate_apps (GtkWidget* widget)
-{
-    const gchar* property = g_object_get_data (G_OBJECT (widget), "property");
-    GObject* object = g_object_get_data (G_OBJECT (widget), "object");
-    gchar* string = katze_object_get_string (object, property);
-    if (!g_strcmp0 (string, ""))
-        katze_assign (string, NULL);
-    GtkSettings* settings = gtk_widget_get_settings (widget);
-    gint icon_width = 16;
-    if (settings == NULL)
-        settings = gtk_settings_get_for_screen (gdk_screen_get_default ());
-    gtk_icon_size_lookup_for_settings (settings, GTK_ICON_SIZE_MENU,
-                                       &icon_width, NULL);
-
-    GtkComboBox* combo = GTK_COMBO_BOX (widget);
-    GtkListStore* model = GTK_LIST_STORE (gtk_combo_box_get_model (combo));
-    GtkTreeIter iter_none;
-    gtk_list_store_insert_with_values (model, &iter_none, 0,
-        0, NULL, 1, NULL, 2, _("None"), 3, icon_width, -1);
-
-    const gchar* app_type = g_object_get_data (G_OBJECT (widget), "app-type");
-    GList* apps = g_app_info_get_all_for_type (app_type);
-    GAppInfo* info;
-    if (!apps)
-        apps = katze_app_info_get_all_for_category (app_type);
-    if (apps != NULL)
-    {
-        GList* app;
-        for (app = apps; app; app = g_list_next (app))
-        {
-            info = app->data;
-            const gchar* name = g_app_info_get_name (info);
-            GIcon* icon = g_app_info_get_icon (info);
-            gchar* icon_name;
-            GtkTreeIter iter;
-
-            if (!g_app_info_should_show (info))
-                continue;
-
-            icon_name = icon ? g_icon_to_string (icon) : NULL;
-            gtk_list_store_insert_with_values (model, &iter, G_MAXINT,
-                0, info, 1, icon_name, 2, name, 3, icon_width, -1);
-            if (string && !strcmp (katze_app_info_get_commandline (info), string))
-                gtk_combo_box_set_active_iter (combo, &iter);
-
-            g_free (icon_name);
-        }
-        g_list_free (apps);
-    }
-
-    info = g_app_info_create_from_commandline ("",
-        "", G_APP_INFO_CREATE_NONE, NULL);
-    gtk_list_store_insert_with_values (model, NULL, G_MAXINT,
-        0, info, 1, NULL, 2, _("Custom…"), 3, icon_width, -1);
-    g_object_unref (info);
-
-    if (gtk_combo_box_get_active (combo) == -1)
-    {
-        if (string)
-        {
-            GtkWidget* entry;
-            const gchar* exe;
-
-            info = g_app_info_create_from_commandline (string,
-                NULL, G_APP_INFO_CREATE_NONE, NULL);
-            entry = gtk_entry_new ();
-            exe = g_app_info_get_executable (info);
-            if (exe && *exe && strcmp (exe, "%f"))
-                gtk_entry_set_text (GTK_ENTRY (entry), string);
-            gtk_widget_show (entry);
-            gtk_container_add (GTK_CONTAINER (combo), entry);
-            g_object_unref (info);
-            g_signal_connect (entry, "focus-out-event",
-                G_CALLBACK (proxy_entry_focus_out_event_cb), object);
-            g_object_set_data_full (G_OBJECT (entry), "property",
-                                    g_strdup (property), g_free);
-        }
-        else
-            gtk_combo_box_set_active_iter (combo, &iter_none);
-    }
-    g_signal_connect (widget, "changed",
-                      G_CALLBACK (proxy_combo_box_apps_changed_cb), object);
-    return G_SOURCE_REMOVE;
-}
-
 /**
  * katze_property_proxy:
  * @object: a #GObject
@@ -483,6 +293,7 @@ proxy_populate_apps (GtkWidget* widget)
  *         for choosing an application to open TYPE files, ie. "text/plain".
  *     "application-CATEGORY": the widget created will be particularly suitable
  *         for choosing an application to open CATEGORY files, ie. "Network".
+ *      Since 0.5.8 the CATEGORY hint is no longer supported.
  *     "custom-PROPERTY": the last value of an enumeration will be the "custom"
  *         value, where the user may enter text freely, which then updates
  *         the property PROPERTY instead. This applies only to enumerations.
@@ -651,27 +462,6 @@ katze_property_proxy (gpointer     object,
                           G_CALLBACK (proxy_combo_box_text_changed_cb), object);
         g_free (families);
         #endif
-    }
-    else if (type == G_TYPE_PARAM_STRING && hint && g_str_has_prefix (hint, "application-"))
-    {
-        GtkListStore* model;
-        GtkCellRenderer* renderer;
-        const gchar* app_type = &hint[12];
-
-        model = gtk_list_store_new (4, G_TYPE_APP_INFO, G_TYPE_STRING,
-                                       G_TYPE_STRING, G_TYPE_INT);
-        widget = gtk_combo_box_new_with_model (GTK_TREE_MODEL (model));
-        renderer = gtk_cell_renderer_pixbuf_new ();
-        gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (widget), renderer, FALSE);
-        gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (widget), renderer, "icon-name", 1);
-        gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (widget), renderer, "width", 3);
-        renderer = gtk_cell_renderer_text_new ();
-        gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (widget), renderer, TRUE);
-        gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (widget), renderer, "text", 2);
-
-        g_object_set_data_full (G_OBJECT (widget), "app-type", g_strdup (app_type), g_free);
-        g_object_set_data_full (G_OBJECT (widget), "object", g_object_ref (object), g_object_unref);
-        g_idle_add_full (G_PRIORITY_LOW, (GSourceFunc)proxy_populate_apps, widget, NULL);
     }
     else if (type == G_TYPE_PARAM_STRING)
     {

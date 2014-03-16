@@ -558,19 +558,6 @@ midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view
         g_free (new_uri);
         return TRUE;
     }
-    else if (sokoke_external_uri (uri))
-    {
-        if (sokoke_show_uri (gtk_widget_get_screen (GTK_WIDGET (web_view)),
-                             uri, GDK_CURRENT_TIME, NULL))
-        {
-            #ifdef HAVE_WEBKIT2
-            webkit_policy_decision_ignore (decision);
-            #else
-            webkit_web_policy_decision_ignore (decision);
-            #endif
-            return TRUE;
-        }
-    }
     else if (g_str_has_prefix (uri, "data:image/"))
     {
         /* For security reasons, main content served as data: is limited to images
@@ -2109,16 +2096,6 @@ midori_web_view_menu_image_save_activate_cb (GtkAction* action,
 }
 
 static void
-midori_web_view_open_in_viewer_cb (GtkAction* action,
-                                   gpointer   user_data)
-{
-    MidoriView* view = user_data;
-    gchar* uri = katze_object_get_string (view->hit_test, "image-uri");
-    midori_view_download_uri (view, MIDORI_DOWNLOAD_OPEN_IN_VIEWER, uri);
-    g_free (uri);
-}
-
-static void
 midori_web_view_menu_video_copy_activate_cb (GtkAction* action,
                                              gpointer   user_data)
 {
@@ -2146,8 +2123,8 @@ midori_view_menu_open_email_activate_cb (GtkAction* action,
     MidoriView* view = user_data;
     gchar* data = (gchar*)g_object_get_data (G_OBJECT (action), "uri");
     gchar* uri = g_strconcat ("mailto:", data, NULL);
-    sokoke_show_uri (gtk_widget_get_screen (view->web_view),
-                     uri, GDK_CURRENT_TIME, NULL);
+    gboolean handled = FALSE;
+    g_signal_emit_by_name (view, "open-uri", uri, &handled);
     g_free (uri);
 }
 #endif
@@ -2358,8 +2335,6 @@ midori_view_get_page_context_action (MidoriView*          view,
             midori_web_view_menu_image_copy_activate_cb, view);
         midori_context_action_add_simple (menu, "SaveImage", _("Save I_mage"), NULL, GTK_STOCK_SAVE,
             midori_web_view_menu_image_save_activate_cb, view);
-        midori_context_action_add_simple (menu, "OpenImageInViewer", _("Open in Image _Viewer"), NULL, GTK_STOCK_OPEN,
-            midori_web_view_open_in_viewer_cb, view);
     }
 
     if (context & WEBKIT_HIT_TEST_RESULT_CONTEXT_MEDIA)
@@ -2395,7 +2370,7 @@ midori_view_get_page_context_action (MidoriView*          view,
               && strstr (view->selected_text, "://") == NULL))
             {
                 gchar* text = g_strdup_printf (_("Send a message to %s"), view->selected_text);
-                GtkAction* action = gtk_action_new ("SendMessage", text, NULL, GTK_STOCK_JUMP_TO);
+                GtkAction* action = (GtkAction*)midori_context_action_new_escaped ("SendMessage", text, NULL, GTK_STOCK_JUMP_TO);
                 g_object_set_data_full (G_OBJECT (action), "uri", g_strdup (view->selected_text), (GDestroyNotify)g_free);
                 g_signal_connect (action, "activate", G_CALLBACK (midori_view_menu_open_email_activate_cb), view);
                 midori_context_action_add (menu, action);
@@ -2422,7 +2397,7 @@ midori_view_get_page_context_action (MidoriView*          view,
             {
                 GdkPixbuf* pixbuf;
                 gchar* search_option = g_strdup_printf ("SearchWith%u", i);
-                GtkAction* action = gtk_action_new (search_option, katze_item_get_name (item), NULL, STOCK_EDIT_FIND);
+                GtkAction* action = (GtkAction*)midori_context_action_new_escaped (search_option, katze_item_get_name (item), NULL, STOCK_EDIT_FIND);
                 g_free (search_option);
                 midori_context_action_add (searches, action);
                 if ((pixbuf = katze_item_get_pixbuf (item, view->web_view)))
@@ -4013,12 +3988,19 @@ midori_view_set_uri (MidoriView*  view,
                 g_free (exception);
             }
         }
-        else if (sokoke_external_uri (uri))
-        {
-            sokoke_show_uri (NULL, uri, GDK_CURRENT_TIME, NULL);
-        }
         else
         {
+            if (sokoke_external_uri (uri))
+            {
+                gboolean handled = FALSE;
+                g_signal_emit_by_name (view, "open-uri", uri, &handled);
+                if (handled)
+                {
+                    g_free (temporary_uri);
+                    return;
+                }
+            }
+
             midori_tab_set_uri (MIDORI_TAB (view), uri);
             katze_item_set_uri (view->item, midori_tab_get_uri (MIDORI_TAB (view)));
             katze_assign (view->title, NULL);
@@ -4313,7 +4295,11 @@ midori_view_get_tab_menu (MidoriView* view)
 {
     g_return_val_if_fail (MIDORI_IS_VIEW (view), NULL);
 
-    return gtk_menu_new ();
+    GtkWidget* notebook = gtk_widget_get_parent (gtk_widget_get_parent (GTK_WIDGET (view)));
+    MidoriContextAction* context_action = midori_notebook_get_tab_context_action (MIDORI_NOTEBOOK (notebook), MIDORI_TAB (view));
+    GtkMenu* menu = midori_context_action_create_menu (context_action, NULL, FALSE);
+    g_object_unref (context_action);
+    return GTK_WIDGET (menu);
 }
 
 /**

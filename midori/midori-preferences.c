@@ -490,18 +490,6 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     gtk_button_set_label (GTK_BUTTON (button), _("Open tabs in the background"));
     SPANNED_ADD (button);
 
-    INDENTED_ADD (gtk_label_new (NULL));
-    label = gtk_label_new (_("Text Editor"));
-    gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
-    INDENTED_ADD (label);
-    entry = katze_property_proxy (settings, "text-editor", "application-text/plain");
-    SPANNED_ADD (entry);
-    label = gtk_label_new (_("News Aggregator"));
-    gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
-    INDENTED_ADD (label);
-    entry = katze_property_proxy (settings, "news-aggregator", "application-News");
-    SPANNED_ADD (entry);
-
     /* Page "Network" */
     PAGE_NEW (GTK_STOCK_NETWORK, _("Network"));
     FRAME_NEW (NULL);

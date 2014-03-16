@@ -103,6 +103,20 @@ namespace Midori {
         }
     }
 
+    public static void show_message_dialog (Gtk.MessageType type, string short, string detailed, bool modal) {
+        var dialog = new Gtk.MessageDialog (null, 0, type, Gtk.ButtonsType.OK, "%s", short);
+        dialog.format_secondary_text ("%s", detailed);
+        if (modal) {
+            dialog.run ();
+            dialog.destroy ();
+        } else {
+            dialog.response.connect ((response) => {
+                dialog.destroy ();
+            });
+            dialog.show ();
+        }
+    }
+
     public class FileChooserDialog : Gtk.FileChooserDialog {
         public FileChooserDialog (string title, Gtk.Window? window, Gtk.FileChooserAction action) {
             /* Creates a new file chooser dialog to Open or Save and Cancel.

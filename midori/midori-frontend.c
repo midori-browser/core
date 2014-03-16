@@ -239,6 +239,7 @@ midori_private_app_new (const gchar* config,
 
     /* FIXME need proper stock extension mechanism */
     midori_browser_activate_action (browser, "libtransfers." G_MODULE_SUFFIX "=true");
+    midori_browser_activate_action (browser, "libopen-with." G_MODULE_SUFFIX "=true");
     g_assert (g_module_error () == NULL);
 
     return browser;
@@ -301,7 +302,7 @@ midori_frontend_crash_log_cb (GtkWidget* button,
                               gchar*     crash_log)
 {
     GError* error = NULL;
-    if (!sokoke_show_uri (gtk_widget_get_screen (button), crash_log, 0, &error))
+    if (!gtk_show_uri (gtk_widget_get_screen (button), crash_log, 0, &error))
     {
         sokoke_message_dialog (GTK_MESSAGE_ERROR,
                                _("Could not run external program."),

@@ -13,6 +13,7 @@
 #ifdef _WIN32
     #define _WIN32_WINNT 0x0501
     #include <unistd.h>
+    #include <windows.h>
 #endif
 
 #if HAVE_CONFIG_H
@@ -534,7 +535,7 @@ midori_app_open_cb (MidoriApp* app,
     for (i = 0; i < n_files; i++)
     {
         gchar* uri = g_file_get_uri (files[i]);
-        if (sokoke_recursive_fork_protection (uri, FALSE))
+        if (midori_uri_recursive_fork_protection (uri, FALSE))
         {
             if (first)
             {
@@ -1256,7 +1257,7 @@ gboolean
 midori_debug (const gchar* token)
 {
     static const gchar* debug_token = NULL;
-    const gchar* debug_tokens = "adblock:match adblock:time startup headers body referer cookies paths hsts unarmed bookmarks mouse app ";
+    const gchar* debug_tokens = "adblock:match adblock:parse adblock:time adblock:element startup headers body referer cookies paths hsts unarmed bookmarks mouse app ";
     if (debug_token == NULL)
     {
         gchar* found_token;

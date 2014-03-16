@@ -1,0 +1,55 @@
+[Adblock Plus 2.0]
+! Version: 201402142200
+! Title: Exercise
+! Last modified: 11 Feb 2014 22:00 UTC
+! Expires: 3 days (update frequency)
+! Homepage: http://www.midori-browser.org
+! Licence: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt
+! Copyright (C) 2014 Christian Dywan <christian@twotoasts.de>
+!
+! Some freeform text:
+! Yadayada http://example.com/ e-mail (somebody@example.com).
+!
+!-----Spam eggs--------!
+! *** la:le/lu_foo_bar.txt ***
+|/http://ads.blub.boing/*$domain=xxx.com
+|/http://ads.blub.boing/*$domain=xxx.com,foo.fr,coco.at
+/market.php?$domain=adf.ly|foo.com
+/?placement=$script,domain=putlocker.com|sockshare.com
+
+! Some basic filters
+*ads.foo.bar*
+*ads.bogus.name*
+||^http://ads.bla.blub/*
+engine.adct.ru/*?
+/addyn|*|adtech;
+doubleclick.net/pfadx/*.mtvi
+objects.tremormedia.com/embed/xml/*.xml?r=
+videostrip.com^*/admatcherclient.
+test.dom/test?var
+/adpage.
+br.gcl.ru/cgi-bin/br/
+_300x600.
+_rectangle_ads.
++adverts/
+-2/ads/
+
+! CSS elements
+old.tv,delicio.us,longc.at###box
+##.zRightAdNote
+###advertisingModule160x600
+##a[href$="/vghd.shtml"]
+imagetwist.com###left[align="center"] > center > a[target="_blank"]
+
+! Options
+||videobox.com/?tid=$popup
+||sexsearchcom.com^$popup,third-party
+||206.217.206.137^$third-party
+/spopunder^$popup
+||putlocker.com^*.php?*title$subdocument
+://ads.$popup
+
+! Whitelist
+@@||hortifor.com/images/*120x60$~third-party
+@@||stickam.com/wb/www/category/300x250/$image
+@@||adultadworld.com/adhandler/$subdocument

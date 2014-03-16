@@ -11,7 +11,6 @@
 
 namespace Sokoke {
 #if !HAVE_WEBKIT2
-    extern static bool show_uri (Gdk.Screen screen, string uri, uint32 timestamp) throws Error;
     extern static bool message_dialog (Gtk.MessageType type, string short, string detailed, bool modal);
 #endif
 }
@@ -210,16 +209,22 @@ namespace Midori {
 #endif
         }
 
+        /* returns whether an application was successfully launched to handle the file */
         public static bool open (WebKit.Download download, Gtk.Widget widget) throws Error {
 #if !HAVE_WEBKIT2
-            if (!has_wrong_checksum (download))
-                return Sokoke.show_uri (widget.get_screen (),
-                    download.destination_uri, Gtk.get_current_event_time ());
-
-            Sokoke.message_dialog (Gtk.MessageType.WARNING,
-                _("The downloaded file is erroneous."),
-    _("The checksum provided with the link did not match. This means the file is probably incomplete or was modified afterwards."),
-                true);
+            if (has_wrong_checksum (download)) {
+                Sokoke.message_dialog (Gtk.MessageType.WARNING,
+                     _("The downloaded file is erroneous."),
+                     _("The checksum provided with the link did not match. This means the file is probably incomplete or was modified afterwards."),
+                     true);
+                return true;
+            } else {
+                var browser = widget.get_toplevel ();
+                Tab? tab = null;
+                browser.get ("tab", &tab);
+                if (tab != null)
+                    return tab.open_uri (download.destination_uri);
+            }
 #endif
             return false;
         }
@@ -343,7 +348,7 @@ namespace Midori {
          * Returns whether it seems possible to save @download to the path specified by
          * @destination_uri, considering space on disk and permissions
          */
-        public static bool has_enough_space (WebKit.Download download, string destination_uri) {
+        public static bool has_enough_space (WebKit.Download download, string destination_uri, bool quiet=false) {
 #if !HAVE_WEBKIT2
             var folder = File.new_for_uri (destination_uri).get_parent ();
             bool can_write;
@@ -375,7 +380,8 @@ namespace Midori {
                 }
                 else
                     assert_not_reached ();
-                Sokoke.message_dialog (Gtk.MessageType.ERROR, message, detailed_message, false);
+                if (!quiet)
+                    Sokoke.message_dialog (Gtk.MessageType.ERROR, message, detailed_message, false);
                 return false;
             }
 #endif

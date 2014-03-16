@@ -88,6 +88,12 @@ namespace Midori {
         }
         }
 
+        /* Emitted when a uri is attempted to be loaded.
+           Returns FALSE if the URI could not be handled by Midori or any
+           external application.
+           Since: 0.5.8
+         */
+        public signal bool open_uri (string uri);
         public signal void console_message (string message, int line, string source_id);
         public signal void attach_inspector (WebKit.WebView inspector_view);
         /* Emitted when an open inspector that was previously

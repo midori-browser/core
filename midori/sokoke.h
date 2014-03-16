@@ -29,19 +29,6 @@ sokoke_message_dialog                   (GtkMessageType  message_type,
                                          const gchar*    detailed_message,
                                          gboolean        modal);
 
-gboolean
-sokoke_show_uri_with_mime_type          (GdkScreen*      screen,
-                                         const gchar*    uri,
-                                         const gchar*    mime_type,
-                                         guint32         timestamp,
-                                         GError**        error);
-
-gboolean
-sokoke_show_uri                         (GdkScreen*      screen,
-                                         const gchar*    uri,
-                                         guint32         timestamp,
-                                         GError**        error);
-
 gchar*
 sokoke_prepare_command                  (const gchar*    command,
                                          gboolean        quote_command,
@@ -111,10 +98,6 @@ sokoke_prefetch_uri                     (MidoriWebSettings*  settings,
 
 gboolean
 sokoke_resolve_hostname                 (const gchar*        hostname);
-
-gboolean
-sokoke_recursive_fork_protection        (const gchar*         uri,
-                                         gboolean             set_uri);
 
 void
 sokoke_widget_copy_clipboard (GtkWidget*          widget,
