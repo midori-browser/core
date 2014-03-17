@@ -157,6 +157,16 @@ namespace ClipNotes {
             return toolbar;
         }
 
+        internal void title_edited (Gtk.CellRendererText renderer, string? path_str, string? new_title) {
+            var path = new Gtk.TreePath.from_string (path_str);
+            Gtk.TreeIter iter;
+            notes_list_store.get_iter (out iter, path);
+            Note note;
+            notes_list_store.get (iter, 0, out note);
+            note.rename (new_title);
+            notes_list_store.set (iter, 0, note);
+        }
+
         public Sidebar () {
             Gtk.TreeViewColumn column;
 
@@ -164,6 +174,7 @@ namespace ClipNotes {
             notes_tree_view = new Gtk.TreeView.with_model (notes_list_store);
             notes_tree_view.headers_visible = true;
             notes_tree_view.button_press_event.connect (button_pressed);
+            notes_tree_view.get_selection().changed.connect (selection_changed);
 
             notes_list_store.set_sort_column_id (0, Gtk.SortType.ASCENDING);
             notes_list_store.set_sort_func (0, tree_sort_func);
@@ -176,6 +187,8 @@ namespace ClipNotes {
 
             column = new Gtk.TreeViewColumn ();
             Gtk.CellRendererText renderer_title = new Gtk.CellRendererText ();
+            renderer_title.editable = true;
+            renderer_title.edited.connect (title_edited);
             column.set_title (_("Notes"));
             column.pack_start (renderer_title, true);
             column.set_cell_data_func (renderer_title, on_render_note_title);
@@ -217,7 +230,7 @@ namespace ClipNotes {
             return strcmp (note1.title, note2.title);
         }
 
-        bool focus_lost (Gdk.EventFocus event) {
+        void save_current_note () {
             Gtk.TreePath? path;
             notes_tree_view.get_cursor (out path, null);
             return_val_if_fail (path != null, false);
@@ -230,6 +243,10 @@ namespace ClipNotes {
                     note.update (note_content);
                 }
             }
+        }
+
+        bool focus_lost (Gdk.EventFocus event) {
+            save_current_note ();
             return false;
         }
 
@@ -258,12 +275,15 @@ namespace ClipNotes {
             renderer.set ("pixbuf", pixbuf);
         }
 
+        private void selection_changed (Gtk.TreeSelection selection)
+        {
+            show_note_content (selection);
+        }
+
         bool button_pressed (Gdk.EventButton event) {
             if (event.button == 1) {
                 if (event.type == Gdk.EventType.2BUTTON_PRESS) {
                     return show_note_webpage_in_new_tab (event, false);
-                } else {
-                    return show_note_content (event);
                 }
             }
             if (event.button == 2)
@@ -273,9 +293,9 @@ namespace ClipNotes {
             return false;
         }
 
-        bool show_note_content (Gdk.EventButton? event) {
+        bool show_note_content (Gtk.TreeSelection selection) {
             Gtk.TreeIter iter;
-            if (notes_tree_view.get_selection ().get_selected (null, out iter)) {
+            if (selection.get_selected (null, out iter)) {
                 Note note;
                 notes_list_store.get (iter, 0, out note);
 
@@ -321,34 +341,8 @@ namespace ClipNotes {
                 menuitem.always_show_image = true;
                 menuitem.set_image (image);
                 menuitem.activate.connect (() => {
-                    Note note;
-                    notes_list_store.get (iter, 0, out note);
-
-                    var dialog = new Gtk.Dialog. with_buttons (_("Rename note"), null,
-                        Gtk.DialogFlags.DESTROY_WITH_PARENT, Gtk.Stock.CANCEL, Gtk.ResponseType.CANCEL,
-                        Gtk.Stock.OK, Gtk.ResponseType.OK);
-                    Gtk.Box content = (Gtk.Box) dialog.get_content_area ();
-                    dialog.set_default_response (Gtk.ResponseType.OK);
-                    dialog.resizable = false;
-                    dialog.icon_name = Gtk.STOCK_EDIT;
-
-                    var entry = new Gtk.Entry ();
-                    entry.text = note.title;
-                    entry.activates_default = true;
-                    content.add (entry);
-                    content.show_all ();
-
-                    int response = dialog.run ();
-                    dialog.hide ();
-                    if (response == Gtk.ResponseType.OK) {
-                        string new_title = entry.text;
-                        if (entry.text != null && new_title != note.title) {
-                            note.rename (new_title);
-                            notes_list_store.set (iter, 0, note);
-                        }
-                    }
-                    dialog.destroy ();
-
+                    notes_tree_view.set_cursor (notes_list_store.get_path (iter),
+                                                notes_tree_view.get_column (1), true);
                 });
                 menu.append (menuitem);
 
