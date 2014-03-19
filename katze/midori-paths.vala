@@ -371,6 +371,7 @@ namespace Midori {
             #endif
         }
 
+        #if !HAVE_WIN32
         string? build_folder (string folder, string? middle, string filename) {
             /* Fallback to build folder */
             File? parent = File.new_for_path (exec_path);
@@ -385,6 +386,7 @@ namespace Midori {
             }
             return null;
         }
+        #endif
 
         /* returns the path to a file containing read-only data installed with the application
         if @res is true, looks in the midori resource folder specifically */
