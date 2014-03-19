@@ -995,10 +995,10 @@ sokoke_get_gdk_pixbuf_from_win32_executable (gchar* path)
     if (hIcon == NULL)
         return NULL;
 
-#if !GTK_CHECK_VERSION (3, 9, 12)
-    pixbuf = gdk_win32_icon_to_pixbuf_libgtk_only (hIcon);
-#else
+#if GTK_CHECK_VERSION (3, 9, 12)
     pixbuf = gdk_win32_icon_to_pixbuf_libgtk_only (hIcon, NULL, NULL);
+#else
+    pixbuf = gdk_win32_icon_to_pixbuf_libgtk_only (hIcon);
 #endif
     DestroyIcon (hIcon);
 
