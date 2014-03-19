@@ -170,9 +170,17 @@ namespace Midori {
                 WebKit.get_favicon_database ().set_path (null);
 #endif
             }
+
+            string fallack_icons1 = Path.build_filename (MDATADIR, PACKAGE_NAME, "icons", "scalable");
+            Gtk.IconTheme.get_default ().append_search_path (fallack_icons1);
+#if !HAVE_WIN32
+            string fallack_icons2 = build_folder ("icons", null, "scalable");
+            Gtk.IconTheme.get_default ().append_search_path (fallack_icons2);
+#endif
+
             if (strcmp (Environment.get_variable ("MIDORI_DEBUG"), "paths") == 0) {
-                stdout.printf ("config: %s\ncache: %s\nuser_data: %s\ntmp: %s\n",
-                               config_dir, cache_dir, user_data_dir, tmp_dir);
+                stdout.printf ("config: %s\ncache: %s\nuser_data: %s\ntmp: %s\nicons: %s\n",
+                               config_dir, cache_dir, user_data_dir, tmp_dir, fallack_icons1);
             }
         }
 
