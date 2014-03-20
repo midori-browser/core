@@ -19,7 +19,7 @@ namespace ClipNotes {
     Midori.Database database;
     unowned Sqlite.Database db;
     Gtk.ListStore notes_list_store;
-    int64 last_used_id;
+    Note? current_note;
 
     class Note : GLib.Object {
         public int64 id { get; set; }
@@ -118,7 +118,11 @@ namespace ClipNotes {
                 Note note;
                 notes_list_store.get (iter, 0, out note);
                 if (id == note.id) {
+                    if (current_note == note) {
+                        current_note = null;
+                    }
                     notes_list_store.remove (iter);
+                    break;
                 }
             } while (notes_list_store.iter_next (ref iter));
         }
@@ -231,17 +235,10 @@ namespace ClipNotes {
         }
 
         void save_current_note () {
-            Gtk.TreePath? path;
-            notes_tree_view.get_cursor (out path, null);
-            return_val_if_fail (path != null, false);
-            Gtk.TreeIter iter;
-            if (notes_list_store.get_iter (out iter, path)) {
-                Note note;
-                notes_list_store.get (iter, 0, out note);
-                if (last_used_id == note.id) {
-                    string note_content = note_text_view.buffer.text;
-                    note.update (note_content);
-                }
+            if (current_note != null) {
+                string note_content = note_text_view.buffer.text;
+                if (note_content != current_note.content)
+                    current_note.update (note_content);
             }
         }
 
@@ -277,6 +274,7 @@ namespace ClipNotes {
 
         private void selection_changed (Gtk.TreeSelection selection)
         {
+            save_current_note ();
             show_note_content (selection);
         }
 
@@ -299,9 +297,9 @@ namespace ClipNotes {
                 Note note;
                 notes_list_store.get (iter, 0, out note);
 
-                if (last_used_id != note.id) {
+                if (note != current_note) {
                     note_text_view.buffer.text = note.content;
-                    last_used_id = note.id;
+                    current_note = note;
                 }
 
                 return true;
@@ -331,8 +329,15 @@ namespace ClipNotes {
         }
 
         bool show_popup_menu (Gdk.EventButton? event) {
-            Gtk.TreeIter iter;
-            if (notes_tree_view.get_selection ().get_selected (null, out iter)) {
+            return_val_if_fail (event.window == notes_tree_view.get_bin_window(), false);
+            Gtk.TreePath path = null;
+            notes_tree_view.get_path_at_pos ((int)event.x, (int)event.y, out path,
+                                             null, null, null);
+            if (path != null) {
+                Gtk.TreeIter iter;
+                notes_list_store.get_iter (out iter, path);
+                Note note;
+                notes_list_store.get (iter, 0, out note);
 
                 var menu = new Gtk.Menu ();
 
@@ -341,7 +346,7 @@ namespace ClipNotes {
                 menuitem.always_show_image = true;
                 menuitem.set_image (image);
                 menuitem.activate.connect (() => {
-                    notes_tree_view.set_cursor (notes_list_store.get_path (iter),
+                    notes_tree_view.set_cursor (path,
                                                 notes_tree_view.get_column (1), true);
                 });
                 menu.append (menuitem);
@@ -352,8 +357,6 @@ namespace ClipNotes {
                 menuitem.always_show_image = true;
                 menuitem.set_image (image);
                 menuitem.activate.connect (() => {
-                    Note note;
-                    notes_list_store.get (iter, 0, out note);
                     get_clipboard (Gdk.SELECTION_CLIPBOARD).set_text (note.content, -1);
                 });
                 menu.append (menuitem);
@@ -364,8 +367,6 @@ namespace ClipNotes {
                 menuitem.always_show_image = true;
                 menuitem.set_image (image);
                 menuitem.activate.connect (() => {
-                    Note note;
-                    notes_list_store.get (iter, 0, out note);
                     note.remove ();
                 });
                 menu.append (menuitem);
