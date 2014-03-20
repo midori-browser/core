@@ -128,11 +128,11 @@ namespace Midori {
         public void inject_stylesheet (string stylesheet) {
 #if !HAVE_WEBKIT2
             var dom = web_view.get_dom_document ();
+            return_if_fail (dom.head != null);
             try {
                 var style = dom.create_element ("style");
                 style.set_attribute ("type", "text/css");
                 style.append_child (dom.create_text_node (stylesheet));
-                return_if_fail (dom.head != null);
                 dom.head.append_child (style);
             }
             catch (Error error) {

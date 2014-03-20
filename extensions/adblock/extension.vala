@@ -108,7 +108,7 @@ namespace Adblock {
             browser.remove_tab.connect (tab_removed);
 
             var toggle_button = status_icon.add_button ();
-            browser.statusbar.pack_start (toggle_button, false, false, 3);
+            browser.statusbar.pack_end (toggle_button, false, false, 3);
             toggle_button.show ();
         }
 
