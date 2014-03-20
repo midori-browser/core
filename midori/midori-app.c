@@ -1257,7 +1257,7 @@ gboolean
 midori_debug (const gchar* token)
 {
     static const gchar* debug_token = NULL;
-    const gchar* debug_tokens = "adblock:match adblock:parse adblock:time adblock:element startup headers body referer cookies paths hsts unarmed db:bookmarks db:history db:tabby mouse app database ";
+    const gchar* debug_tokens = "adblock:match adblock:parse adblock:time adblock:element adblock:css startup headers body referer cookies paths hsts unarmed db:bookmarks db:history db:tabby mouse app database ";
     if (debug_token == NULL)
     {
         gchar* found_token;

@@ -173,8 +173,11 @@ namespace Adblock {
             && !(element.split("[")[0] in valid_elements))
                 is_valid = false;
 
-            if (!is_valid && debug_parse)
-                message ("Adblock: Invalid selector: %s", element);
+
+            bool debug_selectors = "adblock:css" in (Environment.get_variable ("MIDORI_DEBUG") ?? "");
+            if (debug_selectors)
+                stdout.printf ("Adblock '%s' %s: %s\n",
+                    this.title, is_valid ? "selector" : "INVALID?", element);
 
             return is_valid;
         }
