@@ -36,11 +36,7 @@ namespace Midori {
             spinner.set_size_request (icon_size, icon_size);
             box.pack_start (spinner, false, false, 0);
             label = new Gtk.Label (null);
-#if HAVE_GRANITE
             label.set_alignment (0.5f, 0.5f);
-#else
-            label.set_alignment (0.0f, 0.5f);
-#endif
             label.set_padding (0, 0);
             box.pack_start (label, true, true, 0);
             close = new Gtk.Button ();
