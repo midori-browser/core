@@ -399,9 +399,6 @@ namespace Midori {
         /* Chain up drawing manually to circumvent parent checks */
 #if HAVE_GTK3
         public override bool draw (Cairo.Context cr) {
-#if HAVE_GRANITE
-            get_style_context ().render_activity (cr, 0, 0, get_allocated_width (), 27);
-#endif
             notebook.draw (cr);
             return true;
         }
