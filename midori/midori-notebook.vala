@@ -247,11 +247,7 @@ namespace Midori {
 
             var add = new Gtk.Button ();
             add.relief = Gtk.ReliefStyle.NONE;
-#if HAVE_GRANITE
-            add.add (new Gtk.Image.from_gicon (new ThemedIcon.with_default_fallbacks ("list-add-symbolic"), Gtk.IconSize.MENU));
-#else
             add.add (new Gtk.Image.from_gicon (new ThemedIcon.with_default_fallbacks ("tab-new-symbolic"), Gtk.IconSize.MENU));
-#endif
             add.show_all ();
             notebook.set_action_widget (add, Gtk.PackType.START);
             add.clicked.connect (()=>{
