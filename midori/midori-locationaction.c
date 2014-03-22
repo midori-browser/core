@@ -26,6 +26,10 @@
 
 #include <sqlite3.h>
 
+#ifdef HAVE_GRANITE
+#include <granite/granite.h>
+#endif
+
 struct _MidoriLocationAction
 {
     GtkAction parent_instance;

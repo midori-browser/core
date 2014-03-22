@@ -22,6 +22,10 @@
 #include <gdk/gdkkeysyms.h>
 #include <sqlite3.h>
 
+#ifdef HAVE_GRANITE
+#include <granite/granite.h>
+#endif
+
     #define LIBSOUP_USE_UNSTABLE_REQUEST_API
     #include <libsoup/soup-cache.h>
 
