@@ -165,7 +165,7 @@ midori_browser_get_property (GObject*    object,
                              GValue*     value,
                              GParamSpec* pspec);
 
-void
+gboolean
 midori_browser_open_bookmark (MidoriBrowser* browser,
                               KatzeItem*     item);
 
@@ -3016,8 +3016,7 @@ midori_bookmarkbar_activate_item (GtkAction* action,
                                   KatzeItem* item,
                                   MidoriBrowser* browser)
 {
-    midori_browser_open_bookmark (browser, item);
-    return TRUE;
+    return midori_browser_open_bookmark (browser, item);;
 }
 
 static gboolean
@@ -3098,7 +3097,7 @@ _action_trash_activate_item_alt (GtkAction*      action,
     return TRUE;
 }
 
-/* static */ void
+/* static */ gboolean
 midori_browser_open_bookmark (MidoriBrowser* browser,
                               KatzeItem*     item)
 {
@@ -3106,7 +3105,7 @@ midori_browser_open_bookmark (MidoriBrowser* browser,
     gchar* uri_fixed;
 
     if (!(uri && *uri))
-        return;
+        return FALSE;
 
     /* Imported bookmarks may lack a protocol */
     uri_fixed = sokoke_magic_uri (uri, TRUE, FALSE);
@@ -3121,6 +3120,7 @@ midori_browser_open_bookmark (MidoriBrowser* browser,
         gtk_widget_grab_focus (midori_browser_get_current_tab (browser));
     }
     g_free (uri_fixed);
+    return TRUE;
 }
 
 static void
