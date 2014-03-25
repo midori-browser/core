@@ -59,13 +59,22 @@ namespace Midori {
             int pindex = stmt.bind_parameter_index (pname);
             var args = va_list ();
             Type ptype = args.arg ();
-            if (ptype == typeof (string))
-                stmt.bind_text (pindex, args.arg ());
-            else if (ptype == typeof (int64))
-                stmt.bind_int64 (pindex, args.arg ());
-            else if (ptype == typeof (double))
-                stmt.bind_double (pindex, args.arg ());
-            else
+            if (ptype == typeof (string)) {
+                string text = args.arg ();
+                stmt.bind_text (pindex, text);
+                if (database.trace)
+                    stdout.printf ("%s=%s ", pname, text);
+            } else if (ptype == typeof (int64)) {
+                int64 integer = args.arg ();
+                stmt.bind_int64 (pindex, integer);
+                if (database.trace)
+                    stdout.printf ("%s=%s ", pname, integer.to_string ());
+            } else if (ptype == typeof (double)) {
+                double stuntman = args.arg ();
+                stmt.bind_double (pindex, stuntman);
+                if (database.trace)
+                    stdout.printf ("%s=%s ", pname, stuntman.to_string ());
+            } else
                 throw new DatabaseError.TYPE ("Invalid type '%s' for '%s' in statement: %s".printf (ptype.name (), pname, query));
         }
 
@@ -146,7 +155,7 @@ namespace Midori {
      * Since: 0.5.6
      */
     public class Database : GLib.Object, GLib.Initable {
-        bool trace = false;
+        internal bool trace = false;
         public Sqlite.Database? db { get { return _db; } }
         protected Sqlite.Database? _db = null;
         public string? path { get; protected set; default = null; }
@@ -292,6 +301,8 @@ namespace Midori {
                     throw new DatabaseError.TYPE ("Invalid type '%s' in statement: %s".printf (ptype.name (), query));
                 pname = args.arg ();
             }
+            if (trace)
+                stdout.printf ("\n");
             return statement;
         }
     }
