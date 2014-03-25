@@ -2960,8 +2960,7 @@ midori_browser_get_toolbar_actions (MidoriBrowser* browser)
     static const gchar* actions[] = {
             "WindowNew", "TabNew", "Open", "SaveAs", "Print", "Find",
             "Fullscreen", "Preferences", "Window", "Bookmarks",
-            "ReloadStop", "ZoomIn", "TabClose", "NextForward",
-            "Location", "Readable", "MailTo", "CompactAdd", "AddSpeedDial", "AddNewsFeed",
+            "ReloadStop", "ZoomIn", "TabClose", "NextForward", "Location",
             "ZoomOut", "Separator", "Back", "Forward", "Homepage",
             "Panel", "Trash", "Search", "BookmarkAdd", "Previous", "Next", NULL };
 
