@@ -107,7 +107,7 @@ namespace Tabby {
             public abstract void remove ();
 
             public abstract Katze.Array get_tabs ();
-            public abstract double? get_max_sorting ();
+            public abstract double get_max_sorting ();
 
             public void attach (Midori.Browser browser) {
                 this.browser = browser;
@@ -234,14 +234,14 @@ namespace Tabby {
 
             }
 
-            protected double? get_tab_sorting (Midori.View view) {
+            protected double get_tab_sorting (Midori.View view) {
                 int this_pos = this.browser.notebook.page_num (view);
                 Midori.View prev_view = this.browser.notebook.get_nth_page (this_pos - 1) as Midori.View;
                 Midori.View next_view = this.browser.notebook.get_nth_page (this_pos + 1) as Midori.View;
 
-                string? prev_meta_sorting = null;
-                string? next_meta_sorting = null;
-                double? prev_sorting, next_sorting, this_sorting;
+                string prev_meta_sorting = null;
+                string next_meta_sorting = null;
+                double prev_sorting, next_sorting, this_sorting;
 
                 if (prev_view != null) {
                     unowned Katze.Item prev_item = prev_view.get_proxy_item ();
@@ -317,7 +317,7 @@ namespace Tabby {
 
                     unowned Katze.Item item = tab.get_proxy_item ();
 
-                    double? sorting;
+                    double sorting;
                     string? sorting_string = item.get_meta_string ("sorting");
                     if (sorting_string != null) { /* we have to use a seperate if condition to avoid a `possibly unassigned local variable` error */
                         if (double.try_parse (item.get_meta_string ("sorting"), out sorting)) {
@@ -406,7 +406,7 @@ namespace Tabby {
                 unowned Katze.Item item = view.get_proxy_item ();
                 int64 tab_id = item.get_meta_integer ("tabby-id");
                 if (tab_id < 1) {
-                    double? sorting = this.get_tab_sorting (view);
+                    double sorting = this.get_tab_sorting (view);
                     item.set_meta_string ("sorting", sorting.to_string ());
                     this.add_item (item);
                 }
@@ -444,7 +444,7 @@ namespace Tabby {
             protected override void tab_reordered (Gtk.Widget tab, uint pos) {
                 Midori.View view = tab as Midori.View;
 
-                double? sorting = this.get_tab_sorting (view);
+                double sorting = this.get_tab_sorting (view);
                 unowned Katze.Item item = view.get_proxy_item ();
                 int64 tab_id = item.get_meta_integer ("tabby-id");
                 string sqlcmd = "UPDATE `tabs` SET sorting = :sorting WHERE session_id = :session_id AND id = :tab_id;";
@@ -528,13 +528,13 @@ namespace Tabby {
                 return tabs;
             }
 
-            public override double? get_max_sorting () {
+            public override double get_max_sorting () {
                 string sqlcmd = "SELECT MAX(sorting) FROM tabs WHERE session_id = :session_id";
                 try {
                     var statement = database.prepare (sqlcmd,
                         ":session_id", typeof (int64), this.id);
                     statement.step ();
-                    double? sorting;
+                    double sorting;
                     string? sorting_string = statement.get_int64 ("MAX(sorting)").to_string ();
                     if (sorting_string != null) {
                         /* we have to use a seperate if condition to avoid
