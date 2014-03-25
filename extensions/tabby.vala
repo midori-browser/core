@@ -357,11 +357,17 @@ namespace Tabby {
             public override void add_item (Katze.Item item) {
                 GLib.DateTime time = new DateTime.now_local ();
                 string? sorting = item.get_meta_string ("sorting") ?? "1";
-                string sqlcmd = "INSERT INTO `tabs` (`crdate`, `tstamp`, `session_id`, `uri`, `title`, `sorting`) VALUES (:tstamp, :tstamp, :session_id, :uri, :title, :sorting);";
+                string sqlcmd = "INSERT INTO `tabs` (`crdate`, `tstamp`, `session_id`, `uri`, `title`, `sorting`) VALUES (:crdate, :tstamp, :session_id, :uri, :title, :sorting);";
+
+                int64 tstamp = item.get_meta_integer ("tabby-tstamp");
+                if (tstamp < 0) { // new tab without focus
+                    tstamp = 0;
+                }
 
                 try {
                     var statement = database.prepare (sqlcmd,
-                        ":tstamp", typeof (int64), time.to_unix (),
+                        ":crdate", typeof (int64), time.to_unix (),
+                        ":tstamp", typeof (int64), tstamp,
                         ":session_id", typeof (int64), this.id,
                         ":uri", typeof (string), item.uri,
                         ":title", typeof (string), item.name,
@@ -430,12 +436,14 @@ namespace Tabby {
                 GLib.DateTime time = new DateTime.now_local ();
                 unowned Katze.Item item = new_view.get_proxy_item ();
                 int64 tab_id = item.get_meta_integer ("tabby-id");
+                int64 tstamp = time.to_unix();
+                item.set_meta_integer ("tabby-tstamp", tstamp);
                 string sqlcmd = "UPDATE `tabs` SET tstamp = :tstamp WHERE session_id = :session_id AND id = :tab_id;";
                 try {
                     database.prepare (sqlcmd,
                         ":session_id", typeof (int64), this.id,
                         ":tab_id", typeof (int64), tab_id,
-                        ":tstamp", typeof (int64), time.to_unix ()).exec ();
+                        ":tstamp", typeof (int64), tstamp).exec ();
                 } catch (Error error) {
                     critical (_("Failed to update database: %s"), error.message);
                 }
