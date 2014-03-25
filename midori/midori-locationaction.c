@@ -34,10 +34,12 @@ struct _MidoriLocationAction
 {
     GtkAction parent_instance;
 
+    GIcon* icon;
     gchar* text;
     KatzeArray* search_engines;
     gdouble progress;
     gchar* secondary_icon;
+    gchar* tooltip;
 
     gchar* key;
     MidoriAutocompleter* autocompleter;
@@ -842,7 +844,10 @@ midori_location_action_finalize (GObject* object)
 {
     MidoriLocationAction* location_action = MIDORI_LOCATION_ACTION (object);
 
+    katze_object_assign (location_action->icon, NULL);
     katze_assign (location_action->text, NULL);
+    katze_assign (location_action->secondary_icon, NULL);
+    katze_assign (location_action->tooltip, NULL);
     katze_object_assign (location_action->search_engines, NULL);
     katze_assign (location_action->autocompleter, NULL);
 
@@ -950,9 +955,21 @@ midori_location_action_entry_drag_data_get_cb (GtkWidget*        entry,
     }
 }
 
+static void
+midori_location_action_entry_set_secondary_icon (GtkEntry*    entry,
+                                                 const gchar* stock_id)
+{
+    GtkStockItem stock_item;
+    if (stock_id && gtk_stock_lookup (stock_id, &stock_item))
+        gtk_entry_set_icon_from_stock (entry, GTK_ENTRY_ICON_SECONDARY, stock_id);
+    else
+        gtk_entry_set_icon_from_icon_name (entry, GTK_ENTRY_ICON_SECONDARY, stock_id);
+}
+
 static GtkWidget*
 midori_location_action_create_tool_item (GtkAction* action)
 {
+    MidoriLocationAction* location_action = MIDORI_LOCATION_ACTION (action);
     GtkWidget* toolitem;
     GtkWidget* alignment;
     GtkWidget* entry;
@@ -974,6 +991,12 @@ midori_location_action_create_tool_item (GtkAction* action)
          GTK_ENTRY_ICON_PRIMARY, TRUE);
     gtk_entry_set_icon_activatable (GTK_ENTRY (entry),
          GTK_ENTRY_ICON_SECONDARY, TRUE);
+
+    if (location_action->text != NULL)
+        gtk_entry_set_text (GTK_ENTRY (entry), location_action->text);
+    midori_location_action_entry_set_secondary_icon (GTK_ENTRY (entry), location_action->secondary_icon);
+    gtk_entry_set_icon_from_gicon (GTK_ENTRY (entry), GTK_ENTRY_ICON_PRIMARY, location_action->icon);
+    gtk_entry_set_icon_tooltip_text (GTK_ENTRY (entry), GTK_ENTRY_ICON_PRIMARY, location_action->tooltip);
 
     targetlist = gtk_target_list_new (NULL, 0);
     gtk_target_list_add_uri_targets (targetlist, 0);
@@ -1755,7 +1778,6 @@ midori_location_action_set_secondary_icon (MidoriLocationAction* location_action
                                            const gchar*          stock_id)
 {
     GSList* proxies;
-    GtkStockItem stock_item;
 
     g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
 
@@ -1767,12 +1789,7 @@ midori_location_action_set_secondary_icon (MidoriLocationAction* location_action
     if (GTK_IS_TOOL_ITEM (proxies->data))
     {
         GtkWidget* entry = midori_location_action_entry_for_proxy (proxies->data);
-        if (stock_id && gtk_stock_lookup (stock_id, &stock_item))
-            gtk_entry_set_icon_from_stock (GTK_ENTRY (entry),
-                GTK_ENTRY_ICON_SECONDARY, stock_id);
-        else
-            gtk_entry_set_icon_from_icon_name (GTK_ENTRY (entry),
-                GTK_ENTRY_ICON_SECONDARY, stock_id);
+        midori_location_action_entry_set_secondary_icon (GTK_ENTRY (entry), stock_id);
     }
 }
 
@@ -1794,6 +1811,11 @@ midori_location_action_set_primary_icon (MidoriLocationAction* location_action,
     GSList* proxies;
 
     g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
+    g_return_if_fail (G_IS_ICON (icon));
+    g_return_if_fail (tooltip != NULL);
+
+    katze_object_assign (location_action->icon, g_object_ref (icon));
+    katze_assign (location_action->tooltip, g_strdup (tooltip));
 
     proxies = gtk_action_get_proxies (GTK_ACTION (location_action));
 
