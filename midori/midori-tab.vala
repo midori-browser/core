@@ -123,7 +123,7 @@ namespace Midori {
             orientation = Gtk.Orientation.VERTICAL;
             #endif
 
-#if HAVE_WEBKIT2
+#if HAVE_WEBKIT2_3_91
             web_view = related != null ?
               new WebKit.WebView.with_related_view (related.web_view) : new WebKit.WebView ();
 #else
