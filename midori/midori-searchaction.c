@@ -842,6 +842,7 @@ midori_search_action_editor_name_changed_cb (GtkWidget* entry,
         GTK_RESPONSE_ACCEPT, text && *text);
 }
 
+/* generates a search token for a uri by disemvoweling its hostname */
 gchar*
 midori_search_action_token_for_uri (const gchar* uri)
 {
@@ -849,6 +850,7 @@ midori_search_action_token_for_uri (const gchar* uri)
     gchar** parts;
     gchar* hostname = NULL, *path = NULL;
 
+    /* find the most meaningful component of the qualified hostname */
     path = midori_uri_parse_hostname (uri, NULL);
     parts = g_strsplit (path, ".", -1);
     g_free (path);
@@ -866,14 +868,16 @@ midori_search_action_token_for_uri (const gchar* uri)
                 }
         }
     }
-    else
+    else if(parts[0])
+    {
         hostname = g_strdup (parts[0]);
-
-    if (!hostname)
-        hostname = g_strdup (parts[1]);
+    }
+    else /* no hostname at all */
+        hostname = g_strdup ("");
 
     g_strfreev (parts);
 
+    /* disemvowel it */
     if (strlen (hostname) > 4)
     {
         GString* str = g_string_new (NULL);
