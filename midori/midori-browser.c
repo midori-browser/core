@@ -2785,15 +2785,8 @@ _action_edit_activate (GtkAction*     action,
 
     if (WEBKIT_IS_WEB_VIEW (widget))
     {
-#ifndef HAVE_WEBKIT2
-        WebKitWebView* view = WEBKIT_WEB_VIEW (widget);
-        can_undo = webkit_web_view_can_undo (view);
-        can_redo = webkit_web_view_can_redo (view);
-        can_cut = webkit_web_view_can_cut_clipboard (view);
-        can_copy = webkit_web_view_can_copy_clipboard (view);
-        can_paste = webkit_web_view_can_paste_clipboard (view);
-        can_select_all = TRUE;
-#endif
+        midori_tab_update_actions (MIDORI_TAB (widget), browser->action_group, NULL, NULL);
+        return;
     }
     else if (GTK_IS_EDITABLE (widget))
     {
@@ -2828,9 +2821,11 @@ static void
 _action_undo_activate (GtkAction*     action,
                        MidoriBrowser* browser)
 {
-#ifndef HAVE_WEBKIT2
     GtkWidget* widget = gtk_window_get_focus (GTK_WINDOW (browser));
     if (WEBKIT_IS_WEB_VIEW (widget))
+#ifdef HAVE_WEBKIT2
+        webkit_web_view_execute_editing_command (WEBKIT_WEB_VIEW (widget), WEBKIT_EDITING_COMMAND_UNDO);
+#else
         webkit_web_view_undo (WEBKIT_WEB_VIEW (widget));
 #endif
 }
@@ -2839,9 +2834,11 @@ static void
 _action_redo_activate (GtkAction*     action,
                        MidoriBrowser* browser)
 {
-#ifndef HAVE_WEBKIT2
     GtkWidget* widget = gtk_window_get_focus (GTK_WINDOW (browser));
     if (WEBKIT_IS_WEB_VIEW (widget))
+#ifdef HAVE_WEBKIT2
+        webkit_web_view_execute_editing_command (WEBKIT_WEB_VIEW (widget), WEBKIT_EDITING_COMMAND_REDO);
+#else
         webkit_web_view_redo (WEBKIT_WEB_VIEW (widget));
 #endif
 }
@@ -2853,6 +2850,10 @@ _action_cut_activate (GtkAction*     action,
     GtkWidget* widget = gtk_window_get_focus (GTK_WINDOW (browser));
     if (G_LIKELY (widget) && g_signal_lookup ("cut-clipboard", G_OBJECT_TYPE (widget)))
         g_signal_emit_by_name (widget, "cut-clipboard");
+#ifdef HAVE_WEBKIT2
+    else if (WEBKIT_IS_WEB_VIEW (widget))
+        webkit_web_view_execute_editing_command (WEBKIT_WEB_VIEW (widget), WEBKIT_EDITING_COMMAND_CUT);
+#endif
 }
 
 static void
@@ -2862,6 +2863,10 @@ _action_copy_activate (GtkAction*     action,
     GtkWidget* widget = gtk_window_get_focus (GTK_WINDOW (browser));
     if (G_LIKELY (widget) && g_signal_lookup ("copy-clipboard", G_OBJECT_TYPE (widget)))
         g_signal_emit_by_name (widget, "copy-clipboard");
+#ifdef HAVE_WEBKIT2
+    else if (WEBKIT_IS_WEB_VIEW (widget))
+        webkit_web_view_execute_editing_command (WEBKIT_WEB_VIEW (widget), WEBKIT_EDITING_COMMAND_COPY);
+#endif
 }
 
 static void
@@ -2871,25 +2876,29 @@ _action_paste_activate (GtkAction*     action,
     GtkWidget* widget = gtk_window_get_focus (GTK_WINDOW (browser));
     if (G_LIKELY (widget) && g_signal_lookup ("paste-clipboard", G_OBJECT_TYPE (widget)))
         g_signal_emit_by_name (widget, "paste-clipboard");
+#ifdef HAVE_WEBKIT2
+    else if (WEBKIT_IS_WEB_VIEW (widget))
+        webkit_web_view_execute_editing_command (WEBKIT_WEB_VIEW (widget), WEBKIT_EDITING_COMMAND_PASTE);
+#endif
 }
 
 static void
 _action_delete_activate (GtkAction*     action,
                          MidoriBrowser* browser)
 {
-#ifndef HAVE_WEBKIT2
     GtkWidget* widget = gtk_window_get_focus (GTK_WINDOW (browser));
     if (G_LIKELY (widget))
     {
-        if (WEBKIT_IS_WEB_VIEW (widget))
-            webkit_web_view_delete_selection (WEBKIT_WEB_VIEW (widget));
-        else if (GTK_IS_EDITABLE (widget))
+        if (GTK_IS_EDITABLE (widget))
             gtk_editable_delete_selection (GTK_EDITABLE (widget));
+#ifndef HAVE_WEBKIT2
+        else if (WEBKIT_IS_WEB_VIEW (widget))
+            webkit_web_view_delete_selection (WEBKIT_WEB_VIEW (widget));
+#endif
         else if (GTK_IS_TEXT_VIEW (widget))
             gtk_text_buffer_delete_selection (
                 gtk_text_view_get_buffer (GTK_TEXT_VIEW (widget)), TRUE, FALSE);
     }
-#endif
 }
 
 static void
@@ -2901,6 +2910,10 @@ _action_select_all_activate (GtkAction*     action,
     {
         if (GTK_IS_EDITABLE (widget))
             gtk_editable_select_region (GTK_EDITABLE (widget), 0, -1);
+#ifdef HAVE_WEBKIT2
+        else if (WEBKIT_IS_WEB_VIEW (widget))
+            webkit_web_view_execute_editing_command (WEBKIT_WEB_VIEW (widget), WEBKIT_EDITING_COMMAND_SELECT_ALL);
+#endif
         else if (g_signal_lookup ("select-all", G_OBJECT_TYPE (widget)))
         {
             if (GTK_IS_TEXT_VIEW (widget))
@@ -3484,11 +3497,18 @@ _action_source_view (GtkAction*     action,
                      MidoriBrowser* browser,
                      gboolean       use_dom)
 {
-    GtkWidget* view;
+    GtkWidget* view = midori_browser_get_current_tab (browser);
+    #ifdef HAVE_WEBKIT2
+    /* TODO: midori_view_save_source isn't async and not WebKit2-friendly */
+    GtkWidget* source = midori_view_new_with_item (NULL, browser->settings);
+    GtkWidget* source_view = midori_view_get_web_view (MIDORI_VIEW (source));
+    midori_tab_set_view_source (MIDORI_TAB (source), TRUE);
+    webkit_web_view_load_uri (WEBKIT_WEB_VIEW (source_view), midori_tab_get_uri (MIDORI_TAB (view)));
+    midori_browser_add_tab (browser, source);
+    #else
     gchar* text_editor;
     gchar* filename = NULL;
 
-    view = midori_browser_get_current_tab (browser);
     filename = midori_view_save_source (MIDORI_VIEW (view), NULL, NULL, use_dom);
     g_object_get (browser->settings, "text-editor", &text_editor, NULL);
     if (!(text_editor && *text_editor))
@@ -3512,6 +3532,7 @@ _action_source_view (GtkAction*     action,
         g_free (filename);
     }
     g_free (text_editor);
+    #endif
 }
 
 static void

@@ -46,12 +46,12 @@ namespace Midori {
                 if (item is Midori.HistoryWebsite) {
                     var website = item as Midori.HistoryWebsite;
                     suggestions.append (new Suggestion (website.uri, website.title,
-                        false, null, Midori.Paths.get_icon (website.uri, null)));
+                        false, null, yield Midori.URI.get_icon_fallback (website.uri, null, cancellable), this.position));
                 }
                 else if (item is Midori.HistorySearch) {
                     var search = item as Midori.HistorySearch;
                     suggestions.append (new Suggestion (search.uri, search.title + "\n" + search.uri,
-                        false, "gray", Midori.Paths.get_icon (search.uri, null), this.position));
+                        false, "gray", yield Midori.URI.get_icon_fallback (search.uri, null, cancellable), this.position));
                 }
                 else
                     warn_if_reached ();

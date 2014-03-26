@@ -64,6 +64,11 @@ GtkWidget*
 midori_view_new_with_item              (KatzeItem*         item,
                                         MidoriWebSettings* settings);
 
+GtkWidget*
+midori_view_new_from_view              (MidoriView*        view,
+                                        KatzeItem*         item,
+                                        MidoriWebSettings* settings);
+
 void
 midori_view_set_settings               (MidoriView*        view,
                                         MidoriWebSettings* settings);

@@ -40,7 +40,9 @@ namespace Adblock {
         public Options optslist;
         public Whitelist whitelist;
         public Element element;
+#if !HAVE_WEBKIT2
         WebKit.Download? download;
+#endif
 
         public Subscription (string uri) {
             debug_parse = "adblock:parse" in (Environment.get_variable ("MIDORI_DEBUG") ?? "");
@@ -289,6 +291,7 @@ namespace Adblock {
             }
         }
 
+#if !HAVE_WEBKIT2
         void download_status (ParamSpec pspec) {
             if (download.get_status () != WebKit.DownloadStatus.FINISHED)
                 return;
@@ -300,6 +303,7 @@ namespace Adblock {
                 warning ("Error parsing %s: %s", uri, error.message);
             }
         }
+#endif
 
         public void parse () throws Error
         {
@@ -340,8 +344,8 @@ namespace Adblock {
                     download.destination_uri = destination_uri;
                     download.notify["status"].connect (download_status);
                     download.start ();
-#endif
                 }
+#endif
                 return;
             }
 

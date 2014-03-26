@@ -544,10 +544,24 @@ midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view
             webkit_policy_decision_download (decision);
             return TRUE;
         }
+        webkit_policy_decision_use (decision);
+        return TRUE;
+    }
+    else if (decision_type == WEBKIT_POLICY_DECISION_TYPE_NEW_WINDOW_ACTION)
+    {
+    }
+    else if (decision_type == WEBKIT_POLICY_DECISION_TYPE_NAVIGATION_ACTION)
+    {
+    }
+    else
+    {
+        g_debug ("Unhandled policy decision type %d", decision_type);
+        return FALSE;
     }
 
     void* request = NULL;
-    const gchar* uri = webkit_web_view_get_uri (web_view);
+    const gchar* uri = webkit_uri_request_get_uri (
+        webkit_navigation_policy_decision_get_request (WEBKIT_NAVIGATION_POLICY_DECISION (decision)));
     #else
     const gchar* uri = webkit_network_request_get_uri (request);
     #endif
@@ -648,6 +662,19 @@ midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view
     g_free (result);
     view->find_links = -1;
     #endif
+
+    gboolean handled = FALSE;
+    g_signal_emit_by_name (view, "navigation-requested", uri, &handled);
+    if (handled)
+    {
+        #ifdef HAVE_WEBKIT2
+        webkit_policy_decision_ignore (decision);
+        #else
+        webkit_web_policy_decision_ignore (decision);
+        #endif
+        return TRUE;
+    }
+
     return FALSE;
 }
 
@@ -2246,21 +2273,7 @@ midori_view_get_page_context_action (MidoriView*          view,
     if (context & WEBKIT_HIT_TEST_RESULT_CONTEXT_EDITABLE)
     {
         /* Enforce update of actions - there's no "selection-changed" signal */
-        #ifndef HAVE_WEBKIT2
-        gtk_action_set_sensitive (gtk_action_group_get_action (actions, "Undo"),
-            webkit_web_view_can_undo (WEBKIT_WEB_VIEW (view->web_view)));
-        gtk_action_set_sensitive (gtk_action_group_get_action (actions, "Redo"),
-            webkit_web_view_can_redo (WEBKIT_WEB_VIEW (view->web_view)));
-        gtk_action_set_sensitive (gtk_action_group_get_action (actions, "Cut"),
-            webkit_web_view_can_cut_clipboard (WEBKIT_WEB_VIEW (view->web_view)));
-        gtk_action_set_sensitive (gtk_action_group_get_action (actions, "Copy"),
-            webkit_web_view_can_copy_clipboard (WEBKIT_WEB_VIEW (view->web_view)));
-        gtk_action_set_sensitive (gtk_action_group_get_action (actions, "Paste"),
-            webkit_web_view_can_paste_clipboard (WEBKIT_WEB_VIEW (view->web_view)));
-        gtk_action_set_sensitive (gtk_action_group_get_action (actions, "Delete"),
-            webkit_web_view_can_cut_clipboard (WEBKIT_WEB_VIEW (view->web_view)));
-        gtk_action_set_sensitive (gtk_action_group_get_action (actions, "SelectAll"), TRUE);
-        #endif
+        midori_tab_update_actions (MIDORI_TAB (view), actions, NULL, NULL);
         midori_context_action_add_by_name (menu, "Undo");
         midori_context_action_add_by_name (menu, "Redo");
         midori_context_action_add (menu, NULL);
@@ -2348,15 +2361,6 @@ midori_view_get_page_context_action (MidoriView*          view,
         if (context & WEBKIT_HIT_TEST_RESULT_CONTEXT_LINK)
             midori_context_action_add (menu, NULL);
 
-        /* No need to have Copy twice, which is already in the editable menu */
-        if (!(context & WEBKIT_HIT_TEST_RESULT_CONTEXT_EDITABLE))
-        {
-            /* Enforce update of copy action - there's no "selection-changed" signal */
-            midori_context_action_add_by_name (menu, "Copy");
-            gtk_action_set_sensitive (gtk_action_group_get_action (actions, "Copy"),
-                webkit_web_view_can_copy_clipboard (WEBKIT_WEB_VIEW (view->web_view)));
-        }
-
         /* Ensure view->selected_text */
         midori_view_has_selection (view);
         if (midori_uri_is_valid (view->selected_text))
@@ -2422,16 +2426,28 @@ midori_view_get_page_context_action (MidoriView*          view,
         midori_context_action_add_by_name (menu, "Forward");
         midori_context_action_add_by_name (menu, "Stop");
         midori_context_action_add_by_name (menu, "Reload");
+    }
+
+    /* No need to have Copy twice, which is already in the editable menu */
+    if (!(context & WEBKIT_HIT_TEST_RESULT_CONTEXT_EDITABLE))
+    {
+        midori_context_action_add (menu, NULL);
+        /* Enforce update of actions - there's no "selection-changed" signal */
+        midori_tab_update_actions (MIDORI_TAB (view), actions, NULL, NULL);
+        midori_context_action_add_by_name (menu, "Copy");
+        midori_context_action_add_by_name (menu, "SelectAll");
+    }
+
+    if (context == WEBKIT_HIT_TEST_RESULT_CONTEXT_DOCUMENT)
+    {
         midori_context_action_add (menu, NULL);
         midori_context_action_add_by_name (menu, "UndoTabClose");
-
         #ifndef HAVE_WEBKIT2
         WebKitWebView* web_view = WEBKIT_WEB_VIEW (view->web_view);
         if (webkit_web_view_get_focused_frame (web_view) != webkit_web_view_get_main_frame (web_view))
             midori_context_action_add_simple (menu, "OpenFrameInNewTab", _("Open _Frame in New Tab"), NULL, NULL,
                 midori_web_view_open_frame_in_new_tab_cb, view);
         #endif
-
         midori_context_action_add_simple (menu, "OpenInNewWindow", _("Open in New _Window"), NULL, STOCK_WINDOW_NEW,
             midori_view_tab_label_menu_window_new_cb, view);
         midori_context_action_add_by_name (menu, "ZoomIn");
@@ -2534,7 +2550,6 @@ midori_view_web_view_context_menu_cb (WebKitWebView*       web_view,
 }
 #endif
 
-#ifndef HAVE_WEBKIT2
 static gboolean
 midori_view_web_view_close_cb (WebKitWebView* web_view,
                                GtkWidget*     view)
@@ -2550,7 +2565,11 @@ webkit_web_view_web_view_ready_cb (GtkWidget*  web_view,
     MidoriNewView where = MIDORI_NEW_VIEW_TAB;
     GtkWidget* new_view = GTK_WIDGET (midori_view_get_for_widget (web_view));
 
+#ifdef HAVE_WEBKIT2
+    WebKitWindowProperties* features = webkit_web_view_get_window_properties (WEBKIT_WEB_VIEW (web_view));
+#else
     WebKitWebWindowFeatures* features = webkit_web_view_get_window_features (WEBKIT_WEB_VIEW (web_view));
+#endif
     gboolean locationbar_visible, menubar_visible, toolbar_visible;
     gint width, height;
     g_object_get (features,
@@ -2586,8 +2605,13 @@ webkit_web_view_web_view_ready_cb (GtkWidget*  web_view,
         GtkWidget* toplevel = gtk_widget_get_toplevel (new_view);
         if (width > 0 && height > 0)
             gtk_widget_set_size_request (toplevel, width, height);
+#ifdef HAVE_WEBKIT2
+        g_signal_connect (web_view, "close",
+                          G_CALLBACK (midori_view_web_view_close_cb), new_view);
+#else
         g_signal_connect (web_view, "close-web-view",
                           G_CALLBACK (midori_view_web_view_close_cb), new_view);
+#endif
     }
 
     return TRUE;
@@ -2595,26 +2619,38 @@ webkit_web_view_web_view_ready_cb (GtkWidget*  web_view,
 
 static GtkWidget*
 webkit_web_view_create_web_view_cb (GtkWidget*      web_view,
+#ifndef HAVE_WEBKIT2
                                     WebKitWebFrame* web_frame,
+#endif
                                     MidoriView*     view)
 {
     MidoriView* new_view;
 
+#ifdef HAVE_WEBKIT2
+    const gchar* uri = webkit_web_view_get_uri (WEBKIT_WEB_VIEW (web_view));
+#else
+    const gchar* uri = webkit_web_frame_get_uri (web_frame);
+#endif
     if (view->open_new_pages_in == MIDORI_NEW_PAGE_CURRENT)
         new_view = view;
     else
     {
         KatzeItem* item = katze_item_new ();
-        item->uri = g_strdup (webkit_web_frame_get_uri (web_frame));
-        new_view = (MidoriView*)midori_view_new_with_item (item, view->settings);
+        item->uri = g_strdup (uri);
+        new_view = (MidoriView*)midori_view_new_from_view (view, item, NULL);
+#ifdef HAVE_WEBKIT2
+        g_signal_connect (new_view->web_view, "ready-to-show",
+                          G_CALLBACK (webkit_web_view_web_view_ready_cb), view);
+#else
         g_signal_connect (new_view->web_view, "web-view-ready",
                           G_CALLBACK (webkit_web_view_web_view_ready_cb), view);
+#endif
     }
-    g_object_set_data_full (G_OBJECT (new_view), "opener-uri",
-        g_strdup (webkit_web_frame_get_uri (web_frame)), g_free);
+    g_object_set_data_full (G_OBJECT (new_view), "opener-uri", g_strdup (uri), g_free);
     return new_view->web_view;
 }
 
+#ifndef HAVE_WEBKIT2
 static gboolean
 webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
                                        WebKitWebFrame*          web_frame,
@@ -3144,14 +3180,55 @@ midori_view_new_with_title (const gchar*       title,
  * Return value: a new #MidoriView
  *
  * Since: 0.4.3
+ * Deprecated: 0.5.8: Use midori_view_new_from_view instead.
  **/
 GtkWidget*
 midori_view_new_with_item (KatzeItem*         item,
                            MidoriWebSettings* settings)
 {
+    return midori_view_new_from_view (NULL, item, settings);
+}
+
+/**
+ * midori_view_new_with_item:
+ * @view: a predating, related #MidoriView, or %NULL
+ * @item: a #KatzeItem, or %NULL
+ * @settings: a #MidoriWebSettings, or %NULL
+ *
+ * Creates a new view, visible by default.
+ *
+ * If a @view is specified the returned new view will share
+ * its settings and if applicable re-use the rendering process.
+ *
+ * When @view should be passed:
+ *     The new one created is a new tab/ window for the old @view
+ *     A tab was duplicated
+ *
+ * When @view may be passed:
+ *     Old and new view belong to the same website or group
+ *
+ * Don't pass a @view if:
+ *     The new view is a completely new website
+ *
+ * The @item may contain title, URI and minimized status and will be copied.
+ *
+ * Usually @settings should be passed from an existing view or browser.
+ *
+ * Return value: a new #MidoriView
+ *
+ * Since: 0.5.8
+ **/
+GtkWidget*
+midori_view_new_from_view (MidoriView*        related,
+                           KatzeItem*         item,
+                           MidoriWebSettings* settings)
+{
     MidoriView* view = g_object_new (MIDORI_TYPE_VIEW,
+                                     "related", MIDORI_TAB (related),
                                      "title", item ? katze_item_get_name (item) : NULL,
                                      NULL);
+    if (!settings && related)
+        settings = related->settings;
     if (settings)
         _midori_view_set_settings (view, settings);
     if (item)
@@ -3427,6 +3504,8 @@ midori_view_constructor (GType                  type,
                       midori_view_web_view_permission_request_cb, view,
                       "signal::context-menu",
                       midori_view_web_view_context_menu_cb, view,
+                      "signal::create",
+                      webkit_web_view_create_web_view_cb, view,
                       #else
                       "signal::notify::load-status",
                       midori_view_web_view_notify_load_status_cb, view,
