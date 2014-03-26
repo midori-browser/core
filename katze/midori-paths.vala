@@ -182,9 +182,18 @@ namespace Midori {
                 WebKit.get_favicon_database ().set_path (null);
 #endif
             }
+
+            string fallback_icons1 = Path.build_filename (MDATADIR, PACKAGE_NAME, "icons", "scalable");
+            Gtk.IconTheme.get_default ().append_search_path (fallback_icons1);
+#if !HAVE_WIN32
+            string? fallback_icons2 = build_folder ("icons", null, "scalable");
+            if (fallback_icons2 != null)
+                Gtk.IconTheme.get_default ().append_search_path (fallback_icons2);
+#endif
+
             if (strcmp (Environment.get_variable ("MIDORI_DEBUG"), "paths") == 0) {
-                stdout.printf ("config: %s\ncache: %s\nuser_data: %s\ntmp: %s\n",
-                               config_dir, cache_dir, user_data_dir, tmp_dir);
+                stdout.printf ("config: %s\ncache: %s\nuser_data: %s\ntmp: %s\nicons: %s\n",
+                               config_dir, cache_dir, user_data_dir, tmp_dir, fallback_icons1);
             }
         }
 
@@ -383,6 +392,7 @@ namespace Midori {
             #endif
         }
 
+        #if !HAVE_WIN32
         string? build_folder (string folder, string? middle, string filename) {
             /* Fallback to build folder */
             File? parent = File.new_for_path (exec_path);
@@ -397,6 +407,7 @@ namespace Midori {
             }
             return null;
         }
+        #endif
 
         /* returns the path to a file containing read-only data installed with the application
         if @res is true, looks in the midori resource folder specifically */

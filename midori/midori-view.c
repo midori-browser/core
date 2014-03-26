@@ -711,10 +711,7 @@ midori_view_load_committed (MidoriView* view)
     }
 
     katze_item_set_added (view->item, time (NULL));
-    katze_item_set_meta_integer (view->item, "history-step", -1);
-
     g_object_set (view, "title", NULL, NULL);
-
     midori_view_unset_icon (view);
 
     if (!strncmp (uri, "https", 5))
@@ -4824,9 +4821,13 @@ midori_view_print (MidoriView* view)
 {
     g_return_if_fail (MIDORI_IS_VIEW (view));
 
+    GtkPrintSettings* settings = gtk_print_settings_new ();
+    #if GTK_CHECK_VERSION (3, 6, 0)
+    gtk_print_settings_set (settings, GTK_PRINT_SETTINGS_OUTPUT_BASENAME, midori_view_get_display_title (view));
+    #endif
+
 #ifdef HAVE_WEBKIT2
     WebKitPrintOperation* operation = webkit_print_operation_new (WEBKIT_WEB_VIEW (view->web_view));
-    GtkPrintSettings* settings = gtk_print_settings_new ();
     webkit_print_operation_set_print_settings (operation, settings);
     g_object_unref (settings);
 
@@ -4838,11 +4839,11 @@ midori_view_print (MidoriView* view)
             GTK_WINDOW (midori_browser_get_for_widget (view->web_view)));
     }
     g_object_unref (operation);
-
-
 #else
     WebKitWebFrame* frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view));
     GtkPrintOperation* operation = gtk_print_operation_new ();
+    gtk_print_operation_set_print_settings (operation, settings);
+    g_object_unref (settings);
     gtk_print_operation_set_custom_tab_label (operation, _("Features"));
     gtk_print_operation_set_embed_page_setup (operation, TRUE);
     g_signal_connect (operation, "create-custom-widget",

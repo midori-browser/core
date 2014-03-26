@@ -23,6 +23,11 @@ namespace Midori {
     }
 
     /*
+     * Since: 0.5.8
+     */
+    public delegate bool DatabaseCallback () throws DatabaseError;
+
+    /*
      * Since: 0.5.7
      */
     public class DatabaseStatement : GLib.Object, GLib.Initable {
@@ -30,6 +35,7 @@ namespace Midori {
         protected Sqlite.Statement _stmt = null;
         public Database? database { get; set construct; }
         public string? query { get; set construct; }
+        private int64 last_row_id = -1;
 
         public DatabaseStatement (Database database, string query) throws DatabaseError {
             Object (database: database, query: query);
@@ -53,13 +59,22 @@ namespace Midori {
             int pindex = stmt.bind_parameter_index (pname);
             var args = va_list ();
             Type ptype = args.arg ();
-            if (ptype == typeof (string))
-                stmt.bind_text (pindex, args.arg ());
-            else if (ptype == typeof (int64))
-                stmt.bind_int64 (pindex, args.arg ());
-            else if (ptype == typeof (double))
-                stmt.bind_double (pindex, args.arg ());
-            else
+            if (ptype == typeof (string)) {
+                string text = args.arg ();
+                stmt.bind_text (pindex, text);
+                if (database.trace)
+                    stdout.printf ("%s=%s ", pname, text);
+            } else if (ptype == typeof (int64)) {
+                int64 integer = args.arg ();
+                stmt.bind_int64 (pindex, integer);
+                if (database.trace)
+                    stdout.printf ("%s=%s ", pname, integer.to_string ());
+            } else if (ptype == typeof (double)) {
+                double stuntman = args.arg ();
+                stmt.bind_double (pindex, stuntman);
+                if (database.trace)
+                    stdout.printf ("%s=%s ", pname, stuntman.to_string ());
+            } else
                 throw new DatabaseError.TYPE ("Invalid type '%s' for '%s' in statement: %s".printf (ptype.name (), pname, query));
         }
 
@@ -79,7 +94,19 @@ namespace Midori {
             int result = stmt.step ();
             if (result != Sqlite.DONE && result != Sqlite.ROW)
                 throw new DatabaseError.EXECUTE (database.db.errmsg ());
+            last_row_id = database.db.last_insert_rowid ();
             return result == Sqlite.ROW;
+        }
+
+        /*
+         * Returns the id of the last inserted row.
+         * It is an error to ask for an id without having inserted a row.
+         * Since: 0.5.8
+         */
+        public int64 row_id () throws DatabaseError {
+            if (last_row_id == -1)
+                throw new DatabaseError.EXECUTE ("No row id");
+            return last_row_id;
         }
 
         private int column_index (string name) throws DatabaseError {
@@ -128,6 +155,7 @@ namespace Midori {
      * Since: 0.5.6
      */
     public class Database : GLib.Object, GLib.Initable {
+        internal bool trace = false;
         public Sqlite.Database? db { get { return _db; } }
         protected Sqlite.Database? _db = null;
         public string? path { get; protected set; default = null; }
@@ -161,6 +189,19 @@ namespace Midori {
 
             if (Sqlite.Database.open_v2 (real_path, out _db) != Sqlite.OK)
                 throw new DatabaseError.OPEN ("Failed to open database %s".printf (real_path));
+
+            string token = Environment.get_variable ("MIDORI_DEBUG") ?? "";
+            string basename = Path.get_basename (path);
+            string[] parts = basename.split (".");
+            trace = ("db:" + parts[0]) in token;
+            if (trace) {
+                stdout.printf ("§§ Tracing %s\n", path);
+                db.profile ((sql, nanoseconds) => {
+                    /* sqlite as of this writing isn't more precise than ms */
+                    string milliseconds = (nanoseconds / 1000000).to_string ();
+                    stdout.printf ("§§ %s: %s (%sms)\n", path, sql, milliseconds);
+                });
+            }
 
             if (db.exec ("PRAGMA journal_mode = WAL; PRAGMA cache_size = 32100;") != Sqlite.OK)
                 db.exec ("PRAGMA synchronous = NORMAL; PRAGMA temp_store = MEMORY;");
@@ -219,9 +260,14 @@ namespace Midori {
             } catch (Error error) {
                 throw new DatabaseError.FILENAME ("Failed to open schema: %s".printf (schema_filename));
             }
-            schema = "BEGIN TRANSACTION; %s; COMMIT;".printf (schema);
-            if (db.exec (schema) != Sqlite.OK)
-                throw new DatabaseError.EXECUTE ("Failed to execute schema: %s".printf (schema));
+            transaction (()=> { return exec (schema); });
+            return true;
+        }
+
+        public bool transaction (DatabaseCallback callback) throws DatabaseError {
+            exec ("BEGIN TRANSACTION;");
+            callback ();
+            exec ("COMMIT;");
             return true;
         }
 
@@ -255,6 +301,8 @@ namespace Midori {
                     throw new DatabaseError.TYPE ("Invalid type '%s' in statement: %s".printf (ptype.name (), query));
                 pname = args.arg ();
             }
+            if (trace)
+                stdout.printf ("\n");
             return statement;
         }
     }
