@@ -2364,15 +2364,6 @@ midori_view_get_page_context_action (MidoriView*          view,
         if (context & WEBKIT_HIT_TEST_RESULT_CONTEXT_LINK)
             midori_context_action_add (menu, NULL);
 
-        /* No need to have Copy twice, which is already in the editable menu */
-        if (!(context & WEBKIT_HIT_TEST_RESULT_CONTEXT_EDITABLE))
-        {
-            /* Enforce update of copy action - there's no "selection-changed" signal */
-            midori_context_action_add_by_name (menu, "Copy");
-            gtk_action_set_sensitive (gtk_action_group_get_action (actions, "Copy"),
-                webkit_web_view_can_copy_clipboard (WEBKIT_WEB_VIEW (view->web_view)));
-        }
-
         /* Ensure view->selected_text */
         midori_view_has_selection (view);
         if (midori_uri_is_valid (view->selected_text))
@@ -2438,16 +2429,28 @@ midori_view_get_page_context_action (MidoriView*          view,
         midori_context_action_add_by_name (menu, "Forward");
         midori_context_action_add_by_name (menu, "Stop");
         midori_context_action_add_by_name (menu, "Reload");
+    }
+
+    /* No need to have Copy twice, which is already in the editable menu */
+    if (!(context & WEBKIT_HIT_TEST_RESULT_CONTEXT_EDITABLE))
+    {
+        midori_context_action_add (menu, NULL);
+        /* Enforce update of actions - there's no "selection-changed" signal */
+        midori_tab_update_actions (MIDORI_TAB (view), actions, NULL, NULL);
+        midori_context_action_add_by_name (menu, "Copy");
+        midori_context_action_add_by_name (menu, "SelectAll");
+    }
+
+    if (context == WEBKIT_HIT_TEST_RESULT_CONTEXT_DOCUMENT)
+    {
         midori_context_action_add (menu, NULL);
         midori_context_action_add_by_name (menu, "UndoTabClose");
-
         #ifndef HAVE_WEBKIT2
         WebKitWebView* web_view = WEBKIT_WEB_VIEW (view->web_view);
         if (webkit_web_view_get_focused_frame (web_view) != webkit_web_view_get_main_frame (web_view))
             midori_context_action_add_simple (menu, "OpenFrameInNewTab", _("Open _Frame in New Tab"), NULL, NULL,
                 midori_web_view_open_frame_in_new_tab_cb, view);
         #endif
-
         midori_context_action_add_simple (menu, "OpenInNewWindow", _("Open in New _Window"), NULL, STOCK_WINDOW_NEW,
             midori_view_tab_label_menu_window_new_cb, view);
         midori_context_action_add_by_name (menu, "ZoomIn");
