@@ -56,6 +56,14 @@ midori_web_app_new (const gchar* webapp,
     g_return_val_if_fail (webapp != NULL, NULL);
 
     midori_paths_init (MIDORI_RUNTIME_MODE_APP, webapp);
+    /*
+       Set sanitized URI as class name which .desktop files use as StartupWMClass
+       So dock type launchers can distinguish different apps with the same executable
+     */
+    gchar* wm_class = g_strdelimit (g_strdup (webapp), ":.\\/", '_');
+    gdk_set_program_class (wm_class);
+    g_free (wm_class);
+
     MidoriBrowser* browser = midori_browser_new ();
     g_signal_connect (browser, "new-window",
         G_CALLBACK (midori_frontend_browser_new_window_cb), NULL);

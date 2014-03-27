@@ -69,6 +69,12 @@ namespace Apps {
             keyfile.set_string (entry, "TryExec", PACKAGE_NAME);
             keyfile.set_string (entry, "Icon", icon_name);
             keyfile.set_string (entry, "Categories", "Network;");
+            /*
+               Using the sanitized URI as a class matches midori_web_app_new
+               So dock type launchers can distinguish different apps with the same executable
+             */
+            if (exec.has_prefix (APP_PREFIX))
+                keyfile.set_string (entry, "StartupWMClass", uri.delimit (":.\\/", '_'));
 
             return keyfile.to_data();
         }
