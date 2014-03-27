@@ -165,7 +165,7 @@ midori_browser_get_property (GObject*    object,
                              GValue*     value,
                              GParamSpec* pspec);
 
-void
+gboolean
 midori_browser_open_bookmark (MidoriBrowser* browser,
                               KatzeItem*     item);
 
@@ -3035,6 +3035,14 @@ midori_browser_bookmark_popup (GtkWidget*      proxy,
                                MidoriBrowser*  browser);
 
 static gboolean
+midori_bookmarkbar_activate_item (GtkAction* action,
+                                  KatzeItem* item,
+                                  MidoriBrowser* browser)
+{
+    return midori_browser_open_bookmark (browser, item);;
+}
+
+static gboolean
 midori_bookmarkbar_activate_item_alt (GtkAction*      action,
                                       KatzeItem*      item,
                                       GtkWidget*      proxy,
@@ -3054,7 +3062,7 @@ midori_bookmarkbar_activate_item_alt (GtkAction*      action,
     }
     else if (event->button == 1)
     {
-        midori_browser_open_bookmark (browser, item);
+        midori_bookmarkbar_activate_item (action, item, browser);
     }
 
     return TRUE;
@@ -3112,7 +3120,7 @@ _action_trash_activate_item_alt (GtkAction*      action,
     return TRUE;
 }
 
-/* static */ void
+/* static */ gboolean
 midori_browser_open_bookmark (MidoriBrowser* browser,
                               KatzeItem*     item)
 {
@@ -3120,7 +3128,7 @@ midori_browser_open_bookmark (MidoriBrowser* browser,
     gchar* uri_fixed;
 
     if (!(uri && *uri))
-        return;
+        return FALSE;
 
     /* Imported bookmarks may lack a protocol */
     uri_fixed = sokoke_magic_uri (uri, TRUE, FALSE);
@@ -3135,6 +3143,7 @@ midori_browser_open_bookmark (MidoriBrowser* browser,
         gtk_widget_grab_focus (midori_browser_get_current_tab (browser));
     }
     g_free (uri_fixed);
+    return TRUE;
 }
 
 static void
@@ -5935,6 +5944,8 @@ midori_browser_init (MidoriBrowser* browser)
                       _action_bookmarks_populate_folder, browser,
                       "signal::activate-item-alt",
                       midori_bookmarkbar_activate_item_alt, browser,
+                      "signal::activate-item",
+                      midori_bookmarkbar_activate_item, browser,
                       NULL);
     gtk_action_group_add_action_with_accel (browser->action_group, action, "");
     g_object_unref (action);
