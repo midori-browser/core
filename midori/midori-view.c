@@ -508,7 +508,7 @@ midori_view_get_tls_info (MidoriView*           view,
         g_object_get (message, "tls-certificate", tls_cert, "tls-errors", tls_flags, NULL);
         if (soup_message_get_flags (message) & SOUP_MESSAGE_CERTIFICATE_TRUSTED)
             return TRUE;
-        return tls_flags == 0;
+        return *tls_flags == 0;
     }
     *tls_cert = NULL;
     *tls_flags = 0;
