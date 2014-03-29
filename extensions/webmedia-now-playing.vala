@@ -13,8 +13,10 @@ namespace Sandcat {
 
     private class Manager : Midori.Extension {
         DbusService dbus_service { get; set; }
+        WebMediaNotify web_media_notify { get; set; }
+
         internal Manager () {
-            GLib.Object (name: _("Now-playing extension"),
+            GLib.Object (name: _("Webmedia now-playing"),
                          description: _("Share 'youtube, vimeo, dailymotion' that you are playing in Midori using org.midori.mediaHerald"),
                          version: "0.1" + Midori.VERSION_SUFFIX,
                          authors: "James Axl <axlrose112@gmail.com>");
@@ -24,22 +26,30 @@ namespace Sandcat {
 
         void youtube_validation (string title, string uri) {
             try {
-                    var youtube = new Regex("""(http|https)://www.youtube.com\/watch\?v=[&=_\-A-Za-z0-9.]+""");
+                    var youtube = new Regex("""(http|https)://www.youtube.com/watch\?v=[&=_\-A-Za-z0-9.]+""");
                     var vimeo = new Regex("""(http|https)://vimeo.com/[_\-A-Za-z0-9]+""");
                     var dailymotion = new Regex("""(http|https)://www.dailymotion.com/video/[_\-A-Za-z0-9]+""");
                     if (youtube.match(uri)) {
                         dbus_service.video_title = title;
                         dbus_service.video_uri = uri;
+                        web_media_notify.notify_media = "Youtube";
+                        web_media_notify.notify_video_title = title;
+                        
                     } else if (vimeo.match(uri)) {
                         dbus_service.video_title = title;
                         dbus_service.video_uri = uri;
+                        web_media_notify.notify_media = "Vimeo";
+                        web_media_notify.notify_video_title = title;
                     } else if (dailymotion.match(uri)) {
                         dbus_service.video_title = title;
+                        web_media_notify.notify_media = "Dailymotion";
+                        web_media_notify.notify_video_title = title;
                         dbus_service.video_uri = uri;
                     } else {
                         dbus_service.video_title = "";
                         dbus_service.video_uri = "";
                     }
+                web_media_notify.show_notify();
                 } catch(RegexError e) {
                     warning ("%s", e.message);
                 }
@@ -53,6 +63,7 @@ namespace Sandcat {
 
         void activated (Midori.App app) {
             dbus_service = new DbusService();
+            web_media_notify = new WebMediaNotify();
             foreach (var browser in app.get_browsers ())
                 browser_added (browser);
             app.add_browser.connect (browser_added);
@@ -100,6 +111,22 @@ namespace Sandcat {
             }
         }
     }
+    
+    public class WebMediaNotify {
+		public string notify_video_title { get; set; }
+		//string notify_video_uri { get; set; }
+		public string notify_media { get; set; }
+
+		public void show_notify () {
+			try {
+				Notify.init ("Midori");
+				var notify = new Notify.Notification("Midori is playing in " + notify_media, notify_video_title, "midori");
+				notify.show();
+			} catch (Error e) {
+				error ("Error: %s", e.message);
+			}
+		}
+	}
 }
 
 public Midori.Extension extension_init () {
