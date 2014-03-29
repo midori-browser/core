@@ -84,7 +84,9 @@ namespace Midori {
                 }
                 else
                     menuitem = new WebKit.ContextMenuItem (action);
-                menu.append (menuitem);
+                // Visibility of the action is ignored, so we skip hidden items
+                if (action.visible)
+                    menu.append (menuitem);
             }
             return menu;
         }

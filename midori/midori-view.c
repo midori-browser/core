@@ -2467,8 +2467,7 @@ midori_view_get_page_context_action (MidoriView*          view,
 
         midori_context_action_add (menu, NULL);
         midori_context_action_add_by_name (menu, "BookmarkAdd");
-        if (!midori_view_is_blank (view) && !midori_paths_is_readonly ())
-            midori_context_action_add_by_name (menu, "AddSpeedDial");
+        midori_context_action_add_by_name (menu, "AddSpeedDial");
         midori_context_action_add_by_name (menu, "SaveAs");
         midori_context_action_add_by_name (menu, "SourceView");
         midori_context_action_add_by_name (menu, "SourceViewDom");
