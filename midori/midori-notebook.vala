@@ -36,7 +36,7 @@ namespace Midori {
             spinner.set_size_request (icon_size, icon_size);
             box.pack_start (spinner, false, false, 0);
             label = new Gtk.Label (null);
-            label.set_alignment (0.0f, 0.5f);
+            label.set_alignment (0.5f, 0.5f);
             label.set_padding (0, 0);
             box.pack_start (label, true, true, 0);
             close = new Gtk.Button ();
@@ -207,6 +207,7 @@ namespace Midori {
             notebook.show_border = false;
             notebook.set ("group-name", PACKAGE_NAME);
             add (notebook);
+            get_style_context ().add_class ("dynamic-notebook");
 
 #if !HAVE_GTK3
             /* Remove the inner border between scrollbars and window border */
