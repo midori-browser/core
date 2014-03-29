@@ -77,7 +77,7 @@ if (X11)
     find_library (XSS Xss /usr/lib/X11R6/lib)
     if (SCRNSAVER AND XSS)
         add_definitions("-DHAVE_X11_EXTENSIONS_SCRNSAVER_H")
-        set(OPTS_LIBRARIES "${OPTS_LIBRARIES};${XSS}")
+        set(OPTS_LIBRARIES "${OPTS_LIBRARIES};${XSS};${X11}")
     endif ()
 endif ()
 
