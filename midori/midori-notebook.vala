@@ -208,11 +208,9 @@ namespace Midori {
             notebook.set ("group-name", PACKAGE_NAME);
             add (notebook);
 
-#if HAVE_GRANITE
+#if HAVE_GTK3
             get_style_context ().add_class ("dynamic-notebook");
-#endif
-
-#if !HAVE_GTK3
+#else
             /* Remove the inner border between scrollbars and window border */
             Gtk.RcStyle rcstyle = new Gtk.RcStyle ();
             rcstyle.xthickness = 0;
