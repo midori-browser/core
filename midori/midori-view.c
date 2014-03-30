@@ -2563,9 +2563,10 @@ midori_view_web_view_context_menu_cb (WebKitWebView*       web_view,
     GList* items = gtk_container_get_children (GTK_CONTAINER (default_menu)), *item;
     for (item = items; item; item = g_list_next (item))
     {
-        /* The API isn't public */
+        /* Private API: Source/WebCore/platform/ContextMenuItem.h */
         int stock_action = GPOINTER_TO_INT (g_object_get_data (G_OBJECT (item->data), "webkit-context-menu"));
-        if (stock_action == 30 && guesses++ < guesses_max) /* Spelling suggestion */
+        const int ContextMenuItemTagSpellingGuess = 30;
+        if (stock_action == ContextMenuItemTagSpellingGuess && guesses++ < guesses_max)
             continue;
         else
             gtk_widget_destroy (item->data);
