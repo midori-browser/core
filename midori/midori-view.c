@@ -508,7 +508,7 @@ midori_view_get_tls_info (MidoriView*           view,
         g_object_get (message, "tls-certificate", tls_cert, "tls-errors", tls_flags, NULL);
         if (soup_message_get_flags (message) & SOUP_MESSAGE_CERTIFICATE_TRUSTED)
             return TRUE;
-        return tls_flags == 0;
+        return *tls_flags == 0;
     }
     *tls_cert = NULL;
     *tls_flags = 0;
@@ -797,6 +797,17 @@ midori_view_web_view_resource_request_cb (WebKitWebView*         web_view,
                                           MidoriView*            view)
 {
     const gchar* uri = webkit_network_request_get_uri (request);
+
+    #if defined (HAVE_LIBSOUP_2_29_91)
+    SoupMessage* message = webkit_network_request_get_message (request);
+    message = message ? midori_map_get_message (message) : message;
+    gboolean is_main_frame = !strcmp(uri, midori_tab_get_uri (MIDORI_TAB (view)));
+    if (message != NULL && !is_main_frame)
+    {
+        if (!(soup_message_get_flags (message) & SOUP_MESSAGE_CERTIFICATE_TRUSTED))
+            webkit_network_request_set_uri (request, "about:blank");
+    }
+    #endif
 #endif
 
     /* Only apply custom URIs to special pages for security purposes */
