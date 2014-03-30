@@ -797,17 +797,6 @@ midori_view_web_view_resource_request_cb (WebKitWebView*         web_view,
                                           MidoriView*            view)
 {
     const gchar* uri = webkit_network_request_get_uri (request);
-
-    #if defined (HAVE_LIBSOUP_2_29_91)
-    SoupMessage* message = webkit_network_request_get_message (request);
-    message = message ? midori_map_get_message (message) : message;
-    gboolean is_main_frame = !strcmp(uri, midori_tab_get_uri (MIDORI_TAB (view)));
-    if (message != NULL && !is_main_frame)
-    {
-        if (!(soup_message_get_flags (message) & SOUP_MESSAGE_CERTIFICATE_TRUSTED))
-            webkit_network_request_set_uri (request, "about:blank");
-    }
-    #endif
 #endif
 
     /* Only apply custom URIs to special pages for security purposes */
