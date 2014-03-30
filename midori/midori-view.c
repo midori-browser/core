@@ -2294,7 +2294,9 @@ midori_view_get_page_context_action (MidoriView*          view,
                               G_CALLBACK (midori_view_add_search_engine_cb), view);
             midori_context_action_add (menu, action);
         }
-        /* FIXME: input methods, font, spelling, insert unicode character */
+        /* FIXME: input methods */
+        /* FIXME: font */
+        /* FIXME: insert unicode character */
     }
 
     if (context & WEBKIT_HIT_TEST_RESULT_CONTEXT_LINK)
@@ -2539,11 +2541,36 @@ midori_view_web_view_context_menu_cb (WebKitWebView*       web_view,
     gdk_event_free (event);
     #endif
     MidoriContextAction* menu = midori_view_get_page_context_action (view, hit_test_result);
+    /* Retain specific menu items we can't re-create easily */
+    uint guesses = 0, guesses_max = 10; /* Maximum number of spelling suggestions */
     #ifdef HAVE_WEBKIT2
+    GList* items = webkit_context_menu_get_items (context_menu), *item, *preserved = NULL;
+    for (item = items; item; item = g_list_next (item))
+    {
+        WebKitContextMenuAction stock_action = webkit_context_menu_item_get_stock_action (item->data);
+        if (stock_action == WEBKIT_CONTEXT_MENU_ACTION_SPELLING_GUESS && guesses++ < guesses_max)
+            preserved = g_list_append (preserved, g_object_ref (item->data));
+    }
     webkit_context_menu_remove_all (context_menu);
+    for (item = preserved; item; item = g_list_next (item))
+    {
+        webkit_context_menu_append (context_menu, item->data);
+        g_object_unref (item->data);
+    }
+    g_list_free (preserved);
     midori_context_action_create_webkit_context_menu (menu, context_menu);
     #else
-    gtk_container_foreach (GTK_CONTAINER (default_menu), (GtkCallback) gtk_widget_destroy, NULL);
+    GList* items = gtk_container_get_children (GTK_CONTAINER (default_menu)), *item;
+    for (item = items; item; item = g_list_next (item))
+    {
+        /* The API isn't public */
+        int stock_action = GPOINTER_TO_INT (g_object_get_data (G_OBJECT (item->data), "webkit-context-menu"));
+        if (stock_action == 30 && guesses++ < guesses_max) /* Spelling suggestion */
+            continue;
+        else
+            gtk_widget_destroy (item->data);
+    }
+    g_list_free (items);
     midori_context_action_create_menu (menu, default_menu, FALSE);
     #endif
     return FALSE;
