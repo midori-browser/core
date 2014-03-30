@@ -207,7 +207,10 @@ namespace Midori {
             notebook.show_border = false;
             notebook.set ("group-name", PACKAGE_NAME);
             add (notebook);
+
+#if HAVE_GRANITE
             get_style_context ().add_class ("dynamic-notebook");
+#endif
 
 #if !HAVE_GTK3
             /* Remove the inner border between scrollbars and window border */
