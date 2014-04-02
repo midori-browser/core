@@ -236,7 +236,8 @@ namespace Midori {
             var pixbuf = Gdk.pixbuf_get_from_surface (image, 0, 0, image.get_width (), image.get_height ());
 #else
             var database = WebKit.get_favicon_database ();
-            var pixbuf = yield database.get_favicon_pixbuf (uri, 0, 0, cancellable);
+            // We must not pass a Cancellable due to a crasher bug
+            var pixbuf = yield database.get_favicon_pixbuf (uri, 0, 0, null);
 #endif
             return pixbuf as GLib.Icon;
         }
