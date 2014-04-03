@@ -1,5 +1,55 @@
 This file is licensed under the terms of the expat license, see the file EXPAT.
 
+v0.5.8
+ Use png icon instead of svg in set_status
+ We must not pass a Cancellable to FaviconDatabase.get_favicon_pixbuf
+ Retain spelling suggestion menu items from WebKit
+ Properly guard usage of gtk3 get_style_context
+ Block unverified sub resources
+ Mimic the look of Granite.DynamicNotebook when compiled with --enable-granite.
+ Fix X11 lib underlink in midori-core
+ Fix bookmarkbar bookmark click not opening links
+ Use sanitized app URI as wm_classname/ StartupWMClass
+ Make trunk build with WebKit2 again
+ Fix for incorrect tstamp for background tabs
+ Don't declare sorting doubles are nullable and print values when database tracing is enabled
+ Correctly apply saved entry state and treat urlbar as a regular editable item
+ Add missing conditional includes for granite flavoured build
+ Open URIs dragged on tab label or new tab button
+ Small adblock bugfixes
+ Work around GTK3's hard-coded minimum stackswitcher button width
+ Fix building with mingw packages from fedora 18
+ Set page title as basis for print filename
+ Rename notes inline
+ Use EXTRA_WARNINGS option when building for windows
+ Drop forgotten clutter init and obsolete header declarations
+ Rework history-step handling and make it work again
+ Port Tabby to DatabaseStatement API
+ Replace bookmark stracing with generic profiling in Midori.Database
+ Port autocompleter test to async job
+ Finishing touches for Adblock
+ Add filters and defaults
+ Implement and use ContextAction.escaped
+ printf URI in show_message_dialog for download error
+ Improve docs and GIR annotations for KatzeItem, KatzeArray, and MidoriWebSettings
+ Drop redundant TabNew from compact menu and put button in Tab Panel
+ Fix loading file:// pages
+ Implement Send Page Link by Email
+ Use GtkStackSwitcher with GTK+ >= 3.10
+ Implements context popup menu on menu entries of bookmark bar and bookmark menu.
+ Fix building with newer mingw versions
+ Display locationbar suggestions in the correct order
+ Don't bother adblocking internal pages and favicons
+ Don't use trailing comma on last list element in Adblock tests
+ Rewrite Adblock more modularly, add Whitelist support
+ Add support of DragonFlyBSD
+ Change tooltips of Reload and ReloadStop actions while shift modifier is pressed
+ Implement Midori.Database.attach method
+ Allow :memory: as folder to make schema detection work
+ More robust app/ profile creation
+ Add helper callbacks to modify bookmark's tree store with unneded access to bookmarks db
+ Implement more flexible fallback behavior for Cookie Permissions
+
 v0.5.7:
  Modify actions and internal items in browser without changing settings
  Delay tab loading after Midori crashed
