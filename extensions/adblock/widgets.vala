@@ -41,7 +41,7 @@ namespace Adblock {
             }
 
             public void set_status (string status) {
-                icon.set_from_icon_name ("adblock-%s".printf (status), Gtk.IconSize.MENU);
+                icon.set_from_file (Midori.Paths.get_res_filename ("adblock/%s.svg".printf (status)));
             }
         }
 
