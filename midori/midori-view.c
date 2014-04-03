@@ -2542,7 +2542,7 @@ midori_view_web_view_context_menu_cb (WebKitWebView*       web_view,
     #endif
     MidoriContextAction* menu = midori_view_get_page_context_action (view, hit_test_result);
     /* Retain specific menu items we can't re-create easily */
-    uint guesses = 0, guesses_max = 10; /* Maximum number of spelling suggestions */
+    guint guesses = 0, guesses_max = 10; /* Maximum number of spelling suggestions */
     #ifdef HAVE_WEBKIT2
     GList* items = webkit_context_menu_get_items (context_menu), *item, *preserved = NULL;
     for (item = items; item; item = g_list_next (item))
