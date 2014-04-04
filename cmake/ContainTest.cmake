@@ -5,7 +5,7 @@ include(ParseArguments)
 macro(contain_test test_name executable)
     parse_arguments(ARGS "test_name;executable" "" ${ARGN})
     set(TEST_ENV "")
-    foreach(VARIABLE XDG_CONFIG_HOME XDG_CACHE_HOME XDG_DATA_HOME XDG_RUNTIME_DIR TMPDIR)
+    foreach(VARIABLE XDG_CACHE_HOME XDG_CONFIG_HOME XDG_DATA_HOME XDG_RUNTIME_DIR TMPDIR)
         set(CONTAINER "${CMAKE_CURRENT_BINARY_DIR}/${test_name}-folders/${VARIABLE}")
         set(TEST_ENV "${TEST_ENV}${VARIABLE}=${CONTAINER};")
     endforeach()
@@ -19,8 +19,8 @@ macro(contain_test test_name executable)
                          )
     add_custom_target("contain-${test_name}"
         COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_CURRENT_BINARY_DIR}/${test_name}-folders
-        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/${test_name}-folders/XDG_CONFIG_HOME
         COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/${test_name}-folders/XDG_CACHE_HOME
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/${test_name}-folders/XDG_CONFIG_HOME
         COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/${test_name}-folders/XDG_DATA_HOME
         COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/${test_name}-folders/XDG_RUNTIME_DIR
         COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/${test_name}-folders/TMPDIR
