@@ -3753,44 +3753,7 @@ midori_view_list_plugins (MidoriView* view,
     #endif
 }
 
-static void
-list_geolocation (GString* markup)
-{
-    g_string_append (markup,
-    "<a href=\"http://dev.w3.org/geo/api/spec-source.html\" id=\"method\"></a>"
-    "<span id=\"locationInfo\"><noscript>No Geolocation without Javascript</noscript></span>"
-    "<script>"
-    "function displayLocation (position) {"
-    "var geouri = 'geo:' + position.coords.latitude + ',' + position.coords.longitude + ',' + position.coords.altitude + ',u=' + position.coords.accuracy;"
-    "document.getElementById('locationInfo').innerHTML = '<a href=\"' + geouri + '\">' + geouri + '</a><br><code>'"
-    "+ ' timestamp: ' + position.timestamp"
-    "+ ' latitude: ' + position.coords.latitude"
-    "+ ' longitude: ' + position.coords.longitude"
-    "+ ' altitude: ' + position.coords.altitude + '<br>'"
-    "+ ' accuracy: ' + position.coords.accuracy"
-    "+ ' altitudeAccuracy: ' + position.coords.altitudeAccuracy"
-    "+ ' heading: ' + position.coords.heading"
-    "+ ' speed: ' + position.coords.speed"
-    "+ '</code>'; }"
-    "function handleError (error) {"
-    "var errorMessage = '<b>' + ['Unknown error', 'Permission denied', 'Position failed', 'Timed out'][error.code] + '</b>';"
-    "if (error.code == 3) document.getElementById('locationInfo').innerHTML += (' ' + errorMessage);"
-    "else document.getElementById('locationInfo').innerHTML = errorMessage; }"
-    "if (navigator.geolocation) {"
-    "var options = { enableHighAccuracy: true, timeout: 60000, maximumAge: \"Infinite\" };"
-    "  if (navigator.geolocation.watchPosition) {"
-    "    document.getElementById('method').innerHTML = '<code>geolocation.watchPosition</code>:';"
-    "    navigator.geolocation.watchPosition(displayLocation, handleError, options);"
-    "  } else {"
-    "    document.getElementById('method').innerHTML = '<code>geolocation.getCurrentPosition</code>:';"
-    "    navigator.geolocation.getCurrentPosition(displayLocation, handleError);"
-    "  }"
-    "} else"
-    "  document.getElementById('locationInfo').innerHTML = 'Geolocation unavailable';"
-    "</script>");
-}
-
-static void
+void
 midori_view_list_video_formats (MidoriView* view,
                                 GString*    formats,
                                 gboolean    html)
@@ -3815,28 +3778,6 @@ midori_view_list_video_formats (MidoriView* view,
 #endif
 }
 
-static const gchar* valid_about_uris[] = {
-    "about:dial",
-    "about:geolocation",
-    "about:home",
-    "about:new",
-    "about:paths",
-    "about:private",
-    "about:search",
-    "about:widgets",
-};
-
-static void
-list_about_uris (GString* markup)
-{
-    g_string_append (markup, "<p>");
-    guint i;
-    for (i = 0; i < G_N_ELEMENTS (valid_about_uris); i++)
-        g_string_append_printf (markup, "<a href=\"%s\">%s</a> &nbsp;",
-                                valid_about_uris[i], valid_about_uris[i]);
-}
-
-
 /**
  * midori_view_set_uri:
  * @view: a #MidoriView
@@ -3851,8 +3792,6 @@ void
 midori_view_set_uri (MidoriView*  view,
                      const gchar* uri)
 {
-    gchar* data;
-
     g_return_if_fail (MIDORI_IS_VIEW (view));
     g_return_if_fail (uri != NULL);
 
@@ -3860,216 +3799,24 @@ midori_view_set_uri (MidoriView*  view,
         g_warning ("Calling %s() before adding the view to a browser. This "
                    "breaks extensions that monitor page loading.", G_STRFUNC);
 
+    midori_uri_recursive_fork_protection (uri, TRUE);
+
     if (!midori_debug ("unarmed"))
     {
         gboolean handled = FALSE;
-        gchar* temporary_uri = NULL;
         if (g_str_has_prefix (uri, "about:"))
             g_signal_emit (view, signals[ABOUT_CONTENT], 0, uri, &handled);
 
         if (handled)
-            return;
-
-        if (!strcmp (uri, "about:new"))
-            uri = midori_settings_get_tabhome (MIDORI_SETTINGS (view->settings));
-        if (!strcmp (uri, "about:home"))
-            uri = midori_settings_get_homepage (MIDORI_SETTINGS (view->settings));
-        if (!strcmp (uri, "about:search"))
         {
-            uri = midori_settings_get_location_entry_search (MIDORI_SETTINGS (view->settings));
-            temporary_uri = midori_uri_for_search (uri, "");
-            uri = temporary_uri;
-        }
-
-        if (!strcmp (uri, "about:dial"))
-        {
-            MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (view));
-            MidoriSpeedDial* dial = katze_object_get_object (browser, "speed-dial");
-            const gchar* html;
-            GTimer* timer = NULL;
-
-            if (midori_debug ("startup"))
-                timer = g_timer_new ();
-
-            midori_tab_set_uri (MIDORI_TAB (view), uri);
-            midori_tab_set_mime_type (MIDORI_TAB (view), "text/html");
-            katze_item_set_meta_string (view->item, "mime-type", "text/html");
-            katze_item_set_meta_integer (view->item, "delay", MIDORI_DELAY_UNDELAYED);
-
-            html = dial != NULL ? midori_speed_dial_get_html (dial, NULL) : "";
-            midori_view_set_html (view, html, uri, NULL);
-
-            if (midori_debug ("startup"))
-            {
-                g_debug ("Speed Dial: \t%fs", g_timer_elapsed (timer, NULL));
-                g_timer_destroy (timer);
-            }
-        }
-        else if (midori_uri_is_blank (uri))
-        {
-            data = NULL;
-            if (!strcmp (uri, "about:widgets"))
-            {
-                static const gchar* widgets[] = {
-                    "<input value=\"demo\"%s>",
-                    "<p><input type=\"password\" value=\"demo\"%s>",
-                    "<p><input type=\"checkbox\" value=\"demo\"%s> demo",
-                    "<p><input type=\"radio\" value=\"demo\"%s> demo",
-                    "<p><select%s><option>foo bar</option><option selected>spam eggs</option></select>",
-                    "<p><select%s size=\"3\"><option>foo bar</option><option selected>spam eggs</option></select>",
-                    "<p><input type=\"file\"%s>",
-                    "<p><input type=\"file\" multiple%s>",
-                    "<input type=\"button\" value=\"demo\"%s>",
-                    "<p><input type=\"email\" value=\"user@localhost.com\"%s>",
-                    "<input type=\"url\" value=\"http://www.example.com\"%s>",
-                    "<input type=\"tel\" value=\"+1 234 567 890\" pattern=\"^[0+][1-9 /-]*$\"%s>",
-                    "<input type=\"number\" min=1 max=9 step=1 value=\"4\"%s>",
-                    "<input type=\"range\" min=1 max=9 step=1 value=\"4\"%s>",
-                    "<input type=\"date\" min=1990-01-01 max=2010-01-01%s>",
-                    "<input type=\"search\" placeholder=\"demo\"%s>",
-                    "<textarea%s>Lorem ipsum doloret sit amet…</textarea>",
-                    "<input type=\"color\" value=\"#d1eeb9\"%s>",
-                    "<progress min=1 max=9 value=4 %s></progress>",
-                    "<keygen type=\"rsa\" challenge=\"235ldahlae983dadfar\"%s>",
-                    "<p><input type=\"reset\"%s>",
-                    "<input type=\"submit\"%s>",
-                };
-                guint i;
-                GString* demo = g_string_new ("<html><head><style>"
-                    ".fallback::-webkit-slider-thumb,"
-                    ".fallback, .fallback::-webkit-file-upload-button {"
-                    "-webkit-appearance: none !important }"
-                    ".column { display:inline-block; vertical-align:top;"
-                    "width:25%;margin-right:1% }</style><title>");
-                g_string_append_printf (demo,
-                    "%s</title></head><body><h1>%s</h1>", uri, uri);
-                g_string_append (demo, "<div class=\"column\">");
-                for (i = 0; i < G_N_ELEMENTS (widgets); i++)
-                    g_string_append_printf (demo, widgets[i], "");
-                g_string_append (demo, "</div><div class=\"column\">");
-                for (i = 0; i < G_N_ELEMENTS (widgets); i++)
-                    g_string_append_printf (demo, widgets[i], " disabled");
-                g_string_append (demo, "</div><div class=\"column\">");
-                for (i = 0; i < G_N_ELEMENTS (widgets); i++)
-                    g_string_append_printf (demo, widgets[i], " class=\"fallback\"");
-                g_string_append (demo, "</div>");
-                g_string_append (demo, "<p><a href=\"http://example.com\" target=\"wp\" "
-                                       "onclick=\"javascript:window.open('http://example.com','wp',"
-                                       "'width=320, height=240, toolbar=false'); return false\""
-                                       ">Popup window</a></p>");
-                data = g_string_free (demo, FALSE);
-            }
-            else if (!strcmp (uri, "about:private"))
-            {
-                data = g_strdup_printf (
-                    "<html dir=\"ltr\"><head><title>%s</title>"
-                    "<link rel=\"stylesheet\" type=\"text/css\" href=\"res://about.css\">"
-                    "</head>"
-                    "<body>"
-                    "<img id=\"logo\" src=\"res://logo-shade.png\" />"
-                        "<div id=\"main\" style=\"background-image: url(stock://dialog/gtk-dialog-info);\">"
-                            "<div id=\"text\">"
-                                "<h1>%s</h1>"
-                                "<p class=\"message\">%s</p><ul class=\" suggestions\"><li>%s</li><li>%s</li><li>%s</li></ul>"
-                                "<p class=\"message\">%s</p><ul class=\" suggestions\"><li>%s</li><li>%s</li><li>%s</li><li>%s</li></ul>"
-                    "</div><br style=\"clear: both\"></div></body></html>",
-                    _("Private Browsing"), _("Private Browsing"),
-                    _("Midori doesn't store any personal data:"),
-                    _("No history or web cookies are being saved."),
-                    _("Extensions are disabled."),
-                    _("HTML5 storage, local database and application caches are disabled."),
-                    _("Midori prevents websites from tracking the user:"),
-                    _("Referrer URLs are stripped down to the hostname."),
-                    _("DNS prefetching is disabled."),
-                    _("The language and timezone are not revealed to websites."),
-                    _("Flash and other Netscape plugins cannot be listed by websites."));
-            }
-            else if (!strcmp (uri, "about:geolocation"))
-            {
-                GString* markup = g_string_new ("");
-                list_geolocation (markup);
-                data = g_string_free (markup, FALSE);
-            }
-            else if (!strcmp (uri, "about:paths"))
-            {
-                gchar* res_dir = midori_paths_get_res_filename ("about.css");
-                gchar* lib_dir = midori_paths_get_lib_path (PACKAGE_NAME);
-                data = g_markup_printf_escaped ("<body><h1>%s</h1>"
-                    "<p>config: <code>%s</code></p>"
-                    "<p>res: <code>%s</code></p>"
-                    "<p>data: <code>%s/%s</code></p>"
-                    "<p>lib: <code>%s</code></p>"
-                    "<p>cache: <code>%s</code></p>"
-                    "<p>tmp: <code>%s</code></p>"
-                    "</body>",
-                    uri, midori_paths_get_config_dir_for_reading (), res_dir,
-                    midori_paths_get_user_data_dir_for_reading (), PACKAGE_NAME,
-                    lib_dir, midori_paths_get_cache_dir_for_reading (), midori_paths_get_tmp_dir ());
-                g_free (res_dir);
-                g_free (lib_dir);
-            }
-            else if (!strcmp (uri, "about:") || !strcmp (uri, "about:version"))
-            {
-                gchar* command_line = midori_paths_get_command_line_str (TRUE);
-                gchar* architecture, *platform;
-                const gchar* sys_name = midori_web_settings_get_system_name (
-                    &architecture, &platform);
-                gchar* ident = katze_object_get_string (view->settings, "user-agent");
-                GString * tmp = g_string_new ("");
-
-                g_string_append_printf (tmp,
-                    "<html><head><title>about:version</title></head>"
-                    "<body><h1>a%sbout:version</h1>"
-                    "<p>%s</p>"
-                    "<img src=\"res://logo-shade.png\" "
-                    "style=\"position: absolute; right: 15px; bottom: 15px; z-index: -9;\">"
-                    "<table>",
-                    "<span style=\"position: absolute; left: -1000px; top: -1000px\">lias a=b; echo Copy carefully #</span>",
-                    _("Version numbers in brackets show the version used at runtime."));
-                midori_view_add_version (tmp, TRUE, g_markup_printf_escaped ("Command line %s",
-                    command_line));
-                midori_view_list_versions (tmp, TRUE);
-                midori_view_add_version (tmp, TRUE, g_markup_printf_escaped ("Platform %s %s %s",
-                    platform, sys_name, architecture ? architecture : ""));
-                midori_view_add_version (tmp, TRUE, g_markup_printf_escaped ("Identification %s",
-                    ident));
-                midori_view_list_video_formats (view, tmp, TRUE);
-
-                g_string_append (tmp, "</table><table>");
-                midori_view_list_plugins (view, tmp, TRUE);
-                g_string_append (tmp, "</table>");
-                list_about_uris (tmp);
-                /* TODO: list active extensions */
-
-                g_string_append (tmp, "</body></html>");
-                data = g_string_free (tmp, FALSE);
-
-                g_free (command_line);
-                g_free (ident);
-            }
-            else if (!strcmp (uri, "about:blank"))
-                data = g_strdup ("<body></body>");
-            else
-            {
-                data = g_strdup_printf (
-                    "<html><head><title>%s</title></head><body><h1>%s</h1>"
-                    "<img src=\"res://logo-shade.png\" "
-                    "style=\"position: absolute; right: 15px; bottom: 15px; z-index: -9;\">"
-                    "</body></html>", uri, uri);
-            }
-
             midori_tab_set_uri (MIDORI_TAB (view), uri);
             midori_tab_set_special (MIDORI_TAB (view), TRUE);
-#ifndef HAVE_WEBKIT2
-            webkit_web_view_load_html_string (WEBKIT_WEB_VIEW (view->web_view), data, uri);
-#else
-            webkit_web_view_load_html (WEBKIT_WEB_VIEW (view->web_view), data, uri);
-#endif
-            g_free (data);
             katze_item_set_meta_integer (view->item, "delay", MIDORI_DELAY_UNDELAYED);
             katze_item_set_uri (view->item, midori_tab_get_uri (MIDORI_TAB (view)));
+            return;
         }
-        else if (katze_item_get_meta_integer (view->item, "delay") == MIDORI_DELAY_DELAYED)
+
+        if (katze_item_get_meta_integer (view->item, "delay") == MIDORI_DELAY_DELAYED)
         {
             midori_tab_set_uri (MIDORI_TAB (view), uri);
             midori_tab_set_special (MIDORI_TAB (view), TRUE);
@@ -4099,10 +3846,7 @@ midori_view_set_uri (MidoriView*  view,
                 gboolean handled = FALSE;
                 g_signal_emit_by_name (view, "open-uri", uri, &handled);
                 if (handled)
-                {
-                    g_free (temporary_uri);
                     return;
-                }
             }
 
             midori_tab_set_uri (MIDORI_TAB (view), uri);
@@ -4111,7 +3855,6 @@ midori_view_set_uri (MidoriView*  view,
             midori_tab_set_view_source (MIDORI_TAB (view), FALSE);
             webkit_web_view_load_uri (WEBKIT_WEB_VIEW (view->web_view), uri);
         }
-        g_free (temporary_uri);
     }
 }
 

@@ -247,6 +247,7 @@ midori_private_app_new (const gchar* config,
 
     /* FIXME need proper stock extension mechanism */
     midori_browser_activate_action (browser, "libtransfers." G_MODULE_SUFFIX "=true");
+    midori_browser_activate_action (browser, "libabout." G_MODULE_SUFFIX "=true");
     midori_browser_activate_action (browser, "libopen-with." G_MODULE_SUFFIX "=true");
     g_assert (g_module_error () == NULL);
 

@@ -1466,12 +1466,12 @@ midori_browser_view_copy_history (GtkWidget* view_to,
     list_to = webkit_web_view_get_back_forward_list (copy_to);
     length_from = webkit_web_back_forward_list_get_back_length (list_from);
 
-    g_return_if_fail (!webkit_web_back_forward_list_get_back_length (list_to));
-
     for (i = -length_from; i <= (omit_last ? -1 : 0); i++)
     {
-        webkit_web_back_forward_list_add_item (list_to,
-            webkit_web_back_forward_list_get_nth_item (list_from, i));
+        WebKitWebHistoryItem* item = webkit_web_back_forward_list_get_nth_item (list_from, i);
+        if (item == NULL)
+            break;
+        webkit_web_back_forward_list_add_item (list_to, item);
     }
 #endif
 }
