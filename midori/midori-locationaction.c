@@ -366,7 +366,6 @@ midori_location_action_render_title (gchar**      keys,
     return desc_title;
 }
 
-#ifdef HAVE_GRANITE
 static void
 midori_location_entry_render_title_cb (GtkCellLayout*   layout,
                                        GtkCellRenderer* renderer,
@@ -441,50 +440,6 @@ midori_location_entry_render_uri_cb (GtkCellLayout*   layout,
     g_free (desc);
     g_free (title);
 }
-#else
-static void
-midori_location_entry_render_text_cb (GtkCellLayout*   layout,
-                                      GtkCellRenderer* renderer,
-                                      GtkTreeModel*    model,
-                                      GtkTreeIter*     iter,
-                                      gpointer         data)
-{
-    MidoriLocationAction* action = data;
-    gchar* uri_escaped;
-    gchar* title;
-    gchar* desc;
-
-    gtk_tree_model_get (model, iter,
-        MIDORI_AUTOCOMPLETER_COLUMNS_URI, &uri_escaped,
-        MIDORI_AUTOCOMPLETER_COLUMNS_MARKUP, &title,
-        -1);
-
-    if (strchr (title, '\n')) /* A search engine or action suggestion */
-    {
-        desc = title;
-        g_free (uri_escaped);
-    }
-    else
-    {
-        gchar* key = g_utf8_strdown (action->key ? action->key : "", -1);
-        gchar** keys = g_strsplit_set (key, " %", -1);
-        g_free (key);
-        gchar* desc_uri = midori_location_action_render_uri (keys, uri_escaped);
-        gchar* desc_title = midori_location_action_render_title (keys, title);
-        desc = g_strdup_printf ("%s\n<span color='gray45'>%s</span>", desc_title, desc_uri);
-        g_free (uri_escaped);
-        g_free (title);
-        g_strfreev (keys);
-        g_free (desc_uri);
-        g_free (desc_title);
-    }
-
-    g_object_set (renderer, "markup", desc,
-        "ellipsize-set", TRUE, "ellipsize", PANGO_ELLIPSIZE_END, NULL);
-    g_free (desc);
-}
-#endif
-
 
 static void
 midori_location_action_popup_position (MidoriLocationAction* action,
@@ -746,15 +701,10 @@ midori_location_action_popup_timeout_cb (gpointer data)
             "cell-background", MIDORI_AUTOCOMPLETER_COLUMNS_BACKGROUND,
             NULL);
         renderer = gtk_cell_renderer_text_new ();
-        #ifdef HAVE_GRANITE
         gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (column), renderer, FALSE);
-        #else
-        gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (column), renderer, TRUE);
-        #endif
         gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (column), renderer,
             "cell-background", MIDORI_AUTOCOMPLETER_COLUMNS_BACKGROUND,
             NULL);
-        #ifdef HAVE_GRANITE
         gtk_tree_view_column_set_expand (column, TRUE);
         gtk_cell_layout_set_cell_data_func (GTK_CELL_LAYOUT (column), renderer,
             midori_location_entry_render_title_cb, action, NULL);
@@ -765,14 +715,6 @@ midori_location_action_popup_timeout_cb (gpointer data)
             "cell-background", MIDORI_AUTOCOMPLETER_COLUMNS_BACKGROUND, NULL);
         gtk_cell_layout_set_cell_data_func (GTK_CELL_LAYOUT (column), renderer,
             midori_location_entry_render_uri_cb, action, NULL);
-        #else
-        gtk_cell_renderer_set_fixed_size (renderer, 1, -1);
-        gtk_cell_renderer_text_set_fixed_height_from_font (
-            GTK_CELL_RENDERER_TEXT (renderer), 2);
-        gtk_cell_layout_set_cell_data_func (GTK_CELL_LAYOUT (column), renderer,
-                                            midori_location_entry_render_text_cb,
-                                            action, NULL);
-        #endif
         gtk_tree_view_append_column (GTK_TREE_VIEW (treeview), column);
 
         action->popup = popup;
