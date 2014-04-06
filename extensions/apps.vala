@@ -168,7 +168,11 @@ namespace Apps {
 
         bool init (GLib.Cancellable? cancellable) throws GLib.Error {
             var keyfile = new GLib.KeyFile ();
-            keyfile.load_from_file (file.get_child ("desc").get_path (), GLib.KeyFileFlags.NONE);
+            try {
+                keyfile.load_from_file (file.get_child ("desc").get_path (), GLib.KeyFileFlags.NONE);
+            } catch (Error desc_error) {
+                throw new FileError.EXIST (_("No file \"desc\" found"));
+            }
 
             exec = keyfile.get_string ("Desktop Entry", "Exec");
             if (!exec.has_prefix (APP_PREFIX) && !exec.has_prefix (PROFILE_PREFIX))
