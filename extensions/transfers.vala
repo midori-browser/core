@@ -262,7 +262,7 @@ namespace Transfers {
             Gtk.TreeIter iter;
             store.append (out iter);
             store.set (iter, 0, transfer);
-            transfer.changed.connect (() => transfer_changed(transfer));
+            transfer.changed.connect (() => transfer_changed (transfer));
             clear.sensitive = true;
         }
 
