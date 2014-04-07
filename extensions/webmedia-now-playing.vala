@@ -26,39 +26,42 @@ namespace Sandcat {
         }
 
         void youtube_validation (string title, string uri) {
-            stdout.printf("title %s\n", title);
-            stdout.printf("uri %s\n", uri);
-            if(uri != title && !uri.contains(title) && web_media_uri != uri && web_media_title != title){
-                web_media_uri = uri;
-                web_media_title = title;
-                try { 
-                        var youtube = new Regex("""(http|https)://www.youtube.com/watch\?v=[&=_\-A-Za-z0-9.]+""");
-                        var vimeo = new Regex("""(http|https)://vimeo.com/[0-9]+""");
-                        var dailymotion = new Regex("""(http|https)://www.dailymotion.com/video/[_\-A-Za-z0-9]+""");
-                        string website = null;
-                        if (web_media_uri.contains("youtube") || uri.contains("vimeo") || uri.contains ("dailymotion")) {
-                            if (youtube.match(web_media_uri))
-                                website = "Youtube";
-                            else if (vimeo.match(web_media_uri))
-                                website = "Vimeo";
-                            else if (dailymotion.match(web_media_uri))
-                                website = "Dailymotion";
+
+            /* FIXED ME, i used this way because broweser notify send
+               many request and when can not check the right title and also
+               to have one notify*/
+            if(uri == title || uri.contains(title)) return;
+            if (web_media_uri == uri) return;
+            if (web_media_title == title) return;
+            web_media_uri = uri;
+            web_media_title = title;
+            try { 
+                    var youtube = new Regex("""(http|https)://www.youtube.com/watch\?v=[&=_\-A-Za-z0-9.]+""");
+                    var vimeo = new Regex("""(http|https)://vimeo.com/[0-9]+""");
+                    var dailymotion = new Regex("""(http|https)://www.dailymotion.com/video/[_\-A-Za-z0-9]+""");
+                    string website = null;
+                    if (web_media_uri.contains("youtube") || uri.contains("vimeo") || uri.contains ("dailymotion")) {
+                        if (youtube.match(web_media_uri))
+                            website = "Youtube";
+                        else if (vimeo.match(web_media_uri))
+                            website = "Vimeo";
+                        else if (dailymotion.match(web_media_uri))
+                            website = "Dailymotion";
  
-                            if (website != null) {
-                                dbus_service.video_title = web_media_title;
-                                web_media_notify.notify_media = website;
-                                web_media_notify.notify_video_title = web_media_title;
-                                dbus_service.video_uri = web_media_uri;
-                                web_media_notify.show_notify();
-                            }
-                        } else {
+                        if (website != null) {
+                            dbus_service.video_title = web_media_title;
+                            web_media_notify.notify_media = website;
+                            web_media_notify.notify_video_title = web_media_title;
+                            dbus_service.video_uri = web_media_uri;
+                            web_media_notify.show_notify();
+                        }
+                    } else {
                         dbus_service.dbus_empty();
                         web_media_title = null;
                         web_media_uri = null;
-                     } 
-                } catch(RegexError e) {
+                    } 
+            } catch(RegexError e) {
                     warning ("%s", e.message);
-                }
             }
         }
 
