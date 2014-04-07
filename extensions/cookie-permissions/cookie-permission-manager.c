@@ -224,6 +224,7 @@ static void _cookie_permission_manager_open_database(CookiePermissionManager *se
 
 			uri=soup_uri_new(NULL);
 			soup_uri_set_host(uri, domain);
+			soup_uri_set_path(uri, "/");
 			cookies=soup_cookie_jar_get_cookie_list(priv->cookieJar, uri, TRUE);
 			for(cookie=cookies; cookie; cookie=cookie->next)
 			{
