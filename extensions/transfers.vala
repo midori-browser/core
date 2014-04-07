@@ -85,7 +85,7 @@ namespace Transfers {
     private class Sidebar : Gtk.VBox, Midori.Viewable {
         Gtk.Toolbar? toolbar = null;
         Gtk.ToolButton clear;
-        Gtk.ListStore store = new Gtk.ListStore (1, typeof (Transfer));
+        Gtk.ListStore store = new Gtk.ListStore (2, typeof (Transfer), typeof (string));
         Gtk.TreeView treeview;
         Katze.Array array;
 
@@ -240,7 +240,20 @@ namespace Transfers {
             return (transfer1.finished ? 1 : 0) - (transfer2.finished ? 1 : 0);
         }
 
-        void transfer_changed () {
+        void transfer_changed (GLib.Object item) {
+            var transfer = item as Transfer;
+            Gtk.TreeIter iter;
+            if (store.iter_children (out iter, null)) {
+                do {
+                    Transfer at;
+                    store.get (iter, 0, out at);
+                    if (transfer == at) {
+                        string tooltip = Midori.Download.get_tooltip (transfer.download);
+                        store.set (iter, 1, tooltip);
+                        break;
+                    }
+                } while (store.iter_next (ref iter));
+            }
             treeview.queue_draw ();
         }
 
@@ -249,7 +262,7 @@ namespace Transfers {
             Gtk.TreeIter iter;
             store.append (out iter);
             store.set (iter, 0, transfer);
-            transfer.changed.connect (transfer_changed);
+            transfer.changed.connect (() => transfer_changed(transfer));
             clear.sensitive = true;
         }
 
@@ -288,8 +301,9 @@ namespace Transfers {
             Gtk.TreeModel model, Gtk.TreeIter iter) {
 
             Transfer transfer;
+            string tooltip;
             model.get (iter, 0, out transfer);
-            string tooltip = Midori.Download.get_tooltip (transfer.download);
+            model.get (iter, 1, out tooltip);
             renderer.set ("text", tooltip,
                           "value", (int)(transfer.progress * 100));
         }
