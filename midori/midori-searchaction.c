@@ -842,7 +842,9 @@ midori_search_action_editor_name_changed_cb (GtkWidget* entry,
         GTK_RESPONSE_ACCEPT, text && *text);
 }
 
-/* generates a search token for a uri by disemvoweling its hostname */
+/* generates a search token for a uri by disemvoweling its hostname
+this token is just used as a suggestion in the UI, so if no sane token
+can be found the empty string is returned */
 gchar*
 midori_search_action_token_for_uri (const gchar* uri)
 {
@@ -852,27 +854,37 @@ midori_search_action_token_for_uri (const gchar* uri)
 
     /* find the most meaningful component of the qualified hostname */
     path = midori_uri_parse_hostname (uri, NULL);
+    
+    /* if we can't find a hostname, return an empty string */
+    if(!path)
+        return g_strdup("");
+
     parts = g_strsplit (path, ".", -1);
     g_free (path);
 
     len = g_strv_length (parts);
     if (len > 2)
     {
-        for (i = len; i == 0; i--)
+    	/* work backward from TLD to subdomains */
+        for (i = len; i > 0; i--)
         {
             if (parts[i] && *parts[i])
+            {
+                /* skip short components */
                 if (strlen (parts[i]) > 3)
                 {
                     hostname = g_strdup (parts[i]);
                     break;
                 }
+            }
         }
     }
     else if(parts[0])
     {
         hostname = g_strdup (parts[0]);
     }
-    else /* no hostname at all */
+    /* no hostname at all */
+    if(!hostname)
         hostname = g_strdup ("");
 
     g_strfreev (parts);
