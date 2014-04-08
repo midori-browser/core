@@ -4192,8 +4192,12 @@ midori_browser_bookmark_open_in_tab_activate_cb (GtkWidget*     menuitem,
     if (KATZE_IS_ARRAY (item))
     {
         KatzeItem* child;
+        KatzeArray* array;
 
-        KATZE_ARRAY_FOREACH_ITEM (child, KATZE_ARRAY (item))
+        array = midori_bookmarks_db_query_recursive (browser->bookmarks,
+            "*", "parentid = %q", katze_item_get_meta_string (item, "id"), FALSE);
+
+        KATZE_ARRAY_FOREACH_ITEM (child, KATZE_ARRAY (array))
         {
             if ((uri = katze_item_get_uri (child)) && *uri)
             {
@@ -4201,6 +4205,7 @@ midori_browser_bookmark_open_in_tab_activate_cb (GtkWidget*     menuitem,
                 midori_browser_set_current_tab_smartly (browser, view);
             }
         }
+        g_object_unref (G_OBJECT (array));
     }
     else
     {
