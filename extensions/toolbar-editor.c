@@ -112,12 +112,8 @@ static GSList *tb_editor_array_to_list(const gchar **items)
 	name = items;
 	while (*name != NULL)
 	{
-		#ifdef HAVE_GRANITE
 		/* A "new tab" button is already part of the notebook */
 		if (*name[0] != '\0' && strcmp (*name, "TabNew"))
-		#else
-		if (*name[0] != '\0')
-		#endif
 			list = g_slist_append(list, g_strdup(*name));
 		name++;
 	}
@@ -185,7 +181,6 @@ static void tb_editor_btn_remove_clicked_cb(GtkWidget *button, TBEditorWidget *t
 	if (gtk_tree_selection_get_selected(selection_used, &model_used, &iter_used))
 	{
 		gtk_tree_model_get(model_used, &iter_used, TB_EDITOR_COL_ACTION, &action_name, -1);
-		if (g_strcmp0(action_name, "Location") != 0)
 		{
 			if (gtk_list_store_remove(tbw->store_used, &iter_used))
 				gtk_tree_selection_select_iter(selection_used, &iter_used);
@@ -293,10 +288,6 @@ static void tb_editor_drag_data_rcvd_cb(GtkWidget *widget, GdkDragContext *conte
 		gchar *text = NULL;
 
 		text = (gchar*) gtk_selection_data_get_data (data);
-
-		/* We allow re-ordering the Location item but not removing it from the list. */
-		if (g_strcmp0(text, "Location") == 0 && widget != tbw->drag_source)
-			return;
 
 		is_sep = (g_strcmp0(text, "Separator") == 0);
 		/* If the source of the action is equal to the target, we do just re-order and so need

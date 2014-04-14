@@ -1232,10 +1232,7 @@ midori_app_setup (gint               *argc,
     textdomain (GETTEXT_PACKAGE);
     #endif
 
-    #ifdef HAVE_GRANITE_CLUTTER
-    success = gtk_clutter_init_with_args (argc, argument_vector, _("[Addresses]"),
-                                          (GOptionEntry*)entries, GETTEXT_PACKAGE, &error);
-    #elif GTK_CHECK_VERSION (3, 0, 0)
+    #if GTK_CHECK_VERSION (3, 0, 0)
     success = gtk_init_with_args (argc, argument_vector, _("[Addresses]"),
                                   entries, GETTEXT_PACKAGE, &error);
     #else
@@ -1279,7 +1276,7 @@ gboolean
 midori_debug (const gchar* token)
 {
     static const gchar* debug_token = NULL;
-    const gchar* debug_tokens = "adblock:match adblock:time adblock:element startup headers body referer cookies paths hsts unarmed bookmarks mouse app ";
+    const gchar* debug_tokens = "wk2:no-multi-render-process adblock:match adblock:parse adblock:time adblock:element adblock:css startup headers body referer cookies paths hsts unarmed db:bookmarks db:history db:tabby mouse app database ";
     if (debug_token == NULL)
     {
         gchar* found_token;

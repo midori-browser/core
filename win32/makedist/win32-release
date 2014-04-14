@@ -10,8 +10,8 @@
 # See the file COPYING for the full license text.
 
 
-dropbox_dir=$HOME/Dropbox/Public
 SRCDIR=$PWD
+CONFIGURE_OPTIONS="-DUSE_ZEITGEIST=0 -DUSE_GTK3=1 -DCMAKE_VERBOSE_MAKEFILE=0 -DEXTRA_WARNINGS=1"
 
 # 32-bit build
 #mingw32-env
@@ -20,7 +20,7 @@ eval `rpm --eval %{mingw32_env}`
 
 rm -fr _mingw32
 mkdir _mingw32 && cd _mingw32
-mingw32-cmake -DUSE_ZEITGEIST=0 -DUSE_GTK3=1 -DCMAKE_INSTALL_PREFIX=$MINGW_PREFIX -DCMAKE_VERBOSE_MAKEFILE=0 $SRCDIR
+mingw32-cmake -DCMAKE_INSTALL_PREFIX=$MINGW_PREFIX ${CONFIGURE_OPTIONS} $SRCDIR
 make
 sudo make install || exit
 
@@ -31,11 +31,8 @@ rpmquery -qa mingw32* > $SRCDIR/midori-${version}-deps-i686.txt
 rm -f $SRCDIR/midori-$version.sha1
 
 MINGW_PREFIX=${MINGW_PREFIX} RELEASE=1 NSIS=1 $SRCDIR/win32/makedist/makedist.midori
-mv -v midori-${version}.7z $dropbox_dir
-mv -v Midori-${version}_setup.exe $dropbox_dir
-
-dropbox puburl $dropbox_dir/midori-${version}.7z >  $SRCDIR/release_links.txt
-dropbox puburl $dropbox_dir/Midori-${version}_setup.exe >> $SRCDIR/release_links.txt
+mv -v midori-${version}.7z midori_${version}_32_.7z
+mv -v Midori-${version}_setup.exe midori_${version}_32_.exe
 
 if [ "$DO_64BIT" != "" ]; then
     cd $SRCDIR
@@ -46,14 +43,12 @@ if [ "$DO_64BIT" != "" ]; then
 
     rm -fr _mingw64
     mkdir _mingw64 && cd _mingw64
-    mingw64-cmake -DUSE_ZEITGEIST=0 -DUSE_GTK3=1 -DCMAKE_INSTALL_PREFIX=$MINGW_PREFIX -DCMAKE_VERBOSE_MAKEFILE=0 $SRCDIR
+    mingw64-cmake -DCMAKE_INSTALL_PREFIX=$MINGW_PREFIX ${CONFIGURE_OPTIONS} $SRCDIR
     make
     sudo make install || exit
 
     rpmquery -qa mingw64* > $SRCDIR/midori-${version}-deps-x86_64.txt
     MINGW_PREFIX=${MINGW_PREFIX} RELEASE=1 sh $SRCDIR/win32/makedist/makedist.midori x86_64-portable
-    mv -v midori-${version}-x86_64-portable.7z $dropbox_dir
-    dropbox puburl $dropbox_dir/midori-${version}-x86_64-portable.7z >> $SRCDIR/release_links.txt
 fi
 
 cd $SRCDIR

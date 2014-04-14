@@ -36,7 +36,7 @@ namespace Midori {
             spinner.set_size_request (icon_size, icon_size);
             box.pack_start (spinner, false, false, 0);
             label = new Gtk.Label (null);
-            label.set_alignment (0.0f, 0.5f);
+            label.set_alignment (0.5f, 0.5f);
             label.set_padding (0, 0);
             box.pack_start (label, true, true, 0);
             close = new Gtk.Button ();
@@ -72,11 +72,6 @@ namespace Midori {
             notify_property ("close-button-left");
             notify["close-button-visible"].connect (close_button_visible_changed);
             notify_property ("close-button-visible");
-
-            Gtk.drag_dest_set (this, Gtk.DestDefaults.ALL, (Gtk.TargetEntry[])null, Gdk.DragAction.COPY);
-            Gtk.drag_dest_add_text_targets (this);
-            Gtk.drag_dest_add_uri_targets (this);
-            drag_data_received.connect (uri_dragged);
         }
 
 #if !HAVE_GTK3
@@ -153,16 +148,6 @@ namespace Midori {
             spinner.visible = tab.progress > 0.0;
             icon.visible = !spinner.visible;
         }
-
-        void uri_dragged (Gdk.DragContext context, int x, int y, Gtk.SelectionData data, uint ttype, uint timestamp) {
-            /* FIXME: Navigate to the URI
-            string[] uri = data.get_uris ();
-            if (uri != null)
-                tab.uri = uri[0];
-            else
-                tab.uri = data.get_text ();
-            */
-        }
     }
 
     public class Notebook : Gtk.EventBox {
@@ -223,7 +208,9 @@ namespace Midori {
             notebook.set ("group-name", PACKAGE_NAME);
             add (notebook);
 
-#if !HAVE_GTK3
+#if HAVE_GTK3
+            get_style_context ().add_class ("dynamic-notebook");
+#else
             /* Remove the inner border between scrollbars and window border */
             Gtk.RcStyle rcstyle = new Gtk.RcStyle ();
             rcstyle.xthickness = 0;
@@ -242,6 +229,7 @@ namespace Midori {
             notebook.create_window.connect (window_created);
 
             var add = new Gtk.Button ();
+            add.tooltip_text = _("Open a new tab");
             add.relief = Gtk.ReliefStyle.NONE;
             add.add (new Gtk.Image.from_gicon (new ThemedIcon.with_default_fallbacks ("tab-new-symbolic"), Gtk.IconSize.MENU));
             add.show_all ();
@@ -249,15 +237,63 @@ namespace Midori {
             add.clicked.connect (()=>{
                 new_tab ();
             });
+            take_incoming_uris (add);
 
             button_press_event.connect (button_pressed);
         }
+
+        void take_incoming_uris (Gtk.Widget widget) {
+            Gtk.drag_dest_set (widget, Gtk.DestDefaults.ALL, (Gtk.TargetEntry[])null, Gdk.DragAction.COPY);
+            Gtk.drag_dest_add_text_targets (widget);
+            Gtk.drag_dest_add_uri_targets (widget);
+            widget.drag_drop.connect (uri_dropped);
+            widget.drag_data_received.connect (uri_received);
+        }
+
+        bool uri_dropped (Gtk.Widget widget, Gdk.DragContext context, int x, int y, uint timestamp) {
+            Gtk.drag_finish (context, false, false, timestamp);
+            return true;
+        }
+
+        void uri_received (Gtk.Widget widget, Gdk.DragContext context, int x, int y, Gtk.SelectionData data, uint ttype, uint timestamp) {
+            string[] uri = data.get_uris ();
+            string drag_uri = uri != null ? uri[0] : data.get_text ();
+            Midori.Tab drag_tab;
+            if (widget is Tally)
+                drag_tab = (widget as Tally).tab;
+            else {
+                new_tab ();
+                // Browser will have focussed the new tab
+                drag_tab = tab;
+            }
+            drag_tab.web_view.load_uri (drag_uri);
+        }
+
 
         ~Notebook () {
             notebook.size_allocate.disconnect (size_allocated);
             notebook.switch_page.disconnect (page_switched);
             notebook.page_reordered.disconnect (page_moved);
             notebook.create_window.disconnect (window_created);
+        }
+
+        /* Since: 0.5.8 */
+        public ContextAction get_context_action () {
+            var menu = new Midori.ContextAction ("NotebookContextMenu", null, null, null);
+            uint counter = 0;
+            foreach (var child in notebook.get_children ()) {
+                var tab = child as Midori.Tab;
+                var tally = notebook.get_tab_label (tab) as Tally;
+                var action = new Midori.ContextAction.escaped ("Tab%u".printf (counter), tally.label.label, null, null);
+                action.gicon = tally.icon.gicon;
+                action.activate.connect (()=>{
+                    notebook.set_current_page (notebook.page_num (tab));
+                });
+                menu.add (action);
+                counter++;
+            }
+            context_menu (menu);
+            return menu;
         }
 
         bool button_pressed (Gdk.EventButton event) {
@@ -280,20 +316,7 @@ namespace Midori {
                 return true;
             }
             else if (event.button == 3) {
-                var menu = new Midori.ContextAction ("NotebookContextMenu", null, null, null);
-                uint counter = 0;
-                foreach (var child in notebook.get_children ()) {
-                    var tab = child as Midori.Tab;
-                    var tally = notebook.get_tab_label (tab) as Tally;
-                    var action = new Gtk.Action ("Tab%u".printf (counter), tally.label.label, null, null);
-                    action.gicon = tally.icon.gicon;
-                    action.activate.connect (()=>{
-                        notebook.set_current_page (notebook.page_num (tab));
-                    });
-                    menu.add (action);
-                    counter++;
-                }
-                context_menu (menu);
+                var menu = get_context_action ();
                 var popup = menu.create_menu (null, false);
                 popup.show ();
                 popup.attach_to_widget (this, null);
@@ -310,6 +333,7 @@ namespace Midori {
             tally.button_press_event.connect (tab_button_pressed);
             tally.show ();
             tally.set_size_request (tab.minimized ? -1 : last_tab_size, -1);
+            take_incoming_uris (tally);
 
             /* Minimum requirements for any tab */
             tab.can_focus = tab.visible = true;
@@ -335,6 +359,48 @@ namespace Midori {
             resize (size.width);
         }
 
+        /* Since: 0.5.8 */
+        public ContextAction get_tab_context_action (Midori.Tab tab) {
+            var menu = new Midori.ContextAction ("TabContextMenu", null, null, null);
+            tab_context_menu (tab, menu);
+            var action_window = new Midori.ContextAction ("TabWindowNew", _("Open in New _Window"), null, "window-new");
+            action_window.activate.connect (()=>{
+                tab_detached (tab, 128, 128);
+            });
+            menu.add (action_window);
+            var action_minimize = new Midori.ContextAction ("TabMinimize", tab.minimized ? _("Show Tab _Label") : _("Show Tab _Icon Only"), null, null);
+            action_minimize.activate.connect (()=>{
+                tab.minimized = !tab.minimized;
+            });
+            menu.add (action_minimize);
+            var action_right = new Midori.ContextAction ("TabCloseRight", ngettext ("Close Tab to the R_ight", "Close Tabs to the R_ight", count - 1), null, null);
+            action_right.sensitive = count > 1;
+            action_right.activate.connect (()=>{
+                bool found_tab = false;
+                foreach (var child in notebook.get_children ()) {
+                    if (found_tab)
+                        child.destroy ();
+                    else
+                        found_tab = child == tab;
+                }
+            });
+            menu.add (action_right);
+            var action_other = new Midori.ContextAction ("TabCloseOther", ngettext ("Close Ot_her Tab", "Close Ot_her Tabs", count - 1), null, null);
+            action_other.sensitive = count > 1;
+            action_other.activate.connect (()=>{
+                foreach (var child in notebook.get_children ())
+                    if (child != tab)
+                        child.destroy ();
+            });
+            menu.add (action_other);
+            var action_close = new Midori.ContextAction ("TabClose", null, null, Gtk.STOCK_CLOSE);
+            action_close.activate.connect (()=>{
+                tab.destroy ();
+            });
+            menu.add (action_close);
+            return menu;
+         }
+
         bool tab_button_pressed (Gtk.Widget label, Gdk.EventButton event) {
             Tally tally = label as Tally;
             if (event.button == 1) {
@@ -343,43 +409,7 @@ namespace Midori {
             } else if (event.button == 2)
                 tally.tab.destroy ();
             else if (event.button == 3) {
-                var menu = new Midori.ContextAction ("TabContextMenu", null, null, null);
-                tab_context_menu (tally.tab, menu);
-                var action_window = new Midori.ContextAction ("TabWindowNew", _("Open in New _Window"), null, "window-new");
-                action_window.activate.connect (()=>{
-                    tab_detached (tally.tab, 128, 128);
-                });
-                menu.add (action_window);
-                var action_minimize = new Midori.ContextAction ("TabMinimize", tally.tab.minimized ? _("Show Tab _Label") : _("Show Tab _Icon Only"), null, null);
-                action_minimize.activate.connect (()=>{
-                    tally.tab.minimized = !tally.tab.minimized;
-                });
-                menu.add (action_minimize);
-                var action_right = new Midori.ContextAction ("TabCloseRight", ngettext ("Close Tab to the R_ight", "Close Tabs to the R_ight", count - 1), null, null);
-                action_right.sensitive = count > 1;
-                action_right.activate.connect (()=>{
-                    bool found_tab = false;
-                    foreach (var child in notebook.get_children ()) {
-                        if (found_tab)
-                            child.destroy ();
-                        else
-                            found_tab = child == tally.tab;
-                    }
-                });
-                menu.add (action_right);
-                var action_other = new Midori.ContextAction ("TabCloseOther", ngettext ("Close Ot_her Tab", "Close Ot_her Tabs", count - 1), null, null);
-                action_other.sensitive = count > 1;
-                action_other.activate.connect (()=>{
-                    foreach (var child in notebook.get_children ())
-                        if (child != tally.tab)
-                            child.destroy ();
-                });
-                menu.add (action_other);
-                var action_close = new Midori.ContextAction ("TabClose", null, null, Gtk.STOCK_CLOSE);
-                action_close.activate.connect (()=>{
-                    tally.tab.destroy ();
-                });
-                menu.add (action_close);
+                var menu = get_tab_context_action (tally.tab);
                 var popup = menu.create_menu (null, false);
                 popup.show ();
                 popup.attach_to_widget (this, null);

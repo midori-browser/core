@@ -56,6 +56,14 @@ midori_web_app_new (const gchar* webapp,
     g_return_val_if_fail (webapp != NULL, NULL);
 
     midori_paths_init (MIDORI_RUNTIME_MODE_APP, webapp);
+    /*
+       Set sanitized URI as class name which .desktop files use as StartupWMClass
+       So dock type launchers can distinguish different apps with the same executable
+     */
+    gchar* wm_class = g_strdelimit (g_strdup (webapp), ":.\\/", '_');
+    gdk_set_program_class (wm_class);
+    g_free (wm_class);
+
     MidoriBrowser* browser = midori_browser_new ();
     g_signal_connect (browser, "new-window",
         G_CALLBACK (midori_frontend_browser_new_window_cb), NULL);
@@ -64,6 +72,8 @@ midori_web_app_new (const gchar* webapp,
 
     midori_browser_set_action_visible (browser, "Menubar", FALSE);
     midori_browser_set_action_visible (browser, "CompactMenu", FALSE);
+    midori_browser_set_action_visible (browser, "AddSpeedDial", FALSE);
+    midori_browser_set_action_visible (browser, "Navigationbar", FALSE);
 
     MidoriWebSettings* settings = midori_settings_new_full (NULL);
     g_object_set (settings,
@@ -207,6 +217,7 @@ midori_private_app_new (const gchar* config,
 
     midori_browser_set_action_visible (browser, "Tools", FALSE);
     midori_browser_set_action_visible (browser, "ClearPrivateData", FALSE);
+    midori_browser_set_action_visible (browser, "AddSpeedDial", FALSE);
     #if GTK_CHECK_VERSION (3, 0, 0)
     g_object_set (gtk_widget_get_settings (GTK_WIDGET (browser)),
                   "gtk-application-prefer-dark-theme", TRUE,
@@ -239,6 +250,7 @@ midori_private_app_new (const gchar* config,
 
     /* FIXME need proper stock extension mechanism */
     midori_browser_activate_action (browser, "libtransfers." G_MODULE_SUFFIX "=true");
+    midori_browser_activate_action (browser, "libabout." G_MODULE_SUFFIX "=true");
     midori_browser_activate_action (browser, "libopen-with." G_MODULE_SUFFIX "=true");
     g_assert (g_module_error () == NULL);
 

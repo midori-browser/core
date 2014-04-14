@@ -19,7 +19,7 @@ namespace ClipNotes {
     Midori.Database database;
     unowned Sqlite.Database db;
     Gtk.ListStore notes_list_store;
-    int64 last_used_id;
+    Note? current_note;
 
     class Note : GLib.Object {
         public int64 id { get; set; }
@@ -118,7 +118,11 @@ namespace ClipNotes {
                 Note note;
                 notes_list_store.get (iter, 0, out note);
                 if (id == note.id) {
+                    if (current_note == note) {
+                        current_note = null;
+                    }
                     notes_list_store.remove (iter);
+                    break;
                 }
             } while (notes_list_store.iter_next (ref iter));
         }
@@ -144,7 +148,7 @@ namespace ClipNotes {
                 toolbar = new Gtk.Toolbar ();
                 var new_note_button = new Gtk.ToolButton.from_stock (Gtk.STOCK_EDIT);
                 new_note_button.label = _("New Note");
-                new_note_button.tooltip_text = _("Creates a new empty note, urelated to opened pages");
+                new_note_button.tooltip_text = _("Creates a new empty note, unrelated to opened pages");
                 new_note_button.use_underline  = true;
                 new_note_button.is_important = true;
                 new_note_button.show ();
@@ -157,6 +161,16 @@ namespace ClipNotes {
             return toolbar;
         }
 
+        internal void title_edited (Gtk.CellRendererText renderer, string? path_str, string? new_title) {
+            var path = new Gtk.TreePath.from_string (path_str);
+            Gtk.TreeIter iter;
+            notes_list_store.get_iter (out iter, path);
+            Note note;
+            notes_list_store.get (iter, 0, out note);
+            note.rename (new_title);
+            notes_list_store.set (iter, 0, note);
+        }
+
         public Sidebar () {
             Gtk.TreeViewColumn column;
 
@@ -164,6 +178,7 @@ namespace ClipNotes {
             notes_tree_view = new Gtk.TreeView.with_model (notes_list_store);
             notes_tree_view.headers_visible = true;
             notes_tree_view.button_press_event.connect (button_pressed);
+            notes_tree_view.get_selection().changed.connect (selection_changed);
 
             notes_list_store.set_sort_column_id (0, Gtk.SortType.ASCENDING);
             notes_list_store.set_sort_func (0, tree_sort_func);
@@ -176,6 +191,8 @@ namespace ClipNotes {
 
             column = new Gtk.TreeViewColumn ();
             Gtk.CellRendererText renderer_title = new Gtk.CellRendererText ();
+            renderer_title.editable = true;
+            renderer_title.edited.connect (title_edited);
             column.set_title (_("Notes"));
             column.pack_start (renderer_title, true);
             column.set_cell_data_func (renderer_title, on_render_note_title);
@@ -217,19 +234,16 @@ namespace ClipNotes {
             return strcmp (note1.title, note2.title);
         }
 
-        bool focus_lost (Gdk.EventFocus event) {
-            Gtk.TreePath? path;
-            notes_tree_view.get_cursor (out path, null);
-            return_val_if_fail (path != null, false);
-            Gtk.TreeIter iter;
-            if (notes_list_store.get_iter (out iter, path)) {
-                Note note;
-                notes_list_store.get (iter, 0, out note);
-                if (last_used_id == note.id) {
-                    string note_content = note_text_view.buffer.text;
-                    note.update (note_content);
-                }
+        void save_current_note () {
+            if (current_note != null) {
+                string note_content = note_text_view.buffer.text;
+                if (note_content != current_note.content)
+                    current_note.update (note_content);
             }
+        }
+
+        bool focus_lost (Gdk.EventFocus event) {
+            save_current_note ();
             return false;
         }
 
@@ -258,12 +272,16 @@ namespace ClipNotes {
             renderer.set ("pixbuf", pixbuf);
         }
 
+        private void selection_changed (Gtk.TreeSelection selection)
+        {
+            save_current_note ();
+            show_note_content (selection);
+        }
+
         bool button_pressed (Gdk.EventButton event) {
             if (event.button == 1) {
                 if (event.type == Gdk.EventType.2BUTTON_PRESS) {
                     return show_note_webpage_in_new_tab (event, false);
-                } else {
-                    return show_note_content (event);
                 }
             }
             if (event.button == 2)
@@ -273,15 +291,15 @@ namespace ClipNotes {
             return false;
         }
 
-        bool show_note_content (Gdk.EventButton? event) {
+        bool show_note_content (Gtk.TreeSelection selection) {
             Gtk.TreeIter iter;
-            if (notes_tree_view.get_selection ().get_selected (null, out iter)) {
+            if (selection.get_selected (null, out iter)) {
                 Note note;
                 notes_list_store.get (iter, 0, out note);
 
-                if (last_used_id != note.id) {
+                if (note != current_note) {
                     note_text_view.buffer.text = note.content;
-                    last_used_id = note.id;
+                    current_note = note;
                 }
 
                 return true;
@@ -311,8 +329,15 @@ namespace ClipNotes {
         }
 
         bool show_popup_menu (Gdk.EventButton? event) {
-            Gtk.TreeIter iter;
-            if (notes_tree_view.get_selection ().get_selected (null, out iter)) {
+            return_val_if_fail (event.window == notes_tree_view.get_bin_window(), false);
+            Gtk.TreePath path = null;
+            notes_tree_view.get_path_at_pos ((int)event.x, (int)event.y, out path,
+                                             null, null, null);
+            if (path != null) {
+                Gtk.TreeIter iter;
+                notes_list_store.get_iter (out iter, path);
+                Note note;
+                notes_list_store.get (iter, 0, out note);
 
                 var menu = new Gtk.Menu ();
 
@@ -321,34 +346,8 @@ namespace ClipNotes {
                 menuitem.always_show_image = true;
                 menuitem.set_image (image);
                 menuitem.activate.connect (() => {
-                    Note note;
-                    notes_list_store.get (iter, 0, out note);
-
-                    var dialog = new Gtk.Dialog. with_buttons (_("Rename note"), null,
-                        Gtk.DialogFlags.DESTROY_WITH_PARENT, Gtk.Stock.CANCEL, Gtk.ResponseType.CANCEL,
-                        Gtk.Stock.OK, Gtk.ResponseType.OK);
-                    Gtk.Box content = (Gtk.Box) dialog.get_content_area ();
-                    dialog.set_default_response (Gtk.ResponseType.OK);
-                    dialog.resizable = false;
-                    dialog.icon_name = Gtk.STOCK_EDIT;
-
-                    var entry = new Gtk.Entry ();
-                    entry.text = note.title;
-                    entry.activates_default = true;
-                    content.add (entry);
-                    content.show_all ();
-
-                    int response = dialog.run ();
-                    dialog.hide ();
-                    if (response == Gtk.ResponseType.OK) {
-                        string new_title = entry.text;
-                        if (entry.text != null && new_title != note.title) {
-                            note.rename (new_title);
-                            notes_list_store.set (iter, 0, note);
-                        }
-                    }
-                    dialog.destroy ();
-
+                    notes_tree_view.set_cursor (path,
+                                                notes_tree_view.get_column (1), true);
                 });
                 menu.append (menuitem);
 
@@ -358,8 +357,6 @@ namespace ClipNotes {
                 menuitem.always_show_image = true;
                 menuitem.set_image (image);
                 menuitem.activate.connect (() => {
-                    Note note;
-                    notes_list_store.get (iter, 0, out note);
                     get_clipboard (Gdk.SELECTION_CLIPBOARD).set_text (note.content, -1);
                 });
                 menu.append (menuitem);
@@ -370,8 +367,6 @@ namespace ClipNotes {
                 menuitem.always_show_image = true;
                 menuitem.set_image (image);
                 menuitem.activate.connect (() => {
-                    Note note;
-                    notes_list_store.get (iter, 0, out note);
                     note.remove ();
                 });
                 menu.append (menuitem);
@@ -395,8 +390,10 @@ namespace ClipNotes {
         }
 
         void add_menu_items (Midori.Tab tab, WebKit.HitTestResult hit_test_result, Midori.ContextAction menu) {
+#if !HAVE_WEBKIT2
             if ((hit_test_result.context & WebKit.HitTestResultContext.SELECTION) == 0)
                 return;
+#endif
 
             var view = tab as Midori.View;
             var action = new Gtk.Action ("Notes", _("Copy selection as note"), null, null);

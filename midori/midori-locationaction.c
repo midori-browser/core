@@ -26,14 +26,20 @@
 
 #include <sqlite3.h>
 
+#ifdef HAVE_GRANITE
+#include <granite/granite.h>
+#endif
+
 struct _MidoriLocationAction
 {
     GtkAction parent_instance;
 
+    GIcon* icon;
     gchar* text;
     KatzeArray* search_engines;
     gdouble progress;
     gchar* secondary_icon;
+    gchar* tooltip;
 
     gchar* key;
     MidoriAutocompleter* autocompleter;
@@ -69,6 +75,7 @@ enum
     SECONDARY_ICON_RELEASED,
     RESET_URI,
     SUBMIT_URI,
+    KEY_PRESS_EVENT,
     LAST_SIGNAL
 };
 
@@ -175,6 +182,23 @@ midori_location_action_class_init (MidoriLocationActionClass* class)
                                         G_TYPE_NONE, 2,
                                         G_TYPE_STRING,
                                         G_TYPE_BOOLEAN);
+
+    /**
+     * MidoriLocationAction:key-press-event:
+     *
+     * A key (combination) was pressed in an entry of the action.
+     *
+     * Since 0.5.8
+     */
+    signals[KEY_PRESS_EVENT] = g_signal_new ("key-press-event",
+                                             G_TYPE_FROM_CLASS (class),
+                                             (GSignalFlags) (G_SIGNAL_RUN_LAST),
+                                             0,
+                                             0,
+                                             NULL,
+                                             midori_cclosure_marshal_BOOLEAN__POINTER,
+                                             G_TYPE_BOOLEAN, 1,
+                                             GDK_TYPE_EVENT);
 
     gobject_class = G_OBJECT_CLASS (class);
     gobject_class->finalize = midori_location_action_finalize;
@@ -342,7 +366,6 @@ midori_location_action_render_title (gchar**      keys,
     return desc_title;
 }
 
-#ifdef HAVE_GRANITE
 static void
 midori_location_entry_render_title_cb (GtkCellLayout*   layout,
                                        GtkCellRenderer* renderer,
@@ -417,50 +440,6 @@ midori_location_entry_render_uri_cb (GtkCellLayout*   layout,
     g_free (desc);
     g_free (title);
 }
-#else
-static void
-midori_location_entry_render_text_cb (GtkCellLayout*   layout,
-                                      GtkCellRenderer* renderer,
-                                      GtkTreeModel*    model,
-                                      GtkTreeIter*     iter,
-                                      gpointer         data)
-{
-    MidoriLocationAction* action = data;
-    gchar* uri_escaped;
-    gchar* title;
-    gchar* desc;
-
-    gtk_tree_model_get (model, iter,
-        MIDORI_AUTOCOMPLETER_COLUMNS_URI, &uri_escaped,
-        MIDORI_AUTOCOMPLETER_COLUMNS_MARKUP, &title,
-        -1);
-
-    if (strchr (title, '\n')) /* A search engine or action suggestion */
-    {
-        desc = title;
-        g_free (uri_escaped);
-    }
-    else
-    {
-        gchar* key = g_utf8_strdown (action->key ? action->key : "", -1);
-        gchar** keys = g_strsplit_set (key, " %", -1);
-        g_free (key);
-        gchar* desc_uri = midori_location_action_render_uri (keys, uri_escaped);
-        gchar* desc_title = midori_location_action_render_title (keys, title);
-        desc = g_strdup_printf ("%s\n<span color='gray45'>%s</span>", desc_title, desc_uri);
-        g_free (uri_escaped);
-        g_free (title);
-        g_strfreev (keys);
-        g_free (desc_uri);
-        g_free (desc_title);
-    }
-
-    g_object_set (renderer, "markup", desc,
-        "ellipsize-set", TRUE, "ellipsize", PANGO_ELLIPSIZE_END, NULL);
-    g_free (desc);
-}
-#endif
-
 
 static void
 midori_location_action_popup_position (MidoriLocationAction* action,
@@ -722,15 +701,10 @@ midori_location_action_popup_timeout_cb (gpointer data)
             "cell-background", MIDORI_AUTOCOMPLETER_COLUMNS_BACKGROUND,
             NULL);
         renderer = gtk_cell_renderer_text_new ();
-        #ifdef HAVE_GRANITE
-        gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (column), renderer, FALSE);
-        #else
         gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (column), renderer, TRUE);
-        #endif
         gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (column), renderer,
             "cell-background", MIDORI_AUTOCOMPLETER_COLUMNS_BACKGROUND,
             NULL);
-        #ifdef HAVE_GRANITE
         gtk_tree_view_column_set_expand (column, TRUE);
         gtk_cell_layout_set_cell_data_func (GTK_CELL_LAYOUT (column), renderer,
             midori_location_entry_render_title_cb, action, NULL);
@@ -741,14 +715,6 @@ midori_location_action_popup_timeout_cb (gpointer data)
             "cell-background", MIDORI_AUTOCOMPLETER_COLUMNS_BACKGROUND, NULL);
         gtk_cell_layout_set_cell_data_func (GTK_CELL_LAYOUT (column), renderer,
             midori_location_entry_render_uri_cb, action, NULL);
-        #else
-        gtk_cell_renderer_set_fixed_size (renderer, 1, -1);
-        gtk_cell_renderer_text_set_fixed_height_from_font (
-            GTK_CELL_RENDERER_TEXT (renderer), 2);
-        gtk_cell_layout_set_cell_data_func (GTK_CELL_LAYOUT (column), renderer,
-                                            midori_location_entry_render_text_cb,
-                                            action, NULL);
-        #endif
         gtk_tree_view_append_column (GTK_TREE_VIEW (treeview), column);
 
         action->popup = popup;
@@ -820,7 +786,10 @@ midori_location_action_finalize (GObject* object)
 {
     MidoriLocationAction* location_action = MIDORI_LOCATION_ACTION (object);
 
+    katze_object_assign (location_action->icon, NULL);
     katze_assign (location_action->text, NULL);
+    katze_assign (location_action->secondary_icon, NULL);
+    katze_assign (location_action->tooltip, NULL);
     katze_object_assign (location_action->search_engines, NULL);
     katze_assign (location_action->autocompleter, NULL);
 
@@ -928,9 +897,21 @@ midori_location_action_entry_drag_data_get_cb (GtkWidget*        entry,
     }
 }
 
+static void
+midori_location_action_entry_set_secondary_icon (GtkEntry*    entry,
+                                                 const gchar* stock_id)
+{
+    GtkStockItem stock_item;
+    if (stock_id && gtk_stock_lookup (stock_id, &stock_item))
+        gtk_entry_set_icon_from_stock (entry, GTK_ENTRY_ICON_SECONDARY, stock_id);
+    else
+        gtk_entry_set_icon_from_icon_name (entry, GTK_ENTRY_ICON_SECONDARY, stock_id);
+}
+
 static GtkWidget*
 midori_location_action_create_tool_item (GtkAction* action)
 {
+    MidoriLocationAction* location_action = MIDORI_LOCATION_ACTION (action);
     GtkWidget* toolitem;
     GtkWidget* alignment;
     GtkWidget* entry;
@@ -952,6 +933,12 @@ midori_location_action_create_tool_item (GtkAction* action)
          GTK_ENTRY_ICON_PRIMARY, TRUE);
     gtk_entry_set_icon_activatable (GTK_ENTRY (entry),
          GTK_ENTRY_ICON_SECONDARY, TRUE);
+
+    if (location_action->text != NULL)
+        gtk_entry_set_text (GTK_ENTRY (entry), location_action->text);
+    midori_location_action_entry_set_secondary_icon (GTK_ENTRY (entry), location_action->secondary_icon);
+    gtk_entry_set_icon_from_gicon (GTK_ENTRY (entry), GTK_ENTRY_ICON_PRIMARY, location_action->icon);
+    gtk_entry_set_icon_tooltip_text (GTK_ENTRY (entry), GTK_ENTRY_ICON_PRIMARY, location_action->tooltip);
 
     targetlist = gtk_target_list_new (NULL, 0);
     gtk_target_list_add_uri_targets (targetlist, 0);
@@ -1025,6 +1012,11 @@ midori_location_action_key_press_event_cb (GtkEntry*    entry,
                                            GdkEventKey* event,
                                            GtkAction*   action)
 {
+    gboolean handled = FALSE;
+    g_signal_emit (action, signals[KEY_PRESS_EVENT], 0, event, &handled);
+    if (handled)
+        return TRUE;
+
     GtkWidget* widget = GTK_WIDGET (entry);
     MidoriLocationAction* location_action = MIDORI_LOCATION_ACTION (action);
     const gchar* text;
@@ -1068,8 +1060,10 @@ midori_location_action_key_press_event_cb (GtkEntry*    entry,
         }
 
         if (is_enter && (text = gtk_entry_get_text (entry)) && *text)
+        {
             g_signal_emit (action, signals[SUBMIT_URI], 0, text,
                            MIDORI_MOD_NEW_TAB (event->state));
+        }
         break;
     case GDK_KEY_Escape:
     {
@@ -1726,7 +1720,6 @@ midori_location_action_set_secondary_icon (MidoriLocationAction* location_action
                                            const gchar*          stock_id)
 {
     GSList* proxies;
-    GtkStockItem stock_item;
 
     g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
 
@@ -1738,12 +1731,7 @@ midori_location_action_set_secondary_icon (MidoriLocationAction* location_action
     if (GTK_IS_TOOL_ITEM (proxies->data))
     {
         GtkWidget* entry = midori_location_action_entry_for_proxy (proxies->data);
-        if (stock_id && gtk_stock_lookup (stock_id, &stock_item))
-            gtk_entry_set_icon_from_stock (GTK_ENTRY (entry),
-                GTK_ENTRY_ICON_SECONDARY, stock_id);
-        else
-            gtk_entry_set_icon_from_icon_name (GTK_ENTRY (entry),
-                GTK_ENTRY_ICON_SECONDARY, stock_id);
+        midori_location_action_entry_set_secondary_icon (GTK_ENTRY (entry), stock_id);
     }
 }
 
@@ -1765,6 +1753,11 @@ midori_location_action_set_primary_icon (MidoriLocationAction* location_action,
     GSList* proxies;
 
     g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
+    g_return_if_fail (G_IS_ICON (icon));
+    g_return_if_fail (tooltip != NULL);
+
+    katze_object_assign (location_action->icon, g_object_ref (icon));
+    katze_assign (location_action->tooltip, g_strdup (tooltip));
 
     proxies = gtk_action_get_proxies (GTK_ACTION (location_action));
 

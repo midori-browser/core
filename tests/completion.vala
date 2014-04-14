@@ -43,48 +43,46 @@ class TestCompletion : Midori.Completion {
     }
 }
 
-void completion_autocompleter () {
-    var app = new Midori.App ();
-    var autocompleter = new Midori.Autocompleter (app);
-    assert (!autocompleter.can_complete (""));
-    var completion = new TestCompletion ();
-    autocompleter.add (completion);
-    completion.test_can_complete = false;
-    assert (!autocompleter.can_complete (""));
-    completion.test_can_complete = true;
-    assert (autocompleter.can_complete (""));
+class CompletionAutocompleter : Midori.Test.Job {
+    public static void test () { new CompletionAutocompleter ().run_sync (); }
+    public override async void run (Cancellable cancellable) throws GLib.Error {
+        var app = new Midori.App ();
+        var autocompleter = new Midori.Autocompleter (app);
+        assert (!autocompleter.can_complete (""));
+        var completion = new TestCompletion ();
+        autocompleter.add (completion);
+        completion.test_can_complete = false;
+        assert (!autocompleter.can_complete (""));
+        completion.test_can_complete = true;
+        assert (autocompleter.can_complete (""));
 
-    completion.test_suggestions = 0;
-    autocompleter.complete.begin ("");
-    var loop = MainContext.default ();
-    do { loop.iteration (true); } while (loop.pending ());
-    assert (autocompleter.model.iter_n_children (null) == 0);
+        completion.test_suggestions = 0;
+        yield autocompleter.complete ("");
+        assert (autocompleter.model.iter_n_children (null) == 0);
 
-    completion.test_suggestions = 1;
-    autocompleter.complete.begin ("");
-    do { loop.iteration (true); } while (loop.pending ());
-    assert (autocompleter.model.iter_n_children (null) == 1);
+        completion.test_suggestions = 1;
+        yield autocompleter.complete ("");
+        assert (autocompleter.model.iter_n_children (null) == 1);
 
-    /* Order */
-    completion.test_suggestions = 2;
-    autocompleter.complete.begin ("");
-    do { loop.iteration (true); } while (loop.pending ());
-    assert (autocompleter.model.iter_n_children (null) == 2);
-    Gtk.TreeIter iter_first;
-    autocompleter.model.get_iter_first (out iter_first);
-    string title;
-    autocompleter.model.get (iter_first, Midori.Autocompleter.Columns.MARKUP, out title);
-    if (title != "First")
-        error ("Expected %s but got %s", "First", title);
+        /* Order */
+        completion.test_suggestions = 2;
+        yield autocompleter.complete ("");
+        assert (autocompleter.model.iter_n_children (null) == 2);
+        Gtk.TreeIter iter_first;
+        autocompleter.model.get_iter_first (out iter_first);
+        string title;
+        autocompleter.model.get (iter_first, Midori.Autocompleter.Columns.MARKUP, out title);
+        if (title != "First")
+            error ("Expected %s but got %s", "First", title);
 
-    /* Cancellation */
-    autocompleter.complete.begin ("");
-    completion.test_suggestions = 3;
-    autocompleter.complete.begin ("");
-    do { loop.iteration (true); } while (loop.pending ());
-    int n = autocompleter.model.iter_n_children (null);
-    if (n != 3)
-        error ("Expected %d but got %d", 3, n);
+        /* Cancellation */
+        yield autocompleter.complete ("");
+        completion.test_suggestions = 3;
+        yield autocompleter.complete ("");
+        int n = autocompleter.model.iter_n_children (null);
+        if (n != 3)
+            error ("Expected %d but got %d", 3, n);
+    }
 }
 
 class CompletionHistory : Midori.Test.Job {
@@ -140,7 +138,7 @@ void main (string[] args) {
     Midori.Test.init (ref args);
     Midori.App.setup (ref args, null);
     Midori.Paths.init (Midori.RuntimeMode.NORMAL, null);
-    Test.add_func ("/completion/autocompleter", completion_autocompleter);
+    Test.add_func ("/completion/autocompleter", CompletionAutocompleter.test);
     Test.add_func ("/completion/history", CompletionHistory.test);
     Test.add_func ("/completion/location-action", completion_location_action);
     Test.run ();

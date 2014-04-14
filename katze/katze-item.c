@@ -342,7 +342,7 @@ katze_item_get_text (KatzeItem* item)
 /**
  * katze_item_set_text:
  * @item: a #KatzeItem
- * @description: a string
+ * @text: a string
  *
  * Sets the descriptive text of @item.
  **/
@@ -435,9 +435,9 @@ katze_item_set_icon (KatzeItem*   item,
  * @item: a #KatzeItem
  * @widget: a #GtkWidget, or %NULL
  *
- * Retrieves a #GdkPixbuf fit to display @item.
+ * Creates a #GdkPixbuf fit to display @item.
  *
- * Return value: the icon of the item
+ * Return value: (transfer full): the icon of the item, or %NULL
  *
  * Since: 0.4.6
  **/
@@ -495,12 +495,12 @@ katze_item_image_destroyed_cb (GtkWidget* image,
  * @item: a #KatzeItem
  * @widget: a #GtkWidget, or %NULL
  *
- * Retrieves a #GtkImage fit to display @item.
+ * Creates a #GtkImage fit to display @item.
  *
- * Return value: the icon of the item
+ * Return value: (transfer floating): the icon of the item
  *
  * Since: 0.4.4
- * Since 0.4.8 a @widget was added and the image is visible.
+ * Since 0.4.8 a @widget was added and the image is set visible.
  **/
 GtkWidget*
 katze_item_get_image (KatzeItem* item,
@@ -600,7 +600,7 @@ katze_item_set_added (KatzeItem* item,
  *
  * Retrieves a list of all meta keys.
  *
- * Return value: a newly allocated #GList of constant strings
+ * Return value: (element-type utf8) (transfer container): a newly allocated #GList of constant strings
  *
  * Since: 0.1.8
  **/
@@ -778,7 +778,7 @@ katze_item_set_meta_integer (KatzeItem*   item,
  *
  * Since 0.1.2 you can monitor the "parent" property.
  *
- * Return value: the parent of the item
+ * Return value: (type GObject) (transfer none): the parent of the item
  **/
 gpointer
 katze_item_get_parent (KatzeItem* item)

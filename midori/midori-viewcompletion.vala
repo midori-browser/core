@@ -72,7 +72,7 @@ namespace Midori {
                     Gdk.Pixbuf? icon = Midori.Paths.get_icon (uri, null);
                     /* FIXME: Theming? Win32? */
                     string background = "gray";
-                    var suggestion = new Suggestion (uri, title + "\n" + uri, false, background, icon, this.position);
+                    var suggestion = new Suggestion (uri, title, false, background, icon, this.position);
                     suggestions.append (suggestion);
 
                     n++;

@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: midori\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-02-21 10:52-0600\n"
-"PO-Revision-Date: 2013-09-14 09:42+0000\n"
+"PO-Revision-Date: 2014-04-11 02:52+0000\n"
 "Last-Translator: WebKit Team <Unknown>\n"
 "Language-Team: Portuguese\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2014-02-22 05:33+0000\n"
-"X-Generator: Launchpad (build 16926)\n"
+"X-Launchpad-Export-Date: 2014-04-12 05:41+0000\n"
+"X-Generator: Launchpad (build 16976)\n"
 "Language: pt_PT\n"
 
 #: ../data/midori.desktop.in.h:1 ../midori/main.c:142
@@ -26,7 +26,7 @@ msgstr "Midori"
 
 #: ../data/midori.desktop.in.h:2
 msgid "Web Browser"
-msgstr "Navegador Web"
+msgstr "Navegador web"
 
 #: ../data/midori.desktop.in.h:3
 msgid "Midori Web Browser"
@@ -285,7 +285,7 @@ msgstr "Falha ao inserir novo item no histórico: %s\n"
 
 #: ../midori/midori-browser.c:898
 msgid "Select [text]"
-msgstr ""
+msgstr "Selecionar [texto]"
 
 #: ../midori/midori-browser.c:927 ../panels/midori-bookmarks.c:148
 #: ../midori/midori-bookmarks-db.c:153
@@ -517,7 +517,9 @@ msgstr ""
 "Sérgio Marques <smarquespt@gmail.com>\n"
 "\n"
 "Launchpad Contributions:\n"
+"  Diogo Lavareda https://launchpad.net/~diogolavareda\n"
 "  Filipe Catraia https://launchpad.net/~filipecatraia\n"
+"  IvoGuerreiro https://launchpad.net/~ivoguerreiro\n"
 "  João Amaro https://launchpad.net/~joaoamaro37\n"
 "  João David Crespo Bernardes https://launchpad.net/~jony-david10\n"
 "  Laurentino https://launchpad.net/~laurentinolopes\n"
@@ -636,7 +638,7 @@ msgstr "Ver código f_onte"
 
 #: ../midori/midori-browser.c:5168
 msgid "View _DOM Source"
-msgstr ""
+msgstr "Ver código _DOM"
 
 #: ../midori/midori-browser.c:5171
 msgid "Ca_ret Browsing"
@@ -681,11 +683,11 @@ msgstr "Ir para a sub-página anterior"
 
 #: ../midori/midori-browser.c:5208
 msgid "Next or Forward"
-msgstr ""
+msgstr "Seguinte ou Avançar"
 
 #: ../midori/midori-browser.c:5209
 msgid "Go to the next sub-page or next page in history"
-msgstr ""
+msgstr "Ir para a próxima sub-página ou página seguinte no histórico"
 
 #: ../midori/midori-browser.c:5211
 msgid "_Homepage"
@@ -1129,8 +1131,8 @@ msgstr "Mostrar apenas o í_cone"
 #: ../midori/midori-notebook.vala:358
 msgid "Close Tab to the R_ight"
 msgid_plural "Close Tabs to the R_ight"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Fechar separador da  d_ireita"
+msgstr[1] "Fechar separadores à  d_ireita"
 
 #: ../midori/midori-notebook.vala:370
 msgid "Close Ot_her Tab"
@@ -1634,7 +1636,7 @@ msgstr "Navegar"
 
 #: ../midori/midori-preferences.c:438
 msgid "Theme:"
-msgstr ""
+msgstr "Tema:"
 
 #: ../midori/midori-preferences.c:470
 msgid "Toolbar Style:"
@@ -1685,7 +1687,7 @@ msgstr "Servidor proxy"
 
 #: ../midori/midori-preferences.c:513
 msgid "URI"
-msgstr ""
+msgstr "URI"
 
 #: ../midori/midori-preferences.c:521
 msgid "Port"
@@ -2290,8 +2292,7 @@ msgstr "Copiar endereço dos separadores"
 
 #: ../extensions/copy-tabs.c:97
 msgid "Copy the addresses of all tabs to the clipboard"
-msgstr ""
-"Copiar para a área de transferência o endereço de todos os separadores"
+msgstr "Copiar endereço de todos os separadores para a área de transferência"
 
 #: ../extensions/delayed-load.vala:49
 msgid "Delayed load"
@@ -2303,15 +2304,16 @@ msgstr "Atrasar carregamento até à utilização do separador."
 
 #: ../extensions/devpet.vala:102
 msgid "Double click for more information"
-msgstr ""
+msgstr "Duplo clique para mais informação"
 
 #: ../extensions/devpet.vala:253
 msgid "DevPet"
-msgstr ""
+msgstr "DevPet"
 
 #: ../extensions/devpet.vala:254
 msgid "This extension shows glib error messages in systray."
 msgstr ""
+"Esta extensão mostra as mensagens de erro glib na bandeja do sistema."
 
 #: ../extensions/external-download-manager.vala:124
 #, c-format
@@ -2325,6 +2327,13 @@ msgid ""
 "\n"
 "Carry on without this plugin."
 msgstr ""
+"Ocorreu um erro ao tentar transferir o ficheiro com o este plugin:\n"
+"%s\n"
+"\n"
+"Erro:\n"
+"%s\n"
+"\n"
+"Continue sem este plugin."
 
 #: ../extensions/external-download-manager.vala:175
 msgid "External Download Manager - Aria2"
@@ -2599,7 +2608,7 @@ msgstr "Bloquear"
 #: ../extensions/nojs/nojs-preferences.c:308 ../extensions/nojs/nojs.c:204
 #, c-format
 msgid "Could not open database of extension: %s"
-msgstr ""
+msgstr "Não foi possível abrir a base de dados da extensão: %s"
 
 #: ../extensions/nojs/nojs-preferences.c:578
 #: ../extensions/nojs/nojs-preferences.c:581
@@ -2614,38 +2623,42 @@ msgstr "Falha ao executar instrução da base de dados: %s"
 
 #: ../extensions/nojs/nojs-preferences.c:607
 msgid "Do you really want to delete all JavaScript permissions?"
-msgstr ""
+msgstr "Quer mesmo remover todas as permissões JavaScript?"
 
 #: ../extensions/nojs/nojs-preferences.c:609
 msgid "Delete all JavaScript permissions?"
-msgstr ""
+msgstr "Remover todas as permissões JavaScript?"
 
 #: ../extensions/nojs/nojs-preferences.c:613
 msgid ""
 "This action will delete all JavaScript permissions. You will be asked for "
 "permissions again for each web site visited."
 msgstr ""
+"Esta ação eliminará todas as permissões JavaScript. Ser-lhe-ão solicitadas "
+"novas permissões por cada sítio web visitado."
 
 #: ../extensions/nojs/nojs-preferences.c:809
 #: ../extensions/nojs/nojs-view.c:699
 msgid "Manager instance"
-msgstr ""
+msgstr "Instância do gestor"
 
 #: ../extensions/nojs/nojs-preferences.c:810
 #: ../extensions/nojs/nojs-view.c:700
 msgid "Instance to global NoJS manager"
-msgstr ""
+msgstr "Instância para o gestor NoJS global"
 
 #. Set up dialog
 #: ../extensions/nojs/nojs-preferences.c:850
 msgid "Configure NoJS"
-msgstr ""
+msgstr "Configurar NoJS"
 
 #: ../extensions/nojs/nojs-preferences.c:866
 msgid ""
 "Below is a list of all web sites and the policy set for them. You can delete "
 "policies by marking the entries and clicking on <i>Delete</i>."
 msgstr ""
+"Em baixo pode ver a lista de sítios web e as políticas definidas. Pode "
+"eliminar as políticas marcando as entradas e clicando em <i>Eliminar</i>."
 
 #: ../extensions/nojs/nojs-preferences.c:937
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:836
@@ -2666,57 +2679,57 @@ msgstr "Elimin_ar tudo"
 #. Add "allow-all-sites" checkbox
 #: ../extensions/nojs/nojs-preferences.c:987
 msgid "A_llow scripts at all sites"
-msgstr ""
+msgstr "P_ermitir scripts em todos os sítios web"
 
 #. Add "block-unknown-domains" checkbox
 #: ../extensions/nojs/nojs-preferences.c:995
 msgid "Bloc_k scripts at unknown domains by default"
-msgstr ""
+msgstr "Bloq_uear scripts de domínios desconhecidos"
 
 #. Add "check-second-level-only" checkbox
 #: ../extensions/nojs/nojs-preferences.c:1003
 msgid "S_et permissions on second-level domain"
-msgstr ""
+msgstr "D_efinir permissões no domínio de segundo nível"
 
 #. Add menu item(s) for domain
 #: ../extensions/nojs/nojs-view.c:237
 #, c-format
 msgid "Deny %s"
-msgstr ""
+msgstr "Recusar %s"
 
 #: ../extensions/nojs/nojs-view.c:249
 #, c-format
 msgid "Allow %s"
-msgstr ""
+msgstr "Permitir %s"
 
 #: ../extensions/nojs/nojs-view.c:261
 #, c-format
 msgid "Allow %s this session"
-msgstr ""
+msgstr "Permitir %s nesta sessão"
 
 #: ../extensions/nojs/nojs-view.c:706
 msgid "Browser window"
-msgstr ""
+msgstr "Janela do navegador"
 
 #: ../extensions/nojs/nojs-view.c:707
 msgid "The Midori browser instance this view belongs to"
-msgstr ""
+msgstr "A instância Midori a que esta vista pertence"
 
 #: ../extensions/nojs/nojs-view.c:713
 msgid "View"
-msgstr ""
+msgstr "Vista"
 
 #: ../extensions/nojs/nojs-view.c:714
 msgid "The Midori view instance this view belongs to"
-msgstr ""
+msgstr "A instância de vista Midori a que esta vista pertence"
 
 #: ../extensions/nojs/nojs-view.c:720
 msgid "Menu icon state"
-msgstr ""
+msgstr "Estado do ícone de menu"
 
 #: ../extensions/nojs/nojs-view.c:721
 msgid "State of menu icon to show in status bar"
-msgstr ""
+msgstr "O estado do ícone de menu a mostrar na barra de estado"
 
 #: ../extensions/nojs/nojs-view.c:792 ../extensions/nojs/nojs.c:1029
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1112
@@ -2725,25 +2738,27 @@ msgstr "Indeterminado"
 
 #: ../extensions/nojs/nojs-view.c:793
 msgid "Allowed"
-msgstr ""
+msgstr "Permitido"
 
 #: ../extensions/nojs/nojs-view.c:794
 msgid "Mixed"
-msgstr ""
+msgstr "Misto"
 
 #: ../extensions/nojs/nojs-view.c:795
 msgid "Denied"
-msgstr ""
+msgstr "Recusado"
 
 #: ../extensions/nojs/nojs.c:143
 msgid ""
 "A fatal error occurred which prevents the NoJS extension to continue. You "
 "should disable it."
 msgstr ""
+"Ocorreu um erro fatal que impede a extensão NoJS de funcionar. Deve "
+"desativar a extensão."
 
 #: ../extensions/nojs/nojs.c:147
 msgid "Error in NoJS extension"
-msgstr ""
+msgstr "Erro na extensão NoJS"
 
 #: ../extensions/nojs/nojs.c:152
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:100
@@ -2814,35 +2829,39 @@ msgstr "Caminho para a base de dados sqlite utilizada pela extensão"
 
 #: ../extensions/nojs/nojs.c:748
 msgid "Allow all sites"
-msgstr ""
+msgstr "Permitir todos os sítios web"
 
 #: ../extensions/nojs/nojs.c:749
 msgid ""
 "If true this extension will not check policy for each site but allow them."
 msgstr ""
+"Se ativa, a extensão não verifica as políticas por sítio web e permite-os "
+"todos."
 
 #: ../extensions/nojs/nojs.c:755
 msgid "Only second level"
-msgstr ""
+msgstr "Apenas segundo nível"
 
 #: ../extensions/nojs/nojs.c:756
 msgid ""
 "If true this extension will reduce each domain to its second-level "
 "(www.example.org will reduced to example.org)"
 msgstr ""
+"Se ativa, a extensão reduzirá cada domínio ao seu segundo nível (exemplo: "
+"www.exemplo.org aparecerá como exemplo.org."
 
 #: ../extensions/nojs/nojs.c:762
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1033
 msgid "Unknown domain policy"
-msgstr ""
+msgstr "Política de domínio desconhecido"
 
 #: ../extensions/nojs/nojs.c:763
 msgid "Policy to use for unknown domains."
-msgstr ""
+msgstr "Política utilizada nos domínios desconhecidos."
 
 #: ../extensions/nojs/nojs.c:1031
 msgid "Accept temporarily"
-msgstr ""
+msgstr "Aceitar temporariamente"
 
 #: ../extensions/mouse-gestures.c:513
 msgid "Mouse Gestures"
@@ -3157,11 +3176,11 @@ msgstr ""
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:892
 msgid "Policy for cookies from domains not in the list: "
-msgstr ""
+msgstr "Política para cookies de domínios que não estejam na lista: "
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:897
 msgid "Ask for a decision"
-msgstr ""
+msgstr "Perguntar decisão"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:91
 msgid ""
@@ -3232,6 +3251,9 @@ msgid ""
 "The policy to use for domains not individually configured. This only acts to "
 "further restrict the global cookie policy set in Midori settings."
 msgstr ""
+"A política utilizada para domínios não configurados individualmente. Apenas "
+"atua para restringir a política global de cookies definida nas preferências "
+"do Midori."
 
 #: ../extensions/cookie-permissions/main.c:62
 msgid "Cookie Security Manager"
@@ -3255,7 +3277,7 @@ msgstr "Midori (%s)"
 #: ../extensions/apps.vala:154
 #, c-format
 msgid "Failed to create new launcher (%s): %s"
-msgstr ""
+msgstr "Falha ao criar o lançador (%s): %s"
 
 #: ../extensions/apps.vala:145
 msgid "Launcher created"
@@ -3320,7 +3342,7 @@ msgstr "Limpar tudo"
 #: ../extensions/transfers.vala:467
 #, c-format
 msgid "Failed to open download: %s"
-msgstr ""
+msgstr "Falha ao abrir a transferência: %s"
 
 #: ../extensions/transfers.vala:214
 msgid "Open Destination _Folder"
@@ -3377,98 +3399,100 @@ msgstr "Ver ficheiros transferidos"
 #: ../extensions/tabby.vala:590 ../extensions/tabby.vala:595
 #, c-format
 msgid "Failed to update database: %s"
-msgstr ""
+msgstr "Falha ao atualizar a base de dados: %s"
 
 #: ../extensions/tabby.vala:520 ../extensions/tabby.vala:524
 #: ../extensions/tabby.vala:548 ../extensions/tabby.vala:552
 #: ../extensions/tabby.vala:614 ../extensions/tabby.vala:617
 #, c-format
 msgid "Failed to select from database: %s"
-msgstr ""
+msgstr "Falha ao selecionar da base de dados: %s"
 
 #: ../extensions/tabby.vala:666
 #, c-format
 msgid "Failed to import legacy session: %s"
-msgstr ""
+msgstr "Falha ao importar sessão: %s"
 
 #: ../extensions/tabby.vala:775
 msgid "Tabby"
-msgstr ""
+msgstr "Tabby"
 
 #: ../extensions/tabby.vala:776
 msgid "Tab and session management."
-msgstr ""
+msgstr "Gestão de separadores e sessões."
 
 #: ../extensions/flummi.vala:82
 msgid "Flummi"
-msgstr ""
+msgstr "Flummi"
 
 #: ../extensions/flummi.vala:83
 msgid ""
 "This extension provides a task queue for update jobs or recurring events."
 msgstr ""
+"Esta extensão disponibiliza uma fila para atualizar tarefas ou eventos "
+"recorrentes."
 
 #: ../extensions/notes.vala:46
 #, c-format
 msgid "Failed to add new note to database: %s\n"
-msgstr ""
+msgstr "Falha ao adicionar nova nota à base de dados: %s\n"
 
 #: ../extensions/notes.vala:66
 #, c-format
 msgid "Falied to remove note from database: %s\n"
-msgstr ""
+msgstr "Falha ao remover nova nota da base de dados: %s\n"
 
 #: ../extensions/notes.vala:80
 #, c-format
 msgid "Falied to rename note: %s\n"
-msgstr ""
+msgstr "Falha ao mudar o nome da nota: %s\n"
 
 #: ../extensions/notes.vala:96
 #, c-format
 msgid "Falied to update note: %s\n"
-msgstr ""
+msgstr "Falha ao atualizar nota: %s\n"
 
 #: ../extensions/notes.vala:139 ../extensions/notes.vala:179
 #: ../extensions/notes.vala:453
 msgid "Notes"
-msgstr ""
+msgstr "Notas"
 
 #: ../extensions/notes.vala:146
 msgid "New Note"
-msgstr ""
+msgstr "Nova nota"
 
 #: ../extensions/notes.vala:147
 msgid "Creates a new empty note, urelated to opened pages"
-msgstr ""
+msgstr "Cria uma nota vazia e não relacionada com as páginas abertas"
 
 #: ../extensions/notes.vala:153
 msgid "New note"
-msgstr ""
+msgstr "Nova nota"
 
 #: ../extensions/notes.vala:197
 #, c-format
 msgid "Failed to select from notes database: %s\n"
-msgstr ""
+msgstr "Falha ao selecionar da base de dados de notas: %s\n"
 
 #: ../extensions/notes.vala:319 ../extensions/notes.vala:327
 msgid "Rename note"
-msgstr ""
+msgstr "Mudar nome da nota"
 
 #: ../extensions/notes.vala:356
 msgid "Copy note to clipboard"
-msgstr ""
+msgstr "Copiar nota para a área de transferência"
 
 #: ../extensions/notes.vala:368
 msgid "Remove note"
-msgstr ""
+msgstr "Remover nota"
 
 #: ../extensions/notes.vala:402
 msgid "Copy selection as note"
-msgstr ""
+msgstr "Copiar seleção como nota"
 
 #: ../extensions/notes.vala:454
 msgid "Save text clips from websites as notes"
-msgstr ""
+msgstr "Gravar excertos de texto dos sítios web como notas"
 
 #: ../extensions/adblock/extension.vala:38
 msgid "Advertisement blocker"

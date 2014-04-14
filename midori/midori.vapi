@@ -200,6 +200,10 @@ namespace Midori {
         public Gtk.Widget add_info_bar (Gtk.MessageType type, string message, GLib.Callback? callback, void* object, ...);
         public ContextAction get_page_context_action (WebKit.HitTestResult hit_test_result);
 
+        public void list_plugins (GLib.StringBuilder ns_plugins, bool html);
+        public void list_video_formats (GLib.StringBuilder formats, bool html);
+        public static void list_versions (GLib.StringBuilder markup, bool html);
+
         public string title { get; }
         public Gdk.Pixbuf icon { get; }
         public float zoom_level { get; }
@@ -218,6 +222,15 @@ namespace Midori {
     public class LocationAction : Gtk.Action {
         public static string render_uri ([CCode (array_length = false)] string[] keys, string uri_escaped);
         public static string render_title ([CCode (array_length = false)] string[] keys, string title);
+
+        public double progress { get; set; }
+        public string secondary_icon { get; set; }
+
+        public unowned string get_text ();
+        public void set_text (string text);
+
+        public signal void submit_uri (string uri, bool new_tab);
+        public signal bool key_press_event (Gdk.EventKey event);
     }
 
     [CCode (cheader_filename = "midori/midori.h")]
@@ -248,6 +261,7 @@ namespace Midori {
         public MidoriStartup load_on_startup { get; set; }
         public static bool has_plugin_support ();
         public static bool skip_plugin (string path);
+        public static unowned string get_system_name (out unowned string? architecture, out unowned string? platform);
     }
 
     [CCode (cheader_filename = "midori/midori-websettings.h", cprefix = "MIDORI_STARTUP_")]

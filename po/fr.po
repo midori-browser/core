@@ -14,15 +14,15 @@ msgstr ""
 "Project-Id-Version: midori 0.2.7\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-02-21 10:52-0600\n"
-"PO-Revision-Date: 2014-02-23 04:19+0000\n"
-"Last-Translator: WebKit Team <Unknown>\n"
+"PO-Revision-Date: 2014-04-12 09:51+0000\n"
+"Last-Translator: Suriteka <Suriteka@gmail.com>\n"
 "Language-Team: French <fr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2014-02-24 05:24+0000\n"
-"X-Generator: Launchpad (build 16926)\n"
+"X-Launchpad-Export-Date: 2014-04-13 05:48+0000\n"
+"X-Generator: Launchpad (build 16976)\n"
 "Language: fr\n"
 
 #: ../data/midori.desktop.in.h:1 ../midori/main.c:142
@@ -551,8 +551,10 @@ msgstr ""
 "  Nikos https://launchpad.net/~nicolas-jovanovic\n"
 "  Pixmix https://launchpad.net/~vic952\n"
 "  Stéphane Marguet https://launchpad.net/~stemp\n"
+"  Suriteka https://launchpad.net/~suriteka\n"
 "  TiBounise https://launchpad.net/~tibounise\n"
 "  WebKit Team https://launchpad.net/~webkit-team\n"
+"  frenchy82 https://launchpad.net/~cartes\n"
 "  jc1 https://launchpad.net/~jc1-quebecos\n"
 "  jman6495 https://launchpad.net/~jman6495\n"
 "  londumas https://launchpad.net/~helion331990\n"
@@ -714,7 +716,7 @@ msgstr "Aller à la sous-page précédente"
 
 #: ../midori/midori-browser.c:5208
 msgid "Next or Forward"
-msgstr ""
+msgstr "Suivant ou Précédent"
 
 #: ../midori/midori-browser.c:5209
 msgid "Go to the next sub-page or next page in history"
@@ -1161,8 +1163,8 @@ msgstr "Afficher l'icône de l'onglet uniquement"
 #: ../midori/midori-notebook.vala:358
 msgid "Close Tab to the R_ight"
 msgid_plural "Close Tabs to the R_ight"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Fermer l'onglet de dro_ite"
+msgstr[1] "Fermer les onglets de dro_ite"
 
 #: ../midori/midori-notebook.vala:370
 msgid "Close Ot_her Tab"
@@ -1674,7 +1676,7 @@ msgstr "Navigation"
 
 #: ../midori/midori-preferences.c:438
 msgid "Theme:"
-msgstr ""
+msgstr "Thème :"
 
 #: ../midori/midori-preferences.c:470
 msgid "Toolbar Style:"
@@ -1726,7 +1728,7 @@ msgstr "Serveur mandataire"
 
 #: ../midori/midori-preferences.c:513
 msgid "URI"
-msgstr ""
+msgstr "URI"
 
 #: ../midori/midori-preferences.c:521
 msgid "Port"
@@ -2350,15 +2352,17 @@ msgstr ""
 
 #: ../extensions/devpet.vala:102
 msgid "Double click for more information"
-msgstr ""
+msgstr "Double cliquez pour avoir plus d'informations"
 
 #: ../extensions/devpet.vala:253
 msgid "DevPet"
-msgstr ""
+msgstr "DevPet"
 
 #: ../extensions/devpet.vala:254
 msgid "This extension shows glib error messages in systray."
 msgstr ""
+"Cette extension affiche les messages d'erreur de glib dans la barre des "
+"tâches"
 
 #: ../extensions/external-download-manager.vala:124
 #, c-format
@@ -2669,6 +2673,7 @@ msgstr "Impossible d'exécuter l'instruction de la base de données : %s"
 #: ../extensions/nojs/nojs-preferences.c:607
 msgid "Do you really want to delete all JavaScript permissions?"
 msgstr ""
+"Souhaitez-vous vraiment supprimer toutes les permissions JavaScript ?"
 
 #: ../extensions/nojs/nojs-preferences.c:609
 msgid "Delete all JavaScript permissions?"
@@ -2693,7 +2698,7 @@ msgstr ""
 #. Set up dialog
 #: ../extensions/nojs/nojs-preferences.c:850
 msgid "Configure NoJS"
-msgstr ""
+msgstr "Configurer NoJS"
 
 #: ../extensions/nojs/nojs-preferences.c:866
 msgid ""
@@ -2736,21 +2741,21 @@ msgstr ""
 #: ../extensions/nojs/nojs-view.c:237
 #, c-format
 msgid "Deny %s"
-msgstr ""
+msgstr "Interdire %s"
 
 #: ../extensions/nojs/nojs-view.c:249
 #, c-format
 msgid "Allow %s"
-msgstr ""
+msgstr "Autoriser %s"
 
 #: ../extensions/nojs/nojs-view.c:261
 #, c-format
 msgid "Allow %s this session"
-msgstr ""
+msgstr "Autoriser %s pour cette session"
 
 #: ../extensions/nojs/nojs-view.c:706
 msgid "Browser window"
-msgstr ""
+msgstr "Fenêtre du Navigateur"
 
 #: ../extensions/nojs/nojs-view.c:707
 msgid "The Midori browser instance this view belongs to"
@@ -2779,7 +2784,7 @@ msgstr "Indéterminé"
 
 #: ../extensions/nojs/nojs-view.c:793
 msgid "Allowed"
-msgstr ""
+msgstr "Autorisé"
 
 #: ../extensions/nojs/nojs-view.c:794
 msgid "Mixed"
@@ -2787,7 +2792,7 @@ msgstr ""
 
 #: ../extensions/nojs/nojs-view.c:795
 msgid "Denied"
-msgstr ""
+msgstr "Refusé"
 
 #: ../extensions/nojs/nojs.c:143
 msgid ""
@@ -2797,7 +2802,7 @@ msgstr ""
 
 #: ../extensions/nojs/nojs.c:147
 msgid "Error in NoJS extension"
-msgstr ""
+msgstr "Erreur dans l'extension NoJS"
 
 #: ../extensions/nojs/nojs.c:152
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:100
@@ -2872,7 +2877,7 @@ msgstr ""
 
 #: ../extensions/nojs/nojs.c:748
 msgid "Allow all sites"
-msgstr ""
+msgstr "Autoriser tous les sites"
 
 #: ../extensions/nojs/nojs.c:749
 msgid ""
@@ -2900,7 +2905,7 @@ msgstr ""
 
 #: ../extensions/nojs/nojs.c:1031
 msgid "Accept temporarily"
-msgstr ""
+msgstr "Accepter temporairement"
 
 #: ../extensions/mouse-gestures.c:513
 msgid "Mouse Gestures"
@@ -3384,7 +3389,7 @@ msgstr "Effacer tout"
 #: ../extensions/transfers.vala:467
 #, c-format
 msgid "Failed to open download: %s"
-msgstr ""
+msgstr "Impossible d'ouvrir le téléchargement : %s"
 
 #: ../extensions/transfers.vala:214
 msgid "Open Destination _Folder"
@@ -3442,14 +3447,14 @@ msgstr "Voir les fichiers téléchargés"
 #: ../extensions/tabby.vala:590 ../extensions/tabby.vala:595
 #, c-format
 msgid "Failed to update database: %s"
-msgstr ""
+msgstr "Impossible de mettre à jour la base de données : %s"
 
 #: ../extensions/tabby.vala:520 ../extensions/tabby.vala:524
 #: ../extensions/tabby.vala:548 ../extensions/tabby.vala:552
 #: ../extensions/tabby.vala:614 ../extensions/tabby.vala:617
 #, c-format
 msgid "Failed to select from database: %s"
-msgstr ""
+msgstr "Impossible d'extraire de la base de données : %s"
 
 #: ../extensions/tabby.vala:666
 #, c-format
@@ -3500,7 +3505,7 @@ msgstr ""
 
 #: ../extensions/notes.vala:146
 msgid "New Note"
-msgstr ""
+msgstr "Nouvelle note"
 
 #: ../extensions/notes.vala:147
 msgid "Creates a new empty note, urelated to opened pages"
@@ -3508,7 +3513,7 @@ msgstr ""
 
 #: ../extensions/notes.vala:153
 msgid "New note"
-msgstr ""
+msgstr "Nouvelle note"
 
 #: ../extensions/notes.vala:197
 #, c-format
@@ -3517,15 +3522,15 @@ msgstr ""
 
 #: ../extensions/notes.vala:319 ../extensions/notes.vala:327
 msgid "Rename note"
-msgstr ""
+msgstr "Renommer la note"
 
 #: ../extensions/notes.vala:356
 msgid "Copy note to clipboard"
-msgstr ""
+msgstr "Copier la note dans le presse-papier"
 
 #: ../extensions/notes.vala:368
 msgid "Remove note"
-msgstr ""
+msgstr "Supprimer la note"
 
 #: ../extensions/notes.vala:402
 msgid "Copy selection as note"

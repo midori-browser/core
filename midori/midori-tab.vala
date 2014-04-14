@@ -43,6 +43,7 @@ namespace Midori {
     }
 
     public class Tab : Gtk.VBox {
+        public Tab related { get; set construct; }
         public WebKit.WebView web_view { get; private set; }
 
         private string current_uri = "about:blank";
@@ -98,8 +99,14 @@ namespace Midori {
         }
         }
 
-        /* Since: 0.5.8 */
+        /* Emitted when a uri is attempted to be loaded.
+           Returns FALSE if the URI could not be handled by Midori or any
+           external application.
+           Since: 0.5.8
+         */
         public signal bool open_uri (string uri);
+        /* Since: 0.5.8 */
+        public signal bool navigation_requested (string uri);
         public signal void console_message (string message, int line, string source_id);
         public signal void attach_inspector (WebKit.WebView inspector_view);
         /* Emitted when an open inspector that was previously
@@ -126,7 +133,12 @@ namespace Midori {
             orientation = Gtk.Orientation.VERTICAL;
             #endif
 
+#if HAVE_WEBKIT2_3_91
+            web_view = related != null ?
+              new WebKit.WebView.with_related_view (related.web_view) : new WebKit.WebView ();
+#else
             web_view = new WebKit.WebView ();
+#endif
             /* Load something to avoid a bug where WebKit might not set a main frame */
             web_view.load_uri ("");
         }
@@ -134,11 +146,11 @@ namespace Midori {
         public void inject_stylesheet (string stylesheet) {
 #if !HAVE_WEBKIT2
             var dom = web_view.get_dom_document ();
+            return_if_fail (dom.head != null);
             try {
                 var style = dom.create_element ("style");
                 style.set_attribute ("type", "text/css");
                 style.append_child (dom.create_text_node (stylesheet));
-                return_if_fail (dom.head != null);
                 dom.head.append_child (style);
             }
             catch (Error error) {
@@ -264,6 +276,35 @@ namespace Midori {
             web_view.mark_text_matches (text, case_sensitive, 0);
             web_view.set_highlight_text_matches (true);
             return found;
+#endif
+        }
+
+        /*
+          Updates all editing actions with regard to text selection.
+
+          Since: 0.5.8
+         */
+        public async void update_actions (Gtk.ActionGroup actions) {
+#if HAVE_WEBKIT2
+            try {
+                actions.get_action ("Undo").sensitive = yield web_view.can_execute_editing_command ("Undo", null);
+                actions.get_action ("Redo").sensitive = yield web_view.can_execute_editing_command ("Redo", null);
+                actions.get_action ("Cut").sensitive = yield web_view.can_execute_editing_command ("Cut", null);
+                actions.get_action ("Copy").sensitive = yield web_view.can_execute_editing_command ("Copy", null);
+                actions.get_action ("Paste").sensitive = yield web_view.can_execute_editing_command ("Paste", null);
+                actions.get_action ("Delete").sensitive = yield web_view.can_execute_editing_command ("Cut", null);
+                actions.get_action ("SelectAll").sensitive = yield web_view.can_execute_editing_command ("SelectAll", null);
+            } catch (Error error) {
+                critical ("Failed to update actions: %s", error.message);
+            }
+#else
+            actions.get_action ("Undo").sensitive = web_view.can_undo ();
+            actions.get_action ("Redo").sensitive = web_view.can_redo ();
+            actions.get_action ("Cut").sensitive = web_view.can_cut_clipboard ();
+            actions.get_action ("Copy").sensitive = web_view.can_copy_clipboard ();
+            actions.get_action ("Paste").sensitive = web_view.can_paste_clipboard ();
+            actions.get_action ("Delete").sensitive = true;
+            actions.get_action ("SelectAll").sensitive = true;
 #endif
         }
     }

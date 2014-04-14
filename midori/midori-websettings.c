@@ -34,7 +34,7 @@
 #endif
 
 #if defined (G_OS_WIN32)
-    #include <sysinfoapi.h>
+    #include <windows.h>
 #endif
 
 #ifdef HAVE_WEBKIT2
@@ -257,6 +257,13 @@ midori_web_settings_get_property (GObject*    object,
                                   GValue*     value,
                                   GParamSpec* pspec);
 
+/**
+ * midori_web_settings_low_memory_profile:
+ *
+ * Determines if the system has a relatively small amount of memory.
+ *
+ * Returns: %TRUE if there is relatively little memory available
+ **/
 static gboolean
 midori_web_settings_low_memory_profile ()
 {
@@ -482,7 +489,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      flags));
 
     /**
-     * MidoriWebSettings:enforc-font-family:
+     * MidoriWebSettings:enforce-font-family:
      *
      * Whether to enforce user font preferences with an internal stylesheet.
      *
@@ -611,8 +618,11 @@ midori_web_settings_has_plugin_support (void)
 
 /**
  * midori_web_settings_skip_plugin:
+ * @path: the path to the plugin file
  *
- * Tests if a plugin is redundant
+ * Tests if a plugin is redundant. WebKit sometimes provides
+ * duplicate listings of plugins due to library deployment
+ * miscellanea.
  *
  * Returns: %TRUE if the passed plugin shouldn't be shown in UI listings.
  *
@@ -655,6 +665,8 @@ midori_web_settings_skip_plugin (const gchar* path)
 
 /**
  * midori_web_settings_get_site_data_policy:
+ * @settings: the MidoriWebSettings instance
+ * @uri: the URI for which to make the policy decision
  *
  * Tests if @uri may store site data.
  *
@@ -734,11 +746,11 @@ get_sys_name (gchar** architecture)
 
 /**
  * midori_web_settings_get_system_name:
- * @architecture: location of a string, or %NULL
- * @platform: location of a string, or %NULL
+ * @architecture: (out) (allow-none): location of a string, or %NULL
+ * @platform: (out) (allow-none): location of a string, or %NULL
  *
  * Determines the system name, architecture and platform.
- * @architecturce can have a %NULL value.
+ * This function may write a %NULL value to @architecture.
  *
  * Returns: a string
  *
@@ -948,6 +960,13 @@ midori_web_settings_update_accept_language (MidoriWebSettings* settings)
         katze_assign (settings->accept, g_strdup (languages));
 }
 
+/**
+ * midori_web_settings_get_accept_language:
+ *
+ * Returns the value of the accept-language header to send to web servers
+ *
+ * Returns: the accept-language string
+ **/
 const gchar*
 midori_web_settings_get_accept_language (MidoriWebSettings* settings)
 {
@@ -1080,9 +1099,9 @@ midori_web_settings_set_property (GObject*      object,
                                                           "default-font-family");
             gchar* monospace = katze_object_get_string (web_settings,
                                                         "monospace-font-family");
-            gchar* css = g_strdup_printf ("body * { font-family: %s !important; } \
-                code, code *, pre, pre *, blockquote, blockquote *, \
-                input, textarea { font-family: %s !important; }",
+            gchar* css = g_strdup_printf ("body * { font-family: %s !important; } "
+                "code, code *, pre, pre *, blockquote, blockquote *, "
+                "input, textarea { font-family: %s !important; }",
                                           font_family, monospace);
             midori_web_settings_add_style (web_settings, "enforce-font-family", css);
             g_free (font_family);
@@ -1250,9 +1269,10 @@ midori_web_settings_get_property (GObject*    object,
  *
  * Creates a new #MidoriWebSettings instance with default values.
  *
- * You will typically want to assign this to a #MidoriWebView or #MidoriBrowser.
+ * You will typically want to assign this to a #MidoriWebView
+ * or #MidoriBrowser.
  *
- * Return value: a new #MidoriWebSettings
+ * Return value: (transfer full): a new #MidoriWebSettings
  **/
 MidoriWebSettings*
 midori_web_settings_new (void)
@@ -1318,6 +1338,7 @@ base64_space_pad (gchar* base64,
 
 /**
  * midori_web_settings_add_style:
+ * @settings: the MidoriWebSettings instance to modify
  * @rule_id: a static string identifier
  * @style: a CSS stylesheet
  *
@@ -1352,6 +1373,7 @@ midori_web_settings_add_style (MidoriWebSettings* settings,
 
 /**
  * midori_web_settings_remove_style:
+ * @settings: the MidoriWebSettings instance to modify
  * @rule_id: the string identifier used previously
  *
  * Removes a stylesheet from midori settings.
@@ -1378,6 +1400,21 @@ midori_web_settings_remove_style (MidoriWebSettings* settings,
     }
 }
 
+/**
+ * midori_settings_new_full:
+ * @extensions: (out) (allow-none): a pointer into which
+ * to write an array of names of extensions which preferences
+ * indicate should be activated, or %NULL.
+ *
+ * Creates a new #MidoriWebSettings instance, loading
+ * configuration from disk according to preferences and
+ * invocation mode.
+ *
+ * You will typically want to assign this to a #MidoriWebView
+ * or #MidoriBrowser.
+ *
+ * Return value: (transfer full): a new #MidoriWebSettings
+ **/
 MidoriWebSettings*
 midori_settings_new_full (gchar*** extensions)
 {
@@ -1485,6 +1522,20 @@ midori_settings_new_full (gchar*** extensions)
     return settings;
 }
 
+/**
+ * midori_settings_save_to_file:
+ * @settings: a MidoriWebSettings instance to save
+ * @app: (type Midori.Application) (allow-none): a MidoriApplication instance
+ * @filename: the filename into which to save settings
+ * @error: (out) (allow-none): return location for a GError, or %NULL
+ *
+ * Saves a #MidoriWebSettings instance to disk at the path given by @filename.
+ *
+ * Also saves the list of activated extensions from @app.
+ *
+ * Return value: %TRUE if no error occurred; %FALSE if an error 
+ * occurred, in which case @error will contain detailed information
+ **/
 gboolean
 midori_settings_save_to_file (MidoriWebSettings* settings,
                               GObject*           app,
@@ -1621,4 +1672,3 @@ midori_settings_save_to_file (MidoriWebSettings* settings,
     g_key_file_free (key_file);
     return saved;
 }
-

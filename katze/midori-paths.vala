@@ -133,6 +133,11 @@ namespace Midori {
                 tmp_dir = get_runtime_dir ();
             }
             else {
+#if HAVE_WEBKIT2_3_91
+                /* Allow WebKit to spawn more than one rendering process */
+                if (!("wk2:no-multi-render-process" in (Environment.get_variable ("MIDORI_DEBUG") ?? "")))
+                    WebKit.WebContext.get_default ().set_process_model (WebKit.ProcessModel.MULTIPLE_SECONDARY_PROCESSES);
+#endif
                 string? real_config = config != null && !Path.is_absolute (config)
                     ? Path.build_filename (Environment.get_current_dir (), config) : config;
                 config_dir = real_config ?? Path.build_path (Path.DIR_SEPARATOR_S,
@@ -140,16 +145,23 @@ namespace Midori {
                 cache_dir = Path.build_path (Path.DIR_SEPARATOR_S,
                     Environment.get_user_cache_dir (), PACKAGE_NAME);
                 user_data_dir = Environment.get_user_data_dir ();
-#if HAVE_WEBKIT2
-                WebKit.WebContext.get_default ().set_disk_cache_directory (
-                    Path.build_path (Path.DIR_SEPARATOR_S, cache_dir, "web"));
-
-                var cookie_manager = WebKit.WebContext.get_default ().get_cookie_manager ();
-                cookie_manager.set_persistent_storage (Path.build_filename (config, "cookies.db"),
-                    WebKit.CookiePersistentStorage.SQLITE);
-#endif
                 tmp_dir = get_runtime_dir ();
             }
+#if HAVE_WEBKIT2
+            if (cache_dir != null) {
+                /* Cache and extension dir MUST be set no later than here to work */
+                WebKit.WebContext.get_default ().set_web_extensions_directory (
+                    Path.build_path (Path.DIR_SEPARATOR_S, cache_dir, "wk2ext"));
+                WebKit.WebContext.get_default ().set_disk_cache_directory (
+                    Path.build_path (Path.DIR_SEPARATOR_S, cache_dir, "web"));
+            }
+
+            if (config_dir != null) {
+                var cookie_manager = WebKit.WebContext.get_default ().get_cookie_manager ();
+                cookie_manager.set_persistent_storage (Path.build_filename (config_dir, "cookies.db"),
+                    WebKit.CookiePersistentStorage.SQLITE);
+            }
+#endif
             if (user_data_dir != null) {
                 string folder = Path.build_filename (user_data_dir, "webkit", "icondatabase");
 #if HAVE_WEBKIT2
@@ -170,6 +182,7 @@ namespace Midori {
                 WebKit.get_favicon_database ().set_path (null);
 #endif
             }
+
             if (strcmp (Environment.get_variable ("MIDORI_DEBUG"), "paths") == 0) {
                 stdout.printf ("config: %s\ncache: %s\nuser_data: %s\ntmp: %s\n",
                                config_dir, cache_dir, user_data_dir, tmp_dir);
@@ -366,18 +379,27 @@ namespace Midori {
             if (Posix.access (path, Posix.F_OK) == 0)
                 return path;
 
+            return build_folder ("data", null, filename) ??
+              Path.build_filename (MDATADIR, PACKAGE_NAME, "res", filename);
+            #endif
+        }
+
+        #if !HAVE_WIN32
+        string? build_folder (string folder, string? middle, string filename) {
             /* Fallback to build folder */
             File? parent = File.new_for_path (exec_path);
             while (parent != null) {
-                var data = parent.get_child ("data");
+                var data = parent.get_child (folder);
+                if (middle != null)
+                    data = data.get_child (middle);
                 var child = data.get_child (filename);
                 if (child.query_exists ())
                     return child.get_path ();
                 parent = parent.get_parent ();
             }
-            return Path.build_filename (MDATADIR, PACKAGE_NAME, "res", filename);
-            #endif
+            return null;
         }
+        #endif
 
         /* returns the path to a file containing read-only data installed with the application
         if @res is true, looks in the midori resource folder specifically */
@@ -416,7 +438,8 @@ namespace Midori {
                     return path;
             }
 
-            return Path.build_filename (SYSCONFDIR, "xdg", PACKAGE_NAME, folder ?? "", filename);
+            return build_folder ("config", folder, filename) ??
+              Path.build_filename (SYSCONFDIR, "xdg", PACKAGE_NAME, folder ?? "", filename);
             #endif
         }
 
@@ -432,6 +455,12 @@ namespace Midori {
             remove_path (Path.build_filename (user_data_dir, "webkit", "icondatabase"));
         }
 
+        /**
+         * Looks up a pixbuf for the given @uri. If @widget is given a generic
+         * file icon is used in case there's no icon.
+         *
+         * Deprecated: 0.5.8: Use Midori.URI.Icon or Midori.URI.get_icon instead.
+         **/
         public static Gdk.Pixbuf? get_icon (string? uri, Gtk.Widget? widget) {
             if (!Midori.URI.is_resource (uri))
                 return null;
@@ -442,9 +471,7 @@ namespace Midori {
             else
                 icon_width = icon_height = 0 /* maximum size */;
 #if HAVE_WEBKIT2
-            /* TODO async
-            var database = WebKit.WebContext.get_default ().get_favicon_database ();
-            database.get_favicon.begin (uri, null); */
+            /* There is no sync API for WebKit2 */
 #else
             Gdk.Pixbuf? pixbuf = WebKit.get_favicon_database ()
                 .try_get_favicon_pixbuf (uri, icon_width, icon_height);
