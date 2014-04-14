@@ -683,6 +683,7 @@ midori_view_load_started (MidoriView* view)
 {
     midori_view_update_load_status (view, MIDORI_LOAD_PROVISIONAL);
     midori_tab_set_progress (MIDORI_TAB (view), 0.0);
+    midori_tab_set_load_error (MIDORI_TAB (view), MIDORI_LOAD_ERROR_NONE);
 }
 
 #ifdef HAVE_GCR
@@ -708,7 +709,6 @@ midori_view_load_committed (MidoriView* view)
         midori_tab_set_uri (MIDORI_TAB (view), uri);
         katze_item_set_uri (view->item, uri);
         midori_tab_set_special (MIDORI_TAB (view), FALSE);
-        midori_tab_set_load_error (MIDORI_TAB (view), MIDORI_LOAD_ERROR_NONE);
     }
 
     katze_item_set_added (view->item, time (NULL));
