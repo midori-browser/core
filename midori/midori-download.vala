@@ -14,7 +14,7 @@ namespace Sokoke {
     extern static bool message_dialog (Gtk.MessageType type, string short, string detailed, bool modal);
 #endif
 }
-
+ 
 namespace Midori {
     namespace Download {
         public static bool is_finished (WebKit.Download download) {
@@ -40,6 +40,14 @@ namespace Midori {
             download.set_data<int> ("midori-download-type", type);
         }
 
+#if HAVE_WEBKIT2
+        public static string get_filename (WebKit.Download download) {
+            return download.get_data<string> ("midori-download-filename");
+        }
+        public static void set_filename (WebKit.Download download, string name) {
+            download.set_data<string> ("midori-download-filename", name);
+        }
+#endif
         public static double get_progress (WebKit.Download download) {
 #if !HAVE_WEBKIT2
             /* Avoid a bug in WebKit */
@@ -47,7 +55,7 @@ namespace Midori {
                 return 0.0;
             return download.progress;
 #else
-            return 0.0;
+            return download.estimated_progress;
 #endif
         }
 
@@ -110,22 +118,32 @@ namespace Midori {
 
             return "%s\n%s %s%s".printf (filename, size, speed, eta);
 #else
-            return "";
+			string filename = Midori.Download.get_basename_for_display(download.destination);
+			
+			string size = "%s".printf (format_size (download.get_received_data_length()));
+			string speed = "";
+			speed = format_size ((uint64)((download.get_received_data_length()*1.0)/download.elapsed_time));
+            speed = _(" (%s/s)").printf (speed);
+			string progress = "%d%%".printf((int)(download.get_estimated_progress()*100));
+			if (is_finished (download))
+                return "%s\n %s".printf (filename,size);
+            return "%s\n %s - %s".printf (filename,speed,progress);
 #endif
         }
 
         public static string get_content_type (WebKit.Download download, string? mime_type) {
-#if !HAVE_WEBKIT2
-            string? content_type = ContentType.guess (download.suggested_filename, null, null);
+#if HAVE_WEBKIT2
+            string? content_type = ContentType.guess (download.response.suggested_filename, null,null);
+#else
+			string? content_type = ContentType.guess (download.suggested_filename, null, null);
+#endif
             if (content_type == null) {
                 content_type = ContentType.from_mime_type (mime_type);
                 if (content_type == null)
                     content_type = ContentType.from_mime_type ("application/octet-stream");
             }
             return content_type;
-#else
-            return ContentType.from_mime_type ("application/octet-stream");
-#endif
+
         }
 
         public static bool has_wrong_checksum (WebKit.Download download) {
@@ -181,6 +199,13 @@ namespace Midori {
                     warn_if_reached ();
                     break;
             }
+            #else
+
+			if(download.estimated_progress<=1){
+				download.cancel ();
+            }else{
+				return true;
+			}
 #endif
             return false;
         }
@@ -257,7 +282,10 @@ namespace Midori {
                https://d19vezwu8eufl6.cloudfront.net/nlp/slides%2F03-01-FormalizingNB.pdf */
             return clean_filename (download.get_suggested_filename ());
 #else
-            return "";
+			string name = get_filename(download);
+            if (name==null)
+				return "";
+            return name;
 #endif
         }
 
@@ -326,7 +354,9 @@ namespace Midori {
         }
 
         public string prepare_destination_uri (WebKit.Download download, string? folder) {
+			
             string suggested_filename = get_suggested_filename (download);
+            
             string basename = Path.get_basename (suggested_filename);
             string download_dir;
             if (folder == null) {

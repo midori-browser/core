@@ -18,7 +18,6 @@ if (HALF_BRO_INCOM_WEBKIT2)
          "cookie-permissions"
          "addons.c"
          "formhistory"
-         "external-download-manager.vala"
          "nojs"
          "nsplugin-manager.vala"
          )

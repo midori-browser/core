@@ -41,12 +41,17 @@ namespace EDM {
 
             if (download_type == Midori.DownloadType.SAVE) {
                 var dlReq = new DownloadRequest ();
+                #if HAVE_WEBKIT2
+                dlReq.uri = download.request.get_uri ();
+                weak MessageHeaders headers =download.request.get_http_headers();
+                #else
                 dlReq.uri = download.get_uri ();
-
                 var request = download.get_network_request ();
                 var message = request.get_message ();
                 weak MessageHeaders headers = message.request_headers;
-
+                #endif
+              
+		
                 dlReq.auth = headers.get ("Authorization");
                 dlReq.referer = headers.get ("Referer");
                 dlReq.cookie_header = this.cookie_jar.get_cookies (new Soup.URI (dlReq.uri), true);
@@ -102,7 +107,11 @@ namespace EDM {
         }
 
         construct {
+			#if HAVE_WEBKIT2
+			var session= new Session();
+			#else
             var session = WebKit.get_default_session ();
+            #endif
             this.cookie_jar = session.get_feature (typeof (CookieJar)) as CookieJar;
         }
     }
@@ -159,7 +168,19 @@ namespace EDM {
                 typeof(HashTable), options);
             var session = new SessionSync ();
             session.send_message (message);
-
+			if(message.status_code!=200){
+				var dialog = new MessageDialog (null, DialogFlags.MODAL,
+                MessageType.ERROR, ButtonsType.CLOSE,
+                _("An error occurred when attempting connect with aria2:\n" +
+                  "Please make sure that aria2 is running with rpc enabled ie: aria2c --enable-rpc\n" +
+                  "Also check if it's running in the port 6800. Check your Documentation.\n" +
+                  "Check the configuration of your firewall.\n" +
+                  "If you didn't find a solution carry on without this plugin."
+                  ));
+            dialog.response.connect ((a) => { dialog.destroy (); });
+            dialog.run ();
+				
+			}
             try {
                 Value v;
                 XMLRPC.parse_method_response ((string) message.response_body.flatten ().data, -1, out v);
@@ -344,4 +365,3 @@ public Katze.Array extension_init () {
     extensions.add_item (new EDM.CommandLine ());
     return extensions;
 }
-
