@@ -236,6 +236,7 @@ namespace Midori {
     [CCode (cheader_filename = "midori/midori.h")]
     public class SearchAction : Gtk.Action {
         public static Katze.Item? get_engine_for_form (WebKit.WebView web_view, Pango.EllipsizeMode ellipsize);
+        public static string token_for_uri (string uri);
     }
 
     [CCode (cheader_filename = "midori/midori-view.h", cprefix = "MIDORI_DOWNLOAD_")]
