@@ -3966,6 +3966,7 @@ midori_view_get_display_uri (MidoriView* view)
        Yet for practical purposes we prefer "".  */
     if (!strcmp (uri, "about:blank")
      || !strcmp (uri, "about:dial")
+     || !strcmp (uri, "about:new")
      || !strcmp (uri, "about:private"))
         return "";
 
