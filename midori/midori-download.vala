@@ -135,7 +135,8 @@ namespace Midori {
 
         public static string get_content_type (WebKit.Download download, string? mime_type) {
 #if HAVE_WEBKIT2
-            string? content_type = ContentType.guess (download.response.suggested_filename, null,null);
+            string? content_type = ContentType.guess (download.response.suggested_filename==null?download.destination:download.response.suggested_filename, null,null);
+            
 #else
 			string? content_type = ContentType.guess (download.suggested_filename, null, null);
 #endif
