@@ -194,7 +194,6 @@ void
 midori_view_save_source                (MidoriView*        view,
                                         const gchar*       uri,
                                         gboolean           use_dom);
-
 #endif
 void
 midori_view_search_text                (MidoriView*        view,
@@ -246,6 +245,11 @@ midori_view_list_versions              (GString*           markup,
 void
 midori_view_list_plugins               (MidoriView*        view,
                                         GString*           markup,
+                                        gboolean           html);
+
+void
+midori_view_list_video_formats         (MidoriView*        view,
+                                        GString*           formats,
                                         gboolean           html);
 
 void

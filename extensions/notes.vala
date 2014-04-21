@@ -148,7 +148,7 @@ namespace ClipNotes {
                 toolbar = new Gtk.Toolbar ();
                 var new_note_button = new Gtk.ToolButton.from_stock (Gtk.STOCK_EDIT);
                 new_note_button.label = _("New Note");
-                new_note_button.tooltip_text = _("Creates a new empty note, urelated to opened pages");
+                new_note_button.tooltip_text = _("Creates a new empty note, unrelated to opened pages");
                 new_note_button.use_underline  = true;
                 new_note_button.is_important = true;
                 new_note_button.show ();

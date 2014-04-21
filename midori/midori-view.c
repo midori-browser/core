@@ -378,8 +378,6 @@ midori_view_class_init (MidoriViewClass* class)
                                      "The associated settings",
                                      MIDORI_TYPE_WEB_SETTINGS,
                                      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
-
-    
 }
 
 static void
@@ -576,7 +574,7 @@ midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view
         return TRUE;
     }
     #if defined (HAVE_GCR)
-    else if (/* midori_tab_get_special (MIDORI_TAB (view)) && */ !g_str_has_prefix (uri, "https"))
+    else if (/* midori_tab_get_special (MIDORI_TAB (view)) && */ !strncmp (uri, "https", 5))
     {
         /* We show an error page if the certificate is invalid.
            If a "special", unverified page loads a form, it must be that page.
@@ -967,7 +965,7 @@ midori_view_add_info_bar (MidoriView*    view,
     gtk_container_add (GTK_CONTAINER (content_area), label);
     gtk_widget_show_all (infobar);
     gtk_box_pack_start (GTK_BOX (view), infobar, FALSE, FALSE, 0);
-    
+    gtk_box_reorder_child (GTK_BOX (view), infobar, 0);
     g_object_set_data (G_OBJECT (infobar), "midori-infobar-cb", response_cb);
     if (data_object != NULL)
         g_object_set_data_full (G_OBJECT (infobar), "midori-infobar-da",
@@ -1987,13 +1985,10 @@ midori_view_download_uri (MidoriView*        view,
     WebKitNetworkRequest* request = webkit_network_request_new (uri);
     WebKitDownload* download = webkit_download_new (request);
     g_object_unref (request);
-
     midori_download_set_type (download, type);
     gboolean handled;
     g_signal_emit (view, signals[DOWNLOAD_REQUESTED], 0, download, &handled);
     #endif
-    
-
 }
 
 static void
@@ -2467,8 +2462,7 @@ midori_view_get_page_context_action (MidoriView*          view,
 
         midori_context_action_add (menu, NULL);
         midori_context_action_add_by_name (menu, "BookmarkAdd");
-        if (!midori_view_is_blank (view) && !midori_paths_is_readonly ())
-            midori_context_action_add_by_name (menu, "AddSpeedDial");
+        midori_context_action_add_by_name (menu, "AddSpeedDial");
         midori_context_action_add_by_name (menu, "SaveAs");
         midori_context_action_add_by_name (menu, "SourceView");
         midori_context_action_add_by_name (menu, "SourceViewDom");
@@ -2713,18 +2707,17 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
 
 gint
 midori_save_dialog(const gchar* title,
-	const gchar * hostname,
-	const GString* details,
-	const gchar *content_type){
-	
-	GIcon* icon;
+                   const gchar * hostname,
+                   const GString* details,
+                   const gchar *content_type)
+{	
+    GIcon* icon;
     GtkWidget* image;
     GdkScreen* screen;
-	GtkWidget* dialog= NULL;
-	GtkIconTheme* icon_theme;
-	gint response;
-	
-	dialog = gtk_message_dialog_new (NULL, 0, GTK_MESSAGE_WARNING, GTK_BUTTONS_NONE,
+    GtkWidget* dialog= NULL;
+    GtkIconTheme* icon_theme;
+    gint response;
+    dialog = gtk_message_dialog_new (NULL, 0, GTK_MESSAGE_WARNING, GTK_BUTTONS_NONE,
         _("Open or download file from %s"), hostname);
     icon = g_content_type_get_icon (content_type);
     g_themed_icon_append_name (G_THEMED_ICON (icon), "text-html");
@@ -2768,22 +2761,22 @@ midori_view_download_query_action (MidoriView*     view,
                                    const gchar * suggested_filename );
 static gboolean
 midori_view_download_decide_destination_cb (WebKitDownload*   download,
-	const gchar * suggested_filename, MidoriView*      view){
-	
-	if(!midori_view_download_query_action(view,download,suggested_filename)){
-			webkit_download_cancel (download);
-	}
-	return TRUE;
+                                    const gchar * suggested_filename,
+                                    MidoriView*      view)
+{
+    if(!midori_view_download_query_action(view,download,suggested_filename)){
+        webkit_download_cancel (download);
+    }
+    return TRUE;
 }
-                    
+                
 static void
 midori_view_download_started_cb (WebKitWebContext* context,
                                    WebKitDownload*   download,
                                    MidoriView          *view)
 {
-	g_signal_connect (download, "decide-destination",
+    g_signal_connect (download, "decide-destination",
                       G_CALLBACK (midori_view_download_decide_destination_cb), view);
-    	
 }
 
 static gboolean
@@ -2797,9 +2790,8 @@ midori_view_download_requested_cb (GtkWidget*      web_view,
                                    WebKitDownload* download,
                                    MidoriView*     view)
 {
-	
 #endif
-    gboolean handled=TRUE;
+    gboolean handled = TRUE;
     gchar* hostname;
     gchar* content_type;
     gchar* description;
@@ -2815,17 +2807,17 @@ midori_view_download_requested_cb (GtkWidget*      web_view,
     #ifdef HAVE_WEBKIT2
     content_type = g_content_type_guess (suggested_filename,NULL,0,NULL);
     if(!content_type)
-		content_type = g_strdup("application/octet-stream");
-	midori_download_set_filename(download,g_strdup(suggested_filename));
+        content_type = g_strdup("application/octet-stream");
+    midori_download_set_filename(download,g_strdup(suggested_filename));
     #else
     content_type = midori_download_get_content_type (download,
         g_object_get_data (G_OBJECT (view), "download-mime-type"));
     #endif
 	description = g_content_type_get_description (content_type);
-	
-	details = g_string_sized_new (20 * 4);
+
+    details = g_string_sized_new (20 * 4);
     #ifdef HAVE_WEBKIT2
-    const gchar * suggestion=webkit_uri_response_get_suggested_filename (webkit_download_get_response (download));
+    const gchar * suggestion = webkit_uri_response_get_suggested_filename (webkit_download_get_response (download));
     g_string_append_printf (details, _("File Name: %s"),suggestion?suggestion:suggested_filename);
     #else
     g_string_append_printf (details, _("File Name: %s"),
@@ -2833,7 +2825,6 @@ midori_view_download_requested_cb (GtkWidget*      web_view,
     #endif
     g_string_append_c (details, '\n');
 
-    
     if (g_strrstr (description, content_type))
         g_string_append_printf (details, _("File Type: '%s'"), content_type);
     else
@@ -2884,17 +2875,15 @@ midori_view_download_requested_cb (GtkWidget*      web_view,
     #else
     title = g_strdup_printf (_("Open %s"), webkit_download_get_uri (download));
     #endif
-    response =midori_save_dialog(title,hostname,details,content_type);
+    response = midori_save_dialog(title,hostname,details,content_type);
     g_free (title);
     g_free (hostname);
     g_free (description);
     g_free (content_type);
     g_string_free (details, TRUE);
     midori_download_set_type (download, response);
-	g_signal_emit (view, signals[DOWNLOAD_REQUESTED], 0, download, &handled);
-	
+    g_signal_emit (view, signals[DOWNLOAD_REQUESTED], 0, download, &handled);
     return handled;
-
 }
 
 #ifndef HAVE_WEBKIT2
@@ -3673,7 +3662,7 @@ midori_view_constructor (GType                  type,
     #else
     gtk_box_pack_start (GTK_BOX (view), view->scrolled_window, TRUE, TRUE, 0);
     #endif
-	
+
     #ifndef HAVE_WEBKIT2
     gtk_container_add (GTK_CONTAINER (view->scrolled_window), view->web_view);
 
@@ -3791,44 +3780,7 @@ midori_view_list_plugins (MidoriView* view,
     #endif
 }
 
-static void
-list_geolocation (GString* markup)
-{
-    g_string_append (markup,
-    "<a href=\"http://dev.w3.org/geo/api/spec-source.html\" id=\"method\"></a>"
-    "<span id=\"locationInfo\"><noscript>No Geolocation without Javascript</noscript></span>"
-    "<script>"
-    "function displayLocation (position) {"
-    "var geouri = 'geo:' + position.coords.latitude + ',' + position.coords.longitude + ',' + position.coords.altitude + ',u=' + position.coords.accuracy;"
-    "document.getElementById('locationInfo').innerHTML = '<a href=\"' + geouri + '\">' + geouri + '</a><br><code>'"
-    "+ ' timestamp: ' + position.timestamp"
-    "+ ' latitude: ' + position.coords.latitude"
-    "+ ' longitude: ' + position.coords.longitude"
-    "+ ' altitude: ' + position.coords.altitude + '<br>'"
-    "+ ' accuracy: ' + position.coords.accuracy"
-    "+ ' altitudeAccuracy: ' + position.coords.altitudeAccuracy"
-    "+ ' heading: ' + position.coords.heading"
-    "+ ' speed: ' + position.coords.speed"
-    "+ '</code>'; }"
-    "function handleError (error) {"
-    "var errorMessage = '<b>' + ['Unknown error', 'Permission denied', 'Position failed', 'Timed out'][error.code] + '</b>';"
-    "if (error.code == 3) document.getElementById('locationInfo').innerHTML += (' ' + errorMessage);"
-    "else document.getElementById('locationInfo').innerHTML = errorMessage; }"
-    "if (navigator.geolocation) {"
-    "var options = { enableHighAccuracy: true, timeout: 60000, maximumAge: \"Infinite\" };"
-    "  if (navigator.geolocation.watchPosition) {"
-    "    document.getElementById('method').innerHTML = '<code>geolocation.watchPosition</code>:';"
-    "    navigator.geolocation.watchPosition(displayLocation, handleError, options);"
-    "  } else {"
-    "    document.getElementById('method').innerHTML = '<code>geolocation.getCurrentPosition</code>:';"
-    "    navigator.geolocation.getCurrentPosition(displayLocation, handleError);"
-    "  }"
-    "} else"
-    "  document.getElementById('locationInfo').innerHTML = 'Geolocation unavailable';"
-    "</script>");
-}
-
-static void
+void
 midori_view_list_video_formats (MidoriView* view,
                                 GString*    formats,
                                 gboolean    html)
@@ -3853,28 +3805,6 @@ midori_view_list_video_formats (MidoriView* view,
 #endif
 }
 
-static const gchar* valid_about_uris[] = {
-    "about:dial",
-    "about:geolocation",
-    "about:home",
-    "about:new",
-    "about:paths",
-    "about:private",
-    "about:search",
-    "about:widgets",
-};
-
-static void
-list_about_uris (GString* markup)
-{
-    g_string_append (markup, "<p>");
-    guint i;
-    for (i = 0; i < G_N_ELEMENTS (valid_about_uris); i++)
-        g_string_append_printf (markup, "<a href=\"%s\">%s</a> &nbsp;",
-                                valid_about_uris[i], valid_about_uris[i]);
-}
-
-
 /**
  * midori_view_set_uri:
  * @view: a #MidoriView
@@ -3889,8 +3819,6 @@ void
 midori_view_set_uri (MidoriView*  view,
                      const gchar* uri)
 {
-    gchar* data;
-
     g_return_if_fail (MIDORI_IS_VIEW (view));
     g_return_if_fail (uri != NULL);
 
@@ -3898,216 +3826,24 @@ midori_view_set_uri (MidoriView*  view,
         g_warning ("Calling %s() before adding the view to a browser. This "
                    "breaks extensions that monitor page loading.", G_STRFUNC);
 
+    midori_uri_recursive_fork_protection (uri, TRUE);
+
     if (!midori_debug ("unarmed"))
     {
         gboolean handled = FALSE;
-        gchar* temporary_uri = NULL;
         if (g_str_has_prefix (uri, "about:"))
             g_signal_emit (view, signals[ABOUT_CONTENT], 0, uri, &handled);
 
         if (handled)
-            return;
-
-        if (!strcmp (uri, "about:new"))
-            uri = midori_settings_get_tabhome (MIDORI_SETTINGS (view->settings));
-        if (!strcmp (uri, "about:home"))
-            uri = midori_settings_get_homepage (MIDORI_SETTINGS (view->settings));
-        if (!strcmp (uri, "about:search"))
         {
-            uri = midori_settings_get_location_entry_search (MIDORI_SETTINGS (view->settings));
-            temporary_uri = midori_uri_for_search (uri, "");
-            uri = temporary_uri;
-        }
-
-        if (!strcmp (uri, "about:dial"))
-        {
-            MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (view));
-            MidoriSpeedDial* dial = katze_object_get_object (browser, "speed-dial");
-            const gchar* html;
-            GTimer* timer = NULL;
-
-            if (midori_debug ("startup"))
-                timer = g_timer_new ();
-
-            midori_tab_set_uri (MIDORI_TAB (view), uri);
-            midori_tab_set_mime_type (MIDORI_TAB (view), "text/html");
-            katze_item_set_meta_string (view->item, "mime-type", "text/html");
-            katze_item_set_meta_integer (view->item, "delay", MIDORI_DELAY_UNDELAYED);
-
-            html = dial != NULL ? midori_speed_dial_get_html (dial, NULL) : "";
-            midori_view_set_html (view, html, uri, NULL);
-
-            if (midori_debug ("startup"))
-            {
-                g_debug ("Speed Dial: \t%fs", g_timer_elapsed (timer, NULL));
-                g_timer_destroy (timer);
-            }
-        }
-        else if (midori_uri_is_blank (uri))
-        {
-            data = NULL;
-            if (!strcmp (uri, "about:widgets"))
-            {
-                static const gchar* widgets[] = {
-                    "<input value=\"demo\"%s>",
-                    "<p><input type=\"password\" value=\"demo\"%s>",
-                    "<p><input type=\"checkbox\" value=\"demo\"%s> demo",
-                    "<p><input type=\"radio\" value=\"demo\"%s> demo",
-                    "<p><select%s><option>foo bar</option><option selected>spam eggs</option></select>",
-                    "<p><select%s size=\"3\"><option>foo bar</option><option selected>spam eggs</option></select>",
-                    "<p><input type=\"file\"%s>",
-                    "<p><input type=\"file\" multiple%s>",
-                    "<input type=\"button\" value=\"demo\"%s>",
-                    "<p><input type=\"email\" value=\"user@localhost.com\"%s>",
-                    "<input type=\"url\" value=\"http://www.example.com\"%s>",
-                    "<input type=\"tel\" value=\"+1 234 567 890\" pattern=\"^[0+][1-9 /-]*$\"%s>",
-                    "<input type=\"number\" min=1 max=9 step=1 value=\"4\"%s>",
-                    "<input type=\"range\" min=1 max=9 step=1 value=\"4\"%s>",
-                    "<input type=\"date\" min=1990-01-01 max=2010-01-01%s>",
-                    "<input type=\"search\" placeholder=\"demo\"%s>",
-                    "<textarea%s>Lorem ipsum doloret sit amet…</textarea>",
-                    "<input type=\"color\" value=\"#d1eeb9\"%s>",
-                    "<progress min=1 max=9 value=4 %s></progress>",
-                    "<keygen type=\"rsa\" challenge=\"235ldahlae983dadfar\"%s>",
-                    "<p><input type=\"reset\"%s>",
-                    "<input type=\"submit\"%s>",
-                };
-                guint i;
-                GString* demo = g_string_new ("<html><head><style>"
-                    ".fallback::-webkit-slider-thumb,"
-                    ".fallback, .fallback::-webkit-file-upload-button {"
-                    "-webkit-appearance: none !important }"
-                    ".column { display:inline-block; vertical-align:top;"
-                    "width:25%;margin-right:1% }</style><title>");
-                g_string_append_printf (demo,
-                    "%s</title></head><body><h1>%s</h1>", uri, uri);
-                g_string_append (demo, "<div class=\"column\">");
-                for (i = 0; i < G_N_ELEMENTS (widgets); i++)
-                    g_string_append_printf (demo, widgets[i], "");
-                g_string_append (demo, "</div><div class=\"column\">");
-                for (i = 0; i < G_N_ELEMENTS (widgets); i++)
-                    g_string_append_printf (demo, widgets[i], " disabled");
-                g_string_append (demo, "</div><div class=\"column\">");
-                for (i = 0; i < G_N_ELEMENTS (widgets); i++)
-                    g_string_append_printf (demo, widgets[i], " class=\"fallback\"");
-                g_string_append (demo, "</div>");
-                g_string_append (demo, "<p><a href=\"http://example.com\" target=\"wp\" "
-                                       "onclick=\"javascript:window.open('http://example.com','wp',"
-                                       "'width=320, height=240, toolbar=false'); return false\""
-                                       ">Popup window</a></p>");
-                data = g_string_free (demo, FALSE);
-            }
-            else if (!strcmp (uri, "about:private"))
-            {
-                data = g_strdup_printf (
-                    "<html dir=\"ltr\"><head><title>%s</title>"
-                    "<link rel=\"stylesheet\" type=\"text/css\" href=\"res://about.css\">"
-                    "</head>"
-                    "<body>"
-                    "<img id=\"logo\" src=\"res://logo-shade.png\" />"
-                        "<div id=\"main\" style=\"background-image: url(stock://dialog/gtk-dialog-info);\">"
-                            "<div id=\"text\">"
-                                "<h1>%s</h1>"
-                                "<p class=\"message\">%s</p><ul class=\" suggestions\"><li>%s</li><li>%s</li><li>%s</li></ul>"
-                                "<p class=\"message\">%s</p><ul class=\" suggestions\"><li>%s</li><li>%s</li><li>%s</li><li>%s</li></ul>"
-                    "</div><br style=\"clear: both\"></div></body></html>",
-                    _("Private Browsing"), _("Private Browsing"),
-                    _("Midori doesn't store any personal data:"),
-                    _("No history or web cookies are being saved."),
-                    _("Extensions are disabled."),
-                    _("HTML5 storage, local database and application caches are disabled."),
-                    _("Midori prevents websites from tracking the user:"),
-                    _("Referrer URLs are stripped down to the hostname."),
-                    _("DNS prefetching is disabled."),
-                    _("The language and timezone are not revealed to websites."),
-                    _("Flash and other Netscape plugins cannot be listed by websites."));
-            }
-            else if (!strcmp (uri, "about:geolocation"))
-            {
-                GString* markup = g_string_new ("");
-                list_geolocation (markup);
-                data = g_string_free (markup, FALSE);
-            }
-            else if (!strcmp (uri, "about:paths"))
-            {
-                gchar* res_dir = midori_paths_get_res_filename ("about.css");
-                gchar* lib_dir = midori_paths_get_lib_path (PACKAGE_NAME);
-                data = g_markup_printf_escaped ("<body><h1>%s</h1>"
-                    "<p>config: <code>%s</code></p>"
-                    "<p>res: <code>%s</code></p>"
-                    "<p>data: <code>%s/%s</code></p>"
-                    "<p>lib: <code>%s</code></p>"
-                    "<p>cache: <code>%s</code></p>"
-                    "<p>tmp: <code>%s</code></p>"
-                    "</body>",
-                    uri, midori_paths_get_config_dir_for_reading (), res_dir,
-                    midori_paths_get_user_data_dir_for_reading (), PACKAGE_NAME,
-                    lib_dir, midori_paths_get_cache_dir_for_reading (), midori_paths_get_tmp_dir ());
-                g_free (res_dir);
-                g_free (lib_dir);
-            }
-            else if (!strcmp (uri, "about:") || !strcmp (uri, "about:version"))
-            {
-                gchar* command_line = midori_paths_get_command_line_str (TRUE);
-                gchar* architecture, *platform;
-                const gchar* sys_name = midori_web_settings_get_system_name (
-                    &architecture, &platform);
-                gchar* ident = katze_object_get_string (view->settings, "user-agent");
-                GString * tmp = g_string_new ("");
-
-                g_string_append_printf (tmp,
-                    "<html><head><title>about:version</title></head>"
-                    "<body><h1>a%sbout:version</h1>"
-                    "<p>%s</p>"
-                    "<img src=\"res://logo-shade.png\" "
-                    "style=\"position: absolute; right: 15px; bottom: 15px; z-index: -9;\">"
-                    "<table>",
-                    "<span style=\"position: absolute; left: -1000px; top: -1000px\">lias a=b; echo Copy carefully #</span>",
-                    _("Version numbers in brackets show the version used at runtime."));
-                midori_view_add_version (tmp, TRUE, g_markup_printf_escaped ("Command line %s",
-                    command_line));
-                midori_view_list_versions (tmp, TRUE);
-                midori_view_add_version (tmp, TRUE, g_markup_printf_escaped ("Platform %s %s %s",
-                    platform, sys_name, architecture ? architecture : ""));
-                midori_view_add_version (tmp, TRUE, g_markup_printf_escaped ("Identification %s",
-                    ident));
-                midori_view_list_video_formats (view, tmp, TRUE);
-
-                g_string_append (tmp, "</table><table>");
-                midori_view_list_plugins (view, tmp, TRUE);
-                g_string_append (tmp, "</table>");
-                list_about_uris (tmp);
-                /* TODO: list active extensions */
-
-                g_string_append (tmp, "</body></html>");
-                data = g_string_free (tmp, FALSE);
-
-                g_free (command_line);
-                g_free (ident);
-            }
-            else if (!strcmp (uri, "about:blank"))
-                data = g_strdup ("<body></body>");
-            else
-            {
-                data = g_strdup_printf (
-                    "<html><head><title>%s</title></head><body><h1>%s</h1>"
-                    "<img src=\"res://logo-shade.png\" "
-                    "style=\"position: absolute; right: 15px; bottom: 15px; z-index: -9;\">"
-                    "</body></html>", uri, uri);
-            }
-
             midori_tab_set_uri (MIDORI_TAB (view), uri);
             midori_tab_set_special (MIDORI_TAB (view), TRUE);
-#ifndef HAVE_WEBKIT2
-            webkit_web_view_load_html_string (WEBKIT_WEB_VIEW (view->web_view), data, uri);
-#else
-            webkit_web_view_load_html (WEBKIT_WEB_VIEW (view->web_view), data, uri);
-#endif
-            g_free (data);
             katze_item_set_meta_integer (view->item, "delay", MIDORI_DELAY_UNDELAYED);
             katze_item_set_uri (view->item, midori_tab_get_uri (MIDORI_TAB (view)));
+            return;
         }
-        else if (katze_item_get_meta_integer (view->item, "delay") == MIDORI_DELAY_DELAYED)
+
+        if (katze_item_get_meta_integer (view->item, "delay") == MIDORI_DELAY_DELAYED)
         {
             midori_tab_set_uri (MIDORI_TAB (view), uri);
             midori_tab_set_special (MIDORI_TAB (view), TRUE);
@@ -4134,13 +3870,10 @@ midori_view_set_uri (MidoriView*  view,
         {
             if (sokoke_external_uri (uri))
             {
-                gboolean handled_uri = FALSE;
-                g_signal_emit_by_name (view, "open-uri", uri, &handled_uri);
-                if (handled_uri)
-                {
-                    g_free (temporary_uri);
+                gboolean handled = FALSE;
+                g_signal_emit_by_name (view, "open-uri", uri, &handled);
+                if (handled)
                     return;
-                }
             }
 
             midori_tab_set_uri (MIDORI_TAB (view), uri);
@@ -4149,7 +3882,6 @@ midori_view_set_uri (MidoriView*  view,
             midori_tab_set_view_source (MIDORI_TAB (view), FALSE);
             webkit_web_view_load_uri (WEBKIT_WEB_VIEW (view->web_view), uri);
         }
-        g_free (temporary_uri);
     }
 }
 
@@ -4256,15 +3988,15 @@ midori_view_get_display_uri (MidoriView* view)
     const gchar* uri;
 
     g_return_val_if_fail (MIDORI_IS_VIEW (view), "");
-	
     uri = midori_tab_get_uri (MIDORI_TAB (view));
     /* Something in the stack tends to turn "" into "about:blank".
        Yet for practical purposes we prefer "".  */
-    if (!g_strcmp0  (uri, "about:blank")
-     || !g_strcmp0  (uri, "about:dial")
-     || !g_strcmp0  (uri, "about:private")){
+    if (!strcmp (uri, "about:blank")
+     || !strcmp (uri, "about:dial")
+     || !strcmp (uri, "about:new")
+     || !strcmp (uri, "about:private"))
         return "";
-        }
+
     return uri;
 }
 
@@ -4582,56 +4314,55 @@ midori_view_can_zoom_out (MidoriView* view)
         || !g_str_has_prefix (midori_tab_get_mime_type (MIDORI_TAB (view)), "image/"));
 }
 
-
 #ifdef HAVE_WEBKIT2
 static void
 midori_web_resource_get_data_cb (WebKitWebResource *resource,
                           GAsyncResult *result,
                           GOutputStream *output_stream)
 {
-	guchar *data;
-	gsize data_length;
-	GInputStream *input_stream;
-	GError *error = NULL;
+    guchar *data;
+    gsize data_length;
+    GInputStream *input_stream;
+    GError *error = NULL;
 
-	data = webkit_web_resource_get_data_finish (resource, result, &data_length, &error);
-	if (!data) {
-		g_printerr ("Failed to save page: %s", error->message);
-		g_error_free (error);
-		g_object_unref (output_stream);
+    data = webkit_web_resource_get_data_finish (resource, result, &data_length, &error);
+    if (!data) {
+        g_printerr ("Failed to save page: %s", error->message);
+        g_error_free (error);
+        g_object_unref (output_stream);
 
-		return;
-	}
+        return;
+    }
 
-	input_stream = g_memory_input_stream_new_from_data (data, data_length, g_free);
-	g_output_stream_splice_async (output_stream, input_stream,
+    input_stream = g_memory_input_stream_new_from_data (data, data_length, g_free);
+    g_output_stream_splice_async (output_stream, input_stream,
                                 G_OUTPUT_STREAM_SPLICE_CLOSE_TARGET,
                                 G_PRIORITY_DEFAULT,
                                 NULL, NULL, NULL);
-	g_object_unref (input_stream);
-	g_object_unref (output_stream);
+    g_object_unref (input_stream);
+    g_object_unref (output_stream);
 }
+
 static void
 midori_web_view_save_main_resource_cb (GFile *file,
                                      GAsyncResult *result,
                                      WebKitWebView *view)
 {
-	GFileOutputStream *output_stream;
-	WebKitWebResource *resource;
-	GError *error = NULL;
+    GFileOutputStream *output_stream;
+    WebKitWebResource *resource;
+    GError *error = NULL;
 
-	output_stream = g_file_replace_finish (file, result, &error);
-	if (!output_stream) {
-		g_printerr ("Failed to save page: %s", error->message);
-		g_error_free (error);
-		return;
-	}
+    output_stream = g_file_replace_finish (file, result, &error);
+    if (!output_stream) {
+        g_printerr ("Failed to save page: %s", error->message);
+        g_error_free (error);
+        return;
+    }
 
-	resource = webkit_web_view_get_main_resource (view);
-	webkit_web_resource_get_data (resource, NULL,
+    resource = webkit_web_view_get_main_resource (view);
+    webkit_web_resource_get_data (resource, NULL,
                                 (GAsyncReadyCallback)midori_web_resource_get_data_cb,
-                                output_stream);
-                                
+                                output_stream);                                
 } 
 #endif
 
@@ -4654,7 +4385,6 @@ midori_view_save_source (MidoriView*  view,
                          const gchar* outfile,
                          gboolean     use_dom)
 {
-
     WebKitWebFrame *frame;
     WebKitWebDataSource *data_source;
     const GString *data;
@@ -4731,15 +4461,14 @@ midori_view_save_source (MidoriView*  view,
                          const gchar* uri,
                          gboolean     use_dom)
 {
-	GFile *file;
-	char * converted=NULL;
-	
-	WebKitWebView * web_view = WEBKIT_WEB_VIEW(view->web_view);
-	g_return_if_fail (uri);
-	converted = g_filename_to_utf8 (uri, -1, NULL, NULL, NULL);
-	file = g_file_new_for_uri (converted);
-	if (g_str_has_suffix (uri, ".mhtml"))
-		webkit_web_view_save_to_file (WEBKIT_WEB_VIEW (web_view), file, WEBKIT_SAVE_MODE_MHTML,
+    GFile *file;
+    char * converted = NULL;
+    WebKitWebView * web_view = WEBKIT_WEB_VIEW(view->web_view);
+    g_return_if_fail (uri);
+    converted = g_filename_to_utf8 (uri, -1, NULL, NULL, NULL);
+    file = g_file_new_for_uri (converted);
+    if (g_str_has_suffix (uri, ".mhtml"))
+        webkit_web_view_save_to_file (WEBKIT_WEB_VIEW (web_view), file, WEBKIT_SAVE_MODE_MHTML,
                                   NULL, NULL, NULL);
     else
 		g_file_replace_async (file, NULL, FALSE,
@@ -4751,6 +4480,7 @@ midori_view_save_source (MidoriView*  view,
     g_object_unref (file);
 }
 #endif
+
 /**
  * midori_view_reload:
  * @view: a #MidoriView

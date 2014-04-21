@@ -10,9 +10,7 @@
 */
 
 namespace Sokoke {
-
     extern static bool message_dialog (Gtk.MessageType type, string short, string detailed, bool modal);
-
 }
  
 namespace Midori {
@@ -28,7 +26,7 @@ namespace Midori {
                     return false;
             }
 #else
-            if (download.estimated_progress==1)
+            if (download.estimated_progress == 1)
 				return true;
             return false;
 #endif
@@ -120,14 +118,14 @@ namespace Midori {
 
             return "%s\n%s %s%s".printf (filename, size, speed, eta);
 #else
-			string filename = Midori.Download.get_basename_for_display(download.destination);
-			
-			string size = "%s".printf (format_size (download.get_received_data_length()));
-			string speed = "";
-			speed = format_size ((uint64)((download.get_received_data_length()*1.0)/download.elapsed_time));
+            string filename = Midori.Download.get_basename_for_display(download.destination);
+
+            string size = "%s".printf (format_size (download.get_received_data_length()));
+            string speed = "";
+            speed = format_size ((uint64)((download.get_received_data_length()*1.0)/download.elapsed_time));
             speed = _(" (%s/s)").printf (speed);
-			string progress = "%d%%".printf((int)(download.get_estimated_progress()*100));
-			if (is_finished (download))
+            string progress = "%d%%".printf((int)(download.get_estimated_progress()*100));
+            if (is_finished (download))
                 return "%s\n %s".printf (filename,size);
             return "%s\n %s - %s".printf (filename,speed,progress);
 #endif
@@ -135,8 +133,9 @@ namespace Midori {
 
         public static string get_content_type (WebKit.Download download, string? mime_type) {
 #if HAVE_WEBKIT2
-            string? content_type = ContentType.guess (download.response.suggested_filename==null?download.destination:download.response.suggested_filename, null,null);
-            
+            string? content_type = ContentType.guess (download.response.suggested_filename == null?
+                          download.destination : download.response.suggested_filename,
+                          null,null);
 #else
 			string? content_type = ContentType.guess (download.suggested_filename, null, null);
 #endif
@@ -146,19 +145,16 @@ namespace Midori {
                     content_type = ContentType.from_mime_type ("application/octet-stream");
             }
             return content_type;
-
         }
 
         public static bool has_wrong_checksum (WebKit.Download download) {
-
             int status = download.get_data<int> ("checksum-status");
             if (status == 0) {
                 /* Link Fingerprint */
                 #if HAVE_WEBKIT2
                 string? original_uri = download.request.uri;
                 #else
-                string? original_uri = download.network_request.get_data<string> ("midori-original-uri");
-                
+                string? original_uri = download.network_request.get_data<string> ("midori-original-uri");            
                 if (original_uri == null)
                     original_uri = download.get_uri ();
                 #endif
@@ -168,8 +164,7 @@ namespace Midori {
                 status = 2;
                 if (fingerprint != null) {
                     try {
-						#if HAVE_WEBKIT2
-						
+                        #if HAVE_WEBKIT2
                         string filename = Filename.from_uri (download.destination);
                         #else
                         string filename = Filename.from_uri (download.destination_uri);
@@ -212,10 +207,10 @@ namespace Midori {
             }
             #else
 
-			if(download.estimated_progress<1){
-				download.cancel ();
+            if(download.estimated_progress<1){
+                download.cancel ();
             }else{
-				if (open (download, widget))
+                if (open (download, widget))
                         return true;
 			}
 #endif
@@ -242,11 +237,11 @@ namespace Midori {
                     return Gtk.Stock.MISSING_IMAGE;
             }
 #else
-			if (download.estimated_progress==1)
-				if (has_wrong_checksum (download))
-					return Gtk.Stock.DIALOG_WARNING;
+            if (download.estimated_progress == 1)
+                if (has_wrong_checksum (download))
+                    return Gtk.Stock.DIALOG_WARNING;
                 else
-					return Gtk.Stock.OPEN;
+                    return Gtk.Stock.OPEN;
             return Gtk.Stock.CANCEL;
 #endif
         }
@@ -265,7 +260,6 @@ namespace Midori {
                 browser.get ("tab", &tab);
                 if (tab != null)
                 #if HAVE_WEBKIT2
-                
                     return tab.open_uri (download.destination);
                 #else
 					return tab.open_uri (download.destination_uri);
@@ -302,8 +296,8 @@ namespace Midori {
                https://d19vezwu8eufl6.cloudfront.net/nlp/slides%2F03-01-FormalizingNB.pdf */
             return clean_filename (download.get_suggested_filename ());
 #else
-			string name = get_filename(download);
-            if (name==null)
+            string name = get_filename(download);
+            if (name == null)
 				return "";
             return name;
 #endif
@@ -373,10 +367,8 @@ namespace Midori {
             return uri;
         }
 
-        public string prepare_destination_uri (WebKit.Download download, string? folder) {
-			
+        public string prepare_destination_uri (WebKit.Download download, string? folder) {			
             string suggested_filename = get_suggested_filename (download);
-            
             string basename = Path.get_basename (suggested_filename);
             string download_dir;
             if (folder == null) {

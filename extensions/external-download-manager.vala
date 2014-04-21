@@ -168,14 +168,18 @@ namespace EDM {
                 typeof(HashTable), options);
             var session = new SessionSync ();
             session.send_message (message);
-			if(message.status_code!=200){
+            
+            /* Check if the plug-in actually recieved an reply.
+             * The parse method do not warns us about it. And the exception
+             * never is launched.*/
+			if(message.status_code != 200){
 				var dialog = new MessageDialog (null, DialogFlags.MODAL,
                 MessageType.ERROR, ButtonsType.CLOSE,
-                _("An error occurred when attempting connect with aria2:\n" +
+                _("The plug-in was unable to connect with aria2:\n" +
                   "Please make sure that aria2 is running with rpc enabled ie: aria2c --enable-rpc\n" +
-                  "Also check if it's running in the port 6800. Check your Documentation.\n" +
-                  "Check the configuration of your firewall.\n" +
-                  "If you didn't find a solution carry on without this plugin."
+                  "If it's so, check it also is using the port 6800.\n" +
+                  "Lastly Check the configuration of your firewall.\n" +
+                  "Whitelist aria2 and the port 6800 if they aren't."
                   ));
             dialog.response.connect ((a) => { dialog.destroy (); });
             dialog.run ();
