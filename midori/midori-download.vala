@@ -10,9 +10,9 @@
 */
 
 namespace Sokoke {
-#if !HAVE_WEBKIT2
+
     extern static bool message_dialog (Gtk.MessageType type, string short, string detailed, bool modal);
-#endif
+
 }
  
 namespace Midori {
@@ -28,6 +28,8 @@ namespace Midori {
                     return false;
             }
 #else
+            if (download.estimated_progress==1)
+				return true;
             return false;
 #endif
         }
@@ -147,20 +149,30 @@ namespace Midori {
         }
 
         public static bool has_wrong_checksum (WebKit.Download download) {
-#if !HAVE_WEBKIT2
+
             int status = download.get_data<int> ("checksum-status");
             if (status == 0) {
                 /* Link Fingerprint */
+                #if HAVE_WEBKIT2
+                string? original_uri = download.request.uri;
+                #else
                 string? original_uri = download.network_request.get_data<string> ("midori-original-uri");
+                
                 if (original_uri == null)
                     original_uri = download.get_uri ();
+                #endif
                 string? fingerprint;
                 ChecksumType checksum_type = URI.get_fingerprint (original_uri, out fingerprint, null);
                 /* By default, no wrong checksum */
                 status = 2;
                 if (fingerprint != null) {
                     try {
+						#if HAVE_WEBKIT2
+						
+                        string filename = Filename.from_uri (download.destination);
+                        #else
                         string filename = Filename.from_uri (download.destination_uri);
+                        #endif
                         string contents;
                         size_t length;
                         bool y = FileUtils.get_contents (filename, out contents, out length);
@@ -176,9 +188,7 @@ namespace Midori {
                 download.set_data<int> ("checksum-status", status);
             }
             return status == 1;
-#else
-            return false;
-#endif
+
         }
 
         public static bool action_clear (WebKit.Download download, Gtk.Widget widget) throws Error {
@@ -201,10 +211,11 @@ namespace Midori {
             }
             #else
 
-			if(download.estimated_progress<=1){
+			if(download.estimated_progress<1){
 				download.cancel ();
             }else{
-				return true;
+				if (open (download, widget))
+                        return true;
 			}
 #endif
             return false;
@@ -230,13 +241,17 @@ namespace Midori {
                     return Gtk.Stock.MISSING_IMAGE;
             }
 #else
-            return Gtk.Stock.MISSING_IMAGE;
+			if (download.estimated_progress==1)
+				if (has_wrong_checksum (download))
+					return Gtk.Stock.DIALOG_WARNING;
+                else
+					return Gtk.Stock.OPEN;
+            return Gtk.Stock.CANCEL;
 #endif
         }
 
         /* returns whether an application was successfully launched to handle the file */
         public static bool open (WebKit.Download download, Gtk.Widget widget) throws Error {
-#if !HAVE_WEBKIT2
             if (has_wrong_checksum (download)) {
                 Sokoke.message_dialog (Gtk.MessageType.WARNING,
                      _("The downloaded file is erroneous."),
@@ -248,9 +263,13 @@ namespace Midori {
                 Tab? tab = null;
                 browser.get ("tab", &tab);
                 if (tab != null)
-                    return tab.open_uri (download.destination_uri);
+                #if HAVE_WEBKIT2
+                
+                    return tab.open_uri (download.destination);
+                #else
+					return tab.open_uri (download.destination_uri);
+                #endif
             }
-#endif
             return false;
         }
 

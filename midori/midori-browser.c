@@ -1250,7 +1250,6 @@ midori_browser_prepare_download (MidoriBrowser*  browser,
 
     if (!midori_download_has_enough_space (download, uri, FALSE))
         return FALSE;
-    g_print ("%s %s\n", G_STRFUNC, uri);
 #ifdef HAVE_WEBKIT2
     webkit_download_set_destination (download, uri);
 #else
