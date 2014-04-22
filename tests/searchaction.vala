@@ -50,7 +50,7 @@ const TokenSpec[] tokens = {
     { "about:blank", "" },
     { "", "" },
     { "file:///", "" },
-    { "file:///form.html", "" },
+    { "file:///form.html", "" }
 };
 
 void searchaction_token () {
