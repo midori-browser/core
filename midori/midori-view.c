@@ -2710,7 +2710,7 @@ midori_save_dialog(const gchar* title,
                    const gchar * hostname,
                    const GString* details,
                    const gchar *content_type)
-{	
+{   
     GIcon* icon;
     GtkWidget* image;
     GdkScreen* screen;
@@ -2728,7 +2728,7 @@ midori_save_dialog(const gchar* title,
     gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
         "%s", details->str);
     screen = gtk_widget_get_screen (dialog);
-	
+    
     gtk_window_set_skip_taskbar_hint (GTK_WINDOW (dialog), FALSE);
     if (screen)
     {
@@ -2813,7 +2813,7 @@ midori_view_download_requested_cb (GtkWidget*      web_view,
     content_type = midori_download_get_content_type (download,
         g_object_get_data (G_OBJECT (view), "download-mime-type"));
     #endif
-	description = g_content_type_get_description (content_type);
+    description = g_content_type_get_description (content_type);
 
     details = g_string_sized_new (20 * 4);
     #ifdef HAVE_WEBKIT2
@@ -3988,6 +3988,7 @@ midori_view_get_display_uri (MidoriView* view)
     const gchar* uri;
 
     g_return_val_if_fail (MIDORI_IS_VIEW (view), "");
+
     uri = midori_tab_get_uri (MIDORI_TAB (view));
     /* Something in the stack tends to turn "" into "about:blank".
        Yet for practical purposes we prefer "".  */
@@ -4471,7 +4472,7 @@ midori_view_save_source (MidoriView*  view,
         webkit_web_view_save_to_file (WEBKIT_WEB_VIEW (web_view), file, WEBKIT_SAVE_MODE_MHTML,
                                   NULL, NULL, NULL);
     else
-		g_file_replace_async (file, NULL, FALSE,
+        g_file_replace_async (file, NULL, FALSE,
                           G_FILE_CREATE_REPLACE_DESTINATION | G_FILE_CREATE_PRIVATE,
                           G_PRIORITY_DEFAULT, NULL,
                           (GAsyncReadyCallback)midori_web_view_save_main_resource_cb,
@@ -4909,3 +4910,4 @@ midori_view_set_colors (MidoriView* view,
     midori_tab_set_fg_color (MIDORI_TAB (view), fg_color);
     midori_tab_set_bg_color (MIDORI_TAB (view), bg_color);
 }
+

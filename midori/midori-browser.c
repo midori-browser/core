@@ -1376,7 +1376,7 @@ void
 midori_browser_save_midori_view (MidoriBrowser* browser,
                          MidoriView*    view)
 {
-	static gchar* last_dir = NULL;
+    static gchar* last_dir = NULL;
     GtkWidget* dialog;
     const gchar* title = midori_view_get_display_title (view);
     gchar* filename;
@@ -1389,7 +1389,7 @@ midori_browser_save_midori_view (MidoriBrowser* browser,
         gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), last_dir);
     else
     {
-		gchar * uri = midori_view_get_display_uri (view);
+        gchar * uri = midori_view_get_display_uri (view);
         gchar* dirname = midori_uri_get_folder (uri);
         if (dirname == NULL)
             dirname = katze_object_get_string (browser->settings, "download-folder");
@@ -1401,21 +1401,21 @@ midori_browser_save_midori_view (MidoriBrowser* browser,
     
     gchar* suggested_filename = g_strconcat (filename, ".mhtml", NULL);
     
-	gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (dialog), suggested_filename);
-	g_free (filename);
-	g_free (suggested_filename);
+    gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (dialog), suggested_filename);
+    g_free (filename);
+    g_free (suggested_filename);
     if (midori_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK)
     {
-		char *uri;
-		uri = gtk_file_chooser_get_uri (GTK_FILE_CHOOSER (dialog));
-		if (uri != NULL)
-		{
-			if (uri != NULL)
-			{
-				midori_view_save_source (view, uri,false);
-			}
-			g_free (uri);
-	    }
+        char *uri;
+        uri = gtk_file_chooser_get_uri (GTK_FILE_CHOOSER (dialog));
+        if (uri != NULL)
+        {
+            if (uri != NULL)
+            {
+                midori_view_save_source (view, uri,false);
+            }
+            g_free (uri);
+        }
         katze_assign (last_dir,
             gtk_file_chooser_get_current_folder (GTK_FILE_CHOOSER (dialog)));
     }
@@ -1810,7 +1810,7 @@ midori_view_download_requested_cb (GtkWidget*      view,
 void download_created_destination_cb (WebKitDownload *download,
                gchar          *destination,
                gpointer        user_data){
-				   g_print("%s: destination %s",G_STRFUNC,destination);
+                   g_print("%s: destination %s",G_STRFUNC,destination);
 }
 
 static void

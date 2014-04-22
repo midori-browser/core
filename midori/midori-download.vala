@@ -12,7 +12,7 @@
 namespace Sokoke {
     extern static bool message_dialog (Gtk.MessageType type, string short, string detailed, bool modal);
 }
- 
+
 namespace Midori {
     namespace Download {
         public static bool is_finished (WebKit.Download download) {
@@ -27,7 +27,7 @@ namespace Midori {
             }
 #else
             if (download.estimated_progress == 1)
-				return true;
+                return true;
             return false;
 #endif
         }
@@ -137,7 +137,7 @@ namespace Midori {
                           download.destination : download.response.suggested_filename,
                           null,null);
 #else
-			string? content_type = ContentType.guess (download.suggested_filename, null, null);
+            string? content_type = ContentType.guess (download.suggested_filename, null, null);
 #endif
             if (content_type == null) {
                 content_type = ContentType.from_mime_type (mime_type);
@@ -154,7 +154,7 @@ namespace Midori {
                 #if HAVE_WEBKIT2
                 string? original_uri = download.request.uri;
                 #else
-                string? original_uri = download.network_request.get_data<string> ("midori-original-uri");            
+                string? original_uri = download.network_request.get_data<string> ("midori-original-uri");
                 if (original_uri == null)
                     original_uri = download.get_uri ();
                 #endif
@@ -212,7 +212,7 @@ namespace Midori {
             }else{
                 if (open (download, widget))
                         return true;
-			}
+            }
 #endif
             return false;
         }
@@ -262,7 +262,7 @@ namespace Midori {
                 #if HAVE_WEBKIT2
                     return tab.open_uri (download.destination);
                 #else
-					return tab.open_uri (download.destination_uri);
+                    return tab.open_uri (download.destination_uri);
                 #endif
             }
             return false;
@@ -298,7 +298,7 @@ namespace Midori {
 #else
             string name = get_filename(download);
             if (name == null)
-				return "";
+                return "";
             return name;
 #endif
         }
@@ -367,7 +367,7 @@ namespace Midori {
             return uri;
         }
 
-        public string prepare_destination_uri (WebKit.Download download, string? folder) {			
+        public string prepare_destination_uri (WebKit.Download download, string? folder) {
             string suggested_filename = get_suggested_filename (download);
             string basename = Path.get_basename (suggested_filename);
             string download_dir;
