@@ -391,6 +391,7 @@ main (int    argc,
     g_signal_connect (app, "quit", G_CALLBACK (gtk_main_quit), NULL);
     gtk_main ();
     midori_normal_app_on_quit (app);
+    g_object_unref (app);
     return 0;
 }
 
