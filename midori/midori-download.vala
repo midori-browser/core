@@ -51,7 +51,7 @@ namespace Midori {
 #endif
         }
 
-        public static string get_tooltip (WebKit.Download download) {
+        public static string calculate_tooltip (WebKit.Download download) {
 #if !HAVE_WEBKIT2
             string filename = Midori.Download.get_basename_for_display (download.destination_uri);
             /* i18n: Download tooltip (size): 4KB of 43MB */

@@ -110,12 +110,12 @@ void download_properties () {
     download.destination_uri = uri;
     download.start ();
 #endif
-    string tee = Midori.Download.get_tooltip (download);
+    string tee = Midori.Download.calculate_tooltip (download);
     assert (tee.contains (Path.get_basename (filename)));
     assert (Midori.Download.get_progress (download) == 0.0);
 
     download.notify["progress"].connect ((pspec) => {
-        string tee2 = Midori.Download.get_tooltip (download);
+        string tee2 = Midori.Download.calculate_tooltip (download);
         assert (tee2.contains (Path.get_basename (filename)));
     });
     var loop = MainContext.default ();
