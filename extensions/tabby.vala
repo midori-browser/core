@@ -764,6 +764,11 @@ namespace Tabby {
             GLib.Idle.add (this.load_session);
         }
 
+        private void deactivated () {
+            APP = null;
+            this.storage = null;
+        }
+
         internal Manager () {
             GLib.Object (name: _("Tabby"),
                          description: _("Tab and session management."),
@@ -771,6 +776,7 @@ namespace Tabby {
                          authors: "André Stösel <andre@stoesel.de>");
 
             this.activate.connect (this.activated);
+            this.deactivate.connect (this.deactivated);
         }
     }
 }
