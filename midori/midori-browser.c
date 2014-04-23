@@ -671,14 +671,14 @@ midori_view_notify_load_status_cb (GtkWidget*      widget,
             GtkAction* action = _action_by_name (browser, "Location");
             midori_location_action_set_text (
                 MIDORI_LOCATION_ACTION (action), uri);
+
+            /* Focus the urlbar on blank pages */
+            if (midori_view_is_blank (view))
+                midori_browser_activate_action (browser, "Location");
         }
 
         _midori_browser_update_interface (browser, view);
         _midori_browser_set_statusbar_text (browser, view, NULL);
-
-        /* Focus the urlbar on blank pages */
-        if (midori_view_is_blank (view))
-            midori_browser_activate_action (browser, "Location");
     }
 
     if (load_status == MIDORI_LOAD_FINISHED)
