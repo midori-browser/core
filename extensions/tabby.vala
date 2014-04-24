@@ -16,7 +16,7 @@ namespace Tabby {
 
     /* function called from Manager object */
     public interface IStorage : GLib.Object {
-        public abstract Katze.Array get_sessions ();
+        public abstract Katze.Array get_saved_sessions ();
         public abstract Base.Session get_new_session ();
         public abstract void restore_last_sessions ();
         public abstract void import_session (Katze.Array tabs);
@@ -24,10 +24,15 @@ namespace Tabby {
 
     public interface ISession : GLib.Object {
         public abstract Katze.Array get_tabs ();
+        /* Add one tab to the database */
         public abstract void add_item (Katze.Item item);
+        /* Attach to a browser */
         public abstract void attach (Midori.Browser browser);
+        /* Attach to a browser and populate it with tabs from the database */
         public abstract void restore (Midori.Browser browser);
+        /* Remove all tabs from the database */
         public abstract void remove ();
+        /* Run when a browser is closed */
         public abstract void close ();
     }
 
@@ -43,7 +48,7 @@ namespace Tabby {
         public abstract class Storage : GLib.Object, IStorage {
             public Midori.App app { get; construct; }
 
-            public abstract Katze.Array get_sessions ();
+            public abstract Katze.Array get_saved_sessions ();
             public abstract Base.Session get_new_session ();
 
             public void start_new_session () {
@@ -52,7 +57,7 @@ namespace Tabby {
             }
 
             public void restore_last_sessions () {
-                Katze.Array sessions = this.get_sessions ();
+                Katze.Array sessions = this.get_saved_sessions ();
                 this.init_sessions (sessions);
             }
 
@@ -93,7 +98,7 @@ namespace Tabby {
         public abstract class Session : GLib.Object, ISession {
             protected GLib.SList<double?> tab_sorting;
 
-            public Midori.Browser browser { get; protected set; }
+            public Midori.Browser? browser { get; protected set; default = null; }
             public SessionState state { get; protected set; default = SessionState.CLOSED; }
 
             public abstract void add_item (Katze.Item item);
@@ -214,13 +219,24 @@ namespace Tabby {
                 });
             }
 
-            public virtual void close () {
+            public void detach () {
                 this.browser.add_tab.disconnect (this.tab_added);
                 this.browser.add_tab.disconnect (this.helper_data_changed);
                 this.browser.remove_tab.disconnect (this.tab_removed);
                 this.browser.switch_tab.disconnect (this.tab_switched);
                 this.browser.delete_event.disconnect (this.delete_event);
                 this.browser.notebook.page_reordered.disconnect (this.tab_reordered);
+
+                this.browser = null;
+            }
+
+            public virtual void close () {
+                if (this.state == SessionState.CLOSED) {
+                    assert (this.browser == null);
+                } else {
+                    this.state = SessionState.CLOSED;
+                    detach ();
+                }
             }
 
 #if HAVE_GTK3
@@ -229,7 +245,7 @@ namespace Tabby {
             protected bool delete_event (Gtk.Widget widget, Gdk.Event event) {
 #endif
 
-                this.close();
+                this.close ();
                 return false;
 
             }
@@ -481,13 +497,15 @@ namespace Tabby {
                 }
             }
 
-            public override void close() {
+            public override void close () {
+                /* base.close may unset this.browser, so hold onto it */
+                Midori.Browser? my_browser = this.browser;
                 base.close ();
 
                 bool should_break = true;
-                if (!this.browser.destroy_with_parent) {
+                if (my_browser != null && !my_browser.destroy_with_parent) {
                     foreach (Midori.Browser browser in APP.get_browsers ()) {
-                        if (browser != this.browser && !browser.destroy_with_parent) {
+                        if (browser != my_browser && !browser.destroy_with_parent) {
                             should_break = false;
                             break;
                         }
@@ -595,7 +613,7 @@ namespace Tabby {
         private class Storage : Base.Storage {
             private Midori.Database database;
 
-            public override Katze.Array get_sessions () {
+            public override Katze.Array get_saved_sessions () {
                 Katze.Array sessions = new Katze.Array (typeof (Session));
 
                 string sqlcmd = """
@@ -717,7 +735,7 @@ namespace Tabby {
         }
 
         private void browser_added (Midori.Browser browser) {
-            Base.Session session = browser.get_data<Base.Session> ("tabby-session");
+            Base.Session? session = browser.get_data<Base.Session> ("tabby-session");
             if (session == null) {
                 session = this.storage.get_new_session () as Base.Session;
                 browser.set_data<Base.Session> ("tabby-session", session);
@@ -726,7 +744,7 @@ namespace Tabby {
         }
 
         private void browser_removed (Midori.Browser browser) {
-            Base.Session session = browser.get_data<Base.Session> ("tabby-session");
+            Base.Session? session = browser.get_data<Base.Session> ("tabby-session");
             if (session == null) {
                 GLib.warning ("missing session");
             } else {
@@ -765,7 +783,13 @@ namespace Tabby {
         }
 
         private void deactivated () {
+            /* set_open_uris will disconnect itself if called,
+               but it may have been called before we are deactivated */
+            APP.add_browser.disconnect (this.set_open_uris);
+            APP.add_browser.disconnect (this.browser_added);
+            APP.remove_browser.disconnect (this.browser_removed);
             APP = null;
+
             this.storage = null;
         }
 
