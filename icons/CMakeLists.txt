@@ -10,3 +10,4 @@ foreach(SIZE 16x16 22x22 scalable)
     install_icon(extension categories ${SIZE})
     install_icon(internet-news-reader status ${SIZE})
 endforeach()
+

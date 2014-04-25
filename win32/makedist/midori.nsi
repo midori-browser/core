@@ -21,7 +21,7 @@ RequestExecutionLevel admin ; set execution level for Windows Vista
 ; helper defines  ;
 ;;;;;;;;;;;;;;;;;;;
 !define PRODUCT_NAME "Midori"
-!define PRODUCT_VERSION "0.5.7"
+!define PRODUCT_VERSION "0.5.8"
 !define PRODUCT_BUILD "0"
 !define PRODUCT_VERSION_ID "${PRODUCT_VERSION}.${PRODUCT_BUILD}"
 !define PRODUCT_PUBLISHER "Christian Dywan"

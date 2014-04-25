@@ -69,6 +69,12 @@ namespace Apps {
             keyfile.set_string (entry, "TryExec", PACKAGE_NAME);
             keyfile.set_string (entry, "Icon", icon_name);
             keyfile.set_string (entry, "Categories", "Network;");
+            /*
+               Using the sanitized URI as a class matches midori_web_app_new
+               So dock type launchers can distinguish different apps with the same executable
+             */
+            if (exec.has_prefix (APP_PREFIX))
+                keyfile.set_string (entry, "StartupWMClass", uri.delimit (":.\\/", '_'));
 
             return keyfile.to_data();
         }
@@ -162,7 +168,11 @@ namespace Apps {
 
         bool init (GLib.Cancellable? cancellable) throws GLib.Error {
             var keyfile = new GLib.KeyFile ();
-            keyfile.load_from_file (file.get_child ("desc").get_path (), GLib.KeyFileFlags.NONE);
+            try {
+                keyfile.load_from_file (file.get_child ("desc").get_path (), GLib.KeyFileFlags.NONE);
+            } catch (Error desc_error) {
+                throw new FileError.EXIST (_("No file \"desc\" found"));
+            }
 
             exec = keyfile.get_string ("Desktop Entry", "Exec");
             if (!exec.has_prefix (APP_PREFIX) && !exec.has_prefix (PROFILE_PREFIX))

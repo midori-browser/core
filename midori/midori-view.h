@@ -17,10 +17,6 @@
 
 #include <katze/katze.h>
 
-#ifdef HAVE_GRANITE
-    #include <granite/granite.h>
-#endif
-
 G_BEGIN_DECLS
 
 typedef enum
@@ -66,6 +62,11 @@ midori_view_new_with_title             (const gchar*       title,
 
 GtkWidget*
 midori_view_new_with_item              (KatzeItem*         item,
+                                        MidoriWebSettings* settings);
+
+GtkWidget*
+midori_view_new_from_view              (MidoriView*        view,
+                                        KatzeItem*         item,
                                         MidoriWebSettings* settings);
 
 void
@@ -127,15 +128,6 @@ midori_view_duplicate                  (MidoriView*        view);
 
 PangoEllipsizeMode
 midori_view_get_label_ellipsize        (MidoriView*        view);
-
-#ifdef HAVE_GRANITE
-GraniteWidgetsTab*
-midori_view_get_tab                    (MidoriView*        view);
-
-void
-midori_view_set_tab                    (MidoriView*        view,
-                                        GraniteWidgetsTab* tab);
-#endif
 
 GtkWidget*
 midori_view_get_proxy_tab_label        (MidoriView*        view);
@@ -248,6 +240,11 @@ midori_view_list_versions              (GString*           markup,
 void
 midori_view_list_plugins               (MidoriView*        view,
                                         GString*           markup,
+                                        gboolean           html);
+
+void
+midori_view_list_video_formats         (MidoriView*        view,
+                                        GString*           formats,
                                         gboolean           html);
 
 void

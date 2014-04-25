@@ -699,13 +699,6 @@ midori_bookmarks_db_remove_item (MidoriBookmarksDb* bookmarks, KatzeItem* item)
     katze_array_remove_item (KATZE_ARRAY (bookmarks), item);
 }
 
-static void
-midori_bookmarks_db_dbtracer (void*       dummy,
-                              const char* query)
-{
-    g_printerr ("%s\n", query);
-}
-
 /**
  * midori_bookmarks_db_new:
  *
@@ -737,12 +730,10 @@ midori_bookmarks_db_new (char** errmsg)
     db = midori_database_get_db (MIDORI_DATABASE (database));
     g_return_val_if_fail (db != NULL, NULL);
 
-    if (midori_debug ("bookmarks"))
-        sqlite3_trace (db, midori_bookmarks_db_dbtracer, NULL);
-
     bookmarks = MIDORI_BOOKMARKS_DB (g_object_new (TYPE_MIDORI_BOOKMARKS_DB,
             "type", KATZE_TYPE_ITEM,
             NULL));
+
     bookmarks->db = db;
 
     g_object_set_data (G_OBJECT (bookmarks), "db", db);

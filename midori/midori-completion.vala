@@ -112,7 +112,6 @@ namespace Midori {
             };
             model.foreach(find_index);
             int count = 0;
-#if HAVE_GRANITE
             if (completion.description != null) {
                 model.insert_with_values (null, start,
                     Columns.URI, "about:completion-description",
@@ -124,7 +123,6 @@ namespace Midori {
                     Columns.PRIORITY, completion.position);
                 count++;
             }
-#endif
 
             foreach (var suggestion in suggestions) {
                 if (suggestion.uri == null) {

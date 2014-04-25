@@ -40,7 +40,9 @@ namespace Adblock {
         public Options optslist;
         public Whitelist whitelist;
         public Element element;
+#if !HAVE_WEBKIT2
         WebKit.Download? download;
+#endif
 
         public Subscription (string uri) {
             debug_parse = "adblock:parse" in (Environment.get_variable ("MIDORI_DEBUG") ?? "");
@@ -160,7 +162,8 @@ namespace Adblock {
             }
         }
 
-        void update_css_hash (string domain, string value) {
+        bool css_element_seems_valid (string element) {
+            bool is_valid = true;
             string[] valid_elements = { "::after", "::before", "a", "abbr", "address", "article", "aside",
                 "b", "blockquote", "caption", "center", "cite", "code", "div", "dl", "dt", "dd", "em",
                 "feed", "fieldset", "figcaption", "figure", "font", "footer", "form", "h1", "h2", "h3", "h4", "h5", "h6",
@@ -168,15 +171,28 @@ namespace Adblock {
                 "m", "main", "marquee", "menu", "nav", "ol", "option", "p", "pre", "q", "samp", "section",
                 "small", "span", "strong", "summary", "table", "tr", "tbody", "td", "th", "thead", "tt", "ul" };
 
-            if (!value.has_prefix (".") && !value.has_prefix ("#")
-             && !(value.split("[")[0] in valid_elements))
-                  message ("Adblock: Invalid selector: %s", value);
-            string? olddata = element.lookup (domain);
-            if (olddata != null) {
-                string newdata = olddata + " , " + value;
-                element.insert (domain, newdata);
-            } else {
-                element.insert (domain, value);
+            if (!element.has_prefix (".") && !element.has_prefix ("#")
+            && !(element.split("[")[0] in valid_elements))
+                is_valid = false;
+
+
+            bool debug_selectors = "adblock:css" in (Environment.get_variable ("MIDORI_DEBUG") ?? "");
+            if (debug_selectors)
+                stdout.printf ("Adblock '%s' %s: %s\n",
+                    this.title, is_valid ? "selector" : "INVALID?", element);
+
+            return is_valid;
+        }
+
+        void update_css_hash (string domain, string value) {
+            if (css_element_seems_valid (value)) {
+                string? olddata = element.lookup (domain);
+                if (olddata != null) {
+                    string newdata = olddata + " , " + value;
+                    element.insert (domain, newdata);
+                } else {
+                    element.insert (domain, value);
+                }
             }
         }
 
@@ -275,6 +291,7 @@ namespace Adblock {
             }
         }
 
+#if !HAVE_WEBKIT2
         void download_status (ParamSpec pspec) {
             if (download.get_status () != WebKit.DownloadStatus.FINISHED)
                 return;
@@ -286,6 +303,7 @@ namespace Adblock {
                 warning ("Error parsing %s: %s", uri, error.message);
             }
         }
+#endif
 
         public void parse () throws Error
         {
@@ -326,8 +344,8 @@ namespace Adblock {
                     download.destination_uri = destination_uri;
                     download.notify["status"].connect (download_status);
                     download.start ();
-#endif
                 }
+#endif
                 return;
             }
 

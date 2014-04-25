@@ -6,6 +6,7 @@ namespace WebKit {
 	public class FaviconDatabase : GLib.Object {
 		public signal void icon_loaded (string frame_uri);
 		public Gdk.Pixbuf? try_get_favicon_pixbuf (string page_uri, uint width, uint height);
+		public async Gdk.Pixbuf? get_favicon_pixbuf (string page_uri, uint width, uint height, GLib.Cancellable? cancellable) throws GLib.Error;
 		public void set_path (string? path);
 		public void clear ();
 	}

@@ -38,10 +38,34 @@ void searchaction_form () {
     */
 }
 
+struct TokenSpec {
+    public string uri;
+    public string expected_token;
+}
+
+const TokenSpec[] tokens = {
+    { "https://bugs.launchpad.net/midori/+bugs", "lnch" },
+    { "https://duckduckgo.com/search", "dckd" },
+    { "http://en.wikipedia.org/w/index.php?title=Special:Search&profile=default&search=%s&fulltext=Search&", "wkpd" },
+    { "about:blank", "" },
+    { "", "" },
+    { "file:///", "" },
+    { "file:///form.html", "" }
+};
+
+void searchaction_token () {
+    foreach(var token in tokens)
+    {
+        Katze.assert_str_equal (token.uri,
+            Midori.SearchAction.token_for_uri(token.uri), token.expected_token);
+    }
+}
+
 void main (string[] args) {
     Test.init (ref args);
     Midori.App.setup (ref args, null);
     Test.add_func ("/searchaction/form", searchaction_form);
+    Test.add_func ("/searchaction/token", searchaction_token);
     Test.run ();
 }
 

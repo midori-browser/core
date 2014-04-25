@@ -436,6 +436,7 @@ namespace WebKit {
 		public unowned string[] get_spell_checking_languages ();
 		public void register_uri_scheme (string scheme, owned WebKit.URISchemeRequestCallback callback);
 		public void set_additional_plugins_directory (string directory);
+		public void set_process_model (WebKit.ProcessModel process_model);
 		public void set_cache_model (WebKit.CacheModel cache_model);
 		public void set_spell_checking_enabled (bool enabled);
 		public void set_spell_checking_languages (string[] languages);
@@ -486,6 +487,7 @@ namespace WebKit {
 	public class WebView : WebKit.WebViewBase, Atk.Implementor, Gtk.Buildable {
 		[CCode (has_construct_function = false, type = "GtkWidget*")]
 		public WebView ();
+		public WebView.with_related_view (WebKit.WebView related);
 		public async bool can_execute_editing_command (string command, GLib.Cancellable? cancellable) throws GLib.Error;
 		public bool can_go_back ();
 		public bool can_go_forward ();
@@ -593,6 +595,11 @@ namespace WebKit {
 	public interface PermissionRequest : GLib.Object {
 		public abstract void allow ();
 		public abstract void deny ();
+	}
+	[CCode (cheader_filename = "webkit2/webkit2.h", cprefix = "WEBKIT_PROCESS_MODEL_")]
+	public enum ProcessModel {
+		SHARED_SECONDARY_PROCESS,
+		MULTIPLE_SECONDARY_PROCESSES
 	}
 	[CCode (cheader_filename = "webkit2/webkit2.h", cprefix = "WEBKIT_CACHE_MODEL_")]
 	public enum CacheModel {
