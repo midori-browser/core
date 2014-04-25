@@ -62,11 +62,12 @@ katze_array_finalize (GObject* object);
 static void
 _katze_array_update (KatzeArray* array)
 {
+/* FIXME: remove this declaration when midory_debug is made accessible */
+    extern gboolean midori_debug (const gchar* token);
+
     g_object_set_data (G_OBJECT (array), "last-update",
                        GINT_TO_POINTER (time (NULL)));
-/* #define DEBUG_UPDATE */
-#ifdef DEBUG_UPDATE
-    if (KATZE_IS_ITEM (array))
+    if (midori_debug ("bookmarks") && KATZE_IS_ITEM (array))
     {
         const gchar *name = katze_item_get_name (KATZE_ITEM (array));
         if (name && *name)
@@ -74,7 +75,6 @@ _katze_array_update (KatzeArray* array)
             g_print ("_katze_array_update: %s\n", name);
         }
     }
-#endif
 }
 
 static void
