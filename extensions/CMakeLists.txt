@@ -54,6 +54,8 @@ foreach(UNIT_SRC ${EXTENSIONS})
                 ${PKGS}
             OPTIONS
                 ${VALAFLAGS}
+            GENERATE_HEADER
+                ${UNIT}
             CUSTOM_VAPIS
                 ${EXTRA_VAPIS}
                 "${CMAKE_SOURCE_DIR}/midori/midori.vapi"
@@ -67,12 +69,20 @@ foreach(UNIT_SRC ${EXTENSIONS})
             target_link_libraries(${UNIT_SRC}
                                   ${LIBMIDORI}
                                   )
-            set_target_properties(${UNIT_SRC} PROPERTIES
-                                  COMPILE_FLAGS ${VALA_CFLAGS}
-                                  )
             install(TARGETS ${UNIT_SRC}
                     LIBRARY DESTINATION ${EXTENSIONDIR}
                     )
+            # extensions with vala code get the lenient VALA_CFLAGS
+            # others get the usual CFLAGS with -Wall and -Werror
+	    if (UNIT_FILES_VALA)
+		set_target_properties(${UNIT_SRC} PROPERTIES
+				      COMPILE_FLAGS ${VALA_CFLAGS}
+				      )
+	    else ()
+		set_target_properties(${UNIT_SRC} PROPERTIES
+				      COMPILE_FLAGS ${CFLAGS}
+				      )
+	    endif ()
         endif ()
     endif ()
 endforeach ()
@@ -88,6 +98,8 @@ foreach(UNIT_SRC ${EXTENSIONS})
             ${PKGS}
         OPTIONS
             ${VALAFLAGS}
+        GENERATE_HEADER
+            ${UNIT}
         CUSTOM_VAPIS
             ${EXTRA_VAPIS}
             "${CMAKE_SOURCE_DIR}/midori/midori.vapi"

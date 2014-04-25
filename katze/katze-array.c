@@ -281,7 +281,7 @@ katze_array_finalize (GObject* object)
  * The array will keep a reference on each object until
  * it is removed from the array.
  *
- * Return value: a new #KatzeArray
+ * Return value: (transfer full): a new #KatzeArray
  **/
 KatzeArray*
 katze_array_new (GType type)
@@ -303,7 +303,7 @@ katze_array_new (GType type)
  * Checks whether the array is compatible
  * with items of the specified type.
  *
- * Retur value: %TRUE if @array is compatible with @is_a_type
+ * Return value: %TRUE if @array is compatible with @is_a_type
  **/
 gboolean
 katze_array_is_a (KatzeArray* array,
@@ -317,7 +317,7 @@ katze_array_is_a (KatzeArray* array,
 /**
  * katze_array_add_item:
  * @array: a #KatzeArray
- * @item: an item
+ * @item: (type GObject) (transfer none): an item
  *
  * Adds an item to the array.
  *
@@ -335,7 +335,7 @@ katze_array_add_item (KatzeArray* array,
 /**
  * katze_array_remove_item:
  * @array: a #KatzeArray
- * @item: an item
+ * @item: (type GObject): an item
  *
  * Removes an item from the array.
  *
@@ -357,7 +357,7 @@ katze_array_remove_item (KatzeArray* array,
  *
  * Retrieves the item in @array at the position @n.
  *
- * Return value: an item, or %NULL
+ * Return value: (type GObject) (transfer none): an item, or %NULL
  **/
 gpointer
 katze_array_get_nth_item (KatzeArray* array,
@@ -374,7 +374,7 @@ katze_array_get_nth_item (KatzeArray* array,
  *
  * Determines whether @array is empty.
  *
- * Return value: an item, or %NULL
+ * Return value: %TRUE if the array is empty
  **/
 gboolean
 katze_array_is_empty (KatzeArray* array)
@@ -387,11 +387,12 @@ katze_array_is_empty (KatzeArray* array)
 /**
  * katze_array_get_item_index:
  * @array: a #KatzeArray
- * @item: an item in the array
+ * @item: (type GObject): an item in the array
  *
  * Retrieves the index of the item in @array.
  *
- * Return value: an item, or -1
+ * Return value: the index of the item, or -1 if the item is not
+ * present in the array
  **/
 gint
 katze_array_get_item_index (KatzeArray* array,
@@ -409,14 +410,14 @@ katze_array_get_item_index (KatzeArray* array,
  *
  * Looks up an item in the array which has the specified token.
  *
- * This function will fail if the type of the list
- * is not based on #KatzeItem children.
+ * This function will fail and return NULL if the #KatzeArray's
+ * element type is not based on #KatzeItem.
  *
  * Note that @token is by definition unique to one item.
  *
  * Since 0.4.4 @token can be a "token keywords" string.
  *
- * Return value: an item, or %NULL
+ * Return value: (type GObject) (transfer none): an item, or %NULL
  **/
 gpointer
 katze_array_find_token (KatzeArray*  array,
@@ -454,10 +455,10 @@ katze_array_find_token (KatzeArray*  array,
  *
  * Looks up an item in the array which has the specified URI.
  *
- * This function will fail if the type of the list
- * is not based on #KatzeItem children.
+ * This function will fail and return NULL if the #KatzeArray's
+ * element type is not based on #KatzeItem.
  *
- * Return value: an item, or %NULL
+ * Return value: (type GObject) (transfer none): an item, or %NULL
  *
  * Since: 0.2.0
  **/
@@ -486,7 +487,7 @@ katze_array_find_uri (KatzeArray*  array,
  *
  * Retrieves the number of items in @array.
  *
- * Return value: the length of the list
+ * Return value: the length of the #KatzeArray
  **/
 guint
 katze_array_get_length (KatzeArray* array)
@@ -499,7 +500,7 @@ katze_array_get_length (KatzeArray* array)
 /**
  * katze_array_move_item:
  * @array: a #KatzeArray
- * @item: the item being moved
+ * @item: (type GObject): the item being moved
  * @position: the new position of the item
  *
  * Moves @item to the position @position.
@@ -522,7 +523,7 @@ katze_array_move_item (KatzeArray* array,
  *
  * Retrieves the items as a list.
  *
- * Return value: a newly allocated #GList of items
+ * Return value: (element-type GObject) (transfer container): a newly allocated #GList of items
  *
  * Since: 0.2.5
  **/
@@ -534,6 +535,14 @@ katze_array_get_items (KatzeArray* array)
     return g_list_copy (array->priv->items);
 }
 
+/**
+ * katze_array_peek_items:
+ * @array: a #KatzeArray
+ *
+ * Peeks at the KatzeArray's internal list of items.
+ *
+ * Return value: (element-type GObject) (transfer none): the #KatzeArray's internal #GList of items
+ **/
 GList*
 katze_array_peek_items (KatzeArray* array)
 {

@@ -16,6 +16,10 @@ namespace Sokoke {
 #endif
 
 namespace ExternalApplications {
+    /* Spawn the application specified by @app_info on the uri, trying to
+       remember the association between the content-type and the application
+       chosen
+       Returns whether the application was spawned successfully. */
     bool open_app_info (AppInfo app_info, string uri, string content_type) {
         Midori.URI.recursive_fork_protection (uri, true);
 
@@ -23,12 +27,17 @@ namespace ExternalApplications {
             var uris = new List<File> ();
             uris.append (File.new_for_uri (uri));
             app_info.launch (uris, null);
-            new Associations ().remember (content_type, app_info);
-            return true;
         } catch (Error error) {
             warning ("Failed to open \"%s\": %s", uri, error.message);
             return false;
         }
+        /* Failing to save the association is a non-fatal error so report success */
+        try {
+            new Associations ().remember (content_type, app_info);
+        } catch (Error error) {
+            warning ("Failed to save association for \"%s\": %s", uri, error.message);
+        }
+        return true;
     }
 
     class Associations : Object {
@@ -51,6 +60,8 @@ namespace ExternalApplications {
             }
         }
 
+        /* Determine a handler command-line for @content_type and spawn it on @uri.
+           Returns whether a handler was found and spawned successfully. */
         public bool open (string content_type, string uri) {
             Midori.URI.recursive_fork_protection (uri, true);
             try {
@@ -69,17 +80,19 @@ namespace ExternalApplications {
             }
         }
 
+        /* Save @app_info in the persistent store as the handler for @content_type */
         public void remember (string content_type, AppInfo app_info) throws Error {
             keyfile.set_string ("mimes", content_type, get_commandline (app_info));
             FileUtils.set_contents (filename, keyfile.to_data ());
         }
 
-        public void custom (string content_type, string commandline, string name, string uri) {
+        /* Save @commandline in the persistent store as the handler for @content_type */
+        public void remember_custom_commandline (string content_type, string commandline, string name, string uri) {
             keyfile.set_string ("mimes", content_type, commandline);
             try {
                 FileUtils.set_contents (filename, keyfile.to_data ());
             } catch (Error error) {
-                warning ("Failed to add remember custom command line for \"%s\": %s", uri, error.message);
+                warning ("Failed to remember custom command line for \"%s\": %s", uri, error.message);
             }
             open (content_type, uri);
         }
@@ -88,6 +101,8 @@ namespace ExternalApplications {
         public Associations () {
         }
 
+        /* Find a handler application for @content_type and spawn it on @uri.
+           Returns whether a handler was found and spawned successfully. */
         public bool open (string content_type, string uri) {
             var app_info = AppInfo.get_default_for_type (content_type, false);
             if (app_info == null)
@@ -95,18 +110,20 @@ namespace ExternalApplications {
             return open_app_info (app_info, uri, content_type);
         }
 
+        /* Save @app_info as the last-used handler for @content_type */
         public void remember (string content_type, AppInfo app_info) throws Error {
             app_info.set_as_last_used_for_type (content_type);
             app_info.set_as_default_for_type (content_type);
         }
 
-        public void custom (string content_type, string commandline, string name, string uri) {
+        /* Save @commandline as a new system MIME handler for @content_type */
+        public void remember_custom_commandline (string content_type, string commandline, string name, string uri) {
             try {
                 var app_info = AppInfo.create_from_commandline (commandline, name,
                     "%u" in commandline ? AppInfoCreateFlags.SUPPORTS_URIS : AppInfoCreateFlags.NONE);
                 open_app_info (app_info, uri, content_type);
             } catch (Error error) {
-                warning ("Failed to add custom command line for \"%s\": %s", uri, error.message);
+                warning ("Failed to remember custom command line for \"%s\": %s", uri, error.message);
             }
         }
     }
@@ -116,6 +133,7 @@ namespace ExternalApplications {
         return app_info.get_commandline () ?? app_info.get_executable ();
     }
 
+    /* Generate markup of the application's name followed by a description line. */
     static string describe_app_info (AppInfo app_info) {
         string name = app_info.get_display_name () ?? (Path.get_basename (app_info.get_executable ()));
         string desc = app_info.get_description () ?? get_commandline (app_info);
@@ -267,7 +285,7 @@ namespace ExternalApplications {
             if (accept) {
                 string name = dialog.name_entry.text;
                 string commandline = dialog.commandline_entry.text;
-                new Associations ().custom (content_type, commandline, name, uri);
+                new Associations ().remember_custom_commandline (content_type, commandline, name, uri);
                 customized (app_info, content_type, uri);
             }
             dialog.destroy ();
@@ -601,7 +619,7 @@ namespace ExternalApplications {
             WebKit.WebNavigationAction action, WebKit.WebPolicyDecision decision) {
 
             string uri = request.uri;
-            if (Midori.URI.is_http (uri) || Midori.URI.is_blank (uri))
+            if (uri.has_prefix ("file://") || Midori.URI.is_http (uri) || Midori.URI.is_blank (uri))
                 return false;
 
             decision.ignore ();
@@ -628,6 +646,7 @@ namespace ExternalApplications {
             return ContentType.from_mime_type (mime_type);
         }
 
+        /* Returns %TRUE if the attempt to download and open failed immediately, %FALSE otherwise */
         bool open_with_type (string uri, string content_type, Gtk.Widget widget, NextStep next_step) {
             #if HAVE_WEBKIT2
             return open_now (uri, content_type, widget, next_step);
@@ -646,22 +665,29 @@ namespace ExternalApplications {
                 }
                 else if (download.status == WebKit.DownloadStatus.ERROR)
                     Midori.show_message_dialog (Gtk.MessageType.ERROR,
-                        _("Error downloading the image!"),
-                        _("Can not download selected image."), false);
+                        _("Download error"),
+                        _("Cannot open '%s' because the download failed."
+                          ).printf (download.destination_uri), false);
             });
             download.start ();
             return true;
             #endif
         }
 
+        /* If @next_step is %NextStep.TRY_OPEN, tries to pick a handler automatically.
+           If the automatic handler did not exist or could not run, asks for an application.
+           Returns whether an application was found and launched successfully. */
         bool open_now (string uri, string content_type, Gtk.Widget widget, NextStep next_step) {
             if (next_step == NextStep.TRY_OPEN && (new Associations ()).open (content_type, uri))
                 return true;
+            /* if opening directly failed or wasn't tried, ask for an association */
             if (open_with (uri, content_type, widget) != null)
                 return true;
             return false;
         }
 
+        /* Returns the application chosen to open the uri+content_type if the application
+           was spawned successfully, %NULL if none was chosen or running was unsuccessful. */
         AppInfo? open_with (string uri, string content_type, Gtk.Widget widget) {
             var dialog = new ChooserDialog (uri, content_type, widget);
 
@@ -743,7 +769,7 @@ namespace ExternalApplications {
         }
 
         public void tab_added (Midori.Browser browser, Midori.View view) {
-            view.web_view.navigation_policy_decision_requested.connect (navigation_requested);
+            view.web_view.navigation_policy_decision_requested.connect_after (navigation_requested);
             view.open_uri.connect (open_uri);
             view.context_menu.connect (context_menu);
         }

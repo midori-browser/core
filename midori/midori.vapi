@@ -218,6 +218,15 @@ namespace Midori {
     public class LocationAction : Gtk.Action {
         public static string render_uri ([CCode (array_length = false)] string[] keys, string uri_escaped);
         public static string render_title ([CCode (array_length = false)] string[] keys, string title);
+
+        public double progress { get; set; }
+        public string secondary_icon { get; set; }
+
+        public unowned string get_text ();
+        public void set_text (string text);
+
+        public signal void submit_uri (string uri, bool new_tab);
+        public signal bool key_press_event (Gdk.EventKey event);
     }
 
     [CCode (cheader_filename = "midori/midori.h")]
