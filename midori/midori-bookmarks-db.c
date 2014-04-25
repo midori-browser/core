@@ -945,6 +945,8 @@ midori_bookmarks_db_query_recursive (MidoriBookmarksDb*  bookmarks,
             KatzeItem* subitem;
             GList* sublist;
 
+            katze_array_clear (KATZE_ARRAY (item));
+
             KATZE_ARRAY_FOREACH_ITEM_L (subitem, subarray, sublist)
             {
                 katze_array_add_item (KATZE_ARRAY (item), subitem);
