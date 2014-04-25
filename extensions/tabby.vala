@@ -219,23 +219,20 @@ namespace Tabby {
                 });
             }
 
-            public void detach () {
-                this.browser.add_tab.disconnect (this.tab_added);
-                this.browser.add_tab.disconnect (this.helper_data_changed);
-                this.browser.remove_tab.disconnect (this.tab_removed);
-                this.browser.switch_tab.disconnect (this.tab_switched);
-                this.browser.delete_event.disconnect (this.delete_event);
-                this.browser.notebook.page_reordered.disconnect (this.tab_reordered);
-
-                this.browser = null;
-            }
-
             public virtual void close () {
                 if (this.state == SessionState.CLOSED) {
                     assert (this.browser == null);
                 } else {
                     this.state = SessionState.CLOSED;
-                    detach ();
+
+                    this.browser.add_tab.disconnect (this.tab_added);
+                    this.browser.add_tab.disconnect (this.helper_data_changed);
+                    this.browser.remove_tab.disconnect (this.tab_removed);
+                    this.browser.switch_tab.disconnect (this.tab_switched);
+                    this.browser.delete_event.disconnect (this.delete_event);
+                    this.browser.notebook.page_reordered.disconnect (this.tab_reordered);
+
+                    this.browser = null;
                 }
             }
 
