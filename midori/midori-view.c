@@ -70,6 +70,10 @@ static void
 midori_view_download_started_cb (WebKitWebContext* context,
                                    WebKitDownload*   download,
                                    MidoriView * view);
+static gboolean
+midori_view_download_query_action (MidoriView*     view,
+                                   WebKitDownload*   download,
+                                   const gchar * suggested_filename );
 #endif
 
 static gboolean
@@ -2754,11 +2758,6 @@ midori_save_dialog(const gchar* title,
 }
 
 #ifdef HAVE_WEBKIT2
-
-static gboolean
-midori_view_download_query_action (MidoriView*     view,
-                                   WebKitDownload*   download,
-                                   const gchar * suggested_filename );
 static gboolean
 midori_view_download_decide_destination_cb (WebKitDownload*   download,
                                     const gchar * suggested_filename,
@@ -2767,7 +2766,7 @@ midori_view_download_decide_destination_cb (WebKitDownload*   download,
     if(!midori_view_download_query_action(view,download,suggested_filename)){
         webkit_download_cancel (download);
     }
-    return TRUE;
+    return TRUE;    //we must return TRUE because we handled the signal
 }
                 
 static void
@@ -2805,10 +2804,11 @@ midori_view_download_requested_cb (GtkWidget*      web_view,
         opener_uri ? opener_uri : midori_view_get_display_uri (view), NULL);
     
     #ifdef HAVE_WEBKIT2
-    content_type = g_content_type_guess (suggested_filename,NULL,0,NULL);
-    if(!content_type)
+    content_type = g_content_type_guess (suggested_filename, NULL ,
+                                            0 ,NULL);
+    if (!content_type)
         content_type = g_strdup("application/octet-stream");
-    midori_download_set_filename(download,g_strdup(suggested_filename));
+    midori_download_set_filename (download, g_strdup (suggested_filename));
     #else
     content_type = midori_download_get_content_type (download,
         g_object_get_data (G_OBJECT (view), "download-mime-type"));
@@ -2818,7 +2818,8 @@ midori_view_download_requested_cb (GtkWidget*      web_view,
     details = g_string_sized_new (20 * 4);
     #ifdef HAVE_WEBKIT2
     const gchar * suggestion = webkit_uri_response_get_suggested_filename (webkit_download_get_response (download));
-    g_string_append_printf (details, _("File Name: %s"),suggestion?suggestion:suggested_filename);
+    g_string_append_printf (details, _("File Name: %s"),
+                suggestion ? suggestion : suggested_filename);
     #else
     g_string_append_printf (details, _("File Name: %s"),
         webkit_download_get_suggested_filename (download));
@@ -2869,13 +2870,15 @@ midori_view_download_requested_cb (GtkWidget*      web_view,
         g_free (total);
     }
     #endif
+
     #ifdef HAVE_WEBKIT2
     /* i18n: A file open dialog title, ie. "Open http://fila.com/manual.tgz" */
     title = g_strdup_printf (_("Open %s"), webkit_uri_request_get_uri (webkit_download_get_request (download)));
     #else
     title = g_strdup_printf (_("Open %s"), webkit_download_get_uri (download));
     #endif
-    response = midori_save_dialog(title,hostname,details,content_type);
+    response = midori_save_dialog (title,
+            hostname, details, content_type); //We prompt a dialog
     g_free (title);
     g_free (hostname);
     g_free (description);
@@ -3623,13 +3626,13 @@ midori_view_constructor (GType                  type,
         g_signal_connect (view->web_view, "web-process-crashed",
             (GCallback)midori_view_web_view_crashed_cb, view);
     view->scrolled_window = view->web_view;
-    WebKitWebContext* context = webkit_web_view_get_context(WEBKIT_WEB_VIEW(view->web_view));
+    WebKitWebContext* context = webkit_web_view_get_context (WEBKIT_WEB_VIEW (view->web_view));
     webkit_web_context_register_uri_scheme (context,
         "res", midori_view_uri_scheme_res, NULL, NULL);
     webkit_web_context_register_uri_scheme (context,
         "stock", midori_view_uri_scheme_res, NULL, NULL);
     g_signal_connect (context, "download-started",
-        G_CALLBACK(midori_view_download_started_cb), view);
+        G_CALLBACK (midori_view_download_started_cb), view);
     #endif
 
     #if GTK_CHECK_VERSION(3, 2, 0)
@@ -4367,6 +4370,7 @@ midori_web_view_save_main_resource_cb (GFile *file,
 } 
 #endif
 
+#ifndef HAVE_WEBKIT2
 /**
  * midori_view_save_source:
  * @view: a #MidoriView
@@ -4379,7 +4383,6 @@ midori_web_view_save_main_resource_cb (GFile *file,
  *
  * Since: 0.4.4
  **/
-#ifndef HAVE_WEBKIT2
 gchar*
 midori_view_save_source (MidoriView*  view,
                          const gchar* uri,
@@ -4457,6 +4460,17 @@ midori_view_save_source (MidoriView*  view,
     return unique_filename;
 }
 #else
+/**
+ * midori_view_save_source:
+ * @view: a #MidoriView
+ * @uri: an alternative destination URI, or %NULL
+ *
+ * Saves the data in the view to disk.
+ *
+ * Return value: the destination filename
+ *
+ * Since: 0.4.4
+ **/
 void
 midori_view_save_source (MidoriView*  view,
                          const gchar* uri,
@@ -4910,4 +4924,3 @@ midori_view_set_colors (MidoriView* view,
     midori_tab_set_fg_color (MIDORI_TAB (view), fg_color);
     midori_tab_set_bg_color (MIDORI_TAB (view), bg_color);
 }
-
