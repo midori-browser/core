@@ -1222,7 +1222,7 @@ webkit_web_view_load_error_cb (WebKitWebView*  web_view,
     if (!g_network_monitor_get_network_available (g_network_monitor_get_default ()))
     {
         title = g_strdup_printf (_("You are not connected to a network"));
-        message = g_strdup_printf (_("Your computer is not connected to a network that has Internet access."));
+        message = g_strdup_printf (_("Your computer must be connected to a network to reach “%s”."), midori_uri_parse_hostname(uri, NULL));
         g_string_append_printf (suggestions, "<li>%s</li>", _("Connect to a wireless access point or attach a network cable and try again."));
     } 
     else if (!g_network_monitor_can_reach (g_network_monitor_get_default (), 
@@ -1231,13 +1231,13 @@ webkit_web_view_load_error_cb (WebKitWebView*  web_view,
                                            NULL))
     {
         title = g_strdup_printf (_("You are not connected to the Internet"));
-        message = g_strdup_printf (_("Your computer appears to be connected to a network, but can't reach the Internet."));
+        message = g_strdup_printf (_("Your computer appears to be connected to a network, but can't reach “%s”."), midori_uri_parse_hostname(uri, NULL));
         g_string_append_printf (suggestions, "<li>%s</li>", _("Check your network settings and try again."));
     } 
     else
     {
         title = g_strdup_printf (_("Midori can't find the page you're looking for"));
-        message = g_strdup_printf (_("There isn’t anything located at '%s'."), midori_uri_parse_hostname(uri, NULL));
+        message = g_strdup_printf (_("The page located at “%s” cannot be found."), midori_uri_parse_hostname(uri, NULL));
         g_string_append_printf (suggestions, "<li>%s</li>", _("Check the web address for misspelled words and try again."));
     }
     g_string_append (suggestions, "</ul>");
