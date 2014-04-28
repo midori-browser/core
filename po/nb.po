@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: midori\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2014-02-21 10:52-0600\n"
-"PO-Revision-Date: 2014-04-02 10:05+0000\n"
-"Last-Translator: Magnus Meyer Hustveit <Unknown>\n"
+"PO-Revision-Date: 2014-04-28 04:45+0000\n"
+"Last-Translator: kingu <comradekingu@gmail.com>\n"
 "Language-Team: Norwegian Bokmal <nb@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2014-04-03 05:28+0000\n"
-"X-Generator: Launchpad (build 16967)\n"
+"X-Launchpad-Export-Date: 2014-04-28 05:35+0000\n"
+"X-Generator: Launchpad (build 16985)\n"
 "Language: nb\n"
 
 #: ../data/midori.desktop.in.h:1 ../midori/main.c:142
@@ -2833,39 +2833,41 @@ msgid ""
 "If true this extension will reduce each domain to its second-level "
 "(www.example.org will reduced to example.org)"
 msgstr ""
+"Hvis satt, vil dette tillegget redusere hvert domene til domenenivå, "
+"subdomene bortfaller. (www.eksempel.no reduseres til eksempel.no)"
 
 #: ../extensions/nojs/nojs.c:762
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1033
 msgid "Unknown domain policy"
-msgstr ""
+msgstr "Ukjent domenepraksis"
 
 #: ../extensions/nojs/nojs.c:763
 msgid "Policy to use for unknown domains."
-msgstr ""
+msgstr "Praksis for bruk av ukjente domener."
 
 #: ../extensions/nojs/nojs.c:1031
 msgid "Accept temporarily"
-msgstr ""
+msgstr "Godta midlertidig"
 
 #: ../extensions/mouse-gestures.c:513
 msgid "Mouse Gestures"
-msgstr ""
+msgstr "Musebevegelser"
 
 #: ../extensions/mouse-gestures.c:514
 msgid "Control Midori by moving the mouse"
-msgstr ""
+msgstr "Kontroller midori med musebevegelser"
 
 #: ../extensions/shortcuts.c:109
 msgid "Reload page or stop loading"
-msgstr ""
+msgstr "Gjenninnlast side eller stopp lasting"
 
 #: ../extensions/shortcuts.c:168
 msgid "Customize Keyboard shortcuts"
-msgstr ""
+msgstr "Tilpass tastatursnarveier"
 
 #: ../extensions/shortcuts.c:275
 msgid "Customize Sh_ortcuts…"
-msgstr ""
+msgstr "Tilpass tasta_tursnarveier"
 
 #: ../extensions/shortcuts.c:312
 msgid "Shortcuts"
@@ -2873,15 +2875,15 @@ msgstr "Hurtigtaster"
 
 #: ../extensions/shortcuts.c:313
 msgid "View and edit keyboard shortcuts"
-msgstr ""
+msgstr "Se over og behandle tastatursnarveier"
 
 #: ../extensions/status-clock.c:168
 msgid "Statusbar Clock"
-msgstr ""
+msgstr "Statuslinje-klokke"
 
 #: ../extensions/status-clock.c:169
 msgid "Display date and time in the statusbar"
-msgstr ""
+msgstr "Vis tid og dato i statuslinje"
 
 #: ../extensions/statusbar-features.c:152
 msgid "Images"
@@ -2893,19 +2895,19 @@ msgstr "Skript"
 
 #: ../extensions/statusbar-features.c:174
 msgid "Netscape plugins"
-msgstr ""
+msgstr "Netscape-tillegg"
 
 #: ../extensions/statusbar-features.c:177
 msgid "Enable Netscape plugins"
-msgstr ""
+msgstr "Skru på Netscape-tillegg"
 
 #: ../extensions/statusbar-features.c:259
 msgid "Statusbar Features"
-msgstr ""
+msgstr "Statuslinje-funksjoner"
 
 #: ../extensions/statusbar-features.c:260
 msgid "Easily toggle features on web pages on and off"
-msgstr ""
+msgstr "Veksle enkelt funksjoner på nettsider av og på"
 
 #: ../extensions/tab-panel.c:588 ../extensions/tab-panel.c:677
 msgid "Tab Panel"
@@ -2921,21 +2923,23 @@ msgstr "Vis faner i et loddrett panel"
 
 #: ../extensions/tabs-minimized.c:76
 msgid "Only Icons on Tabs by default"
-msgstr ""
+msgstr "Bare ikoner og faner som standard"
 
 #: ../extensions/tabs-minimized.c:77
 msgid "New tabs have no label by default"
-msgstr ""
+msgstr "Nye faner har ingen tittel som standard"
 
 #: ../extensions/toolbar-editor.c:401
 msgid "Customize Toolbar"
-msgstr ""
+msgstr "Tilpass verktøylinje"
 
 #: ../extensions/toolbar-editor.c:417
 msgid ""
 "Select items to be displayed on the toolbar. Items can be reordered by drag "
 "and drop."
 msgstr ""
+"Velg elementer som skal vises på verktøylinjen. Elementer kan omplasseres "
+"med dra-og-slipp."
 
 #: ../extensions/toolbar-editor.c:433
 msgid "Available Items"
@@ -2943,11 +2947,11 @@ msgstr "Tilgjengelige elementer"
 
 #: ../extensions/toolbar-editor.c:454
 msgid "Displayed Items"
-msgstr ""
+msgstr "Viste objekter"
 
 #: ../extensions/toolbar-editor.c:611
 msgid "_Customize Toolbar…"
-msgstr ""
+msgstr "_Tilpass verktøylinje..."
 
 #: ../extensions/toolbar-editor.c:640
 msgid "Toolbar Editor"
@@ -2955,7 +2959,7 @@ msgstr "Redigering av verktøylinjer"
 
 #: ../extensions/toolbar-editor.c:641
 msgid "Easily edit the toolbar layout"
-msgstr ""
+msgstr "Rediger enkelt verktøylinjeoppsettet"
 
 #. FIXME: granite: should return GtkWidget* like GTK+
 #. i18n: Dialog: Clear Private Data, in the Tools menu
@@ -2965,28 +2969,28 @@ msgstr "Slett private data"
 
 #: ../midori/midori-privatedata.c:132 ../midori/midori-privatedata.c:142
 msgid "_Clear private data"
-msgstr ""
+msgstr "_Vask ut private data"
 
 #: ../midori/midori-privatedata.c:162
 msgid "Clear the following data:"
-msgstr ""
+msgstr "Vask ut følgende data:"
 
 #: ../midori/midori-privatedata.c:172
 msgid "Last open _tabs"
-msgstr ""
+msgstr "Sist åpne _faner"
 
 #: ../midori/midori-privatedata.c:198
 msgid "Clear private data when _quitting Midori"
-msgstr ""
+msgstr "Vask ut private data ved _avslutting av Midori"
 
 #. i18n: Logins and passwords in websites and web forms
 #: ../midori/midori-privatedata.c:321
 msgid "Saved logins and _passwords"
-msgstr ""
+msgstr "Lagret innloggingsinformasjon og _passord"
 
 #: ../midori/midori-privatedata.c:323
 msgid "Cookies and Website data"
-msgstr ""
+msgstr "Informasjonskapsler og nettstadsdata"
 
 #: ../midori/midori-privatedata.c:328
 msgid "Website icons"
@@ -2994,11 +2998,11 @@ msgstr "Nettstedsikoner"
 
 #: ../midori/midori-viewcompletion.vala:18
 msgid "Open tabs"
-msgstr ""
+msgstr "Åpme famer"
 
 #: ../midori/midori-viewcompletion.vala:80
 msgid "More open tabs…"
-msgstr ""
+msgstr "Flere åpne faner..."
 
 #: ../midori/midori-history.c:27
 #, c-format
@@ -3009,22 +3013,22 @@ msgstr "Klarer ikke å nullstille loggen: %s\n"
 #: ../midori/midori-history.c:73
 #, c-format
 msgid "Failed to remove old history items: %s\n"
-msgstr ""
+msgstr "Klarte ikke å fjerne netthistorikken: %s\n"
 
 #: ../midori/midori-bookmarks-db.c:519
 #, c-format
 msgid "Failed to add bookmark item: %s\n"
-msgstr ""
+msgstr "Klarte ikke å legge til som bokmerke.%s\n"
 
 #: ../midori/midori-bookmarks-db.c:574
 #, c-format
 msgid "Failed to update bookmark: %s\n"
-msgstr ""
+msgstr "Klarte ikke å oppdatere bokmerke: %s\n"
 
 #: ../midori/midori-bookmarks-db.c:610
 #, c-format
 msgid "Failed to remove bookmark item: %s\n"
-msgstr ""
+msgstr "Klarte ikke å fjerne bokmerke:  %s\n"
 
 #: ../midori/midori-session.c:217
 msgid ""
@@ -3049,6 +3053,7 @@ msgstr "Papirkurven kunne ikke lagres. %s"
 msgid ""
 "Midori crashed the last time it was opened. You can report the problem at %s."
 msgstr ""
+"Midori kjæsjet sist det ble åpnet. Du kan innrapportere problemet til %s."
 
 #: ../midori/midori-frontend.c:344
 msgid "Modify _preferences"
@@ -3060,7 +3065,7 @@ msgstr "Skru av all_extensions"
 
 #: ../midori/midori-frontend.c:357
 msgid "Show a dialog after Midori crashed"
-msgstr ""
+msgstr "Vis dialog etter Midori-kræsj"
 
 #: ../midori/midori-frontend.c:362
 msgid "Discard old tabs"
@@ -3068,20 +3073,20 @@ msgstr "Glem eldre faner"
 
 #: ../midori/midori-frontend.c:370
 msgid "Show last crash _log"
-msgstr ""
+msgstr "Vis siste kræsj_logg"
 
 #: ../midori/midori-frontend.c:383
 msgid "Run in _debugger"
-msgstr ""
+msgstr "Kjør i feilsøkingsprogram"
 
 #: ../midori/midori-frontend.c:461
 msgid "An instance of Midori is already running but not responding.\n"
-msgstr ""
+msgstr "En annen instans av midori kjører allerede, men svarer ikke.\n"
 
 #: ../midori/midori-frontend.c:494
 #, c-format
 msgid "Bookmarks couldn't be loaded: %s\n"
-msgstr ""
+msgstr "Fant ikke bokmerkene dine: %s\n"
 
 #: ../midori/midori-frontend.c:509
 #, c-format
@@ -3091,16 +3096,16 @@ msgstr "Økten kan ikke lastes inn. %s\n"
 #: ../midori/midori-frontend.c:525
 #, c-format
 msgid "The trash couldn't be loaded: %s\n"
-msgstr ""
+msgstr "Fant ikke papirkurven din: %s\n"
 
 #: ../midori/midori-frontend.c:533
 #, c-format
 msgid "The history couldn't be loaded: %s\n"
-msgstr ""
+msgstr "Fant ikke historikken din: %s\n"
 
 #: ../midori/midori-frontend.c:544
 msgid "The following errors occured:"
-msgstr ""
+msgstr "Følgande problem oppstod:"
 
 #: ../midori/midori-frontend.c:549
 msgid "_Ignore"
@@ -3110,34 +3115,36 @@ msgstr "_Ignorér"
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:151
 #, c-format
 msgid "Could not open database of extenstion: %s"
-msgstr ""
+msgstr "Kunne ikke åpne database over tillegg: %s"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:528
 msgid "Do you really want to delete all cookie permissions?"
-msgstr ""
+msgstr "Vil du virkelig slette alle informasjonskapsels-rettigheter?"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:530
 msgid "Delete all cookie permissions?"
-msgstr ""
+msgstr "Slett alle infomasjonskapsels-rettigheter?"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:534
 msgid ""
 "This action will delete all cookie permissions. You will be asked for "
 "permissions again for each web site visited."
 msgstr ""
+"Dette tiltaket vil slette alle informasjonskapsels-rettigheter. Du vil bli "
+"spurt om tilgang igjen for hver side som blir besøkt."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:704
 msgid "Cookie permission manager"
-msgstr ""
+msgstr "Behandling av informasjonskapsler"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:705
 msgid "Instance of current cookie permission manager"
-msgstr ""
+msgstr "Instans av gjeldende informasjonskapselsbehandler"
 
 #. Set up dialog
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:746
 msgid "Configure cookie permission"
-msgstr ""
+msgstr "Sett opp informasjonskapselsrettigheter"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:761
 #, c-format
@@ -3147,163 +3154,173 @@ msgid ""
 "add a policy for a domain manually by entering the domain below, choosing "
 "the policy and clicking on <i>Add</i>."
 msgstr ""
+"Nedenfor er alle besøkte nettsider opplistet med gjeldende praksis anført. "
+"Du kan slette praksis ved å markere oppføringene og trykke på <i>Slett</i>. "
+"Du kan også legge til en praksis for et domene manuelt ved å skrive inn "
+"ønsket domene nedenfor, velge praksis og trykke på  <i>Legg til</i>."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:892
 msgid "Policy for cookies from domains not in the list: "
-msgstr ""
+msgstr "Praksis for informasjonskapsler fra domener som ikke er opplistet: "
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:897
 msgid "Ask for a decision"
-msgstr ""
+msgstr "Spør om avgjørelse"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:91
 msgid ""
 "A fatal error occurred which prevents the cookie permission manager "
 "extension to continue. You should disable it."
 msgstr ""
+"En fatal feil inntraff, hvilket forhindrer informasjonskapselsbehandleren "
+"fra å fortsette. Du bør skru den av."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:95
 msgid "Error in cookie permission manager extension"
-msgstr ""
+msgstr "Feil i informasjonslapselsbehandler-tillegget"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:312
 #, c-format
 msgid "Could not determine global cookie policy to set for domain: %s"
 msgstr ""
+"Kunne ikke fastsette global praksis for informasjonskapsler for domenet: %s"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:487
 msgid "Till session end"
-msgstr ""
+msgstr "Til øktens ende"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:511
 #, c-format
 msgid "The website %s wants to store %d cookies."
-msgstr ""
+msgstr "Nettsiden %s ønsker å lagre %d informasjonskapsler."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:513
 #, c-format
 msgid "The website %s wants to store a cookie."
-msgstr ""
+msgstr "Nettsiden %s ønsker å lagre en informasjonskapsel."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:517
 #, c-format
 msgid "Multiple websites want to store %d cookies in total."
-msgstr ""
+msgstr "Flerfloldige nettsider vil tilsammen lagre %d informasjonskapsler."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:526
 msgid "_Accept"
-msgstr ""
+msgstr "_Godta"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:527
 msgid "Accept for this _session"
-msgstr ""
+msgstr "Godta før denne _økta"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:528
 msgid "De_ny"
-msgstr ""
+msgstr "Ne_kt"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:529
 msgid "Deny _this time"
-msgstr ""
+msgstr "Nekt _denne gang"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:558
 msgid "Path"
-msgstr ""
+msgstr "Sti"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:572
 msgid "Value"
-msgstr ""
+msgstr "Verdi"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:583
 msgid "Expire date"
-msgstr ""
+msgstr "Utløpsdato"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1034
 msgid ""
 "The policy to use for domains not individually configured. This only acts to "
 "further restrict the global cookie policy set in Midori settings."
 msgstr ""
+"Ingen individuelt fastsatt praksis for bruk av domener. Dette begrenser "
+"ytterligere den globale informasjonskapsels-praksisen satt i Midoris "
+"innstillinger."
 
 #: ../extensions/cookie-permissions/main.c:62
 msgid "Cookie Security Manager"
-msgstr ""
+msgstr "Informasjonskapsels-behandler"
 
 #: ../extensions/cookie-permissions/main.c:63
 msgid "Manage cookie permission per site"
-msgstr ""
+msgstr "Behandle informasjonskapsler på side-for-side -basis"
 
 #: ../extensions/apps.vala:46
 #, c-format
 msgid "Failed to fetch application icon in %s: %s"
-msgstr ""
+msgstr "Kunne ikke innhente applikasjonsikon i %s: %s"
 
 #: ../extensions/apps.vala:100
 #, c-format
 msgid "Midori (%s)"
-msgstr ""
+msgstr "Midori (%s)"
 
 #: ../extensions/apps.vala:119 ../extensions/apps.vala:150
 #: ../extensions/apps.vala:154
 #, c-format
 msgid "Failed to create new launcher (%s): %s"
-msgstr ""
+msgstr "Klarte ikke å opprette ny oppstarter (%s): %s"
 
 #: ../extensions/apps.vala:145
 msgid "Launcher created"
-msgstr ""
+msgstr "Oppstarter opprettet"
 
 #: ../extensions/apps.vala:146
 #, c-format
 msgid "You can now run <b>%s</b> from your launcher or menu"
-msgstr ""
+msgstr "Du kan nå kjøre <b>%s</b> fra oppstarteren din, eller menyen"
 
 #: ../extensions/apps.vala:153
 msgid "Error creating launcher"
-msgstr ""
+msgstr "Feil ved opprettelse av oppstarter"
 
 #: ../extensions/apps.vala:191
 msgid "Applications"
-msgstr ""
+msgstr "Applikasjoner"
 
 #: ../extensions/apps.vala:201
 msgid "New _Profile"
-msgstr ""
+msgstr "Ny _profil"
 
 #: ../extensions/apps.vala:202
 msgid "Creates a new, independant profile and a launcher"
-msgstr ""
+msgstr "Lager ny, individuell profil og oppstarter"
 
 #: ../extensions/apps.vala:213
 msgid "New _App"
-msgstr ""
+msgstr "Ny _app"
 
 #: ../extensions/apps.vala:214 ../extensions/apps.vala:451
 msgid "Creates a new app for a specific site"
-msgstr ""
+msgstr "Lager en ny app for angitt side"
 
 #: ../extensions/apps.vala:239
 msgid "Error launching"
-msgstr ""
+msgstr "Oppstartsfeil"
 
 #: ../extensions/apps.vala:450
 msgid "Create _Launcher"
-msgstr ""
+msgstr "Lag _oppstarter"
 
 #: ../extensions/apps.vala:500
 msgid "Web App Manager"
-msgstr ""
+msgstr "Behandling av nettapp-er"
 
 #: ../extensions/apps.vala:501
 msgid "Manage websites installed as applications"
-msgstr ""
+msgstr "Behandle installerte nettsider som applikasjoner"
 
 #: ../extensions/transfers.vala:98
 msgid "Transfers"
-msgstr ""
+msgstr "Overføringer"
 
 #: ../extensions/transfers.vala:111 ../extensions/transfers.vala:391
 msgid "Clear All"
-msgstr ""
+msgstr "Fjern alle"
 
 #. Failure to open is the only known possibility here
 #: ../extensions/transfers.vala:182 ../extensions/transfers.vala:209
@@ -3311,49 +3328,49 @@ msgstr ""
 #: ../extensions/transfers.vala:467
 #, c-format
 msgid "Failed to open download: %s"
-msgstr ""
+msgstr "Klarte ikke å laste ned: %s"
 
 #: ../extensions/transfers.vala:214
 msgid "Open Destination _Folder"
-msgstr ""
+msgstr "Åpne mål_mappe"
 
 #: ../extensions/transfers.vala:225
 msgid "Copy Link Loc_ation"
-msgstr ""
+msgstr "Kopier lenke_plassering"
 
 #: ../extensions/transfers.vala:449
 #, c-format
 msgid "The file '<b>%s</b>' has been downloaded."
-msgstr ""
+msgstr "Filen '<b>%s</b>'  har blitt lastet ned."
 
 #: ../extensions/transfers.vala:451
 #, c-format
 msgid "'<b>%s</b>' and %d other files have been downloaded."
-msgstr ""
+msgstr "'<b>%s</b>' og %d andre filer har blitt lastet ned."
 
 #: ../extensions/transfers.vala:452
 msgid "Transfer completed"
-msgstr ""
+msgstr "Overføring ferdig"
 
 #: ../extensions/transfers.vala:507 ../extensions/transfers.vala:508
 msgid "Some files are being downloaded"
-msgstr ""
+msgstr "Noen filer er på vei ned"
 
 #: ../extensions/transfers.vala:510
 msgid "_Quit Midori"
-msgstr ""
+msgstr "_Avslutt Midori"
 
 #: ../extensions/transfers.vala:512
 msgid "The transfers will be cancelled if Midori quits."
-msgstr ""
+msgstr "Overføringene vil bli kansellert om Midori avsluttes."
 
 #: ../extensions/transfers.vala:561
 msgid "Transfer Manager"
-msgstr ""
+msgstr "Overførings-benahdler"
 
 #: ../extensions/transfers.vala:562
 msgid "View downloaded files"
-msgstr ""
+msgstr "Se nedlastede filer"
 
 #: ../extensions/tabby.vala:361 ../extensions/tabby.vala:372
 #: ../extensions/tabby.vala:385 ../extensions/tabby.vala:390
@@ -3368,123 +3385,125 @@ msgstr ""
 #: ../extensions/tabby.vala:590 ../extensions/tabby.vala:595
 #, c-format
 msgid "Failed to update database: %s"
-msgstr ""
+msgstr "Klarte ikke å oppdatere database: %s"
 
 #: ../extensions/tabby.vala:520 ../extensions/tabby.vala:524
 #: ../extensions/tabby.vala:548 ../extensions/tabby.vala:552
 #: ../extensions/tabby.vala:614 ../extensions/tabby.vala:617
 #, c-format
 msgid "Failed to select from database: %s"
-msgstr ""
+msgstr "Kunne ikke utføre utvalg fra database: %s"
 
 #: ../extensions/tabby.vala:666
 #, c-format
 msgid "Failed to import legacy session: %s"
-msgstr ""
+msgstr "Klarte ikke å importere gammel økt: %s"
 
 #: ../extensions/tabby.vala:775
 msgid "Tabby"
-msgstr ""
+msgstr "Tabby"
 
 #: ../extensions/tabby.vala:776
 msgid "Tab and session management."
-msgstr ""
+msgstr "Fane og økt-behandling"
 
 #: ../extensions/flummi.vala:82
 msgid "Flummi"
-msgstr ""
+msgstr "Flummi"
 
 #: ../extensions/flummi.vala:83
 msgid ""
 "This extension provides a task queue for update jobs or recurring events."
 msgstr ""
+"Dette tillegget gir sjekkliste for oppdateringsjobber eller gjentagende "
+"hendleser."
 
 #: ../extensions/notes.vala:46
 #, c-format
 msgid "Failed to add new note to database: %s\n"
-msgstr ""
+msgstr "Klarte ikke å legge til notat i database: %s\n"
 
 #: ../extensions/notes.vala:66
 #, c-format
 msgid "Falied to remove note from database: %s\n"
-msgstr ""
+msgstr "Klarte ikke å fjerne notat fra database: %s\n"
 
 #: ../extensions/notes.vala:80
 #, c-format
 msgid "Falied to rename note: %s\n"
-msgstr ""
+msgstr "Klarte ikke å omdøpe notat: %s\n"
 
 #: ../extensions/notes.vala:96
 #, c-format
 msgid "Falied to update note: %s\n"
-msgstr ""
+msgstr "Klarte ikke å oppdatere notat: %s\n"
 
 #: ../extensions/notes.vala:139 ../extensions/notes.vala:179
 #: ../extensions/notes.vala:453
 msgid "Notes"
-msgstr ""
+msgstr "Notater"
 
 #: ../extensions/notes.vala:146
 msgid "New Note"
-msgstr ""
+msgstr "Nytt notat"
 
 #: ../extensions/notes.vala:147
 msgid "Creates a new empty note, urelated to opened pages"
-msgstr ""
+msgstr "Lager nytt notat, uten relasjon til åpnede sider"
 
 #: ../extensions/notes.vala:153
 msgid "New note"
-msgstr ""
+msgstr "Nytt notat"
 
 #: ../extensions/notes.vala:197
 #, c-format
 msgid "Failed to select from notes database: %s\n"
-msgstr ""
+msgstr "Klarte ikke å velge notater fra database: %s\n"
 
 #: ../extensions/notes.vala:319 ../extensions/notes.vala:327
 msgid "Rename note"
-msgstr ""
+msgstr "Omdøp notat"
 
 #: ../extensions/notes.vala:356
 msgid "Copy note to clipboard"
-msgstr ""
+msgstr "Kopier notat til utklippstavle"
 
 #: ../extensions/notes.vala:368
 msgid "Remove note"
-msgstr ""
+msgstr "Fjern notat"
 
 #: ../extensions/notes.vala:402
 msgid "Copy selection as note"
-msgstr ""
+msgstr "Kopier utvalg til notat"
 
 #: ../extensions/notes.vala:454
 msgid "Save text clips from websites as notes"
-msgstr ""
+msgstr "Lagre tekstutklipp fra nettsider som notater"
 
 #: ../extensions/adblock/extension.vala:38
 msgid "Advertisement blocker"
-msgstr ""
+msgstr "Reklame-blokkerer"
 
 #: ../extensions/adblock/extension.vala:39
 msgid "Block advertisements according to a filter list"
-msgstr ""
+msgstr "Blokker reklame i hendhold til filtreringsliste"
 
 #: ../extensions/adblock/extension.vala:51
 msgid "Configure Advertisement filters"
-msgstr ""
+msgstr "Konfigurer reklameblokkeringsfilter"
 
 #: ../extensions/adblock/extension.vala:168
 msgid "Bl_ock image"
-msgstr ""
+msgstr "Bl_okker bilde"
 
 #: ../extensions/adblock/extension.vala:171
 msgid "Bl_ock link"
-msgstr ""
+msgstr "Bl_okker lenke"
 
 #: ../extensions/adblock/extension.vala:183
 msgid "Edit rule"
-msgstr ""
+msgstr "Rediger regel"
 
 #: ../extensions/adblock/extension.vala:197
 msgid "_Rule:"
-msgstr ""
+msgstr "_Regel:"
