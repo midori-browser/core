@@ -33,13 +33,16 @@ namespace Adblock {
         public bool active { get; set; default = true; }
         public bool mutable { get; set; default = true; }
         public bool valid { get; private set; default = true; }
+        HashTable<string, Directive?> cache;
         List<Feature> features;
         public Pattern pattern;
         public Keys keys;
         public Options optslist;
         public Whitelist whitelist;
         public Element element;
+#if !HAVE_WEBKIT2
         WebKit.Download? download;
+#endif
 
         public Subscription (string uri) {
             debug_parse = "adblock:parse" in (Environment.get_variable ("MIDORI_DEBUG") ?? "");
@@ -70,6 +73,7 @@ namespace Adblock {
         public uint size { get; private set; }
 
         public void clear () {
+            cache = new HashTable<string, Directive?> (str_hash, str_equal);
             foreach (var feature in features)
                 feature.clear ();
             optslist.clear ();
@@ -97,6 +101,10 @@ namespace Adblock {
                 return;
             }
             if (line[0] == '#')
+                return;
+
+            /* TODO: CSS hider whitelist */
+            if ("#@#" in line)
                 return;
 
             /* Per domain CSS hider rule */
@@ -154,13 +162,37 @@ namespace Adblock {
             }
         }
 
+        bool css_element_seems_valid (string element) {
+            bool is_valid = true;
+            string[] valid_elements = { "::after", "::before", "a", "abbr", "address", "article", "aside",
+                "b", "blockquote", "caption", "center", "cite", "code", "div", "dl", "dt", "dd", "em",
+                "feed", "fieldset", "figcaption", "figure", "font", "footer", "form", "h1", "h2", "h3", "h4", "h5", "h6",
+                "header", "hgroup", "i", "iframe", "iframe html *", "img", "kbd", "label", "legend", "li",
+                "m", "main", "marquee", "menu", "nav", "ol", "option", "p", "pre", "q", "samp", "section",
+                "small", "span", "strong", "summary", "table", "tr", "tbody", "td", "th", "thead", "tt", "ul" };
+
+            if (!element.has_prefix (".") && !element.has_prefix ("#")
+            && !(element.split("[")[0] in valid_elements))
+                is_valid = false;
+
+
+            bool debug_selectors = "adblock:css" in (Environment.get_variable ("MIDORI_DEBUG") ?? "");
+            if (debug_selectors)
+                stdout.printf ("Adblock '%s' %s: %s\n",
+                    this.title, is_valid ? "selector" : "INVALID?", element);
+
+            return is_valid;
+        }
+
         void update_css_hash (string domain, string value) {
-            string? olddata = element.lookup (domain);
-            if (olddata != null) {
-                string newdata = olddata + " , " + value;
-                element.insert (domain, newdata);
-            } else {
-                element.insert (domain, value);
+            if (css_element_seems_valid (value)) {
+                string? olddata = element.lookup (domain);
+                if (olddata != null) {
+                    string newdata = olddata + " , " + value;
+                    element.insert (domain, newdata);
+                } else {
+                    element.insert (domain, value);
+                }
             }
         }
 
@@ -195,7 +227,7 @@ namespace Adblock {
                 /* is pattern is already a regex? */
                 if (Regex.match_simple ("^/.*[\\^\\$\\*].*/$", patt,
                     RegexCompileFlags.UNGREEDY, RegexMatchFlags.NOTEMPTY)
-                 || opts != null && opts.contains ("whitelist")) {
+                 || (opts != null && opts.contains ("whitelist"))) {
                     if (debug_parse)
                         stdout.printf ("patt: %s\n", patt);
                     if (opts.contains ("whitelist"))
@@ -259,6 +291,7 @@ namespace Adblock {
             }
         }
 
+#if !HAVE_WEBKIT2
         void download_status (ParamSpec pspec) {
             if (download.get_status () != WebKit.DownloadStatus.FINISHED)
                 return;
@@ -270,6 +303,7 @@ namespace Adblock {
                 warning ("Error parsing %s: %s", uri, error.message);
             }
         }
+#endif
 
         public void parse () throws Error
         {
@@ -310,8 +344,8 @@ namespace Adblock {
                     download.destination_uri = destination_uri;
                     download.notify["status"].connect (download_status);
                     download.start ();
-#endif
                 }
+#endif
                 return;
             }
 
@@ -339,8 +373,11 @@ namespace Adblock {
 
         public Directive? get_directive (string request_uri, string page_uri) {
             try {
+                Directive? directive = cache.lookup (request_uri);
+                if (directive != null)
+                    return directive;
                 foreach (var feature in features) {
-                    Directive? directive = feature.match (request_uri, page_uri);
+                    directive = feature.match (request_uri, page_uri);
                     if (directive != null) {
                         debug ("%s gave %s for %s (%s)\n",
                                feature.get_type ().name (), directive.to_string (), request_uri, page_uri);

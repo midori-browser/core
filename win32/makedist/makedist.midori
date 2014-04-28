@@ -246,11 +246,16 @@ grab_icons Faenza $where_am_i/../win32/makedist/midori.nsi
 # We need to ship our CA bundle for now
 cp -a /etc/pki/tls/certs/ca-bundle.crt $workdir/share/midori/res/
 
+GREYBIRD_VER="1.3.4"
+
 if [ "$GTK3_BUILD" == "1" ]; then
     grab_files share webkitgtk-3.0
     grab_files share schemas
+
+    wget --no-verbose "https://github.com/shimmerproject/Greybird/archive/v$GREYBIRD_VER.tar.gz" -P $temp_dir
+    tar xf "$temp_dir/v$GREYBIRD_VER.tar.gz" -C $temp_dir
     mkdir -p $workdir/share/themes/Greybird
-    cp -Lr /usr/share/themes/Greybird/gtk-3.0 $workdir/share/themes/Greybird
+    cp -Lr $temp_dir/Greybird-$GREYBIRD_VER/gtk-3.0 $workdir/share/themes/Greybird
     MO_VER=30
 else
     grab_files share MS-Windows
@@ -266,7 +271,7 @@ fi
 
 rpm -qf /etc/pki/tls/certs/ca-bundle.crt >> $temp_dir/packages_used.lst
 rpm -qf /usr/share/icons/Faenza/ >> $temp_dir/packages_used.lst
-rpm -qf /usr/share/themes/Greybird/gtk-3.0 >> $temp_dir/packages_used.lst
+echo "https://github.com/shimmerproject/Greybird/archive/v$GREYBIRD_VER.tar.gz" >> $temp_dir/packages_used.lst
 
 # copy locales for gtk
 # so we have translated stock items, file dialogs

@@ -36,7 +36,7 @@ namespace Midori {
             spinner.set_size_request (icon_size, icon_size);
             box.pack_start (spinner, false, false, 0);
             label = new Gtk.Label (null);
-            label.set_alignment (0.0f, 0.5f);
+            label.set_alignment (0.5f, 0.5f);
             label.set_padding (0, 0);
             box.pack_start (label, true, true, 0);
             close = new Gtk.Button ();
@@ -72,11 +72,6 @@ namespace Midori {
             notify_property ("close-button-left");
             notify["close-button-visible"].connect (close_button_visible_changed);
             notify_property ("close-button-visible");
-
-            Gtk.drag_dest_set (this, Gtk.DestDefaults.ALL, (Gtk.TargetEntry[])null, Gdk.DragAction.COPY);
-            Gtk.drag_dest_add_text_targets (this);
-            Gtk.drag_dest_add_uri_targets (this);
-            drag_data_received.connect (uri_dragged);
         }
 
 #if !HAVE_GTK3
@@ -153,16 +148,6 @@ namespace Midori {
             spinner.visible = tab.progress > 0.0;
             icon.visible = !spinner.visible;
         }
-
-        void uri_dragged (Gdk.DragContext context, int x, int y, Gtk.SelectionData data, uint ttype, uint timestamp) {
-            /* FIXME: Navigate to the URI
-            string[] uri = data.get_uris ();
-            if (uri != null)
-                tab.uri = uri[0];
-            else
-                tab.uri = data.get_text ();
-            */
-        }
     }
 
     public class Notebook : Gtk.EventBox {
@@ -223,7 +208,9 @@ namespace Midori {
             notebook.set ("group-name", PACKAGE_NAME);
             add (notebook);
 
-#if !HAVE_GTK3
+#if HAVE_GTK3
+            get_style_context ().add_class ("dynamic-notebook");
+#else
             /* Remove the inner border between scrollbars and window border */
             Gtk.RcStyle rcstyle = new Gtk.RcStyle ();
             rcstyle.xthickness = 0;
@@ -242,6 +229,7 @@ namespace Midori {
             notebook.create_window.connect (window_created);
 
             var add = new Gtk.Button ();
+            add.tooltip_text = _("Open a new tab");
             add.relief = Gtk.ReliefStyle.NONE;
             add.add (new Gtk.Image.from_gicon (new ThemedIcon.with_default_fallbacks ("tab-new-symbolic"), Gtk.IconSize.MENU));
             add.show_all ();
@@ -249,9 +237,38 @@ namespace Midori {
             add.clicked.connect (()=>{
                 new_tab ();
             });
+            take_incoming_uris (add);
 
             button_press_event.connect (button_pressed);
         }
+
+        void take_incoming_uris (Gtk.Widget widget) {
+            Gtk.drag_dest_set (widget, Gtk.DestDefaults.ALL, (Gtk.TargetEntry[])null, Gdk.DragAction.COPY);
+            Gtk.drag_dest_add_text_targets (widget);
+            Gtk.drag_dest_add_uri_targets (widget);
+            widget.drag_drop.connect (uri_dropped);
+            widget.drag_data_received.connect (uri_received);
+        }
+
+        bool uri_dropped (Gtk.Widget widget, Gdk.DragContext context, int x, int y, uint timestamp) {
+            Gtk.drag_finish (context, false, false, timestamp);
+            return true;
+        }
+
+        void uri_received (Gtk.Widget widget, Gdk.DragContext context, int x, int y, Gtk.SelectionData data, uint ttype, uint timestamp) {
+            string[] uri = data.get_uris ();
+            string drag_uri = uri != null ? uri[0] : data.get_text ();
+            Midori.Tab drag_tab;
+            if (widget is Tally)
+                drag_tab = (widget as Tally).tab;
+            else {
+                new_tab ();
+                // Browser will have focussed the new tab
+                drag_tab = tab;
+            }
+            drag_tab.web_view.load_uri (drag_uri);
+        }
+
 
         ~Notebook () {
             notebook.size_allocate.disconnect (size_allocated);
@@ -316,6 +333,7 @@ namespace Midori {
             tally.button_press_event.connect (tab_button_pressed);
             tally.show ();
             tally.set_size_request (tab.minimized ? -1 : last_tab_size, -1);
+            take_incoming_uris (tally);
 
             /* Minimum requirements for any tab */
             tab.can_focus = tab.visible = true;

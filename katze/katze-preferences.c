@@ -144,7 +144,7 @@ katze_preferences_prepare (KatzePreferences* preferences)
 {
     KatzePreferencesPrivate* priv = preferences->priv;
     
-    #if GTK_CHECK_VERSION (3, 10, 0) & !HAVE_OSX
+    #if GTK_CHECK_VERSION (3, 10, 0) && !HAVE_OSX
     priv->notebook = gtk_stack_new ();
     #else
     priv->notebook = gtk_notebook_new ();
@@ -160,7 +160,7 @@ katze_preferences_prepare (KatzePreferences* preferences)
     gtk_box_pack_start (GTK_BOX (gtk_dialog_get_content_area (GTK_DIALOG (preferences))),
                         priv->toolbar, FALSE, FALSE, 0);
     #else
-    #if GTK_CHECK_VERSION (3, 10, 0) & !HAVE_OSX
+    #if GTK_CHECK_VERSION (3, 10, 0) && !HAVE_OSX
         priv->toolbar = gtk_stack_switcher_new ();
         gtk_stack_switcher_set_stack (GTK_STACK_SWITCHER (priv->toolbar), GTK_STACK (priv->notebook));
         gtk_widget_set_halign (priv->toolbar, GTK_ALIGN_CENTER);
@@ -200,6 +200,23 @@ katze_preferences_prepare (KatzePreferences* preferences)
     gtk_widget_show_all (gtk_dialog_get_content_area (GTK_DIALOG (preferences)));
 }
 
+#if GTK_CHECK_VERSION (3, 10, 0) & !HAVE_OSX
+/* these functions are used to clear the 100-px width set in GTK3's
+update_button function in gtk/gtkstackswitcher.c */
+
+static void
+clear_size_request (GtkWidget* widget)
+{
+    gtk_widget_set_size_request (widget, -1, -1);
+}
+
+static void
+workaround_stack_switcher_sizing (GtkStackSwitcher* switcher)
+{
+    gtk_container_forall (GTK_CONTAINER (switcher), (GtkCallback)clear_size_request, NULL);
+}
+#endif
+
 /**
  * katze_preferences_add_category:
  * @preferences: a #KatzePreferences instance
@@ -235,6 +252,7 @@ katze_preferences_add_category (KatzePreferences* preferences,
     #if GTK_CHECK_VERSION (3, 10, 0) & !HAVE_OSX
     gtk_stack_add_titled (GTK_STACK (priv->notebook), 
                          priv->page, label, label);
+    workaround_stack_switcher_sizing (GTK_STACK_SWITCHER (priv->toolbar));
     #else
     gtk_notebook_append_page (GTK_NOTEBOOK (priv->notebook),
                               priv->page, gtk_label_new (label));

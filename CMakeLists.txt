@@ -11,7 +11,7 @@ project(midori C)
 add_definitions("-DPACKAGE_NAME=\"${CMAKE_PROJECT_NAME}\"")
 add_definitions("-DPACKAGE_BUGREPORT=\"https://bugs.launchpad.net/midori\"")
 
-set(VERSION 0.5.7)
+set(VERSION 0.5.8)
 add_definitions("-DMIDORI_VERSION_SUFFIX=\"${VERSION}\"")
  
 string(REPLACE "." ";" VERSION_LIST ${VERSION})
@@ -77,7 +77,7 @@ if (X11)
     find_library (XSS Xss /usr/lib/X11R6/lib)
     if (SCRNSAVER AND XSS)
         add_definitions("-DHAVE_X11_EXTENSIONS_SCRNSAVER_H")
-        set(OPTS_LIBRARIES "${OPTS_LIBRARIES};${XSS}")
+        set(OPTS_LIBRARIES "${OPTS_LIBRARIES};${XSS};${X11}")
     endif ()
 endif ()
 
@@ -216,6 +216,9 @@ if (HALF_BRO_INCOM_WEBKIT2)
     set(EXTRA_VAPIS ${EXTRA_VAPIS} "${CMAKE_SOURCE_DIR}/midori/webkit2gtk-3.0.vapi")
     set(VALAFLAGS ${VALAFLAGS} -D HAVE_GTK3)
     set(VALAFLAGS ${VALAFLAGS} -D HAVE_WEBKIT2)
+    if (${DEPS_GTK_webkit2gtk-3.0_VERSION} VERSION_GREATER "2.3.90")
+        set(VALAFLAGS ${VALAFLAGS} -D HAVE_WEBKIT2_3_91)
+    endif ()
 elseif (USE_GTK3)
     pkg_check_modules(DEPS_GTK REQUIRED
                       gtk+-3.0>=3.0.0

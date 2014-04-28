@@ -508,7 +508,7 @@ midori_view_get_tls_info (MidoriView*           view,
         g_object_get (message, "tls-certificate", tls_cert, "tls-errors", tls_flags, NULL);
         if (soup_message_get_flags (message) & SOUP_MESSAGE_CERTIFICATE_TRUSTED)
             return TRUE;
-        return tls_flags == 0;
+        return *tls_flags == 0;
     }
     *tls_cert = NULL;
     *tls_flags = 0;
@@ -544,10 +544,24 @@ midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view
             webkit_policy_decision_download (decision);
             return TRUE;
         }
+        webkit_policy_decision_use (decision);
+        return TRUE;
+    }
+    else if (decision_type == WEBKIT_POLICY_DECISION_TYPE_NEW_WINDOW_ACTION)
+    {
+    }
+    else if (decision_type == WEBKIT_POLICY_DECISION_TYPE_NAVIGATION_ACTION)
+    {
+    }
+    else
+    {
+        g_debug ("Unhandled policy decision type %d", decision_type);
+        return FALSE;
     }
 
     void* request = NULL;
-    const gchar* uri = webkit_web_view_get_uri (web_view);
+    const gchar* uri = webkit_uri_request_get_uri (
+        webkit_navigation_policy_decision_get_request (WEBKIT_NAVIGATION_POLICY_DECISION (decision)));
     #else
     const gchar* uri = webkit_network_request_get_uri (request);
     #endif
@@ -648,6 +662,19 @@ midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view
     g_free (result);
     view->find_links = -1;
     #endif
+
+    gboolean handled = FALSE;
+    g_signal_emit_by_name (view, "navigation-requested", uri, &handled);
+    if (handled)
+    {
+        #ifdef HAVE_WEBKIT2
+        webkit_policy_decision_ignore (decision);
+        #else
+        webkit_web_policy_decision_ignore (decision);
+        #endif
+        return TRUE;
+    }
+
     return FALSE;
 }
 
@@ -684,10 +711,7 @@ midori_view_load_committed (MidoriView* view)
     }
 
     katze_item_set_added (view->item, time (NULL));
-    katze_item_set_meta_integer (view->item, "history-step", -1);
-
     g_object_set (view, "title", NULL, NULL);
-
     midori_view_unset_icon (view);
 
     if (!strncmp (uri, "https", 5))
@@ -2264,21 +2288,7 @@ midori_view_get_page_context_action (MidoriView*          view,
     if (context & WEBKIT_HIT_TEST_RESULT_CONTEXT_EDITABLE)
     {
         /* Enforce update of actions - there's no "selection-changed" signal */
-        #ifndef HAVE_WEBKIT2
-        gtk_action_set_sensitive (gtk_action_group_get_action (actions, "Undo"),
-            webkit_web_view_can_undo (WEBKIT_WEB_VIEW (view->web_view)));
-        gtk_action_set_sensitive (gtk_action_group_get_action (actions, "Redo"),
-            webkit_web_view_can_redo (WEBKIT_WEB_VIEW (view->web_view)));
-        gtk_action_set_sensitive (gtk_action_group_get_action (actions, "Cut"),
-            webkit_web_view_can_cut_clipboard (WEBKIT_WEB_VIEW (view->web_view)));
-        gtk_action_set_sensitive (gtk_action_group_get_action (actions, "Copy"),
-            webkit_web_view_can_copy_clipboard (WEBKIT_WEB_VIEW (view->web_view)));
-        gtk_action_set_sensitive (gtk_action_group_get_action (actions, "Paste"),
-            webkit_web_view_can_paste_clipboard (WEBKIT_WEB_VIEW (view->web_view)));
-        gtk_action_set_sensitive (gtk_action_group_get_action (actions, "Delete"),
-            webkit_web_view_can_cut_clipboard (WEBKIT_WEB_VIEW (view->web_view)));
-        gtk_action_set_sensitive (gtk_action_group_get_action (actions, "SelectAll"), TRUE);
-        #endif
+        midori_tab_update_actions (MIDORI_TAB (view), actions, NULL, NULL);
         midori_context_action_add_by_name (menu, "Undo");
         midori_context_action_add_by_name (menu, "Redo");
         midori_context_action_add (menu, NULL);
@@ -2299,7 +2309,9 @@ midori_view_get_page_context_action (MidoriView*          view,
                               G_CALLBACK (midori_view_add_search_engine_cb), view);
             midori_context_action_add (menu, action);
         }
-        /* FIXME: input methods, font, spelling, insert unicode character */
+        /* FIXME: input methods */
+        /* FIXME: font */
+        /* FIXME: insert unicode character */
     }
 
     if (context & WEBKIT_HIT_TEST_RESULT_CONTEXT_LINK)
@@ -2366,15 +2378,6 @@ midori_view_get_page_context_action (MidoriView*          view,
         if (context & WEBKIT_HIT_TEST_RESULT_CONTEXT_LINK)
             midori_context_action_add (menu, NULL);
 
-        /* No need to have Copy twice, which is already in the editable menu */
-        if (!(context & WEBKIT_HIT_TEST_RESULT_CONTEXT_EDITABLE))
-        {
-            /* Enforce update of copy action - there's no "selection-changed" signal */
-            midori_context_action_add_by_name (menu, "Copy");
-            gtk_action_set_sensitive (gtk_action_group_get_action (actions, "Copy"),
-                webkit_web_view_can_copy_clipboard (WEBKIT_WEB_VIEW (view->web_view)));
-        }
-
         /* Ensure view->selected_text */
         midori_view_has_selection (view);
         if (midori_uri_is_valid (view->selected_text))
@@ -2440,16 +2443,28 @@ midori_view_get_page_context_action (MidoriView*          view,
         midori_context_action_add_by_name (menu, "Forward");
         midori_context_action_add_by_name (menu, "Stop");
         midori_context_action_add_by_name (menu, "Reload");
+    }
+
+    /* No need to have Copy twice, which is already in the editable menu */
+    if (!(context & WEBKIT_HIT_TEST_RESULT_CONTEXT_EDITABLE))
+    {
+        midori_context_action_add (menu, NULL);
+        /* Enforce update of actions - there's no "selection-changed" signal */
+        midori_tab_update_actions (MIDORI_TAB (view), actions, NULL, NULL);
+        midori_context_action_add_by_name (menu, "Copy");
+        midori_context_action_add_by_name (menu, "SelectAll");
+    }
+
+    if (context == WEBKIT_HIT_TEST_RESULT_CONTEXT_DOCUMENT)
+    {
         midori_context_action_add (menu, NULL);
         midori_context_action_add_by_name (menu, "UndoTabClose");
-
         #ifndef HAVE_WEBKIT2
         WebKitWebView* web_view = WEBKIT_WEB_VIEW (view->web_view);
         if (webkit_web_view_get_focused_frame (web_view) != webkit_web_view_get_main_frame (web_view))
             midori_context_action_add_simple (menu, "OpenFrameInNewTab", _("Open _Frame in New Tab"), NULL, NULL,
                 midori_web_view_open_frame_in_new_tab_cb, view);
         #endif
-
         midori_context_action_add_simple (menu, "OpenInNewWindow", _("Open in New _Window"), NULL, STOCK_WINDOW_NEW,
             midori_view_tab_label_menu_window_new_cb, view);
         midori_context_action_add_by_name (menu, "ZoomIn");
@@ -2469,8 +2484,7 @@ midori_view_get_page_context_action (MidoriView*          view,
 
         midori_context_action_add (menu, NULL);
         midori_context_action_add_by_name (menu, "BookmarkAdd");
-        if (!midori_view_is_blank (view) && !midori_paths_is_readonly ())
-            midori_context_action_add_by_name (menu, "AddSpeedDial");
+        midori_context_action_add_by_name (menu, "AddSpeedDial");
         midori_context_action_add_by_name (menu, "SaveAs");
         midori_context_action_add_by_name (menu, "SourceView");
         midori_context_action_add_by_name (menu, "SourceViewDom");
@@ -2541,18 +2555,43 @@ midori_view_web_view_context_menu_cb (WebKitWebView*       web_view,
     gdk_event_free (event);
     #endif
     MidoriContextAction* menu = midori_view_get_page_context_action (view, hit_test_result);
+    /* Retain specific menu items we can't re-create easily */
+    guint guesses = 0, guesses_max = 10; /* Maximum number of spelling suggestions */
     #ifdef HAVE_WEBKIT2
+    GList* items = webkit_context_menu_get_items (context_menu), *item, *preserved = NULL;
+    for (item = items; item; item = g_list_next (item))
+    {
+        WebKitContextMenuAction stock_action = webkit_context_menu_item_get_stock_action (item->data);
+        if (stock_action == WEBKIT_CONTEXT_MENU_ACTION_SPELLING_GUESS && guesses++ < guesses_max)
+            preserved = g_list_append (preserved, g_object_ref (item->data));
+    }
     webkit_context_menu_remove_all (context_menu);
+    for (item = preserved; item; item = g_list_next (item))
+    {
+        webkit_context_menu_append (context_menu, item->data);
+        g_object_unref (item->data);
+    }
+    g_list_free (preserved);
     midori_context_action_create_webkit_context_menu (menu, context_menu);
     #else
-    gtk_container_foreach (GTK_CONTAINER (default_menu), (GtkCallback) gtk_widget_destroy, NULL);
+    GList* items = gtk_container_get_children (GTK_CONTAINER (default_menu)), *item;
+    for (item = items; item; item = g_list_next (item))
+    {
+        /* Private API: Source/WebCore/platform/ContextMenuItem.h */
+        int stock_action = GPOINTER_TO_INT (g_object_get_data (G_OBJECT (item->data), "webkit-context-menu"));
+        const int ContextMenuItemTagSpellingGuess = 30;
+        if (stock_action == ContextMenuItemTagSpellingGuess && guesses++ < guesses_max)
+            continue;
+        else
+            gtk_widget_destroy (item->data);
+    }
+    g_list_free (items);
     midori_context_action_create_menu (menu, default_menu, FALSE);
     #endif
     return FALSE;
 }
 #endif
 
-#ifndef HAVE_WEBKIT2
 static gboolean
 midori_view_web_view_close_cb (WebKitWebView* web_view,
                                GtkWidget*     view)
@@ -2568,7 +2607,11 @@ webkit_web_view_web_view_ready_cb (GtkWidget*  web_view,
     MidoriNewView where = MIDORI_NEW_VIEW_TAB;
     GtkWidget* new_view = GTK_WIDGET (midori_view_get_for_widget (web_view));
 
+#ifdef HAVE_WEBKIT2
+    WebKitWindowProperties* features = webkit_web_view_get_window_properties (WEBKIT_WEB_VIEW (web_view));
+#else
     WebKitWebWindowFeatures* features = webkit_web_view_get_window_features (WEBKIT_WEB_VIEW (web_view));
+#endif
     gboolean locationbar_visible, menubar_visible, toolbar_visible;
     gint width, height;
     g_object_get (features,
@@ -2604,8 +2647,13 @@ webkit_web_view_web_view_ready_cb (GtkWidget*  web_view,
         GtkWidget* toplevel = gtk_widget_get_toplevel (new_view);
         if (width > 0 && height > 0)
             gtk_widget_set_size_request (toplevel, width, height);
+#ifdef HAVE_WEBKIT2
+        g_signal_connect (web_view, "close",
+                          G_CALLBACK (midori_view_web_view_close_cb), new_view);
+#else
         g_signal_connect (web_view, "close-web-view",
                           G_CALLBACK (midori_view_web_view_close_cb), new_view);
+#endif
     }
 
     return TRUE;
@@ -2613,26 +2661,38 @@ webkit_web_view_web_view_ready_cb (GtkWidget*  web_view,
 
 static GtkWidget*
 webkit_web_view_create_web_view_cb (GtkWidget*      web_view,
+#ifndef HAVE_WEBKIT2
                                     WebKitWebFrame* web_frame,
+#endif
                                     MidoriView*     view)
 {
     MidoriView* new_view;
 
+#ifdef HAVE_WEBKIT2
+    const gchar* uri = webkit_web_view_get_uri (WEBKIT_WEB_VIEW (web_view));
+#else
+    const gchar* uri = webkit_web_frame_get_uri (web_frame);
+#endif
     if (view->open_new_pages_in == MIDORI_NEW_PAGE_CURRENT)
         new_view = view;
     else
     {
         KatzeItem* item = katze_item_new ();
-        item->uri = g_strdup (webkit_web_frame_get_uri (web_frame));
-        new_view = (MidoriView*)midori_view_new_with_item (item, view->settings);
+        item->uri = g_strdup (uri);
+        new_view = (MidoriView*)midori_view_new_from_view (view, item, NULL);
+#ifdef HAVE_WEBKIT2
+        g_signal_connect (new_view->web_view, "ready-to-show",
+                          G_CALLBACK (webkit_web_view_web_view_ready_cb), view);
+#else
         g_signal_connect (new_view->web_view, "web-view-ready",
                           G_CALLBACK (webkit_web_view_web_view_ready_cb), view);
+#endif
     }
-    g_object_set_data_full (G_OBJECT (new_view), "opener-uri",
-        g_strdup (webkit_web_frame_get_uri (web_frame)), g_free);
+    g_object_set_data_full (G_OBJECT (new_view), "opener-uri", g_strdup (uri), g_free);
     return new_view->web_view;
 }
 
+#ifndef HAVE_WEBKIT2
 static gboolean
 webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
                                        WebKitWebFrame*          web_frame,
@@ -3162,14 +3222,55 @@ midori_view_new_with_title (const gchar*       title,
  * Return value: a new #MidoriView
  *
  * Since: 0.4.3
+ * Deprecated: 0.5.8: Use midori_view_new_from_view instead.
  **/
 GtkWidget*
 midori_view_new_with_item (KatzeItem*         item,
                            MidoriWebSettings* settings)
 {
+    return midori_view_new_from_view (NULL, item, settings);
+}
+
+/**
+ * midori_view_new_with_item:
+ * @view: a predating, related #MidoriView, or %NULL
+ * @item: a #KatzeItem, or %NULL
+ * @settings: a #MidoriWebSettings, or %NULL
+ *
+ * Creates a new view, visible by default.
+ *
+ * If a @view is specified the returned new view will share
+ * its settings and if applicable re-use the rendering process.
+ *
+ * When @view should be passed:
+ *     The new one created is a new tab/ window for the old @view
+ *     A tab was duplicated
+ *
+ * When @view may be passed:
+ *     Old and new view belong to the same website or group
+ *
+ * Don't pass a @view if:
+ *     The new view is a completely new website
+ *
+ * The @item may contain title, URI and minimized status and will be copied.
+ *
+ * Usually @settings should be passed from an existing view or browser.
+ *
+ * Return value: a new #MidoriView
+ *
+ * Since: 0.5.8
+ **/
+GtkWidget*
+midori_view_new_from_view (MidoriView*        related,
+                           KatzeItem*         item,
+                           MidoriWebSettings* settings)
+{
     MidoriView* view = g_object_new (MIDORI_TYPE_VIEW,
+                                     "related", MIDORI_TAB (related),
                                      "title", item ? katze_item_get_name (item) : NULL,
                                      NULL);
+    if (!settings && related)
+        settings = related->settings;
     if (settings)
         _midori_view_set_settings (view, settings);
     if (item)
@@ -3445,6 +3546,8 @@ midori_view_constructor (GType                  type,
                       midori_view_web_view_permission_request_cb, view,
                       "signal::context-menu",
                       midori_view_web_view_context_menu_cb, view,
+                      "signal::create",
+                      webkit_web_view_create_web_view_cb, view,
                       #else
                       "signal::notify::load-status",
                       midori_view_web_view_notify_load_status_cb, view,
@@ -3587,8 +3690,8 @@ void
 midori_view_list_versions (GString* markup,
                            gboolean html)
 {
-    midori_view_add_version (markup, html, g_strdup_printf ("%s %s (%s)",
-        g_get_application_name (), PACKAGE_VERSION, midori_app_get_name (NULL)));
+    midori_view_add_version (markup, html, g_strdup_printf ("%s %s (%s) %s",
+        g_get_application_name (), PACKAGE_VERSION, midori_app_get_name (NULL), gdk_get_program_class ()));
     midori_view_add_version (markup, html, g_strdup_printf ("GTK+ %s (%u.%u.%u)\tGlib %s (%u.%u.%u)",
         GTK_VERSION, gtk_major_version, gtk_minor_version, gtk_micro_version,
         GIO_VERSION, glib_major_version, glib_minor_version, glib_micro_version));
@@ -3664,44 +3767,7 @@ midori_view_list_plugins (MidoriView* view,
     #endif
 }
 
-static void
-list_geolocation (GString* markup)
-{
-    g_string_append (markup,
-    "<a href=\"http://dev.w3.org/geo/api/spec-source.html\" id=\"method\"></a>"
-    "<span id=\"locationInfo\"><noscript>No Geolocation without Javascript</noscript></span>"
-    "<script>"
-    "function displayLocation (position) {"
-    "var geouri = 'geo:' + position.coords.latitude + ',' + position.coords.longitude + ',' + position.coords.altitude + ',u=' + position.coords.accuracy;"
-    "document.getElementById('locationInfo').innerHTML = '<a href=\"' + geouri + '\">' + geouri + '</a><br><code>'"
-    "+ ' timestamp: ' + position.timestamp"
-    "+ ' latitude: ' + position.coords.latitude"
-    "+ ' longitude: ' + position.coords.longitude"
-    "+ ' altitude: ' + position.coords.altitude + '<br>'"
-    "+ ' accuracy: ' + position.coords.accuracy"
-    "+ ' altitudeAccuracy: ' + position.coords.altitudeAccuracy"
-    "+ ' heading: ' + position.coords.heading"
-    "+ ' speed: ' + position.coords.speed"
-    "+ '</code>'; }"
-    "function handleError (error) {"
-    "var errorMessage = '<b>' + ['Unknown error', 'Permission denied', 'Position failed', 'Timed out'][error.code] + '</b>';"
-    "if (error.code == 3) document.getElementById('locationInfo').innerHTML += (' ' + errorMessage);"
-    "else document.getElementById('locationInfo').innerHTML = errorMessage; }"
-    "if (navigator.geolocation) {"
-    "var options = { enableHighAccuracy: true, timeout: 60000, maximumAge: \"Infinite\" };"
-    "  if (navigator.geolocation.watchPosition) {"
-    "    document.getElementById('method').innerHTML = '<code>geolocation.watchPosition</code>:';"
-    "    navigator.geolocation.watchPosition(displayLocation, handleError, options);"
-    "  } else {"
-    "    document.getElementById('method').innerHTML = '<code>geolocation.getCurrentPosition</code>:';"
-    "    navigator.geolocation.getCurrentPosition(displayLocation, handleError);"
-    "  }"
-    "} else"
-    "  document.getElementById('locationInfo').innerHTML = 'Geolocation unavailable';"
-    "</script>");
-}
-
-static void
+void
 midori_view_list_video_formats (MidoriView* view,
                                 GString*    formats,
                                 gboolean    html)
@@ -3726,28 +3792,6 @@ midori_view_list_video_formats (MidoriView* view,
 #endif
 }
 
-static const gchar* valid_about_uris[] = {
-    "about:dial",
-    "about:geolocation",
-    "about:home",
-    "about:new",
-    "about:paths",
-    "about:private",
-    "about:search",
-    "about:widgets",
-};
-
-static void
-list_about_uris (GString* markup)
-{
-    g_string_append (markup, "<p>");
-    guint i;
-    for (i = 0; i < G_N_ELEMENTS (valid_about_uris); i++)
-        g_string_append_printf (markup, "<a href=\"%s\">%s</a> &nbsp;",
-                                valid_about_uris[i], valid_about_uris[i]);
-}
-
-
 /**
  * midori_view_set_uri:
  * @view: a #MidoriView
@@ -3762,8 +3806,6 @@ void
 midori_view_set_uri (MidoriView*  view,
                      const gchar* uri)
 {
-    gchar* data;
-
     g_return_if_fail (MIDORI_IS_VIEW (view));
     g_return_if_fail (uri != NULL);
 
@@ -3771,216 +3813,24 @@ midori_view_set_uri (MidoriView*  view,
         g_warning ("Calling %s() before adding the view to a browser. This "
                    "breaks extensions that monitor page loading.", G_STRFUNC);
 
+    midori_uri_recursive_fork_protection (uri, TRUE);
+
     if (!midori_debug ("unarmed"))
     {
         gboolean handled = FALSE;
-        gchar* temporary_uri = NULL;
         if (g_str_has_prefix (uri, "about:"))
             g_signal_emit (view, signals[ABOUT_CONTENT], 0, uri, &handled);
 
         if (handled)
-            return;
-
-        if (!strcmp (uri, "about:new"))
-            uri = midori_settings_get_tabhome (MIDORI_SETTINGS (view->settings));
-        if (!strcmp (uri, "about:home"))
-            uri = midori_settings_get_homepage (MIDORI_SETTINGS (view->settings));
-        if (!strcmp (uri, "about:search"))
         {
-            uri = midori_settings_get_location_entry_search (MIDORI_SETTINGS (view->settings));
-            temporary_uri = midori_uri_for_search (uri, "");
-            uri = temporary_uri;
-        }
-
-        if (!strcmp (uri, "about:dial"))
-        {
-            MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (view));
-            MidoriSpeedDial* dial = katze_object_get_object (browser, "speed-dial");
-            const gchar* html;
-            GTimer* timer = NULL;
-
-            if (midori_debug ("startup"))
-                timer = g_timer_new ();
-
-            midori_tab_set_uri (MIDORI_TAB (view), uri);
-            midori_tab_set_mime_type (MIDORI_TAB (view), "text/html");
-            katze_item_set_meta_string (view->item, "mime-type", "text/html");
-            katze_item_set_meta_integer (view->item, "delay", MIDORI_DELAY_UNDELAYED);
-
-            html = dial != NULL ? midori_speed_dial_get_html (dial, NULL) : "";
-            midori_view_set_html (view, html, uri, NULL);
-
-            if (midori_debug ("startup"))
-            {
-                g_debug ("Speed Dial: \t%fs", g_timer_elapsed (timer, NULL));
-                g_timer_destroy (timer);
-            }
-        }
-        else if (midori_uri_is_blank (uri))
-        {
-            data = NULL;
-            if (!strcmp (uri, "about:widgets"))
-            {
-                static const gchar* widgets[] = {
-                    "<input value=\"demo\"%s>",
-                    "<p><input type=\"password\" value=\"demo\"%s>",
-                    "<p><input type=\"checkbox\" value=\"demo\"%s> demo",
-                    "<p><input type=\"radio\" value=\"demo\"%s> demo",
-                    "<p><select%s><option>foo bar</option><option selected>spam eggs</option></select>",
-                    "<p><select%s size=\"3\"><option>foo bar</option><option selected>spam eggs</option></select>",
-                    "<p><input type=\"file\"%s>",
-                    "<p><input type=\"file\" multiple%s>",
-                    "<input type=\"button\" value=\"demo\"%s>",
-                    "<p><input type=\"email\" value=\"user@localhost.com\"%s>",
-                    "<input type=\"url\" value=\"http://www.example.com\"%s>",
-                    "<input type=\"tel\" value=\"+1 234 567 890\" pattern=\"^[0+][1-9 /-]*$\"%s>",
-                    "<input type=\"number\" min=1 max=9 step=1 value=\"4\"%s>",
-                    "<input type=\"range\" min=1 max=9 step=1 value=\"4\"%s>",
-                    "<input type=\"date\" min=1990-01-01 max=2010-01-01%s>",
-                    "<input type=\"search\" placeholder=\"demo\"%s>",
-                    "<textarea%s>Lorem ipsum doloret sit amet…</textarea>",
-                    "<input type=\"color\" value=\"#d1eeb9\"%s>",
-                    "<progress min=1 max=9 value=4 %s></progress>",
-                    "<keygen type=\"rsa\" challenge=\"235ldahlae983dadfar\"%s>",
-                    "<p><input type=\"reset\"%s>",
-                    "<input type=\"submit\"%s>",
-                };
-                guint i;
-                GString* demo = g_string_new ("<html><head><style>"
-                    ".fallback::-webkit-slider-thumb,"
-                    ".fallback, .fallback::-webkit-file-upload-button {"
-                    "-webkit-appearance: none !important }"
-                    ".column { display:inline-block; vertical-align:top;"
-                    "width:25%;margin-right:1% }</style><title>");
-                g_string_append_printf (demo,
-                    "%s</title></head><body><h1>%s</h1>", uri, uri);
-                g_string_append (demo, "<div class=\"column\">");
-                for (i = 0; i < G_N_ELEMENTS (widgets); i++)
-                    g_string_append_printf (demo, widgets[i], "");
-                g_string_append (demo, "</div><div class=\"column\">");
-                for (i = 0; i < G_N_ELEMENTS (widgets); i++)
-                    g_string_append_printf (demo, widgets[i], " disabled");
-                g_string_append (demo, "</div><div class=\"column\">");
-                for (i = 0; i < G_N_ELEMENTS (widgets); i++)
-                    g_string_append_printf (demo, widgets[i], " class=\"fallback\"");
-                g_string_append (demo, "</div>");
-                g_string_append (demo, "<p><a href=\"http://example.com\" target=\"wp\" "
-                                       "onclick=\"javascript:window.open('http://example.com','wp',"
-                                       "'width=320, height=240, toolbar=false'); return false\""
-                                       ">Popup window</a></p>");
-                data = g_string_free (demo, FALSE);
-            }
-            else if (!strcmp (uri, "about:private"))
-            {
-                data = g_strdup_printf (
-                    "<html dir=\"ltr\"><head><title>%s</title>"
-                    "<link rel=\"stylesheet\" type=\"text/css\" href=\"res://about.css\">"
-                    "</head>"
-                    "<body>"
-                    "<img id=\"logo\" src=\"res://logo-shade.png\" />"
-                        "<div id=\"main\" style=\"background-image: url(stock://dialog/gtk-dialog-info);\">"
-                            "<div id=\"text\">"
-                                "<h1>%s</h1>"
-                                "<p class=\"message\">%s</p><ul class=\" suggestions\"><li>%s</li><li>%s</li><li>%s</li></ul>"
-                                "<p class=\"message\">%s</p><ul class=\" suggestions\"><li>%s</li><li>%s</li><li>%s</li><li>%s</li></ul>"
-                    "</div><br style=\"clear: both\"></div></body></html>",
-                    _("Private Browsing"), _("Private Browsing"),
-                    _("Midori doesn't store any personal data:"),
-                    _("No history or web cookies are being saved."),
-                    _("Extensions are disabled."),
-                    _("HTML5 storage, local database and application caches are disabled."),
-                    _("Midori prevents websites from tracking the user:"),
-                    _("Referrer URLs are stripped down to the hostname."),
-                    _("DNS prefetching is disabled."),
-                    _("The language and timezone are not revealed to websites."),
-                    _("Flash and other Netscape plugins cannot be listed by websites."));
-            }
-            else if (!strcmp (uri, "about:geolocation"))
-            {
-                GString* markup = g_string_new ("");
-                list_geolocation (markup);
-                data = g_string_free (markup, FALSE);
-            }
-            else if (!strcmp (uri, "about:paths"))
-            {
-                gchar* res_dir = midori_paths_get_res_filename ("about.css");
-                gchar* lib_dir = midori_paths_get_lib_path (PACKAGE_NAME);
-                data = g_markup_printf_escaped ("<body><h1>%s</h1>"
-                    "<p>config: <code>%s</code></p>"
-                    "<p>res: <code>%s</code></p>"
-                    "<p>data: <code>%s/%s</code></p>"
-                    "<p>lib: <code>%s</code></p>"
-                    "<p>cache: <code>%s</code></p>"
-                    "<p>tmp: <code>%s</code></p>"
-                    "</body>",
-                    uri, midori_paths_get_config_dir_for_reading (), res_dir,
-                    midori_paths_get_user_data_dir_for_reading (), PACKAGE_NAME,
-                    lib_dir, midori_paths_get_cache_dir_for_reading (), midori_paths_get_tmp_dir ());
-                g_free (res_dir);
-                g_free (lib_dir);
-            }
-            else if (!strcmp (uri, "about:") || !strcmp (uri, "about:version"))
-            {
-                gchar* command_line = midori_paths_get_command_line_str (TRUE);
-                gchar* architecture, *platform;
-                const gchar* sys_name = midori_web_settings_get_system_name (
-                    &architecture, &platform);
-                gchar* ident = katze_object_get_string (view->settings, "user-agent");
-                GString * tmp = g_string_new ("");
-
-                g_string_append_printf (tmp,
-                    "<html><head><title>about:version</title></head>"
-                    "<body><h1>a%sbout:version</h1>"
-                    "<p>%s</p>"
-                    "<img src=\"res://logo-shade.png\" "
-                    "style=\"position: absolute; right: 15px; bottom: 15px; z-index: -9;\">"
-                    "<table>",
-                    "<span style=\"position: absolute; left: -1000px; top: -1000px\">lias a=b; echo Copy carefully #</span>",
-                    _("Version numbers in brackets show the version used at runtime."));
-                midori_view_add_version (tmp, TRUE, g_markup_printf_escaped ("Command line %s",
-                    command_line));
-                midori_view_list_versions (tmp, TRUE);
-                midori_view_add_version (tmp, TRUE, g_markup_printf_escaped ("Platform %s %s %s",
-                    platform, sys_name, architecture ? architecture : ""));
-                midori_view_add_version (tmp, TRUE, g_markup_printf_escaped ("Identification %s",
-                    ident));
-                midori_view_list_video_formats (view, tmp, TRUE);
-
-                g_string_append (tmp, "</table><table>");
-                midori_view_list_plugins (view, tmp, TRUE);
-                g_string_append (tmp, "</table>");
-                list_about_uris (tmp);
-                /* TODO: list active extensions */
-
-                g_string_append (tmp, "</body></html>");
-                data = g_string_free (tmp, FALSE);
-
-                g_free (command_line);
-                g_free (ident);
-            }
-            else if (!strcmp (uri, "about:blank"))
-                data = g_strdup ("<body></body>");
-            else
-            {
-                data = g_strdup_printf (
-                    "<html><head><title>%s</title></head><body><h1>%s</h1>"
-                    "<img src=\"res://logo-shade.png\" "
-                    "style=\"position: absolute; right: 15px; bottom: 15px; z-index: -9;\">"
-                    "</body></html>", uri, uri);
-            }
-
             midori_tab_set_uri (MIDORI_TAB (view), uri);
             midori_tab_set_special (MIDORI_TAB (view), TRUE);
-#ifndef HAVE_WEBKIT2
-            webkit_web_view_load_html_string (WEBKIT_WEB_VIEW (view->web_view), data, uri);
-#else
-            webkit_web_view_load_html (WEBKIT_WEB_VIEW (view->web_view), data, uri);
-#endif
-            g_free (data);
             katze_item_set_meta_integer (view->item, "delay", MIDORI_DELAY_UNDELAYED);
             katze_item_set_uri (view->item, midori_tab_get_uri (MIDORI_TAB (view)));
+            return;
         }
-        else if (katze_item_get_meta_integer (view->item, "delay") == MIDORI_DELAY_DELAYED)
+
+        if (katze_item_get_meta_integer (view->item, "delay") == MIDORI_DELAY_DELAYED)
         {
             midori_tab_set_uri (MIDORI_TAB (view), uri);
             midori_tab_set_special (MIDORI_TAB (view), TRUE);
@@ -4010,10 +3860,7 @@ midori_view_set_uri (MidoriView*  view,
                 gboolean handled = FALSE;
                 g_signal_emit_by_name (view, "open-uri", uri, &handled);
                 if (handled)
-                {
-                    g_free (temporary_uri);
                     return;
-                }
             }
 
             midori_tab_set_uri (MIDORI_TAB (view), uri);
@@ -4022,7 +3869,6 @@ midori_view_set_uri (MidoriView*  view,
             midori_tab_set_view_source (MIDORI_TAB (view), FALSE);
             webkit_web_view_load_uri (WEBKIT_WEB_VIEW (view->web_view), uri);
         }
-        g_free (temporary_uri);
     }
 }
 
@@ -4135,6 +3981,7 @@ midori_view_get_display_uri (MidoriView* view)
        Yet for practical purposes we prefer "".  */
     if (!strcmp (uri, "about:blank")
      || !strcmp (uri, "about:dial")
+     || !strcmp (uri, "about:new")
      || !strcmp (uri, "about:private"))
         return "";
 
@@ -4760,9 +4607,13 @@ midori_view_print (MidoriView* view)
 {
     g_return_if_fail (MIDORI_IS_VIEW (view));
 
+    GtkPrintSettings* settings = gtk_print_settings_new ();
+    #if GTK_CHECK_VERSION (3, 6, 0)
+    gtk_print_settings_set (settings, GTK_PRINT_SETTINGS_OUTPUT_BASENAME, midori_view_get_display_title (view));
+    #endif
+
 #ifdef HAVE_WEBKIT2
     WebKitPrintOperation* operation = webkit_print_operation_new (WEBKIT_WEB_VIEW (view->web_view));
-    GtkPrintSettings* settings = gtk_print_settings_new ();
     webkit_print_operation_set_print_settings (operation, settings);
     g_object_unref (settings);
 
@@ -4774,11 +4625,11 @@ midori_view_print (MidoriView* view)
             GTK_WINDOW (midori_browser_get_for_widget (view->web_view)));
     }
     g_object_unref (operation);
-
-
 #else
     WebKitWebFrame* frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view));
     GtkPrintOperation* operation = gtk_print_operation_new ();
+    gtk_print_operation_set_print_settings (operation, settings);
+    g_object_unref (settings);
     gtk_print_operation_set_custom_tab_label (operation, _("Features"));
     gtk_print_operation_set_embed_page_setup (operation, TRUE);
     g_signal_connect (operation, "create-custom-widget",

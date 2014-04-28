@@ -16,7 +16,7 @@ namespace Tabby {
 
     /* function called from Manager object */
     public interface IStorage : GLib.Object {
-        public abstract Katze.Array get_sessions ();
+        public abstract Katze.Array get_saved_sessions ();
         public abstract Base.Session get_new_session ();
         public abstract void restore_last_sessions ();
         public abstract void import_session (Katze.Array tabs);
@@ -24,10 +24,15 @@ namespace Tabby {
 
     public interface ISession : GLib.Object {
         public abstract Katze.Array get_tabs ();
+        /* Add one tab to the database */
         public abstract void add_item (Katze.Item item);
+        /* Attach to a browser */
         public abstract void attach (Midori.Browser browser);
+        /* Attach to a browser and populate it with tabs from the database */
         public abstract void restore (Midori.Browser browser);
+        /* Remove all tabs from the database */
         public abstract void remove ();
+        /* Run when a browser is closed */
         public abstract void close ();
     }
 
@@ -43,7 +48,7 @@ namespace Tabby {
         public abstract class Storage : GLib.Object, IStorage {
             public Midori.App app { get; construct; }
 
-            public abstract Katze.Array get_sessions ();
+            public abstract Katze.Array get_saved_sessions ();
             public abstract Base.Session get_new_session ();
 
             public void start_new_session () {
@@ -52,7 +57,7 @@ namespace Tabby {
             }
 
             public void restore_last_sessions () {
-                Katze.Array sessions = this.get_sessions ();
+                Katze.Array sessions = this.get_saved_sessions ();
                 this.init_sessions (sessions);
             }
 
@@ -82,6 +87,8 @@ namespace Tabby {
                 double i = 0;
                 foreach (Katze.Item item in items) {
                     item.set_meta_string ("sorting", i.to_string());
+                    // See midori_browser_step_history: don't add to history
+                    item.set_meta_string ("history-step", "ignore");
                     i += 1024;
                     session.add_item (item);
                 }
@@ -91,7 +98,7 @@ namespace Tabby {
         public abstract class Session : GLib.Object, ISession {
             protected GLib.SList<double?> tab_sorting;
 
-            public Midori.Browser browser { get; protected set; }
+            public Midori.Browser? browser { get; protected set; default = null; }
             public SessionState state { get; protected set; default = SessionState.CLOSED; }
 
             public abstract void add_item (Katze.Item item);
@@ -105,7 +112,7 @@ namespace Tabby {
             public abstract void remove ();
 
             public abstract Katze.Array get_tabs ();
-            public abstract double? get_max_sorting ();
+            public abstract double get_max_sorting ();
 
             public void attach (Midori.Browser browser) {
                 this.browser = browser;
@@ -213,12 +220,20 @@ namespace Tabby {
             }
 
             public virtual void close () {
-                this.browser.add_tab.disconnect (this.tab_added);
-                this.browser.add_tab.disconnect (this.helper_data_changed);
-                this.browser.remove_tab.disconnect (this.tab_removed);
-                this.browser.switch_tab.disconnect (this.tab_switched);
-                this.browser.delete_event.disconnect (this.delete_event);
-                this.browser.notebook.page_reordered.disconnect (this.tab_reordered);
+                if (this.state == SessionState.CLOSED) {
+                    assert (this.browser == null);
+                } else {
+                    this.state = SessionState.CLOSED;
+
+                    this.browser.add_tab.disconnect (this.tab_added);
+                    this.browser.add_tab.disconnect (this.helper_data_changed);
+                    this.browser.remove_tab.disconnect (this.tab_removed);
+                    this.browser.switch_tab.disconnect (this.tab_switched);
+                    this.browser.delete_event.disconnect (this.delete_event);
+                    this.browser.notebook.page_reordered.disconnect (this.tab_reordered);
+
+                    this.browser = null;
+                }
             }
 
 #if HAVE_GTK3
@@ -227,19 +242,19 @@ namespace Tabby {
             protected bool delete_event (Gtk.Widget widget, Gdk.Event event) {
 #endif
 
-                this.close();
+                this.close ();
                 return false;
 
             }
 
-            protected double? get_tab_sorting (Midori.View view) {
+            protected double get_tab_sorting (Midori.View view) {
                 int this_pos = this.browser.notebook.page_num (view);
                 Midori.View prev_view = this.browser.notebook.get_nth_page (this_pos - 1) as Midori.View;
                 Midori.View next_view = this.browser.notebook.get_nth_page (this_pos + 1) as Midori.View;
 
-                string? prev_meta_sorting = null;
-                string? next_meta_sorting = null;
-                double? prev_sorting, next_sorting, this_sorting;
+                string prev_meta_sorting = null;
+                string next_meta_sorting = null;
+                double prev_sorting, next_sorting, this_sorting;
 
                 if (prev_view != null) {
                     unowned Katze.Item prev_item = prev_view.get_proxy_item ();
@@ -315,7 +330,7 @@ namespace Tabby {
 
                     unowned Katze.Item item = tab.get_proxy_item ();
 
-                    double? sorting;
+                    double sorting;
                     string? sorting_string = item.get_meta_string ("sorting");
                     if (sorting_string != null) { /* we have to use a seperate if condition to avoid a `possibly unassigned local variable` error */
                         if (double.try_parse (item.get_meta_string ("sorting"), out sorting)) {
@@ -350,29 +365,31 @@ namespace Tabby {
     namespace Local {
         private class Session : Base.Session {
             public int64 id { get; private set; }
-            private unowned Sqlite.Database db;
+            private Midori.Database database;
 
             public override void add_item (Katze.Item item) {
                 GLib.DateTime time = new DateTime.now_local ();
-                string? sorting = item.get_meta_string ("sorting");
-                string sqlcmd = "INSERT INTO `tabs` (`crdate`, `tstamp`, `session_id`, `uri`, `title`, `sorting`) VALUES (:tstamp, :tstamp, :session_id, :uri, :title, :sorting);";
-                Sqlite.Statement stmt;
-                if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
-                    critical (_("Failed to update database: %s"), db.errmsg);
-                stmt.bind_int64 (stmt.bind_parameter_index (":tstamp"), time.to_unix ());
-                stmt.bind_int64 (stmt.bind_parameter_index (":session_id"), this.id);
-                stmt.bind_text (stmt.bind_parameter_index (":uri"), item.uri);
-                stmt.bind_text (stmt.bind_parameter_index (":title"), item.name);
-                if (sorting == null)
-                    stmt.bind_double (stmt.bind_parameter_index (":sorting"), double.parse ("1"));
-                else
-                    stmt.bind_double (stmt.bind_parameter_index (":sorting"), double.parse (sorting));
+                string? sorting = item.get_meta_string ("sorting") ?? "1";
+                string sqlcmd = "INSERT INTO `tabs` (`crdate`, `tstamp`, `session_id`, `uri`, `title`, `sorting`) VALUES (:crdate, :tstamp, :session_id, :uri, :title, :sorting);";
 
-                if (stmt.step () != Sqlite.DONE)
-                    critical (_("Failed to update database: %s"), db.errmsg);
-                else {
-                    int64 tab_id = this.db.last_insert_rowid ();
+                int64 tstamp = item.get_meta_integer ("tabby-tstamp");
+                if (tstamp < 0) { // new tab without focus
+                    tstamp = 0;
+                }
+
+                try {
+                    var statement = database.prepare (sqlcmd,
+                        ":crdate", typeof (int64), time.to_unix (),
+                        ":tstamp", typeof (int64), tstamp,
+                        ":session_id", typeof (int64), this.id,
+                        ":uri", typeof (string), item.uri,
+                        ":title", typeof (string), item.name,
+                        ":sorting", typeof (double), double.parse (sorting));
+                    statement.exec ();
+                    int64 tab_id = statement.row_id ();
                     item.set_meta_integer ("tabby-id", tab_id);
+                } catch (Error error) {
+                    critical (_("Failed to update database: %s"), error.message);
                 }
             }
 
@@ -380,35 +397,35 @@ namespace Tabby {
                 unowned Katze.Item item = view.get_proxy_item ();
                 int64 tab_id = item.get_meta_integer ("tabby-id");
                 string sqlcmd = "UPDATE `tabs` SET uri = :uri WHERE session_id = :session_id AND id = :tab_id;";
-                Sqlite.Statement stmt;
-                if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
-                    critical (_("Failed to update database: %s"), db.errmsg ());
-                stmt.bind_text (stmt.bind_parameter_index (":uri"), uri);
-                stmt.bind_int64 (stmt.bind_parameter_index (":session_id"), this.id);
-                stmt.bind_int64 (stmt.bind_parameter_index (":tab_id"), tab_id);
-                if (stmt.step () != Sqlite.DONE)
-                    critical (_("Failed to update database: %s"), db.errmsg ());
+                try {
+                    database.prepare (sqlcmd,
+                                      ":uri", typeof (string), uri,
+                                      ":session_id", typeof (int64), this.id,
+                                      ":tab_id", typeof (int64), tab_id).exec ();
+                } catch (Error error) {
+                    critical (_("Failed to update database: %s"), error.message);
+                }
             }
 
             protected override void data_changed (Midori.View view) {
                 unowned Katze.Item item = view.get_proxy_item ();
                 int64 tab_id = item.get_meta_integer ("tabby-id");
                 string sqlcmd = "UPDATE `tabs` SET title = :title WHERE session_id = :session_id AND id = :tab_id;";
-                Sqlite.Statement stmt;
-                if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
-                    critical (_("Failed to update database: %s"), db.errmsg ());
-                stmt.bind_text (stmt.bind_parameter_index (":title"), view.get_display_title ());
-                stmt.bind_int64 (stmt.bind_parameter_index (":session_id"), this.id);
-                stmt.bind_int64 (stmt.bind_parameter_index (":tab_id"), tab_id);
-                if (stmt.step () != Sqlite.DONE)
-                    critical (_("Failed to update database: %s"), db.errmsg ());
+                try {
+                    database.prepare (sqlcmd,
+                                      ":title", typeof (string), view.get_display_title (),
+                                      ":session_id", typeof (int64), this.id,
+                                      ":tab_id", typeof (int64), tab_id).exec ();
+                } catch (Error error) {
+                    critical (_("Failed to update database: %s"), error.message);
+                }
             }
 
             protected override void tab_added (Midori.Browser browser, Midori.View view) {
                 unowned Katze.Item item = view.get_proxy_item ();
                 int64 tab_id = item.get_meta_integer ("tabby-id");
                 if (tab_id < 1) {
-                    double? sorting = this.get_tab_sorting (view);
+                    double sorting = this.get_tab_sorting (view);
                     item.set_meta_string ("sorting", sorting.to_string ());
                     this.add_item (item);
                 }
@@ -419,76 +436,73 @@ namespace Tabby {
                 int64 tab_id = item.get_meta_integer ("tabby-id");
                 /* FixMe: mark as deleted */
                 string sqlcmd = "DELETE FROM `tabs` WHERE session_id = :session_id AND id = :tab_id;";
-                Sqlite.Statement stmt;
-                if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
-                    critical (_("Failed to update database: %s"), db.errmsg ());
-                stmt.bind_int64 (stmt.bind_parameter_index (":session_id"), this.id);
-                stmt.bind_int64 (stmt.bind_parameter_index (":tab_id"), tab_id);
-                if (stmt.step () != Sqlite.DONE)
-                    critical (_("Failed to update database: %s"), db.errmsg ());
+                try {
+                    database.prepare (sqlcmd,
+                                      ":session_id", typeof (int64), this.id,
+                                      ":tab_id", typeof (int64), tab_id).exec ();
+                } catch (Error error) {
+                    critical (_("Failed to update database: %s"), error.message);
+                }
             }
 
             protected override void tab_switched (Midori.View? old_view, Midori.View? new_view) {
                 GLib.DateTime time = new DateTime.now_local ();
                 unowned Katze.Item item = new_view.get_proxy_item ();
                 int64 tab_id = item.get_meta_integer ("tabby-id");
+                int64 tstamp = time.to_unix();
+                item.set_meta_integer ("tabby-tstamp", tstamp);
                 string sqlcmd = "UPDATE `tabs` SET tstamp = :tstamp WHERE session_id = :session_id AND id = :tab_id;";
-                Sqlite.Statement stmt;
-                if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
-                    critical (_("Failed to update database: %s"), db.errmsg ());
-                stmt.bind_int64 (stmt.bind_parameter_index (":session_id"), this.id);
-                stmt.bind_int64 (stmt.bind_parameter_index (":tab_id"), tab_id);
-                stmt.bind_int64 (stmt.bind_parameter_index (":tstamp"), time.to_unix ());
-                if (stmt.step () != Sqlite.DONE)
-                    critical (_("Failed to update database: %s"), db.errmsg ());
+                try {
+                    database.prepare (sqlcmd,
+                        ":session_id", typeof (int64), this.id,
+                        ":tab_id", typeof (int64), tab_id,
+                        ":tstamp", typeof (int64), tstamp).exec ();
+                } catch (Error error) {
+                    critical (_("Failed to update database: %s"), error.message);
+                }
             }
 
             protected override void tab_reordered (Gtk.Widget tab, uint pos) {
                 Midori.View view = tab as Midori.View;
 
-                double? sorting = this.get_tab_sorting (view);
+                double sorting = this.get_tab_sorting (view);
                 unowned Katze.Item item = view.get_proxy_item ();
                 int64 tab_id = item.get_meta_integer ("tabby-id");
                 string sqlcmd = "UPDATE `tabs` SET sorting = :sorting WHERE session_id = :session_id AND id = :tab_id;";
-                Sqlite.Statement stmt;
-                if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
-                    critical (_("Failed to update database: %s"), db.errmsg ());
-                stmt.bind_int64 (stmt.bind_parameter_index (":session_id"), this.id);
-                stmt.bind_int64 (stmt.bind_parameter_index (":tab_id"), tab_id);
-                stmt.bind_double (stmt.bind_parameter_index (":sorting"), sorting);
-
-                if (stmt.step () != Sqlite.DONE)
-                    critical (_("Failed to update database: %s"), db.errmsg ());
+                try {
+                    database.prepare (sqlcmd,
+                        ":session_id", typeof (int64), this.id,
+                        ":tab_id", typeof (int64), tab_id,
+                        ":sorting", typeof (double), sorting).exec ();
+                } catch (Error error) {
+                    critical (_("Failed to update database: %s"), error.message);
+                }
 
                 item.set_meta_string ("sorting", sorting.to_string ());
             }
 
             public override void remove() {
-                string sqlcmd = "DELETE FROM `tabs` WHERE session_id = :session_id;";
-                Sqlite.Statement stmt;
-                if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
-                    critical (_("Failed to update database: %s"), db.errmsg ());
-                stmt.bind_int64 (stmt.bind_parameter_index (":session_id"), this.id);
-
-                if (stmt.step () != Sqlite.DONE)
-                    critical (_("Failed to update database: %s"), db.errmsg ());
-
-                sqlcmd = "DELETE FROM `sessions` WHERE id = :session_id;";
-                if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
-                    critical (_("Failed to update database: %s"), db.errmsg ());
-                stmt.bind_int64 (stmt.bind_parameter_index (":session_id"), this.id);
-
-                if (stmt.step () != Sqlite.DONE)
-                    critical (_("Failed to update database: %s"), db.errmsg ());
+                string sqlcmd = """
+                    DELETE FROM `tabs` WHERE session_id = :session_id;
+                    DELETE FROM `sessions` WHERE id = :session_id;
+                    """;
+                try {
+                    database.prepare (sqlcmd,
+                        ":session_id", typeof (int64), this.id). exec ();
+                } catch (Error error) {
+                    critical (_("Failed to update database: %s"), error.message);
+                }
             }
 
-            public override void close() {
+            public override void close () {
+                /* base.close may unset this.browser, so hold onto it */
+                Midori.Browser? my_browser = this.browser;
                 base.close ();
 
                 bool should_break = true;
-                if (!this.browser.destroy_with_parent) {
+                if (my_browser != null && !my_browser.destroy_with_parent) {
                     foreach (Midori.Browser browser in APP.get_browsers ()) {
-                        if (browser != this.browser && !browser.destroy_with_parent) {
+                        if (browser != my_browser && !browser.destroy_with_parent) {
                             should_break = false;
                             break;
                         }
@@ -501,106 +515,102 @@ namespace Tabby {
 
                 GLib.DateTime time = new DateTime.now_local ();
                 string sqlcmd = "UPDATE `sessions` SET closed = 1, tstamp = :tstamp WHERE id = :session_id;";
-                Sqlite.Statement stmt;
-                if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
-                    critical (_("Failed to update database: %s"), db.errmsg ());
-
-                stmt.bind_int64 (stmt.bind_parameter_index (":session_id"), this.id);
-                stmt.bind_int64 (stmt.bind_parameter_index (":tstamp"), time.to_unix ());
-                if (stmt.step () != Sqlite.DONE)
-                    critical (_("Failed to update database: %s"), db.errmsg ());
+                try {
+                    database.prepare (sqlcmd,
+                        ":session_id", typeof (int64), this.id,
+                        ":tstamp", typeof (int64), time.to_unix ()).exec ();
+                } catch (Error error) {
+                    critical (_("Failed to update database: %s"), error.message);
+                }
             }
 
             public override Katze.Array get_tabs() {
                 Katze.Array tabs = new Katze.Array (typeof (Katze.Item));
 
                 string sqlcmd = "SELECT id, uri, title, sorting FROM tabs WHERE session_id = :session_id ORDER BY tstamp DESC";
-                Sqlite.Statement stmt;
-                if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
-                    critical (_("Failed to select from database: %s"), db.errmsg ());
-                stmt.bind_int64 (stmt.bind_parameter_index (":session_id"), this.id);
-                int result = stmt.step ();
-                if (!(result == Sqlite.DONE || result == Sqlite.ROW)) {
-                    critical (_("Failed to select from database: %s"), db.errmsg ());
-                    return tabs;
+                try {
+                    var statement = database.prepare (sqlcmd,
+                        ":session_id", typeof (int64), this.id);
+                    while (statement.step ()) {
+                        Katze.Item item = new Katze.Item ();
+                        int64 id = statement.get_int64 ("id");
+                        string uri = statement.get_string ("uri");
+                        string title = statement.get_string ("title");
+                        double sorting = statement.get_double ("sorting");
+                        item.uri = uri;
+                        item.name = title;
+                        item.set_meta_integer ("tabby-id", id);
+                        item.set_meta_string ("sorting", sorting.to_string ());
+                        // See midori_browser_step_history: don't add to history
+                        item.set_meta_string ("history-step", "ignore");
+                        tabs.add_item (item);
+                    }
+                } catch (Error error) {
+                    critical (_("Failed to select from database: %s"), error.message);
                 }
-
-                while (result == Sqlite.ROW) {
-                    Katze.Item item = new Katze.Item ();
-                    int64 id = stmt.column_int64 (0);
-                    string uri = stmt.column_text (1);
-                    string title = stmt.column_text (2);
-                    item.uri = uri;
-                    item.name = title;
-                    item.set_meta_integer ("tabby-id", id);
-                    item.set_meta_string ("sorting", stmt.column_double (3).to_string ());
-                    tabs.add_item (item);
-                    result = stmt.step ();
-                 }
-
-                 return tabs;
+                return tabs;
             }
 
-            public override double? get_max_sorting () {
+            public override double get_max_sorting () {
                 string sqlcmd = "SELECT MAX(sorting) FROM tabs WHERE session_id = :session_id";
-                Sqlite.Statement stmt;
-                if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
-                    critical (_("Failed to select from database: %s"), db.errmsg ());
-                stmt.bind_int64 (stmt.bind_parameter_index (":session_id"), this.id);
-                int result = stmt.step ();
-                if (!(result == Sqlite.DONE || result == Sqlite.ROW)) {
-                    critical (_("Failed to select from database: %s"), db.errmsg ());
-                } else if (result == Sqlite.ROW) {
-                    double? sorting;
-                    string? sorting_string = stmt.column_double (0).to_string ();
-                    if (sorting_string != null) { /* we have to use a seperate if condition to avoid a `possibly unassigned local variable` error */
+                try {
+                    var statement = database.prepare (sqlcmd,
+                        ":session_id", typeof (int64), this.id);
+                    statement.step ();
+                    double sorting;
+                    string? sorting_string = statement.get_int64 ("MAX(sorting)").to_string ();
+                    if (sorting_string != null) {
+                        /* we have to use a seperate if condition to avoid
+                           a `possibly unassigned local variable` error */
                         if (double.try_parse (sorting_string, out sorting)) {
                             return sorting;
                         }
                     }
-                 }
+                } catch (Error error) {
+                    critical (_("Failed to select from database: %s"), error.message);
+                }
 
                  return double.parse ("0");
             }
 
-            internal Session (Sqlite.Database db) {
-                this.db = db;
+            internal Session (Midori.Database database) {
+                this.database = database;
 
                 GLib.DateTime time = new DateTime.now_local ();
 
                 string sqlcmd = "INSERT INTO `sessions` (`tstamp`) VALUES (:tstamp);";
-                Sqlite.Statement stmt;
-                if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
-                    critical (_("Failed to update database: %s"), db.errmsg);
-                stmt.bind_int64 (stmt.bind_parameter_index (":tstamp"), time.to_unix ());
-                if (stmt.step () != Sqlite.DONE)
-                    critical (_("Failed to update database: %s"), db.errmsg);
-                else
-                    this.id = this.db.last_insert_rowid ();
+
+                try {
+                    var statement = database.prepare (sqlcmd,
+                        ":tstamp", typeof (int64), time.to_unix ());
+                    statement.exec ();
+                    this.id = statement.row_id ();
+                } catch (Error error) {
+                    critical (_("Failed to update database: %s"), error.message);
+                }
             }
 
-            internal Session.with_id (Sqlite.Database db, int64 id) {
-                this.db = db;
+            internal Session.with_id (Midori.Database database, int64 id) {
+                this.database = database;
                 this.id = id;
 
                 GLib.DateTime time = new DateTime.now_local ();
                 string sqlcmd = "UPDATE `sessions` SET closed = 0, tstamp = :tstamp WHERE id = :session_id;";
-                Sqlite.Statement stmt;
-                if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
-                    critical (_("Failed to update database: %s"), db.errmsg);
 
-                stmt.bind_int64 (stmt.bind_parameter_index (":session_id"), this.id);
-                stmt.bind_int64 (stmt.bind_parameter_index (":tstamp"), time.to_unix ());
-                if (stmt.step () != Sqlite.DONE)
-                    critical (_("Failed to update database: %s"), db.errmsg);
+                try {
+                    database.prepare (sqlcmd,
+                        ":session_id", typeof (int64), this.id,
+                        ":tstamp", typeof (int64), time.to_unix ()).exec ();
+                } catch (Error error) {
+                    critical (_("Failed to update database: %s"), error.message);
+                }
             }
         }
 
         private class Storage : Base.Storage {
             private Midori.Database database;
-            private unowned Sqlite.Database db;
 
-            public override Katze.Array get_sessions () {
+            public override Katze.Array get_saved_sessions () {
                 Katze.Array sessions = new Katze.Array (typeof (Session));
 
                 string sqlcmd = """
@@ -609,39 +619,38 @@ namespace Tabby {
                     SELECT * FROM (SELECT id, closed FROM sessions WHERE closed = 1 ORDER BY tstamp DESC LIMIT 1)
                     ORDER BY closed;
                 """;
-                Sqlite.Statement stmt;
-                if (this.db.prepare_v2 (sqlcmd, -1, out stmt, null) != Sqlite.OK)
-                    critical (_("Failed to select from database: %s"), db.errmsg);
-                int result = stmt.step ();
-                if (!(result == Sqlite.DONE || result == Sqlite.ROW)) {
-                    critical (_("Failed to select from database: %s"), db.errmsg);
-                    return sessions;
+                try {
+                    var statement = database.prepare (sqlcmd);
+                    while (statement.step ()) {
+                        int64 id = statement.get_int64 ("id");
+                        int64 closed = statement.get_int64 ("closed");
+                        if (closed == 0 || sessions.is_empty ()) {
+                            sessions.add_item (new Session.with_id (this.database, id));
+                        }
+                    }
+                } catch (Error error) {
+                    critical (_("Failed to select from database: %s"), error.message);
                 }
 
-                while (result == Sqlite.ROW) {
-                    int64 id = stmt.column_int64 (0);
-                    int64 closed = stmt.column_int64 (1);
-                    if (closed == 0 || sessions.is_empty ()) {
-                        sessions.add_item (new Session.with_id (this.db, id));
-                    }
-                    result = stmt.step ();
-                 }
-
                 if (sessions.is_empty ()) {
-                    sessions.add_item (new Session (this.db));
+                    sessions.add_item (new Session (this.database));
                 }
 
                 return sessions;
             }
 
             public override void import_session (Katze.Array tabs) {
-                this.db.exec ("BEGIN;");
-                base.import_session(tabs);
-                this.db.exec("COMMIT;");
+                try {
+                    database.transaction (()=>{
+                        base.import_session(tabs); return true;
+                    });
+                } catch (Error error) {
+                    critical (_("Failed to select from database: %s"), error.message);
+                }
             }
 
             public override Base.Session get_new_session () {
-                return new Session (this.db) as Base.Session;
+                return new Session (this.database) as Base.Session;
             }
 
             internal Storage (Midori.App app) {
@@ -652,7 +661,6 @@ namespace Tabby {
                 } catch (Midori.DatabaseError schema_error) {
                     error (schema_error.message);
                 }
-                db = database.db;
 
                 if (database.first_use) {
                     string config_file = Midori.Paths.get_config_filename_for_reading ("session.xbel");
@@ -724,7 +732,7 @@ namespace Tabby {
         }
 
         private void browser_added (Midori.Browser browser) {
-            Base.Session session = browser.get_data<Base.Session> ("tabby-session");
+            Base.Session? session = browser.get_data<Base.Session> ("tabby-session");
             if (session == null) {
                 session = this.storage.get_new_session () as Base.Session;
                 browser.set_data<Base.Session> ("tabby-session", session);
@@ -733,7 +741,7 @@ namespace Tabby {
         }
 
         private void browser_removed (Midori.Browser browser) {
-            Base.Session session = browser.get_data<Base.Session> ("tabby-session");
+            Base.Session? session = browser.get_data<Base.Session> ("tabby-session");
             if (session == null) {
                 GLib.warning ("missing session");
             } else {
@@ -771,6 +779,17 @@ namespace Tabby {
             GLib.Idle.add (this.load_session);
         }
 
+        private void deactivated () {
+            /* set_open_uris will disconnect itself if called,
+               but it may have been called before we are deactivated */
+            APP.add_browser.disconnect (this.set_open_uris);
+            APP.add_browser.disconnect (this.browser_added);
+            APP.remove_browser.disconnect (this.browser_removed);
+            APP = null;
+
+            this.storage = null;
+        }
+
         internal Manager () {
             GLib.Object (name: _("Tabby"),
                          description: _("Tab and session management."),
@@ -778,6 +797,7 @@ namespace Tabby {
                          authors: "André Stösel <andre@stoesel.de>");
 
             this.activate.connect (this.activated);
+            this.deactivate.connect (this.deactivated);
         }
     }
 }

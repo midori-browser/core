@@ -222,5 +222,98 @@ namespace Midori {
                 fork_uri = uri;
             return fork_uri != uri;
         }
+
+        /**
+         * Returns a Glib.Icon for the given @uri.
+         *
+         * Since: 0.5.8
+         **/
+        public static async GLib.Icon? get_icon (string uri, Cancellable? cancellable=null) throws Error {
+#if HAVE_WEBKIT2
+            var database = WebKit.WebContext.get_default ().get_favicon_database ();
+            var surface = yield database.get_favicon (uri, cancellable);
+            var image = (Cairo.ImageSurface)surface;
+            var pixbuf = Gdk.pixbuf_get_from_surface (image, 0, 0, image.get_width (), image.get_height ());
+#else
+            var database = WebKit.get_favicon_database ();
+            // We must not pass a Cancellable due to a crasher bug
+            var pixbuf = yield database.get_favicon_pixbuf (uri, 0, 0, null);
+#endif
+            return pixbuf as GLib.Icon;
+        }
+
+        /**
+         * Returns a Glib.Icon for the given @uri or falls back to @fallback.
+         *
+         * Since: 0.5.8
+         **/
+        public static async GLib.Icon? get_icon_fallback (string uri, GLib.Icon? fallback=null, Cancellable? cancellable=null) {
+        try {
+                return yield get_icon (uri, cancellable);
+            } catch (Error error) {
+                debug ("Icon failed to load: %s", error.message);
+                return fallback;
+            }
+        }
+
+        /**
+         * A Glib.Icon subclass that loads the icon for a given URI.
+         * In the case of an error @fallback will be used.
+         *
+         * Since: 0.5.8
+         **/
+        public class Icon : InitiallyUnowned, GLib.Icon, LoadableIcon {
+            public string uri { get; private set; }
+            public GLib.Icon? fallback { get; private set; }
+            InputStream? stream = null;
+            public Icon (string website_uri, GLib.Icon? fallback=null) {
+                uri = website_uri;
+                /* TODO: Use fallback */
+                this.fallback = fallback;
+            }
+            public bool equal (GLib.Icon? other) {
+                return other is Icon && (other as Icon).uri == uri;
+            }
+            public uint hash () {
+                return uri.hash ();
+            }
+            public InputStream load (int size, out string? type = null, Cancellable? cancellable = null) throws Error {
+                /* Implementation notes:
+                   GTK+ up to GTK+ 3.10 loads any GLib.Icon synchronously
+                   Favicons may be cached but usually trigger loading here
+                   Only one async code path in favour of consistent results
+                 */
+                if (stream != null) {
+                    type = "image/png";
+                    return stream;
+                }
+                load_async.begin (size, cancellable, (obj, res)=>{
+                    try {
+                        stream = load_async.end (res);
+                    }
+                    catch (Error error) {
+                       debug ("Icon failed to load: %s", error.message);
+                    }
+                });
+                throw new FileError.EXIST ("Triggered load - no data yet");
+            }
+
+            public async InputStream load_async (int size, Cancellable? cancellable = null, out string? type = null) throws Error {
+                type = "image/png";
+                if (stream != null)
+                    return stream;
+                var icon = yield get_icon (uri, cancellable);
+                if (icon != null && icon is Gdk.Pixbuf) {
+                    var pixbuf = icon as Gdk.Pixbuf;
+                    // TODO: scale it to "size" here
+                    uint8[] buffer;
+                    pixbuf.save_to_buffer (out buffer, "png");
+                    stream = new MemoryInputStream.from_data (buffer, null);
+                }
+                else
+                    throw new FileError.EXIST ("No icon available");
+                return stream;
+            }
+        }
     }
 }
