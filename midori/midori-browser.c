@@ -3199,10 +3199,13 @@ _action_bookmarks_populate_folder (GtkAction*     action,
     gtk_container_foreach (GTK_CONTAINER (menu),
         (GtkCallback)(gtk_widget_destroy), NULL);
 
-    /* "Import Bookmarks" and "Export Bookmarks" at the top */
+    /* "Add Bookmarks", "Import Bookmarks", and "Export Bookmarks" at the top */
     if (id == NULL)
     {
         GtkWidget* menuitem;
+        menuitem = gtk_action_create_menu_item (_action_by_name (browser, "BookmarkAdd"));
+        gtk_menu_shell_append (menu, menuitem);
+        gtk_widget_show (menuitem);
         menuitem = gtk_action_create_menu_item (_action_by_name (browser, "BookmarksImport"));
         gtk_menu_shell_append (menu, menuitem);
         gtk_widget_show (menuitem);
@@ -3274,6 +3277,7 @@ _action_compact_menu_populate_popup (GtkAction*     action,
     while ((widget = midori_panel_get_nth_page (MIDORI_PANEL (browser->panel), j++)))
         midori_context_action_add (menu, g_object_get_data (G_OBJECT (widget), "midori-panel-action"));
     midori_context_action_add (menu, NULL);
+    midori_context_action_add_by_name (menu, "BookmarkAdd");
     midori_context_action_add_by_name (menu, "BookmarksImport");
     midori_context_action_add_by_name (menu, "BookmarksExport");
     midori_context_action_add_by_name (menu, "ClearPrivateData");
@@ -5610,6 +5614,7 @@ static const gchar* ui_markup =
                 "<menuitem action='Trash'/>"
             "</menu>"
             "<menu action='Bookmarks'>"
+                "<menuitem action='BookmarksAdd'/>"
                 "<menuitem action='BookmarksImport'/>"
                 "<menuitem action='BookmarksExport'/>"
             "</menu>"
