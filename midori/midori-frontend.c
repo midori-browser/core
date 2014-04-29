@@ -585,6 +585,8 @@ midori_normal_app_new (const gchar* config,
             return NULL;
         load_on_startup = response;
     }
+    katze_item_set_parent (KATZE_ITEM (session), NULL);
+    g_object_unref (session);
     g_object_set_data (G_OBJECT (settings), "load-on-startup", GINT_TO_POINTER (load_on_startup));
 
     g_object_set (app, "settings", settings,

@@ -6187,6 +6187,7 @@ midori_browser_dispose (GObject* object)
                                           midori_browser_settings_notify,
                                           browser);
     midori_browser_set_bookmarks (browser, NULL);
+    midori_browser_set_history (browser, NULL);
 
     G_OBJECT_CLASS (midori_browser_parent_class)->dispose (object);
 }
