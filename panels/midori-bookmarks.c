@@ -243,6 +243,7 @@ midori_bookmarks_read_from_db_to_model (MidoriBookmarks* bookmarks,
         gtk_tree_store_remove (model, &child);
     else
         g_object_unref (item);
+    g_object_unref (G_OBJECT (array));
 }
 
 static gboolean
@@ -1021,7 +1022,7 @@ midori_bookmarks_open_in_tab_activate_cb (GtkWidget*       menuitem,
         KatzeArray* array;
 
         array = midori_bookmarks_read_from_db (bookmarks,
-                katze_item_get_meta_integer (item, "parentid"), NULL);
+                katze_item_get_meta_integer (item, "id"), NULL);
 
         g_return_if_fail (KATZE_IS_ARRAY (array));
         KATZE_ARRAY_FOREACH_ITEM (child, array)
@@ -1033,6 +1034,7 @@ midori_bookmarks_open_in_tab_activate_cb (GtkWidget*       menuitem,
                 midori_browser_set_current_tab_smartly (browser, view);
             }
         }
+        g_object_unref (G_OBJECT (array));
     }
     else if ((uri = katze_item_get_uri (item)) && *uri)
     {
