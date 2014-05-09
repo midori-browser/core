@@ -46,19 +46,19 @@ struct _NoJSPreferencesPrivate
 	GtkWidget				*editingCombo;
 	GtkWidget				*deleteButton;
 	GtkWidget				*deleteAllButton;
-	GtkWidget				*allowAllSitesCheckbox;
+	GtkWidget				*allowLocalPagesCheckbox;
 	GtkWidget				*blockUnknownDomainsCheckbox;
 	GtkWidget				*checkSecondLevelOnlyCheckbox;
 	GtkWidget				*addDomainEntry;
 	GtkWidget				*addDomainPolicyCombo;
 	GtkWidget				*addDomainButton;
 
-	gint					signalAllowAllSitesToggledID;
+	gint					signalAllowLocalPagesToggledID;
 	gint					signalBlockUnknownDomainsToggledID;
 	gint					signalCheckSecondLevelOnlyToggledID;
 
 	gint					signalManagerChangedDatabaseID;
-	gint					signalManagerChangedAllowAllSitesID;
+	gint					signalManagerChangedAllowLocalPagesID;
 	gint					signalManagerChangedUnknownDomainPolicyID;
 	gint					signalManagerChangedCheckSecondLevelID;
 };
@@ -324,23 +324,23 @@ static void _nojs_preferences_on_manager_database_changed(NoJSPreferences *self,
 	return;
 }
 
-/* Allow-all-sites changed in check-box or manager */
-static void _nojs_preferences_on_allow_all_sites_changed(NoJSPreferences *self,
+/* Allow-local-pages changed in check-box or manager */
+static void _nojs_preferences_on_allow_local_pages_changed(NoJSPreferences *self,
 																gpointer *inUserData)
 {
 	NoJSPreferencesPrivate	*priv=self->priv;
 	gboolean				state;
 
 	/* Get toggle state of widget (but block signal for manager) and set in manager */
-	g_signal_handler_block(priv->manager, priv->signalManagerChangedAllowAllSitesID);
+	g_signal_handler_block(priv->manager, priv->signalManagerChangedAllowLocalPagesID);
 
-	state=gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->allowAllSitesCheckbox));
-	nojs_set_allow_all_sites(priv->manager, state);
+	state=gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->allowLocalPagesCheckbox));
+	nojs_set_allow_local_pages(priv->manager, state);
 
-	g_signal_handler_unblock(priv->manager, priv->signalManagerChangedAllowAllSitesID);
+	g_signal_handler_unblock(priv->manager, priv->signalManagerChangedAllowLocalPagesID);
 }
 
-static void _nojs_preferences_on_manager_allow_all_sites_changed(NoJSPreferences *self,
+static void _nojs_preferences_on_manager_allow_local_pages_changed(NoJSPreferences *self,
 																	GParamSpec *inSpec,
 																	gpointer inUserData)
 {
@@ -349,14 +349,14 @@ static void _nojs_preferences_on_manager_allow_all_sites_changed(NoJSPreferences
 	gboolean				state;
 
 	/* Get new value from manager */
-	state=nojs_get_allow_all_sites(manager);
+	state=nojs_get_allow_local_pages(manager);
 
 	/* Set toggle in widget (but block signal for toggle) */
-	g_signal_handler_block(priv->allowAllSitesCheckbox, priv->signalAllowAllSitesToggledID);
+	g_signal_handler_block(priv->allowLocalPagesCheckbox, priv->signalAllowLocalPagesToggledID);
 
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->allowAllSitesCheckbox), state);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->allowLocalPagesCheckbox), state);
 
-	g_signal_handler_unblock(priv->allowAllSitesCheckbox, priv->signalAllowAllSitesToggledID);
+	g_signal_handler_unblock(priv->allowLocalPagesCheckbox, priv->signalAllowLocalPagesToggledID);
 }
 
 /* Block-unknown-domains changed in check-box or manager */
@@ -675,8 +675,8 @@ static void nojs_preferences_finalize(GObject *inObject)
 		if(priv->signalManagerChangedDatabaseID) g_signal_handler_disconnect(priv->manager, priv->signalManagerChangedDatabaseID);
 		priv->signalManagerChangedDatabaseID=0;
 
-		if(priv->signalManagerChangedAllowAllSitesID) g_signal_handler_disconnect(priv->manager, priv->signalManagerChangedAllowAllSitesID);
-		priv->signalManagerChangedAllowAllSitesID=0;
+		if(priv->signalManagerChangedAllowLocalPagesID) g_signal_handler_disconnect(priv->manager, priv->signalManagerChangedAllowLocalPagesID);
+		priv->signalManagerChangedAllowLocalPagesID=0;
 
 		if(priv->signalManagerChangedUnknownDomainPolicyID) g_signal_handler_disconnect(priv->manager, priv->signalManagerChangedUnknownDomainPolicyID);
 		priv->signalManagerChangedUnknownDomainPolicyID=0;
@@ -712,8 +712,8 @@ static void nojs_preferences_set_property(GObject *inObject,
 				if(priv->signalManagerChangedDatabaseID) g_signal_handler_disconnect(priv->manager, priv->signalManagerChangedDatabaseID);
 				priv->signalManagerChangedDatabaseID=0;
 
-				if(priv->signalManagerChangedAllowAllSitesID) g_signal_handler_disconnect(priv->manager, priv->signalManagerChangedAllowAllSitesID);
-				priv->signalManagerChangedAllowAllSitesID=0;
+				if(priv->signalManagerChangedAllowLocalPagesID) g_signal_handler_disconnect(priv->manager, priv->signalManagerChangedAllowLocalPagesID);
+				priv->signalManagerChangedAllowLocalPagesID=0;
 
 				if(priv->signalManagerChangedUnknownDomainPolicyID) g_signal_handler_disconnect(priv->manager, priv->signalManagerChangedUnknownDomainPolicyID);
 				priv->signalManagerChangedUnknownDomainPolicyID=0;
@@ -740,12 +740,12 @@ static void nojs_preferences_set_property(GObject *inObject,
 												self);
 				_nojs_preferences_on_manager_database_changed(self, NULL, priv->manager);
 
-				priv->signalManagerChangedAllowAllSitesID=
+				priv->signalManagerChangedAllowLocalPagesID=
 					g_signal_connect_swapped(priv->manager,
-												"notify::allow-all-sites",
-												G_CALLBACK(_nojs_preferences_on_manager_allow_all_sites_changed),
+												"notify::allow-local-pages",
+												G_CALLBACK(_nojs_preferences_on_manager_allow_local_pages_changed),
 												self);
-				_nojs_preferences_on_manager_allow_all_sites_changed(self, NULL, priv->manager);
+				_nojs_preferences_on_manager_allow_local_pages_changed(self, NULL, priv->manager);
 
 				priv->signalManagerChangedUnknownDomainPolicyID=
 					g_signal_connect_swapped(priv->manager,
@@ -983,13 +983,13 @@ static void nojs_preferences_init(NoJSPreferences *self)
 
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, TRUE, 5);
 
-	/* Add "allow-all-sites" checkbox */
-	priv->allowAllSitesCheckbox=gtk_check_button_new_with_mnemonic(_("A_llow scripts at all sites"));
-	priv->signalAllowAllSitesToggledID=g_signal_connect_swapped(priv->allowAllSitesCheckbox,
+	/* Add "allow-local-pages" checkbox */
+	priv->allowLocalPagesCheckbox=gtk_check_button_new_with_mnemonic(_("A_llow scripts on local pages"));
+	priv->signalAllowLocalPagesToggledID=g_signal_connect_swapped(priv->allowLocalPagesCheckbox,
 																"toggled",
-																G_CALLBACK(_nojs_preferences_on_allow_all_sites_changed),
+																G_CALLBACK(_nojs_preferences_on_allow_local_pages_changed),
 																self);
-	gtk_box_pack_start(GTK_BOX(vbox), priv->allowAllSitesCheckbox, FALSE, TRUE, 5);
+	gtk_box_pack_start(GTK_BOX(vbox), priv->allowLocalPagesCheckbox, FALSE, TRUE, 5);
 
 	/* Add "block-unknown-domains" checkbox */
 	priv->blockUnknownDomainsCheckbox=gtk_check_button_new_with_mnemonic(_("Bloc_k scripts at unknown domains by default"));
