@@ -2788,7 +2788,7 @@ _action_edit_activate (GtkAction*     action,
 
     if (WEBKIT_IS_WEB_VIEW (widget))
     {
-        midori_tab_update_actions (MIDORI_TAB (widget), browser->action_group, NULL, NULL);
+        midori_tab_update_actions (MIDORI_TAB (midori_browser_get_current_tab (browser)), browser->action_group, NULL, NULL);
         return;
     }
     else if (GTK_IS_EDITABLE (widget))

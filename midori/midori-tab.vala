@@ -293,7 +293,7 @@ namespace Midori {
             actions.get_action ("Cut").sensitive = web_view.can_cut_clipboard ();
             actions.get_action ("Copy").sensitive = web_view.can_copy_clipboard ();
             actions.get_action ("Paste").sensitive = web_view.can_paste_clipboard ();
-            actions.get_action ("Delete").sensitive = true;
+            actions.get_action ("Delete").sensitive = web_view.can_cut_clipboard ();
             actions.get_action ("SelectAll").sensitive = true;
 #endif
         }
