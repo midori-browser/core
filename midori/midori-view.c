@@ -1203,7 +1203,6 @@ webkit_web_view_load_error_cb (WebKitWebView*  web_view,
     #endif
     gchar* title;
     gchar* message;
-    GString* suggestions;
     gboolean result;
 
     /* The unholy trinity; also ignored in Webkit's default error handler */
@@ -1218,17 +1217,33 @@ webkit_web_view_load_error_cb (WebKitWebView*  web_view,
         return FALSE;
     }
 
-    title = g_strdup_printf (_("'%s' can't be found"), midori_uri_parse_hostname(uri, NULL));
-    message = g_strdup_printf (_("The page '%s' couldn't be loaded:"), midori_uri_parse_hostname(uri, NULL));
-
-    suggestions = g_string_new ("<ul id=\"suggestions\"><li>");
-    g_string_append_printf (suggestions, "%s</li><li>%s</li><li>%s</li></ul>",
-        _("Check the address for typos"),
-        _("Make sure that an ethernet cable is plugged in or the wireless card is activated"),
-        _("Verify that your network settings are correct"));
+    if (!g_network_monitor_get_network_available (g_network_monitor_get_default ()))
+    {
+        title = g_strdup_printf (_("You are not connected to a network"));
+        message = g_strdup_printf (_("Your computer must be connected to a network to reach “%s”. "
+                                     "Connect to a wireless access point or attach a network cable and try again."), 
+                                     midori_uri_parse_hostname(uri, NULL));
+    } 
+    else if (!g_network_monitor_can_reach (g_network_monitor_get_default (), 
+                                           g_network_address_parse_uri ("http://midori-browser.org/", 80, NULL), 
+                                           NULL, 
+                                           NULL))
+    {
+        title = g_strdup_printf (_("You are not connected to the Internet"));
+        message = g_strdup_printf (_("Your computer appears to be connected to a network, but can't reach “%s”. "
+                                     "Check your network settings and try again."), 
+                                     midori_uri_parse_hostname(uri, NULL));
+    } 
+    else
+    {
+        title = g_strdup_printf (_("Midori can't find the page you're looking for"));
+        message = g_strdup_printf (_("The page located at “%s” cannot be found. "
+                                     "Check the web address for misspelled words and try again."), 
+                                     midori_uri_parse_hostname(uri, NULL));
+    }
 
     result = midori_view_display_error (view, uri, "stock://dialog/network-error", title,
-                                        message, error->message, g_string_free (suggestions, FALSE),
+                                        message, error->message, NULL,
                                         _("Try Again"), web_frame);
     g_free (message);
     g_free (title);
