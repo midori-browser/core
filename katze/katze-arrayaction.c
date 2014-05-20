@@ -695,7 +695,7 @@ katze_array_action_toolitem_destroy_cb (GtkToolItem* toolitem,
  * Note that the label is reasonably ellipsized for you,
  * much like katze_image_menu_item_new_ellipsized().
  *
- * Return value: a new tool item
+ * Return value: (transfer full): a new tool item
  **/
 GtkToolItem*
 katze_array_action_create_tool_item_for (KatzeArrayAction* array_action,
@@ -802,6 +802,14 @@ katze_array_action_disconnect_proxy (GtkAction* action,
         (action, proxy);
 }
 
+/**
+ * katze_array_action_get_array:
+ * @array_action: a #KatzeArrayAction
+ *
+ * Obtain the array which backs the array action.
+ *
+ * Return value: (transfer none): the KatzeArray used by @array_action
+ **/
 KatzeArray*
 katze_array_action_get_array (KatzeArrayAction* array_action)
 {

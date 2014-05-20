@@ -1707,7 +1707,7 @@ midori_location_action_set_progress (MidoriLocationAction* location_action,
 }
 
 /**
- * midori_location_action_set_security_hint:
+ * midori_location_action_set_secondary_icon:
  * @location_action: a #MidoriLocationAction
  * @icon: a stock ID, or an icon name
  *
@@ -1736,7 +1736,7 @@ midori_location_action_set_secondary_icon (MidoriLocationAction* location_action
 }
 
 /**
- * midori_location_action_primary_icon:
+ * midori_location_set_action_primary_icon:
  * @location_action: a #MidoriLocationAction
  * @icon: a list of icon names, preferred icon first
  * @tooltip: The tooltip to show
