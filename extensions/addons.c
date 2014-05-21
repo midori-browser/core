@@ -476,6 +476,7 @@ addons_button_delete_clicked_cb (GtkWidget* toolitem,
             gtk_tree_row_reference_free (row);
             g_object_unref (file);
         }
+        g_free (fullpath);
     }
 }
 static void
