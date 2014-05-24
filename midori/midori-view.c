@@ -683,6 +683,7 @@ midori_view_load_started (MidoriView* view)
 {
     midori_view_update_load_status (view, MIDORI_LOAD_PROVISIONAL);
     midori_tab_set_progress (MIDORI_TAB (view), 0.0);
+    midori_tab_set_load_error (MIDORI_TAB (view), MIDORI_LOAD_ERROR_NONE);
 }
 
 #ifdef HAVE_GCR
@@ -765,6 +766,7 @@ midori_view_load_committed (MidoriView* view)
         midori_tab_set_security (MIDORI_TAB (view), MIDORI_SECURITY_NONE);
 
     view->find_links = -1;
+    
     midori_view_update_load_status (view, MIDORI_LOAD_COMMITTED);
 
 }
@@ -1245,6 +1247,9 @@ webkit_web_view_load_error_cb (WebKitWebView*  web_view,
     result = midori_view_display_error (view, uri, "stock://dialog/network-error", title,
                                         message, error->message, NULL,
                                         _("Try Again"), web_frame);
+
+    midori_tab_set_load_error (MIDORI_TAB (view), MIDORI_LOAD_ERROR_NETWORK);
+
     g_free (message);
     g_free (title);
     return result;

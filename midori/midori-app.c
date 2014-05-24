@@ -569,6 +569,24 @@ midori_app_startup_cb (GApplication* app,
 }
 
 static void
+midori_app_network_changed (GNetworkMonitor* monitor,
+                            gboolean         available,
+                            MidoriApp*       app)
+{
+    if (available) 
+    {
+        MidoriBrowser *browser;
+        KATZE_ARRAY_FOREACH_ITEM (browser, app->browsers) {
+            GList* tabs = midori_browser_get_tabs (browser);
+            for (; tabs != NULL; tabs = g_list_next (tabs))
+                if (midori_tab_get_load_error (MIDORI_TAB (tabs->data)) == MIDORI_LOAD_ERROR_NETWORK)
+                    midori_view_reload (tabs->data, FALSE);
+            g_list_free (tabs);
+        }
+    }
+}
+
+static void
 midori_app_create_instance (MidoriApp* app)
 {
     if (g_application_get_is_registered (G_APPLICATION (app)))
@@ -602,6 +620,10 @@ midori_app_create_instance (MidoriApp* app)
                   "flags", G_APPLICATION_HANDLES_OPEN,
                   NULL);
     g_signal_connect (app, "startup", G_CALLBACK (midori_app_startup_cb), NULL);
+
+    g_signal_connect (g_network_monitor_get_default (), "network-changed",
+                       G_CALLBACK (midori_app_network_changed), app);
+
     GError* error = NULL;
     if (!g_application_register (G_APPLICATION (app), NULL, &error))
         midori_error (error->message);

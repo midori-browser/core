@@ -33,6 +33,15 @@ namespace Midori {
         PROVISIONAL /* A new URI was scheduled. */
     }
 
+    [CCode (cprefix = "MIDORI_LOAD_ERROR_")]
+    public enum LoadError {
+        NONE,
+        DELAYED,
+        SECURITY,
+        CRASH,
+        NETWORK
+    }
+
     public class Tab : Gtk.VBox {
         public Tab related { get; set construct; }
         public WebKit.WebView web_view { get; private set; }
@@ -56,6 +65,7 @@ namespace Midori {
         /* Since: 0.1.2 */
         public Security security { get; protected set; default = Security.NONE; }
         public LoadStatus load_status { get; protected set; default = LoadStatus.FINISHED; }
+        public LoadError load_error { get; protected set; default = LoadError.NONE; }
         public string? statusbar_text { get; protected set; default = null; }
         /* Since: 0.5.0 */
 
