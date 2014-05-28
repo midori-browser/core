@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: midori\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2014-02-21 10:52-0600\n"
-"PO-Revision-Date: 2014-05-26 23:02+0000\n"
+"PO-Revision-Date: 2014-05-27 17:38+0000\n"
 "Last-Translator: Mikalai Udodau <Unknown>\n"
 "Language-Team: Belarusian <be@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Launchpad-Export-Date: 2014-05-27 05:39+0000\n"
+"X-Launchpad-Export-Date: 2014-05-28 05:30+0000\n"
 "X-Generator: Launchpad (build 17017)\n"
 
 #: ../data/midori.desktop.in.h:1 ../midori/main.c:142
@@ -1126,8 +1126,9 @@ msgstr "Паказваць толькі _значок карткі"
 #: ../midori/midori-notebook.vala:358
 msgid "Close Tab to the R_ight"
 msgid_plural "Close Tabs to the R_ight"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Закрыць _картку справа"
+msgstr[1] "Закрыць _карткі справа"
+msgstr[2] "Закрыць _карткі справа"
 
 #: ../midori/midori-notebook.vala:370
 msgid "Close Ot_her Tab"
@@ -1881,16 +1882,18 @@ msgstr "Закрыць форму пошуку"
 #, c-format
 msgid "%d bookmark"
 msgid_plural "%d bookmarks"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%d закладка"
+msgstr[1] "%d закладкі"
+msgstr[2] "%d закладак"
 
 #. i18n: [n] subfolder(s)
 #: ../panels/midori-bookmarks.c:644
 #, c-format
 msgid "%d subfolder"
 msgid_plural "%d subfolders"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%d падкаталог"
+msgstr[1] "%d падкаталогі"
+msgstr[2] "%d падкаталогаў"
 
 #. i18n: Empty folder
 #: ../panels/midori-bookmarks.c:669
@@ -2634,7 +2637,7 @@ msgstr ""
 #: ../extensions/nojs/nojs-preferences.c:809
 #: ../extensions/nojs/nojs-view.c:699
 msgid "Manager instance"
-msgstr ""
+msgstr "Экзэмпляр менеджара"
 
 #: ../extensions/nojs/nojs-preferences.c:810
 #: ../extensions/nojs/nojs-view.c:700
@@ -2776,37 +2779,38 @@ msgstr "Немагчыма адкрыць базу звестак аб прыс�
 #: ../extensions/nojs/nojs.c:245
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:192
 msgid "Could not set up database structure of extension."
-msgstr ""
+msgstr "Немагчыма ўстанавіць структуру базы даных для прыстаўкі."
 
 #: ../extensions/nojs/nojs.c:721
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1006
 msgid "Extension instance"
-msgstr ""
+msgstr "Экзэмпляр прыстаўкі"
 
 #: ../extensions/nojs/nojs.c:722
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1007
 msgid "The Midori extension instance for this extension"
-msgstr ""
+msgstr "Экзэмпляр прыстаўкі Midori для гэтай прыстаўкі"
 
 #: ../extensions/nojs/nojs.c:728
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1013
 msgid "Application instance"
-msgstr ""
+msgstr "Экзэмпляр праграмы"
 
 #: ../extensions/nojs/nojs.c:729
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1014
 msgid "The Midori application instance this extension belongs to"
-msgstr ""
+msgstr "Экзэмпляр праграмы Midori, якой належыць гэта прыстаўка"
 
 #: ../extensions/nojs/nojs.c:735
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1020
 msgid "Database instance"
-msgstr ""
+msgstr "Экзэмпляр базы звестак"
 
 #: ../extensions/nojs/nojs.c:736
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1021
 msgid "Pointer to sqlite database instance used by this extension"
 msgstr ""
+"Указальнік на экзэмпляр базы даных sqlite, які выкарыстоўвае гэта прыстаўка"
 
 #: ../extensions/nojs/nojs.c:741
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1026
@@ -2840,11 +2844,11 @@ msgstr ""
 #: ../extensions/nojs/nojs.c:762
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1033
 msgid "Unknown domain policy"
-msgstr ""
+msgstr "Палітыка невядомых даменаў"
 
 #: ../extensions/nojs/nojs.c:763
 msgid "Policy to use for unknown domains."
-msgstr ""
+msgstr "Палітыка да ўжывання к невядомым даменам"
 
 #: ../extensions/nojs/nojs.c:1031
 msgid "Accept temporarily"
@@ -2868,7 +2872,7 @@ msgstr "Наставіць клавіятурныя скароты"
 
 #: ../extensions/shortcuts.c:275
 msgid "Customize Sh_ortcuts…"
-msgstr ""
+msgstr "Змяніць скара_чэнні..."
 
 #: ../extensions/shortcuts.c:312
 msgid "Shortcuts"
@@ -3115,7 +3119,7 @@ msgstr "_Ігнараваць"
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:151
 #, c-format
 msgid "Could not open database of extenstion: %s"
-msgstr ""
+msgstr "Немагчыма адкрыць базу звестак прыстаўкі: %s"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:528
 msgid "Do you really want to delete all cookie permissions?"
@@ -3152,6 +3156,10 @@ msgid ""
 "add a policy for a domain manually by entering the domain below, choosing "
 "the policy and clicking on <i>Add</i>."
 msgstr ""
+"Ніжэй прыведзены спіс усіх вэб-сайтаў і палітык для іх. Вы можаце выдаліць "
+"палітыкі, вылучыўшы запіс і націснуўшы <i>Сцерці</i>. Таксама вы можаце "
+"дадаць палітыку для дамена, увайшоўшы ў дамен ніжэй, выбраўшы палітыку і "
+"націснуўшы <i>Дадаць</i>."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:892
 msgid "Policy for cookies from domains not in the list: "
@@ -3159,7 +3167,7 @@ msgstr ""
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:897
 msgid "Ask for a decision"
-msgstr ""
+msgstr "Пытацца"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:91
 msgid ""
@@ -3221,7 +3229,7 @@ msgstr "Значэнне"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:583
 msgid "Expire date"
-msgstr ""
+msgstr "Прыдатны да"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1034
 msgid ""
@@ -3240,7 +3248,7 @@ msgstr ""
 #: ../extensions/apps.vala:46
 #, c-format
 msgid "Failed to fetch application icon in %s: %s"
-msgstr ""
+msgstr "Атрыманне значка праграмы схібіла ў %s: %s"
 
 #: ../extensions/apps.vala:100
 #, c-format
@@ -3276,19 +3284,19 @@ msgstr "Новы _профіль"
 
 #: ../extensions/apps.vala:202
 msgid "Creates a new, independant profile and a launcher"
-msgstr ""
+msgstr "Стварае новы, незалежны профіль і запускальнік"
 
 #: ../extensions/apps.vala:213
 msgid "New _App"
-msgstr ""
+msgstr "Новая _праграма"
 
 #: ../extensions/apps.vala:214 ../extensions/apps.vala:451
 msgid "Creates a new app for a specific site"
-msgstr ""
+msgstr "Стварае новую праграму для асобнага сайта"
 
 #: ../extensions/apps.vala:239
 msgid "Error launching"
-msgstr ""
+msgstr "Памылка запуску"
 
 #: ../extensions/apps.vala:450
 msgid "Create _Launcher"
@@ -3296,11 +3304,11 @@ msgstr "Зрабіць цэт_лік"
 
 #: ../extensions/apps.vala:500
 msgid "Web App Manager"
-msgstr ""
+msgstr "Менеджар вэб-праграм"
 
 #: ../extensions/apps.vala:501
 msgid "Manage websites installed as applications"
-msgstr ""
+msgstr "Кіраванне вэб-сайтамі, што ўстаноўлены як праграмы"
 
 #: ../extensions/transfers.vala:98
 msgid "Transfers"
@@ -3316,7 +3324,7 @@ msgstr "Ачысціць усё"
 #: ../extensions/transfers.vala:467
 #, c-format
 msgid "Failed to open download: %s"
-msgstr ""
+msgstr "Адкрыццё перасылання схібіла: %s"
 
 #: ../extensions/transfers.vala:214
 msgid "Open Destination _Folder"
@@ -3334,7 +3342,7 @@ msgstr "Перасыланне файла '<b>%s</b>' скончана."
 #: ../extensions/transfers.vala:451
 #, c-format
 msgid "'<b>%s</b>' and %d other files have been downloaded."
-msgstr ""
+msgstr "'<b>%s</b>' і %d іншых файлаў атрымана."
 
 #: ../extensions/transfers.vala:452
 msgid "Transfer completed"
@@ -3354,11 +3362,11 @@ msgstr "Перасыланні будуць скасаваныя, калі вы�
 
 #: ../extensions/transfers.vala:561
 msgid "Transfer Manager"
-msgstr ""
+msgstr "Менеджар перасыланняў"
 
 #: ../extensions/transfers.vala:562
 msgid "View downloaded files"
-msgstr ""
+msgstr "Глядзець атрыманыя файлы"
 
 #: ../extensions/tabby.vala:361 ../extensions/tabby.vala:372
 #: ../extensions/tabby.vala:385 ../extensions/tabby.vala:390
@@ -3393,7 +3401,7 @@ msgstr ""
 
 #: ../extensions/tabby.vala:776
 msgid "Tab and session management."
-msgstr ""
+msgstr "Кіраванне карткамі і сеансамі"
 
 #: ../extensions/flummi.vala:82
 msgid "Flummi"
@@ -3403,6 +3411,7 @@ msgstr ""
 msgid ""
 "This extension provides a task queue for update jobs or recurring events."
 msgstr ""
+"Гэта прыстаўка прадстаўляе чаргу задач для абнаўленняў і перыядычных падзей."
 
 #: ../extensions/notes.vala:46
 #, c-format
@@ -3412,17 +3421,17 @@ msgstr "Памылка пры даданні новага запісу ў баз
 #: ../extensions/notes.vala:66
 #, c-format
 msgid "Falied to remove note from database: %s\n"
-msgstr ""
+msgstr "Сціранне нататкі з базы звестак схібіла: %s\n"
 
 #: ../extensions/notes.vala:80
 #, c-format
 msgid "Falied to rename note: %s\n"
-msgstr ""
+msgstr "Перайменаванне нататкі схібіла: %s\n"
 
 #: ../extensions/notes.vala:96
 #, c-format
 msgid "Falied to update note: %s\n"
-msgstr ""
+msgstr "Абнаўленне нататкі схібіла: %s\n"
 
 #: ../extensions/notes.vala:139 ../extensions/notes.vala:179
 #: ../extensions/notes.vala:453
@@ -3456,15 +3465,15 @@ msgstr "Капіяваць нататку ў буфер абмену"
 
 #: ../extensions/notes.vala:368
 msgid "Remove note"
-msgstr ""
+msgstr "Сцерці нататку"
 
 #: ../extensions/notes.vala:402
 msgid "Copy selection as note"
-msgstr ""
+msgstr "Капіяваць вылучанае ў нататку"
 
 #: ../extensions/notes.vala:454
 msgid "Save text clips from websites as notes"
-msgstr ""
+msgstr "Запісаць кавалкі тэксту з вэб-сайтаў як нататкі"
 
 #: ../extensions/adblock/extension.vala:38
 msgid "Advertisement blocker"
