@@ -6335,6 +6335,12 @@ midori_browser_toolbar_item_button_press_event_cb (GtkWidget*      toolitem,
 {
     if (MIDORI_EVENT_NEW_TAB (event))
     {
+        /* check if the middle-click was performed over reload button */
+        if (g_object_get_data (G_OBJECT (toolitem), "reload-middle-click"))
+        {
+            gtk_action_activate (_action_by_name (browser, "TabDuplicate"));
+        }
+        
         GtkWidget* parent = gtk_widget_get_parent (toolitem);
         GtkAction* action = gtk_activatable_get_related_action (
             GTK_ACTIVATABLE (parent));
@@ -6472,6 +6478,9 @@ _midori_browser_set_toolbar_items (MidoriBrowser* browser,
                 else if (g_str_has_suffix (*name, "Forward"))
                     g_object_set_data (G_OBJECT (gtk_bin_get_child (GTK_BIN (toolitem))),
                         "history-forward", (void*) 0xdeadbeef);
+                else if (g_strcmp0 (*name, "Reload"))
+                    g_object_set_data (G_OBJECT (gtk_bin_get_child (GTK_BIN (toolitem))),
+                        "reload-middle-click", (void*) 0xdeadbeef);
 
                 g_signal_connect (gtk_bin_get_child (GTK_BIN (toolitem)),
                     "button-press-event",
