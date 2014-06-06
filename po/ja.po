@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: Midori 0.1.9\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-02-21 10:52-0600\n"
-"PO-Revision-Date: 2013-11-12 09:29+0000\n"
+"PO-Revision-Date: 2014-06-06 00:04+0000\n"
 "Last-Translator: Masato HASHIMOTO <cabezon.hashimoto@gmail.com>\n"
 "Language-Team: Japanese <xfce-users-jp@googlegroups.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2014-02-22 05:32+0000\n"
-"X-Generator: Launchpad (build 16926)\n"
+"X-Launchpad-Export-Date: 2014-06-06 05:33+0000\n"
+"X-Generator: Launchpad (build 17031)\n"
 "Language: ja\n"
 
 #: ../data/midori.desktop.in.h:1 ../midori/main.c:142
@@ -526,7 +526,7 @@ msgstr ""
 "Masato Hashimoto <hashimo@xfce.org>\n"
 "\n"
 "Launchpad Contributions:\n"
-"  Hiroshi Yamamoto https://launchpad.net/~higon\n"
+"  BALLOON a.k.a. Fu-sen. https://launchpad.net/~balloon\n"
 "  Joji Bronner https://launchpad.net/~jojiinchrist\n"
 "  Masato HASHIMOTO https://launchpad.net/~hashimo"
 
@@ -650,7 +650,7 @@ msgstr "ソースを表示(_U)"
 
 #: ../midori/midori-browser.c:5168
 msgid "View _DOM Source"
-msgstr ""
+msgstr "DOM ソースの表示(_D)"
 
 #: ../midori/midori-browser.c:5171
 msgid "Ca_ret Browsing"
@@ -698,11 +698,11 @@ msgstr "前のサブページへ戻ります"
 
 #: ../midori/midori-browser.c:5208
 msgid "Next or Forward"
-msgstr ""
+msgstr "次へ"
 
 #: ../midori/midori-browser.c:5209
 msgid "Go to the next sub-page or next page in history"
-msgstr ""
+msgstr "次のサブページまたは履歴の次のページに移動します"
 
 #: ../midori/midori-browser.c:5211
 msgid "_Homepage"
@@ -1151,8 +1151,7 @@ msgstr "タブアイコンのみ表示(_I)"
 #: ../midori/midori-notebook.vala:358
 msgid "Close Tab to the R_ight"
 msgid_plural "Close Tabs to the R_ight"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "ここより右のタブをすべて閉じる"
 
 #: ../midori/midori-notebook.vala:370
 msgid "Close Ot_her Tab"
@@ -1650,7 +1649,7 @@ msgstr "ブラウジング"
 
 #: ../midori/midori-preferences.c:438
 msgid "Theme:"
-msgstr ""
+msgstr "テーマ:"
 
 #: ../midori/midori-preferences.c:470
 msgid "Toolbar Style:"
@@ -1701,7 +1700,7 @@ msgstr "プロキシサーバー"
 
 #: ../midori/midori-preferences.c:513
 msgid "URI"
-msgstr ""
+msgstr "URI"
 
 #: ../midori/midori-preferences.c:521
 msgid "Port"
@@ -2332,15 +2331,15 @@ msgstr "実際にタブを使用するまでページの読み込みを遅らせ
 
 #: ../extensions/devpet.vala:102
 msgid "Double click for more information"
-msgstr ""
+msgstr "ダブルクリックで詳細情報を表示します"
 
 #: ../extensions/devpet.vala:253
 msgid "DevPet"
-msgstr ""
+msgstr "DevPet"
 
 #: ../extensions/devpet.vala:254
 msgid "This extension shows glib error messages in systray."
-msgstr ""
+msgstr "Glib エラーメッセージをシステムトレイに表示します"
 
 #: ../extensions/external-download-manager.vala:124
 #, c-format
@@ -2354,6 +2353,13 @@ msgid ""
 "\n"
 "Carry on without this plugin."
 msgstr ""
+"以下のプラグインでファイルをダウンロードしようとした際にエラーが発生しました:\n"
+"%s\n"
+"\n"
+"エラー:\n"
+"%s\n"
+"\n"
+"他のプラグインで試してみてください。"
 
 #: ../extensions/external-download-manager.vala:175
 msgid "External Download Manager - Aria2"
@@ -2627,7 +2633,7 @@ msgstr "拒否"
 #: ../extensions/nojs/nojs-preferences.c:308 ../extensions/nojs/nojs.c:204
 #, c-format
 msgid "Could not open database of extension: %s"
-msgstr ""
+msgstr "エクステンションのデータベースを開けませんでした: %s"
 
 #: ../extensions/nojs/nojs-preferences.c:578
 #: ../extensions/nojs/nojs-preferences.c:581
@@ -2642,38 +2648,40 @@ msgstr "データベース文の実行に失敗しました: %s"
 
 #: ../extensions/nojs/nojs-preferences.c:607
 msgid "Do you really want to delete all JavaScript permissions?"
-msgstr ""
+msgstr "本当にすべての JavaScript パーミッションを削除してよろしいですか?"
 
 #: ../extensions/nojs/nojs-preferences.c:609
 msgid "Delete all JavaScript permissions?"
-msgstr ""
+msgstr "すべての JavaScript パーミッションを削除しますか?"
 
 #: ../extensions/nojs/nojs-preferences.c:613
 msgid ""
 "This action will delete all JavaScript permissions. You will be asked for "
 "permissions again for each web site visited."
 msgstr ""
+"この操作ですべての JavaScript パーミッションを削除します。今後ウェブサイトを訪れる度にまたパーミッションについて尋ねられます。"
 
 #: ../extensions/nojs/nojs-preferences.c:809
 #: ../extensions/nojs/nojs-view.c:699
 msgid "Manager instance"
-msgstr ""
+msgstr "マネージャーインスタンス"
 
 #: ../extensions/nojs/nojs-preferences.c:810
 #: ../extensions/nojs/nojs-view.c:700
 msgid "Instance to global NoJS manager"
-msgstr ""
+msgstr "グローバル NoJS マネージャーのインスタンス"
 
 #. Set up dialog
 #: ../extensions/nojs/nojs-preferences.c:850
 msgid "Configure NoJS"
-msgstr ""
+msgstr "NoJS の設定"
 
 #: ../extensions/nojs/nojs-preferences.c:866
 msgid ""
 "Below is a list of all web sites and the policy set for them. You can delete "
 "policies by marking the entries and clicking on <i>Delete</i>."
 msgstr ""
+"以下はすべてのウェブサイトとそれに設定されたポリシーのリストです。エントリにマークして<i>削除</i>をクリックするとそのポリシーを削除します。"
 
 #: ../extensions/nojs/nojs-preferences.c:937
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:836
@@ -2694,57 +2702,57 @@ msgstr "すべて削除(_A)"
 #. Add "allow-all-sites" checkbox
 #: ../extensions/nojs/nojs-preferences.c:987
 msgid "A_llow scripts at all sites"
-msgstr ""
+msgstr "すべてのサイトでスクリプトを許可する(_L)"
 
 #. Add "block-unknown-domains" checkbox
 #: ../extensions/nojs/nojs-preferences.c:995
 msgid "Bloc_k scripts at unknown domains by default"
-msgstr ""
+msgstr "未知のドメインではデフォルトでスクリプトをブロックする(_K)"
 
 #. Add "check-second-level-only" checkbox
 #: ../extensions/nojs/nojs-preferences.c:1003
 msgid "S_et permissions on second-level domain"
-msgstr ""
+msgstr "セカンドレベルドメインでパーミッションを設定する(_E)"
 
 #. Add menu item(s) for domain
 #: ../extensions/nojs/nojs-view.c:237
 #, c-format
 msgid "Deny %s"
-msgstr ""
+msgstr "%s を拒否"
 
 #: ../extensions/nojs/nojs-view.c:249
 #, c-format
 msgid "Allow %s"
-msgstr ""
+msgstr "%s 許可"
 
 #: ../extensions/nojs/nojs-view.c:261
 #, c-format
 msgid "Allow %s this session"
-msgstr ""
+msgstr "%s をこのセッションのみ許可"
 
 #: ../extensions/nojs/nojs-view.c:706
 msgid "Browser window"
-msgstr ""
+msgstr "ブラウザーウィンドウ"
 
 #: ../extensions/nojs/nojs-view.c:707
 msgid "The Midori browser instance this view belongs to"
-msgstr ""
+msgstr "このビューが所属する Midori ブラウザーインスタンスです"
 
 #: ../extensions/nojs/nojs-view.c:713
 msgid "View"
-msgstr ""
+msgstr "ビュー"
 
 #: ../extensions/nojs/nojs-view.c:714
 msgid "The Midori view instance this view belongs to"
-msgstr ""
+msgstr "このビューが所属する Midori ビューインスタンスです"
 
 #: ../extensions/nojs/nojs-view.c:720
 msgid "Menu icon state"
-msgstr ""
+msgstr "メニューアイコン状態"
 
 #: ../extensions/nojs/nojs-view.c:721
 msgid "State of menu icon to show in status bar"
-msgstr ""
+msgstr "ステータスバーに表示するメニューアイコンの状態です"
 
 #: ../extensions/nojs/nojs-view.c:792 ../extensions/nojs/nojs.c:1029
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1112
@@ -2753,25 +2761,25 @@ msgstr "未確定"
 
 #: ../extensions/nojs/nojs-view.c:793
 msgid "Allowed"
-msgstr ""
+msgstr "許可"
 
 #: ../extensions/nojs/nojs-view.c:794
 msgid "Mixed"
-msgstr ""
+msgstr "混在"
 
 #: ../extensions/nojs/nojs-view.c:795
 msgid "Denied"
-msgstr ""
+msgstr "拒否"
 
 #: ../extensions/nojs/nojs.c:143
 msgid ""
 "A fatal error occurred which prevents the NoJS extension to continue. You "
 "should disable it."
-msgstr ""
+msgstr "NoJS エクステンションの適用を回避する際に致命的なエラーが発生しました。エクステンションを無効にしてください。"
 
 #: ../extensions/nojs/nojs.c:147
 msgid "Error in NoJS extension"
-msgstr ""
+msgstr "NoJS エクステンションでエラー"
 
 #: ../extensions/nojs/nojs.c:152
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:100
@@ -2841,35 +2849,36 @@ msgstr "このエクステンションで使用される SQLite データベー�
 
 #: ../extensions/nojs/nojs.c:748
 msgid "Allow all sites"
-msgstr ""
+msgstr "すべてのサイトで許可する"
 
 #: ../extensions/nojs/nojs.c:749
 msgid ""
 "If true this extension will not check policy for each site but allow them."
-msgstr ""
+msgstr "このオプションを有効にすると、エクステンションはすべてのサイトでポリシーをチェックせず、スクリプトを許可します。"
 
 #: ../extensions/nojs/nojs.c:755
 msgid "Only second level"
-msgstr ""
+msgstr "セカンドレベルまで"
 
 #: ../extensions/nojs/nojs.c:756
 msgid ""
 "If true this extension will reduce each domain to its second-level "
 "(www.example.org will reduced to example.org)"
 msgstr ""
+"このオプションを有効にすると、対象ドメインをセカンドレベルまで (www.example.org → example.org) にします。"
 
 #: ../extensions/nojs/nojs.c:762
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1033
 msgid "Unknown domain policy"
-msgstr ""
+msgstr "未知のドメインへのポリシー"
 
 #: ../extensions/nojs/nojs.c:763
 msgid "Policy to use for unknown domains."
-msgstr ""
+msgstr "未知のドメインに対し使用するポリシーです。"
 
 #: ../extensions/nojs/nojs.c:1031
 msgid "Accept temporarily"
-msgstr ""
+msgstr "一時的に許可"
 
 #: ../extensions/mouse-gestures.c:513
 msgid "Mouse Gestures"
@@ -3183,11 +3192,11 @@ msgstr ""
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:892
 msgid "Policy for cookies from domains not in the list: "
-msgstr ""
+msgstr "リストにないドメインからのCookieに対するポリシー: "
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:897
 msgid "Ask for a decision"
-msgstr ""
+msgstr "どうするか尋ねる"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:91
 msgid ""
@@ -3257,6 +3266,8 @@ msgid ""
 "The policy to use for domains not individually configured. This only acts to "
 "further restrict the global cookie policy set in Midori settings."
 msgstr ""
+"個別に構成されていないドメインに対して使用するポリシーです。Midori 設定内で設定された全体の Cokkie "
+"ポリシーから更に制限するために動作します。"
 
 #: ../extensions/cookie-permissions/main.c:62
 msgid "Cookie Security Manager"
@@ -3280,7 +3291,7 @@ msgstr "Midori (%s)"
 #: ../extensions/apps.vala:154
 #, c-format
 msgid "Failed to create new launcher (%s): %s"
-msgstr ""
+msgstr "新規ランチャーの作成に失敗しました (%s): %s"
 
 #: ../extensions/apps.vala:145
 msgid "Launcher created"
@@ -3402,56 +3413,56 @@ msgstr "ダウンロードしたファイルを表示します"
 #: ../extensions/tabby.vala:590 ../extensions/tabby.vala:595
 #, c-format
 msgid "Failed to update database: %s"
-msgstr ""
+msgstr "データベースの更新に失敗しました: %s"
 
 #: ../extensions/tabby.vala:520 ../extensions/tabby.vala:524
 #: ../extensions/tabby.vala:548 ../extensions/tabby.vala:552
 #: ../extensions/tabby.vala:614 ../extensions/tabby.vala:617
 #, c-format
 msgid "Failed to select from database: %s"
-msgstr ""
+msgstr "データベースからの SELECT に失敗しました: %s"
 
 #: ../extensions/tabby.vala:666
 #, c-format
 msgid "Failed to import legacy session: %s"
-msgstr ""
+msgstr "レガシーセッションのインポートに失敗しました: %s"
 
 #: ../extensions/tabby.vala:775
 msgid "Tabby"
-msgstr ""
+msgstr "Tabby"
 
 #: ../extensions/tabby.vala:776
 msgid "Tab and session management."
-msgstr ""
+msgstr "タブとセッションを管理します。"
 
 #: ../extensions/flummi.vala:82
 msgid "Flummi"
-msgstr ""
+msgstr "Flummi"
 
 #: ../extensions/flummi.vala:83
 msgid ""
 "This extension provides a task queue for update jobs or recurring events."
-msgstr ""
+msgstr "このエクステンションは更新ジョブまたは繰り返し発生するイベントのタスクキューを提供します。"
 
 #: ../extensions/notes.vala:46
 #, c-format
 msgid "Failed to add new note to database: %s\n"
-msgstr ""
+msgstr "新規ノートのデータベースへの追加に失敗しました: %s\n"
 
 #: ../extensions/notes.vala:66
 #, c-format
 msgid "Falied to remove note from database: %s\n"
-msgstr ""
+msgstr "データベースからのノートの削除に失敗しました: %s\n"
 
 #: ../extensions/notes.vala:80
 #, c-format
 msgid "Falied to rename note: %s\n"
-msgstr ""
+msgstr "ノート名の変更に失敗しました: %s\n"
 
 #: ../extensions/notes.vala:96
 #, c-format
 msgid "Falied to update note: %s\n"
-msgstr ""
+msgstr "ノートの更新に失敗しました: %s\n"
 
 #: ../extensions/notes.vala:139 ../extensions/notes.vala:179
 #: ../extensions/notes.vala:453
@@ -3460,7 +3471,7 @@ msgstr ""
 
 #: ../extensions/notes.vala:146
 msgid "New Note"
-msgstr ""
+msgstr "新規ノート"
 
 #: ../extensions/notes.vala:147
 msgid "Creates a new empty note, urelated to opened pages"
@@ -3468,32 +3479,32 @@ msgstr ""
 
 #: ../extensions/notes.vala:153
 msgid "New note"
-msgstr ""
+msgstr "新規ノート"
 
 #: ../extensions/notes.vala:197
 #, c-format
 msgid "Failed to select from notes database: %s\n"
-msgstr ""
+msgstr "ノートデータベースからの SELECT に失敗しました: %s\n"
 
 #: ../extensions/notes.vala:319 ../extensions/notes.vala:327
 msgid "Rename note"
-msgstr ""
+msgstr "ノート名の変更"
 
 #: ../extensions/notes.vala:356
 msgid "Copy note to clipboard"
-msgstr ""
+msgstr "ノートをクリップボードへコピー"
 
 #: ../extensions/notes.vala:368
 msgid "Remove note"
-msgstr ""
+msgstr "ノートの削除"
 
 #: ../extensions/notes.vala:402
 msgid "Copy selection as note"
-msgstr ""
+msgstr "選択範囲をノートへコピー"
 
 #: ../extensions/notes.vala:454
 msgid "Save text clips from websites as notes"
-msgstr ""
+msgstr "ウェブサイトからのテキストクリップをノートとして保存します"
 
 #: ../extensions/adblock/extension.vala:38
 msgid "Advertisement blocker"
@@ -3523,3 +3534,123 @@ msgstr "ルールの編集"
 #: ../extensions/adblock/extension.vala:197
 msgid "_Rule:"
 msgstr "ルール(_R):"
+
+#~ msgid "Send Page Link Via Email"
+#~ msgstr "ページのリンクをメールで送る"
+
+#~ msgid "You are not connected to a network"
+#~ msgstr "ネットワークに接続していません"
+
+#~ msgid ""
+#~ "Your computer must be connected to a network to reach “%s”. Connect to a "
+#~ "wireless access point or attach a network cable and try again."
+#~ msgstr "\"%s\" を開くにはネットワークに接続していなければなりません。接続してから改めて開いてください。"
+
+#~ msgid "You are not connected to the Internet"
+#~ msgstr "インターネットに接続していません"
+
+#~ msgid ""
+#~ "Your computer appears to be connected to a network, but can't reach “%s”. "
+#~ "Check your network settings and try again."
+#~ msgstr "ネットワークに接続していますが、\"%s\" に接続できません。ネットワークの設定をチェックしてください。"
+
+#~ msgid "Midori can't find the page you're looking for"
+#~ msgstr "Midori はおさがしのページを見つけることができませんでした"
+
+#~ msgid ""
+#~ "The page located at “%s” cannot be found. Check the web address for "
+#~ "misspelled words and try again."
+#~ msgstr "\"%s\" にあるページが見つかりませんでした。ページアドレスに間違いがないかチェックしてください。"
+
+#~ msgid "Name:"
+#~ msgstr "名前:"
+
+#~ msgid "Command Line:"
+#~ msgstr "コマンドライン:"
+
+#~ msgid "Right-click a suggestion to customize it"
+#~ msgstr "右クリックでカスタマイズ例を示します"
+
+#~ msgid "Choose application"
+#~ msgstr "アプリケーションの選択"
+
+#~ msgid "Select an application to open \"%s\""
+#~ msgstr "\"%s\" を開くアプリケーションを選択してください"
+
+#~ msgid "Download error"
+#~ msgstr "ダウンロードエラー"
+
+#~ msgid "Cannot open '%s' because the download failed."
+#~ msgstr "ダウンロードに失敗したため '%s' を開けませんでした。"
+
+#~ msgid "Open _with…"
+#~ msgstr "アプリケーションで開く(_W)…"
+
+#~ msgid "File Types"
+#~ msgstr "ファイルタイプ"
+
+#~ msgid "No file \"desc\" found"
+#~ msgstr "\"desc\" が見つかりませんでした"
+
+#~ msgid "Creates a new empty note, unrelated to opened pages"
+#~ msgstr "開いているページとは関係のない新しい空のノートを作成します"
+
+#~ msgid "Custom"
+#~ msgstr "カスタム"
+
+#~ msgid "Blocking"
+#~ msgstr "ブロック"
+
+#~ msgid "Enabled"
+#~ msgstr "有効"
+
+#~ msgid "Disabled"
+#~ msgstr "無効"
+
+#~ msgid "Adblock state: %s"
+#~ msgstr "Adblock 状態: %s"
+
+#~ msgid "Preferences"
+#~ msgstr "設定"
+
+#~ msgid "Disable"
+#~ msgstr "無効"
+
+#~ msgid "Display hidden elements"
+#~ msgstr "非表示の要素を表示"
+
+#~ msgid ""
+#~ "Type the address of a preconfigured filter list in the text entry and hit "
+#~ "Enter.\n"
+#~ msgstr "定義済みフィルターリストのアドレスをテキストエントリに入力して Enter を押してください。\n"
+
+#~ msgid ""
+#~ "You can find more lists by visiting following sites:\n"
+#~ " %s, %s\n"
+#~ msgstr ""
+#~ "以下のサイトではより多くのリストを提供しています:\n"
+#~ " %s, %s\n"
+
+#~ msgid "Last update: %x %X"
+#~ msgstr "最終更新: %x %X"
+
+#~ msgid "File incomplete - broken download?"
+#~ msgstr "不完全なファイル - ダウンロードに失敗?"
+
+#~ msgid "Domain Hotkeys"
+#~ msgstr "ドメインホットキー"
+
+#~ msgid ""
+#~ "Add www. and .com/.country_domain and proceed with Ctrl+Enter/Shift+Enter"
+#~ msgstr "www. と .com/.country_domain を追加して Ctrl+Enter/Shift+Enter を押してください"
+
+#~ msgctxt "Domain"
+#~ msgid ".com"
+#~ msgstr ".com"
+
+#~ msgid ""
+#~ "Share 'youtube, vimeo, dailymotion' that you are playing in Midori using "
+#~ "org.midori.mediaHerald"
+#~ msgstr ""
+#~ "Midori で観ている YouTube、vimeo、dailymothion のコンテンツを org.midori.mediaHerald "
+#~ "を使って共有します"
