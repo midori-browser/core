@@ -1397,6 +1397,30 @@ midori_browser_tab_leave_notify_event_cb (GtkWidget*        widget,
 }
 
 static void
+midori_browser_view_copy_to_item_history (GtkWidget* view,
+                                          KatzeItem* item)
+{
+#ifndef HAVE_WEBKIT2
+    WebKitWebView* copy_from;
+    WebKitWebBackForwardList* list_from;
+    guint length_from;
+    gint i;
+
+    copy_from = WEBKIT_WEB_VIEW (midori_view_get_web_view (MIDORI_VIEW (view)));
+    list_from = webkit_web_view_get_back_forward_list (copy_from);
+    length_from = webkit_web_back_forward_list_get_back_length (list_from);
+    item->history = katze_array_new(G_TYPE_OBJECT);
+    for (i = -length_from; i <=  -1 ; i++)
+    {
+        WebKitWebHistoryItem* hist_item = webkit_web_back_forward_list_get_nth_item (list_from, i);
+        if (hist_item == NULL)
+            break;
+        katze_array_add_item (item->history,hist_item);
+    }
+#endif
+}
+
+static void
 midori_view_destroy_cb (GtkWidget*     view,
                         MidoriBrowser* browser)
 {
@@ -1407,7 +1431,11 @@ midori_view_destroy_cb (GtkWidget*     view,
          && !midori_tab_is_blank (MIDORI_TAB (view)))
         {
             if (browser->trash)
+            {
+                midori_browser_view_copy_to_item_history (view,item);
+
                 katze_array_add_item (browser->trash, item);
+            }
             midori_browser_update_history (item, "website", "leave");
         }
         midori_browser_disconnect_tab (browser, MIDORI_VIEW (view));
@@ -1478,6 +1506,34 @@ midori_browser_view_copy_history (GtkWidget* view_to,
     }
 #endif
 }
+
+
+static void
+midori_browser_view_copy_from_item_history (GtkWidget* view,
+                                            KatzeArray* list_from)
+{
+#ifndef HAVE_WEBKIT2
+    WebKitWebView* copy_to;
+    WebKitWebBackForwardList* list_to;
+    guint length_from;
+    gint i;
+
+    copy_to = WEBKIT_WEB_VIEW (midori_view_get_web_view (MIDORI_VIEW (view)));
+    list_to = webkit_web_view_get_back_forward_list (copy_to);
+    if(list_from == NULL)
+        return;
+    length_from = katze_array_get_length (list_from);
+    for (i = 0; i < length_from ; i++)
+    {
+        WebKitWebHistoryItem* hist_item = katze_array_get_nth_item (list_from, i);
+        if (hist_item == NULL)
+            break;
+        webkit_web_back_forward_list_add_item (list_to,hist_item);
+    }
+#endif
+}
+
+
 
 static gboolean
 midori_browser_notify_new_tab_timeout_cb (MidoriBrowser *browser)
@@ -3097,6 +3153,7 @@ midori_browser_restore_tab (MidoriBrowser* browser,
     katze_array_remove_item (browser->trash, item);
     view = midori_browser_add_item (browser, item);
     g_object_unref (item);
+    midori_browser_view_copy_from_item_history (view,item->history);
     return view;
 }
 
@@ -5519,6 +5576,7 @@ midori_browser_size_allocate_cb (MidoriBrowser* browser,
 static void
 midori_browser_destroy_cb (MidoriBrowser* browser)
 {
+
     g_object_set_data (G_OBJECT (browser), "midori-browser-destroyed", (void*)1);
 
     if (G_UNLIKELY (browser->panel_timeout))
