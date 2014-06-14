@@ -458,10 +458,11 @@ static gint _cookie_permission_manager_ask_for_policy(CookiePermissionManager *s
 	gint									numberDomains, numberCookies;
 	GSList									*sortedCookies, *cookies;
 	WebKitWebView							*webkitView;
-	CookiePermissionManagerModalInfobar		modalInfo;
+	CookiePermissionManagerModalInfobar		*modalInfo;
 
 	/* Get webkit view of midori view */
 	webkitView=WEBKIT_WEB_VIEW(midori_view_get_web_view(inView));
+	modalInfo=g_new0(CookiePermissionManagerModalInfobar, 1);
 
 	/* Create a copy of cookies and sort them */
 	sortedCookies=_cookie_permission_manager_get_number_domains_and_cookies(self,
@@ -535,7 +536,7 @@ static gint _cookie_permission_manager_ask_for_policy(CookiePermissionManager *s
 	 * but I don't want to create an GObject just for a simple struct. So set object
 	 * data by our own
 	 */
-	g_object_set_data(G_OBJECT(infobar), "cookie-permission-manager-infobar-data", &modalInfo);
+	g_object_set_data_full(G_OBJECT(infobar), "cookie-permission-manager-infobar-data", modalInfo, (GDestroyNotify)g_free);
 
 /* FIXME: Find a way to add "details" widget */
 #ifndef NO_INFOBAR_DETAILS
@@ -610,19 +611,19 @@ static gint _cookie_permission_manager_ask_for_policy(CookiePermissionManager *s
 
 	/* Connect signals to quit main loop */
 	g_signal_connect(webkitView, "navigation-policy-decision-requested", G_CALLBACK(_cookie_permission_manager_on_infobar_webview_navigate), infobar);
-	g_signal_connect(infobar, "destroy", G_CALLBACK(_cookie_permission_manager_on_infobar_destroy), &modalInfo);
+	g_signal_connect(infobar, "destroy", G_CALLBACK(_cookie_permission_manager_on_infobar_destroy), modalInfo);
 
 	/* Let info bar be modal and set response to default */
-	modalInfo.response=COOKIE_PERMISSION_MANAGER_POLICY_UNDETERMINED;
-	modalInfo.mainLoop=g_main_loop_new(NULL, FALSE);
+	modalInfo->response=COOKIE_PERMISSION_MANAGER_POLICY_UNDETERMINED;
+	modalInfo->mainLoop=g_main_loop_new(NULL, FALSE);
 
 	GDK_THREADS_LEAVE();
-	g_main_loop_run(modalInfo.mainLoop);
+	g_main_loop_run(modalInfo->mainLoop);
 	GDK_THREADS_ENTER();
 
-	g_main_loop_unref(modalInfo.mainLoop);
+	g_main_loop_unref(modalInfo->mainLoop);
 
-	modalInfo.mainLoop=NULL;
+	modalInfo->mainLoop=NULL;
 
 	/* Disconnect signal handler to webkit's web view  */
 	g_signal_handlers_disconnect_by_func(webkitView, G_CALLBACK(_cookie_permission_manager_on_infobar_webview_navigate), infobar);
@@ -632,7 +633,7 @@ static gint _cookie_permission_manager_ask_for_policy(CookiePermissionManager *s
 	 * updates of database for the same domain. This sorted list is a copy
 	 * to avoid a reorder of cookies
 	 */
-	if(modalInfo.response!=COOKIE_PERMISSION_MANAGER_POLICY_UNDETERMINED)
+	if(modalInfo->response!=COOKIE_PERMISSION_MANAGER_POLICY_UNDETERMINED)
 	{
 		const gchar					*lastDomain=NULL;
 
@@ -653,7 +654,7 @@ static gint _cookie_permission_manager_ask_for_policy(CookiePermissionManager *s
 
 				sql=sqlite3_mprintf("INSERT OR REPLACE INTO policies (domain, value) VALUES ('%q', %d);",
 										cookieDomain,
-										modalInfo.response);
+										modalInfo->response);
 				success=sqlite3_exec(priv->database, sql, NULL, NULL, &error);
 				if(success!=SQLITE_OK) g_warning(_("SQL fails: %s"), error);
 				if(error) sqlite3_free(error);
@@ -668,8 +669,8 @@ static gint _cookie_permission_manager_ask_for_policy(CookiePermissionManager *s
 	g_slist_free(sortedCookies);
 
 	/* Return response */
-	return(modalInfo.response==COOKIE_PERMISSION_MANAGER_POLICY_UNDETERMINED ?
-			COOKIE_PERMISSION_MANAGER_POLICY_BLOCK : modalInfo.response);
+	return(modalInfo->response==COOKIE_PERMISSION_MANAGER_POLICY_UNDETERMINED ?
+			COOKIE_PERMISSION_MANAGER_POLICY_BLOCK : modalInfo->response);
 }
 
 /* A cookie was changed outside a request (e.g. Javascript) */
