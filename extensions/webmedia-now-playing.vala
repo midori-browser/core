@@ -26,10 +26,6 @@ namespace Sandcat {
         }
 
         void youtube_validation (string title, string uri) {
-
-            /* FIXED ME, i used this way because broweser notify send
-               many request and when can not check the right title and also
-               to have one notify*/
             if(uri == title || uri.contains(title)) return;
             if (web_media_uri == uri) return;
             if (web_media_title == title) return;
@@ -55,11 +51,7 @@ namespace Sandcat {
                             dbus_service.video_uri = web_media_uri;
                             web_media_notify.show_notify();
                         }
-                    } else {
-                        dbus_service.dbus_empty();
-                        web_media_title = null;
-                        web_media_uri = null;
-                    } 
+                    }
             } catch(RegexError e) {
                     warning ("%s", e.message);
             }
@@ -125,7 +117,7 @@ namespace Sandcat {
             }
         }
     }
-    
+
     public class WebMediaNotify {
         public string notify_video_title { get; set; }
         public string notify_media { get; set; }
