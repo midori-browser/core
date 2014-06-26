@@ -24,6 +24,12 @@ if (HALF_BRO_INCOM_WEBKIT2)
          )
 endif ()
 
+# FIXME: re-enable webmedia extension
+# once we have working notifications on win
+if (WIN32)
+    list(REMOVE_ITEM EXTENSIONS "webmedia-now-playing.vala")
+endif()
+
 foreach(UNIT_SRC ${EXTENSIONS})
     string(FIND ${UNIT_SRC} ".c" UNIT_EXTENSION)
     if (UNIT_EXTENSION GREATER -1)
