@@ -11,6 +11,7 @@
 
 #include "midori.h"
 
+#ifndef HAVE_WEBKIT2
 static void
 browser_create (void)
 {
@@ -61,6 +62,7 @@ browser_create (void)
     g_object_unref (settings);
     g_object_unref (app);
 }
+#endif
 
 static void
 browser_tooltips (void)
@@ -168,9 +170,9 @@ main (int    argc,
     #ifndef HAVE_WEBKIT2
     g_object_set_data (G_OBJECT (webkit_get_default_session ()),
                        "midori-session-initialized", (void*)1);
-    #endif
-
     g_test_add_func ("/browser/create", browser_create);
+    #endif                   
+
     g_test_add_func ("/browser/tooltips", browser_tooltips);
     g_test_add_func ("/browser/site_data", browser_site_data);
     g_test_add_func ("/browser/block_uris", browser_block_uris);
