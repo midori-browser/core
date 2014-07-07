@@ -1364,6 +1364,7 @@ midori_browser_save_uri (MidoriBrowser* browser,
             gtk_file_chooser_get_current_folder (GTK_FILE_CHOOSER (dialog)));
     }
     gtk_widget_destroy (dialog);
+    g_list_foreach (resources, (GFunc)g_object_unref, NULL);
     g_list_free (resources);
 }
 

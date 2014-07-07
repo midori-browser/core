@@ -2040,6 +2040,14 @@ midori_web_view_menu_image_new_tab_activate_cb (GtkAction* action,
     g_free (uri);
 }
 
+/**
+ * midori_view_get_resources:
+ * @view: a #MidoriView
+ *
+ * Obtain a list of the resources loaded by the page shown in the view.
+ *
+ * Return value: (transfer full) (element-type WebKitWebResource): the resources
+ **/
 GList*
 midori_view_get_resources (MidoriView* view)
 {
@@ -2050,7 +2058,9 @@ midori_view_get_resources (MidoriView* view)
     WebKitWebFrame* frame = webkit_web_view_get_main_frame (web_view);
     WebKitWebDataSource* data_source = webkit_web_frame_get_data_source (frame);
     GList* resources = webkit_web_data_source_get_subresources (data_source);
-    return g_list_prepend (resources, webkit_web_data_source_get_main_resource (data_source));
+    resources = g_list_prepend (resources, webkit_web_data_source_get_main_resource (data_source));
+    g_list_foreach (resources, (GFunc)g_object_ref, NULL);
+    return resources;
 #else
     return NULL;
 #endif
@@ -2076,6 +2086,7 @@ midori_view_get_data_for_uri (MidoriView*  view,
         }
     }
 #endif
+    g_list_foreach (resources, (GFunc)g_object_unref, NULL);
     g_list_free (resources);
     return result;
 }
