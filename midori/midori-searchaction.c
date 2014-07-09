@@ -400,11 +400,11 @@ midori_search_action_manage_activate_cb (GtkWidget*          menuitem,
         gtk_widget_show (dialog);
 }
 
-static void
-midori_search_action_icon_released_cb (GtkWidget*           entry,
-                                       GtkEntryIconPosition icon_pos,
-                                       gint                 button,
-                                       GtkAction*           action)
+GtkMenu* 
+midori_search_action_get_menu (GtkWidget* entry,
+                               MidoriSearchAction *search_action,
+                               void       (*cb1)(GtkWidget*, MidoriSearchAction*),
+                               void       (*cb2)(GtkWidget*, MidoriSearchAction*))
 {
     KatzeArray* search_engines;
     GtkWidget* menu;
@@ -413,10 +413,7 @@ midori_search_action_icon_released_cb (GtkWidget*           entry,
     GdkPixbuf* icon;
     GtkWidget* image;
 
-    if (icon_pos == GTK_ENTRY_ICON_SECONDARY)
-        return;
-
-    search_engines = MIDORI_SEARCH_ACTION (action)->search_engines;
+    search_engines = search_action->search_engines;
     menu = gtk_menu_new ();
     if (!katze_array_is_empty (search_engines))
     {
@@ -439,7 +436,7 @@ midori_search_action_icon_released_cb (GtkWidget*           entry,
             gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
             g_object_set_data (G_OBJECT (menuitem), "engine", item);
             g_signal_connect (menuitem, "activate",
-                G_CALLBACK (midori_search_action_engine_activate_cb), action);
+                G_CALLBACK (cb1), search_action);
             gtk_widget_show (menuitem);
         }
     }
@@ -459,9 +456,22 @@ midori_search_action_icon_released_cb (GtkWidget*           entry,
     gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), image);
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
     g_signal_connect (menuitem, "activate",
-        G_CALLBACK (midori_search_action_manage_activate_cb), action);
+        G_CALLBACK (cb2), search_action);
     gtk_widget_show (menuitem);
-    katze_widget_popup (entry, GTK_MENU (menu), NULL, KATZE_MENU_POSITION_LEFT);
+    return GTK_MENU (menu);
+}
+
+static void
+midori_search_action_icon_released_cb (GtkWidget*           entry,
+                                       GtkEntryIconPosition icon_pos,
+                                       gint                 button,
+                                       GtkAction*           action)
+{
+    GtkMenu* menu = midori_search_action_get_menu (entry,
+                                                   MIDORI_SEARCH_ACTION (action),
+                                                   midori_search_action_engine_activate_cb,
+                                                   midori_search_action_manage_activate_cb );
+    katze_widget_popup (entry, menu, NULL, KATZE_MENU_POSITION_LEFT);
 }
 
 static gboolean

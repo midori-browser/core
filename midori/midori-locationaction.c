@@ -1437,8 +1437,21 @@ midori_location_action_show_page_info (GtkWidget* widget,
 #endif
 
 static void
+midori_location_action_manage_activate_cb (GtkWidget*          menuitem,
+                                           MidoriSearchAction* search_action)
+{
+    GtkWidget* dialog;
+
+    dialog = midori_search_action_get_dialog (search_action);
+    if (gtk_widget_get_visible (dialog))
+        gtk_window_present (GTK_WINDOW (dialog));
+    else
+        gtk_widget_show (dialog);
+}
+
+static void
 midori_location_action_engine_activate_cb (GtkWidget*          menuitem,
-                                         MidoriSearchAction* search_action)
+                                           MidoriSearchAction* search_action)
 {
     KatzeItem* item;
 
@@ -1471,62 +1484,11 @@ midori_location_action_icon_released_cb (GtkWidget*           widget,
         /* No "security" window for blank pages */
         if (midori_uri_is_blank (MIDORI_LOCATION_ACTION (action)->text))
         {
-            KatzeArray* search_engines;
-            GtkWidget* menu;
-            GtkWidget* menuitem;
-            KatzeItem* item;
-            GdkPixbuf* icon;
-            GtkWidget* image;
-
-            if (icon_pos == GTK_ENTRY_ICON_SECONDARY)
-                return;
-
-            search_engines = MIDORI_LOCATION_ACTION (action)->search_engines;
-            menu = gtk_menu_new ();
-            if (!katze_array_is_empty (search_engines))
-            {
-                KATZE_ARRAY_FOREACH_ITEM (item, search_engines)
-                {
-                    menuitem = gtk_image_menu_item_new_with_label (
-                        katze_item_get_name (item));
-                    image = gtk_image_new ();
-                    if ((icon = katze_item_get_pixbuf (item, widget)))
-                    {
-                        gtk_image_set_from_pixbuf (GTK_IMAGE (image), icon);
-                        g_object_unref (icon);
-                    }
-                    else
-                        gtk_image_set_from_icon_name (GTK_IMAGE (image), STOCK_EDIT_FIND,
-                                                      GTK_ICON_SIZE_MENU);
-                    gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), image);
-                    gtk_image_menu_item_set_always_show_image (
-                        GTK_IMAGE_MENU_ITEM (menuitem), TRUE);
-                    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-                    g_object_set_data (G_OBJECT (menuitem), "engine", item);
-                    g_signal_connect (menuitem, "activate",
-                        G_CALLBACK (midori_location_action_engine_activate_cb), search_action);
-                    gtk_widget_show (menuitem);
-                }
-            }
-            else
-            {
-                menuitem = gtk_image_menu_item_new_with_label (_("Empty"));
-                gtk_widget_set_sensitive (menuitem, FALSE);
-                gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-                gtk_widget_show (menuitem);
-            }
-
-            menuitem = gtk_separator_menu_item_new ();
-            gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-            gtk_widget_show (menuitem);
-            menuitem = gtk_action_create_menu_item (
-                gtk_action_group_get_action (actions, "ManageSearchEngines"));
-            GtkWidget* accel_label = gtk_bin_get_child (GTK_BIN (menuitem));
-            if (accel_label != NULL)
-                gtk_accel_label_set_accel_closure (GTK_ACCEL_LABEL (accel_label), NULL);
-            gtk_menu_shell_append ((GtkMenuShell*)menu, menuitem);
-            gtk_widget_show (menuitem);
-            katze_widget_popup (widget, GTK_MENU (menu), NULL, KATZE_MENU_POSITION_LEFT);
+            GtkMenu* menu = midori_search_action_get_menu (widget,
+                                                           search_action, 
+                                                           midori_location_action_engine_activate_cb,
+                                                           midori_location_action_manage_activate_cb );
+            katze_widget_popup (widget, menu, NULL, KATZE_MENU_POSITION_LEFT);
             return;
         }
 
