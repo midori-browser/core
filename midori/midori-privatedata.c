@@ -22,26 +22,14 @@
 #include <gdk/gdkkeysyms.h>
 #include <sqlite3.h>
 
-#ifdef HAVE_GRANITE
-#include <granite/granite.h>
-#endif
-
     #define LIBSOUP_USE_UNSTABLE_REQUEST_API
     #include <libsoup/soup-cache.h>
 
 static void
-#ifdef HAVE_GRANITE
-midori_private_data_dialog_response_cb (GtkWidget*    button,
-#else
 midori_private_data_dialog_response_cb (GtkWidget*     dialog,
                                         gint           response_id,
-#endif
                                         MidoriBrowser* browser)
 {
-    #ifdef HAVE_GRANITE
-    GtkWidget* dialog = gtk_widget_get_toplevel (button);
-    gint response_id = GTK_RESPONSE_ACCEPT;
-    #endif
     if (response_id == GTK_RESPONSE_ACCEPT)
     {
         GtkToggleButton* button;
