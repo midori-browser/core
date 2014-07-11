@@ -5451,7 +5451,7 @@ midori_browser_set_inactivity_reset (MidoriBrowser* browser,
     }
 }
 
-static void
+static gboolean
 midori_browser_window_state_event_cb (MidoriBrowser*       browser,
                                       GdkEventWindowState* event)
 {
@@ -5463,6 +5463,8 @@ midori_browser_window_state_event_cb (MidoriBrowser*       browser,
     else if (event->new_window_state & GDK_WINDOW_STATE_FULLSCREEN)
         window_state = MIDORI_WINDOW_FULLSCREEN;
     g_object_set (browser->settings, "last-window-state", window_state, NULL);
+
+    return FALSE;
 }
 
 static gboolean
