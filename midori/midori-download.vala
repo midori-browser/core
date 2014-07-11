@@ -118,24 +118,24 @@ namespace Midori {
 
             return "%s\n%s %s%s".printf (filename, size, speed, eta);
 #else
-            string filename = Midori.Download.get_basename_for_display(download.destination);
+            string filename = Midori.Download.get_basename_for_display (download.destination);
 
-            string size = "%s".printf (format_size (download.get_received_data_length()));
+            string size = "%s".printf (format_size (download.get_received_data_length ()));
             string speed = "";
-            speed = format_size ((uint64)((download.get_received_data_length()*1.0)/download.elapsed_time));
+            speed = format_size ((uint64)((download.get_received_data_length () * 1.0) / download.elapsed_time));
             speed = _(" (%s/s)").printf (speed);
-            string progress = "%d%%".printf((int)(download.get_estimated_progress()*100));
+            string progress = "%d%%".printf( (int) (download.get_estimated_progress ()*100));
             if (is_finished (download))
-                return "%s\n %s".printf (filename,size);
-            return "%s\n %s - %s".printf (filename,speed,progress);
+                return "%s\n %s".printf (filename, size);
+            return "%s\n %s - %s".printf (filename, speed, progress);
 #endif
         }
 
         public static string get_content_type (WebKit.Download download, string? mime_type) {
 #if HAVE_WEBKIT2
-            string? content_type = ContentType.guess (download.response.suggested_filename == null?
+            string? content_type = ContentType.guess (download.response.suggested_filename == null ?
                           download.destination : download.response.suggested_filename,
-                          null,null);
+                          null, null);
 #else
             string? content_type = ContentType.guess (download.suggested_filename, null, null);
 #endif
@@ -207,11 +207,11 @@ namespace Midori {
             }
             #else
 
-            if(download.estimated_progress<1){
+            if (download.estimated_progress < 1) {
                 download.cancel ();
-            }else{
+            } else {
                 if (open (download, widget))
-                        return true;
+                    return true;
             }
 #endif
             return false;
@@ -296,7 +296,7 @@ namespace Midori {
                https://d19vezwu8eufl6.cloudfront.net/nlp/slides%2F03-01-FormalizingNB.pdf */
             return clean_filename (download.get_suggested_filename ());
 #else
-            string name = get_filename(download);
+            string name = get_filename (download);
             if (name == null)
                 return "";
             return name;

@@ -95,10 +95,10 @@ namespace WebKit {
 		public unowned WebKit.URIResponse get_response ();
 		public void set_destination (string uri);
 		public string destination { get; }
-		public double elapsed_time{get;}
+		public double elapsed_time{ get; }
 		public double estimated_progress { get; }
 		public WebKit.URIResponse response { get; }
-		public WebKit.URIRequest request{get;}
+		public WebKit.URIRequest request{ get; }
 		public signal bool created_destination (string destination);
 		public virtual signal bool decide_destination (string suggested_filename);
 		public signal void failed (void* error);
@@ -397,7 +397,7 @@ namespace WebKit {
 		public URIRequest (string uri);
 		public unowned string get_uri ();
 		public string uri { get; construct; }
-		public unowned Soup.MessageHeaders  get_http_headers();
+		public unowned Soup.MessageHeaders get_http_headers ();
 	}
 	[CCode (cheader_filename = "webkit2/webkit2.h", type_id = "webkit_uri_response_get_type ()")]
 	public class URIResponse : GLib.Object {

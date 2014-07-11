@@ -44,7 +44,7 @@ namespace EDM {
 
                 #if HAVE_WEBKIT2
                 dlReq.uri = download.request.get_uri ();
-                weak MessageHeaders headers =download.request.get_http_headers();
+                weak MessageHeaders headers = download.request.get_http_headers ();
                 #else
                 dlReq.uri = download.get_uri ();
                 var request = download.get_network_request ();
@@ -108,7 +108,7 @@ namespace EDM {
 
         construct {
             #if HAVE_WEBKIT2
-            var session= new Session();
+            var session= new Session ();
             #else
             var session = WebKit.get_default_session ();
             #endif
@@ -172,7 +172,7 @@ namespace EDM {
             /* Check if the plug-in actually recieved an reply.
              * The parse method do not warns us about it. And the exception
              * never is launched.*/
-            if(message.status_code != 200){
+            if (message.status_code != 200) {
                 var dialog = new MessageDialog (null, DialogFlags.MODAL,
                     MessageType.ERROR, ButtonsType.CLOSE,
                     _("The plug-in was unable to connect with aria2:\n" +

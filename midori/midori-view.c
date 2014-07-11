@@ -2002,9 +2002,9 @@ midori_view_download_uri (MidoriView*        view,
 {
 #ifdef HAVE_WEBKIT2
     WebKitDownload* download = webkit_web_view_download_uri (WEBKIT_WEB_VIEW (view->web_view), uri);
-    WebKitWebContext * web_context = webkit_web_view_get_context(WEBKIT_WEB_VIEW (view->web_view));
+    WebKitWebContext * web_context = webkit_web_view_get_context (WEBKIT_WEB_VIEW (view->web_view));
     midori_download_set_type (download, type);
-    g_signal_emit_by_name(web_context,"download-started",download,view);
+    g_signal_emit_by_name (web_context, "download-started", download, view);
 #else
     WebKitNetworkRequest* request = webkit_network_request_new (uri);
     WebKitDownload* download = webkit_download_new (request);
@@ -2730,10 +2730,10 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
 #endif
 
 gint
-midori_save_dialog(const gchar* title,
-                   const gchar * hostname,
-                   const GString* details,
-                   const gchar *content_type)
+midori_save_dialog (const gchar* title,
+                    const gchar * hostname,
+                    const GString* details,
+                    const gchar *content_type)
 {   
     GIcon* icon;
     GtkWidget* image;
@@ -2783,7 +2783,7 @@ midori_view_download_decide_destination_cb (WebKitDownload*   download,
                                     const gchar * suggested_filename,
                                     MidoriView*      view)
 {
-    if(!midori_view_download_query_action(view,download,suggested_filename)){
+    if(!midori_view_download_query_action (view, download, suggested_filename)) {
         webkit_download_cancel (download);
     }
     return TRUE;    //we must return TRUE because we handled the signal
@@ -2827,7 +2827,7 @@ midori_view_download_requested_cb (GtkWidget*      web_view,
     content_type = g_content_type_guess (suggested_filename, NULL ,
                                             0 ,NULL);
     if (!content_type)
-        content_type = g_strdup("application/octet-stream");
+        content_type = g_strdup ("application/octet-stream");
     midori_download_set_filename (download, g_strdup (suggested_filename));
     #else
     content_type = midori_download_get_content_type (download,
@@ -4498,7 +4498,7 @@ midori_view_save_source (MidoriView*  view,
 {
     GFile *file;
     char * converted = NULL;
-    WebKitWebView * web_view = WEBKIT_WEB_VIEW(view->web_view);
+    WebKitWebView * web_view = WEBKIT_WEB_VIEW (view->web_view);
     g_return_if_fail (uri);
     converted = g_filename_to_utf8 (uri, -1, NULL, NULL, NULL);
     file = g_file_new_for_uri (converted);

@@ -1809,9 +1809,9 @@ midori_view_download_requested_cb (GtkWidget*      view,
 }
 
 void download_created_destination_cb (WebKitDownload *download,
-               gchar          *destination,
-               gpointer        user_data){
-                   g_print("%s: destination %s",G_STRFUNC,destination);
+                                      gchar          *destination,
+                                      gpointer        user_data){
+    g_print("%s: destination %s",G_STRFUNC,destination);
 }
 
 static void
