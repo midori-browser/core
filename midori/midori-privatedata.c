@@ -132,7 +132,7 @@ midori_private_data_get_dialog (MidoriBrowser* browser)
         gtk_window_set_icon_name (GTK_WINDOW (dialog), GTK_STOCK_CLEAR);
     sizegroup = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
     hbox = gtk_hbox_new (FALSE, 4);
-    icon = gtk_image_new_from_stock (GTK_STOCK_CLEAR, GTK_ICON_SIZE_DIALOG);
+    icon = gtk_image_new_from_icon_name ("edit-clear", GTK_ICON_SIZE_DIALOG);
     gtk_size_group_add_widget (sizegroup, icon);
     gtk_box_pack_start (GTK_BOX (hbox), icon, FALSE, FALSE, 0);
     label = gtk_label_new (_("Clear the following data:"));
