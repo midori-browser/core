@@ -1437,19 +1437,6 @@ midori_location_action_show_page_info (GtkWidget* widget,
 #endif
 
 static void
-midori_location_action_manage_activate_cb (GtkWidget*          menuitem,
-                                           MidoriSearchAction* search_action)
-{
-    GtkWidget* dialog;
-
-    dialog = midori_search_action_get_dialog (search_action);
-    if (gtk_widget_get_visible (dialog))
-        gtk_window_present (GTK_WINDOW (dialog));
-    else
-        gtk_widget_show (dialog);
-}
-
-static void
 midori_location_action_engine_activate_cb (GtkWidget*          menuitem,
                                            MidoriSearchAction* search_action)
 {
@@ -1486,8 +1473,7 @@ midori_location_action_icon_released_cb (GtkWidget*           widget,
         {
             GtkMenu* menu = midori_search_action_get_menu (widget,
                                                            search_action, 
-                                                           midori_location_action_engine_activate_cb,
-                                                           midori_location_action_manage_activate_cb );
+                                                           midori_location_action_engine_activate_cb );
             katze_widget_popup (widget, menu, NULL, KATZE_MENU_POSITION_LEFT);
             return;
         }

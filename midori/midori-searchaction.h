@@ -95,8 +95,7 @@ midori_search_engines_set_filename         (KatzeArray*         search_engines,
 GtkMenu* 
 midori_search_action_get_menu (GtkWidget* entry,
                                MidoriSearchAction *search_action,
-                               void       (*cb1)(GtkWidget*, MidoriSearchAction*),
-                               void       (*cb2)(GtkWidget*, MidoriSearchAction*));
+                               void       (*change_cb)(GtkWidget*, MidoriSearchAction*));
 
 G_END_DECLS
 
