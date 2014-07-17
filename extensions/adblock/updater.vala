@@ -70,7 +70,7 @@ namespace Adblock {
             expires = null;
 
             /* We have "last modification" metadata */
-            if (last_mod_meta != null) {
+            if (last_mod_meta != null && (last_mod_meta.contains (" ") && last_mod_meta[0].isdigit () == true)) {
                 int h = 0, min = 0, d, m, y;
                 /* Date in a form of: 20.08.2012 12:34 */
                 if (last_mod_meta.contains (".") || last_mod_meta.contains("-")) {
