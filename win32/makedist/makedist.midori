@@ -303,6 +303,7 @@ if [ "$GTK3_BUILD" == "1" ]; then
     cat > $gtk_rc_file << _EOF
 [Settings]
 gtk-icon-theme-name = Faenza
+gtk-menu-images = true
 _EOF
 
 else
