@@ -3237,7 +3237,7 @@ midori_view_new_with_item (KatzeItem*         item,
 }
 
 /**
- * midori_view_new_with_item:
+ * midori_view_new_from_view:
  * @view: a predating, related #MidoriView, or %NULL
  * @item: a #KatzeItem, or %NULL
  * @settings: a #MidoriWebSettings, or %NULL

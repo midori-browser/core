@@ -739,11 +739,11 @@ midori_bookmarks_db_on_quit (MidoriBookmarksDb* bookmarks)
 
 /**
  * midori_bookmarks_db_import_array:
- * @array: the main bookmark array
+ * @bookmarks: the main bookmark array
  * @array: #KatzeArray containing the items to import
  * @parentid: the id of folder
  *
- * Imports the items of @array as childs of the folder
+ * Imports the items of @array as children of the folder
  * identfied by @parentid.
  *
  * Since: 0.5.2

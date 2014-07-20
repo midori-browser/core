@@ -103,7 +103,7 @@ katze_preferences_finalize (GObject* object)
  *
  * Creates a new preferences dialog.
  *
- * Return value: a new #KatzePreferences
+ * Return value: (transfer full): a new #KatzePreferences
  *
  * Since: 0.2.1
  **/
@@ -224,6 +224,9 @@ workaround_stack_switcher_sizing (GtkStackSwitcher* switcher)
  * @icon: an icon name
  *
  * Adds a new category with the specified label to the dialog.
+ *
+ * Return value: (transfer none): a new #GtkBox in the preferences widget to
+ * hold the category's widgets
  *
  * Since: 0.2.1
  *
