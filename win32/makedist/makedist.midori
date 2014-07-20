@@ -26,7 +26,12 @@ root_dir=$MINGW_PREFIX
 where_am_i=$PWD
 
 if [ "$GSTREAMER_API_VERSION" == "" ]; then
-    GSTREAMER_API_VERSION=0.10
+    WEBKIT_VER=$(grep -E '(DEPS_GTK_webkitgtk\-)(.*)(_VERSION)'  CMakeCache.txt|cut -d \= -f 2 |cut -c 1)
+    if [ "$WEBKIT_VER" == "2" ]; then
+        GSTREAMER_API_VERSION=1.0
+    else
+        GSTREAMER_API_VERSION=0.10
+    fi
 fi
 
 if [ "$MINGW_PREFIX" == "" ]; then
@@ -244,7 +249,7 @@ grab_files share midori.mo
 grab_icons Faenza $where_am_i/../win32/makedist/midori.nsi
 
 # We need to ship our CA bundle for now
-cp -a /etc/pki/tls/certs/ca-bundle.crt $workdir/share/midori/res/
+cp -Lr /etc/pki/tls/certs/ca-bundle.crt $workdir/share/midori/res/
 
 GREYBIRD_VER="1.3.4"
 
@@ -303,6 +308,7 @@ if [ "$GTK3_BUILD" == "1" ]; then
     cat > $gtk_rc_file << _EOF
 [Settings]
 gtk-icon-theme-name = Faenza
+gtk-menu-images = true
 _EOF
 
 else
