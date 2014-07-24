@@ -113,6 +113,11 @@ midori_location_action_disconnect_proxy (GtkAction* action,
 static void
 midori_location_action_popdown_completion (MidoriLocationAction* location_action);
 
+extern GtkMenu* 
+midori_search_action_get_menu (GtkWidget* entry,
+                               MidoriSearchAction *search_action,
+                               void (*change_cb)(GtkWidget*, MidoriSearchAction*));
+
 static void
 midori_location_action_class_init (MidoriLocationActionClass* class)
 {
