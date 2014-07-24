@@ -1031,9 +1031,10 @@ katze_item_set_value_from_column (sqlite3_stmt* stmt,
           || g_str_equal (name, "last_visit") || g_str_equal (name, "visit_count")
           || g_str_equal (name, "pos_panel") || g_str_equal (name, "pos_bar"))
     {
-        gint value;
-        value = sqlite3_column_int64 (stmt, column);
-        katze_item_set_meta_integer (item, name, value);
+        /* use text to properly handle NULL values */
+        const unsigned char* text;
+        text = sqlite3_column_text (stmt, column);
+        katze_item_set_meta_string (item, name, (gchar*)text);
     }
     else if (g_str_equal (name, "desc"))
     {

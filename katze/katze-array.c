@@ -33,6 +33,15 @@ struct _KatzeArrayPrivate
     GList* items;
 };
 
+enum
+{
+    PROP_0,
+
+    PROP_TYPE,
+
+    N_PROPERTIES
+};
+
 enum {
     ADD_ITEM,
     REMOVE_ITEM,
@@ -53,8 +62,19 @@ katze_array_finalize (GObject* object);
 static void
 _katze_array_update (KatzeArray* array)
 {
+/* FIXME: remove this declaration when midory_debug is made accessible */
+    extern gboolean midori_debug (const gchar* token);
+
     g_object_set_data (G_OBJECT (array), "last-update",
                        GINT_TO_POINTER (time (NULL)));
+    if (midori_debug ("bookmarks") && KATZE_IS_ITEM (array))
+    {
+        const gchar *name = katze_item_get_name (KATZE_ITEM (array));
+        if (name && *name)
+        {
+            g_print ("_katze_array_update: %s\n", name);
+        }
+    }
 }
 
 static void
@@ -102,6 +122,27 @@ _katze_array_clear (KatzeArray* array)
     g_list_free (array->priv->items);
     array->priv->items = NULL;
     _katze_array_update (array);
+}
+
+static void
+_katze_array_set_property (GObject *object,
+    guint property_id,
+    const GValue *value,
+    GParamSpec *pspec)
+{
+    KatzeArray *array = KATZE_ARRAY (object);
+
+    switch (property_id)
+    {
+        case PROP_TYPE:
+            array->priv->type = g_value_get_gtype (value);
+            break;
+
+        default:
+            /* We don't have any other property... */
+            G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+            break;
+    }
 }
 
 static void
@@ -187,12 +228,23 @@ katze_array_class_init (KatzeArrayClass* class)
 
     gobject_class = G_OBJECT_CLASS (class);
     gobject_class->finalize = katze_array_finalize;
+    gobject_class->set_property = _katze_array_set_property;
 
     class->add_item = _katze_array_add_item;
     class->remove_item = _katze_array_remove_item;
     class->move_item = _katze_array_move_item;
     class->clear = _katze_array_clear;
     class->update = _katze_array_update;
+
+
+    g_object_class_install_property (gobject_class,
+        PROP_TYPE,
+        g_param_spec_gtype (
+            "type",
+            "Type",
+            "The array item type",
+            G_TYPE_NONE,
+            G_PARAM_WRITABLE|G_PARAM_CONSTRUCT_ONLY));
 
     g_type_class_add_private (class, sizeof (KatzeArrayPrivate));
 }
@@ -238,8 +290,7 @@ katze_array_new (GType type)
 
     g_return_val_if_fail (g_type_is_a (type, G_TYPE_OBJECT), NULL);
 
-    array = g_object_new (KATZE_TYPE_ARRAY, NULL);
-    array->priv->type = type;
+    array = g_object_new (KATZE_TYPE_ARRAY, "type", type, NULL);
 
     return array;
 }
