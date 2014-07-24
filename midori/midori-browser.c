@@ -5824,7 +5824,9 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_window_set_role (GTK_WINDOW (browser), "browser");
     gtk_window_set_icon_name (GTK_WINDOW (browser), MIDORI_STOCK_WEB_BROWSER);
     #if GTK_CHECK_VERSION (3, 4, 0)
+    #ifndef HAVE_GRANITE
     gtk_window_set_hide_titlebar_when_maximized (GTK_WINDOW (browser), TRUE);
+    #endif
     #endif
     vbox = gtk_vbox_new (FALSE, 0);
     gtk_container_add (GTK_CONTAINER (browser), vbox);
