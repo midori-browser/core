@@ -1969,7 +1969,7 @@ _update_tooltip_if_changed (GtkAction* action,
     g_free (old);
 }
 
-static void 
+static void
 _update_reload_tooltip (GtkWidget*   widget,
                         GdkEventKey* event,
                         gboolean released)
@@ -1982,12 +1982,12 @@ _update_reload_tooltip (GtkWidget*   widget,
     GdkModifierType mask;
     gdk_window_get_pointer (gtk_widget_get_window (widget), NULL, NULL, &mask);
     const gchar *target;
-    
+
     if ( mask & GDK_SHIFT_MASK)
     {
         target = _("Reload page without caching");
     }
-    else 
+    else
     {
         target = _("Reload the current page");
     }
@@ -3152,8 +3152,8 @@ midori_browser_restore_tab (MidoriBrowser* browser,
     g_object_ref (item);
     katze_array_remove_item (browser->trash, item);
     view = midori_browser_add_item (browser, item);
-    g_object_unref (item);
     midori_browser_view_copy_from_item_history (view,item->history);
+    g_object_unref (item);
     return view;
 }
 
@@ -6398,7 +6398,7 @@ midori_browser_toolbar_item_button_press_event_cb (GtkWidget*      toolitem,
         {
             gtk_action_activate (_action_by_name (browser, "TabDuplicate"));
         }
-        
+
         GtkWidget* parent = gtk_widget_get_parent (toolitem);
         GtkAction* action = gtk_activatable_get_related_action (
             GTK_ACTIVATABLE (parent));
@@ -7593,14 +7593,14 @@ midori_browser_get_for_widget (GtkWidget* widget)
         browser = gtk_window_get_transient_for (GTK_WINDOW (browser));
         if (!MIDORI_IS_BROWSER (browser))
         {
-            /* For some reason, when called on the widget of the 
+            /* For some reason, when called on the widget of the
              * application menubar we get here.
              */
 
             GList* top_levels = gtk_window_list_toplevels ();
             GList *iter;
 
-            for (iter = top_levels; iter; iter = g_list_next (iter)) 
+            for (iter = top_levels; iter; iter = g_list_next (iter))
             {
                 browser = iter->data;
 
@@ -7610,7 +7610,7 @@ midori_browser_get_for_widget (GtkWidget* widget)
                     return MIDORI_BROWSER (browser);
                 }
             }
-            
+
             g_list_free (top_levels);
             return NULL;
         }
