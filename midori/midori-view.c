@@ -4390,7 +4390,6 @@ midori_web_view_save_main_resource_cb (GFile *file,
 } 
 #endif
 
-#ifndef HAVE_WEBKIT2
 /**
  * midori_view_save_source:
  * @view: a #MidoriView
@@ -4409,6 +4408,15 @@ midori_view_save_source (MidoriView*  view,
                          const gchar* outfile,
                          gboolean     use_dom)
 {
+    g_return_val_if_fail (MIDORI_IS_VIEW (view), NULL);
+    
+    if (uri == NULL)
+        uri = midori_view_get_display_uri (view);
+
+    if (g_str_has_prefix (uri, "file:///"))
+        return g_filename_from_uri (uri, NULL, NULL);
+
+#ifndef HAVE_WEBKIT2
     WebKitWebFrame *frame;
     WebKitWebDataSource *data_source;
     const GString *data;
@@ -4416,8 +4424,6 @@ midori_view_save_source (MidoriView*  view,
     gint fd;
     FILE* fp;
     size_t ret;
-
-    g_return_val_if_fail (MIDORI_IS_VIEW (view), NULL);
 
     frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view));
 
@@ -4438,12 +4444,6 @@ midori_view_save_source (MidoriView*  view,
         data_source = webkit_web_frame_get_data_source (frame);
         data = webkit_web_data_source_get_data (data_source);
     }
-
-    if (uri == NULL)
-        uri = midori_view_get_display_uri (view);
-
-    if (g_str_has_prefix (uri, "file:///"))
-        return g_filename_from_uri (uri, NULL, NULL);
 
     if (!outfile)
     {
@@ -4478,31 +4478,20 @@ midori_view_save_source (MidoriView*  view,
         close (fd);
     }
     return unique_filename;
-}
 #else
-/**
- * midori_view_save_source:
- * @view: a #MidoriView
- * @uri: an alternative destination URI, or %NULL
- *
- * Saves the data in the view to disk.
- *
- * Return value: the destination filename
- *
- * Since: 0.4.4
- **/
-void
-midori_view_save_source (MidoriView*  view,
-                         const gchar* uri,
-                         gboolean     use_dom)
-{
     GFile *file;
-    char * converted = NULL;
+    char *converted = NULL;
     WebKitWebView * web_view = WEBKIT_WEB_VIEW (view->web_view);
     g_return_if_fail (uri);
-    converted = g_filename_to_utf8 (uri, -1, NULL, NULL, NULL);
+
+    if (!outfile)
+        converted = g_filename_to_utf8 (uri, -1, NULL, NULL, NULL);
+    else
+        converted = g_strdup (outfile);
+
     file = g_file_new_for_uri (converted);
-    if (g_str_has_suffix (uri, ".mhtml"))
+
+    if (g_str_has_suffix (uri, ".mht"))
         webkit_web_view_save_to_file (WEBKIT_WEB_VIEW (web_view), file, WEBKIT_SAVE_MODE_MHTML,
                                   NULL, NULL, NULL);
     else
@@ -4513,8 +4502,9 @@ midori_view_save_source (MidoriView*  view,
                           web_view);
     g_free (converted);
     g_object_unref (file);
-}
+    return converted;
 #endif
+}
 
 /**
  * midori_view_reload:

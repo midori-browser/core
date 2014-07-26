@@ -1303,7 +1303,6 @@ midori_browser_save_resources (GList*       resources,
 }
 #endif
 
-#ifndef HAVE_WEBKIT2
 void
 midori_browser_save_uri (MidoriBrowser* browser,
                          MidoriView*    view,
@@ -1313,9 +1312,6 @@ midori_browser_save_uri (MidoriBrowser* browser,
     GtkWidget* dialog;
     const gchar* title = midori_view_get_display_title (view);
     gchar* filename;
-    GList* resources = midori_view_get_resources (view);
-    gboolean file_only = TRUE;
-    GtkWidget* checkbox = NULL;
 
     dialog = (GtkWidget*)midori_file_chooser_dialog_new (_("Save file as"),
         GTK_WINDOW (browser), GTK_FILE_CHOOSER_ACTION_SAVE);
@@ -1323,14 +1319,6 @@ midori_browser_save_uri (MidoriBrowser* browser,
 
     if (uri == NULL)
         uri = midori_view_get_display_uri (view);
-
-    if (resources != NULL && g_list_nth_data (resources, 1) != NULL)
-    {
-        file_only = FALSE;
-        checkbox = gtk_check_button_new_with_mnemonic (_("Save associated _resources"));
-        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbox), TRUE);
-        gtk_file_chooser_set_extra_widget (GTK_FILE_CHOOSER (dialog), checkbox);
-    }
 
     if (last_dir && *last_dir)
         gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), last_dir);
@@ -1341,6 +1329,19 @@ midori_browser_save_uri (MidoriBrowser* browser,
             dirname = katze_object_get_string (browser->settings, "download-folder");
         gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), dirname);
         g_free (dirname);
+    }
+
+#ifndef HAVE_WEBKIT2
+    GList* resources = midori_view_get_resources (view);
+    gboolean file_only = TRUE;
+    GtkWidget* checkbox = NULL;
+
+    if (resources != NULL && g_list_nth_data (resources, 1) != NULL)
+    {
+        file_only = FALSE;
+        checkbox = gtk_check_button_new_with_mnemonic (_("Save associated _resources"));
+        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbox), TRUE);
+        gtk_file_chooser_set_extra_widget (GTK_FILE_CHOOSER (dialog), checkbox);
     }
 
     if (!file_only && !g_str_equal (title, uri))
@@ -1371,58 +1372,28 @@ midori_browser_save_uri (MidoriBrowser* browser,
         katze_assign (last_dir,
             gtk_file_chooser_get_current_folder (GTK_FILE_CHOOSER (dialog)));
     }
-    gtk_widget_destroy (dialog);
     g_list_free (resources);
-}
 #else
-void
-midori_browser_save_midori_view (MidoriBrowser* browser,
-                         MidoriView*    view)
-{
-    static gchar* last_dir = NULL;
-    GtkWidget* dialog;
-    const gchar* title = midori_view_get_display_title (view);
-    gchar* filename;
-   
-    dialog = (GtkWidget*)midori_file_chooser_dialog_new (_("Save file as"),
-        GTK_WINDOW (browser), GTK_FILE_CHOOSER_ACTION_SAVE);
-    gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (dialog), TRUE);
-    if (last_dir && *last_dir)
-        gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), last_dir);
-    else
-    {
-        const gchar* uri = midori_view_get_display_uri (view);
-        gchar* dirname = midori_uri_get_folder (uri);
-        if (dirname == NULL)
-            dirname = katze_object_get_string (browser->settings, "download-folder");
-        gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), dirname);
-        g_free (dirname);
-    }
-
     filename = midori_download_clean_filename (title);
-    gchar* suggested_filename = g_strconcat (filename, ".mhtml", NULL);
+    gchar* suggested_filename = g_strconcat (filename, ".mht", NULL);
     gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (dialog), suggested_filename);
 
     g_free (filename);
     g_free (suggested_filename);
     if (midori_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK)
     {
-        char *uri;
-        uri = gtk_file_chooser_get_uri (GTK_FILE_CHOOSER (dialog));
+        char *uri = gtk_file_chooser_get_uri (GTK_FILE_CHOOSER (dialog));
         if (uri != NULL)
         {
-            if (uri != NULL)
-            {
-                midori_view_save_source (view, uri,false);
-            }
+            midori_view_save_source (view, uri, NULL, false);
             g_free (uri);
         }
         katze_assign (last_dir,
             gtk_file_chooser_get_current_folder (GTK_FILE_CHOOSER (dialog)));
     }
+#endif
     gtk_widget_destroy (dialog);
 }
-#endif
 
 static void
 midori_browser_speed_dial_refresh_cb (MidoriSpeedDial* dial,
@@ -2689,11 +2660,7 @@ _action_save_as_activate (GtkAction*     action,
                           MidoriBrowser* browser)
 {
     GtkWidget* view = midori_browser_get_current_tab (browser);
-    #ifndef HAVE_WEBKIT2
     midori_browser_save_uri (browser, MIDORI_VIEW (view), NULL);
-    #else
-    midori_browser_save_midori_view (browser, MIDORI_VIEW (view));
-    #endif
 }
 
 static void

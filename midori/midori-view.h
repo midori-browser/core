@@ -183,18 +183,13 @@ midori_view_print                      (MidoriView*        view);
 
 gboolean
 midori_view_can_view_source            (MidoriView*        view);
-#ifndef HAVE_WEBKIT2
+
 gchar*
 midori_view_save_source                (MidoriView*        view,
                                         const gchar*       uri,
                                         const gchar*       outfile,
                                         gboolean           use_dom);
-#else
-void 
-midori_view_save_source                (MidoriView*        view,
-                                        const gchar*       uri,
-                                        gboolean           use_dom);
-#endif
+
 void
 midori_view_search_text                (MidoriView*        view,
                                         const gchar*       text,
