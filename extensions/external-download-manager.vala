@@ -41,11 +41,16 @@ namespace EDM {
 
             if (download_type == Midori.DownloadType.SAVE) {
                 var dlReq = new DownloadRequest ();
-                dlReq.uri = download.get_uri ();
 
+                #if HAVE_WEBKIT2
+                dlReq.uri = download.request.get_uri ();
+                weak MessageHeaders headers = download.request.get_http_headers ();
+                #else
+                dlReq.uri = download.get_uri ();
                 var request = download.get_network_request ();
                 var message = request.get_message ();
                 weak MessageHeaders headers = message.request_headers;
+                #endif
 
                 dlReq.auth = headers.get ("Authorization");
                 dlReq.referer = headers.get ("Referer");
@@ -102,7 +107,11 @@ namespace EDM {
         }
 
         construct {
+            #if HAVE_WEBKIT2
+            var session= new Session ();
+            #else
             var session = WebKit.get_default_session ();
+            #endif
             this.cookie_jar = session.get_feature (typeof (CookieJar)) as CookieJar;
         }
     }
@@ -159,6 +168,22 @@ namespace EDM {
                 typeof(HashTable), options);
             var session = new SessionSync ();
             session.send_message (message);
+
+            /* Check if the plug-in actually recieved an reply.
+             * The parse method do not warns us about it. And the exception
+             * never is launched.*/
+            if (message.status_code != 200) {
+                var dialog = new MessageDialog (null, DialogFlags.MODAL,
+                    MessageType.ERROR, ButtonsType.CLOSE,
+                    _("The plug-in was unable to connect with aria2:\n" +
+                      "Please make sure that aria2 is running with rpc enabled ie: aria2c --enable-rpc\n" +
+                      "If it's so, check it also is using the port 6800.\n" +
+                      "Lastly Check the configuration of your firewall.\n" +
+                      "Whitelist aria2 and the port 6800 if they aren't."
+                      ));
+                dialog.response.connect ((a) => { dialog.destroy (); });
+                dialog.run ();
+            }
 
             try {
                 Value v;
@@ -344,4 +369,3 @@ public Katze.Array extension_init () {
     extensions.add_item (new EDM.CommandLine ());
     return extensions;
 }
-
