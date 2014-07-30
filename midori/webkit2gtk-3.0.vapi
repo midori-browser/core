@@ -81,7 +81,7 @@ namespace WebKit {
 		public async Cairo.Surface? get_favicon (string page_uri, GLib.Cancellable? cancellable) throws GLib.Error;
 		public string? get_favicon_uri (string page_uri);
 		public void clear ();
-	}
+	} 
 	[CCode (cheader_filename = "webkit2/webkit2.h", type_id = "webkit_download_get_type ()")]
 	public class Download : GLib.Object {
 		[CCode (has_construct_function = false)]
@@ -95,8 +95,10 @@ namespace WebKit {
 		public unowned WebKit.URIResponse get_response ();
 		public void set_destination (string uri);
 		public string destination { get; }
+		public double elapsed_time{ get; }
 		public double estimated_progress { get; }
 		public WebKit.URIResponse response { get; }
+		public WebKit.URIRequest request{ get; }
 		public signal bool created_destination (string destination);
 		public virtual signal bool decide_destination (string suggested_filename);
 		public signal void failed (void* error);
@@ -395,6 +397,7 @@ namespace WebKit {
 		public URIRequest (string uri);
 		public unowned string get_uri ();
 		public string uri { get; construct; }
+		public unowned Soup.MessageHeaders get_http_headers ();
 	}
 	[CCode (cheader_filename = "webkit2/webkit2.h", type_id = "webkit_uri_response_get_type ()")]
 	public class URIResponse : GLib.Object {
@@ -403,12 +406,14 @@ namespace WebKit {
 		public uint64 get_content_length ();
 		public bool get_https_status (out unowned GLib.TlsCertificate certificate, out GLib.TlsCertificateFlags errors);
 		public unowned string get_mime_type ();
+		public unowned string get_suggested_filename ();
 		public uint get_status_code ();
 		public unowned string get_uri ();
 		public uint64 content_length { get; }
 		public string mime_type { get; }
 		public uint status_code { get; }
 		public string uri { get; }
+		public string suggested_filename { get; }
 	}
 	[CCode (cheader_filename = "webkit2/webkit2.h", type_id = "webkit_uri_scheme_request_get_type ()")]
 	public class URISchemeRequest : GLib.Object {

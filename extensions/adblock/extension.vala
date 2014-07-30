@@ -791,6 +791,8 @@ struct TestUpdateExample {
         { "[Adblock Plus 2.0]\n! Last modification time (GMT): 2012.11.05 13:33\n! Expires: 5 days (update frequency)\n", true, true },
         { "[Adblock Plus 2.0]\n! Last modification time (GMT): 2012.11.05 13:33\n", true, true },
         { "[Adblock]\n ! dummy,  i dont have any dates\n", false, true },
+        /* non-standard update time metadata as found in http://abp.mozilla-hispano.org/nauscopio/filtros.txt */
+        { "[Adblock Plus 2.0]\n ! Last modified: Oct 26, 2013 18:00 UTC\n ! This list expires after 5 days\n! Last modified by maty: 12Oct2013\n! \n", false, true },
         { "\n", false, false }
     };
 

@@ -181,14 +181,27 @@ static KatzeArray*
 midori_bookmarks_db_get_item_parent (MidoriBookmarksDb* bookmarks,
                                      gpointer    item)
 {
+    gint64 parentid = katze_item_get_meta_integer (KATZE_ITEM (item), "parentid");
+    KatzeItem *search = katze_item_new ();
     KatzeArray* parent;
-    gint64 parentid;
 
-    parentid = katze_item_get_meta_integer (KATZE_ITEM (item), "parentid");
+    if (!parentid)
+    {
+        parentid = katze_item_get_meta_integer (KATZE_ITEM (bookmarks), "id");
+        katze_item_set_meta_integer (KATZE_ITEM (item), "parentid", parentid);
+    }
 
-    if (parentid == 0)
+    katze_item_set_meta_integer(search, "id", parentid);
+
+    parent = KATZE_ARRAY (g_hash_table_lookup (bookmarks->all_items, search));
+
+    g_object_unref (search);
+
+    if (!parent)
     {
         parent = KATZE_ARRAY (bookmarks);
+        katze_item_set_meta_integer (KATZE_ITEM (item), "parentid",
+            katze_item_get_meta_integer (KATZE_ITEM (bookmarks), "id"));
     }
     else
     {
@@ -238,12 +251,12 @@ _midori_bookmarks_db_add_item (KatzeArray* array,
         return;
     }
 
-    if (IS_MIDORI_BOOKMARKS_DB (parent))
-        KATZE_ARRAY_CLASS (midori_bookmarks_db_parent_class)->add_item (parent, item);
-    else if (KATZE_IS_ARRAY (parent))
-        katze_array_add_item (parent, item);
+    if (IS_MIDORI_BOOKMARKS_DB (db_parent))
+        KATZE_ARRAY_CLASS (midori_bookmarks_db_parent_class)->add_item (db_parent, item);
+    else if (KATZE_IS_ARRAY (db_parent))
+        katze_array_add_item (db_parent, item);
 
-    g_assert (parent == katze_item_get_parent (KATZE_ITEM (item)));
+    g_assert (db_parent == katze_item_get_parent (KATZE_ITEM (item)));
 }
 
 /**
@@ -267,7 +280,10 @@ _midori_bookmarks_db_update_item (MidoriBookmarksDb* bookmarks,
 
     g_return_if_fail (parent);
 
-    katze_array_update (parent);
+    if (IS_MIDORI_BOOKMARKS_DB (parent))
+        KATZE_ARRAY_CLASS (midori_bookmarks_db_parent_class)->update (parent);
+    else
+        katze_array_update (parent);
 }
 
 /**
@@ -703,7 +719,7 @@ midori_bookmarks_db_new (char** errmsg)
     g_return_val_if_fail (errmsg != NULL, NULL);
 
     database = midori_bookmarks_database_new (&error);
-    
+
     if (error != NULL)
     {
 	*errmsg = g_strdup (error->message);
@@ -714,7 +730,10 @@ midori_bookmarks_db_new (char** errmsg)
     db = midori_database_get_db (MIDORI_DATABASE (database));
     g_return_val_if_fail (db != NULL, NULL);
 
-    bookmarks = MIDORI_BOOKMARKS_DB (g_object_new (TYPE_MIDORI_BOOKMARKS_DB, NULL));
+    bookmarks = MIDORI_BOOKMARKS_DB (g_object_new (TYPE_MIDORI_BOOKMARKS_DB,
+            "type", KATZE_TYPE_ITEM,
+            NULL));
+
     bookmarks->db = db;
 
     g_object_set_data (G_OBJECT (bookmarks), "db", db);
@@ -739,11 +758,11 @@ midori_bookmarks_db_on_quit (MidoriBookmarksDb* bookmarks)
 
 /**
  * midori_bookmarks_db_import_array:
- * @array: the main bookmark array
+ * @bookmarks: the main bookmark array
  * @array: #KatzeArray containing the items to import
  * @parentid: the id of folder
  *
- * Imports the items of @array as childs of the folder
+ * Imports the items of @array as children of the folder
  * identfied by @parentid.
  *
  * Since: 0.5.2
@@ -926,6 +945,8 @@ midori_bookmarks_db_query_recursive (MidoriBookmarksDb*  bookmarks,
             KatzeItem* subitem;
             GList* sublist;
 
+            katze_array_clear (KATZE_ARRAY (item));
+
             KATZE_ARRAY_FOREACH_ITEM_L (subitem, subarray, sublist)
             {
                 katze_array_add_item (KATZE_ARRAY (item), subitem);
@@ -1086,4 +1107,55 @@ midori_bookmarks_db_count_recursive (MidoriBookmarksDb*  bookmarks,
     return midori_bookmarks_db_count_recursive_by_id (bookmarks, condition,
                                                       value, id,
                                                       recursive);
+}
+
+/**
+ * midori_bookmarks_db_populate_folder:
+ **/
+
+void
+midori_bookmarks_db_populate_folder (MidoriBookmarksDb* bookmarks,
+    KatzeArray *folder)
+{
+    const gchar* id = katze_item_get_meta_string (KATZE_ITEM (folder), "id");
+    const gchar *condition;
+    KatzeArray* array;
+    KatzeItem* item;
+    GList* list;
+
+    if (id == NULL)
+    {
+        condition = "parentid is NULL";
+    }
+    else
+    {
+        condition = "parentid = %q";
+    }
+
+    array = midori_bookmarks_db_query_recursive (bookmarks,
+        "id, title, parentid, uri, app, pos_panel, pos_bar", condition, id, FALSE);
+
+    if (IS_MIDORI_BOOKMARKS_DB (folder))
+    {
+        KATZE_ARRAY_FOREACH_ITEM_L (item, folder, list)
+        {
+            KATZE_ARRAY_CLASS (midori_bookmarks_db_parent_class)->remove_item (folder, item);
+        }
+
+        KATZE_ARRAY_FOREACH_ITEM_L (item, array, list)
+        {
+            KATZE_ARRAY_CLASS (midori_bookmarks_db_parent_class)->add_item (folder, item);
+        }
+    }
+    else
+    {
+        katze_array_clear(folder);
+
+        KATZE_ARRAY_FOREACH_ITEM_L (item, array, list)
+        {
+            katze_array_add_item (folder, item);
+        }
+    }
+
+    g_object_unref (array);
 }

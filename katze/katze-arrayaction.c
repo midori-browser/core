@@ -695,7 +695,7 @@ katze_array_action_toolitem_destroy_cb (GtkToolItem* toolitem,
  * Note that the label is reasonably ellipsized for you,
  * much like katze_image_menu_item_new_ellipsized().
  *
- * Return value: a new tool item
+ * Return value: (transfer full): a new tool item
  **/
 GtkToolItem*
 katze_array_action_create_tool_item_for (KatzeArrayAction* array_action,
@@ -802,6 +802,14 @@ katze_array_action_disconnect_proxy (GtkAction* action,
         (action, proxy);
 }
 
+/**
+ * katze_array_action_get_array:
+ * @array_action: a #KatzeArrayAction
+ *
+ * Obtain the array which backs the array action.
+ *
+ * Return value: (transfer none): the KatzeArray used by @array_action
+ **/
 KatzeArray*
 katze_array_action_get_array (KatzeArrayAction* array_action)
 {
@@ -815,12 +823,14 @@ katze_array_action_set_array (KatzeArrayAction* array_action,
                               KatzeArray*       array)
 {
     GSList* proxies;
+    KatzeArray *old_array = NULL;
 
     g_return_if_fail (KATZE_IS_ARRAY_ACTION (array_action));
     g_return_if_fail (!array || katze_array_is_a (array, KATZE_TYPE_ITEM));
 
     /* FIXME: Disconnect old array */
 
+    old_array = array_action->array;
     if (array)
         g_object_ref (array);
     katze_object_assign (array_action->array, array);
@@ -841,7 +851,15 @@ katze_array_action_set_array (KatzeArrayAction* array_action,
 
     do
     {
+        KatzeArray* item = g_object_get_data (G_OBJECT (proxies->data), "KatzeItem");
+
+        if (item && (item == old_array))
+            g_object_set_data (G_OBJECT (proxies->data), "KatzeItem", array);
+
         gtk_widget_set_sensitive (proxies->data, array != NULL);
     }
     while ((proxies = g_slist_next (proxies)));
+
+    if (array)
+        katze_array_update (KATZE_ARRAY (array));
 }

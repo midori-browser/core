@@ -334,7 +334,7 @@ katze_cell_renderer_combobox_text_set_property (GObject*      object,
  * value in the model, thus rendering a different string in each row
  * of the #GtkTreeView
  *
- * Return value: the new cell renderer
+ * Return value: (transfer full): the new cell renderer
  **/
 GtkCellRenderer *
 katze_cell_renderer_combobox_text_new (void)

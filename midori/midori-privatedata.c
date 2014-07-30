@@ -22,26 +22,14 @@
 #include <gdk/gdkkeysyms.h>
 #include <sqlite3.h>
 
-#ifdef HAVE_GRANITE
-#include <granite/granite.h>
-#endif
-
     #define LIBSOUP_USE_UNSTABLE_REQUEST_API
     #include <libsoup/soup-cache.h>
 
 static void
-#ifdef HAVE_GRANITE
-midori_private_data_dialog_response_cb (GtkWidget*    button,
-#else
 midori_private_data_dialog_response_cb (GtkWidget*     dialog,
                                         gint           response_id,
-#endif
                                         MidoriBrowser* browser)
 {
-    #ifdef HAVE_GRANITE
-    GtkWidget* dialog = gtk_widget_get_toplevel (button);
-    gint response_id = GTK_RESPONSE_ACCEPT;
-    #endif
     if (response_id == GTK_RESPONSE_ACCEPT)
     {
         GtkToggleButton* button;
@@ -126,18 +114,6 @@ midori_private_data_get_dialog (MidoriBrowser* browser)
     gint clear_prefs = MIDORI_CLEAR_NONE;
     g_object_get (settings, "clear-private-data", &clear_prefs, NULL);
 
-    #ifdef HAVE_GRANITE
-    /* FIXME: granite: should return GtkWidget* like GTK+ */
-    dialog = (GtkWidget*)granite_widgets_light_window_new (_("Clear Private Data"));
-    /* FIXME: granite: should return GtkWidget* like GTK+ */
-    content_area = (GtkWidget*)granite_widgets_decorated_window_get_box (GRANITE_WIDGETS_DECORATED_WINDOW (dialog));
-    hbox = gtk_hbox_new (FALSE, 4);
-    gtk_box_pack_end (GTK_BOX (content_area), hbox, FALSE, FALSE, 4);
-    button = gtk_button_new_with_mnemonic (_("_Clear private data"));
-    gtk_box_pack_end (GTK_BOX (hbox), button, FALSE, FALSE, 4);
-    g_signal_connect (button, "clicked",
-        G_CALLBACK (midori_private_data_dialog_response_cb), browser);
-    #else
     /* i18n: Dialog: Clear Private Data, in the Tools menu */
     dialog = gtk_dialog_new_with_buttons (_("Clear Private Data"),
         GTK_WINDOW (browser),
@@ -150,17 +126,13 @@ midori_private_data_get_dialog (MidoriBrowser* browser)
     g_signal_connect (dialog, "response",
         G_CALLBACK (midori_private_data_dialog_response_cb), browser);
     gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT);
-    #endif
-    /* Elementary */
-    katze_widget_add_class (button, "noundo");
-    /* GNOME Shell */
     katze_widget_add_class (button, "destructive-action");
     screen = gtk_widget_get_screen (GTK_WIDGET (browser));
     if (screen)
         gtk_window_set_icon_name (GTK_WINDOW (dialog), GTK_STOCK_CLEAR);
     sizegroup = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
     hbox = gtk_hbox_new (FALSE, 4);
-    icon = gtk_image_new_from_stock (GTK_STOCK_CLEAR, GTK_ICON_SIZE_DIALOG);
+    icon = gtk_image_new_from_icon_name ("edit-clear", GTK_ICON_SIZE_DIALOG);
     gtk_size_group_add_widget (sizegroup, icon);
     gtk_box_pack_start (GTK_BOX (hbox), icon, FALSE, FALSE, 0);
     label = gtk_label_new (_("Clear the following data:"));
@@ -411,4 +383,3 @@ midori_private_data_register_item (const gchar* name,
     items = g_list_append (items, item);
     return NULL;
 }
-

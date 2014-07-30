@@ -316,7 +316,7 @@ proxy_widget_string_destroy_cb (GtkWidget* proxy,
  * Since 0.2.1 the proxy may contain a label if the platform
  *     has according widgets.
  *
- * Return value: a new widget
+ * Return value: (transfer full): a new widget
  **/
 GtkWidget*
 katze_property_proxy (gpointer     object,
@@ -744,7 +744,7 @@ katze_widget_popup (GtkWidget*      widget,
  * Creates an image menu item where the label is
  * reasonably ellipsized for you.
  *
- * Return value: a new label widget
+ * Return value: (transfer full): a new label widget
  **/
 GtkWidget*
 katze_image_menu_item_new_ellipsized (const gchar* label)
@@ -990,7 +990,7 @@ katze_object_get_string (gpointer     object,
  *
  * Retrieve the object value of the specified property.
  *
- * Return value: an object
+ * Return value: (transfer none): an object
  **/
 gpointer
 katze_object_get_object (gpointer     object,
@@ -1092,7 +1092,7 @@ katze_uri_entry_draw_cb (GtkWidget* entry,
  * If @other_widget is given, it will become insensitive if
  * the input is not a valid URI.
  *
- * Returns: a #GtkEntry
+ * Returns: (transfer full): a #GtkEntry
  *
  * Since: 0.3.6
  */

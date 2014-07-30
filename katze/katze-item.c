@@ -275,7 +275,7 @@ katze_item_get_property (GObject*    object,
  *
  * Creates a new #KatzeItem.
  *
- * Return value: a new #KatzeItem
+ * Return value: (transfer full): a new #KatzeItem
  **/
 KatzeItem*
 katze_item_new (void)
@@ -825,7 +825,7 @@ katze_item_set_parent (KatzeItem* item,
  *
  * Since 0.4.3 meta data is copied.
  *
- * Return value: a new #KatzeItem
+ * Return value: (transfer full): a new #KatzeItem
  *
  * Since: 0.1.3
  **/
