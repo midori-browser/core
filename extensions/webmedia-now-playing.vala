@@ -14,6 +14,7 @@ namespace Sandcat {
     private class Manager : Midori.Extension {
         DbusService dbus_service { get; set; }
         WebMediaNotify web_media_notify { get; set; }
+        Midori.Browser page { get; set; }
         string web_media_uri { get; set; }
         string web_media_title { get; set; }
         internal Manager () {
@@ -25,18 +26,18 @@ namespace Sandcat {
             deactivate.connect (this.deactivated);
         }
 
-        void youtube_validation (string title, string uri) {
-            if(uri == title || uri.contains(title)) return;
-            if (web_media_uri == uri) return;
-            if (web_media_title == title) return;
-            web_media_uri = uri;
-            web_media_title = title;
+        void youtube_validation (Object object,  ParamSpec pspec) {
+            if(page.uri == page.title || page.uri.contains(page.title)) return;
+            if (web_media_uri == page.uri) return;
+            if (web_media_title == page.title) return;
+            web_media_uri = page.uri;
+            web_media_title = page.title;
             try { 
                     var youtube = new Regex("""(http|https)://www.youtube.com/watch\?v=[&=_\-A-Za-z0-9.]+""");
                     var vimeo = new Regex("""(http|https)://vimeo.com/[0-9]+""");
                     var dailymotion = new Regex("""(http|https)://www.dailymotion.com/video/[_\-A-Za-z0-9]+""");
                     string website = null;
-                    if (web_media_uri.contains("youtube") || uri.contains("vimeo") || uri.contains ("dailymotion")) {
+                    if (web_media_uri.contains("youtube") || page.uri.contains("vimeo") || page.uri.contains ("dailymotion")) {
                         if (youtube.match(web_media_uri))
                             website = "Youtube";
                         else if (vimeo.match(web_media_uri))
@@ -58,9 +59,8 @@ namespace Sandcat {
         }
 
         void browser_added (Midori.Browser browser) {
-            browser.notify["title"].connect (() => {
-                youtube_validation(browser.title, browser.uri);
-            });
+			page = browser;
+            browser.notify["title"].connect (youtube_validation);
         }
 
         void activated (Midori.App app) {
@@ -76,6 +76,8 @@ namespace Sandcat {
             var app = get_app ();
             app.add_browser.disconnect (browser_added);
             dbus_service.unregister_service();
+            foreach (var browser in app.get_browsers ())
+                browser.notify["title"].disconnect (youtube_validation);
         }
     }
 
