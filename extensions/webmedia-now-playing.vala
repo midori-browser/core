@@ -37,7 +37,7 @@ namespace Sandcat {
                     var vimeo = new Regex("""(http|https)://vimeo.com/[0-9]+""");
                     var dailymotion = new Regex("""(http|https)://www.dailymotion.com/video/[_\-A-Za-z0-9]+""");
                     string website = null;
-                    if (web_media_uri.contains("youtube") || browser.uri.contains("vimeo") || browser.uri.contains ("dailymotion")) {
+                    if (web_media_uri.contains("youtube") || web_media_uri.contains("vimeo") || web_media_uri.contains ("dailymotion")) {
                         if (youtube.match(web_media_uri))
                             website = "Youtube";
                         else if (vimeo.match(web_media_uri))
