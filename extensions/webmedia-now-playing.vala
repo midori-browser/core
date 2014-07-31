@@ -14,7 +14,6 @@ namespace Sandcat {
     private class Manager : Midori.Extension {
         DbusService dbus_service { get; set; }
         WebMediaNotify web_media_notify { get; set; }
-        Midori.Browser page { get; set; }
         string web_media_uri { get; set; }
         string web_media_title { get; set; }
         internal Manager () {
@@ -27,17 +26,18 @@ namespace Sandcat {
         }
 
         void youtube_validation (Object object,  ParamSpec pspec) {
-            if(page.uri == page.title || page.uri.contains(page.title)) return;
-            if (web_media_uri == page.uri) return;
-            if (web_media_title == page.title) return;
-            web_media_uri = page.uri;
-            web_media_title = page.title;
+            var browser = object as Midori.Browser;
+            if(browser.uri == browser.title || browser.uri.contains(browser.title)) return;
+            if (web_media_uri == browser.uri) return;
+            if (web_media_title == browser.title) return;
+            web_media_uri = browser.uri;
+            web_media_title = browser.title;
             try { 
                     var youtube = new Regex("""(http|https)://www.youtube.com/watch\?v=[&=_\-A-Za-z0-9.]+""");
                     var vimeo = new Regex("""(http|https)://vimeo.com/[0-9]+""");
                     var dailymotion = new Regex("""(http|https)://www.dailymotion.com/video/[_\-A-Za-z0-9]+""");
                     string website = null;
-                    if (web_media_uri.contains("youtube") || page.uri.contains("vimeo") || page.uri.contains ("dailymotion")) {
+                    if (web_media_uri.contains("youtube") || browser.uri.contains("vimeo") || browser.uri.contains ("dailymotion")) {
                         if (youtube.match(web_media_uri))
                             website = "Youtube";
                         else if (vimeo.match(web_media_uri))
@@ -59,7 +59,6 @@ namespace Sandcat {
         }
 
         void browser_added (Midori.Browser browser) {
-			page = browser;
             browser.notify["title"].connect (youtube_validation);
         }
 
