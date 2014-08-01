@@ -14,15 +14,15 @@ msgstr ""
 "Project-Id-Version: midori 0.2.7\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-02-21 10:52-0600\n"
-"PO-Revision-Date: 2014-06-11 23:09+0000\n"
-"Last-Translator: Ismael Cormier <ismael.cormier@outlook.com>\n"
+"PO-Revision-Date: 2014-07-31 16:14+0000\n"
+"Last-Translator: qperroit <quentin.perroit@gmail.com>\n"
 "Language-Team: French <fr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2014-06-12 05:53+0000\n"
-"X-Generator: Launchpad (build 17041)\n"
+"X-Launchpad-Export-Date: 2014-08-01 05:42+0000\n"
+"X-Generator: Launchpad (build 17141)\n"
 "Language: fr\n"
 
 #: ../data/midori.desktop.in.h:1 ../midori/main.c:142
@@ -98,7 +98,7 @@ msgstr "Navigation privée, les modifications ne sont pas enregistrées"
 #: ../midori/main.c:86
 msgid "Portable mode, all runtime files are stored in one place"
 msgstr ""
-"Mode portable, tous les fichiers exécutables sont stockés dans un endroit"
+"Mode portable, tous les fichiers exécutables sont stockés en un seul endroit"
 
 #: ../midori/main.c:89
 msgid "Plain GTK+ window with WebKit, akin to GtkLauncher"
@@ -110,7 +110,7 @@ msgstr "Afficher une fenêtre de diagnostic"
 
 #: ../midori/main.c:93
 msgid "Run within gdb and save a backtrace on crash"
-msgstr "Exécuter à l'intérieur de gdb et enregistrer une trace du crash"
+msgstr "Exécuter avec gdb et enregistrer une trace du crash"
 
 #: ../midori/main.c:95
 msgid "Run the specified filename as javascript"
@@ -541,6 +541,7 @@ msgstr ""
 "\n"
 "Launchpad Contributions:\n"
 "  Adrien Touminet https://launchpad.net/~pardaigle\n"
+"  Aleph https://launchpad.net/~aleph.donbinard\n"
 "  Christian Dywan https://launchpad.net/~kalikiana\n"
 "  Cody Garver https://launchpad.net/~codygarver\n"
 "  Corentin Noël https://launchpad.net/~tintou\n"
@@ -552,6 +553,7 @@ msgstr ""
 "  Marin Moulinier https://launchpad.net/~marinmoulinier\n"
 "  Matthieu Giraud https://launchpad.net/~matthieu-giraud-deactivatedaccount\n"
 "  Nikos https://launchpad.net/~nicolas-jovanovic\n"
+"  Pierre van Mart https://launchpad.net/~pierrevanmart\n"
 "  Pixmix https://launchpad.net/~vic952\n"
 "  Soukki44 https://launchpad.net/~psycolive\n"
 "  Stéphane Marguet https://launchpad.net/~stemp\n"
@@ -559,10 +561,12 @@ msgstr ""
 "  TiBounise https://launchpad.net/~tibounise\n"
 "  WebKit Team https://launchpad.net/~webkit-team\n"
 "  frenchy82 https://launchpad.net/~cartes\n"
+"  gilles chaon https://launchpad.net/~g-chaon\n"
 "  jc1 https://launchpad.net/~jc1-quebecos\n"
 "  jman6495 https://launchpad.net/~jman6495\n"
 "  londumas https://launchpad.net/~helion331990\n"
 "  miyoyo https://launchpad.net/~smartandroidtv95\n"
+"  qperroit https://launchpad.net/~quentin-perroit\n"
 "  v4nadium https://launchpad.net/~baptiste-paris-v\n"
 "  xavierd https://launchpad.net/~magicrhesus"
 
@@ -757,7 +761,7 @@ msgstr "_Exporter des signets…"
 
 #: ../midori/midori-browser.c:5233
 msgid "_Manage Search Engines…"
-msgstr "Gestion de les _moteurs de recherche…"
+msgstr "Gestion des _moteurs de recherche..."
 
 #: ../midori/midori-browser.c:5236
 msgid "_Clear Private Data…"
@@ -2396,7 +2400,7 @@ msgstr "Gestionnaire de téléchargement externe - Aria2"
 
 #: ../extensions/external-download-manager.vala:176
 msgid "Download files with Aria2"
-msgstr "Télécharger des fichiers avec Aria2"
+msgstr "Télécharger les fichiers avec Aria2"
 
 #: ../extensions/external-download-manager.vala:202
 msgid "External Download Manager - SteadyFlow"
@@ -2777,7 +2781,7 @@ msgstr "Fenêtre du Navigateur"
 
 #: ../extensions/nojs/nojs-view.c:707
 msgid "The Midori browser instance this view belongs to"
-msgstr ""
+msgstr "Cette exemple de vue du navigateur web Midori appartient à"
 
 #: ../extensions/nojs/nojs-view.c:713
 msgid "View"
@@ -2785,15 +2789,15 @@ msgstr "Afficher"
 
 #: ../extensions/nojs/nojs-view.c:714
 msgid "The Midori view instance this view belongs to"
-msgstr ""
+msgstr "Cette vue du navigateur web Midori appartient à"
 
 #: ../extensions/nojs/nojs-view.c:720
 msgid "Menu icon state"
-msgstr ""
+msgstr "État de l'icône du menu"
 
 #: ../extensions/nojs/nojs-view.c:721
 msgid "State of menu icon to show in status bar"
-msgstr ""
+msgstr "État de l'icône de menu à afficher dans la barre d'état"
 
 #: ../extensions/nojs/nojs-view.c:792 ../extensions/nojs/nojs.c:1029
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1112
@@ -2903,6 +2907,8 @@ msgstr "Autoriser tous les sites"
 msgid ""
 "If true this extension will not check policy for each site but allow them."
 msgstr ""
+"Si vrai, cette extension n'appliquera pas de politique restrictive à chaque "
+"site mais leur permettra de s’exécuter."
 
 #: ../extensions/nojs/nojs.c:755
 msgid "Only second level"
@@ -2913,6 +2919,8 @@ msgid ""
 "If true this extension will reduce each domain to its second-level "
 "(www.example.org will reduced to example.org)"
 msgstr ""
+"Si vrai, cette extension réduira chaque nom de domaine à son second niveau "
+"(www.exemple.org sera réduit à exemple.org)"
 
 #: ../extensions/nojs/nojs.c:762
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1033
@@ -3243,10 +3251,11 @@ msgstr ""
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:892
 msgid "Policy for cookies from domains not in the list: "
 msgstr ""
+"Politique de cookies pour les domaines ne figurant pas dans la liste "
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:897
 msgid "Ask for a decision"
-msgstr ""
+msgstr "Demander une décision"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:91
 msgid ""
@@ -3319,6 +3328,9 @@ msgid ""
 "The policy to use for domains not individually configured. This only acts to "
 "further restrict the global cookie policy set in Midori settings."
 msgstr ""
+"La politique à appliquer pour les domaines n'est pas configurée "
+"individuellement. Cela n'agit que pour restreindre davantage la politique "
+"globale des cookies définie dans les paramètres de Midori."
 
 #: ../extensions/cookie-permissions/main.c:62
 msgid "Cookie Security Manager"
@@ -3480,6 +3492,7 @@ msgstr "Impossible d'extraire de la base de données : %s"
 #, c-format
 msgid "Failed to import legacy session: %s"
 msgstr ""
+"Une erreur s'est produite lors de l'importation de l'ancienne session : %s"
 
 #: ../extensions/tabby.vala:775
 msgid "Tabby"
@@ -3497,6 +3510,8 @@ msgstr ""
 msgid ""
 "This extension provides a task queue for update jobs or recurring events."
 msgstr ""
+"Cette extension fournit une file de tâches pour des mises à jour ou des "
+"événements réguliers."
 
 #: ../extensions/notes.vala:46
 #, c-format
@@ -3529,7 +3544,7 @@ msgstr "Nouvelle note"
 
 #: ../extensions/notes.vala:147
 msgid "Creates a new empty note, urelated to opened pages"
-msgstr ""
+msgstr "Crée une nouvelle note vide, indépendante des pages ouvertes"
 
 #: ../extensions/notes.vala:153
 msgid "New note"
@@ -3560,6 +3575,7 @@ msgstr "Copier la sélection en tant que note"
 #: ../extensions/notes.vala:454
 msgid "Save text clips from websites as notes"
 msgstr ""
+"Sauvegarder des extraits de textes issus de sites web en tant que notes"
 
 #: ../extensions/adblock/extension.vala:38
 msgid "Advertisement blocker"
