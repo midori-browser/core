@@ -1372,6 +1372,7 @@ midori_browser_save_uri (MidoriBrowser* browser,
         katze_assign (last_dir,
             gtk_file_chooser_get_current_folder (GTK_FILE_CHOOSER (dialog)));
     }
+    g_list_foreach (resources, (GFunc)g_object_unref, NULL);
     g_list_free (resources);
 #else
     filename = midori_download_clean_filename (title);
