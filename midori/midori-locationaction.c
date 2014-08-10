@@ -113,6 +113,11 @@ midori_location_action_disconnect_proxy (GtkAction* action,
 static void
 midori_location_action_popdown_completion (MidoriLocationAction* location_action);
 
+extern GtkMenu* 
+midori_search_action_get_menu (GtkWidget* entry,
+                               MidoriSearchAction *search_action,
+                               void (*change_cb)(GtkWidget*, MidoriSearchAction*));
+
 static void
 midori_location_action_class_init (MidoriLocationActionClass* class)
 {
@@ -1437,12 +1442,28 @@ midori_location_action_show_page_info (GtkWidget* widget,
 #endif
 
 static void
+midori_location_action_engine_activate_cb (GtkWidget*          menuitem,
+                                           MidoriSearchAction* search_action)
+{
+    KatzeItem* item;
+
+    item = (KatzeItem*)g_object_get_data (G_OBJECT (menuitem), "engine");
+    midori_search_action_set_default_item (search_action, item);
+}
+
+void
 midori_location_action_icon_released_cb (GtkWidget*           widget,
                                          GtkEntryIconPosition icon_pos,
                                          gint                 button,
                                          GtkAction*           action)
 {
     /* The dialog should "toggle" like a menu, as far as users go */
+    MidoriBrowser* browser = midori_browser_get_for_widget (widget);
+    GtkActionGroup* actions = midori_browser_get_action_group (browser);
+    MidoriSearchAction *search_action = MIDORI_SEARCH_ACTION (
+        gtk_action_group_get_action (actions, "Search") 
+    );
+
     static GtkWidget* dialog = NULL;
     if (icon_pos == GTK_ENTRY_ICON_PRIMARY && dialog != NULL)
     {
@@ -1454,7 +1475,13 @@ midori_location_action_icon_released_cb (GtkWidget*           widget,
     {
         /* No "security" window for blank pages */
         if (midori_uri_is_blank (MIDORI_LOCATION_ACTION (action)->text))
+        {
+            GtkMenu* menu = midori_search_action_get_menu (widget,
+                                                           search_action, 
+                                                           midori_location_action_engine_activate_cb );
+            katze_widget_popup (widget, menu, NULL, KATZE_MENU_POSITION_LEFT);
             return;
+        }
 
         const gchar* title = _("Security details");
         GtkWidget* content_area;
