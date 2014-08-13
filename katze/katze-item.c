@@ -8,8 +8,8 @@
 
  See the file COPYING for the full license text.
 */
+ 
 #include "katze-item.h"
-#include "katze-array.h"
 #include "katze-utils.h"
 #include "midori/midori-core.h"
 

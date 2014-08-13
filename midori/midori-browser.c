@@ -1405,18 +1405,22 @@ midori_browser_view_copy_to_item_history (GtkWidget* view,
     WebKitWebBackForwardList* list_from;
     guint length_from;
     gint i;
+    GPtrArray* history;
 
     copy_from = WEBKIT_WEB_VIEW (midori_view_get_web_view (MIDORI_VIEW (view)));
     list_from = webkit_web_view_get_back_forward_list (copy_from);
     length_from = webkit_web_back_forward_list_get_back_length (list_from);
-    item->history = katze_array_new(G_TYPE_OBJECT);
+    history = g_ptr_array_new ();
+
     for (i = -length_from; i <=  -1 ; i++)
     {
         WebKitWebHistoryItem* hist_item = webkit_web_back_forward_list_get_nth_item (list_from, i);
         if (hist_item == NULL)
             break;
-        katze_array_add_item (item->history,hist_item);
+        g_object_ref ((gpointer) hist_item);
+        g_ptr_array_add (history, (gpointer) hist_item);
     }
+    g_object_set_data (G_OBJECT (item), "tab-history", (gpointer) history);
 #endif
 }
 
@@ -1433,7 +1437,6 @@ midori_view_destroy_cb (GtkWidget*     view,
             if (browser->trash)
             {
                 midori_browser_view_copy_to_item_history (view,item);
-
                 katze_array_add_item (browser->trash, item);
             }
             midori_browser_update_history (item, "website", "leave");
@@ -1510,26 +1513,31 @@ midori_browser_view_copy_history (GtkWidget* view_to,
 
 static void
 midori_browser_view_copy_from_item_history (GtkWidget* view,
-                                            KatzeArray* list_from)
+                                            KatzeItem* item)
 {
 #ifndef HAVE_WEBKIT2
     WebKitWebView* copy_to;
     WebKitWebBackForwardList* list_to;
-    guint length_from;
     gint i;
+    GPtrArray* list_from;
 
     copy_to = WEBKIT_WEB_VIEW (midori_view_get_web_view (MIDORI_VIEW (view)));
     list_to = webkit_web_view_get_back_forward_list (copy_to);
-    if(list_from == NULL)
+
+    if (item == NULL)
         return;
-    length_from = katze_array_get_length (list_from);
-    for (i = 0; i < length_from ; i++)
+    list_from = g_object_get_data (G_OBJECT (item), "tab-history");
+    if (list_from == NULL)
+        return;
+
+    for (i = 0; i < list_from->len; i++)
     {
-        WebKitWebHistoryItem* hist_item = katze_array_get_nth_item (list_from, i);
+        WebKitWebHistoryItem* hist_item = (WebKitWebHistoryItem*) g_ptr_array_index (list_from, i);
         if (hist_item == NULL)
             break;
-        webkit_web_back_forward_list_add_item (list_to,hist_item);
+        webkit_web_back_forward_list_add_item (list_to, hist_item);
     }
+    g_ptr_array_unref (list_from);
 #endif
 }
 
@@ -3148,11 +3156,11 @@ midori_browser_restore_tab (MidoriBrowser* browser,
                             KatzeItem*     item)
 {
     GtkWidget* view;
-
     g_object_ref (item);
     katze_array_remove_item (browser->trash, item);
     view = midori_browser_add_item (browser, item);
-    midori_browser_view_copy_from_item_history (view,item->history);
+    midori_browser_view_copy_from_item_history (view,item);
+
     g_object_unref (item);
     return view;
 }

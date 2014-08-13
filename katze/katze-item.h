@@ -11,6 +11,7 @@
 
 #ifndef __KATZE_ITEM_H__
 #define __KATZE_ITEM_H__
+
 #include <gtk/gtk.h>
 
 G_BEGIN_DECLS
@@ -33,7 +34,7 @@ G_BEGIN_DECLS
 
 typedef struct _KatzeItem                KatzeItem;
 typedef struct _KatzeItemClass           KatzeItemClass;
-typedef struct _KatzeArray          KatzeArray;
+
 struct _KatzeItem
 {
     GObject parent_instance;
@@ -46,7 +47,6 @@ struct _KatzeItem
     GHashTable* metadata;
 
     KatzeItem* parent;
-    KatzeArray* history;
 };
 
 struct _KatzeItemClass
