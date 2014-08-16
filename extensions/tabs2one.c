@@ -44,6 +44,11 @@ tabs2one_dom_click_restore_item_cb (WebKitDOMNode  *element,
                                     WebKitDOMEvent *dom_event,
                                     WebKitWebView  *webview);
 
+static void
+tabs2one_dom_click_remove_item_cb (WebKitDOMNode *element,
+                                   WebKitDOMEvent *dom_event,
+                                   WebKitWebView  *webview);
+
 static gchar*
 tabs2one_id_generator (void)
 {
@@ -66,21 +71,35 @@ tabs2one_dom_create_item (WebKitDOMDocument* doc,
     WebKitDOMElement* item = webkit_dom_document_create_element(doc, "div", NULL);
     WebKitDOMElement* favicon = webkit_dom_document_create_element(doc, "img", NULL);
     WebKitDOMElement* link = webkit_dom_document_create_element(doc, "a", NULL);
+    WebKitDOMElement* close_link = webkit_dom_document_create_element(doc, "a", NULL);
+    WebKitDOMElement* close_button = webkit_dom_document_create_element (doc, "img", NULL);
     WebKitDOMElement* br = webkit_dom_document_create_element(doc, "br", NULL);
     WebKitDOMText* content = webkit_dom_document_create_text_node(doc, title);
 
     webkit_dom_element_set_attribute(item, "id", tabs2one_id_generator(), NULL);
     webkit_dom_element_set_attribute(item, "class", "item", NULL);
     webkit_dom_element_set_attribute(item, "style", "padding: 5px;", NULL);
+
+    webkit_dom_element_set_attribute(close_link, "class", "close-link", NULL);
+    webkit_dom_element_set_attribute(close_link, "target", "_blank", NULL);
+    webkit_dom_element_set_attribute(close_link, "href", "about:blank", NULL);
+    webkit_dom_element_set_attribute(close_button, "src", "res://close.png", NULL);
+    webkit_dom_element_set_attribute(close_button, "width", "16px", NULL);
+    webkit_dom_element_set_attribute(close_button, "height", "16px", NULL);
+
     webkit_dom_element_set_attribute(favicon, "src", icon, NULL);
     webkit_dom_element_set_attribute(favicon, "width", "16px", NULL);
     webkit_dom_element_set_attribute(favicon, "height", "16px", NULL);
     webkit_dom_element_set_attribute(favicon, "style", "padding-left: 5px;", NULL);
+
+    webkit_dom_element_set_attribute(link, "class", "restore-link",NULL);
     webkit_dom_element_set_attribute(link, "href", uri, NULL);
     webkit_dom_element_set_attribute(link, "style", "padding-left: 5px;", NULL);
     webkit_dom_element_set_attribute(link, "target", "_blank", NULL);
 
     webkit_dom_node_append_child(WEBKIT_DOM_NODE(link), WEBKIT_DOM_NODE(content), NULL);
+    webkit_dom_node_append_child(WEBKIT_DOM_NODE(item), WEBKIT_DOM_NODE(close_link), NULL);
+    webkit_dom_node_append_child(WEBKIT_DOM_NODE(close_link), WEBKIT_DOM_NODE(close_button), NULL);
     webkit_dom_node_append_child(WEBKIT_DOM_NODE(item), WEBKIT_DOM_NODE(favicon), NULL);
     webkit_dom_node_append_child(WEBKIT_DOM_NODE(item), WEBKIT_DOM_NODE(link), NULL);
     webkit_dom_node_append_child(WEBKIT_DOM_NODE(item), WEBKIT_DOM_NODE(br), NULL);
@@ -121,7 +140,7 @@ static void
 tabs2one_dom_add_click_listeners (WebKitDOMDocument* doc,
                                   WebKitWebView* webview)
 {
-    WebKitDOMNodeList *elements = webkit_dom_document_query_selector_all(doc, ".item a", NULL);
+    WebKitDOMNodeList *elements = webkit_dom_document_query_selector_all(doc, ".restore-link", NULL);
 
     int i;
 
@@ -131,6 +150,15 @@ tabs2one_dom_add_click_listeners (WebKitDOMDocument* doc,
         webkit_dom_event_target_add_event_listener(
             WEBKIT_DOM_EVENT_TARGET(element), "click",
             G_CALLBACK (tabs2one_dom_click_restore_item_cb), TRUE, webview);
+    }
+
+    elements = webkit_dom_document_query_selector_all(doc, ".close-link", NULL);
+    for (i = 0; i < webkit_dom_node_list_get_length(elements); i++)
+    {
+        WebKitDOMNode *element = webkit_dom_node_list_item(elements, i);
+        webkit_dom_event_target_add_event_listener(
+            WEBKIT_DOM_EVENT_TARGET(element), "click",
+            G_CALLBACK (tabs2one_dom_click_remove_item_cb), TRUE, webview);
     }
 }
 
@@ -231,7 +259,28 @@ tabs2one_dom_click_restore_item_cb (WebKitDOMNode  *element,
     webkit_dom_node_remove_child(body, item, NULL);
     tabs2one_cache_write_file (webview);
 
-    WebKitDOMNodeList *elements = webkit_dom_document_query_selector_all(doc, ".item a", NULL);
+    WebKitDOMNodeList *elements = webkit_dom_document_query_selector_all(doc, ".restore-link", NULL);
+    if (webkit_dom_node_list_get_length(elements) <= 0){
+        midori_browser_close_tab(browser, GTK_WIDGET(view));
+    }
+}
+
+static void
+tabs2one_dom_click_remove_item_cb (WebKitDOMNode  *element,
+                                   WebKitDOMEvent *dom_event,
+                                   WebKitWebView  *webview)
+{
+    webkit_dom_event_prevent_default (dom_event);
+    MidoriView* view = midori_view_get_for_widget (GTK_WIDGET (webview));
+    MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (webview));
+    WebKitDOMNode* item = webkit_dom_node_get_parent_node (element);
+    WebKitDOMNode* body = webkit_dom_node_get_parent_node (item);
+
+    WebKitDOMDocument* doc = webkit_web_view_get_dom_document (webview);
+    webkit_dom_node_remove_child(body, item, NULL);
+    tabs2one_cache_write_file (webview);
+
+    WebKitDOMNodeList *elements = webkit_dom_document_query_selector_all(doc, ".close-link", NULL);
     if (webkit_dom_node_list_get_length(elements) <= 0){
         midori_browser_close_tab(browser, GTK_WIDGET(view));
     }
