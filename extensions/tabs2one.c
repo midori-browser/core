@@ -39,17 +39,17 @@ void tabs2one_private_destroy (tabs2onePriv* priv)
     g_slice_free (tabs2onePriv, priv);
 }
 
-static void 
-tabs2one_dom_click_remove_item_cb (WebKitDOMNode  *element, 
-                                   WebKitDOMEvent *dom_event, 
-                                   WebKitWebView  *webview);
+static void
+tabs2one_dom_click_restore_item_cb (WebKitDOMNode  *element,
+                                    WebKitDOMEvent *dom_event,
+                                    WebKitWebView  *webview);
 
 static gchar*
 tabs2one_id_generator (void)
 {
     GString* id = g_string_new("");
     GRand* generator = g_rand_new();
-    gint32 id1 = g_rand_int_range (generator, 1000, 9999); 
+    gint32 id1 = g_rand_int_range (generator, 1000, 9999);
     gint32 id2 = g_rand_int_range (generator, 1000, 9999);
     g_rand_free(generator);
     g_string_printf(id, "%i-%i", id1, id2);
@@ -57,9 +57,9 @@ tabs2one_id_generator (void)
 }
 
 static void
-tabs2one_dom_create_item (WebKitDOMDocument* doc, 
-                          const gchar* icon, 
-                          const gchar* uri, 
+tabs2one_dom_create_item (WebKitDOMDocument* doc,
+                          const gchar* icon,
+                          const gchar* uri,
                           const gchar* title)
 {
     WebKitDOMElement* body = webkit_dom_document_query_selector(doc, "body", NULL);
@@ -130,11 +130,11 @@ tabs2one_dom_add_click_listeners (WebKitDOMDocument* doc,
         WebKitDOMNode *element = webkit_dom_node_list_item(elements, i);
         webkit_dom_event_target_add_event_listener(
             WEBKIT_DOM_EVENT_TARGET(element), "click",
-            G_CALLBACK (tabs2one_dom_click_remove_item_cb), TRUE, webview);
+            G_CALLBACK (tabs2one_dom_click_restore_item_cb), TRUE, webview);
     }
 }
 
-static bool 
+static bool
 tabs2one_cache_write_file (WebKitWebView* webview)
 {
     WebKitDOMDocument* doc = webkit_web_view_get_dom_document(webview);
@@ -214,10 +214,10 @@ tabs2one_add_tab_cb (MidoriBrowser*   browser,
         G_CALLBACK (tabs2one_reload_connected_events_cb), view);
 }
 
-static void 
-tabs2one_dom_click_remove_item_cb (WebKitDOMNode  *element, 
-                                   WebKitDOMEvent *dom_event, 
-                                   WebKitWebView  *webview)
+static void
+tabs2one_dom_click_restore_item_cb (WebKitDOMNode  *element,
+                                    WebKitDOMEvent *dom_event,
+                                    WebKitWebView  *webview)
 {
     webkit_dom_event_prevent_default (dom_event);
     MidoriView* view = midori_view_get_for_widget (GTK_WIDGET (webview));
@@ -226,7 +226,7 @@ tabs2one_dom_click_remove_item_cb (WebKitDOMNode  *element,
     WebKitDOMNode* body = webkit_dom_node_get_parent_node (item);
     const gchar* uri = webkit_dom_element_get_attribute(WEBKIT_DOM_ELEMENT(element), "href");
     midori_browser_add_uri (browser, uri);
-    
+
     WebKitDOMDocument* doc = webkit_web_view_get_dom_document (webview);
     webkit_dom_node_remove_child(body, item, NULL);
     tabs2one_cache_write_file (webview);
@@ -250,7 +250,7 @@ tabs2one_apply_cb (GtkWidget*     menuitem,
         g_string_append_printf (tpl, "%s", _("Tabs to One"));
         g_string_append (tpl, "</title>\n<head><meta charset=\"utf-8\"></head><body>\n");
         g_string_append_printf (tpl, "<h2>%s</h2>\n", _("Tabs you collected so far"));
-        g_string_append_printf (tpl, "<div><span>%s</span></div>\n", _("Clicking an item removes tab from the list."));
+        g_string_append_printf (tpl, "<div><span>%s</span></div>\n", _("Clicking an item restores a tab."));
         g_string_append (tpl, "</body>\n</html>\n");
 
         g_file_set_contents(tabs2one_cache_get_filename (), g_string_free (tpl, FALSE), -1, NULL);
