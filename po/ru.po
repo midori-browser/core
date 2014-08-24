@@ -9,16 +9,16 @@ msgstr ""
 "Project-Id-Version: midori 0.2.8\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-02-21 10:52-0600\n"
-"PO-Revision-Date: 2014-05-31 18:58+0000\n"
-"Last-Translator: Mukusev Vladimir <damon95@yandex.ru>\n"
+"PO-Revision-Date: 2014-08-23 17:32+0000\n"
+"Last-Translator: Yanbaeva <yanbaevas@list.ru>\n"
 "Language-Team: Russian <ru@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2014-06-01 05:30+0000\n"
-"X-Generator: Launchpad (build 17031)\n"
+"X-Launchpad-Export-Date: 2014-08-24 05:58+0000\n"
+"X-Generator: Launchpad (build 17163)\n"
 "Language: ru\n"
 
 #: ../data/midori.desktop.in.h:1 ../midori/main.c:142
@@ -312,7 +312,7 @@ msgstr "Добавить закладку"
 
 #: ../midori/midori-browser.c:1097
 msgid "Edit Bookmark"
-msgstr ""
+msgstr "Редактировать закладку"
 
 #: ../midori/midori-browser.c:1119
 msgid "Type a name for this bookmark, and choose where to keep it."
@@ -535,10 +535,13 @@ msgstr ""
 "  Andrew \"dr. Equivalent\" Scherbackoff https://launchpad.net/~dr-"
 "equivalent\n"
 "  Anton Shestakov https://launchpad.net/~engored\n"
+"  Artem Anufrij https://launchpad.net/~artem-anufrij\n"
+"  Binali Rustamov https://launchpad.net/~binali-rustamov\n"
 "  Dmitry Visocky https://launchpad.net/~dim3-vs\n"
 "  Evgeniy kjen93 https://launchpad.net/~kjen93\n"
 "  Igor Mamzov https://launchpad.net/~igor-mamzov\n"
 "  Ivan https://launchpad.net/~vanek-2\n"
+"  Ivan Golubev https://launchpad.net/~ivan-golubev\n"
 "  Kirill Ivaha https://launchpad.net/~kirill-ivaha\n"
 "  Ksenia Dylova https://launchpad.net/~ksjenka\n"
 "  KursoRUS https://launchpad.net/~kursornn\n"
@@ -557,6 +560,7 @@ msgstr ""
 "  moonk https://launchpad.net/~wrex-tp\n"
 "  nevel https://launchpad.net/~imstiem\n"
 "  zepect https://launchpad.net/~zepect\n"
+"  Александр https://launchpad.net/~qp1997\n"
 "  Глория Хрусталёва https://launchpad.net/~gloriya\n"
 "  Дмитрий https://launchpad.net/~myprodreams"
 
@@ -743,11 +747,11 @@ msgstr "_Создать папку"
 
 #: ../midori/midori-browser.c:5227
 msgid "_Import bookmarks…"
-msgstr ""
+msgstr "_Импорт закладок..."
 
 #: ../midori/midori-browser.c:5230
 msgid "_Export bookmarks…"
-msgstr ""
+msgstr "_Экспорт закладок..."
 
 #: ../midori/midori-browser.c:5233
 msgid "_Manage Search Engines…"
@@ -1251,7 +1255,7 @@ msgstr "Добавить поисковую систему..."
 
 #: ../midori/midori-view.c:2317
 msgid "Open _Link"
-msgstr ""
+msgstr "Открыть _ссылку"
 
 #: ../midori/midori-view.c:2324
 msgid "Open Link in New _Tab"
@@ -1404,7 +1408,7 @@ msgstr "Числа в скобках обозначают используемы
 
 #: ../midori/midori-view.c:3999
 msgid "Page loading delayed:"
-msgstr ""
+msgstr "Загрузка страницы отложена:"
 
 #: ../midori/midori-view.c:4000
 msgid "Loading delayed either due to a recent crash or startup preferences."
@@ -1920,8 +1924,9 @@ msgstr "Закрыть вкладку поиска"
 #, c-format
 msgid "%d bookmark"
 msgid_plural "%d bookmarks"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%d закладка"
+msgstr[1] "%d закладки"
+msgstr[2] "%d закладок"
 
 #. i18n: [n] subfolder(s)
 #: ../panels/midori-bookmarks.c:644
@@ -1947,13 +1952,13 @@ msgstr ""
 #: ../panels/midori-bookmarks.c:676
 #, c-format
 msgid "Folder containing %s"
-msgstr ""
+msgstr "Папка содержит %s"
 
 #. i18n: Folder containing [[n] bookmark(s)] and [[n] folder(s)]
 #: ../panels/midori-bookmarks.c:679
 #, c-format
 msgid "Folder containing %s and %s"
-msgstr ""
+msgstr "Папка содержит %s и %s"
 
 #. i18n: Bookmark leading to: [bookmark uri]
 #: ../panels/midori-bookmarks.c:690
@@ -1971,7 +1976,7 @@ msgstr ""
 #: ../panels/midori-bookmarks.c:710
 #, c-format
 msgid "%s and %s"
-msgstr ""
+msgstr "%s и %s"
 
 #: ../panels/midori-bookmarks.c:770
 msgid "Edit the selected bookmark"
