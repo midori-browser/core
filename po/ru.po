@@ -9,15 +9,15 @@ msgstr ""
 "Project-Id-Version: midori 0.2.8\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-02-21 10:52-0600\n"
-"PO-Revision-Date: 2014-08-23 17:32+0000\n"
-"Last-Translator: Yanbaeva <yanbaevas@list.ru>\n"
+"PO-Revision-Date: 2014-08-24 21:35+0000\n"
+"Last-Translator: Ivan Golubev <ivan.golubev@gmail.com>\n"
 "Language-Team: Russian <ru@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2014-08-24 05:58+0000\n"
+"X-Launchpad-Export-Date: 2014-08-25 06:41+0000\n"
 "X-Generator: Launchpad (build 17163)\n"
 "Language: ru\n"
 
@@ -28,11 +28,11 @@ msgstr "Midori"
 
 #: ../data/midori.desktop.in.h:2
 msgid "Web Browser"
-msgstr "Интернет-обозреватель"
+msgstr "Веб-обозреватель"
 
 #: ../data/midori.desktop.in.h:3
 msgid "Midori Web Browser"
-msgstr "Интернет-обозреватель Midori"
+msgstr "Веб-браузер Midori"
 
 #: ../data/midori.desktop.in.h:4
 msgid "Browse the Web"
@@ -759,7 +759,7 @@ msgstr ""
 
 #: ../midori/midori-browser.c:5236
 msgid "_Clear Private Data…"
-msgstr ""
+msgstr "_Очистить личные данные..."
 
 #: ../midori/midori-browser.c:5239
 msgid "_Inspect Page"
@@ -1166,8 +1166,8 @@ msgstr "_Скрыть заголовок"
 #: ../midori/midori-notebook.vala:358
 msgid "Close Tab to the R_ight"
 msgid_plural "Close Tabs to the R_ight"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Закрыть вкладку справа"
+msgstr[1] "Закрыть вкладки справа"
 
 #: ../midori/midori-notebook.vala:370
 msgid "Close Ot_her Tab"
@@ -1221,6 +1221,8 @@ msgid ""
 "Make sure that an ethernet cable is plugged in or the wireless card is "
 "activated"
 msgstr ""
+"Убедитесь, что Ethernet кабель подключен или адаптер беспроводной сети "
+"активирован"
 
 #: ../midori/midori-view.c:1217
 msgid "Verify that your network settings are correct"
@@ -1228,7 +1230,7 @@ msgstr ""
 
 #: ../midori/midori-view.c:1221
 msgid "Try Again"
-msgstr ""
+msgstr "Повторить"
 
 #: ../midori/midori-view.c:1346
 #, c-format
@@ -1671,7 +1673,7 @@ msgstr "Навигация"
 
 #: ../midori/midori-preferences.c:438
 msgid "Theme:"
-msgstr ""
+msgstr "Тема оформления:"
 
 #: ../midori/midori-preferences.c:470
 msgid "Toolbar Style:"
@@ -1946,7 +1948,7 @@ msgstr ""
 #: ../panels/midori-bookmarks.c:672
 #, c-format
 msgid "Folder containing %s and no bookmark"
-msgstr ""
+msgstr "Папка содержит %s и не содержит закладок"
 
 #. i18n: Folder containing [[n] bookmark(s)]
 #: ../panels/midori-bookmarks.c:676
@@ -1964,13 +1966,13 @@ msgstr "Папка содержит %s и %s"
 #: ../panels/midori-bookmarks.c:690
 #, c-format
 msgid "Bookmark leading to: %s"
-msgstr ""
+msgstr "Закладка ведет к: %s"
 
 #. i18n: [[n] folder(s)] and no bookmark
 #: ../panels/midori-bookmarks.c:704
 #, c-format
 msgid "%s and no bookmark"
-msgstr ""
+msgstr "%s и ни одной закладки"
 
 #. i18n: [[n] bookmark(s)] and [[n] folder(s)]
 #: ../panels/midori-bookmarks.c:710
@@ -2703,7 +2705,7 @@ msgstr "У_далить всё"
 #. Add "allow-all-sites" checkbox
 #: ../extensions/nojs/nojs-preferences.c:987
 msgid "A_llow scripts at all sites"
-msgstr ""
+msgstr "Р_азрешить скрипты на всех сайтах"
 
 #. Add "block-unknown-domains" checkbox
 #: ../extensions/nojs/nojs-preferences.c:995
@@ -2719,17 +2721,17 @@ msgstr ""
 #: ../extensions/nojs/nojs-view.c:237
 #, c-format
 msgid "Deny %s"
-msgstr ""
+msgstr "Запретить %s"
 
 #: ../extensions/nojs/nojs-view.c:249
 #, c-format
 msgid "Allow %s"
-msgstr ""
+msgstr "Разрешить %s"
 
 #: ../extensions/nojs/nojs-view.c:261
 #, c-format
 msgid "Allow %s this session"
-msgstr ""
+msgstr "Разрешить %s в этой сесии"
 
 #: ../extensions/nojs/nojs-view.c:706
 msgid "Browser window"
@@ -2780,7 +2782,7 @@ msgstr ""
 
 #: ../extensions/nojs/nojs.c:147
 msgid "Error in NoJS extension"
-msgstr ""
+msgstr "Ошибка в  расширении NoJS"
 
 #: ../extensions/nojs/nojs.c:152
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:100
@@ -2859,7 +2861,7 @@ msgstr ""
 
 #: ../extensions/nojs/nojs.c:755
 msgid "Only second level"
-msgstr ""
+msgstr "Только второй уровень"
 
 #: ../extensions/nojs/nojs.c:756
 msgid ""
@@ -3052,12 +3054,12 @@ msgstr "Не удалось добавить закладку: %s\n"
 #: ../midori/midori-bookmarks-db.c:574
 #, c-format
 msgid "Failed to update bookmark: %s\n"
-msgstr ""
+msgstr "Не удалось обновить закладку: %s\n"
 
 #: ../midori/midori-bookmarks-db.c:610
 #, c-format
 msgid "Failed to remove bookmark item: %s\n"
-msgstr ""
+msgstr "Не удалось удалить закладку: %s\n"
 
 #: ../midori/midori-session.c:217
 msgid ""
@@ -3274,7 +3276,7 @@ msgstr ""
 #: ../extensions/apps.vala:100
 #, c-format
 msgid "Midori (%s)"
-msgstr ""
+msgstr "Midori (%s)"
 
 #: ../extensions/apps.vala:119 ../extensions/apps.vala:150
 #: ../extensions/apps.vala:154
@@ -3363,7 +3365,7 @@ msgstr "Файл «<b>%s</b>» загружен."
 #: ../extensions/transfers.vala:451
 #, c-format
 msgid "'<b>%s</b>' and %d other files have been downloaded."
-msgstr ""
+msgstr "'<b>%s</b>' и %d других файлов были загружены."
 
 #: ../extensions/transfers.vala:452
 msgid "Transfer completed"
@@ -3383,11 +3385,11 @@ msgstr "Загрузки будут отменены при закрытии Mid
 
 #: ../extensions/transfers.vala:561
 msgid "Transfer Manager"
-msgstr ""
+msgstr "Менеджер загрузок"
 
 #: ../extensions/transfers.vala:562
 msgid "View downloaded files"
-msgstr ""
+msgstr "Просмотреть загруженные файлы"
 
 #: ../extensions/tabby.vala:361 ../extensions/tabby.vala:372
 #: ../extensions/tabby.vala:385 ../extensions/tabby.vala:390
@@ -3402,14 +3404,14 @@ msgstr ""
 #: ../extensions/tabby.vala:590 ../extensions/tabby.vala:595
 #, c-format
 msgid "Failed to update database: %s"
-msgstr ""
+msgstr "Не удалось обновить базу данных: %s"
 
 #: ../extensions/tabby.vala:520 ../extensions/tabby.vala:524
 #: ../extensions/tabby.vala:548 ../extensions/tabby.vala:552
 #: ../extensions/tabby.vala:614 ../extensions/tabby.vala:617
 #, c-format
 msgid "Failed to select from database: %s"
-msgstr ""
+msgstr "Не удалось выбрать из базы данных: %s"
 
 #: ../extensions/tabby.vala:666
 #, c-format
@@ -3441,17 +3443,17 @@ msgstr ""
 #: ../extensions/notes.vala:66
 #, c-format
 msgid "Falied to remove note from database: %s\n"
-msgstr ""
+msgstr "Не удалось удалить заметку из базы данных: %s\n"
 
 #: ../extensions/notes.vala:80
 #, c-format
 msgid "Falied to rename note: %s\n"
-msgstr ""
+msgstr "Не удалось переименовать заметку: %s\n"
 
 #: ../extensions/notes.vala:96
 #, c-format
 msgid "Falied to update note: %s\n"
-msgstr ""
+msgstr "Не удалось обновить заметку: %s\n"
 
 #: ../extensions/notes.vala:139 ../extensions/notes.vala:179
 #: ../extensions/notes.vala:453
@@ -3460,7 +3462,7 @@ msgstr ""
 
 #: ../extensions/notes.vala:146
 msgid "New Note"
-msgstr ""
+msgstr "Создать заметку"
 
 #: ../extensions/notes.vala:147
 msgid "Creates a new empty note, urelated to opened pages"
@@ -3468,7 +3470,7 @@ msgstr ""
 
 #: ../extensions/notes.vala:153
 msgid "New note"
-msgstr ""
+msgstr "Создать заметку"
 
 #: ../extensions/notes.vala:197
 #, c-format
@@ -3477,7 +3479,7 @@ msgstr ""
 
 #: ../extensions/notes.vala:319 ../extensions/notes.vala:327
 msgid "Rename note"
-msgstr ""
+msgstr "Переименовать заметку"
 
 #: ../extensions/notes.vala:356
 msgid "Copy note to clipboard"
@@ -3485,11 +3487,11 @@ msgstr ""
 
 #: ../extensions/notes.vala:368
 msgid "Remove note"
-msgstr ""
+msgstr "Удалить заметку"
 
 #: ../extensions/notes.vala:402
 msgid "Copy selection as note"
-msgstr ""
+msgstr "Копировать выбранное как заметку"
 
 #: ../extensions/notes.vala:454
 msgid "Save text clips from websites as notes"
