@@ -5914,6 +5914,7 @@ midori_browser_init (MidoriBrowser* browser)
         "label", _("_Location…"),
         "stock-id", GTK_STOCK_JUMP_TO,
         "tooltip", _("Open a particular location"),
+        "placeholder-text", _("Search or enter an address"),
         NULL);
     g_object_connect (action,
                       "signal::activate",

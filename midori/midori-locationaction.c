@@ -40,6 +40,7 @@ struct _MidoriLocationAction
     gdouble progress;
     gchar* secondary_icon;
     gchar* tooltip;
+    gchar* placeholder;
 
     gchar* key;
     MidoriAutocompleter* autocompleter;
@@ -64,7 +65,8 @@ enum
 
     PROP_PROGRESS,
     PROP_SECONDARY_ICON,
-    PROP_HISTORY
+    PROP_HISTORY,
+    PROP_PLACEHOLDER_TEXT
 };
 
 enum
@@ -250,6 +252,20 @@ midori_location_action_class_init (MidoriLocationActionClass* class)
                                      "History",
                                      "The list of history items",
                                      KATZE_TYPE_ARRAY,
+                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+    /**
+     * MidoriLocationAction:placeholder-text:
+     *
+     * Hint displayed if entry text is empty.
+     */
+    g_object_class_install_property (gobject_class,
+                                     PROP_PLACEHOLDER_TEXT,
+                                     g_param_spec_string (
+                                     "placeholder-text",
+                                     "Placeholder Text",
+                                     "Hint displayed if entry text is empty",
+                                     NULL,
                                      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 }
 
@@ -795,6 +811,7 @@ midori_location_action_finalize (GObject* object)
     katze_assign (location_action->text, NULL);
     katze_assign (location_action->secondary_icon, NULL);
     katze_assign (location_action->tooltip, NULL);
+    katze_assign (location_action->placeholder, NULL);
     katze_object_assign (location_action->search_engines, NULL);
     katze_assign (location_action->autocompleter, NULL);
 
@@ -832,6 +849,9 @@ midori_location_action_set_property (GObject*      object,
         katze_assign (location_action->history, g_value_dup_object (value));
         break;
     }
+    case PROP_PLACEHOLDER_TEXT:
+        katze_assign (location_action->placeholder, g_strdup(g_value_get_string (value)));
+        break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
         break;
@@ -856,6 +876,9 @@ midori_location_action_get_property (GObject*    object,
         break;
     case PROP_HISTORY:
         g_value_set_object (value, location_action->history);
+        break;
+    case PROP_PLACEHOLDER_TEXT:
+        g_value_set_string (value, location_action->placeholder);
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -944,6 +967,7 @@ midori_location_action_create_tool_item (GtkAction* action)
     midori_location_action_entry_set_secondary_icon (GTK_ENTRY (entry), location_action->secondary_icon);
     gtk_entry_set_icon_from_gicon (GTK_ENTRY (entry), GTK_ENTRY_ICON_PRIMARY, location_action->icon);
     gtk_entry_set_icon_tooltip_text (GTK_ENTRY (entry), GTK_ENTRY_ICON_PRIMARY, location_action->tooltip);
+    gtk_entry_set_placeholder_text(GTK_ENTRY (entry), location_action->placeholder);
 
     targetlist = gtk_target_list_new (NULL, 0);
     gtk_target_list_add_uri_targets (targetlist, 0);
