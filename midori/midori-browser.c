@@ -1426,6 +1426,34 @@ midori_browser_tab_leave_notify_event_cb (GtkWidget*        widget,
 }
 
 static void
+midori_browser_view_copy_to_item_history (GtkWidget* view,
+                                          KatzeItem* item)
+{
+#ifndef HAVE_WEBKIT2
+    WebKitWebView* copy_from;
+    WebKitWebBackForwardList* list_from;
+    guint length_from;
+    gint i;
+    GPtrArray* history;
+
+    copy_from = WEBKIT_WEB_VIEW (midori_view_get_web_view (MIDORI_VIEW (view)));
+    list_from = webkit_web_view_get_back_forward_list (copy_from);
+    length_from = webkit_web_back_forward_list_get_back_length (list_from);
+    history = g_ptr_array_new ();
+
+    for (i = -length_from; i <=  -1 ; i++)
+    {
+        WebKitWebHistoryItem* hist_item = webkit_web_back_forward_list_get_nth_item (list_from, i);
+        if (hist_item == NULL)
+            break;
+        g_object_ref ((gpointer) hist_item);
+        g_ptr_array_add (history, (gpointer) hist_item);
+    }
+    g_object_set_data (G_OBJECT (item), "tab-history", (gpointer) history);
+#endif
+}
+
+static void
 midori_view_destroy_cb (GtkWidget*     view,
                         MidoriBrowser* browser)
 {
@@ -1436,7 +1464,10 @@ midori_view_destroy_cb (GtkWidget*     view,
          && !midori_tab_is_blank (MIDORI_TAB (view)))
         {
             if (browser->trash)
+            {
+                midori_browser_view_copy_to_item_history (view,item);
                 katze_array_add_item (browser->trash, item);
+            }
             midori_browser_update_history (item, "website", "leave");
         }
         midori_browser_disconnect_tab (browser, MIDORI_VIEW (view));
@@ -1507,6 +1538,39 @@ midori_browser_view_copy_history (GtkWidget* view_to,
     }
 #endif
 }
+
+
+static void
+midori_browser_view_copy_from_item_history (GtkWidget* view,
+                                            KatzeItem* item)
+{
+#ifndef HAVE_WEBKIT2
+    WebKitWebView* copy_to;
+    WebKitWebBackForwardList* list_to;
+    gint i;
+    GPtrArray* list_from;
+
+    copy_to = WEBKIT_WEB_VIEW (midori_view_get_web_view (MIDORI_VIEW (view)));
+    list_to = webkit_web_view_get_back_forward_list (copy_to);
+
+    if (item == NULL)
+        return;
+    list_from = g_object_get_data (G_OBJECT (item), "tab-history");
+    if (list_from == NULL)
+        return;
+
+    for (i = 0; i < list_from->len; i++)
+    {
+        WebKitWebHistoryItem* hist_item = (WebKitWebHistoryItem*) g_ptr_array_index (list_from, i);
+        if (hist_item == NULL)
+            break;
+        webkit_web_back_forward_list_add_item (list_to, hist_item);
+    }
+    g_ptr_array_unref (list_from);
+#endif
+}
+
+
 
 static gboolean
 midori_browser_notify_new_tab_timeout_cb (MidoriBrowser *browser)
@@ -1947,7 +2011,7 @@ _update_tooltip_if_changed (GtkAction* action,
     g_free (old);
 }
 
-static void 
+static void
 _update_reload_tooltip (GtkWidget*   widget,
                         GdkEventKey* event,
                         gboolean released)
@@ -1960,12 +2024,12 @@ _update_reload_tooltip (GtkWidget*   widget,
     GdkModifierType mask;
     gdk_window_get_pointer (gtk_widget_get_window (widget), NULL, NULL, &mask);
     const gchar *target;
-    
+
     if ( mask & GDK_SHIFT_MASK)
     {
         target = _("Reload page without caching");
     }
-    else 
+    else
     {
         target = _("Reload the current page");
     }
@@ -3126,10 +3190,11 @@ midori_browser_restore_tab (MidoriBrowser* browser,
                             KatzeItem*     item)
 {
     GtkWidget* view;
-
     g_object_ref (item);
     katze_array_remove_item (browser->trash, item);
     view = midori_browser_add_item (browser, item);
+    midori_browser_view_copy_from_item_history (view,item);
+
     g_object_unref (item);
     return view;
 }
@@ -5547,6 +5612,7 @@ midori_browser_size_allocate_cb (MidoriBrowser* browser,
 static void
 midori_browser_destroy_cb (MidoriBrowser* browser)
 {
+
     g_object_set_data (G_OBJECT (browser), "midori-browser-destroyed", (void*)1);
 
     if (G_UNLIKELY (browser->panel_timeout))
@@ -6372,7 +6438,7 @@ midori_browser_toolbar_item_button_press_event_cb (GtkWidget*      toolitem,
         {
             gtk_action_activate (_action_by_name (browser, "TabDuplicate"));
         }
-        
+
         GtkWidget* parent = gtk_widget_get_parent (toolitem);
         GtkAction* action = gtk_activatable_get_related_action (
             GTK_ACTIVATABLE (parent));
@@ -7571,14 +7637,14 @@ midori_browser_get_for_widget (GtkWidget* widget)
         browser = gtk_window_get_transient_for (GTK_WINDOW (browser));
         if (!MIDORI_IS_BROWSER (browser))
         {
-            /* For some reason, when called on the widget of the 
+            /* For some reason, when called on the widget of the
              * application menubar we get here.
              */
 
             GList* top_levels = gtk_window_list_toplevels ();
             GList *iter;
 
-            for (iter = top_levels; iter; iter = g_list_next (iter)) 
+            for (iter = top_levels; iter; iter = g_list_next (iter))
             {
                 browser = iter->data;
 
@@ -7588,7 +7654,7 @@ midori_browser_get_for_widget (GtkWidget* widget)
                     return MIDORI_BROWSER (browser);
                 }
             }
-            
+
             g_list_free (top_levels);
             return NULL;
         }
