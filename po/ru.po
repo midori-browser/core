@@ -9,16 +9,16 @@ msgstr ""
 "Project-Id-Version: midori 0.2.8\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-02-21 10:52-0600\n"
-"PO-Revision-Date: 2014-08-25 08:56+0000\n"
-"Last-Translator: Ivan Golubev <ivan.golubev@gmail.com>\n"
+"PO-Revision-Date: 2014-09-05 22:17+0000\n"
+"Last-Translator: Oleg <oopseekoleg@gmail.com>\n"
 "Language-Team: Russian <ru@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2014-08-26 06:31+0000\n"
-"X-Generator: Launchpad (build 17163)\n"
+"X-Launchpad-Export-Date: 2014-09-06 05:55+0000\n"
+"X-Generator: Launchpad (build 17196)\n"
 "Language: ru\n"
 
 #: ../data/midori.desktop.in.h:1 ../midori/main.c:142
@@ -52,19 +52,19 @@ msgstr "Новое окно"
 
 #: ../data/midori.desktop.in.h:8
 msgid "New Private Browsing Window"
-msgstr "Новое кон_фиденциальное окно"
+msgstr "Новое приватное окно"
 
 #: ../data/midori-private.desktop.in.h:1
 msgid "Midori Private Browsing"
-msgstr "Midori (конфиденциальный режим)"
+msgstr "Midori (приватный режим)"
 
 #: ../data/midori-private.desktop.in.h:2 ../midori/midori-view.c:3897
 msgid "Private Browsing"
-msgstr "Конфиденциальный режим"
+msgstr "Приватный режим"
 
 #: ../data/midori-private.desktop.in.h:3
 msgid "Open a new private browsing window"
-msgstr "Открывает новое конфиденциальное окно"
+msgstr "Открыть новое окно в приватном режиме"
 
 #: ../midori/main.c:52
 #, c-format
@@ -89,7 +89,7 @@ msgstr "ПАПКА"
 
 #: ../midori/main.c:83
 msgid "Private browsing, no changes are saved"
-msgstr "Конфиденциальный режим, изменения не будут сохранены"
+msgstr "Приватный режим, изменения не будут сохранены"
 
 #: ../midori/main.c:86
 msgid "Portable mode, all runtime files are stored in one place"
@@ -755,7 +755,7 @@ msgstr "_Экспорт закладок..."
 
 #: ../midori/midori-browser.c:5233
 msgid "_Manage Search Engines…"
-msgstr ""
+msgstr "_Управление поисковыми системами ..."
 
 #: ../midori/midori-browser.c:5236
 msgid "_Clear Private Data…"
@@ -1001,7 +1001,7 @@ msgstr "Сведения о безопасности"
 #. i18n: Right-click on Location, Open an URL from the clipboard
 #: ../midori/midori-locationaction.c:1551
 msgid "Paste and p_roceed"
-msgstr "Вс&тавить и перейти"
+msgstr "Вс_тавить и перейти"
 
 #: ../midori/midori-locationaction.c:1803
 msgid "Not verified"
@@ -1205,16 +1205,16 @@ msgstr "%s хочет знать ваше местоположение."
 #: ../midori/midori-view.c:1210
 #, c-format
 msgid "'%s' can't be found"
-msgstr ""
+msgstr "Невозможно найти '%s'"
 
 #: ../midori/midori-view.c:1211
 #, c-format
 msgid "The page '%s' couldn't be loaded:"
-msgstr ""
+msgstr "Невозможно загрузить страницу '%s':"
 
 #: ../midori/midori-view.c:1215
 msgid "Check the address for typos"
-msgstr ""
+msgstr "Проверьте адрес на ошибки"
 
 #: ../midori/midori-view.c:1216
 msgid ""
@@ -1685,7 +1685,7 @@ msgstr "Открывать новые страницы в:"
 
 #: ../midori/midori-preferences.c:478
 msgid "New tab behavior:"
-msgstr ""
+msgstr "При открытии новой вкладки:"
 
 #: ../midori/midori-preferences.c:483
 msgid "Close Buttons on Tabs"
@@ -1859,7 +1859,7 @@ msgstr "Не удалось сохранить средства поиска. %s
 
 #: ../midori/midori-historycompletion.vala:17
 msgid "Bookmarks and History"
-msgstr ""
+msgstr "Закладки и история"
 
 #: ../midori/midori-historydatabase.vala:28
 #, c-format
@@ -1942,7 +1942,7 @@ msgstr[1] ""
 #: ../panels/midori-bookmarks.c:669
 #, c-format
 msgid "Empty folder"
-msgstr ""
+msgstr "Пустая папка"
 
 #. i18n: Folder containing [[n] folder(s)] and no bookmark
 #: ../panels/midori-bookmarks.c:672
@@ -2343,11 +2343,11 @@ msgstr "Задержка загрузки страницы, пока вы исп
 
 #: ../extensions/devpet.vala:102
 msgid "Double click for more information"
-msgstr ""
+msgstr "Кликните дважды для подробной информации"
 
 #: ../extensions/devpet.vala:253
 msgid "DevPet"
-msgstr ""
+msgstr "DevPet"
 
 #: ../extensions/devpet.vala:254
 msgid "This extension shows glib error messages in systray."
@@ -2678,7 +2678,7 @@ msgstr ""
 #. Set up dialog
 #: ../extensions/nojs/nojs-preferences.c:850
 msgid "Configure NoJS"
-msgstr ""
+msgstr "Настройка NoJS"
 
 #: ../extensions/nojs/nojs-preferences.c:866
 msgid ""
@@ -2793,22 +2793,22 @@ msgstr "Причина"
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:140
 #, c-format
 msgid "Could not create configuration folder for extension: %s"
-msgstr ""
+msgstr "Не удалось создать папку с настройками для расширения: %s"
 
 #: ../extensions/nojs/nojs.c:195
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:142
 msgid "Could not create configuration folder for extension."
-msgstr ""
+msgstr "Не удалось создать папку с настройками для расширения."
 
 #: ../extensions/nojs/nojs.c:212
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:159
 msgid "Could not open database of extension."
-msgstr ""
+msgstr "Не удалось открыть базу данных расширения."
 
 #: ../extensions/nojs/nojs.c:245
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:192
 msgid "Could not set up database structure of extension."
-msgstr ""
+msgstr "Не удалось создать структуру базы данных расширения."
 
 #: ../extensions/nojs/nojs.c:721
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1006
@@ -3152,7 +3152,7 @@ msgstr "Удалить все сохранённые куки?"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:530
 msgid "Delete all cookie permissions?"
-msgstr ""
+msgstr "Удалить все разрешения на Cookies?"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:534
 msgid ""
@@ -3209,7 +3209,7 @@ msgstr ""
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:487
 msgid "Till session end"
-msgstr ""
+msgstr "До конца сеанса"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:511
 #, c-format
@@ -3232,7 +3232,7 @@ msgstr ""
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:527
 msgid "Accept for this _session"
-msgstr ""
+msgstr "Принять для текущего _сеанса"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:528
 msgid "De_ny"
@@ -3299,11 +3299,11 @@ msgstr ""
 
 #: ../extensions/apps.vala:191
 msgid "Applications"
-msgstr ""
+msgstr "Приложения"
 
 #: ../extensions/apps.vala:201
 msgid "New _Profile"
-msgstr ""
+msgstr "Новый _Профиль"
 
 #: ../extensions/apps.vala:202
 msgid "Creates a new, independant profile and a launcher"
@@ -3311,7 +3311,7 @@ msgstr ""
 
 #: ../extensions/apps.vala:213
 msgid "New _App"
-msgstr ""
+msgstr "Новое _Приложение"
 
 #: ../extensions/apps.vala:214 ../extensions/apps.vala:451
 msgid "Creates a new app for a specific site"
