@@ -9,22 +9,22 @@ msgstr ""
 "Project-Id-Version: midori 0.2.8\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-02-21 10:52-0600\n"
-"PO-Revision-Date: 2014-09-05 22:17+0000\n"
-"Last-Translator: Oleg <oopseekoleg@gmail.com>\n"
+"PO-Revision-Date: 2014-09-07 00:23+0000\n"
+"Last-Translator: Artem Anufrij <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2014-09-06 05:55+0000\n"
+"X-Launchpad-Export-Date: 2014-09-07 06:01+0000\n"
 "X-Generator: Launchpad (build 17196)\n"
 "Language: ru\n"
 
 #: ../data/midori.desktop.in.h:1 ../midori/main.c:142
 #: ../midori/midori-websettings.c:227
 msgid "Midori"
-msgstr "Midori"
+msgstr "Интернет"
 
 #: ../data/midori.desktop.in.h:2
 msgid "Web Browser"
@@ -282,7 +282,7 @@ msgstr "Неожиданное действие «%s»."
 #: ../midori/midori-browser.c:723
 #, c-format
 msgid "%s (Private Browsing)"
-msgstr "%s (конфиденциальный режим)"
+msgstr "%s (приватный режим)"
 
 #: ../midori/midori-browser.c:769 ../midori/midori-browser.c:3946
 #, c-format
@@ -759,7 +759,7 @@ msgstr "_Управление поисковыми системами ..."
 
 #: ../midori/midori-browser.c:5236
 msgid "_Clear Private Data…"
-msgstr "_Очистить личные данные..."
+msgstr "_Удалить личные данные..."
 
 #: ../midori/midori-browser.c:5239
 msgid "_Inspect Page"
@@ -1168,6 +1168,7 @@ msgid "Close Tab to the R_ight"
 msgid_plural "Close Tabs to the R_ight"
 msgstr[0] "Закрыть вкладку справа"
 msgstr[1] "Закрыть вкладки справа"
+msgstr[2] "Закрыть вкладки справа"
 
 #: ../midori/midori-notebook.vala:370
 msgid "Close Ot_her Tab"
@@ -1644,7 +1645,7 @@ msgstr ""
 
 #: ../midori/midori-preferences.c:414
 msgid "Default Zoom Level"
-msgstr ""
+msgstr "Масштаб по умолчанию"
 
 #: ../midori/midori-preferences.c:418
 msgid "Initial factor to enlarge newly opened tabs by"
@@ -1723,7 +1724,7 @@ msgstr "Прокси-сервер"
 
 #: ../midori/midori-preferences.c:513
 msgid "URI"
-msgstr ""
+msgstr "Адрес"
 
 #: ../midori/midori-preferences.c:521
 msgid "Port"
@@ -1898,7 +1899,7 @@ msgstr "Не удалось выполнить внешнюю программу
 
 #: ../midori/sokoke.c:554
 msgid "Invalid URI"
-msgstr "Неправильный URI"
+msgstr "Неправильный адрес"
 
 #. i18n: A panel at the bottom, to search text in pages
 #: ../toolbars/midori-findbar.c:233
@@ -1935,8 +1936,9 @@ msgstr[2] "%d закладок"
 #, c-format
 msgid "%d subfolder"
 msgid_plural "%d subfolders"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%d подпапка"
+msgstr[1] "%d подпапок"
+msgstr[2] "%d подпапки"
 
 #. i18n: Empty folder
 #: ../panels/midori-bookmarks.c:669
@@ -2638,7 +2640,7 @@ msgstr "Заблокировать"
 #: ../extensions/nojs/nojs-preferences.c:308 ../extensions/nojs/nojs.c:204
 #, c-format
 msgid "Could not open database of extension: %s"
-msgstr ""
+msgstr "Не удалось открыть базу данных расширения: %s"
 
 #: ../extensions/nojs/nojs-preferences.c:578
 #: ../extensions/nojs/nojs-preferences.c:581
@@ -2996,7 +2998,7 @@ msgstr "Простой редактор панели инструментов"
 #. i18n: Dialog: Clear Private Data, in the Tools menu
 #: ../midori/midori-privatedata.c:127 ../midori/midori-privatedata.c:138
 msgid "Clear Private Data"
-msgstr "Удаление личных данных"
+msgstr "Удалить личные данные"
 
 #: ../midori/midori-privatedata.c:132 ../midori/midori-privatedata.c:142
 msgid "_Clear private data"
@@ -3458,7 +3460,7 @@ msgstr "Не удалось обновить заметку: %s\n"
 #: ../extensions/notes.vala:139 ../extensions/notes.vala:179
 #: ../extensions/notes.vala:453
 msgid "Notes"
-msgstr ""
+msgstr "Заметки"
 
 #: ../extensions/notes.vala:146
 msgid "New Note"
@@ -3466,7 +3468,7 @@ msgstr "Создать заметку"
 
 #: ../extensions/notes.vala:147
 msgid "Creates a new empty note, urelated to opened pages"
-msgstr ""
+msgstr "Создать пустую заметку, несвязанную с открытыми страницами"
 
 #: ../extensions/notes.vala:153
 msgid "New note"
@@ -3483,7 +3485,7 @@ msgstr "Переименовать заметку"
 
 #: ../extensions/notes.vala:356
 msgid "Copy note to clipboard"
-msgstr ""
+msgstr "Копировать заметку в буфер обмена"
 
 #: ../extensions/notes.vala:368
 msgid "Remove note"
@@ -3495,7 +3497,7 @@ msgstr "Копировать выбранное как заметку"
 
 #: ../extensions/notes.vala:454
 msgid "Save text clips from websites as notes"
-msgstr ""
+msgstr "Сохранить текстовые вырезки с сайта как заметки"
 
 #: ../extensions/adblock/extension.vala:38
 msgid "Advertisement blocker"

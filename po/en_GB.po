@@ -9,15 +9,15 @@ msgstr ""
 "Project-Id-Version: midori 0.1.7\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-02-21 10:52-0600\n"
-"PO-Revision-Date: 2014-08-01 17:01+0000\n"
-"Last-Translator: Andi Chandler <Unknown>\n"
+"PO-Revision-Date: 2014-09-06 13:12+0000\n"
+"Last-Translator: Alfredo Hernández <Unknown>\n"
 "Language-Team: British English <en_GB@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2014-08-02 05:43+0000\n"
-"X-Generator: Launchpad (build 17147)\n"
+"X-Launchpad-Export-Date: 2014-09-07 06:01+0000\n"
+"X-Generator: Launchpad (build 17196)\n"
 "Language: \n"
 
 #: ../data/midori.desktop.in.h:1 ../midori/main.c:142
@@ -2599,7 +2599,7 @@ msgstr "Block"
 #: ../extensions/nojs/nojs-preferences.c:308 ../extensions/nojs/nojs.c:204
 #, c-format
 msgid "Could not open database of extension: %s"
-msgstr ""
+msgstr "Could not open database of extension: %s"
 
 #: ../extensions/nojs/nojs-preferences.c:578
 #: ../extensions/nojs/nojs-preferences.c:581
@@ -2636,7 +2636,7 @@ msgstr "Manager instance"
 #: ../extensions/nojs/nojs-preferences.c:810
 #: ../extensions/nojs/nojs-view.c:700
 msgid "Instance to global NoJS manager"
-msgstr ""
+msgstr "Instance to global NoJS manager"
 
 #. Set up dialog
 #: ../extensions/nojs/nojs-preferences.c:850
@@ -2686,7 +2686,7 @@ msgstr "S_et permissions on second-level domain"
 #: ../extensions/nojs/nojs-view.c:237
 #, c-format
 msgid "Deny %s"
-msgstr ""
+msgstr "Deny %s"
 
 #: ../extensions/nojs/nojs-view.c:249
 #, c-format
@@ -2716,11 +2716,11 @@ msgstr "The Midori view instance this view belongs to"
 
 #: ../extensions/nojs/nojs-view.c:720
 msgid "Menu icon state"
-msgstr ""
+msgstr "Menu icon state"
 
 #: ../extensions/nojs/nojs-view.c:721
 msgid "State of menu icon to show in status bar"
-msgstr ""
+msgstr "State of menu icon to show in status bar"
 
 #: ../extensions/nojs/nojs-view.c:792 ../extensions/nojs/nojs.c:1029
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1112
@@ -2729,25 +2729,27 @@ msgstr "Undetermined"
 
 #: ../extensions/nojs/nojs-view.c:793
 msgid "Allowed"
-msgstr ""
+msgstr "Allowed"
 
 #: ../extensions/nojs/nojs-view.c:794
 msgid "Mixed"
-msgstr ""
+msgstr "Mixed"
 
 #: ../extensions/nojs/nojs-view.c:795
 msgid "Denied"
-msgstr ""
+msgstr "Denied"
 
 #: ../extensions/nojs/nojs.c:143
 msgid ""
 "A fatal error occurred which prevents the NoJS extension to continue. You "
 "should disable it."
 msgstr ""
+"A fatal error occurred which prevents the NoJS extension to continue. You "
+"should disable it."
 
 #: ../extensions/nojs/nojs.c:147
 msgid "Error in NoJS extension"
-msgstr ""
+msgstr "Error in NoJS extension"
 
 #: ../extensions/nojs/nojs.c:152
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:100
@@ -2817,35 +2819,38 @@ msgstr "Path to sqlite database instance used by this extension"
 
 #: ../extensions/nojs/nojs.c:748
 msgid "Allow all sites"
-msgstr ""
+msgstr "Allow all sites"
 
 #: ../extensions/nojs/nojs.c:749
 msgid ""
 "If true this extension will not check policy for each site but allow them."
 msgstr ""
+"If true this extension will not check policy for each site but allow them."
 
 #: ../extensions/nojs/nojs.c:755
 msgid "Only second level"
-msgstr ""
+msgstr "Only second level"
 
 #: ../extensions/nojs/nojs.c:756
 msgid ""
 "If true this extension will reduce each domain to its second-level "
 "(www.example.org will reduced to example.org)"
 msgstr ""
+"If true this extension will reduce each domain to its second-level "
+"(www.example.org will reduced to example.org)"
 
 #: ../extensions/nojs/nojs.c:762
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1033
 msgid "Unknown domain policy"
-msgstr ""
+msgstr "Unknown domain policy"
 
 #: ../extensions/nojs/nojs.c:763
 msgid "Policy to use for unknown domains."
-msgstr ""
+msgstr "Policy to use for unknown domains."
 
 #: ../extensions/nojs/nojs.c:1031
 msgid "Accept temporarily"
-msgstr ""
+msgstr "Accept temporarily"
 
 #: ../extensions/mouse-gestures.c:513
 msgid "Mouse Gestures"
@@ -3158,11 +3163,11 @@ msgstr ""
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:892
 msgid "Policy for cookies from domains not in the list: "
-msgstr ""
+msgstr "Policy for cookies from domains not in the list: "
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:897
 msgid "Ask for a decision"
-msgstr ""
+msgstr "Ask for a decision"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:91
 msgid ""
@@ -3233,6 +3238,8 @@ msgid ""
 "The policy to use for domains not individually configured. This only acts to "
 "further restrict the global cookie policy set in Midori settings."
 msgstr ""
+"The policy to use for domains not individually configured. This only acts to "
+"further restrict the global cookie policy set in Midori settings."
 
 #: ../extensions/cookie-permissions/main.c:62
 msgid "Cookie Security Manager"
@@ -3256,7 +3263,7 @@ msgstr "Midori (%s)"
 #: ../extensions/apps.vala:154
 #, c-format
 msgid "Failed to create new launcher (%s): %s"
-msgstr ""
+msgstr "Failed to create new launcher (%s): %s"
 
 #: ../extensions/apps.vala:145
 msgid "Launcher created"
@@ -3321,7 +3328,7 @@ msgstr "Clear All"
 #: ../extensions/transfers.vala:467
 #, c-format
 msgid "Failed to open download: %s"
-msgstr ""
+msgstr "Failed to open download: %s"
 
 #: ../extensions/transfers.vala:214
 msgid "Open Destination _Folder"
@@ -3378,98 +3385,99 @@ msgstr "View downloaded files"
 #: ../extensions/tabby.vala:590 ../extensions/tabby.vala:595
 #, c-format
 msgid "Failed to update database: %s"
-msgstr ""
+msgstr "Failed to update database: %s"
 
 #: ../extensions/tabby.vala:520 ../extensions/tabby.vala:524
 #: ../extensions/tabby.vala:548 ../extensions/tabby.vala:552
 #: ../extensions/tabby.vala:614 ../extensions/tabby.vala:617
 #, c-format
 msgid "Failed to select from database: %s"
-msgstr ""
+msgstr "Failed to select from database: %s"
 
 #: ../extensions/tabby.vala:666
 #, c-format
 msgid "Failed to import legacy session: %s"
-msgstr ""
+msgstr "Failed to import legacy session: %s"
 
 #: ../extensions/tabby.vala:775
 msgid "Tabby"
-msgstr ""
+msgstr "Tabby"
 
 #: ../extensions/tabby.vala:776
 msgid "Tab and session management."
-msgstr ""
+msgstr "Tab and session management."
 
 #: ../extensions/flummi.vala:82
 msgid "Flummi"
-msgstr ""
+msgstr "Flummi"
 
 #: ../extensions/flummi.vala:83
 msgid ""
 "This extension provides a task queue for update jobs or recurring events."
 msgstr ""
+"This extension provides a task queue for update jobs or recurring events."
 
 #: ../extensions/notes.vala:46
 #, c-format
 msgid "Failed to add new note to database: %s\n"
-msgstr ""
+msgstr "Failed to add new note to database: %s\n"
 
 #: ../extensions/notes.vala:66
 #, c-format
 msgid "Falied to remove note from database: %s\n"
-msgstr ""
+msgstr "Falied to remove note from database: %s\n"
 
 #: ../extensions/notes.vala:80
 #, c-format
 msgid "Falied to rename note: %s\n"
-msgstr ""
+msgstr "Falied to rename note: %s\n"
 
 #: ../extensions/notes.vala:96
 #, c-format
 msgid "Falied to update note: %s\n"
-msgstr ""
+msgstr "Falied to update note: %s\n"
 
 #: ../extensions/notes.vala:139 ../extensions/notes.vala:179
 #: ../extensions/notes.vala:453
 msgid "Notes"
-msgstr ""
+msgstr "Notes"
 
 #: ../extensions/notes.vala:146
 msgid "New Note"
-msgstr ""
+msgstr "New Note"
 
 #: ../extensions/notes.vala:147
 msgid "Creates a new empty note, urelated to opened pages"
-msgstr ""
+msgstr "Creates a new empty note, urelated to opened pages"
 
 #: ../extensions/notes.vala:153
 msgid "New note"
-msgstr ""
+msgstr "New note"
 
 #: ../extensions/notes.vala:197
 #, c-format
 msgid "Failed to select from notes database: %s\n"
-msgstr ""
+msgstr "Failed to select from notes database: %s\n"
 
 #: ../extensions/notes.vala:319 ../extensions/notes.vala:327
 msgid "Rename note"
-msgstr ""
+msgstr "Rename note"
 
 #: ../extensions/notes.vala:356
 msgid "Copy note to clipboard"
-msgstr ""
+msgstr "Copy note to clipboard"
 
 #: ../extensions/notes.vala:368
 msgid "Remove note"
-msgstr ""
+msgstr "Remove note"
 
 #: ../extensions/notes.vala:402
 msgid "Copy selection as note"
-msgstr ""
+msgstr "Copy selection as note"
 
 #: ../extensions/notes.vala:454
 msgid "Save text clips from websites as notes"
-msgstr ""
+msgstr "Save text clips from websites as notes"
 
 #: ../extensions/adblock/extension.vala:38
 msgid "Advertisement blocker"
