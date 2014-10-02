@@ -9,15 +9,15 @@ msgstr ""
 "Project-Id-Version: midori 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-02-21 10:52-0600\n"
-"PO-Revision-Date: 2014-02-23 20:42+0000\n"
+"PO-Revision-Date: 2014-10-01 13:58+0000\n"
 "Last-Translator: Jiri Grönroos <Unknown>\n"
 "Language-Team: Finnish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2014-02-24 05:24+0000\n"
-"X-Generator: Launchpad (build 16926)\n"
+"X-Launchpad-Export-Date: 2014-10-02 05:35+0000\n"
+"X-Generator: Launchpad (build 17196)\n"
 
 #: ../data/midori.desktop.in.h:1 ../midori/main.c:142
 #: ../midori/midori-websettings.c:227
@@ -854,7 +854,7 @@ msgstr "Mukautettu…"
 #: ../midori/midori-browser.c:5651
 #, c-format
 msgid "Failed to initialize history: %s"
-msgstr ""
+msgstr "Historian alustaminen epäonnistui: %s"
 
 #: ../midori/midori-browser.c:5827
 msgid "_Separator"
@@ -944,7 +944,7 @@ msgstr ""
 
 #: ../midori/midori-locationaction.c:1368
 msgid "Some other error occurred validating the certificate."
-msgstr ""
+msgstr "Jokin muu virhe varmenteen kelvollisuutta tarkistaessa."
 
 #: ../midori/midori-locationaction.c:1419
 msgid "_Export certificate"
@@ -956,7 +956,7 @@ msgstr ""
 
 #: ../midori/midori-locationaction.c:1465
 msgid "Security details"
-msgstr ""
+msgstr "Salauksen tiedot"
 
 #. i18n: Right-click on Location, Open an URL from the clipboard
 #: ../midori/midori-locationaction.c:1551
@@ -1126,8 +1126,8 @@ msgstr "Näytä vain välilehden k_uvake"
 #: ../midori/midori-notebook.vala:358
 msgid "Close Tab to the R_ight"
 msgid_plural "Close Tabs to the R_ight"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Sulje oi_kealla oleva välilehti"
+msgstr[1] "Sulje oi_kealla olevat välilehdet"
 
 #: ../midori/midori-notebook.vala:370
 msgid "Close Ot_her Tab"
@@ -2317,6 +2317,13 @@ msgid ""
 "\n"
 "Carry on without this plugin."
 msgstr ""
+"Tapahtui virhe tiedoston latausta yrittäessä seuraavalla laajennuksella:\n"
+"%s\n"
+"\n"
+"Virhe:\n"
+"%s\n"
+"\n"
+"Jatka ilman tätä laajennusta."
 
 #: ../extensions/external-download-manager.vala:175
 msgid "External Download Manager - Aria2"
@@ -2345,7 +2352,7 @@ msgstr "Lataa tiedostot sovelluksella \"%s\" tai omavalintaisella komennolla"
 
 #: ../extensions/external-download-manager.vala:320
 msgid "External Download Manager - CommandLine"
-msgstr ""
+msgstr "Erillinen latausten hallinta - komentorivi"
 
 #: ../extensions/feed-panel/feed-atom.c:208
 msgid "Failed to find required Atom \"entry\" elements in XML data."
@@ -3065,7 +3072,7 @@ msgstr "Näytä kaatum_isloki"
 
 #: ../midori/midori-frontend.c:383
 msgid "Run in _debugger"
-msgstr ""
+msgstr "Suorita _vianjäljittimessä"
 
 #: ../midori/midori-frontend.c:461
 msgid "An instance of Midori is already running but not responding.\n"
@@ -3225,7 +3232,7 @@ msgstr ""
 
 #: ../extensions/cookie-permissions/main.c:62
 msgid "Cookie Security Manager"
-msgstr ""
+msgstr "Evästeiden turvallisuuden hallinta"
 
 #: ../extensions/cookie-permissions/main.c:63
 msgid "Manage cookie permission per site"
