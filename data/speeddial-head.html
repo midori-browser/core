@@ -282,7 +282,7 @@
             if (titles[i].parentNode.childNodes[0].className != "preview new") {
                 titles[i].addEventListener ('click', editing_tile, false);
                 titles[i].addEventListener ('blur', done_editing_title, false);
-                titles[i].addEventListener ('keyup', input_lose_focus, false);
+                titles[i].addEventListener ('keydown', input_lose_focus, false);
             }
         }
 
