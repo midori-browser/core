@@ -251,7 +251,7 @@ namespace Midori {
                                 <div class="shortcut" id="%u"><div class="preview">
                                 <a class="cross" href="#"></a>
                                 <a href="%s"><img src="data:image/png;base64,%s" title='%s'></a>
-                                </div><div class="title">%s</div></div>
+                                </div><input type="text" class="title selectable" value="%s"></div>
                                 """,
                                 slot, uri, encoded ?? "", title, title ?? "");
                         }
