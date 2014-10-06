@@ -134,9 +134,9 @@
     var previousName = "";
 
     // TODO: figure out why this isn't firing
-    function lose_focus (ev) {
-        if(ev.keyCode == 13) ev.target.onblur();
-        console.log("wtfbbq\n");
+    function input_lose_focus (ev) {
+        // 13 is the key code for enter
+        if(ev.keyCode == 13) ev.target.blur();
     }
 
     function add_tile (ev) {
@@ -239,7 +239,8 @@
         var eparent = get_dial_div (ele);
 
         ele.style.cursor = cursor;
-        secondNode = eparent.id;
+        if(eparent != undefined) secondNode = eparent.id;
+        else return;
 
         /* ommit just mere clicking the dial */
         if (firstNode != secondNode && firstNode != undefined)
@@ -281,7 +282,7 @@
             if (titles[i].parentNode.childNodes[0].className != "preview new") {
                 titles[i].addEventListener ('click', editing_tile, false);
                 titles[i].addEventListener ('blur', done_editing_title, false);
-                titles[i].addEventListener ('keyup', lose_focus, false);
+                titles[i].addEventListener ('keyup', input_lose_focus, false);
             }
         }
 
