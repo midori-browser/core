@@ -188,7 +188,6 @@ namespace Midori {
                 string header = head.replace ("{title}", _("Speed Dial")).
                     replace ("{click_to_add}", _("Click to add a shortcut")).
                     replace ("{enter_shortcut_address}", _("Enter shortcut address")).
-                    replace ("{enter_shortcut_name}", _("Enter shortcut title")).
                     replace ("{are_you_sure}", _("Are you sure you want to delete this shortcut?"));
                 var markup = new StringBuilder (header);
 

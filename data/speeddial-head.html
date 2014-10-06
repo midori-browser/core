@@ -133,6 +133,12 @@
     <script type="text/javascript">
     var previousName = "";
 
+    // TODO: figure out why this isn't firing
+    function lose_focus (ev) {
+        if(ev.keyCode == 13) ev.target.onblur();
+        console.log("wtfbbq\n");
+    }
+
     function add_tile (ev) {
         ev.preventDefault();
 
@@ -176,7 +182,6 @@
         var id = ev.target.parentNode.parentNode.id;
         console.log ("speed_dial-save-delete " + id);
     }
-
 
     var firstNode, secondNode;
     var cursor;
@@ -276,6 +281,7 @@
             if (titles[i].parentNode.childNodes[0].className != "preview new") {
                 titles[i].addEventListener ('click', editing_tile, false);
                 titles[i].addEventListener ('blur', done_editing_title, false);
+                titles[i].addEventListener ('keyup', lose_focus, false);
             }
         }
 
