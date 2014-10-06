@@ -133,7 +133,6 @@
     <script type="text/javascript">
     var previousName = "";
 
-    // TODO: figure out why this isn't firing
     function input_lose_focus (ev) {
         // 13 is the key code for enter
         if(ev.keyCode == 13) ev.target.blur();
@@ -282,6 +281,9 @@
             if (titles[i].parentNode.childNodes[0].className != "preview new") {
                 titles[i].addEventListener ('click', editing_tile, false);
                 titles[i].addEventListener ('blur', done_editing_title, false);
+                /* FIXME: keydown should ideally be keyup (very minor difference)
+                 *        however keyup is broken right now
+                 */
                 titles[i].addEventListener ('keydown', input_lose_focus, false);
             }
         }
