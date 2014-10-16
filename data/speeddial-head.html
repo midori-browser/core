@@ -27,7 +27,7 @@
         cursor: default;
         font-size: 13px;
         color: #4d4d4d;
-	    -webkit-user-select: none;
+        -webkit-user-select: none;
     }
 
     html, body {
@@ -154,8 +154,8 @@
 
     function done_editing_title (ev) {
         input = ev.target;
-        input.style.backgroundColor = "rgba(0, 0, 0, 0)";
-        input.style.border = "1px solid rgba(0, 0, 0, 0)";
+        input.style.backgroundColor = "transparent";
+        input.style.border = "1px solid transparent";
 
         var name = ev.target.value;
         if (name == "")
