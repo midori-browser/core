@@ -133,7 +133,7 @@
     <script type="text/javascript">
     var previousName = "";
 
-    function input_lose_focus (ev) {
+    function input_key_down (ev) {
         // 13 is the key code for enter
         if(ev.keyCode == 13) ev.target.blur();
         // 27 is the key code for escape
@@ -286,7 +286,7 @@
             if (titles[i].parentNode.childNodes[0].className != "preview new") {
                 titles[i].addEventListener ('click', editing_tile, false);
                 titles[i].addEventListener ('blur', done_editing_title, false);
-                titles[i].addEventListener ('keydown', input_lose_focus, false);
+                titles[i].addEventListener ('keydown', input_key_down, false);
             }
         }
 
