@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: midori 0.0.21\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-02-21 10:52-0600\n"
-"PO-Revision-Date: 2014-10-09 12:31+0000\n"
-"Last-Translator: Oskar Murand <oskar.murand@gmail.com>\n"
+"PO-Revision-Date: 2014-10-23 14:51+0000\n"
+"Last-Translator: Kristjan Vool <tictac7x@gmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2014-10-10 04:43+0000\n"
-"X-Generator: Launchpad (build 17196)\n"
+"X-Launchpad-Export-Date: 2014-10-24 05:38+0000\n"
+"X-Generator: Launchpad (build 17203)\n"
 "Language: Estonian\n"
 "X-Poedit-Language: Estonian\n"
 
@@ -256,7 +256,7 @@ msgstr "Peata praeguse lehekülje laadimine"
 #: ../midori/midori-browser.c:514
 #, c-format
 msgid "Failed to update title: %s\n"
-msgstr "Leakirja %s uuendamine ebaõnnestus\n"
+msgstr "Peakirja %s uuendamine ebaõnnestus\n"
 
 #: ../midori/midori-browser.c:554 ../midori/midori-browser.c:610
 #: ../midori/midori-browser.c:613 ../midori/midori-websettings.c:1461
@@ -287,7 +287,7 @@ msgstr "Ajaloo kirjutamine ebaõnnestus: %s\n"
 
 #: ../midori/midori-browser.c:898
 msgid "Select [text]"
-msgstr ""
+msgstr "Vali [text]"
 
 #: ../midori/midori-browser.c:927 ../panels/midori-bookmarks.c:148
 #: ../midori/midori-bookmarks-db.c:153
@@ -636,7 +636,7 @@ msgstr "_Lähtekood"
 
 #: ../midori/midori-browser.c:5168
 msgid "View _DOM Source"
-msgstr ""
+msgstr "Vaata _DOM lähtekoodi"
 
 #: ../midori/midori-browser.c:5171
 msgid "Ca_ret Browsing"
@@ -901,12 +901,12 @@ msgstr "Menüü"
 #: ../midori/midori-extension.c:341
 #, c-format
 msgid "The configuration of the extension '%s' couldn't be loaded: %s\n"
-msgstr "Plugina '%s' seadistuste laadimine ebaõnnestus: %s\n"
+msgstr "Plugina \"%s\" seadistuste laadimine ebaõnnestus: %s\n"
 
 #: ../midori/midori-extension.c:894 ../extensions/addons.c:1680
 #, c-format
 msgid "The configuration of the extension '%s' couldn't be saved: %s\n"
-msgstr "Plugina '%s' seadistuste salvestamine ebaõnnestus: %s\n"
+msgstr "Plugina \"%s\" seadistuste salvestamine ebaõnnestus: %s\n"
 
 #: ../midori/midori-locationaction.c:1325
 msgid "Export certificate"
@@ -1306,12 +1306,12 @@ msgstr "Faili nimi: %s"
 #: ../midori/midori-view.c:2738
 #, c-format
 msgid "File Type: '%s'"
-msgstr "Faili tüüp: '%s'"
+msgstr "Faili tüüp: \"%s\""
 
 #: ../midori/midori-view.c:2740
 #, c-format
 msgid "File Type: %s ('%s')"
-msgstr "Faili tüüp: %s ('%s')"
+msgstr "Faili tüüp: %s (\"%s\")"
 
 #: ../midori/midori-view.c:2778
 #, c-format
@@ -2150,20 +2150,20 @@ msgstr "Ava kausta asukoht"
 
 #: ../extensions/addons.c:630
 msgid "Add new addon"
-msgstr "Lisa uus laiendus"
+msgstr "Lisa uus plugin"
 
 #: ../extensions/addons.c:656
 msgid "Remove selected addon"
-msgstr "Kustuta valitud laiendus"
+msgstr "Kustuta valitud plugin"
 
 #: ../extensions/addons.c:1681 ../extensions/addons.c:1897
 msgid "User addons"
-msgstr "Kasutaja laiendid"
+msgstr "Kasutaja pluginad"
 
 #: ../extensions/addons.c:1811
 #, c-format
 msgid "Can't monitor folder '%s': %s"
-msgstr "Kausta '%s': %s jälgimine pole võimalik"
+msgstr "Kausta \"%s\": %s jälgimine pole võimalik"
 
 #: ../extensions/addons.c:1898
 msgid "Support for userscripts and userstyles"
@@ -2216,7 +2216,7 @@ msgstr "Kustutatakse vaid küpsised, mis vastavad filtri tingimustele."
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:668
 msgid "At the end of the session"
-msgstr "Sessiooni lõpus"
+msgstr "Seanssi lõpus"
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:671
 #, c-format
@@ -2304,7 +2304,7 @@ msgstr "DevPet"
 
 #: ../extensions/devpet.vala:254
 msgid "This extension shows glib error messages in systray."
-msgstr ""
+msgstr "See plugin kuvab glib veateated systray's."
 
 #: ../extensions/external-download-manager.vala:124
 #, c-format
@@ -2318,6 +2318,13 @@ msgid ""
 "\n"
 "Carry on without this plugin."
 msgstr ""
+"Faili allalaadimise ebaõnnestus, kuna kasutati pluginat:\n"
+"%s\n"
+"\n"
+"Tõrge:\n"
+"%s\n"
+"\n"
+"Parem on jätkata ilma selle pluginata."
 
 #: ../extensions/external-download-manager.vala:175
 msgid "External Download Manager - Aria2"
@@ -2363,7 +2370,7 @@ msgstr ""
 #, c-format
 msgctxt "Feed"
 msgid "Last updated: %s."
-msgstr "Viimati uuendati: %s."
+msgstr "Viimane uuendamine: %s."
 
 #: ../extensions/feed-panel/feed-panel.c:620
 msgid "Feeds"
@@ -2583,7 +2590,7 @@ msgstr "Luba"
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:901
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1114
 msgid "Accept for session"
-msgstr "Sessiooni lubamine"
+msgstr "Seanssi lubamine"
 
 #: ../extensions/nojs/nojs-preferences.c:262
 #: ../extensions/nojs/nojs-preferences.c:908 ../extensions/nojs/nojs.c:1032
@@ -2597,7 +2604,7 @@ msgstr "Blokeeri"
 #: ../extensions/nojs/nojs-preferences.c:308 ../extensions/nojs/nojs.c:204
 #, c-format
 msgid "Could not open database of extension: %s"
-msgstr ""
+msgstr "PLugina %s andmebaasi avamine ebaõnnestus"
 
 #: ../extensions/nojs/nojs-preferences.c:578
 #: ../extensions/nojs/nojs-preferences.c:581
@@ -2613,37 +2620,42 @@ msgstr "Andmebaasi kinnituse %s käivitamine ebaõnnestus"
 #: ../extensions/nojs/nojs-preferences.c:607
 msgid "Do you really want to delete all JavaScript permissions?"
 msgstr ""
+"Oled sa kindel, et soovid kõik JavaSript'ile antud õigused kustutada?"
 
 #: ../extensions/nojs/nojs-preferences.c:609
 msgid "Delete all JavaScript permissions?"
-msgstr ""
+msgstr "Kustutada kõik JavaScript'i õigused?"
 
 #: ../extensions/nojs/nojs-preferences.c:613
 msgid ""
 "This action will delete all JavaScript permissions. You will be asked for "
 "permissions again for each web site visited."
 msgstr ""
+"Kõik JavaScript'ile antud õigused kustutatakse. Iga lehe külastamisel "
+"küsitakse sult õiguseid uuesti."
 
 #: ../extensions/nojs/nojs-preferences.c:809
 #: ../extensions/nojs/nojs-view.c:699
 msgid "Manager instance"
-msgstr ""
+msgstr "Halduri juhtum"
 
 #: ../extensions/nojs/nojs-preferences.c:810
 #: ../extensions/nojs/nojs-view.c:700
 msgid "Instance to global NoJS manager"
-msgstr ""
+msgstr "NoJS halduri juhtum"
 
 #. Set up dialog
 #: ../extensions/nojs/nojs-preferences.c:850
 msgid "Configure NoJS"
-msgstr ""
+msgstr "NoJS seadistamine"
 
 #: ../extensions/nojs/nojs-preferences.c:866
 msgid ""
 "Below is a list of all web sites and the policy set for them. You can delete "
 "policies by marking the entries and clicking on <i>Delete</i>."
 msgstr ""
+"Allpool on nimekiri veebilehtedest ja nende õigustest. Õiguste kustutamine "
+"tee kirjele märge nind vajuta <i>Kustuta</i> nupule."
 
 #: ../extensions/nojs/nojs-preferences.c:937
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:836
@@ -2664,17 +2676,17 @@ msgstr "Kustuta _kõik"
 #. Add "allow-all-sites" checkbox
 #: ../extensions/nojs/nojs-preferences.c:987
 msgid "A_llow scripts at all sites"
-msgstr ""
+msgstr "_Luba kõikide lehtede skriptid"
 
 #. Add "block-unknown-domains" checkbox
 #: ../extensions/nojs/nojs-preferences.c:995
 msgid "Bloc_k scripts at unknown domains by default"
-msgstr ""
+msgstr "_Blokeeri tundmatute domeenide skriptid vaikimisi"
 
 #. Add "check-second-level-only" checkbox
 #: ../extensions/nojs/nojs-preferences.c:1003
 msgid "S_et permissions on second-level domain"
-msgstr ""
+msgstr "Õiguste _seadmine teise taseme domeenidele"
 
 #. Add menu item(s) for domain
 #: ../extensions/nojs/nojs-view.c:237
@@ -2690,31 +2702,31 @@ msgstr "Luba %s"
 #: ../extensions/nojs/nojs-view.c:261
 #, c-format
 msgid "Allow %s this session"
-msgstr ""
+msgstr "%s lubamine sellel seanssil"
 
 #: ../extensions/nojs/nojs-view.c:706
 msgid "Browser window"
-msgstr ""
+msgstr "Brauseri aken"
 
 #: ../extensions/nojs/nojs-view.c:707
 msgid "The Midori browser instance this view belongs to"
-msgstr ""
+msgstr "Midori brauseri juhtum kuulub"
 
 #: ../extensions/nojs/nojs-view.c:713
 msgid "View"
-msgstr ""
+msgstr "Vaade"
 
 #: ../extensions/nojs/nojs-view.c:714
 msgid "The Midori view instance this view belongs to"
-msgstr ""
+msgstr "Midori vaate juhtum kuulub"
 
 #: ../extensions/nojs/nojs-view.c:720
 msgid "Menu icon state"
-msgstr ""
+msgstr "Menüü ikooni olek"
 
 #: ../extensions/nojs/nojs-view.c:721
 msgid "State of menu icon to show in status bar"
-msgstr ""
+msgstr "Olekuribal kuvatava menüü ikooni olek"
 
 #: ../extensions/nojs/nojs-view.c:792 ../extensions/nojs/nojs.c:1029
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1112
@@ -2723,25 +2735,27 @@ msgstr "Määratlemata"
 
 #: ../extensions/nojs/nojs-view.c:793
 msgid "Allowed"
-msgstr ""
+msgstr "Lubatud"
 
 #: ../extensions/nojs/nojs-view.c:794
 msgid "Mixed"
-msgstr ""
+msgstr "Kombineeritud"
 
 #: ../extensions/nojs/nojs-view.c:795
 msgid "Denied"
-msgstr ""
+msgstr "Keelatud"
 
 #: ../extensions/nojs/nojs.c:143
 msgid ""
 "A fatal error occurred which prevents the NoJS extension to continue. You "
 "should disable it."
 msgstr ""
+"Ilmnes tõsine tõrge, mille tõttu NoJS plugina edasitöötamine pole võimalik. "
+"Peaksid selle keelama."
 
 #: ../extensions/nojs/nojs.c:147
 msgid "Error in NoJS extension"
-msgstr ""
+msgstr "Tõrge NoJS pluginas"
 
 #: ../extensions/nojs/nojs.c:152
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:100
@@ -2811,35 +2825,37 @@ msgstr "Asukoht sqtlite andmebaasi, mida see plugin kasutab"
 
 #: ../extensions/nojs/nojs.c:748
 msgid "Allow all sites"
-msgstr ""
+msgstr "Kõikide lehtede lubamine"
 
 #: ../extensions/nojs/nojs.c:749
 msgid ""
 "If true this extension will not check policy for each site but allow them."
-msgstr ""
+msgstr "Lubades ei kontrollita iga lehe õigusi ning hoopis lubatakse."
 
 #: ../extensions/nojs/nojs.c:755
 msgid "Only second level"
-msgstr ""
+msgstr "Ainult teine tase"
 
 #: ../extensions/nojs/nojs.c:756
 msgid ""
 "If true this extension will reduce each domain to its second-level "
 "(www.example.org will reduced to example.org)"
 msgstr ""
+"Lubades vähendatakse domeen teisele tasemele, näiteks (www.example.org -> "
+"example.org)"
 
 #: ../extensions/nojs/nojs.c:762
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1033
 msgid "Unknown domain policy"
-msgstr ""
+msgstr "Tundmatu domeeni õigused"
 
 #: ../extensions/nojs/nojs.c:763
 msgid "Policy to use for unknown domains."
-msgstr ""
+msgstr "Õigused, mida kasutatakse tundmatute domeenide puhul."
 
 #: ../extensions/nojs/nojs.c:1031
 msgid "Accept temporarily"
-msgstr ""
+msgstr "Luba ajutiselt"
 
 #: ../extensions/mouse-gestures.c:513
 msgid "Mouse Gestures"
@@ -2999,7 +3015,7 @@ msgstr "Veel lahtisi kaarte..."
 #: ../midori/midori-history.c:27
 #, c-format
 msgid "Failed to clear history: %s\n"
-msgstr "AJaloo kustutamine ebaõnnestus: %s\n"
+msgstr "Ajaloo kustutamine ebaõnnestus: %s\n"
 
 #. i18n: Couldn't remove items that are older than n days
 #: ../midori/midori-history.c:73
@@ -3083,7 +3099,7 @@ msgstr "Järjehoidjate laadimisel tekkis probleem: %s\n"
 #: ../midori/midori-frontend.c:509
 #, c-format
 msgid "The session couldn't be loaded: %s\n"
-msgstr "Sessiooni laadimine ebaõnnestus: %s\n"
+msgstr "Seanssi laadimine ebaõnnestus: %s\n"
 
 #: ../midori/midori-frontend.c:525
 #, c-format
@@ -3154,11 +3170,11 @@ msgstr ""
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:892
 msgid "Policy for cookies from domains not in the list: "
-msgstr ""
+msgstr "Nimekirjas mitte olevate lehtede küpsiste õigused: "
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:897
 msgid "Ask for a decision"
-msgstr ""
+msgstr "Loa küsimine"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:91
 msgid ""
@@ -3179,7 +3195,7 @@ msgstr "Domeenile %s pole võimalik määrata üldisi küpsiste käitumisviise"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:487
 msgid "Till session end"
-msgstr "Kuni sessiooni lõppemiseni"
+msgstr "Kuni seanssi lõppemiseni"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:511
 #, c-format
@@ -3202,7 +3218,7 @@ msgstr "_Luba"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:527
 msgid "Accept for this _session"
-msgstr "_Luba selle sessiooni jaoks"
+msgstr "_Luba selle seanssi jaoks"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:528
 msgid "De_ny"
@@ -3228,7 +3244,7 @@ msgstr "Aegumise tähtaeg"
 msgid ""
 "The policy to use for domains not individually configured. This only acts to "
 "further restrict the global cookie policy set in Midori settings."
-msgstr ""
+msgstr "Õigused domeenidele, mida ei seadistata individuaalselt."
 
 #: ../extensions/cookie-permissions/main.c:62
 msgid "Cookie Security Manager"
@@ -3252,7 +3268,7 @@ msgstr "Midori (%s)"
 #: ../extensions/apps.vala:154
 #, c-format
 msgid "Failed to create new launcher (%s): %s"
-msgstr ""
+msgstr "Uue käivitaja loomine ebaõnnestus (%s): %s"
 
 #: ../extensions/apps.vala:145
 msgid "Launcher created"
@@ -3317,7 +3333,7 @@ msgstr "Puhasta"
 #: ../extensions/transfers.vala:467
 #, c-format
 msgid "Failed to open download: %s"
-msgstr ""
+msgstr "Ebaõnnestus avada allalaadimist: %s"
 
 #: ../extensions/transfers.vala:214
 msgid "Open Destination _Folder"
@@ -3374,98 +3390,100 @@ msgstr "Vaata allalaaditud faile"
 #: ../extensions/tabby.vala:590 ../extensions/tabby.vala:595
 #, c-format
 msgid "Failed to update database: %s"
-msgstr ""
+msgstr "Ebaõnnestus uuendada andmebaasi: %s"
 
 #: ../extensions/tabby.vala:520 ../extensions/tabby.vala:524
 #: ../extensions/tabby.vala:548 ../extensions/tabby.vala:552
 #: ../extensions/tabby.vala:614 ../extensions/tabby.vala:617
 #, c-format
 msgid "Failed to select from database: %s"
-msgstr ""
+msgstr "Valimine andmebaasist %s ebaõnnestus"
 
 #: ../extensions/tabby.vala:666
 #, c-format
 msgid "Failed to import legacy session: %s"
-msgstr ""
+msgstr "Pärandseanssi laadimine ebaõnnestus: %s"
 
 #: ../extensions/tabby.vala:775
 msgid "Tabby"
-msgstr ""
+msgstr "Vöödiline"
 
 #: ../extensions/tabby.vala:776
 msgid "Tab and session management."
-msgstr ""
+msgstr "Kaartide ja seansside haldamine."
 
 #: ../extensions/flummi.vala:82
 msgid "Flummi"
-msgstr ""
+msgstr "Flummi"
 
 #: ../extensions/flummi.vala:83
 msgid ""
 "This extension provides a task queue for update jobs or recurring events."
 msgstr ""
+"See plugin tagab toimingute järjekorra uuendamise töödele ja taaskorduvatele "
+"sündmustele."
 
 #: ../extensions/notes.vala:46
 #, c-format
 msgid "Failed to add new note to database: %s\n"
-msgstr ""
+msgstr "Uue märkme lisamine andmebaasi ebaõnnestus: %s\n"
 
 #: ../extensions/notes.vala:66
 #, c-format
 msgid "Falied to remove note from database: %s\n"
-msgstr ""
+msgstr "Märkme eemaldamine andmebaasist ebaõnnestus: %s\n"
 
 #: ../extensions/notes.vala:80
 #, c-format
 msgid "Falied to rename note: %s\n"
-msgstr ""
+msgstr "Märkme %s nime muutmine ebaõnnestus\n"
 
 #: ../extensions/notes.vala:96
 #, c-format
 msgid "Falied to update note: %s\n"
-msgstr ""
+msgstr "Märkme %s uuendamine ebaõnnestus\n"
 
 #: ../extensions/notes.vala:139 ../extensions/notes.vala:179
 #: ../extensions/notes.vala:453
 msgid "Notes"
-msgstr ""
+msgstr "Märkmed"
 
 #: ../extensions/notes.vala:146
 msgid "New Note"
-msgstr ""
+msgstr "Uus märge"
 
 #: ../extensions/notes.vala:147
 msgid "Creates a new empty note, urelated to opened pages"
-msgstr ""
+msgstr "Uue tühja märkme loomine, avatud lehed ei mõjuta seda"
 
 #: ../extensions/notes.vala:153
 msgid "New note"
-msgstr ""
+msgstr "Uus märge"
 
 #: ../extensions/notes.vala:197
 #, c-format
 msgid "Failed to select from notes database: %s\n"
-msgstr ""
+msgstr "Valimine märkmete andmebaasist ebaõnnestus: %s\n"
 
 #: ../extensions/notes.vala:319 ../extensions/notes.vala:327
 msgid "Rename note"
-msgstr ""
+msgstr "Muuda märkme nimi"
 
 #: ../extensions/notes.vala:356
 msgid "Copy note to clipboard"
-msgstr ""
+msgstr "Märkme kopeerimine lõikepuhvrisse"
 
 #: ../extensions/notes.vala:368
 msgid "Remove note"
-msgstr ""
+msgstr "Märkme eemaldamine"
 
 #: ../extensions/notes.vala:402
 msgid "Copy selection as note"
-msgstr ""
+msgstr "Valiku kopeerimine märkmena"
 
 #: ../extensions/notes.vala:454
 msgid "Save text clips from websites as notes"
-msgstr ""
+msgstr "Tekstilõikude salvestamine märkmetena"
 
 #: ../extensions/adblock/extension.vala:38
 msgid "Advertisement blocker"
