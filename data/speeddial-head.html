@@ -135,7 +135,10 @@
 
     function input_key_down (ev) {
         // 13 is the key code for enter
-        if(ev.keyCode == 13) ev.target.blur();
+        if(ev.keyCode == 13) {
+            ev.save_target_input = true;
+            done_editing_title(ev);
+        }
         // 27 is the key code for escape
         if(ev.keyCode == 27) {
             ev.target.value = previousName;
@@ -163,10 +166,14 @@
         input.style.border = "1px solid transparent";
 
         var name = ev.target.value;
-        if (name == "")
+        if (name == "" || ev.save_target_input != true)
             name = previousName;
+
         var id = ev.target.parentNode.id;
         console.log ("speed_dial-save-rename " + id + " " + name);
+        ev.target.removeEventListener ('blur', done_editing_title);
+        ev.target.blur();
+        ev.target.addEventListener ('blur', done_editing_title, false);
     }
 
     function editing_tile (ev) {
