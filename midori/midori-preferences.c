@@ -198,24 +198,6 @@ midori_preferences_toolbutton_clicked_cb (GtkWidget* toolbutton,
 }
 #endif
 
-static inline void
-midori_preferences_add_toolbutton (GtkWidget*   toolbar,
-                                   GtkWidget**  toolbutton,
-                                   const gchar* icon,
-                                   const gchar* label,
-                                   GtkWidget*   page)
-{
-#if HAVE_OSX
-    *toolbutton = GTK_WIDGET (*toolbutton ? gtk_radio_tool_button_new_from_widget (
-        GTK_RADIO_TOOL_BUTTON (*toolbutton)) : gtk_radio_tool_button_new (NULL));
-    gtk_tool_button_set_label (GTK_TOOL_BUTTON (*toolbutton), label);
-    gtk_tool_button_set_stock_id (GTK_TOOL_BUTTON (*toolbutton), icon);
-    gtk_toolbar_insert (GTK_TOOLBAR (toolbar), GTK_TOOL_ITEM (*toolbutton), -1);
-    g_signal_connect (*toolbutton, "clicked",
-        G_CALLBACK (midori_preferences_toolbutton_clicked_cb), page);
-#endif
-}
-
 #if 0
 static void
 midori_preferences_list_dicts_cb (const gchar* lang_tag,
