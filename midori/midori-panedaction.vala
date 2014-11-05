@@ -17,7 +17,7 @@ namespace Midori {
         Child child2 = new Child();
 
         private struct Child {
-            protected Gtk.Widget widget;
+            public Gtk.Widget widget;
             string name;
             bool resize;
             bool shrink;
