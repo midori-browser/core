@@ -5448,7 +5448,6 @@ static const GtkToggleActionEntry toggle_entries[] =
         NULL, G_CALLBACK (_action_statusbar_activate),
         FALSE },
 };
-static const guint toggle_entries_n = G_N_ELEMENTS (toggle_entries);
 
 static const GtkRadioActionEntry encoding_entries[] =
 {
@@ -5481,7 +5480,6 @@ static const GtkRadioActionEntry encoding_entries[] =
         N_("Custom…"), "",
         NULL, 1 },
 };
-static const guint encoding_entries_n = G_N_ELEMENTS (encoding_entries);
 
 typedef struct {
      MidoriBrowser* browser;
