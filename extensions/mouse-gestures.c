@@ -129,14 +129,14 @@ static guint
 dist_sqr (guint x1, guint y1, guint x2, guint y2)
 {
     guint xdiff = 0, ydiff = 0;
-    //Remember x1,x2,y1,y2 are guint unsigned integers
-    //substract a greater number from a lower is undefined
-    //this guard that.
-    if ( x1 > x2)
+    //Remember x1,x2,y1,y2 are guint unsigned integers.
+    //Substracting a greater number from a lower one is undefined.
+    //This guard against that.
+    if (x1 > x2)
         xdiff = x1 - x2;
     else
         xdiff = x2 - x1;
-    if ( y1 > y2)
+    if (y1 > y2)
         ydiff = y1 - y2;
     else
         ydiff = y2 - y1;
@@ -169,7 +169,7 @@ vector_follows_direction (float angle, float distance, MouseGestureDirection dir
         return distance < MINLENGTH / 2;
 
     float dir_angle = get_angle_for_direction (direction);
-    if (fabsf (angle - dir_angle) < DEVIANCE || fabsf (angle - dir_angle + 2 *(float)(M_PI)) < DEVIANCE)
+    if (fabsf (angle - dir_angle) < DEVIANCE || fabsf (angle - dir_angle + 2 * (float)(M_PI)) < DEVIANCE)
         return TRUE;
 
     if(distance < MINLENGTH / 2)
