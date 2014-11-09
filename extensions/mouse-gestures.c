@@ -129,9 +129,10 @@ static guint
 dist_sqr (guint x1, guint y1, guint x2, guint y2)
 {
     guint xdiff = 0, ydiff = 0;
-    //Remember x1,x2,y1,y2 are guint unsigned integers.
-    //Substracting a greater number from a lower one is undefined.
-    //This guard against that.
+    // Remember that x1, x2, y1 and y2 are guint unsigned integers.
+    // Subtracting a greater number from a lower one is undefined.
+    // This guards against that.
+
     if (x1 > x2)
         xdiff = x1 - x2;
     else
