@@ -5,7 +5,7 @@
   <title>midori:faq</title>
 <meta name="generator" content="DokuWiki"/>
 <meta name="robots" content="index,follow"/>
-<meta name="date" content="2013-12-20T22:56:39+0100"/>
+<meta name="date" content="2014-06-05T00:44:58+0200"/>
 <meta name="keywords" content="midori,faq"/>
 <link rel="search" type="application/opensearchdescription+xml" href="/lib/exe/opensearch.php" title="Xfce Wiki"/>
 <link rel="start" href="/"/>
@@ -29,7 +29,7 @@
 
 <ul class="toc">
 <li class="level1"><div class="li"><a href="#midori_-_frequently_asked_questions">Midori - Frequently asked questions</a></div></li>
-<li class="level1"><div class="li"><a href="#getting_started">Getting started</a></div></li>
+<li class="level1"><div class="li"><a href="#about_midori">About Midori</a></div></li>
 <li class="level1"><div class="li"><a href="#common_problems">Common problems</a></div>
 <ul class="toc">
 <li class="level2"><div class="li"><a href="#security_features">Security features</a></div></li>
@@ -58,8 +58,14 @@
 <li class="level1"><div class="li"><a href="#user_scripts_and_styles">User scripts and styles</a></div>
 <ul class="toc">
 <li class="level2"><div class="li"><a href="#user_styles">User styles</a></div></li>
-<li class="level2"><div class="li"><a href="#understanding_webkit_version_numbers">Understanding WebKit Version Numbers</a></div></li>
-</ul></li>
+</ul>
+</li>
+<li class="level1"><div class="li"><a href="#midori_architecture">Midori Architecture</a></div>
+<ul class="toc">
+<li class="level2"><div class="li"><a href="#webkit_version_numbers">WebKit Version Numbers</a></div></li>
+</ul>
+</li>
+<li class="level1"><div class="li"><a href="#midori_and_mediaherald">Midori and mediaHerald</a></div></li>
 </ul>
 </div>
 </div>
@@ -73,12 +79,12 @@
 </p>
 
 <p>
-This is <a href="http://wiki.xfce.org/midori/faq">a snapshot of the online FAQ</a> about the Midori Web Browser. Anyone feel free to improve and/ or extend this page, but keep it clean and easy to read for other Xfce users.
+This is <a href="http://wiki.xfce.org/midori/faq">a snapshot of the online FAQ</a> about the Midori Web Browser. Anyone should feel free to improve or extend this page, but keep it clean and easy to read for other users.
 </p>
 
 </div>
-<!-- EDIT1 SECTION "Midori - Frequently asked questions" [1-289] -->
-<h1 class="sectionedit2" id="getting_started">Getting started</h1>
+<!-- EDIT1 SECTION "Midori - Frequently asked questions" [1-286] -->
+<h1 class="sectionedit2" id="about_midori">About Midori</h1>
 <div class="level1">
 
 </div>
@@ -87,7 +93,7 @@ This is <a href="http://wiki.xfce.org/midori/faq">a snapshot of the online FAQ</
 <div class="level4">
 
 <p>
-Midori is a Web Browser, that aims to be lightweight and fast. It aligns well with the Xfce philosophy of making the most out of available resources.
+Midori is a Web browser that aims to be lightweight and fast. It aligns well with the Xfce philosophy of making the most out of available resources. It has a customizable interface using the GTK+ toolkit.
 </p>
 
 </div>
@@ -114,7 +120,7 @@ The paw of a green cat. Obviously. Also it resembles the letter “M” in “Mi
 <div class="level4">
 
 <p>
-Midori is basically very portable and should run on all platforms that its dependencies support.
+Midori is portable and should run on all platforms that its dependencies support. Releases exist on various Linux distributions, for Windows versions prior to 8.1 (for now), and BSD.
 </p>
 
 </div>
@@ -127,7 +133,7 @@ Midori and all delivered artwork are licensed under the LGPL2.
 </p>
 
 </div>
-<!-- EDIT2 SECTION "Getting started" [290-1188] -->
+<!-- EDIT2 SECTION "About Midori" [287-1323] -->
 <h1 class="sectionedit3" id="common_problems">Common problems</h1>
 <div class="level1">
 
@@ -137,19 +143,15 @@ Midori and all delivered artwork are licensed under the LGPL2.
 <div class="level4">
 
 <p>
-Some websites discriminate against your browser.
+Some websites give up if they don&#039;t recognize your browser as Chrome, Firefox, <abbr title="Internet Explorer">IE</abbr>, etc.
 </p>
 
 <p>
-If you have Midori older than 0.3.5, go to Preferences &gt; Network &gt; Identify As, and choose Custom. Paste this into the entry:
+You can change the browser name sent to web sites at Preferences &gt; Network &gt; Identify As
 </p>
 
 <p>
-Mozilla/5.0 (X11; Linux) AppleWebKit/531.2+ Midori/0.3
-</p>
-
-<p>
-If this doesn&#039;t do the trick, try choosing Safari or Firefox.
+Either choose a predefined user-agent or choose Custom and find a suitable string in <a href="http://useragentstring.com/pages/useragentstring.php" class="urlextern" title="http://useragentstring.com/pages/useragentstring.php"  rel="nofollow">a list</a>.
 </p>
 
 <p>
@@ -157,7 +159,7 @@ Many other websites use similar means of detecting the browser.
 </p>
 
 <p>
-Ideally Google would follow <a href="http://code.google.com/p/doctype/wiki/ArticleGoogleChromeCompatFAQ#UserAgent_Detection" class="urlextern" title="http://code.google.com/p/doctype/wiki/ArticleGoogleChromeCompatFAQ#UserAgent_Detection"  rel="nofollow">their own recommendation</a> at some point.
+Google <a href="http://web.archive.org/web/20100625211333/http://code.google.com/p/doctype/wiki/ArticleGoogleChromeCompatFAQ" class="urlextern" title="http://web.archive.org/web/20100625211333/http://code.google.com/p/doctype/wiki/ArticleGoogleChromeCompatFAQ"  rel="nofollow">previously recommended</a> the superior practice for website creators of checking which features are present rather than browser name/version, but has since weakened this stance with their browser&#039;s growing market share.
 </p>
 
 </div>
@@ -166,7 +168,7 @@ Ideally Google would follow <a href="http://code.google.com/p/doctype/wiki/Artic
 <div class="level4">
 
 <p>
-The set of themed icons Midori can use is very limited. For instance icons for a new tab or the throbber are not guaranteed to be available. To fix this, install a Freedesktop.org <abbr title="specification">spec</abbr> compliant icon theme, such as Elementary, Faenza, Buuf or GNOME.
+Midori uses a wide variety of icons which may not be present in all themes. For instance icons for a new tab, to represent scripts, or the throbber may not available. To fix this, install a Freedesktop.org <abbr title="specification">spec</abbr> compliant icon theme, such as Elementary, Faenza, Buuf or GNOME.
 </p>
 
 <p>
@@ -178,7 +180,16 @@ XDG_DATA_HOME=/path/to/location
 </p>
 
 <p>
-will add an extra path for the icons/.. directory
+will add an extra path for the icons/… directory
+</p>
+
+<p>
+In addition, GTK3 may remove icons from menus. This may be changed by placing 
+</p>
+<pre class="code">gtk-menu-images=true</pre>
+
+<p>
+ in the file ~/.config/gtk-3.0/settings.ini
 </p>
 
 </div>
@@ -250,7 +261,7 @@ export XDG_CACHE_HOME=/dev/shm
 </p>
 
 </div>
-<!-- EDIT3 SECTION "Common problems" [1189-3737] -->
+<!-- EDIT3 SECTION "Common problems" [1324-4267] -->
 <h2 class="sectionedit4" id="security_features">Security features</h2>
 <div class="level2">
 
@@ -295,7 +306,7 @@ No key store is available or it&#039;s incorrectly setup. By default GNOME keyri
 </p>
 
 </div>
-<!-- EDIT4 SECTION "Security features" [3738-4955] -->
+<!-- EDIT4 SECTION "Security features" [4268-5485] -->
 <h2 class="sectionedit5" id="flash_doesn_t_work">Flash doesn&#039;t work</h2>
 <div class="level2">
 
@@ -373,6 +384,10 @@ There&#039;s no official support right now. It&#039;s possible to <a href="https
 <div class="level4">
 
 <p>
+Windows-style middle-click behavior is 
+</p>
+
+<p>
 <a href="http://ubuntuforums.org/showthread.php?t=478418" class="urlextern" title="http://ubuntuforums.org/showthread.php?t=478418"  rel="nofollow">http://ubuntuforums.org/showthread.php?t=478418</a>
 </p>
 
@@ -384,24 +399,24 @@ Upstream Bug: <a href="https://bugs.webkit.org/show_bug.cgi?id=50561" class="url
 
 </div>
 
-<h4 id="html5_video_doesn_t_play">HTML5 Video doesn&#039;t play</h4>
+<h4 id="html5_videoaudio_doesn_t_play">HTML5 Video/ Audio doesn&#039;t play</h4>
 <div class="level4">
 
 <p>
-You need to have GStreamer plugins installed which implement the codecs.
+<a href="#midori_architecture" title="midori:faq ↵" class="wikilink1">Midori uses GStreamer</a> for HTML5 audio and video support. Codecs, which handle particular formats of audio or video, are provided by GStreamer plugins which may need to be installed separately. Midori may be built with GTK+2 or GTK+3 (visit about:version to check), which correspond to GStreamer versions of 0.10 or 1.0 respectively.
 </p>
 <ol>
-<li class="level1"><div class="li"> You need gstreamer0.10-pulse if you&#039;re using PulseAudio.</div>
+<li class="level1"><div class="li"> You need gstreamer(0.10/1.0)-pulse if you&#039;re using PulseAudio.</div>
 </li>
-<li class="level1"><div class="li"> You may need gstreamer0.10-alsa for ALSA, depending on your distribution.</div>
+<li class="level1"><div class="li"> You may need gstreamer(0.10/1.0)-alsa for ALSA, depending on your distribution.</div>
 </li>
-<li class="level1"><div class="li"> You need plugins for Theora, gstreamer0.10-base and <abbr title="Moving Picture Experts Group">MPEG</abbr>-4 incluing aac (e.g. gst-plugins-faad), gstreamer0.10-bad. For WebM, you&#039;ll need plugins for vorbis (-base), matroska (-good), and vp8 (-bad). Have a look at <a href="http://www.gstreamer.net/documentation/plugins.html" class="urlextern" title="http://www.gstreamer.net/documentation/plugins.html"  rel="nofollow">http://www.gstreamer.net/documentation/plugins.html</a> for details.</div>
+<li class="level1"><div class="li"> You need plugins for Theora, gstreamer(0.10/1.0)-base and <abbr title="Moving Picture Experts Group">MPEG</abbr>-4 incluing aac (e.g. gst-plugins-faad), gstreamer(0.10/1.0)-bad. For WebM, you&#039;ll need plugins for vorbis (-base), matroska (-good), and vp8 (-bad). Have a look at <a href="http://www.gstreamer.net/documentation/plugins.html" class="urlextern" title="http://www.gstreamer.net/documentation/plugins.html"  rel="nofollow">http://www.gstreamer.net/documentation/plugins.html</a> for details.</div>
 </li>
 <li class="level1"><div class="li"> For Youtube or Vimeo, you need WebKitGTK+ 1.1.20 or newer.</div>
 </li>
 <li class="level1"><div class="li"> You can <a href="http://ie.microsoft.com/testdrive/Graphics/VideoFormatSupport/Default.html" class="urlextern" title="http://ie.microsoft.com/testdrive/Graphics/VideoFormatSupport/Default.html"  rel="nofollow">test your installed codecs here</a>..</div>
 </li>
-<li class="level1"><div class="li"> Since Midori 0.3.5 you can look at “about:version” to see which video codecs you have installed.</div>
+<li class="level1"><div class="li"> You can look at about:version to see which video codecs you have installed.</div>
 </li>
 </ol>
 
@@ -626,12 +641,12 @@ Most settings listed at <a href="http://webkitgtk.org/reference/webkitgtk/stable
 </p>
 
 </div>
-<!-- EDIT5 SECTION "Flash doesn't work" [4956-13512] -->
+<!-- EDIT5 SECTION "Flash doesn't work" [5486-14378] -->
 <h1 class="sectionedit6" id="privacy">Privacy</h1>
 <div class="level1">
 
 </div>
-<!-- EDIT6 SECTION "Privacy" [13513-13535] -->
+<!-- EDIT6 SECTION "Privacy" [14379-14401] -->
 <h2 class="sectionedit7" id="blacklist_cookies">Blacklist cookies</h2>
 <div class="level2">
 
@@ -657,7 +672,7 @@ The feature is currently experimental and will change in future versions.
 </p>
 
 </div>
-<!-- EDIT7 SECTION "Blacklist cookies" [13536-14072] -->
+<!-- EDIT7 SECTION "Blacklist cookies" [14402-14938] -->
 <h2 class="sectionedit8" id="adblock">Adblock</h2>
 <div class="level2">
 
@@ -666,12 +681,12 @@ The Advertisement Blocker can be activated under Extensions. It uses the same li
 </p>
 
 </div>
-<!-- EDIT8 SECTION "Adblock" [14073-14328] -->
+<!-- EDIT8 SECTION "Adblock" [14939-15194] -->
 <h1 class="sectionedit9" id="modes">Modes</h1>
 <div class="level1">
 
 </div>
-<!-- EDIT9 SECTION "Modes" [14329-14349] -->
+<!-- EDIT9 SECTION "Modes" [15195-15215] -->
 <h2 class="sectionedit10" id="web_applications">Web Applications</h2>
 <div class="level2">
 
@@ -692,7 +707,7 @@ There are two closely related features to open websites as dedicated windows of 
 </p>
 
 </div>
-<!-- EDIT10 SECTION "Web Applications" [14350-14866] -->
+<!-- EDIT10 SECTION "Web Applications" [15216-15732] -->
 <h2 class="sectionedit11" id="private_browsing">Private Browsing</h2>
 <div class="level2">
 
@@ -718,7 +733,7 @@ The same options available to -a/ –app can be used for private browsing mode.
 </p>
 
 </div>
-<!-- EDIT11 SECTION "Private Browsing" [14867-15786] -->
+<!-- EDIT11 SECTION "Private Browsing" [15733-16652] -->
 <h2 class="sectionedit12" id="portable_modewin32">Portable mode/ Win32</h2>
 <div class="level2">
 
@@ -727,7 +742,7 @@ On Windows builds, -P/ –portable causes all data to be written to the “profi
 </p>
 
 </div>
-<!-- EDIT12 SECTION "Portable mode/ Win32" [15787-16100] -->
+<!-- EDIT12 SECTION "Portable mode/ Win32" [16653-16966] -->
 <h2 class="sectionedit13" id="kiosk_mode">Kiosk mode</h2>
 <div class="level2">
 
@@ -759,7 +774,7 @@ Any links outside end up in an error page. All images and other files won&#039;t
 </p>
 
 </div>
-<!-- EDIT13 SECTION "Kiosk mode" [16101-17138] -->
+<!-- EDIT13 SECTION "Kiosk mode" [16967-18004] -->
 <h2 class="sectionedit14" id="always_open_midori_in_fullscreen">Always open Midori in Fullscreen</h2>
 <div class="level2">
 
@@ -792,7 +807,7 @@ If for whatever reason this isn&#039;t enough, <a href="https://live.gnome.org/D
 </p>
 
 </div>
-<!-- EDIT14 SECTION "Always open Midori in Fullscreen" [17139-17666] -->
+<!-- EDIT14 SECTION "Always open Midori in Fullscreen" [18005-18532] -->
 <h2 class="sectionedit15" id="overriding_settings_and_loading_extensions">Overriding settings and loading extensions</h2>
 <div class="level2">
 
@@ -809,7 +824,7 @@ As of Midori 0.5.0 the –execute command line switch got more powerful:
 </p>
 
 </div>
-<!-- EDIT15 SECTION "Overriding settings and loading extensions" [17667-17874] -->
+<!-- EDIT15 SECTION "Overriding settings and loading extensions" [18533-18740] -->
 <h1 class="sectionedit16" id="proxy_servers">Proxy servers</h1>
 <div class="level1">
 
@@ -893,7 +908,7 @@ server_port = 5555</pre>
 </ol>
 
 </div>
-<!-- EDIT16 SECTION "Proxy servers" [17875-19696] -->
+<!-- EDIT16 SECTION "Proxy servers" [18741-20562] -->
 <h1 class="sectionedit17" id="keyboard_hotkeys">Keyboard Hotkeys</h1>
 <div class="level1">
 
@@ -975,7 +990,7 @@ When using Ctrl+f to bring up Find, use Ctrl+f again or ESC. When using ”/” 
 </p>
 
 </div>
-<!-- EDIT17 SECTION "Keyboard Hotkeys" [19697-21029] -->
+<!-- EDIT17 SECTION "Keyboard Hotkeys" [20563-21895] -->
 <h1 class="sectionedit18" id="mouse_gestures">Mouse Gestures</h1>
 <div class="level1">
 
@@ -1009,7 +1024,7 @@ Additionally, there are programs allowing mouse gestures system-wide, for exampl
 </p>
 
 </div>
-<!-- EDIT18 SECTION "Mouse Gestures" [21030-21962] -->
+<!-- EDIT18 SECTION "Mouse Gestures" [21896-22828] -->
 <h1 class="sectionedit19" id="user_scripts_and_styles">User scripts and styles</h1>
 <div class="level1">
 
@@ -1070,7 +1085,7 @@ You can also use <a href="http://rightfootin.blogspot.com/2009/04/flashblock-wan
 </p>
 
 </div>
-<!-- EDIT19 SECTION "User scripts and styles" [21963-24517] -->
+<!-- EDIT19 SECTION "User scripts and styles" [22829-25383] -->
 <h2 class="sectionedit20" id="user_styles">User styles</h2>
 <div class="level2">
 
@@ -1150,12 +1165,25 @@ Customize as needed:
 <span class="br0">&#125;</span></pre>
 
 </div>
-<!-- EDIT20 SECTION "User styles" [24518-27222] -->
-<h2 class="sectionedit21" id="understanding_webkit_version_numbers">Understanding WebKit Version Numbers</h2>
+<!-- EDIT20 SECTION "User styles" [25384-28087] -->
+<h1 class="sectionedit21" id="midori_architecture">Midori Architecture</h1>
+<div class="level1">
+
+<p>
+Midori stands on the shoulders of three giants in particular: the software libraries <a href="http://www.gtk.org/" class="urlextern" title="http://www.gtk.org/"  rel="nofollow">GTK+</a>, <a href="http://webkitgtk.org/" class="urlextern" title="http://webkitgtk.org/"  rel="nofollow">WebKitGTK+</a>, and <a href="https://developer.gnome.org/libsoup/" class="urlextern" title="https://developer.gnome.org/libsoup/"  rel="nofollow">libsoup</a>. GTK+ provides the buttons, windows and menus, WebKitGTK+ draws and controls web pages, and libsoup downloads those pages.
+</p>
+
+<p>
+WebKitGTK+ itself uses two other important libraries: <a href="https://www.webkit.org/projects/javascript/index.html" class="urlextern" title="https://www.webkit.org/projects/javascript/index.html"  rel="nofollow">JavaScriptCore</a>, a WebKit project which runs scripts on web pages; and <a href="http://gstreamer.freedesktop.org/" class="urlextern" title="http://gstreamer.freedesktop.org/"  rel="nofollow">GStreamer</a>, which plays HTML5 video and audio.
+</p>
+
+</div>
+<!-- EDIT21 SECTION "Midori Architecture" [28088-28718] -->
+<h2 class="sectionedit22" id="webkit_version_numbers">WebKit Version Numbers</h2>
 <div class="level2">
 
 <p>
-WebKit is the core of the Midori browser and often shows up in bug reports. Because WebKit is a complex piece of software and compatible with various libraries, its version numbers and naming schemes are not always clear to end-users. Read on and be enlightened:
+WebKit is the core of the Midori browser, and it determines how web pages are rendered. Because WebKit is a complex piece of software and compatible with various libraries, its version numbers and naming schemes can at times be confusing.
 </p>
 
 <p>
@@ -1171,7 +1199,7 @@ WebKit has a “new <abbr title="Application Programming Interface">API</abbr> l
 </p>
 
 <p>
-The version of WebKitGTK+ is only interesting from the standpoint of which <abbr title="Application Programming Interface">API</abbr> features were available and which bugs were present in that particular release; it&#039;s best checked by visiting about:version.
+To find out the version of WebKitGTK+ your build of Midori is using, visit about:version.
 </p>
 
 </div>
@@ -1180,7 +1208,7 @@ The version of WebKitGTK+ is only interesting from the standpoint of which <abbr
 <div class="level4">
 
 <p>
-WebKit2 can be built even with quite old WebKit versions, though Midori&#039;s WebKit2 support requires version 2.0.0 or newer of WebKit. Current versions of WebKitGTK+ continues to support GTK+2 and GTK+3 (the latter since 1.4.x or so). As stated above, the WebKit2 <abbr title="Application Programming Interface">API</abbr> layer is only available with GTK+3.
+The WebKit2 <abbr title="Application Programming Interface">API</abbr> layer is available from fairly old WebKit versions through the present, but Midori&#039;s WebKit2 support requires version 2.0.0 or newer of WebKitGTK+. Current versions of WebKitGTK+ continue to support GTK+2 and GTK+3 (the latter since 1.4.x or so). As stated above, the WebKit2 <abbr title="Application Programming Interface">API</abbr> layer is only available with GTK+3.
 </p>
 
 <p>
@@ -1188,6 +1216,42 @@ Midori&#039;s support for WebKit2 is still provisional, and likely unsuitable fo
 </p>
 
 </div>
-<!-- EDIT21 SECTION "Understanding WebKit Version Numbers" [27223-] --></div>
+<!-- EDIT22 SECTION "WebKit Version Numbers" [28719-30528] -->
+<h1 class="sectionedit23" id="midori_and_mediaherald">Midori and mediaHerald</h1>
+<div class="level1">
+
+<p>
+mediaHerald is a dbus service (/org/midori/mediaHeraldallow) users to connect to dbus and check the titme and url of the video that midori plays in <strong>YOUTUBE</strong>, <strong>VIMEO</strong> or <strong>DAILYMOTION</strong>, the extension which does the work is called webmedia-now-playing.
+</p>
+
+<p>
+If you want to get the video title and the uri is easy more than easy <img src="/lib/images/smileys/icon_smile.gif" class="icon" alt=":-)" /> .
+</p>
+<pre class="code bash"><span class="co0">#!/bin/sh</span>
+&nbsp;
+<span class="kw3">eval</span> $<span class="br0">&#40;</span>dbus-send <span class="re5">--session</span> <span class="re5">--print-reply</span> <span class="re5">--dest</span>=org.midori.mediaHerald <span class="sy0">/</span>org<span class="sy0">/</span>midori<span class="sy0">/</span>mediaHerald org.freedesktop.DBus.Properties.GetAll string:<span class="st0">&quot;org.midori.mediaHerald&quot;</span> <span class="sy0">|</span> <span class="kw2">awk</span> <span class="st_h">'
+    /string  *&quot;VideoTitle/{
+        while (1) {
+            getline line
+            if (line ~ /string &quot;/)
+                sub(/.*string /, &quot;TITLE=&quot;, line)
+                print line
+                break
+            }
+        }
+        /string  *&quot;VideoUri/{
+        while (1) {
+            getline line
+            if (line ~ /string &quot;/)
+                sub(/.*string /, &quot;URI=&quot;, line)
+                print line
+                break
+            }
+        }
+    '</span><span class="br0">&#41;</span>
+<span class="kw3">echo</span> <span class="st0">&quot;Midori is now playing: <span class="es2">$TITLE</span> ,the uri is: <span class="es2">$URI</span>&quot;</span></pre>
+
+</div>
+<!-- EDIT23 SECTION "Midori and mediaHerald" [30529-] --></div>
 </body>
 </html>

@@ -42,6 +42,12 @@ sudo make install
 
 If using GTK+3 you'll want to add -DUSE_GTK3=1 to the cmake command line.
 
+You can build Midori using another C Compiler for example Clang. Just
+add -DCMAKE_C_COMPILER=/path/to/compiler to the cmake arguments.
+Then you can build following your normal procedure. Like this:
+cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_C_COMPILER=/usr/bin/clang ..
+make
+
 Midori can be **run without being installed**.
 
 _build/midori/midori
@@ -68,6 +74,21 @@ env G_DEBUG=all _build/midori/midori -g
 For more specific debugging output, depending on the feature in question you may use
 
 env MIDORI_DEBUG=help _build/midori/midori
+
+Whilst -g is convenient you may want to use proper gdb:
+
+gdb
+file _build/midori/midori
+run
+…
+bt
+
+On Windows you can open the folder where Midori is installed and double-click gdb.exe. A black command line window should appear.
+
+file midori.exe
+run
+…
+bt
 
 To verify a regression you might need to revert a particular change:
 
