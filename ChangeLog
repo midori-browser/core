@@ -1,5 +1,45 @@
 This file is licensed under the terms of the expat license, see the file EXPAT.
 
+v0.5.9
+ Remove dead code from browser and preferences
+ Build-fix: Make PanedAction's Child.widget public
+ fixes tab history undo
+ Set a placeholder text on the URL entry
+ Add "Add Bookmark" to menu
+ Show search menu upon left icon click in location bar
+ Fix crash when saving with associated resources
+ Fix webkit2 downloads based on older branch
+ don't hide window decorations for Midori-Granite
+ Connect bookmarks-db singleton correctly to fix menus
+ Fix some symbol names and transfer annotations in doc comments
+ Use correct signature for window-state-event handler
+ Do not overescape page titles in view completion
+ Make adblock skip non-standard last update metadata strings
+ Drop deprecated Granite LightWindow used for the Clear Private Data dialog
+ Keep storing the last web media tab played.
+ Allocate CookiePermissionManagerModalInfobar correctly
+ Make middle clicking reload button duplicate the current tab, similar to other browsers
+ Use network-changed of GNetworkMonitor to reload all tabs if network becomes available
+ Show different messages based on network connectivity.
+ Fix crash when activating the edit menu
+ Fix "open all in tabs" for bookmarks
+ Fix a few simple leaks
+ Don't focus the locationaction when leaving blank pages
+ Fix leaks of two references to the MidoriApp in Tabby
+ Compile with valac 0.16 again
+ Never display about:new in the urlbar
+ fix crash right-clicking forms on local pages
+ Share 'youtube, vimeo, dailymotion' that you are playing in Midori using org.midori.mediaHerald
+ Give the SoupURI a path when checking cookie relevance
+ Resolve ellipsis and title stripping in completion
+ Add www. and .com/.country_domain and proceed with Ctrl+Enter/Shift+Enter with (readable code)
+ Clean up browser tab/ uri/ title notify
+ Drop pseudo Granite distinction in completion layout
+ Fix visibility of SpeedDial, Toolbar, Bookmarkbar context menu items
+ Distinguish between desc file missing and other parsing issues
+ Use dependencies to clear test folders before execution
+ win32: Drop dropbox usage from win release script, rename resulting output files
+
 v0.5.8
  Use png icon instead of svg in set_status
  We must not pass a Cancellable to FaviconDatabase.get_favicon_pixbuf
