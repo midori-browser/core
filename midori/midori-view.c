@@ -479,6 +479,16 @@ midori_view_update_load_status (MidoriView*      view,
 }
 
 #if defined (HAVE_LIBSOUP_2_29_91)
+/**
+ * midori_view_get_tls_info
+ * @view: a #MidoriView
+ * @request: a #WebKitNetworkRequest with WebKit1, otherwise %NULL
+ * @tls_cert: variable to store the certificate
+ * @tls_flags: variable to store the flags
+ * @hostname: variable to store the hostname
+ *
+ * Returns %TRUE if the the host is secure and trustworthy.
+ **/
 gboolean
 midori_view_get_tls_info (MidoriView*           view,
                           void*                 request,
@@ -492,7 +502,7 @@ midori_view_get_tls_info (MidoriView*           view,
     gboolean success = webkit_web_view_get_tls_info (web_view, tls_cert, tls_flags);
     if (*tls_cert != NULL)
         g_object_ref (*tls_cert);
-    return success;
+    return success && *tls_flags == 0;
     #else
     SoupMessage* message = midori_map_get_message (webkit_network_request_get_message (request));
     if (message != NULL)
