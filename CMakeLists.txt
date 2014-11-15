@@ -11,7 +11,7 @@ project(midori C)
 add_definitions("-DPACKAGE_NAME=\"${CMAKE_PROJECT_NAME}\"")
 add_definitions("-DPACKAGE_BUGREPORT=\"https://bugs.launchpad.net/midori\"")
 
-set(VERSION 0.5.8)
+set(VERSION 0.5.9)
 add_definitions("-DMIDORI_VERSION_SUFFIX=\"${VERSION}\"")
  
 string(REPLACE "." ";" VERSION_LIST ${VERSION})
