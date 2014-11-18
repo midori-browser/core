@@ -5707,7 +5707,7 @@ static const gchar* ui_markup =
                 "<menuitem action='Trash'/>"
             "</menu>"
             "<menu action='Bookmarks'>"
-                "<menuitem action='BookmarksAdd'/>"
+                "<menuitem action='BookmarkAdd'/>"
                 "<menuitem action='BookmarksImport'/>"
                 "<menuitem action='BookmarksExport'/>"
             "</menu>"
