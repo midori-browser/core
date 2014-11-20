@@ -105,10 +105,10 @@ namespace Midori {
                 if (current_size != last_size) {
                     speed = format_size ((uint64)(
                         (current_size - last_size) / (elapsed - last_time)));
-                    download.set_data("last-speed",speed.dup());
+                    download.set_data ("last-speed", speed.dup ());
                 }
                 else {
-                    speed = download.get_data("last-speed");
+                    speed = download.get_data ("last-speed");
                 }
             }
             else
