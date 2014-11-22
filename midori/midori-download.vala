@@ -102,8 +102,14 @@ namespace Midori {
             string speed = "";
             uint64? last_size = download.get_data<uint64?> ("last-size");
             if (last_size != null && elapsed != last_time) {
-                speed = format_size ((uint64)(
-                    (current_size - last_size) / (elapsed - last_time)));
+                if (current_size != last_size) {
+                    speed = format_size ((uint64)(
+                        (current_size - last_size) / (elapsed - last_time)));
+                    download.set_data ("last-speed", speed.dup ());
+                }
+                else {
+                    speed = download.get_data ("last-speed");
+                }
             }
             else
                 /* i18n: Unknown number of bytes, used for transfer rate like ?B/s */
