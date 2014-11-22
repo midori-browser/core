@@ -558,8 +558,8 @@ midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view
         return FALSE;
     }
 
-    const gchar* uri = webkit_uri_request_get_uri (
-        webkit_navigation_policy_decision_get_request (WEBKIT_NAVIGATION_POLICY_DECISION (decision)));
+    WebKitURIRequest * request = webkit_navigation_policy_decision_get_request (WEBKIT_NAVIGATION_POLICY_DECISION (decision));
+    const gchar* uri = webkit_uri_request_get_uri (request);
     #else
     const gchar* uri = webkit_network_request_get_uri (request);
     #endif
