@@ -2042,7 +2042,7 @@ midori_browser_key_release_event (GtkWidget*   widget,
                                   GdkEventKey* event)
 {
     _update_reload_tooltip (widget, event, TRUE);
-    return FALSE;
+    return GTK_WIDGET_CLASS (midori_browser_parent_class)->key_release_event (widget, event);
 }
 
 static gboolean
