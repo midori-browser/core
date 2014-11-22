@@ -544,7 +544,7 @@ midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view
     else if (decision_type == WEBKIT_POLICY_DECISION_TYPE_NEW_WINDOW_ACTION)
     {
         const gchar* uri = webkit_uri_request_get_uri (
-        webkit_navigation_policy_decision_get_request (WEBKIT_NAVIGATION_POLICY_DECISION (decision)));
+            webkit_navigation_policy_decision_get_request (WEBKIT_NAVIGATION_POLICY_DECISION (decision)));
         g_signal_emit (view, signals[NEW_TAB], 0, uri, FALSE);
         webkit_policy_decision_ignore(decision);
         return FALSE;
