@@ -27,7 +27,7 @@
         cursor: default;
         font-size: 13px;
         color: #4d4d4d;
-	-webkit-user-select: none;
+        -webkit-user-select: none;
     }
 
     html, body {
@@ -85,8 +85,13 @@
     }
 
     .title {
+        background: transparent;
+        border: 1px solid transparent;
+        display: block;
         text-align: center;
         margin: 8px;
+        margin-left: auto;
+        margin-right: auto;
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
@@ -119,9 +124,24 @@
         outline: 1px dotted black;
         background-color: #eef;
     }
+
+    .selectable {
+        -webkit-user-select: text;
+    }
     </style>
 
     <script type="text/javascript">
+    var previousName = "";
+
+    function input_key_down (ev) {
+        // 13 is the key code for enter
+        if(ev.keyCode == 13) ev.target.blur();
+        // 27 is the key code for escape
+        if(ev.keyCode == 27) {
+            ev.target.value = previousName;
+            ev.target.blur();
+        }
+    }
 
     function add_tile (ev) {
         ev.preventDefault();
@@ -137,15 +157,24 @@
         console.log ("speed_dial-save-add " + id + " " + url);
     }
 
-    function rename_tile (ev) {
-        var old_name = ev.target.textContent;
+    function done_editing_title (ev) {
+        input = ev.target;
+        input.style.backgroundColor = "transparent";
+        input.style.border = "1px solid transparent";
 
-        var name = prompt ("{enter_shortcut_name}", old_name);
-        if (!name)
-            return;
-
+        var name = ev.target.value;
+        if (name == "")
+            name = previousName;
         var id = ev.target.parentNode.id;
         console.log ("speed_dial-save-rename " + id + " " + name);
+    }
+
+    function editing_tile (ev) {
+        input = ev.target;
+        previousName = input.value;
+        // indicate to user they are editing the title
+        input.style.backgroundColor = "#F8F8F8";
+        input.style.border = "1px solid #808060";
     }
 
     function delete_tile (ev) {
@@ -157,7 +186,6 @@
         var id = ev.target.parentNode.parentNode.id;
         console.log ("speed_dial-save-delete " + id);
     }
-
 
     var firstNode, secondNode;
     var cursor;
@@ -175,6 +203,23 @@
 
     function click (ev) {
         if (ev == undefined)
+            return;
+
+        /* If the target of the event is an element of class title
+         * and not also of class add-shortcut we are editing title
+         */
+        var classes = ev.target.className.split(" ");
+        var edit_title = false;
+        for (var i = 0; i < classes.length; i++) {
+            if(classes[i] == "add-shortcut") {
+                edit_title = false;
+                break;
+            }
+            if(classes[i] == "title") 
+                edit_title = true;
+        }
+
+        if(edit_title) 
             return;
 
         ev.preventDefault();
@@ -198,7 +243,8 @@
         var eparent = get_dial_div (ele);
 
         ele.style.cursor = cursor;
-        secondNode = eparent.id;
+        if(eparent != undefined) secondNode = eparent.id;
+        else return;
 
         /* ommit just mere clicking the dial */
         if (firstNode != secondNode && firstNode != undefined)
@@ -237,8 +283,11 @@
         var titles = document.getElementsByClassName ("title");
         var len = titles.length;
         for (var i = 0; i < len; i++) {
-            if (titles[i].parentNode.childNodes[0].className != "preview new")
-                titles[i].addEventListener ('click', rename_tile, false);
+            if (titles[i].parentNode.childNodes[0].className != "preview new") {
+                titles[i].addEventListener ('click', editing_tile, false);
+                titles[i].addEventListener ('blur', done_editing_title, false);
+                titles[i].addEventListener ('keydown', input_key_down, false);
+            }
         }
 
         var crosses = document.getElementsByClassName ("cross");

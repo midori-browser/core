@@ -188,7 +188,6 @@ namespace Midori {
                 string header = head.replace ("{title}", _("Speed Dial")).
                     replace ("{click_to_add}", _("Click to add a shortcut")).
                     replace ("{enter_shortcut_address}", _("Enter shortcut address")).
-                    replace ("{enter_shortcut_name}", _("Enter shortcut title")).
                     replace ("{are_you_sure}", _("Are you sure you want to delete this shortcut?"));
                 var markup = new StringBuilder (header);
 
@@ -251,7 +250,7 @@ namespace Midori {
                                 <div class="shortcut" id="%u"><div class="preview">
                                 <a class="cross" href="#"></a>
                                 <a href="%s"><img src="data:image/png;base64,%s" title='%s'></a>
-                                </div><div class="title">%s</div></div>
+                                </div><input type="text" class="title selectable" value="%s"></div>
                                 """,
                                 slot, uri, encoded ?? "", title, title ?? "");
                         }
