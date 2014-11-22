@@ -128,8 +128,19 @@ struct MouseGestureNode
 static guint
 dist_sqr (guint x1, guint y1, guint x2, guint y2)
 {
-    guint xdiff = abs(x1 - x2);
-    guint ydiff = abs(y1 - y2);
+    guint xdiff = 0, ydiff = 0;
+    // Remember that x1, x2, y1 and y2 are guint unsigned integers.
+    // Subtracting a greater number from a lower one is undefined.
+    // This guards against that.
+
+    if (x1 > x2)
+        xdiff = x1 - x2;
+    else
+        xdiff = x2 - x1;
+    if (y1 > y2)
+        ydiff = y1 - y2;
+    else
+        ydiff = y2 - y1;
     return xdiff * xdiff + ydiff * ydiff;
 }
 
@@ -159,7 +170,7 @@ vector_follows_direction (float angle, float distance, MouseGestureDirection dir
         return distance < MINLENGTH / 2;
 
     float dir_angle = get_angle_for_direction (direction);
-    if (fabsf(angle - dir_angle) < DEVIANCE || fabsf(angle - dir_angle + 2 * M_PI) < DEVIANCE)
+    if (fabsf (angle - dir_angle) < DEVIANCE || fabsf (angle - dir_angle + 2 * (float)(M_PI)) < DEVIANCE)
         return TRUE;
 
     if(distance < MINLENGTH / 2)
