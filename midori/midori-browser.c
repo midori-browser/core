@@ -688,8 +688,9 @@ midori_view_notify_load_status_cb (GtkWidget*      widget,
     }
 
     if (load_status == MIDORI_LOAD_FINISHED)
-        katze_item_set_meta_string (midori_view_get_proxy_item (view),
-                                    "history-step", NULL);
+        if (midori_tab_get_load_error (MIDORI_TAB (view)) == MIDORI_LOAD_ERROR_NONE)
+            katze_item_set_meta_string (midori_view_get_proxy_item (view),
+                                        "history-step", NULL);
 
     g_object_notify (G_OBJECT (browser), "load-status");
 }
