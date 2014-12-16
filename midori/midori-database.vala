@@ -236,20 +236,22 @@ namespace Midori {
             return true;
         }
 
-        /*
-         * Since: 0.5.8
-         */
-
 	public bool exists (string path) {
 	      bool exists;
 #if !HAVE_WIN32	
-            exists = Posix.access (real_path, Posix.F_OK) == 0;
+            exists = Posix.access (path, Posix.F_OK) == 0;
 #else
 	     var folder = File.new_for_path (path);
 	     exists = folder.query_exists();
 #endif
 	     return exists;
 	}
+
+
+        /*
+         * Since: 0.5.8
+         */
+
         public bool attach (string path, string alias) throws DatabaseError {
             string real_path = resolve_path (path);
             if (!exists (real_path))
