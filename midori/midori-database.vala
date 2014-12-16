@@ -185,7 +185,6 @@ namespace Midori {
 
         public virtual bool init (GLib.Cancellable? cancellable = null) throws DatabaseError {
             string real_path = resolve_path (path);
-            bool exists = Posix.access (real_path, Posix.F_OK) == 0;
 
             if (Sqlite.Database.open_v2 (real_path, out _db) != Sqlite.OK)
                 throw new DatabaseError.OPEN ("Failed to open database %s".printf (real_path));
@@ -233,17 +232,27 @@ namespace Midori {
                 exec ("PRAGMA user_version = " + user_version.to_string ());
             }
 
-            first_use = !exists;
+            first_use = !exists(real_path);
             return true;
         }
 
         /*
          * Since: 0.5.8
          */
+
+	public bool exists (string path) {
+	      bool exists;
+#if !HAVE_WIN32	
+            exists = Posix.access (real_path, Posix.F_OK) == 0;
+#else
+	     var folder = File.new_for_path (path);
+	     exists = folder.query_exists();
+#endif
+	     return exists;
+	}
         public bool attach (string path, string alias) throws DatabaseError {
             string real_path = resolve_path (path);
-            bool exists = Posix.access (real_path, Posix.F_OK) == 0;
-            if (!exists)
+            if (!exists (real_path))
                 throw new DatabaseError.OPEN ("Failed to attach database %s".printf (path));
             return exec ("ATTACH DATABASE '%s' AS '%s';".printf (real_path, alias));
         }
