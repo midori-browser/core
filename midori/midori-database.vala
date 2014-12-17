@@ -185,6 +185,7 @@ namespace Midori {
 
         public virtual bool init (GLib.Cancellable? cancellable = null) throws DatabaseError {
             string real_path = resolve_path (path);
+            bool exists = exists(real_path);
 
             if (Sqlite.Database.open_v2 (real_path, out _db) != Sqlite.OK)
                 throw new DatabaseError.OPEN ("Failed to open database %s".printf (real_path));
@@ -232,7 +233,7 @@ namespace Midori {
                 exec ("PRAGMA user_version = " + user_version.to_string ());
             }
 
-            first_use = !exists(real_path);
+            first_use = !exists;
             return true;
         }
 
