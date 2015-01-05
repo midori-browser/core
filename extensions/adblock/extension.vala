@@ -464,6 +464,8 @@ namespace Adblock {
                 case '?':
                 case '[':
                 case ']':
+                case '(':
+                case ')':
                     fixed.append_printf ("\\%c", c); break;
                 default:
                     fixed.append_c (c); break;
@@ -702,7 +704,7 @@ const TestCaseLine[] lines = {
     { ".*foo/bar", "..*foo/bar" },
     { "http://bla.blub/*", "http://bla.blub/.*" },
     { "bag?r[]=*cpa", "bag\\?r\\[\\]=.*cpa" },
-    { "(facebookLike,", "(facebookLike," }
+    { "(facebookLike,", "\\(facebookLike," }
 };
 
 void test_adblock_fixup_regexp () {
