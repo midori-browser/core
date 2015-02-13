@@ -688,9 +688,8 @@ midori_view_notify_load_status_cb (GtkWidget*      widget,
     }
 
     if (load_status == MIDORI_LOAD_FINISHED)
-        if (midori_tab_get_load_error (MIDORI_TAB (view)) == MIDORI_LOAD_ERROR_NONE)
-            katze_item_set_meta_string (midori_view_get_proxy_item (view),
-                                        "history-step", NULL);
+        katze_item_set_meta_string (midori_view_get_proxy_item (view),
+                                    "history-step", NULL);
 
     g_object_notify (G_OBJECT (browser), "load-status");
 }
@@ -764,6 +763,10 @@ midori_browser_step_history (MidoriBrowser* browser,
     KatzeItem* proxy = midori_view_get_proxy_item (view);
     const gchar* proxy_uri = katze_item_get_uri (proxy);
     if (midori_uri_is_blank (proxy_uri))
+        return;
+
+    //Do not save pages that fail to load in the history
+    if (midori_tab_get_load_error (MIDORI_TAB (view)) == MIDORI_LOAD_ERROR_NETWORK)
         return;
 
     const gchar* history_step = katze_item_get_meta_string (proxy, "history-step");
