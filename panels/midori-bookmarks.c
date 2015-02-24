@@ -352,9 +352,6 @@ midori_bookmarks_update_item_in_model(MidoriBookmarks* bookmarks,
 }
 
 static void
-midori_bookmarks_add_item (KatzeItem*       item,
-                           MidoriBookmarks* bookmarks);
-static void
 midori_bookmarks_add_item_cb (KatzeArray*      array,
                               KatzeItem*       item,
                               MidoriBookmarks* bookmarks)

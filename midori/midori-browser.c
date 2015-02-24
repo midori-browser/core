@@ -1547,7 +1547,7 @@ midori_browser_view_copy_from_item_history (GtkWidget* view,
 #ifndef HAVE_WEBKIT2
     WebKitWebView* copy_to;
     WebKitWebBackForwardList* list_to;
-    gint i;
+    guint i;
     GPtrArray* list_from;
 
     copy_to = WEBKIT_WEB_VIEW (midori_view_get_web_view (MIDORI_VIEW (view)));
