@@ -10,15 +10,15 @@ msgstr ""
 "Project-Id-Version: midori\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-02-21 10:52-0600\n"
-"PO-Revision-Date: 2014-11-01 15:49+0000\n"
-"Last-Translator: Jonas Mindemark <fonclbrisch@gmail.com>\n"
+"PO-Revision-Date: 2015-03-02 13:54+0000\n"
+"Last-Translator: Joachim Johansson <Unknown>\n"
 "Language-Team: Swedish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2014-11-26 06:04+0000\n"
-"X-Generator: Launchpad (build 17252)\n"
+"X-Launchpad-Export-Date: 2015-03-03 05:25+0000\n"
+"X-Generator: Launchpad (build 17361)\n"
 "Language: \n"
 
 #: ../data/midori.desktop.in.h:1 ../midori/main.c:142
@@ -536,6 +536,7 @@ msgstr ""
 "  Marcus Lundgren https://launchpad.net/~marcus-lundgren\n"
 "  Max Malm https://launchpad.net/~benjick\n"
 "  Olle Byström https://launchpad.net/~olle-bystrom\n"
+"  Oscar Kraemer https://launchpad.net/~carloscarkraemer\n"
 "  Rikard Johansson https://launchpad.net/~rikard-jo\n"
 "  WebKit Team https://launchpad.net/~webkit-team\n"
 "  Zahirovic Mensur https://launchpad.net/~nookienoq"
@@ -2648,23 +2649,25 @@ msgstr ""
 #: ../extensions/nojs/nojs-preferences.c:809
 #: ../extensions/nojs/nojs-view.c:699
 msgid "Manager instance"
-msgstr ""
+msgstr "Hanterarinstans"
 
 #: ../extensions/nojs/nojs-preferences.c:810
 #: ../extensions/nojs/nojs-view.c:700
 msgid "Instance to global NoJS manager"
-msgstr ""
+msgstr "Instans till den globala NoJS-hanteraren"
 
 #. Set up dialog
 #: ../extensions/nojs/nojs-preferences.c:850
 msgid "Configure NoJS"
-msgstr ""
+msgstr "Konfigurera NoJS"
 
 #: ../extensions/nojs/nojs-preferences.c:866
 msgid ""
 "Below is a list of all web sites and the policy set for them. You can delete "
 "policies by marking the entries and clicking on <i>Delete</i>."
 msgstr ""
+"Nedanför är en lista på alla webbplatser och deras nuvarande riktlinjer. Du "
+"kan ta bort riktlinjer genom att markera posterna och klicka på <i>Ta bort<i>"
 
 #: ../extensions/nojs/nojs-preferences.c:937
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:836
@@ -2695,7 +2698,7 @@ msgstr ""
 #. Add "check-second-level-only" checkbox
 #: ../extensions/nojs/nojs-preferences.c:1003
 msgid "S_et permissions on second-level domain"
-msgstr ""
+msgstr "Inställningar för andra-nivå-domäner"
 
 #. Add menu item(s) for domain
 #: ../extensions/nojs/nojs-view.c:237
@@ -2719,7 +2722,7 @@ msgstr "Webbläsarfönstret"
 
 #: ../extensions/nojs/nojs-view.c:707
 msgid "The Midori browser instance this view belongs to"
-msgstr ""
+msgstr "Den instans av Midori som visas tillhör"
 
 #: ../extensions/nojs/nojs-view.c:713
 msgid "View"
@@ -2731,7 +2734,7 @@ msgstr "Den instans av Midori som visas tillhör"
 
 #: ../extensions/nojs/nojs-view.c:720
 msgid "Menu icon state"
-msgstr ""
+msgstr "Menyikonstatus"
 
 #: ../extensions/nojs/nojs-view.c:721
 msgid "State of menu icon to show in status bar"
@@ -2759,10 +2762,12 @@ msgid ""
 "A fatal error occurred which prevents the NoJS extension to continue. You "
 "should disable it."
 msgstr ""
+"Ett allvarligt fel har inträffat som hindrar NoJS-tillägget från att "
+"fortsätta. Du bör avaktivera det."
 
 #: ../extensions/nojs/nojs.c:147
 msgid "Error in NoJS extension"
-msgstr ""
+msgstr "Fel i NoJS-tillägg"
 
 #: ../extensions/nojs/nojs.c:152
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:100
@@ -2838,25 +2843,29 @@ msgstr "Tillåt alla webbplatser"
 msgid ""
 "If true this extension will not check policy for each site but allow them."
 msgstr ""
+"Om sant så kommer detta tillägg inte att kontrollera riktlinjer för varje "
+"sajt och i stället tillåta dem."
 
 #: ../extensions/nojs/nojs.c:755
 msgid "Only second level"
-msgstr ""
+msgstr "Endast andra nivån"
 
 #: ../extensions/nojs/nojs.c:756
 msgid ""
 "If true this extension will reduce each domain to its second-level "
 "(www.example.org will reduced to example.org)"
 msgstr ""
+"Om sant så kommer detta tillägg att reducera varje domän till dess andra "
+"nivå (www.exempel.org kommer att reduceras till exempel.org)"
 
 #: ../extensions/nojs/nojs.c:762
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1033
 msgid "Unknown domain policy"
-msgstr ""
+msgstr "Okända riktlinjer för domän"
 
 #: ../extensions/nojs/nojs.c:763
 msgid "Policy to use for unknown domains."
-msgstr ""
+msgstr "Riktlinjer att använda för okända domäner."
 
 #: ../extensions/nojs/nojs.c:1031
 msgid "Accept temporarily"
@@ -3174,11 +3183,11 @@ msgstr ""
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:892
 msgid "Policy for cookies from domains not in the list: "
-msgstr ""
+msgstr "Riktlinjer för cookies från domäner som inte återfinns i listan: "
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:897
 msgid "Ask for a decision"
-msgstr ""
+msgstr "Be om ett beslut"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:91
 msgid ""
@@ -3251,6 +3260,8 @@ msgid ""
 "The policy to use for domains not individually configured. This only acts to "
 "further restrict the global cookie policy set in Midori settings."
 msgstr ""
+"Riktlinjer för domäner som inte konfigurerats individuellt. Detta begränsar "
+"endast ytterligare de globala riktlinjerna satta i Midoris inställningar."
 
 #: ../extensions/cookie-permissions/main.c:62
 msgid "Cookie Security Manager"
@@ -3403,12 +3414,12 @@ msgstr "Misslyckades med att uppdatera databas: %s"
 #: ../extensions/tabby.vala:614 ../extensions/tabby.vala:617
 #, c-format
 msgid "Failed to select from database: %s"
-msgstr ""
+msgstr "MIsslyckades med att välja från databas: %s"
 
 #: ../extensions/tabby.vala:666
 #, c-format
 msgid "Failed to import legacy session: %s"
-msgstr ""
+msgstr "Misslyckades med att importera tidigare session: %s"
 
 #: ../extensions/tabby.vala:775
 msgid "Tabby"
@@ -3426,26 +3437,28 @@ msgstr "Flummi"
 msgid ""
 "This extension provides a task queue for update jobs or recurring events."
 msgstr ""
+"Detta tillägg ger tillgång till en uppgiftskö för uppdateringar och "
+"upprepade händelser."
 
 #: ../extensions/notes.vala:46
 #, c-format
 msgid "Failed to add new note to database: %s\n"
-msgstr ""
+msgstr "Misslyckades med att lägga till ny anteckning i databasen: %s\n"
 
 #: ../extensions/notes.vala:66
 #, c-format
 msgid "Falied to remove note from database: %s\n"
-msgstr ""
+msgstr "Misslyckades med att ta bort anteckning från databasen: %s\n"
 
 #: ../extensions/notes.vala:80
 #, c-format
 msgid "Falied to rename note: %s\n"
-msgstr ""
+msgstr "Misslyckades med att ändra namn på anteckning: %s\n"
 
 #: ../extensions/notes.vala:96
 #, c-format
 msgid "Falied to update note: %s\n"
-msgstr ""
+msgstr "Misslyckades med att uppdatera anteckning: %s\n"
 
 #: ../extensions/notes.vala:139 ../extensions/notes.vala:179
 #: ../extensions/notes.vala:453
@@ -3454,24 +3467,24 @@ msgstr "Anteckningar"
 
 #: ../extensions/notes.vala:146
 msgid "New Note"
-msgstr ""
+msgstr "Ny anteckning"
 
 #: ../extensions/notes.vala:147
 msgid "Creates a new empty note, urelated to opened pages"
-msgstr ""
+msgstr "Skapar en ny tom anteckning, utan relation till öppna sidor."
 
 #: ../extensions/notes.vala:153
 msgid "New note"
-msgstr ""
+msgstr "Ny anteckning"
 
 #: ../extensions/notes.vala:197
 #, c-format
 msgid "Failed to select from notes database: %s\n"
-msgstr ""
+msgstr "Misslyckades med att välja från anteckningsdatabas: %s\n"
 
 #: ../extensions/notes.vala:319 ../extensions/notes.vala:327
 msgid "Rename note"
-msgstr ""
+msgstr "Byt namn på anteckning"
 
 #: ../extensions/notes.vala:356
 msgid "Copy note to clipboard"
@@ -3479,7 +3492,7 @@ msgstr "Kopiera anteckning till urklipp"
 
 #: ../extensions/notes.vala:368
 msgid "Remove note"
-msgstr ""
+msgstr "Ta bort anteckning"
 
 #: ../extensions/notes.vala:402
 msgid "Copy selection as note"
