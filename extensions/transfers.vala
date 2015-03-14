@@ -19,9 +19,14 @@ namespace Sokoke {
 
 namespace Transfers {
     private class Transfer : GLib.Object {
+        internal uint poll_source = 0;
         internal WebKit.Download download;
 
-        internal signal void changed ();
+        internal virtual signal void changed ()
+        {
+            string tooltip = Midori.Download.calculate_tooltip (download);
+            this.set_data ("tooltip", tooltip);
+        }
         internal signal void remove ();
         internal signal void removed ();
 
@@ -50,26 +55,34 @@ namespace Transfers {
 #endif
 
         internal Transfer (WebKit.Download download) {
+            poll_source = Timeout.add(1000/10, () => {
+                changed ();
+                return true;
+            });
             this.download = download;
             #if HAVE_WEBKIT2
-            download.notify["estimated-progress"].connect (transfer_changed);
             download.finished.connect (() => {
                 succeeded = finished = true;
                 changed ();
+                Source.remove (poll_source);
+                poll_source = 0;
             });
             download.failed.connect (() => {
                 succeeded = false;
                 finished = true;
                 changed ();
+                Source.remove (poll_source);
+                poll_source = 0;
             });
             #else
-            download.notify["status"].connect (transfer_changed);
-            download.notify["progress"].connect (transfer_changed);
+            download.notify["status"].connect (() => {
+                changed ();
+                if (download.status == WebKit.DownloadStatus.FINISHED || download.status == WebKit.DownloadStatus.ERROR) {
+                    Source.remove (poll_source);
+                    poll_source = 0;
+                }
+            });
             #endif
-        }
-
-        void transfer_changed (GLib.ParamSpec pspec) {
-            changed ();
         }
     }
 
@@ -240,7 +253,7 @@ namespace Transfers {
             return (transfer1.finished ? 1 : 0) - (transfer2.finished ? 1 : 0);
         }
 
-        void transfer_changed () {
+        void transfer_changed (GLib.Object item) {
             treeview.queue_draw ();
         }
 
@@ -249,7 +262,7 @@ namespace Transfers {
             Gtk.TreeIter iter;
             store.append (out iter);
             store.set (iter, 0, transfer);
-            transfer.changed.connect (transfer_changed);
+            transfer.changed.connect (() => transfer_changed (transfer));
             clear.sensitive = true;
         }
 
@@ -289,8 +302,7 @@ namespace Transfers {
 
             Transfer transfer;
             model.get (iter, 0, out transfer);
-            string tooltip = Midori.Download.get_tooltip (transfer.download);
-            renderer.set ("text", tooltip,
+            renderer.set ("text", transfer.get_data<string>("tooltip") ?? "",
                           "value", (int)(transfer.progress * 100));
         }
 
@@ -355,7 +367,7 @@ namespace Transfers {
 
         void transfer_changed () {
             progress.fraction = Midori.Download.get_progress (transfer.download);
-            progress.tooltip_text = Midori.Download.get_tooltip (transfer.download);
+            progress.tooltip_text = transfer.get_data<string>("tooltip") ?? "";
             string stock_id = Midori.Download.action_stock_id (transfer.download);
             icon.set_from_stock (stock_id, Gtk.IconSize.MENU);
         }
