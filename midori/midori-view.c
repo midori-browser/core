@@ -3908,7 +3908,6 @@ midori_view_set_uri (MidoriView*  view,
         {
             if (sokoke_external_uri (uri))
             {
-                gboolean handled = FALSE;
                 g_signal_emit_by_name (view, "open-uri", uri, &handled);
                 if (handled)
                     return;

@@ -203,16 +203,6 @@ midori_bookmarks_db_get_item_parent (MidoriBookmarksDb* bookmarks,
         katze_item_set_meta_integer (KATZE_ITEM (item), "parentid",
             katze_item_get_meta_integer (KATZE_ITEM (bookmarks), "id"));
     }
-    else
-    {
-        KatzeItem *search = katze_item_new ();
-
-        katze_item_set_meta_integer(search, "id", parentid);
-
-        parent = KATZE_ARRAY (g_hash_table_lookup (bookmarks->all_items, search));
-
-        g_object_unref (search);
-    }
 
     return parent;
 }
