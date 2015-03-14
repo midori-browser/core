@@ -393,6 +393,9 @@ addons_button_delete_clicked_cb (GtkWidget* toolitem,
 {
     GtkTreeModel* model;
     GtkTreeIter iter;
+    GtkTreePath* path;
+    GtkTreeRowReference* row;
+    gchar* fullpath;
 
     if (katze_tree_view_get_selected_iter (GTK_TREE_VIEW (addons->treeview),
                                                           &model, &iter))
@@ -403,6 +406,11 @@ addons_button_delete_clicked_cb (GtkWidget* toolitem,
         gchar* markup;
 
         gtk_tree_model_get (model, &iter, 0, &element, -1);
+        fullpath = g_strdup (element->fullpath);
+        
+        path = gtk_tree_model_get_path (model, &iter);
+        row = gtk_tree_row_reference_new (model, path);
+        gtk_tree_path_free (path);
         dialog = gtk_message_dialog_new (
             GTK_WINDOW (gtk_widget_get_toplevel (GTK_WIDGET (addons))),
             GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
@@ -424,6 +432,9 @@ addons_button_delete_clicked_cb (GtkWidget* toolitem,
             GTK_MESSAGE_DIALOG (dialog), "%s", markup);
         g_free (markup);
 
+        /* The execution of gtk_dialog_run allows the directory watcher to
+        rebuild the treeview and the element list, so our references may be
+        invalid afterward */
         delete_response = gtk_dialog_run (GTK_DIALOG (dialog));
         gtk_widget_destroy (GTK_WIDGET (dialog));
 
@@ -433,7 +444,7 @@ addons_button_delete_clicked_cb (GtkWidget* toolitem,
             GFile* file;
             gboolean result;
 
-            file = g_file_new_for_path (element->fullpath);
+            file = g_file_new_for_path (fullpath);
             result = g_file_delete (file, NULL, &error);
 
             if (!result && error)
@@ -452,11 +463,20 @@ addons_button_delete_clicked_cb (GtkWidget* toolitem,
                     g_error_free (error);
             }
 
-            if (result)
+            /* The row reference may have been invalidated if the
+            filesystem watcher deleted the row concurrently */
+            if (result && gtk_tree_row_reference_valid (row))
+            {
+                path = gtk_tree_row_reference_get_path (row);
+                gtk_tree_model_get_iter (model, &iter, path);
+                gtk_tree_path_free (path);
                 gtk_list_store_remove (GTK_LIST_STORE (model), &iter);
+            }
 
+            gtk_tree_row_reference_free (row);
             g_object_unref (file);
         }
+        g_free (fullpath);
     }
 }
 static void
