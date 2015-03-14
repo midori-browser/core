@@ -29,7 +29,7 @@ enum
 
 	PROP_DATABASE,
 	PROP_DATABASE_FILENAME,
-	PROP_ALLOW_ALL_SITES,
+	PROP_ALLOW_LOCAL_PAGES,
 	PROP_ONLY_SECOND_LEVEL,
 	PROP_UNKNOWN_DOMAIN_POLICY,
 
@@ -60,7 +60,7 @@ struct _NoJSPrivate
 	MidoriApp						*application;
 	sqlite3							*database;
 	gchar							*databaseFilename;
-	gboolean						allowAllSites;
+	gboolean						allowLocalPages;
 	gboolean						checkOnlySecondLevel;
 	NoJSPolicy						unknownDomainPolicy;
 
@@ -285,7 +285,6 @@ static void _nojs_on_got_headers(NoJS *self, gpointer inUserData)
 	const gchar				*contentType;
 	SoupURI					*uri;
 	gchar					*uriText;
-	gchar					*domain;
 	NoJSPolicy				policy;
 	gboolean				isJS;
 	const gchar				**iter;
@@ -315,11 +314,8 @@ static void _nojs_on_got_headers(NoJS *self, gpointer inUserData)
 	 * get policy for domain of URI and emit signal
 	 */
 	uri=soup_message_get_uri(message);
+	policy=nojs_get_policy(self, uri);
 
-	domain=nojs_get_domain(self, uri);
-	g_return_if_fail(domain);
-
-	policy=nojs_get_policy(self, domain);
 	if(policy==NOJS_POLICY_UNDETERMINED)
 	{
 		g_warning("Got invalid policy. Using default policy for unknown domains.");
@@ -331,7 +327,6 @@ static void _nojs_on_got_headers(NoJS *self, gpointer inUserData)
 	g_signal_emit(self, NoJSSignals[URI_LOAD_POLICY_STATUS], 0, uriText, policy==NOJS_POLICY_UNDETERMINED ? NOJS_POLICY_BLOCK : policy);
 
 	g_free(uriText);
-	g_free(domain);
 
 	/* Return here if policy is any type of accept */
 	if(policy!=NOJS_POLICY_UNDETERMINED && policy!=NOJS_POLICY_BLOCK) return;
@@ -636,9 +631,9 @@ static void nojs_set_property(GObject *inObject,
 			_nojs_on_application_changed(self);
 			break;
 
-		case PROP_ALLOW_ALL_SITES:
-			self->priv->allowAllSites=g_value_get_boolean(inValue);
-			g_object_notify_by_pspec(G_OBJECT(self), NoJSProperties[PROP_ALLOW_ALL_SITES]);
+		case PROP_ALLOW_LOCAL_PAGES:
+			self->priv->allowLocalPages=g_value_get_boolean(inValue);
+			g_object_notify_by_pspec(G_OBJECT(self), NoJSProperties[PROP_ALLOW_LOCAL_PAGES]);
 			break;
 
 		case PROP_ONLY_SECOND_LEVEL:
@@ -682,8 +677,8 @@ static void nojs_get_property(GObject *inObject,
 			g_value_set_string(outValue, self->priv->databaseFilename);
 			break;
 
-		case PROP_ALLOW_ALL_SITES:
-			g_value_set_boolean(outValue, self->priv->allowAllSites);
+		case PROP_ALLOW_LOCAL_PAGES:
+			g_value_set_boolean(outValue, self->priv->allowLocalPages);
 			break;
 
 		case PROP_ONLY_SECOND_LEVEL:
@@ -743,24 +738,24 @@ static void nojs_class_init(NoJSClass *klass)
 								NULL,
 								G_PARAM_READABLE);
 
-	NoJSProperties[PROP_ALLOW_ALL_SITES]=
-		g_param_spec_boolean("allow-all-sites",
-								_("Allow all sites"),
-								_("If true this extension will not check policy for each site but allow them."),
-								FALSE,
+	NoJSProperties[PROP_ALLOW_LOCAL_PAGES]=
+		g_param_spec_boolean("allow-local-pages",
+								_("Allow local pages"),
+								_("Allow scripts to run on local (file://) pages"),
+								TRUE,
 								G_PARAM_READWRITE | G_PARAM_CONSTRUCT);
 
 	NoJSProperties[PROP_ONLY_SECOND_LEVEL]=
 		g_param_spec_boolean("only-second-level",
 								_("Only second level"),
-								_("If true this extension will reduce each domain to its second-level (www.example.org will reduced to example.org)"),
+								_("Reduce each domain to its second-level (e.g. www.example.org to example.org) for comparison"),
 								TRUE,
 								G_PARAM_READWRITE | G_PARAM_CONSTRUCT);
 
 	NoJSProperties[PROP_UNKNOWN_DOMAIN_POLICY]=
 		g_param_spec_enum("unknown-domain-policy",
 								_("Unknown domain policy"),
-								_("Policy to use for unknown domains."),
+								_("Policy to use for unknown domains"),
 								NOJS_TYPE_POLICY,
 								NOJS_POLICY_BLOCK,
 								G_PARAM_READWRITE | G_PARAM_CONSTRUCT);
@@ -843,7 +838,7 @@ static void nojs_init(NoJS *self)
 	/* Set up default values */
 	priv->database=NULL;
 	priv->databaseFilename=NULL;
-	priv->allowAllSites=FALSE;
+	priv->allowLocalPages=TRUE;
 	priv->checkOnlySecondLevel=TRUE;
 	priv->unknownDomainPolicy=NOJS_POLICY_BLOCK;
 
@@ -888,21 +883,29 @@ gchar* nojs_get_domain(NoJS *self, SoupURI *inURI)
 }
 
 /* Get/set policy for javascript from site */
-gint nojs_get_policy(NoJS *self, const gchar *inDomain)
+gint nojs_get_policy(NoJS *self, SoupURI *inURI)
 {
 	g_return_val_if_fail(IS_NOJS(self), NOJS_POLICY_UNDETERMINED);
-	g_return_val_if_fail(inDomain, NOJS_POLICY_UNDETERMINED);
+	g_return_val_if_fail(inURI, NOJS_POLICY_UNDETERMINED);
 
 	NoJSPrivate			*priv=self->priv;
 	sqlite3_stmt		*statement=NULL;
 	gint				error;
 	gint				policy=NOJS_POLICY_UNDETERMINED;
+	gchar				*inDomain;
 
-	/* Check to allow all sites */
-	if(priv->allowAllSites) return(NOJS_POLICY_ACCEPT);
+	/* Check to allow local pages */
+	if(soup_uri_get_scheme(inURI) == SOUP_URI_SCHEME_FILE)
+	{
+		if(priv->allowLocalPages) return(NOJS_POLICY_ACCEPT);
+		else return(priv->unknownDomainPolicy);
+	}
 
 	/* Check for open database */
 	g_return_val_if_fail(priv->database, policy);
+
+	/* Get domain from URI */
+	inDomain=nojs_get_domain(self, inURI);
 
 	/* Lookup policy for site in database */
 	error=sqlite3_prepare_v2(priv->database,
@@ -975,23 +978,23 @@ void nojs_set_policy_for_unknown_domain(NoJS *self, NoJSPolicy inPolicy)
 	}
 }
 
-/* Get/set flag to allow javascript at all sites */
-gboolean nojs_get_allow_all_sites(NoJS *self)
+/* Get/set flag to allow javascript on local pages */
+gboolean nojs_get_allow_local_pages(NoJS *self)
 {
 	g_return_val_if_fail(IS_NOJS(self), TRUE);
 
-	return(self->priv->allowAllSites);
+	return(self->priv->allowLocalPages);
 }
 
-void nojs_set_allow_all_sites(NoJS *self, gboolean inAllow)
+void nojs_set_allow_local_pages(NoJS *self, gboolean inAllow)
 {
 	g_return_if_fail(IS_NOJS(self));
 
-	if(self->priv->allowAllSites!=inAllow)
+	if(self->priv->allowLocalPages!=inAllow)
 	{
-		self->priv->allowAllSites=inAllow;
-		midori_extension_set_boolean(self->priv->extension, "allow-all-sites", inAllow);
-		g_object_notify_by_pspec(G_OBJECT(self), NoJSProperties[PROP_ALLOW_ALL_SITES]);
+		self->priv->allowLocalPages=inAllow;
+		midori_extension_set_boolean(self->priv->extension, "allow-local-pages", inAllow);
+		g_object_notify_by_pspec(G_OBJECT(self), NoJSProperties[PROP_ALLOW_LOCAL_PAGES]);
 	}
 }
 

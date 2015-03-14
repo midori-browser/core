@@ -66,14 +66,14 @@ NoJS* nojs_new(MidoriExtension *inExtension, MidoriApp *inApp);
 
 gchar* nojs_get_domain(NoJS *self, SoupURI *inURI);
 
-gint nojs_get_policy(NoJS *self, const gchar *inDomain);
+gint nojs_get_policy(NoJS *self, SoupURI *inURI);
 void nojs_set_policy(NoJS *self, const gchar *inDomain, NoJSPolicy inPolicy);
 
 NoJSPolicy nojs_get_policy_for_unknown_domain(NoJS *self);
 void nojs_set_policy_for_unknown_domain(NoJS *self, NoJSPolicy inPolicy);
 
-gboolean nojs_get_allow_all_sites(NoJS *self);
-void nojs_set_allow_all_sites(NoJS *self, gboolean inAllow);
+gboolean nojs_get_allow_local_pages(NoJS *self);
+void nojs_set_allow_local_pages(NoJS *self, gboolean inAllow);
 
 gboolean nojs_get_only_second_level_domain(NoJS *self);
 void nojs_set_only_second_level_domain(NoJS *self, gboolean inOnlySecondLevel);

@@ -354,7 +354,7 @@ static void _nojs_view_on_load_status_changed(NoJSView *self, GParamSpec *inSpec
 		gboolean			newScriptsEnabled;
 
 		domain=nojs_get_domain(priv->manager, uri);
-		policy=nojs_get_policy(priv->manager, domain);
+		policy=nojs_get_policy(priv->manager, uri);
 		if(policy==NOJS_POLICY_UNDETERMINED)
 		{
 			policy=nojs_get_policy_for_unknown_domain(priv->manager);
@@ -371,8 +371,11 @@ static void _nojs_view_on_load_status_changed(NoJSView *self, GParamSpec *inSpec
 			// TODO: Set uri also to ensure this uri is going to be reloaded
 		}
 
-		_nojs_view_add_site_to_menu(self, domain, policy);
-		if(domain) g_free(domain);
+		if(domain)
+		{
+			_nojs_view_add_site_to_menu(self, domain, policy);
+			g_free(domain);
+		}
 	}
 
 	/* Free allocated resources */

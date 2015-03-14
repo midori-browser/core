@@ -22,7 +22,7 @@ static void _nojs_on_activate(MidoriExtension *inExtension, MidoriApp *inApp, gp
 
 	noJS=nojs_new(inExtension, inApp);
 	nojs_set_policy_for_unknown_domain(noJS, midori_extension_get_integer(inExtension, "unknown-domain-policy"));
-	nojs_set_allow_all_sites(noJS, midori_extension_get_boolean(inExtension, "allow-all-sites"));
+	nojs_set_allow_local_pages(noJS, midori_extension_get_boolean(inExtension, "allow-local-pages"));
 	nojs_set_only_second_level_domain(noJS, midori_extension_get_boolean(inExtension, "only-second-level"));
 }
 
@@ -68,7 +68,7 @@ MidoriExtension *extension_init(void)
 												NULL);
 
 	midori_extension_install_integer(extension, "unknown-domain-policy", NOJS_POLICY_BLOCK);
-	midori_extension_install_boolean(extension, "allow-all-sites", FALSE);
+	midori_extension_install_boolean(extension, "allow-local-pages", TRUE);
 	midori_extension_install_boolean(extension, "only-second-level", TRUE);
 
 	g_signal_connect(extension, "activate", G_CALLBACK(_nojs_on_activate), NULL);
