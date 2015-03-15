@@ -60,12 +60,14 @@ foreach(UNIT_SRC ${EXTENSIONS})
                 ${PKGS}
             OPTIONS
                 ${VALAFLAGS}
+                --use-header="${CMAKE_PROJECT_NAME}-core.h"
+            GENERATE_HEADER
+                "${UNIT_SRC}"
             GENERATE_HEADER
                 ${UNIT}
             CUSTOM_VAPIS
                 ${EXTRA_VAPIS}
                 "${CMAKE_SOURCE_DIR}/midori/midori.vapi"
-                "${CMAKE_SOURCE_DIR}/katze/katze.vapi"
                 "${CMAKE_BINARY_DIR}/midori/${LIBMIDORI}.vapi"
             )
             set(UNIT_FILES ${UNIT_FILES} ${UNIT_SRC_C})
@@ -104,12 +106,12 @@ foreach(UNIT_SRC ${EXTENSIONS})
             ${PKGS}
         OPTIONS
             ${VALAFLAGS}
+            --use-header="${CMAKE_PROJECT_NAME}-core.h"
         GENERATE_HEADER
             ${UNIT}
         CUSTOM_VAPIS
             ${EXTRA_VAPIS}
             "${CMAKE_SOURCE_DIR}/midori/midori.vapi"
-            "${CMAKE_SOURCE_DIR}/katze/katze.vapi"
             "${CMAKE_BINARY_DIR}/midori/${LIBMIDORI}.vapi"
         )
         add_library(${UNIT} MODULE ${UNIT_SRC_C})

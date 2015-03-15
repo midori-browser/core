@@ -6,13 +6,14 @@ public const string PACKAGE_NAME;
 [CCode (cprefix = "Midori", lower_case_cprefix = "midori_")]
 namespace Midori {
     public const string VERSION_SUFFIX;
+    [CCode (cheader_filename = "midori/midori-stock.h")]
     namespace Stock {
         public const string WEB_BROWSER;
         public const string TRANSFER;
         public const string PLUGINS;
     }
 
-    [CCode (cheader_filename = "midori/midori.h")]
+    [CCode (cheader_filename = "midori/midori-frontend.h")]
     public static unowned Midori.Browser web_app_new (
         string webapp, [CCode (array_length = false)] string[]? uris, [CCode (array_length = false)] string[]? commands, int reset, string? block);
     public static unowned Midori.Browser private_app_new (string? config,
@@ -24,7 +25,7 @@ namespace Midori {
     [CCode (cheader_filename = "midori/midori-array.h")]
     public static bool array_from_file (Katze.Array array, string filename, string format) throws GLib.Error;
 
-    [CCode (cheader_filename = "midori/midori.h")]
+    [CCode (cheader_filename = "midori/midori-app.h")]
     public class App : GLib.Object {
         public App (string? name=null);
         public static void setup ([CCode (array_length_pos = 0.9)] ref unowned string[] args, [CCode (array_length = false)] GLib.OptionEntry[]? entries);
@@ -60,7 +61,7 @@ namespace Midori {
         public signal void quit ();
     }
 
-    [CCode (cheader_filename = "midori/midori.h")]
+    [CCode (cheader_filename = "midori/midori-browser.h")]
     public class Browser : Gtk.Window {
         public Browser ();
         public unowned Gtk.Widget add_item (Katze.Item item);
@@ -121,13 +122,13 @@ namespace Midori {
         public signal void show_preferences (Katze.Preferences preferences);
     }
 
-    [CCode (cheader_filename = "midori/midori.h")]
+    [CCode (cheader_filename = "midori/midori-panel.h")]
     public class Panel : Gtk.HBox {
         public Panel ();
         public int append_page (Midori.Viewable viewable);
     }
 
-    [CCode (cheader_filename = "midori/midori.h")]
+    [CCode (cheader_filename = "midori/midori-extension.h")]
     public class Extension : GLib.Object {
         [CCode (has_construct_function = false)]
         public Extension ();
@@ -173,7 +174,7 @@ namespace Midori {
         public static void load_from_folder (Midori.App app, [CCode (array_length = false)] string[]? keys, bool activate);
     }
 
-    [CCode (cheader_filename = "midori/midori.h")]
+    [CCode (cheader_filename = "midori/midori-view.h")]
     public class View : Tab {
         [CCode (type = "GtkWidget*")]
         public View.with_title (string? title=null, WebSettings? settings=null
@@ -218,7 +219,7 @@ namespace Midori {
         public signal void new_view (Midori.View new_view, Midori.NewView where, bool user_initiated);
     }
 
-    [CCode (cheader_filename = "midori/midori.h")]
+    [CCode (cheader_filename = "midori/midori-locationaction.h")]
     public class LocationAction : Gtk.Action {
         public static string render_uri ([CCode (array_length = false)] string[] keys, string uri_escaped);
         public static string render_title ([CCode (array_length = false)] string[] keys, string title);
@@ -233,7 +234,7 @@ namespace Midori {
         public signal bool key_press_event (Gdk.EventKey event);
     }
 
-    [CCode (cheader_filename = "midori/midori.h")]
+    [CCode (cheader_filename = "midori/midori-searchaction.h")]
     public class SearchAction : Gtk.Action {
         public static Katze.Item? get_engine_for_form (WebKit.WebView web_view, Pango.EllipsizeMode ellipsize);
         public static string token_for_uri (string uri);
@@ -255,7 +256,7 @@ namespace Midori {
         PENDING_UNDELAY,
     }
 
-    [CCode (cheader_filename = "midori/midori.h")]
+    [CCode (cheader_filename = "midori/midori-websettings.h")]
     public class WebSettings : Midori.Settings {
         public WebSettings ();
         [NoAccessorMethod]

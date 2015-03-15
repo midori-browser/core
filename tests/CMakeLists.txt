@@ -26,7 +26,6 @@ foreach(UNIT_SRC ${TESTS})
         CUSTOM_VAPIS
             ${EXTRA_VAPIS}
             "${CMAKE_SOURCE_DIR}/midori/midori.vapi"
-            "${CMAKE_SOURCE_DIR}/katze/katze.vapi"
             "${CMAKE_BINARY_DIR}/midori/${LIBMIDORI}.vapi"
         )
 
