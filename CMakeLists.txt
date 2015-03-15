@@ -241,6 +241,7 @@ else ()
     set(PKGS ${PKGS} gtk+-2.0)
     set(EXTRA_VAPIS ${EXTRA_VAPIS} "${CMAKE_SOURCE_DIR}/midori/webkitgtk-3.0.vapi")
 endif ()
+set(EXTRA_VAPIS ${EXTRA_VAPIS} "${CMAKE_SOURCE_DIR}/katze/katze.vapi")
 
 # dh_translations detects this if there's no variable used
 set (GETTEXT_PACKAGE "midori")
