@@ -45,7 +45,7 @@ namespace Midori {
         public virtual bool init (GLib.Cancellable? cancellable = null) throws DatabaseError {
             int result = database.db.prepare_v2 (query, -1, out _stmt, null);
             if (result != Sqlite.OK)
-                throw new DatabaseError.COMPILE ("Failed to compile statement: %s".printf (query));
+                throw new DatabaseError.COMPILE ("Failed to compile statement: %s".printf (database.db.errmsg ()));
             return true;
         }
 
@@ -57,6 +57,8 @@ namespace Midori {
          */
         public void bind (string pname, ...) throws DatabaseError {
             int pindex = stmt.bind_parameter_index (pname);
+            if (pindex <= 0)
+                throw new DatabaseError.TYPE ("No such parameter '%s' in statement: %s".printf (pname, query));
             var args = va_list ();
             Type ptype = args.arg ();
             if (ptype == typeof (string)) {
@@ -158,7 +160,7 @@ namespace Midori {
         internal bool trace = false;
         public Sqlite.Database? db { get { return _db; } }
         protected Sqlite.Database? _db = null;
-        public string? path { get; protected set; default = null; }
+        public string path { get; protected set; default = ":memory:"; }
 
         /*
          * A new database successfully opened for the first time.
@@ -170,13 +172,13 @@ namespace Midori {
          * If a filename is passed it's assumed to be in the config folder.
          * Otherwise the database is in memory only (useful for private browsing).
          */
-        public Database (string? path) throws DatabaseError {
+        public Database (string path=":memory:") throws DatabaseError {
             Object (path: path);
             init ();
         }
 
-        string resolve_path (string? path) {
-            if (path == null || path.has_prefix (":memory:"))
+        string resolve_path (string path) {
+            if (path.has_prefix (":memory:"))
                 return ":memory:";
             else if (!Path.is_absolute (path))
                 return Midori.Paths.get_config_filename_for_writing (path);
@@ -206,6 +208,9 @@ namespace Midori {
             if (db.exec ("PRAGMA journal_mode = WAL; PRAGMA cache_size = 32100;") != Sqlite.OK)
                 db.exec ("PRAGMA synchronous = NORMAL; PRAGMA temp_store = MEMORY;");
             db.exec ("PRAGMA count_changes = OFF;");
+
+            if (real_path == ":memory:")
+                return true;
 
             int64 user_version;
             Sqlite.Statement stmt;
