@@ -29,22 +29,108 @@ sokoke_widget_set_pango_font_style (GtkWidget* widget,
     }
 }
 
+/* returns TRUE if the entry is currently showing its placeholder text */
+static gboolean
+sokoke_entry_is_showing_default (GtkEntry* entry)
+{
+    gint showing_default = GPOINTER_TO_INT (
+        g_object_get_data (G_OBJECT (entry), "sokoke_showing_default"));
+
+    const gchar* text = gtk_entry_get_text (entry);
+    const gchar* default_text = (const gchar*)g_object_get_data (
+        G_OBJECT (entry), "sokoke_default_text");
+
+    return showing_default && !g_strcmp0(text, default_text);
+}
+
+/* returns TRUE if the entry is not being used by the user to perform entry or
+hold data at a given moment */
+static gboolean
+sokoke_entry_is_idle (GtkEntry* entry)
+{
+    const gchar* text = gtk_entry_get_text (entry);
+    
+    /* if the default is visible or the user has left the entry blank */
+    return sokoke_entry_is_showing_default(entry) ||
+        (text && !*text && !gtk_widget_has_focus (GTK_WIDGET (entry)));
+}
+
+static gboolean
+sokoke_on_entry_text_changed (GtkEntry*   entry,
+                              GParamSpec* pspec,
+                              gpointer    userdata);
+
+static void
+sokoke_hide_placeholder_text (GtkEntry* entry)
+{
+    if(sokoke_entry_is_showing_default (entry))
+    {
+        g_signal_handlers_block_by_func (entry, sokoke_on_entry_text_changed, NULL);
+        gtk_entry_set_text (entry, "");
+        g_signal_handlers_unblock_by_func (entry, sokoke_on_entry_text_changed, NULL);
+    }
+    g_object_set_data (G_OBJECT (entry), "sokoke_showing_default",
+                       GINT_TO_POINTER (0));
+    sokoke_widget_set_pango_font_style (GTK_WIDGET (entry),
+                                        PANGO_STYLE_NORMAL);
+}
+
 static gboolean
 sokoke_on_entry_focus_in_event (GtkEntry*      entry,
                                 GdkEventFocus* event,
                                 gpointer       userdata)
 {
-    gint has_default = GPOINTER_TO_INT (
-        g_object_get_data (G_OBJECT (entry), "sokoke_has_default"));
-    if (has_default)
-    {
-        g_object_set_data (G_OBJECT (entry), "sokoke_has_default",
-                           GINT_TO_POINTER (0));
-        gtk_entry_set_text (entry, "");
-        sokoke_widget_set_pango_font_style (GTK_WIDGET (entry),
-                                            PANGO_STYLE_NORMAL);
-    }
+    sokoke_hide_placeholder_text (entry);
     return FALSE;
+}
+
+static void
+sokoke_show_placeholder_text (GtkEntry* entry)
+{
+    /* no need to do work if the widget is unfocused with placeholder */
+    if(sokoke_entry_is_showing_default (entry))
+        return;
+
+    /* no need to do work if the placeholder is already visible */
+    const gchar* text = gtk_entry_get_text (entry);
+    if (text && !*text)
+    {
+        const gchar* default_text = (const gchar*)g_object_get_data (
+            G_OBJECT (entry), "sokoke_default_text");
+        g_object_set_data (G_OBJECT (entry),
+                           "sokoke_showing_default", GINT_TO_POINTER (1));
+        g_signal_handlers_block_by_func (entry, sokoke_on_entry_text_changed, NULL);
+        gtk_entry_set_text (entry, default_text);
+        g_signal_handlers_unblock_by_func (entry, sokoke_on_entry_text_changed, NULL);
+        sokoke_widget_set_pango_font_style (GTK_WIDGET (entry),
+                                            PANGO_STYLE_ITALIC);
+    }
+}
+
+static void
+sokoke_on_entry_drag_leave (GtkEntry*       entry,
+                             GdkDragContext* drag_context,
+                             guint           timestamp,
+                             gpointer        user_data)
+{
+    sokoke_show_placeholder_text (entry);
+}
+
+static gboolean
+sokoke_on_entry_text_changed (GtkEntry*   entry,
+                              GParamSpec* pspec,
+                              gpointer    userdata)
+{
+    if(sokoke_entry_is_idle (entry))
+    {
+        sokoke_show_placeholder_text (entry);
+    }
+    else
+    {
+        sokoke_hide_placeholder_text (entry);
+    }
+
+    return TRUE;
 }
 
 static gboolean
@@ -52,29 +138,32 @@ sokoke_on_entry_focus_out_event (GtkEntry*      entry,
                                  GdkEventFocus* event,
                                  gpointer       userdata)
 {
-    const gchar* text = gtk_entry_get_text (entry);
-    if (text && !*text)
-    {
-        const gchar* default_text = (const gchar*)g_object_get_data (
-            G_OBJECT (entry), "sokoke_default_text");
-        g_object_set_data (G_OBJECT (entry),
-                           "sokoke_has_default", GINT_TO_POINTER (1));
-        gtk_entry_set_text (entry, default_text);
-        sokoke_widget_set_pango_font_style (GTK_WIDGET (entry),
-                                            PANGO_STYLE_ITALIC);
-    }
+    sokoke_show_placeholder_text (entry);
     return FALSE;
 }
 
-static void
-sokoke_on_entry_drag_data_received (GtkEntry*       entry,
-                                    GdkDragContext* drag_context,
-                                    gint            x,
-                                    gint            y,
-                                    guint           timestamp,
-                                    gpointer        user_data)
+static gboolean
+sokoke_on_entry_drag_motion (GtkEntry*       entry,
+                             GdkDragContext* drag_context,
+                             gint            x,
+                             gint            y,
+                             guint           timestamp,
+                             gpointer        user_data)
 {
-    sokoke_on_entry_focus_in_event (entry, NULL, NULL);
+    sokoke_hide_placeholder_text (entry);
+    return FALSE;
+}
+
+static gboolean
+sokoke_on_entry_drag_drop (GtkEntry*       entry,
+                           GdkDragContext* drag_context,
+                           gint            x,
+                           gint            y,
+                           guint           timestamp,
+                           gpointer        user_data)
+{
+    sokoke_hide_placeholder_text (entry);
+    return FALSE;
 }
 
 void
@@ -86,23 +175,29 @@ gtk_entry_set_placeholder_text (GtkEntry*    entry,
     g_object_set_data (G_OBJECT (entry), "sokoke_default_text", (gpointer)default_text);
 
     if (default_text == NULL)
-        g_object_set_data (G_OBJECT (entry), "sokoke_has_default", GINT_TO_POINTER (0));
+        g_object_set_data (G_OBJECT (entry), "sokoke_showing_default", GINT_TO_POINTER (0));
     else if (!old_value)
     {
-        g_object_set_data (G_OBJECT (entry), "sokoke_has_default", GINT_TO_POINTER (1));
+        g_object_set_data (G_OBJECT (entry), "sokoke_showing_default", GINT_TO_POINTER (1));
         sokoke_widget_set_pango_font_style (GTK_WIDGET (entry), PANGO_STYLE_ITALIC);
         gtk_entry_set_text (entry, default_text);
-        g_signal_connect (entry, "drag-data-received",
-            G_CALLBACK (sokoke_on_entry_drag_data_received), NULL);
+        g_signal_connect (entry, "drag-motion",
+            G_CALLBACK (sokoke_on_entry_drag_motion), NULL);
         g_signal_connect (entry, "focus-in-event",
             G_CALLBACK (sokoke_on_entry_focus_in_event), NULL);
+        g_signal_connect (entry, "drag-leave",
+            G_CALLBACK (sokoke_on_entry_drag_leave), NULL);
+        g_signal_connect (entry, "drag-drop",
+            G_CALLBACK (sokoke_on_entry_drag_drop), NULL);
         g_signal_connect (entry, "focus-out-event",
            G_CALLBACK (sokoke_on_entry_focus_out_event), NULL);
+        g_signal_connect (entry, "notify::text",
+            G_CALLBACK (sokoke_on_entry_text_changed), NULL);
     }
     else if (!gtk_widget_has_focus (GTK_WIDGET (entry)))
     {
-        gint has_default = GPOINTER_TO_INT (g_object_get_data (G_OBJECT (entry), "sokoke_has_default"));
-        if (has_default)
+        gint showing_default = GPOINTER_TO_INT (g_object_get_data (G_OBJECT (entry), "sokoke_showing_default"));
+        if (showing_default)
         {
             gtk_entry_set_text (entry, default_text);
             sokoke_widget_set_pango_font_style (GTK_WIDGET (entry), PANGO_STYLE_ITALIC);
