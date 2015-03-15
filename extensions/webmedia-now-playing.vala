@@ -9,7 +9,7 @@
  See the file COPYING for the full license text.
 */
 
-namespace Sandcat {
+namespace WebMedia {
 
     private class Manager : Midori.Extension {
         DbusService dbus_service { get; set; }
@@ -33,18 +33,27 @@ namespace Sandcat {
             web_media_uri = browser.uri;
             web_media_title = browser.title;
             try { 
-                    var youtube = new Regex("""(http|https)://www.youtube.com/watch\?v=[&=_\-A-Za-z0-9.]+""");
+                    var youtube = new Regex("""(http|https)://www.youtube.com/watch\?v=[&=_\-A-Za-z0-9.\|]+""");
                     var vimeo = new Regex("""(http|https)://vimeo.com/[0-9]+""");
                     var dailymotion = new Regex("""(http|https)://www.dailymotion.com/video/[_\-A-Za-z0-9]+""");
+                    var coud = new Regex("""(http|https)://coub.com/view/[&=_\-A-Za-z0-9.\|]+""");
+                    var zippcast = new Regex("""(http|https)://www.zippcast.com/video/[&=_\-A-Za-z0-9.\|]+"""); 
+                    
                     string website = null;
-                    if (web_media_uri.contains("youtube") || web_media_uri.contains("vimeo") || web_media_uri.contains ("dailymotion")) {
+                    if (web_media_uri.contains("youtube") || web_media_uri.contains("vimeo") || 
+						web_media_uri.contains ("dailymotion") || web_media_uri.contains ("coub") || 
+						web_media_uri.contains ("zippcast") ) {
                         if (youtube.match(web_media_uri))
                             website = "Youtube";
                         else if (vimeo.match(web_media_uri))
                             website = "Vimeo";
                         else if (dailymotion.match(web_media_uri))
                             website = "Dailymotion";
- 
+                        else if (coud.match(web_media_uri))
+                            website = "Coud";
+                        else if (zippcast.match(web_media_uri))
+                            website = "ZippCast";   
+
                         if (website != null) {
                             dbus_service.video_title = web_media_title;
                             web_media_notify.notify_media = website;
@@ -136,5 +145,5 @@ namespace Sandcat {
 }
 
 public Midori.Extension extension_init () {
-    return new Sandcat.Manager ();
+    return new WebMedia.Manager ();
 }
