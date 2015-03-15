@@ -765,6 +765,10 @@ midori_browser_step_history (MidoriBrowser* browser,
     if (midori_uri_is_blank (proxy_uri))
         return;
 
+    //Do not save pages that fail to load in the history
+    if (midori_tab_get_load_error (MIDORI_TAB (view)) == MIDORI_LOAD_ERROR_NETWORK)
+        return;
+
     const gchar* history_step = katze_item_get_meta_string (proxy, "history-step");
     if (history_step == NULL)
     {
