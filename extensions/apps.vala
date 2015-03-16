@@ -209,7 +209,7 @@ namespace Apps {
                 /* FIXME: Profiles are broken on win32 because of no multi instance support */
                 var profile = new Gtk.ToolButton.from_stock (Gtk.STOCK_ADD);
                 profile.label = _("New _Profile");
-                profile.tooltip_text = _("Creates a new, independant profile and a launcher");
+                profile.tooltip_text = _("Creates a new, independent profile and a launcher");
                 profile.use_underline = true;
                 profile.is_important = true;
                 profile.show ();
@@ -254,6 +254,8 @@ namespace Apps {
         bool button_released (Gdk.EventButton event) {
             Gtk.TreePath? path;
             Gtk.TreeViewColumn column;
+            if (event.button != 1)
+            	return false;
             if (treeview.get_path_at_pos ((int)event.x, (int)event.y, out path, out column, null, null)) {
                 if (path != null) {
                     if (column == treeview.get_column (2)) {
