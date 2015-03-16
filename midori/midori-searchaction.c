@@ -466,6 +466,10 @@ midori_search_action_icon_released_cb (GtkWidget*           entry,
                                        gint                 button,
                                        GtkAction*           action)
 {
+    /* Only display the search engines when the engine icon, not clear button, is clicked */
+    if (icon_pos != GTK_ENTRY_ICON_PRIMARY)
+        return;
+
     GtkMenu* menu = midori_search_action_get_menu (entry,
                                                    MIDORI_SEARCH_ACTION (action),
                                                    midori_search_action_engine_activate_cb);
