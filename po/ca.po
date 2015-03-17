@@ -11,15 +11,15 @@ msgstr ""
 "Project-Id-Version: midori\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-02-21 10:52-0600\n"
-"PO-Revision-Date: 2014-09-27 09:31+0000\n"
-"Last-Translator: WebKit Team <Unknown>\n"
+"PO-Revision-Date: 2015-03-16 07:17+0000\n"
+"Last-Translator: JoanColl <Unknown>\n"
 "Language-Team: Catalan\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2014-11-26 05:59+0000\n"
-"X-Generator: Launchpad (build 17252)\n"
+"X-Launchpad-Export-Date: 2015-03-17 05:20+0000\n"
+"X-Generator: Launchpad (build 17389)\n"
 "Language: Catalan\n"
 "X-Poedit-Language: Catalan\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -55,7 +55,7 @@ msgstr "Finestra nova"
 
 #: ../data/midori.desktop.in.h:8
 msgid "New Private Browsing Window"
-msgstr "Finestra de navegació privada nova"
+msgstr "Nova finestra privada de navegació"
 
 #: ../data/midori-private.desktop.in.h:1
 msgid "Midori Private Browsing"
@@ -540,6 +540,7 @@ msgstr ""
 "  WebKit Team https://launchpad.net/~webkit-team\n"
 "  Xan https://launchpad.net/~dxpublica\n"
 "  mid-kid https://launchpad.net/~esteve-varela\n"
+"  vicmumo https://launchpad.net/~vmunoz-o\n"
 "  xavi ballestar https://launchpad.net/~xballestar"
 
 #: ../midori/midori-browser.c:5032 ../midori/midori-browser.c:5266
@@ -2332,6 +2333,7 @@ msgstr ""
 #: ../extensions/devpet.vala:254
 msgid "This extension shows glib error messages in systray."
 msgstr ""
+"Aquesta extensió mostra missatges d'error glib a la safata del sistema"
 
 #: ../extensions/external-download-manager.vala:124
 #, c-format
@@ -2664,7 +2666,7 @@ msgstr "Instància del gestor"
 #: ../extensions/nojs/nojs-preferences.c:810
 #: ../extensions/nojs/nojs-view.c:700
 msgid "Instance to global NoJS manager"
-msgstr ""
+msgstr "Instància al gestor global de NoJS"
 
 #. Set up dialog
 #: ../extensions/nojs/nojs-preferences.c:850
@@ -2708,7 +2710,7 @@ msgstr "Bloque_ja scripts de forma predeterminada en els dominis desconeguts"
 #. Add "check-second-level-only" checkbox
 #: ../extensions/nojs/nojs-preferences.c:1003
 msgid "S_et permissions on second-level domain"
-msgstr ""
+msgstr "_Estableix permisos al domini de segon nivell"
 
 #. Add menu item(s) for domain
 #: ../extensions/nojs/nojs-view.c:237
@@ -2748,7 +2750,7 @@ msgstr "Estat de la icona del menú"
 
 #: ../extensions/nojs/nojs-view.c:721
 msgid "State of menu icon to show in status bar"
-msgstr ""
+msgstr "Estat de l'icona de menú per mostrar a la barra d'estat"
 
 #: ../extensions/nojs/nojs-view.c:792 ../extensions/nojs/nojs.c:1029
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1112
@@ -2809,17 +2811,17 @@ msgstr ""
 #: ../extensions/nojs/nojs.c:721
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1006
 msgid "Extension instance"
-msgstr ""
+msgstr "Instància d'extensió"
 
 #: ../extensions/nojs/nojs.c:722
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1007
 msgid "The Midori extension instance for this extension"
-msgstr ""
+msgstr "La instància de l'extensió Midori per aquesta extensió"
 
 #: ../extensions/nojs/nojs.c:728
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1013
 msgid "Application instance"
-msgstr ""
+msgstr "Instància d'aplicació"
 
 #: ../extensions/nojs/nojs.c:729
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1014
@@ -2829,12 +2831,13 @@ msgstr ""
 #: ../extensions/nojs/nojs.c:735
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1020
 msgid "Database instance"
-msgstr ""
+msgstr "Instància de base de dades"
 
 #: ../extensions/nojs/nojs.c:736
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1021
 msgid "Pointer to sqlite database instance used by this extension"
 msgstr ""
+"Punter a la instància de base de dades sqlite utilitzada per aquesta extensió"
 
 #: ../extensions/nojs/nojs.c:741
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1026
@@ -2845,6 +2848,7 @@ msgstr "Camí a la base de dades"
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1027
 msgid "Path to sqlite database instance used by this extension"
 msgstr ""
+"Camí a la instància de base de dades sqlite utilitzada per aquesta extensió"
 
 #: ../extensions/nojs/nojs.c:748
 msgid "Allow all sites"
@@ -2854,16 +2858,20 @@ msgstr "Permet tots els llocs web"
 msgid ""
 "If true this extension will not check policy for each site but allow them."
 msgstr ""
+"Si és cert aquesta extensió no verificarà la política per a cada lloc però "
+"les permetrà."
 
 #: ../extensions/nojs/nojs.c:755
 msgid "Only second level"
-msgstr ""
+msgstr "Només segon nivell"
 
 #: ../extensions/nojs/nojs.c:756
 msgid ""
 "If true this extension will reduce each domain to its second-level "
 "(www.example.org will reduced to example.org)"
 msgstr ""
+"Si és cert aquesta extensió reduirà cada domini al seu segon nivell "
+"(www.example.org serà reduït a example.org)"
 
 #: ../extensions/nojs/nojs.c:762
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1033
@@ -3107,7 +3115,7 @@ msgstr "Mostra el darrer informe de fallada"
 
 #: ../midori/midori-frontend.c:383
 msgid "Run in _debugger"
-msgstr ""
+msgstr "Executa en el depura_dor"
 
 #: ../midori/midori-frontend.c:461
 msgid "An instance of Midori is already running but not responding.\n"
@@ -3170,7 +3178,7 @@ msgstr "Gestor de permisos de galetes"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:705
 msgid "Instance of current cookie permission manager"
-msgstr ""
+msgstr "Instància de l'actual gestor de permisos de galeta"
 
 #. Set up dialog
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:746
