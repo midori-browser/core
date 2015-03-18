@@ -11,7 +11,6 @@
 
 using Midori;
 using WebKit;
-using Sqlite;
 
 namespace ClipNotes {
 
