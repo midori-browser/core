@@ -9,8 +9,6 @@
    See the file COPYING for the full license text.
 */
 
-using Midori;
-
 namespace HistoryList {
     enum TabTreeCells {
         TREE_CELL_PIXBUF,
@@ -408,7 +406,7 @@ namespace HistoryList {
             return false;
         }
 
-        public bool key_release (Gdk.EventKey event_key, Browser browser) {
+        public bool key_release (Gdk.EventKey event_key, Midori.Browser browser) {
             if (is_key_a_modifier (event_key)) {
                 this.modifier_count--;
             }
@@ -429,7 +427,7 @@ namespace HistoryList {
             return false;
         }
 
-        public void walk (Gtk.Action action, Browser browser, Type type, int step) {
+        public void walk (Gtk.Action action, Midori.Browser browser, Type type, int step) {
             Midori.View? view = null;
             view = browser.get_data<Midori.View?> ("history-list-last-change");
             if (view != null) {
@@ -464,7 +462,7 @@ namespace HistoryList {
             hw.walk (step);
         }
 
-        public void special_function (Gtk.Action action, Browser browser) {
+        public void special_function (Gtk.Action action, Midori.Browser browser) {
             if (this.history_window != null) {
                 this.ignoreNextChange = true;
                 this.history_window.make_update ();

@@ -9,8 +9,6 @@
    See the file COPYING for the full license text.
 */
 
-using Midori;
-
 namespace EDM {
 #if !HAVE_WIN32
     [DBus (name = "net.launchpad.steadyflow.App")]

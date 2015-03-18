@@ -9,8 +9,6 @@
    See the file COPYING for the full license text.
 */
 
-using Midori;
-
 namespace ClipNotes {
 
     Midori.Database database;
