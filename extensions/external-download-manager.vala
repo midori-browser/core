@@ -9,7 +9,6 @@
    See the file COPYING for the full license text.
 */
 
-using Gtk;
 using Soup;
 using Katze;
 using Midori;
@@ -128,8 +127,8 @@ namespace EDM {
         public void handle_exception (GLib.Error error) {
             string ext_name;
             this.get ("name",out ext_name);
-            var dialog = new MessageDialog (null, DialogFlags.MODAL,
-                MessageType.ERROR, ButtonsType.CLOSE,
+            var dialog = new Gtk.MessageDialog (null, Gtk.DialogFlags.MODAL,
+                Gtk.MessageType.ERROR, Gtk.ButtonsType.CLOSE,
                 _("An error occurred when attempting to download a file with the following plugin:\n" +
                   "%s\n\n" +
                   "Error:\n%s\n\n" +
@@ -173,8 +172,8 @@ namespace EDM {
              * The parse method do not warns us about it. And the exception
              * never is launched.*/
             if (message.status_code != 200) {
-                var dialog = new MessageDialog (null, DialogFlags.MODAL,
-                    MessageType.ERROR, ButtonsType.CLOSE,
+                var dialog = new Gtk.MessageDialog (null, Gtk.DialogFlags.MODAL,
+                    Gtk.MessageType.ERROR, Gtk.ButtonsType.CLOSE,
                     _("The plug-in was unable to connect with aria2:\n" +
                       "Please make sure that aria2 is running with rpc enabled ie: aria2c --enable-rpc\n" +
                       "If it's so, check it also is using the port 6800.\n" +
@@ -237,7 +236,7 @@ namespace EDM {
 #endif
 
     private class CommandLinePreferences : Gtk.Dialog {
-        protected Entry input;
+        protected Gtk.Entry input;
         protected CommandLine commandline;
 
         public CommandLinePreferences(CommandLine cl) {
@@ -259,20 +258,20 @@ namespace EDM {
 
         private void response_cb (Gtk.Dialog source, int response_id) {
             switch (response_id) {
-                case ResponseType.APPLY:
+                case Gtk.ResponseType.APPLY:
                     this.commandline.set_string ("commandline", this.input.get_text ());
                     this.commandline.update_description (this.commandline.get_app ());
                     this.destroy ();
                     break;
-                case ResponseType.CANCEL:
+                case Gtk.ResponseType.CANCEL:
                     this.destroy ();
                     break;
             }
         }
 
         private void create_widgets () {
-            Label text = new Label (_("Command:"));
-            this.input = new Entry ();
+            Gtk.Label text = new Gtk.Label (_("Command:"));
+            this.input = new Gtk.Entry ();
             this.input.set_text (this.commandline.get_string ("commandline"));
 
 
@@ -285,8 +284,8 @@ namespace EDM {
             this.vbox.pack_start (this.input, false, true, 0);
 #endif
 
-            this.add_button (Gtk.STOCK_CANCEL, ResponseType.CANCEL);
-            this.add_button (Gtk.STOCK_APPLY, ResponseType.APPLY);
+            this.add_button (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL);
+            this.add_button (Gtk.STOCK_APPLY, Gtk.ResponseType.APPLY);
 
             this.show_all ();
         }
