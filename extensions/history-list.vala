@@ -9,7 +9,6 @@
    See the file COPYING for the full license text.
 */
 
-using WebKit;
 using Midori;
 
 namespace HistoryList {

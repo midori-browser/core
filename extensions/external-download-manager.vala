@@ -11,7 +11,6 @@
 
 using Katze;
 using Midori;
-using WebKit;
 
 namespace EDM {
 #if !HAVE_WIN32

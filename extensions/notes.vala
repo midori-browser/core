@@ -10,7 +10,6 @@
 */
 
 using Midori;
-using WebKit;
 
 namespace ClipNotes {
 
