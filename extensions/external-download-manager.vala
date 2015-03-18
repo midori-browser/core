@@ -9,7 +9,6 @@
    See the file COPYING for the full license text.
 */
 
-using Soup;
 using Katze;
 using Midori;
 using WebKit;
@@ -32,7 +31,7 @@ namespace EDM {
     internal Manager manager;
 
     private class Manager : GLib.Object {
-        private CookieJar cookie_jar;
+        private Soup.CookieJar cookie_jar;
         private GLib.PtrArray download_managers =  new GLib.PtrArray ();
 
         public bool download_requested (Midori.View view, WebKit.Download download) {
@@ -43,12 +42,12 @@ namespace EDM {
 
                 #if HAVE_WEBKIT2
                 dlReq.uri = download.request.get_uri ();
-                weak MessageHeaders headers = download.request.get_http_headers ();
+                weak Soup.MessageHeaders headers = download.request.get_http_headers ();
                 #else
                 dlReq.uri = download.get_uri ();
                 var request = download.get_network_request ();
                 var message = request.get_message ();
-                weak MessageHeaders headers = message.request_headers;
+                weak Soup.MessageHeaders headers = message.request_headers;
                 #endif
 
                 dlReq.auth = headers.get ("Authorization");
@@ -111,7 +110,7 @@ namespace EDM {
             #else
             var session = WebKit.get_default_session ();
             #endif
-            this.cookie_jar = session.get_feature (typeof (CookieJar)) as CookieJar;
+            this.cookie_jar = session.get_feature (typeof (Soup.CookieJar)) as Soup.CookieJar;
         }
     }
 
@@ -145,27 +144,27 @@ namespace EDM {
 #if !HAVE_WIN32
     private class Aria2 : ExternalDownloadManager {
         public override bool download (DownloadRequest dlReq) {
-            var url = value_array_new ();
-            value_array_insert (url, 0, typeof (string), dlReq.uri);
+            var url = Soup.value_array_new ();
+            Soup.value_array_insert (url, 0, typeof (string), dlReq.uri);
 
-            GLib.HashTable<string, GLib.Value?> options = value_hash_new ();
+            GLib.HashTable<string, GLib.Value?> options = Soup.value_hash_new ();
             var referer = new GLib.Value (typeof (string));
             referer.set_string (dlReq.referer);
             options.insert ("referer", referer);
 
-            var headers = value_array_new ();
+            var headers = Soup.value_array_new ();
             if (dlReq.cookie_header != null) {
-                value_array_insert (headers, 0, typeof (string), "Cookie: " + dlReq.cookie_header);
+                Soup.value_array_insert (headers, 0, typeof (string), "Cookie: " + dlReq.cookie_header);
             }
 
             if (headers.n_values > 0)
                options.insert ("header", headers);
 
-            var message = XMLRPC.request_new ("http://127.0.0.1:6800/rpc",
+            var message = Soup.XMLRPC.request_new ("http://127.0.0.1:6800/rpc",
                 "aria2.addUri",
                 typeof (ValueArray), url,
                 typeof(HashTable), options);
-            var session = new SessionSync ();
+            var session = new Soup.SessionSync ();
             session.send_message (message);
 
             /* Check if the plug-in actually recieved an reply.
@@ -186,7 +185,7 @@ namespace EDM {
 
             try {
                 Value v;
-                XMLRPC.parse_method_response ((string) message.response_body.flatten ().data, -1, out v);
+                Soup.XMLRPC.parse_method_response ((string) message.response_body.flatten ().data, -1, out v);
                 return true;
             } catch (Error e) {
                 this.handle_exception (e);
