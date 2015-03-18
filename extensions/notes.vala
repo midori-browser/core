@@ -9,11 +9,6 @@
    See the file COPYING for the full license text.
 */
 
-using Gtk;
-using Midori;
-using WebKit;
-using Sqlite;
-
 namespace ClipNotes {
 
     Midori.Database database;

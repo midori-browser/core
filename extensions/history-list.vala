@@ -9,11 +9,6 @@
    See the file COPYING for the full license text.
 */
 
-using Gtk;
-using Gdk;
-using WebKit;
-using Midori;
-
 namespace HistoryList {
     enum TabTreeCells {
         TREE_CELL_PIXBUF,
@@ -104,7 +99,7 @@ namespace HistoryList {
         }
 
         protected void resize_treeview () {
-            Requisition requisition;
+            Gtk.Requisition requisition;
             int height;
             int max_lines = 10;
 #if HAVE_GTK3
@@ -134,8 +129,8 @@ namespace HistoryList {
             this.hbox = new Gtk.HBox (false, 1);
 
             this.scroll_windows = new Gtk.ScrolledWindow (null, null);
-            this.scroll_windows.set_policy (PolicyType.NEVER , PolicyType.AUTOMATIC);
-            this.scroll_windows.set_shadow_type (ShadowType.ETCHED_IN);
+            this.scroll_windows.set_policy (Gtk.PolicyType.NEVER , Gtk.PolicyType.AUTOMATIC);
+            this.scroll_windows.set_shadow_type (Gtk.ShadowType.ETCHED_IN);
             this.hbox.pack_start (this.scroll_windows, true, true, 0);
 
             var store = new Gtk.ListStore (TabTreeCells.TREE_CELL_COUNT,
@@ -154,11 +149,11 @@ namespace HistoryList {
 
             this.treeview.insert_column_with_attributes (
                 -1, "Icon",
-                new CellRendererPixbuf (), "pixbuf", TabTreeCells.TREE_CELL_PIXBUF,
+                new Gtk.CellRendererPixbuf (), "pixbuf", TabTreeCells.TREE_CELL_PIXBUF,
                 "cell-background-gdk", TabTreeCells.TREE_CELL_BG);
             this.treeview.insert_column_with_attributes (
                 -1, "Title",
-                new CellRendererText (), "text", TabTreeCells.TREE_CELL_STRING,
+                new Gtk.CellRendererText (), "text", TabTreeCells.TREE_CELL_STRING,
                 "foreground-gdk", TabTreeCells.TREE_CELL_FG,
                 "cell-background-gdk", TabTreeCells.TREE_CELL_BG);
 
@@ -281,7 +276,7 @@ namespace HistoryList {
 
     private class PreferencesDialog : Gtk.Dialog {
         protected Manager hl_manager;
-        protected ComboBox closing_behavior;
+        protected Gtk.ComboBox closing_behavior;
 
         public PreferencesDialog (Manager manager) {
             this.hl_manager = manager;
@@ -299,9 +294,9 @@ namespace HistoryList {
 
         private void response_cb (Gtk.Dialog source, int response_id) {
             switch (response_id) {
-                case ResponseType.APPLY:
+                case Gtk.ResponseType.APPLY:
                     int value;
-                    TreeIter iter;
+                    Gtk.TreeIter iter;
 
                     this.closing_behavior.get_active_iter (out iter);
                     var model = this.closing_behavior.get_model ();
@@ -312,26 +307,26 @@ namespace HistoryList {
 
                     this.destroy ();
                     break;
-                case ResponseType.CANCEL:
+                case Gtk.ResponseType.CANCEL:
                     this.destroy ();
                     break;
             }
         }
 
         private void create_widgets () {
-            ListStore model;
-            TreeIter iter;
-            TreeIter? active_iter = null;
+            Gtk.ListStore model;
+            Gtk.TreeIter iter;
+            Gtk.TreeIter? active_iter = null;
 
-            var table = new Table (1, 2, true);
-            var renderer = new CellRendererText ();
+            var table = new Gtk.Table (1, 2, true);
+            var renderer = new Gtk.CellRendererText ();
 
-            var label = new Label ( _("Tab closing behavior"));
+            var label = new Gtk.Label ( _("Tab closing behavior"));
             table.attach_defaults (label, 0, 1, 0, 1);
 
             var tab_closing_behavior = this.hl_manager.get_integer ("TabClosingBehavior");
 
-            model = new ListStore (2, typeof (string), typeof (int));
+            model = new Gtk.ListStore (2, typeof (string), typeof (int));
 
             model.append (out iter);
             model.set (iter, TabClosingBehaviorModel.TEXT, _("Do nothing"),
@@ -351,7 +346,7 @@ namespace HistoryList {
             if (TabClosingBehavior.NEW == tab_closing_behavior)
                 active_iter = iter;
 
-            this.closing_behavior = new ComboBox.with_model (model);
+            this.closing_behavior = new Gtk.ComboBox.with_model (model);
             this.closing_behavior.set_active_iter (active_iter);
             this.closing_behavior.pack_start (renderer, true);
             this.closing_behavior.set_attributes (renderer, "text", 0);
@@ -370,8 +365,8 @@ namespace HistoryList {
             this.vbox.pack_start (table, false, true, 0);
 #endif
 
-            this.add_button (Gtk.STOCK_CANCEL, ResponseType.CANCEL);
-            this.add_button (Gtk.STOCK_APPLY, ResponseType.APPLY);
+            this.add_button (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL);
+            this.add_button (Gtk.STOCK_APPLY, Gtk.ResponseType.APPLY);
 
             this.show_all ();
         }
@@ -411,7 +406,7 @@ namespace HistoryList {
             return false;
         }
 
-        public bool key_release (Gdk.EventKey event_key, Browser browser) {
+        public bool key_release (Gdk.EventKey event_key, Midori.Browser browser) {
             if (is_key_a_modifier (event_key)) {
                 this.modifier_count--;
             }
@@ -432,7 +427,7 @@ namespace HistoryList {
             return false;
         }
 
-        public void walk (Gtk.Action action, Browser browser, Type type, int step) {
+        public void walk (Gtk.Action action, Midori.Browser browser, Type type, int step) {
             Midori.View? view = null;
             view = browser.get_data<Midori.View?> ("history-list-last-change");
             if (view != null) {
@@ -467,7 +462,7 @@ namespace HistoryList {
             hw.walk (step);
         }
 
-        public void special_function (Gtk.Action action, Browser browser) {
+        public void special_function (Gtk.Action action, Midori.Browser browser) {
             if (this.history_window != null) {
                 this.ignoreNextChange = true;
                 this.history_window.make_update ();
