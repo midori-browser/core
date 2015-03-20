@@ -103,7 +103,7 @@ namespace HistoryList {
             int height;
             int max_lines = 10;
 #if HAVE_GTK3
-            requisition = Requisition();
+            requisition = Gtk.Requisition();
             this.treeview.get_preferred_size(out requisition, null);
 #else
             this.treeview.size_request (out requisition);
