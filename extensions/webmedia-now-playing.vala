@@ -18,7 +18,7 @@ namespace WebMedia {
         string web_media_title { get; set; }
         internal Manager () {
             GLib.Object (name: _("Webmedia now-playing"),
-                         description: _("Share 'youtube, vimeo, dailymotion' that you are playing in Midori using org.midori.mediaHerald"),
+                         description: _("Share 'youtube, vimeo, dailymotion, coub and zippcast' that you are playing in Midori using org.midori.mediaHerald"),
                          version: "0.1" + Midori.VERSION_SUFFIX,
                          authors: "James Axl <axlrose112@gmail.com>");
             activate.connect (this.activated);
@@ -36,7 +36,7 @@ namespace WebMedia {
                     var youtube = new Regex("""(http|https)://www.youtube.com/watch\?v=[&=_\-A-Za-z0-9.\|]+""");
                     var vimeo = new Regex("""(http|https)://vimeo.com/[0-9]+""");
                     var dailymotion = new Regex("""(http|https)://www.dailymotion.com/video/[_\-A-Za-z0-9]+""");
-                    var coud = new Regex("""(http|https)://coub.com/view/[&=_\-A-Za-z0-9.\|]+""");
+                    var coub = new Regex("""(http|https)://coub.com/view/[&=_\-A-Za-z0-9.\|]+""");
                     var zippcast = new Regex("""(http|https)://www.zippcast.com/video/[&=_\-A-Za-z0-9.\|]+"""); 
                     
                     string website = null;
@@ -49,8 +49,8 @@ namespace WebMedia {
                             website = "Vimeo";
                         else if (dailymotion.match(web_media_uri))
                             website = "Dailymotion";
-                        else if (coud.match(web_media_uri))
-                            website = "Coud";
+                        else if (coub.match(web_media_uri))
+                            website = "Coub";
                         else if (zippcast.match(web_media_uri))
                             website = "ZippCast";   
 
