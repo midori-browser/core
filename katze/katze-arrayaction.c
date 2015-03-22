@@ -51,7 +51,7 @@ enum
 {
     POPULATE_POPUP,
     POPULATE_FOLDER,
-    ACTIVATE_ITEM,
+    ACTIVATE_ITEM_EVENT,
     ACTIVATE_ITEM_ALT,
     LAST_SIGNAL
 };
@@ -139,23 +139,23 @@ katze_array_action_class_init (KatzeArrayActionClass* class)
                                        GTK_TYPE_MENU_SHELL, KATZE_TYPE_ITEM);
 
     /**
-     * KatzeArrayAction::activate-item:
+     * KatzeArrayAction::activate-item-event:
      * @array: the object on which the signal is emitted
      * @item: the item being activated
-     * @new_tab: whether the activation should open a new tab
+     * @event: (allow-none): the event that caused the activation
      *
      * An item was activated.
      **/
-    signals[ACTIVATE_ITEM] = g_signal_new ("activate-item",
+    signals[ACTIVATE_ITEM_EVENT] = g_signal_new ("activate-item-event",
                                        G_TYPE_FROM_CLASS (class),
                                        (GSignalFlags) (G_SIGNAL_RUN_LAST),
                                        0,
                                        0,
                                        NULL,
-                                       midori_cclosure_marshal_VOID__OBJECT_BOOLEAN,
+                                       midori_cclosure_marshal_VOID__OBJECT_POINTER,
                                        G_TYPE_NONE, 2,
                                        KATZE_TYPE_ITEM,
-                                       G_TYPE_BOOLEAN);
+                                       G_TYPE_POINTER);
 
     /**
      * KatzeArrayAction::activate-item-alt:
@@ -285,11 +285,11 @@ katze_array_action_activate (GtkAction* action)
 }
 
 static void
-katze_array_action_activate_item (KatzeArrayAction* action,
-                                  KatzeItem*        item,
-                                  gboolean          new_tab)
+katze_array_action_activate_item_event (KatzeArrayAction* action,
+                                        KatzeItem*        item,
+                                        GdkEvent*         event)
 {
-    g_signal_emit (action, signals[ACTIVATE_ITEM], 0, item, new_tab);
+    g_signal_emit (action, signals[ACTIVATE_ITEM_EVENT], 0, item, event);
 }
 
 static gboolean
@@ -321,7 +321,7 @@ katze_array_action_menu_activate_cb  (GtkWidget*        proxy,
 
     GdkEvent* event = gtk_get_current_event();
 
-    katze_array_action_activate_item (array_action, item, event && MIDORI_EVENT_NEW_TAB (event));
+    katze_array_action_activate_item_event (array_action, item, event);
 }
 
 static gboolean

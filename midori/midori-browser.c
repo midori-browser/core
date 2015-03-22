@@ -3140,12 +3140,12 @@ midori_browser_bookmark_popup (GtkWidget*      proxy,
                                MidoriBrowser*  browser);
 
 static gboolean
-midori_bookmarkbar_activate_item (GtkAction* action,
-                                  KatzeItem* item,
-                                  gboolean   new_tab,
-                                  MidoriBrowser* browser)
+midori_bookmarkbar_activate_item_event (GtkAction*     action,
+                                        KatzeItem*     item,
+                                        GdkEvent*      event,
+                                        MidoriBrowser* browser)
 {
-    if (new_tab)
+    if (event && MIDORI_EVENT_NEW_TAB (event))
     {
         GtkWidget* view = midori_browser_add_item (browser, item);
         midori_browser_set_current_tab_smartly (browser, view);
@@ -3205,12 +3205,12 @@ midori_browser_restore_tab (MidoriBrowser* browser,
 }
 
 static gboolean
-_action_trash_activate_item (GtkAction*     action,
-                             KatzeItem*     item,
-                             gboolean       new_tab,
-                             MidoriBrowser* browser)
+_action_trash_activate_item_event (GtkAction*     action,
+                                   KatzeItem*     item,
+                                   GdkEvent*      event,
+                                   MidoriBrowser* browser)
 {
-    if (new_tab)
+    if (event && MIDORI_EVENT_NEW_TAB (event))
     {
         midori_browser_set_current_tab_smartly (browser,
             midori_browser_restore_tab (browser, item));
@@ -3337,10 +3337,10 @@ _action_window_populate_popup (GtkAction*     action,
 }
 
 static void
-_action_window_activate_item (GtkAction*     action,
-                              KatzeItem*     item,
-                              gboolean       new_tab,
-                              MidoriBrowser* browser)
+_action_window_activate_item_event (GtkAction*     action,
+                                    KatzeItem*     item,
+                                    GdkEvent*      event,
+                                    MidoriBrowser* browser)
 {
     midori_browser_set_current_item (browser, item);
 }
@@ -6035,8 +6035,8 @@ midori_browser_init (MidoriBrowser* browser)
     g_object_connect (action,
                       "signal::populate-popup",
                       _action_trash_populate_popup, browser,
-                      "signal::activate-item",
-                      _action_trash_activate_item, browser,
+                      "signal::activate-item-event",
+                      _action_trash_activate_item_event, browser,
                       NULL);
     gtk_action_group_add_action_with_accel (browser->action_group, action, "");
     g_object_unref (action);
@@ -6055,8 +6055,8 @@ midori_browser_init (MidoriBrowser* browser)
                       _action_bookmarks_populate_folder, browser,
                       "signal::activate-item-alt",
                       midori_bookmarkbar_activate_item_alt, browser,
-                      "signal::activate-item",
-                      midori_bookmarkbar_activate_item, browser,
+                      "signal::activate-item-event",
+                      midori_bookmarkbar_activate_item_event, browser,
                       NULL);
     gtk_action_group_add_action_with_accel (browser->action_group, action, "");
     g_object_unref (action);
@@ -6088,8 +6088,8 @@ midori_browser_init (MidoriBrowser* browser)
     g_object_connect (action,
                       "signal::populate-popup",
                       _action_window_populate_popup, browser,
-                      "signal::activate-item",
-                      _action_window_activate_item, browser,
+                      "signal::activate-item-event",
+                      _action_window_activate_item_event, browser,
                       NULL);
     gtk_action_group_add_action_with_accel (browser->action_group, action, "");
     g_object_unref (action);
