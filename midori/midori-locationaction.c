@@ -1323,7 +1323,6 @@ midori_map_get_message (SoupMessage* message)
 }
 #endif
 
-#ifdef HAVE_GCR
 typedef enum {
     MIDORI_CERT_TRUST,
     MIDORI_CERT_REVOKE,
@@ -1370,7 +1369,6 @@ midori_location_action_cert_response_cb (GtkWidget*      dialog,
     }
     gtk_widget_destroy (dialog);
 }
-#endif
 
 const gchar*
 midori_location_action_tls_flags_to_string (GTlsCertificateFlags tls_flags)
@@ -1420,18 +1418,21 @@ midori_location_action_show_page_info (GtkWidget* widget,
         return;
     }
 
-    #ifdef HAVE_GCR
     GByteArray* der_cert;
     GcrCertificate* gcr_cert;
-    GtkWidget* details;
 
     g_object_get (tls_cert, "certificate", &der_cert, NULL);
     gcr_cert = gcr_simple_certificate_new (
         der_cert->data, der_cert->len);
     g_byte_array_unref (der_cert);
+
+    #if GTK_CHECK_VERSION (3, 0, 0)
+    GtkWidget* details;
     details = (GtkWidget*)gcr_certificate_details_widget_new (gcr_cert);
     gtk_widget_show (details);
     gtk_container_add (GTK_CONTAINER (box), details);
+    #endif
+
     if (gcr_trust_is_certificate_pinned (gcr_cert, GCR_PURPOSE_SERVER_AUTH, hostname, NULL, NULL))
         gtk_dialog_add_buttons (GTK_DIALOG (dialog),
             ("_Don't trust this website"), MIDORI_CERT_REVOKE, NULL);
@@ -1450,7 +1451,6 @@ midori_location_action_show_page_info (GtkWidget* widget,
     #if !GTK_CHECK_VERSION (3, 0, 0)
     gtk_window_set_default_size (GTK_WINDOW (dialog), 250, 200);
     #endif
-    #else
     if (!g_tls_certificate_get_issuer (tls_cert))
         gtk_box_pack_start (box, gtk_label_new (_("Self-signed")), FALSE, FALSE, 0);
 
@@ -1459,7 +1459,6 @@ midori_location_action_show_page_info (GtkWidget* widget,
         const gchar* tls_error = midori_location_action_tls_flags_to_string (tls_flags);
         gtk_box_pack_start (box, gtk_label_new (tls_error), FALSE, FALSE, 0);
     }
-    #endif
 
     g_object_unref (tls_cert);
 }
