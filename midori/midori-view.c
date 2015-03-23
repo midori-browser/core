@@ -27,7 +27,7 @@
     #include <gcr/gcr.h>
 #endif
 
-#if !defined (HAVE_WEBKIT2) && defined (HAVE_LIBSOUP_2_34_0)
+#if !defined (HAVE_WEBKIT2)
 SoupMessage*
 midori_map_get_message (SoupMessage* message);
 #endif
@@ -478,7 +478,6 @@ midori_view_update_load_status (MidoriView*      view,
         midori_tab_set_load_status (MIDORI_TAB (view), load_status);
 }
 
-#ifdef HAVE_LIBSOUP_2_34_0
 /**
  * midori_view_get_tls_info
  * @view: a #MidoriView
@@ -520,7 +519,6 @@ midori_view_get_tls_info (MidoriView*           view,
     return FALSE;
     #endif
 }
-#endif
 
 static gboolean
 midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view,
@@ -723,7 +721,6 @@ midori_view_load_committed (MidoriView* view)
     g_object_set (view, "title", NULL, NULL);
     midori_view_unset_icon (view);
 
-    #ifdef HAVE_LIBSOUP_2_34_0
     if (!strncmp (uri, "https", 5))
     {
         #ifdef HAVE_WEBKIT2
@@ -769,7 +766,6 @@ midori_view_load_committed (MidoriView* view)
         g_free (hostname);
         #endif
     }
-    #endif
     else
         midori_tab_set_security (MIDORI_TAB (view), MIDORI_SECURITY_NONE);
 

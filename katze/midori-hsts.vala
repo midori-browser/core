@@ -68,12 +68,10 @@ namespace Midori {
             catch (Error error) { }
         }
 
-#if HAVE_LIBSOUP_2_34_0
         /* No sub-features */
         public bool add_feature (Type type) { return false; }
         public bool remove_feature (Type type) { return false; }
         public bool has_feature (Type type) { return false; }
-#endif
 
         public void attach (Soup.Session session) { session.request_queued.connect (queued); }
         public void detach (Soup.Session session) { /* FIXME disconnect */ }

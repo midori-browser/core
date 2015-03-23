@@ -118,22 +118,12 @@ pkg_check_modules(DEPS REQUIRED
                   sqlite3>=3.6.19
                   gmodule-2.0
                   gio-2.0>=2.32.3
-                  libsoup-gnome-2.4>=2.27.90
+                  libsoup-gnome-2.4>=2.37.1
                   )
 add_definitions("-DHAVE_LIBXML")
 add_definitions("-DGIO_VERSION=\"${DEPS_gio-2.0_VERSION}\"")
 add_definitions("-DLIBSOUP_VERSION=\"${DEPS_libsoup-gnome-2.4_VERSION}\"")
 set(PKGS posix linux libxml-2.0 sqlite3 gmodule-2.0 gio-2.0 libsoup-2.4)
-if (${DEPS_libsoup-gnome-2.4_VERSION} VERSION_GREATER "2.29.91")
-    add_definitions("-DHAVE_LIBSOUP_2_29_91")
-endif ()
-if (${DEPS_libsoup-gnome-2.4_VERSION} VERSION_GREATER "2.34.0")
-    add_definitions("-DHAVE_LIBSOUP_2_34_0")
-    set(VALAFLAGS ${VALAFLAGS} -D HAVE_LIBSOUP_2_34_0)
-endif ()
-if (${DEPS_libsoup-gnome-2.4_VERSION} VERSION_GREATER "2.37.1")
-    add_definitions("-DHAVE_LIBSOUP_2_37_1")
-endif ()
 if (${DEPS_libsoup-gnome-2.4_VERSION} VERSION_GREATER "2.40.0")
     # valac 0.16 didn't have the bindings yet
     # For consistency we need to ensure C code makes the same assumptions
@@ -189,7 +179,7 @@ endif()
 
 if (WIN32)
     add_definitions("-DGCR_VERSION=\"No\"")
-elseif (${DEPS_libsoup-gnome-2.4_VERSION} VERSION_GREATER "2.34.0")
+else ()
     if (USE_GTK3)
         pkg_check_modules(GCR REQUIRED gcr-3>=2.32)
     else ()
@@ -199,8 +189,6 @@ elseif (${DEPS_libsoup-gnome-2.4_VERSION} VERSION_GREATER "2.34.0")
     add_definitions("-DHAVE_GCR")
     set(OPTS_INCLUDE_DIRS ${OPTS_INCLUDE_DIRS} ${GCR_INCLUDE_DIRS})
     set(OPTS_LIBRARIES ${OPTS_LIBRARIES} ${GCR_LIBRARIES})
-else ()
-    add_definitions("-DGCR_VERSION=\"No\"")
 endif ()
 
 if (HALF_BRO_INCOM_WEBKIT2)

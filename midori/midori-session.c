@@ -94,7 +94,7 @@ soup_session_settings_notify_http_proxy_cb (MidoriWebSettings* settings,
 }
 #endif
 
-#if defined(HAVE_LIBSOUP_2_29_91) && WEBKIT_CHECK_VERSION (1, 1, 21)
+#if WEBKIT_CHECK_VERSION (1, 1, 21)
 static void
 soup_session_settings_notify_first_party_cb (MidoriWebSettings* settings,
                                              GParamSpec*        pspec,
@@ -117,7 +117,7 @@ soup_session_settings_notify_first_party_cb (MidoriWebSettings* settings,
 }
 #endif
 
-#if !defined (HAVE_WEBKIT2) && defined (HAVE_LIBSOUP_2_34_0)
+#if !defined (HAVE_WEBKIT2)
 /* Implemented in MidoriLocationAction */
 void
 midori_map_add_message (SoupMessage* message);
@@ -178,7 +178,7 @@ midori_soup_session_settings_accept_language_cb (SoupSession*       session,
 gboolean
 midori_load_soup_session (gpointer settings)
 {
-    #if defined(HAVE_LIBSOUP_2_29_91) && WEBKIT_CHECK_VERSION (1, 1, 21)
+    #if WEBKIT_CHECK_VERSION (1, 1, 21)
     g_signal_connect (settings, "notify::first-party-cookies-only",
         G_CALLBACK (soup_session_settings_notify_first_party_cb), NULL);
     #endif
@@ -187,36 +187,10 @@ midori_load_soup_session (gpointer settings)
     SoupSession* session = webkit_get_default_session ();
 
     #ifndef G_OS_WIN32
-    #if defined (HAVE_LIBSOUP_2_37_1)
     g_object_set (session,
                   "ssl-use-system-ca-file", TRUE,
                   "ssl-strict", FALSE,
                   NULL);
-    #elif defined (HAVE_LIBSOUP_2_29_91)
-    const gchar* certificate_files[] =
-    {
-        "/etc/pki/tls/certs/ca-bundle.crt",
-        "/etc/ssl/certs/ca-certificates.crt",
-        "/etc/ssl/certs/ca-bundle.crt",
-        "/usr/local/share/certs/ca-root-nss.crt", /* FreeBSD */
-        "/var/lib/ca-certificates/ca-bundle.pem", /* openSUSE */
-        NULL
-    };
-    guint i;
-
-    for (i = 0; i < G_N_ELEMENTS (certificate_files); i++)
-        if (g_access (certificate_files[i], F_OK) == 0)
-        {
-            g_object_set (session,
-                "ssl-ca-file", certificate_files[i],
-                "ssl-strict", FALSE,
-                NULL);
-            break;
-        }
-    if (i == G_N_ELEMENTS (certificate_files))
-        g_warning (_("No root certificate file is available. "
-                     "SSL certificates cannot be verified."));
-    #endif
     #else /* G_OS_WIN32 */
     /* We cannot use "ssl-use-system-ca-file" on Windows
      * some GTLS backend pieces are missing currently.
@@ -236,10 +210,8 @@ midori_load_soup_session (gpointer settings)
     g_signal_connect (settings, "notify::proxy-type",
         G_CALLBACK (soup_session_settings_notify_http_proxy_cb), session);
 
-    #ifdef HAVE_LIBSOUP_2_34_0
     g_signal_connect (session, "request-started",
         G_CALLBACK (midori_soup_session_request_started_cb), session);
-    #endif
     g_signal_connect (session, "request-queued",
         G_CALLBACK (midori_soup_session_settings_accept_language_cb), settings);
 

@@ -558,12 +558,10 @@ midori_preferences_add_privacy_category (KatzePreferences*  preferences,
     button = katze_property_proxy (settings, "maximum-cookie-age", "days");
     gtk_widget_set_tooltip_text (button, _("The maximum number of days to save cookies for"));
     katze_preferences_add_widget (preferences, button, "spanned");
-    #ifdef HAVE_LIBSOUP_2_29_91
     button = katze_property_proxy (settings, "first-party-cookies-only", NULL);
     gtk_button_set_label (GTK_BUTTON (button), _("Only accept Cookies from sites you visit"));
     gtk_widget_set_tooltip_text (button, _("Block cookies sent by third-party websites"));
     katze_preferences_add_widget (preferences, button, "filled");
-    #endif
 
     markup = g_strdup_printf ("<span size=\"smaller\">%s</span>",
         _("Cookies store login data, saved games, "
