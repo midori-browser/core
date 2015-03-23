@@ -117,7 +117,7 @@ soup_session_settings_notify_first_party_cb (MidoriWebSettings* settings,
 }
 #endif
 
-#if !defined (HAVE_WEBKIT2) && defined (HAVE_LIBSOUP_2_34_0)
+#if !defined (HAVE_WEBKIT2) && defined (HAVE_GCR)
 /* Implemented in MidoriLocationAction */
 void
 midori_map_add_message (SoupMessage* message);
@@ -236,7 +236,7 @@ midori_load_soup_session (gpointer settings)
     g_signal_connect (settings, "notify::proxy-type",
         G_CALLBACK (soup_session_settings_notify_http_proxy_cb), session);
 
-    #if defined (HAVE_LIBSOUP_2_34_0)
+    #ifdef HAVE_GCR
     g_signal_connect (session, "request-started",
         G_CALLBACK (midori_soup_session_request_started_cb), session);
     #endif

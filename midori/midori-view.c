@@ -27,7 +27,7 @@
     #include <gcr/gcr.h>
 #endif
 
-#if !defined (HAVE_WEBKIT2) && defined (HAVE_LIBSOUP_2_29_91)
+#if !defined (HAVE_WEBKIT2) && defined (HAVE_GCR)
 SoupMessage*
 midori_map_get_message (SoupMessage* message);
 #endif
@@ -478,7 +478,7 @@ midori_view_update_load_status (MidoriView*      view,
         midori_tab_set_load_status (MIDORI_TAB (view), load_status);
 }
 
-#if defined (HAVE_LIBSOUP_2_34_0)
+#ifdef HAVE_GCR
 /**
  * midori_view_get_tls_info
  * @view: a #MidoriView
@@ -591,7 +591,7 @@ midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view
         #endif
         return TRUE;
     }
-    #if defined (HAVE_LIBSOUP_2_34_0)
+    #ifdef HAVE_GCR
     else if (/* midori_tab_get_special (MIDORI_TAB (view)) && */ !strncmp (uri, "https", 5))
     {
         /* We show an error page if the certificate is invalid.
@@ -725,7 +725,7 @@ midori_view_load_committed (MidoriView* view)
 
     if (!strncmp (uri, "https", 5))
     {
-        #if defined (HAVE_LIBSOUP_2_34_0)
+        #ifdef HAVE_GCR
         #ifdef HAVE_WEBKIT2
         void* request = NULL;
         #else
@@ -762,7 +762,7 @@ midori_view_load_committed (MidoriView* view)
         else
         #endif
             midori_tab_set_security (MIDORI_TAB (view), MIDORI_SECURITY_UNKNOWN);
-        #if defined (HAVE_LIBSOUP_2_34_0)
+        #ifdef HAVE_GCR
         if (tls_cert != NULL)
             g_object_unref (tls_cert);
         g_free (hostname);
