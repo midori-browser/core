@@ -46,7 +46,7 @@ namespace Midori {
                 if (item is Midori.HistoryWebsite) {
                     var website = item as Midori.HistoryWebsite;
                     suggestions.append (new Suggestion (website.uri, website.title,
-                        false, null, yield Midori.URI.get_icon_fallback (website.uri, null, cancellable), this.position));
+                        true, null, yield Midori.URI.get_icon_fallback (website.uri, null, cancellable), this.position));
                 }
                 else if (item is Midori.HistorySearch) {
                     var search = item as Midori.HistorySearch;
