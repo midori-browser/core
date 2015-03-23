@@ -58,7 +58,6 @@ namespace Midori {
                 string real_filter = "%" + filter.replace (" ", "%") + "%";
                 statement = prepare (sqlcmd,
                     ":filter", typeof (string), real_filter,
-                    ":day", typeof (int64), day,
                     ":limit", typeof (int64), max_items);
             } catch (Error error) {
                 critical (_("Failed to select from history: %s"), error.message);
