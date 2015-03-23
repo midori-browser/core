@@ -351,6 +351,9 @@ katze_array_action_menu_activate_cb  (GtkWidget*        proxy,
         katze_array_action_activate_item_new_tab (array_action, item);
     else
         katze_array_action_activate_item (array_action, item);
+
+    if (event)
+        gdk_event_free (event);
 }
 
 static gboolean
