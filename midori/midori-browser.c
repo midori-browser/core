@@ -463,6 +463,9 @@ midori_browser_update_history (KatzeItem*   item,
 
     #ifdef HAVE_ZEITGEIST
     const gchar* inter;
+    ZeitgeistEvent* zgevent;
+    ZeitgeistSubject* zgsubject;
+
     if (strstr (event, "access"))
         inter = ZEITGEIST_ZG_ACCESS_EVENT;
     else if (strstr (event, "leave"))
@@ -480,16 +483,27 @@ midori_browser_update_history (KatzeItem*   item,
     if (KATZE_ITEM_IS_FOLDER (item))
         return;
 
-    zeitgeist_log_insert_events_no_reply (zeitgeist_log_get_default (),
-        zeitgeist_event_new_full (inter, ZEITGEIST_ZG_USER_ACTIVITY,
-                                  "application://midori.desktop",
-                                  zeitgeist_subject_new_full (
-            katze_item_get_uri (item),
-            strstr (type, "bookmark") ? ZEITGEIST_NFO_BOOKMARK : ZEITGEIST_NFO_WEBSITE,
-            zeitgeist_manifestation_for_uri (katze_item_get_uri (item)),
-            katze_item_get_meta_string (item, "mime-type"), NULL, katze_item_get_name (item), NULL),
-                                  NULL),
-        NULL);
+    zgsubject = zeitgeist_subject_new_full (
+        katze_item_get_uri (item),
+        strstr (type, "bookmark") ? ZEITGEIST_NFO_BOOKMARK : ZEITGEIST_NFO_WEBSITE,
+        zeitgeist_manifestation_for_uri (katze_item_get_uri (item)),
+        katze_item_get_meta_string (item, "mime-type"),
+        NULL,
+        katze_item_get_name (item),
+        NULL),
+
+    zgevent = zeitgeist_event_new_full (
+        inter,
+        ZEITGEIST_ZG_USER_ACTIVITY,
+        "application://midori.desktop",
+        NULL,
+        zgsubject,
+        NULL),
+
+    zeitgeist_log_insert_event_no_reply (zeitgeist_log_get_default (), zgevent, NULL);
+
+    g_object_unref (zgevent);
+    g_object_unref (zgsubject);
     #endif
 }
 
