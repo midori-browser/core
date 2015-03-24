@@ -88,9 +88,10 @@
         text-align: center;
         border-radius: 32px;
         position: absolute;
-        margin-left: 50%;
-        margin-top: 25%;
-        -webkit-transform: translate(-50%, -50%);
+        left: 50%;
+        top: 50%;
+        margin-left: -32px;
+        margin-top: -32px;
         box-shadow: 0 1px 3px rgba(0,0,0,0.12),
                     0 1px 2px rgba(0,0,0,0.24);
         outline: none;
@@ -100,8 +101,7 @@
         content: "+";
         color: #fff;
         font-size: 48px;
-        position: inherit;
-        -webkit-transform: translateX(-50%);
+        display: inline-block;
     }
 
     .title {
@@ -151,8 +151,7 @@
         content: '×';
         font-weight: bold;
         font-size: 20px;
-        position: inherit;
-        -webkit-transform: translateX(-50%);
+        display: inline-block;
     }
 
     div.shortcut .preview:hover .cross {
