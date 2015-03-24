@@ -1295,7 +1295,7 @@ midori_location_action_focus_out_event_cb (GtkWidget*   widget,
     #include <gcr/gcr.h>
 #endif
 
-#if defined (HAVE_GCR)
+#if defined (HAVE_LIBSOUP_2_34_0)
 #ifndef HAVE_WEBKIT2
 static GHashTable* message_map = NULL;
 void
@@ -1322,7 +1322,9 @@ midori_map_get_message (SoupMessage* message)
     return message;
 }
 #endif
+#endif
 
+#ifdef HAVE_GCR
 typedef enum {
     MIDORI_CERT_TRUST,
     MIDORI_CERT_REVOKE,
@@ -1369,6 +1371,7 @@ midori_location_action_cert_response_cb (GtkWidget*      dialog,
     }
     gtk_widget_destroy (dialog);
 }
+#endif
 
 const gchar*
 midori_location_action_tls_flags_to_string (GTlsCertificateFlags tls_flags)
@@ -1418,6 +1421,7 @@ midori_location_action_show_page_info (GtkWidget* widget,
         return;
     }
 
+    #ifdef HAVE_GCR
     GByteArray* der_cert;
     GcrCertificate* gcr_cert;
 
@@ -1447,6 +1451,8 @@ midori_location_action_show_page_info (GtkWidget* widget,
     g_object_set_data_full (G_OBJECT (dialog), "gcr-cert", gcr_cert, (GDestroyNotify)g_object_unref);
     g_signal_connect (dialog, "response",
         G_CALLBACK (midori_location_action_cert_response_cb), gcr_cert);
+    #endif
+
     /* With GTK+2 the scrolled contents can't communicate a natural size to the window */
     #if !GTK_CHECK_VERSION (3, 0, 0)
     gtk_window_set_default_size (GTK_WINDOW (dialog), 250, 200);
@@ -1462,7 +1468,6 @@ midori_location_action_show_page_info (GtkWidget* widget,
 
     g_object_unref (tls_cert);
 }
-#endif
 
 static void
 midori_location_action_engine_activate_cb (GtkWidget*          menuitem,
@@ -1542,7 +1547,7 @@ midori_location_action_icon_released_cb (GtkWidget*           widget,
         gtk_box_pack_start (GTK_BOX (hbox),
             gtk_label_new (gtk_entry_get_icon_tooltip_text (GTK_ENTRY (widget), icon_pos)), FALSE, FALSE, 0);
         gtk_box_pack_start (GTK_BOX (content_area), hbox, FALSE, FALSE, 0);
-        #ifdef HAVE_GCR
+        #ifdef HAVE_LIBSOUP_2_34_0
         midori_location_action_show_page_info (widget, GTK_BOX (content_area), dialog);
         #endif
         g_signal_connect (dialog, "destroy", G_CALLBACK (gtk_widget_destroyed), &dialog);

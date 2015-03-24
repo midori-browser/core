@@ -27,7 +27,7 @@
     #include <gcr/gcr.h>
 #endif
 
-#if !defined (HAVE_WEBKIT2) && defined (HAVE_GCR)
+#if !defined (HAVE_WEBKIT2) && defined (HAVE_LIBSOUP_2_34_0)
 SoupMessage*
 midori_map_get_message (SoupMessage* message);
 #endif
@@ -478,7 +478,7 @@ midori_view_update_load_status (MidoriView*      view,
         midori_tab_set_load_status (MIDORI_TAB (view), load_status);
 }
 
-#ifdef HAVE_GCR
+#ifdef HAVE_LIBSOUP_2_34_0
 /**
  * midori_view_get_tls_info
  * @view: a #MidoriView
@@ -723,9 +723,9 @@ midori_view_load_committed (MidoriView* view)
     g_object_set (view, "title", NULL, NULL);
     midori_view_unset_icon (view);
 
+    #ifdef HAVE_LIBSOUP_2_34_0
     if (!strncmp (uri, "https", 5))
     {
-        #ifdef HAVE_GCR
         #ifdef HAVE_WEBKIT2
         void* request = NULL;
         #else
@@ -738,6 +738,7 @@ midori_view_load_committed (MidoriView* view)
         gchar* hostname;
         if (midori_view_get_tls_info (view, request, &tls_cert, &tls_flags, &hostname))
             midori_tab_set_security (MIDORI_TAB (view), MIDORI_SECURITY_TRUSTED);
+        #ifdef HAVE_GCR
         else if (!midori_tab_get_special (MIDORI_TAB (view)) && tls_cert != NULL)
         {
             GcrCertificate* gcr_cert;
@@ -759,8 +760,8 @@ midori_view_load_committed (MidoriView* view)
             }
             g_object_unref (gcr_cert);
         }
-        else
         #endif
+        else
             midori_tab_set_security (MIDORI_TAB (view), MIDORI_SECURITY_UNKNOWN);
         #ifdef HAVE_GCR
         if (tls_cert != NULL)
@@ -768,6 +769,7 @@ midori_view_load_committed (MidoriView* view)
         g_free (hostname);
         #endif
     }
+    #endif
     else
         midori_tab_set_security (MIDORI_TAB (view), MIDORI_SECURITY_NONE);
 
