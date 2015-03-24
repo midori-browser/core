@@ -1140,6 +1140,14 @@ midori_app_send_notification (MidoriApp*   app,
         notify_notification_show (note, NULL);
         g_object_unref (note);
     }
+    #else
+    GNotification* notification = g_notification_new (title);
+    g_notification_set_body (notification, message);
+    GIcon* icon = g_themed_icon_new ("midori");
+    g_notification_set_icon (notification, icon);
+    g_object_unref (icon);
+    g_application_send_notification (G_APPLICATION (app), NULL, notification);
+    g_object_unref (notification);
     #endif
 }
 
