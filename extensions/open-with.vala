@@ -375,7 +375,7 @@ namespace ExternalApplications {
 #endif
             destroy_with_parent = true;
             set_icon_name (Gtk.STOCK_OPEN);
-            resizable = false;
+            resizable = true;
             add_buttons (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
                          Gtk.STOCK_OPEN, Gtk.ResponseType.ACCEPT);
 
@@ -391,6 +391,15 @@ namespace ExternalApplications {
             vbox.pack_start (chooser, true, true, 0);
 
             get_content_area ().show_all ();
+
+            Gtk.Requisition req;
+#if HAVE_GTK3
+            get_content_area ().get_preferred_size (null, out req);
+#else
+            get_content_area ().size_request (out req);
+#endif
+            (this as Gtk.Window).set_default_size (req.width*2, req.height*3/2);
+
             set_default_response (Gtk.ResponseType.ACCEPT);
             chooser.selected.connect ((app_info) => {
                 response (Gtk.ResponseType.ACCEPT);
@@ -439,6 +448,7 @@ namespace ExternalApplications {
             update_label ();
 
             clicked.connect (() => {
+                dialog.transient_for = this.get_toplevel () as Gtk.Window;
                 app_info = dialog.open_with ();
                 string new_commandline = app_info != null ? get_commandline (app_info) : null;
                 commandline = new_commandline;
