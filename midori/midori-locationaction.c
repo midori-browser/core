@@ -1544,7 +1544,6 @@ midori_location_action_icon_released_cb (GtkWidget*           widget,
             return;
         }
 
-        const gchar* title = _("Security details");
         GtkWidget* content_area;
         GtkWidget* hbox;
 
@@ -1558,6 +1557,7 @@ midori_location_action_icon_released_cb (GtkWidget*           widget,
         gtk_popover_set_pointing_to (GTK_POPOVER (dialog), &icon_rect);
         g_signal_connect (dialog, "closed", G_CALLBACK (gtk_widget_destroyed), &dialog);
         #else
+        const gchar* title = _("Security details");
         dialog = gtk_dialog_new_with_buttons (title, GTK_WINDOW (gtk_widget_get_toplevel (widget)),
             GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR, NULL, NULL);
         content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
