@@ -1451,23 +1451,23 @@ midori_location_action_show_page_info (GtkWidget* widget,
 
     #if GTK_CHECK_VERSION (3, 12, 0)
     GtkWidget* button;
-    GtkWidget* actions = gtk_action_bar_new ();
+    GtkWidget* actions = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
     gtk_box_pack_end (GTK_BOX (box), actions, FALSE, FALSE, 0);
     if (gcr_trust_is_certificate_pinned (gcr_cert, GCR_PURPOSE_SERVER_AUTH, hostname, NULL, NULL))
     {
         button = gtk_button_new_with_mnemonic (_("_Don't trust this website"));
-        gtk_action_bar_pack_start (GTK_ACTION_BAR (actions), button);
+        gtk_box_pack_end (GTK_BOX (actions), button, FALSE, FALSE, 0);
         g_signal_connect (button, "clicked", G_CALLBACK (midori_location_action_button_cb), dialog);
     }
     else if (tls_flags > 0)
     {
         button = gtk_button_new_with_mnemonic (_("_Trust this website"));
-        gtk_action_bar_pack_start (GTK_ACTION_BAR (actions), button);
+        gtk_box_pack_end (GTK_BOX (actions), button, FALSE, FALSE, 0);
         g_signal_connect (button, "clicked", G_CALLBACK (midori_location_action_button_cb), dialog);
     }
     button = gtk_button_new_with_mnemonic (_("_Export certificate"));
     g_signal_connect (button, "clicked", G_CALLBACK (midori_location_action_button_cb), dialog);
-    gtk_action_bar_pack_end (GTK_ACTION_BAR (actions), button);
+    gtk_box_pack_start (GTK_BOX (actions), button, FALSE, FALSE, 0);
     gtk_widget_show_all (actions);
     #else
     if (gcr_trust_is_certificate_pinned (gcr_cert, GCR_PURPOSE_SERVER_AUTH, hostname, NULL, NULL))
@@ -1550,13 +1550,8 @@ midori_location_action_icon_released_cb (GtkWidget*           widget,
 
         #if GTK_CHECK_VERSION (3, 12, 0)
         dialog = gtk_popover_new (widget);
-        content_area = gtk_vbox_new (FALSE, 0);
+        content_area = gtk_vbox_new (FALSE, 6);
         gtk_container_add (GTK_CONTAINER (dialog), content_area);
-        gchar* markup = g_strdup_printf ("<b>%s</b>", title);
-        GtkWidget* label = gtk_label_new (markup);
-        g_free (markup);
-        gtk_label_set_use_markup (GTK_LABEL (label), TRUE);
-        gtk_box_pack_start (GTK_BOX (content_area), label, FALSE, FALSE, 0);
 
         GdkRectangle icon_rect;
         gtk_entry_get_icon_area (GTK_ENTRY (widget), icon_pos, &icon_rect);
@@ -1568,7 +1563,8 @@ midori_location_action_icon_released_cb (GtkWidget*           widget,
         content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
         g_signal_connect (dialog, "destroy", G_CALLBACK (gtk_widget_destroyed), &dialog);
         #endif
-        hbox = gtk_hbox_new (FALSE, 0);
+        gtk_container_set_border_width (GTK_CONTAINER (dialog), 6);
+        hbox = gtk_hbox_new (FALSE, 6);
         gtk_box_pack_start (GTK_BOX (hbox), gtk_image_new_from_gicon (
             gtk_entry_get_icon_gicon (GTK_ENTRY (widget), icon_pos), GTK_ICON_SIZE_DIALOG), FALSE, FALSE, 0);
         gtk_box_pack_start (GTK_BOX (hbox),
