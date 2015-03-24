@@ -3,6 +3,7 @@
  Copyright (C) 2009 Jean-François Guchens <zcx000@gmail.com>
  Copyright (C) 2011 Paweł Forysiuk <tuxator@o2.pl>
  Copyright (C) 2011 Cassidy James <email@cassidyjames.com>
+ Copyright (C) 2015 Daniel Foré <daniel@elementary.io>
  This file is licensed under the terms of the expat license, see the file EXPAT.
 -->
 
@@ -35,7 +36,7 @@
         width: 100%;
         height: 100%;
         outline: 0;
-        background: #E1E1E1;
+        background: #eee;
     }
 
     #content {
@@ -56,18 +57,27 @@
         width: 85%;
         height: 75%;
         margin: auto;
-        -webkit-box-shadow: 0 2px 5px rgba(0,0,0,.3), 0 0 0px #fff inset;
-        border: 1px solid #bcbcbc;
-        border-bottom-color: #a0a0a0;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.12),
+                    0 1px 2px rgba(0,0,0,0.24);
         position: relative;
-        -webkit-border-radius: 3px;
+        border-radius: 3px;
+        transition: all 200ms ease-in-out;
+        outline: none;
     }
 
     div.shortcut .preview img {
         width: 100%;
         height: 100%;
         cursor: pointer;
-        -webkit-border-radius: 3px;
+        border-radius: 3px;
+    }
+    
+    div.shortcut .preview.new {
+        background-color: rgba(0,0,0,0.05);
+        border: 1px solid rgba(0,0,0,0.15);
+
+        box-shadow: inset 0 0 1px 1px rgba(0,0,0,0.05),
+                          0 1px 0 0 rgba(255,255,255,0.40);       
     }
 
     div.shortcut .preview.new .add {
@@ -76,17 +86,32 @@
         width: 100%;
         margin: 0 auto;
         cursor: pointer;
-        -webkit-box-shadow: 0 2px 5px rgba(0,0,0,.3), 0 0 0px #fff inset;
-        background-image: -webkit-gradient(
-            linear, center top, center bottom,
-            from(#f6f6f6), to(#e3e3e3));
-        background-repeat: repeat-x;
-        -webkit-border-radius: 3px;
+        border-radius: 3px;
+        background-color: transparent;
+        outline: none;
+    }
+    
+    div.shortcut .preview.new .add:after {
+        content: "+";
+        color: #fff;
+        font-size: 48px;
+        background-color: #777;
+        width: 64px;
+        height: 64px;
+        line-height: 64px;
+        text-align: center;
+        border-radius: 32px;
+        position: absolute;
+        margin-left: 50%;
+        margin-top: 25%;
+        -webkit-transform: translate(-50%, -50%);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.12),
+                    0 1px 2px rgba(0,0,0,0.24);
     }
 
     .title {
         background: transparent;
-        border: 1px solid transparent;
+        border: 2px solid transparent;
         display: block;
         text-align: center;
         margin: 8px;
@@ -96,19 +121,43 @@
         text-overflow: ellipsis;
         overflow: hidden;
         cursor: text;
-        text-shadow: 0 1px 0 rgba(255,255,255,0.5);
+        outline: none;
+        transition: all 200ms ease-in-out;
+        padding-bottom: 6px;
+    }
+    
+    .preview.new ~ .title {
+        cursor: default;
+    }
+    
+    .title.active {
+        border-bottom-color: #4CAF50;
     }
 
     .cross {
+        color: #fff;
         display: block;
-        width: 27px;
-        height: 27px;
+        width: 32px;
+        height: 32px;
+        text-align: center;
+        line-height: 32px;
         top: -14px;
         right: -14px;
-        background: url(res://close.png);
         position: absolute;
         cursor: pointer;
         opacity: 0;
+        background-color: #555;
+        border-radius: 16px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.12),
+                    0 1px 2px rgba(0,0,0,0.24);
+    }
+    
+    .cross:after {
+        content: '×';
+        font-weight: bold;
+        font-size: 20px;
+        position: inherit;
+        -webkit-transform: translateX(-50%);
     }
 
     div.shortcut .preview:hover .cross {
@@ -118,11 +167,6 @@
 
     .box.added {
         display:none;
-    }
-
-    .selected {
-        outline: 1px dotted black;
-        background-color: #eef;
     }
 
     .selectable {
@@ -159,8 +203,7 @@
 
     function done_editing_title (ev) {
         input = ev.target;
-        input.style.backgroundColor = "transparent";
-        input.style.border = "1px solid transparent";
+        input.className = "title";
 
         var name = ev.target.value;
         if (name == "")
@@ -173,8 +216,7 @@
         input = ev.target;
         previousName = input.value;
         // indicate to user they are editing the title
-        input.style.backgroundColor = "#F8F8F8";
-        input.style.border = "1px solid #808060";
+        input.className = input.className + " active";
     }
 
     function delete_tile (ev) {
