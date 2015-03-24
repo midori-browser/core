@@ -1070,26 +1070,6 @@ midori_browser_edit_bookmark_title_changed_cb (GtkEntry*      entry,
 }
 
 static void
-midori_browser_edit_bookmark_add_speed_dial_cb (GtkWidget* button,
-                                                KatzeItem* bookmark)
-{
-    MidoriBrowser* browser = midori_browser_get_for_widget (button);
-    midori_browser_add_speed_dial (browser);
-    GtkWidget* dialog = gtk_widget_get_toplevel (button);
-    gtk_dialog_response (GTK_DIALOG (dialog), GTK_RESPONSE_DELETE_EVENT);
-}
-
-static void
-midori_browser_edit_bookmark_create_launcher_cb (GtkWidget* button,
-                                                 KatzeItem* bookmark)
-{
-    GtkAction* action = g_object_get_data (G_OBJECT (button), "midori-action");
-    gtk_action_activate (action);
-    GtkWidget* dialog = gtk_widget_get_toplevel (button);
-    gtk_dialog_response (GTK_DIALOG (dialog), GTK_RESPONSE_DELETE_EVENT);
-}
-
-static void
 midori_browser_edit_bookmark_response_cb (GtkWidget*     dialog,
                                           gint           response,
                                           MidoriBrowser* browser)
@@ -1121,6 +1101,35 @@ midori_browser_edit_bookmark_response_cb (GtkWidget*     dialog,
     gtk_widget_destroy (dialog);
 }
 
+static void
+midori_browser_edit_bookmark_add_speed_dial_cb (GtkWidget* button,
+                                                KatzeItem* bookmark)
+{
+    MidoriBrowser* browser = midori_browser_get_for_widget (button);
+    midori_browser_add_speed_dial (browser);
+    #if GTK_CHECK_VERSION (3, 12, 0)
+    GtkWidget* dialog = gtk_widget_get_ancestor (button, GTK_TYPE_POPOVER);
+    #else
+    GtkWidget* dialog = gtk_widget_get_toplevel (button);
+    #endif
+    midori_browser_edit_bookmark_response_cb (dialog, GTK_RESPONSE_DELETE_EVENT, browser);
+}
+
+static void
+midori_browser_edit_bookmark_create_launcher_cb (GtkWidget* button,
+                                                 KatzeItem* bookmark)
+{
+    MidoriBrowser* browser = midori_browser_get_for_widget (button);
+    GtkAction* action = g_object_get_data (G_OBJECT (button), "midori-action");
+    gtk_action_activate (action);
+    #if GTK_CHECK_VERSION (3, 12, 0)
+    GtkWidget* dialog = gtk_widget_get_ancestor (button, GTK_TYPE_POPOVER);
+    #else
+    GtkWidget* dialog = gtk_widget_get_toplevel (button);
+    #endif
+    midori_browser_edit_bookmark_response_cb (dialog, GTK_RESPONSE_DELETE_EVENT, browser);
+}
+
 #if GTK_CHECK_VERSION (3, 12, 0)
 static void
 midori_browser_edit_bookmark_button_cb (GtkWidget*     button,
@@ -1144,6 +1153,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     GtkWidget* dialog;
     GtkWidget* accept;
     GtkWidget* content_area;
+    GtkWidget* actions;
     GtkWidget* view;
     GtkWidget* vbox;
     GtkWidget* hbox;
@@ -1163,12 +1173,12 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     if (proxy != NULL)
     {
         dialog = gtk_popover_new (proxy);
-        content_area = gtk_vbox_new (FALSE, 0);
+        content_area = gtk_box_new (GTK_ORIENTATION_VERTICAL, 6);
         gtk_container_add (GTK_CONTAINER (dialog), content_area);
-        GtkWidget* actions = gtk_action_bar_new ();
-        gtk_box_pack_end (GTK_BOX (content_area), actions, FALSE, FALSE, 0);
+        actions = gtk_hbox_new (FALSE, 6);
+        gtk_box_pack_end (GTK_BOX (content_area), actions, TRUE, TRUE, 0);
         accept = gtk_button_new_from_stock (new_bookmark ? GTK_STOCK_ADD : GTK_STOCK_SAVE);
-        gtk_action_bar_pack_start (GTK_ACTION_BAR (actions), accept);
+        gtk_box_pack_end (GTK_BOX (actions), accept, FALSE, FALSE, 0);
         g_signal_connect (accept, "clicked", G_CALLBACK (midori_browser_edit_bookmark_button_cb), browser);
     }
     else
@@ -1177,7 +1187,8 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         dialog = gtk_dialog_new_with_buttons (title, GTK_WINDOW (browser),
             GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR, NULL, NULL);
         content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
-        gtk_container_set_border_width (GTK_CONTAINER (dialog), 6);
+        actions = gtk_hbox_new (FALSE, 0);
+        gtk_box_pack_end (GTK_BOX (content_area), actions, TRUE, TRUE, 0);
         gtk_dialog_add_buttons (GTK_DIALOG (dialog),
             GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
             new_bookmark ? GTK_STOCK_ADD : GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT, NULL);
@@ -1187,6 +1198,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         g_signal_connect (dialog, "response", G_CALLBACK (midori_browser_edit_bookmark_response_cb), browser);
         accept = gtk_dialog_get_widget_for_response (GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT);
     }
+    gtk_container_set_border_width (GTK_CONTAINER (dialog), 12);
 
     if (!is_folder)
         label = gtk_label_new (_("Type a name for this bookmark, and choose where to keep it."));
@@ -1255,13 +1267,10 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
 
     if (new_bookmark && !is_folder)
     {
-        hbox = gtk_hbox_new (FALSE, 6);
-        gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
-
         label = gtk_button_new_with_mnemonic (_("Add to _Speed Dial"));
         g_signal_connect (label, "clicked",
             G_CALLBACK (midori_browser_edit_bookmark_add_speed_dial_cb), bookmark);
-        gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
+        gtk_box_pack_start (GTK_BOX (actions), label, FALSE, FALSE, 0);
 
         /* FIXME: There's no API for extending the bookmark dialog */
         GtkAction* action = _action_by_name (browser, "CreateLauncher");
@@ -1271,7 +1280,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
             g_object_set_data (G_OBJECT (label), "midori-action", action);
             g_signal_connect (label, "clicked",
                 G_CALLBACK (midori_browser_edit_bookmark_create_launcher_cb), bookmark);
-            gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
+            gtk_box_pack_start (GTK_BOX (actions), label, FALSE, FALSE, 0);
         }
     }
 
