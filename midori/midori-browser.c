@@ -4129,6 +4129,20 @@ midori_browser_news_feed_clicked_cb (GtkWidget*     menuitem,
     midori_browser_subscribe_to_news_feed (browser, uri);
 }
 
+static void
+_action_paste_proceed_activate (GtkAction*     action,
+                                MidoriBrowser* browser)
+{
+    GtkClipboard* clipboard = gtk_clipboard_get_for_display (
+        gtk_widget_get_display (GTK_WIDGET (browser)),GDK_SELECTION_CLIPBOARD);
+    gchar* uri = gtk_clipboard_wait_for_text (clipboard);
+    if (uri != NULL)
+    {
+        _action_location_submit_uri (action, uri, FALSE, browser);
+        g_free (uri);
+    }
+}
+
 static gboolean
 _action_location_secondary_icon_released (GtkAction*     action,
                                           GtkWidget*     widget,
@@ -4139,16 +4153,7 @@ _action_location_secondary_icon_released (GtkAction*     action,
         const gchar* feed;
         /* Clicking icon on blank is equal to Paste and Proceed */
         if (midori_view_is_blank (MIDORI_VIEW (view)))
-        {
-            GtkClipboard* clipboard = gtk_clipboard_get_for_display (
-                gtk_widget_get_display (view), GDK_SELECTION_CLIPBOARD);
-            gchar* text = gtk_clipboard_wait_for_text (clipboard);
-            if (text != NULL)
-            {
-                _action_location_submit_uri (action, text, FALSE, browser);
-                g_free (text);
-            }
-        }
+            _action_paste_proceed_activate (action, browser);
         else if (gtk_window_get_focus (GTK_WINDOW (browser)) == widget)
         {
             const gchar* text = gtk_entry_get_text (GTK_ENTRY (widget));
@@ -5294,6 +5299,10 @@ static const GtkActionEntry entries[] =
     { "Paste", GTK_STOCK_PASTE,
         NULL, "<Ctrl>v",
         NULL, G_CALLBACK (_action_paste_activate) },
+    { "PasteProceed", NULL,
+    /* i18n: Right-click on Location, Open an URL from the clipboard */
+        N_("Paste and p_roceed"), "<Ctrl><Shift>v",
+        NULL, G_CALLBACK (_action_paste_proceed_activate) },
     { "Delete", GTK_STOCK_DELETE,
         NULL, NULL,
         NULL, G_CALLBACK (_action_delete_activate) },
@@ -5690,6 +5699,7 @@ static const gchar* ui_markup =
                 "<menuitem action='Cut'/>"
                 "<menuitem action='Copy'/>"
                 "<menuitem action='Paste'/>"
+                "<menuitem action='PasteProceed'/>"
                 "<menuitem action='Delete'/>"
                 "<separator/>"
                 "<menuitem action='SelectAll'/>"
