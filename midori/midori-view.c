@@ -3451,6 +3451,9 @@ midori_view_web_inspector_construct_window (gpointer       inspector,
     GtkIconTheme* icon_theme;
     GdkPixbuf* icon;
     GdkPixbuf* gray_icon;
+    #if GTK_CHECK_VERSION (3, 0, 0)
+    GtkWidget* scrolled;
+    #endif
 
     label = midori_view_get_display_title (view);
     title = g_strdup_printf (_("Inspect page - %s"), label);
@@ -3487,8 +3490,16 @@ midori_view_web_inspector_construct_window (gpointer       inspector,
     #if GTK_CHECK_VERSION (3, 4, 0)
     gtk_window_set_hide_titlebar_when_maximized (GTK_WINDOW (window), TRUE);
     #endif
+    gtk_widget_set_size_request (GTK_WIDGET (inspector_view), 700, 100);
+    #if GTK_CHECK_VERSION (3, 0, 0)
+    scrolled = gtk_scrolled_window_new (NULL, NULL);
+    gtk_container_add (GTK_CONTAINER (scrolled), inspector_view);
+    gtk_container_add (GTK_CONTAINER (window), scrolled);
+    gtk_widget_show_all (scrolled);
+    #else
     gtk_container_add (GTK_CONTAINER (window), inspector_view);
     gtk_widget_show_all (inspector_view);
+    #endif
 
     g_signal_connect (window, "key-press-event",
         G_CALLBACK (midori_view_inspector_window_key_press_event_cb), NULL);
@@ -3537,12 +3548,39 @@ midori_view_web_inspector_attach_window_cb (gpointer    inspector,
     return TRUE;
 }
 
+/**
+ * midori_view_web_inspector_get_own_window:
+ * @inspector: the inspector instance
+ *
+ * Get the widget containing the inspector, generally either a GtkWindow
+ * or the container where it is "docked".
+ *
+ * Return value: (allow-none): the widget containing the inspector, or NULL.
+ * 
+ * Since: 0.6.0
+ */
+static GtkWidget*
+midori_view_web_inspector_get_parent (gpointer inspector)
+{
+    GtkWidget* inspector_view = GTK_WIDGET (webkit_web_inspector_get_web_view (inspector));
+
+    #if defined(HAVE_WEBKIT2) || GTK_CHECK_VERSION (3, 0, 0)
+    GtkWidget* scrolled = gtk_widget_get_parent (inspector_view);
+    if (!scrolled)
+        return NULL;
+    return gtk_widget_get_parent (scrolled);
+    #else
+    return gtk_widget_get_parent (inspector_view);
+    #endif
+}
+
 static gboolean
 midori_view_web_inspector_detach_window_cb (gpointer    inspector,
                                             MidoriView* view)
 {
     GtkWidget* inspector_view = GTK_WIDGET (webkit_web_inspector_get_web_view (inspector));
-    GtkWidget* parent = gtk_widget_get_parent (inspector_view);
+    GtkWidget* parent = midori_view_web_inspector_get_parent (inspector);
+
     if (GTK_IS_WINDOW (parent))
         return FALSE;
 
@@ -3557,15 +3595,12 @@ static gboolean
 midori_view_web_inspector_close_window_cb (gpointer    inspector,
                                            MidoriView* view)
 {
-    GtkWidget* inspector_view = GTK_WIDGET (webkit_web_inspector_get_web_view (inspector));
-    #ifdef HAVE_WEBKIT2
-    GtkWidget* scrolled = inspector_view;
-    #else
-    GtkWidget* scrolled = gtk_widget_get_parent (inspector_view);
-    #endif
-    if (!scrolled)
+    GtkWidget* parent = midori_view_web_inspector_get_parent (inspector);
+
+    if (!parent)
         return FALSE;
-    gtk_widget_hide (gtk_widget_get_parent (scrolled));
+
+    gtk_widget_hide (parent);
     return TRUE;
 }
 #endif
