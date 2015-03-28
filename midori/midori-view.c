@@ -1256,7 +1256,9 @@ webkit_web_view_load_error_cb (WebKitWebView*  web_view,
                                         message, error->message, NULL,
                                         _("Try Again"), web_frame);
 
-    midori_tab_set_load_error (MIDORI_TAB (view), MIDORI_LOAD_ERROR_NETWORK);
+    /* if the main frame for the whole tab has a network error, set tab error status */
+    if (web_frame == webkit_web_view_get_main_frame (web_view))
+        midori_tab_set_load_error (MIDORI_TAB (view), MIDORI_LOAD_ERROR_NETWORK);
 
     g_free (message);
     g_free (title);
