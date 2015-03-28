@@ -1562,21 +1562,6 @@ midori_location_action_icon_released_cb (GtkWidget*           widget,
 }
 
 static void
-midori_location_action_paste_proceed_cb (GtkWidget* menuitem,
-                                         GtkWidget* location_action)
-{
-    GtkClipboard* clipboard = gtk_clipboard_get_for_display (
-        gtk_widget_get_display (GTK_WIDGET (menuitem)),GDK_SELECTION_CLIPBOARD);
-    gchar* uri;
-
-    if ((uri = gtk_clipboard_wait_for_text (clipboard)))
-    {
-        g_signal_emit (location_action, signals[SUBMIT_URI], 0, uri, FALSE);
-        g_free (uri);
-    }
-}
-
-static void
 midori_location_action_populate_popup_cb (GtkWidget*            entry,
                                           GtkMenuShell*         menu,
                                           MidoriLocationAction* location_action)
@@ -1596,13 +1581,13 @@ midori_location_action_populate_popup_cb (GtkWidget*            entry,
     if (accel_label != NULL)
         gtk_accel_label_set_accel_closure (GTK_ACCEL_LABEL (accel_label), NULL);
     gtk_menu_shell_append (menu, menuitem);
-    /* i18n: Right-click on Location, Open an URL from the clipboard */
-    menuitem = gtk_menu_item_new_with_mnemonic (_("Paste and p_roceed"));
-    gtk_widget_show (menuitem);
+    menuitem = gtk_action_create_menu_item (
+        gtk_action_group_get_action (actions, "PasteProceed"));
+    accel_label = gtk_bin_get_child (GTK_BIN (menuitem));
+    if (accel_label != NULL)
+        gtk_accel_label_set_accel_closure (GTK_ACCEL_LABEL (accel_label), NULL);
     /* Insert menu item after default Paste menu item */
     gtk_menu_shell_insert (menu, menuitem, 3);
-    g_signal_connect (menuitem, "activate",
-        G_CALLBACK (midori_location_action_paste_proceed_cb), location_action);
     if (!gtk_clipboard_wait_is_text_available (clipboard))
         gtk_widget_set_sensitive (menuitem, FALSE);
 }
