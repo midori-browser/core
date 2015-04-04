@@ -168,7 +168,7 @@ namespace Midori {
 
             foreach (var completion in completions) {
                 if (completion.can_complete (text))
-                    complete_wrapped.begin (completion, text, null, cancellable);
+                    yield complete_wrapped (completion, text, null, cancellable);
             }
         }
 

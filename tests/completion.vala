@@ -134,6 +134,61 @@ void completion_location_action () {
     }
 }
 
+class HistoryMarkup : Midori.Test.Job {
+    public static void test () { new HistoryMarkup ().run_sync (); }
+    public override async void run (Cancellable cancellable) throws GLib.Error {
+        var app = new Midori.App ();
+        var autocompleter = new Midori.Autocompleter (app);
+        assert (!autocompleter.can_complete (""));
+
+        var histcomp = new Midori.HistoryCompletion ();
+        assert (!histcomp.can_complete (""));
+
+        //this calls histcomp.prepare (app):
+        autocompleter.add (histcomp);
+
+        //any time the history completion has a db, its can_complete method returns true
+        //assert (!histcomp.can_complete (""));
+
+        //remove entries from previous tests
+        histcomp.database.clear (0);
+
+        histcomp.database.insert ("https://duckduckgo.com/?q=%3E&ia=about", "> (Clojure) - DuckDuckGo", 0, 0);
+        yield autocompleter.complete ("");
+        assert (autocompleter.model.iter_n_children (null) == 2);
+
+        histcomp.database.insert ("https://duckduckgo.com/", "DuckDuckGo", 0, 0);
+        yield autocompleter.complete ("");
+        assert (autocompleter.model.iter_n_children (null) == 3);
+
+        histcomp.database.insert ("http://stackoverflow.com/questions/5068951/what-do-lt-and-gt-stand-for",
+            "html - What do &lt; and &gt; stand for? - Stack Overflow", 0, 0);
+        yield autocompleter.complete ("");
+        assert (autocompleter.model.iter_n_children (null) == 4);
+
+        Gtk.TreeIter iter;
+        string title, expected;
+
+        expected = "DuckDuckGo";
+        autocompleter.model.iter_nth_child (out iter, null, 2);
+        autocompleter.model.get (iter, Midori.Autocompleter.Columns.MARKUP, out title);
+        if (title != expected)
+            error ("Expected %s but got %s", expected, title);
+
+        expected = "> (Clojure) - DuckDuckGo";
+        autocompleter.model.iter_nth_child (out iter, null, 3);
+        autocompleter.model.get (iter, Midori.Autocompleter.Columns.MARKUP, out title);
+        if (title != expected)
+            error ("Expected %s but got %s", expected, title);
+
+        expected = "html - What do &lt; and &gt; stand for? - Stack Overflow";
+        autocompleter.model.iter_nth_child (out iter, null, 1);
+        autocompleter.model.get (iter, Midori.Autocompleter.Columns.MARKUP, out title);
+        if (title != expected)
+            error ("Expected %s but got %s", expected, title);
+    }
+}
+
 void main (string[] args) {
     Midori.Test.init (ref args);
     Midori.App.setup (ref args, null);
@@ -141,6 +196,7 @@ void main (string[] args) {
     Test.add_func ("/completion/autocompleter", CompletionAutocompleter.test);
     Test.add_func ("/completion/history", CompletionHistory.test);
     Test.add_func ("/completion/location-action", completion_location_action);
+    Test.add_func ("/completion/historymarkup", HistoryMarkup.test);
     Test.run ();
 }
 

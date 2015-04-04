@@ -11,7 +11,7 @@
 
 namespace Midori {
     public class HistoryCompletion : Completion {
-        HistoryDatabase? database = null;
+        public HistoryDatabase? database = null;
 
         public HistoryCompletion () {
             GLib.Object (description: _("Bookmarks and History"));
