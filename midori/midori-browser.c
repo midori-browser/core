@@ -4932,12 +4932,12 @@ _action_about_activate (GtkAction*     action,
         "translate", "https://translations.xfce.org/projects/p/midori/",
         "bug", PACKAGE_BUGREPORT,
         "help", docs,
-        "copyright", "2007-2013 Christian Dywan",
+        "copyright", "2007-2015 Christian Dywan",
 #else
     GtkWidget* dialog = gtk_about_dialog_new ();
     g_object_set (dialog,
         "wrap-license", TRUE,
-        "copyright", "Copyright © 2007-2013 Christian Dywan",
+        "copyright", "Copyright © 2007-2015 Christian Dywan",
 #endif
         "transient-for", browser,
         "logo-icon-name", gtk_window_get_icon_name (GTK_WINDOW (browser)),
