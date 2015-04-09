@@ -1140,7 +1140,7 @@ midori_app_send_notification (MidoriApp*   app,
         notify_notification_show (note, NULL);
         g_object_unref (note);
     }
-    #else
+    #elif !defined(G_OS_WIN32)
     GNotification* notification = g_notification_new (title);
     g_notification_set_body (notification, message);
     GIcon* icon = g_themed_icon_new ("midori");

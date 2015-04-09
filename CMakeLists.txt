@@ -143,7 +143,7 @@ if (${DEPS_libsoup-gnome-2.4_VERSION} VERSION_GREATER "2.40.0")
     endif ()
 endif ()
 
-if (${DEPS_gio-2.0_VERSION} VERSION_GREATER "2.40.0")
+if (${DEPS_gio-2.0_VERSION} VERSION_GREATER "2.40.0" OR WIN32)
     add_definitions("-DLIBNOTIFY_VERSION=\"No\"")
 else ()
     pkg_check_modules(NOTIFY REQUIRED libnotify)
