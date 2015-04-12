@@ -73,7 +73,7 @@ namespace WebMedia {
 
         void activated (Midori.App app) {
             dbus_service = new DbusService();
-            web_media_notify = new WebMediaNotify();
+            web_media_notify = new WebMediaNotify(app);
             foreach (var browser in app.get_browsers ())
                 browser_added (browser);
             app.add_browser.connect (browser_added);
@@ -128,18 +128,17 @@ namespace WebMedia {
         }
     }
 
-    public class WebMediaNotify {
+    public class WebMediaNotify : Object {
+        public Midori.App app { get; set; }
         public string notify_video_title { get; set; }
         public string notify_media { get; set; }
 
+        public WebMediaNotify (Midori.App app) {
+            Object (app: app);
+        }
+
         public void show_notify () {
-            try {
-                Notify.init ("Midori");
-                var notify = new Notify.Notification("Midori is playing in " + notify_media, notify_video_title, "midori");
-                notify.show();
-            } catch (Error e) {
-                error ("Error: %s", e.message);
-            }
+            app.send_notification ("Midori is playing in " + notify_media, notify_video_title);
         }
     }
 }

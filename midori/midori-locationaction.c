@@ -1318,7 +1318,9 @@ midori_map_get_message (SoupMessage* message)
     return message;
 }
 #endif
+#endif
 
+#ifdef HAVE_GCR
 typedef enum {
     MIDORI_CERT_TRUST,
     MIDORI_CERT_REVOKE,
@@ -1365,6 +1367,7 @@ midori_location_action_cert_response_cb (GtkWidget*      dialog,
     }
     gtk_widget_destroy (dialog);
 }
+#endif
 
 #if GTK_CHECK_VERSION (3, 12, 0)
 static void
@@ -1448,6 +1451,7 @@ midori_location_action_show_page_info (GtkWidget* widget,
         return;
     }
 
+    #ifdef HAVE_GCR
     GByteArray* der_cert;
     GcrCertificate* gcr_cert;
 
@@ -1499,6 +1503,8 @@ midori_location_action_show_page_info (GtkWidget* widget,
 
     g_object_set_data_full (G_OBJECT (gcr_cert), "peer", hostname, (GDestroyNotify)g_free);
     g_object_set_data_full (G_OBJECT (dialog), "gcr-cert", gcr_cert, (GDestroyNotify)g_object_unref);
+    #endif
+
     /* With GTK+2 the scrolled contents can't communicate a natural size to the window */
     #if !GTK_CHECK_VERSION (3, 0, 0)
     gtk_window_set_default_size (GTK_WINDOW (dialog), 250, 200);
@@ -1514,7 +1520,6 @@ midori_location_action_show_page_info (GtkWidget* widget,
 
     g_object_unref (tls_cert);
 }
-#endif
 
 static void
 midori_location_action_engine_activate_cb (GtkWidget*          menuitem,
@@ -1586,7 +1591,7 @@ midori_location_action_icon_released_cb (GtkWidget*           widget,
         gtk_box_pack_start (GTK_BOX (hbox),
             gtk_label_new (gtk_entry_get_icon_tooltip_text (GTK_ENTRY (widget), icon_pos)), FALSE, FALSE, 0);
         gtk_box_pack_start (GTK_BOX (content_area), hbox, FALSE, FALSE, 0);
-        #if defined (HAVE_LIBSOUP_2_34_0)
+        #ifdef HAVE_LIBSOUP_2_34_0
         midori_location_action_show_page_info (widget, GTK_BOX (content_area), dialog);
         #endif
         gtk_widget_show_all (dialog);
@@ -1596,21 +1601,6 @@ midori_location_action_icon_released_cb (GtkWidget*           widget,
         gboolean result;
         g_signal_emit (action, signals[SECONDARY_ICON_RELEASED], 0,
                        widget, &result);
-    }
-}
-
-static void
-midori_location_action_paste_proceed_cb (GtkWidget* menuitem,
-                                         GtkWidget* location_action)
-{
-    GtkClipboard* clipboard = gtk_clipboard_get_for_display (
-        gtk_widget_get_display (GTK_WIDGET (menuitem)),GDK_SELECTION_CLIPBOARD);
-    gchar* uri;
-
-    if ((uri = gtk_clipboard_wait_for_text (clipboard)))
-    {
-        g_signal_emit (location_action, signals[SUBMIT_URI], 0, uri, FALSE);
-        g_free (uri);
     }
 }
 
@@ -1634,13 +1624,13 @@ midori_location_action_populate_popup_cb (GtkWidget*            entry,
     if (accel_label != NULL)
         gtk_accel_label_set_accel_closure (GTK_ACCEL_LABEL (accel_label), NULL);
     gtk_menu_shell_append (menu, menuitem);
-    /* i18n: Right-click on Location, Open an URL from the clipboard */
-    menuitem = gtk_menu_item_new_with_mnemonic (_("Paste and p_roceed"));
-    gtk_widget_show (menuitem);
+    menuitem = gtk_action_create_menu_item (
+        gtk_action_group_get_action (actions, "PasteProceed"));
+    accel_label = gtk_bin_get_child (GTK_BIN (menuitem));
+    if (accel_label != NULL)
+        gtk_accel_label_set_accel_closure (GTK_ACCEL_LABEL (accel_label), NULL);
     /* Insert menu item after default Paste menu item */
     gtk_menu_shell_insert (menu, menuitem, 3);
-    g_signal_connect (menuitem, "activate",
-        G_CALLBACK (midori_location_action_paste_proceed_cb), location_action);
     if (!gtk_clipboard_wait_is_text_available (clipboard))
         gtk_widget_set_sensitive (menuitem, FALSE);
 }

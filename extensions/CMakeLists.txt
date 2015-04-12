@@ -30,6 +30,11 @@ if (WIN32)
     list(REMOVE_ITEM EXTENSIONS "webmedia-now-playing.vala")
 endif()
 
+# FIXME: not stable enough for release
+if (NOT REVISION)
+    list(REMOVE_ITEM EXTENSIONS "tabs2one.c")
+endif()
+
 foreach(UNIT_SRC ${EXTENSIONS})
     string(FIND ${UNIT_SRC} ".c" UNIT_EXTENSION)
     if (UNIT_EXTENSION GREATER -1)

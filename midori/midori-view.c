@@ -27,7 +27,7 @@
     #include <gcr/gcr.h>
 #endif
 
-#if !defined (HAVE_WEBKIT2) && defined (HAVE_LIBSOUP_2_29_91)
+#if !defined (HAVE_WEBKIT2) && defined (HAVE_LIBSOUP_2_34_0)
 SoupMessage*
 midori_map_get_message (SoupMessage* message);
 #endif
@@ -478,7 +478,7 @@ midori_view_update_load_status (MidoriView*      view,
         midori_tab_set_load_status (MIDORI_TAB (view), load_status);
 }
 
-#if defined (HAVE_LIBSOUP_2_34_0)
+#ifdef HAVE_LIBSOUP_2_34_0
 /**
  * midori_view_get_tls_info
  * @view: a #MidoriView
@@ -591,7 +591,7 @@ midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view
         #endif
         return TRUE;
     }
-    #if defined (HAVE_LIBSOUP_2_34_0)
+    #ifdef HAVE_GCR
     else if (/* midori_tab_get_special (MIDORI_TAB (view)) && */ !strncmp (uri, "https", 5))
     {
         /* We show an error page if the certificate is invalid.
@@ -723,9 +723,9 @@ midori_view_load_committed (MidoriView* view)
     g_object_set (view, "title", NULL, NULL);
     midori_view_unset_icon (view);
 
+    #ifdef HAVE_LIBSOUP_2_34_0
     if (!strncmp (uri, "https", 5))
     {
-        #if defined (HAVE_LIBSOUP_2_34_0)
         #ifdef HAVE_WEBKIT2
         void* request = NULL;
         #else
@@ -738,6 +738,7 @@ midori_view_load_committed (MidoriView* view)
         gchar* hostname;
         if (midori_view_get_tls_info (view, request, &tls_cert, &tls_flags, &hostname))
             midori_tab_set_security (MIDORI_TAB (view), MIDORI_SECURITY_TRUSTED);
+        #ifdef HAVE_GCR
         else if (!midori_tab_get_special (MIDORI_TAB (view)) && tls_cert != NULL)
         {
             GcrCertificate* gcr_cert;
@@ -759,15 +760,16 @@ midori_view_load_committed (MidoriView* view)
             }
             g_object_unref (gcr_cert);
         }
-        else
         #endif
+        else
             midori_tab_set_security (MIDORI_TAB (view), MIDORI_SECURITY_UNKNOWN);
-        #if defined (HAVE_LIBSOUP_2_34_0)
+        #ifdef HAVE_GCR
         if (tls_cert != NULL)
             g_object_unref (tls_cert);
         g_free (hostname);
         #endif
     }
+    #endif
     else
         midori_tab_set_security (MIDORI_TAB (view), MIDORI_SECURITY_NONE);
 
@@ -1254,7 +1256,9 @@ webkit_web_view_load_error_cb (WebKitWebView*  web_view,
                                         message, error->message, NULL,
                                         _("Try Again"), web_frame);
 
-    midori_tab_set_load_error (MIDORI_TAB (view), MIDORI_LOAD_ERROR_NETWORK);
+    /* if the main frame for the whole tab has a network error, set tab error status */
+    if (web_frame == webkit_web_view_get_main_frame (web_view))
+        midori_tab_set_load_error (MIDORI_TAB (view), MIDORI_LOAD_ERROR_NETWORK);
 
     g_free (message);
     g_free (title);
@@ -3451,6 +3455,9 @@ midori_view_web_inspector_construct_window (gpointer       inspector,
     GtkIconTheme* icon_theme;
     GdkPixbuf* icon;
     GdkPixbuf* gray_icon;
+    #if GTK_CHECK_VERSION (3, 0, 0)
+    GtkWidget* scrolled;
+    #endif
 
     label = midori_view_get_display_title (view);
     title = g_strdup_printf (_("Inspect page - %s"), label);
@@ -3487,8 +3494,16 @@ midori_view_web_inspector_construct_window (gpointer       inspector,
     #if GTK_CHECK_VERSION (3, 4, 0)
     gtk_window_set_hide_titlebar_when_maximized (GTK_WINDOW (window), TRUE);
     #endif
+    gtk_widget_set_size_request (GTK_WIDGET (inspector_view), 700, 100);
+    #if GTK_CHECK_VERSION (3, 0, 0)
+    scrolled = gtk_scrolled_window_new (NULL, NULL);
+    gtk_container_add (GTK_CONTAINER (scrolled), inspector_view);
+    gtk_container_add (GTK_CONTAINER (window), scrolled);
+    gtk_widget_show_all (scrolled);
+    #else
     gtk_container_add (GTK_CONTAINER (window), inspector_view);
     gtk_widget_show_all (inspector_view);
+    #endif
 
     g_signal_connect (window, "key-press-event",
         G_CALLBACK (midori_view_inspector_window_key_press_event_cb), NULL);
@@ -3537,12 +3552,39 @@ midori_view_web_inspector_attach_window_cb (gpointer    inspector,
     return TRUE;
 }
 
+/**
+ * midori_view_web_inspector_get_own_window:
+ * @inspector: the inspector instance
+ *
+ * Get the widget containing the inspector, generally either a GtkWindow
+ * or the container where it is "docked".
+ *
+ * Return value: (allow-none): the widget containing the inspector, or NULL.
+ * 
+ * Since: 0.6.0
+ */
+static GtkWidget*
+midori_view_web_inspector_get_parent (gpointer inspector)
+{
+    GtkWidget* inspector_view = GTK_WIDGET (webkit_web_inspector_get_web_view (inspector));
+
+    #if defined(HAVE_WEBKIT2) || GTK_CHECK_VERSION (3, 0, 0)
+    GtkWidget* scrolled = gtk_widget_get_parent (inspector_view);
+    if (!scrolled)
+        return NULL;
+    return gtk_widget_get_parent (scrolled);
+    #else
+    return gtk_widget_get_parent (inspector_view);
+    #endif
+}
+
 static gboolean
 midori_view_web_inspector_detach_window_cb (gpointer    inspector,
                                             MidoriView* view)
 {
     GtkWidget* inspector_view = GTK_WIDGET (webkit_web_inspector_get_web_view (inspector));
-    GtkWidget* parent = gtk_widget_get_parent (inspector_view);
+    GtkWidget* parent = midori_view_web_inspector_get_parent (inspector);
+
     if (GTK_IS_WINDOW (parent))
         return FALSE;
 
@@ -3557,15 +3599,12 @@ static gboolean
 midori_view_web_inspector_close_window_cb (gpointer    inspector,
                                            MidoriView* view)
 {
-    GtkWidget* inspector_view = GTK_WIDGET (webkit_web_inspector_get_web_view (inspector));
-    #ifdef HAVE_WEBKIT2
-    GtkWidget* scrolled = inspector_view;
-    #else
-    GtkWidget* scrolled = gtk_widget_get_parent (inspector_view);
-    #endif
-    if (!scrolled)
+    GtkWidget* parent = midori_view_web_inspector_get_parent (inspector);
+
+    if (!parent)
         return FALSE;
-    gtk_widget_hide (gtk_widget_get_parent (scrolled));
+
+    gtk_widget_hide (parent);
     return TRUE;
 }
 #endif

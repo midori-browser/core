@@ -481,7 +481,11 @@ midori_normal_app_new (const gchar* config,
     gchar** extensions;
     MidoriWebSettings* settings = midori_settings_new_full (&extensions);
     g_object_set (settings,
+#ifdef G_OS_WIN32
+                  "enable-developer-extras", FALSE,
+#else
                   "enable-developer-extras", TRUE,
+#endif
                   "enable-html5-database", TRUE,
                   "block-uris", block_uris,
                   NULL);
