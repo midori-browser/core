@@ -61,47 +61,37 @@ namespace Midori {
 #endif
             return parse_hostname (uri, null);
         }
+
         public static string unescape (string uri_str) {
             /* We cannot use g_uri_unescape_string, because it returns NULL if it
                encounters the sequence '%00', whereas the goal of this function is
                to unescape all escape sequences except %00, %0A, %0D, %20, and %25 */
             size_t len = uri_str.length;
-            char* uri = uri_str;
-            char* uri_end = uri + len;
-            char* escaped = GLib.malloc (len + 1);
-            char* ret = escaped;
-            for (; uri <= uri_end; uri++)
+            uint8[] uri = uri_str.data;
+            var escaped = new StringBuilder();
+            for (var i=0; i < len; i++)
             {
-                if (*uri == '%')
+                uint8 c = uri[i];
+                if (c == '%')
                 {
-                    /* if an incomplete sequence, don't escape */
-                    if (uri + 2 >= uri_end)
+                    /* only unescape if there are enough chars for a valid escape sequence */
+                    if (i + 2 < len)
                     {
-                        *escaped = *uri;
-                    }
-                    else
-                    {
-                        *escaped = ((*(uri+1)).xdigit_value()<<4) + (*(uri+2)).xdigit_value();
-                        /* if the escaped character should not be unescaped */
-                        if (*escaped == '\0' || *escaped == '\n' || *escaped == '\r' || *escaped == ' ' || *escaped == '%')
-                        {
-                            /* overwrite it with '%' and copy the encoded characters as hex */
-                            *escaped = *uri;
-                        }
-                        else
+                        var x1 = ((char)uri[i+1]).xdigit_value();
+                        var x2 = ((char)uri[i+2]).xdigit_value();
+                        var x = (x1<<4) + x2;
+                        /* if the escape is valid and the character should be unescaped */
+                        if (x1 >= 0 && x2 >= 0 && x != '\0' && x != '\n' && x != '\r' && x != ' ' && x != '%')
                         {
                             /* consume the encoded characters */
-                            uri += 2;
+                            c = (uint8)x;
+                            i += 2;
                         }
                     }
                 }
-                else
-                {
-                    *escaped = *uri;
-                }
-                escaped++;
+                escaped.append_c((char)c);
             }
-            return (string)ret;
+            return escaped.str;
         }
 
         /* Strip http(s), file and www. for tab titles or completion */
@@ -118,7 +108,7 @@ namespace Midori {
         public static string format_for_display (string? uri) {
             /* Percent-decode and decode puniycode for user display */
             if (uri != null && uri.has_prefix ("http://")) {
-                string unescaped = unescape (uri.replace(" ", "%20"));
+                string unescaped = unescape (uri).replace(" ", "%20");
                 if (!unescaped.validate ())
                     return uri;
                 string path;

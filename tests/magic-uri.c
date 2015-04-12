@@ -284,6 +284,8 @@ magic_uri_format (void)
        "http://en.wikipedia.org/wiki/Fat%20cat" },
      { "http://incomplete.escape/%", NULL },
      { "http://incomplete.escape/%f", NULL },
+     { "http://invalid.escape/%xx", NULL },
+     { "http://invalid.escape/%gg", NULL },
      { "http://complete.escape/%41", 
        "http://complete.escape/A" },
      { "http://complete.escape/%42C", 
