@@ -1452,22 +1452,22 @@ midori_location_action_show_page_info (GtkWidget* widget,
     #if GTK_CHECK_VERSION (3, 12, 0)
     GtkWidget* button;
     GtkWidget* actions = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
-    gtk_box_pack_end (GTK_BOX (box), actions, FALSE, FALSE, 0);
+    gtk_box_pack_start (GTK_BOX (box), actions, FALSE, FALSE, 0);
     if (gcr_trust_is_certificate_pinned (gcr_cert, GCR_PURPOSE_SERVER_AUTH, hostname, NULL, NULL))
     {
         button = gtk_button_new_with_mnemonic (_("_Don't trust this website"));
-        gtk_box_pack_end (GTK_BOX (actions), button, FALSE, FALSE, 0);
+        gtk_box_pack_start (GTK_BOX (actions), button, FALSE, FALSE, 0);
         g_signal_connect (button, "clicked", G_CALLBACK (midori_location_action_button_cb), dialog);
     }
     else if (tls_flags > 0)
     {
         button = gtk_button_new_with_mnemonic (_("_Trust this website"));
-        gtk_box_pack_end (GTK_BOX (actions), button, FALSE, FALSE, 0);
+        gtk_box_pack_start (GTK_BOX (actions), button, FALSE, FALSE, 0);
         g_signal_connect (button, "clicked", G_CALLBACK (midori_location_action_button_cb), dialog);
     }
     button = gtk_button_new_with_mnemonic (_("_Export certificate"));
     g_signal_connect (button, "clicked", G_CALLBACK (midori_location_action_button_cb), dialog);
-    gtk_box_pack_start (GTK_BOX (actions), button, FALSE, FALSE, 0);
+    gtk_box_pack_end (GTK_BOX (actions), button, FALSE, FALSE, 0);
     gtk_widget_show_all (actions);
     #else
     if (gcr_trust_is_certificate_pinned (gcr_cert, GCR_PURPOSE_SERVER_AUTH, hostname, NULL, NULL))
