@@ -1384,6 +1384,20 @@ midori_location_action_button_cb (GtkWidget* button,
         g_assert_not_reached ();
     midori_location_action_cert_response_cb (dialog, response, gcr_cert);
 }
+
+static gboolean
+midori_location_action_popover_button_press_event_cb (GtkWidget*      widget,
+                                                      GdkEventButton* event,
+                                                      gpointer        user_data)
+{
+    /* The default GtkPopOver button-press doesn't work with
+       GcrCertificateDetailsWidget and fails with an assertion:
+       gtk_widget_is_ancestor: assertion 'GTK_IS_WIDGET (widget)' */
+    GtkWidget* event_widget = gtk_get_event_widget ((GdkEvent*)event);
+    if (!gtk_widget_is_ancestor (event_widget, widget))
+        gtk_widget_destroy (widget);
+    return GDK_EVENT_STOP;
+}
 #endif
 
 const gchar*
@@ -1551,6 +1565,8 @@ midori_location_action_icon_released_cb (GtkWidget*           widget,
         dialog = gtk_popover_new (widget);
         content_area = gtk_vbox_new (FALSE, 6);
         gtk_container_add (GTK_CONTAINER (dialog), content_area);
+        g_signal_connect (dialog, "button-press-event",
+            G_CALLBACK (midori_location_action_popover_button_press_event_cb), NULL);
 
         GdkRectangle icon_rect;
         gtk_entry_get_icon_area (GTK_ENTRY (widget), icon_pos, &icon_rect);
