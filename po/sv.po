@@ -10,15 +10,15 @@ msgstr ""
 "Project-Id-Version: midori\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-02-21 10:52-0600\n"
-"PO-Revision-Date: 2015-03-04 10:34+0000\n"
+"PO-Revision-Date: 2015-04-12 10:09+0000\n"
 "Last-Translator: Joachim Johansson <Unknown>\n"
 "Language-Team: Swedish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2015-03-05 05:18+0000\n"
-"X-Generator: Launchpad (build 17374)\n"
+"X-Launchpad-Export-Date: 2015-04-13 05:10+0000\n"
+"X-Generator: Launchpad (build 17423)\n"
 "Language: \n"
 
 #: ../data/midori.desktop.in.h:1 ../midori/main.c:142
@@ -535,6 +535,7 @@ msgstr ""
 "  Larsson https://launchpad.net/~larsson\n"
 "  Marcus Lundgren https://launchpad.net/~marcus-lundgren\n"
 "  Max Malm https://launchpad.net/~benjick\n"
+"  Mikael Nyberg https://launchpad.net/~miknyb\n"
 "  Olle Byström https://launchpad.net/~olle-bystrom\n"
 "  Oscar Kraemer https://launchpad.net/~carloscarkraemer\n"
 "  Rikard Johansson https://launchpad.net/~rikard-jo\n"
@@ -2322,7 +2323,7 @@ msgstr "DevPet"
 
 #: ../extensions/devpet.vala:254
 msgid "This extension shows glib error messages in systray."
-msgstr ""
+msgstr "Det här tillägget visar felmeddelanden från glib i systembrickan."
 
 #: ../extensions/external-download-manager.vala:124
 #, c-format
@@ -2390,19 +2391,19 @@ msgstr "Senast uppdaterad: %s."
 
 #: ../extensions/feed-panel/feed-panel.c:620
 msgid "Feeds"
-msgstr "Flöden"
+msgstr "Nyhetsflöden"
 
 #: ../extensions/feed-panel/feed-panel.c:671
 msgid "Add new feed"
-msgstr "Lägg till nytt flöde"
+msgstr "Lägg till nytt nyhetsflöde"
 
 #: ../extensions/feed-panel/feed-panel.c:678
 msgid "Delete feed"
-msgstr "Ta bort flöde"
+msgstr "Ta bort nyhetsflöde"
 
 #: ../extensions/feed-panel/feed-panel.c:757
 msgid "_Feeds"
-msgstr "_Flöden"
+msgstr "Nyhets_flöde"
 
 #: ../extensions/feed-panel/feed-parse.c:195
 #, c-format
@@ -2443,11 +2444,11 @@ msgstr "Nyhetsflödet '%s' finns redan"
 #: ../extensions/feed-panel/main.c:193
 #, c-format
 msgid "Error loading feed '%s'"
-msgstr "Fel vid laddning av flödet '%s'"
+msgstr "Fel vid laddning av nyhetsflödet '%s'"
 
 #: ../extensions/feed-panel/main.c:500
 msgid "Feed Panel"
-msgstr "Flödespanel"
+msgstr "Nyhetsflödespanel"
 
 #: ../extensions/feed-panel/main.c:501
 msgid "Read Atom/ RSS feeds"
@@ -2476,7 +2477,7 @@ msgstr "Spara lösenordet för denna sida?"
 
 #: ../extensions/formhistory/formhistory.c:294
 msgid "Remember"
-msgstr "Kom ihåg"
+msgstr "Spara"
 
 #: ../extensions/formhistory/formhistory.c:295
 msgid "Not now"
@@ -2594,7 +2595,7 @@ msgstr "SQL-fel: %s"
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:899
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1113
 msgid "Accept"
-msgstr "Acceptera"
+msgstr "Godkänn"
 
 #: ../extensions/nojs/nojs-preferences.c:258
 #: ../extensions/nojs/nojs-preferences.c:906
@@ -2603,7 +2604,7 @@ msgstr "Acceptera"
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:901
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1114
 msgid "Accept for session"
-msgstr "Acceptera för sessionen"
+msgstr "Godkänn för den här sessionen"
 
 #: ../extensions/nojs/nojs-preferences.c:262
 #: ../extensions/nojs/nojs-preferences.c:908 ../extensions/nojs/nojs.c:1032
@@ -2693,7 +2694,7 @@ msgstr "Tillåt skript på alla webbplatser"
 #. Add "block-unknown-domains" checkbox
 #: ../extensions/nojs/nojs-preferences.c:995
 msgid "Bloc_k scripts at unknown domains by default"
-msgstr ""
+msgstr "Blockera som standard skript på okända domäner"
 
 #. Add "check-second-level-only" checkbox
 #: ../extensions/nojs/nojs-preferences.c:1003
@@ -3035,7 +3036,7 @@ msgstr "Misslyckades med att rensa historiken: %s\n"
 #: ../midori/midori-history.c:73
 #, c-format
 msgid "Failed to remove old history items: %s\n"
-msgstr "Borttagning av gamla historikobjekt misslyckades: %s\n"
+msgstr "Misslyckades med att ta bort gamla objekt från historiken: %s\n"
 
 #: ../midori/midori-bookmarks-db.c:519
 #, c-format
@@ -3229,7 +3230,7 @@ msgstr "Flera webbplatser vill spara totalt %d kakor."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:526
 msgid "_Accept"
-msgstr "_Acceptera"
+msgstr "_Godkänn"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:527
 msgid "Accept for this _session"
@@ -3285,7 +3286,7 @@ msgstr "Midori (%s)"
 #: ../extensions/apps.vala:154
 #, c-format
 msgid "Failed to create new launcher (%s): %s"
-msgstr ""
+msgstr "Misslyckades med att skapa nytt startobjekt (%s): %s"
 
 #: ../extensions/apps.vala:145
 msgid "Launcher created"
