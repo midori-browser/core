@@ -278,8 +278,8 @@ mouse_gestures_motion_notify_event_cb (GtkWidget*     web_view,
             if (distance >= MINLENGTH)
             {
                 gesture->strokes[gesture->count] = nearest_direction_for_angle (angle);
-                if(midori_debug ("adblock:match"))
-                    g_debug ("detected %s\n", direction_names[gesture->strokes[gesture->count]]);
+                if (midori_debug ("mouse"))
+                    g_print ("mouse_gestures detected %s\n", direction_names[gesture->strokes[gesture->count]]);
             }
         }
         else if (!vector_follows_direction (angle, distance, old_direction)
