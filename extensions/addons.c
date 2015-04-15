@@ -1892,6 +1892,8 @@ test_addons_simple_regexp (void)
     { "*", "^.*" },
     { "http://", "^http://" },
     { "https://", "^https://" },
+    { "http*://", "^http://" },
+    { "http*://", "^https://" },
     { "about:blank", "^about:blank" },
     { "file://", "^file://" },
     { "ftp://", "^ftp://" },
