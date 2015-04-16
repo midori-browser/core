@@ -95,6 +95,64 @@ midori_private_data_clear_on_quit_toggled_cb (GtkToggleButton*   button,
     g_object_set (settings, "clear-private-data", clear_prefs, NULL);
 }
 
+/**
+ * The dialog is "empty" when none of the relevant checkboxes are activated.
+ * This function returns true if the dialog is empty.
+ **/
+static bool
+midori_private_data_dialog_is_empty (GtkDialog* dialog)
+{
+    GtkToggleButton* button;
+    gint count = 0; // Counts the total number of checked boxes
+    GList* data_items = midori_private_data_register_item (NULL, NULL, NULL);
+
+    // Count these first two special ones
+    button = g_object_get_data (G_OBJECT (dialog), "session");
+    if (gtk_toggle_button_get_active (button))
+        count++;
+    button = g_object_get_data (G_OBJECT (dialog), "history");
+    if (gtk_toggle_button_get_active (button))
+        count++;
+
+    // Count each other one
+    for (; data_items != NULL; data_items = g_list_next (data_items))
+    {
+        MidoriPrivateDataItem* privacy = data_items->data;
+        button = g_object_get_data (G_OBJECT (dialog), privacy->name);
+        g_return_if_fail (button != NULL && GTK_IS_TOGGLE_BUTTON (button));
+        if (gtk_toggle_button_get_active (button))
+            count++;
+    }
+
+    // No checked boxes means the dialog is empty
+    if (count == 0)
+        return true;
+    return false;
+}
+
+/**
+ * When called, sets the sensitivity of the clear private data button depending
+ * on whether the dialog is empty (see: midori_private_data_dialog_is_empty)
+ **/
+static void
+midori_private_data_clear_button_check_sensitive (GtkDialog* dialog)
+{
+    GtkWidget* clear_button;
+    clear_button = gtk_dialog_get_widget_for_response (dialog, GTK_RESPONSE_ACCEPT);
+    if (midori_private_data_dialog_is_empty (dialog))
+        gtk_widget_set_sensitive (clear_button, FALSE);
+    else
+        gtk_widget_set_sensitive (clear_button, TRUE);
+}
+
+static void
+midori_private_data_checkbox_toggled_cb (GtkToggleButton*   button,
+                                              GtkWidget* dialog)
+{
+    // This is a separate function so I can invoke it on start too
+    midori_private_data_clear_button_check_sensitive (GTK_DIALOG (dialog));
+}
+
 GtkWidget*
 midori_private_data_get_dialog (MidoriBrowser* browser)
 {
@@ -150,12 +208,16 @@ midori_private_data_get_dialog (MidoriBrowser* browser)
         gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
     g_object_set_data (G_OBJECT (dialog), "session", button);
     gtk_box_pack_start (GTK_BOX (vbox), button, TRUE, TRUE, 0);
+    g_signal_connect (button, "toggled",
+            G_CALLBACK (midori_private_data_checkbox_toggled_cb), dialog);
     /* i18n: Browsing history, visited web pages, closed tabs */
     button = gtk_check_button_new_with_mnemonic (_("_History"));
     if ((clear_prefs & MIDORI_CLEAR_HISTORY) == MIDORI_CLEAR_HISTORY)
         gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
     g_object_set_data (G_OBJECT (dialog), "history", button);
     gtk_box_pack_start (GTK_BOX (vbox), button, TRUE, TRUE, 0);
+    g_signal_connect (button, "toggled",
+            G_CALLBACK (midori_private_data_checkbox_toggled_cb), dialog);
 
     data_items = midori_private_data_register_item (NULL, NULL, NULL);
     for (; data_items != NULL; data_items = g_list_next (data_items))
@@ -166,7 +228,10 @@ midori_private_data_get_dialog (MidoriBrowser* browser)
         g_object_set_data (G_OBJECT (dialog), privacy->name, button);
         if (clear_data && strstr (clear_data, privacy->name))
             gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
+        g_signal_connect (button, "toggled",
+            G_CALLBACK (midori_private_data_checkbox_toggled_cb), dialog);
     }
+    midori_private_data_clear_button_check_sensitive (GTK_DIALOG (dialog));
     g_free (clear_data);
     gtk_container_add (GTK_CONTAINER (alignment), vbox);
     gtk_box_pack_start (GTK_BOX (hbox), alignment, TRUE, TRUE, 4);
