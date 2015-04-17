@@ -1064,7 +1064,7 @@ css_metadata_from_file (const gchar* filename,
                          domain = g_strndup (value + begin, end - begin * 2);
                          if (!midori_uri_is_location (domain)
                           && !g_str_has_prefix (domain, "file://"))
-                             tmp_domain = g_strdup_printf ("http://*%s/*", domain);
+                             tmp_domain = g_strdup_printf ("http*://*%s/*", domain);
                          else
                              tmp_domain = domain;
 
@@ -1468,6 +1468,12 @@ static gboolean
 addons_skip_element (struct AddonElement* element,
                      gchar* uri)
 {
+    if (midori_debug("addons:match"))
+    {
+    	g_print("%s: %s on %s matched: %d\n", G_STRFUNC,
+		element->displayname, uri, addons_may_run (uri, &element->includes, &element->excludes));
+    }
+
     if (!element->enabled || element->broken)
         return TRUE;
     if (element->includes || element->excludes)
@@ -1886,6 +1892,8 @@ test_addons_simple_regexp (void)
     { "*", "^.*" },
     { "http://", "^http://" },
     { "https://", "^https://" },
+    { "http*://", "^http://" },
+    { "http*://", "^https://" },
     { "about:blank", "^about:blank" },
     { "file://", "^file://" },
     { "ftp://", "^ftp://" },
