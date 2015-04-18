@@ -26,10 +26,6 @@
 
 #include <sqlite3.h>
 
-#ifdef HAVE_GRANITE
-#include <granite/granite.h>
-#endif
-
 struct _MidoriLocationAction
 {
     GtkAction parent_instance;
@@ -1369,7 +1365,60 @@ midori_location_action_cert_response_cb (GtkWidget*      dialog,
                    "granting" : "revoking", error->message);
         g_error_free (error);
     }
-    gtk_widget_destroy (dialog);
+    gtk_widget_hide (dialog);
+}
+#endif
+
+#if GTK_CHECK_VERSION (3, 12, 0)
+static void
+midori_location_action_button_cb (GtkWidget* button,
+                                  GtkWidget* dialog)
+{
+    GcrCertificate* gcr_cert = g_object_get_data (G_OBJECT (dialog), "gcr-cert");
+    const gchar* label = gtk_button_get_label (GTK_BUTTON (button));
+    gint response;
+    if (!strcmp (label, _("_Don't trust this website")))
+        response = MIDORI_CERT_REVOKE;
+    else if (!strcmp (label, _("_Trust this website")))
+        response = MIDORI_CERT_TRUST;
+    else if (!strcmp (label, _("_Export certificate")))
+        response = MIDORI_CERT_EXPORT;
+    else
+        g_assert_not_reached ();
+    midori_location_action_cert_response_cb (dialog, response, gcr_cert);
+}
+
+static gboolean
+midori_location_action_popover_button_press_event_cb (GtkWidget*      widget,
+                                                      GdkEventButton* event,
+                                                      gpointer        user_data)
+{
+    return GDK_EVENT_STOP;
+}
+
+static gboolean
+midori_location_action_popover_button_release_event_cb (GtkWidget*      widget,
+                                                        GdkEventButton* event,
+                                                        gpointer        user_data)
+{
+    /* The default GtkPopOver button-press doesn't work with
+       GcrCertificateDetailsWidget and fails with an assertion:
+       gtk_widget_is_ancestor: assertion 'GTK_IS_WIDGET (widget)' */
+    GtkWidget* child = gtk_bin_get_child (GTK_BIN (widget));
+    GtkWidget* event_widget = gtk_get_event_widget ((GdkEvent*)event);
+    if (child && event->window == gtk_widget_get_window (widget))
+    {
+        GtkAllocation child_alloc;
+        gtk_widget_get_allocation (child, &child_alloc);
+        if (event->x < child_alloc.x ||
+         event->x > child_alloc.x + child_alloc.width ||
+         event->y < child_alloc.y ||
+         event->y > child_alloc.y + child_alloc.height)
+        gtk_widget_hide (widget);
+    }
+    else if (event_widget && !gtk_widget_is_ancestor (event_widget, widget))
+        gtk_widget_hide (widget);
+    return GDK_EVENT_STOP;
 }
 #endif
 
@@ -1437,6 +1486,27 @@ midori_location_action_show_page_info (GtkWidget* widget,
     gtk_container_add (GTK_CONTAINER (box), details);
     #endif
 
+    #if GTK_CHECK_VERSION (3, 12, 0)
+    GtkWidget* button;
+    GtkWidget* actions = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+    gtk_box_pack_start (GTK_BOX (box), actions, FALSE, FALSE, 0);
+    if (gcr_trust_is_certificate_pinned (gcr_cert, GCR_PURPOSE_SERVER_AUTH, hostname, NULL, NULL))
+    {
+        button = gtk_button_new_with_mnemonic (_("_Don't trust this website"));
+        gtk_box_pack_start (GTK_BOX (actions), button, FALSE, FALSE, 0);
+        g_signal_connect (button, "clicked", G_CALLBACK (midori_location_action_button_cb), dialog);
+    }
+    else if (tls_flags > 0)
+    {
+        button = gtk_button_new_with_mnemonic (_("_Trust this website"));
+        gtk_box_pack_start (GTK_BOX (actions), button, FALSE, FALSE, 0);
+        g_signal_connect (button, "clicked", G_CALLBACK (midori_location_action_button_cb), dialog);
+    }
+    button = gtk_button_new_with_mnemonic (_("_Export certificate"));
+    g_signal_connect (button, "clicked", G_CALLBACK (midori_location_action_button_cb), dialog);
+    gtk_box_pack_end (GTK_BOX (actions), button, FALSE, FALSE, 0);
+    gtk_widget_show_all (actions);
+    #else
     if (gcr_trust_is_certificate_pinned (gcr_cert, GCR_PURPOSE_SERVER_AUTH, hostname, NULL, NULL))
         gtk_dialog_add_buttons (GTK_DIALOG (dialog),
             ("_Don't trust this website"), MIDORI_CERT_REVOKE, NULL);
@@ -1446,11 +1516,12 @@ midori_location_action_show_page_info (GtkWidget* widget,
     gtk_container_child_set (GTK_CONTAINER (gtk_dialog_get_action_area (GTK_DIALOG (dialog))),
         gtk_dialog_add_button (GTK_DIALOG (dialog), _("_Export certificate"), MIDORI_CERT_EXPORT),
         "secondary", TRUE, NULL);
+    g_signal_connect (dialog, "response",
+        G_CALLBACK (midori_location_action_cert_response_cb), gcr_cert);
+    #endif
 
     g_object_set_data_full (G_OBJECT (gcr_cert), "peer", hostname, (GDestroyNotify)g_free);
     g_object_set_data_full (G_OBJECT (dialog), "gcr-cert", gcr_cert, (GDestroyNotify)g_object_unref);
-    g_signal_connect (dialog, "response",
-        G_CALLBACK (midori_location_action_cert_response_cb), gcr_cert);
     #endif
 
     /* With GTK+2 the scrolled contents can't communicate a natural size to the window */
@@ -1511,37 +1582,32 @@ midori_location_action_icon_released_cb (GtkWidget*           widget,
             return;
         }
 
-        const gchar* title = _("Security details");
         GtkWidget* content_area;
         GtkWidget* hbox;
-        #ifdef HAVE_GRANITE
-        gint wx, wy;
-        GtkAllocation allocation;
+
+        #if GTK_CHECK_VERSION (3, 12, 0)
+        dialog = gtk_popover_new (widget);
+        content_area = gtk_vbox_new (FALSE, 6);
+        gtk_container_add (GTK_CONTAINER (dialog), content_area);
+        g_signal_connect (dialog, "button-press-event",
+            G_CALLBACK (midori_location_action_popover_button_press_event_cb), NULL);
+        g_signal_connect (dialog, "button-release-event",
+            G_CALLBACK (midori_location_action_popover_button_release_event_cb), NULL);
+
         GdkRectangle icon_rect;
-
-        /* FIXME: granite: should return GtkWidget* like GTK+ */
-        dialog = (GtkWidget*)granite_widgets_pop_over_new ();
-        gchar* markup = g_strdup_printf ("<b>%s</b>", title);
-        GtkWidget* label = gtk_label_new (markup);
-        content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
-        g_free (markup);
-        gtk_label_set_use_markup (GTK_LABEL (label), TRUE);
-        gtk_box_pack_start (GTK_BOX (content_area), label, FALSE, FALSE, 0);
-
-        gtk_widget_get_allocation (widget, &allocation);
-        gdk_window_get_origin (gtk_widget_get_window (widget), &wx, &wy);
-        wx += allocation.x;
         gtk_entry_get_icon_area (GTK_ENTRY (widget), icon_pos, &icon_rect);
-        wx += (icon_rect.x + icon_rect.width / 2);
-        wy += (icon_rect.y + icon_rect.height);
-        granite_widgets_pop_over_move_to_coords (GRANITE_WIDGETS_POP_OVER (dialog),
-            wx, wy, TRUE);
+        gtk_popover_set_relative_to (GTK_POPOVER (dialog), widget);
+        gtk_popover_set_pointing_to (GTK_POPOVER (dialog), &icon_rect);
+        g_signal_connect (dialog, "closed", G_CALLBACK (gtk_widget_destroyed), &dialog);
         #else
+        const gchar* title = _("Security details");
         dialog = gtk_dialog_new_with_buttons (title, GTK_WINDOW (gtk_widget_get_toplevel (widget)),
             GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR, NULL, NULL);
         content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
+        g_signal_connect (dialog, "destroy", G_CALLBACK (gtk_widget_destroyed), &dialog);
         #endif
-        hbox = gtk_hbox_new (FALSE, 0);
+        gtk_container_set_border_width (GTK_CONTAINER (dialog), 6);
+        hbox = gtk_hbox_new (FALSE, 6);
         gtk_box_pack_start (GTK_BOX (hbox), gtk_image_new_from_gicon (
             gtk_entry_get_icon_gicon (GTK_ENTRY (widget), icon_pos), GTK_ICON_SIZE_DIALOG), FALSE, FALSE, 0);
         gtk_box_pack_start (GTK_BOX (hbox),
@@ -1550,7 +1616,6 @@ midori_location_action_icon_released_cb (GtkWidget*           widget,
         #ifdef HAVE_LIBSOUP_2_34_0
         midori_location_action_show_page_info (widget, GTK_BOX (content_area), dialog);
         #endif
-        g_signal_connect (dialog, "destroy", G_CALLBACK (gtk_widget_destroyed), &dialog);
         gtk_widget_show_all (dialog);
     }
     if (icon_pos == GTK_ENTRY_ICON_SECONDARY)
