@@ -297,6 +297,7 @@ namespace Midori {
         public static string make_tmp_dir (string tmpl) {
             assert (tmp_dir != null);
             try {
+                mkdir_with_parents (Environment.get_tmp_dir ());
                 return DirUtils.make_tmp (tmpl);
             }
             catch (Error error) {
