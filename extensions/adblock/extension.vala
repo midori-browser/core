@@ -371,7 +371,7 @@ namespace Adblock {
 
         void load_config () {
 #if HAVE_WEBKIT2
-            string config_dir = Path.build_filename (Environment.get_user_config_dir (), PACKAGE_NAME, "extensions", "libadblock." + GLib.Module.SUFFIX);
+            string config_dir = Path.build_filename (GLib.Environment.get_user_config_dir (), PACKAGE_NAME, "extensions", "libadblock." + GLib.Module.SUFFIX);
             Midori.Paths.mkdir_with_parents (config_dir);
 #else
             string config_dir = Midori.Paths.get_extension_config_dir ("adblock");
