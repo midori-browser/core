@@ -1365,7 +1365,7 @@ midori_location_action_cert_response_cb (GtkWidget*      dialog,
                    "granting" : "revoking", error->message);
         g_error_free (error);
     }
-    gtk_widget_destroy (dialog);
+    gtk_widget_hide (dialog);
 }
 #endif
 
@@ -1393,12 +1393,31 @@ midori_location_action_popover_button_press_event_cb (GtkWidget*      widget,
                                                       GdkEventButton* event,
                                                       gpointer        user_data)
 {
+    return GDK_EVENT_STOP;
+}
+
+static gboolean
+midori_location_action_popover_button_release_event_cb (GtkWidget*      widget,
+                                                        GdkEventButton* event,
+                                                        gpointer        user_data)
+{
     /* The default GtkPopOver button-press doesn't work with
        GcrCertificateDetailsWidget and fails with an assertion:
        gtk_widget_is_ancestor: assertion 'GTK_IS_WIDGET (widget)' */
+    GtkWidget* child = gtk_bin_get_child (GTK_BIN (widget));
     GtkWidget* event_widget = gtk_get_event_widget ((GdkEvent*)event);
-    if (!gtk_widget_is_ancestor (event_widget, widget))
-        gtk_widget_destroy (widget);
+    if (child && event->window == gtk_widget_get_window (widget))
+    {
+        GtkAllocation child_alloc;
+        gtk_widget_get_allocation (child, &child_alloc);
+        if (event->x < child_alloc.x ||
+         event->x > child_alloc.x + child_alloc.width ||
+         event->y < child_alloc.y ||
+         event->y > child_alloc.y + child_alloc.height)
+        gtk_widget_hide (widget);
+    }
+    else if (event_widget && !gtk_widget_is_ancestor (event_widget, widget))
+        gtk_widget_hide (widget);
     return GDK_EVENT_STOP;
 }
 #endif
@@ -1572,9 +1591,12 @@ midori_location_action_icon_released_cb (GtkWidget*           widget,
         gtk_container_add (GTK_CONTAINER (dialog), content_area);
         g_signal_connect (dialog, "button-press-event",
             G_CALLBACK (midori_location_action_popover_button_press_event_cb), NULL);
+        g_signal_connect (dialog, "button-release-event",
+            G_CALLBACK (midori_location_action_popover_button_release_event_cb), NULL);
 
         GdkRectangle icon_rect;
         gtk_entry_get_icon_area (GTK_ENTRY (widget), icon_pos, &icon_rect);
+        gtk_popover_set_relative_to (GTK_POPOVER (dialog), widget);
         gtk_popover_set_pointing_to (GTK_POPOVER (dialog), &icon_rect);
         g_signal_connect (dialog, "closed", G_CALLBACK (gtk_widget_destroyed), &dialog);
         #else
