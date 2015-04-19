@@ -165,7 +165,7 @@ katze_array_action_class_init (KatzeArrayActionClass* class)
      *
      * An item was activated and should be opened in a new tab.
      *
-     * Since: 0.6.0
+     * Since: 0.5.10
      **/
     signals[ACTIVATE_ITEM_NEW_TAB] = g_signal_new ("activate-item-new-tab",
                                                    G_TYPE_FROM_CLASS (class),
