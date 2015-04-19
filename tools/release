@@ -10,7 +10,8 @@
 # See the file COPYING for the full license text.
 
 OLDVER=$(grep -r --color=no '^set(VERSION' CMakeLists.txt | sed -r "s@.+ ([0-9.]+)\)@\1@")
-NEWVER=$(python -c "print('0.'+str(float('$OLDVER'[2:])+.1))")
+NEWVER="$2"
+test -z "$NEWVER" && NEWVER=$(python -c "print('0.'+str(float('$OLDVER'[2:])+.1))")
 if [ "x$1" = "xbefore" ]; then
     echo Bumping from $OLDVER to $NEWVER
     sed -i "s@$OLDVER@$NEWVER@g" CMakeLists.txt win32/makedist/midori.nsi
@@ -27,10 +28,12 @@ if [ "x$1" = "xbefore" ]; then
     rm ChangeLog.old
     curl http://wiki.xfce.org/_export/raw/midori/contribute | \
         sed -r 's@\[\[([^|]+)\|([^]]+)\]\]@\1 \2@g' | \
-        sed -r 's@<code( bash|)>|</code>@@g' > HACKING
+        sed -r 's@<code( bash|)>|</code>@@g' > HACKING.new
+    test -s HACKING.new && mv HACKING{.new,} || rm HACKING.new
     curl http://wiki.xfce.org/_export/xhtml/midori/faq | \
         sed 's@This is a list of frequently asked questions@This is <a href="http://wiki.xfce.org/midori/faq">a snapshot of the online FAQ</a>@g' | \
-        sed 's@<link rel="style.*>@<link rel="stylesheet" href="faq.css" />@g' > data/faq.html
+        sed 's@<link rel="style.*>@<link rel="stylesheet" href="faq.css" />@g' > data/faq.html.new
+    test -s data/faq.html.new && mv data/faq.html{.new,} || rm data/faq.html.new
     echo -n bzr commit -p -m "'Bump version to $NEWVER'"
     case $SHELL in
     *fish*)
@@ -49,6 +52,6 @@ elif [ "x$1" = "xafter" ]; then
         echo bzr branch lp:~mgiuca/+junk/launchpad-tools
     fi
 else
-    echo 'Usage: ['$(basename $0)']' 'before|after'
+    echo 'Usage: ['$(basename $0)']' 'before|after' [NEW VERSION]
     exit 1
 fi

@@ -3561,7 +3561,7 @@ midori_view_web_inspector_attach_window_cb (gpointer    inspector,
  *
  * Return value: (allow-none): the widget containing the inspector, or NULL.
  * 
- * Since: 0.6.0
+ * Since: 0.5.10
  */
 static GtkWidget*
 midori_view_web_inspector_get_parent (gpointer inspector)

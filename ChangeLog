@@ -1,5 +1,54 @@
 This file is licensed under the terms of the expat license, see the file EXPAT.
 
+v0.5.10
+ use exit instead of return in license script
+ Fix HAVE_GCR guards after GtkPopover port
+ Remove example app and .desktop before creating it in the unit test
+ Fix cache dir path in Adblock and always mkdir tmp
+ Port location action from Granite.PopOver to Gtk.Popover
+ Match https site when user-style is using domain syntax
+ Always disable developer tools on Win32
+ Reimplement Midori.URI.unescape and add various tests
+ Make the inspector resizable with GTK3 by packing into a GtkScrolledWindow
+ Don't build tabs2one in release builds
+ Don't assume GNotification works on Win32
+ update copyright date in About dialog
+ Don't entity-escape history and bookmark results in location completion
+ Only set tabs' error state if errors come from the main frame
+ Implement Paste and Proceed as an action
+ No Gcr on Win for the moment
+ Yet another Speed Dial CSS update:
+ Port bookmark popover from Granite to Gtk.Popover
+ Make application choosers resizable with a sane default size
+ Use GNotification >= 2.40 and use Midori.App API in webmedia
+ Rework mouse button handling in KatzeArrayAction
+ Don't bind :day in HistoryDatabase.query
+ Make GCR mandatory for all builds
+ Update coub support in mediaHerald
+ history-list: Fix gtk+3 build caused by dropping "using Gtk;"
+ Drop all remaining usages of "using *;"
+ Don't open search engines menu when clearing search action
+ Only remove apps in the sidepanel when left-clicking the delete icon
+ Improve robustness of GTK3-compatibility placeholder text fallback
+ Clean up vapi dependency
+ tls_flags from webkit_web_view_get_tls_info need to be 0
+ Don't add failed pages to history
+ Throw error for wrong paramter in Statement.bind
+ Replace NoJS "allow all pages" setting with "allow local pages"
+ Avoid bugs due to race condition in addons delete dialog
+ Calculate transfer progress at regular intervals to fix 0B/s bug and recalcitrant progess bars
+ Fix warnings occurring with EXTRA_WARNINGS
+ Escape parentheses in adblock_fixup_regexp()
+ Use File.query_exist() on win32 when checking for db to attach
+ Handle _NEW_WINDOW_ACTION explicitly to make _blank targets work
+ Fix undefined behavior uint in mouse gestures
+ fix JavaScript keyup event by calling inherited key-release-event handler in MidoriBrowser
+ Inline renaming of speed dials
+ Handle current_size and last_size of Download being equal
+ Add proper copyright headers to element_hider and autosuggestcontrol
+ Add X-GNOME-UsesNotifications to indicate the use of notifications
+ Fix typo in Bookmarks menu UI definition
+
 v0.5.9
  Remove dead code from browser and preferences
  Build-fix: Make PanedAction's Child.widget public
