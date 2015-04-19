@@ -1367,7 +1367,6 @@ midori_location_action_cert_response_cb (GtkWidget*      dialog,
     }
     gtk_widget_hide (dialog);
 }
-#endif
 
 #if GTK_CHECK_VERSION (3, 12, 0)
 static void
@@ -1387,7 +1386,10 @@ midori_location_action_button_cb (GtkWidget* button,
         g_assert_not_reached ();
     midori_location_action_cert_response_cb (dialog, response, gcr_cert);
 }
+#endif
+#endif
 
+#if GTK_CHECK_VERSION (3, 12, 0)
 static gboolean
 midori_location_action_popover_button_press_event_cb (GtkWidget*      widget,
                                                       GdkEventButton* event,
