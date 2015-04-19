@@ -527,10 +527,19 @@ public Midori.Extension extension_init () {
 class ExtensionsAppsDesktop : Midori.Test.Job {
     public static void test () { new ExtensionsAppsDesktop ().run_sync (); }
     public override async void run (Cancellable cancellable) throws GLib.Error {
-        var folder = yield Apps.Launcher.create_app ("http://example.com", "Example", null);
+        string uri = "http://example.com";
+        string checksum = Checksum.compute_for_string (ChecksumType.MD5, uri, -1);
+        var apps = Apps.Launcher.get_app_folder ().get_child (checksum);
+        Midori.Paths.remove_path (apps.get_path ());
+
+        var data_dir = File.new_for_path (Midori.Paths.get_user_data_dir ());
+        var desktop_dir = data_dir.get_child ("applications");
+        Midori.Paths.remove_path (desktop_dir.get_child ("Example.desktop").get_path ());
+
+        var folder = yield Apps.Launcher.create_app (uri, "Example", null);
         var launcher = new Apps.Launcher (folder);
         launcher.init ();
-        Katze.assert_str_equal (folder.get_path (), launcher.uri, "http://example.com");
+        Katze.assert_str_equal (folder.get_path (), launcher.uri, uri);
         yield Apps.Launcher.create_profile (null);
     }
 }
