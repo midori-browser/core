@@ -69,11 +69,23 @@ static void download_unique () {
 }
 
 void download_properties () {
+#if HAVE_LIBSOUP_2_48_0
+    var test_server = new Soup.Server ("server-header", null, null);
+    try {
+        test_server.listen_local (0, Soup.ServerListenOptions.IPV4_ONLY);
+    }
+    catch (Error error) {
+        GLib.error (error.message);
+    }
+    var port = test_server.get_uris ().data.port;
+#else
     var test_address = new Soup.Address ("127.0.0.1", Soup.ADDRESS_ANY_PORT);
     test_address.resolve_sync (null);
     var test_server = new Soup.Server ("interface", test_address, null);
-    string test_url = "http://127.0.0.1:%u".printf (test_server.get_port ());
     test_server.run_async ();
+    var port = test_server.get_port ();
+#endif
+    string test_url = "http://127.0.0.1:%u".printf (port);
     test_server.add_handler ("/", (server, msg, path, query, client)=>{
         Thread.usleep (1000000); /* 1 seconds in µs */
         if ("/not_found/" in path)
