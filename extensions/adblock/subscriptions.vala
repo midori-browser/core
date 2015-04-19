@@ -317,7 +317,7 @@ namespace Adblock {
             if (uri.has_prefix ("file://"))
                 path = Filename.from_uri (uri);
             else {
-                string cache_dir = GLib.Path.build_filename (GLib.Environment.get_home_dir (), ".cache", "midori", "adblock");
+                string cache_dir = GLib.Path.build_filename (GLib.Environment.get_user_cache_dir (), PACKAGE_NAME, "adblock");
                 Midori.Paths.mkdir_with_parents (cache_dir);
                 string filename = Checksum.compute_for_string (ChecksumType.MD5, this.uri, -1);
                 path = GLib.Path.build_filename (cache_dir, filename);
