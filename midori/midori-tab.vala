@@ -159,25 +159,10 @@ namespace Midori {
 #endif
         }
 
-#if HAVE_WEBKIT2
-        /* Since: 0.5.1 */
-        public bool view_source { get {
-            return web_view.view_mode == WebKit.ViewMode.SOURCE;
-        }
-        set {
-            web_view.view_mode = value ? WebKit.ViewMode.SOURCE : WebKit.ViewMode.WEB;
-        }
-        }
-#else
-        /* Since: 0.5.1 */
-        public bool view_source { get {
-            return web_view.get_view_source_mode ();
-        }
-        set {
-            web_view.set_view_source_mode (value);
-        }
-        }
-#endif
+        /* Since: 0.5.1
+           Deprecated: 0.6.0: The feature is no longer provided by WebKit.
+         */
+        public bool view_source { get; private set; default = false; }
 
         public bool can_view_source () {
             if (view_source)

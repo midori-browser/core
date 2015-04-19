@@ -303,10 +303,6 @@ _midori_browser_update_interface (MidoriBrowser* browser,
         midori_view_get_zoom_level (view) != 1.0f);
     _action_set_sensitive (browser, "Encoding",
         midori_tab_can_view_source (MIDORI_TAB (view)));
-    _action_set_sensitive (browser, "SourceView",
-        midori_tab_can_view_source (MIDORI_TAB (view)));
-    _action_set_sensitive (browser, "SourceViewDom",
-        midori_tab_can_view_source (MIDORI_TAB (view)));
 
     action = _action_by_name (browser, "NextForward");
     if (midori_tab_can_go_forward (MIDORI_TAB (view)))
@@ -3633,64 +3629,6 @@ _action_view_encoding_activate (GtkAction*     action,
 }
 
 static void
-_action_source_view (GtkAction*     action,
-                     MidoriBrowser* browser,
-                     gboolean       use_dom)
-{
-    GtkWidget* view = midori_browser_get_current_tab (browser);
-    #ifdef HAVE_WEBKIT2
-    /* TODO: midori_view_save_source isn't async and not WebKit2-friendly */
-    GtkWidget* source = midori_view_new_with_item (NULL, browser->settings);
-    GtkWidget* source_view = midori_view_get_web_view (MIDORI_VIEW (source));
-    midori_tab_set_view_source (MIDORI_TAB (source), TRUE);
-    webkit_web_view_load_uri (WEBKIT_WEB_VIEW (source_view), midori_tab_get_uri (MIDORI_TAB (view)));
-    midori_browser_add_tab (browser, source);
-    #else
-    gchar* text_editor;
-    gchar* filename = NULL;
-
-    filename = midori_view_save_source (MIDORI_VIEW (view), NULL, NULL, use_dom);
-    g_object_get (browser->settings, "text-editor", &text_editor, NULL);
-    if (!(text_editor && *text_editor))
-    {
-        GtkWidget* source;
-        GtkWidget* source_view;
-        gchar* source_uri;
-
-        source_uri = g_filename_to_uri (filename, NULL, NULL);
-        g_free (filename);
-
-        source = midori_view_new_with_item (NULL, browser->settings);
-        source_view = midori_view_get_web_view (MIDORI_VIEW (source));
-        midori_tab_set_view_source (MIDORI_TAB (source), TRUE);
-        webkit_web_view_load_uri (WEBKIT_WEB_VIEW (source_view), source_uri);
-        midori_browser_add_tab (browser, source);
-    }
-    else
-    {
-        sokoke_spawn_program (text_editor, TRUE, filename, TRUE, FALSE);
-        g_free (filename);
-    }
-    g_free (text_editor);
-    #endif
-}
-
-static void
-_action_source_view_activate (GtkAction*     action,
-                              MidoriBrowser* browser)
-{
-    _action_source_view (action, browser, FALSE);
-}
-
-static void
-_action_source_view_dom_activate (GtkAction*     action,
-                                  MidoriBrowser* browser)
-{
-    _action_source_view (action, browser, TRUE);
-}
-
-
-static void
 _action_caret_browsing_activate (GtkAction*     action,
                                  MidoriBrowser* browser)
 {
@@ -5346,12 +5284,6 @@ static const GtkActionEntry entries[] =
         NULL, "<Ctrl>0",
         NULL, G_CALLBACK (_action_zoom_activate) },
     { "Encoding", NULL, N_("_Encoding") },
-    { "SourceView", NULL,
-        N_("View So_urce"), "<Ctrl><Alt>U",
-        NULL, G_CALLBACK (_action_source_view_activate) },
-    { "SourceViewDom", NULL,
-        N_("View _DOM Source"), "<Ctrl><Alt><Shift>U",
-        NULL, G_CALLBACK (_action_source_view_dom_activate) },
     { "CaretBrowsing", NULL,
         N_("Ca_ret Browsing"), "F7",
         NULL, G_CALLBACK (_action_caret_browsing_activate) },
@@ -5738,8 +5670,6 @@ static const gchar* ui_markup =
                     "<menuitem action='EncodingWestern'/>"
                     "<menuitem action='EncodingCustom'/>"
                 "</menu>"
-                "<menuitem action='SourceView'/>"
-                "<menuitem action='SourceViewDom'/>"
                 "<menuitem action='Fullscreen'/>"
                 "<menuitem action='Readable'/>"
             "</menu>"

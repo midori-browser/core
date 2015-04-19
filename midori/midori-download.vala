@@ -128,7 +128,7 @@ namespace Midori {
 
             string size = "%s".printf (format_size (download.get_received_data_length ()));
             string speed = "";
-            speed = format_size ((uint64)((download.get_received_data_length () * 1.0) / download.elapsed_time));
+            speed = format_size ((uint64)((download.get_received_data_length () * 1.0) / download.get_elapsed_time ()));
             speed = _(" (%s/s)").printf (speed);
             string progress = "%d%%".printf( (int) (download.get_estimated_progress ()*100));
             if (is_finished (download))
@@ -158,7 +158,7 @@ namespace Midori {
             if (status == 0) {
                 /* Link Fingerprint */
                 #if HAVE_WEBKIT2
-                string? original_uri = download.request.uri;
+                string? original_uri = download.get_request ().uri;
                 #else
                 string? original_uri = download.network_request.get_data<string> ("midori-original-uri");
                 if (original_uri == null)
