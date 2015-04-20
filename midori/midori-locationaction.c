@@ -1380,7 +1380,7 @@ midori_location_action_button_cb (GtkWidget* button,
         response = MIDORI_CERT_REVOKE;
     else if (!strcmp (label, _("_Trust this website")))
         response = MIDORI_CERT_TRUST;
-    else if (!strcmp (label, _("_Export certificate")))
+    else if (!strcmp (label, _("_Export Certificate")))
         response = MIDORI_CERT_EXPORT;
     else
         g_assert_not_reached ();
