@@ -3643,11 +3643,11 @@ _action_source_view (GtkAction*     action,
     GtkWidget* view = midori_browser_get_current_tab (browser);
     gchar* filename = midori_view_save_source (MIDORI_VIEW (view), NULL, NULL, use_dom);
     gchar* text_editor;
-    GFileInfo* info;
+    GAppInfo* info;
     g_object_get (browser->settings, "text-editor", &text_editor, NULL);
     if (text_editor && *text_editor)
         info = g_app_info_create_from_commandline (text_editor, NULL, 0, NULL);
-     else
+    else
         info = g_app_info_get_default_for_type ("text/plain", FALSE);
     GFile* file = g_file_new_for_path (filename);
     GList* files = g_list_append (NULL, file);
