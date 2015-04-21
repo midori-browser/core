@@ -1212,7 +1212,7 @@ webkit_web_view_load_error_cb (WebKitWebView*  web_view,
     void* web_frame = NULL;
     void* main_frame = NULL;
     #else
-    WebKitWebFrame* main_frame == webkit_web_view_get_main_frame (web_view);
+    WebKitWebFrame* main_frame = webkit_web_view_get_main_frame (web_view);
     #endif
     gchar* title;
     gchar* message;

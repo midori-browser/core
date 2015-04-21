@@ -303,6 +303,10 @@ _midori_browser_update_interface (MidoriBrowser* browser,
         midori_view_get_zoom_level (view) != 1.0f);
     _action_set_sensitive (browser, "Encoding",
         midori_tab_can_view_source (MIDORI_TAB (view)));
+    _action_set_sensitive (browser, "SourceView",
+        midori_tab_can_view_source (MIDORI_TAB (view)));
+    _action_set_sensitive (browser, "SourceViewDom",
+        midori_tab_can_view_source (MIDORI_TAB (view)));
 
     action = _action_by_name (browser, "NextForward");
     if (midori_tab_can_go_forward (MIDORI_TAB (view)))
@@ -3629,6 +3633,56 @@ _action_view_encoding_activate (GtkAction*     action,
 }
 
 static void
+_action_source_view (GtkAction*     action,
+                     MidoriBrowser* browser,
+                     gboolean       use_dom)
+{
+    GtkWidget* view = midori_browser_get_current_tab (browser);
+    #ifdef HAVE_WEBKIT2
+    /* TODO: midori_view_save_source isn't async and not WebKit2-friendly */
+    #else
+    gchar* filename = midori_view_save_source (MIDORI_VIEW (view), NULL, NULL, use_dom);
+    gchar* text_editor;
+    GFileInfo* info;
+    g_object_get (browser->settings, "text-editor", &text_editor, NULL);
+    if (text_editor && *text_editor)
+        info = g_app_info_create_from_commandline (text_editor, NULL, 0, NULL);
+     else
+        info = g_app_info_get_default_for_type ("text/plain", FALSE);
+    GFile* file = g_file_new_for_path (filename);
+    GList* files = g_list_append (NULL, file);
+    GError* error = NULL;
+    GdkDisplay* display = gtk_widget_get_display (view);
+    GdkAppLaunchContext* ctx = gdk_display_get_app_launch_context (display);
+    if (!g_app_info_launch (info, files, G_APP_LAUNCH_CONTEXT (ctx), &error))
+    {
+        g_printerr ("Failed to open editor: %s", error->message);
+        g_error_free (error);
+    }
+    g_object_unref (info);
+    g_list_free (files);
+    g_object_unref (file);
+    g_free (filename);
+    g_free (text_editor);
+    #endif
+}
+
+static void
+_action_source_view_activate (GtkAction* action,
+MidoriBrowser* browser)
+{
+    _action_source_view (action, browser, FALSE);
+}
+
+static void
+_action_source_view_dom_activate (GtkAction*     action,
+                                  MidoriBrowser* browser)
+{
+    _action_source_view (action, browser, TRUE);
+}
+
+
+static void
 _action_caret_browsing_activate (GtkAction*     action,
                                  MidoriBrowser* browser)
 {
@@ -5284,6 +5338,12 @@ static const GtkActionEntry entries[] =
         NULL, "<Ctrl>0",
         NULL, G_CALLBACK (_action_zoom_activate) },
     { "Encoding", NULL, N_("_Encoding") },
+    { "SourceView", NULL,
+        N_("View So_urce"), "<Ctrl><Alt>U",
+        NULL, G_CALLBACK (_action_source_view_activate) },
+    { "SourceViewDom", NULL,
+        N_("View _DOM Source"), "<Ctrl><Alt><Shift>U",
+        NULL, G_CALLBACK (_action_source_view_dom_activate) },
     { "CaretBrowsing", NULL,
         N_("Ca_ret Browsing"), "F7",
         NULL, G_CALLBACK (_action_caret_browsing_activate) },
@@ -5672,6 +5732,8 @@ static const gchar* ui_markup =
                 "</menu>"
                 "<menuitem action='Fullscreen'/>"
                 "<menuitem action='Readable'/>"
+                "<menuitem action='SourceView'/>"
+                "<menuitem action='SourceViewDom'/>"
             "</menu>"
             "<menu action='Go'>"
                 "<menuitem action='Back'/>"
