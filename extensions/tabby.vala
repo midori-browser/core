@@ -558,7 +558,7 @@ namespace Tabby {
                         ":session_id", typeof (int64), this.id);
                     statement.step ();
                     double sorting;
-                    string? sorting_string = statement.get_int64 ("MAX(sorting)").to_string ();
+                    string? sorting_string = statement.get_double ("MAX(sorting)").to_string ();
                     if (sorting_string != null) {
                         /* we have to use a seperate if condition to avoid
                            a `possibly unassigned local variable` error */
