@@ -3637,7 +3637,6 @@ _action_source_view (GtkAction*     action,
                      MidoriBrowser* browser,
                      gboolean       use_dom)
 {
-    
     #ifdef HAVE_WEBKIT2
     /* TODO: midori_view_save_source isn't async and not WebKit2-friendly */
     #else
