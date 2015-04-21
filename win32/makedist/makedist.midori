@@ -251,7 +251,7 @@ grab_icons Faenza $where_am_i/../win32/makedist/midori.nsi
 # We need to ship our CA bundle for now
 cp -Lr /etc/pki/tls/certs/ca-bundle.crt $workdir/share/midori/res/
 
-GREYBIRD_VER="1.3.4"
+GREYBIRD_VER="1.5.3"
 
 if [ "$GTK3_BUILD" == "1" ]; then
     grab_files share webkitgtk-3.0
