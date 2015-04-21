@@ -119,7 +119,7 @@ midori_private_data_dialog_is_empty (GtkDialog* dialog)
     {
         MidoriPrivateDataItem* privacy = data_items->data;
         button = g_object_get_data (G_OBJECT (dialog), privacy->name);
-        g_return_if_fail (button != NULL && GTK_IS_TOGGLE_BUTTON (button));
+        g_return_val_if_fail (button != NULL && GTK_IS_TOGGLE_BUTTON (button), false);
         if (gtk_toggle_button_get_active (button))
             count++;
     }

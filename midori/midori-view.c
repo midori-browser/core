@@ -4545,7 +4545,7 @@ midori_view_save_source (MidoriView*  view,
     GFile *file;
     char *converted = NULL;
     WebKitWebView * web_view = WEBKIT_WEB_VIEW (view->web_view);
-    g_return_if_fail (uri);
+    g_return_val_if_fail (uri,NULL);
 
     if (!outfile)
         converted = g_filename_to_utf8 (uri, -1, NULL, NULL, NULL);

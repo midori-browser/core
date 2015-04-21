@@ -3637,10 +3637,11 @@ _action_source_view (GtkAction*     action,
                      MidoriBrowser* browser,
                      gboolean       use_dom)
 {
-    GtkWidget* view = midori_browser_get_current_tab (browser);
+    
     #ifdef HAVE_WEBKIT2
     /* TODO: midori_view_save_source isn't async and not WebKit2-friendly */
     #else
+    GtkWidget* view = midori_browser_get_current_tab (browser);
     gchar* filename = midori_view_save_source (MIDORI_VIEW (view), NULL, NULL, use_dom);
     gchar* text_editor;
     GFileInfo* info;
