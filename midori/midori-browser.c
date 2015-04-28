@@ -3657,7 +3657,7 @@ _action_source_view (GtkAction*     action,
     GdkAppLaunchContext* ctx = gdk_display_get_app_launch_context (display);
     #else
     GdkAppLaunchContext* ctx = gdk_app_launch_context_new ();
-    gdk_app_launch_context_set_display (ctx, gtk_widget_get_display (view));
+    gdk_app_launch_context_set_display (ctx, display);
     #endif
     if (!g_app_info_launch (info, files, G_APP_LAUNCH_CONTEXT (ctx), &error))
     {
