@@ -21,6 +21,7 @@ if (HALF_BRO_INCOM_WEBKIT2)
          "external-download-manager.vala"
          "nojs"
          "nsplugin-manager.vala"
+         "tabs2one.c"
          )
 endif ()
 

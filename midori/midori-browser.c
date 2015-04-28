@@ -3651,47 +3651,44 @@ _action_source_view (GtkAction*     action,
                      MidoriBrowser* browser,
                      gboolean       use_dom)
 {
-    GtkWidget* view = midori_browser_get_current_tab (browser);
     #ifdef HAVE_WEBKIT2
     /* TODO: midori_view_save_source isn't async and not WebKit2-friendly */
-    GtkWidget* source = midori_view_new_with_item (NULL, browser->settings);
-    GtkWidget* source_view = midori_view_get_web_view (MIDORI_VIEW (source));
-    midori_tab_set_view_source (MIDORI_TAB (source), TRUE);
-    webkit_web_view_load_uri (WEBKIT_WEB_VIEW (source_view), midori_tab_get_uri (MIDORI_TAB (view)));
-    midori_browser_add_tab (browser, source);
     #else
+    GtkWidget* view = midori_browser_get_current_tab (browser);
+    gchar* filename = midori_view_save_source (MIDORI_VIEW (view), NULL, NULL, use_dom);
     gchar* text_editor;
-    gchar* filename = NULL;
-
-    filename = midori_view_save_source (MIDORI_VIEW (view), NULL, NULL, use_dom);
+    GAppInfo* info;
     g_object_get (browser->settings, "text-editor", &text_editor, NULL);
-    if (!(text_editor && *text_editor))
-    {
-        GtkWidget* source;
-        GtkWidget* source_view;
-        gchar* source_uri;
-
-        source_uri = g_filename_to_uri (filename, NULL, NULL);
-        g_free (filename);
-
-        source = midori_view_new_with_item (NULL, browser->settings);
-        source_view = midori_view_get_web_view (MIDORI_VIEW (source));
-        midori_tab_set_view_source (MIDORI_TAB (source), TRUE);
-        webkit_web_view_load_uri (WEBKIT_WEB_VIEW (source_view), source_uri);
-        midori_browser_add_tab (browser, source);
-    }
+    if (text_editor && *text_editor)
+        info = g_app_info_create_from_commandline (text_editor, NULL, 0, NULL);
     else
+        info = g_app_info_get_default_for_type ("text/plain", FALSE);
+    GFile* file = g_file_new_for_path (filename);
+    GList* files = g_list_append (NULL, file);
+    GError* error = NULL;
+    GdkDisplay* display = gtk_widget_get_display (view);
+    #if GTK_CHECK_VERSION (3, 0, 0)
+    GdkAppLaunchContext* ctx = gdk_display_get_app_launch_context (display);
+    #else
+    GdkAppLaunchContext* ctx = gdk_app_launch_context_new ();
+    gdk_app_launch_context_set_display (ctx, display);
+    #endif
+    if (!g_app_info_launch (info, files, G_APP_LAUNCH_CONTEXT (ctx), &error))
     {
-        sokoke_spawn_program (text_editor, TRUE, filename, TRUE, FALSE);
-        g_free (filename);
+        g_printerr ("Failed to open editor: %s", error->message);
+        g_error_free (error);
     }
+    g_object_unref (info);
+    g_list_free (files);
+    g_object_unref (file);
+    g_free (filename);
     g_free (text_editor);
     #endif
 }
 
 static void
-_action_source_view_activate (GtkAction*     action,
-                              MidoriBrowser* browser)
+_action_source_view_activate (GtkAction* action,
+MidoriBrowser* browser)
 {
     _action_source_view (action, browser, FALSE);
 }
@@ -5752,10 +5749,10 @@ static const gchar* ui_markup =
                     "<menuitem action='EncodingWestern'/>"
                     "<menuitem action='EncodingCustom'/>"
                 "</menu>"
-                "<menuitem action='SourceView'/>"
-                "<menuitem action='SourceViewDom'/>"
                 "<menuitem action='Fullscreen'/>"
                 "<menuitem action='Readable'/>"
+                "<menuitem action='SourceView'/>"
+                "<menuitem action='SourceViewDom'/>"
             "</menu>"
             "<menu action='Go'>"
                 "<menuitem action='Back'/>"

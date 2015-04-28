@@ -204,22 +204,19 @@ else ()
 endif ()
 
 if (HALF_BRO_INCOM_WEBKIT2)
-    # Note: WebKitGTK+ 2.0.0 matches 1.11.91; 1.11.92 > 2.0.0
     pkg_check_modules(DEPS_GTK REQUIRED
                       gtk+-3.0>=3.0.0
-                      webkit2gtk-3.0>=1.11.91
-                      javascriptcoregtk-3.0
+                      webkit2gtk-4.0>=2.3.91
                       )
     add_definitions("-DHAVE_WEBKIT2")
     add_definitions("-DGTK_VERSION=\"${DEPS_GTK_gtk+-3.0_VERSION}\"")
-    add_definitions("-DWEBKIT_VERSION=\"${DEPS_GTK_webkit2gtk-3.0_VERSION}\"")
+    add_definitions("-DWEBKIT_VERSION=\"${DEPS_GTK_webkit2gtk-4.0_VERSION}\"")
     set(PKGS ${PKGS} gtk+-3.0)
-    set(EXTRA_VAPIS ${EXTRA_VAPIS} "${CMAKE_SOURCE_DIR}/midori/webkit2gtk-3.0.vapi")
+    # set(EXTRA_VAPIS ${EXTRA_VAPIS} "${CMAKE_SOURCE_DIR}/midori/webkit2gtk-web-extension-4.0.vapi")
+    set(EXTRA_VAPIS ${EXTRA_VAPIS} "${CMAKE_SOURCE_DIR}/midori/webkit2gtk-4.0.vapi")
     set(VALAFLAGS ${VALAFLAGS} -D HAVE_GTK3)
     set(VALAFLAGS ${VALAFLAGS} -D HAVE_WEBKIT2)
-    if (${DEPS_GTK_webkit2gtk-3.0_VERSION} VERSION_GREATER "2.3.90")
         set(VALAFLAGS ${VALAFLAGS} -D HAVE_WEBKIT2_3_91)
-    endif ()
 elseif (USE_GTK3)
     pkg_check_modules(DEPS_GTK REQUIRED
                       gtk+-3.0>=3.0.0

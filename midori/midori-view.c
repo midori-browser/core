@@ -1210,6 +1210,9 @@ webkit_web_view_load_error_cb (WebKitWebView*  web_view,
     it's safe for midori_view_display_error to assume it fills in a main frame*/
     #ifdef HAVE_WEBKIT2
     void* web_frame = NULL;
+    void* main_frame = NULL;
+    #else
+    WebKitWebFrame* main_frame = webkit_web_view_get_main_frame (web_view);
     #endif
     gchar* title;
     gchar* message;
@@ -1257,7 +1260,7 @@ webkit_web_view_load_error_cb (WebKitWebView*  web_view,
                                         _("Try Again"), web_frame);
 
     /* if the main frame for the whole tab has a network error, set tab error status */
-    if (web_frame == webkit_web_view_get_main_frame (web_view))
+    if (web_frame == main_frame)
         midori_tab_set_load_error (MIDORI_TAB (view), MIDORI_LOAD_ERROR_NETWORK);
 
     g_free (message);
@@ -3963,7 +3966,6 @@ midori_view_set_uri (MidoriView*  view,
             midori_tab_set_uri (MIDORI_TAB (view), uri);
             katze_item_set_uri (view->item, midori_tab_get_uri (MIDORI_TAB (view)));
             katze_assign (view->title, NULL);
-            midori_tab_set_view_source (MIDORI_TAB (view), FALSE);
             webkit_web_view_load_uri (WEBKIT_WEB_VIEW (view->web_view), uri);
         }
     }
@@ -4543,7 +4545,7 @@ midori_view_save_source (MidoriView*  view,
     GFile *file;
     char *converted = NULL;
     WebKitWebView * web_view = WEBKIT_WEB_VIEW (view->web_view);
-    g_return_if_fail (uri);
+    g_return_val_if_fail (uri,NULL);
 
     if (!outfile)
         converted = g_filename_to_utf8 (uri, -1, NULL, NULL, NULL);
