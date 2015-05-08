@@ -1441,11 +1441,11 @@ midori_browser_save_uri (MidoriBrowser* browser,
     g_free (suggested_filename);
     if (midori_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK)
     {
-        char *uri = gtk_file_chooser_get_uri (GTK_FILE_CHOOSER (dialog));
-        if (uri != NULL)
+        gchar* destination_uri = gtk_file_chooser_get_uri (GTK_FILE_CHOOSER (dialog));
+        if (destination_uri != NULL)
         {
-            midori_view_save_source (view, uri, NULL, false);
-            g_free (uri);
+            midori_view_save_source (view, destination_uri, NULL, false);
+            g_free (destination_uri);
         }
         katze_assign (last_dir,
             gtk_file_chooser_get_current_folder (GTK_FILE_CHOOSER (dialog)));
