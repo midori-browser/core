@@ -1444,7 +1444,7 @@ midori_browser_save_uri (MidoriBrowser* browser,
         gchar* destination_uri = gtk_file_chooser_get_uri (GTK_FILE_CHOOSER (dialog));
         if (destination_uri != NULL)
         {
-            midori_view_save_source (view, destination_uri, NULL, false);
+            midori_view_save_source (view, uri, destination_uri, false);
             g_free (destination_uri);
         }
         katze_assign (last_dir,
