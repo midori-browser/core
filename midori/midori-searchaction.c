@@ -421,7 +421,7 @@ midori_search_action_get_menu (GtkWidget* entry,
             menuitem = gtk_image_menu_item_new_with_label (
                 katze_item_get_name (item));
             image = gtk_image_new ();
-            if ((icon = katze_item_get_pixbuf (item, entry)))
+            if ((icon = midori_paths_get_icon (katze_item_get_uri (item), NULL)))
             {
                 gtk_image_set_from_pixbuf (GTK_IMAGE (image), icon);
                 g_object_unref (icon);
@@ -494,37 +494,20 @@ midori_search_action_set_entry_icon (MidoriSearchAction* search_action,
 {
     GdkPixbuf* icon;
 
-    if (search_action->current_item)
+    if (search_action->current_item
+     && (icon = midori_paths_get_icon (katze_item_get_uri (search_action->current_item), NULL)))
     {
-        if ((icon = katze_item_get_pixbuf (search_action->current_item, entry)))
-        {
-            gtk_entry_set_icon_from_pixbuf (GTK_ENTRY (entry), GTK_ENTRY_ICON_PRIMARY, icon);
-            g_object_unref (icon);
-        }
-        else
-        {
-            GdkScreen* screen = gtk_widget_get_screen (entry);
-            GtkIconTheme* icon_theme = gtk_icon_theme_get_for_screen (screen);
-            gchar* icon_name;
-            if (gtk_icon_theme_has_icon (icon_theme, "edit-find-option-symbolic"))
-                icon_name = "edit-find-option-symbolic";
-            else if (gtk_icon_theme_has_icon (icon_theme, "edit-find-option"))
-                icon_name = "edit-find-option";
-            else
-                icon_name = STOCK_EDIT_FIND;
-            gtk_entry_set_icon_from_icon_name (GTK_ENTRY (entry),
-                GTK_ENTRY_ICON_PRIMARY, icon_name);
-        }
-        gtk_entry_set_placeholder_text (GTK_ENTRY (entry),
-            katze_item_get_name (search_action->current_item));
+        gtk_entry_set_icon_from_pixbuf (GTK_ENTRY (entry), GTK_ENTRY_ICON_PRIMARY, icon);
+        g_object_unref (icon);
     }
     else
     {
-        gtk_entry_set_icon_from_stock (GTK_ENTRY (entry),
-                                            GTK_ENTRY_ICON_PRIMARY,
-                                            GTK_STOCK_FIND);
-        gtk_entry_set_placeholder_text (GTK_ENTRY (entry), "");
+        GIcon* icon = g_themed_icon_new_with_default_fallbacks ("edit-find-option-symbolic");
+        gtk_entry_set_icon_from_gicon (GTK_ENTRY (entry),
+            GTK_ENTRY_ICON_PRIMARY, icon);
     }
+    gtk_entry_set_placeholder_text (GTK_ENTRY (entry),
+        katze_item_get_name (search_action->current_item));
 }
 
 static void
@@ -795,7 +778,7 @@ midori_search_action_dialog_render_icon_cb (GtkTreeViewColumn* column,
 
     gtk_tree_model_get (model, iter, 0, &item, -1);
 
-    if ((icon = katze_item_get_pixbuf (item, treeview)))
+    if ((icon = midori_paths_get_icon (katze_item_get_uri (item), NULL)))
     {
         g_object_set (renderer, "pixbuf", icon, "yalign", 0.25, NULL);
         g_object_unref (icon);
