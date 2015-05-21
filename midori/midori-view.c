@@ -2450,10 +2450,15 @@ midori_view_get_page_context_action (MidoriView*          view,
                 GtkAction* action = (GtkAction*)midori_context_action_new_escaped (search_option, katze_item_get_name (item), NULL, STOCK_EDIT_FIND);
                 g_free (search_option);
                 midori_context_action_add (searches, action);
-                if ((pixbuf = katze_item_get_pixbuf (item, view->web_view)))
+                if ((pixbuf = midori_paths_get_icon (katze_item_get_uri (item), NULL)))
                 {
-                    gtk_action_set_gicon (GTK_ACTION (action), G_ICON (pixbuf));
+                    gtk_action_set_gicon (action, G_ICON (pixbuf));
                     g_object_unref (pixbuf);
+                }
+                else
+                {
+                    GIcon* icon = g_themed_icon_new_with_default_fallbacks ("edit-find-option-symbolic");
+                    gtk_action_set_gicon (action, icon);
                 }
                 gtk_action_set_always_show_image (GTK_ACTION (action), TRUE);
                 g_object_set_data (G_OBJECT (action), "search", (gchar*)katze_item_get_uri (item));
