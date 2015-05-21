@@ -507,7 +507,8 @@ midori_search_action_set_entry_icon (MidoriSearchAction* search_action,
             GTK_ENTRY_ICON_PRIMARY, icon);
     }
     gtk_entry_set_placeholder_text (GTK_ENTRY (entry),
-        katze_item_get_name (search_action->current_item));
+        search_action->current_item
+        ? katze_item_get_name (search_action->current_item) : "");
 }
 
 static void
