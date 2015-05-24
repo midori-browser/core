@@ -37,6 +37,7 @@ namespace Midori {
         } }
 
         public string actions { get; set; default = ""; }
+        string extra_actions { get; set; default = ""; }
         List<Gtk.ActionGroup> action_groups;
         public signal bool context_menu (Gtk.Widget widget, Gtk.Action? action=null);
         Gtk.Box? box = null;
@@ -93,17 +94,29 @@ namespace Midori {
             return toolitem;
         }
 
+        /**
+         * Adds an action to the (browser) window.
+         * Typically it will be displayed in the primary toolbar or headerbar.
+         *
+         * If @action is a ContextAction a menu will be displayed.
+         *
+         * Since: 0.6.0
+         **/
         public void add_action (Gtk.Action action) {
-            /* FIXME: Keep track of added actions */
-            var toolitem = create_tool_item (action);
-#if HAVE_GTK3
-            if (_toolbar is Gtk.HeaderBar)
-                (_toolbar as Gtk.HeaderBar).pack_end (toolitem);
-            else {
-#else
-                (_toolbar as Gtk.Toolbar).insert (toolitem, -1);
-#endif
-            }
+            action_groups.nth_data (0).add_action (action);
+            extra_actions += "," + action.name;
+            update_toolbar ();
+        }
+
+        /**
+         * Remove an action from the (browser) window.
+         *
+         * Since: 0.6.0
+         **/
+        public void remove_action (Gtk.Action action) {
+            action_groups.nth_data (0).remove_action (action);
+            extra_actions = extra_actions.replace ("," + action.name, "");
+            update_toolbar ();
         }
 
         void update_toolbar () {
@@ -111,7 +124,7 @@ namespace Midori {
             foreach (var toolitem in container.get_children ())
                 container.remove (toolitem);
 
-            string[] names = actions.split (",");
+            string[] names = actions.replace ("Location", "Location," + extra_actions).split (",");
 #if HAVE_GTK3
             if (_toolbar is Gtk.HeaderBar) {
                 var headerbar = _toolbar as Gtk.HeaderBar;
@@ -212,6 +225,7 @@ namespace Midori {
             if (actions != "")
                 update_toolbar ();
             notify["actions"].connect ((pspec)=> { update_toolbar (); });
+            notify["extra-actions"].connect ((pspec)=> { update_toolbar (); });
         }
     }
 }

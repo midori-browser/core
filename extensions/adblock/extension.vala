@@ -123,7 +123,7 @@ namespace Adblock {
             browser.add_tab.connect (tab_added);
             browser.remove_tab.connect (tab_removed);
 
-            browser.add_action (status_icon.add_button ());
+            browser.add_action (status_icon);
         }
 
         void browser_removed (Midori.Browser browser) {
@@ -131,7 +131,7 @@ namespace Adblock {
                 tab_removed (tab);
             browser.add_tab.disconnect (tab_added);
             browser.remove_tab.disconnect (tab_removed);
-            // FIXME: browser.remove_action (status_icon);
+            browser.remove_action (status_icon);
         }
 
         void tab_added (Midori.View view) {

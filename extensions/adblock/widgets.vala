@@ -13,45 +13,27 @@
 namespace Adblock {
 
 
-    public class StatusIcon {
+    public class StatusIcon : Midori.ContextAction  {
         Config config;
         SubscriptionManager manager;
         public State state;
         public bool debug_element_toggled;
-        public List<IconButton> toggle_buttons;
 
         public StatusIcon (Adblock.Config config, SubscriptionManager manager) {
+            GLib.Object (name: "AdblockStatusMenu");
+
             this.config = config;
             this.manager = manager;
             this.debug_element_toggled = false;
-        }
 
-        public void set_state (Adblock.State state) {
-            this.state = state;
-            update_buttons ();
-        }
-
-        public class IconButton : Midori.ContextAction {
-            public IconButton () {
-                GLib.Object (name: "AdblockStatusMenu");
-             }
-
-            public void set_status (string status) {
-                gicon = new GLib.FileIcon (File.new_for_path (
-                    Midori.Paths.get_res_filename ("adblock/%s.png".printf (status))));
-            }
-        }
-
-        public IconButton add_button () {
-            var button = new IconButton ();
             var item = new Midori.ContextAction ("Preferences",
                 _("Preferences"), null, Gtk.STOCK_PREFERENCES);
             item.activate.connect (() => {
                 manager.add_subscription (null);
             });
-            button.add (item);
+            add (item);
 
-            button.add (null);
+            add (null);
 
             var checkitem = new Gtk.ToggleAction ("Disable", _("Disable"), null, null);
             checkitem.set_active (!config.enabled);
@@ -59,7 +41,7 @@ namespace Adblock {
                 config.enabled = !checkitem.active;
                 set_state (config.enabled ? Adblock.State.ENABLED : Adblock.State.DISABLED);
             });
-            button.add (checkitem);
+            add (checkitem);
 
             var hideritem = new Gtk.ToggleAction ("HiddenElements",
                 _("Display hidden elements"), null, null);
@@ -67,29 +49,29 @@ namespace Adblock {
             hideritem.toggled.connect (() => {
                 this.debug_element_toggled = hideritem.active;
             });
-            button.add (hideritem);
-            button.set_status (config.enabled ? "enabled" : "disabled");
-            toggle_buttons.append (button);
-            return button;
+            add (hideritem);
+            set_status (config.enabled ? "enabled" : "disabled");
         }
 
-        public void update_buttons () {
-            string state = "";
-            foreach (var toggle_button in toggle_buttons) {
-                if (this.state == State.BLOCKED) {
-                    toggle_button.set_status ("blocked");
-                    state = _("Blocking");
-                }
-                if (this.state == State.ENABLED) {
-                    toggle_button.set_status ("enabled");
-                    state = _("Enabled");
-                }
-                if (this.state == State.DISABLED) {
-                    toggle_button.set_status ("disabled");
-                    state = _("Disabled");
-                }
-                toggle_button.tooltip  = _("Adblock state: %s").printf (state);
-            }
+        void set_status (string status) {
+            gicon = new GLib.FileIcon (File.new_for_path (
+                Midori.Paths.get_res_filename ("adblock/%s.png".printf (status))));
+        }
+
+        public void set_state (Adblock.State state) {
+            this.state = state;
+
+            if (this.state == State.BLOCKED) {
+                set_status ("blocked");
+                tooltip = _("Blocking");
+            } else if (this.state == State.ENABLED) {
+                set_status ("enabled");
+                tooltip = _("Enabled");
+            } else if (this.state == State.DISABLED) {
+                set_status ("disabled");
+                tooltip = _("Disabled");
+            } else
+                assert_not_reached ();
         }
     }
 
