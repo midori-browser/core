@@ -16,6 +16,10 @@ namespace Midori {
         Child child1 = new Child();
         Child child2 = new Child();
 
+        public PanedAction () {
+            GLib.Object (name: "LocationSearch");
+        }
+
         private struct Child {
             public Gtk.Widget widget;
             string name;

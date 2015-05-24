@@ -92,6 +92,18 @@ namespace Midori {
         }
 #endif
 
+        Gtk.ToolButton toolitem;
+        public override unowned Gtk.Widget create_tool_item () {
+            toolitem = base.create_tool_item () as Gtk.ToolButton;
+            toolitem.clicked.connect (()=>{
+                var popup = create_menu (null, false);
+                popup.show ();
+                popup.attach_to_widget (toolitem, null);
+                popup.popup (null, null, null, 1, Gtk.get_current_event_time ());
+            });
+            return toolitem;
+        }
+
         public new Gtk.Menu create_menu (Gtk.Menu? default_menu, bool accels) {
             var menu = default_menu ?? new Gtk.Menu ();
             foreach (var action in children) {

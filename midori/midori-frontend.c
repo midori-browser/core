@@ -74,11 +74,13 @@ midori_web_app_new (const gchar* webapp,
     midori_browser_set_action_visible (browser, "CompactMenu", FALSE);
     midori_browser_set_action_visible (browser, "AddSpeedDial", FALSE);
     midori_browser_set_action_visible (browser, "Navigationbar", FALSE);
+    GtkActionGroup* action_group = midori_browser_get_action_group (browser);
+    GtkAction* action = gtk_action_group_get_action (action_group, "Location");
+    gtk_action_set_sensitive (action, FALSE);
 
     MidoriWebSettings* settings = midori_settings_new_full (NULL);
     g_object_set (settings,
                   "show-menubar", FALSE,
-                  "show-navigationbar", FALSE,
                   "toolbar-items", "Back,Forward,ReloadStop,Location,Homepage,Preferences",
                   "show-statusbar", FALSE,
                   "show-panel", FALSE,

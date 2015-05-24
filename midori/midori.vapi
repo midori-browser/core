@@ -62,7 +62,7 @@ namespace Midori {
     }
 
     [CCode (cheader_filename = "midori/midori-browser.h")]
-    public class Browser : Gtk.Window {
+    public class Browser : Window {
         public Browser ();
         public unowned Gtk.Widget add_item (Katze.Item item);
         public unowned Gtk.Widget add_uri (string uri);
