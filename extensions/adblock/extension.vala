@@ -115,8 +115,6 @@ namespace Adblock {
                 browser_removed (browser);
             app.add_browser.disconnect (browser_added);
             app.remove_browser.disconnect (browser_removed);
-            foreach (var button in status_icon.toggle_buttons)
-                button.destroy ();
         }
 
         void browser_added (Midori.Browser browser) {
@@ -125,9 +123,7 @@ namespace Adblock {
             browser.add_tab.connect (tab_added);
             browser.remove_tab.connect (tab_removed);
 
-            var toggle_button = status_icon.add_button ();
-            browser.statusbar.pack_end (toggle_button, false, false, 3);
-            toggle_button.show ();
+            browser.add_action (status_icon.add_button ());
         }
 
         void browser_removed (Midori.Browser browser) {
@@ -135,6 +131,7 @@ namespace Adblock {
                 tab_removed (tab);
             browser.add_tab.disconnect (tab_added);
             browser.remove_tab.disconnect (tab_removed);
+            // FIXME: browser.remove_action (status_icon);
         }
 
         void tab_added (Midori.View view) {

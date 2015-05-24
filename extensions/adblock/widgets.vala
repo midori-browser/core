@@ -31,25 +31,44 @@ namespace Adblock {
             update_buttons ();
         }
 
-        public class IconButton : Gtk.Button {
-            Gtk.Image icon;
-
+        public class IconButton : Midori.ContextAction {
             public IconButton () {
-                icon = new Gtk.Image ();
-                add (icon);
-                icon.show ();
-            }
+                GLib.Object (name: "AdblockStatusMenu");
+             }
 
             public void set_status (string status) {
-                icon.set_from_file (Midori.Paths.get_res_filename ("adblock/%s.png".printf (status)));
+                gicon = new GLib.FileIcon (File.new_for_path (
+                    Midori.Paths.get_res_filename ("adblock/%s.png".printf (status))));
             }
         }
 
         public IconButton add_button () {
             var button = new IconButton ();
+            var item = new Midori.ContextAction ("Preferences",
+                _("Preferences"), null, Gtk.STOCK_PREFERENCES);
+            item.activate.connect (() => {
+                manager.add_subscription (null);
+            });
+            button.add (item);
+
+            button.add (null);
+
+            var checkitem = new Gtk.ToggleAction ("Disable", _("Disable"), null, null);
+            checkitem.set_active (!config.enabled);
+            checkitem.toggled.connect (() => {
+                config.enabled = !checkitem.active;
+                set_state (config.enabled ? Adblock.State.ENABLED : Adblock.State.DISABLED);
+            });
+            button.add (checkitem);
+
+            var hideritem = new Gtk.ToggleAction ("HiddenElements",
+                _("Display hidden elements"), null, null);
+            hideritem.set_active (debug_element_toggled);
+            hideritem.toggled.connect (() => {
+                this.debug_element_toggled = hideritem.active;
+            });
+            button.add (hideritem);
             button.set_status (config.enabled ? "enabled" : "disabled");
-            button.clicked.connect (icon_clicked);
-            button.destroy.connect (()=> { toggle_buttons.remove (button); });
             toggle_buttons.append (button);
             return button;
         }
@@ -69,43 +88,8 @@ namespace Adblock {
                     toggle_button.set_status ("disabled");
                     state = _("Disabled");
                 }
-                toggle_button.set_tooltip_text (_("Adblock state: %s").printf (state));
+                toggle_button.tooltip  = _("Adblock state: %s").printf (state);
             }
-        }
-
-        public void icon_clicked (Gtk.Button toggle_button) {
-            var menu = new Gtk.Menu ();
-
-            var menuitem = new Gtk.ImageMenuItem.with_label (_("Preferences"));
-            var image = new Gtk.Image.from_stock (Gtk.STOCK_PREFERENCES, Gtk.IconSize.MENU);
-            menuitem.always_show_image = true;
-            menuitem.set_image (image);
-            menuitem.activate.connect (() => {
-                manager.add_subscription (null);
-            });
-            menu.append (menuitem);
-
-            var separator = new Gtk.SeparatorMenuItem ();
-            menu.append (separator);
-
-            var checkitem = new Gtk.CheckMenuItem.with_label (_("Disable"));
-            checkitem.set_active (!config.enabled);
-            checkitem.toggled.connect (() => {
-                config.enabled = !checkitem.active;
-                set_state (config.enabled ? Adblock.State.ENABLED : Adblock.State.DISABLED);
-            });
-            menu.append (checkitem);
-
-            var hideritem = new Gtk.CheckMenuItem.with_label (_("Display hidden elements"));
-            hideritem.set_active (debug_element_toggled);
-            hideritem.toggled.connect (() => {
-                this.debug_element_toggled = hideritem.active;
-            });
-            menu.append (hideritem);
-
-            menu.show_all ();
-            menu.attach_to_widget (toggle_button, null);
-            menu.popup (null, null, null, 1, Gtk.get_current_event_time ());
         }
     }
 
