@@ -124,7 +124,7 @@ namespace Midori {
             foreach (var toolitem in container.get_children ())
                 container.remove (toolitem);
 
-            string[] names = actions.replace ("Location", "Location," + extra_actions).split (",");
+            string[] names = actions.replace ("CompactMenu", extra_actions + ",CompactMenu").split (",");
 #if HAVE_GTK3
             if (_toolbar is Gtk.HeaderBar) {
                 var headerbar = _toolbar as Gtk.HeaderBar;
@@ -171,8 +171,8 @@ namespace Midori {
                     toolitem_previous.ref ();
                     toolbar.remove (toolitem_previous);
                     var paned = new Midori.PanedAction ();
-                    paned.set_child1 (toolitem, previous, previous != "Search", true);
-                    paned.set_child2 (toolitem_previous, name, name != "Search", true);
+                    paned.set_child1 (toolitem_previous, previous, previous != "Search", true);
+                    paned.set_child2 (toolitem, name, name != "Search", true);
                     var sizeable = name == "Search" ? toolitem_previous : toolitem;
                     sizeable.size_allocate.connect (()=> {
                         // FIXME
@@ -225,7 +225,6 @@ namespace Midori {
             if (actions != "")
                 update_toolbar ();
             notify["actions"].connect ((pspec)=> { update_toolbar (); });
-            notify["extra-actions"].connect ((pspec)=> { update_toolbar (); });
         }
     }
 }
