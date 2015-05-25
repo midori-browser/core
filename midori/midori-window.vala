@@ -173,14 +173,15 @@ namespace Midori {
                     var paned = new Midori.PanedAction ();
                     paned.set_child1 (toolitem_previous, previous, previous != "Search", true);
                     paned.set_child2 (toolitem, name, name != "Search", true);
-                    var sizeable = name == "Search" ? toolitem_previous : toolitem;
-                    sizeable.size_allocate.connect (()=> {
-                        // FIXME
+                    /* Midori.Settings.search-width on Midori.Browser.settings */
+                    Midori.Settings? settings = null;
+                    get ("settings", ref settings);
+                    var sizeable = name == "Search" ? toolitem : toolitem_previous;
+                    sizeable.size_allocate.connect ((allocation)=> {
+                        settings.set ("search-width", allocation.width);
                     });
-                    var requester = previous == "Search" ? toolitem : toolitem_previous;
-                    // FIXME: Midori.WebSettings search-width
-                    int search_width = 50;
-                    requester.set_size_request (search_width, -1);
+                    var requester = previous == "Search" ? toolitem_previous : toolitem;
+                    requester.set_size_request (settings.search_width, -1);
                     toolitem = paned.create_tool_item () as Gtk.ToolItem;
                     previous = null;
                     toolitem_previous.unref ();
