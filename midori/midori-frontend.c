@@ -183,9 +183,7 @@ midori_private_app_new (const gchar* config,
     g_object_set (settings,
                   "preferred-languages", "en",
                   "enable-private-browsing", TRUE,
-    #ifdef HAVE_LIBSOUP_2_29_91
                   "first-party-cookies-only", TRUE,
-    #endif
                   "enable-html5-database", FALSE,
                   "enable-html5-local-storage", FALSE,
                   "enable-offline-web-application-cache", FALSE,

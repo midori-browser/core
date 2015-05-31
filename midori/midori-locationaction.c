@@ -1291,7 +1291,6 @@ midori_location_action_focus_out_event_cb (GtkWidget*   widget,
     #include <gcr/gcr.h>
 #endif
 
-#if defined (HAVE_LIBSOUP_2_34_0)
 #ifndef HAVE_WEBKIT2
 static GHashTable* message_map = NULL;
 void
@@ -1317,7 +1316,6 @@ midori_map_get_message (SoupMessage* message)
         return full;
     return message;
 }
-#endif
 #endif
 
 #ifdef HAVE_GCR
@@ -1615,9 +1613,7 @@ midori_location_action_icon_released_cb (GtkWidget*           widget,
         gtk_box_pack_start (GTK_BOX (hbox),
             gtk_label_new (gtk_entry_get_icon_tooltip_text (GTK_ENTRY (widget), icon_pos)), FALSE, FALSE, 0);
         gtk_box_pack_start (GTK_BOX (content_area), hbox, FALSE, FALSE, 0);
-        #ifdef HAVE_LIBSOUP_2_34_0
         midori_location_action_show_page_info (widget, GTK_BOX (content_area), dialog);
-        #endif
         gtk_widget_show_all (dialog);
     }
     if (icon_pos == GTK_ENTRY_ICON_SECONDARY)
