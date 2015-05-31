@@ -138,8 +138,10 @@ namespace Midori {
                         widget = (widget as Gtk.Bin).get_child ();
                     if (name == "Location") {
                         (widget as Gtk.Entry).max_width_chars = 256;
-                        widget.set ("margin-start", 25, "margin-end", 25);
                         headerbar.custom_title = toolitem;
+                        headerbar.custom_title.set (
+                            "margin-start", 25, "margin-end", 25,
+                            "margin-top", 5, "margin-bottom", 5);
                     } else if (name == "Search") {
                         (widget as Gtk.Entry).width_chars = 12;
                         tail.append (toolitem);
