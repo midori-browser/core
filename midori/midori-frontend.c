@@ -120,6 +120,9 @@ midori_web_app_new (const gchar* webapp,
         midori_browser_activate_action (browser, execute_commands[i]);
     }
     midori_session_persistent_settings (settings, NULL);
+    /* FIXME need proper stock extension mechanism */
+    midori_browser_activate_action (browser, "libopen-with." G_MODULE_SUFFIX "=true");
+    g_assert (g_module_error () == NULL);
     return browser;
 }
 

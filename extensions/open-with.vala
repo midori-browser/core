@@ -622,7 +622,8 @@ namespace ExternalApplications {
         }
 
         bool open_uri (Midori.Tab tab, string uri) {
-            return open_with_type (uri, get_content_type (uri, null), tab, NextStep.TRY_OPEN);
+            string content_type = get_content_type (uri, null);
+            return open_with_type (uri, content_type, tab, NextStep.TRY_OPEN);
         }
 
         bool navigation_requested (Midori.Tab tab, string uri) {
@@ -657,6 +658,9 @@ namespace ExternalApplications {
             return open_now (uri, content_type, widget, next_step);
             #else
             if (!Midori.URI.is_http (uri))
+                return open_now (uri, content_type, widget, next_step);
+            /* Don't download websites */
+            if (content_type == "application/octet-stream")
                 return open_now (uri, content_type, widget, next_step);
 
             var download = new WebKit.Download (new WebKit.NetworkRequest (uri));

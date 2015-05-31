@@ -1742,7 +1742,7 @@ midori_view_new_view_cb (GtkWidget*     view,
         return;
     }
 
-    if (midori_view_forward_external (new_view,
+    if (midori_view_forward_external (view,
         katze_item_get_uri (midori_view_get_proxy_item (MIDORI_VIEW (new_view))),
         where))
         return;
