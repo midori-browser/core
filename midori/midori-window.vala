@@ -138,6 +138,7 @@ namespace Midori {
                     if (widget is Gtk.Alignment)
                         widget = (widget as Gtk.Bin).get_child ();
                     if (name == "Location") {
+                        widget.set ("margin-top", 1, "margin-bottom", 1);
                         (widget as Gtk.Entry).max_width_chars = 256;
                         headerbar.custom_title = toolitem;
                         headerbar.custom_title.set (
