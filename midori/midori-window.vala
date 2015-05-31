@@ -30,7 +30,8 @@ namespace Midori {
                 toolbar.get_style_context ().add_class ("primary-toolbar");
                 hide_titlebar_when_maximized = true;
 #endif
-                toolbar.popup_context_menu.connect ((x, y, button)=> { return button == 3 && context_menu (toolbar); });
+                toolbar.popup_context_menu.connect ((x, y, button)=> {
+                    return button == 3 && context_menu (toolbar); });
                 _toolbar = toolbar;
             }
             return _toolbar;
@@ -85,10 +86,10 @@ namespace Midori {
         Gtk.ToolItem create_tool_item (Gtk.Action action) {
             var toolitem = action.create_tool_item () as Gtk.ToolItem;
             /* Show label if button has no icon of any kind */
-            if (action.icon_name == null && action.stock_id == null)
+            if (action.icon_name == null && action.stock_id == null && action.gicon == null)
                 toolitem.is_important = true;
             toolitem.get_child ().button_press_event.connect ((event)=> {
-                return event.button == 3 && context_menu (toolitem, toolitem.related_action); });
+                return event.button == 3 && context_menu (toolitem, action); });
             if (name == "CompactMenu")
                 bind_property ("show-menubar", toolitem, "visible");
             return toolitem;
@@ -145,7 +146,7 @@ namespace Midori {
                     } else if (name == "Search") {
                         (widget as Gtk.Entry).width_chars = 12;
                         tail.append (toolitem);
-                    } else if ("Add" in name || "Compact" in name || name in "Preferences,Trash")
+                    } else if (actions.index_of (name) > actions.index_of ("Location"))
                         tail.append (toolitem);
                     else
                         headerbar.pack_start (toolitem);
