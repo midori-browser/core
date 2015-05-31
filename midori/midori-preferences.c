@@ -415,6 +415,10 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
 
     /* Page "Interface" */
     PAGE_NEW (GTK_STOCK_CONVERT, _("Browsing"));
+    gboolean has_toolbar = parent && MIDORI_IS_BROWSER (parent) && GTK_IS_TOOLBAR (katze_object_get_object (parent, "toolbar"));
+    #ifndef G_OS_WIN32
+    if (has_toolbar)
+    #endif
         FRAME_NEW (NULL);
     #ifdef G_OS_WIN32
     INDENTED_ADD (gtk_label_new (_("Theme:")));
@@ -449,9 +453,12 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     }
     g_free (theme_path);
     #endif
+    if (has_toolbar)
+    {
         INDENTED_ADD (gtk_label_new (_("Toolbar Style:")));
         button = katze_property_proxy (settings, "toolbar-style", NULL);
         SPANNED_ADD (button);
+    }
     FRAME_NEW (NULL);
     label = gtk_label_new (_("Open new pages in:"));
     INDENTED_ADD (label);
