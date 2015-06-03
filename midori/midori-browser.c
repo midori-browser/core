@@ -2466,7 +2466,7 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      "navigationbar",
                                      "Navigationbar",
                                      "The navigationbar",
-                                     GTK_TYPE_TOOLBAR,
+                                     GTK_TYPE_CONTAINER,
                                      G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
     g_object_class_install_property (gobject_class,
