@@ -149,6 +149,8 @@ namespace Midori {
                         tail.append (toolitem);
                     } else if (actions.index_of (name) > actions.index_of ("Location"))
                         tail.append (toolitem);
+                    else if (name in extra_actions)
+                        tail.append (toolitem);
                     else
                         headerbar.pack_start (toolitem);
                 }
