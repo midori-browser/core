@@ -30,7 +30,7 @@ namespace Midori {
                 toolbar.get_style_context ().add_class ("primary-toolbar");
                 hide_titlebar_when_maximized = true;
 #endif
-                toolbar.popup_context_menu.connect ((x, y, button)=> {
+                toolbar.popup_context_menu.connect ((x, y, button) => {
                     return button == 3 && context_menu (toolbar); });
                 _toolbar = toolbar;
             }
@@ -88,7 +88,7 @@ namespace Midori {
             /* Show label if button has no icon of any kind */
             if (action.icon_name == null && action.stock_id == null && action.gicon == null)
                 toolitem.is_important = true;
-            toolitem.get_child ().button_press_event.connect ((event)=> {
+            toolitem.get_child ().button_press_event.connect ((event) => {
                 return event.button == 3 && context_menu (toolitem, action); });
             if (name == "CompactMenu")
                 bind_property ("show-menubar", toolitem, "visible");
@@ -183,7 +183,7 @@ namespace Midori {
                     Midori.Settings? settings = null;
                     get ("settings", ref settings);
                     var sizeable = name == "Search" ? toolitem : toolitem_previous;
-                    sizeable.size_allocate.connect ((allocation)=> {
+                    sizeable.size_allocate.connect ((allocation) => {
                         settings.set ("search-width", allocation.width);
                     });
                     var requester = previous == "Search" ? toolitem_previous : toolitem;
@@ -205,7 +205,9 @@ namespace Midori {
 #if HAVE_GTK3
                 get_style_context ().add_class ("secondary-toolbar");
 #endif
-                (toolbar as Gtk.Toolbar).popup_context_menu.connect ((x, y, button)=> { return button == 3 && context_menu (toolbar); });
+                (toolbar as Gtk.Toolbar).popup_context_menu.connect ((x, y, button) => {
+                    return button == 3 && context_menu (toolbar);
+                });
             }
             if (box == null)
                 toolbars.append (toolbar);
@@ -231,7 +233,7 @@ namespace Midori {
                 box.pack_end (_contents, true, true, 0);
             if (actions != "")
                 update_toolbar ();
-            notify["actions"].connect ((pspec)=> { update_toolbar (); });
+            notify["actions"].connect ((pspec) => { update_toolbar (); });
         }
     }
 }

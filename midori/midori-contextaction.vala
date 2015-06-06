@@ -95,7 +95,7 @@ namespace Midori {
         Gtk.ToolButton toolitem;
         public override unowned Gtk.Widget create_tool_item () {
             toolitem = base.create_tool_item () as Gtk.ToolButton;
-            toolitem.clicked.connect (()=>{
+            toolitem.clicked.connect (() => {
                 var popup = create_menu (null, false);
                 popup.show ();
                 popup.attach_to_widget (toolitem, null);
