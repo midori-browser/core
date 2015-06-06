@@ -13,99 +13,65 @@
 namespace Adblock {
 
 
-    public class StatusIcon {
+    public class StatusIcon : Midori.ContextAction  {
         Config config;
         SubscriptionManager manager;
         public State state;
         public bool debug_element_toggled;
-        public List<IconButton> toggle_buttons;
 
         public StatusIcon (Adblock.Config config, SubscriptionManager manager) {
+            GLib.Object (name: "AdblockStatusMenu");
+
             this.config = config;
             this.manager = manager;
             this.debug_element_toggled = false;
-        }
 
-        public void set_state (Adblock.State state) {
-            this.state = state;
-            update_buttons ();
-        }
-
-        public class IconButton : Gtk.Button {
-            Gtk.Image icon;
-
-            public IconButton () {
-                icon = new Gtk.Image ();
-                add (icon);
-                icon.show ();
-            }
-
-            public void set_status (string status) {
-                icon.set_from_file (Midori.Paths.get_res_filename ("adblock/%s.png".printf (status)));
-            }
-        }
-
-        public IconButton add_button () {
-            var button = new IconButton ();
-            button.set_status (config.enabled ? "enabled" : "disabled");
-            button.clicked.connect (icon_clicked);
-            button.destroy.connect (()=> { toggle_buttons.remove (button); });
-            toggle_buttons.append (button);
-            return button;
-        }
-
-        public void update_buttons () {
-            string state = "";
-            foreach (var toggle_button in toggle_buttons) {
-                if (this.state == State.BLOCKED) {
-                    toggle_button.set_status ("blocked");
-                    state = _("Blocking");
-                }
-                if (this.state == State.ENABLED) {
-                    toggle_button.set_status ("enabled");
-                    state = _("Enabled");
-                }
-                if (this.state == State.DISABLED) {
-                    toggle_button.set_status ("disabled");
-                    state = _("Disabled");
-                }
-                toggle_button.set_tooltip_text (_("Adblock state: %s").printf (state));
-            }
-        }
-
-        public void icon_clicked (Gtk.Button toggle_button) {
-            var menu = new Gtk.Menu ();
-
-            var menuitem = new Gtk.ImageMenuItem.with_label (_("Preferences"));
-            var image = new Gtk.Image.from_stock (Gtk.STOCK_PREFERENCES, Gtk.IconSize.MENU);
-            menuitem.always_show_image = true;
-            menuitem.set_image (image);
-            menuitem.activate.connect (() => {
+            var item = new Midori.ContextAction ("Preferences",
+                _("Preferences"), null, Gtk.STOCK_PREFERENCES);
+            item.activate.connect (() => {
                 manager.add_subscription (null);
             });
-            menu.append (menuitem);
+            add (item);
 
-            var separator = new Gtk.SeparatorMenuItem ();
-            menu.append (separator);
+            add (null);
 
-            var checkitem = new Gtk.CheckMenuItem.with_label (_("Disable"));
+            var checkitem = new Gtk.ToggleAction ("Disable", _("Disable"), null, null);
             checkitem.set_active (!config.enabled);
             checkitem.toggled.connect (() => {
                 config.enabled = !checkitem.active;
                 set_state (config.enabled ? Adblock.State.ENABLED : Adblock.State.DISABLED);
             });
-            menu.append (checkitem);
+            add (checkitem);
 
-            var hideritem = new Gtk.CheckMenuItem.with_label (_("Display hidden elements"));
+            var hideritem = new Gtk.ToggleAction ("HiddenElements",
+                _("Display hidden elements"), null, null);
             hideritem.set_active (debug_element_toggled);
             hideritem.toggled.connect (() => {
                 this.debug_element_toggled = hideritem.active;
             });
-            menu.append (hideritem);
+            add (hideritem);
+            set_status (config.enabled ? "enabled" : "disabled");
+        }
 
-            menu.show_all ();
-            menu.attach_to_widget (toggle_button, null);
-            menu.popup (null, null, null, 1, Gtk.get_current_event_time ());
+        void set_status (string status) {
+            gicon = new GLib.FileIcon (File.new_for_path (
+                Midori.Paths.get_res_filename ("adblock/%s.png".printf (status))));
+        }
+
+        public void set_state (Adblock.State state) {
+            this.state = state;
+
+            if (this.state == State.BLOCKED) {
+                set_status ("blocked");
+                tooltip = _("Blocking");
+            } else if (this.state == State.ENABLED) {
+                set_status ("enabled");
+                tooltip = _("Enabled");
+            } else if (this.state == State.DISABLED) {
+                set_status ("disabled");
+                tooltip = _("Disabled");
+            } else
+                assert_not_reached ();
         }
     }
 

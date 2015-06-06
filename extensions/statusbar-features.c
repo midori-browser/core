@@ -153,19 +153,13 @@ statusbar_features_property_proxy (MidoriWebSettings* settings,
         image = gtk_image_new_from_stock (STOCK_IMAGE, GTK_ICON_SIZE_MENU);
         gtk_button_set_image (GTK_BUTTON (button), image);
         gtk_widget_set_tooltip_text (button, _("Load images automatically"));
-        statusbar_features_toolbar_notify_toolbar_style_cb (toolbar, NULL, button);
-        g_signal_connect (toolbar, "notify::toolbar-style",
-            G_CALLBACK (statusbar_features_toolbar_notify_toolbar_style_cb), button);
     }
-    if (!strcmp (property, "enable-javascript"))
+    else if (!strcmp (property, "enable-javascript"))
     {
         g_object_set_data (G_OBJECT (button), "feature-label", _("Scripts"));
         image = gtk_image_new_from_stock (STOCK_SCRIPT, GTK_ICON_SIZE_MENU);
         gtk_button_set_image (GTK_BUTTON (button), image);
         gtk_widget_set_tooltip_text (button, _("Enable scripts"));
-        statusbar_features_toolbar_notify_toolbar_style_cb (toolbar, NULL, button);
-        g_signal_connect (toolbar, "notify::toolbar-style",
-            G_CALLBACK (statusbar_features_toolbar_notify_toolbar_style_cb), button);
     }
     else if (!strcmp (property, "enable-plugins"))
     {
@@ -175,6 +169,9 @@ statusbar_features_property_proxy (MidoriWebSettings* settings,
         image = gtk_image_new_from_stock (MIDORI_STOCK_PLUGINS, GTK_ICON_SIZE_MENU);
         gtk_button_set_image (GTK_BUTTON (button), image);
         gtk_widget_set_tooltip_text (button, _("Enable Netscape plugins"));
+    }
+    if (GTK_IS_TOOLBAR (toolbar) && GTK_IS_BUTTON (button))
+    {
         statusbar_features_toolbar_notify_toolbar_style_cb (toolbar, NULL, button);
         g_signal_connect (toolbar, "notify::toolbar-style",
             G_CALLBACK (statusbar_features_toolbar_notify_toolbar_style_cb), button);

@@ -35,7 +35,7 @@ typedef struct _MidoriBrowserClass           MidoriBrowserClass;
 
 struct _MidoriBrowserClass
 {
-    GtkWindowClass parent_class;
+    MidoriWindowClass parent_class;
 
     /* Signals */
     void
