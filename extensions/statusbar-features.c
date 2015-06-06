@@ -170,7 +170,7 @@ statusbar_features_property_proxy (MidoriWebSettings* settings,
         gtk_button_set_image (GTK_BUTTON (button), image);
         gtk_widget_set_tooltip_text (button, _("Enable Netscape plugins"));
     }
-    if (GTK_IS_TOOLBAR (toolbar))
+    if (GTK_IS_TOOLBAR (toolbar) && GTK_IS_BUTTON (button))
     {
         statusbar_features_toolbar_notify_toolbar_style_cb (toolbar, NULL, button);
         g_signal_connect (toolbar, "notify::toolbar-style",
