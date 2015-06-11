@@ -152,9 +152,9 @@ namespace Adblock {
                 Subscription sub;
                 liststore.get (iter, 0, out sub);
                 string status = "";
-                foreach (var feature in sub) {
-                    if (feature is Adblock.Updater) {
-                        var updater = feature as Adblock.Updater;
+                foreach (unowned Feature feature in sub) {
+                    var updater = feature as Adblock.Updater;
+                    if (updater != null) {
                         if (updater.last_updated != null)
                             status = updater.last_updated.format (_("Last update: %x %X"));
                     }
@@ -180,7 +180,7 @@ namespace Adblock {
             treeview.create_pango_layout ("a\nb").get_pixel_size (null, out height);
             scrolled.set_size_request (-1, height * 5);
 
-            foreach (Subscription sub in config)
+            foreach (unowned Subscription sub in config)
                 liststore.insert_with_values (null, 0, 0, sub);
             treeview.button_release_event.connect (button_released);
 

@@ -67,14 +67,14 @@ namespace Adblock {
         }
 
         /* foreach support */
-        public new Feature? get (uint index) {
+        public new unowned Feature? get (uint index) {
             return features.nth_data (index);
         }
         public uint size { get; private set; }
 
         public void clear () {
             cache = new HashTable<string, Directive?> (str_hash, str_equal);
-            foreach (var feature in features)
+            foreach (unowned Feature feature in features)
                 feature.clear ();
             optslist.clear ();
         }
@@ -285,7 +285,7 @@ namespace Adblock {
             debug ("Header '%s' says '%s'", key, value);
             if (key == "Title")
                 title = value;
-            foreach (var feature in features) {
+            foreach (unowned Feature feature in features) {
                 if (feature.header (key, value))
                     break;
             }
@@ -365,7 +365,7 @@ namespace Adblock {
                 valid = true;
             }
 
-            foreach (var feature in features) {
+            foreach (unowned Feature feature in features) {
                 if (!feature.parsed (filter_file))
                     valid = false;
             }
@@ -376,7 +376,7 @@ namespace Adblock {
                 Directive? directive = cache.lookup (request_uri);
                 if (directive != null)
                     return directive;
-                foreach (var feature in features) {
+                foreach (unowned Feature feature in features) {
                     directive = feature.match (request_uri, page_uri);
                     if (directive != null) {
                         debug ("%s gave %s for %s (%s)\n",

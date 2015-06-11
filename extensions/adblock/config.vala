@@ -77,7 +77,7 @@ namespace Adblock {
 
         void update_filters () {
             var filters = new StringBuilder ();
-            foreach (var sub in subscriptions) {
+            foreach (unowned Subscription sub in subscriptions) {
                 if (!sub.mutable)
                     continue;
                 if (sub.uri.has_prefix ("http:") && !sub.active)
@@ -109,13 +109,13 @@ namespace Adblock {
         }
 
         /* foreach support */
-        public new Subscription? get (uint index) {
+        public new unowned Subscription? get (uint index) {
             return subscriptions.nth_data (index);
         }
         public uint size { get; private set; }
 
         bool contains (Subscription subscription) {
-            foreach (var sub in subscriptions)
+            foreach (unowned Subscription sub in subscriptions)
                 if (sub.uri == subscription.uri)
                     return true;
             return false;
