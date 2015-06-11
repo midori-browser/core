@@ -416,7 +416,7 @@ namespace Midori {
             if (Posix.access (path, Posix.F_OK) == 0)
                 return path;
 
-            foreach (string data_dir in Environment.get_system_data_dirs ()) {
+            foreach (unowned string data_dir in Environment.get_system_data_dirs ()) {
                 path = Path.build_filename (data_dir, res1, res2, filename);
                 if (Posix.access (path, Posix.F_OK) == 0)
                     return path;
@@ -433,7 +433,7 @@ namespace Midori {
             #if HAVE_WIN32
             return Path.build_filename (exec_path, "etc", "xdg", PACKAGE_NAME, folder ?? "", filename);
             #else
-            foreach (string config_dir in Environment.get_system_config_dirs ()) {
+            foreach (unowned string config_dir in Environment.get_system_config_dirs ()) {
                 string path = Path.build_filename (config_dir, PACKAGE_NAME, folder ?? "", filename);
                 if (Posix.access (path, Posix.F_OK) == 0)
                     return path;

@@ -104,7 +104,7 @@ namespace Midori {
                                      Environment.get_user_cache_dir (),
                                      PACKAGE_NAME, "thumbnails"), 0700);
 
-                foreach (string tile in keyfile.get_groups ()) {
+                foreach (unowned string tile in keyfile.get_groups ()) {
                     try {
                         string img = keyfile.get_string (tile, "img");
                         keyfile.remove_key (tile, "img");
@@ -123,7 +123,7 @@ namespace Midori {
 
         public string get_next_free_slot (out uint count = null) {
             uint slot_count = 0;
-            foreach (string tile in keyfile.get_groups ()) {
+            foreach (unowned string tile in keyfile.get_groups ()) {
                 try {
                     if (keyfile.has_key (tile, "uri"))
                         slot_count++;
@@ -228,7 +228,7 @@ namespace Midori {
                     markup.append_printf (
                         "<style>.cross { left: -14px }</style>");
 
-                foreach (string tile in keyfile.get_groups ()) {
+                foreach (unowned string tile in keyfile.get_groups ()) {
                     try {
                         string uri = keyfile.get_string (tile, "uri");
                         if (uri != null && uri.str ("://") != null && tile.has_prefix ("Dial ")) {

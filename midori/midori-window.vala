@@ -165,10 +165,10 @@ namespace Midori {
             }
 #endif
 
-            var toolbar = _toolbar as Gtk.Toolbar;
+            var toolbar = (Gtk.Toolbar)_toolbar;
             string? previous = null;
             Gtk.ToolItem? toolitem_previous = null;
-            foreach (string name in names) {
+            foreach (unowned string name in names) {
                 var toolitem = get_tool_item (name);
                 if (toolitem == null)
                     continue;

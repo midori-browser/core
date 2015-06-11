@@ -17,7 +17,7 @@ namespace Adblock {
         }
 
         public override Directive? match (string request_uri, string page_uri) throws Error {
-            foreach (var white in rules.get_keys ()) {
+            foreach (unowned string white in rules.get_keys ()) {
                 var regex = rules.lookup (white);
                 if (!regex.match_full (request_uri))
                     return null;

@@ -99,7 +99,7 @@ namespace About {
 
         private string list_about_uris () {
             string links = "";
-            foreach (string uri in about_pages.get_keys ())
+            foreach (unowned string uri in about_pages.get_keys ())
                 links = links + "<a href=\"%s\">%s</a> &nbsp;".printf (uri, uri);
             return "<p>%s</p>".printf (links);
         }

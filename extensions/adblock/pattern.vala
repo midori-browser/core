@@ -17,7 +17,7 @@ namespace Adblock {
         }
 
         public override Directive? match (string request_uri, string page_uri) throws Error {
-            foreach (var patt in rules.get_keys ())
+            foreach (unowned string patt in rules.get_keys ())
                 if (check_rule (rules.lookup (patt), patt, request_uri, page_uri))
                     return Directive.BLOCK;
             return null;

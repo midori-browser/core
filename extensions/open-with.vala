@@ -517,9 +517,9 @@ namespace ExternalApplications {
             treeview.create_pango_layout ("a\nb").get_pixel_size (null, out height);
             scrolled.set_size_request (-1, height * 5);
 
-            foreach (string content_type in ContentType.list_registered ())
+            foreach (unowned string content_type in ContentType.list_registered ())
                 launcher_added (content_type);
-            foreach (string scheme in Vfs.get_default ().get_supported_uri_schemes ())
+            foreach (unowned string scheme in Vfs.get_default ().get_supported_uri_schemes ())
                 launcher_added ("x-scheme-handler/" + scheme);
 
             treeview.size_allocate.connect_after ((allocation) => {

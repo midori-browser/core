@@ -36,7 +36,7 @@ namespace Adblock {
             try {
                 keyfile.load_from_file (filename, GLib.KeyFileFlags.NONE);
                 string[] filters = keyfile.get_string_list ("settings", "filters");
-                foreach (string filter in filters) {
+                foreach (unowned string filter in filters) {
                     bool active = false;
                     string uri = filter;
                     if (filter.has_prefix ("http-/"))

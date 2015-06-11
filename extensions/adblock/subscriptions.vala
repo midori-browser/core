@@ -147,14 +147,15 @@ namespace Adblock {
             if (data[0].chr (-1, ',') != null) {
                 string[] domains = data[0].split (",", -1);
 
-                foreach (string domain in domains) {
+                foreach (unowned string domain in domains) {
                     /* Ignore Firefox-specific option */
                     if (domain == "~pregecko2")
                         continue;
+                    string stripped = domain.strip ();
                     /* FIXME: ~ should negate match */
-                    if (domain[0] == '~')
-                        domain = domain.substring (1, -1);
-                    update_css_hash (domain.strip (), data[1]);
+                    if (stripped[0] == '~')
+                        stripped = stripped.substring (1, -1);
+                    update_css_hash (stripped, data[1]);
                 }
             }
             else {
