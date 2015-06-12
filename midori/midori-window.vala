@@ -73,7 +73,7 @@ namespace Midori {
             /* Shown in the notebook, no need to include in the toolbar */
             if (name == "TabNew")
                 return null;
-            foreach (var action_group in action_groups) {
+            foreach (unowned Gtk.ActionGroup action_group in action_groups) {
                 var action = action_group.get_action (name);
                 if (action != null) {
                     return create_tool_item (action);
@@ -84,7 +84,7 @@ namespace Midori {
         }
 
         Gtk.ToolItem create_tool_item (Gtk.Action action) {
-            var toolitem = action.create_tool_item () as Gtk.ToolItem;
+            var toolitem = (Gtk.ToolItem)action.create_tool_item ();
             /* Show label if button has no icon of any kind */
             if (action.icon_name == null && action.stock_id == null && action.gicon == null)
                 toolitem.is_important = true;
@@ -121,31 +121,31 @@ namespace Midori {
         }
 
         void update_toolbar () {
-            var container = _toolbar as Gtk.Container;
-            foreach (var toolitem in container.get_children ())
+            var container = (Gtk.Container)_toolbar;
+            foreach (unowned Gtk.Widget toolitem in container.get_children ())
                 container.remove (toolitem);
 
             string[] names = actions.replace ("CompactMenu", extra_actions + ",CompactMenu").split (",");
 #if HAVE_GTK3
-            if (_toolbar is Gtk.HeaderBar) {
-                var headerbar = _toolbar as Gtk.HeaderBar;
-                List<Gtk.ToolItem> tail = new List<Gtk.ToolItem> ();
-                foreach (string name in names) {
+            var headerbar = _toolbar as Gtk.HeaderBar;
+            if (headerbar != null) {
+                var tail = new List<Gtk.ToolItem> ();
+                foreach (unowned string name in names) {
                     var toolitem = get_tool_item (name);
                     if (toolitem == null)
                         continue;
                     var widget = toolitem.get_child ();
                     if (widget is Gtk.Alignment)
-                        widget = (widget as Gtk.Bin).get_child ();
+                        widget = ((Gtk.Bin)widget).get_child ();
                     if (name == "Location") {
                         widget.set ("margin-top", 1, "margin-bottom", 1);
-                        (widget as Gtk.Entry).max_width_chars = 256;
+                        ((Gtk.Entry)widget).max_width_chars = 256;
                         headerbar.custom_title = toolitem;
                         headerbar.custom_title.set (
                             "margin-start", 25, "margin-end", 25,
                             "margin-top", 5, "margin-bottom", 5);
                     } else if (name == "Search") {
-                        (widget as Gtk.Entry).width_chars = 12;
+                        ((Gtk.Entry)widget).width_chars = 12;
                         tail.append (toolitem);
                     } else if (actions.index_of (name) > actions.index_of ("Location"))
                         tail.append (toolitem);
@@ -157,7 +157,7 @@ namespace Midori {
 
                 /* Pack end appends, so we need to pack in reverse order */
                 tail.reverse ();
-                foreach (var toolitem in tail)
+                foreach (unowned Gtk.ToolItem toolitem in tail)
                     headerbar.pack_end (toolitem);
 
                 set_titlebar (headerbar);
@@ -188,7 +188,7 @@ namespace Midori {
                     });
                     var requester = previous == "Search" ? toolitem_previous : toolitem;
                     requester.set_size_request (settings.search_width, -1);
-                    toolitem = paned.create_tool_item () as Gtk.ToolItem;
+                    toolitem = (Gtk.ToolItem)paned.create_tool_item ();
                     previous = null;
                     toolitem_previous.unref ();
                     toolitem_previous = null;
@@ -201,11 +201,12 @@ namespace Midori {
         }
 
         public void add_toolbar (Gtk.Widget toolbar) {
-            if (toolbar is Gtk.Toolbar) {
+            var _toolbar = (Gtk.Toolbar)toolbar;
+            if (_toolbar != null) {
 #if HAVE_GTK3
                 get_style_context ().add_class ("secondary-toolbar");
 #endif
-                (toolbar as Gtk.Toolbar).popup_context_menu.connect ((x, y, button) => {
+                _toolbar.popup_context_menu.connect ((x, y, button) => {
                     return button == 3 && context_menu (toolbar);
                 });
             }
@@ -219,13 +220,13 @@ namespace Midori {
             box = new Gtk.VBox (false, 0);
             box.show ();
             add (box);
-            foreach (var toolbar in toolbars) {
+            foreach (unowned Gtk.Widget toolbar in toolbars) {
                 if (toolbar is Gtk.MenuBar)
                     box.pack_start (toolbar, false, false);
             }
             if (toolbar is Gtk.Toolbar)
                 box.pack_start (toolbar, false, false);
-            foreach (var toolbar in toolbars) {
+            foreach (unowned Gtk.Widget toolbar in toolbars) {
                 if (!(toolbar is Gtk.MenuBar))
                     box.pack_start (toolbar, false, false);
             }
