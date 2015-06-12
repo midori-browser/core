@@ -280,11 +280,12 @@ namespace Adblock {
             var code = new StringBuilder ();
             int blockscnt = 0;
             string? style = null;
-            foreach (Subscription sub in config) {
-                foreach (var feature in sub) {
-                    if (feature is Adblock.Element) {
-                        foreach (var subdomain in domains) {
-                            style = (feature as Adblock.Element).lookup (subdomain);
+            foreach (unowned Subscription sub in config) {
+                foreach (unowned Feature feature in sub) {
+                    var element = feature as Element;
+                    if (element != null) {
+                        foreach (unowned string subdomain in domains) {
+                            style = element.lookup (subdomain);
                             if (style != null) {
                                 code.append (style);
                                 code.append_c (',');
@@ -341,7 +342,7 @@ namespace Adblock {
             load_config ();
             manager = new SubscriptionManager (config);
             status_icon = new StatusIcon (config, manager);
-            foreach (Subscription sub in config) {
+            foreach (unowned Subscription sub in config) {
                 try {
                     sub.parse ();
                 } catch (GLib.Error error) {
@@ -405,7 +406,7 @@ namespace Adblock {
                 return Directive.ALLOW;
 
             Directive? directive = null;
-            foreach (Subscription sub in config) {
+            foreach (unowned Subscription sub in config) {
                 directive = sub.get_directive (request_uri, page_uri);
                 if (directive != null)
                     break;
@@ -550,7 +551,7 @@ filters=http://foo.com;http-//bar.com;https://spam.com;http-://eggs.com;file:///
     assert (config.enabled);
     foreach (var sub in subs) {
         bool found = false;
-        foreach (var subscription in config) {
+        foreach (unowned Adblock.Subscription subscription in config) {
             if (subscription.uri == sub.uri) {
                 assert (subscription.active == sub.active);
                 found = true;
@@ -579,7 +580,7 @@ filters=http://foo.com;http-//bar.com;https://spam.com;http-://eggs.com;file:///
     copy = new Adblock.Config (config.path, null);
     assert (copy.enabled == config.enabled);
     /* Flipping individual active values should be retained after saving */
-    foreach (var sub in config)
+    foreach (unowned Adblock.Subscription sub in config)
         sub.active = !sub.active;
     copy = new Adblock.Config (config.path, null);
     for (uint i = 0; i < config.size; i++) {
