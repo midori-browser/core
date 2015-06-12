@@ -75,7 +75,7 @@ namespace Midori {
         }
 
         public bool can_complete (string text) {
-            foreach (var completion in completions)
+            foreach (unowned Completion completion in completions)
                 if (completion.can_complete (text))
                     return true;
             return false;
@@ -124,7 +124,7 @@ namespace Midori {
                 count++;
             }
 
-            foreach (var suggestion in suggestions) {
+            foreach (unowned Suggestion suggestion in suggestions) {
                 if (suggestion.uri == null) {
                     warning ("suggestion.uri != null");
                     continue;
@@ -166,7 +166,7 @@ namespace Midori {
             cancellable = new Cancellable ();
             need_to_clear = true;
 
-            foreach (var completion in completions) {
+            foreach (unowned Completion completion in completions) {
                 if (completion.can_complete (text))
                     yield complete_wrapped (completion, text, null, cancellable);
             }
@@ -175,7 +175,7 @@ namespace Midori {
         public bool can_action (string action) {
             if (action == "about:completion-description")
                 return true;
-            foreach (var completion in completions)
+            foreach (unowned Completion completion in completions)
                 if (completion.can_action (action))
                     return true;
             return false;
@@ -190,7 +190,7 @@ namespace Midori {
             cancellable = new Cancellable ();
             need_to_clear = true;
 
-            foreach (var completion in completions) {
+            foreach (unowned Completion completion in completions) {
                 if (completion.can_action (action))
                     complete_wrapped.begin (completion, text, action, cancellable);
             }
