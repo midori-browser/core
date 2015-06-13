@@ -193,7 +193,7 @@ endif ()
 
 if (HALF_BRO_INCOM_WEBKIT2)
     pkg_check_modules(DEPS_GTK REQUIRED
-                      gtk+-3.0>=3.0.0
+                      gtk+-3.0>=3.10.0
                       webkit2gtk-4.0>=2.3.91
                       )
     add_definitions("-DHAVE_WEBKIT2")
@@ -207,7 +207,7 @@ if (HALF_BRO_INCOM_WEBKIT2)
         set(VALAFLAGS ${VALAFLAGS} -D HAVE_WEBKIT2_3_91)
 elseif (USE_GTK3)
     pkg_check_modules(DEPS_GTK REQUIRED
-                      gtk+-3.0>=3.0.0
+                      gtk+-3.0>=3.10.0
                       webkitgtk-3.0>=1.8.1
                       javascriptcoregtk-3.0
                       )
