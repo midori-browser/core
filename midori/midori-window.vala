@@ -125,7 +125,14 @@ namespace Midori {
             foreach (unowned Gtk.Widget toolitem in container.get_children ())
                 container.remove (toolitem);
 
-            string[] names = actions.replace ("CompactMenu", extra_actions + ",CompactMenu").split (",");
+            /* Always include app menu (visible depending on menubar) and extensions. */
+            string all_actions;
+            if ("CompactMenu" in actions)
+                all_actions = actions.replace ("CompactMenu", extra_actions + ",CompactMenu");
+            else
+                all_actions = actions + "," + extra_actions + ",CompactMenu";
+            string[] names = all_actions.split (",");
+
 #if HAVE_GTK3
             var headerbar = _toolbar as Gtk.HeaderBar;
             if (headerbar != null) {
@@ -147,9 +154,7 @@ namespace Midori {
                     } else if (name == "Search") {
                         ((Gtk.Entry)widget).width_chars = 12;
                         tail.append (toolitem);
-                    } else if (actions.index_of (name) > actions.index_of ("Location"))
-                        tail.append (toolitem);
-                    else if (name in extra_actions)
+                    } else if (all_actions.index_of (name) > all_actions.index_of ("Location"))
                         tail.append (toolitem);
                     else
                         headerbar.pack_start (toolitem);
