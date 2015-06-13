@@ -6207,6 +6207,8 @@ midori_browser_init (MidoriBrowser* browser)
 
     /* Create the navigationbar */
     browser->navigationbar = midori_window_get_toolbar (MIDORI_WINDOW (browser));
+
+    /* Show visibility menu on right-clicking menubar or toolbars */
     g_signal_connect (browser, "context-menu",
         G_CALLBACK (midori_browser_toolbar_context_menu_cb), browser);
 
