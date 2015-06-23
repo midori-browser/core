@@ -557,20 +557,15 @@ namespace Tabby {
                     var statement = database.prepare (sqlcmd,
                         ":session_id", typeof (int64), this.id);
                     statement.step ();
-                    double sorting;
-                    string? sorting_string = statement.get_double ("MAX(sorting)").to_string ();
-                    if (sorting_string != null) {
-                        /* we have to use a seperate if condition to avoid
-                           a `possibly unassigned local variable` error */
-                        if (double.try_parse (sorting_string, out sorting)) {
-                            return sorting;
-                        }
+                    double sorting = statement.get_double ("MAX(sorting)");
+                    if (!sorting.is_nan ()) {
+                        return sorting;
                     }
                 } catch (Error error) {
                     critical (_("Failed to select from database: %s"), error.message);
                 }
 
-                 return double.parse ("0");
+                 return 0.0;
             }
 
             internal Session (Midori.Database database) {

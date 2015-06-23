@@ -121,6 +121,7 @@ namespace Midori {
 
         /*
          * Get a string value by its named parameter, for example ":uri".
+         * Returns null if not found.
          */
         public string? get_string (string name) throws DatabaseError {
             int index = column_index (name);
@@ -132,6 +133,7 @@ namespace Midori {
 
         /*
          * Get an integer value by its named parameter, for example ":day".
+         * Returns 0 if not found.
          */
         public int64 get_int64 (string name) throws DatabaseError {
             int index = column_index (name);
@@ -144,12 +146,14 @@ namespace Midori {
 
         /*
          * Get a double value by its named parameter, for example ":session_id".
+         * Returns double.NAN if not found.
          */
         public double get_double (string name) throws DatabaseError {
             int index = column_index (name);
-            if (stmt.column_type (index) != Sqlite.FLOAT)
+            int type = stmt.column_type (index);
+            if (type != Sqlite.FLOAT && type != Sqlite.NULL)
                 throw new DatabaseError.TYPE ("Getting '%s' with wrong type in row: %s".printf (name, query));
-            return stmt.column_double (index);
+            return type == Sqlite.NULL ? double.NAN : stmt.column_double (index);
         }
     }
 
