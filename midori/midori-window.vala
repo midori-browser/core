@@ -201,7 +201,7 @@ namespace Midori {
         }
 
         public void add_toolbar (Gtk.Widget toolbar) {
-            var _toolbar = (Gtk.Toolbar)toolbar;
+            var _toolbar = toolbar as Gtk.Toolbar;
             if (_toolbar != null) {
 #if HAVE_GTK3
                 get_style_context ().add_class ("secondary-toolbar");
