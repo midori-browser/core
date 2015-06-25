@@ -4352,7 +4352,7 @@ midori_browser_toolbar_context_menu_cb (GtkWidget*     toolbar,
                                         GtkAction*     action,
                                         MidoriBrowser* browser)
 {
-    const gchar* name = gtk_action_get_name (action);
+    const gchar* name = action ? gtk_action_get_name (action) : "";
     gboolean back = !g_strcmp0 (name, "Back");
     if (back
      || g_str_has_suffix (name, "Forward"))
