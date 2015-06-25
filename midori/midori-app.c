@@ -1223,6 +1223,19 @@ midori_app_setup (gint               *argc,
     /* Preserve argument vector */
     midori_paths_init_exec_path (*argument_vector, *argc);
 
+    #ifdef G_OS_WIN32
+    {
+	gchar* exec_dir = g_win32_get_package_installation_directory_of_module (NULL);
+	gchar* dr_mingw_dll = g_build_filename (exec_dir, "bin", "exchndl.dll", NULL);
+
+	if (g_file_test (dr_mingw_dll, G_FILE_TEST_EXISTS)) {
+	    LoadLibrary(dr_mingw_dll);
+	}
+	g_free (exec_dir);
+	g_free (dr_mingw_dll);
+    }
+    #endif
+
     #if ENABLE_NLS
     if (g_getenv ("MIDORI_NLSPATH"))
         bindtextdomain (GETTEXT_PACKAGE, g_getenv ("MIDORI_NLSPATH"));

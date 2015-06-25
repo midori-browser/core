@@ -278,6 +278,12 @@ rpm -qf /etc/pki/tls/certs/ca-bundle.crt >> $temp_dir/packages_used.lst
 rpm -qf /usr/share/icons/Faenza/ >> $temp_dir/packages_used.lst
 echo "https://github.com/shimmerproject/Greybird/archive/v$GREYBIRD_VER.tar.gz" >> $temp_dir/packages_used.lst
 
+pushd $temp_dir > /dev/null
+wget --no-verbose "https://github.com/jrfonseca/drmingw/releases/download/0.7.3/drmingw-0.7.3-win32.zip" -P $temp_dir
+unzip "$temp_dir/drmingw-0.7.3-win32.zip"
+cp -Lr $temp_dir/drmingw-0.7.3-win32/bin/{mgwhelp.dll,exchndl.dll} $workdir/bin
+popd > /dev/null
+
 # copy locales for gtk
 # so we have translated stock items, file dialogs
 
