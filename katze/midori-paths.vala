@@ -119,6 +119,7 @@ namespace Midori {
                     Checksum.compute_for_string (ChecksumType.MD5, config, -1));
                 cache_dir = Path.build_path (Path.DIR_SEPARATOR_S,
                     Environment.get_user_cache_dir (), PACKAGE_NAME);
+                user_data_dir = Environment.get_user_data_dir ();
                 user_data_dir_for_reading = Environment.get_user_data_dir ();
                 tmp_dir = get_runtime_dir ();
             }
