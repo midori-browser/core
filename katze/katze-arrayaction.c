@@ -380,8 +380,8 @@ katze_array_action_menu_button_press_cb (GtkWidget*        proxy,
 
 static gboolean
 katze_array_action_tool_item_child_button_press_cb (GtkWidget*        proxy,
-                                                                            GdkEventButton*   event,
-                                                                            KatzeArrayAction* array_action)
+                                                    GdkEventButton*   event,
+                                                    KatzeArrayAction* array_action)
 {
     GtkWidget* toolitem = gtk_widget_get_parent (proxy);
     KatzeItem* item = g_object_get_data (G_OBJECT (toolitem), "KatzeItem");
@@ -391,6 +391,22 @@ katze_array_action_tool_item_child_button_press_cb (GtkWidget*        proxy,
         return FALSE;
 
     return katze_array_action_activate_item_alt (array_action, item, event, proxy);
+}
+
+/* GtkToolItem does not emit the "clicked" event for middle-clicks, so handle them (but not
+   regular or ctrl-clicks) manually via the button-release-event signal. */
+static gboolean
+katze_array_action_tool_item_child_button_release_cb (GtkWidget*        proxy,
+                                                      GdkEventButton*   event,
+                                                      KatzeArrayAction* array_action)
+{
+    GtkWidget* toolitem = gtk_widget_get_parent (proxy);
+    KatzeItem* item = g_object_get_data (G_OBJECT (toolitem), "KatzeItem");
+
+    if (event && MIDORI_EVENT_NEW_TAB (event))
+        katze_array_action_activate_item_new_tab (array_action, item);
+
+    return TRUE;
 }
 
 static void
@@ -570,7 +586,7 @@ katze_array_action_proxy_clicked_cb (GtkWidget*        proxy,
     KatzeArray* array;
     gboolean handled = FALSE;
 
-    array = (KatzeArray*)g_object_get_data (G_OBJECT (proxy), "KatzeItem");
+    array = KATZE_ARRAY (g_object_get_data (G_OBJECT (proxy), "KatzeItem"));
 
     if (GTK_IS_MENU_ITEM (proxy))
     {
@@ -775,17 +791,29 @@ katze_array_action_create_tool_item_for (KatzeArrayAction* array_action,
         gtk_tool_item_set_tooltip_text (toolitem, uri);
 
     g_object_set_data (G_OBJECT (toolitem), "KatzeItem", item);
-    g_signal_connect (toolitem, "clicked",
-        G_CALLBACK (katze_array_action_proxy_clicked_cb), array_action);
-    if (KATZE_IS_ITEM (item))
+    if (KATZE_ITEM_IS_FOLDER (item))
+        g_signal_connect (toolitem, "clicked",
+            G_CALLBACK (katze_array_action_proxy_clicked_cb), array_action);
+    else if (KATZE_IS_ITEM (item))
     {
-        /* Tool items block the "button-press-event" but we can get it
+        /* Connect to "button-press-event" to handle right-clicks.
+         * Tool items block the "button-press-event" but we can get it
          * when connecting it to the tool item's child widget
          */
-
         GtkWidget* child = gtk_bin_get_child (GTK_BIN (toolitem));
         g_signal_connect (child, "button-press-event",
             G_CALLBACK (katze_array_action_tool_item_child_button_press_cb), array_action);
+
+        /* Connect to the "clicked" signal to handle normal keyboard and mouse
+         * activations, checking the event to see if a new tab should be
+         * opened. */
+        g_signal_connect (toolitem, "clicked",
+            G_CALLBACK (katze_array_action_menu_activate_cb), array_action);
+
+        /* Connect to the "button-released-event" signal to handle middle clicks, since
+         * GtkToolButton does not emit "clicked" for middle-clicks. */
+        g_signal_connect (child, "button-release-event",
+            G_CALLBACK (katze_array_action_tool_item_child_button_release_cb), array_action);
     }
 
     g_object_set_data (G_OBJECT (toolitem), "KatzeArrayAction", array_action);
