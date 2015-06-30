@@ -403,10 +403,15 @@ katze_array_action_tool_item_child_button_release_cb (GtkWidget*        proxy,
     GtkWidget* toolitem = gtk_widget_get_parent (proxy);
     KatzeItem* item = g_object_get_data (G_OBJECT (toolitem), "KatzeItem");
 
+    /* We only need to handle middle-clicks here, since proper handling for 
+     * ctrl-clicks, right-clicks, and left-clicks has been done elsewhere. */
     if (event && MIDORI_EVENT_NEW_TAB (event))
+    {
         katze_array_action_activate_item_new_tab (array_action, item);
+        return TRUE;
+    }
 
-    return TRUE;
+    return FALSE;
 }
 
 static void
