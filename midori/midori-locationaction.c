@@ -1812,7 +1812,7 @@ midori_location_action_set_progress (MidoriLocationAction* location_action,
 /**
  * midori_location_action_set_secondary_icon:
  * @location_action: a #MidoriLocationAction
- * @icon: a stock ID, or an icon name
+ * @stock_id: a stock ID, or an icon name
  *
  * Sets the secondary, ie right hand side icon.
  *

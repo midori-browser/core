@@ -880,7 +880,7 @@ midori_bookmarks_db_array_from_sqlite (MidoriBookmarksDb* bookmarks,
 
 /**
  * midori_bookmarks_db_query_recursive:
- * @array: the main bookmark array
+ * @bookmarks: the main bookmark array
  * @fields: comma separated list of fields
  * @condition: condition, like "folder = '%q'"
  * @value: a value to be inserted if @condition contains %q

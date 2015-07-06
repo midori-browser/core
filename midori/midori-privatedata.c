@@ -96,7 +96,11 @@ midori_private_data_clear_on_quit_toggled_cb (GtkToggleButton*   button,
 }
 
 /**
+ * midori_private_data_dialog_is_empty:
+ * @dialog: the dialog
+ *
  * The dialog is "empty" when none of the relevant checkboxes are activated.
+ *
  * This function returns true if the dialog is empty.
  **/
 static bool
@@ -131,8 +135,11 @@ midori_private_data_dialog_is_empty (GtkDialog* dialog)
 }
 
 /**
+ * midori_private_data_clear_button_check_sensitive:
+ * @dialog: the dialog to clear
+ * 
  * When called, sets the sensitivity of the clear private data button depending
- * on whether the dialog is empty (see: midori_private_data_dialog_is_empty)
+ * on whether the dialog is empty (see: midori_private_data_dialog_is_empty())
  **/
 static void
 midori_private_data_clear_button_check_sensitive (GtkDialog* dialog)
@@ -153,6 +160,15 @@ midori_private_data_checkbox_toggled_cb (GtkToggleButton*   button,
     midori_private_data_clear_button_check_sensitive (GTK_DIALOG (dialog));
 }
 
+/**
+ * midori_private_data_get_dialog:
+ * @browser: the browser for which to create a dialog
+ *
+ * Shows a dialog for the user to configure private data settings 
+ * and clear some items.
+ *
+ * Return value: (transfer full): the dialog
+ **/
 GtkWidget*
 midori_private_data_get_dialog (MidoriBrowser* browser)
 {
@@ -419,12 +435,14 @@ midori_private_data_on_quit (MidoriWebSettings* settings)
  * midori_private_data_register_item:
  * @name: the name of the privacy item
  * @label: a user visible, localized label
- * @clear: a callback clearing data
+ * @clear: (scope async): a callback clearing data
  *
  * Registers an item to clear data, either via the
  * Clear Private Data dialogue or when Midori quits.
  *
- * Return value: a #GList if all arguments are %NULL
+ * Return value: (element-type MidoriPrivateDataItem) (transfer none):
+ *     a #GList of all previously-registered items if all arguments are
+ *     given as %NULL, %NULL otherwise
  **/
 GList*
 midori_private_data_register_item (const gchar* name,

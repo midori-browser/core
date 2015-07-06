@@ -443,7 +443,7 @@ midori_panel_get_property (GObject*    object,
  *
  * Creates a new empty panel.
  *
- * Return value: a new #MidoriPanel
+ * Return value: (transfer full): a new #MidoriPanel
  **/
 GtkWidget*
 midori_panel_new (void)
@@ -552,9 +552,6 @@ midori_panel_action_activate_cb (GtkRadioAction* action,
  * midori_panel_append_page:
  * @panel: a #MidoriPanel
  * @viewable: a viewable widget
- * @toolbar: a toolbar widget, or %NULL
- * @stock_id: a stock ID
- * @label: a string to use as the label
  *
  * Appends a new page to the panel. If @toolbar is specified it will
  * be packed above @viewable.
@@ -713,7 +710,7 @@ _midori_panel_child_for_scrolled (MidoriPanel* panel,
  *
  * If @panel has no children, %NULL is returned.
  *
- * Return value: the child widget of the new page, or %NULL
+ * Return value: (transfer none): the child widget of the new page, or %NULL
  **/
 GtkWidget*
 midori_panel_get_nth_page (MidoriPanel* panel,

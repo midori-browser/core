@@ -924,7 +924,7 @@ midori_view_infobar_response_cb (GtkWidget* infobar,
  * @view: a #MidoriView
  * @message_type: a #GtkMessageType
  * @message: a message string
- * @response_cb: a response callback
+ * @response_cb: (scope async): a response callback
  * @user_data: user data passed to the callback
  * @first_button_text: button text or stock ID
  * @...: first response ID, then more text - response ID pairs
@@ -933,7 +933,7 @@ midori_view_infobar_response_cb (GtkWidget* infobar,
  * button invokes the specified callback. The infobar is
  * automatically destroyed if the location changes or reloads.
  *
- * Return value: an infobar widget
+ * Return value: (transfer none): an infobar widget
  *
  * Since: 0.2.9
  **/
@@ -3255,7 +3255,7 @@ _midori_view_set_settings (MidoriView*        view,
  * Creates a new view with the specified parameters that
  * is visible by default.
  *
- * Return value: a new #MidoriView
+ * Return value: (transfer full): a new #MidoriView
  *
  * Since: 0.3.0
  * Deprecated: 0.4.3
@@ -3279,7 +3279,7 @@ midori_view_new_with_title (const gchar*       title,
  *
  * Creates a new view from an item that is visible by default.
  *
- * Return value: a new #MidoriView
+ * Return value: (transfer full): a new #MidoriView
  *
  * Since: 0.4.3
  * Deprecated: 0.5.8: Use midori_view_new_from_view instead.
@@ -3316,7 +3316,7 @@ midori_view_new_with_item (KatzeItem*         item,
  *
  * Usually @settings should be passed from an existing view or browser.
  *
- * Return value: a new #MidoriView
+ * Return value: (transfer full): a new #MidoriView
  *
  * Since: 0.5.8
  **/
@@ -4023,7 +4023,7 @@ midori_view_is_blank (MidoriView*  view)
  *
  * The returned icon is owned by the @view and must not be modified.
  *
- * Return value: a #GdkPixbuf, or %NULL
+ * Return value: (transfer none): a #GdkPixbuf, or %NULL
  **/
 GdkPixbuf*
 midori_view_get_icon (MidoriView* view)
@@ -4205,7 +4205,7 @@ midori_view_get_selected_text (MidoriView* view)
  *
  * The menu item is valid until it is removed from its container.
  *
- * Return value: the proxy #GtkMenuItem
+ * Return value: (transfer none): the proxy #GtkMenuItem
  **/
 GtkWidget*
 midori_view_get_proxy_menu_item (MidoriView* view)
@@ -4228,6 +4228,15 @@ midori_view_get_proxy_menu_item (MidoriView* view)
     return view->menu_item;
 }
 
+/**
+ * midori_view_duplicate
+ * @view: a #MidoriView
+ *
+ * Create a new #MidoriView from an existing one by using
+ * the item of the old view.
+ *
+ * Return value: (transfer full): the new #MidoriView
+ **/
 GtkWidget*
 midori_view_duplicate (MidoriView* view)
 {
@@ -4247,7 +4256,7 @@ midori_view_duplicate (MidoriView* view)
  * Retrieves a menu that is typically shown when right-clicking
  * a tab label or equivalent representation.
  *
- * Return value: a #GtkMenu
+ * Return value: (transfer full): a #GtkMenu
  *
  * Since: 0.1.8
  * Deprecated: 0.5.7: Use MidoriNotebook API instead.
@@ -4271,7 +4280,7 @@ midori_view_get_tab_menu (MidoriView* view)
  * Retrieves a proxy tab label that is typically used when
  * adding the view to a notebook.
  *
- * Return value: the proxy #GtkEventBox
+ * Return value: (transfer none): the proxy #GtkEventBox
  *
  * Deprecated: 0.5.7: Don't use this label.
  **/
@@ -4336,7 +4345,7 @@ midori_view_item_meta_data_changed (KatzeItem*   item,
  *
  * The item reflects changes to title (name), URI and MIME type (mime-type).
  *
- * Return value: the proxy #KatzeItem
+ * Return value: (transfer none): the proxy #KatzeItem
  **/
 KatzeItem*
 midori_view_get_proxy_item (MidoriView* view)
@@ -4920,7 +4929,7 @@ midori_view_execute_script (MidoriView*  view,
  * If width and height are negative, the resulting
  * image is going to be optimized for speed.
  *
- * Returns: a newly allocated #GdkPixbuf
+ * Returns: (transfer full): a newly allocated #GdkPixbuf
  *
  * Since: 0.2.1
  * Deprecated: 0.5.4
@@ -4939,7 +4948,7 @@ midori_view_get_snapshot (MidoriView* view,
  * midori_view_get_web_view
  * @view: a #MidoriView
  *
- * Returns: The #WebKitWebView for this view
+ * Returns: (transfer none): The #WebKitWebView for this view
  *
  * Since: 0.2.5
  * Deprecated: 0.4.8: Use midori_tab_get_web_view() instead.
@@ -4954,11 +4963,11 @@ midori_view_get_web_view        (MidoriView*        view)
 
 /**
  * midori_view_get_for_widget:
- * @widget: a #GtkWidget
+ * @web_view: a #GtkWidget of type #WebKitWebView
  *
- * Determines the view appropriate for the specified widget.
+ * Determines the MidoriView for the specified #WebkitWebView widget.
  *
- * Return value: a #MidoriView
+ * Return value: (transfer none): a #MidoriView, or %NULL
  *
  * Since 0.4.5
  **/
