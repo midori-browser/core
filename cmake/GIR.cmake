@@ -19,6 +19,11 @@ if (GIR_SCANNER_BIN AND GIR_COMPILER_BIN)
                 -o ${CMAKE_CURRENT_BINARY_DIR}/${namespace}-${GIR_VERSION}.gir
                 WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
                 DEPENDS ${CMAKE_PROJECT_NAME})
+        add_custom_target ("g-ir-compiler_${module}" ALL
+            ${GIR_COMPILER_BIN} ${CMAKE_CURRENT_BINARY_DIR}/${namespace}-${GIR_VERSION}.gir
+                --output ${CMAKE_CURRENT_BINARY_DIR}/${namespace}-${GIR_VERSION}.typelib
+                WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
+                DEPENDS g-ir-scanner_${module})
 
     endmacro (gir_build module namespace)
 
@@ -27,5 +32,7 @@ if (GIR_SCANNER_BIN AND GIR_COMPILER_BIN)
 
         install (FILES "${CMAKE_CURRENT_BINARY_DIR}/${namespace}-${GIR_VERSION}.gir"
             DESTINATION "${CMAKE_INSTALL_DATADIR}/gir-1.0/")
+        install (FILES "${CMAKE_CURRENT_BINARY_DIR}/${namespace}-${GIR_VERSION}.typelib"
+            DESTINATION "${CMAKE_INSTALL_LIBDIR}/girepository-1.0/")
     endmacro (gir module)
 endif ()
