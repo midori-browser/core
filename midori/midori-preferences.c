@@ -140,7 +140,7 @@ midori_preferences_get_property (GObject*    object,
  *
  * Since 0.1.2 @parent may be %NULL.
  *
- * Return value: a new #MidoriPreferences
+ * Return value: (transfer full): a new #MidoriPreferences
  **/
 GtkWidget*
 midori_preferences_new (GtkWindow*         parent,

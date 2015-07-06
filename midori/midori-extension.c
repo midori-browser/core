@@ -581,6 +581,17 @@ midori_extension_load_from_folder (MidoriApp* app,
     g_free (extension_path);
 }
 
+/**
+ * midori_extension_load_from_file:
+ * @extension_path: the path to use for the extension's data files
+ * @filename: the path to the extension's module file
+ * @activate: whether to activate the extension
+ * @test: whether to run the extension's tests
+ *
+ * Load an extension from a file.
+ *
+ * Return value: (transfer none): the loaded extension, or %NULL
+ **/
 GObject*
 midori_extension_load_from_file (const gchar* extension_path,
                                  const gchar* filename,
@@ -640,6 +651,17 @@ midori_extension_load_from_file (const gchar* extension_path,
     return extension;
 }
 
+/**
+ * midori_extension_activate_gracefully:
+ * @app: the #MidoriApp for which to load the extension
+ * @extension_path: the path to use for the extension's data files
+ * @filename: the path to the extension's module file
+ * @activate: whether to activate the extension
+ *
+ * Load an extension into the context of a #MidoriApp.
+ *
+ * Return value: (transfer none): the loaded extension, or %NULL
+ **/
 GObject*
 midori_extension_activate_gracefully (MidoriApp*   app,
                                       const gchar* extension_path,
@@ -826,7 +848,7 @@ midori_extension_deactivate (MidoriExtension* extension)
  * Retrieves the #MidoriApp the extension belongs to. The
  * extension has to be active.
  *
- * Return value: the #MidoriApp instance
+ * Return value: (transfer none): the #MidoriApp instance
  *
  * Since 0.1.6
  **/
@@ -1174,8 +1196,8 @@ midori_extension_install_string_list (MidoriExtension* extension,
  *
  * Retrieves the value of the specified setting.
  *
- * Return value: a newly allocated NULL-terminated list of strings,
- *     should be freed with g_strfreev()
+ * Return value: (transfer full) (array zero-terminated=1): the list of
+ *     strings, NULL-terminated and to be freed with g_strfreev()
  *
  * Since: 0.1.7
  **/

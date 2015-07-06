@@ -1061,7 +1061,7 @@ midori_app_create_browser (MidoriApp* app)
  *
  * Retrieves the browsers as a list.
  *
- * Return value: a newly allocated #Glist of #MidoriBrowser
+ * Return value: (transfer container) (element-type Midori.Browser): a newly allocated #Glist of #MidoriBrowser
  *
  * Since: 0.2.5
  **/

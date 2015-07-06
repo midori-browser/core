@@ -41,7 +41,7 @@ MidoriBookmarksDb*
 midori_bookmarks_db_new (char** errmsg);
 
 void
-midori_bookmarks_db_on_quit (MidoriBookmarksDb* array);
+midori_bookmarks_db_on_quit (MidoriBookmarksDb* bookmarks);
 
 void
 midori_bookmarks_db_add_item (MidoriBookmarksDb* bookmarks, KatzeItem* item);

@@ -1525,7 +1525,7 @@ midori_settings_new_full (gchar*** extensions)
 /**
  * midori_settings_save_to_file:
  * @settings: a MidoriWebSettings instance to save
- * @app: (type Midori.Application) (allow-none): a MidoriApplication instance
+ * @app: (type MidoriApp) (allow-none): a MidoriApp instance
  * @filename: the filename into which to save settings
  * @error: (out) (allow-none): return location for a GError, or %NULL
  *

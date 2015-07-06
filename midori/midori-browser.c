@@ -3119,7 +3119,7 @@ _action_find_previous_activate (GtkAction*     action,
  *
  * Retrieves a list of actions which are suitable for use in a toolbar.
  *
- * Return value: a NULL-terminated array of strings with actions
+ * Return value: (array zero-terminated=1) (transfer none): a NULL-terminated array of strings with actions
  *
  * Since: 0.1.8
  **/
@@ -7031,13 +7031,13 @@ midori_browser_add_tab (MidoriBrowser* browser,
 /**
  * midori_browser_page_num:
  * @browser: a #MidoriBrowser
- * @widget: a widget in the browser
+ * @view: a child widget of the browser's notebook
  *
- * Retrieves the position of @widget in the browser.
+ * Retrieves the position of @view in the browser.
  *
  * If there is no page present at all, -1 is returned.
  *
- * Return value: the index of the widget, or -1
+ * Return value: the index of the view, or -1
  *
  * Since: 0.4.5
  **/
@@ -7075,7 +7075,7 @@ midori_browser_close_tab (MidoriBrowser* browser,
  * @browser: a #MidoriBrowser
  * @item: an item
  *
- * Return value: a #GtkWidget
+ * Return value: (type MidoriView) (transfer none): the added view
  *
  * Since: 0.4.9: Return type is GtkWidget*
  **/
@@ -7103,7 +7103,7 @@ midori_browser_add_item (MidoriBrowser* browser,
  *
  * Appends an uri in the form of a new view.
  *
- * Return value: a #GtkWidget
+ * Return value: (type MidoriView) (transfer none): the added view
  *
  * Since: 0.4.9: Return type is GtkWidget*
  **/
@@ -7153,7 +7153,7 @@ midori_browser_set_action_visible (MidoriBrowser* browser,
 /**
  * midori_browser_block_action:
  * @browser: a #MidoriBrowser
- * @name: the action to be blocked
+ * @action: the action to be blocked
  *
  * Blocks built-in behavior of the specified action without
  * disabling it, which gives you a chance to connect your
@@ -7185,7 +7185,7 @@ midori_browser_block_action (MidoriBrowser* browser,
 /**
  * midori_browser_unblock_action:
  * @browser: a #MidoriBrowser
- * @name: the action to be unblocked
+ * @action: the action to be unblocked
  *
  * Restores built-in behavior of the specified action after
  * previously blocking it with midori_browser_block_action().
@@ -7221,7 +7221,7 @@ midori_browser_unblock_action (MidoriBrowser* browser,
  * by the browser. It allows obtaining individual
  * actions and adding new actions.
  *
- * Return value: the action group of the browser
+ * Return value: (transfer none): the action group of the browser
  *
  * Since: 0.1.4
  **/
@@ -7342,23 +7342,23 @@ midori_browser_set_current_item (MidoriBrowser* browser,
 /**
  * midori_browser_get_nth_tab:
  * @browser: a #MidoriBrowser
- * @page: the index of a tab
+ * @n: the index of a tab
  *
- * Retrieves the tab at the position @page.
+ * Retrieves the tab at the position @n.
  *
  * If there is no page present at all, %NULL is returned.
  *
- * Return value: the selected page, or -1
+ * Return value: (type MidoriTab) (transfer none): the selected page, or %NULL
  *
  * Since: 0.1.9
  **/
 GtkWidget*
 midori_browser_get_nth_tab (MidoriBrowser* browser,
-                            gint           page)
+                            gint           n)
 {
     g_return_val_if_fail (MIDORI_IS_BROWSER (browser), NULL);
 
-    return (GtkWidget*)midori_notebook_get_nth_tab (MIDORI_NOTEBOOK (browser->notebook), page);
+    return (GtkWidget*)midori_notebook_get_nth_tab (MIDORI_NOTEBOOK (browser->notebook), n);
 }
 
 /**
@@ -7389,7 +7389,7 @@ midori_browser_set_current_tab (MidoriBrowser* browser,
 }
 
 /**
- * midori_browser_get_tab:
+ * midori_browser_get_current_tab:
  * @browser: a #MidoriBrowser
  *
  * Retrieves the currently selected tab.
@@ -7398,7 +7398,7 @@ midori_browser_set_current_tab (MidoriBrowser* browser,
  *
  * See also midori_browser_get_current_page().
  *
- * Return value: the selected tab, or %NULL
+ * Return value: (transfer none): the selected tab, or %NULL
  *
  * Since: 0.2.6
  **/
@@ -7416,7 +7416,7 @@ midori_browser_get_current_tab (MidoriBrowser* browser)
  *
  * Retrieves the tabs as a list.
  *
- * Return value: a newly allocated #GList of #MidoriView
+ * Return value: (element-type MidoriView) (transfer container): the browser's tabs
  *
  * Since: 0.2.5
  **/
@@ -7435,7 +7435,7 @@ midori_browser_get_tabs (MidoriBrowser* browser)
  * Retrieves a proxy array representing the respective proxy items.
  * The array is updated automatically.
  *
- * Return value: the proxy #KatzeArray
+ * Return value: (transfer none): the proxy #KatzeArray
  **/
 KatzeArray*
 midori_browser_get_proxy_array (MidoriBrowser* browser)
@@ -7451,7 +7451,7 @@ midori_browser_get_proxy_array (MidoriBrowser* browser)
  *
  * Determines the browser appropriate for the specified widget.
  *
- * Return value: a #MidoriBrowser
+ * Return value: (transfer none): a #MidoriBrowser, or %NULL
  *
  * Since 0.1.7
  **/

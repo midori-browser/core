@@ -1387,7 +1387,7 @@ midori_search_action_treeview_destroy_cb (GtkWidget*          treeview,
  * the very same dialog until it is destroyed, in which case
  * a new dialog is created.
  *
- * Return value: a #GtkDialog
+ * Return value: (transfer none): a #GtkDialog
  **/
 GtkWidget*
 midori_search_action_get_dialog (MidoriSearchAction* search_action)
