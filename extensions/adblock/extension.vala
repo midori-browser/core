@@ -462,6 +462,7 @@ namespace Adblock {
                 case '?':
                 case '[':
                 case ']':
+                case '.':
                 case '(':
                 case ')':
                     fixed.append_printf ("\\%c", c); break;
@@ -700,6 +701,7 @@ const TestCaseLine[] lines = {
     { "?foo", "\\?foo" },
     { "foo?", "foo\\?" },
     { ".*foo/bar", "..*foo/bar" },
+    { ".*.*.*.info/popup", "\\..*\\..*\\..*\\.info/popup" },
     { "http://bla.blub/*", "http://bla.blub/.*" },
     { "bag?r[]=*cpa", "bag\\?r\\[\\]=.*cpa" },
     { "(facebookLike,", "\\(facebookLike," }
