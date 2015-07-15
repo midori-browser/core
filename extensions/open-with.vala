@@ -627,8 +627,13 @@ namespace ExternalApplications {
         }
 
         bool navigation_requested (Midori.Tab tab, string uri) {
+	    /* FIXME: Make this a list of known/internal uris to pass-thru */
             if (uri.has_prefix ("file://") || Midori.URI.is_http (uri) || Midori.URI.is_blank (uri))
                 return false;
+
+            /* Don't find opened for abp link, we should hadle them internally */
+            if (uri.has_prefix("abp:"))
+		return true;
 
             string content_type = get_content_type (uri, null);
             open_with_type (uri, content_type, tab, NextStep.TRY_OPEN);
