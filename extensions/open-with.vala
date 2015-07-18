@@ -631,9 +631,9 @@ namespace ExternalApplications {
             if (uri.has_prefix ("file://") || Midori.URI.is_http (uri) || Midori.URI.is_blank (uri))
                 return false;
 
-            /* Don't find opener for abp link, we should hadle them internally */
+            /* Don't find app for abp links, we should handle them internally */
             if (uri.has_prefix("abp:"))
-	    	return true;
+                return true;
 
             string content_type = get_content_type (uri, null);
             open_with_type (uri, content_type, tab, NextStep.TRY_OPEN);
