@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: midori\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-07-11 22:56-0400\n"
-"PO-Revision-Date: 2015-08-02 12:06+0000\n"
+"PO-Revision-Date: 2015-08-04 11:45+0000\n"
 "Last-Translator: colindemian <dengmengpc@gmail.com>\n"
 "Language-Team: Chinese (Simplified) <xfce-i18n-cn@xfce.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2015-08-03 05:12+0000\n"
+"X-Launchpad-Export-Date: 2015-08-05 05:16+0000\n"
 "X-Generator: Launchpad (build 17656)\n"
 "Language: zh_CN\n"
 
@@ -1178,7 +1178,7 @@ msgstr "您尚未连接网络"
 msgid ""
 "Your computer must be connected to a network to reach “%s”. Connect to a "
 "wireless access point or attach a network cable and try again."
-msgstr ""
+msgstr "您的电脑必须接入网络才能访问 “%s”，请连接无线网络或插入网线后重试。"
 
 #: ../midori/midori-view.c:1241
 #, c-format
@@ -1190,19 +1190,19 @@ msgstr "您尚未连接互联网"
 msgid ""
 "Your computer appears to be connected to a network, but can't reach “%s”. "
 "Check your network settings and try again."
-msgstr ""
+msgstr "您的电脑似乎已接入网络，但无法访问 “%s”，请检查您的网络设置后重试。"
 
 #: ../midori/midori-view.c:1248
 #, c-format
 msgid "Midori can't find the page you're looking for"
-msgstr ""
+msgstr "Midori 找不到您想要的网页"
 
 #: ../midori/midori-view.c:1249
 #, c-format
 msgid ""
 "The page located at “%s” cannot be found. Check the web address for "
 "misspelled words and try again."
-msgstr ""
+msgstr "找不到位于 “%s” 的网页。请检查网址是否有误后重试。"
 
 #: ../midori/midori-view.c:1256
 msgid "Try Again"
@@ -2305,6 +2305,11 @@ msgid ""
 "Lastly Check the configuration of your firewall.\n"
 "Whitelist aria2 and the port 6800 if they aren't."
 msgstr ""
+"插件无法连接 aria2：\n"
+"请确保 aria2 已运行且 rpc 已启用 如：aria2c --enable-rpc\n"
+"如果已经运行，检查其使用的端口是否为6800。\n"
+"之后，请检查您的防火墙设置。\n"
+"如果之前不是，请将 aria2 和端口6800加入白名单。"
 
 #: ../extensions/external-download-manager.vala:194
 msgid "External Download Manager - Aria2"
@@ -2337,24 +2342,24 @@ msgstr "外部下载管理器 - 命令行"
 
 #: ../extensions/open-with.vala:174
 msgid "Name:"
-msgstr ""
+msgstr "名称："
 
 #: ../extensions/open-with.vala:183
 msgid "Command Line:"
-msgstr ""
+msgstr "命令行："
 
 #: ../extensions/open-with.vala:243
 msgid "Right-click a suggestion to customize it"
-msgstr ""
+msgstr "单击右键来编辑选中的建议"
 
 #: ../extensions/open-with.vala:372
 msgid "Choose application"
-msgstr ""
+msgstr "选择程序"
 
 #: ../extensions/open-with.vala:385
 #, c-format
 msgid "Select an application to open \"%s\""
-msgstr ""
+msgstr "选择打开 %s 的应用程序"
 
 #: ../extensions/open-with.vala:461
 msgid "None"
@@ -2362,7 +2367,7 @@ msgstr "无"
 
 #: ../extensions/open-with.vala:677
 msgid "Download error"
-msgstr ""
+msgstr "下载错误"
 
 #: ../extensions/open-with.vala:678
 #, c-format
@@ -2379,7 +2384,7 @@ msgstr "在图片查看器中打开(_V)"
 
 #: ../extensions/open-with.vala:738
 msgid "File Types"
-msgstr ""
+msgstr "文件类型"
 
 #: ../extensions/open-with.vala:742
 msgid "Text Editor"
@@ -2698,7 +2703,7 @@ msgstr "全部删除(_A)"
 #. Add "allow-local-pages" checkbox
 #: ../extensions/nojs/nojs-preferences.c:987
 msgid "A_llow scripts on local pages"
-msgstr ""
+msgstr "允许脚本在本地页面上运行(_L)"
 
 #. Add "block-unknown-domains" checkbox
 #: ../extensions/nojs/nojs-preferences.c:995
@@ -2845,11 +2850,11 @@ msgstr "这个扩展程序使用的 sqlite 数据库实例路径"
 
 #: ../extensions/nojs/nojs.c:743
 msgid "Allow local pages"
-msgstr ""
+msgstr "允许本地页面"
 
 #: ../extensions/nojs/nojs.c:744
 msgid "Allow scripts to run on local (file://) pages"
-msgstr ""
+msgstr "允许脚本在本地(file://)页面上运行"
 
 #: ../extensions/nojs/nojs.c:750
 msgid "Only second level"
@@ -2859,7 +2864,7 @@ msgstr "仅限于第二阶乘"
 msgid ""
 "Reduce each domain to its second-level (e.g. www.example.org to example.org) "
 "for comparison"
-msgstr ""
+msgstr "将域名降为其二级域名以作比较"
 
 #: ../extensions/nojs/nojs.c:757
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1035
@@ -2868,7 +2873,7 @@ msgstr "未知域名策略"
 
 #: ../extensions/nojs/nojs.c:758
 msgid "Policy to use for unknown domains"
-msgstr ""
+msgstr "对未知域名使用的策略"
 
 #: ../extensions/nojs/nojs.c:1034
 msgid "Accept temporarily"
@@ -2960,11 +2965,11 @@ msgstr ""
 
 #: ../extensions/tabs2one.c:301
 msgid "Tabs you collected so far"
-msgstr ""
+msgstr "目前已拥有的标签页"
 
 #: ../extensions/tabs2one.c:302
 msgid "Clicking an item restores a tab."
-msgstr ""
+msgstr "点击项目恢复标签页"
 
 #: ../extensions/tabs2one.c:327
 msgid "Tabs to _One"
@@ -2972,7 +2977,7 @@ msgstr ""
 
 #: ../extensions/tabs2one.c:401
 msgid "Closes all open tabs and creates new tab with tabs links"
-msgstr ""
+msgstr "关闭所有已打开的标签页并用标签链接创建新标签页"
 
 #: ../extensions/toolbar-editor.c:392
 msgid "Customize Toolbar"
@@ -3304,7 +3309,7 @@ msgstr "建立启动器时出错"
 
 #: ../extensions/apps.vala:174
 msgid "No file \"desc\" found"
-msgstr ""
+msgstr "未找到 \"desc\" 文件"
 
 #: ../extensions/apps.vala:201
 msgid "Applications"
@@ -3316,7 +3321,7 @@ msgstr "新建配置(_P)"
 
 #: ../extensions/apps.vala:212
 msgid "Creates a new, independent profile and a launcher"
-msgstr ""
+msgstr "新建一个独立的配置和启动器"
 
 #: ../extensions/apps.vala:223
 msgid "New _App"
@@ -3467,7 +3472,7 @@ msgstr "新建注释"
 
 #: ../extensions/notes.vala:146
 msgid "Creates a new empty note, unrelated to opened pages"
-msgstr ""
+msgstr "新建一个与已打开页面无关的空笔记"
 
 #: ../extensions/notes.vala:152
 msgid "New note"
@@ -3516,37 +3521,37 @@ msgstr "屏蔽链接(_O)"
 
 #: ../extensions/adblock/extension.vala:384
 msgid "Custom"
-msgstr ""
+msgstr "自定义"
 
 #: ../extensions/adblock/widgets.vala:30
 msgid "Preferences"
-msgstr ""
+msgstr "首选项"
 
 #: ../extensions/adblock/widgets.vala:38
 msgid "Disable"
-msgstr ""
+msgstr "禁用"
 
 #: ../extensions/adblock/widgets.vala:47
 msgid "Display hidden elements"
-msgstr ""
+msgstr "显示隐藏元素"
 
 #: ../extensions/adblock/widgets.vala:66
 msgid "Blocking"
-msgstr ""
+msgstr "屏蔽"
 
 #: ../extensions/adblock/widgets.vala:69
 msgid "Enabled"
-msgstr ""
+msgstr "已启用"
 
 #: ../extensions/adblock/widgets.vala:72
 msgid "Disabled"
-msgstr ""
+msgstr "已禁用"
 
 #: ../extensions/adblock/widgets.vala:89
 msgid ""
 "Type the address of a preconfigured filter list in the text entry and hit "
 "Enter.\n"
-msgstr ""
+msgstr "在文本框中输入预配置过滤列表的网址并回车。\n"
 
 #: ../extensions/adblock/widgets.vala:90
 #, c-format
@@ -3554,6 +3559,8 @@ msgid ""
 "You can find more lists by visiting following sites:\n"
 " %s, %s\n"
 msgstr ""
+"您可以在以下网站找到更多列表：\n"
+" %s, %s\n"
 
 #: ../extensions/adblock/widgets.vala:97
 msgid "Configure Advertisement filters"
@@ -3578,24 +3585,26 @@ msgstr "规则(_R)："
 
 #: ../extensions/domain-keys.vala:15
 msgid "Domain Hotkeys"
-msgstr ""
+msgstr "域名热键"
 
 #: ../extensions/domain-keys.vala:16
 msgid ""
 "Add www. and .com/.country_domain and proceed with Ctrl+Enter/Shift+Enter"
-msgstr ""
+msgstr "添加 www. 和 .com 或.国家域名后按 Ctrl+Enter 或 Shift+Enter 继续"
 
 #: ../extensions/domain-keys.vala:29
 msgctxt "Domain"
 msgid ".com"
-msgstr ""
+msgstr ".com"
 
 #: ../extensions/webmedia-now-playing.vala:20
 msgid "Webmedia now-playing"
-msgstr ""
+msgstr "网页媒体正在播放"
 
 #: ../extensions/webmedia-now-playing.vala:21
 msgid ""
 "Share 'youtube, vimeo, dailymotion, coub and zippcast' that you are playing "
 "in Midori using org.midori.mediaHerald"
 msgstr ""
+"通过 org.midori.mediaHerald 来分享正在 Midori 中播放的 "
+"Youtube、Vimeo、Dailymotion、Coub、Zippcast 视频。"
