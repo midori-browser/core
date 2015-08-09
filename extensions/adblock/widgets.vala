@@ -54,8 +54,7 @@ namespace Adblock {
         }
 
         void set_status (string status) {
-            gicon = new GLib.FileIcon (File.new_for_path (
-                Midori.Paths.get_res_filename ("adblock/%s.png".printf (status))));
+            gicon = new GLib.ThemedIcon ("adblock-%s".printf (status));
         }
 
         public void set_state (Adblock.State state) {
