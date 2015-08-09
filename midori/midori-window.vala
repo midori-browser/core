@@ -90,8 +90,9 @@ namespace Midori {
                 toolitem.is_important = true;
             toolitem.get_child ().button_press_event.connect ((event) => {
                 return event.button == 3 && context_menu (toolitem, action); });
-            if (name == "CompactMenu")
-                bind_property ("show-menubar", toolitem, "visible");
+            if (action.name == "CompactMenu")
+                bind_property ("show-menubar", toolitem, "visible",
+                BindingFlags.DEFAULT|BindingFlags.INVERT_BOOLEAN);
             return toolitem;
         }
 
