@@ -261,7 +261,7 @@ else ()
 endif ()
 
 # Explicitly add -fPIC for older toolchains
-set(VALA_CFLAGS "-w -g -fPIC")
+set(VALA_CFLAGS "-g -fPIC -Werror=implicit-function-declaration -Wno-incompatible-pointer-types -Wno-discarded-qualifiers -Wno-deprecated-declarations")
 
 set(LIBMIDORI "${CMAKE_PROJECT_NAME}-core")
 
