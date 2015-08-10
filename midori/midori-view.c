@@ -344,7 +344,7 @@ midori_view_class_init (MidoriViewClass* class)
                                      "icon",
                                      "Icon",
                                      "The icon of the view",
-                                     GDK_TYPE_PIXBUF,
+                                     G_TYPE_ICON,
                                      G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
     g_object_class_install_property (gobject_class,
@@ -398,21 +398,18 @@ midori_view_set_title (MidoriView* view, const gchar* title)
 
 static void
 midori_view_apply_icon (MidoriView*  view,
-                        GdkPixbuf*   icon,
+                        GIcon*       icon,
                         const gchar* icon_name)
 {
+    g_return_if_fail (icon != NULL);
+
     katze_item_set_icon (view->item, icon_name);
-    /* katze_item_get_image knows about this pixbuf */
-    if (icon != NULL)
-        g_object_ref (icon);
-    g_object_set_data_full (G_OBJECT (view->item), "pixbuf", icon,
-                            (GDestroyNotify)g_object_unref);
-    katze_object_assign (view->icon, icon);
+    katze_object_assign (view->icon, g_object_ref (icon));
     g_object_notify (G_OBJECT (view), "icon");
 
     if (view->menu_item)
     {
-        GtkWidget* image = katze_item_get_image (view->item, view->web_view);
+        GtkWidget* image = gtk_image_new_from_gicon (icon, GTK_ICON_SIZE_MENU);
         gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (view->menu_item), image);
     }
 }
@@ -420,28 +417,19 @@ midori_view_apply_icon (MidoriView*  view,
 static void
 midori_view_unset_icon (MidoriView* view)
 {
-    GdkScreen* screen;
-    GtkIconTheme* icon_theme;
     gchar* content_type;
     GIcon* icon;
-    GtkIconInfo* icon_info;
-    GdkPixbuf* pixbuf = NULL;
+
+    katze_assign (view->icon_uri, NULL);
 
     content_type = g_content_type_from_mime_type (
         midori_tab_get_mime_type (MIDORI_TAB (view)));
     icon = g_content_type_get_icon (content_type);
     g_free (content_type);
     g_themed_icon_append_name (G_THEMED_ICON (icon), "text-html");
+    g_themed_icon_append_name (G_THEMED_ICON (icon), "text-html-symbolic");
 
-    if ((screen = gtk_widget_get_screen (view->web_view))
-        && (icon_theme = gtk_icon_theme_get_for_screen (screen)))
-    {
-        if ((icon_info = gtk_icon_theme_lookup_by_gicon (icon_theme, icon, 16, 0)))
-            pixbuf = gtk_icon_info_load_icon (icon_info, NULL);
-    }
-
-    midori_view_apply_icon (view, pixbuf, NULL);
-    g_object_unref (icon);
+    midori_view_apply_icon (view, icon, NULL);
 }
 
 static void
@@ -458,15 +446,12 @@ _midori_web_view_load_icon (MidoriView* view)
         cairo_image_surface_get_width (surface),
         cairo_image_surface_get_height (surface))))
     {
-        GdkPixbuf* pixbuf_scaled = gdk_pixbuf_scale_simple (pixbuf,
-            icon_width, icon_height, GDK_INTERP_BILINEAR);
-        g_object_unref (pixbuf);
-        midori_view_apply_icon (view, pixbuf_scaled, view->icon_uri);
+        midori_view_apply_icon (view, G_ICON (pixbuf), view->icon_uri);
     }
     #else
     if ((pixbuf = webkit_web_view_try_get_favicon_pixbuf (
         WEBKIT_WEB_VIEW (view->web_view), icon_width, icon_height)))
-        midori_view_apply_icon (view, pixbuf, view->icon_uri);
+        midori_view_apply_icon (view, G_ICON (pixbuf), view->icon_uri);
     #endif
 }
 
@@ -700,8 +685,6 @@ midori_location_action_tls_flags_to_string (GTlsCertificateFlags flags);
 static void
 midori_view_load_committed (MidoriView* view)
 {
-    katze_assign (view->icon_uri, NULL);
-
     GList* children = gtk_container_get_children (GTK_CONTAINER (view));
     for (; children; children = g_list_next (children))
         if (g_object_get_data (G_OBJECT (children->data), "midori-infobar-cb"))
