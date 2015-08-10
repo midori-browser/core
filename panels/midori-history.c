@@ -897,7 +897,7 @@ midori_history_filter_entry_changed_cb (GtkEntry*      entry,
     history->filter_timeout = midori_timeout_add (COMPLETION_DELAY,
         midori_history_filter_timeout_cb, history, NULL);
 
-    if (!g_object_get_data (G_OBJECT (entry), "sokoke_has_default"))
+    if (!g_object_get_data (G_OBJECT (entry), "sokoke_showing_default"))
         katze_assign (history->filter, g_strdup (gtk_entry_get_text (entry)));
     else
         katze_assign (history->filter, NULL);
