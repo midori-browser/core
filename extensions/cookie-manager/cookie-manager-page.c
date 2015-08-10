@@ -163,7 +163,7 @@ static void cookie_manager_page_cookies_changed_cb(CookieManager *cm, CookieMana
 	g_object_unref(priv->filter);
 
 	/* if a filter is set, apply it again but ignore the place holder text */
-	if (!g_object_get_data (G_OBJECT (priv->filter_entry), "sokoke_has_default"))
+	if (!g_object_get_data (G_OBJECT (priv->filter_entry), "sokoke_showing_default"))
 	{
 		filter_text = gtk_entry_get_text(GTK_ENTRY(priv->filter_entry));
 		if (*filter_text != '\0')
@@ -575,7 +575,7 @@ static void cm_button_delete_all_clicked_cb(GtkToolButton *button, CookieManager
 	if (toplevel != NULL)
 		gtk_window_set_icon_name(GTK_WINDOW(dialog), gtk_window_get_icon_name(GTK_WINDOW(toplevel)));
 
-	if (!g_object_get_data (G_OBJECT (priv->filter_entry), "sokoke_has_default"))
+	if (!g_object_get_data (G_OBJECT (priv->filter_entry), "sokoke_showing_default"))
 	{
 		filter_text = gtk_entry_get_text(GTK_ENTRY(priv->filter_entry));
 		if (*filter_text != '\0')
@@ -808,7 +808,7 @@ static void cm_filter_entry_changed_cb(GtkEditable *editable, CookieManagerPage 
 	if (priv->ignore_changed_filter)
 		return;
 
-	if (!g_object_get_data (G_OBJECT (editable), "sokoke_has_default"))
+	if (!g_object_get_data (G_OBJECT (editable), "sokoke_showing_default"))
 		text = gtk_entry_get_text(GTK_ENTRY(editable));
 	else
 		text = NULL;
