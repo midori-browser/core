@@ -1327,7 +1327,7 @@ midori_bookmarks_filter_entry_changed_cb (GtkEntry*        entry,
     if (bookmarks->filter_timeout)
         g_source_remove (bookmarks->filter_timeout);
 
-    if (!g_object_get_data (G_OBJECT (entry), "sokoke_has_default"))
+    if (!g_object_get_data (G_OBJECT (entry), "sokoke_showing_default"))
         katze_assign (bookmarks->filter, g_strdup (gtk_entry_get_text (entry)));
     else
         katze_assign (bookmarks->filter, NULL);
