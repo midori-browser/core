@@ -259,6 +259,10 @@ midori_view_get_tls_info               (MidoriView*        view,
                                         GTlsCertificateFlags* tls_flags,
                                         gchar**               hostname);
 
+MidoriContextAction*
+midori_view_get_page_context_action (MidoriView*          view,
+                                     WebKitHitTestResult* hit_test_result);
+
 G_END_DECLS
 
 #endif /* __MIDORI_VIEW_H__ */
