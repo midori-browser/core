@@ -831,17 +831,17 @@ midori_bookmarks_set_app (MidoriBookmarks* bookmarks,
     g_object_ref (app);
     bookmarks->bookmarks_db = katze_object_get_object (app, "bookmarks");
     midori_bookmarks_read_from_db_to_model (bookmarks, GTK_TREE_STORE (model), NULL, 0, NULL);
-    g_signal_connect_after (bookmarks->bookmarks_db, "add-item",
-                            G_CALLBACK (midori_bookmarks_add_item_cb), bookmarks);
-    g_signal_connect_after (bookmarks->bookmarks_db, "update-item",
-                            G_CALLBACK (midori_bookmarks_update_item_cb), bookmarks);
-    g_signal_connect (bookmarks->bookmarks_db, "remove-item",
-                      G_CALLBACK (midori_bookmarks_remove_item_cb), bookmarks);
-    g_signal_connect (bookmarks->bookmarks_db, "update",
-                      G_CALLBACK (midori_bookmarks_update_cb), bookmarks);
-    g_signal_connect_after (model, "row-changed",
-                            G_CALLBACK (midori_bookmarks_row_changed_cb),
-                            bookmarks);
+    g_signal_connect_object (bookmarks->bookmarks_db, "add-item",
+                             G_CALLBACK (midori_bookmarks_add_item_cb), bookmarks, G_CONNECT_AFTER);
+    g_signal_connect_object (bookmarks->bookmarks_db, "update-item",
+                             G_CALLBACK (midori_bookmarks_update_item_cb), bookmarks, G_CONNECT_AFTER);
+    g_signal_connect_object (bookmarks->bookmarks_db, "remove-item",
+                             G_CALLBACK (midori_bookmarks_remove_item_cb), bookmarks, 0);
+    g_signal_connect_object (bookmarks->bookmarks_db, "update",
+                             G_CALLBACK (midori_bookmarks_update_cb), bookmarks, 0);
+    g_signal_connect_object (model, "row-changed",
+                             G_CALLBACK (midori_bookmarks_row_changed_cb),
+                             bookmarks, G_CONNECT_AFTER);
 }
 
 static void
