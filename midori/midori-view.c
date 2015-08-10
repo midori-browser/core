@@ -435,9 +435,6 @@ midori_view_unset_icon (MidoriView* view)
 static void
 _midori_web_view_load_icon (MidoriView* view)
 {
-    gint icon_width = 16, icon_height = 16;
-    GtkSettings* settings = gtk_widget_get_settings (view->web_view);
-    gtk_icon_size_lookup_for_settings (settings, GTK_ICON_SIZE_MENU, &icon_width, &icon_height);
     GdkPixbuf* pixbuf = NULL;
     #ifdef HAVE_WEBKIT2
     cairo_surface_t* surface = webkit_web_view_get_favicon (WEBKIT_WEB_VIEW (view->web_view));
@@ -450,7 +447,7 @@ _midori_web_view_load_icon (MidoriView* view)
     }
     #else
     if ((pixbuf = webkit_web_view_try_get_favicon_pixbuf (
-        WEBKIT_WEB_VIEW (view->web_view), icon_width, icon_height)))
+        WEBKIT_WEB_VIEW (view->web_view), 0, 0)))
         midori_view_apply_icon (view, G_ICON (pixbuf), view->icon_uri);
     #endif
 }
