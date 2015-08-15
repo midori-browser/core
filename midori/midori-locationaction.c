@@ -981,7 +981,10 @@ static void
 midori_location_action_changed_cb (GtkEntry*             entry,
                                    MidoriLocationAction* location_action)
 {
-    katze_assign (location_action->text, g_strdup (gtk_entry_get_text (entry)));
+    if (g_object_get_data (G_OBJECT (entry), "sokoke_showing_default"))
+        katze_assign (location_action->text, g_strdup (""));
+    else
+        katze_assign (location_action->text, g_strdup (gtk_entry_get_text (entry)));
 }
 
 static void

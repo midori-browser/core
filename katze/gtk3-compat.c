@@ -166,17 +166,44 @@ sokoke_on_entry_drag_drop (GtkEntry*       entry,
     return FALSE;
 }
 
+static void
+sokoke_on_entry_popup (GtkEntry  *entry,
+                       GtkWidget *popup,
+                       gpointer   user_data)
+{
+    /* If the user selects paste in the popup, we should hide the default
+    when the menu closes so it pastes into a clean entry */
+    g_signal_connect_swapped (popup, "destroy", G_CALLBACK (
+        sokoke_hide_placeholder_text), entry);
+}
+
 void
 gtk_entry_set_placeholder_text (GtkEntry*    entry,
                                 const gchar* default_text)
 {
     /* Note: The default text initially overwrites any previous text */
-    gchar* old_value = g_object_get_data (G_OBJECT (entry), "sokoke_default_text");
+    gchar* old_default_text = g_object_get_data (G_OBJECT (entry), "sokoke_default_text");
     g_object_set_data (G_OBJECT (entry), "sokoke_default_text", (gpointer)default_text);
 
     if (default_text == NULL)
+    {
         g_object_set_data (G_OBJECT (entry), "sokoke_showing_default", GINT_TO_POINTER (0));
-    else if (!old_value)
+        g_signal_handlers_disconnect_by_func (entry,
+            G_CALLBACK (sokoke_on_entry_drag_motion), NULL);
+        g_signal_handlers_disconnect_by_func (entry,
+            G_CALLBACK (sokoke_on_entry_focus_in_event), NULL);
+        g_signal_handlers_disconnect_by_func (entry,
+            G_CALLBACK (sokoke_on_entry_drag_leave), NULL);
+        g_signal_handlers_disconnect_by_func (entry,
+            G_CALLBACK (sokoke_on_entry_drag_drop), NULL);
+        g_signal_handlers_disconnect_by_func (entry,
+           G_CALLBACK (sokoke_on_entry_focus_out_event), NULL);
+        g_signal_handlers_disconnect_by_func (entry,
+            G_CALLBACK (sokoke_on_entry_text_changed), NULL);
+        g_signal_handlers_disconnect_by_func (entry,
+            G_CALLBACK (sokoke_on_entry_popup), NULL);
+    }
+    else if (old_default_text == NULL)
     {
         g_object_set_data (G_OBJECT (entry), "sokoke_showing_default", GINT_TO_POINTER (1));
         sokoke_widget_set_pango_font_style (GTK_WIDGET (entry), PANGO_STYLE_ITALIC);
@@ -193,6 +220,8 @@ gtk_entry_set_placeholder_text (GtkEntry*    entry,
            G_CALLBACK (sokoke_on_entry_focus_out_event), NULL);
         g_signal_connect (entry, "notify::text",
             G_CALLBACK (sokoke_on_entry_text_changed), NULL);
+        g_signal_connect (entry, "populate-popup",
+            G_CALLBACK (sokoke_on_entry_popup), NULL);
     }
     else if (!gtk_widget_has_focus (GTK_WIDGET (entry)))
     {
