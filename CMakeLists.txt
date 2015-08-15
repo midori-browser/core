@@ -261,7 +261,19 @@ else ()
 endif ()
 
 # Explicitly add -fPIC for older toolchains
-set(VALA_CFLAGS "-g -fPIC -Werror=implicit-function-declaration -Wno-incompatible-pointer-types -Wno-discarded-qualifiers -Wno-deprecated-declarations")
+set(VALA_CFLAGS "-g -fPIC")
+
+# With compiler versions that can, enable exactly the non-spurious warnings
+# in Vala-generated C, otherwise disable warnings
+if ((CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER "5.0.0")
+    OR (CMAKE_C_COMPILER_ID STREQUAL "Clang" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER "3.0.0"))
+    set(VALA_CFLAGS "${VALA_CFLAGS} -Werror=implicit-function-declaration")
+    set(VALA_CFLAGS "${VALA_CFLAGS} -Wno-incompatible-pointer-types")
+    set(VALA_CFLAGS "${VALA_CFLAGS} -Wno-discarded-qualifiers")
+    set(VALA_CFLAGS "${VALA_CFLAGS} -Wno-deprecated-declarations")
+else ()
+    set(VALA_CFLAGS "${VALA_CFLAGS} -w")
+endif ()
 
 set(LIBMIDORI "${CMAKE_PROJECT_NAME}-core")
 
