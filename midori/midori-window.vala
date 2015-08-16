@@ -66,7 +66,7 @@ namespace Midori {
         public Window () {
         }
 
-        Gtk.ToolItem? get_tool_item (string name) {
+        public Gtk.ToolItem? get_tool_item (string name) {
             /* Name is the empty string if actions has ,, or trailing , */
             if (name == "")
                 return null;
