@@ -63,6 +63,9 @@ void
 midori_search_action_set_default_item      (MidoriSearchAction* search_action,
                                             KatzeItem*          item);
 
+gchar*
+midori_search_action_token_for_uri         (const gchar*        uri);
+
 GtkWidget*
 midori_search_action_get_dialog            (MidoriSearchAction* search_action);
 

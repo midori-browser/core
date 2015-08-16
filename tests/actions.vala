@@ -20,13 +20,17 @@ void actions_view_page () {
 
     var hit_test_result = Object.new (typeof (WebKit.HitTestResult), "context", WebKit.HitTestResultContext.DOCUMENT) as WebKit.HitTestResult;
     var menu = view.get_page_context_action (hit_test_result);
+    assert (menu != null);
     assert (menu.name == "PageContextMenu");
     assert (menu.get_by_name ("Back") != null);
 
 #if !HAVE_WEBKIT2
-    hit_test_result = Object.new (typeof (WebKit.HitTestResult), "context", WebKit.HitTestResultContext.EDITABLE) as WebKit.HitTestResult;
-    menu = view.get_page_context_action (hit_test_result);
-    var copy = menu.get_by_name ("Copy");
+    var hit_test_result2 = Object.new (typeof (WebKit.HitTestResult), "context", WebKit.HitTestResultContext.EDITABLE) as WebKit.HitTestResult;
+    var menu2 = view.get_page_context_action (hit_test_result2);
+    assert (menu2 != null);
+    assert (menu2.name == "PageContextMenu");
+    var copy = menu2.get_by_name ("Copy");
+    assert (copy != null);
     assert (!copy.sensitive);
     assert (view.web_view.search_text ("flat", true, false, false));
     menu = view.get_page_context_action (hit_test_result);
