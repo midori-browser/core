@@ -511,6 +511,7 @@ namespace Transfers {
                 var dialog = new Gtk.MessageDialog (browser,
                     Gtk.DialogFlags.DESTROY_WITH_PARENT,
                     Gtk.MessageType.WARNING, Gtk.ButtonsType.NONE,
+                    "%s",
                     _("Some files are being downloaded"));
                 dialog.title = _("Some files are being downloaded");
                 dialog.add_buttons (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
