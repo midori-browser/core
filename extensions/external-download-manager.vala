@@ -169,6 +169,7 @@ namespace EDM {
             if (message.status_code != 200) {
                 var dialog = new Gtk.MessageDialog (null, Gtk.DialogFlags.MODAL,
                     Gtk.MessageType.ERROR, Gtk.ButtonsType.CLOSE,
+                    "%s",
                     _("The plug-in was unable to connect with aria2:\n" +
                       "Please make sure that aria2 is running with rpc enabled ie: aria2c --enable-rpc\n" +
                       "If it's so, check it also is using the port 6800.\n" +
