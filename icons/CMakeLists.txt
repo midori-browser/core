@@ -1,6 +1,8 @@
 # Copyright (C) 2013 Christian Dywan <christian@twotoasts.de>
 
-EXECUTE_PROCESS(COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_BINARY_DIR}/hicolor)
+if (UNIX)
+    EXECUTE_PROCESS(COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_BINARY_DIR}/hicolor)
+endif ()
 
 macro(install_icon name cat size)
     file(GLOB FILENAME RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "${size}/${name}.*")
