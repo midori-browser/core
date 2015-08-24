@@ -185,8 +185,7 @@ namespace Midori {
             }
 
             #if !HAVE_WIN32
-            string builtin_path = build_folder ("icons", null, "index.theme", true);
-            Gtk.IconTheme.get_default ().append_search_path (builtin_path);
+            Gtk.IconTheme.get_default ().append_search_path (exec_path);
             #endif
 
             if (strcmp (Environment.get_variable ("MIDORI_DEBUG"), "paths") == 0) {
@@ -392,7 +391,7 @@ namespace Midori {
         }
 
         #if !HAVE_WIN32
-        string? build_folder (string folder, string? middle, string filename, bool folder_only=false) {
+        string? build_folder (string folder, string? middle, string filename) {
             /* Fallback to build folder */
             File? parent = File.new_for_path (exec_path);
             while (parent != null) {
@@ -400,8 +399,6 @@ namespace Midori {
                 if (middle != null)
                     data = data.get_child (middle);
                 var child = data.get_child (filename);
-                if (folder_only && child.query_exists ())
-                    return data.get_path ();
                 if (child.query_exists ())
                     return child.get_path ();
                 parent = parent.get_parent ();
