@@ -13,15 +13,15 @@ msgstr ""
 "Project-Id-Version: midori 0.1.7\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-07-11 22:56-0400\n"
-"PO-Revision-Date: 2015-06-07 11:13+0000\n"
+"PO-Revision-Date: 2015-08-23 16:37+0000\n"
 "Last-Translator: Adolfo Jayme <fitoschido@gmail.com>\n"
 "Language-Team: Spanish <xfce-i18n@xfce.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2015-07-13 05:14+0000\n"
-"X-Generator: Launchpad (build 17620)\n"
+"X-Launchpad-Export-Date: 2015-08-24 04:35+0000\n"
+"X-Generator: Launchpad (build 17690)\n"
 "Language: es\n"
 
 #: ../data/midori.desktop.in.h:1 ../midori/main.c:142
@@ -522,11 +522,14 @@ msgstr ""
 "  Chipong Luo https://launchpad.net/~chipong-l\n"
 "  Christopher https://launchpad.net/~cdhornb\n"
 "  Cristhian Steven Echeverry Z. https://launchpad.net/~cristeche-c\n"
+"  Daniel Esc. https://launchpad.net/~mdan-escb\n"
 "  Derek Basaletti https://launchpad.net/~derek-basaletti\n"
 "  Diego Prieto https://launchpad.net/~bboyastalamuerte\n"
 "  Ezequiel Sapo https://launchpad.net/~ezesapo\n"
 "  Gabriel Pepe https://launchpad.net/~gp2notime\n"
+"  Germán https://launchpad.net/~qwert-ger-man\n"
 "  Gerson Alvarado https://launchpad.net/~lewatoto\n"
+"  Hector A. Mantellini https://launchpad.net/~xombra\n"
 "  Irwin Boom https://launchpad.net/~vendettaboom\n"
 "  Israel https://launchpad.net/~isra1998isra\n"
 "  Ivan Diaz https://launchpad.net/~saisyukusanagi\n"
@@ -554,6 +557,7 @@ msgstr ""
 "  Therius Ferreiro https://launchpad.net/~theriusferreiro\n"
 "  Walter Beckerleg https://launchpad.net/~spayk-99\n"
 "  WebKit Team https://launchpad.net/~webkit-team\n"
+"  _s4kura https://launchpad.net/~adrianacmatac\n"
 "  daniel villalobos https://launchpad.net/~elcodigo12-p\n"
 "  dbinary https://launchpad.net/~luis-luimarin\n"
 "  ghas https://launchpad.net/~agghas\n"
@@ -619,7 +623,7 @@ msgstr "Imprimir la página actual"
 
 #: ../midori/midori-browser.c:5261
 msgid "Send Page Link Via Email"
-msgstr ""
+msgstr "Enviar enlace de página por correo electrónico"
 
 #: ../midori/midori-browser.c:5264
 msgid "Close a_ll Windows"
@@ -913,7 +917,7 @@ msgstr "Abrir una dirección en particular"
 
 #: ../midori/midori-browser.c:6010
 msgid "Search or enter an address"
-msgstr ""
+msgstr "Escriba un término de búsqueda o una dirección"
 
 #: ../midori/midori-browser.c:6032
 msgid "_Web Search…"
@@ -964,12 +968,12 @@ msgstr "Exportar certificado"
 #: ../midori/midori-locationaction.c:1377
 #: ../midori/midori-locationaction.c:1495
 msgid "_Don't trust this website"
-msgstr ""
+msgstr "_No confiar en este sitio"
 
 #: ../midori/midori-locationaction.c:1379
 #: ../midori/midori-locationaction.c:1501
 msgid "_Trust this website"
-msgstr ""
+msgstr "_Confiar en este sitio"
 
 #: ../midori/midori-locationaction.c:1381
 msgid "_Export Certificate"
@@ -1227,7 +1231,7 @@ msgstr "%s quiere conocer su ubicación actual."
 #: ../midori/midori-view.c:1231
 #, c-format
 msgid "You are not connected to a network"
-msgstr ""
+msgstr "No hay una conexión de red"
 
 #: ../midori/midori-view.c:1232
 #, c-format
@@ -1235,11 +1239,14 @@ msgid ""
 "Your computer must be connected to a network to reach “%s”. Connect to a "
 "wireless access point or attach a network cable and try again."
 msgstr ""
+"Para acceder a «%s» necesita conectar el equipo con una red. Conéctese con "
+"un punto de acceso inalámbrico o enchufe un cable de red e inténtelo de "
+"nuevo."
 
 #: ../midori/midori-view.c:1241
 #, c-format
 msgid "You are not connected to the Internet"
-msgstr ""
+msgstr "No hay una conexión a Internet"
 
 #: ../midori/midori-view.c:1242
 #, c-format
@@ -1247,11 +1254,13 @@ msgid ""
 "Your computer appears to be connected to a network, but can't reach “%s”. "
 "Check your network settings and try again."
 msgstr ""
+"El equipo parece estar conectado con una red, pero no se puede acceder a "
+"«%s». Compruebe la configuración de la red e inténtelo de nuevo."
 
 #: ../midori/midori-view.c:1248
 #, c-format
 msgid "Midori can't find the page you're looking for"
-msgstr ""
+msgstr "Midori no encuentra la página que busca"
 
 #: ../midori/midori-view.c:1249
 #, c-format
@@ -1259,6 +1268,8 @@ msgid ""
 "The page located at “%s” cannot be found. Check the web address for "
 "misspelled words and try again."
 msgstr ""
+"No se encuentra la página ubicada en «%s». Revise que no haya errores de "
+"escritura en la dirección e inténtelo de nuevo."
 
 #: ../midori/midori-view.c:1256
 msgid "Try Again"
@@ -2392,6 +2403,12 @@ msgid ""
 "Lastly Check the configuration of your firewall.\n"
 "Whitelist aria2 and the port 6800 if they aren't."
 msgstr ""
+"El complemento no pudo conectarse con aria2.\n"
+"Asegúrese de que aria2 esté ejecutándose con RPC activado; p. ej., aria2c --"
+"enable-rpc\n"
+"Si ese es el caso, compruebe que utilice el puerto 6800.\n"
+"Por último, revise la configuración del cortafuegos.\n"
+"Si faltan, añada a la lista blanca «aria2» y el puerto 6800."
 
 #: ../extensions/external-download-manager.vala:194
 msgid "External Download Manager - Aria2"
@@ -2424,24 +2441,24 @@ msgstr "Gestor de descargas externo - CommandLine"
 
 #: ../extensions/open-with.vala:174
 msgid "Name:"
-msgstr ""
+msgstr "Nombre:"
 
 #: ../extensions/open-with.vala:183
 msgid "Command Line:"
-msgstr ""
+msgstr "Línea de órdenes:"
 
 #: ../extensions/open-with.vala:243
 msgid "Right-click a suggestion to customize it"
-msgstr ""
+msgstr "Pulse con el botón derecho en una sugerencia para personalizarla"
 
 #: ../extensions/open-with.vala:372
 msgid "Choose application"
-msgstr ""
+msgstr "Elija una aplicación"
 
 #: ../extensions/open-with.vala:385
 #, c-format
 msgid "Select an application to open \"%s\""
-msgstr ""
+msgstr "Seleccione una aplicación con que abrir «%s»"
 
 #: ../extensions/open-with.vala:461
 msgid "None"
@@ -2449,16 +2466,16 @@ msgstr "Ninguna"
 
 #: ../extensions/open-with.vala:677
 msgid "Download error"
-msgstr ""
+msgstr "Error de descarga"
 
 #: ../extensions/open-with.vala:678
 #, c-format
 msgid "Cannot open '%s' because the download failed."
-msgstr ""
+msgstr "No se puede abrir «%s» porque falló la descarga."
 
 #: ../extensions/open-with.vala:718
 msgid "Open _with…"
-msgstr ""
+msgstr "Abrir _con…"
 
 #: ../extensions/open-with.vala:727
 msgid "Open in Image _Viewer"
@@ -2466,7 +2483,7 @@ msgstr "Abrir en _Visor de imágenes"
 
 #: ../extensions/open-with.vala:738
 msgid "File Types"
-msgstr ""
+msgstr "Tipos de archivo"
 
 #: ../extensions/open-with.vala:742
 msgid "Text Editor"
@@ -2803,7 +2820,7 @@ msgstr "Eliminar _todo"
 #. Add "allow-local-pages" checkbox
 #: ../extensions/nojs/nojs-preferences.c:987
 msgid "A_llow scripts on local pages"
-msgstr ""
+msgstr "_Permitir secuencias de órdenes en páginas locales"
 
 #. Add "block-unknown-domains" checkbox
 #: ../extensions/nojs/nojs-preferences.c:995
@@ -2956,11 +2973,11 @@ msgstr "Ruta a la instancia de base de datos sqlite usada por esta extensión"
 
 #: ../extensions/nojs/nojs.c:743
 msgid "Allow local pages"
-msgstr ""
+msgstr "Permitir páginas locales"
 
 #: ../extensions/nojs/nojs.c:744
 msgid "Allow scripts to run on local (file://) pages"
-msgstr ""
+msgstr "Permitir secuencias de órdenes en páginas locales (file://)"
 
 #: ../extensions/nojs/nojs.c:750
 msgid "Only second level"
@@ -3650,27 +3667,27 @@ msgstr ""
 
 #: ../extensions/adblock/widgets.vala:30
 msgid "Preferences"
-msgstr ""
+msgstr "Preferencias"
 
 #: ../extensions/adblock/widgets.vala:38
 msgid "Disable"
-msgstr ""
+msgstr "Desactivar"
 
 #: ../extensions/adblock/widgets.vala:47
 msgid "Display hidden elements"
-msgstr ""
+msgstr "Mostrar elementos ocultos"
 
 #: ../extensions/adblock/widgets.vala:66
 msgid "Blocking"
-msgstr ""
+msgstr "Bloqueo"
 
 #: ../extensions/adblock/widgets.vala:69
 msgid "Enabled"
-msgstr ""
+msgstr "Activado"
 
 #: ../extensions/adblock/widgets.vala:72
 msgid "Disabled"
-msgstr ""
+msgstr "Desactivado"
 
 #: ../extensions/adblock/widgets.vala:89
 msgid ""
@@ -3696,7 +3713,7 @@ msgstr ""
 
 #: ../extensions/adblock/widgets.vala:163
 msgid "File incomplete - broken download?"
-msgstr ""
+msgstr "Archivo incompleto: ¿descarga errónea?"
 
 #: ../extensions/adblock/widgets.vala:256
 msgid "Edit rule"
@@ -3708,17 +3725,18 @@ msgstr "_Regla:"
 
 #: ../extensions/domain-keys.vala:15
 msgid "Domain Hotkeys"
-msgstr ""
+msgstr "Combinaciones de teclas de dominios"
 
 #: ../extensions/domain-keys.vala:16
 msgid ""
 "Add www. and .com/.country_domain and proceed with Ctrl+Enter/Shift+Enter"
 msgstr ""
+"Añadir «www.» y «.com»/«.cód_país» al presionar Ctrl + Intro o Mayús + Intro"
 
 #: ../extensions/domain-keys.vala:29
 msgctxt "Domain"
 msgid ".com"
-msgstr ""
+msgstr ".com"
 
 #: ../extensions/webmedia-now-playing.vala:20
 msgid "Webmedia now-playing"
