@@ -5,7 +5,7 @@ if (UNIX)
 endif ()
 
 macro(install_icon name cat size)
-    file(GLOB FILENAME RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "${size}/${name}.*")
+    file(GLOB FILENAME RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "${size}/${cat}/${name}.*")
     install(FILES ${FILENAME} DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/${size}/${cat})
 endmacro()
 
