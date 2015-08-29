@@ -184,6 +184,10 @@ namespace Midori {
 #endif
             }
 
+            #if !HAVE_WIN32
+            Gtk.IconTheme.get_default ().append_search_path (exec_path);
+            #endif
+
             if (strcmp (Environment.get_variable ("MIDORI_DEBUG"), "paths") == 0) {
                 stdout.printf ("config: %s\ncache: %s\nuser_data: %s\ntmp: %s\n",
                                config_dir, cache_dir, user_data_dir, tmp_dir);
