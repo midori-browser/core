@@ -205,8 +205,6 @@ namespace Apps {
             if (toolbar == null) {
                 toolbar = new Gtk.Toolbar ();
 
-#if !HAVE_WIN32
-                /* FIXME: Profiles are broken on win32 because of no multi instance support */
                 var profile = new Gtk.ToolButton.from_stock (Gtk.STOCK_ADD);
                 profile.label = _("New _Profile");
                 profile.tooltip_text = _("Creates a new, independent profile and a launcher");
@@ -217,7 +215,6 @@ namespace Apps {
                     Launcher.create_profile.begin (this);
                 });
                 toolbar.insert (profile, -1);
-#endif
 
                 var app = new Gtk.ToolButton.from_stock (Gtk.STOCK_ADD);
                 app.label = _("New _App");
@@ -480,11 +477,8 @@ namespace Apps {
             monitors = new GLib.List<GLib.FileMonitor> ();
             app_folder = Launcher.get_app_folder ();
             populate_apps.begin (app_folder);
-            /* FIXME: Profiles are broken on win32 because of no multi instance support */
             profile_folder = Launcher.get_profile_folder ();
-#if !HAVE_WIN32
             populate_apps.begin (profile_folder);
-#endif
             widgets = new GLib.List<Gtk.Widget> ();
             foreach (var browser in app.get_browsers ())
                 browser_added (browser);
