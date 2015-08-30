@@ -1,5 +1,51 @@
 This file is licensed under the terms of the expat license, see the file EXPAT.
 
+v0.5.11
+ Add fake theme for built-in icons
+ * Don't truncate long speed dial titles if there's room to display them
+ Fix warnings for -Wformat-security
+ Ensure vala knows the prototypes of functions it calls, fixing pointer truncation in tests
+ Add unit test to check appmenu/menubar visibility
+ Fix last known GTK2 entry placeholder text bugs
+ Make sure that only one of appmenu and menubar are visible *initially* as well as when changed
+ Move adblock icons to hicolor
+ Limit bookmarks panel callbacks to the lifetime of the panel to fix a crash
+ Fix fallout (broken bookmarks and history panel search) from tweaks to GTK2 entry placeholder
+ fix property binding to ensure that exactly one of appmenu button and menubar is always visible
+ Skip open-with codepath with abp links, they are internal
+ Use find_file to locate execinfo.h
+ Fix middle/ctrl/normal clicking bookmarks (not folders) in the bookmarkbar.
+ Add copright header to sanitize_bar.sh
+ Adblock fixup: Escape . in filter with \
+ Don't shadow variable uri in midori_browser_save_uri
+ Switch Adblock icons to 24px color
+ Always include app menu in toolbar
+ Fix various mis[sing ]annotations and style issues in GIR
+ Compile typelib from gir
+ Fix assert when resetting webapp state after inactivity reset
+ clean up handling of double-valued db column in Tabby
+ Add a comment to explain MidoriBrowser popup callback
+ fix warnings printed when right-clicking resize grip between location and search entries
+ Win32: Use Dr. MinGW if present to preserve crash info
+ Fix menubar warning caused by direct cast instead of `as`
+ Helper script for setting up bzr with some usefull plugins and settings
+ Stop using Gtk.Entry.max_width_chars
+ avoid deprecated SoupServer API with libsoup 2.48
+ Use unowned in foreach loops in Midori.Window
+ Use unowned in foreach loops in Midori.Completion
+ Use unowned with Adblock.Subscription and Element in foreach loops
+ Use unowned strings in foreach loops
+ Enable openWith in app mode and make it work with view-new
+ Implement Midori.Window class with toolbar/ headerbar
+ Drop support for libsoup-gnome-2.4 < 2.37.1
+ Make search icons for engines work correctly
+ Move to WebKit2 4.0 which broke ABI
+ Port to zeitgeist-2.0
+ win32: Bump shipped GrayBird theme version to fix some rendering issues
+ avoid deprecated GtkDialog API with GTK+2 >= 2.22
+ Title case for "Export Certificate" button
+ fix incorrect type of MAX(sorting) in Tabby
+
 v0.5.10
  use exit instead of return in license script
  Fix HAVE_GCR guards after GtkPopover port

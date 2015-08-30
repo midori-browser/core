@@ -37,6 +37,8 @@ cd _build
 cmake -DCMAKE_INSTALL_PREFIX=/usr ..
 make
 sudo make install
+sudo gtk-update-icon-cache /usr/share/icons/hicolor
+
 
 //Advanced Tip: Pass "-G Ninja" to cmake to use http://martine.github.io/ninja/ Ninja instead of make (usually packaged as ninja or ninja-build).//
 

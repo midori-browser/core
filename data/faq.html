@@ -5,7 +5,6 @@
   <title>midori:faq</title>
 <meta name="generator" content="DokuWiki"/>
 <meta name="robots" content="index,follow"/>
-<meta name="date" content="2014-06-05T00:44:58+0200"/>
 <meta name="keywords" content="midori,faq"/>
 <link rel="search" type="application/opensearchdescription+xml" href="/lib/exe/opensearch.php" title="Xfce Wiki"/>
 <link rel="start" href="/"/>
@@ -18,7 +17,7 @@
 <link rel="stylesheet" href="faq.css" />
 <script type="text/javascript">/*<![CDATA[*/var NS='midori';var JSINFO = {"id":"midori:faq","namespace":"midori"};
 /*!]]>*/</script>
-<script type="text/javascript" charset="utf-8" src="/lib/exe/js.php?tseed=34912f2e1a4daa1bfa9afb3096df0197"></script>
+<script type="text/javascript" charset="utf-8" src="/lib/exe/js.php?tseed=af5aadc3291d3baa2d8665b51a0cedf3"></script>
 </head>
 <body>
 <div class="dokuwiki export">
@@ -410,7 +409,7 @@ Upstream Bug: <a href="https://bugs.webkit.org/show_bug.cgi?id=50561" class="url
 </li>
 <li class="level1"><div class="li"> You may need gstreamer(0.10/1.0)-alsa for ALSA, depending on your distribution.</div>
 </li>
-<li class="level1"><div class="li"> You need plugins for Theora, gstreamer(0.10/1.0)-base and <abbr title="Moving Picture Experts Group">MPEG</abbr>-4 incluing aac (e.g. gst-plugins-faad), gstreamer(0.10/1.0)-bad. For WebM, you&#039;ll need plugins for vorbis (-base), matroska (-good), and vp8 (-bad). Have a look at <a href="http://www.gstreamer.net/documentation/plugins.html" class="urlextern" title="http://www.gstreamer.net/documentation/plugins.html"  rel="nofollow">http://www.gstreamer.net/documentation/plugins.html</a> for details.</div>
+<li class="level1"><div class="li"> You need plugins for Theora, gstreamer(0.10/1.0)-base and MPEG-4 incluing aac (e.g. gst-plugins-faad), gstreamer(0.10/1.0)-bad. For WebM, you&#039;ll need plugins for vorbis (-base), matroska (-good), and vp8 (-bad). Have a look at <a href="http://www.gstreamer.net/documentation/plugins.html" class="urlextern" title="http://www.gstreamer.net/documentation/plugins.html"  rel="nofollow">http://www.gstreamer.net/documentation/plugins.html</a> for details.</div>
 </li>
 <li class="level1"><div class="li"> For Youtube or Vimeo, you need WebKitGTK+ 1.1.20 or newer.</div>
 </li>
@@ -524,7 +523,7 @@ Place the following in ~/.mutt/mailcap or ~/.mailcap:
 <div class="level4">
 
 <p>
-Midori opens files with GIO, and falls back to xdg-open, exo-open or gnome-open if these are available. All of this relies on freedesktop.org <abbr title="Multipurpose Internet Mail Extension">MIME</abbr> configuration. To tweak this there are multiple options:
+Midori opens files with GIO, and falls back to xdg-open, exo-open or gnome-open if these are available. All of this relies on freedesktop.org MIME configuration. To tweak this there are multiple options:
 </p>
 <ol>
 <li class="level1"><div class="li"> Use &#039;Open With&#039; with a graphical file manager</div>
@@ -655,11 +654,11 @@ As of Midori 0.4.4 you can add a hidden option to ~/.config/midori/config like s
 </p>
 <pre class="code">site-data-rules=-google.com,-facebook.com,!bugzilla.gnome.org,+bugs.launchpad.net</pre>
 <ol>
-<li class="level1"><div class="li"> Values prefixed with ”-” are always blocked</div>
+<li class="level1"><div class="li"> Values prefixed with “-” are always blocked</div>
 </li>
-<li class="level1"><div class="li"> Values prefixed with ”+” are always accepted</div>
+<li class="level1"><div class="li"> Values prefixed with “+” are always accepted</div>
 </li>
-<li class="level1"><div class="li"> Values prefixed with ”!” are not cleared in Clear Private Data</div>
+<li class="level1"><div class="li"> Values prefixed with “!” are not cleared in Clear Private Data</div>
 </li>
 <li class="level1"><div class="li"> No wildcards.</div>
 </li>
@@ -720,7 +719,7 @@ A private window is a separate process, so crashes don&#039;t affect the normal 
 </p>
 
 <p>
-As of Midori 0.2.9 Private Browsing uses preferences, cookies, keyboard shortcuts and search engines from the normal session, but it won&#039;t save any changes. This behaviour can be emulated from the command line with ”-a” and ”-c”.
+As of Midori 0.2.9 Private Browsing uses preferences, cookies, keyboard shortcuts and search engines from the normal session, but it won&#039;t save any changes. This behaviour can be emulated from the command line with “-a” and “-c”.
 </p>
 
 <p>
@@ -756,7 +755,7 @@ Available commands for -e can be listed with “midori –help-execute”.
 </p>
 
 <p>
-If needed, a customized profile can be created with “midori -c /path/to/folder”. Using the shortcut editor extension, keyboard shortcuts can be removed as needed. Afterwards just append ”-c /path/to/folder” to the kiosk mode command line.
+If needed, a customized profile can be created with “midori -c /path/to/folder”. Using the shortcut editor extension, keyboard shortcuts can be removed as needed. Afterwards just append “-c /path/to/folder” to the kiosk mode command line.
 </p>
 
 <p>
@@ -883,7 +882,7 @@ As of Midori 0.5.0 and libSoup 2.40 SOCKS proxies can be used, the Preferences d
 </p>
 
 <p>
-libSoup &lt; 2.40 only supports <abbr title="Hyper Text Transfer Protocol">HTTP</abbr> proxy servers directly. A way to use SOCKS on Unix is to use tsocks with <abbr title="Secure Shell">SSH</abbr> as follows:
+libSoup &lt; 2.40 only supports HTTP proxy servers directly. A way to use SOCKS on Unix is to use tsocks with SSH as follows:
 </p>
 <ol>
 <li class="level1"><div class="li"> Install &#039;tsocks&#039;</div>
@@ -895,13 +894,13 @@ server_type = 5
 server_port = 5555</pre>
 </div>
 </li>
-<li class="level1"><div class="li"> Open an <abbr title="Secure Shell">SSH</abbr> connection with the same port: <pre class="code"> ssh -D localhost:5555 myhost.com </pre>
+<li class="level1"><div class="li"> Open an SSH connection with the same port: <pre class="code"> ssh -D localhost:5555 myhost.com </pre>
 </div>
 </li>
 <li class="level1"><div class="li"> Run Midori with “tsocks” in front of it: <pre class="code"> tsocks midori </pre>
 </div>
 </li>
-<li class="level1"><div class="li"> Now you can use for example <a href="http://www.whatsmyip.org/" class="urlextern" title="http://www.whatsmyip.org/"  rel="nofollow">http://www.whatsmyip.org/</a> to verify that you are using a SOCKS connection. The IP address should match the one of your <abbr title="Secure Shell">SSH</abbr> host. Remember to keep the <abbr title="Secure Shell">SSH</abbr> login running, and don&#039;t suspend it, otherwise it won&#039;t work.</div>
+<li class="level1"><div class="li"> Now you can use for example <a href="http://www.whatsmyip.org/" class="urlextern" title="http://www.whatsmyip.org/"  rel="nofollow">http://www.whatsmyip.org/</a> to verify that you are using a SOCKS connection. The IP address should match the one of your SSH host. Remember to keep the SSH login running, and don&#039;t suspend it, otherwise it won&#039;t work.</div>
 </li>
 <li class="level1"><div class="li"> If the connection fails for some reason, you should see a connection error.</div>
 </li>
@@ -973,7 +972,7 @@ Default shortcuts for Find are:
 </p>
 
 <p>
-Find:         Ctrl+f ”/” and ”,”<br/>
+Find:         Ctrl+f “/” and “,”<br/>
 
 FindNext:     Ctrl+g and Enter<br/>
 
@@ -986,7 +985,7 @@ Dismissing Find:
 </p>
 
 <p>
-When using Ctrl+f to bring up Find, use Ctrl+f again or ESC. When using ”/” or ”,” to bring up Find, the previous works here as well and by simply moving focus away from the Find box. For example: a Tab or a mouse click anywhere[besides links of course].
+When using Ctrl+f to bring up Find, use Ctrl+f again or ESC. When using “/” or “,” to bring up Find, the previous works here as well and by simply moving focus away from the Find box. For example: a Tab or a mouse click anywhere[besides links of course].
 </p>
 
 </div>
@@ -1054,7 +1053,7 @@ To manually install a userscript, you have to download the script as a file, and
 </p>
 
 <p>
-If the script is only shown as source code on the page, you first have to create a new text file in a text editor, copy the source code into the new file, and save it as my-user-script.js where ”.js” is the extension.
+If the script is only shown as source code on the page, you first have to create a new text file in a text editor, copy the source code into the new file, and save it as my-user-script.js where “.js” is the extension.
 </p>
 
 </div>
@@ -1107,7 +1106,7 @@ To install a user style, you have to download the style as a file, and put it in
 </p>
 
 <p>
-Note, if the style is only shown as source code on the page, you first have to create a new text file in a text editor, copy the source code into the new file, and save it as my-user-style.css where ”.css” is the extension.
+Note, if the style is only shown as source code on the page, you first have to create a new text file in a text editor, copy the source code into the new file, and save it as my-user-style.css where “.css” is the extension.
 </p>
 
 </div>
