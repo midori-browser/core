@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: midori\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2015-07-11 22:56-0400\n"
-"PO-Revision-Date: 2015-09-01 12:26+0000\n"
-"Last-Translator: justryuz <fahmifisal@gmail.com>\n"
+"PO-Revision-Date: 2015-09-18 07:49+0000\n"
+"Last-Translator: abuyop <Unknown>\n"
 "Language-Team: Malay <ms@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2015-09-02 05:12+0000\n"
-"X-Generator: Launchpad (build 17706)\n"
+"X-Launchpad-Export-Date: 2015-09-19 05:13+0000\n"
+"X-Generator: Launchpad (build 17746)\n"
 
 #: ../data/midori.desktop.in.h:1 ../midori/main.c:142
 #: ../midori/midori-websettings.c:231
@@ -2329,6 +2329,12 @@ msgid ""
 "Lastly Check the configuration of your firewall.\n"
 "Whitelist aria2 and the port 6800 if they aren't."
 msgstr ""
+"Pemalam tidak dapat bersambung dengan aria2:\n"
+"Sila pastikan aria2 berjalan dengan rpc dibenarkan iaitu: aria2c --enable-"
+"rpc\n"
+"Jika sudah lakukan, periksa ia juga menggunakan port 6800.\n"
+"Akkhir sekali periksa konfigurasi dinding api anda.\n"
+"Senarai putihkan aria2 dan port 6800 jika belum lakukan."
 
 #: ../extensions/external-download-manager.vala:194
 msgid "External Download Manager - Aria2"
@@ -2993,11 +2999,11 @@ msgstr "Tab baru tidak mempunyai label secara lalai"
 
 #: ../extensions/tabs2one.c:299 ../extensions/tabs2one.c:400
 msgid "Tabs to One"
-msgstr ""
+msgstr "Tab pada Satu"
 
 #: ../extensions/tabs2one.c:301
 msgid "Tabs you collected so far"
-msgstr ""
+msgstr "Tab yang anda kutip buat masa ini"
 
 #: ../extensions/tabs2one.c:302
 msgid "Clicking an item restores a tab."
@@ -3005,11 +3011,11 @@ msgstr "Klik item mengembalikan tab."
 
 #: ../extensions/tabs2one.c:327
 msgid "Tabs to _One"
-msgstr ""
+msgstr "Tab pada _Satu"
 
 #: ../extensions/tabs2one.c:401
 msgid "Closes all open tabs and creates new tab with tabs links"
-msgstr ""
+msgstr "Tutup semua tab terbuka dan cipta tab baharu dengan pautan tab"
 
 #: ../extensions/toolbar-editor.c:392
 msgid "Customize Toolbar"
@@ -3355,7 +3361,7 @@ msgstr "Ralat mencipta pelancar"
 
 #: ../extensions/apps.vala:174
 msgid "No file \"desc\" found"
-msgstr ""
+msgstr "Tiada fail \"desc\" ditemui"
 
 #: ../extensions/apps.vala:201
 msgid "Applications"
@@ -3367,7 +3373,7 @@ msgstr "_Profil Baru"
 
 #: ../extensions/apps.vala:212
 msgid "Creates a new, independent profile and a launcher"
-msgstr ""
+msgstr "Cipta profil dan pelancar baharu dan bebas"
 
 #: ../extensions/apps.vala:223
 msgid "New _App"
@@ -3521,6 +3527,8 @@ msgstr "Nota Baharu"
 #: ../extensions/notes.vala:146
 msgid "Creates a new empty note, unrelated to opened pages"
 msgstr ""
+"Cipta nota kosong baharu yang tidak berkaitan dengan halaman yang telah "
+"dibuka"
 
 #: ../extensions/notes.vala:152
 msgid "New note"
@@ -3569,37 +3577,39 @@ msgstr "S_ekat pautan"
 
 #: ../extensions/adblock/extension.vala:384
 msgid "Custom"
-msgstr ""
+msgstr "Suai"
 
 #: ../extensions/adblock/widgets.vala:30
 msgid "Preferences"
-msgstr ""
+msgstr "Keutamaan"
 
 #: ../extensions/adblock/widgets.vala:38
 msgid "Disable"
-msgstr ""
+msgstr "Dilumpuhkan"
 
 #: ../extensions/adblock/widgets.vala:47
 msgid "Display hidden elements"
-msgstr ""
+msgstr "Papar unsur tersembunyi"
 
 #: ../extensions/adblock/widgets.vala:66
 msgid "Blocking"
-msgstr ""
+msgstr "Sekatan"
 
 #: ../extensions/adblock/widgets.vala:69
 msgid "Enabled"
-msgstr ""
+msgstr "Dibenarkan"
 
 #: ../extensions/adblock/widgets.vala:72
 msgid "Disabled"
-msgstr ""
+msgstr "Dilumpuhkan"
 
 #: ../extensions/adblock/widgets.vala:89
 msgid ""
 "Type the address of a preconfigured filter list in the text entry and hit "
 "Enter.\n"
 msgstr ""
+"Jenis alamat senarai penapis pra-konfigur dalam masukan teks dan tekan "
+"Enter.\n"
 
 #: ../extensions/adblock/widgets.vala:90
 #, c-format
@@ -3607,6 +3617,8 @@ msgid ""
 "You can find more lists by visiting following sites:\n"
 " %s, %s\n"
 msgstr ""
+"Anda boleh dapatkan lagi senarai dengan melawati laman berikut:\n"
+" %s, %s\n"
 
 #: ../extensions/adblock/widgets.vala:97
 msgid "Configure Advertisement filters"
@@ -3615,11 +3627,11 @@ msgstr "Konfigur penapis Iklan"
 #: ../extensions/adblock/widgets.vala:159
 #, c-format
 msgid "Last update: %x %X"
-msgstr ""
+msgstr "Kemaskini terakhir: %x %X"
 
 #: ../extensions/adblock/widgets.vala:163
 msgid "File incomplete - broken download?"
-msgstr ""
+msgstr "Fail tidak selesai - muat turun rosak?"
 
 #: ../extensions/adblock/widgets.vala:256
 msgid "Edit rule"
@@ -3631,24 +3643,28 @@ msgstr "Pe_raturan:"
 
 #: ../extensions/domain-keys.vala:15
 msgid "Domain Hotkeys"
-msgstr ""
+msgstr "Kekunci Panas Domain"
 
 #: ../extensions/domain-keys.vala:16
 msgid ""
 "Add www. and .com/.country_domain and proceed with Ctrl+Enter/Shift+Enter"
 msgstr ""
+"Tambah www. dan .com/.country_domain seterusnya lakukan "
+"Ctrl+Enter/Shift+Enter"
 
 #: ../extensions/domain-keys.vala:29
 msgctxt "Domain"
 msgid ".com"
-msgstr ""
+msgstr ".com"
 
 #: ../extensions/webmedia-now-playing.vala:20
 msgid "Webmedia now-playing"
-msgstr ""
+msgstr "Webmedia kini-dimainkan"
 
 #: ../extensions/webmedia-now-playing.vala:21
 msgid ""
 "Share 'youtube, vimeo, dailymotion, coub and zippcast' that you are playing "
 "in Midori using org.midori.mediaHerald"
 msgstr ""
+"Kongsi 'youtube, vimeo, dailymotion, coub dan zippcast' yang anda main di "
+"dalam Midori menggunakan org.midori.mediaHerald"
