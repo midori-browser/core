@@ -3495,9 +3495,6 @@ midori_view_web_inspector_construct_window (gpointer       inspector,
     }
     else
         gtk_window_set_icon_name (GTK_WINDOW (window), icon_name);
-    #if GTK_CHECK_VERSION (3, 4, 0)
-    gtk_window_set_hide_titlebar_when_maximized (GTK_WINDOW (window), TRUE);
-    #endif
     gtk_widget_set_size_request (GTK_WIDGET (inspector_view), 700, 100);
     #if GTK_CHECK_VERSION (3, 0, 0)
     scrolled = gtk_scrolled_window_new (NULL, NULL);
