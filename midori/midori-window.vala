@@ -28,7 +28,6 @@ namespace Midori {
                 toolbar.show_arrow = true;
 #if HAVE_GTK3
                 toolbar.get_style_context ().add_class ("primary-toolbar");
-                hide_titlebar_when_maximized = true;
 #endif
                 toolbar.popup_context_menu.connect ((x, y, button) => {
                     return button == 3 && context_menu (toolbar); });
