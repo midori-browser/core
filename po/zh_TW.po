@@ -9,15 +9,15 @@ msgstr ""
 "Project-Id-Version: midori master\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-07-11 22:56-0400\n"
-"PO-Revision-Date: 2014-03-17 05:54+0000\n"
+"PO-Revision-Date: 2015-09-25 14:37+0000\n"
 "Last-Translator: Cheng-Chia Tseng <pswo10680@gmail.com>\n"
 "Language-Team: chinese-l10n <chinese-l10n@googlegroups.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2015-07-13 05:15+0000\n"
-"X-Generator: Launchpad (build 17620)\n"
+"X-Launchpad-Export-Date: 2015-09-26 05:11+0000\n"
+"X-Generator: Launchpad (build 17754)\n"
 
 #: ../data/midori.desktop.in.h:1 ../midori/main.c:142
 #: ../midori/midori-websettings.c:231
@@ -495,7 +495,8 @@ msgstr ""
 "\n"
 "Launchpad Contributions:\n"
 "  Cheng-Chia Tseng https://launchpad.net/~zerng07\n"
-"  leo  https://launchpad.net/~shing80333"
+"  leo  https://launchpad.net/~shing80333\n"
+"  賴家亨 https://launchpad.net/~laichiaheng"
 
 #: ../midori/midori-browser.c:5191 ../midori/midori-browser.c:5432
 msgid "_Duplicate Current Tab"
@@ -555,7 +556,7 @@ msgstr "列印目前頁面"
 
 #: ../midori/midori-browser.c:5261
 msgid "Send Page Link Via Email"
-msgstr ""
+msgstr "透過電子郵件傳送網頁連結"
 
 #: ../midori/midori-browser.c:5264
 msgid "Close a_ll Windows"
@@ -849,7 +850,7 @@ msgstr "開啟特定位置"
 
 #: ../midori/midori-browser.c:6010
 msgid "Search or enter an address"
-msgstr ""
+msgstr "搜尋或輸入位址"
 
 #: ../midori/midori-browser.c:6032
 msgid "_Web Search…"
@@ -900,16 +901,16 @@ msgstr "匯出憑證"
 #: ../midori/midori-locationaction.c:1377
 #: ../midori/midori-locationaction.c:1495
 msgid "_Don't trust this website"
-msgstr ""
+msgstr "不要信任這個網站(_D)"
 
 #: ../midori/midori-locationaction.c:1379
 #: ../midori/midori-locationaction.c:1501
 msgid "_Trust this website"
-msgstr ""
+msgstr "信任這個網站(_T)"
 
 #: ../midori/midori-locationaction.c:1381
 msgid "_Export Certificate"
-msgstr ""
+msgstr "匯出憑證(_E)"
 
 #: ../midori/midori-locationaction.c:1429
 msgid "The signing certificate authority is not known."
@@ -1155,38 +1156,38 @@ msgstr "%s 想要知道您的所在位置。"
 #: ../midori/midori-view.c:1231
 #, c-format
 msgid "You are not connected to a network"
-msgstr ""
+msgstr "您尚未連接到網路"
 
 #: ../midori/midori-view.c:1232
 #, c-format
 msgid ""
 "Your computer must be connected to a network to reach “%s”. Connect to a "
 "wireless access point or attach a network cable and try again."
-msgstr ""
+msgstr "您的電腦必須連接到網路才能訪問「%s」。請連線到無線網路存取點，或是接上網路線後再重試看看。"
 
 #: ../midori/midori-view.c:1241
 #, c-format
 msgid "You are not connected to the Internet"
-msgstr ""
+msgstr "您尚未連接到網際網路"
 
 #: ../midori/midori-view.c:1242
 #, c-format
 msgid ""
 "Your computer appears to be connected to a network, but can't reach “%s”. "
 "Check your network settings and try again."
-msgstr ""
+msgstr "您的電腦似乎有連上網路，但卻無法訪問「%s」。請檢查您的網路設定值是否正確後再重試看看。"
 
 #: ../midori/midori-view.c:1248
 #, c-format
 msgid "Midori can't find the page you're looking for"
-msgstr ""
+msgstr "Midori 找不到您所要的網頁"
 
 #: ../midori/midori-view.c:1249
 #, c-format
 msgid ""
 "The page located at “%s” cannot be found. Check the web address for "
 "misspelled words and try again."
-msgstr ""
+msgstr "找不到位於「%s」的網頁。請檢查網址是否有拼寫上的錯誤後再重試一次。"
 
 #: ../midori/midori-view.c:1256
 msgid "Try Again"
@@ -2289,6 +2290,11 @@ msgid ""
 "Lastly Check the configuration of your firewall.\n"
 "Whitelist aria2 and the port 6800 if they aren't."
 msgstr ""
+"該插件無法連接 aria2：\n"
+"請確認 aria2 正在執行中，且附帶啟用 rpc 的 ie：aria2c --enable-rpc\n"
+"如果確實如此，請檢查它是否正在使用 6800 連接埠。\n"
+"最後請檢查您的防火牆組態。\n"
+"如果 aria2 和 6800 連接埠不在不名單中的話，請將之補入。"
 
 #: ../extensions/external-download-manager.vala:194
 msgid "External Download Manager - Aria2"
@@ -2321,24 +2327,24 @@ msgstr "外部下載管理員 - 指令列"
 
 #: ../extensions/open-with.vala:174
 msgid "Name:"
-msgstr ""
+msgstr "名稱："
 
 #: ../extensions/open-with.vala:183
 msgid "Command Line:"
-msgstr ""
+msgstr "指令列："
 
 #: ../extensions/open-with.vala:243
 msgid "Right-click a suggestion to customize it"
-msgstr ""
+msgstr "右鍵點按一項推薦以自訂"
 
 #: ../extensions/open-with.vala:372
 msgid "Choose application"
-msgstr ""
+msgstr "選擇應用程式"
 
 #: ../extensions/open-with.vala:385
 #, c-format
 msgid "Select an application to open \"%s\""
-msgstr ""
+msgstr "請選擇用來開啟「%s」的應用程式"
 
 #: ../extensions/open-with.vala:461
 msgid "None"
@@ -2346,16 +2352,16 @@ msgstr "無"
 
 #: ../extensions/open-with.vala:677
 msgid "Download error"
-msgstr ""
+msgstr "下載錯誤"
 
 #: ../extensions/open-with.vala:678
 #, c-format
 msgid "Cannot open '%s' because the download failed."
-msgstr ""
+msgstr "由於下載失敗而無法開啟「%s」。"
 
 #: ../extensions/open-with.vala:718
 msgid "Open _with…"
-msgstr ""
+msgstr "開啟方式(_W)…"
 
 #: ../extensions/open-with.vala:727
 msgid "Open in Image _Viewer"
@@ -2363,7 +2369,7 @@ msgstr "於影像檢視器中開啟(_V)"
 
 #: ../extensions/open-with.vala:738
 msgid "File Types"
-msgstr ""
+msgstr "檔案類型"
 
 #: ../extensions/open-with.vala:742
 msgid "Text Editor"
@@ -2682,7 +2688,7 @@ msgstr "刪除全部(_A)"
 #. Add "allow-local-pages" checkbox
 #: ../extensions/nojs/nojs-preferences.c:987
 msgid "A_llow scripts on local pages"
-msgstr ""
+msgstr "允許本地端網頁執行指令稿(_L)"
 
 #. Add "block-unknown-domains" checkbox
 #: ../extensions/nojs/nojs-preferences.c:995
@@ -2829,11 +2835,11 @@ msgstr "此擴充套件使用的 sqlite 資料庫實體路徑"
 
 #: ../extensions/nojs/nojs.c:743
 msgid "Allow local pages"
-msgstr ""
+msgstr "允許本地端網頁"
 
 #: ../extensions/nojs/nojs.c:744
 msgid "Allow scripts to run on local (file://) pages"
-msgstr ""
+msgstr "允許指令稿可在本地端 (file://) 網頁上執行"
 
 #: ../extensions/nojs/nojs.c:750
 msgid "Only second level"
@@ -2843,7 +2849,7 @@ msgstr "僅第二層級"
 msgid ""
 "Reduce each domain to its second-level (e.g. www.example.org to example.org) "
 "for comparison"
-msgstr ""
+msgstr "將各網域縮減到第二層級 (例如：www.example.org 轉為 example.org) 以便比較"
 
 #: ../extensions/nojs/nojs.c:757
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1035
@@ -2852,7 +2858,7 @@ msgstr "未知網域方針"
 
 #: ../extensions/nojs/nojs.c:758
 msgid "Policy to use for unknown domains"
-msgstr ""
+msgstr "使用未知網域的方針"
 
 #: ../extensions/nojs/nojs.c:1034
 msgid "Accept temporarily"
@@ -2940,23 +2946,23 @@ msgstr "新分頁預設情況下沒有分頁標籤"
 
 #: ../extensions/tabs2one.c:299 ../extensions/tabs2one.c:400
 msgid "Tabs to One"
-msgstr ""
+msgstr "分頁合而為一"
 
 #: ../extensions/tabs2one.c:301
 msgid "Tabs you collected so far"
-msgstr ""
+msgstr "您目前爲止累積的分頁"
 
 #: ../extensions/tabs2one.c:302
 msgid "Clicking an item restores a tab."
-msgstr ""
+msgstr "點按其中一個項目來還原一頁分頁。"
 
 #: ../extensions/tabs2one.c:327
 msgid "Tabs to _One"
-msgstr ""
+msgstr "分頁合而為一(_O)"
 
 #: ../extensions/tabs2one.c:401
 msgid "Closes all open tabs and creates new tab with tabs links"
-msgstr ""
+msgstr "關閉所有開啓的分頁，改用分頁連結建立新的分頁"
 
 #: ../extensions/toolbar-editor.c:392
 msgid "Customize Toolbar"
@@ -3288,7 +3294,7 @@ msgstr "建立啟動器時發生錯誤"
 
 #: ../extensions/apps.vala:174
 msgid "No file \"desc\" found"
-msgstr ""
+msgstr "找不到「desc」檔"
 
 #: ../extensions/apps.vala:201
 msgid "Applications"
@@ -3300,7 +3306,7 @@ msgstr "新增個人檔案(_P)"
 
 #: ../extensions/apps.vala:212
 msgid "Creates a new, independent profile and a launcher"
-msgstr ""
+msgstr "建立新的、獨立的個人設定檔與啟動器"
 
 #: ../extensions/apps.vala:223
 msgid "New _App"
@@ -3451,7 +3457,7 @@ msgstr "新增記事"
 
 #: ../extensions/notes.vala:146
 msgid "Creates a new empty note, unrelated to opened pages"
-msgstr ""
+msgstr "建立新的、與開啟網頁無關的空白記事"
 
 #: ../extensions/notes.vala:152
 msgid "New note"
@@ -3500,37 +3506,37 @@ msgstr "阻擋鏈結(_O)"
 
 #: ../extensions/adblock/extension.vala:384
 msgid "Custom"
-msgstr ""
+msgstr "自訂"
 
 #: ../extensions/adblock/widgets.vala:30
 msgid "Preferences"
-msgstr ""
+msgstr "偏好設定"
 
 #: ../extensions/adblock/widgets.vala:38
 msgid "Disable"
-msgstr ""
+msgstr "停用"
 
 #: ../extensions/adblock/widgets.vala:47
 msgid "Display hidden elements"
-msgstr ""
+msgstr "顯示隱藏的元素"
 
 #: ../extensions/adblock/widgets.vala:66
 msgid "Blocking"
-msgstr ""
+msgstr "封鎖中"
 
 #: ../extensions/adblock/widgets.vala:69
 msgid "Enabled"
-msgstr ""
+msgstr "已啟用"
 
 #: ../extensions/adblock/widgets.vala:72
 msgid "Disabled"
-msgstr ""
+msgstr "已停用"
 
 #: ../extensions/adblock/widgets.vala:89
 msgid ""
 "Type the address of a preconfigured filter list in the text entry and hit "
 "Enter.\n"
-msgstr ""
+msgstr "請在文字輸入位置中輸入預先設定的過濾清單，並按下 Enter 鍵。\n"
 
 #: ../extensions/adblock/widgets.vala:90
 #, c-format
@@ -3538,6 +3544,8 @@ msgid ""
 "You can find more lists by visiting following sites:\n"
 " %s, %s\n"
 msgstr ""
+"您可以訪問以下網站來尋找更多清單：\n"
+" %s，%s\n"
 
 #: ../extensions/adblock/widgets.vala:97
 msgid "Configure Advertisement filters"
@@ -3546,11 +3554,11 @@ msgstr "設定廣告過濾條件"
 #: ../extensions/adblock/widgets.vala:159
 #, c-format
 msgid "Last update: %x %X"
-msgstr ""
+msgstr "上次更新：%x %X"
 
 #: ../extensions/adblock/widgets.vala:163
 msgid "File incomplete - broken download?"
-msgstr ""
+msgstr "檔案並不完整 - 下載損毀？"
 
 #: ../extensions/adblock/widgets.vala:256
 msgid "Edit rule"
@@ -3562,24 +3570,26 @@ msgstr "規則(_R)："
 
 #: ../extensions/domain-keys.vala:15
 msgid "Domain Hotkeys"
-msgstr ""
+msgstr "網域快捷鍵"
 
 #: ../extensions/domain-keys.vala:16
 msgid ""
 "Add www. and .com/.country_domain and proceed with Ctrl+Enter/Shift+Enter"
-msgstr ""
+msgstr "加入 www. 和 .com/.country_domain 並以 Ctrl+Enter/Shift+Enter 處理"
 
 #: ../extensions/domain-keys.vala:29
 msgctxt "Domain"
 msgid ".com"
-msgstr ""
+msgstr ".com"
 
 #: ../extensions/webmedia-now-playing.vala:20
 msgid "Webmedia now-playing"
-msgstr ""
+msgstr "現正播放中的網頁媒體"
 
 #: ../extensions/webmedia-now-playing.vala:21
 msgid ""
 "Share 'youtube, vimeo, dailymotion, coub and zippcast' that you are playing "
 "in Midori using org.midori.mediaHerald"
 msgstr ""
+"使用 org.midori.mediaHerald 來分享您在 Midora "
+"中播放的「Youtube、Vimeo、Dailymottion、Coub、Zippcast」等影片。"
