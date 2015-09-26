@@ -623,10 +623,10 @@ midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view
                         gchar* slots = g_strjoinv (" , ", (gchar**)gcr_pkcs11_get_trust_lookup_uris ());
                         gchar* title = g_strdup_printf ("Error granting trust: %s", error->message);
                         midori_tab_stop_loading (MIDORI_TAB (view));
-                        midori_view_display_error (view, NULL, NULL, NULL, title, slots, _("Please look at our \
-<a href=\"http://midori-browser.org/faqs/\" target=\"_blank\">FAQ</a>, \
-section \"<a href=\"http://midori-browser.org/faqs/#security_features\" target=\"_blank\">Security Features</a>\", \
-to understand how you can solve this problem."),
+                        midori_view_display_error (view, NULL, NULL, NULL, title, slots, _("Please look at our "
+                           "<a href=\"http://midori-browser.org/faqs/\" target=\"_blank\">FAQ</a>, section "
+                           "\"<a href=\"http://midori-browser.org/faqs/#security_features\" target=\"_blank\">"
+                           "Security Features</a>\", to understand how you can solve this problem."),
                             _("Trust this website"), NULL);
                         g_free (title);
                         g_free (slots);
