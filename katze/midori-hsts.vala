@@ -14,9 +14,6 @@ namespace Midori {
     extern bool hostname_is_ip_address (string hostname);
 
     public class HSTS : GLib.Object, Soup.SessionFeature {
-        // [CCode (cname = "g_hostname_to_ascii")]
-        // extern string? hostname_to_ascii (string hostname);
-
         public class Directive {
             public Soup.Date? expires = null;
             public bool sub_domains = false;
@@ -115,8 +112,6 @@ namespace Midori {
 
             if (hostname_is_ip_address (host))
                 return false;
-
-            stdout.printf ("kek %s\n", host);
 
             // try an exact match first
             directive = whitelist.lookup (host);
