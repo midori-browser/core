@@ -85,7 +85,7 @@ namespace Midori {
                     var expire = parts[1]._strip ();
                     var allow_subdomains = bool.parse (parts[2]._strip ());
 
-                    var directive = new Directive (expire, allow_subdomains));
+                    var directive = new Directive (expire, allow_subdomains);
                     if (directive.is_valid () && !directive.is_expired ()) {
                         if (debug)
                             stdout.printf ("HSTS: loading rule for %s\n", host);
@@ -116,6 +116,8 @@ namespace Midori {
             if (hostname_is_ip_address (host))
                 return false;
 
+            stdout.printf ("kek %s\n", host);
+
             // try an exact match first
             directive = whitelist.lookup (host);
 
@@ -136,7 +138,7 @@ namespace Midori {
             }
 
             return directive != null && 
-                   directive.is_expired () &&
+                   !directive.is_expired () &&
                    (is_subdomain? directive.sub_domains: true);
         }
 
