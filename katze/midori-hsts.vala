@@ -10,13 +10,16 @@
 */
 
 namespace Midori {
+    [CCode (cname = "g_hostname_is_ip_address")]
+    extern bool hostname_is_ip_address (string hostname);
+
     public class HSTS : GLib.Object, Soup.SessionFeature {
         public class Directive {
             public Soup.Date? expires = null;
             public bool sub_domains = false;
 
-            public Directive (bool include_sub_domains) {
-                expires = new Soup.Date.from_now (int.MAX);
+            public Directive (string max_age, bool include_sub_domains) {
+                expires = new Soup.Date.from_string (max_age);
                 sub_domains = include_sub_domains;
             }
 
@@ -26,16 +29,28 @@ namespace Midori {
                     return;
 
                 string? max_age = param_list.lookup ("max-age");
-                if (max_age != null)
-                    expires = new Soup.Date.from_now (max_age.to_int ());
-                // if (param_list.lookup_extended ("includeSubDomains", null, null))
+                if (max_age == null)
+                    return;
+
+                if (max_age != null) {
+                    int val = max_age.to_int ();
+                    if (val != 0)
+                        expires = new Soup.Date.from_now (val);
+                }
+
                 if ("includeSubDomains" in header)
                     sub_domains = true;
+
                 Soup.header_free_param_list (param_list);
             }
 
+            public bool is_expired () {
+                return expires.is_past ();
+            }
+
             public bool is_valid () {
-                return expires != null && !expires.is_past ();
+                // The max-age parameter is *required*
+                return expires != null;
             }
         }
 
@@ -57,63 +72,99 @@ namespace Midori {
                     string? line = yield stream.read_line_async ();
                     if (line == null)
                         break;
-                    string[] parts = line.split (" ", 2);
-                    if (parts[0] == null || parts[1] == null)
-                        break;
-                    var directive = new Directive.from_header (parts[1]);
-                    if (directive.is_valid ())
-                        append_to_whitelist (parts[0], directive);
+
+                    // hostname ' ' expiration-date ' ' allow-subdomains <y|n>
+                    string[] parts = line.split (" ", 3);
+                    if (parts[0] == null || parts[1] == null || parts[2] == null)
+                        continue;
+
+                    var host = parts[0]._strip ();
+                    var expire = parts[1]._strip ();
+                    var allow_subdomains = bool.parse (parts[2]._strip ());
+
+                    var directive = new Directive (expire, allow_subdomains);
+                    if (directive.is_valid () && !directive.is_expired ()) {
+                        if (debug)
+                            stdout.printf ("HSTS: loading rule for %s\n", host);
+                        whitelist_append (host, directive);
+                    }
                 } while (true);
             }
             catch (Error error) { }
         }
 
-        /* No sub-features */
-        public bool add_feature (Type type) { return false; }
-        public bool remove_feature (Type type) { return false; }
-        public bool has_feature (Type type) { return false; }
-
-        public void attach (Soup.Session session) { session.request_queued.connect (queued); }
-        public void detach (Soup.Session session) { /* FIXME disconnect */ }
-
-        /* Never called but required by the interface */
-        public void request_started (Soup.Session session, Soup.Message msg, Soup.Socket socket) { }
-        public void request_queued (Soup.Session session, Soup.Message message) { }
-        public void request_unqueued (Soup.Session session, Soup.Message msg) { }
-
-        bool should_secure_host (string host) {
-            Directive? directive = whitelist.lookup (host);
-            if (directive == null)
-                directive = whitelist.lookup ("*." + host);
-            return directive != null && directive.is_valid ();
-        }
-
         void queued (Soup.Session session, Soup.Message message) {
-            if (should_secure_host (message.uri.host)) {
+            /* Only trust the HSTS headers sent over a secure connection */
+            if (message.uri.scheme == "https") {
+                message.finished.connect (strict_transport_security_handled);
+            }
+            else if (whitelist_lookup (message.uri.host)) {
                 message.uri.set_scheme ("https");
                 session.requeue_message (message);
                 if (debug)
                     stdout.printf ("HSTS: Enforce %s\n", message.uri.host);
             }
-            else if (message.uri.scheme == "http")
-                message.finished.connect (strict_transport_security_handled);
         }
 
-        void append_to_whitelist (string host, Directive directive) {
+        bool whitelist_lookup (string host) {
+            Directive? directive = null;
+            bool is_subdomain = false;
+
+            if (hostname_is_ip_address (host))
+                return false;
+
+            // try an exact match first
+            directive = whitelist.lookup (host);
+
+            // no luck, try walking the domain tree
+            if (directive == null) {
+                int offset = 0;
+                for (offset = host.index_of_char ('.', offset) + 1;
+                     offset > 0;
+                     offset = host.index_of_char ('.', offset) + 1) {
+                    string component = host.substring(offset);
+
+                    directive = whitelist.lookup (component);
+                    if (directive != null) {
+                        is_subdomain = true;
+                        break;
+                    }
+                }
+            }
+
+            return directive != null && 
+                   !directive.is_expired () &&
+                   (is_subdomain? directive.sub_domains: true);
+        }
+
+        void whitelist_append (string host, Directive directive) {
             whitelist.insert (host, directive);
-            if (directive.sub_domains)
-                whitelist.insert ("*." + host, directive);
         }
 
-        async void append_to_cache (string host, string header) {
+        void whitelist_remove (string host) {
+            whitelist.remove(host);
+        }
+
+        async void whitelist_serialize () {
             if (Midori.Paths.is_readonly ())
                 return;
 
             string filename = Paths.get_config_filename_for_writing ("hsts");
             try {
                 var file = File.new_for_path (filename);
-                var stream = file.append_to/* FIXME _async*/ (FileCreateFlags.NONE);
-                yield stream.write_async ((host + " " + header + "\n").data);
+                var stream = file.replace (null, false, FileCreateFlags.NONE);
+
+                foreach (string host in whitelist.get_keys ()) {
+                    var directive = whitelist.lookup (host);
+
+                    // Don't serialize the expired directives
+                    if (directive.is_expired ())
+                        continue;
+
+                    yield stream.write_async (("%s %s %s\n".printf (host,
+                                                                    directive.expires.to_string (Soup.DateFormat.ISO8601_COMPACT),
+                                                                    directive.sub_domains.to_string ())).data);
+                }
                 yield stream.flush_async ();
             }
             catch (Error error) {
@@ -130,14 +181,31 @@ namespace Midori {
                 return;
 
             var directive = new Directive.from_header (hsts);
-            if (directive.is_valid ()) {
-                append_to_whitelist (message.uri.host, directive);
-                append_to_cache.begin (message.uri.host, hsts);
-            }
+
             if (debug)
                 stdout.printf ("HSTS: '%s' sets '%s' valid? %s\n",
                     message.uri.host, hsts, directive.is_valid ().to_string ());
+
+            if (directive.is_valid ())
+                whitelist_append (message.uri.host, directive);
+            else
+                whitelist_remove (message.uri.host);
+
+
+            whitelist_serialize.begin ();
         }
 
+        /* No sub-features */
+        public bool add_feature (Type type) { return false; }
+        public bool remove_feature (Type type) { return false; }
+        public bool has_feature (Type type) { return false; }
+
+        public void attach (Soup.Session session) { session.request_queued.connect (queued); }
+        public void detach (Soup.Session session) { /* FIXME disconnect */ }
+
+        /* Never called but required by the interface */
+        public void request_started (Soup.Session session, Soup.Message msg, Soup.Socket socket) { }
+        public void request_queued (Soup.Session session, Soup.Message message) { }
+        public void request_unqueued (Soup.Session session, Soup.Message msg) { }
     }
 }
