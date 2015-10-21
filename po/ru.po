@@ -9,15 +9,15 @@ msgstr ""
 "Project-Id-Version: midori 0.2.8\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-07-11 22:56-0400\n"
-"PO-Revision-Date: 2015-10-19 23:56+0000\n"
-"Last-Translator: Yuly Nesterov <crow@rikka.io>\n"
+"PO-Revision-Date: 2015-10-21 05:03+0000\n"
+"Last-Translator: zEvilz <zevilz13@gmail.com>\n"
 "Language-Team: Russian <ru@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2015-10-20 05:11+0000\n"
+"X-Launchpad-Export-Date: 2015-10-21 05:13+0000\n"
 "X-Generator: Launchpad (build 17812)\n"
 "Language: ru\n"
 
@@ -73,7 +73,7 @@ msgstr "Снимок сохранён в: %s\n"
 
 #: ../midori/main.c:79
 msgid "Run ADDRESS as a web application"
-msgstr "Запустить АДРЕС как веб-приложение"
+msgstr "Запустить ADDRESS как веб-приложение"
 
 #: ../midori/main.c:79
 msgid "ADDRESS"
@@ -101,7 +101,7 @@ msgstr "Простое GTK+ окно с WebKit, вроде GtkLauncher"
 
 #: ../midori/main.c:91
 msgid "Show a diagnostic dialog"
-msgstr "Показать окно действий"
+msgstr "Показать окно отладки"
 
 #: ../midori/main.c:93
 msgid "Run within gdb and save a backtrace on crash"
@@ -135,7 +135,7 @@ msgstr "Адреса"
 
 #: ../midori/main.c:107
 msgid "Block URIs according to regular expression PATTERN"
-msgstr "Блокировать URI по ШАБЛОНУ (регулярное выражение)"
+msgstr "Блокировать адреса по регулярному выражению PATTERN"
 
 #: ../midori/main.c:107
 msgid "PATTERN"
@@ -364,11 +364,12 @@ msgid ""
 "Aggregator. Next time you click the news feed icon, it will be added "
 "automatically."
 msgstr ""
-"Чтобы воспользоваться данным URI, откройте программу чтения новостей. Обычно "
-"необходимое действие называется «Добавить ленту» или «Добавить подписку».\n"
-"В настройках Midori также можно установить программу чтения новостей. В "
-"таком случае, в следующий раз при нажатии на ссылку на ленту, она будет "
-"добавлена автоматически."
+"Для использования данной ссылки откройте программу для чтения лент новостей. "
+"Обычно необходимое действие называется \"Новая подписка\" или \"Новая лента "
+"новостей\".\n"
+"Также вы можете включить расширение для чтения лент в настройках Midori. "
+"После этого при нажатии на соответствующую иконку в адресной строке лента "
+"новостей будет автоматически добавлена в список расширения."
 
 #: ../midori/midori-browser.c:2832 ../extensions/feed-panel/main.c:350
 msgid "New feed"
@@ -488,7 +489,7 @@ msgstr "Легковесный Интернет-обозреватель."
 #: ../midori/midori-browser.c:4900
 msgid "See about:version for version info."
 msgstr ""
-"Посетите страницу about:version для получения информации о текущей версии."
+"Перейдите по адресу about:version для получения информации о текущей версии."
 
 #: ../midori/midori-browser.c:4902
 msgid ""
@@ -498,9 +499,8 @@ msgid ""
 "option) any later version."
 msgstr ""
 "Эта библиотека является свободным программным обеспечением. Вы можете "
-"распространять или изменять ее на условиях соответствия GNU Lesser General "
-"Public License опубликованной Free Software Foundation; либо версии 2.1 "
-"лицензии, либо (на ваше усмотрение) любой более поздней версии."
+"распространять и/или изменять ее на условиях GNU Lesser General Public "
+"License версии 2.1 и выше, опубликованной Free Software Foundation."
 
 #: ../midori/midori-browser.c:4933
 msgid "translator-credits"
@@ -548,6 +548,7 @@ msgstr ""
 "  daggert https://launchpad.net/~daggert\n"
 "  moonk https://launchpad.net/~wrex-tp\n"
 "  nevel https://launchpad.net/~imstiem\n"
+"  zEvilz https://launchpad.net/~zevilz13\n"
 "  zepect https://launchpad.net/~zepect-deactivatedaccount\n"
 "  Александр https://launchpad.net/~qp1997\n"
 "  Глория Хрусталёва https://launchpad.net/~gloriya\n"
@@ -599,7 +600,7 @@ msgstr "_Закрыть вкладку"
 
 #: ../midori/midori-browser.c:5253
 msgid "Close the current tab"
-msgstr "Закрыть данную вкладку"
+msgstr "Закрыть текущую вкладку"
 
 #: ../midori/midori-browser.c:5255
 msgid "C_lose Window"
@@ -680,7 +681,7 @@ msgstr "Перемещение к_урсором"
 
 #: ../midori/midori-browser.c:5341
 msgid "Toggle fullscreen view"
-msgstr "Переключить полноэкранный режим"
+msgstr "Переключиться в полноэкранный режим"
 
 #: ../midori/midori-browser.c:5343
 msgid "Scroll _Left"
@@ -753,7 +754,7 @@ msgstr "_Экспорт закладок..."
 
 #: ../midori/midori-browser.c:5399
 msgid "_Manage Search Engines…"
-msgstr "_Управление поисковыми системами ..."
+msgstr "_Управление поисковыми движками ..."
 
 #: ../midori/midori-browser.c:5402
 msgid "_Clear Private Data…"
@@ -761,7 +762,7 @@ msgstr "_Удалить личные данные..."
 
 #: ../midori/midori-browser.c:5405
 msgid "_Inspect Page"
-msgstr "_Информация о странице"
+msgstr "_Исследовать страницу"
 
 #: ../midori/midori-browser.c:5409
 msgid "_Previous Tab"
@@ -801,7 +802,7 @@ msgstr "Показывать иконку только текущей вклад
 
 #: ../midori/midori-browser.c:5435
 msgid "Close Ot_her Tabs"
-msgstr "З_акрыть остальные"
+msgstr "З_акрыть все вкладки кроме текущей"
 
 #: ../midori/midori-browser.c:5438
 msgid "Open last _session"
@@ -884,7 +885,7 @@ msgstr "Западно-европейская (ISO-8859-1)"
 #: ../midori/midori-websettings.c:237 ../extensions/open-with.vala:159
 #: ../extensions/open-with.vala:268
 msgid "Custom…"
-msgstr "Выбрать…"
+msgstr "Другая..."
 
 #: ../midori/midori-browser.c:5821
 #, c-format
