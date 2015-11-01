@@ -10,15 +10,16 @@ msgstr ""
 "Project-Id-Version: Midori\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-07-11 22:56-0400\n"
-"PO-Revision-Date: 2015-06-24 18:41+0000\n"
-"Last-Translator: Felipe Braga <fbobraga@gmail.com>\n"
+"PO-Revision-Date: 2015-10-31 23:51+0000\n"
+"Last-Translator: Flávio Vinícius de Castro Alves "
+"<flavioviniciuscmp@gmail.com>\n"
 "Language-Team: Brazilian Portuguese <xfce-i18n-br@xfce.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2015-07-13 05:15+0000\n"
-"X-Generator: Launchpad (build 17620)\n"
+"X-Launchpad-Export-Date: 2015-11-01 05:07+0000\n"
+"X-Generator: Launchpad (build 17838)\n"
 "Language: pt_BR\n"
 
 #: ../data/midori.desktop.in.h:1 ../midori/main.c:142
@@ -507,18 +508,23 @@ msgstr ""
 "Launchpad Contributions:\n"
 "  Acacio Florentino https://launchpad.net/~acaciosc1\n"
 "  Anderson Felippe https://launchpad.net/~adfelippe\n"
+"  Cleiton Floss https://launchpad.net/~cleitonfloss\n"
 "  Douglas Moura https://launchpad.net/~araujodemoura\n"
+"  Duke https://launchpad.net/~dukex\n"
 "  Felipe Braga https://launchpad.net/~fbobraga-gmail\n"
+"  Flávio Vinícius de Castro Alves https://launchpad.net/~flavioviniciuscmp\n"
 "  Gabriel Galli https://launchpad.net/~g7-galli96\n"
 "  Giovanni A. Valle https://launchpad.net/~gvalle-augusto\n"
 "  Iuri L. Machado https://launchpad.net/~imetallica\n"
 "  Leonardo Lemos https://launchpad.net/~leonardolemos\n"
 "  Neliton Pereira Jr. https://launchpad.net/~nelitonpjr\n"
 "  Paulo Galardi https://launchpad.net/~paulogalardi1-deactivatedaccount\n"
-"  Rafael Ferreira https://launchpad.net/~rafael-f-f1\n"
+"  Rafael Fontenelle https://launchpad.net/~rffontenelle\n"
 "  Thaynã Moretti https://launchpad.net/~izn\n"
 "  Vinícius Castelani Reck https://launchpad.net/~viniciuscr\n"
 "  WebKit Team https://launchpad.net/~webkit-team\n"
+"  Wéllingthon M. de Souza https://launchpad.net/~wellingthonmotta-y\n"
+"  daltonmenezes https://launchpad.net/~dvicer\n"
 "  i https://launchpad.net/~iiiiii-deactivatedaccount\n"
 "  nickrj1@gmail.com https://launchpad.net/~nickrj1-gmail"
 
@@ -580,7 +586,7 @@ msgstr "Imprimir a página atual"
 
 #: ../midori/midori-browser.c:5261
 msgid "Send Page Link Via Email"
-msgstr ""
+msgstr "Enviar link da página por email"
 
 #: ../midori/midori-browser.c:5264
 msgid "Close a_ll Windows"
@@ -874,7 +880,7 @@ msgstr "Abrir localização específica"
 
 #: ../midori/midori-browser.c:6010
 msgid "Search or enter an address"
-msgstr ""
+msgstr "Pesquisar ou digitar um endereço"
 
 #: ../midori/midori-browser.c:6032
 msgid "_Web Search…"
@@ -925,16 +931,16 @@ msgstr "Exportar certificado"
 #: ../midori/midori-locationaction.c:1377
 #: ../midori/midori-locationaction.c:1495
 msgid "_Don't trust this website"
-msgstr ""
+msgstr "_Não confie neste site"
 
 #: ../midori/midori-locationaction.c:1379
 #: ../midori/midori-locationaction.c:1501
 msgid "_Trust this website"
-msgstr ""
+msgstr "_Confie neste site"
 
 #: ../midori/midori-locationaction.c:1381
 msgid "_Export Certificate"
-msgstr ""
+msgstr "_Exportar certificado"
 
 #: ../midori/midori-locationaction.c:1429
 msgid "The signing certificate authority is not known."
@@ -1187,7 +1193,7 @@ msgstr "%s quer saber a sua localização."
 #: ../midori/midori-view.c:1231
 #, c-format
 msgid "You are not connected to a network"
-msgstr ""
+msgstr "Você não está conectado a um rede"
 
 #: ../midori/midori-view.c:1232
 #, c-format
@@ -1195,11 +1201,13 @@ msgid ""
 "Your computer must be connected to a network to reach “%s”. Connect to a "
 "wireless access point or attach a network cable and try again."
 msgstr ""
+"Seu computador precisa estar conectado a uma rede para acessar \"%s\". "
+"Conecte-se a uma rede e tente novamente."
 
 #: ../midori/midori-view.c:1241
 #, c-format
 msgid "You are not connected to the Internet"
-msgstr ""
+msgstr "Você não está conectado à Internet"
 
 #: ../midori/midori-view.c:1242
 #, c-format
@@ -1207,11 +1215,13 @@ msgid ""
 "Your computer appears to be connected to a network, but can't reach “%s”. "
 "Check your network settings and try again."
 msgstr ""
+"Seu computador parece estar conectado a uma rede, mas não foi possível "
+"acessar \"%s\". Verifique suas configurações de rede e tente novamente."
 
 #: ../midori/midori-view.c:1248
 #, c-format
 msgid "Midori can't find the page you're looking for"
-msgstr ""
+msgstr "Midori não conseguiu achar a página que você está procurando"
 
 #: ../midori/midori-view.c:1249
 #, c-format
@@ -1219,6 +1229,8 @@ msgid ""
 "The page located at “%s” cannot be found. Check the web address for "
 "misspelled words and try again."
 msgstr ""
+"A página localizada em \"%s\" não pode ser encontrada. Verifique possíveis "
+"erros ortográficos no endereço da página e tente novamente."
 
 #: ../midori/midori-view.c:1256
 msgid "Try Again"
@@ -2345,6 +2357,12 @@ msgid ""
 "Lastly Check the configuration of your firewall.\n"
 "Whitelist aria2 and the port 6800 if they aren't."
 msgstr ""
+"O plug-in foi habilitado para conectar com aria2:\n"
+"Por favor, verifique se aria2 está rodando com rpc habilitado ie:aria2c --"
+"enable-rpc\n"
+"Se sim, verifique também se este está utilizando a porta 6800.\n"
+"Por último, verifique a configuração de seu firewall.\n"
+"Aria2 e a porta 6800 podem não estar na lista de acessos permitidos."
 
 #: ../extensions/external-download-manager.vala:194
 msgid "External Download Manager - Aria2"
@@ -2377,24 +2395,24 @@ msgstr "Gerenciador de downloads externo - CommandLine"
 
 #: ../extensions/open-with.vala:174
 msgid "Name:"
-msgstr ""
+msgstr "Nome:"
 
 #: ../extensions/open-with.vala:183
 msgid "Command Line:"
-msgstr ""
+msgstr "Linha de comando:"
 
 #: ../extensions/open-with.vala:243
 msgid "Right-click a suggestion to customize it"
-msgstr ""
+msgstr "Clique com botão direto para customizar uma sugestão."
 
 #: ../extensions/open-with.vala:372
 msgid "Choose application"
-msgstr ""
+msgstr "Escolha aplicação"
 
 #: ../extensions/open-with.vala:385
 #, c-format
 msgid "Select an application to open \"%s\""
-msgstr ""
+msgstr "Selecione um aplicativo para abrir \"%s\""
 
 #: ../extensions/open-with.vala:461
 msgid "None"
@@ -2402,16 +2420,16 @@ msgstr "Nenhum"
 
 #: ../extensions/open-with.vala:677
 msgid "Download error"
-msgstr ""
+msgstr "Erro no download"
 
 #: ../extensions/open-with.vala:678
 #, c-format
 msgid "Cannot open '%s' because the download failed."
-msgstr ""
+msgstr "Não é possível abrir '%s' porque o download falhou."
 
 #: ../extensions/open-with.vala:718
 msgid "Open _with…"
-msgstr ""
+msgstr "Abrir _com..."
 
 #: ../extensions/open-with.vala:727
 msgid "Open in Image _Viewer"
@@ -2419,7 +2437,7 @@ msgstr "Abrir no _Visualizador de Imagens"
 
 #: ../extensions/open-with.vala:738
 msgid "File Types"
-msgstr ""
+msgstr "Tipos de arquivo"
 
 #: ../extensions/open-with.vala:742
 msgid "Text Editor"
@@ -2748,7 +2766,7 @@ msgstr "Excluir _todas"
 #. Add "allow-local-pages" checkbox
 #: ../extensions/nojs/nojs-preferences.c:987
 msgid "A_llow scripts on local pages"
-msgstr ""
+msgstr "_Permitir scripts em páginas locais"
 
 #. Add "block-unknown-domains" checkbox
 #: ../extensions/nojs/nojs-preferences.c:995
@@ -2899,11 +2917,11 @@ msgstr ""
 
 #: ../extensions/nojs/nojs.c:743
 msgid "Allow local pages"
-msgstr ""
+msgstr "Permitir páginas locais"
 
 #: ../extensions/nojs/nojs.c:744
 msgid "Allow scripts to run on local (file://) pages"
-msgstr ""
+msgstr "Permitir scripts rodar no local (file://) páginas"
 
 #: ../extensions/nojs/nojs.c:750
 msgid "Only second level"
@@ -2914,6 +2932,8 @@ msgid ""
 "Reduce each domain to its second-level (e.g. www.example.org to example.org) "
 "for comparison"
 msgstr ""
+"Reduzir cada domínio para seu segundo nível (ex: www.exemplo.org para "
+"exemplo.org) para comparação"
 
 #: ../extensions/nojs/nojs.c:757
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1035
@@ -2922,7 +2942,7 @@ msgstr "Política de domínio desconhecida"
 
 #: ../extensions/nojs/nojs.c:758
 msgid "Policy to use for unknown domains"
-msgstr ""
+msgstr "Política de uso para domínios desconhecidos"
 
 #: ../extensions/nojs/nojs.c:1034
 msgid "Accept temporarily"
@@ -3010,23 +3030,23 @@ msgstr "Novas abas sem título por padrão"
 
 #: ../extensions/tabs2one.c:299 ../extensions/tabs2one.c:400
 msgid "Tabs to One"
-msgstr ""
+msgstr "Abas em uma"
 
 #: ../extensions/tabs2one.c:301
 msgid "Tabs you collected so far"
-msgstr ""
+msgstr "Abas que você coletou até agora"
 
 #: ../extensions/tabs2one.c:302
 msgid "Clicking an item restores a tab."
-msgstr ""
+msgstr "Clique em um item para restaurar a guia."
 
 #: ../extensions/tabs2one.c:327
 msgid "Tabs to _One"
-msgstr ""
+msgstr "Abas para _Um"
 
 #: ../extensions/tabs2one.c:401
 msgid "Closes all open tabs and creates new tab with tabs links"
-msgstr ""
+msgstr "Fechar todas as guias e criar uma nova guia com link"
 
 #: ../extensions/toolbar-editor.c:392
 msgid "Customize Toolbar"
@@ -3375,7 +3395,7 @@ msgstr "Erro ao criar lançador"
 
 #: ../extensions/apps.vala:174
 msgid "No file \"desc\" found"
-msgstr ""
+msgstr "Nenhum arquivo \"desc\" encontrado"
 
 #: ../extensions/apps.vala:201
 msgid "Applications"
@@ -3387,7 +3407,7 @@ msgstr "Novo _perfil"
 
 #: ../extensions/apps.vala:212
 msgid "Creates a new, independent profile and a launcher"
-msgstr ""
+msgstr "Crie um novo, perfil independente e um lançador"
 
 #: ../extensions/apps.vala:223
 msgid "New _App"
@@ -3540,7 +3560,7 @@ msgstr "Nova nota"
 
 #: ../extensions/notes.vala:146
 msgid "Creates a new empty note, unrelated to opened pages"
-msgstr ""
+msgstr "Crie uma nova nota vazia, não relacionada com páginas abertas."
 
 #: ../extensions/notes.vala:152
 msgid "New note"
@@ -3589,37 +3609,39 @@ msgstr "Bl_oquear link"
 
 #: ../extensions/adblock/extension.vala:384
 msgid "Custom"
-msgstr ""
+msgstr "Personalizar"
 
 #: ../extensions/adblock/widgets.vala:30
 msgid "Preferences"
-msgstr ""
+msgstr "Preferências"
 
 #: ../extensions/adblock/widgets.vala:38
 msgid "Disable"
-msgstr ""
+msgstr "Desabilitar"
 
 #: ../extensions/adblock/widgets.vala:47
 msgid "Display hidden elements"
-msgstr ""
+msgstr "Exibir elementos ocultos"
 
 #: ../extensions/adblock/widgets.vala:66
 msgid "Blocking"
-msgstr ""
+msgstr "Bloqueio"
 
 #: ../extensions/adblock/widgets.vala:69
 msgid "Enabled"
-msgstr ""
+msgstr "Habilitado"
 
 #: ../extensions/adblock/widgets.vala:72
 msgid "Disabled"
-msgstr ""
+msgstr "Desabilitado"
 
 #: ../extensions/adblock/widgets.vala:89
 msgid ""
 "Type the address of a preconfigured filter list in the text entry and hit "
 "Enter.\n"
 msgstr ""
+"Digite o endereço de uma lista de filtros pré-configurados na entrada de "
+"texto e pressione Enter.\n"
 
 #: ../extensions/adblock/widgets.vala:90
 #, c-format
@@ -3627,6 +3649,8 @@ msgid ""
 "You can find more lists by visiting following sites:\n"
 " %s, %s\n"
 msgstr ""
+"Você pode encontrar mais listas visitando os seguintes sites\n"
+" %s %s\n"
 
 #: ../extensions/adblock/widgets.vala:97
 msgid "Configure Advertisement filters"
@@ -3635,11 +3659,11 @@ msgstr "Configurar filtros de publicidade"
 #: ../extensions/adblock/widgets.vala:159
 #, c-format
 msgid "Last update: %x %X"
-msgstr ""
+msgstr "Útilma atualização: %x %X"
 
 #: ../extensions/adblock/widgets.vala:163
 msgid "File incomplete - broken download?"
-msgstr ""
+msgstr "Arquivo incompleto - download interrompido?"
 
 #: ../extensions/adblock/widgets.vala:256
 msgid "Edit rule"
@@ -3651,24 +3675,27 @@ msgstr "_Regra:"
 
 #: ../extensions/domain-keys.vala:15
 msgid "Domain Hotkeys"
-msgstr ""
+msgstr "Teclas de atalho de domínio"
 
 #: ../extensions/domain-keys.vala:16
 msgid ""
 "Add www. and .com/.country_domain and proceed with Ctrl+Enter/Shift+Enter"
 msgstr ""
+"Adicione www. and .com/.country_domain e prossiga com Ctrl+Enter/Shift+Enter"
 
 #: ../extensions/domain-keys.vala:29
 msgctxt "Domain"
 msgid ".com"
-msgstr ""
+msgstr ".com"
 
 #: ../extensions/webmedia-now-playing.vala:20
 msgid "Webmedia now-playing"
-msgstr ""
+msgstr "Reproduzindo agora WebMidia"
 
 #: ../extensions/webmedia-now-playing.vala:21
 msgid ""
 "Share 'youtube, vimeo, dailymotion, coub and zippcast' that you are playing "
 "in Midori using org.midori.mediaHerald"
 msgstr ""
+"Compartilhe em 'youtube, vimeo, dailymotion, coub and zippcast' o que você "
+"está ouvindo em Midori utilizando org.midori.mediaHerald"
