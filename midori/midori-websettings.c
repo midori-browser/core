@@ -837,7 +837,7 @@ generate_ident_string (MidoriWebSettings* web_settings,
     case MIDORI_IDENT_MIDORI:
     case MIDORI_IDENT_CHROME:
         return g_strdup_printf ("Mozilla/5.0 (%s %s) AppleWebKit/%d.%d "
-            "(KHTML, like Gecko) Chrome/18.0.1025.133 Safari/%d.%d %s",
+            "(KHTML, like Gecko) Chrome/46.0.2490.86 Safari/%d.%d %s",
             platform, os, webcore_major, webcore_minor, webcore_major, webcore_minor, appname);
     case MIDORI_IDENT_SAFARI:
         return g_strdup_printf ("Mozilla/5.0 (Macintosh; U; Intel Mac OS X; %s) "
