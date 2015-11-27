@@ -14,15 +14,15 @@ msgstr ""
 "Project-Id-Version: midori 0.2.7\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-07-11 22:56-0400\n"
-"PO-Revision-Date: 2015-08-19 13:36+0000\n"
-"Last-Translator: skysor <skysor@rocketmail.com>\n"
+"PO-Revision-Date: 2015-11-26 17:23+0000\n"
+"Last-Translator: denis morgan <morgan.denis.60@gmail.com>\n"
 "Language-Team: French <fr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2015-08-20 05:14+0000\n"
-"X-Generator: Launchpad (build 17690)\n"
+"X-Launchpad-Export-Date: 2015-11-27 05:09+0000\n"
+"X-Generator: Launchpad (build 17850)\n"
 "Language: fr\n"
 
 #: ../data/midori.desktop.in.h:1 ../midori/main.c:142
@@ -529,6 +529,7 @@ msgstr ""
 "  Cody Garver https://launchpad.net/~codygarver\n"
 "  Corentin Noël https://launchpad.net/~tintou\n"
 "  EpicKiwi https://launchpad.net/~lelycandu76\n"
+"  Eria https://launchpad.net/~eriatool-deactivatedaccount\n"
 "  Florent (LSc) https://launchpad.net/~lorkscorguar\n"
 "  Félix Desjardins https://launchpad.net/~felixinx\n"
 "  Gaël Rousseau https://launchpad.net/~rodney78310\n"
@@ -539,12 +540,15 @@ msgstr ""
 "  Nikos https://launchpad.net/~nicolas-jovanovic\n"
 "  Pierre van Mart https://launchpad.net/~pierrevanmart\n"
 "  Pixmix https://launchpad.net/~vic952\n"
+"  Scratchy https://launchpad.net/~tristan-7\n"
 "  Soukki44 https://launchpad.net/~psycolive\n"
 "  Stéphane Marguet https://launchpad.net/~stemp\n"
 "  Suriteka https://launchpad.net/~suriteka\n"
 "  Thomas Moraine https://launchpad.net/~th-moraine\n"
 "  TiBounise https://launchpad.net/~tibounise\n"
+"  Vannier Jean-Charbel https://launchpad.net/~jean-charbel\n"
 "  WebKit Team https://launchpad.net/~webkit-team\n"
+"  denis morgan https://launchpad.net/~morgan-denis-60\n"
 "  frenchy82 https://launchpad.net/~cartes\n"
 "  gilles chaon https://launchpad.net/~g-chaon\n"
 "  jc1 https://launchpad.net/~jc1-quebecos\n"
@@ -614,7 +618,7 @@ msgstr "Imprimer la page actuelle"
 
 #: ../midori/midori-browser.c:5261
 msgid "Send Page Link Via Email"
-msgstr ""
+msgstr "Envoyer le lien de cette page par Email"
 
 #: ../midori/midori-browser.c:5264
 msgid "Close a_ll Windows"
@@ -1257,6 +1261,8 @@ msgid ""
 "The page located at “%s” cannot be found. Check the web address for "
 "misspelled words and try again."
 msgstr ""
+"La page \"%s\" n'a pas pu être trouvée. Vérifiez que l'adresse ne contient "
+"pas d'erreur et réessayez."
 
 #: ../midori/midori-view.c:1256
 msgid "Try Again"
@@ -2399,6 +2405,12 @@ msgid ""
 "Lastly Check the configuration of your firewall.\n"
 "Whitelist aria2 and the port 6800 if they aren't."
 msgstr ""
+"Le plug-in n'a pas pu se connecter avec aria2:\n"
+"Veuillez vérifier qu'aria2 est connecté et que le rpc est activé, c'est-à-"
+"dire : aria2c --enable-rpc\n"
+"Si c'est le cas, vérifiez également le port 6800.\n"
+"Enfin, vérifiez la configuration de votre pare-feu.\n"
+"Ajoutez aria2 et le port 6800 dans la liste blanches s'ils n'y sont pas."
 
 #: ../extensions/external-download-manager.vala:194
 msgid "External Download Manager - Aria2"
@@ -2431,24 +2443,24 @@ msgstr "Gestionnaire de téléchargement externe - Ligne de commande"
 
 #: ../extensions/open-with.vala:174
 msgid "Name:"
-msgstr ""
+msgstr "Nom:"
 
 #: ../extensions/open-with.vala:183
 msgid "Command Line:"
-msgstr ""
+msgstr "Ligne de commande:"
 
 #: ../extensions/open-with.vala:243
 msgid "Right-click a suggestion to customize it"
-msgstr ""
+msgstr "Clique-droit sur un élément pour le personnaliser"
 
 #: ../extensions/open-with.vala:372
 msgid "Choose application"
-msgstr ""
+msgstr "Choisir une application"
 
 #: ../extensions/open-with.vala:385
 #, c-format
 msgid "Select an application to open \"%s\""
-msgstr ""
+msgstr "Choisissez une application pour ouvrir \"%s\""
 
 #: ../extensions/open-with.vala:461
 msgid "None"
@@ -2456,16 +2468,16 @@ msgstr "Aucun"
 
 #: ../extensions/open-with.vala:677
 msgid "Download error"
-msgstr ""
+msgstr "Erreur de téléchargement"
 
 #: ../extensions/open-with.vala:678
 #, c-format
 msgid "Cannot open '%s' because the download failed."
-msgstr ""
+msgstr "Impossible d'ouvrir '%s' car le téléchargement a échoué."
 
 #: ../extensions/open-with.vala:718
 msgid "Open _with…"
-msgstr ""
+msgstr "Ouvrir avec"
 
 #: ../extensions/open-with.vala:727
 msgid "Open in Image _Viewer"
@@ -2473,7 +2485,7 @@ msgstr "Ouvrir dans la _Visionneuse d'images"
 
 #: ../extensions/open-with.vala:738
 msgid "File Types"
-msgstr ""
+msgstr "Types de fichier"
 
 #: ../extensions/open-with.vala:742
 msgid "Text Editor"
@@ -2807,7 +2819,7 @@ msgstr "Supprimer tous"
 #. Add "allow-local-pages" checkbox
 #: ../extensions/nojs/nojs-preferences.c:987
 msgid "A_llow scripts on local pages"
-msgstr ""
+msgstr "Autoriser les scripts sur les pages locales"
 
 #. Add "block-unknown-domains" checkbox
 #: ../extensions/nojs/nojs-preferences.c:995
@@ -2961,11 +2973,12 @@ msgstr ""
 
 #: ../extensions/nojs/nojs.c:743
 msgid "Allow local pages"
-msgstr ""
+msgstr "Autoriser les pages locales"
 
 #: ../extensions/nojs/nojs.c:744
 msgid "Allow scripts to run on local (file://) pages"
 msgstr ""
+"Autoriser les scripts à être exécutés sur des pages locales (file://)"
 
 #: ../extensions/nojs/nojs.c:750
 msgid "Only second level"
@@ -2976,6 +2989,8 @@ msgid ""
 "Reduce each domain to its second-level (e.g. www.example.org to example.org) "
 "for comparison"
 msgstr ""
+"Réduire chaque domaine à son second niveau (par exemple www.example.org "
+"deviendra example.org)"
 
 #: ../extensions/nojs/nojs.c:757
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1035
@@ -2984,7 +2999,7 @@ msgstr "Politque de domaine inconnue"
 
 #: ../extensions/nojs/nojs.c:758
 msgid "Policy to use for unknown domains"
-msgstr ""
+msgstr "Politique a utiliser pour les domaines inconnus"
 
 #: ../extensions/nojs/nojs.c:1034
 msgid "Accept temporarily"
@@ -3077,11 +3092,11 @@ msgstr ""
 
 #: ../extensions/tabs2one.c:301
 msgid "Tabs you collected so far"
-msgstr ""
+msgstr "Onglets que vous avez déjà mis de côtè"
 
 #: ../extensions/tabs2one.c:302
 msgid "Clicking an item restores a tab."
-msgstr ""
+msgstr "Cliquer sur un élément pour restaurer l'onglet"
 
 #: ../extensions/tabs2one.c:327
 msgid "Tabs to _One"

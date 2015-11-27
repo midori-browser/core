@@ -8,26 +8,26 @@ msgstr ""
 "Project-Id-Version: midori 0.2.8\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-07-11 22:56-0400\n"
-"PO-Revision-Date: 2015-08-19 13:37+0000\n"
-"Last-Translator: Gosho <ilchi@abv.bg>\n"
+"PO-Revision-Date: 2015-11-26 18:36+0000\n"
+"Last-Translator: Stanimir <retsmon98@gmail.com>\n"
 "Language-Team: Bulgarian <bg@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Launchpad-Export-Date: 2015-08-20 05:14+0000\n"
-"X-Generator: Launchpad (build 17690)\n"
+"X-Launchpad-Export-Date: 2015-11-27 05:09+0000\n"
+"X-Generator: Launchpad (build 17850)\n"
 "Language: bg\n"
 
 #: ../data/midori.desktop.in.h:1 ../midori/main.c:142
 #: ../midori/midori-websettings.c:231
 msgid "Midori"
-msgstr "Midori"
+msgstr "Мидори"
 
 #: ../data/midori.desktop.in.h:2
 msgid "Web Browser"
-msgstr "Уеб браузър"
+msgstr "Уеб Браузър"
 
 #: ../data/midori.desktop.in.h:3
 msgid "Midori Web Browser"
@@ -161,7 +161,7 @@ msgstr "Проверка за нова версия на:"
 
 #: ../midori/main.c:358
 msgid "An unknown error occured"
-msgstr "Неизвестна грешка"
+msgstr "Възникна неизвестна грешка"
 
 #: ../midori/midori-app.c:1184 ../midori/midori-browser.c:6078
 msgid "_Bookmarks"
@@ -509,6 +509,7 @@ msgstr ""
 "  ITPROJECTS https://launchpad.net/~itprojects\n"
 "  Ivan https://launchpad.net/~i-kazandjiev\n"
 "  Radoslav Petrov https://launchpad.net/~zloster12\n"
+"  Stanimir https://launchpad.net/~retsmon98\n"
 "  WebKit Team https://launchpad.net/~webkit-team\n"
 "  cybercop https://launchpad.net/~cybercop-montana"
 
@@ -865,7 +866,7 @@ msgstr "Отваряне на определеното местоположен�
 
 #: ../midori/midori-browser.c:6010
 msgid "Search or enter an address"
-msgstr ""
+msgstr "Потърси или въведи име на адрес"
 
 #: ../midori/midori-browser.c:6032
 msgid "_Web Search…"
@@ -925,7 +926,7 @@ msgstr "Довери се на тази страница"
 
 #: ../midori/midori-locationaction.c:1381
 msgid "_Export Certificate"
-msgstr ""
+msgstr "Изнасянето е готово"
 
 #: ../midori/midori-locationaction.c:1429
 msgid "The signing certificate authority is not known."
@@ -1183,6 +1184,8 @@ msgid ""
 "Your computer must be connected to a network to reach “%s”. Connect to a "
 "wireless access point or attach a network cable and try again."
 msgstr ""
+"Вашия компютър трябва да е свързан в мрежа за да стигне до “%s”. Свържете се "
+"с безжична връзка или включете кабел."
 
 #: ../midori/midori-view.c:1241
 #, c-format
@@ -1195,6 +1198,8 @@ msgid ""
 "Your computer appears to be connected to a network, but can't reach “%s”. "
 "Check your network settings and try again."
 msgstr ""
+"Вашия компютър изглажда свързан към мрежа , но не може да стигне “%s”. "
+"Проверете настройките за свързване и опитайте пак."
 
 #: ../midori/midori-view.c:1248
 #, c-format
@@ -1207,6 +1212,8 @@ msgid ""
 "The page located at “%s” cannot be found. Check the web address for "
 "misspelled words and try again."
 msgstr ""
+"Страницата открита в “%s”  не може да се отвори.Проверете уеб адреса за "
+"пропуснати думи и пробвайте пак."
 
 #: ../midori/midori-view.c:1256
 msgid "Try Again"
@@ -2336,6 +2343,11 @@ msgid ""
 "Lastly Check the configuration of your firewall.\n"
 "Whitelist aria2 and the port 6800 if they aren't."
 msgstr ""
+"Плъгина не може да се свърже с aria2:\n"
+"Моля проверете дали aria2 работи с rpc enabled ie: aria2c --enable-rpc\n"
+"Ако работи с нея, също проверете кой порт използва.\n"
+"Последно проверете настройките на вашата антивирусна.\n"
+"Настройте добре  aria2 и порт 6800 ако не са."
 
 #: ../extensions/external-download-manager.vala:194
 msgid "External Download Manager - Aria2"
@@ -2385,7 +2397,7 @@ msgstr "Избор на приложение"
 #: ../extensions/open-with.vala:385
 #, c-format
 msgid "Select an application to open \"%s\""
-msgstr ""
+msgstr "Изберете приложение за  да отворите \"%s\""
 
 #: ../extensions/open-with.vala:461
 msgid "None"
@@ -2398,7 +2410,7 @@ msgstr "Грешка при изтеглянето"
 #: ../extensions/open-with.vala:678
 #, c-format
 msgid "Cannot open '%s' because the download failed."
-msgstr ""
+msgstr "Неможе да отворите \"%s\" защото свалянето се е провалило."
 
 #: ../extensions/open-with.vala:718
 msgid "Open _with…"
@@ -2410,7 +2422,7 @@ msgstr "Отваряне на изображението с програма з�
 
 #: ../extensions/open-with.vala:738
 msgid "File Types"
-msgstr ""
+msgstr "Типове файлове"
 
 #: ../extensions/open-with.vala:742
 msgid "Text Editor"
@@ -2744,7 +2756,7 @@ msgstr "Изтриване на всичко"
 #. Add "allow-local-pages" checkbox
 #: ../extensions/nojs/nojs-preferences.c:987
 msgid "A_llow scripts on local pages"
-msgstr ""
+msgstr "Позволете скриптове на областните страници"
 
 #. Add "block-unknown-domains" checkbox
 #: ../extensions/nojs/nojs-preferences.c:995
@@ -2894,11 +2906,11 @@ msgstr "Пътят към база данни SQLite например, изпо�
 
 #: ../extensions/nojs/nojs.c:743
 msgid "Allow local pages"
-msgstr ""
+msgstr "Позволете областните страници"
 
 #: ../extensions/nojs/nojs.c:744
 msgid "Allow scripts to run on local (file://) pages"
-msgstr ""
+msgstr "Позволете скрипт да използва (file://) страници"
 
 #: ../extensions/nojs/nojs.c:750
 msgid "Only second level"
@@ -2909,6 +2921,8 @@ msgid ""
 "Reduce each domain to its second-level (e.g. www.example.org to example.org) "
 "for comparison"
 msgstr ""
+"Намалете всеки домейн да неговото второ ниво (e.g. www.example.org to "
+"example.org) за сравнение"
 
 #: ../extensions/nojs/nojs.c:757
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1035
@@ -2917,7 +2931,7 @@ msgstr "Неизвестно мрежово решение"
 
 #: ../extensions/nojs/nojs.c:758
 msgid "Policy to use for unknown domains"
-msgstr ""
+msgstr "Полица за исползване на непознати домейни"
 
 #: ../extensions/nojs/nojs.c:1034
 msgid "Accept temporarily"
@@ -3005,23 +3019,23 @@ msgstr "Новите раздели са без заглавие по подра
 
 #: ../extensions/tabs2one.c:299 ../extensions/tabs2one.c:400
 msgid "Tabs to One"
-msgstr ""
+msgstr "Табове до едно"
 
 #: ../extensions/tabs2one.c:301
 msgid "Tabs you collected so far"
-msgstr ""
+msgstr "Табове които сте събрали до сега"
 
 #: ../extensions/tabs2one.c:302
 msgid "Clicking an item restores a tab."
-msgstr ""
+msgstr "кликнете на уред  за възвръщане на таб."
 
 #: ../extensions/tabs2one.c:327
 msgid "Tabs to _One"
-msgstr ""
+msgstr "Само един таб"
 
 #: ../extensions/tabs2one.c:401
 msgid "Closes all open tabs and creates new tab with tabs links"
-msgstr ""
+msgstr "Затворете всички табове и създайте нов с табова връзка"
 
 #: ../extensions/toolbar-editor.c:392
 msgid "Customize Toolbar"
@@ -3367,7 +3381,7 @@ msgstr "Грешка при създаване на стартер"
 
 #: ../extensions/apps.vala:174
 msgid "No file \"desc\" found"
-msgstr ""
+msgstr "Няма намерен файл с такова име \"desc\""
 
 #: ../extensions/apps.vala:201
 msgid "Applications"
@@ -3379,7 +3393,7 @@ msgstr "Нов профил"
 
 #: ../extensions/apps.vala:212
 msgid "Creates a new, independent profile and a launcher"
-msgstr ""
+msgstr "Създайте нов, независим профил и стартер"
 
 #: ../extensions/apps.vala:223
 msgid "New _App"
@@ -3530,7 +3544,7 @@ msgstr "Нова бележка"
 
 #: ../extensions/notes.vala:146
 msgid "Creates a new empty note, unrelated to opened pages"
-msgstr ""
+msgstr "Създайте нова бележка, не съответваща на отворените страници"
 
 #: ../extensions/notes.vala:152
 msgid "New note"
@@ -3579,37 +3593,39 @@ msgstr "Блокиране на връзка"
 
 #: ../extensions/adblock/extension.vala:384
 msgid "Custom"
-msgstr ""
+msgstr "По избор"
 
 #: ../extensions/adblock/widgets.vala:30
 msgid "Preferences"
-msgstr ""
+msgstr "Предпочитания"
 
 #: ../extensions/adblock/widgets.vala:38
 msgid "Disable"
-msgstr ""
+msgstr "Деактивиране"
 
 #: ../extensions/adblock/widgets.vala:47
 msgid "Display hidden elements"
-msgstr ""
+msgstr "Покажи скритите елементи"
 
 #: ../extensions/adblock/widgets.vala:66
 msgid "Blocking"
-msgstr ""
+msgstr "Блокиране"
 
 #: ../extensions/adblock/widgets.vala:69
 msgid "Enabled"
-msgstr ""
+msgstr "Активирано"
 
 #: ../extensions/adblock/widgets.vala:72
 msgid "Disabled"
-msgstr ""
+msgstr "Деактивирано"
 
 #: ../extensions/adblock/widgets.vala:89
 msgid ""
 "Type the address of a preconfigured filter list in the text entry and hit "
 "Enter.\n"
 msgstr ""
+"Въведете адрес на преконфигуриран филтърен лист в текстовото място и "
+"натиснете Enter.\n"
 
 #: ../extensions/adblock/widgets.vala:90
 #, c-format
@@ -3617,6 +3633,12 @@ msgid ""
 "You can find more lists by visiting following sites:\n"
 " %s, %s\n"
 msgstr ""
+"Може да намерите повече листи като посетите следните сайтове:\n"
+" %s, %s\n"
+" There are line breaks here. Each one represents a line break. Start a new "
+"line in the equivalent position in the translation.\n"
+" There are leading/trailing spaces here. Each one represents a space "
+"character. Enter a space in the equivalent position in the translation.\n"
 
 #: ../extensions/adblock/widgets.vala:97
 msgid "Configure Advertisement filters"
@@ -3625,11 +3647,11 @@ msgstr "Настройки на филтрите за реклами"
 #: ../extensions/adblock/widgets.vala:159
 #, c-format
 msgid "Last update: %x %X"
-msgstr ""
+msgstr "Последно подобрение: %x %X"
 
 #: ../extensions/adblock/widgets.vala:163
 msgid "File incomplete - broken download?"
-msgstr ""
+msgstr "Файла не е довършен - прекъснато сваляне?"
 
 #: ../extensions/adblock/widgets.vala:256
 msgid "Edit rule"
@@ -3641,24 +3663,28 @@ msgstr "Правило:"
 
 #: ../extensions/domain-keys.vala:15
 msgid "Domain Hotkeys"
-msgstr ""
+msgstr "Горещи тлавиши за Домейн"
 
 #: ../extensions/domain-keys.vala:16
 msgid ""
 "Add www. and .com/.country_domain and proceed with Ctrl+Enter/Shift+Enter"
 msgstr ""
+"Добави www. and .com/.country_  дамейн и продължи с комбинацията "
+"Ctrl+Enter/Shift+Enter"
 
 #: ../extensions/domain-keys.vala:29
 msgctxt "Domain"
 msgid ".com"
-msgstr ""
+msgstr "точка ком"
 
 #: ../extensions/webmedia-now-playing.vala:20
 msgid "Webmedia now-playing"
-msgstr ""
+msgstr "Уебмедията се възпроизвежда"
 
 #: ../extensions/webmedia-now-playing.vala:21
 msgid ""
 "Share 'youtube, vimeo, dailymotion, coub and zippcast' that you are playing "
 "in Midori using org.midori.mediaHerald"
 msgstr ""
+"Сподели 'youtube, vimeo, dailymotion, coub and zippcast' които слушаш в "
+"Мидори използвайки org.midori.mediaHerald"

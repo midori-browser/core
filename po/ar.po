@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: midori\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-07-11 22:56-0400\n"
-"PO-Revision-Date: 2015-06-07 11:14+0000\n"
+"PO-Revision-Date: 2015-11-26 17:10+0000\n"
 "Last-Translator: axlrose112 <axlrose112@gmail.com>\n"
 "Language-Team: Arabic <herr.linux88@gmail.com>\n"
 "MIME-Version: 1.0\n"
@@ -16,8 +16,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n % 100 >= "
 "3 && n % 100 <= 10 ? 3 : n % 100 >= 11 && n % 100 <= 99 ? 4 : 5;\n"
-"X-Launchpad-Export-Date: 2015-07-13 05:12+0000\n"
-"X-Generator: Launchpad (build 17620)\n"
+"X-Launchpad-Export-Date: 2015-11-27 05:09+0000\n"
+"X-Generator: Launchpad (build 17850)\n"
 "X-Poedit-Country: MOROCCO\n"
 "Language: ar\n"
 "X-Poedit-Language: Arabic\n"
@@ -94,12 +94,11 @@ msgstr "فى التصفح الخاص ، لا تُحفظ اى تغيرات"
 
 #: ../midori/main.c:86
 msgid "Portable mode, all runtime files are stored in one place"
-msgstr ""
-"فى وضع الجولنه ، جميع الملفات التى تنشئ فى وقت التشغيل تُخزن فى مكان واحد"
+msgstr "وضع محمولة ، يتم تخزين كافة ملفات وقت التشغيل في مكان واحد"
 
 #: ../midori/main.c:89
 msgid "Plain GTK+ window with WebKit, akin to GtkLauncher"
-msgstr ""
+msgstr "نافذة GTK+ Webkitعادية ،أقرب إلى GKTLaucher"
 
 #: ../midori/main.c:91
 msgid "Show a diagnostic dialog"
@@ -107,7 +106,7 @@ msgstr "إظهار صندوق التشخيص"
 
 #: ../midori/main.c:93
 msgid "Run within gdb and save a backtrace on crash"
-msgstr ""
+msgstr "تشغيل مع gdb وحفظ التتبع المعاكس عند وقوع الحدث"
 
 #: ../midori/main.c:95
 msgid "Run the specified filename as javascript"
@@ -135,7 +134,7 @@ msgstr "العناوين"
 
 #: ../midori/main.c:107
 msgid "Block URIs according to regular expression PATTERN"
-msgstr "كتلة محددات وفقا للنمط التعبير العادي"
+msgstr "كتل محددات وفقا للنمط التعبير العادي"
 
 #: ../midori/main.c:107
 msgid "PATTERN"
@@ -570,7 +569,7 @@ msgstr "اطبع الصفحة الحالية"
 
 #: ../midori/midori-browser.c:5261
 msgid "Send Page Link Via Email"
-msgstr ""
+msgstr "ارسال عنوان الصفحة بالبريد الالكتروني"
 
 #: ../midori/midori-browser.c:5264
 msgid "Close a_ll Windows"
@@ -864,7 +863,7 @@ msgstr "فتح موقع معين"
 
 #: ../midori/midori-browser.c:6010
 msgid "Search or enter an address"
-msgstr ""
+msgstr "بحث او ادخال العنوان"
 
 #: ../midori/midori-browser.c:6032
 msgid "_Web Search…"
@@ -915,16 +914,16 @@ msgstr "استورد الشهادة"
 #: ../midori/midori-locationaction.c:1377
 #: ../midori/midori-locationaction.c:1495
 msgid "_Don't trust this website"
-msgstr ""
+msgstr "عدم ائتمان الموقع"
 
 #: ../midori/midori-locationaction.c:1379
 #: ../midori/midori-locationaction.c:1501
 msgid "_Trust this website"
-msgstr ""
+msgstr "ائتمان الموقع"
 
 #: ../midori/midori-locationaction.c:1381
 msgid "_Export Certificate"
-msgstr ""
+msgstr "اصدارالشهاده"
 
 #: ../midori/midori-locationaction.c:1429
 msgid "The signing certificate authority is not known."
@@ -1022,7 +1021,7 @@ msgstr "أظهر محرك البحث الإفتراضي"
 
 #: ../midori/midori-websettings.c:139
 msgid "Show custom page"
-msgstr ""
+msgstr "مشاهده الصفحه المعدله"
 
 #: ../midori/midori-websettings.c:156
 msgid "Japanese (SHIFT_JIS)"
@@ -1135,6 +1134,7 @@ msgstr "عرض أيقونة اللسان فقط"
 msgid "Close Tab to the R_ight"
 msgid_plural "Close Tabs to the R_ight"
 msgstr[0] "إغلاق البوابة على اليمين"
+msgstr[1] "إغلاق البوابات على اليمين"
 
 #: ../midori/midori-notebook.vala:388
 msgid "Close Ot_her Tab"
@@ -1175,7 +1175,7 @@ msgstr "%s يريد أن يعرف مكانك."
 #: ../midori/midori-view.c:1231
 #, c-format
 msgid "You are not connected to a network"
-msgstr ""
+msgstr "غير متصل بالشبكة"
 
 #: ../midori/midori-view.c:1232
 #, c-format
@@ -1187,7 +1187,7 @@ msgstr ""
 #: ../midori/midori-view.c:1241
 #, c-format
 msgid "You are not connected to the Internet"
-msgstr ""
+msgstr "غير متصل بالشبكة العنكبوتية"
 
 #: ../midori/midori-view.c:1242
 #, c-format
@@ -1195,11 +1195,13 @@ msgid ""
 "Your computer appears to be connected to a network, but can't reach “%s”. "
 "Check your network settings and try again."
 msgstr ""
+"الحسوب بدا متصل بالشبكة, لكن لم يصل \"%s\". تحقق من اعدادات الشبكة وحاول مرة "
+"اخرئ"
 
 #: ../midori/midori-view.c:1248
 #, c-format
 msgid "Midori can't find the page you're looking for"
-msgstr ""
+msgstr "لم يتمكن ميدوري العثور على الصفحة التي تبحث عنها"
 
 #: ../midori/midori-view.c:1249
 #, c-format
@@ -1844,16 +1846,20 @@ msgstr "إغلاق شريط المكتشف"
 #, c-format
 msgid "%d bookmark"
 msgid_plural "%d bookmarks"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%d المرجعية"
+msgstr[1] "%d المرجعيات"
+msgstr[2] "%d المرجعية"
+msgstr[3] "%d المرجعية"
+msgstr[4] "%d المرجعية"
+msgstr[5] "%d المرجعية"
 
 #. i18n: [n] subfolder(s)
 #: ../panels/midori-bookmarks.c:642
 #, c-format
 msgid "%d subfolder"
 msgid_plural "%d subfolders"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "المجلد الفرعي %d"
+msgstr[1] "المجلدات الفرعية %d"
 
 #. i18n: Empty folder
 #: ../panels/midori-bookmarks.c:667
@@ -1865,19 +1871,19 @@ msgstr "مجلد فارغ"
 #: ../panels/midori-bookmarks.c:670
 #, c-format
 msgid "Folder containing %s and no bookmark"
-msgstr ""
+msgstr "يحتوي المجلد %s غير مرجعية"
 
 #. i18n: Folder containing [[n] bookmark(s)]
 #: ../panels/midori-bookmarks.c:674
 #, c-format
 msgid "Folder containing %s"
-msgstr ""
+msgstr "المجلد يحتوي على %s"
 
 #. i18n: Folder containing [[n] bookmark(s)] and [[n] folder(s)]
 #: ../panels/midori-bookmarks.c:677
 #, c-format
 msgid "Folder containing %s and %s"
-msgstr ""
+msgstr "المجلد يحتوي على %s و%s"
 
 #. i18n: Bookmark leading to: [bookmark uri]
 #: ../panels/midori-bookmarks.c:688
@@ -2300,7 +2306,7 @@ msgstr "لا يمكن إدراج الفلاش وغيرها من إضافات Net
 
 #: ../extensions/devpet.vala:102
 msgid "Double click for more information"
-msgstr ""
+msgstr "اانقر نقرتان للمزيد من المعلومات"
 
 #: ../extensions/devpet.vala:253
 msgid "DevPet"
@@ -2332,6 +2338,11 @@ msgid ""
 "Lastly Check the configuration of your firewall.\n"
 "Whitelist aria2 and the port 6800 if they aren't."
 msgstr ""
+"البرنامج المساعد غير قادر على الاتصال مع aria2:\n"
+"من فضلك تأكد من أن aria2 تشغتل بrpc: aria2c --enable-rp\n"
+"إذا كان الأمر كذلك، تحقق أيضا يستخدم االبوابة 6800 .\n"
+"وأخيرا تحقق من تكوين جدار الحماية الخاص بك .\n"
+"ضع aria2 و البوابة 6800 في اللائحة البيضاء ."
 
 #: ../extensions/external-download-manager.vala:194
 msgid "External Download Manager - Aria2"
@@ -2368,7 +2379,7 @@ msgstr ""
 
 #: ../extensions/open-with.vala:183
 msgid "Command Line:"
-msgstr ""
+msgstr "واجهة سطر الأوامر"
 
 #: ../extensions/open-with.vala:243
 msgid "Right-click a suggestion to customize it"
@@ -2376,12 +2387,12 @@ msgstr ""
 
 #: ../extensions/open-with.vala:372
 msgid "Choose application"
-msgstr ""
+msgstr "اختر التطبيق"
 
 #: ../extensions/open-with.vala:385
 #, c-format
 msgid "Select an application to open \"%s\""
-msgstr ""
+msgstr "اختر تطبيقا لفتح \"%s\""
 
 #: ../extensions/open-with.vala:461
 msgid "None"
@@ -2389,7 +2400,7 @@ msgstr "لا شيء"
 
 #: ../extensions/open-with.vala:677
 msgid "Download error"
-msgstr ""
+msgstr "خطأ في التنزيل"
 
 #: ../extensions/open-with.vala:678
 #, c-format
@@ -2398,7 +2409,7 @@ msgstr ""
 
 #: ../extensions/open-with.vala:718
 msgid "Open _with…"
-msgstr ""
+msgstr "افتح ب..."
 
 #: ../extensions/open-with.vala:727
 msgid "Open in Image _Viewer"
@@ -2406,7 +2417,7 @@ msgstr "افتح في عارض الصور"
 
 #: ../extensions/open-with.vala:738
 msgid "File Types"
-msgstr ""
+msgstr "نوع الملف"
 
 #: ../extensions/open-with.vala:742
 msgid "Text Editor"
@@ -2628,7 +2639,7 @@ msgstr "الانتقال إلى علامة التبويب الأخيرة عند 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:659
 #, c-format
 msgid "SQL fails: %s"
-msgstr ""
+msgstr "إس كيو إل  فشل: %s"
 
 #: ../extensions/nojs/nojs-preferences.c:254
 #: ../extensions/nojs/nojs-preferences.c:904 ../extensions/nojs/nojs.c:1033
@@ -2722,12 +2733,12 @@ msgstr "سياسة"
 #: ../extensions/nojs/nojs-preferences.c:978
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:877
 msgid "Delete _all"
-msgstr ""
+msgstr "حذف الكل"
 
 #. Add "allow-local-pages" checkbox
 #: ../extensions/nojs/nojs-preferences.c:987
 msgid "A_llow scripts on local pages"
-msgstr ""
+msgstr "السماح للبرامج النصية على الصفحات المحلية"
 
 #. Add "block-unknown-domains" checkbox
 #: ../extensions/nojs/nojs-preferences.c:995
@@ -2765,7 +2776,7 @@ msgstr ""
 
 #: ../extensions/nojs/nojs-view.c:716
 msgid "View"
-msgstr ""
+msgstr "عرض"
 
 #: ../extensions/nojs/nojs-view.c:717
 msgid "The Midori view instance this view belongs to"
@@ -2786,15 +2797,15 @@ msgstr "غير محدّد"
 
 #: ../extensions/nojs/nojs-view.c:796
 msgid "Allowed"
-msgstr ""
+msgstr "مسموح به"
 
 #: ../extensions/nojs/nojs-view.c:797
 msgid "Mixed"
-msgstr ""
+msgstr "مختلط"
 
 #: ../extensions/nojs/nojs-view.c:798
 msgid "Denied"
-msgstr ""
+msgstr "مرفوض"
 
 #: ../extensions/nojs/nojs.c:143
 msgid ""
