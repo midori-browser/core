@@ -4910,7 +4910,7 @@ _action_about_activate (GtkAction*     action,
     /* FIXME: granite: should return GtkWidget* like GTK+ */
     GtkWidget* dialog = (GtkWidget*)granite_widgets_about_dialog_new ();
     g_object_set (dialog,
-        "translate", "https://translations.xfce.org/projects/p/midori/",
+        "translate", "https://translations.launchpad.net/midori",
         "bug", PACKAGE_BUGREPORT,
         "help", docs,
         "copyright", "2007-2015 Christian Dywan",
