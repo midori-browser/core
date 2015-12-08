@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: midori 0.5.8\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-07-11 22:56-0400\n"
-"PO-Revision-Date: 2014-12-05 09:43+0000\n"
+"PO-Revision-Date: 2015-12-07 13:23+0000\n"
 "Last-Translator: Piotr Strębski <strebski@o2.pl>\n"
 "Language-Team: polski <>\n"
 "MIME-Version: 1.0\n"
@@ -18,8 +18,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2015-07-13 05:14+0000\n"
-"X-Generator: Launchpad (build 17620)\n"
+"X-Launchpad-Export-Date: 2015-12-08 05:16+0000\n"
+"X-Generator: Launchpad (build 17862)\n"
 "Language: pl\n"
 
 #: ../data/midori.desktop.in.h:1 ../midori/main.c:142
@@ -65,7 +65,7 @@ msgstr "Przeglądanie w trybie prywatnym"
 
 #: ../data/midori-private.desktop.in.h:3
 msgid "Open a new private browsing window"
-msgstr "Otwiera nowe, prywatne okno przeglądarki"
+msgstr "Otwórz nowe okno przeglądania prywatnego"
 
 #: ../midori/main.c:52
 #, c-format
@@ -90,8 +90,7 @@ msgstr "KATALOG"
 
 #: ../midori/main.c:83
 msgid "Private browsing, no changes are saved"
-msgstr ""
-"Otwiera wystąpienie programu, które nie zapisuje żadnych prywatnych danych"
+msgstr "Przeglądanie prywatne, żadne zmiany nie są zapisywane"
 
 #: ../midori/main.c:86
 msgid "Portable mode, all runtime files are stored in one place"
@@ -128,7 +127,7 @@ msgstr "Wypisuje polecenia dostępne z opcją -e lub --execute"
 
 #: ../midori/main.c:103
 msgid "Display program version"
-msgstr "Wypisuje wersję programu"
+msgstr "Pokaż wersję programu"
 
 #: ../midori/main.c:105
 msgid "Addresses"
@@ -515,7 +514,7 @@ msgstr ""
 "Launchpad Contributions:\n"
 "  Adam Brzęcki https://launchpad.net/~adambrzecki\n"
 "  Adrian Widerski https://launchpad.net/~adrian-widerski\n"
-"  Andrzej Markiewicz https://launchpad.net/~sowizz\n"
+"  Andrzej M. https://launchpad.net/~sowizz\n"
 "  Czacha Man https://launchpad.net/~czacha-man\n"
 "  Damian Dygulski https://launchpad.net/~dygulski13\n"
 "  Dellow https://launchpad.net/~gracz-blazej\n"
@@ -529,6 +528,8 @@ msgstr ""
 "  Michał Ziętara https://launchpad.net/~mr.matryc\n"
 "  Piotr Sokół https://launchpad.net/~psokol\n"
 "  Piotr Strębski https://launchpad.net/~strebski\n"
+"  Snip3rPolska https://launchpad.net/~snip3rpolska\n"
+"  Szymon Mazurczak https://launchpad.net/~sz-mazurczak\n"
 "  WebKit Team https://launchpad.net/~webkit-team"
 
 #: ../midori/midori-browser.c:5191 ../midori/midori-browser.c:5432
@@ -589,7 +590,7 @@ msgstr "Drukuje bieżącą stronę"
 
 #: ../midori/midori-browser.c:5261
 msgid "Send Page Link Via Email"
-msgstr ""
+msgstr "Wyślij odnośnik do strony za pomocą poczty e-mail"
 
 #: ../midori/midori-browser.c:5264
 msgid "Close a_ll Windows"
@@ -883,7 +884,7 @@ msgstr "Wprowadza określone położenie"
 
 #: ../midori/midori-browser.c:6010
 msgid "Search or enter an address"
-msgstr ""
+msgstr "Wyszukaj lub wpisz adres"
 
 #: ../midori/midori-browser.c:6032
 msgid "_Web Search…"
@@ -934,16 +935,16 @@ msgstr "Wyeksportuj certyfikat"
 #: ../midori/midori-locationaction.c:1377
 #: ../midori/midori-locationaction.c:1495
 msgid "_Don't trust this website"
-msgstr ""
+msgstr "_Nie ufaj tej stronie"
 
 #: ../midori/midori-locationaction.c:1379
 #: ../midori/midori-locationaction.c:1501
 msgid "_Trust this website"
-msgstr ""
+msgstr "_Ufaj tej stronie"
 
 #: ../midori/midori-locationaction.c:1381
 msgid "_Export Certificate"
-msgstr ""
+msgstr "_Eksportuj certyfikat"
 
 #: ../midori/midori-locationaction.c:1429
 msgid "The signing certificate authority is not known."
@@ -1198,7 +1199,7 @@ msgstr "Strona „%s” chce poznać lokalizację użytkownika."
 #: ../midori/midori-view.c:1231
 #, c-format
 msgid "You are not connected to a network"
-msgstr ""
+msgstr "Nie jesteś podłączony do sieci"
 
 #: ../midori/midori-view.c:1232
 #, c-format
@@ -1206,11 +1207,14 @@ msgid ""
 "Your computer must be connected to a network to reach “%s”. Connect to a "
 "wireless access point or attach a network cable and try again."
 msgstr ""
+"Komputer musi być podłączony do sieci, aby dotrzeć do \"%s\". Połącz się z "
+"punktem dostępu bezprzewodowego lub podłącz kabel sieciowy i spróbuj "
+"ponownie."
 
 #: ../midori/midori-view.c:1241
 #, c-format
 msgid "You are not connected to the Internet"
-msgstr ""
+msgstr "Nie jesteś podłączony do internetu"
 
 #: ../midori/midori-view.c:1242
 #, c-format
@@ -1218,11 +1222,14 @@ msgid ""
 "Your computer appears to be connected to a network, but can't reach “%s”. "
 "Check your network settings and try again."
 msgstr ""
+"Wygląda na to, że Twój komputer jest połączony z siecią, jednak nie może "
+"połączyć się z \"%s\". Sprawdź ustawienia swojego połączenia i spróbuj "
+"ponownie."
 
 #: ../midori/midori-view.c:1248
 #, c-format
 msgid "Midori can't find the page you're looking for"
-msgstr ""
+msgstr "Midori nie może znaleźć strony, której szukasz"
 
 #: ../midori/midori-view.c:1249
 #, c-format
@@ -1230,6 +1237,8 @@ msgid ""
 "The page located at “%s” cannot be found. Check the web address for "
 "misspelled words and try again."
 msgstr ""
+"Nie odnaleziono strony pod adresem \"%s\". Upewnij się, że adres strony jest "
+"poprawny i spróbuj ponownie."
 
 #: ../midori/midori-view.c:1256
 msgid "Try Again"
@@ -2374,6 +2383,12 @@ msgid ""
 "Lastly Check the configuration of your firewall.\n"
 "Whitelist aria2 and the port 6800 if they aren't."
 msgstr ""
+"Wtyczka nie mogła połączyć się z aria2:\n"
+"Upewnij się, że wtyczka aria2 działa z włączonym trybem rpc tj.:aria2c --"
+"enable-rpc\n"
+"Jeśli tak, sprawdź czy korzysta z portu 6800.\n"
+"Ostatecznie sprawdź ustawienia zapory sieciowej.\n"
+"Oznacz aria2 oraz port 6800 jako dozwolone, jeśli obecnie nie są."
 
 #: ../extensions/external-download-manager.vala:194
 msgid "External Download Manager - Aria2"
@@ -2406,24 +2421,24 @@ msgstr "Zewnętrzny menedżer pobierania - wiersz poleceń"
 
 #: ../extensions/open-with.vala:174
 msgid "Name:"
-msgstr ""
+msgstr "Nazwa:"
 
 #: ../extensions/open-with.vala:183
 msgid "Command Line:"
-msgstr ""
+msgstr "Wiersz polecenia:"
 
 #: ../extensions/open-with.vala:243
 msgid "Right-click a suggestion to customize it"
-msgstr ""
+msgstr "Kliknij prawym przyciskiem na sugestię, aby ją dostosować"
 
 #: ../extensions/open-with.vala:372
 msgid "Choose application"
-msgstr ""
+msgstr "Wybierz program"
 
 #: ../extensions/open-with.vala:385
 #, c-format
 msgid "Select an application to open \"%s\""
-msgstr ""
+msgstr "Wybierz program, aby otworzyć \"%s\""
 
 #: ../extensions/open-with.vala:461
 msgid "None"
@@ -2431,16 +2446,16 @@ msgstr "Brak"
 
 #: ../extensions/open-with.vala:677
 msgid "Download error"
-msgstr ""
+msgstr "Błąd pobierania"
 
 #: ../extensions/open-with.vala:678
 #, c-format
 msgid "Cannot open '%s' because the download failed."
-msgstr ""
+msgstr "Nie można otworzyć '%s' ponieważ pobieranie nie powiodło się."
 
 #: ../extensions/open-with.vala:718
 msgid "Open _with…"
-msgstr ""
+msgstr "Otwórz _za pomocą…"
 
 #: ../extensions/open-with.vala:727
 msgid "Open in Image _Viewer"
@@ -2448,7 +2463,7 @@ msgstr "Otwórz w przeglądarce obrazów"
 
 #: ../extensions/open-with.vala:738
 msgid "File Types"
-msgstr ""
+msgstr "Rodzaje plików"
 
 #: ../extensions/open-with.vala:742
 msgid "Text Editor"
@@ -2779,7 +2794,7 @@ msgstr "Usuń _wszystkie"
 #. Add "allow-local-pages" checkbox
 #: ../extensions/nojs/nojs-preferences.c:987
 msgid "A_llow scripts on local pages"
-msgstr ""
+msgstr "Zezwa_laj na skrypty na stronach lokalnych"
 
 #. Add "block-unknown-domains" checkbox
 #: ../extensions/nojs/nojs-preferences.c:995
@@ -2930,11 +2945,11 @@ msgstr ""
 
 #: ../extensions/nojs/nojs.c:743
 msgid "Allow local pages"
-msgstr ""
+msgstr "Zezwalaj na strony lokalne"
 
 #: ../extensions/nojs/nojs.c:744
 msgid "Allow scripts to run on local (file://) pages"
-msgstr ""
+msgstr "Zezwalaj na wykonywanie skryptów na stronach lokalnych (file://)"
 
 #: ../extensions/nojs/nojs.c:750
 msgid "Only second level"
@@ -2945,6 +2960,8 @@ msgid ""
 "Reduce each domain to its second-level (e.g. www.example.org to example.org) "
 "for comparison"
 msgstr ""
+"Skracaj domeny do ich drugiego poziomu (przykład: przykład.org zamiast "
+"www.przykład.org) dla porównania"
 
 #: ../extensions/nojs/nojs.c:757
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1035
@@ -2953,7 +2970,7 @@ msgstr "Nieznane prawa domeny"
 
 #: ../extensions/nojs/nojs.c:758
 msgid "Policy to use for unknown domains"
-msgstr ""
+msgstr "Zasady stosowane przy nieznanych domenach"
 
 #: ../extensions/nojs/nojs.c:1034
 msgid "Accept temporarily"
@@ -3050,7 +3067,7 @@ msgstr ""
 
 #: ../extensions/tabs2one.c:302
 msgid "Clicking an item restores a tab."
-msgstr ""
+msgstr "Kliknięcie elementu spowoduje przywrócenie karty."
 
 #: ../extensions/tabs2one.c:327
 msgid "Tabs to _One"
@@ -3059,6 +3076,7 @@ msgstr ""
 #: ../extensions/tabs2one.c:401
 msgid "Closes all open tabs and creates new tab with tabs links"
 msgstr ""
+"Zamyka wszystkie otwarte karty i tworzy nową kartę z kartami odnośników"
 
 #: ../extensions/toolbar-editor.c:392
 msgid "Customize Toolbar"
@@ -3405,7 +3423,7 @@ msgstr "Błąd tworzenia aktywatora"
 
 #: ../extensions/apps.vala:174
 msgid "No file \"desc\" found"
-msgstr ""
+msgstr "Nie znaleziono pliku \"desc\""
 
 #: ../extensions/apps.vala:201
 msgid "Applications"
@@ -3619,31 +3637,31 @@ msgstr "Za_blokuj odnośnik"
 
 #: ../extensions/adblock/extension.vala:384
 msgid "Custom"
-msgstr ""
+msgstr "Własny"
 
 #: ../extensions/adblock/widgets.vala:30
 msgid "Preferences"
-msgstr ""
+msgstr "Preferencje"
 
 #: ../extensions/adblock/widgets.vala:38
 msgid "Disable"
-msgstr ""
+msgstr "Wyłącz"
 
 #: ../extensions/adblock/widgets.vala:47
 msgid "Display hidden elements"
-msgstr ""
+msgstr "Wyświetl ukryte elementy"
 
 #: ../extensions/adblock/widgets.vala:66
 msgid "Blocking"
-msgstr ""
+msgstr "Blokowanie"
 
 #: ../extensions/adblock/widgets.vala:69
 msgid "Enabled"
-msgstr ""
+msgstr "Włączone"
 
 #: ../extensions/adblock/widgets.vala:72
 msgid "Disabled"
-msgstr ""
+msgstr "Wyłączone"
 
 #: ../extensions/adblock/widgets.vala:89
 msgid ""
@@ -3665,11 +3683,11 @@ msgstr "Filtr reklam"
 #: ../extensions/adblock/widgets.vala:159
 #, c-format
 msgid "Last update: %x %X"
-msgstr ""
+msgstr "Ostatnia aktualizacja: %x %X"
 
 #: ../extensions/adblock/widgets.vala:163
 msgid "File incomplete - broken download?"
-msgstr ""
+msgstr "Plik niekompletny - błąd pobierania?"
 
 #: ../extensions/adblock/widgets.vala:256
 msgid "Edit rule"
@@ -3681,7 +3699,7 @@ msgstr "_Reguła:"
 
 #: ../extensions/domain-keys.vala:15
 msgid "Domain Hotkeys"
-msgstr ""
+msgstr "Skróty klawiszowe domen"
 
 #: ../extensions/domain-keys.vala:16
 msgid ""
@@ -3691,7 +3709,7 @@ msgstr ""
 #: ../extensions/domain-keys.vala:29
 msgctxt "Domain"
 msgid ".com"
-msgstr ""
+msgstr ".com"
 
 #: ../extensions/webmedia-now-playing.vala:20
 msgid "Webmedia now-playing"
