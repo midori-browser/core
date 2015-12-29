@@ -919,6 +919,20 @@ sokoke_search_entry_new (const gchar* placeholder_text)
 }
 
 #ifdef G_OS_WIN32
+const gchar*
+sokoke_get_win32_appdata_dir()
+{
+    WCHAR path[MAX_PATH];
+    gchar* appdata_dir = NULL;
+
+    SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, SHGFP_TYPE_CURRENT, path);
+
+    MultiByteToWideChar (CP_UTF8, 0, appdata_dir, -1, path, MAX_PATH);
+
+    return g_strdup(path);
+}
+
+
 gchar*
 sokoke_get_win32_desktop_lnk_path_for_filename (gchar* filename)
 {

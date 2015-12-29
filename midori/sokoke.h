@@ -109,6 +109,9 @@ GtkWidget*
 sokoke_search_entry_new               (const gchar*        placeholder_text);
 
 #ifdef G_OS_WIN32
+const gchar*
+sokoke_get_win32_appdata_dir();
+
 gchar*
 sokoke_get_win32_desktop_lnk_path_for_filename (gchar* filename);
 
