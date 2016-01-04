@@ -4503,12 +4503,12 @@ _action_bookmarks_import_activate (GtkAction*     action,
     } BookmarkClient;
     static const BookmarkClient bookmark_clients[] = {
 #ifdef G_OS_WIN32
-	{ "Opera/Opera/bookmarks.adr", N_("Opera"), "opera" },
+	{ "Opera/Opera/bookmarks.adr", N_("Opera 12.x"), "opera" },
 	{ "Mozilla/Firefox/Profiles/*/bookmarks.html", N_("Firefox (%s)"), "firefox" },
 #else
         { ".local/share/data/Arora/bookmarks.xbel", N_("Arora"), "arora" },
         { ".kazehakase/bookmarks.xml", N_("Kazehakase"), "kazehakase-icon" },
-        { ".opera/bookmarks.adr", N_("Opera"), "opera" },
+        { ".opera/bookmarks.adr", N_("Opera 12.x"), "opera" },
         { ".kde/share/apps/konqueror/bookmarks.xml", N_("Konqueror"), "konqueror" },
         { ".gnome2/epiphany/bookmarks.rdf", N_("Epiphany"), "epiphany" },
         { ".mozilla/firefox/*/bookmarks.html", N_("Firefox (%s)"), "firefox" },
