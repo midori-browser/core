@@ -4502,13 +4502,18 @@ _action_bookmarks_import_activate (GtkAction*     action,
         const gchar* icon;
     } BookmarkClient;
     static const BookmarkClient bookmark_clients[] = {
+#ifdef G_OS_WIN32
+	{ "Opera/Opera/bookmarks.adr", N_("Opera 12.x"), "opera" },
+	{ "Mozilla/Firefox/Profiles/*/bookmarks.html", N_("Firefox (%s)"), "firefox" },
+#else
         { ".local/share/data/Arora/bookmarks.xbel", N_("Arora"), "arora" },
         { ".kazehakase/bookmarks.xml", N_("Kazehakase"), "kazehakase-icon" },
-        { ".opera/bookmarks.adr", N_("Opera"), "opera" },
+        { ".opera/bookmarks.adr", N_("Opera 12.x"), "opera" },
         { ".kde/share/apps/konqueror/bookmarks.xml", N_("Konqueror"), "konqueror" },
         { ".gnome2/epiphany/bookmarks.rdf", N_("Epiphany"), "epiphany" },
         { ".mozilla/firefox/*/bookmarks.html", N_("Firefox (%s)"), "firefox" },
         { ".config/midori/bookmarks.xbel", N_("Midori 0.2.6"), "midori" },
+#endif
     };
 
     GtkWidget* dialog;
@@ -4560,6 +4565,11 @@ _action_bookmarks_import_activate (GtkAction*     action,
     {
         const gchar* location = bookmark_clients[i].path;
         const gchar* client = bookmark_clients[i].name;
+#ifdef G_OS_WIN32
+	const gchar* home_dir = sokoke_get_win32_appdata_dir();	
+#else
+	const gchar* home_dir = g_get_home_dir();
+#endif
         gchar* path = NULL;
 
         /* Interpret * as 'any folder' */
@@ -4567,7 +4577,7 @@ _action_bookmarks_import_activate (GtkAction*     action,
         {
             gchar** parts = g_strsplit (location, "*", 2);
             GDir* dir;
-            path = g_build_filename (g_get_home_dir (), parts[0], NULL);
+            path = g_build_filename (home_dir, parts[0], NULL);
             if ((dir = g_dir_open (path, 0, NULL)))
             {
                 const gchar* name;
@@ -4596,7 +4606,7 @@ _action_bookmarks_import_activate (GtkAction*     action,
             continue;
         }
 
-        path = g_build_filename (g_get_home_dir (), location, NULL);
+        path = g_build_filename (home_dir, location, NULL);
         if (g_access (path, F_OK) == 0)
             gtk_list_store_insert_with_values (model, NULL, G_MAXINT,
                 0, _(client), 1, bookmark_clients[i].icon,
