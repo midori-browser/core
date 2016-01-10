@@ -515,6 +515,25 @@ katze_array_from_opera_file (KatzeArray* array,
     return TRUE;
 }
 
+gboolean check_file_exists (const gchar* path)
+{
+    gboolean file_exists = false;
+#if defined(G_OS_UNIX)
+    if (g_access (path, F_OK) == 0)
+        file_exists = true;
+#else
+    GFile* file = g_file_new_for_path (path);
+    GFileInfo* info  = g_file_query_info (file, "access::can-read", G_FILE_QUERY_INFO_NONE, NULL, NULL);
+    if (g_file_query_exists (file, NULL) || g_file_info_get_attribute_boolean (info, "access::can-read"))
+        file_exists = true;
+    
+    g_object_unref (file);
+    g_object_unref (info);
+#endif
+
+    return file_exists;    
+}
+
 /**
  * midori_array_from_file:
  * @array: a #KatzeArray
@@ -541,7 +560,8 @@ midori_array_from_file (KatzeArray*  array,
     g_return_val_if_fail (filename != NULL, FALSE);
     g_return_val_if_fail (!error || !*error, FALSE);
 
-    if (g_access (filename, F_OK) != 0)
+    // FIXME: why whe cannot re-use midori_paths here?
+    if (!check_file_exists (filename))
     {
         /* File doesn't exist */
         if (error)

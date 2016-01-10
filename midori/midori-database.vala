@@ -247,14 +247,7 @@ namespace Midori {
         }
 
 	public bool exists (string path) {
-	      bool exists;
-#if !HAVE_WIN32	
-            exists = Posix.access (path, Posix.F_OK) == 0;
-#else
-	     var folder = File.new_for_path (path);
-	     exists = folder.query_exists();
-#endif
-	     return exists;
+	     return Midori.Paths.check_file_exists (path);
 	}
 
 

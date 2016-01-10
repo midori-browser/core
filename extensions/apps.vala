@@ -267,7 +267,7 @@ namespace Apps {
                                 string filename = Midori.Download.clean_filename (launcher.name);
 #if HAVE_WIN32
                                 string lnk_filename = Midori.Sokoke.get_win32_desktop_lnk_path_for_filename (filename);
-                                if (Posix.access (lnk_filename, Posix.F_OK) == 0) {
+                                if (Midori.Paths.check_file_exists (lnk_filename)) {
                                     var lnk_file = File.new_for_path (lnk_filename);
                                     lnk_file.trash ();
                                 }
