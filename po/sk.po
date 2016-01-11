@@ -9,15 +9,15 @@ msgstr ""
 "Project-Id-Version: Midori 0.3.6-1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-07-11 22:56-0400\n"
-"PO-Revision-Date: 2015-09-06 13:18+0000\n"
-"Last-Translator: Adam Lukacovic <lukacovic.adam@gmail.com>\n"
+"PO-Revision-Date: 2016-01-10 10:30+0000\n"
+"Last-Translator: Lukáš Papík <stereo839@gmail.com>\n"
 "Language-Team: slovenčina <slovenska-lokalizacia-xfce@googlegroups.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 1 : (n>=2 && n<=4) ? 2 : 0;\n"
-"X-Launchpad-Export-Date: 2015-12-24 05:11+0000\n"
-"X-Generator: Launchpad (build 17865)\n"
+"X-Launchpad-Export-Date: 2016-01-11 04:33+0000\n"
+"X-Generator: Launchpad (build 17881)\n"
 "X-Poedit-Country: SLOVAKIA\n"
 "Language: sk\n"
 "X-Poedit-Language: Slovak\n"
@@ -98,7 +98,7 @@ msgstr "Prenosný mód, všetky spustiteľné súbory sú uložené na jednom mi
 
 #: ../midori/main.c:89
 msgid "Plain GTK+ window with WebKit, akin to GtkLauncher"
-msgstr ""
+msgstr "Čisté GTK+ okno s WebKitom,  príbuzný GtkLauncher"
 
 #: ../midori/main.c:91
 msgid "Show a diagnostic dialog"
@@ -509,6 +509,7 @@ msgstr ""
 "Launchpad Contributions:\n"
 "  Adam Lukacovic https://launchpad.net/~lukacovic-adam\n"
 "  DAG Software https://launchpad.net/~dagsoftware\n"
+"  Lukáš Papík https://launchpad.net/~stereo839\n"
 "  Milan Slovák https://launchpad.net/~milboys\n"
 "  Tomáš Vadina https://launchpad.net/~kyberdev\n"
 "  WebKit Team https://launchpad.net/~webkit-team"
@@ -677,11 +678,11 @@ msgstr "Prejsť na predchádzajúcu podstránku"
 
 #: ../midori/midori-browser.c:5374
 msgid "Next or Forward"
-msgstr ""
+msgstr "Ďalej, alebo následovať"
 
 #: ../midori/midori-browser.c:5375
 msgid "Go to the next sub-page or next page in history"
-msgstr ""
+msgstr "Prejdi na ďalšiu stránku, alebo stránku v histórií"
 
 #: ../midori/midori-browser.c:5377
 msgid "_Homepage"
@@ -849,7 +850,7 @@ msgstr "Vlastné…"
 #: ../midori/midori-browser.c:5821
 #, c-format
 msgid "Failed to initialize history: %s"
-msgstr ""
+msgstr "Chyba inicializácie histórie: %s"
 
 #: ../midori/midori-browser.c:6000
 msgid "_Separator"
@@ -1126,7 +1127,7 @@ msgstr "Neplatná hodnota '%s' v konfigurácii"
 #: ../midori/midori-tab.vala:157
 #, c-format
 msgid "Failed to inject stylesheet: %s"
-msgstr ""
+msgstr "Chyba pri aplikovaní štýlu: %s"
 
 #: ../midori/midori-notebook.vala:371
 msgid "Show Tab _Label"
@@ -1139,8 +1140,8 @@ msgstr "Zobraziť len _ikonu karty"
 #: ../midori/midori-notebook.vala:376
 msgid "Close Tab to the R_ight"
 msgid_plural "Close Tabs to the R_ight"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Zavrieť záložku doprava"
+msgstr[1] "Zavrieť záložky doprava"
 
 #: ../midori/midori-notebook.vala:388
 msgid "Close Ot_her Tab"
@@ -1356,7 +1357,7 @@ msgstr "Inšpekcia stránky - %s"
 
 #: ../midori/midori-view.c:3941
 msgid "Page loading delayed:"
-msgstr ""
+msgstr "Načítanie stránky oneskorené:"
 
 #: ../midori/midori-view.c:3942
 msgid "Loading delayed either due to a recent crash or startup preferences."
@@ -1890,7 +1891,7 @@ msgstr "Priečinok obsahujúci %s a %s"
 #: ../panels/midori-bookmarks.c:688
 #, c-format
 msgid "Bookmark leading to: %s"
-msgstr ""
+msgstr "Záložka vedie na: %s"
 
 #. i18n: [[n] folder(s)] and no bookmark
 #: ../panels/midori-bookmarks.c:702
@@ -2257,11 +2258,11 @@ msgstr "Kopíruje adresy všetkých kariet do schránky"
 
 #: ../extensions/delayed-load.vala:49
 msgid "Delayed load"
-msgstr ""
+msgstr "Oneskorené načítanie"
 
 #: ../extensions/delayed-load.vala:50
 msgid "Delay page load until you actually use the tab."
-msgstr ""
+msgstr "Oneskorené načítanie, kým používate aktuálnu záložku."
 
 #: ../extensions/about.vala:146
 msgid "Version numbers in brackets show the version used at runtime."
@@ -2344,6 +2345,11 @@ msgid ""
 "Lastly Check the configuration of your firewall.\n"
 "Whitelist aria2 and the port 6800 if they aren't."
 msgstr ""
+"Plugin sa nemohol pripojiť s aria2:\n"
+"Prosím uistite sa že aria2 beží s rps enabled aria2c --enable-rpc\n"
+"Pokiaľ áno, tak skontrolujte port 6800.\n"
+"Napokon skontrolujte konfiguráciu firewallu.\n"
+"Pridajte výnimku pre aria2 a port 6800 pokiaľ sa tam nenachádza."
 
 #: ../extensions/external-download-manager.vala:194
 msgid "External Download Manager - Aria2"
@@ -2384,7 +2390,7 @@ msgstr "Príkazový riadok:"
 
 #: ../extensions/open-with.vala:243
 msgid "Right-click a suggestion to customize it"
-msgstr ""
+msgstr "Kliknite pravým tlačidlom myši na návrh k prispôsobeniu"
 
 #: ../extensions/open-with.vala:372
 msgid "Choose application"
@@ -2730,7 +2736,7 @@ msgstr "Doména"
 #: ../extensions/nojs/nojs-preferences.c:949
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:848
 msgid "Policy"
-msgstr ""
+msgstr "Politika"
 
 #: ../extensions/nojs/nojs-preferences.c:978
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:877
