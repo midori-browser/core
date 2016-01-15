@@ -4584,7 +4584,7 @@ _action_bookmarks_import_activate (GtkAction*     action,
                 while ((name = g_dir_read_name (dir)))
                 {
                     gchar* file = g_build_filename (path, name, parts[1], NULL);
-                    if (g_access (file, F_OK) == 0)
+                    if (g_file_test (file, G_FILE_TEST_EXISTS))
                     {
                         /* If name is XYZ.Name, we use Name only */
                         gchar* real_name = strchr (name, '.');
@@ -4607,7 +4607,7 @@ _action_bookmarks_import_activate (GtkAction*     action,
         }
 
         path = g_build_filename (home_dir, location, NULL);
-        if (g_access (path, F_OK) == 0)
+        if (g_file_test (path, G_FILE_TEST_EXISTS))
             gtk_list_store_insert_with_values (model, NULL, G_MAXINT,
                 0, _(client), 1, bookmark_clients[i].icon,
                 2, path, 3, icon_width, -1);
@@ -4889,7 +4889,7 @@ midori_browser_get_docs (gboolean error)
     return uri;
     #else
     gchar* path = midori_paths_get_res_filename ("faq.html");
-    gboolean found = g_access (path, F_OK) == 0;
+    gboolean found = g_file_test (path, G_FILE_TEST_EXISTS);
     if (found)
     {
         gchar* uri = g_filename_to_uri (path, NULL, NULL);

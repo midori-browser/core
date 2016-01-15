@@ -541,7 +541,7 @@ midori_array_from_file (KatzeArray*  array,
     g_return_val_if_fail (filename != NULL, FALSE);
     g_return_val_if_fail (!error || !*error, FALSE);
 
-    if (g_access (filename, F_OK) != 0)
+    if (!g_file_test (filename, G_FILE_TEST_EXISTS))
     {
         /* File doesn't exist */
         if (error)
