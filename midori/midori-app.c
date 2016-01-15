@@ -648,7 +648,7 @@ midori_app_get_crashed (MidoriApp* app)
         /* We test for the presence of a dummy file which is created once
            and deleted during normal runtime, but persists in case of a crash. */
         gchar* config_file = midori_paths_get_config_filename_for_writing ("running");
-        gboolean crashed = midori_paths_check_file_exists (config_file);
+        gboolean crashed = g_file_test (config_file, G_FILE_TEST_EXISTS);
         if (!crashed)
             g_file_set_contents (config_file, "RUNNING", -1, NULL);
         g_free (config_file);

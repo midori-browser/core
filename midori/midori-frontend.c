@@ -383,7 +383,7 @@ midori_frontend_diagnostic_dialog (MidoriApp*         app,
         NULL);
 
     gchar* crash_log = g_build_filename (midori_paths_get_runtime_dir (), "gdb.bt", NULL);
-    if (midori_paths_check_file_exists (crash_log))
+    if (g_file_test (crash_log, G_FILE_TEST_EXISTS))
     {
         GtkWidget* log_button = gtk_button_new_with_mnemonic (_("Show last crash _log"));
         g_signal_connect_data (log_button, "clicked",

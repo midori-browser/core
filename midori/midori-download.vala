@@ -341,14 +341,14 @@ namespace Midori {
         }
 
         public string get_unique_filename (string filename) {
-            if (Midori.Paths.check_file_exists (filename)) {
+            if (GLib.FileUtils.test (filename, GLib.FileTest.EXISTS)) {
                 string basename;
                 string? extension = get_extension_for_uri (filename, out basename);
                 string? new_filename = null;
                 int i = 0;
                 do {
                     new_filename = "%s-%d%s".printf (basename, i++, extension ?? "");
-                } while (Midori.Paths.check_file_exists (new_filename));
+                } while (GLib.FileUtils.test (new_filename, GLib.FileTest.EXISTS));
                 return new_filename;
             }
             return filename;

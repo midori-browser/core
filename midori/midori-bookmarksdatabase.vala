@@ -24,9 +24,9 @@ namespace Midori {
             string olddbfile = dbfile + ".old";
             string dbfile_v2 = Paths.get_config_filename_for_reading ("bookmarks_v2.db");
 
-            if (Midori.Paths.check_file_exists (dbfile_v2)) {
-                if (Midori.Paths.check_file_exists (dbfile)) {
-                    if (Midori.Paths.check_file_exists (olddbfile))
+            if (GLib.FileUtils.test (dbfile_v2, GLib.FileTest.EXISTS)) {
+                if (GLib.FileUtils.test (dbfile, GLib.FileTest.EXISTS)) {
+                    if (GLib.FileUtils.test (olddbfile, GLib.FileTest.EXISTS))
                         Posix.unlink (olddbfile);
                     GLib.FileUtils.rename (dbfile, olddbfile);
                 }
@@ -48,7 +48,7 @@ namespace Midori {
                 }
 
                 _db = null;
-            } else if (Midori.Paths.check_file_exists (dbfile)) {
+            } else if (GLib.FileUtils.test (dbfile, GLib.FileTest.EXISTS)) {
 
                 if (Sqlite.Database.open_v2 (dbfile, out _db) != Sqlite.OK)
                     throw new DatabaseError.OPEN ("Failed to open database %s".printf (path));
@@ -63,7 +63,7 @@ namespace Midori {
                 _db = null;
                 
                 if (user_version == 0) {
-                    if (Midori.Paths.check_file_exists (olddbfile))
+                    if (GLib.FileUtils.test (olddbfile, GLib.FileTest.EXISTS))
                         Posix.unlink (olddbfile);
 
                     GLib.FileUtils.rename (dbfile, olddbfile);

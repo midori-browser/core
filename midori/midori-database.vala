@@ -247,7 +247,7 @@ namespace Midori {
         }
 
 	public bool exists (string path) {
-	     return Midori.Paths.check_file_exists (path);
+	     return GLib.FileUtils.test (path, GLib.FileTest.EXISTS);
 	}
 
 

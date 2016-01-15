@@ -194,35 +194,13 @@ namespace Midori {
             }
         }
 	
-	public static bool check_file_exists (string path) {
-	    bool file_exists = false;
-	    #if !HAVE_WIN32
-	    /* Use g_access instead of g_file_test for better performance */
-	    if (Posix.access (path, Posix.F_OK) == 0)
-	        file_exists = true;
-	    #else
-	    File file = GLib.File.new_for_path (path);
-	    try {
-	        var info = file.query_filesystem_info ("access::can-read");
-	        file_exists = info.get_attribute_boolean ("access::can-read");
-	        if (file_exists || file.query_exists())
-	            file_exists = true;
-	    }
-	    catch (Error error) {
-	        stdout.printf ("Error checking file '%s': '%s'\n", path, error.message);
-	    }
-	    #endif
-
-	    return file_exists;
-	}
-
         public static void mkdir_with_parents (string path, int mode = 0700) {
-            if (check_file_exists (path))
+            if (GLib.FileUtils.test (path, GLib.FileTest.EXISTS))
                 return;
             int i = path.index_of_char (Path.DIR_SEPARATOR, 0);
             do {
                 string fn = path.substring (i, -1);
-                if (!check_file_exists (path)) {
+                if (!GLib.FileUtils.test (path, GLib.FileTest.EXISTS)) {
                     if (DirUtils.create (fn, mode) == -1) {
                         /* Slow fallback; if this fails we fail */
                         DirUtils.create_with_parents (path, mode);
@@ -382,13 +360,13 @@ namespace Midori {
             return Path.build_filename (exec_path, "lib", package);
             #else
             string path = Path.build_filename (exec_path, "lib", package);
-            if (check_file_exists (path))
+            if (GLib.FileUtils.test (path, GLib.FileTest.EXISTS))
                 return path;
 
             if (package == PACKAGE_NAME) {
                 /* Fallback to build folder */
                 path = Path.build_filename ((File.new_for_path (exec_path).get_path ()), "extensions");
-                if (check_file_exists (path))
+                if (GLib.FileUtils.test (path, GLib.FileTest.EXISTS))
                     return path;
             }
 
@@ -403,7 +381,7 @@ namespace Midori {
             return Path.build_filename (exec_path, "share", PACKAGE_NAME, "res", filename);
             #else
             string path = Path.build_filename (exec_path, "share", PACKAGE_NAME, "res", filename);
-            if (check_file_exists (path))
+            if (GLib.FileUtils.test (path, GLib.FileTest.EXISTS))
                 return path;
 
             return build_folder ("data", null, filename) ??
@@ -439,12 +417,12 @@ namespace Midori {
             return Path.build_filename (exec_path, "share", res1, res2, filename);
             #else
             string path = Path.build_filename (get_user_data_dir_for_reading (), res1, res2, filename);
-            if (check_file_exists (path))
+            if (GLib.FileUtils.test (path, GLib.FileTest.EXISTS))
                 return path;
 
             foreach (unowned string data_dir in Environment.get_system_data_dirs ()) {
                 path = Path.build_filename (data_dir, res1, res2, filename);
-                if (check_file_exists (path))
+                if (GLib.FileUtils.test (path, GLib.FileTest.EXISTS))
                     return path;
             }
 
@@ -461,7 +439,7 @@ namespace Midori {
             #else
             foreach (unowned string config_dir in Environment.get_system_config_dirs ()) {
                 string path = Path.build_filename (config_dir, PACKAGE_NAME, folder ?? "", filename);
-                if (check_file_exists (path))
+                if (GLib.FileUtils.test (path, GLib.FileTest.EXISTS))
                     return path;
             }
 

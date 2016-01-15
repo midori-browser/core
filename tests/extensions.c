@@ -178,7 +178,7 @@ extension_activate (gconstpointer data)
 static void
 extension_load (const gchar* absolute_filename)
 {
-    g_assert (midori_paths_check_file_exists (absolute_filename) == 1);
+    g_assert (g_file_test (absolute_filename, G_FILE_TEST_EXISTS) == 1);
     gchar* extension_path = g_path_get_dirname (absolute_filename);
     gchar* filename = g_path_get_basename (absolute_filename);
         GObject* extension = midori_extension_load_from_file (extension_path, filename, FALSE, TRUE);
@@ -207,7 +207,7 @@ static void
 extension_config (void)
 {
     gchar* filename = midori_paths_get_extension_config_dir ("adblock");
-    g_assert (midori_paths_check_file_exists (filename) == 1);
+    g_assert (g_file_test (filename, G_FILE_TEST_EXISTS) == 1);
 }
 
 int

@@ -1182,12 +1182,12 @@ midori_web_settings_get_property (GObject*    object,
             gchar* filename = midori_paths_get_data_filename (theme_file, FALSE);
             g_free (theme_file);
             web_settings->close_buttons_left = 1;
-            if (!midori_paths_check_file_exists (filename))
+            if (!g_file_test (filename, G_FILE_TEST_EXISTS))
                 katze_assign (filename,
                    g_build_filename (g_get_home_dir (), ".themes",
                                      theme, "index.theme", NULL));
             g_free (theme);
-            if (midori_paths_check_file_exists (filename))
+            if (g_file_test (filename, G_FILE_TEST_EXISTS))
             {
                 GKeyFile* keyfile = g_key_file_new ();
                 gchar* button_layout;
@@ -1514,7 +1514,7 @@ midori_settings_new_full (gchar*** extensions)
 
     /* Load accelerators */
     katze_assign (config_file, midori_paths_get_config_filename_for_reading ("accels"));
-    if (!midori_paths_check_file_exists (config_file))
+    if (!g_file_test (config_file, G_FILE_TEST_EXISTS))
         katze_assign (config_file, midori_paths_get_preset_filename (NULL, "accels"));
     gtk_accel_map_load (config_file);
     g_free (config_file);
