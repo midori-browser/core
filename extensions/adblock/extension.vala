@@ -182,8 +182,15 @@ namespace Adblock {
 #if !HAVE_WEBKIT2
         void resource_requested (WebKit.WebView web_view, WebKit.WebFrame frame,
             WebKit.WebResource resource, WebKit.NetworkRequest request, WebKit.NetworkResponse? response) {
+           
+            WebKit.WebFrame main_frame = web_view.get_main_frame ();
 
-            if (request_handled (request.uri, web_view.uri)) {
+            WebKit.WebDataSource? ds = main_frame.get_provisional_data_source ();
+            WebKit.NetworkRequest? main_frame_request = (ds != null) ? ds.get_request () : null;
+            string? main_frame_uri = (main_frame_request != null) ? main_frame_request.uri : null;
+
+            bool is_main_frame_request = (frame == main_frame) && (request.uri == main_frame_uri);
+            if (!is_main_frame_request && request_handled (request.uri, web_view.uri)) {
                 request.set_uri ("about:blank");
             }
         }
