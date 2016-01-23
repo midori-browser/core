@@ -111,7 +111,7 @@ namespace Midori {
                 // Apply scale factor which is only automatically applied on ThemedIcon
                 icon_width *= scale;
                 icon_height *= scale;
-                if (pixbuf.width > icon_width || pixbuf.height > icon_height)
+                if (pixbuf.width != icon_width || pixbuf.height != icon_height)
                     return pixbuf.scale_simple (icon_width, icon_height, Gdk.InterpType.BILINEAR);
             }
             return icon;
