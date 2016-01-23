@@ -256,7 +256,7 @@ namespace Adblock {
             string[]? domains = null;
             string domain = Midori.URI.parse_hostname (uri, null);
             string[] subdomains = domain.split (".");
-            if (subdomains == null)
+            if (subdomains == null || subdomains.length == 0)
                 return null;
             int cnt = subdomains.length - 1;
             var subdomain = new StringBuilder (subdomains[cnt]);
