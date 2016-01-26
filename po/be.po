@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: midori\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2015-07-11 22:56-0400\n"
-"PO-Revision-Date: 2016-01-21 16:29+0000\n"
+"PO-Revision-Date: 2016-01-25 15:38+0000\n"
 "Last-Translator: Mikalai Udodau <Unknown>\n"
 "Language-Team: Belarusian <be@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Launchpad-Export-Date: 2016-01-22 05:08+0000\n"
+"X-Launchpad-Export-Date: 2016-01-26 05:08+0000\n"
 "X-Generator: Launchpad (build 17902)\n"
 
 #: ../data/midori.desktop.in.h:1 ../midori/main.c:142
@@ -1196,6 +1196,8 @@ msgid ""
 "Your computer appears to be connected to a network, but can't reach “%s”. "
 "Check your network settings and try again."
 msgstr ""
+"Ваш камп'ютар падключаны к сетцы, але не можа адкрыць “%s”. Праверце "
+"настройкі сеткі і паспрабуйце ізноў."
 
 #: ../midori/midori-view.c:1248
 #, c-format
@@ -1208,6 +1210,8 @@ msgid ""
 "The page located at “%s” cannot be found. Check the web address for "
 "misspelled words and try again."
 msgstr ""
+"Немагчыма знайсці старонку па адрасе “%s”. Праверце сеціўны адрас на памылкі "
+"ўпісвання і паспрабуйце ізноў."
 
 #: ../midori/midori-view.c:1256
 msgid "Try Again"
@@ -2396,7 +2400,7 @@ msgstr "Памылка сцягвання"
 #: ../extensions/open-with.vala:678
 #, c-format
 msgid "Cannot open '%s' because the download failed."
-msgstr ""
+msgstr "Немагчыма адкрыць '%s', бо сцягванне не ўдалося."
 
 #: ../extensions/open-with.vala:718
 msgid "Open _with…"
@@ -2732,7 +2736,7 @@ msgstr "С_церці ўсе"
 #. Add "allow-local-pages" checkbox
 #: ../extensions/nojs/nojs-preferences.c:987
 msgid "A_llow scripts on local pages"
-msgstr ""
+msgstr "_Дазволіць скрыпты на лакальных старонках."
 
 #. Add "block-unknown-domains" checkbox
 #: ../extensions/nojs/nojs-preferences.c:995
@@ -2882,7 +2886,7 @@ msgstr "Шлях да экзэмпляра базы даных, ужыванай
 
 #: ../extensions/nojs/nojs.c:743
 msgid "Allow local pages"
-msgstr ""
+msgstr "Дазволіць лакальныя старонкі"
 
 #: ../extensions/nojs/nojs.c:744
 msgid "Allow scripts to run on local (file://) pages"
@@ -2997,19 +3001,20 @@ msgstr "Давяраць аднаму"
 
 #: ../extensions/tabs2one.c:301
 msgid "Tabs you collected so far"
-msgstr ""
+msgstr "Карткі, якія вы назбіралі дагэтуль"
 
 #: ../extensions/tabs2one.c:302
 msgid "Clicking an item restores a tab."
-msgstr ""
+msgstr "Націсканне на элемент узнаўляе картку."
 
 #: ../extensions/tabs2one.c:327
 msgid "Tabs to _One"
-msgstr ""
+msgstr "Карткі _ў адну"
 
 #: ../extensions/tabs2one.c:401
 msgid "Closes all open tabs and creates new tab with tabs links"
 msgstr ""
+"Закрывае ўсе адкрытыя карткі і стварае новую картку са спасылкамі з картак"
 
 #: ../extensions/toolbar-editor.c:392
 msgid "Customize Toolbar"
@@ -3365,7 +3370,7 @@ msgstr "Новы _профіль"
 
 #: ../extensions/apps.vala:212
 msgid "Creates a new, independent profile and a launcher"
-msgstr ""
+msgstr "Стварае новы, незалежны профіль і запускальнік"
 
 #: ../extensions/apps.vala:223
 msgid "New _App"
@@ -3517,7 +3522,7 @@ msgstr "Новая нататка"
 
 #: ../extensions/notes.vala:146
 msgid "Creates a new empty note, unrelated to opened pages"
-msgstr ""
+msgstr "Стварае новую пустую нататку, незалежна ад адкрытых старонак"
 
 #: ../extensions/notes.vala:152
 msgid "New note"
@@ -3566,7 +3571,7 @@ msgstr "Блакаван_не спасылак"
 
 #: ../extensions/adblock/extension.vala:384
 msgid "Custom"
-msgstr ""
+msgstr "Адмысловы"
 
 #: ../extensions/adblock/widgets.vala:30
 msgid "Preferences"
@@ -3574,23 +3579,23 @@ msgstr "Настаўленні"
 
 #: ../extensions/adblock/widgets.vala:38
 msgid "Disable"
-msgstr ""
+msgstr "Адключыць"
 
 #: ../extensions/adblock/widgets.vala:47
 msgid "Display hidden elements"
-msgstr ""
+msgstr "Паказаць схаваныя элементы"
 
 #: ../extensions/adblock/widgets.vala:66
 msgid "Blocking"
-msgstr ""
+msgstr "Блакаванне"
 
 #: ../extensions/adblock/widgets.vala:69
 msgid "Enabled"
-msgstr ""
+msgstr "Уключана"
 
 #: ../extensions/adblock/widgets.vala:72
 msgid "Disabled"
-msgstr ""
+msgstr "Адключана"
 
 #: ../extensions/adblock/widgets.vala:89
 msgid ""
@@ -3620,7 +3625,7 @@ msgstr "Апошняе абнаўленне: %x %X"
 
 #: ../extensions/adblock/widgets.vala:163
 msgid "File incomplete - broken download?"
-msgstr ""
+msgstr "Файл не цэлы - абарвалася сцягванне?"
 
 #: ../extensions/adblock/widgets.vala:256
 msgid "Edit rule"
@@ -3632,7 +3637,7 @@ msgstr "_Правіла:"
 
 #: ../extensions/domain-keys.vala:15
 msgid "Domain Hotkeys"
-msgstr ""
+msgstr "Хуткія клавішы дамена"
 
 #: ../extensions/domain-keys.vala:16
 msgid ""
