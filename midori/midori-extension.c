@@ -74,21 +74,21 @@ typedef struct
 
 void me_setting_free (gpointer setting)
 {
+    /* setting->name is freed by the GHashTable itself */
     MESettingString* string_setting = (MESettingString*)setting;
     MESettingStringList* strlist_setting = (MESettingStringList*)setting;
 
     if (string_setting->type == G_TYPE_STRING)
     {
-        g_free (string_setting->name);
         g_free (string_setting->default_value);
         g_free (string_setting->value);
     }
     if (strlist_setting->type == G_TYPE_STRV)
     {
-        g_free (strlist_setting->name);
         g_strfreev (strlist_setting->default_value);
         g_strfreev (strlist_setting->value);
     }
+    g_free (setting);
 }
 
 #define midori_extension_can_install_setting(extension, name) \

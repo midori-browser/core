@@ -56,6 +56,8 @@ extension_create (void)
     midori_extension_deactivate (extension);
     g_assert (!midori_extension_is_active (extension));
     g_assert (g_object_get_data (G_OBJECT (extension), "deactivated") == magic);
+    g_object_unref (app);
+    g_object_unref (extension);
 }
 
 static MidoriExtension*
@@ -113,6 +115,7 @@ extension_settings (void)
     nihilist = midori_extension_get_boolean (extension, "nihilist");
     g_assert (!nihilist);
     midori_extension_deactivate (extension);
+    g_object_unref (extension);
 
     extension = extension_mock_object ();
     midori_extension_install_integer (extension, "age", 88);
@@ -127,6 +130,7 @@ extension_settings (void)
     age = midori_extension_get_integer (extension, "age");
     g_assert_cmpint (age, ==, 66);
     midori_extension_deactivate (extension);
+    g_object_unref (extension);
 
     extension = extension_mock_object ();
     midori_extension_install_string (extension, "lastname", "Thomas Mann");
@@ -141,6 +145,7 @@ extension_settings (void)
     lastname = midori_extension_get_string (extension, "lastname");
     g_assert_cmpstr (lastname, ==, "Theodor Fontane");
     midori_extension_deactivate (extension);
+    g_object_unref (extension);
 
     extension = extension_mock_object ();
     midori_extension_install_string_list (extension, "pets", pet_names, 3);
@@ -163,6 +168,8 @@ extension_settings (void)
     g_strfreev (names);
     g_assert_cmpint (names_n, ==, 2);
     midori_extension_deactivate (extension);
+    g_object_unref (extension);
+    g_object_unref (app);
 }
 
 static void
@@ -175,13 +182,17 @@ extension_activate (gconstpointer data)
     g_object_unref (app);
 }
 
-static void
-extension_load (const gchar* absolute_filename)
+static GObject*
+extension_load (const gchar* extension_path, gboolean register_tests)
 {
-    g_assert (g_file_test (absolute_filename, G_FILE_TEST_EXISTS) == 1);
-    gchar* extension_path = g_path_get_dirname (absolute_filename);
-    gchar* filename = g_path_get_basename (absolute_filename);
-        GObject* extension = midori_extension_load_from_file (extension_path, filename, FALSE, TRUE);
+    g_assert (g_file_test (extension_path, G_FILE_TEST_EXISTS) == 1);
+    gchar* extension_dir = g_path_get_dirname (extension_path);
+    gchar* filename = g_path_get_basename (extension_path);
+
+    GObject* extension = midori_extension_load_from_file (extension_dir, filename, FALSE, TRUE);
+    
+    if (register_tests)
+    {
         if (KATZE_IS_ARRAY (extension))
         {
             MidoriExtension* extension_item;
@@ -201,6 +212,11 @@ extension_load (const gchar* absolute_filename)
             g_test_add_data_func (path, extension, extension_activate);
             g_free (path);
         }
+    }
+
+    g_free (extension_dir);
+    g_free (filename);
+    return extension;
 }
 
 static void
@@ -208,6 +224,7 @@ extension_config (void)
 {
     gchar* filename = midori_paths_get_extension_config_dir ("adblock");
     g_assert (g_file_test (filename, G_FILE_TEST_EXISTS) == 1);
+    g_free (filename);
 }
 
 int
@@ -215,13 +232,12 @@ main (int    argc,
       char** argv)
 {
     midori_test_init (&argc, &argv);
-    gchar* extension;
+    gchar* extension_path = NULL;
     GOptionEntry entries[] = {
-        { "extension", 'e', 0, G_OPTION_ARG_STRING, &extension,
+        { "extension", 'e', 0, G_OPTION_ARG_STRING, &extension_path,
           "Execute cases defined in extension_init", "EXTENSION" },
         { NULL }
     };
-    extension = NULL;
     midori_app_setup (&argc, &argv, entries);
     midori_paths_init (MIDORI_RUNTIME_MODE_NORMAL, NULL);
     #ifndef HAVE_WEBKIT2
@@ -229,7 +245,10 @@ main (int    argc,
         SOUP_TYPE_COOKIE_JAR);
     #endif
 
-    if (extension == NULL)
+    GObject* extension = NULL;
+    GObject* extension2 = NULL;
+
+    if (extension_path == NULL)
     {
         g_test_add_func ("/extensions/create", extension_create);
         g_test_add_func ("/extensions/settings", extension_settings);
@@ -238,10 +257,22 @@ main (int    argc,
     else
     {
         g_assert (g_module_supported ());
+        extension = extension_load (extension_path, TRUE);
         /* We require that extensions can be loaded repeatedly */
-        extension_load (extension);
-        extension_load (extension);
+        extension2 = extension_load (extension_path, FALSE);
     }
 
-    return g_test_run ();
+    int result = g_test_run ();
+
+    if (extension)
+    {
+        midori_extension_deactivate (MIDORI_EXTENSION (extension));
+        g_object_unref (extension);
+    }
+    /* The second copy loaded does not get activated, because no tests are
+    registered for it */
+    if (extension2)
+        g_object_unref (extension2);
+
+    return result;
 }
