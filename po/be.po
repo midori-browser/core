@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: midori\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2015-07-11 22:56-0400\n"
-"PO-Revision-Date: 2016-01-25 15:38+0000\n"
+"PO-Revision-Date: 2016-01-28 15:26+0000\n"
 "Last-Translator: Mikalai Udodau <Unknown>\n"
 "Language-Team: Belarusian <be@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Launchpad-Export-Date: 2016-01-26 05:08+0000\n"
+"X-Launchpad-Export-Date: 2016-01-29 05:14+0000\n"
 "X-Generator: Launchpad (build 17902)\n"
 
 #: ../data/midori.desktop.in.h:1 ../midori/main.c:142
@@ -46,7 +46,7 @@ msgstr "Новая картка"
 
 #: ../data/midori.desktop.in.h:7 ../midori/midori-browser.c:1780
 msgid "New Window"
-msgstr "Новае вакно"
+msgstr "Новае акно"
 
 #: ../data/midori.desktop.in.h:8
 msgid "New Private Browsing Window"
@@ -62,7 +62,7 @@ msgstr "Прыватнае агляданне"
 
 #: ../data/midori-private.desktop.in.h:3
 msgid "Open a new private browsing window"
-msgstr "Адкрыць новае вакно прыватнага аглядання"
+msgstr "Адкрыць новае акно прыватнага аглядання"
 
 #: ../midori/main.c:52
 #, c-format
@@ -165,7 +165,7 @@ msgstr "Здарылася невядомая памылка"
 
 #: ../midori/midori-app.c:1184 ../midori/midori-browser.c:6078
 msgid "_Bookmarks"
-msgstr "_Закладкі"
+msgstr "Закладк_і"
 
 #: ../midori/midori-app.c:1185
 msgid "Add Boo_kmark"
@@ -186,7 +186,7 @@ msgstr "_Карыстальніцкія скрыпты"
 
 #: ../midori/midori-app.c:1189
 msgid "User_styles"
-msgstr "Карыстальніцкія стылі"
+msgstr "Кар_ыстальніцкія стылі"
 
 #: ../midori/midori-app.c:1190
 msgid "New _Tab"
@@ -858,7 +858,7 @@ msgstr "Адкрыць пэўнае месцазнаходжанне"
 
 #: ../midori/midori-browser.c:6010
 msgid "Search or enter an address"
-msgstr ""
+msgstr "Шукайце ці ўвядзіце адрас"
 
 #: ../midori/midori-browser.c:6032
 msgid "_Web Search…"
@@ -2338,6 +2338,12 @@ msgid ""
 "Lastly Check the configuration of your firewall.\n"
 "Whitelist aria2 and the port 6800 if they aren't."
 msgstr ""
+"Плагін не змог злучыцца з aria2:\n"
+"Калі ласка, праверце, што aria2 выконваецца з rpc, г.зн.: aria2c --enable-"
+"rpc\n"
+"Калі так, спраўдзіце, што выкарыстоўваецца порт 6800.\n"
+"Нарэшце, праверце настройкі свайго файрвола.\n"
+"Дадайце aria2 і порт 6800 у белы спіс, калі яшчэ не зрабілі гэтага."
 
 #: ../extensions/external-download-manager.vala:194
 msgid "External Download Manager - Aria2"
@@ -2378,7 +2384,7 @@ msgstr "Загадны радок:"
 
 #: ../extensions/open-with.vala:243
 msgid "Right-click a suggestion to customize it"
-msgstr ""
+msgstr "Націсніце правай кнопкай на падказку, каб змяніць яе"
 
 #: ../extensions/open-with.vala:372
 msgid "Choose application"
@@ -2741,7 +2747,7 @@ msgstr "_Дазволіць скрыпты на лакальных старон�
 #. Add "block-unknown-domains" checkbox
 #: ../extensions/nojs/nojs-preferences.c:995
 msgid "Bloc_k scripts at unknown domains by default"
-msgstr "Б_лакаваць скрыпты на невядомых даменах як звычайна"
+msgstr "Прадвызначана б_лакаваць скрыпты з невядомых даменаў"
 
 #. Add "check-second-level-only" checkbox
 #: ../extensions/nojs/nojs-preferences.c:1003
@@ -2890,7 +2896,7 @@ msgstr "Дазволіць лакальныя старонкі"
 
 #: ../extensions/nojs/nojs.c:744
 msgid "Allow scripts to run on local (file://) pages"
-msgstr ""
+msgstr "Дазволіць выкананне скрыптоў на лакальных (file://) старонках"
 
 #: ../extensions/nojs/nojs.c:750
 msgid "Only second level"
@@ -2901,6 +2907,8 @@ msgid ""
 "Reduce each domain to its second-level (e.g. www.example.org to example.org) "
 "for comparison"
 msgstr ""
+"Скараціць кожны дамен да другога ўзроўню (г.зн.. www.example.org да "
+"example.org) для параўнання"
 
 #: ../extensions/nojs/nojs.c:757
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1035
@@ -2997,7 +3005,7 @@ msgstr "Новыя карткі не падпісаныя"
 
 #: ../extensions/tabs2one.c:299 ../extensions/tabs2one.c:400
 msgid "Tabs to One"
-msgstr "Давяраць аднаму"
+msgstr "Карткі ў адну"
 
 #: ../extensions/tabs2one.c:301
 msgid "Tabs you collected so far"
@@ -3652,10 +3660,12 @@ msgstr ".com"
 
 #: ../extensions/webmedia-now-playing.vala:20
 msgid "Webmedia now-playing"
-msgstr ""
+msgstr "Вэб-медыя, што зараз іграе"
 
 #: ../extensions/webmedia-now-playing.vala:21
 msgid ""
 "Share 'youtube, vimeo, dailymotion, coub and zippcast' that you are playing "
 "in Midori using org.midori.mediaHerald"
 msgstr ""
+"Падзяліцца 'youtube, vimeo, dailymotion, coub і zippcast' што зараз іграе ў "
+"Midori праз org.midori.mediaHerald"
