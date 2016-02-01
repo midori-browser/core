@@ -100,27 +100,30 @@ namespace Adblock {
                         y = int.parse(date_parts[0]);
                         d = int.parse(date_parts[2]);
                     }
+                    last_updated = new DateTime.local (y, m, d, h, min, 0.0);
                 } else { /* Date in a form of: 20 Mar 2012 12:34 */
                     string[] parts = last_mod_meta.split (" ", 4);
-                    /* contains time part ? */
-                    if (parts[3] != null && parts[3].contains (":")) {
-                        string[] time_parts = parts[3].split (":", 2);
-                        h = int.parse(time_parts[0]);
-                        min = int.parse(time_parts[1]);
-                    }
+                    if (parts.length >= 3) {
+                        /* contains time part ? */
+                        if (parts.length >= 4 && parts[3].contains (":")) {
+                            string[] time_parts = parts[3].split (":", 2);
+                            h = int.parse(time_parts[0]);
+                            min = int.parse(time_parts[1]);
+                        }
 
-                    m = get_month_from_string (parts[1]);
-                    if (parts[2].length == 4) {
-                        y = int.parse(parts[2]);
-                        d = int.parse(parts[0]);
-                    } else {
-                        y = int.parse(parts[0]);
-                        d = int.parse(parts[2]);
+                        m = get_month_from_string (parts[1]);
+                        if (parts[2].length == 4) {
+                            y = int.parse(parts[2]);
+                            d = int.parse(parts[0]);
+                        } else {
+                            y = int.parse(parts[0]);
+                            d = int.parse(parts[2]);
+                        }
+                        last_updated = new DateTime.local (y, m, d, h, min, 0.0);
                     }
                 }
-
-                last_updated = new DateTime.local (y, m, d, h, min, 0.0);
-            } else {
+            }
+            if (last_updated == null) {
                 /* FIXME: use file modification date if there's no update header
                 try {
                     string modified = FileAttribute.TIME_MODIFIED;
