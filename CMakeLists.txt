@@ -168,7 +168,7 @@ else ()
 endif()
 
 if (USE_ZEITGEIST)
-    pkg_check_modules(ZEITGEIST zeitgeist-2.0>=0.3.14)
+    pkg_check_modules(ZEITGEIST REQUIRED zeitgeist-2.0>=0.3.14)
     set(OPTS_INCLUDE_DIRS "${OPTS_INCLUDE_DIRS};${ZEITGEIST_INCLUDE_DIRS}")
     set(OPTS_LIBRARIES "${OPTS_LIBRARIES};${ZEITGEIST_LIBRARIES}")
     add_definitions("-DHAVE_ZEITGEIST")
