@@ -2898,6 +2898,12 @@ _action_window_close_activate (GtkAction*     action,
 {
     gboolean val = FALSE;
     GdkEvent* event = gtk_get_current_event();
+
+    /* if current event is null, the action was activated by --execute */
+    if (!event)
+    {
+        event = gdk_event_new (GDK_CLIENT_EVENT);
+    }
     g_signal_emit_by_name (G_OBJECT (browser), "delete-event", event, &val);
     gdk_event_free (event);
 
