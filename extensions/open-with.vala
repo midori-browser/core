@@ -489,6 +489,7 @@ namespace ExternalApplications {
             column.set_sizing (Gtk.TreeViewColumnSizing.AUTOSIZE);
             Gtk.CellRendererText renderer_type_text = new Gtk.CellRendererText ();
             column.pack_start (renderer_type_text, true);
+            column.set_expand (true);
             column.set_cell_data_func (renderer_type_text, on_render_type_text);
             treeview.append_column (column);
 
@@ -559,9 +560,8 @@ namespace ExternalApplications {
                     desc, mime_type),
 #if HAVE_GTK3
                           "max-width-chars", 30,
-#else
-                          "width-chars", 30,
 #endif
+                          "width-chars", 30,
                           "ellipsize", Pango.EllipsizeMode.END);
         }
 
@@ -582,6 +582,10 @@ namespace ExternalApplications {
             AppInfo app_info;
             model.get (iter, 1, out app_info);
             renderer.set ("markup", describe_app_info (app_info),
+#if HAVE_GTK3
+                          "max-width-chars", 30,
+#endif
+                          "width-chars", 30,
                           "ellipsize", Pango.EllipsizeMode.END);
         }
 
