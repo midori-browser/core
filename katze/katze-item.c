@@ -512,7 +512,7 @@ katze_item_get_image (KatzeItem* item,
     g_return_val_if_fail (KATZE_IS_ITEM (item), NULL);
 
     pixbuf = katze_item_get_pixbuf (item, widget);
-    image = gtk_image_new_from_pixbuf (pixbuf);
+    image = gtk_image_new_from_gicon (G_ICON (pixbuf), GTK_ICON_SIZE_MENU);
     gtk_widget_show (image);
     if (pixbuf != NULL)
         g_object_unref (pixbuf);

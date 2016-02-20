@@ -103,10 +103,24 @@ namespace Midori {
             tooltip_text = label.label;
         }
 
+        GLib.Icon? scale_if_needed (GLib.Icon? icon, int scale) {
+            if (icon is Gdk.Pixbuf) {
+                var pixbuf = icon as Gdk.Pixbuf;
+                int icon_width = 16, icon_height = 16;
+                Gtk.icon_size_lookup (Gtk.IconSize.MENU, out icon_width, out icon_height);
+                // Apply scale factor which is only automatically applied on ThemedIcon
+                icon_width *= scale;
+                icon_height *= scale;
+                if (pixbuf.width != icon_width || pixbuf.height != icon_height)
+                    return pixbuf.scale_simple (icon_width, icon_height, Gdk.InterpType.BILINEAR);
+            }
+            return icon;
+        }
+
         void icon_changed (GLib.ParamSpec pspec) {
-            Icon? icon;
+            GLib.Icon? icon;
             tab.get ("icon", out icon);
-            this.icon.set_from_gicon (icon, Gtk.IconSize.MENU);
+            this.icon.set_from_gicon (scale_if_needed (icon, scale_factor), Gtk.IconSize.MENU);
         }
 
         void colors_changed () {
