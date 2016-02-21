@@ -103,6 +103,7 @@ namespace Midori {
             tooltip_text = label.label;
         }
 
+#if HAVE_GTK3
         GLib.Icon? scale_if_needed (GLib.Icon? icon, int scale) {
             if (icon is Gdk.Pixbuf) {
                 var pixbuf = icon as Gdk.Pixbuf;
@@ -116,11 +117,16 @@ namespace Midori {
             }
             return icon;
         }
+#endif
 
         void icon_changed (GLib.ParamSpec pspec) {
             GLib.Icon? icon;
             tab.get ("icon", out icon);
+#if HAVE_GTK3
             this.icon.set_from_gicon (scale_if_needed (icon, scale_factor), Gtk.IconSize.MENU);
+#else
+            this.icon.set_from_gicon (icon, Gtk.IconSize.MENU);
+#endif
         }
 
         void colors_changed () {
