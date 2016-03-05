@@ -396,6 +396,14 @@ midori_view_set_title (MidoriView* view, const gchar* title)
     katze_item_set_name (view->item, view->title);
 }
 
+/**
+ * midori_view_apply_icon
+ * @view: a #MidoriView
+ * @icon: (transfer none): the icon to apply, either a #GThemedIcon or a #GdkPixbuf
+ * @icon_name: a string corresponding to the icon to apply, or %NULL.
+ *
+ * Obtains a #GdkPixbuf from the given #GIcon and sets it as @view's icon.
+ */
 static void
 midori_view_apply_icon (MidoriView*  view,
                         GIcon*       icon,
@@ -403,8 +411,57 @@ midori_view_apply_icon (MidoriView*  view,
 {
     g_return_if_fail (icon != NULL);
 
+    GdkPixbuf* pixbuf = NULL;
+
+    /* If the GIcon is a GdkPixbuf (since GdkPixbuf implements the GIcon interface), just use it */
+    if (GDK_IS_PIXBUF (icon))
+    {
+        pixbuf = g_object_ref (GDK_PIXBUF (icon));
+    }
+    else if (G_IS_THEMED_ICON (icon)) /* The icon is a GThemedIcon; we must use a GtkIconTheme to render it */
+    {
+        GtkIconTheme* icon_theme;
+        GtkIconInfo* icon_info;
+        gchar** icon_names = NULL;
+        GError* error = NULL;
+
+        icon_theme = gtk_icon_theme_get_for_screen (gtk_widget_get_screen (GTK_WIDGET (view)));
+        g_object_get (icon, "names", &icon_names, NULL);
+
+        icon_info = 
+#if GTK_CHECK_VERSION (3, 0, 0)
+        gtk_icon_theme_choose_icon_for_scale (
+#else
+        gtk_icon_theme_choose_icon (
+#endif
+            icon_theme,
+            (const char **)icon_names,
+            16, /* Favicon-sized */
+#if GTK_CHECK_VERSION (3, 0, 0)
+            gtk_widget_get_scale_factor (GTK_WIDGET (view)),
+#endif
+            0);
+
+        pixbuf = gtk_icon_info_load_icon (icon_info, &error);
+        g_strfreev (icon_names);
+        if (pixbuf == NULL) {
+            g_warning ("Could not load pixbuf for icon '%s': %s\n", icon_name, error->message);
+            g_clear_error (&error);
+
+            /* view->icon cannot be set to NULL, so we simply leave it as-is */
+            return;
+        }
+
+        gtk_icon_info_free (icon_info);
+    }
+    else /* The icon is some other implementation of the GIcon interface, which should be impossible
+    since this is internal API and its only callers pass GdkPixbufs or GThemedIcons */
+    {
+        g_warning ("Could not load pixbuf for icon '%s': unknown GIcon implementation", icon_name);
+    }
+
     katze_item_set_icon (view->item, icon_name);
-    katze_object_assign (view->icon, g_object_ref (icon));
+    katze_object_assign (view->icon, pixbuf);
     g_object_notify (G_OBJECT (view), "icon");
 
     if (view->menu_item)
@@ -414,6 +471,8 @@ midori_view_apply_icon (MidoriView*  view,
     }
 }
 
+/* Resets the view's icon from a WebKit-provided pixbuf for a certain page to a
+generic filetype-based icon */
 static void
 midori_view_unset_icon (MidoriView* view)
 {
@@ -432,6 +491,7 @@ midori_view_unset_icon (MidoriView* view)
     midori_view_apply_icon (view, icon, NULL);
 }
 
+/* Sets the view's icon pixbuf to the one WebKit provides for the current page */
 static void
 _midori_web_view_load_icon (MidoriView* view)
 {
