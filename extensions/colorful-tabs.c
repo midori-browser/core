@@ -74,6 +74,10 @@ view_get_bgcolor_for_favicon (GdkPixbuf* icon,
     guchar* pixels;
 
     newpix = gdk_pixbuf_scale_simple (icon, 1, 1, GDK_INTERP_BILINEAR);
+
+    // Sometimes gdk_pixbuf_scale may fail, return gracefully
+    g_return_if_fail (newpix != NULL);
+    
     pixels = gdk_pixbuf_get_pixels (newpix);
     color->red = pixels[0] * 255;
     color->green = pixels[1] * 255;
