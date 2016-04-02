@@ -342,7 +342,7 @@ namespace Transfers {
             icon = new Gtk.Image ();
             button = new Gtk.Button ();
             button.relief = Gtk.ReliefStyle.NONE;
-            button.focus_on_click = false;
+            button.set_focus_on_click (false);
             button.clicked.connect (button_clicked);
             button.add (icon);
             box.pack_start (button, false, false, 0);

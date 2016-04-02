@@ -41,7 +41,7 @@ namespace Midori {
             box.pack_start (label, true, true, 0);
             close = new Gtk.Button ();
             close.relief = Gtk.ReliefStyle.NONE;
-            close.focus_on_click = false;
+            close.set_focus_on_click (false);
 #if !HAVE_GTK3
             close.name = "midori-close-button";
             close.style_set.connect (close_style_set);
