@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: midori\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2015-07-11 22:56-0400\n"
-"PO-Revision-Date: 2015-12-24 11:31+0000\n"
-"Last-Translator: WebKit Team <Unknown>\n"
+"PO-Revision-Date: 2016-05-02 20:30+0000\n"
+"Last-Translator: Hasan Yılmaz <iletisim@hasanyilmaz.net>\n"
 "Language-Team: Turkish <tr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2016-03-13 05:20+0000\n"
-"X-Generator: Launchpad (build 17939)\n"
+"X-Launchpad-Export-Date: 2016-05-03 05:14+0000\n"
+"X-Generator: Launchpad (build 17995)\n"
 
 #: ../data/midori.desktop.in.h:1 ../midori/main.c:142
 #: ../midori/midori-websettings.c:231
@@ -49,19 +49,19 @@ msgstr "Yeni Pencere"
 
 #: ../data/midori.desktop.in.h:8
 msgid "New Private Browsing Window"
-msgstr "Yeni Özel Tarama Penceresi"
+msgstr "Yeni Gizli Gezinme Penceresi"
 
 #: ../data/midori-private.desktop.in.h:1
 msgid "Midori Private Browsing"
-msgstr "Midori Gizli Tarama"
+msgstr "Midori Gizli Gezinme"
 
 #: ../data/midori-private.desktop.in.h:2 ../extensions/about.vala:176
 msgid "Private Browsing"
-msgstr "Gizli Tarama"
+msgstr "Gizli Gezinme"
 
 #: ../data/midori-private.desktop.in.h:3
 msgid "Open a new private browsing window"
-msgstr "Yeni bir gizli tarama penceresi aç"
+msgstr "Yeni bir gizli gezinme penceresi aç"
 
 #: ../midori/main.c:52
 #, c-format
@@ -90,11 +90,11 @@ msgstr "Özel tarama, değişiklikler kaydedilmez."
 
 #: ../midori/main.c:86
 msgid "Portable mode, all runtime files are stored in one place"
-msgstr ""
+msgstr "Taşınabilir mod, bütün anlık çalışma dosyaları bir yerde depolanır."
 
 #: ../midori/main.c:89
 msgid "Plain GTK+ window with WebKit, akin to GtkLauncher"
-msgstr ""
+msgstr "Webkit ile GtkLauncher'a benzeyen sade GTK+ penceresi"
 
 #: ../midori/main.c:91
 msgid "Show a diagnostic dialog"
@@ -139,7 +139,7 @@ msgstr "ÖRNEK"
 #. i18n: CLI: Close tabs, clear private data, open starting page
 #: ../midori/main.c:111
 msgid "Reset Midori after SECONDS seconds of inactivity"
-msgstr "Kullanılmayan süre SANİYELER 'den sonra Midori'yi yeniden başlat"
+msgstr "Kullanılmazken Midori'yi SECONDS saniye sonra yeniden başlat"
 
 #: ../midori/main.c:111
 msgid "SECONDS"
@@ -147,13 +147,13 @@ msgstr "SANİYELER"
 
 #: ../midori/main.c:136
 msgid "Error: \"gdb\" can't be found\n"
-msgstr ""
+msgstr "Hata: \"gbd\" bulunamıyor\n"
 
 #: ../midori/main.c:162
 msgid "Please report comments, suggestions and bugs to:"
 msgstr ""
-"Lütfen yorumlarınızı, isteklerinizi ve yakaladığınız hataları şuraya "
-"raporlayın:"
+"Lütfen yorumlarınızı, isteklerinizi ve yakaladığınız hataları şuraya rapor "
+"edin:"
 
 #: ../midori/main.c:164
 msgid "Check for new versions at:"
@@ -173,7 +173,7 @@ msgstr "_Yerimi Ekle"
 
 #: ../midori/midori-app.c:1186
 msgid "_Extensions"
-msgstr "_Ek Özellikler"
+msgstr "_Uzantılar"
 
 #. i18n: Browsing history, visited web pages, closed tabs
 #: ../midori/midori-app.c:1187 ../midori/midori-privatedata.c:230
@@ -202,7 +202,7 @@ msgstr "Netscape eklentileri"
 
 #: ../midori/midori-app.c:1193
 msgid "_Closed Tabs"
-msgstr "Sekmeleri _kapat"
+msgstr "_Kapatılmış Sekmeler"
 
 #: ../midori/midori-app.c:1194 ../midori/midori-browser.c:5228
 msgid "New _Window"
@@ -236,11 +236,11 @@ msgstr "Sonraki sayfaya git"
 #. i18n: Visit the following logical page, ie. in a forum or blog
 #: ../midori/midori-browser.c:329 ../midori/midori-browser.c:5372
 msgid "Go to the next sub-page"
-msgstr "Sonraki sayfaya git"
+msgstr "Sonraki altsayfaya git"
 
 #: ../midori/midori-browser.c:339
 msgid "Web Search…"
-msgstr ""
+msgstr "Web Araması..."
 
 #: ../midori/midori-browser.c:443 ../midori/midori-browser.c:2095
 #: ../midori/midori-browser.c:5310 ../midori/midori-browser.c:5319
@@ -260,7 +260,7 @@ msgstr "İsim güncelleme hatası: %s\n"
 #: ../midori/midori-browser.c:638 ../midori/midori-websettings.c:1502
 #, c-format
 msgid "Value '%s' is invalid for %s"
-msgstr "'%s' değeri şunun için yanlış : %s"
+msgstr "'%s' değeri %s için yanlış :"
 
 #: ../midori/midori-browser.c:587 ../midori/midori-browser.c:658
 #: ../midori/midori-browser.c:6640
@@ -285,7 +285,7 @@ msgstr "Yeni geçmiş ögesi ekleme hatası: %s\n"
 
 #: ../midori/midori-browser.c:939
 msgid "Select [text]"
-msgstr ""
+msgstr "Seç [metin]"
 
 #: ../midori/midori-browser.c:968 ../panels/midori-bookmarks.c:148
 #: ../midori/midori-bookmarks-db.c:153
@@ -294,39 +294,39 @@ msgstr "Yer imleri"
 
 #: ../midori/midori-browser.c:1189
 msgid "New Folder"
-msgstr ""
+msgstr "Yeni Klasör"
 
 #: ../midori/midori-browser.c:1189
 msgid "Edit Folder"
-msgstr ""
+msgstr "Klasörü Düzenle"
 
 #: ../midori/midori-browser.c:1191
 msgid "New Bookmark"
-msgstr ""
+msgstr "Yeni Yer İmi"
 
 #: ../midori/midori-browser.c:1191
 msgid "Edit Bookmark"
-msgstr ""
+msgstr "Yer İmini Düzenle"
 
 #: ../midori/midori-browser.c:1224
 msgid "Type a name for this bookmark, and choose where to keep it."
-msgstr ""
+msgstr "Yer imi için bir isim veriniz ve nerede saklayacağınızı seçiniz."
 
 #: ../midori/midori-browser.c:1226
 msgid "Type a name for this folder, and choose where to keep it."
-msgstr ""
+msgstr "Klasör için bir isim veriniz ve nerede saklayacağınızı seçiniz."
 
 #: ../midori/midori-browser.c:1282
 msgid "Show in Bookmarks _Bar"
-msgstr ""
+msgstr "_Yer imi çubuğunda göster"
 
 #: ../midori/midori-browser.c:1290
 msgid "Add to _Speed Dial"
-msgstr "_Hızlı aramaya Ekle"
+msgstr "_Hızlı Aramaya Ekle"
 
 #: ../midori/midori-browser.c:1380 ../midori/midori-browser.c:4671
 msgid "Save file as"
-msgstr "Dosyayı kaydet"
+msgstr "Dosyayı farklı kaydet"
 
 #: ../midori/midori-browser.c:1406
 msgid "Save associated _resources"
@@ -405,7 +405,7 @@ msgstr "Hepsini _Sekmelerde aç"
 #: ../midori/midori-view.c:2501 ../panels/midori-bookmarks.c:1089
 #: ../panels/midori-history.c:746 ../extensions/feed-panel/feed-panel.c:504
 msgid "Open in New _Window"
-msgstr "Yeni _Pencerede aç"
+msgstr "Yeni _Pencerede Aç"
 
 #: ../midori/midori-browser.c:4505
 msgid "Arora"
@@ -442,11 +442,11 @@ msgstr "Yerimleri içe aktarılıyor…"
 
 #: ../midori/midori-browser.c:4532
 msgid "_Import bookmarks"
-msgstr "Yerimlerini içe aktar"
+msgstr "Yer imlerini _içe aktar"
 
 #: ../midori/midori-browser.c:4543
 msgid "_Application:"
-msgstr "_Uygulamadan:"
+msgstr "_Uygulama:"
 
 #: ../midori/midori-browser.c:4608
 msgid "Import from XBEL or HTML file"
@@ -454,7 +454,7 @@ msgstr "XBEL ya da HTML dosyasından içeri aktar"
 
 #: ../midori/midori-browser.c:4634
 msgid "Import from a file"
-msgstr "Dosyadan yükle"
+msgstr "Bir dosyadan içe aktar"
 
 #: ../midori/midori-browser.c:4646
 msgid "Failed to import bookmarks"
@@ -462,24 +462,24 @@ msgstr "Yerimlerini içe aktarma hatası"
 
 #: ../midori/midori-browser.c:4676
 msgid "XBEL Bookmarks"
-msgstr "XBEL yer imleri"
+msgstr "XBEL Yer İmleri"
 
 #: ../midori/midori-browser.c:4681
 msgid "Netscape Bookmarks"
-msgstr "Netscape yer imleri"
+msgstr "Netscape Yer İmleri"
 
 #: ../midori/midori-browser.c:4699
 msgid "Midori can only export to XBEL (*.xbel) and Netscape (*.html)"
 msgstr ""
-"Midori sadece XBEL (*. xbel) ve Netscape (*. html) dışarı aktarabilir."
+"Midori sadece XBEL (*. xbel) ve Netscape'e (*. html) dışa aktarım yapabilir."
 
 #: ../midori/midori-browser.c:4711
 msgid "Failed to export bookmarks"
-msgstr "Yer imlerini dışarı aktarma hatası"
+msgstr "Yer imlerini dışa aktarma hatası"
 
 #: ../midori/midori-browser.c:4899
 msgid "A lightweight web browser."
-msgstr "Hafif bir web tarayıcı."
+msgstr "Hafif bir ağ tarayıcı."
 
 #: ../midori/midori-browser.c:4900
 msgid "See about:version for version info."
@@ -519,6 +519,7 @@ msgstr ""
 "  MuHa Aliss https://launchpad.net/~muha.aliss\n"
 "  Oguzhan Kuyucu https://launchpad.net/~oguzhankuyucu\n"
 "  Sadık Atalay https://launchpad.net/~seaflames\n"
+"  Sadık Poyraz https://launchpad.net/~sadikpoyraz01\n"
 "  Salih https://launchpad.net/~hernandomtoto\n"
 "  Selim Sırrı Sevgi https://launchpad.net/~selimssevgi\n"
 "  Seçgin Karagülle https://launchpad.net/~secgink-57\n"
@@ -535,7 +536,7 @@ msgstr ""
 
 #: ../midori/midori-browser.c:5191 ../midori/midori-browser.c:5432
 msgid "_Duplicate Current Tab"
-msgstr "Şuan ki sekmeyi Çoğalt"
+msgstr "Mevcut Sekmeyi _Çoğalt"
 
 #: ../midori/midori-browser.c:5226
 msgid "_File"
@@ -571,7 +572,7 @@ msgstr "Hızlı aramaya _ekle"
 
 #: ../midori/midori-browser.c:5246
 msgid "Subscribe to News _feed"
-msgstr "Haber _kaynaksine üye ol"
+msgstr "Haber _beslemesine üye ol"
 
 #: ../midori/midori-browser.c:5252
 msgid "_Close Tab"
@@ -591,7 +592,7 @@ msgstr "Geçerli sayfayı yazdır"
 
 #: ../midori/midori-browser.c:5261
 msgid "Send Page Link Via Email"
-msgstr ""
+msgstr "Sayfa Bağlantısını E-posta ile Gönder"
 
 #: ../midori/midori-browser.c:5264
 msgid "Close a_ll Windows"
@@ -612,15 +613,15 @@ msgstr "_Bul,.."
 
 #: ../midori/midori-browser.c:5295
 msgid "Find a word or phrase in the page"
-msgstr "Bir kelime yada ibareyi geçerli sayfada ara"
+msgstr "Sayfada bir kelime ya da ifade bul"
 
 #: ../midori/midori-browser.c:5297
 msgid "Find _Next"
-msgstr "So_nrakini Bul"
+msgstr "_Sonrakini Bul"
 
 #: ../midori/midori-browser.c:5300
 msgid "Find _Previous"
-msgstr "Öncekini Bu_l"
+msgstr "_Öncekini Bul"
 
 #: ../midori/midori-browser.c:5304
 msgid "Configure the application preferences"
