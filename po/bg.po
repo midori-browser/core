@@ -8,16 +8,16 @@ msgstr ""
 "Project-Id-Version: midori 0.2.8\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-07-11 22:56-0400\n"
-"PO-Revision-Date: 2015-11-27 15:01+0000\n"
-"Last-Translator: Stanimir <retsmon98@gmail.com>\n"
+"PO-Revision-Date: 2016-06-25 17:24+0000\n"
+"Last-Translator: cybercop <cybercop_montana@abv.bg>\n"
 "Language-Team: Bulgarian <bg@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Launchpad-Export-Date: 2016-03-13 05:18+0000\n"
-"X-Generator: Launchpad (build 17939)\n"
+"X-Launchpad-Export-Date: 2016-06-26 05:14+0000\n"
+"X-Generator: Launchpad (build 18111)\n"
 "Language: bg\n"
 
 #: ../data/midori.desktop.in.h:1 ../midori/main.c:142
@@ -1138,8 +1138,8 @@ msgstr "Показване само на икони в раздела"
 #: ../midori/midori-notebook.vala:376
 msgid "Close Tab to the R_ight"
 msgid_plural "Close Tabs to the R_ight"
-msgstr[0] "Затвори Подпрозорец на_ясно"
-msgstr[1] "Затвори Подпрозорци на_ясно"
+msgstr[0] "Затвори раздела в дясно"
+msgstr[1] "Затвори разделите в дясно"
 
 #: ../midori/midori-notebook.vala:388
 msgid "Close Ot_her Tab"
@@ -1476,7 +1476,7 @@ msgstr "Кликнете, за да добавите пряк път"
 
 #: ../midori/midori-speeddial.vala:190
 msgid "Enter shortcut address"
-msgstr "Въведете адреса за прекият път"
+msgstr "Въведете адреса за прекия път"
 
 #: ../midori/midori-speeddial.vala:191
 msgid "Are you sure you want to delete this shortcut?"
@@ -1500,7 +1500,7 @@ msgstr "Използване на текущата страница"
 
 #: ../midori/midori-preferences.c:306
 msgid "Use current page as homepage"
-msgstr "Използване на текущатастраница, като домашна страница"
+msgstr "Използване на текущата страница, като домашна страница"
 
 #. Page "Appearance"
 #: ../midori/midori-preferences.c:315
@@ -1866,7 +1866,7 @@ msgstr "Празна папка"
 #: ../panels/midori-bookmarks.c:670
 #, c-format
 msgid "Folder containing %s and no bookmark"
-msgstr "Папката съдержа %s и няма отметки"
+msgstr "Папката съдържа %s и няма отметки"
 
 #. i18n: Folder containing [[n] bookmark(s)]
 #: ../panels/midori-bookmarks.c:674
@@ -2410,7 +2410,7 @@ msgstr "Грешка при изтеглянето"
 #: ../extensions/open-with.vala:678
 #, c-format
 msgid "Cannot open '%s' because the download failed."
-msgstr "Неможе да отворите \"%s\" защото свалянето се е провалило."
+msgstr "Не може да отворите '%s' защото свалянето е неуспешно."
 
 #: ../extensions/open-with.vala:718
 msgid "Open _with…"
@@ -2716,7 +2716,7 @@ msgstr ""
 #: ../extensions/nojs/nojs-preferences.c:809
 #: ../extensions/nojs/nojs-view.c:702
 msgid "Manager instance"
-msgstr "Управителна инстанция"
+msgstr "Мениджър на инстанция"
 
 #: ../extensions/nojs/nojs-preferences.c:810
 #: ../extensions/nojs/nojs-view.c:703
@@ -2756,17 +2756,17 @@ msgstr "Изтриване на всичко"
 #. Add "allow-local-pages" checkbox
 #: ../extensions/nojs/nojs-preferences.c:987
 msgid "A_llow scripts on local pages"
-msgstr "Позволете скриптове на областните страници"
+msgstr "Позволявай скриптове в локалните страници"
 
 #. Add "block-unknown-domains" checkbox
 #: ../extensions/nojs/nojs-preferences.c:995
 msgid "Bloc_k scripts at unknown domains by default"
-msgstr "С_ри скриптове за неизвестни източници на страници по подразбиране"
+msgstr "Блокирай скриптове на неизвестни домейни по подразбиране"
 
 #. Add "check-second-level-only" checkbox
 #: ../extensions/nojs/nojs-preferences.c:1003
 msgid "S_et permissions on second-level domain"
-msgstr "На_ласи разрешения за второстепенните източници на страници"
+msgstr "Задай права на домейни от второ ниво"
 
 #. Add menu item(s) for domain
 #: ../extensions/nojs/nojs-view.c:237
@@ -2782,7 +2782,7 @@ msgstr "Разреши %s"
 #: ../extensions/nojs/nojs-view.c:261
 #, c-format
 msgid "Allow %s this session"
-msgstr "Позволи %s този път"
+msgstr "Позволи %s за тази сесия"
 
 #: ../extensions/nojs/nojs-view.c:709
 msgid "Browser window"
@@ -2802,7 +2802,7 @@ msgstr "Мидори изгледа, на който този изглед пр�
 
 #: ../extensions/nojs/nojs-view.c:723
 msgid "Menu icon state"
-msgstr "Меню иконово състояние"
+msgstr "Състояние на меню иконата"
 
 #: ../extensions/nojs/nojs-view.c:724
 msgid "State of menu icon to show in status bar"
@@ -2906,7 +2906,7 @@ msgstr "Пътят към база данни SQLite например, изпо�
 
 #: ../extensions/nojs/nojs.c:743
 msgid "Allow local pages"
-msgstr "Позволете областните страници"
+msgstr "Позволи локални страници"
 
 #: ../extensions/nojs/nojs.c:744
 msgid "Allow scripts to run on local (file://) pages"
@@ -2914,7 +2914,7 @@ msgstr "Позволете скрипт да използва (file://) стра
 
 #: ../extensions/nojs/nojs.c:750
 msgid "Only second level"
-msgstr "Само второстепенно ниво"
+msgstr "Само второ ниво"
 
 #: ../extensions/nojs/nojs.c:751
 msgid ""
@@ -3019,19 +3019,19 @@ msgstr "Новите раздели са без заглавие по подра
 
 #: ../extensions/tabs2one.c:299 ../extensions/tabs2one.c:400
 msgid "Tabs to One"
-msgstr "Табове до едно"
+msgstr "Раздели до първия"
 
 #: ../extensions/tabs2one.c:301
 msgid "Tabs you collected so far"
-msgstr "Табове които сте събрали до сега"
+msgstr "Раздели, които сте събрали"
 
 #: ../extensions/tabs2one.c:302
 msgid "Clicking an item restores a tab."
-msgstr "кликнете на уред  за възвръщане на таб."
+msgstr "Кликнете на елемента за възстановяване на раздел."
 
 #: ../extensions/tabs2one.c:327
 msgid "Tabs to _One"
-msgstr "Само един таб"
+msgstr "Раздели до _първия"
 
 #: ../extensions/tabs2one.c:401
 msgid "Closes all open tabs and creates new tab with tabs links"
@@ -3130,12 +3130,12 @@ msgstr "Не може да бъде добавена отметка: %s\n"
 #: ../midori/midori-bookmarks-db.c:580
 #, c-format
 msgid "Failed to update bookmark: %s\n"
-msgstr "Грешка при обновяване на отемтка: %s\n"
+msgstr "Неуспешно обновяване на отметка:  %s\n"
 
 #: ../midori/midori-bookmarks-db.c:616
 #, c-format
 msgid "Failed to remove bookmark item: %s\n"
-msgstr "Грешка при изтриване на отемтка: %s\n"
+msgstr "Неуспешно премахване на отметка:  %s\n"
 
 #: ../midori/midori-session.c:362
 #, c-format
@@ -3183,7 +3183,7 @@ msgstr "Стартирай отстраняване на грашката"
 
 #: ../midori/midori-frontend.c:479
 msgid "An instance of Midori is already running but not responding.\n"
-msgstr "Midori е стартиране, но не отговаря.\n"
+msgstr "Модори вече е стартиран но не отговаря.\n"
 
 #: ../midori/midori-frontend.c:516
 #, c-format
@@ -3364,7 +3364,7 @@ msgstr "Midori (%s)"
 #: ../extensions/apps.vala:160
 #, c-format
 msgid "Failed to create new launcher (%s): %s"
-msgstr "Провал при създаването на нов запусквател (%s): %s"
+msgstr "Неуспешно създаване на нов стартер (%s): %s"
 
 #: ../extensions/apps.vala:151
 msgid "Launcher created"
@@ -3663,7 +3663,7 @@ msgstr "Правило:"
 
 #: ../extensions/domain-keys.vala:15
 msgid "Domain Hotkeys"
-msgstr "Горещи тлавиши за Домейн"
+msgstr "Бързи клавиши за Домейн"
 
 #: ../extensions/domain-keys.vala:16
 msgid ""
