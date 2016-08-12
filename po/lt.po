@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: midori 0.4\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-07-11 22:56-0400\n"
-"PO-Revision-Date: 2016-08-10 17:17+0000\n"
+"PO-Revision-Date: 2016-08-11 10:43+0000\n"
 "Last-Translator: Moo <hazap@hotmail.com>\n"
 "Language-Team: Lietuvių <>\n"
 "MIME-Version: 1.0\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "(n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2016-08-11 05:19+0000\n"
+"X-Launchpad-Export-Date: 2016-08-12 05:19+0000\n"
 "X-Generator: Launchpad (build 18169)\n"
 "Language: \n"
 "X-Poedit-Language: Lithuanian\n"
@@ -2315,7 +2315,7 @@ msgstr "DevPet"
 
 #: ../extensions/devpet.vala:254
 msgid "This extension shows glib error messages in systray."
-msgstr ""
+msgstr "Šis plėtinys sistemos dėkle rodo glib klaidos pranešimus."
 
 #: ../extensions/external-download-manager.vala:127
 #, c-format
@@ -2329,6 +2329,13 @@ msgid ""
 "\n"
 "Carry on without this plugin."
 msgstr ""
+"Įvyko klaida, bandant atsisiųsti failą, naudojant šį įskiepį:\n"
+"%s\n"
+"\n"
+"Klaida:\n"
+"%s\n"
+"\n"
+"Tęskite be šio įskiepio."
 
 #: ../extensions/external-download-manager.vala:172
 msgid ""
@@ -2339,56 +2346,63 @@ msgid ""
 "Lastly Check the configuration of your firewall.\n"
 "Whitelist aria2 and the port 6800 if they aren't."
 msgstr ""
+"Įskiepiui nepavyko prisijungti prie aria2:\n"
+"Įsitikinkite, kad aria2 yra vykdoma su įjungtu rpc, t.y.: aria2c --enable-"
+"rpc\n"
+"Jeigu ji yra vykdoma, patikrinkite, kad ji naudotų prievadą 6800.\n"
+"Galų galiausiai, patikrinkite savo užkrados konfigūraciją.\n"
+"Jeigu ji dar nėra įtraukta, įtraukite aria2 ir prievadą 6800 į baltąjį "
+"sąrašą."
 
 #: ../extensions/external-download-manager.vala:194
 msgid "External Download Manager - Aria2"
-msgstr ""
+msgstr "Išorinė atsiuntimų tvarkytuvė - Aria2"
 
 #: ../extensions/external-download-manager.vala:195
 msgid "Download files with Aria2"
-msgstr ""
+msgstr "Atsisiųskite failus su Aria2"
 
 #: ../extensions/external-download-manager.vala:221
 msgid "External Download Manager - SteadyFlow"
-msgstr ""
+msgstr "Išorinė atsiuntimų tvarkytuvė - SteadyFlow"
 
 #: ../extensions/external-download-manager.vala:222
 msgid "Download files with SteadyFlow"
-msgstr ""
+msgstr "Atsisiųskite failus su SteadyFlow"
 
 #: ../extensions/external-download-manager.vala:268
 msgid "Command:"
-msgstr ""
+msgstr "Komanda:"
 
 #: ../extensions/external-download-manager.vala:323
 #, c-format
 msgid "Download files with \"%s\" or a custom command"
-msgstr ""
+msgstr "Atsisiųskite failus su \"%s\" ar tinkinta komanda"
 
 #: ../extensions/external-download-manager.vala:339
 msgid "External Download Manager - CommandLine"
-msgstr ""
+msgstr "Išorinė atsiuntimų tvarkytuvė - Komandų eilutė"
 
 #: ../extensions/open-with.vala:174
 msgid "Name:"
-msgstr ""
+msgstr "Pavadinimas:"
 
 #: ../extensions/open-with.vala:183
 msgid "Command Line:"
-msgstr ""
+msgstr "Komandų eilutė:"
 
 #: ../extensions/open-with.vala:243
 msgid "Right-click a suggestion to customize it"
-msgstr ""
+msgstr "Spustelėkite dešiniu mygtuku ant siūlymo, kad jį tinkintumėte"
 
 #: ../extensions/open-with.vala:372
 msgid "Choose application"
-msgstr ""
+msgstr "Pasirinkti programą"
 
 #: ../extensions/open-with.vala:385
 #, c-format
 msgid "Select an application to open \"%s\""
-msgstr ""
+msgstr "Pasirinkite programą, skirtą atverti „%s“"
 
 #: ../extensions/open-with.vala:461
 msgid "None"
@@ -2396,28 +2410,28 @@ msgstr "Joks"
 
 #: ../extensions/open-with.vala:677
 msgid "Download error"
-msgstr ""
+msgstr "Atsiuntimo klaida"
 
 #: ../extensions/open-with.vala:678
 #, c-format
 msgid "Cannot open '%s' because the download failed."
-msgstr ""
+msgstr "Nepavyko atverti \"%s\", nes atsiuntimas nepavyko."
 
 #: ../extensions/open-with.vala:718
 msgid "Open _with…"
-msgstr ""
+msgstr "Atverti _naudojant..."
 
 #: ../extensions/open-with.vala:727
 msgid "Open in Image _Viewer"
-msgstr "Atverti _paveikslėlių žiūryklėje"
+msgstr "Atverti paveikslų žiūr_yklėje"
 
 #: ../extensions/open-with.vala:738
 msgid "File Types"
-msgstr ""
+msgstr "Failo tipai"
 
 #: ../extensions/open-with.vala:742
 msgid "Text Editor"
-msgstr "Teksto redaktorius"
+msgstr "Tekstų redaktorius"
 
 #: ../extensions/open-with.vala:753
 msgid "News Aggregator"
@@ -2493,7 +2507,7 @@ msgstr "Kanalas „%s“ jau yra"
 #: ../extensions/feed-panel/main.c:193
 #, c-format
 msgid "Error loading feed '%s'"
-msgstr "Klaida įkraunant kanalą „%s“"
+msgstr "Klaida, įkeliant kanalą „%s“"
 
 #: ../extensions/feed-panel/main.c:500
 msgid "Feed Panel"
@@ -2517,12 +2531,13 @@ msgid ""
 "Master password required\n"
 "to open password database"
 msgstr ""
-"Šiai vietai atverti reikia naudotojo vardo\n"
-"ir slaptažodžio:"
+"Norint atverti slaptažodžių\n"
+"duomenų bazę, reikalingas\n"
+"pagrindinis slaptažodis."
 
 #: ../extensions/formhistory/formhistory.c:289
 msgid "Remember password on this page?"
-msgstr "Šiame puslapyje prisiminti slaptažodį?"
+msgstr "Prisiminti slaptažodį šiame puslapyje?"
 
 #: ../extensions/formhistory/formhistory.c:294
 msgid "Remember"
@@ -2542,13 +2557,13 @@ msgstr "Perjungti formų istorijos būseną"
 
 #: ../extensions/formhistory/formhistory.c:417
 msgid "Activate or deactivate form history for the current tab."
-msgstr "Aktyvuoti ar deaktyvuoti formų istoriją dabartinei kortelei."
+msgstr "Aktyvuoti ar pasyvinti formų istoriją esamai kortelei."
 
 #: ../extensions/formhistory/formhistory.c:598
 msgid "Only activate form history via hotkey (Ctrl+Shift+F) per tab"
 msgstr ""
-"Kiekvienai kortelei formų istoriją aktyvuoti tik su greituoju klavišu "
-"(Ctrl+Shift+F)"
+"Kiekvienai kortelei formų istoriją aktyvuoti tik sparčiuoju klavišu "
+"(Ctrl+Shift+F (Vald+Lyg2+F))"
 
 #: ../extensions/formhistory/formhistory.c:655
 msgid "Form history filler"
@@ -2581,23 +2596,23 @@ msgstr "Nieko nedaryti"
 
 #: ../extensions/history-list.vala:338
 msgid "Switch to last viewed tab"
-msgstr "Persijungti į paskutinę žiūrėtą kortelę"
+msgstr "Perjungti į paskutinę žiūrėtą kortelę"
 
 #: ../extensions/history-list.vala:344
 msgid "Switch to newest tab"
-msgstr "Persijungti į naujausią kortelę"
+msgstr "Perjungti į naujausią kortelę"
 
 #: ../extensions/history-list.vala:358
 msgid "Flash window on background tabs"
-msgstr "Blykstelti langą atvėrus kortelę fone"
+msgstr "Blykstelėti lange, atvėrus foninę kortelę"
 
 #: ../extensions/history-list.vala:493
 msgid "Next new Tab (History List)"
-msgstr "Sekanti nauja kortelė iš istorijos (Istorijos sąrašas)"
+msgstr "Kita nauja kortelė iš istorijos (Istorijos sąrašas)"
 
 #: ../extensions/history-list.vala:494
 msgid "Next new tab from history"
-msgstr "Sekanti nauja kortelė iš istorijos"
+msgstr "Kita nauja kortelė iš istorijos"
 
 #: ../extensions/history-list.vala:503
 msgid "Previous new Tab (History List)"
@@ -2609,11 +2624,11 @@ msgstr "Ankstesnė nauja kortelė iš istorijos"
 
 #: ../extensions/history-list.vala:513
 msgid "Display tab in background (History List)"
-msgstr "Kortelę rodyti fone (Istorijos sąrašas)"
+msgstr "Rodyti kortelę fone (Istorijos sąrašas)"
 
 #: ../extensions/history-list.vala:514
 msgid "Display the current selected tab in background"
-msgstr "Rodyti dabartinę pasirinktą kortelę fone"
+msgstr "Rodyti esamą pasirinktą kortelę fone"
 
 #: ../extensions/history-list.vala:643
 msgid "History List"
@@ -2636,7 +2651,7 @@ msgstr ""
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:659
 #, c-format
 msgid "SQL fails: %s"
-msgstr ""
+msgstr "SQL nesėkmės: %s"
 
 #: ../extensions/nojs/nojs-preferences.c:254
 #: ../extensions/nojs/nojs-preferences.c:904 ../extensions/nojs/nojs.c:1033
@@ -2645,7 +2660,7 @@ msgstr ""
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:899
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1115
 msgid "Accept"
-msgstr ""
+msgstr "Priimti"
 
 #: ../extensions/nojs/nojs-preferences.c:258
 #: ../extensions/nojs/nojs-preferences.c:906
@@ -2654,7 +2669,7 @@ msgstr ""
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:901
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1116
 msgid "Accept for session"
-msgstr ""
+msgstr "Priimti tik seansui"
 
 #: ../extensions/nojs/nojs-preferences.c:262
 #: ../extensions/nojs/nojs-preferences.c:908 ../extensions/nojs/nojs.c:1035
@@ -2663,12 +2678,12 @@ msgstr ""
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:903
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1117
 msgid "Block"
-msgstr ""
+msgstr "Blokuoti"
 
 #: ../extensions/nojs/nojs-preferences.c:308 ../extensions/nojs/nojs.c:204
 #, c-format
 msgid "Could not open database of extension: %s"
-msgstr ""
+msgstr "Nepavyko atverti plėtinio duomenų bazės: %s"
 
 #: ../extensions/nojs/nojs-preferences.c:578
 #: ../extensions/nojs/nojs-preferences.c:581
@@ -2679,21 +2694,23 @@ msgstr ""
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:196
 #, c-format
 msgid "Failed to execute database statement: %s"
-msgstr ""
+msgstr "Nepavyko įvykdyti duomenų bazės teiginio: %s"
 
 #: ../extensions/nojs/nojs-preferences.c:607
 msgid "Do you really want to delete all JavaScript permissions?"
-msgstr ""
+msgstr "Ar tikrai norite ištrinti visus JavaScript leidimus?"
 
 #: ../extensions/nojs/nojs-preferences.c:609
 msgid "Delete all JavaScript permissions?"
-msgstr ""
+msgstr "Ištrinti visus JavaScript leidimus?"
 
 #: ../extensions/nojs/nojs-preferences.c:613
 msgid ""
 "This action will delete all JavaScript permissions. You will be asked for "
 "permissions again for each web site visited."
 msgstr ""
+"Šis veiksmas ištrins visus JavaScript leidimus. Kiekvienai aplankytai "
+"svetainei jūsų vėl bus prašoma leidimų."
 
 #: ../extensions/nojs/nojs-preferences.c:809
 #: ../extensions/nojs/nojs-view.c:702
@@ -2708,208 +2725,215 @@ msgstr ""
 #. Set up dialog
 #: ../extensions/nojs/nojs-preferences.c:850
 msgid "Configure NoJS"
-msgstr ""
+msgstr "Konfigūruoti NoJS"
 
 #: ../extensions/nojs/nojs-preferences.c:866
 msgid ""
 "Below is a list of all web sites and the policy set for them. You can delete "
 "policies by marking the entries and clicking on <i>Delete</i>."
 msgstr ""
+"Žemiau yra visų svetainių ir joms nustatytų politikų sąrašas. Jūs galite "
+"ištrinti politikas, pažymėdami įrašus ir spusteldami ant mygtuko "
+"<i>Ištrinti</i>."
 
 #: ../extensions/nojs/nojs-preferences.c:937
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:836
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:553
 msgid "Domain"
-msgstr ""
+msgstr "Sritis"
 
 #: ../extensions/nojs/nojs-preferences.c:949
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:848
 msgid "Policy"
-msgstr ""
+msgstr "Politika"
 
 #: ../extensions/nojs/nojs-preferences.c:978
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:877
 msgid "Delete _all"
-msgstr ""
+msgstr "Ištrinti _visas"
 
 #. Add "allow-local-pages" checkbox
 #: ../extensions/nojs/nojs-preferences.c:987
 msgid "A_llow scripts on local pages"
-msgstr ""
+msgstr "Leis_ti scenarijus vietiniuose puslapiuose"
 
 #. Add "block-unknown-domains" checkbox
 #: ../extensions/nojs/nojs-preferences.c:995
 msgid "Bloc_k scripts at unknown domains by default"
-msgstr ""
+msgstr "Pagal numatymą blokuoti scenarijus nežinomose srityse"
 
 #. Add "check-second-level-only" checkbox
 #: ../extensions/nojs/nojs-preferences.c:1003
 msgid "S_et permissions on second-level domain"
-msgstr ""
+msgstr "Nustat_yti leidimus netiesioginei sričiai"
 
 #. Add menu item(s) for domain
 #: ../extensions/nojs/nojs-view.c:237
 #, c-format
 msgid "Deny %s"
-msgstr ""
+msgstr "Drausti %s"
 
 #: ../extensions/nojs/nojs-view.c:249
 #, c-format
 msgid "Allow %s"
-msgstr ""
+msgstr "Leisti %s"
 
 #: ../extensions/nojs/nojs-view.c:261
 #, c-format
 msgid "Allow %s this session"
-msgstr ""
+msgstr "Leisti %s šiam seansui"
 
 #: ../extensions/nojs/nojs-view.c:709
 msgid "Browser window"
-msgstr ""
+msgstr "Naršyklės langas"
 
 #: ../extensions/nojs/nojs-view.c:710
 msgid "The Midori browser instance this view belongs to"
-msgstr ""
+msgstr "Midori naršyklės egzempliorius, kuriam priklauso šis rodinys"
 
 #: ../extensions/nojs/nojs-view.c:716
 msgid "View"
-msgstr ""
+msgstr "Rodinys"
 
 #: ../extensions/nojs/nojs-view.c:717
 msgid "The Midori view instance this view belongs to"
-msgstr ""
+msgstr "Midori rodinio egzempliorius, kuriam priklauso šis rodinys"
 
 #: ../extensions/nojs/nojs-view.c:723
 msgid "Menu icon state"
-msgstr ""
+msgstr "Meniu piktogramos būsena"
 
 #: ../extensions/nojs/nojs-view.c:724
 msgid "State of menu icon to show in status bar"
-msgstr ""
+msgstr "Meniu piktogramos, kurią rodyti būsenos juostoje, būsena"
 
 #: ../extensions/nojs/nojs-view.c:795 ../extensions/nojs/nojs.c:1032
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1114
 msgid "Undetermined"
-msgstr ""
+msgstr "Nenustatyta"
 
 #: ../extensions/nojs/nojs-view.c:796
 msgid "Allowed"
-msgstr ""
+msgstr "Leidžiama"
 
 #: ../extensions/nojs/nojs-view.c:797
 msgid "Mixed"
-msgstr ""
+msgstr "Maišyta"
 
 #: ../extensions/nojs/nojs-view.c:798
 msgid "Denied"
-msgstr ""
+msgstr "Draudžiama"
 
 #: ../extensions/nojs/nojs.c:143
 msgid ""
 "A fatal error occurred which prevents the NoJS extension to continue. You "
 "should disable it."
 msgstr ""
+"Įvyko lemtingoji klaida, neleidžianti NoJS plėtiniui tęsti savo darbą. Jūs "
+"turėtumėte jį išjungti."
 
 #: ../extensions/nojs/nojs.c:147
 msgid "Error in NoJS extension"
-msgstr ""
+msgstr "Klaida NoJS plėtinyje"
 
 #: ../extensions/nojs/nojs.c:152
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:100
 msgid "Reason"
-msgstr ""
+msgstr "Priežastis"
 
 #: ../extensions/nojs/nojs.c:193
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:140
 #, c-format
 msgid "Could not create configuration folder for extension: %s"
-msgstr ""
+msgstr "Nepavyko plėtiniui sukurti konfigūracijos aplanko: %s"
 
 #: ../extensions/nojs/nojs.c:195
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:142
 msgid "Could not create configuration folder for extension."
-msgstr ""
+msgstr "Nepavyko plėtiniui sukurti konfigūracijos aplanko."
 
 #: ../extensions/nojs/nojs.c:212
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:159
 msgid "Could not open database of extension."
-msgstr ""
+msgstr "Nepavyko atverti plėtinio duomenų bazės."
 
 #: ../extensions/nojs/nojs.c:245
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:192
 msgid "Could not set up database structure of extension."
-msgstr ""
+msgstr "Nepavyko nustatyti plėtinio duomenų bazės struktūros."
 
 #: ../extensions/nojs/nojs.c:716
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1008
 msgid "Extension instance"
-msgstr ""
+msgstr "Plėtinio egzempliorius"
 
 #: ../extensions/nojs/nojs.c:717
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1009
 msgid "The Midori extension instance for this extension"
-msgstr ""
+msgstr "Midori plėtinio egzempliorius šiam plėtiniui"
 
 #: ../extensions/nojs/nojs.c:723
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1015
 msgid "Application instance"
-msgstr ""
+msgstr "Programos egzempliorius"
 
 #: ../extensions/nojs/nojs.c:724
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1016
 msgid "The Midori application instance this extension belongs to"
-msgstr ""
+msgstr "Midori programos egzempliorius, kuriam priklauso šis plėtinys"
 
 #: ../extensions/nojs/nojs.c:730
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1022
 msgid "Database instance"
-msgstr ""
+msgstr "Duomenų bazės egzempliorius"
 
 #: ../extensions/nojs/nojs.c:731
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1023
 msgid "Pointer to sqlite database instance used by this extension"
-msgstr ""
+msgstr "Rodyklė į šio plėtinio naudojamą sqlite duomenų bazės egzempliorių"
 
 #: ../extensions/nojs/nojs.c:736
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1028
 msgid "Database path"
-msgstr ""
+msgstr "Duomenų bazės kelias"
 
 #: ../extensions/nojs/nojs.c:737
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1029
 msgid "Path to sqlite database instance used by this extension"
-msgstr ""
+msgstr "Kelias į šio plėtinio naudojamą sqlite duomenų bazės egzempliorių"
 
 #: ../extensions/nojs/nojs.c:743
 msgid "Allow local pages"
-msgstr ""
+msgstr "Leisti vietinius puslapius"
 
 #: ../extensions/nojs/nojs.c:744
 msgid "Allow scripts to run on local (file://) pages"
-msgstr ""
+msgstr "Leisti vykdyti scenarijus vietiniuose (file://) puslapiuose"
 
 #: ../extensions/nojs/nojs.c:750
 msgid "Only second level"
-msgstr ""
+msgstr "Tik netiesioginiuose"
 
 #: ../extensions/nojs/nojs.c:751
 msgid ""
 "Reduce each domain to its second-level (e.g. www.example.org to example.org) "
 "for comparison"
 msgstr ""
+"Palyginimui, sumažinti kiekvieną sritį iki jos netiesioginės srities (pvz., "
+"www.example.org į example.org)"
 
 #: ../extensions/nojs/nojs.c:757
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1035
 msgid "Unknown domain policy"
-msgstr ""
+msgstr "Nežinoma srities politika"
 
 #: ../extensions/nojs/nojs.c:758
 msgid "Policy to use for unknown domains"
-msgstr ""
+msgstr "Politika, kurią naudoti nežinomoms sritims"
 
 #: ../extensions/nojs/nojs.c:1034
 msgid "Accept temporarily"
-msgstr ""
+msgstr "Laikinai priimti"
 
 #: ../extensions/mouse-gestures.c:524
 msgid "Mouse Gestures"
@@ -2917,19 +2941,19 @@ msgstr "Pelės gestai"
 
 #: ../extensions/mouse-gestures.c:525
 msgid "Control Midori by moving the mouse"
-msgstr "Valdykite Midori stumdami pelę"
+msgstr "Valdykite Midori pelės judesiais"
 
 #: ../extensions/shortcuts.c:109
 msgid "Reload page or stop loading"
-msgstr "Puslapį įkelti iš naujo arba sustabdyti įkėlimą"
+msgstr "Įkelti puslapį iš naujo ar stabdyti įkėlimą"
 
 #: ../extensions/shortcuts.c:168
 msgid "Customize Keyboard shortcuts"
-msgstr "Derinti klaviatūros susiejimus"
+msgstr "Tinkinti klaviatūros susiejimus"
 
 #: ../extensions/shortcuts.c:275
 msgid "Customize Sh_ortcuts…"
-msgstr "Derinti _susiejimus…"
+msgstr "Tinkinti _susiejimus…"
 
 #: ../extensions/shortcuts.c:312
 msgid "Shortcuts"
@@ -2945,11 +2969,11 @@ msgstr "Būsenos juostos laikrodis"
 
 #: ../extensions/status-clock.c:169
 msgid "Display date and time in the statusbar"
-msgstr "Būsenos juostoje rodyti datą ir laiką"
+msgstr "Rodyti būsenos juostoje datą ir laiką"
 
 #: ../extensions/statusbar-features.c:152
 msgid "Images"
-msgstr "Paveikslėliai"
+msgstr "Paveikslai"
 
 #: ../extensions/statusbar-features.c:159
 msgid "Scripts"
@@ -2957,19 +2981,19 @@ msgstr "Scenarijai"
 
 #: ../extensions/statusbar-features.c:168
 msgid "Netscape plugins"
-msgstr "Netscape papildiniai"
+msgstr "Netscape įskiepiai"
 
 #: ../extensions/statusbar-features.c:171
 msgid "Enable Netscape plugins"
-msgstr "Naudoti „Netscape” įskiepius"
+msgstr "Naudoti Netscape įskiepius"
 
 #: ../extensions/statusbar-features.c:256
 msgid "Statusbar Features"
-msgstr "Būsenos juostos galimybės"
+msgstr "Būsenos juostos ypatybės"
 
 #: ../extensions/statusbar-features.c:257
 msgid "Easily toggle features on web pages on and off"
-msgstr "Interneto puslapiuose lengvai įjunkite ar išjunkite galimybes"
+msgstr "Lengvai svetainėse įjunkite ar išjunkite ypatybes"
 
 #: ../extensions/tab-panel.c:581 ../extensions/tab-panel.c:670
 msgid "Tab Panel"
@@ -2981,7 +3005,7 @@ msgstr "_Kortelių skydelis"
 
 #: ../extensions/tab-panel.c:671
 msgid "Show tabs in a vertical panel"
-msgstr "Korteles rodo vertikaliame skydelyje"
+msgstr "Rodyti korteles vertikaliame skydelyje"
 
 #: ../extensions/tabs-minimized.c:76
 msgid "Only Icons on Tabs by default"
@@ -2989,7 +3013,7 @@ msgstr "Pagal nutylėjimą ant kortelių tik piktogramos"
 
 #: ../extensions/tabs-minimized.c:77
 msgid "New tabs have no label by default"
-msgstr "Pagal nutylėjimą kortelės neturi etikečių"
+msgstr "Pagal nutylėjimą naujos kortelės neturi etikečių"
 
 #: ../extensions/tabs2one.c:299 ../extensions/tabs2one.c:400
 msgid "Tabs to One"
@@ -3013,7 +3037,7 @@ msgstr ""
 
 #: ../extensions/toolbar-editor.c:392
 msgid "Customize Toolbar"
-msgstr "Įrankių juostos derinimas"
+msgstr "Tinkinti įrankių juostą"
 
 #: ../extensions/toolbar-editor.c:408
 msgid ""
@@ -3021,7 +3045,7 @@ msgid ""
 "and drop."
 msgstr ""
 "Pasirinkite kurie elementai bus rodomi įrankių juostoje. Elementai gali būti "
-"sukeisti vietomis tiesiog juos velkant."
+"sukeisti vietomis, tiesiog, juos velkant."
 
 #: ../extensions/toolbar-editor.c:424
 msgid "Available Items"
@@ -3033,28 +3057,28 @@ msgstr "Rodomi elementai"
 
 #: ../extensions/toolbar-editor.c:602
 msgid "_Customize Toolbar…"
-msgstr ""
+msgstr "_Tinkinti įrankių juostą..."
 
 #: ../extensions/toolbar-editor.c:631
 msgid "Toolbar Editor"
-msgstr "Įrankinės redaktorius"
+msgstr "Įrankių juostos redaktorius"
 
 #: ../extensions/toolbar-editor.c:632
 msgid "Easily edit the toolbar layout"
-msgstr "Lengvai pakeiskite įrankinės išdėstymą"
+msgstr "Lengvai keiskite įrankių juostos išdėstymą"
 
 #. i18n: Dialog: Clear Private Data, in the Tools menu
 #: ../midori/midori-privatedata.c:192
 msgid "Clear Private Data"
-msgstr "Pašalinti asmeninius duomenis"
+msgstr "Išvalyti privačius duomenis"
 
 #: ../midori/midori-privatedata.c:196
 msgid "_Clear private data"
-msgstr "Šalinti _asmeninius duomenis"
+msgstr "_Išvalyti privačius duomenis"
 
 #: ../midori/midori-privatedata.c:212
 msgid "Clear the following data:"
-msgstr "Šalinti šiuos duomenis:"
+msgstr "Išvalyti šiuos duomenis:"
 
 #: ../midori/midori-privatedata.c:222
 msgid "Last open _tabs"
@@ -3062,12 +3086,12 @@ msgstr "Paskutinės atvertos _kortelės"
 
 #: ../midori/midori-privatedata.c:255
 msgid "Clear private data when _quitting Midori"
-msgstr "Šalinti asmeninius duomenis _uždarant Midori"
+msgstr "Išvalyti privačius duomenis, užveriant Midori"
 
 #. i18n: Logins and passwords in websites and web forms
 #: ../midori/midori-privatedata.c:378
 msgid "Saved logins and _passwords"
-msgstr "Išsaugoti vardai ir sla_ptažodžiai"
+msgstr "Įrašyti prisijungimai ir sla_ptažodžiai"
 
 #: ../midori/midori-privatedata.c:380
 msgid "Cookies and Website data"
@@ -3075,7 +3099,7 @@ msgstr "Slapukai ir tinklalapių duomenys"
 
 #: ../midori/midori-privatedata.c:385
 msgid "Website icons"
-msgstr "Svetainės piktogramos"
+msgstr "Tinklalapių piktogramos"
 
 #: ../midori/midori-viewcompletion.vala:18
 msgid "Open tabs"
@@ -3088,49 +3112,51 @@ msgstr ""
 #: ../midori/midori-history.c:27
 #, c-format
 msgid "Failed to clear history: %s\n"
-msgstr "Nepavyko ištrinti žurnalo įrašų: %s\n"
+msgstr "Nepavyko išvalyti istorijos: %s\n"
 
 #. i18n: Couldn't remove items that are older than n days
 #: ../midori/midori-history.c:73
 #, c-format
 msgid "Failed to remove old history items: %s\n"
-msgstr "Nepavyko pašalinti senų žurnalo įrašų: %s\n"
+msgstr "Nepavyko pašalinti senų istorijos įrašų: %s\n"
 
 #: ../midori/midori-bookmarks-db.c:525
 #, c-format
 msgid "Failed to add bookmark item: %s\n"
-msgstr "Nepavyko pridėti adresynan: %s\n"
+msgstr "Nepavyko pridėti žymelės elemento: %s\n"
 
 #: ../midori/midori-bookmarks-db.c:580
 #, c-format
 msgid "Failed to update bookmark: %s\n"
-msgstr ""
+msgstr "Nepavyko atnaujinti žymelės: %s\n"
 
 #: ../midori/midori-bookmarks-db.c:616
 #, c-format
 msgid "Failed to remove bookmark item: %s\n"
-msgstr ""
+msgstr "Nepavyko pašalinti žymelės elemento: %s\n"
 
 #: ../midori/midori-session.c:362
 #, c-format
 msgid "The configuration couldn't be saved. %s"
-msgstr "Konfigūracijos nepavyko išsaugoti. %s"
+msgstr "Nepavyko įrašyti konfigūracijos. %s"
 
 #. i18n: Trash, or wastebin, containing closed tabs
 #: ../midori/midori-frontend.c:154
 #, c-format
 msgid "The trash couldn't be saved. %s"
-msgstr "Šiukšlinės nepavyko išsaugoti. %s"
+msgstr "Nepavyko įrašyti šiukšlinės. %s"
 
 #: ../midori/midori-frontend.c:353
 #, c-format
 msgid ""
 "Midori crashed the last time it was opened. You can report the problem at %s."
 msgstr ""
+"Paskutinį kartą atvėrus Midori, ji užstrigo. Jūs galite pranešti apie "
+"problemą %s."
 
 #: ../midori/midori-frontend.c:362
 msgid "Modify _preferences"
-msgstr "Keisti _nustatymus"
+msgstr "Keisti _nuostatas"
 
 #: ../midori/midori-frontend.c:366
 msgid "Disable all _extensions"
@@ -3138,43 +3164,43 @@ msgstr "Išjungti _visus plėtinius"
 
 #: ../midori/midori-frontend.c:375
 msgid "Show a dialog after Midori crashed"
-msgstr "Rodyti dialogo langą po „Midori” strigties"
+msgstr "Rodyti dialogo langą po Midori strigties"
 
 #: ../midori/midori-frontend.c:380
 msgid "Discard old tabs"
-msgstr "Naikinti ankstesnes korteles"
+msgstr "Atmesti senas korteles"
 
 #: ../midori/midori-frontend.c:388
 msgid "Show last crash _log"
-msgstr ""
+msgstr "Rodyti paskutinės strigties žurna_lą"
 
 #: ../midori/midori-frontend.c:401
 msgid "Run in _debugger"
-msgstr ""
+msgstr "Vykdyti _derinimo programoje"
 
 #: ../midori/midori-frontend.c:479
 msgid "An instance of Midori is already running but not responding.\n"
-msgstr "Midori egzempliorius jau veikia, tačiau neatsako.\n"
+msgstr "Midori egzempliorius jau yra vykdomas, tačiau neatsako.\n"
 
 #: ../midori/midori-frontend.c:516
 #, c-format
 msgid "Bookmarks couldn't be loaded: %s\n"
-msgstr "Adresyno nepavyksta įkelti: %s\n"
+msgstr "Nepavyko įkelti žymelių: %s\n"
 
 #: ../midori/midori-frontend.c:531
 #, c-format
 msgid "The session couldn't be loaded: %s\n"
-msgstr "Sesija negali būti įkelta: %s\n"
+msgstr "Nepavyko įkelti seanso: %s\n"
 
 #: ../midori/midori-frontend.c:547
 #, c-format
 msgid "The trash couldn't be loaded: %s\n"
-msgstr "Šiukšlinės įkelti nepavyko: %s\n"
+msgstr "Nepavyko įkelti šiukšlinės: %s\n"
 
 #: ../midori/midori-frontend.c:555
 #, c-format
 msgid "The history couldn't be loaded: %s\n"
-msgstr "Žurnalo įkelti nepavyko: %s\n"
+msgstr "Nepavyko įkelti istorijos: %s\n"
 
 #: ../midori/midori-frontend.c:566
 msgid "The following errors occured:"
@@ -3188,34 +3214,36 @@ msgstr "_Nepaisyti"
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:151
 #, c-format
 msgid "Could not open database of extenstion: %s"
-msgstr ""
+msgstr "Nepavyko atverti plėtinio duomenų bazės: %s"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:528
 msgid "Do you really want to delete all cookie permissions?"
-msgstr ""
+msgstr "Ar tikrai norite ištrinti visus slapukų leidimus?"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:530
 msgid "Delete all cookie permissions?"
-msgstr ""
+msgstr "Ištrinti visus slapukų leidimus?"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:534
 msgid ""
 "This action will delete all cookie permissions. You will be asked for "
 "permissions again for each web site visited."
 msgstr ""
+"Šis veiksmas ištrins visus slapukų leidimus. Kiekvienai aplankytai svetainei "
+"jūsų vėl bus prašoma leidimų."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:704
 msgid "Cookie permission manager"
-msgstr ""
+msgstr "Slapukų leidimų tvarkytuvė"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:705
 msgid "Instance of current cookie permission manager"
-msgstr ""
+msgstr "Esamos slapukų leidimų tvarkytuvės egzempliorius"
 
 #. Set up dialog
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:746
 msgid "Configure cookie permission"
-msgstr ""
+msgstr "Konfigūruoti slapukų leidimus"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:761
 #, c-format
@@ -3225,76 +3253,84 @@ msgid ""
 "add a policy for a domain manually by entering the domain below, choosing "
 "the policy and clicking on <i>Add</i>."
 msgstr ""
+"Žemiau yra visų tinklalapių ir jiems nustatytų politikų sąrašas. Jūs galite "
+"ištrinti politikas pažymėdami įrašus ir spusteldami ant mygtuko "
+"<i>Ištrinti</i>. Jūs taip pat galite rankiniu būdu pridėti sričiai politiką, "
+"žemiau įrašydami sritį, pasirinkdami politiką ir nuspausdami ant mygtuko "
+"<i>Pridėti</i>."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:892
 msgid "Policy for cookies from domains not in the list: "
-msgstr ""
+msgstr "Politika, skirta slapukams iš sričių, kurių nėra šiame sąraše: "
 
 #: ../extensions/cookie-permissions/cookie-permission-manager-preferences-window.c:897
 msgid "Ask for a decision"
-msgstr ""
+msgstr "Klausti sprendimo"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:91
 msgid ""
 "A fatal error occurred which prevents the cookie permission manager "
 "extension to continue. You should disable it."
 msgstr ""
+"Įvyko lemtingoji klaida, kuri neleidžia slapukų leidimų tvarkytuvės "
+"plėtiniui tęsti darbą. Jūs turėtumėte jį išjungti."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:95
 msgid "Error in cookie permission manager extension"
-msgstr ""
+msgstr "Klaida slapukų leidimų tvarkytuvės plėtinyje"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:313
 #, c-format
 msgid "Could not determine global cookie policy to set for domain: %s"
 msgstr ""
+"Nepavyko nustatyti visuotinės slapukų politikos, kurią nustatyti sričiai: %s"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:489
 msgid "Till session end"
-msgstr ""
+msgstr "Iki seanso pabaigos"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:513
 #, c-format
 msgid "The website %s wants to store %d cookies."
-msgstr ""
+msgstr "Svetainė %s nori saugoti %d slapukus."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:515
 #, c-format
 msgid "The website %s wants to store a cookie."
-msgstr ""
+msgstr "Svetainė %s nori saugoti slapuką."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:519
 #, c-format
 msgid "Multiple websites want to store %d cookies in total."
-msgstr ""
+msgstr "Kelios svetainės iš viso nori saugoti %d slapukus."
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:528
 msgid "_Accept"
-msgstr ""
+msgstr "_Priimti"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:529
 msgid "Accept for this _session"
-msgstr ""
+msgstr "Priimti šiam _seansui"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:530
 msgid "De_ny"
-msgstr ""
+msgstr "_Drausti"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:531
 msgid "Deny _this time"
-msgstr ""
+msgstr "Drausti šiam _kartui"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:560
 msgid "Path"
-msgstr ""
+msgstr "Kelias"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:574
 msgid "Value"
-msgstr ""
+msgstr "Reikšmė"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:585
 msgid "Expire date"
-msgstr ""
+msgstr "Galioja iki"
 
 #: ../extensions/cookie-permissions/cookie-permission-manager.c:1036
 msgid ""
@@ -3304,40 +3340,40 @@ msgstr ""
 
 #: ../extensions/cookie-permissions/main.c:62
 msgid "Cookie Security Manager"
-msgstr ""
+msgstr "Slapukų saugumo tvarkytuvė"
 
 #: ../extensions/cookie-permissions/main.c:63
 msgid "Manage cookie permission per site"
-msgstr ""
+msgstr "Tvarkyti slapukų leidimus kiekvienai svetainei atskirai"
 
 #: ../extensions/apps.vala:46
 #, c-format
 msgid "Failed to fetch application icon in %s: %s"
-msgstr ""
+msgstr "Nepavyko gauti programos piktogramos %s: %s"
 
 #: ../extensions/apps.vala:106
 #, c-format
 msgid "Midori (%s)"
-msgstr ""
+msgstr "Midori (%s)"
 
 #: ../extensions/apps.vala:125 ../extensions/apps.vala:156
 #: ../extensions/apps.vala:160
 #, c-format
 msgid "Failed to create new launcher (%s): %s"
-msgstr ""
+msgstr "Nepavyko sukurti naujo leistuko (%s): %s"
 
 #: ../extensions/apps.vala:151
 msgid "Launcher created"
-msgstr ""
+msgstr "Leistukas sukurtas"
 
 #: ../extensions/apps.vala:152
 #, c-format
 msgid "You can now run <b>%s</b> from your launcher or menu"
-msgstr ""
+msgstr "Dabar galite vykdyti <b>%s</b> iš savo leistuko ar meniu"
 
 #: ../extensions/apps.vala:159
 msgid "Error creating launcher"
-msgstr ""
+msgstr "Klaida, kuriant leistuką"
 
 #: ../extensions/apps.vala:174
 msgid "No file \"desc\" found"
@@ -3345,27 +3381,27 @@ msgstr ""
 
 #: ../extensions/apps.vala:201
 msgid "Applications"
-msgstr ""
+msgstr "Programos"
 
 #: ../extensions/apps.vala:211
 msgid "New _Profile"
-msgstr ""
+msgstr "Naujas _profilis"
 
 #: ../extensions/apps.vala:212
 msgid "Creates a new, independent profile and a launcher"
-msgstr ""
+msgstr "Sukuria naują, nepriklausomą profilį ir leistuką"
 
 #: ../extensions/apps.vala:223
 msgid "New _App"
-msgstr ""
+msgstr "Nauja _programa"
 
 #: ../extensions/apps.vala:224 ../extensions/apps.vala:463
 msgid "Creates a new app for a specific site"
-msgstr ""
+msgstr "Sukuria naują programą tam tikrai svetainei"
 
 #: ../extensions/apps.vala:249
 msgid "Error launching"
-msgstr ""
+msgstr "Klaida, paleidžiant"
 
 #: ../extensions/apps.vala:462
 msgid "Create _Launcher"
@@ -3373,15 +3409,15 @@ msgstr "Sukurti _leistuką"
 
 #: ../extensions/apps.vala:512
 msgid "Web App Manager"
-msgstr ""
+msgstr "Saityno programų tvarkytuvė"
 
 #: ../extensions/apps.vala:513
 msgid "Manage websites installed as applications"
-msgstr ""
+msgstr "Tvarkyti kaip programas įdiegtus tinklalapius"
 
 #: ../extensions/transfers.vala:110
 msgid "Transfers"
-msgstr "Siuntimai"
+msgstr "Persiuntimai"
 
 #: ../extensions/transfers.vala:123 ../extensions/transfers.vala:398
 msgid "Clear All"
@@ -3392,7 +3428,7 @@ msgstr "Išvalyti visus"
 #: ../extensions/transfers.vala:364 ../extensions/transfers.vala:474
 #, c-format
 msgid "Failed to open download: %s"
-msgstr ""
+msgstr "Nepavyko atverti atsiuntimo: %s"
 
 #: ../extensions/transfers.vala:226
 msgid "Open Destination _Folder"
@@ -3400,41 +3436,41 @@ msgstr "Atverti paskirties _aplanką"
 
 #: ../extensions/transfers.vala:233
 msgid "Copy Link Loc_ation"
-msgstr "Kopijuoti saito _adresą"
+msgstr "Kopijuoti nuorodos _adresą"
 
 #: ../extensions/transfers.vala:456
 #, c-format
 msgid "The file '<b>%s</b>' has been downloaded."
-msgstr "Failas „<b>%s</b>“ parsiųstas."
+msgstr "Failas „<b>%s</b>“ atsisiųstas."
 
 #: ../extensions/transfers.vala:458
 #, c-format
 msgid "'<b>%s</b>' and %d other files have been downloaded."
-msgstr ""
+msgstr "\"<b>%s</b>\" ir %d kiti failai buvo atsisiųsti."
 
 #: ../extensions/transfers.vala:459
 msgid "Transfer completed"
-msgstr "Siuntimas baigtas"
+msgstr "Persiuntimas baigtas"
 
 #: ../extensions/transfers.vala:514 ../extensions/transfers.vala:515
 msgid "Some files are being downloaded"
-msgstr "Kai kurie failai parsiunčiami"
+msgstr "Kai kurie failai yra atsisiunčiami"
 
 #: ../extensions/transfers.vala:517
 msgid "_Quit Midori"
-msgstr "_Baigti darbą su Midori"
+msgstr "_Išeiti iš Midori"
 
 #: ../extensions/transfers.vala:519
 msgid "The transfers will be cancelled if Midori quits."
-msgstr "Visi siuntimai nutrūks jei baigsit darbą su Midori."
+msgstr "Jeigu išeisite iš Midori, visi persiuntimai bus atšaukti."
 
 #: ../extensions/transfers.vala:568
 msgid "Transfer Manager"
-msgstr ""
+msgstr "Persiuntimų tvarkytuvė"
 
 #: ../extensions/transfers.vala:569
 msgid "View downloaded files"
-msgstr ""
+msgstr "Žiūrėti atsisiųstus failus"
 
 #: ../extensions/tabby.vala:392 ../extensions/tabby.vala:406
 #: ../extensions/tabby.vala:420 ../extensions/tabby.vala:444
@@ -3443,18 +3479,18 @@ msgstr ""
 #: ../extensions/tabby.vala:584 ../extensions/tabby.vala:600
 #, c-format
 msgid "Failed to update database: %s"
-msgstr ""
+msgstr "Nepavyko atnaujinti duomenų bazės: %s"
 
 #: ../extensions/tabby.vala:549 ../extensions/tabby.vala:565
 #: ../extensions/tabby.vala:627 ../extensions/tabby.vala:643
 #, c-format
 msgid "Failed to select from database: %s"
-msgstr ""
+msgstr "Nepavyko pasirinkti iš duomenų bazės: %s"
 
 #: ../extensions/tabby.vala:669
 #, c-format
 msgid "Failed to import legacy session: %s"
-msgstr ""
+msgstr "Nepavyko importuoti liekamojo seanso: %s"
 
 #: ../extensions/tabby.vala:789
 msgid "Tabby"
@@ -3545,7 +3581,7 @@ msgstr "Blokuoti reklamas remiantis filtrų sąrašu"
 
 #: ../extensions/adblock/extension.vala:166
 msgid "Bl_ock image"
-msgstr "B_lokuoti paveikslėlį"
+msgstr "B_lokuoti paveikslą"
 
 #: ../extensions/adblock/extension.vala:169
 msgid "Bl_ock link"
@@ -3557,11 +3593,11 @@ msgstr ""
 
 #: ../extensions/adblock/widgets.vala:30
 msgid "Preferences"
-msgstr ""
+msgstr "Nuostatos"
 
 #: ../extensions/adblock/widgets.vala:38
 msgid "Disable"
-msgstr ""
+msgstr "Išjungti"
 
 #: ../extensions/adblock/widgets.vala:47
 msgid "Display hidden elements"
@@ -3573,11 +3609,11 @@ msgstr ""
 
 #: ../extensions/adblock/widgets.vala:69
 msgid "Enabled"
-msgstr ""
+msgstr "Įjungta"
 
 #: ../extensions/adblock/widgets.vala:72
 msgid "Disabled"
-msgstr ""
+msgstr "Išjungta"
 
 #: ../extensions/adblock/widgets.vala:89
 msgid ""
@@ -3607,7 +3643,7 @@ msgstr ""
 
 #: ../extensions/adblock/widgets.vala:256
 msgid "Edit rule"
-msgstr "Keisti taisyklę"
+msgstr "Taisyti taisyklę"
 
 #: ../extensions/adblock/widgets.vala:270
 msgid "_Rule:"
