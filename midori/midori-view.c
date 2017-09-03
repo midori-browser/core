@@ -442,7 +442,8 @@ midori_view_apply_icon (MidoriView*  view,
 #endif
             0);
 
-        pixbuf = gtk_icon_info_load_icon (icon_info, &error);
+        if (icon_info)
+            pixbuf = gtk_icon_info_load_icon (icon_info, &error);
         g_strfreev (icon_names);
         if (pixbuf == NULL) {
             g_warning ("Could not load pixbuf for icon '%s': %s\n", icon_name, error->message);
