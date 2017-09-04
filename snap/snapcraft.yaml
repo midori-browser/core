@@ -1,6 +1,7 @@
 name: midori
 version: bzr
 version-script: |
+  set -x
   VERSION=$(grep -r "^set(VERSION" CMakeLists.txt | sed -r "s@.+ ([0-9.]+)\)@\1@")
   REVISION=$(bzr revno)
   echo $VERSION~r$REVISION
@@ -63,11 +64,15 @@ parts:
       - -DCMAKE_INSTALL_DATADIR=/usr/share
       - -DHALF_BRO_INCOM_WEBKIT2=1
     build-packages:
+      - bzr
       - valac
       - libwebkit2gtk-4.0-dev
       - libsoup-gnome2.4-dev
       - libzeitgeist-2.0-dev
       - libgcr-3-dev
+      - libsqlite3-dev
+      - librsvg2-bin
+      - intltool
     install: |
       echo "[settings]\n" \
       "toolbar-items=" \
