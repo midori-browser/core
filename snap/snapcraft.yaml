@@ -63,12 +63,12 @@ parts:
     configflags:
       - -DCMAKE_INSTALL_DATADIR=/usr/share
       - -DHALF_BRO_INCOM_WEBKIT2=1
+      - -DUSE_ZEITGEIST=0
     build-packages:
       - bzr
       - valac
       - libwebkit2gtk-4.0-dev
       - libsoup-gnome2.4-dev
-      - libzeitgeist-2.0-dev
       - libgcr-3-dev
       - libsqlite3-dev
       - librsvg2-bin
@@ -82,7 +82,6 @@ parts:
     stage-packages:
       - libwebkit2gtk-4.0-37
       - libcanberra-gtk3-module
-      - libc-bin
       - myspell-en-us
       - gnome-icon-theme-symbolic
       - gstreamer1.0-x
