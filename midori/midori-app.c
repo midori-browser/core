@@ -593,25 +593,13 @@ midori_app_create_instance (MidoriApp* app)
         return;
 
     const gchar* config = midori_paths_get_config_dir_for_reading ();
-    gchar* config_hash = g_compute_checksum_for_string (G_CHECKSUM_MD5, config, -1);
-    gchar* name_hash = g_compute_checksum_for_string (G_CHECKSUM_MD5, app_name, -1);
-    katze_assign (app_name, g_strconcat (PACKAGE_NAME,
-        "_", config_hash, "_", name_hash, NULL));
+    gchar* config_hash = g_strdup_printf ("%u", g_str_hash (config));
+    gchar* config_hash_truncated = g_strndup (config_hash, 5);
+    katze_assign (app_name, g_strdup_printf (
+        "de.twotoasts.%s-%s", PACKAGE_NAME, config_hash_truncated));
     g_free (config_hash);
-    g_free (name_hash);
+    g_free (config_hash_truncated);
     g_object_notify (G_OBJECT (app), "name");
-
-    GdkDisplay* display = gdk_display_get_default ();
-    #ifdef GDK_WINDOWING_X11
-    /* On X11: :0 or :0.0 which is equivalent */
-    gchar* display_name = g_strndup (gdk_display_get_name (display), 2);
-    #else
-    gchar* display_name = g_strdup (gdk_display_get_name (display));
-    #endif
-    g_strdelimit (display_name, ":.\\/", '_');
-    gchar* instance_name = g_strdup_printf ("de.twotoasts.%s_%s", app_name, display_name);
-    g_free (display_name);
-    katze_assign (app_name, instance_name);
 
     if (midori_debug ("app"))
         g_print ("app registering %s\n", app_name);

@@ -1,0 +1,109 @@
+name: midori
+version: bzr
+version-script: |
+  set -x
+  VERSION=$(grep -r "^set(VERSION" CMakeLists.txt | sed -r "s@.+ ([0-9.]+)\)@\1@")
+  REVISION=$(bzr revno)
+  echo $VERSION~r$REVISION
+summary: a lightweight, fast, and free web browser
+description: |
+  Midori is a fast little WebKit browser with support for HTML5. It can manage
+  many open tabs and windows. The URL bar completes history, bookmarks, search
+  engines and open tabs out of the box. Web developers can use the powerful
+  web inspector that is a part of WebKit. Individual pages can easily be turned
+  into web apps and new profiles can be created on demand.
+
+  A number of extensions are included by default:
+
+  * Adblock with support for ABP filter lists and custom rules is built-in.
+  * You can download files with Aria2 or SteadyFlow.
+  * User scripts and styles support a la Greasemonkey.
+  * Managing cookies and scripts via NoJS and Cookie Security Manager.
+  * Switching open tabs in a vertical panel or a popup window.
+
+grade: stable
+confinement: strict
+icon: icons/scalable/apps/midori.svg
+
+apps:
+  midori:
+    command: desktop-launch snapcraft-preload midori
+    plugs:
+      - home
+      - pulseaudio
+      - network
+      - camera
+      - removable-media
+      - unity7
+      - wayland
+      - mir
+      - screen-inhibit-control
+      - password-manager-service
+      - gsettings
+      - network-bind
+      - location-observe
+      - network-status
+    desktop: share/applications/midori.desktop
+    environment:
+      LD_LIBRARY_PATH: $SNAP/usr/lib/x86_64-linux-gnu/webkit2gtk-4.0/:$LD_LIBRARY_PATH
+      # Work-around GPU crash https://bugs.webkit.org/show_bug.cgi?id=126122
+      WEBKIT_DISABLE_COMPOSITING_MODE: 1
+      GTK_CSD: 1
+      # No Netscape plugins
+      MOZ_PLUGIN_PATH: /
+
+slots:
+  dbus:
+    name: de.twotoasts.midori
+    bus: session
+
+parts:
+  midori:
+    plugin: cmake
+    configflags:
+      - -DCMAKE_INSTALL_DATADIR=/usr/share
+      - -DHALF_BRO_INCOM_WEBKIT2=1
+      - -DUSE_ZEITGEIST=0
+    build-packages:
+      - bzr
+      - valac
+      - libwebkit2gtk-4.0-dev
+      - libsoup-gnome2.4-dev
+      - libgcr-3-dev
+      - libsqlite3-dev
+      - librsvg2-bin
+      - intltool
+    install: |
+      echo "[settings]\n" \
+      "toolbar-items=" \
+      "TabNew,Back,NextForward,ReloadStop,BookmarkAdd,Location,Trash,CompactMenu\n" \
+      "show-statusbar=false\n" \
+      > $SNAPCRAFT_PART_INSTALL/etc/xdg/midori/config
+    stage-packages:
+      - libwebkit2gtk-4.0-37
+      - libcanberra-gtk3-module
+      - myspell-en-us
+      - gnome-icon-theme-symbolic
+      - gstreamer1.0-x
+      - gstreamer1.0-plugins-base
+      - gstreamer1.0-plugins-good
+      - gstreamer1.0-plugins-bad
+      - gstreamer1.0-plugins-ugly
+      - gstreamer1.0-pulseaudio
+      - pulseaudio-module-x11
+      - libmirclient9
+    stage:
+      - -share/applications/midori-private.desktop
+      - -usr/lib/x86_64-linux-gnu/libcups.so.2
+      - -usr/share/doc/libcups2/changelog.Debian.gz
+      - -usr/share/doc
+    after:
+      - desktop-gtk3
+      - snapcraft-preload
+  snapcraft-preload:
+    source: https://github.com/kalikiana/snapcraft-preload.git
+    source-branch: webkitgtk2
+    plugin: cmake
+    build-packages:
+      - gcc-multilib
+      - g++-multilib
