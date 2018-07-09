@@ -3,10 +3,22 @@ Name=Midori
 Comment=Fallback Icons shipped with Midori
 Inherits=hicolor
 Example=midori
-Directories=status/24,
+Directories=16/apps,22/apps,scalable/apps
 
-[status/24]
-Size=24
-Context=Status
+[16/apps]
+Size=16
+Context=Applications
 Type=Fixed
+
+[22/apps]
+Size=22
+Context=Applications
+Type=Fixed
+
+[scalable/apps]
+Size=48
+MinSize=24
+MaxSize=256
+Context=Applications
+Type=Scalable
 

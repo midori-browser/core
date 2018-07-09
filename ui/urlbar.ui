@@ -1,0 +1,25 @@
+<interface>
+  <object class="GtkPopover" id="suggestions">
+    <property name="modal">no</property>
+    <child>
+      <object class="GtkListBox" id="listbox">
+        <property name="selection-mode">single</property>
+        <property name="visible">yes</property>
+      </object>
+    </child>
+  </object>
+  <object class="GtkPopover" id="security">
+    <property name="modal">yes</property>
+    <child>
+      <object class="GtkBox" id="security_box">
+        <property name="margin">4</property>
+        <property name="spacing">4</property>
+        <property name="orientation">vertical</property>
+        <property name="visible">yes</property>
+      </object>
+    </child>
+  </object>
+  <template class="MidoriUrlbar" parent="GtkEntry">
+    <property name="can-default">yes</property>
+  </template>
+</interface>

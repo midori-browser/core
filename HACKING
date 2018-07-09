@@ -4,21 +4,21 @@
 
 ====== Check out the sources ======
 
-bzr branch lp:midori
+git clone https://github.com/midori-browser/core.git
 
-The development **trunk** (master, tip) is the latest iteration of the next release. Browse it online and look for other branches at http://code.launchpad.net/midori or http://bazaar.launchpad.net/~midori/midori/trunk/tarball download a tarball of the latest revision.
+The development **master** (trunk, tip) is the latest iteration of the next release. Browse it online and look for other branches.
 
-//The code used to be hosted in git.xfce.org/apps/midori.//
+//The code used to be hosted at lp:midori and git.xfce.org/apps/midori respectively.//
 
 Keep your copy updated:
 
-bzr merge --pull
+git pull --rebase
 ====== Join IRC chat rooms ======
 
 Join irc://irc.freenode.net/midori #midori on Freenode https://kiwiirc.com/client/irc.freenode.net/midori or use webchat to talk about Midori, discuss bugs and new ideas.
 ====== Contribute other than touching code ======
 
-  * http://bugs.launchpad.net/midori Go through problem reports and check Unconfirmed bugs or those lacking information and mark any duplicates you spot
+  * https://github.com/midori-browser/core/issues Go through problem reports and check Unconfirmed bugs or those lacking information and mark any duplicates you spot
   * https://www.bountysource.com/#trackers/130181-midori Add a bounty for a feature or bug you'd like to support
   * https://translations.launchpad.net/midori/trunk/+pots/trunk Translate to your own language
   * https://github.com/eustasy/midori-browser.org/issues Report website bugs
@@ -37,12 +37,9 @@ cd _build
 cmake -DCMAKE_INSTALL_PREFIX=/usr ..
 make
 sudo make install
-sudo gtk-update-icon-cache /usr/share/icons/hicolor
 
 
 //Advanced Tip: Pass "-G Ninja" to cmake to use http://martine.github.io/ninja/ Ninja instead of make (usually packaged as ninja or ninja-build).//
-
-If using GTK+3 you'll want to add -DUSE_GTK3=1 to the cmake command line.
 
 You can build Midori using another C Compiler for example Clang. Just
 add -DCMAKE_C_COMPILER=/path/to/compiler to the cmake arguments.
@@ -52,38 +49,40 @@ make
 
 Midori can be **run without being installed**.
 
-_build/midori/midori
+_build/midori
 
-You can use a **temporary folder for testing** without affecting normal settings
+====== Testing ======
 
-_build/midori/midori -c /tmp/midoridev
+===== Unit tests =====
 
 You'll want to **unit test** the code if you're testing a new version or contributed your own changes:
 
 xvfb-run make check
 
-Automated daily builds in Launchpad (https://launchpad.net/~elementary-os/+archive/daily ppa:elementary-os/daily and https://launchpad.net/~midori/+archive/midori-dev ppa:midori/midori-dev) run these tests as well.
+===== Manual checklist =====
+
+* Browser window starts up normally, with optional URL(s) on the command line
+* Tabs have icons, a close button if there's more than one and can be switched
+* Urlbar suggests from typed search or URL, completes from history and highlights key
+* Private data can be cleared
+* Shortcuts window shows most important hotkeys
+* Download button lists on-going and finished downloads
+* javascript:alert("test"), javascript:confirm("test") and javascript:input("test") work
+* Websites can (un)toggle fullscreen mode
+
 ====== Debugging issues ======
 
 Testing an installed release may reveal crashers or memory corruption which require investigating from a local build and obtaining a stacktrace (backtrace, crash log).
 
-_build/midori/midori -g [OPTIONAL ARGUMENTS]
-
-If the problem is a warning, not a crash GLib has a handy feature
-
-env G_DEBUG=all _build/midori/midori -g
-
-For more specific debugging output, depending on the feature in question you may use
-
-env MIDORI_DEBUG=help _build/midori/midori
-
-Whilst -g is convenient you may want to use proper gdb:
-
-gdb
-file _build/midori/midori
+gdb _build/midori
 run
 …
 bt
+
+
+If the problem is a warning, not a crash GLib has a handy feature
+
+env G_DEBUG=all gdb _build/midori
 
 On Windows you can open the folder where Midori is installed and double-click gdb.exe. A black command line window should appear.
 
@@ -95,8 +94,8 @@ bt
 To verify a regression you might need to revert a particular change:
 
 
-# Revert only r6304
-bzr merge . -r 6304..6303
+# Revert only d54c7e45
+git revert d54c7e45
 
 ====== Coding style and quality ======
 
@@ -104,112 +103,59 @@ Midori code should in general have:
 
   * 4 space indentation, no tabs
   * Between 80 to 120 columns
-  * Prefer /* */ style comments
+  * Use // or /* */ style comments
   * Call variables //animal// and //animal_shelter// instead of <del>camelCase</del>
   * Keep a space between functions/ keywords and round parentheses
-
-For Vala:
-
   * Prefer //new Gtk.Widget ()// over //using Gtk; new Widget ()//
+  * Midori and GLib namespaces should be omitted
+  * Don't use //private// specifiers (which is the default)
   * Stick to standard Vala-style curly parentheses on the same line
   * Cuddled //} else {// and //} catch (Error error) {//
 
-For C:
-
-  * Always keep { and } on their own line
-
-//Extensions may historically diverge from the standard styling on a case-by-case basis//
-
 ====== Committing code ======
 
-Tell Bazaar your name if you haven't yet
-    bzr whoami "Real Name <email@address>"
+Tell Git your name if you haven't yet
+    git config user.email "<email@address>"
+    git config user.name "Real Name"
 
 See what you did so far
-    bzr diff
+    git diff
 
 Get an overview of changed and new files
-    bzr status
+    git status -u
 
 Add new files, move/ rename or delete
-    bzr add FILENAME
-    bzr mv OLDFILE NEWFILE
-    bzr rm FILENAME
+    git add FILENAME
+    mv OLDFILE NEWFILE
+    rm FILENAME
 
-Commit all current changes - Bazaar automatically picks up edited files. //If you're used to git, think of an implicit staging area.//
-    bzr commit -p
+Commit all current changes, selected interactively
+    git commit -p -v
 
-If you have one or more related bug reports you should pass them as arguments. Once these commits are merged the bug will automatically be closed and the commit log shows clickable links to the reports.
-    bzr commit -p --fixes=lp:1111999
+If you have one or more related bug reports you should mention them in the commit message. Once these commits are merged the bug will automatically be closed and the commit log shows clickable links to the reports.
+    Fixes: #123
 
 If you've done several commits
-    bzr log | less
-    bzr log -p | less
+    git log
 
 In the case you committed something wrong or want to ammend it:
-    bzr uncommit
+    git reset --soft HEAD^
 
-If you end up with unrelated debugging code or other patches in the current changes, it's sometimes handy to temporarily clean up. //This may be seen as bzr's version of git stash.//
-    bzr shelve
-    bzr commit -p
-    bzr unshelve
+If you end up with unrelated debugging code or other patches in the current changes, it's sometimes handy to temporarily clean up. //This may be seen as git's version of bzr shelve.//
+    git stash save
+    git commit -p -v
+    git stash apply
 
 Remember to keep your branch updated:
-    bzr merge --pull
+    git pull --rebase
 
-As a general rule of thumb, ''bzr help COMMAND'' gives you an explanation of any command and ''bzr help commands'' lists all available commands.
+As a general rule of thumb, ''git COMMAND --help'' gives you an explanation of any command and ''git --help -a'' lists all available commands.
 
-//If you're a die-hard git user, http://zyga.github.io/git-lp/ checkout git-lp to use git commands with the Bazaar repository.//
 ====== Push proposed changes ======
 
-If you haven't yet, https://launchpad.net/~/+editsshkeys check that Launchpad has your SSH key - you can create an SSH key with **Passwords and Keys** aka **Seahorse** or ''ssh-keygen -t rsa'' - and use ''bzr launchpad-login'' to make youself known to bzr locally.
+If you haven't yet, https://github.com/settings/keys check that GitHub has your SSH key - you can create an SSH key with **Passwords and Keys** aka **Seahorse** or ''ssh-keygen -t rsa'' -  and specify Host github.com with User git in your SSH config.
 
-If you checked out trunk, and added your patch(es), just **push it under your username** in Launchpad and you can **propose it for merging into trunk**. This will automatically request a **review from other developers** who can then comment on it and provide feedback.
-
-bzr push --remember lp:~USERNAME/midori/fix-bug1120383 && bzr lp-propose-merge lp:midori
-
-lp-propose-merge command may not be working on some distributions like Arch or Fedora.
-In case you get error like //bzr: ERROR: Unable to import library "launchpadlib": No module named launchpadlib// just use Launchpad's Web UI to propose a merge.
-
-
-**What happens to all the branches?**
-
-Leave the branches alone, **approved branches are cleared automatically** by Launchpad.
-
-For larger feature branches, **use the team** in Launchpad to allow other developers to work on the code with you.
-
-bzr push --remember lp:~midori/midori/featuritis && bzr lp-propose-merge lp:midori
-
-What if I want to help out on an **existing merge request** that I can't push to?
-
-
-bzr branch ~OTHERPERSON/midori/fix-bug1120383
-cd fix-bug1120383
-# make commits
-bzr push lp:USERNAME~/midori/fix-bug1120383
-bzr lp-propose-merge ~OTHERPERSON/midori/fix-bug1120383
-
-
-Updating a branch that may be out of sync with trunk:
-
-
-bzr pull
-bzr: ERROR: These branches have diverged
-bzr merge lp:midori
-# Hand-edit conflicting changes
-bzr resolve FILENAME
-# If any conflicts remain continue fixing
-bzr commit -m 'Merge lp:midori'
-
-
-Save a little bandwidth, **branch from an existing local copy** that you keep around:
-
-
-bzr branch lp:midori midori
-bzr branch midori midori.fix-bug1120383
-cd midori.fix-bug1120383
-bzr pull lp:midori
-
+To  make your own changes, just **fork** the project on GitHub, add your patch(es) and **push it under your username** on GitHub and you can **propose it for merging into master**. This will automatically request a **review from other developers** who can then comment on it and provide feedback.
 
 ====== Backwards compatibility ======
 As of Midori 0.5.4 the formula is:
@@ -224,12 +170,6 @@ As of Midori 0.5.4 the formula is:
 | gtk2 | 2.24.13 | 2.24.13 |
 | soup | 2.38.1 | 2.40 |
 | webkit | 1.8.3-1.fc17 | 1.10.0-0ubuntu1 |
-====== Midori with(out) Granite ======
-When built with Granite (-DUSE_GRANITE=1 or --enable-granite) there're a few key differences:
-  * Preferences uses a http://valadoc.elementaryos.org/Granite/Granite.Widgets.StaticNotebook.html Granite.Widgets.StaticNotebook
-  * URL completion styling is slightly different
-  * Clear Private Data uses **Granite.Widgets.LightWindow**
-  * Edit Bookmark and Security Details use http://valadoc.elementaryos.org/Granite/Granite.Widgets.PopOver.html Granite.Widgets.PopOver instead of Gtk.Window
 
 ====== Midori for Windows ======
 
@@ -254,7 +194,7 @@ For 32-bit builds:
 
 mkdir _mingw32
 cd _mingw32
-mingw32-cmake .. -DUSE_ZEITGEIST=0 -DUSE_GTK3=1 -DCMAKE_INSTALL_PREFIX=/usr/i686-w64-mingw32/sys-root/mingw -DCMAKE_VERBOSE_MAKEFILE=0
+mingw32-cmake .. -DCMAKE_INSTALL_PREFIX=/usr/i686-w64-mingw32/sys-root/mingw -DCMAKE_VERBOSE_MAKEFILE=0
 make
 sudo make install
 
@@ -262,7 +202,7 @@ For 64-bit builds:
 
 mkdir _mingw64
 cd _mingw64
-mingw64-cmake .. -DUSE_ZEITGEIST=0 -DUSE_GTK3=1 -DCMAKE_INSTALL_PREFIX=/usr/x86_64-w64-mingw32/sys-root/mingw -DCMAKE_VERBOSE_MAKEFILE=0
+mingw64-cmake .. -DCMAKE_INSTALL_PREFIX=/usr/x86_64-w64-mingw32/sys-root/mingw -DCMAKE_VERBOSE_MAKEFILE=0
 make
 sudo make install
 
@@ -358,15 +298,6 @@ http://www.cmake.org/files/v2.8/cmake-2.8.12.2-win32-x86.exe Installer
 When installing check the installer checkbox "add to path"
 
 
-==== Bazaar ====
-http://wiki.bazaar.canonical.com/WindowsDownloads Homepage
-
-We will get 2.4 Stable Release (standalone) 
-
-http://launchpad.net/bzr/2.4/2.4.2/+download/bzr-2.4.2-1-setup.exe Installer
-
-When installing check the installer checkbox "add to path"
-
 ==== Vala ====
 http://ftp.gnome.org/pub/gnome/sources/vala/0.20/vala-0.20.0.tar.xz Source
 
@@ -377,7 +308,7 @@ You use msys.bat to launch a shell
 
 ====== Jargon ======
     * freeze: a period of bug fixes only eg. 4/2 cycle means 4 weeks of features and 2 weeks to focus on resolving existing problems
-    * MR: merge request, a branch proposed for review
+    * PR: pull request, a branch proposed for review, analogous to MR (merge request) with Bazaar
     * ninja: an internal tab, usually empty label, used for taking screenshots
     * fortress: user of an ancient release like 0.4.3 as found on Raspberry Pie, Debian, Ubuntu
-    * katze, sokoke, tabby: API names and coincidentally cat breeds
+    * katze, sokoke, tabby: legacy API names and coincidentally cat breeds

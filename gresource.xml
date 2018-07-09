@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/org/midori-browser/midori">
+    <file>icons/16x16/apps/midori.png</file>
+    <file>icons/22x22/apps/midori.png</file>
+    <file>icons/scalable/apps/midori.svg</file>
+    <file>icons/index.theme</file>
+  </gresource>
+  <gresource prefix="/org/midori-browser/midori/gtk">
+    <file compressed="true" preprocess="xml-stripblanks" alias="menus.ui">ui/menus.ui</file>
+    <file compressed="true" preprocess="xml-stripblanks" alias="help-overlay.ui">ui/shortcuts.ui</file>
+  </gresource>
+  <gresource prefix="/">
+    <file compressed="true">data/gtk3.css</file>
+    <file compressed="true">data/history/Create.sql</file>
+    <file compressed="true">data/history/Day.sql</file>
+    <file compressed="true" preprocess="xml-stripblanks">ui/about.ui</file>
+    <file compressed="true" preprocess="xml-stripblanks">ui/browser.ui</file>
+    <file compressed="true" preprocess="xml-stripblanks">ui/clear-private-data.ui</file>
+    <file compressed="true" preprocess="xml-stripblanks">ui/download-button.ui</file>
+    <file compressed="true" preprocess="xml-stripblanks">ui/download-row.ui</file>
+    <file compressed="true" preprocess="xml-stripblanks">ui/network-check.ui</file>
+    <file compressed="true" preprocess="xml-stripblanks">ui/suggestion-row.ui</file>
+    <file compressed="true" preprocess="xml-stripblanks">ui/tab.ui</file>
+    <file compressed="true" preprocess="xml-stripblanks">ui/tally.ui</file>
+    <file compressed="true" preprocess="xml-stripblanks">ui/urlbar.ui</file>
+  </gresource>
+</gresources>

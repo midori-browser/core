@@ -1,0 +1,32 @@
+<interface>
+  <object class="GtkPopover" id="popover">
+    <property name="modal">yes</property>
+    <property name="position">bottom</property>
+    <child>
+      <object class="GtkBox">
+        <property name="orientation">vertical</property>
+        <property name="spacing">4</property>
+        <property name="margin">4</property>
+        <property name="visible">yes</property>
+        <child>
+          <object class="GtkLabel" id="message">
+            <property name="visible">yes</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkEntry" id="entry">
+          </object>
+        </child>
+        <child>
+          <object class="GtkButton" id="confirm">
+            <property name="focus-on-click">no</property>
+            <property name="label" translatable="yes">_Confirm</property>
+            <property name="use-underline">yes</property>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+  <template class="MidoriTab" parent="WebKitWebView">
+  </template>
+</interface>

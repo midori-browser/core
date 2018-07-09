@@ -1,0 +1,101 @@
+<interface>
+  <template class="MidoriClearPrivateData" parent="GtkDialog">
+    <property name="modal">yes</property>
+    <child type="action">
+      <object class="GtkButton" id="abort">
+        <property name="label" translatable="yes">_Cancel</property>
+        <property name="use-underline">yes</property>
+        <property name="visible">yes</property>
+      </object>
+    </child>
+    <child type="action">
+      <object class="GtkButton" id="proceed">
+        <property name="label" translatable="yes">Clear Private _Data</property>
+        <property name="can-default">yes</property>
+        <property name="use-underline">yes</property>
+        <property name="visible">yes</property>
+        <style>
+          <class name="destructive-action"/>
+        </style>
+      </object>
+    </child>
+    <child internal-child="vbox">
+      <object class="GtkBox">
+        <property name="orientation">vertical</property>
+        <property name="spacing">12</property>
+        <property name="margin">12</property>
+        <child>
+          <object class="GtkLabel">
+            <property name="label" translatable="yes">Lorem ipsum dolor sit amet</property>
+            <property name="visible">yes</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkBox">
+            <property name="orientation">horizontal</property>
+            <property name="spacing">4</property>
+            <property name="visible">yes</property>
+            <child>
+              <object class="GtkLabel" id="timerange_label">
+                <property name="label" translatable="yes">_Time range to clear</property>
+                <property name="use-underline">yes</property>
+                <property name="visible">yes</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkComboBoxText" id="timerange">
+                <property name="active-id">last-hour</property>
+                <property name="visible">yes</property>
+                <items>
+                  <item id="last-hour" translatable="yes">The last hour</item>
+                  <item id="today" translatable="yes">Today</item>
+                </items>
+                <accessibility>
+                  <relation type="labelled-by" target="timerange_label"/>
+                </accessibility>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkBox">
+            <property name="orientation">vertical</property>
+            <property name="visible">yes</property>
+            <property name="spacing">4</property>
+            <child>
+              <object class="GtkCheckButton" id="history">
+                <property name="label" translatable="yes">_History</property>
+                <property name="use-underline">yes</property>
+                <property name="visible">yes</property>
+                <property name="sensitive">no</property>
+                <property name="active">yes</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="websitedata">
+                <property name="label" translatable="yes">Cookies and Website data</property>
+                <property name="use-underline">yes</property>
+                <property name="visible">yes</property>
+                <property name="sensitive">no</property>
+                <property name="active">yes</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="cache">
+                <property name="label" translatable="yes">Web Cache</property>
+                <property name="use-underline">yes</property>
+                <property name="visible">yes</property>
+                <property name="sensitive">no</property>
+                <property name="active">yes</property>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+    <action-widgets>
+      <action-widget response="cancel">abort</action-widget>
+      <action-widget response="ok" default="true">proceed</action-widget>
+    </action-widgets>
+  </template>
+</interface>

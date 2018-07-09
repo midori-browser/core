@@ -1,16 +1,15 @@
-# Copyright (C) 2013 Christian Dywan <christian@twotoasts.de>
+# Copyright (C) 2013-2018 Christian Dywan <christian@twotoasts.de>
 
 include(ContainTest)
 add_custom_target(check COMMAND "env" "CTEST_OUTPUT_ON_FAILURE=1" "${CMAKE_CTEST_COMMAND}")
 
 include_directories(
                     "${CMAKE_SOURCE_DIR}"
-                    "${CMAKE_SOURCE_DIR}/midori"
+                    "${CMAKE_SOURCE_DIR}/core"
                     ${DEPS_INCLUDE_DIRS}
-                    ${OPTS_INCLUDE_DIRS}
                     ${DEPS_GTK_INCLUDE_DIRS}
                     ${CMAKE_BINARY_DIR}
-                    "${CMAKE_BINARY_DIR}/midori"
+                    "${CMAKE_BINARY_DIR}/core"
                     )
 file(GLOB TESTS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.c *.vala)
 foreach(UNIT_SRC ${TESTS})
@@ -25,8 +24,7 @@ foreach(UNIT_SRC ${TESTS})
             ${VALAFLAGS}
         CUSTOM_VAPIS
             ${EXTRA_VAPIS}
-            "${CMAKE_SOURCE_DIR}/midori/midori.vapi"
-            "${CMAKE_BINARY_DIR}/midori/${LIBMIDORI}.vapi"
+            "${CMAKE_BINARY_DIR}/core/${LIBCORE}.vapi"
         )
 
         add_executable(${UNIT} ${UNIT_SRC_C})
@@ -42,22 +40,11 @@ foreach(UNIT_SRC ${TESTS})
     endif()
 
     target_link_libraries(${UNIT}
-                          ${LIBMIDORI}
+                          ${LIBCORE}
                           )
     add_test(NAME ${UNIT} COMMAND ${UNIT})
     contain_test (${UNIT} ${UNIT})
 endforeach ()
-
-file(GLOB TESTS ${CMAKE_BINARY_DIR}/extensions/lib*.so)
-foreach(UNIT ${TESTS})
-    string(REPLACE ${CMAKE_BINARY_DIR} "" TEST ${UNIT})
-    string(REPLACE "/" "-" TEST ${TEST})
-    string(REPLACE "-extensions-lib" "" TEST ${TEST})
-    string(REPLACE ".so" "" TEST ${TEST})
-    add_test(NAME ${TEST} COMMAND $<TARGET_FILE:extensions> -e ${UNIT})
-    set(exe $<TARGET_FILE:extensions> -e ${UNIT})
-    contain_test (${TEST} "${exe}")
-endforeach()
 
 file(GLOB TESTS *.sh)
 foreach(UNIT_SRC ${TESTS})

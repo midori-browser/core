@@ -1,0 +1,22 @@
+<interface>
+  <template class="MidoriNetworkCheck" parent="GtkActionBar">
+    <child type="center">
+      <object class="GtkLabel">
+        <property name="label" translatable="yes">The network requires a login to access the Internet.</property>
+        <property name="visible">yes</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkButton" id="login">
+        <property name="focus-on-click">no</property>
+        <property name="label" translatable="yes">_Login</property>
+        <property name="use-underline">yes</property>
+        <property name="visible">yes</property>
+      </object>
+      <packing>
+        <property name="pack-type">end</property>
+      </packing>
+    </child>
+  </template>
+</interface>
+ 

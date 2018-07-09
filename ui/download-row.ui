@@ -1,0 +1,69 @@
+<interface>
+  <template class="MidoriDownloadRow" parent="GtkListBoxRow">
+    <property name="can-focus">no</property>
+    <property name="activatable">no</property>
+    <property name="visible">yes</property>
+    <style>
+      <class name="background"/>
+    </style>
+    <child>
+      <object class="GtkBox">
+        <property name="orientation">horizontal</property>
+        <property name="spacing">4</property>
+        <property name="margin">4</property>
+        <property name="visible">yes</property>
+        <child>
+          <object class="GtkImage" id="icon">
+            <!-- menu -->
+            <property name="icon-size">1</property>
+            <property name="valign">center</property>
+            <property name="visible">yes</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkBox">
+            <property name="orientation">vertical</property>
+            <property name="spacing">4</property>
+            <property name="margin">4</property>
+            <property name="visible">yes</property>
+            <child>
+              <object class="GtkLabel" id="filename">
+                <property name="ellipsize">end</property>
+                <property name="xalign">0.0</property>
+                <property name="hexpand">yes</property>
+                <!-- As per docs, when ellipsized and expanded max width is the minimum -->
+                <property name="max-width-chars">1</property>
+                <property name="visible">yes</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkProgressBar" id="progress">
+                <property name="visible">yes</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel" id="status">
+                <property name="visible">yes</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkButton" id="cancel">
+            <property name="focus-on-click">no</property>
+            <property name="relief">none</property>
+            <property name="valign">center</property>
+            <property name="visible">yes</property>
+            <child>
+              <object class="GtkImage">
+                <property name="icon-name">cancel-symbolic</property>
+                <property name="use-fallback">yes</property>
+                <property name="visible">yes</property>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>

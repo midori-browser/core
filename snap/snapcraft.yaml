@@ -1,9 +1,9 @@
 name: midori
-version: bzr
+version: git
 version-script: |
   set -x
-  VERSION=$(grep -r "^set(VERSION" CMakeLists.txt | sed -r "s@.+ ([0-9.]+)\)@\1@")
-  REVISION=$(bzr revno)
+  VERSION=$(grep -r "^set(CORE_VERSION" CMakeLists.txt | sed -r "s@.+ ([0-9.]+)\)@\1@")
+  REVISION=$(git describe --tags)
   echo $VERSION~r$REVISION
 summary: a lightweight, fast, and free web browser
 description: |
@@ -48,13 +48,12 @@ apps:
       LD_LIBRARY_PATH: $SNAP/usr/lib/x86_64-linux-gnu/webkit2gtk-4.0/:$LD_LIBRARY_PATH
       # Work-around GPU crash https://bugs.webkit.org/show_bug.cgi?id=126122
       WEBKIT_DISABLE_COMPOSITING_MODE: 1
-      GTK_CSD: 1
       # No Netscape plugins
       MOZ_PLUGIN_PATH: /
 
 slots:
   dbus:
-    name: de.twotoasts.midori
+    name: org.midori-browser.midori
     bus: session
 
 parts:
@@ -62,25 +61,22 @@ parts:
     plugin: cmake
     configflags:
       - -DCMAKE_INSTALL_DATADIR=/usr/share
-      - -DHALF_BRO_INCOM_WEBKIT2=1
-      - -DUSE_ZEITGEIST=0
     build-packages:
-      - bzr
+      - git
       - valac
       - libwebkit2gtk-4.0-dev
       - libsoup-gnome2.4-dev
       - libgcr-3-dev
       - libsqlite3-dev
-      - librsvg2-bin
       - intltool
-    install: |
-      echo "[settings]\n" \
-      "toolbar-items=" \
-      "TabNew,Back,NextForward,ReloadStop,BookmarkAdd,Location,Trash,CompactMenu\n" \
-      "show-statusbar=false\n" \
-      > $SNAPCRAFT_PART_INSTALL/etc/xdg/midori/config
+      - ninja-build
     stage-packages:
       - libwebkit2gtk-4.0-37
+      - libgcr-base-3-1
+      - libgcr-ui-3-1
+      - libgck-1-0
+      - libgpm2
+      - libdb5.3
       - libcanberra-gtk3-module
       - myspell-en-us
       - gnome-icon-theme-symbolic
@@ -93,9 +89,10 @@ parts:
       - pulseaudio-module-x11
       - libmirclient9
     stage:
-      - -share/applications/midori-private.desktop
-      - -usr/lib/x86_64-linux-gnu/libcups.so.2
+      - -usr/lib/*/libcups.so.2
       - -usr/share/doc/libcups2/changelog.Debian.gz
+      - -usr/lib/*/libsoup-2.4.so.1.7.0
+      - -usr/lib/*/libsoup-gnome-2.4.so.1.7.0
       - -usr/share/doc
     after:
       - desktop-gtk3

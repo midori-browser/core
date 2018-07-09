@@ -1,0 +1,52 @@
+<interface>
+  <template class="MidoriTally" parent="GtkEventBox">
+    <style>
+        <class name="tab"/>
+    </style>
+    <child>
+      <object class="GtkBox">
+        <property name="orientation">horizontal</property>
+        <property name="visible">yes</property>
+        <child>
+          <object class="MidoriFavicon" id="favicon">
+            <!-- menu -->
+            <property name="icon-size">1</property>
+            <property name="visible">yes</property>
+            <property name="margin-right">4</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkSpinner" id="spinner">
+            <property name="active">yes</property>
+            <property name="margin-right">4</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkLabel" id="caption">
+            <property name="ellipsize">end</property>
+            <!-- As per docs, when ellipsized and expanded max width is the minimum -->
+            <property name="width-chars">8</property>
+            <property name="max-width-chars">500</property>
+            <property name="visible">yes</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkButton" id="close">
+            <property name="relief">none</property>
+            <property name="focus-on-click">no</property>
+            <property name="valign">center</property>
+            <property name="visible">yes</property>
+            <child>
+              <object class="GtkImage">
+                <property name="icon-name">window-close-symbolic</property>
+                <!-- menu -->
+                <property name="icon-size">1</property>
+                <property name="visible">yes</property>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>

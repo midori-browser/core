@@ -9,23 +9,7 @@
  See the file COPYING for the full license text.
 */
 
-.tab:not(:checked) {
-  opacity: 0.7;
-}
-.tab:hover {
-  box-shadow: inset 0 3px darker(@theme_selected_bg_color);
-}
-.tab:checked {
-  box-shadow: inset 0 3px @theme_selected_bg_color;
-}
-.tab label {
-  text-shadow: none;
-}
-.tab:backdrop, .tab:only-child {
-  border: none;
-  box-shadow: none;
-}
-.tab button {
-  padding: 0;
-  margin: 0;
+static int main (string[] args) {
+    var app = new Midori.App ();
+    return app.run (args);
 }

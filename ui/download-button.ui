@@ -1,0 +1,55 @@
+<interface>
+  <object class="GtkPopover" id="popover">
+    <property name="modal">yes</property>
+    <child>
+      <object class="GtkBox">
+        <property name="orientation">vertical</property>
+        <property name="spacing">12</property>
+        <property name="margin">12</property>
+        <property name="visible">yes</property>
+        <child>
+          <object class="GtkBox">
+            <property name="orientation">horizontal</property>
+            <property name="visible">yes</property>
+            <child>
+              <object class="GtkLabel">
+                <property name="label" translatable="yes">Downloads</property>
+                <property name="hexpand">yes</property>
+                <property name="visible">yes</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton">
+                <property name="focus-on-click">no</property>
+                <property name="relief">half</property>
+                <property name="label" translatable="yes">_Clear</property>
+                <property name="use-underline">yes</property>
+                <property name="visible">yes</property>
+              </object>
+              <packing>
+                <property name="pack-type">end</property>
+              </packing>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkListBox" id="listbox">
+            <property name="selection-mode">none</property>
+            <property name="visible">yes</property>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+  <template class="MidoriDownloadButton" parent="GtkButton">
+    <property name="focus-on-click">no</property>
+    <property name="action-name">win.show-downloads</property>
+    <child>
+      <object class="GtkImage">
+        <property name="icon-name">browser-download-symbolic</property>
+        <property name="use-fallback">yes</property>
+        <property name="visible">yes</property>
+      </object>
+    </child>
+  </template>
+</interface>

@@ -9,23 +9,13 @@
  See the file COPYING for the full license text.
 */
 
-.tab:not(:checked) {
-  opacity: 0.7;
-}
-.tab:hover {
-  box-shadow: inset 0 3px darker(@theme_selected_bg_color);
-}
-.tab:checked {
-  box-shadow: inset 0 3px @theme_selected_bg_color;
-}
-.tab label {
-  text-shadow: none;
-}
-.tab:backdrop, .tab:only-child {
-  border: none;
-  box-shadow: none;
-}
-.tab button {
-  padding: 0;
-  margin: 0;
+namespace Midori {
+    [GtkTemplate (ui = "/ui/about.ui")]
+    public class About : Gtk.AboutDialog {
+        public About (Gtk.Window parent) {
+           Object (transient_for: parent,
+                   website: Config.PROJECT_WEBSITE,
+                   version: Config.CORE_VERSION);
+        }
+    }
 }

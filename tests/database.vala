@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2015 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2015-2018 Christian Dywan <christian@twotoasts.de>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -9,29 +9,53 @@
  See the file COPYING for the full license text.
 */
 
-class DatabaseTest : Midori.Test.Job {
-    public static void test () { new DatabaseTest ().run_sync (); }
-    public override async void run (Cancellable cancellable) throws GLib.Error {
-        var database = new Midori.Database ();
-        database.exec ("CREATE TABLE cats (cat text, favorite text)");
-        database.exec ("INSERT INTO cats (cat, favorite) VALUES ('Henry', 'pillow')");
-        var statement = database.prepare ("SELECT cat FROM cats WHERE favorite = :toy");
-        /* Missing : should throw an error */
+class DatabaseTest {
+    public static void test_bind () {
         try {
+            var database = new Midori.Database ();
+            database.exec ("CREATE TABLE cats (cat text, favorite text)");
+            database.exec ("INSERT INTO cats (cat, favorite) VALUES ('Henry', 'pillow')");
+            var statement = database.prepare ("SELECT cat FROM cats WHERE favorite = :toy");
             statement.bind ("toy", typeof (string), "pillow");
-        } catch (Midori.DatabaseError error) {
-            Katze.assert_str_equal (statement.query, error.message,
-                "No such parameter 'toy' in statement: " + statement.query);
+            // Missing : should throw an error
+            assert_not_reached ();
+        } catch (Error error) {
+            var expected = new Midori.DatabaseError.TYPE ("");
+            assert_true (error.domain == expected.domain);
+            assert_true (error.code == expected.code);
         }
-        statement.bind (":toy", typeof (string), "pillow");
+    }
+
+    public static void test_insert_delete () {
+        var loop = new MainLoop ();
+        test_insert_delete_async.begin ((obj, res) => {
+            test_insert_delete_async.end (res);
+            loop.quit ();
+        });
+        loop.run ();
+    }
+
+    public static async void test_insert_delete_async () {
+        try {
+            var database = new Midori.Database ();
+            var item = new Midori.DatabaseItem ("http://example.com", "Example", 0);
+            yield database.insert (item);
+            assert_true (item.database == database);
+            assert_true (item in database);
+            var items = yield database.query ();
+            assert_true (items.data.uri == item.uri);
+            yield item.delete ();
+            assert_true (!(item in database));
+        } catch (Error error) {
+            critical (error.message);
+        }
     }
 }
 
 void main (string[] args) {
-    Midori.Test.init (ref args);
-    Midori.App.setup (ref args, null);
-    Midori.Paths.init (Midori.RuntimeMode.NORMAL, null);
-    Test.add_func ("/database/bind", DatabaseTest.test);
+    Test.init (ref args);
+    Test.add_func ("/database/bind", DatabaseTest.test_bind);
+    Test.add_func ("/database/insert_delete", DatabaseTest.test_insert_delete);
     Test.run ();
 }
 

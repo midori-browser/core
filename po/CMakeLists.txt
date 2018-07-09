@@ -1,4 +1,4 @@
-# Copyright (C) 2013 Christian Dywan <christian@twotoasts.de>
+# Copyright (C) 2013-2018 Christian Dywan <christian@twotoasts.de>
 
 include(FindGettext)
 if (GETTEXT_FOUND)
@@ -10,7 +10,7 @@ if (GETTEXT_FOUND)
     message(STATUS "gettext found: ${LANGUAGES}")
     string(REPLACE " " ";" LANGUAGES ${LANGUAGES})
     if ("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION}" VERSION_LESS "2.8.8")
-        GETTEXT_CREATE_TRANSLATIONS("${CMAKE_CURRENT_SOURCE_DIR}/midori.pot" ALL ${POTFILES})
+        GETTEXT_CREATE_TRANSLATIONS("${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_PROJECT_NAME}.pot" ALL ${POTFILES})
     else()
         foreach(LANG ${LANGUAGES})
             GETTEXT_PROCESS_PO_FILES(${LANG} ALL PO_FILES ${LANG}.po)

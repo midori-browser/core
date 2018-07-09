@@ -1,0 +1,56 @@
+<interface>
+  <menu id="app-menu">
+    <section>
+      <item>
+        <attribute name="action">app.win-new</attribute>
+        <attribute name="target"></attribute>
+        <attribute name="label" translatable="yes">New _Window</attribute>
+        <attribute name="accel">&lt;Primary&gt;n</attribute>
+      </item>
+      <item>
+        <attribute name="action">app.win-incognito-new</attribute>
+        <attribute name="label" translatable="yes">New P_rivate Browsing Window</attribute>
+        <attribute name="accel">&lt;Primary&gt;&lt;Shift&gt;p</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.show-help-overlay</attribute>
+        <attribute name="hidden-when">action-disabled</attribute>
+        <attribute name="label" translatable="yes">_Shortcuts</attribute>
+        <attribute name="accel">&lt;Primary&gt;&lt;Alt&gt;s</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.about</attribute>
+        <attribute name="label" translatable="yes">_About</attribute>
+      </item>
+      <item>
+        <attribute name="action">app.quit</attribute>
+        <attribute name="label" translatable="yes">_Quit</attribute>
+        <attribute name="accel">&lt;Primary&gt;q</attribute>
+      </item>
+    </section>
+  </menu>
+  <menu id="profile-menu">
+    <section>
+      <item>
+        <attribute name="action">win.clear-private-data</attribute>
+        <attribute name="hidden-when">action-disabled</attribute>
+        <attribute name="label" translatable="yes">_Clear Private Data</attribute>
+        <attribute name="accel">&lt;Primary&gt;&lt;Shift&gt;Delete</attribute>
+      </item>
+    </section>
+  </menu>
+   <menu id="browser-menu">
+    <section>
+      <item>
+        <attribute name="action">win.find</attribute>
+        <attribute name="label" translatable="yes">_Find in Page</attribute>
+        <attribute name="accel">&lt;Primary&gt;f</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.print</attribute>
+        <attribute name="label" translatable="yes">_Print...</attribute>
+        <attribute name="accel">&lt;Primary&gt;p</attribute>
+      </item>
+    </section>
+  </menu>
+</interface>

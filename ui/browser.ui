@@ -1,0 +1,218 @@
+<interface>
+  <!-- Work-around non-expanding allocation in headerbar with GTK+ 3.18.9 -->
+  <object class="GtkSizeGroup">
+    <property name="mode">vertical</property>
+    <widgets>
+      <widget name="scrolled"/>
+      <widget name="profile"/>
+    </widgets>
+  </object>
+  <object class="GtkSizeGroup">
+    <property name="mode">horizontal</property>
+    <widgets>
+      <widget name="scrolled"/>
+      <widget name="urlbar"/>
+    </widgets>
+  </object>
+  <template class="MidoriBrowser" parent="GtkApplicationWindow">
+    <property name="default-width">800</property>
+    <property name="default-height">600</property>
+    <child type="titlebar">
+      <object class="GtkHeaderBar">
+        <property name="show-close-button">yes</property>
+        <property name="visible">yes</property>
+        <child type="title">
+          <object class="GtkScrolledWindow" id="scrolled">
+            <property name="hscrollbar-policy">external</property>
+            <property name="vscrollbar-policy">never</property>
+            <property name="visible">yes</property>
+            <child>
+              <object class="MidoriSwitcher">
+                <property name="orientation">horizontal</property>
+                <property name="stack">tabs</property>
+                <property name="visible">yes</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="MidoriDownloadButton" id="downloads">
+            <property name="valign">center</property>
+          </object>
+          <packing>
+            <property name="pack-type">end</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkMenuButton" id="profile">
+            <property name="focus-on-click">no</property>
+            <property name="valign">center</property>
+            <property name="visible">yes</property>
+            <child>
+              <object class="GtkImage" id="profile_icon">
+                <property name="icon-name">user-info-symbolic</property>
+                <property name="use-fallback">yes</property>
+                <property name="visible">yes</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="pack-type">end</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton">
+            <property name="focus-on-click">no</property>
+            <property name="valign">center</property>
+            <property name="action-name">win.tab-new</property>
+            <property name="visible">yes</property>
+            <child>
+              <object class="GtkImage">
+                <property name="icon-name">tab-new-symbolic</property>
+                <property name="visible">yes</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="pack-type">end</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="GtkBox">
+        <property name="orientation">vertical</property>
+        <property name="visible">yes</property>
+        <child>
+          <object class="GtkActionBar" id="navigationbar">
+            <property name="visible">yes</property>
+            <child>
+              <object class="GtkBox">
+                <property name="orientation">horizontal</property>
+                <property name="visible">yes</property>
+                <style>
+                  <class name="linked"/>
+                </style>
+                <child>
+                  <object class="GtkButton" id="go_back">
+                    <property name="focus-on-click">no</property>
+                    <property name="action-name">win.go-back</property>
+                    <property name="visible">yes</property>
+                    <child>
+                      <object class="GtkImage">
+                        <property name="icon-name">go-previous-symbolic</property>
+                        <property name="visible">yes</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="go_forward">
+                    <property name="focus-on-click">no</property>
+                    <property name="action-name">win.go-forward</property>
+                    <property name="visible">yes</property>
+                    <child>
+                      <object class="GtkImage">
+                        <property name="icon-name">go-next-symbolic</property>
+                        <property name="visible">yes</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="reload">
+                <property name="focus-on-click">no</property>
+                <property name="action-name">win.tab-reload</property>
+                <property name="visible">yes</property>
+                <child>
+                  <object class="GtkImage">
+                    <property name="icon-name">view-refresh-symbolic</property>
+                    <property name="visible">yes</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="stop_loading">
+                <property name="focus-on-click">no</property>
+                <property name="action-name">win.tab-stop-loading</property>
+                <property name="visible">yes</property>
+                <child>
+                  <object class="GtkImage">
+                    <property name="icon-name">process-stop-symbolic</property>
+                    <property name="visible">yes</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child type="center">
+              <object class="MidoriUrlbar" id="urlbar">
+                <!-- expand has no effect, int.MAX doesn't work -->
+                <property name="max-width-chars">300</property>
+                <property name="margin-left">16</property>
+                <property name="margin-right">16</property>
+                <property name="visible">yes</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkMenuButton" id="menubutton">
+                <property name="valign">center</property>
+                <property name="direction">none</property>
+                <property name="visible">yes</property>
+              </object>
+              <packing>
+                <property name="pack-type">end</property>
+              </packing>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="MidoriNetworkCheck">
+          </object>
+        </child>
+        <child>
+          <object class="GtkOverlay" id="overlay">
+            <property name="hexpand">yes</property>
+            <property name="vexpand">yes</property>
+            <property name="visible">yes</property>
+            <child>
+              <object class="GtkStack" id="tabs">
+                <property name="transition-type">over-left-right</property>
+                <property name="visible">yes</property>
+                <property name="hexpand">yes</property>
+                <property name="vexpand">yes</property>
+              </object>
+            </child>
+            <child type="overlay">
+              <object class="GtkSearchBar" id="search">
+                <property name="halign">end</property>
+                <property name="valign">start</property>
+                <property name="margin">0</property>
+                <style>
+                  <class name="background"/>
+                </style>
+                <child>
+                  <object class="GtkSearchEntry" id="search_entry">
+                    <property name="visible">yes</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child type="overlay">
+              <object class="MidoriStatusbar" id="statusbar">
+                <property name="halign">start</property>
+                <property name="valign">end</property>
+                <property name="margin">0</property>
+                <style>
+                  <class name="background"/>
+                </style>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>
