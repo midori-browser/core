@@ -445,14 +445,14 @@ namespace Midori {
          */
         public async bool update (DatabaseItem item) throws DatabaseError {
             string sqlcmd = """
-                UPDATE %s SET TITLE=:title WHERE uri = :uri AND date=:date
+                UPDATE %s SET title=:title WHERE uri = :uri AND date=:date
                 """.printf (table);
             DatabaseStatement statement;
             try {
                 statement = prepare (sqlcmd,
                     ":uri", typeof (string), item.uri,
                     ":title", typeof (string), item.title,
-                    ":date", typeof (int64), item.uri);
+                    ":date", typeof (int64), item.date);
                 if (statement.exec ()) {
                     if (_items != null) {
                         items_changed (_items.index (item), 0, 0);
