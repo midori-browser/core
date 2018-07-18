@@ -17,6 +17,7 @@ namespace Midori {
         public new bool can_go_back { get; protected set; }
         public new bool can_go_forward { get; protected set; }
         public DatabaseItem? item { get; protected set; default = null; }
+        public string display_uri { get; protected set; }
         public string display_title { get; protected set; }
         public bool pinned { get; set; }
         public bool secure { get; protected set; }
@@ -35,12 +36,12 @@ namespace Midori {
             notify["estimated-load-progress"].connect (update_progress);
             notify["is-loading"].connect (update_progress);
             notify["uri"].connect ((pspec) => {
-                display_title = uri;
+                display_uri = uri;
                 can_go_back = base.can_go_back ();
                 can_go_forward = base.can_go_forward ();
             });
             notify["title"].connect ((pspec) => {
-                display_title = (title != null && title != "") ? title : uri;
+                display_title = (title != null && title != "") ? title : display_uri;
                 if (item != null) {
                     item.title = display_title;
                 }
@@ -53,7 +54,37 @@ namespace Midori {
             get_settings ().set_user_agent_with_application_details (
                 Config.PROJECT_NAME, Config.CORE_VERSION);
             get_settings ().enable_developer_extras = true;
-            load_uri (uri ?? "about:blank");
+
+            if (pinned) {
+                load_uri (uri ?? "about:blank");
+            } else {
+                load_uri_delayed.begin (uri);
+            }
+        }
+
+        async void load_uri_delayed (string? uri) {
+            display_uri = uri ?? "about:blank";
+            display_title = display_uri;
+
+            // Get title from history
+            try {
+                var history = HistoryDatabase.get_default ();
+                var items = yield history.query (display_title, 1);
+                item = items.nth_data (0);
+                if (item != null) {
+                    display_title = item.title;
+                }
+            } catch (DatabaseError error) {
+                debug ("Failed to lookup title in history: %s", error.message);
+            }
+        }
+
+        public override bool focus_in_event (Gdk.EventFocus event) {
+            // Delayed load on focus
+            if (display_uri != uri) {
+                load_uri (display_uri);
+            }
+            return true;
         }
 
         void update_progress (ParamSpec pspec) {

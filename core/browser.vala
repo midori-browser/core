@@ -126,7 +126,7 @@ namespace Midori {
             urlbar.notify["uri"].connect ((pspec) => {
                 if (urlbar.uri.has_prefix ("javascript:")) {
                     tab.run_javascript.begin (urlbar.uri.substring (11, -1), null);
-                } else if (urlbar.uri != tab.uri) {
+                } else if (urlbar.uri != tab.display_uri) {
                     tab.load_uri (urlbar.uri);
                 }
             });
@@ -146,7 +146,7 @@ namespace Midori {
                     title = tab.display_title;
                     urlbar.secure = tab.secure;
                     statusbar.label = tab.link_uri;
-                    urlbar.uri = tab.uri;
+                    urlbar.uri = tab.display_uri;
                     navigationbar.visible = !tab.pinned;
                     bindings.append (tab.bind_property ("can-go-back", go_back, "sensitive"));
                     bindings.append (tab.bind_property ("can-go-forward", go_forward, "sensitive"));
@@ -156,8 +156,9 @@ namespace Midori {
                     bindings.append (tab.bind_property ("display-title", this, "title"));
                     bindings.append (tab.bind_property ("secure", urlbar, "secure"));
                     bindings.append (tab.bind_property ("link-uri", statusbar, "label"));
-                    bindings.append (tab.bind_property ("uri", urlbar, "uri"));
+                    bindings.append (tab.bind_property ("display-uri", urlbar, "uri"));
                     bindings.append (tab.bind_property ("pinned", navigationbar, "visible", BindingFlags.INVERT_BOOLEAN));
+                    tab.grab_focus ();
                 } else {
                     var previous_tab = tabs.get_children ().nth_data (0);
                     if (previous_tab == null)

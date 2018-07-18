@@ -43,8 +43,8 @@ namespace Midori {
         Gtk.Button close;
 
         public Tally (Tab tab) {
-            Object (tab: tab, uri: tab.uri, title: tab.display_title, visible: tab.visible);
-            tab.bind_property ("uri", this, "uri");
+            Object (tab: tab, uri: tab.display_uri, title: tab.display_title, visible: tab.visible);
+            tab.bind_property ("display-uri", this, "uri");
             tab.bind_property ("display-title", this, "title");
             tab.bind_property ("visible", this, "visible");
             close.clicked.connect (() => { tab.try_close (); });
