@@ -40,6 +40,32 @@ namespace Midori {
             Gtk.Window.set_default_icon_name (Config.PROJECT_NAME);
 
             var context = WebKit.WebContext.get_default ();
+            context.register_uri_scheme ("stock", (request) => {
+                string icon_name = request.get_path ().substring (1, -1);
+                int icon_size = 48;
+                Gtk.icon_size_lookup ((Gtk.IconSize)Gtk.IconSize.DIALOG, out icon_size, null);
+                try {
+                    var icon = Gtk.IconTheme.get_default ().load_icon (icon_name, icon_size, Gtk.IconLookupFlags.FORCE_SYMBOLIC);
+                    var output = new MemoryOutputStream (null, realloc, free);
+                    icon.save_to_stream (output, "png");
+                    output.close ();
+                    uint8[] data = output.steal_data ();
+                    data.length = (int)output.get_data_size ();
+                    var stream = new MemoryInputStream.from_data (data, free);
+                    request.finish (stream, -1, null);
+                } catch (Error error) {
+                    critical ("Failed to load icon %s: %s", icon_name, error.message);
+                }
+            });
+            context.register_uri_scheme ("res", (request) => {
+                try {
+                    var stream = resources_open_stream (request.get_path (),
+                                                        ResourceLookupFlags.NONE);
+                    request.finish (stream, -1, null);
+                } catch (Error error) {
+                    critical ("Failed to load resource %s: %s", request.get_uri (), error.message);
+                }
+            });
             string config = Path.build_path (Path.DIR_SEPARATOR_S,
                 Environment.get_user_config_dir (), Environment.get_prgname ());
             DirUtils.create_with_parents (config, 0700);

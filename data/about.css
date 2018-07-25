@@ -1,0 +1,73 @@
+/*
+ Copyright (C) 2018 Christian Dywan <christian@twotoats.de>
+
+ This library is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 2.1 of the License, or (at your option) any later version.
+
+ See the file COPYING for the full license text.
+ */
+
+body {
+    background-color: #dedede;
+    background-image: url(res:///data/logo-shade.svg);
+    background-repeat: no-repeat;
+    background-position: 90% 90%;
+    color: #222222;
+    font-family: -webkit-system-font, sans-serif;
+    font-size: 14pt;
+}
+
+#columns {
+    margin: 10% auto;
+}
+
+#icon {
+    display: inline-block;
+    vertical-align: top;
+    text-align: right;
+    width: 20%;
+    margin-right: 5%;
+}
+
+#main {
+    display: inline-block;
+    vertical-align: top;
+    width: 60%;
+    margin-left: 1%;
+}
+
+h1 {
+    font-size: 24pt;
+    font-weight: bold;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
+    padding: 0;
+}
+
+button span {
+    vertical-align: middle;
+    padding: 2pt 1pt;
+}
+
+.message {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.description {
+    font-size: 1em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.action {
+    margin-top: 5%;
+}
+
+button {
+    font-size: 14pt;
+    text-align: right;
+}
