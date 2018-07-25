@@ -179,6 +179,18 @@ namespace Midori {
             provider.load_from_resource ("/data/gtk3.css");
             Gtk.StyleContext.add_provider_for_screen (get_screen (), provider,
                 Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
+
+            // Make headerbar (titlebar) the topmost bar if CSD is disabled
+            if (Environment.get_variable ("GTK_CSD") == "0") {
+                var titlebar = (Gtk.HeaderBar)get_titlebar ();
+                titlebar.ref ();
+                set_titlebar (null);
+                titlebar.show_close_button = false;
+                var box = (navigationbar.parent as Gtk.Box);
+                box.add (titlebar);
+                box.reorder_child (titlebar, 0);
+                titlebar.unref ();
+            }
         }
 
         public Browser (App app) {
