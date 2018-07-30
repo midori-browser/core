@@ -50,6 +50,7 @@ apps:
       WEBKIT_DISABLE_COMPOSITING_MODE: 1
       # No Netscape plugins
       MOZ_PLUGIN_PATH: /
+      PYTHONHOME: $SNAP/usr
 
 slots:
   dbus:
@@ -67,6 +68,7 @@ parts:
       - libwebkit2gtk-4.0-dev
       - libsoup-gnome2.4-dev
       - libgcr-3-dev
+      - libpeas-dev
       - libsqlite3-dev
       - intltool
       - ninja-build
@@ -78,6 +80,10 @@ parts:
       - libgpm2
       - libdb5.3
       - libcanberra-gtk3-module
+      - libpeas-1.0-0-python2loader
+      - python-gi
+      - gir1.2-webkit2-4.0
+      - gir1.2-peas-1.0
       - myspell-en-us
       - gnome-icon-theme-symbolic
       - gstreamer1.0-x
@@ -93,6 +99,7 @@ parts:
       - -usr/share/doc/libcups2/changelog.Debian.gz
       - -usr/lib/*/libsoup-2.4.so.1.7.0
       - -usr/lib/*/libsoup-gnome-2.4.so.1.7.0
+      - -usr/lib/*/libjpeg.so.8.0.2
       - -usr/share/doc
     after:
       - desktop-gtk3

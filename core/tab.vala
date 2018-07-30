@@ -57,6 +57,7 @@ namespace Midori {
 
             if (pinned) {
                 load_uri (uri ?? "about:blank");
+                Plugins.get_default ().plug (this);
             } else {
                 load_uri_delayed.begin (uri);
             }
@@ -83,6 +84,7 @@ namespace Midori {
             // Delayed load on focus
             if (display_uri != uri) {
                 load_uri (display_uri);
+                Plugins.get_default ().plug (this);
             }
             return true;
         }

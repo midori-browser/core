@@ -38,6 +38,7 @@ namespace Midori {
             } catch (DatabaseError error) {
                 debug ("Failed to initialize completion model: %s", error.message);
             }
+            Plugins.get_default ().plug (this);
         }
 
         public Completion () {
