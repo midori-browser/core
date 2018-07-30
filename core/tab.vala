@@ -168,6 +168,74 @@ namespace Midori {
             link_uri = result.link_uri;
         }
 
+        public override bool context_menu (WebKit.ContextMenu menu,
+            Gdk.Event event, WebKit.HitTestResult hit) {
+
+            if (hit.context_is_editable ()) {
+                return false;
+            }
+
+            bool clear = hit.context_is_link ()
+                      || hit.context_is_image ()
+                      || hit.context_is_media ()
+                      || hit.context_is_selection ();
+            if (clear) {
+                menu.remove_all ();
+            }
+            if (hit.context_is_link () && !hit.link_uri.has_prefix ("javascript:")) {
+                menu.append (new WebKit.ContextMenuItem.from_stock_action_with_label (WebKit.ContextMenuAction.OPEN_LINK_IN_NEW_WINDOW, _("Open Link in New _Tab")));
+                if (!App.incognito) {
+                    var action = new SimpleAction ("link-window", VariantType.STRING);
+                    action.activate.connect (() => {
+                        var browser = new Browser ((App)Application.get_default ());
+                        browser.add (new Tab (null, browser.web_context, hit.link_uri));
+                    });
+                    menu.append (new WebKit.ContextMenuItem.from_gaction (action, _("Open Link in New _Window"), hit.link_uri));
+                }
+                var action = new SimpleAction ("link-incognito", VariantType.STRING);
+                action.activate.connect (() => {
+                    var browser = new Browser.incognito ((App)Application.get_default ());
+                    browser.add (new Tab (null, browser.web_context, hit.link_uri));
+                });
+                menu.append (new WebKit.ContextMenuItem.from_gaction (action, _("Open Link in New _Private Window"), hit.link_uri));
+                menu.append (new WebKit.ContextMenuItem.separator ());
+                menu.append (new WebKit.ContextMenuItem.from_stock_action (WebKit.ContextMenuAction.DOWNLOAD_LINK_TO_DISK));
+                menu.append (new WebKit.ContextMenuItem.from_stock_action (WebKit.ContextMenuAction.COPY_LINK_TO_CLIPBOARD));
+            }
+            if (hit.context_is_image ()) {
+                menu.append (new WebKit.ContextMenuItem.separator ());
+                menu.append (new WebKit.ContextMenuItem.from_stock_action (WebKit.ContextMenuAction.DOWNLOAD_IMAGE_TO_DISK));
+                menu.append (new WebKit.ContextMenuItem.from_stock_action (WebKit.ContextMenuAction.COPY_IMAGE_TO_CLIPBOARD));
+                menu.append (new WebKit.ContextMenuItem.from_stock_action (WebKit.ContextMenuAction.COPY_IMAGE_URL_TO_CLIPBOARD));
+            }
+            if (hit.context_is_media ()) {
+                menu.append (new WebKit.ContextMenuItem.separator ());
+                menu.append (new WebKit.ContextMenuItem.from_stock_action (WebKit.ContextMenuAction.COPY_VIDEO_LINK_TO_CLIPBOARD));
+                menu.append (new WebKit.ContextMenuItem.from_stock_action (WebKit.ContextMenuAction.DOWNLOAD_VIDEO_TO_DISK));
+            }
+            if (hit.context_is_selection ()) {
+                menu.append (new WebKit.ContextMenuItem.separator ());
+                menu.append (new WebKit.ContextMenuItem.from_stock_action (WebKit.ContextMenuAction.COPY));
+                // Selected text, ellipsized if > 32 characters
+                string? text = Gtk.Clipboard.get_for_display (get_display (), Gdk.SELECTION_PRIMARY).wait_for_text ();
+                string? label = ((text != null && text.length > 32) ? text.substring (0, 32) + "…" : text).delimit ("\n", ' ');
+                var action = new SimpleAction ("text-search", VariantType.STRING);
+                action.activate.connect (() => {
+                    // Allow DuckDuckGo to distinguish Midori and in turn share revenue
+                    string uri = "https://duckduckgo.com/?q=%s&t=midori".printf (Uri.escape_string (text, ":/", true));
+                    var tab = new Tab (this, web_context, uri);
+                    ((Browser)get_toplevel ()).add (tab);
+                });
+                menu.append (new WebKit.ContextMenuItem.from_gaction (
+                    action, _("Search %s for \"%s\"").printf ("DuckDuckGo", label), text));
+            }
+            if (clear) {
+                menu.append (new WebKit.ContextMenuItem.separator ());
+                menu.append (new WebKit.ContextMenuItem.from_stock_action (WebKit.ContextMenuAction.INSPECT_ELEMENT));
+            }
+            return false;
+        }
+
         public override bool print (WebKit.PrintOperation operation) {
             operation.run_dialog (get_toplevel () as Gtk.Window);
             return true;
