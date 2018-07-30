@@ -114,6 +114,56 @@ namespace Midori {
             }
         }
 
+        public override bool web_process_crashed () {
+            return display_error ("face-sad", _("Oops - %s").printf (uri), _("Something went wrong with '%s'.").printf (uri));
+        }
+
+        public override bool load_failed (WebKit.LoadEvent load_event, string uri, Error load_error) {
+            var monitor = NetworkMonitor.get_default ();
+            string hostname = new Soup.URI (uri).host;
+            string? title = null;
+            string? message = null;
+            if (!monitor.network_available) {
+                title = _("You are not connected to a network");
+                message = _("Your computer must be connected to a network to reach “%s”. " +
+                            "Connect to a wireless access point or attach a network cable and try again.").printf (hostname);
+            } else {
+                try {
+                    monitor.can_reach (NetworkAddress.parse_uri (Config.PROJECT_WEBSITE, 80));
+                    title = _("Midori can't find the page you're looking for");
+                    message = _("The page located at “%s” cannot be found. " +
+                                "Check the web address for misspelled words and try again.").printf (hostname);
+                } catch (Error error) {
+                    title = _("You are not connected to the Internet");
+                    message = _("Your computer appears to be connected to a network, but can't reach “%s”. " +
+                                "Check your network settings and try again.").printf (hostname);
+                }
+            }
+            display_uri = uri;
+            return display_error ("network-error", title, message, load_error.message);
+        }
+
+        bool display_error (string icon_name, string title, string message, string? description=null) {
+            try {
+                string stylesheet = (string)resources_lookup_data ("/data/about.css",
+                                                                    ResourceLookupFlags.NONE).get_data ();
+                string html = ((string)resources_lookup_data ("/data/error.html",
+                                                             ResourceLookupFlags.NONE).get_data ())
+                    .replace ("{stylesheet}", stylesheet)
+                    .replace ("{icon}", icon_name)
+                    .replace ("{title}", title)
+                    .replace ("{message}", message)
+                    .replace ("{description}", description ?? "")
+                    .replace ("{tryagain}", _("Try Again"))
+                    .replace ("{uri}", display_uri);
+                load_alternate_html (html, display_uri, display_uri);
+                return true;
+            } catch (Error error) {
+                critical ("Failed to display error: %s", error.message);
+            }
+            return false;
+        }
+
         public override void mouse_target_changed (WebKit.HitTestResult result, uint modifiers) {
             link_uri = result.link_uri;
         }

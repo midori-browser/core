@@ -1,0 +1,36 @@
+<!--
+ Copyright (C) 2018 Christian Dywan <christian@twotoats.de>
+
+ This library is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 2.1 of the License, or (at your option) any later version.
+
+ See the file COPYING for the full license text.
+-->
+<html>
+  <head>
+    <title>{title}</title>
+    <link ref="shortcut icon" href="stock:///{icon}" />
+    <style type="text/css">
+      {stylesheet}
+    </style>
+  </head>
+  <body>
+    <div id="columns">
+      <div id="icon">
+        <img src="stock:///{icon}" />
+      </div>
+      <div id="main">
+        <h1>{title}</h1>
+        <p class="message">{message}</p>
+        <span class="description">{description}</span>
+        <div class="action">
+          <button onclick="window.location = '{uri}'">
+            <span>{tryagain}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
