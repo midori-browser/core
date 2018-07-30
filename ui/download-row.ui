@@ -63,7 +63,29 @@
             </child>
           </object>
         </child>
-      </object>
+        <child>
+          <object class="GtkButton" id="open">
+            <property name="focus-on-click">no</property>
+            <property name="relief">none</property>
+            <property name="valign">center</property>
+            <property name="visible">no</property>
+            <child>
+              <object class="GtkImage">
+                <property name="icon-name">document-open-symbolic</property>
+                <property name="use-fallback">yes</property>
+                <property name="visible">yes</property>
+              </object>
+            </child>
+          </object>
+        </child>
+         <child>
+          <object class="GtkImage" id="error">
+            <property name="icon-name">error-symbolic</property>
+            <property name="use-fallback">yes</property>
+            <property name="visible">no</property>
+          </object>
+        </child>
+       </object>
     </child>
   </template>
 </interface>

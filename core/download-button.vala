@@ -63,6 +63,7 @@ namespace Midori {
         public double progress { get; protected set; default = 0.0; }
         public WebKit.Download? download { get; protected set; default = null; }
         public bool loading { get; protected set; default = false; }
+        public bool failed { get; protected set; default = false; }
         public void cancel () {
             if (download != null) {
                 download.cancel ();
@@ -91,6 +92,14 @@ namespace Midori {
             Object (download: download, loading: true);
             download.bind_property ("destination", this, "filename");
             download.bind_property ("estimated-progress", this, "progress");
+            download.finished.connect (() => {
+                download = null;
+                loading = false;
+            });
+            download.failed.connect ((error) => {
+                loading = false;
+                failed = true;
+            });
         }
     }
 
@@ -106,6 +115,23 @@ namespace Midori {
         public Gtk.ProgressBar progress;
         [GtkChild]
         public Gtk.Button cancel;
+        [GtkChild]
+        public Gtk.Button open;
+        [GtkChild]
+        public Gtk.Image error;
+
+        construct {
+            cancel.clicked.connect (() => {
+                item.cancel ();
+            });
+            open.clicked.connect (() => {
+                try {
+                    Gtk.show_uri (get_screen (), item.filename, Gtk.get_current_event_time ());
+                } catch (Error error) {
+                    critical ("Failed to open %s: %s", item.filename, error.message);
+                }
+            });
+        }
 
         public DownloadRow (DownloadItem item) {
             Object (item: item);
@@ -115,8 +141,19 @@ namespace Midori {
             item.bind_property ("basename", filename, "label");
             progress.fraction = item.progress;
             item.bind_property ("progress", progress, "fraction");
+            progress.visible = item.loading;
             cancel.visible = item.loading;
-            item.bind_property ("loading", cancel, "visible");
+            open.visible = !item.loading && !item.failed;
+            item.notify["loading"].connect (update_buttons);
+            item.notify["failed"].connect (update_buttons);
+            error.visible = item.failed;
+            item.bind_property ("failed", error, "visible");
+        }
+
+        void update_buttons (ParamSpec pspec) {
+            progress.visible = item.loading;
+            cancel.visible = item.loading;
+            open.visible = !item.loading && !item.failed;
         }
     }
 }
