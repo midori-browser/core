@@ -53,4 +53,18 @@
       </item>
     </section>
   </menu>
+  <menu id="tally-menu">
+    <section>
+      <item>
+        <attribute name="action">tally.pin</attribute>
+        <attribute name="hidden-when">action-disabled</attribute>
+        <attribute name="label" translatable="yes">_Pin Tab</attribute>
+      </item>
+      <item>
+        <attribute name="action">tally.unpin</attribute>
+        <attribute name="hidden-when">action-disabled</attribute>
+        <attribute name="label" translatable="yes">Unpin Ta_b</attribute>
+      </item>
+    </section>
+  </menu>
 </interface>

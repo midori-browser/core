@@ -33,6 +33,8 @@ namespace Midori {
             }
         } }
 
+        SimpleActionGroup? group = null;
+
         [GtkChild]
         Gtk.Label caption;
         [GtkChild]
@@ -72,14 +74,40 @@ namespace Midori {
             leave_notify_event.connect ((event) => {
                 unset_state_flags (Gtk.StateFlags.PRELIGHT);
             });
+
+            group = new SimpleActionGroup ();
+            var action = new SimpleAction ("pin", null);
+            action.activate.connect (() => {
+                tab.pinned = true;
+            });
+            group.add_action (action);
+            action = new SimpleAction ("unpin", null);
+            action.activate.connect (() => {
+                tab.pinned = false;
+            });
+            group.add_action (action);
+            insert_action_group ("tally", group);
+        }
+
+        protected override bool button_press_event (Gdk.EventButton event) {
+            switch (event.button) {
+                case Gdk.BUTTON_SECONDARY:
+                    ((SimpleAction)group.lookup_action ("pin")).set_enabled (!tab.pinned);
+                    ((SimpleAction)group.lookup_action ("unpin")).set_enabled (tab.pinned);
+                    var app = (App)Application.get_default ();
+                    var menu = new Gtk.Popover.from_model (this, app.get_menu_by_id ("tally-menu"));
+                    menu.show ();
+                    break;
+            }
+            return true;
         }
 
         protected override bool button_release_event (Gdk.EventButton event) {
             switch (event.button) {
-                case 1:
+                case Gdk.BUTTON_PRIMARY:
                     clicked ();
                     break;
-                case 3:
+                case Gdk.BUTTON_MIDDLE:
                     tab.try_close ();
                     break;
             }
