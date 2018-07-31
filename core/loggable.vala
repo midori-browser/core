@@ -11,16 +11,17 @@
 
 namespace Midori {
     public interface Loggable : Object {
-        static string? _domain = null;
-        static bool? _logging = null;
         public string domain { owned get {
+            string? _domain = get_data<string> ("midori-domain");
             if (_domain == null) {
                 _domain = get_type ().name ().substring (6, -1).down ();
+                set_data<string> ("midori-domain", _domain);
             }
             return _domain;
         } }
 
-        public bool logging { get {
+        public bool logging { owned get {
+            bool? _logging = get_data<bool?> ("midori-logging");
             if (_logging == null) {
                 uint flag = int.MAX;
                 foreach (var key in keys) {
@@ -31,6 +32,7 @@ namespace Midori {
                 string debug_string = Environment.get_variable ("G_MESSAGES_DEBUG");
                 uint flags = parse_debug_string (debug_string, keys);
                 _logging = (flags & flag) != 0;
+                set_data<bool?> ("midori-logging", _logging);
             }
             return _logging;
         } }
