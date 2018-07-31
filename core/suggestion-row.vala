@@ -47,7 +47,8 @@ namespace Midori {
                         title.label = item.title;
                     }
                 });
-            } else {
+            // Double-check type for the sake of plugins
+            } else if (item is DatabaseItem) {
                 icon.uri = item.uri;
                 escaped_title = item.title != null ? Markup.escape_text (item.title) : "";
                 title.label = escaped_title;

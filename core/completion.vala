@@ -43,7 +43,11 @@ namespace Midori {
         public Completion () {
         }
 
-        void add (ListModel model) {
+        /*
+         * Add a model to complete from. Items need to be based on DatabaseItem
+         * and filtered by key if set.
+         */
+        public virtual signal void add (ListModel model) {
             if (model is Database) {
                 bind_property ("key", model, "key");
             }

@@ -192,9 +192,14 @@ namespace Midori {
         public string? table { get; protected set; default = null; }
         public string path { get; protected set; default = ":memory:"; }
         string? _key = null;
+        Cancellable? populate_cancellable = null;
         public string? key { get { return _key; } set {
             _key = value;
-            populate.begin ();
+            if (populate_cancellable != null) {
+                populate_cancellable.cancel ();
+            }
+            populate_cancellable = new Cancellable ();
+            populate.begin (populate_cancellable);
         } }
 
         /*
@@ -396,7 +401,7 @@ namespace Midori {
         /*
          * Query items from the database, matching filter if given.
          */
-        public async List<DatabaseItem>? query (string? filter=null, int64 max_items=15, Cancellable? cancellable=null) throws DatabaseError {
+        public async virtual List<DatabaseItem>? query (string? filter=null, int64 max_items=15, Cancellable? cancellable=null) throws DatabaseError {
             string sqlcmd = """
                 SELECT uri, title, date, count () AS ct FROM %s
                 WHERE uri LIKE :filter OR title LIKE :filter
@@ -500,17 +505,25 @@ namespace Midori {
 
         public uint get_n_items () {
             if (_items == null) {
-                populate.begin ();
+                if (populate_cancellable != null) {
+                    populate_cancellable.cancel ();
+                }
+                populate_cancellable = new Cancellable ();
+                populate.begin (populate_cancellable);
                 return 0;
             }
             return _items.length ();
         }
 
-        async void populate () {
+        async void populate (Cancellable? cancellable) {
             try {
                 uint old_length = _items.length ();
                 _items = yield query (key);
-                items_changed (0, old_length, _items.length ());
+                if (cancellable.is_cancelled ()) {
+                    _items = null;
+                } else {
+                    items_changed (0, old_length, _items.length ());
+                }
             } catch (DatabaseError error) {
                 debug ("Failed to populate: %s", error.message);
             }
