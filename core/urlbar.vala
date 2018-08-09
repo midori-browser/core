@@ -246,22 +246,14 @@ namespace Midori {
         }
  
         protected override bool focus_out_event (Gdk.EventFocus event) {
-            suggestions.hide ();
+            popdown ();
             return base.focus_out_event (event);
         }
-
-        /*
-            https://ac.duckduckgo.com/ac/?q={searchTerms}&type=list
-            ["cat",["catlux","cathay pacific","cats","catherine zeta-jones","caterpillar","cathy fischer","cate blanchett","cat stevens","catwoman","catch the millionaire"]]
-            https://encrypted.google.com/complete/search?output=firefox&q={searchTerms}
-            ["cat",["catching fire","catalina island","catching fire movie","cathay pacific","caterpillar","cats","catching fire cast","catwoman","catherine zeta jones","cato"]]
-         */
 
         public void popdown () {
             // Note: Guard against popover being destroyed before popdown
             if (suggestions != null) {
                 suggestions.hide ();
-                grab_focus_without_selecting ();
             }
         }
 
