@@ -42,13 +42,12 @@ namespace Midori {
             });
             notify["title"].connect ((pspec) => {
                 display_title = (title != null && title != "") ? title : display_uri;
-                if (item != null) {
-                    item.title = display_title;
-                }
+                item.title = display_title;
             });
         }
 
-        public Tab (Tab? related, WebKit.WebContext web_context, string? uri = null) {
+        public Tab (Tab? related, WebKit.WebContext web_context,
+                    string? uri = null, string? title = null) {
             Object (related_view: related, web_context: web_context, visible: true);
 
             get_settings ().set_user_agent_with_application_details (
@@ -58,21 +57,23 @@ namespace Midori {
             if (pinned) {
                 load_uri (uri ?? "about:blank");
             } else {
-                load_uri_delayed.begin (uri);
+                load_uri_delayed.begin (uri, title);
             }
         }
 
-        async void load_uri_delayed (string? uri) {
+        async void load_uri_delayed (string? uri, string? title) {
             display_uri = uri ?? "about:blank";
-            display_title = display_uri;
+            display_title = title ?? display_uri;
+            item = new DatabaseItem (display_uri, display_title, 0);
 
             // Get title from history
             try {
                 var history = HistoryDatabase.get_default ();
                 var items = yield history.query (display_title, 1);
-                item = items.nth_data (0);
+                var item = items.nth_data (0);
                 if (item != null) {
                     display_title = item.title;
+                    this.item = item;
                 }
             } catch (DatabaseError error) {
                 debug ("Failed to lookup title in history: %s", error.message);
@@ -223,7 +224,9 @@ namespace Midori {
                         bool has_ctrl = (action.get_modifiers () & Gdk.ModifierType.CONTROL_MASK) != 0;
                         if (action.get_mouse_button () == 2
                             || (has_ctrl && action.get_mouse_button () == 1)) {
-                            create (action);
+                            var tab = ((Tab)create (action));
+                            tab.load_request (action.get_request ());
+                            tab.ready_to_show ();
                             decision.ignore ();
                             return true;
                         }

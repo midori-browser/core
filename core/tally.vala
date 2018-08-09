@@ -45,9 +45,14 @@ namespace Midori {
         Gtk.Button close;
 
         public Tally (Tab tab) {
-            Object (tab: tab, uri: tab.display_uri, title: tab.display_title, visible: tab.visible);
+            Object (tab: tab,
+                    uri: tab.display_uri,
+                    title: tab.display_title,
+                    tooltip_text: tab.display_title,
+                    visible: tab.visible);
             tab.bind_property ("display-uri", this, "uri");
             tab.bind_property ("display-title", this, "title");
+            tab.bind_property ("display-title", this, "tooltip-text");
             tab.bind_property ("visible", this, "visible");
             close.clicked.connect (() => { tab.try_close (); });
             tab.notify["is-loading"].connect ((pspec) => {

@@ -223,7 +223,9 @@ namespace Midori {
         }
 
         void tab_new_activated () {
-            add (new Tab (tab, web_context));
+            var tab = new Tab (tab, web_context);
+            add (tab);
+            tabs.visible_child = tab;
         }
 
         void tab_close_activated () {
@@ -238,7 +240,7 @@ namespace Midori {
             uint index = trash.get_n_items ();
             if (index > 0) {
                 var item = trash.get_object (index - 1) as DatabaseItem;
-                add (new Tab (tab, web_context, item.uri));
+                add (new Tab (tab, web_context, item.uri, item.title));
                 trash.remove (index - 1);
             }
         }
@@ -325,8 +327,12 @@ namespace Midori {
 
         public new void add (Tab tab) {
             tab.create.connect ((action) => {
-                var new_tab = new Tab (tab, web_context, action.get_request ().uri);
-                add (new_tab);
+                var new_tab = new Tab (tab, web_context);
+                new_tab.hide ();
+                new_tab.ready_to_show.connect (() => {
+                    new_tab.show ();
+                    add (new_tab);
+                });
                 return new_tab;
             });
             tab.enter_fullscreen.connect (() => {
