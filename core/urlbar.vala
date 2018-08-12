@@ -68,6 +68,12 @@ namespace Midori {
                 uri = suggestion.item.uri;
             });
 
+            insert_text.connect_after ((new_text, new_position, ref position) => {
+                update_key (text);
+            });
+            delete_text.connect_after ((start_pos, end_pos) => {
+                update_key (text);
+            });
             icon_press.connect (icon_pressed);
         }
 
@@ -155,9 +161,15 @@ namespace Midori {
                     return false;
             }
 
-            // Interpret input
-            bool entry_handled_key_press = base.key_press_event (event);
+            // No completion on control characters
+            unichar character = Gdk.keyval_to_unicode (event.keyval);
+            if (character != 0 && event.is_modifier == 0) {
+                complete ();
+            }
+            return base.key_press_event (event);
+        }
 
+        void update_key (string text) {
             location = magic_uri (text);
             if (location == null) {
                 try {
@@ -171,13 +183,6 @@ namespace Midori {
                 regex = null;
             }
 
-            // No completion on control characters
-            unichar character = Gdk.keyval_to_unicode (event.keyval);
-            if (character != 0 && event.is_modifier == 0) {
-                complete ();
-            }
-
-            return entry_handled_key_press;
         }
 
         string? magic_uri (string text) {
