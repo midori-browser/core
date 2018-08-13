@@ -85,6 +85,11 @@ namespace Midori {
             var action = new SimpleAction ("win-new", VariantType.STRING);
             action.activate.connect (win_new_activated);
             add_action (action);
+
+            // Unset app menu if not handled by the shell
+            if (!Gtk.Settings.get_default ().gtk_shell_shows_app_menu){
+                app_menu = null;
+            }
         }
 
         void win_new_activated (Action action, Variant? parameter) {

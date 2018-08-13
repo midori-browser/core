@@ -41,6 +41,8 @@ namespace Midori {
         [GtkChild]
         Gtk.MenuButton profile;
         [GtkChild]
+        Gtk.MenuButton app_menu;
+        [GtkChild]
         Gtk.Image profile_icon;
         [GtkChild]
         Gtk.ActionBar navigationbar;
@@ -110,6 +112,11 @@ namespace Midori {
                 menubutton.menu_model = application.get_menu_by_id ("browser-menu");
 
                 application.bind_busy_property (this, "is-loading");
+                // App menu fallback as a button rather than a menu
+                if (!Gtk.Settings.get_default ().gtk_shell_shows_app_menu) {
+                    app_menu.menu_model = application.get_menu_by_id ("app-menu");
+                    app_menu.show ();
+                }
             });
 
             // Action for switching tabs via Alt+number
