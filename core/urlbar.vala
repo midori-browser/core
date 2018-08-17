@@ -22,14 +22,20 @@ namespace Midori {
             _uri = value;
             location = value;
             // Treat about:blank specially
-            text = value != "about:blank" ? value : "";
+            text = blank ? "" : value;
+            secure = false;
         } }
         bool _secure = false;
         public bool secure { get { return _secure; } set {
             _secure = value;
-            primary_icon_name = value ? "channel-secure-symbolic" : null;
-            primary_icon_activatable = value;
+            if (blank) {
+                primary_icon_name = null;
+            } else {
+                primary_icon_name = value ? "channel-secure-symbolic" : "channel-insecure-symbolic";
+            }
+            primary_icon_activatable = !blank;
         } }
+        bool blank { get { return uri == "about:blank"; } }
 
         [GtkChild]
         Gtk.Popover? suggestions;
@@ -40,6 +46,8 @@ namespace Midori {
         Gtk.Popover security;
         [GtkChild]
         Gtk.Box security_box;
+        [GtkChild]
+        Gtk.Label security_status;
         Gcr.CertificateWidget? details = null;
 
         construct {
@@ -300,13 +308,13 @@ namespace Midori {
 
                 // Insert widget here because Gtk.Builder won't recognize the type
                 details = new Gcr.CertificateWidget (null);
-                details.show ();
                 security_box.add (details);
-                security_box.reorder_child (details, 0);
-            } else {
-                details.certificate = certificate;
             }
+            details.visible = tls != null;
+            details.certificate = certificate;
+            security_status.visible = !secure;
             security.show ();
         }
     }
+
 }
