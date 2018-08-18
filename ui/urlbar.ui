@@ -10,12 +10,18 @@
   </object>
   <object class="GtkPopover" id="security">
     <property name="modal">yes</property>
+    <property name="position">bottom</property>
     <child>
       <object class="GtkBox" id="security_box">
         <property name="margin">4</property>
         <property name="spacing">4</property>
         <property name="orientation">vertical</property>
         <property name="visible">yes</property>
+        <child>
+          <object class="GtkLabel" id="security_status">
+            <property name="label" translatable="yes">Connection is not secure</property>
+          </object>
+        </child>
       </object>
     </child>
   </object>

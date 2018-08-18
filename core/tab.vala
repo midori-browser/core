@@ -115,6 +115,10 @@ namespace Midori {
             }
         }
 
+        public override void insecure_content_detected (WebKit.InsecureContentEvent event) {
+            secure = false;
+        }
+
         public override bool web_process_crashed () {
             return display_error ("face-sad", _("Oops - %s").printf (uri), _("Something went wrong with '%s'.").printf (uri));
         }
