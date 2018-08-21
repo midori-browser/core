@@ -37,6 +37,14 @@ namespace Midori {
             { "about", about_activated },
         };
         [GtkChild]
+        Gtk.HeaderBar panelbar;
+        [GtkChild]
+        Gtk.Stack panel;
+        [GtkChild]
+        Gtk.ToggleButton panel_toggle;
+        [GtkChild]
+        Gtk.HeaderBar tabbar;
+        [GtkChild]
         DownloadButton downloads;
         [GtkChild]
         Gtk.MenuButton profile;
@@ -83,6 +91,7 @@ namespace Midori {
             add_action_entries (actions, this);
 
             notify["application"].connect ((pspec) => {
+                application.set_accels_for_action ("win.panel", { "F9" });
                 application.set_accels_for_action ("win.tab-new", { "<Primary>t" });
                 application.set_accels_for_action ("win.tab-close", { "<Primary>w" });
                 application.set_accels_for_action ("win.close", { "<Primary><Shift>w" });
@@ -126,6 +135,10 @@ namespace Midori {
             // Action for zooming
             action = new SimpleAction ("tab-zoom", VariantType.DOUBLE);
             action.activate.connect (tab_zoom_activated);
+            add_action (action);
+            // Action for panel toggling
+            action = new SimpleAction.stateful ("panel", null, false);
+            action.change_state.connect (panel_activated);
             add_action (action);
 
             trash = new ListStore (typeof (DatabaseItem));
@@ -189,14 +202,36 @@ namespace Midori {
 
             // Make headerbar (titlebar) the topmost bar if CSD is disabled
             if (Environment.get_variable ("GTK_CSD") == "0") {
-                var titlebar = (Gtk.HeaderBar)get_titlebar ();
+                var titlebar = get_titlebar ();
                 titlebar.ref ();
                 set_titlebar (null);
-                titlebar.show_close_button = false;
-                var box = (navigationbar.parent as Gtk.Box);
+                panelbar.show_close_button = false;
+                tabbar.show_close_button = false;
+                var box = (get_child () as Gtk.Box);
                 box.add (titlebar);
                 box.reorder_child (titlebar, 0);
                 titlebar.unref ();
+                titlebar.get_style_context ().remove_class ("titlebar");
+            } else {
+                Gtk.Settings.get_default ().notify["gtk-decoration-layout"].connect ((pspec) => {
+                    update_decoration_layout ();
+                });
+                update_decoration_layout ();
+            }
+
+            // Reveal panel toggle after panels are added
+            panel.add.connect ((widget) => { panel_toggle.show (); });
+            Plugins.get_default ().plug (panel);
+        }
+
+        void update_decoration_layout () {
+            // With panels are visible the window decoration is split in two
+            if (panel.visible) {
+                string[] layout = Gtk.Settings.get_default ().gtk_decoration_layout.split (":", 2);
+                panelbar.decoration_layout = layout[0];
+                tabbar.decoration_layout = ":" + layout[1];
+            } else {
+                tabbar.decoration_layout = null;
             }
         }
 
@@ -227,6 +262,14 @@ namespace Midori {
                 return true;
             }
             return false;
+        }
+
+        void panel_activated (SimpleAction action, Variant? state) {
+            if (panel_toggle.visible) {
+                action.set_state (state);
+                panel.visible = state.get_boolean ();
+                update_decoration_layout ();
+            }
         }
 
         void tab_new_activated () {
