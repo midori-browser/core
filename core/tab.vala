@@ -55,7 +55,7 @@ namespace Midori {
             get_settings ().enable_developer_extras = true;
 
             if (pinned) {
-                load_uri (uri ?? "about:blank");
+                load_uri (uri ?? "internal:speed-dial");
                 Plugins.get_default ().plug (this);
             } else {
                 load_uri_delayed.begin (uri, title);
@@ -63,7 +63,7 @@ namespace Midori {
         }
 
         async void load_uri_delayed (string? uri, string? title) {
-            display_uri = uri ?? "about:blank";
+            display_uri = uri ?? "internal:speed-dial";
             display_title = title ?? display_uri;
             item = new DatabaseItem (display_uri, display_title, 0);
 

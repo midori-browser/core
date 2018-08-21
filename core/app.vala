@@ -60,22 +60,17 @@ namespace Midori {
             Gtk.Window.set_default_icon_name (Config.PROJECT_NAME);
 
             var context = WebKit.WebContext.get_default ();
+            context.register_uri_scheme ("internal", (request) => {
+                request.ref ();
+                internal_scheme.begin (request);
+            });
+            context.register_uri_scheme ("favicon", (request) => {
+                request.ref ();
+                favicon_scheme.begin (request);
+            });
             context.register_uri_scheme ("stock", (request) => {
-                string icon_name = request.get_path ().substring (1, -1);
-                int icon_size = 48;
-                Gtk.icon_size_lookup ((Gtk.IconSize)Gtk.IconSize.DIALOG, out icon_size, null);
-                try {
-                    var icon = Gtk.IconTheme.get_default ().load_icon (icon_name, icon_size, Gtk.IconLookupFlags.FORCE_SYMBOLIC);
-                    var output = new MemoryOutputStream (null, realloc, free);
-                    icon.save_to_stream (output, "png");
-                    output.close ();
-                    uint8[] data = output.steal_data ();
-                    data.length = (int)output.get_data_size ();
-                    var stream = new MemoryInputStream.from_data (data, free);
-                    request.finish (stream, -1, null);
-                } catch (Error error) {
-                    critical ("Failed to load icon %s: %s", icon_name, error.message);
-                }
+                request.ref ();
+                stock_scheme.begin (request);
             });
             context.register_uri_scheme ("res", (request) => {
                 try {
@@ -83,6 +78,7 @@ namespace Midori {
                                                         ResourceLookupFlags.NONE);
                     request.finish (stream, -1, null);
                 } catch (Error error) {
+                    request.finish_error (error);
                     critical ("Failed to load resource %s: %s", request.get_uri (), error.message);
                 }
             });
@@ -117,6 +113,79 @@ namespace Midori {
             if (!Gtk.Settings.get_default ().gtk_shell_shows_app_menu){
                 app_menu = null;
             }
+        }
+
+        async void internal_scheme (WebKit.URISchemeRequest request) {
+            try {
+                var shortcuts = yield HistoryDatabase.get_default ().query (null, 9);
+                string content = "";
+                uint index = 0;
+                foreach (var shortcut in shortcuts) {
+                    index++;
+                    content += """
+                        <div class="shortcut">
+                          <a href="%s" accesskey="%u">
+                            <img src="%s" />
+                            <span class="title">%s</span>
+                          </a>
+                        </div>""".printf (shortcut.uri, index, "favicon:///" + shortcut.uri, shortcut.title);
+                }
+                string stylesheet = (string)resources_lookup_data ("/data/about.css",
+                                                                    ResourceLookupFlags.NONE).get_data ();
+                string html = ((string)resources_lookup_data ("/data/speed-dial.html",
+                                                             ResourceLookupFlags.NONE).get_data ())
+                    .replace ("{title}", _("Speed Dial"))
+                    .replace ("{icon}", "view-grid")
+                    .replace ("{content}", content)
+                    .replace ("{stylesheet}", stylesheet);
+                var stream = new MemoryInputStream.from_data (html.data, free);
+                request.finish (stream, html.length, "text/html");
+            } catch (Error error) {
+                request.finish_error (error);
+                critical ("Failed to render %s: %s", request.get_uri (), error.message);
+            }
+            request.unref ();
+        }
+
+        void request_finish_pixbuf (WebKit.URISchemeRequest request, Gdk.Pixbuf pixbuf) throws Error {
+            var output = new MemoryOutputStream (null, realloc, free);
+            pixbuf.save_to_stream (output, "png");
+            output.close ();
+            uint8[] data = output.steal_data ();
+            data.length = (int)output.get_data_size ();
+            var stream = new MemoryInputStream.from_data (data, free);
+            request.finish (stream, -1, null);
+        }
+
+        async void favicon_scheme (WebKit.URISchemeRequest request) {
+            string page_uri = request.get_path ().substring (1, -1);
+            try {
+                var database = WebKit.WebContext.get_default ().get_favicon_database ();
+                var surface = yield database.get_favicon (page_uri, null);
+                if (surface != null) {
+                    var image = (Cairo.ImageSurface)surface;
+                    var icon = Gdk.pixbuf_get_from_surface (image, 0, 0, image.get_width (), image.get_height ());
+                    request_finish_pixbuf (request, icon);
+                }
+            } catch (Error error) {
+                request.finish_error (error);
+                debug ("Failed to render favicon for %s: %s", page_uri, error.message);
+            }
+            request.unref ();
+        }
+
+        async void stock_scheme (WebKit.URISchemeRequest request) {
+            string icon_name = request.get_path ().substring (1, -1);
+            int icon_size = 48;
+            Gtk.icon_size_lookup ((Gtk.IconSize)Gtk.IconSize.DIALOG, out icon_size, null);
+            try {
+                var icon = Gtk.IconTheme.get_default ().load_icon (icon_name, icon_size, Gtk.IconLookupFlags.FORCE_SYMBOLIC);
+                request_finish_pixbuf (request, icon);
+            } catch (Error error) {
+                request.finish_error (error);
+                critical ("Failed to load icon %s: %s", icon_name, error.message);
+            }
+            request.unref ();
         }
 
         void win_new_activated (Action action, Variant? parameter) {

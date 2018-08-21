@@ -35,7 +35,7 @@ namespace Midori {
             }
             primary_icon_activatable = !blank;
         } }
-        bool blank { get { return uri == "about:blank"; } }
+        bool blank { get { return uri == "about:blank" || uri == "internal:speed-dial"; } }
 
         [GtkChild]
         Gtk.Popover? suggestions;
@@ -164,7 +164,7 @@ namespace Midori {
                     complete ();
                     return true;
                 case Gdk.Key.Escape:
-                    text = uri;
+                    text = blank ? "" : uri;
                     // Propagate to allow Escape to stop loading
                     return false;
             }
