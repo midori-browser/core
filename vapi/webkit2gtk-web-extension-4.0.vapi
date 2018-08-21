@@ -8,13 +8,10 @@ namespace WebKit {
 		public class Attr : WebKit.DOM.Node, WebKit.DOM.EventTarget {
 			[CCode (has_construct_function = false)]
 			protected Attr ();
-			[Version (since = "2.14")]
 			public string get_local_name ();
 			public string get_name ();
-			[Version (since = "2.14")]
 			public string get_namespace_uri ();
 			public unowned WebKit.DOM.Element get_owner_element ();
-			[Version (since = "2.14")]
 			public string get_prefix ();
 			public bool get_specified ();
 			public string get_value ();
@@ -139,17 +136,11 @@ namespace WebKit {
 		public class ClientRect : WebKit.DOM.Object {
 			[CCode (has_construct_function = false)]
 			protected ClientRect ();
-			[Version (since = "2.18")]
 			public float get_bottom ();
-			[Version (since = "2.18")]
 			public float get_height ();
-			[Version (since = "2.18")]
 			public float get_left ();
-			[Version (since = "2.18")]
 			public float get_right ();
-			[Version (since = "2.18")]
 			public float get_top ();
-			[Version (since = "2.18")]
 			public float get_width ();
 			public float bottom { get; }
 			public float height { get; }
@@ -163,9 +154,7 @@ namespace WebKit {
 		public class ClientRectList : WebKit.DOM.Object {
 			[CCode (has_construct_function = false)]
 			protected ClientRectList ();
-			[Version (since = "2.18")]
 			public ulong get_length ();
-			[Version (since = "2.18")]
 			public WebKit.DOM.ClientRect item (ulong index);
 			public ulong length { get; }
 		}
@@ -191,55 +180,30 @@ namespace WebKit {
 		public class DOMSelection : WebKit.DOM.Object {
 			[CCode (has_construct_function = false)]
 			protected DOMSelection ();
-			[Version (since = "2.16")]
 			public void add_range (WebKit.DOM.Range range);
-			[Version (since = "2.16")]
 			public void collapse (WebKit.DOM.Node node, ulong offset);
-			[Version (since = "2.16")]
 			public void collapse_to_end () throws GLib.Error;
-			[Version (since = "2.16")]
 			public void collapse_to_start () throws GLib.Error;
-			[Version (since = "2.16")]
 			public bool contains_node (WebKit.DOM.Node node, bool allowPartial);
-			[Version (since = "2.16")]
 			public void delete_from_document ();
-			[Version (since = "2.16")]
 			public void empty ();
-			[Version (since = "2.16")]
 			public void extend (WebKit.DOM.Node node, ulong offset) throws GLib.Error;
-			[Version (since = "2.16")]
 			public unowned WebKit.DOM.Node get_anchor_node ();
-			[Version (since = "2.16")]
 			public ulong get_anchor_offset ();
-			[Version (since = "2.16")]
 			public unowned WebKit.DOM.Node get_base_node ();
-			[Version (since = "2.16")]
 			public ulong get_base_offset ();
-			[Version (since = "2.16")]
 			public unowned WebKit.DOM.Node get_extent_node ();
-			[Version (since = "2.16")]
 			public ulong get_extent_offset ();
-			[Version (since = "2.16")]
 			public unowned WebKit.DOM.Node get_focus_node ();
-			[Version (since = "2.16")]
 			public ulong get_focus_offset ();
-			[Version (since = "2.16")]
 			public bool get_is_collapsed ();
-			[Version (since = "2.16")]
 			public WebKit.DOM.Range get_range_at (ulong index) throws GLib.Error;
-			[Version (since = "2.16")]
 			public ulong get_range_count ();
-			[Version (since = "2.16")]
 			public string get_selection_type ();
-			[Version (since = "2.16")]
 			public void modify (string alter, string direction, string granularity);
-			[Version (since = "2.16")]
 			public void remove_all_ranges ();
-			[Version (since = "2.16")]
 			public void select_all_children (WebKit.DOM.Node node);
-			[Version (since = "2.16")]
 			public void set_base_and_extent (WebKit.DOM.Node baseNode, ulong baseOffset, WebKit.DOM.Node extentNode, ulong extentOffset);
-			[Version (since = "2.16")]
 			public void set_position (WebKit.DOM.Node node, ulong offset);
 			public WebKit.DOM.Node anchor_node { get; }
 			public ulong anchor_offset { get; }
@@ -259,19 +223,12 @@ namespace WebKit {
 		public class DOMTokenList : WebKit.DOM.Object {
 			[CCode (has_construct_function = false)]
 			protected DOMTokenList ();
-			[Version (since = "2.16")]
 			public bool contains (string token);
-			[Version (since = "2.16")]
 			public ulong get_length ();
-			[Version (since = "2.16")]
 			public string get_value ();
-			[Version (since = "2.16")]
 			public string item (ulong index);
-			[Version (since = "2.16")]
 			public void replace (string token, string newToken) throws GLib.Error;
-			[Version (since = "2.16")]
 			public void set_value (string value);
-			[Version (since = "2.16")]
 			public bool toggle (string token, bool force) throws GLib.Error;
 			public ulong length { get; }
 			public string value { owned get; set; }
@@ -281,105 +238,55 @@ namespace WebKit {
 		public class DOMWindow : WebKit.DOM.Object, WebKit.DOM.EventTarget {
 			[CCode (has_construct_function = false)]
 			protected DOMWindow ();
-			[Version (since = "2.16")]
 			public void alert (string message);
-			[Version (since = "2.16")]
 			public void blur ();
-			[Version (since = "2.16")]
 			public void capture_events ();
-			[Version (since = "2.16")]
 			public void close ();
-			[Version (since = "2.16")]
 			public bool confirm (string message);
-			[Version (since = "2.16")]
 			public bool find (string string, bool caseSensitive, bool backwards, bool wrap, bool wholeWord, bool searchInFrames, bool showDialog);
-			[Version (since = "2.16")]
 			public void focus ();
-			[Version (since = "2.16")]
 			public bool get_closed ();
-			[Version (since = "2.16")]
 			public WebKit.DOM.CSSStyleDeclaration get_computed_style (WebKit.DOM.Element element, string? pseudoElement);
-			[Version (since = "2.16")]
 			public string get_default_status ();
-			[Version (since = "2.16")]
 			public double get_device_pixel_ratio ();
-			[Version (since = "2.16")]
 			public unowned WebKit.DOM.Document get_document ();
-			[Version (since = "2.16")]
 			public unowned WebKit.DOM.Element get_frame_element ();
-			[Version (since = "2.16")]
 			public WebKit.DOM.DOMWindow get_frames ();
-			[Version (since = "2.16")]
 			public long get_inner_height ();
-			[Version (since = "2.16")]
 			public long get_inner_width ();
-			[Version (since = "2.16")]
 			public ulong get_length ();
-			[Version (since = "2.16")]
 			public string get_name ();
-			[Version (since = "2.16")]
 			public bool get_offscreen_buffering ();
-			[Version (since = "2.16")]
 			public WebKit.DOM.DOMWindow get_opener ();
-			[Version (since = "2.16")]
 			public long get_orientation ();
-			[Version (since = "2.16")]
 			public long get_outer_height ();
-			[Version (since = "2.16")]
 			public long get_outer_width ();
-			[Version (since = "2.16")]
 			public long get_page_x_offset ();
-			[Version (since = "2.16")]
 			public long get_page_y_offset ();
-			[Version (since = "2.16")]
 			public WebKit.DOM.DOMWindow get_parent ();
-			[Version (since = "2.16")]
 			public long get_screen_left ();
-			[Version (since = "2.16")]
 			public long get_screen_top ();
-			[Version (since = "2.16")]
 			public long get_screen_x ();
-			[Version (since = "2.16")]
 			public long get_screen_y ();
-			[Version (since = "2.16")]
 			public long get_scroll_x ();
-			[Version (since = "2.16")]
 			public long get_scroll_y ();
-			[Version (since = "2.16")]
 			public WebKit.DOM.DOMSelection get_selection ();
-			[Version (since = "2.16")]
 			public WebKit.DOM.DOMWindow get_self ();
-			[Version (since = "2.16")]
 			public string get_status ();
-			[Version (since = "2.16")]
 			public WebKit.DOM.DOMWindow get_top ();
-			[Version (since = "2.16")]
 			public WebKit.DOM.DOMWindow get_window ();
-			[Version (since = "2.16")]
 			public void move_by (float x, float y);
-			[Version (since = "2.16")]
 			public void move_to (float x, float y);
-			[Version (since = "2.16")]
 			public void print ();
-			[Version (since = "2.16")]
 			public string prompt (string message, string defaultValue);
-			[Version (since = "2.16")]
 			public void release_events ();
-			[Version (since = "2.16")]
 			public void resize_by (float x, float y);
-			[Version (since = "2.16")]
 			public void resize_to (float width, float height);
-			[Version (since = "2.16")]
 			public void scroll_by (double x, double y);
-			[Version (since = "2.16")]
 			public void scroll_to (double x, double y);
-			[Version (since = "2.16")]
 			public void set_default_status (string value);
-			[Version (since = "2.16")]
 			public void set_name (string value);
-			[Version (since = "2.16")]
 			public void set_status (string value);
-			[Version (since = "2.16")]
 			public void stop ();
 			public bool webkit_message_handlers_post_message (string handler, string message);
 			public bool closed { get; }
@@ -417,7 +324,6 @@ namespace WebKit {
 			[CCode (has_construct_function = false)]
 			protected Document ();
 			public unowned WebKit.DOM.Node adopt_node (WebKit.DOM.Node source) throws GLib.Error;
-			[Version (since = "2.16")]
 			public WebKit.DOM.Range caret_range_from_point (long x, long y);
 			public unowned WebKit.DOM.Attr create_attribute (string name) throws GLib.Error;
 			public unowned WebKit.DOM.Attr create_attribute_ns (string? namespaceURI, string qualifiedName) throws GLib.Error;
@@ -427,8 +333,6 @@ namespace WebKit {
 			public unowned WebKit.DOM.DocumentFragment create_document_fragment ();
 			public unowned WebKit.DOM.Element create_element (string tagName) throws GLib.Error;
 			public unowned WebKit.DOM.Element create_element_ns (string? namespaceURI, string qualifiedName) throws GLib.Error;
-			[Version (deprecated = true, deprecated_since = "2.12")]
-			public unowned WebKit.DOM.EntityReference create_entity_reference (string? name) throws GLib.Error;
 			public WebKit.DOM.Event create_event (string eventType) throws GLib.Error;
 			public WebKit.DOM.XPathExpression create_expression (string expression, WebKit.DOM.XPathNSResolver resolver) throws GLib.Error;
 			public WebKit.DOM.NodeIterator create_node_iterator (WebKit.DOM.Node root, ulong whatToShow, WebKit.DOM.NodeFilter? filter, bool expandEntityReferences) throws GLib.Error;
@@ -440,7 +344,6 @@ namespace WebKit {
 			public unowned WebKit.DOM.Element element_from_point (long x, long y);
 			public WebKit.DOM.XPathResult evaluate (string expression, WebKit.DOM.Node contextNode, WebKit.DOM.XPathNSResolver? resolver, ushort type, WebKit.DOM.XPathResult? inResult) throws GLib.Error;
 			public bool exec_command (string command, bool userInterface, string value);
-			[Version (since = "2.16")]
 			public void exit_pointer_lock ();
 			public unowned WebKit.DOM.Element get_active_element ();
 			public WebKit.DOM.HTMLCollection get_anchors ();
@@ -448,86 +351,53 @@ namespace WebKit {
 			public unowned WebKit.DOM.HTMLElement get_body ();
 			public string get_character_set ();
 			public string get_charset ();
-			[Version (since = "2.16")]
 			public ulong get_child_element_count ();
-			[Version (since = "2.16")]
 			public WebKit.DOM.HTMLCollection get_children ();
-			[Version (since = "2.14")]
 			public string get_compat_mode ();
-			[Version (since = "2.16")]
 			public string get_content_type ();
 			public string get_cookie () throws GLib.Error;
-			[Version (since = "2.16")]
 			public unowned WebKit.DOM.HTMLScriptElement get_current_script ();
-			[Version (deprecated = true, deprecated_since = "2.14")]
-			public string get_default_charset ();
 			public WebKit.DOM.DOMWindow get_default_view ();
-			[Version (since = "2.14")]
 			public string get_design_mode ();
-			[Version (since = "2.16")]
 			public string get_dir ();
 			public unowned WebKit.DOM.DocumentType get_doctype ();
 			public unowned WebKit.DOM.Element get_document_element ();
 			public string get_document_uri ();
 			public string get_domain ();
 			public unowned WebKit.DOM.Element get_element_by_id (string elementId);
-			[Version (deprecated = true, deprecated_since = "2.12")]
-			public WebKit.DOM.NodeList get_elements_by_class_name (string class_name);
-			[Version (since = "2.12")]
 			public WebKit.DOM.HTMLCollection get_elements_by_class_name_as_html_collection (string classNames);
 			public WebKit.DOM.NodeList get_elements_by_name (string elementName);
-			[Version (deprecated = true, deprecated_since = "2.12")]
-			public WebKit.DOM.NodeList get_elements_by_tag_name (string tag_name);
-			[Version (since = "2.12")]
 			public WebKit.DOM.HTMLCollection get_elements_by_tag_name_as_html_collection (string tagname);
-			[Version (deprecated = true, deprecated_since = "2.12")]
-			public WebKit.DOM.NodeList get_elements_by_tag_name_ns (string namespace_uri, string tag_name);
-			[Version (since = "2.12")]
 			public WebKit.DOM.HTMLCollection get_elements_by_tag_name_ns_as_html_collection (string namespaceURI, string localName);
-			[Version (since = "2.14")]
 			public WebKit.DOM.HTMLCollection get_embeds ();
-			[Version (since = "2.16")]
 			public unowned WebKit.DOM.Element get_first_element_child ();
 			public WebKit.DOM.HTMLCollection get_forms ();
 			public unowned WebKit.DOM.HTMLHeadElement get_head ();
-			[Version (since = "2.16")]
 			public bool get_hidden ();
 			public WebKit.DOM.HTMLCollection get_images ();
 			public WebKit.DOM.DOMImplementation get_implementation ();
 			public string get_input_encoding ();
-			[Version (since = "2.16")]
 			public unowned WebKit.DOM.Element get_last_element_child ();
 			public string get_last_modified ();
 			public WebKit.DOM.HTMLCollection get_links ();
-			[Version (since = "2.16")]
 			public string get_origin ();
 			public WebKit.DOM.CSSStyleDeclaration get_override_style (WebKit.DOM.Element element, string? pseudoElement);
-			[Version (since = "2.14")]
 			public WebKit.DOM.HTMLCollection get_plugins ();
-			[Version (since = "2.16")]
 			public unowned WebKit.DOM.Element get_pointer_lock_element ();
 			public string get_preferred_stylesheet_set ();
 			public string get_ready_state ();
 			public string get_referrer ();
-			[Version (since = "2.14")]
 			public WebKit.DOM.HTMLCollection get_scripts ();
-			[Version (since = "2.16")]
 			public unowned WebKit.DOM.Element get_scrolling_element ();
 			public string get_selected_stylesheet_set ();
 			public unowned WebKit.DOM.StyleSheetList get_style_sheets ();
 			public string get_title ();
 			public string get_url ();
-			[Version (since = "2.16")]
 			public string get_visibility_state ();
-			[Version (since = "2.16")]
 			public unowned WebKit.DOM.Element get_webkit_current_fullscreen_element ();
-			[Version (since = "2.16")]
 			public unowned WebKit.DOM.Element get_webkit_fullscreen_element ();
-			[Version (since = "2.16")]
 			public bool get_webkit_fullscreen_enabled ();
-			[Version (since = "2.16")]
 			public bool get_webkit_fullscreen_keyboard_input_allowed ();
-			[Version (since = "2.16")]
 			public bool get_webkit_is_fullscreen ();
 			public string get_xml_encoding ();
 			public bool get_xml_standalone ();
@@ -544,18 +414,14 @@ namespace WebKit {
 			public void set_body (WebKit.DOM.HTMLElement value) throws GLib.Error;
 			public void set_charset (string value);
 			public void set_cookie (string value) throws GLib.Error;
-			[Version (since = "2.14")]
 			public void set_design_mode (string value);
-			[Version (since = "2.16")]
 			public void set_dir (string value);
 			public void set_document_uri (string value);
 			public void set_selected_stylesheet_set (string value);
 			public void set_title (string value);
 			public void set_xml_standalone (bool value) throws GLib.Error;
 			public void set_xml_version (string value) throws GLib.Error;
-			[Version (since = "2.16")]
 			public void webkit_cancel_fullscreen ();
-			[Version (since = "2.16")]
 			public void webkit_exit_fullscreen ();
 			public WebKit.DOM.Element active_element { get; }
 			public WebKit.DOM.HTMLCollection anchors { owned get; }
@@ -620,19 +486,12 @@ namespace WebKit {
 		public class DocumentFragment : WebKit.DOM.Node, WebKit.DOM.EventTarget {
 			[CCode (has_construct_function = false)]
 			protected DocumentFragment ();
-			[Version (since = "2.16")]
 			public ulong get_child_element_count ();
-			[Version (since = "2.16")]
 			public WebKit.DOM.HTMLCollection get_children ();
-			[Version (since = "2.16")]
 			public unowned WebKit.DOM.Element get_element_by_id (string elementId);
-			[Version (since = "2.16")]
 			public unowned WebKit.DOM.Element get_first_element_child ();
-			[Version (since = "2.16")]
 			public unowned WebKit.DOM.Element get_last_element_child ();
-			[Version (since = "2.16")]
 			public unowned WebKit.DOM.Element query_selector (string selectors) throws GLib.Error;
-			[Version (since = "2.16")]
 			public WebKit.DOM.NodeList query_selector_all (string selectors) throws GLib.Error;
 			public ulong child_element_count { get; }
 			public WebKit.DOM.HTMLCollection children { owned get; }
@@ -663,7 +522,6 @@ namespace WebKit {
 			[CCode (has_construct_function = false)]
 			protected Element ();
 			public void blur ();
-			[Version (since = "2.16")]
 			public unowned WebKit.DOM.Element closest (string selectors) throws GLib.Error;
 			public void focus ();
 			public string get_attribute (string name);
@@ -671,40 +529,23 @@ namespace WebKit {
 			public unowned WebKit.DOM.Attr get_attribute_node_ns (string namespaceURI, string localName);
 			public string get_attribute_ns (string namespaceURI, string localName);
 			public WebKit.DOM.NamedNodeMap get_attributes ();
-			[Version (since = "2.18")]
 			public WebKit.DOM.ClientRect get_bounding_client_rect ();
 			public ulong get_child_element_count ();
-			[Version (since = "2.10")]
 			public WebKit.DOM.HTMLCollection get_children ();
-			[Version (since = "2.16")]
 			public WebKit.DOM.DOMTokenList get_class_list ();
 			public string get_class_name ();
 			public double get_client_height ();
 			public double get_client_left ();
-			[Version (since = "2.18")]
 			public WebKit.DOM.ClientRectList get_client_rects ();
 			public double get_client_top ();
 			public double get_client_width ();
-			[Version (deprecated = true, deprecated_since = "2.12")]
-			public WebKit.DOM.NodeList get_elements_by_class_name (string class_name);
-			[Version (since = "2.12")]
-			public WebKit.DOM.HTMLCollection get_elements_by_class_name_as_html_collection (string name);
-			[Version (deprecated = true, deprecated_since = "2.12")]
-			public WebKit.DOM.NodeList get_elements_by_tag_name (string tag_name);
-			[Version (since = "2.12")]
 			public WebKit.DOM.HTMLCollection get_elements_by_tag_name_as_html_collection (string name);
-			[Version (deprecated = true, deprecated_since = "2.12")]
-			public WebKit.DOM.NodeList get_elements_by_tag_name_ns (string namespace_uri, string tag_name);
-			[Version (since = "2.12")]
 			public WebKit.DOM.HTMLCollection get_elements_by_tag_name_ns_as_html_collection (string namespaceURI, string localName);
 			public unowned WebKit.DOM.Element get_first_element_child ();
 			public string get_id ();
-			[Version (since = "2.8")]
 			public string get_inner_html ();
 			public unowned WebKit.DOM.Element get_last_element_child ();
-			[Version (since = "2.14")]
 			public string get_local_name ();
-			[Version (since = "2.14")]
 			public string get_namespace_uri ();
 			public unowned WebKit.DOM.Element get_next_element_sibling ();
 			public double get_offset_height ();
@@ -712,9 +553,7 @@ namespace WebKit {
 			public unowned WebKit.DOM.Element get_offset_parent ();
 			public double get_offset_top ();
 			public double get_offset_width ();
-			[Version (since = "2.8")]
 			public string get_outer_html ();
-			[Version (since = "2.14")]
 			public string get_prefix ();
 			public unowned WebKit.DOM.Element get_previous_element_sibling ();
 			public long get_scroll_height ();
@@ -723,27 +562,20 @@ namespace WebKit {
 			public long get_scroll_width ();
 			public WebKit.DOM.CSSStyleDeclaration get_style ();
 			public string get_tag_name ();
-			[Version (deprecated = true, deprecated_since = "2.20")]
 			public string get_webkit_region_overset ();
 			public bool has_attribute (string name);
 			public bool has_attribute_ns (string namespaceURI, string localName);
 			public bool has_attributes ();
-			[Version (since = "2.16")]
 			public unowned WebKit.DOM.Element insert_adjacent_element (string where, WebKit.DOM.Element element) throws GLib.Error;
-			[Version (since = "2.16")]
 			public void insert_adjacent_html (string where, string html) throws GLib.Error;
-			[Version (since = "2.16")]
 			public void insert_adjacent_text (string where, string text) throws GLib.Error;
-			[Version (since = "2.16")]
 			public bool matches (string selectors) throws GLib.Error;
 			public unowned WebKit.DOM.Element query_selector (string selectors) throws GLib.Error;
 			public WebKit.DOM.NodeList query_selector_all (string selectors) throws GLib.Error;
-			[Version (since = "2.16")]
 			public void remove () throws GLib.Error;
 			public void remove_attribute (string name);
 			public unowned WebKit.DOM.Attr remove_attribute_node (WebKit.DOM.Attr oldAttr) throws GLib.Error;
 			public void remove_attribute_ns (string namespaceURI, string localName);
-			[Version (since = "2.16")]
 			public void request_pointer_lock ();
 			public void scroll_by_lines (long lines);
 			public void scroll_by_pages (long pages);
@@ -755,15 +587,11 @@ namespace WebKit {
 			public void set_attribute_ns (string? namespaceURI, string qualifiedName, string value) throws GLib.Error;
 			public void set_class_name (string value);
 			public void set_id (string value);
-			[Version (since = "2.8")]
 			public void set_inner_html (string value) throws GLib.Error;
-			[Version (since = "2.8")]
 			public void set_outer_html (string value) throws GLib.Error;
 			public void set_scroll_left (long value);
 			public void set_scroll_top (long value);
-			[Version (since = "2.16")]
 			public bool webkit_matches_selector (string selectors) throws GLib.Error;
-			[Version (since = "2.16")]
 			public void webkit_request_fullscreen ();
 			public WebKit.DOM.NamedNodeMap attributes { owned get; }
 			public ulong child_element_count { get; }
@@ -893,7 +721,6 @@ namespace WebKit {
 			public void set_search (string value);
 			public void set_shape (string value);
 			public void set_target (string value);
-			[Version (since = "2.16")]
 			public void set_text (string value);
 			public void set_type_attr (string value);
 			public string charset { owned get; set; }
@@ -976,19 +803,13 @@ namespace WebKit {
 			public void set_alt (string value);
 			public void set_coords (string value);
 			public void set_hash (string value);
-			[Version (since = "2.16")]
 			public void set_host (string value);
-			[Version (since = "2.16")]
 			public void set_hostname (string value);
 			public void set_href (string value);
 			public void set_no_href (bool value);
-			[Version (since = "2.16")]
 			public void set_pathname (string value);
-			[Version (since = "2.16")]
 			public void set_port (string value);
-			[Version (since = "2.16")]
 			public void set_protocol (string value);
-			[Version (since = "2.16")]
 			public void set_search (string value);
 			public void set_shape (string value);
 			public void set_target (string value);
@@ -1032,18 +853,6 @@ namespace WebKit {
 		public class HTMLBaseFontElement : WebKit.DOM.HTMLElement, WebKit.DOM.EventTarget {
 			[CCode (has_construct_function = false)]
 			protected HTMLBaseFontElement ();
-			[Version (deprecated = true, deprecated_since = "2.12")]
-			public string get_color ();
-			[Version (deprecated = true, deprecated_since = "2.12")]
-			public string get_face ();
-			[Version (deprecated = true, deprecated_since = "2.12")]
-			public long get_size ();
-			[Version (deprecated = true, deprecated_since = "2.12")]
-			public void set_color (string value);
-			[Version (deprecated = true, deprecated_since = "2.12")]
-			public void set_face (string value);
-			[Version (deprecated = true, deprecated_since = "2.12")]
-			public void set_size (long value);
 		}
 		[CCode (cheader_filename = "webkit2/webkit-web-extension.h", type_id = "webkit_dom_html_body_element_get_type ()")]
 		[GIR (name = "DOMHTMLBodyElement")]
@@ -1154,27 +963,15 @@ namespace WebKit {
 			public void close ();
 			public string get_alink_color ();
 			public string get_bg_color ();
-			[Version (deprecated = true, deprecated_since = "2.14")]
-			public string get_compat_mode ();
-			[Version (deprecated = true, deprecated_since = "2.14")]
-			public string get_design_mode ();
 			public string get_dir ();
-			[Version (deprecated = true, deprecated_since = "2.14")]
-			public WebKit.DOM.HTMLCollection get_embeds ();
 			public string get_fg_color ();
 			public long get_height ();
 			public string get_link_color ();
-			[Version (deprecated = true, deprecated_since = "2.14")]
-			public WebKit.DOM.HTMLCollection get_plugins ();
-			[Version (deprecated = true, deprecated_since = "2.14")]
-			public WebKit.DOM.HTMLCollection get_scripts ();
 			public string get_vlink_color ();
 			public long get_width ();
 			public void release_events ();
 			public void set_alink_color (string value);
 			public void set_bg_color (string value);
-			[Version (deprecated = true, deprecated_since = "2.14")]
-			public void set_design_mode (string value);
 			public void set_dir (string value);
 			public void set_fg_color (string value);
 			public void set_link_color (string value);
@@ -1195,51 +992,31 @@ namespace WebKit {
 			protected HTMLElement ();
 			public void click ();
 			public string get_access_key ();
-			[Version (deprecated = true, deprecated_since = "2.10")]
-			public WebKit.DOM.HTMLCollection get_children ();
 			public string get_content_editable ();
 			public string get_dir ();
-			[Version (since = "2.16")]
 			public bool get_draggable ();
-			[Version (since = "2.16")]
 			public bool get_hidden ();
-			[Version (deprecated = true, deprecated_since = "2.8")]
-			public string get_inner_html ();
 			public string get_inner_text ();
 			public bool get_is_content_editable ();
 			public string get_lang ();
-			[Version (deprecated = true, deprecated_since = "2.8")]
-			public string get_outer_html ();
 			public string get_outer_text ();
-			[Version (since = "2.16")]
 			public bool get_spellcheck ();
 			public long get_tab_index ();
 			public string get_title ();
-			[Version (since = "2.16")]
 			public bool get_translate ();
-			[Version (since = "2.16")]
 			public string get_webkitdropzone ();
 			public void set_access_key (string value);
 			public void set_content_editable (string value) throws GLib.Error;
 			public void set_dir (string value);
-			[Version (since = "2.16")]
 			public void set_draggable (bool value);
-			[Version (since = "2.16")]
 			public void set_hidden (bool value);
-			[Version (deprecated = true, deprecated_since = "2.8")]
-			public void set_inner_html (string contents) throws GLib.Error;
 			public void set_inner_text (string value) throws GLib.Error;
 			public void set_lang (string value);
-			[Version (deprecated = true, deprecated_since = "2.8")]
-			public void set_outer_html (string contents) throws GLib.Error;
 			public void set_outer_text (string value) throws GLib.Error;
-			[Version (since = "2.16")]
 			public void set_spellcheck (bool value);
 			public void set_tab_index (long value);
 			public void set_title (string value);
-			[Version (since = "2.16")]
 			public void set_translate (bool value);
-			[Version (since = "2.16")]
 			public void set_webkitdropzone (string value);
 			public string access_key { owned get; set; }
 			[NoAccessorMethod]
@@ -1538,12 +1315,8 @@ namespace WebKit {
 			public string get_accept ();
 			public string get_align ();
 			public string get_alt ();
-			[Version (since = "2.16")]
 			public bool get_auto_filled ();
 			public bool get_autofocus ();
-			[Version (deprecated = true, deprecated_since = "2.14")]
-			public bool get_capture ();
-			[Version (since = "2.14")]
 			public string get_capture_type ();
 			public bool get_checked ();
 			public bool get_default_checked ();
@@ -1557,7 +1330,6 @@ namespace WebKit {
 			public long get_max_length ();
 			public bool get_multiple ();
 			public string get_name ();
-			[Version (since = "2.16")]
 			public bool get_read_only ();
 			public ulong get_size ();
 			public string get_src ();
@@ -1570,17 +1342,13 @@ namespace WebKit {
 			public void set_accept (string value);
 			public void set_align (string value);
 			public void set_alt (string value);
-			[Version (since = "2.16")]
 			public void set_auto_filled (bool value);
 			public void set_autofocus (bool value);
-			[Version (since = "2.16")]
 			public void set_capture_type (string value);
 			public void set_checked (bool value);
-			[Version (since = "2.16")]
 			public void set_default_checked (bool value);
 			public void set_default_value (string value);
 			public void set_disabled (bool value);
-			[Version (since = "2.16")]
 			public void set_editing_value (string value);
 			public void set_files (WebKit.DOM.FileList value);
 			public void set_height (ulong value);
@@ -1672,7 +1440,6 @@ namespace WebKit {
 			public string get_rel ();
 			public string get_rev ();
 			public WebKit.DOM.StyleSheet get_sheet ();
-			[Version (since = "2.16")]
 			public WebKit.DOM.DOMTokenList get_sizes ();
 			public string get_target ();
 			public string get_type_attr ();
@@ -1683,7 +1450,6 @@ namespace WebKit {
 			public void set_media (string value);
 			public void set_rel (string value);
 			public void set_rev (string value);
-			[Version (since = "2.16")]
 			public void set_sizes (string value);
 			public void set_target (string value);
 			public void set_type_attr (string value);
@@ -1945,7 +1711,6 @@ namespace WebKit {
 			public string get_src ();
 			public string get_text ();
 			public string get_type_attr ();
-			[Version (since = "2.16")]
 			public void set_charset (string value);
 			public void set_defer (bool value);
 			public void set_event (string value);
@@ -2374,9 +2139,6 @@ namespace WebKit {
 			[CCode (has_construct_function = false)]
 			protected Node ();
 			public unowned WebKit.DOM.Node append_child (WebKit.DOM.Node newChild) throws GLib.Error;
-			[Version (deprecated = true, deprecated_since = "2.14")]
-			public unowned WebKit.DOM.Node clone_node (bool deep) throws GLib.Error;
-			[Version (since = "2.14")]
 			public unowned WebKit.DOM.Node clone_node_with_error (bool deep) throws GLib.Error;
 			public ushort compare_document_position (WebKit.DOM.Node other);
 			public bool contains (WebKit.DOM.Node other);
@@ -2384,10 +2146,6 @@ namespace WebKit {
 			public WebKit.DOM.NodeList get_child_nodes ();
 			public unowned WebKit.DOM.Node get_first_child ();
 			public unowned WebKit.DOM.Node get_last_child ();
-			[Version (deprecated = true, deprecated_since = "2.14")]
-			public string get_local_name ();
-			[Version (deprecated = true, deprecated_since = "2.14")]
-			public string get_namespace_uri ();
 			public unowned WebKit.DOM.Node get_next_sibling ();
 			public string get_node_name ();
 			public ushort get_node_type ();
@@ -2395,8 +2153,6 @@ namespace WebKit {
 			public unowned WebKit.DOM.Document get_owner_document ();
 			public unowned WebKit.DOM.Element get_parent_element ();
 			public unowned WebKit.DOM.Node get_parent_node ();
-			[Version (deprecated = true, deprecated_since = "2.14")]
-			public string get_prefix ();
 			public unowned WebKit.DOM.Node get_previous_sibling ();
 			public string get_text_content ();
 			public bool has_child_nodes ();
@@ -2411,8 +2167,6 @@ namespace WebKit {
 			public unowned WebKit.DOM.Node remove_child (WebKit.DOM.Node oldChild) throws GLib.Error;
 			public unowned WebKit.DOM.Node replace_child (WebKit.DOM.Node newChild, WebKit.DOM.Node oldChild) throws GLib.Error;
 			public void set_node_value (string value) throws GLib.Error;
-			[Version (deprecated = true, deprecated_since = "2.14")]
-			public void set_prefix (string value) throws GLib.Error;
 			public void set_text_content (string value) throws GLib.Error;
 			public string base_uri { owned get; }
 			public WebKit.DOM.NodeList child_nodes { owned get; }
@@ -2436,8 +2190,6 @@ namespace WebKit {
 			[CCode (has_construct_function = false)]
 			protected NodeIterator ();
 			public void detach ();
-			[Version (deprecated = true, deprecated_since = "2.12")]
-			public bool get_expand_entity_references ();
 			public WebKit.DOM.NodeFilter get_filter ();
 			public bool get_pointer_before_reference_node ();
 			public unowned WebKit.DOM.Node get_reference_node ();
@@ -2493,7 +2245,6 @@ namespace WebKit {
 			public unowned WebKit.DOM.DocumentFragment create_contextual_fragment (string html) throws GLib.Error;
 			public void delete_contents () throws GLib.Error;
 			public void detach () throws GLib.Error;
-			[Version (since = "2.16")]
 			public void expand (string unit) throws GLib.Error;
 			public unowned WebKit.DOM.DocumentFragment extract_contents () throws GLib.Error;
 			public bool get_collapsed () throws GLib.Error;
@@ -2567,8 +2318,6 @@ namespace WebKit {
 			[CCode (has_construct_function = false)]
 			protected Text ();
 			public string get_whole_text ();
-			[Version (deprecated = true, deprecated_since = "2.14")]
-			public unowned WebKit.DOM.Text replace_whole_text (string content) throws GLib.Error;
 			public unowned WebKit.DOM.Text split_text (ulong offset) throws GLib.Error;
 			public string whole_text { owned get; }
 		}
@@ -2579,8 +2328,6 @@ namespace WebKit {
 			protected TreeWalker ();
 			public unowned WebKit.DOM.Node first_child ();
 			public unowned WebKit.DOM.Node get_current_node ();
-			[Version (deprecated = true, deprecated_since = "2.12")]
-			public bool get_expand_entity_references ();
 			public WebKit.DOM.NodeFilter get_filter ();
 			public unowned WebKit.DOM.Node get_root ();
 			public ulong get_what_to_show ();
@@ -2790,52 +2537,36 @@ namespace WebKit {
 		[CCode (cheader_filename = "webkit2/webkit-web-extension.h", cname = "WEBKIT_DOM_NODE_ENTITY_REFERENCE_NODE")]
 		public const int _NODE_ENTITY_REFERENCE_NODE;
 		[CCode (cheader_filename = "webkit2/webkit-web-extension.h", cname = "WEBKIT_DOM_NODE_FILTER_ACCEPT")]
-		[Version (since = "2.6")]
 		public const int _NODE_FILTER_ACCEPT;
 		[CCode (cheader_filename = "webkit2/webkit-web-extension.h", cname = "WEBKIT_DOM_NODE_FILTER_REJECT")]
-		[Version (since = "2.6")]
 		public const int _NODE_FILTER_REJECT;
 		[CCode (cheader_filename = "webkit2/webkit-web-extension.h", cname = "WEBKIT_DOM_NODE_FILTER_SHOW_ALL")]
-		[Version (since = "2.6")]
 		public const int _NODE_FILTER_SHOW_ALL;
 		[CCode (cheader_filename = "webkit2/webkit-web-extension.h", cname = "WEBKIT_DOM_NODE_FILTER_SHOW_ATTRIBUTE")]
-		[Version (since = "2.6")]
 		public const int _NODE_FILTER_SHOW_ATTRIBUTE;
 		[CCode (cheader_filename = "webkit2/webkit-web-extension.h", cname = "WEBKIT_DOM_NODE_FILTER_SHOW_CDATA_SECTION")]
-		[Version (since = "2.6")]
 		public const int _NODE_FILTER_SHOW_CDATA_SECTION;
 		[CCode (cheader_filename = "webkit2/webkit-web-extension.h", cname = "WEBKIT_DOM_NODE_FILTER_SHOW_COMMENT")]
-		[Version (since = "2.6")]
 		public const int _NODE_FILTER_SHOW_COMMENT;
 		[CCode (cheader_filename = "webkit2/webkit-web-extension.h", cname = "WEBKIT_DOM_NODE_FILTER_SHOW_DOCUMENT")]
-		[Version (since = "2.6")]
 		public const int _NODE_FILTER_SHOW_DOCUMENT;
 		[CCode (cheader_filename = "webkit2/webkit-web-extension.h", cname = "WEBKIT_DOM_NODE_FILTER_SHOW_DOCUMENT_FRAGMENT")]
-		[Version (since = "2.6")]
 		public const int _NODE_FILTER_SHOW_DOCUMENT_FRAGMENT;
 		[CCode (cheader_filename = "webkit2/webkit-web-extension.h", cname = "WEBKIT_DOM_NODE_FILTER_SHOW_DOCUMENT_TYPE")]
-		[Version (since = "2.6")]
 		public const int _NODE_FILTER_SHOW_DOCUMENT_TYPE;
 		[CCode (cheader_filename = "webkit2/webkit-web-extension.h", cname = "WEBKIT_DOM_NODE_FILTER_SHOW_ELEMENT")]
-		[Version (since = "2.6")]
 		public const int _NODE_FILTER_SHOW_ELEMENT;
 		[CCode (cheader_filename = "webkit2/webkit-web-extension.h", cname = "WEBKIT_DOM_NODE_FILTER_SHOW_ENTITY")]
-		[Version (since = "2.6")]
 		public const int _NODE_FILTER_SHOW_ENTITY;
 		[CCode (cheader_filename = "webkit2/webkit-web-extension.h", cname = "WEBKIT_DOM_NODE_FILTER_SHOW_ENTITY_REFERENCE")]
-		[Version (since = "2.6")]
 		public const int _NODE_FILTER_SHOW_ENTITY_REFERENCE;
 		[CCode (cheader_filename = "webkit2/webkit-web-extension.h", cname = "WEBKIT_DOM_NODE_FILTER_SHOW_NOTATION")]
-		[Version (since = "2.6")]
 		public const int _NODE_FILTER_SHOW_NOTATION;
 		[CCode (cheader_filename = "webkit2/webkit-web-extension.h", cname = "WEBKIT_DOM_NODE_FILTER_SHOW_PROCESSING_INSTRUCTION")]
-		[Version (since = "2.6")]
 		public const int _NODE_FILTER_SHOW_PROCESSING_INSTRUCTION;
 		[CCode (cheader_filename = "webkit2/webkit-web-extension.h", cname = "WEBKIT_DOM_NODE_FILTER_SHOW_TEXT")]
-		[Version (since = "2.6")]
 		public const int _NODE_FILTER_SHOW_TEXT;
 		[CCode (cheader_filename = "webkit2/webkit-web-extension.h", cname = "WEBKIT_DOM_NODE_FILTER_SKIP")]
-		[Version (since = "2.6")]
 		public const int _NODE_FILTER_SKIP;
 		[CCode (cheader_filename = "webkit2/webkit-web-extension.h", cname = "WEBKIT_DOM_NODE_PROCESSING_INSTRUCTION_NODE")]
 		public const int _NODE_PROCESSING_INSTRUCTION_NODE;
@@ -2881,19 +2612,12 @@ namespace WebKit {
 	[CCode (cheader_filename = "webkit2/webkit-web-extension.h", copy_function = "g_boxed_copy", free_function = "g_boxed_free", type_id = "webkit_console_message_get_type ()")]
 	[Compact]
 	public class ConsoleMessage {
-		[Version (since = "2.12")]
 		public WebKit.ConsoleMessage copy ();
-		[Version (since = "2.12")]
 		public void free ();
-		[Version (since = "2.12")]
 		public WebKit.ConsoleMessageLevel get_level ();
-		[Version (since = "2.12")]
 		public uint get_line ();
-		[Version (since = "2.12")]
 		public WebKit.ConsoleMessageSource get_source ();
-		[Version (since = "2.12")]
 		public unowned string get_source_id ();
-		[Version (since = "2.12")]
 		public unowned string get_text ();
 	}
 	[CCode (cheader_filename = "webkit2/webkit-web-extension.h", type_id = "webkit_context_menu_get_type ()")]
@@ -2905,7 +2629,6 @@ namespace WebKit {
 		public unowned WebKit.ContextMenuItem get_item_at_position (uint position);
 		public unowned GLib.List<WebKit.ContextMenuItem> get_items ();
 		public uint get_n_items ();
-		[Version (since = "2.8")]
 		public unowned GLib.Variant get_user_data ();
 		public void insert (WebKit.ContextMenuItem item, int position);
 		public unowned WebKit.ContextMenuItem last ();
@@ -2913,7 +2636,6 @@ namespace WebKit {
 		public void prepend (WebKit.ContextMenuItem item);
 		public void remove (WebKit.ContextMenuItem item);
 		public void remove_all ();
-		[Version (since = "2.8")]
 		public void set_user_data (GLib.Variant user_data);
 		[CCode (has_construct_function = false)]
 		public ContextMenu.with_items (GLib.List<WebKit.ContextMenuItem> items);
@@ -2921,18 +2643,11 @@ namespace WebKit {
 	[CCode (cheader_filename = "webkit2/webkit-web-extension.h", type_id = "webkit_context_menu_item_get_type ()")]
 	public class ContextMenuItem : GLib.InitiallyUnowned {
 		[CCode (has_construct_function = false)]
-		[Version (deprecated = true, deprecated_since = "2.18")]
-		public ContextMenuItem (Gtk.Action action);
-		[CCode (has_construct_function = false)]
-		[Version (since = "2.18")]
 		public ContextMenuItem.from_gaction (GLib.Action action, string label, GLib.Variant? target);
 		[CCode (has_construct_function = false)]
 		public ContextMenuItem.from_stock_action (WebKit.ContextMenuAction action);
 		[CCode (has_construct_function = false)]
 		public ContextMenuItem.from_stock_action_with_label (WebKit.ContextMenuAction action, string label);
-		[Version (deprecated = true, deprecated_since = "2.18")]
-		public unowned Gtk.Action get_action ();
-		[Version (since = "2.18")]
 		public unowned GLib.Action get_gaction ();
 		public WebKit.ContextMenuAction get_stock_action ();
 		public unowned WebKit.ContextMenu get_submenu ();
@@ -2947,13 +2662,9 @@ namespace WebKit {
 	public class Frame : GLib.Object {
 		[CCode (has_construct_function = false)]
 		protected Frame ();
-		[Version (since = "2.2")]
 		public unowned JS.GlobalContext get_javascript_context_for_script_world (WebKit.ScriptWorld world);
-		[Version (since = "2.2")]
 		public unowned JS.GlobalContext get_javascript_global_context ();
-		[Version (since = "2.2")]
 		public unowned string get_uri ();
-		[Version (since = "2.2")]
 		public bool is_main_frame ();
 	}
 	[CCode (cheader_filename = "webkit2/webkit-web-extension.h", type_id = "webkit_hit_test_result_get_type ()")]
@@ -2965,7 +2676,6 @@ namespace WebKit {
 		public bool context_is_link ();
 		public bool context_is_media ();
 		public bool context_is_scrollbar ();
-		[Version (since = "2.8")]
 		public bool context_is_selection ();
 		public uint get_context ();
 		public unowned string get_image_uri ();
@@ -2983,11 +2693,8 @@ namespace WebKit {
 	[CCode (cheader_filename = "webkit2/webkit-web-extension.h", type_id = "webkit_script_world_get_type ()")]
 	public class ScriptWorld : GLib.Object {
 		[CCode (has_construct_function = false)]
-		[Version (since = "2.2")]
 		public ScriptWorld ();
-		[Version (since = "2.2")]
 		public static unowned WebKit.ScriptWorld get_default ();
-		[Version (since = "2.2")]
 		public signal void window_object_cleared (WebKit.WebPage page, WebKit.Frame frame);
 	}
 	[CCode (cheader_filename = "webkit2/webkit-web-extension.h", type_id = "webkit_uri_request_get_type ()")]
@@ -2995,7 +2702,6 @@ namespace WebKit {
 		[CCode (has_construct_function = false)]
 		public URIRequest (string uri);
 		public unowned Soup.MessageHeaders get_http_headers ();
-		[Version (since = "2.12")]
 		public unowned string get_http_method ();
 		public unowned string get_uri ();
 		public void set_uri (string uri);
@@ -3006,14 +2712,12 @@ namespace WebKit {
 		[CCode (has_construct_function = false)]
 		protected URIResponse ();
 		public uint64 get_content_length ();
-		[Version (since = "2.6")]
 		public unowned Soup.MessageHeaders get_http_headers ();
 		public unowned string get_mime_type ();
 		public uint get_status_code ();
 		public unowned string get_suggested_filename ();
 		public unowned string get_uri ();
 		public uint64 content_length { get; }
-		[Version (since = "2.6")]
 		public Soup.MessageHeaders http_headers { get; }
 		public string mime_type { get; }
 		public uint status_code { get; }
@@ -3024,9 +2728,7 @@ namespace WebKit {
 	public class WebEditor : GLib.Object {
 		[CCode (has_construct_function = false)]
 		protected WebEditor ();
-		[Version (since = "2.10")]
 		public unowned WebKit.WebPage get_page ();
-		[Version (since = "2.10")]
 		public signal void selection_changed ();
 	}
 	[CCode (cheader_filename = "webkit2/webkit-web-extension.h", type_id = "webkit_web_extension_get_type ()")]
@@ -3040,7 +2742,6 @@ namespace WebKit {
 	public class WebHitTestResult : WebKit.HitTestResult {
 		[CCode (has_construct_function = false)]
 		protected WebHitTestResult ();
-		[Version (since = "2.8")]
 		public unowned WebKit.DOM.Node get_node ();
 		public WebKit.DOM.Node node { get; construct; }
 	}
@@ -3049,26 +2750,18 @@ namespace WebKit {
 		[CCode (has_construct_function = false)]
 		protected WebPage ();
 		public unowned WebKit.DOM.Document get_dom_document ();
-		[Version (since = "2.10")]
 		public unowned WebKit.WebEditor get_editor ();
 		public uint64 get_id ();
-		[Version (since = "2.2")]
 		public unowned WebKit.Frame get_main_frame ();
 		public unowned string get_uri ();
 		public string uri { get; }
-		[Version (since = "2.12")]
 		public signal void console_message_sent (WebKit.ConsoleMessage console_message);
-		[Version (since = "2.8")]
 		public signal bool context_menu (WebKit.ContextMenu context_menu, WebKit.WebHitTestResult hit_test_result);
 		public signal void document_loaded ();
-		[Version (since = "2.16")]
 		public signal void form_controls_associated (GLib.GenericArray<WebKit.DOM.Element> elements);
 		public signal bool send_request (WebKit.URIRequest request, WebKit.URIResponse redirected_response);
-		[Version (since = "2.20")]
-		public signal void will_submit_form (WebKit.DOM.Element form, WebKit.FormSubmissionStep step, WebKit.Frame source_frame, WebKit.Frame target_frame, GLib.GenericArray<string> text_field_names, GLib.GenericArray<string> text_field_values);
 	}
 	[CCode (cheader_filename = "webkit2/webkit-web-extension.h", cprefix = "WEBKIT_CONSOLE_MESSAGE_LEVEL_", type_id = "webkit_console_message_level_get_type ()")]
-	[Version (since = "2.12")]
 	public enum ConsoleMessageLevel {
 		INFO,
 		LOG,
@@ -3077,7 +2770,6 @@ namespace WebKit {
 		DEBUG
 	}
 	[CCode (cheader_filename = "webkit2/webkit-web-extension.h", cprefix = "WEBKIT_CONSOLE_MESSAGE_SOURCE_", type_id = "webkit_console_message_source_get_type ()")]
-	[Version (since = "2.12")]
 	public enum ConsoleMessageSource {
 		JAVASCRIPT,
 		NETWORK,
@@ -3133,12 +2825,6 @@ namespace WebKit {
 		DOWNLOAD_AUDIO_TO_DISK,
 		CUSTOM
 	}
-	[CCode (cheader_filename = "webkit2/webkit-web-extension.h", cprefix = "WEBKIT_FORM_SUBMISSION_WILL_", type_id = "webkit_form_submission_step_get_type ()")]
-	[Version (since = "2.20")]
-	public enum FormSubmissionStep {
-		SEND_DOM_EVENT,
-		COMPLETE
-	}
 	[CCode (cheader_filename = "webkit2/webkit-web-extension.h", cprefix = "WEBKIT_HIT_TEST_RESULT_CONTEXT_", has_type_id = false)]
 	[Flags]
 	public enum HitTestResultContext {
@@ -3153,6 +2839,5 @@ namespace WebKit {
 	[CCode (cheader_filename = "webkit2/webkit-web-extension.h", has_target = false)]
 	public delegate void WebExtensionInitializeFunction (WebKit.WebExtension extension);
 	[CCode (cheader_filename = "webkit2/webkit-web-extension.h", has_target = false)]
-	[Version (since = "2.4")]
 	public delegate void WebExtensionInitializeWithUserDataFunction (WebKit.WebExtension extension, GLib.Variant user_data);
 }

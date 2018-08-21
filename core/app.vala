@@ -11,6 +11,8 @@
 
 namespace Midori {
     public class App : Gtk.Application {
+        public File? exec_path { get; protected set; default = null; }
+
         public static bool incognito = false;
         static bool version = false;
         const OptionEntry[] options = {
@@ -28,6 +30,24 @@ namespace Midori {
                     flags: ApplicationFlags.HANDLES_OPEN);
 
             add_main_option_entries (options);
+        }
+
+        public override bool local_command_line (ref weak string[] args, out int exit_status) {
+            exit_status = -1;
+            // Get the executable path
+            string executable = args[0];
+            try {
+                if (!Path.is_absolute (executable)) {
+                    executable = Environment.find_program_in_path (executable);
+                    if (FileUtils.test (executable, FileTest.IS_SYMLINK))
+                        executable = FileUtils.read_link (executable);
+                }
+            } catch (FileError error) {
+                debug ("Failed to look up exec path: %s", error.message);
+            }
+            exec_path = File.new_for_path (executable);
+
+            return base.local_command_line (ref args, out exit_status);
         }
 
         public override void startup () {
@@ -75,7 +95,14 @@ namespace Midori {
                 Environment.get_user_cache_dir (), Environment.get_prgname ());
             string icons = Path.build_path (Path.DIR_SEPARATOR_S, cache, "icondatabase");
             context.set_favicon_database_directory (icons);
-            context.set_web_extensions_directory ("web");
+
+            // Try and load web extensions from build folder
+            var web_path = exec_path.get_parent ().get_child ("web");
+            if (!web_path.query_exists (null)) {
+                // Alternatively look for an installed path
+                web_path = exec_path.get_parent ().get_parent ().get_child ("lib").get_child (Environment.get_prgname ());
+            }
+            context.set_web_extensions_directory (web_path.get_path ());
             context.initialize_web_extensions.connect (() => {
                 context.set_web_extensions_initialization_user_data ("");
             });

@@ -52,8 +52,9 @@ pkg_check_modules(DEPS_GTK REQUIRED
                   gtk+-3.0>=3.12.0
                   webkit2gtk-4.0>=2.18
                   gcr-ui-3>=2.32
+                  libpeas-gtk-1.0
                   )
-set(PKGS ${PKGS} gtk+-3.0 libsoup-2.4 gcr-ui-3)
+set(PKGS ${PKGS} gtk+-3.0 libsoup-2.4 gcr-ui-3 libpeas-gtk-1.0)
 set(EXTRA_VAPIS
     ${CMAKE_SOURCE_DIR}/vapi/config.vapi
     ${CMAKE_SOURCE_DIR}/vapi/webkit2gtk-4.0.vapi
@@ -76,6 +77,7 @@ add_custom_target (uninstall
 install(FILES COPYING README DESTINATION ${CMAKE_INSTALL_DOCDIR})
 
 add_subdirectory (core)
+add_subdirectory (web)
 enable_testing()
 add_subdirectory (tests)
 add_subdirectory (po)
