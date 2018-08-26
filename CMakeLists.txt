@@ -33,6 +33,7 @@ vala_require("0.30.0")
 set(VALAFLAGS ${VALAFLAGS}
     --debug
     --target-glib=2.48
+    --enable-deprecated
     )
 
 include(GNUInstallDirs)
@@ -50,7 +51,7 @@ set(PKGS sqlite3 gio-2.0 libsoup-2.4)
 
 pkg_check_modules(DEPS_GTK REQUIRED
                   gtk+-3.0>=3.12.0
-                  webkit2gtk-4.0>=2.18
+                  webkit2gtk-4.0>=2.16.6
                   gcr-ui-3>=2.32
                   libpeas-gtk-1.0
                   )
