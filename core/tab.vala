@@ -50,9 +50,11 @@ namespace Midori {
                     string? uri = null, string? title = null) {
             Object (related_view: related, web_context: web_context, visible: true);
 
-            get_settings ().set_user_agent_with_application_details (
+            var settings = get_settings ();
+            settings.set_user_agent_with_application_details (
                 Config.PROJECT_NAME, Config.CORE_VERSION);
-            get_settings ().enable_developer_extras = true;
+            settings.user_agent = settings.user_agent.replace ("Version/11.0", "Chrome/55.0.2876.0");
+            settings.enable_developer_extras = true;
 
             if (pinned) {
                 load_uri (uri ?? "internal:speed-dial");
