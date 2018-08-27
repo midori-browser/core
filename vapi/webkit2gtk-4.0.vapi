@@ -98,6 +98,8 @@ namespace WebKit {
 	[CCode (cheader_filename = "webkit2/webkit2.h", type_id = "webkit_context_menu_item_get_type ()")]
 	public class ContextMenuItem : GLib.InitiallyUnowned {
 		[CCode (has_construct_function = false)]
+		public ContextMenuItem (Gtk.Action action);
+		[CCode (has_construct_function = false)]
 		public ContextMenuItem.from_gaction (GLib.Action action, string label, GLib.Variant? target);
 		[CCode (has_construct_function = false)]
 		public ContextMenuItem.from_stock_action (WebKit.ContextMenuAction action);

@@ -206,19 +206,19 @@ namespace Midori {
             if (hit.context_is_link () && !hit.link_uri.has_prefix ("javascript:")) {
                 menu.append (new WebKit.ContextMenuItem.from_stock_action_with_label (WebKit.ContextMenuAction.OPEN_LINK_IN_NEW_WINDOW, _("Open Link in New _Tab")));
                 if (!App.incognito) {
-                    var action = new SimpleAction ("link-window", VariantType.STRING);
+                    var action = new Gtk.Action ("link-window", _("Open Link in New _Window"), null, null);
                     action.activate.connect (() => {
                         var browser = new Browser ((App)Application.get_default ());
                         browser.add (new Tab (null, browser.web_context, hit.link_uri));
                     });
-                    menu.append (new WebKit.ContextMenuItem.from_gaction (action, _("Open Link in New _Window"), hit.link_uri));
+                    menu.append (new WebKit.ContextMenuItem (action));
                 }
-                var action = new SimpleAction ("link-incognito", VariantType.STRING);
+                var action = new Gtk.Action ("link-incognito", _("Open Link in New _Private Window"), null, null);
                 action.activate.connect (() => {
                     var browser = new Browser.incognito ((App)Application.get_default ());
                     browser.add (new Tab (null, browser.web_context, hit.link_uri));
                 });
-                menu.append (new WebKit.ContextMenuItem.from_gaction (action, _("Open Link in New _Private Window"), hit.link_uri));
+                menu.append (new WebKit.ContextMenuItem (action));
                 menu.append (new WebKit.ContextMenuItem.separator ());
                 menu.append (new WebKit.ContextMenuItem.from_stock_action (WebKit.ContextMenuAction.DOWNLOAD_LINK_TO_DISK));
                 menu.append (new WebKit.ContextMenuItem.from_stock_action (WebKit.ContextMenuAction.COPY_LINK_TO_CLIPBOARD));
@@ -240,15 +240,14 @@ namespace Midori {
                 // Selected text, ellipsized if > 32 characters
                 string? text = Gtk.Clipboard.get_for_display (get_display (), Gdk.SELECTION_PRIMARY).wait_for_text ();
                 string? label = ((text != null && text.length > 32) ? text.substring (0, 32) + "…" : text).delimit ("\n", ' ');
-                var action = new SimpleAction ("text-search", VariantType.STRING);
+                var action = new Gtk.Action ("text-search", _("Search %s for \"%s\"").printf ("DuckDuckGo", label), null, null);
                 action.activate.connect (() => {
                     // Allow DuckDuckGo to distinguish Midori and in turn share revenue
                     string uri = "https://duckduckgo.com/?q=%s&t=midori".printf (Uri.escape_string (text, ":/", true));
                     var tab = new Tab (this, web_context, uri);
                     ((Browser)get_toplevel ()).add (tab);
                 });
-                menu.append (new WebKit.ContextMenuItem.from_gaction (
-                    action, _("Search %s for \"%s\"").printf ("DuckDuckGo", label), text));
+                menu.append (new WebKit.ContextMenuItem (action));
             }
             if (clear) {
                 menu.append (new WebKit.ContextMenuItem.separator ());
