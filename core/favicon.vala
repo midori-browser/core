@@ -35,9 +35,11 @@ namespace Midori {
             var database = WebKit.WebContext.get_default ().get_favicon_database ();
             try {
                 var surface = yield database.get_favicon (uri, cancellable);
-                var image = (Cairo.ImageSurface)surface;
-                var pixbuf = Gdk.pixbuf_get_from_surface (image, 0, 0, image.get_width (), image.get_height ());
-                gicon = (Icon)scale_to_icon_size (pixbuf);
+                if (surface != null) {
+                    var image = (Cairo.ImageSurface)surface;
+                    var pixbuf = Gdk.pixbuf_get_from_surface (image, 0, 0, image.get_width (), image.get_height ());
+                    gicon = (Icon)scale_to_icon_size (pixbuf);
+                }
             } catch (Error error) {
                 debug ("Icon failed to load: %s", error.message);
             }
