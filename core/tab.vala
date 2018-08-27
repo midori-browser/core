@@ -126,6 +126,20 @@ namespace Midori {
         }
 
         public override bool load_failed (WebKit.LoadEvent load_event, string uri, Error load_error) {
+            // The unholy trinity; also ignored in Webkit's default error handler:
+            // A plugin will take over. That's expected, it's not fatal.
+            if (load_error is WebKit.PluginError.WILL_HANDLE_LOAD) {
+                return false;
+            }
+            // Mostly initiated by JS redirects.
+            if (load_error is WebKit.NetworkError.CANCELLED) {
+                return false;
+            }
+            // A frame load is cancelled because of a download.
+            if (load_error is WebKit.PolicyError.FRAME_LOAD_INTERRUPTED_BY_POLICY_CHANGE) {
+                return false;
+            }
+
             var monitor = NetworkMonitor.get_default ();
             string hostname = new Soup.URI (uri).host;
             string? title = null;
