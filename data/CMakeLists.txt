@@ -1,5 +1,10 @@
 # Copyright (C) 2013-2018 Christian Dywan <christian@twotoasts.de>
 
+find_program (XMLLINT_EXECUTABLE xmllint)
+if (NOT XMLLINT_EXECUTABLE)
+    message(FATAL_ERROR "xmllint not found")
+endif ()
+
 include(FindIntltool)
 if (NOT INTLTOOL_MERGE_FOUND)
     message(FATAL_ERROR "intltool-merge not found")
