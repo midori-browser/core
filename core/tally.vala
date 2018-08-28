@@ -18,6 +18,7 @@ namespace Midori {
         bool _show_close;
         public bool show_close { get { return _show_close; } set {
             _show_close = value;
+            caption.visible = !(tab.pinned && _show_close);
             close.visible = _show_close && !tab.pinned;
         } }
 
@@ -51,8 +52,9 @@ namespace Midori {
                     tooltip_text: tab.display_title,
                     visible: tab.visible);
             tab.bind_property ("display-uri", this, "uri");
+            title = tab.display_title;
             tab.bind_property ("display-title", this, "title");
-            tab.bind_property ("display-title", this, "tooltip-text");
+            bind_property ("title", this, "tooltip-text");
             tab.bind_property ("visible", this, "visible");
             close.clicked.connect (() => { tab.try_close (); });
             tab.notify["is-loading"].connect ((pspec) => {
@@ -61,9 +63,9 @@ namespace Midori {
             });
 
             // Pinned tab style: icon only
-            caption.visible = !tab.pinned;
+            caption.visible = !(tab.pinned && _show_close);
             tab.notify["pinned"].connect ((pspec) => {
-                caption.visible = !tab.pinned;
+                caption.visible = !(tab.pinned && _show_close);
                 close.visible = _show_close && !tab.pinned;
             });
         }
