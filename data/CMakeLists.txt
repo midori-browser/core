@@ -18,6 +18,13 @@ list(REMOVE_ITEM DATA_FILES "CMakeLists.txt")
 foreach(FILE ${DATA_FILES})
     if (${FILE} MATCHES ".desktop")
         if (NOT WIN32)
+            FILE(READ ${CMAKE_CURRENT_SOURCE_DIR}/${FILE} CONTENT)
+            # Escape CMake list-separator ";" first
+            string(REPLACE ";" "\\;" CONTENT "${CONTENT}")
+            string(REPLACE "Icon=${CMAKE_PROJECT_NAME}"
+                           "Icon=${DESKTOP_ICON}"
+                           CONTENT "${CONTENT}")
+            FILE(WRITE ${FILE} ${CONTENT})
             string(REPLACE ".desktop.in" "" DESKTOP_ID ${FILE})
             INTLTOOL_MERGE_DESKTOP (${DESKTOP_ID} po)
         endif ()
