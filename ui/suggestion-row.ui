@@ -40,6 +40,21 @@
             <property name="visible">yes</property>
           </object>
         </child>
+        <child>
+          <object class="GtkButton" id="delete">
+            <property name="relief">none</property>
+            <property name="focus-on-click">no</property>
+            <property name="valign">center</property>
+            <child>
+              <object class="GtkImage">
+                <property name="icon-name">edit-delete-symbolic</property>
+                <!-- menu -->
+                <property name="icon-size">1</property>
+                <property name="visible">yes</property>
+              </object>
+            </child>
+          </object>
+        </child>
       </object>
     </child>
   </template>

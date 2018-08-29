@@ -26,6 +26,8 @@ namespace Midori {
         Gtk.Label title;
         [GtkChild]
         Gtk.Label uri;
+        [GtkChild]
+        Gtk.Button delete;
         public SuggestionRow (DatabaseItem item) {
             Object (item: item);
             if (item is SuggestionItem) {
@@ -66,6 +68,9 @@ namespace Midori {
                     }
                 });
             }
+            // Delete button to remove suggestions from history
+            this.delete.visible = item.database != null;
+            this.delete.clicked.connect (() => { item.delete.begin (); });
         }
 
         string? strip_uri_prefix (string uri) {
