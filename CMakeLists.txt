@@ -77,6 +77,8 @@ add_custom_target (uninstall
 
 install(FILES COPYING README DESTINATION ${CMAKE_INSTALL_DOCDIR})
 
+set(DESKTOP_ICON "${CMAKE_PROJECT_NAME}" CACHE STRING "The Icon value to be used in the .desktop file")
+
 add_subdirectory (core)
 add_subdirectory (web)
 enable_testing()

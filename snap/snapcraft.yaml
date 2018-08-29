@@ -62,6 +62,7 @@ parts:
     plugin: cmake
     configflags:
       - -DCMAKE_INSTALL_DATADIR=/usr/share
+      - -DDESKTOP_ICON=/usr/share/icons/hicolor/scalable/apps/midori.svg
     build-packages:
       - git
       - valac
