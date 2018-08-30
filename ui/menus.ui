@@ -41,6 +41,30 @@
   </menu>
    <menu id="browser-menu">
     <section>
+      <attribute name="display-hint">horizontal-buttons</attribute>
+      <item>
+        <attribute name="action">win.tab-zoom(-0.1)</attribute>
+        <attribute name="label" translatable="yes">Zoom _Out</attribute>
+        <attribute name="verb-icon">zoom-out-symbolic</attribute>
+        <attribute name="accel">&lt;Primary&gt;-</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.tab-zoom</attribute>
+        <attribute name="target">1.0</attribute>
+        <attribute name="label" translatable="yes">Reset Zoom _Level</attribute>
+        <attribute name="verb-icon">zoom-original-symbolic</attribute>
+        <!--XXX<attribute name="label" translatable="no">100%</attribute>-->
+        <attribute name="accel">&lt;Primary&gt;0</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.tab-zoom</attribute>
+        <attribute name="target">0.1</attribute>
+        <attribute name="label" translatable="yes">Zoom _In</attribute>
+        <attribute name="verb-icon">zoom-in-symbolic</attribute>
+        <attribute name="accel">&lt;Primary&gt;+</attribute>
+      </item>
+    </section>
+    <section>
       <item>
         <attribute name="action">win.find</attribute>
         <attribute name="label" translatable="yes">_Find in Page</attribute>
