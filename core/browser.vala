@@ -16,6 +16,7 @@ namespace Midori {
         public bool is_loading { get { return tab != null && tab.is_loading; } }
         public Tab? tab { get; protected set; }
         public ListStore trash { get; protected set; }
+        public bool is_fullscreen { get; protected set; default = false; }
 
         const ActionEntry[] actions = {
             { "tab-new", tab_new_activated },
@@ -29,6 +30,7 @@ namespace Midori {
             { "tab-stop-loading", tab_stop_loading_activated },
             { "tab-previous", tab_previous_activated },
             { "tab-next", tab_next_activated },
+            { "fullscreen", fullscreen_activated },
             { "show-downloads", show_downloads_activated },
             { "find", find_activated },
             { "print", print_activated },
@@ -53,19 +55,7 @@ namespace Midori {
         [GtkChild]
         Gtk.Image profile_icon;
         [GtkChild]
-        Gtk.ActionBar navigationbar;
-        [GtkChild]
-        Gtk.Button go_back;
-        [GtkChild]
-        Gtk.Button go_forward;
-        [GtkChild]
-        Gtk.Button reload;
-        [GtkChild]
-        Gtk.Button stop_loading;
-        [GtkChild]
-        Urlbar urlbar;
-        [GtkChild]
-        Gtk.MenuButton menubutton;
+        Navigationbar navigationbar;
         [GtkChild]
         Gtk.Stack tabs;
         [GtkChild]
@@ -82,9 +72,19 @@ namespace Midori {
         construct {
             overlay.add_events (Gdk.EventMask.ENTER_NOTIFY_MASK);
             overlay.enter_notify_event.connect ((event) => {
+                if (is_fullscreen && !tab.pinned) {
+                    navigationbar.show ();
+                    navigationbar.urlbar.grab_focus ();
+                }
                 statusbar.hide ();
                 statusbar.halign = statusbar.halign == Gtk.Align.START ? Gtk.Align.END : Gtk.Align.START;
                 statusbar.show ();
+                return false;
+            });
+            navigationbar.urlbar.focus_out_event.connect ((event) => {
+                if (is_fullscreen) {
+                    navigationbar.hide ();
+                }
                 return false;
             });
 
@@ -96,6 +96,7 @@ namespace Midori {
                 application.set_accels_for_action ("win.tab-close", { "<Primary>w" });
                 application.set_accels_for_action ("win.close", { "<Primary><Shift>w" });
                 application.set_accels_for_action ("win.tab-reopen", { "<Primary><Shift>t" });
+                application.set_accels_for_action ("win.fullscreen", { "F11" });
                 application.set_accels_for_action ("win.show-downloads", { "<Primary><Shift>j" });
                 application.set_accels_for_action ("win.find", { "<Primary>f", "slash" });
                 application.set_accels_for_action ("win.print", { "<Primary>p" });
@@ -118,7 +119,7 @@ namespace Midori {
                 application.set_accels_for_action ("win.tab-zoom(1.0)", { "<Primary>0" });
 
                 profile.menu_model = application.get_menu_by_id ("profile-menu");
-                menubutton.menu_model = application.get_menu_by_id ("browser-menu");
+                navigationbar.menubutton.menu_model = application.get_menu_by_id ("browser-menu");
 
                 application.bind_busy_property (this, "is-loading");
                 // App menu fallback as a button rather than a menu
@@ -143,11 +144,12 @@ namespace Midori {
 
             trash = new ListStore (typeof (DatabaseItem));
 
-            urlbar.notify["uri"].connect ((pspec) => {
-                if (urlbar.uri.has_prefix ("javascript:")) {
-                    tab.run_javascript.begin (urlbar.uri.substring (11, -1), null);
-                } else if (urlbar.uri != tab.display_uri) {
-                    tab.load_uri (urlbar.uri);
+            navigationbar.urlbar.notify["uri"].connect ((pspec) => {
+                string uri = navigationbar.urlbar.uri;
+                if (uri.has_prefix ("javascript:")) {
+                    tab.run_javascript.begin (uri.substring (11, -1), null);
+                } else if (uri != tab.display_uri) {
+                    tab.load_uri (uri);
                 }
             });
             tabs.notify["visible-child"].connect (() => {
@@ -158,25 +160,25 @@ namespace Midori {
                 }
                 tab = (Tab)tabs.visible_child;
                 if (tab != null) {
-                    go_back.sensitive = tab.can_go_back;
-                    go_forward.sensitive = tab.can_go_forward;
-                    reload.visible = !tab.is_loading;
-                    stop_loading.visible = tab.is_loading;
-                    urlbar.progress_fraction = tab.progress;
+                    navigationbar.go_back.sensitive = tab.can_go_back;
+                    navigationbar.go_forward.sensitive = tab.can_go_forward;
+                    navigationbar.reload.visible = !tab.is_loading;
+                    navigationbar.stop_loading.visible = tab.is_loading;
+                    navigationbar.urlbar.progress_fraction = tab.progress;
                     title = tab.display_title;
-                    urlbar.secure = tab.secure;
+                    navigationbar.urlbar.secure = tab.secure;
                     statusbar.label = tab.link_uri;
-                    urlbar.uri = tab.display_uri;
+                    navigationbar.urlbar.uri = tab.display_uri;
                     navigationbar.visible = !tab.pinned;
-                    bindings.append (tab.bind_property ("can-go-back", go_back, "sensitive"));
-                    bindings.append (tab.bind_property ("can-go-forward", go_forward, "sensitive"));
-                    bindings.append (tab.bind_property ("is-loading", reload, "visible", BindingFlags.INVERT_BOOLEAN));
-                    bindings.append (tab.bind_property ("is-loading", stop_loading, "visible"));
-                    bindings.append (tab.bind_property ("progress", urlbar, "progress-fraction"));
+                    bindings.append (tab.bind_property ("can-go-back", navigationbar.go_back, "sensitive"));
+                    bindings.append (tab.bind_property ("can-go-forward", navigationbar.go_forward, "sensitive"));
+                    bindings.append (tab.bind_property ("is-loading", navigationbar.reload, "visible", BindingFlags.INVERT_BOOLEAN));
+                    bindings.append (tab.bind_property ("is-loading", navigationbar.stop_loading, "visible"));
+                    bindings.append (tab.bind_property ("progress", navigationbar.urlbar, "progress-fraction"));
                     bindings.append (tab.bind_property ("display-title", this, "title"));
-                    bindings.append (tab.bind_property ("secure", urlbar, "secure"));
+                    bindings.append (tab.bind_property ("secure", navigationbar.urlbar, "secure"));
                     bindings.append (tab.bind_property ("link-uri", statusbar, "label"));
-                    bindings.append (tab.bind_property ("display-uri", urlbar, "uri"));
+                    bindings.append (tab.bind_property ("display-uri", navigationbar.urlbar, "uri"));
                     bindings.append (tab.bind_property ("pinned", navigationbar, "visible", BindingFlags.INVERT_BOOLEAN));
                     tab.grab_focus ();
                 } else {
@@ -210,6 +212,7 @@ namespace Midori {
                 var box = (get_child () as Gtk.Box);
                 box.add (titlebar);
                 box.reorder_child (titlebar, 0);
+                bind_property ("is-fullscreen", titlebar, "visible", BindingFlags.INVERT_BOOLEAN);
                 titlebar.unref ();
                 titlebar.get_style_context ().remove_class ("titlebar");
             } else {
@@ -258,7 +261,7 @@ namespace Midori {
             }
             if (base.key_press_event (event)) {
                 // Popdown completion if a key binding was fired
-                urlbar.popdown ();
+                navigationbar.urlbar.popdown ();
                 return true;
             }
             return false;
@@ -296,7 +299,10 @@ namespace Midori {
         }
 
         void goto_activated () {
-            urlbar.grab_focus ();
+            if (!tab.pinned) {
+                navigationbar.show ();
+                navigationbar.urlbar.grab_focus ();
+            }
         }
 
         void go_back_activated () {
@@ -338,6 +344,21 @@ namespace Midori {
             var nth_tab = tabs.get_children ().nth_data (parameter.get_int32 ());
             if (nth_tab != null) {
                 tabs.visible_child = nth_tab;
+            }
+        }
+
+        void fullscreen_activated () {
+            is_fullscreen = !is_fullscreen;
+            navigationbar.restore.visible = is_fullscreen;
+            navigationbar.menubutton.visible = !is_fullscreen;
+            if (is_fullscreen) {
+                fullscreen ();
+                navigationbar.hide ();
+                panel.hide ();
+            } else {
+                unfullscreen ();
+                navigationbar.visible = !tab.pinned;
+                panel.visible = lookup_action ("panel").state.get_boolean ();
             }
         }
 
