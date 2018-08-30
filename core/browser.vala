@@ -78,6 +78,9 @@ namespace Midori {
         Gtk.SearchEntry search_entry;
 
         List<Binding> bindings;
+        SimpleAction action_cut;
+        SimpleAction action_copy;
+        SimpleAction action_paste;
 
         construct {
             overlay.add_events (Gdk.EventMask.ENTER_NOTIFY_MASK);
@@ -136,6 +139,19 @@ namespace Midori {
             action = new SimpleAction ("tab-zoom", VariantType.DOUBLE);
             action.activate.connect (tab_zoom_activated);
             add_action (action);
+            // Actions for editing
+            action_cut = new SimpleAction ("edit-cut", null);
+            action_cut.activate.connect (edit_cut_activated);
+            add_action (action_cut);
+            action_copy = new SimpleAction ("edit-copy", null);
+            action_copy.activate.connect (edit_copy_activated);
+            add_action (action_copy);
+            action_paste = new SimpleAction ("edit-paste", null);
+            action_paste.activate.connect (edit_paste_activated);
+            add_action (action_paste);
+            menubutton.clicked.connect (() => {
+                update_edit_actions.begin ();
+            });
             // Action for panel toggling
             action = new SimpleAction.stateful ("panel", null, false);
             action.change_state.connect (panel_activated);
@@ -343,6 +359,55 @@ namespace Midori {
 
         void show_downloads_activated () {
             downloads.show_downloads ();
+        }
+
+        async void update_edit_actions (Cancellable? cancellable=null) {
+            bool can_cut, can_copy, can_paste;
+            var editable = get_focus () as Gtk.Editable;
+            if (editable != null) {
+                can_copy = editable.get_selection_bounds (null, null);
+                can_cut = can_copy && editable.get_editable ();
+                can_paste = editable.get_editable ();
+            } else {
+                try {
+                    can_cut = yield tab.can_execute_editing_command (WebKit.EDITING_COMMAND_CUT, cancellable);
+                    can_copy = yield tab.can_execute_editing_command (WebKit.EDITING_COMMAND_COPY, cancellable);
+                    can_paste = yield tab.can_execute_editing_command (WebKit.EDITING_COMMAND_PASTE, cancellable);
+                } catch (Error error) {
+                    warning ("Failed to query editing command: %s", error.message);
+                    can_cut = can_copy = can_paste = false;
+                }
+            }
+            action_cut.set_enabled (can_cut);
+            action_copy.set_enabled (can_copy);
+            action_paste.set_enabled (can_paste);
+        }
+
+        void edit_cut_activated () {
+            var editable = get_focus () as Gtk.Editable;
+            if (editable != null) {
+                editable.cut_clipboard ();
+            } else {
+                tab.execute_editing_command (WebKit.EDITING_COMMAND_CUT);
+            }
+        }
+
+        void edit_copy_activated () {
+            var editable = get_focus () as Gtk.Editable;
+            if (editable != null) {
+                editable.copy_clipboard ();
+            } else {
+                tab.execute_editing_command (WebKit.EDITING_COMMAND_COPY);
+            }
+        }
+
+        void edit_paste_activated () {
+            var editable = get_focus () as Gtk.Editable;
+            if (editable != null) {
+                editable.paste_clipboard ();
+            } else {
+                tab.execute_editing_command (WebKit.EDITING_COMMAND_PASTE);
+            }
         }
 
         void find_activated () {

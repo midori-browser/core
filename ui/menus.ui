@@ -41,6 +41,27 @@
   </menu>
    <menu id="browser-menu">
     <section>
+        <attribute name="display-hint">horizontal-buttons</attribute>
+        <item>
+            <attribute name="action">win.edit-cut</attribute>
+            <attribute name="label" translatable="yes">_Cut</attribute>
+            <attribute name="verb-icon">edit-cut-symbolic</attribute>
+            <attribute name="accel">&lt;Primary&gt;x</attribute>
+        </item>
+        <item>
+            <attribute name="action">win.edit-copy</attribute>
+            <attribute name="label" translatable="yes">_Copy</attribute>
+            <attribute name="verb-icon">edit-copy-symbolic</attribute>
+            <attribute name="accel">&lt;Primary&gt;c</attribute>
+        </item>
+        <item>
+            <attribute name="action">win.edit-paste</attribute>
+            <attribute name="label" translatable="yes">_Paste</attribute>
+            <attribute name="verb-icon">edit-paste-symbolic</attribute>
+            <attribute name="accel">&lt;Primary&gt;v</attribute>
+        </item>
+    </section>
+    <section>
       <item>
         <attribute name="action">win.find</attribute>
         <attribute name="label" translatable="yes">_Find in Page</attribute>
