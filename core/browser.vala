@@ -93,7 +93,7 @@ namespace Midori {
             notify["application"].connect ((pspec) => {
                 application.set_accels_for_action ("win.panel", { "F9" });
                 application.set_accels_for_action ("win.tab-new", { "<Primary>t" });
-                application.set_accels_for_action ("win.tab-close", { "<Primary>w" });
+                application.set_accels_for_action ("win.tab-close", { "<Primary>w", "<Primary>F4" });
                 application.set_accels_for_action ("win.close", { "<Primary><Shift>w" });
                 application.set_accels_for_action ("win.tab-reopen", { "<Primary><Shift>t" });
                 application.set_accels_for_action ("win.show-downloads", { "<Primary><Shift>j" });
@@ -101,9 +101,9 @@ namespace Midori {
                 application.set_accels_for_action ("win.print", { "<Primary>p" });
                 application.set_accels_for_action ("win.show-inspector", { "<Primary><Shift>i" });
                 application.set_accels_for_action ("win.goto", { "<Primary>l", "F7" });
-                application.set_accels_for_action ("win.go-back", { "<Alt>Left", "BackSpace" });
-                application.set_accels_for_action ("win.go-forward", { "<Alt>Right", "<Shift>BackSpace" });
-                application.set_accels_for_action ("win.tab-reload", { "<Primary>r", "F5" });
+                application.set_accels_for_action ("win.go-back", { "<Alt>Left", "BackSpace", "Back", "z", "y" });
+                application.set_accels_for_action ("win.go-forward", { "<Alt>Right", "<Shift>BackSpace", "Forward", "x" });
+                application.set_accels_for_action ("win.tab-reload", { "<Primary>r", "F5", "Reload" });
                 application.set_accels_for_action ("win.tab-stop-loading", { "Escape" });
                 application.set_accels_for_action ("win.tab-previous", { "<Primary><Shift>Tab" });
                 application.set_accels_for_action ("win.tab-next", { "<Primary>Tab" });
@@ -111,7 +111,7 @@ namespace Midori {
 
                 for (var i = 0; i < 10; i++) {
                     application.set_accels_for_action ("win.tab-by-index(%d)".printf(i),
-                        { "<Alt>%d".printf (i < 9 ? i + 1 : 0) });
+                        { "<Alt>%d".printf (i < 9 ? i + 1 : 0) , "<Primary>%d".printf (i < 9 ? i + 1 : 0) });
                 }
                 application.set_accels_for_action ("win.tab-zoom(0.1)", { "<Primary>plus", "<Primary>equal" });
                 application.set_accels_for_action ("win.tab-zoom(-0.1)", { "<Primary>minus" });
