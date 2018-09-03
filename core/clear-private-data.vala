@@ -11,7 +11,7 @@
 
 namespace Midori {
     [GtkTemplate (ui = "/ui/clear-private-data.ui")]
-    public class ClearPrivateData : Gtk.Dialog {
+    class ClearPrivateData : Gtk.Dialog {
         [GtkChild]
         Gtk.ComboBoxText timerange;
         [GtkChild]

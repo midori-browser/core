@@ -81,6 +81,7 @@ set(DESKTOP_ICON "${CMAKE_PROJECT_NAME}" CACHE STRING "The Icon value to be used
 
 add_subdirectory (core)
 add_subdirectory (web)
+add_subdirectory (extensions)
 enable_testing()
 add_subdirectory (tests)
 add_subdirectory (po)

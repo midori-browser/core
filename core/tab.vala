@@ -10,6 +10,11 @@
 */
 
 namespace Midori {
+    public interface TabActivatable : Peas.ExtensionBase {
+        public abstract Tab tab { owned get; set; }
+        public abstract void activate ();
+    }
+
     [GtkTemplate (ui = "/ui/tab.ui")]
     public class Tab : WebKit.WebView {
         public string id { owned get { return "%p".printf (this); } }
@@ -57,8 +62,10 @@ namespace Midori {
             settings.enable_developer_extras = true;
 
             if (pinned) {
+                var extensions = Plugins.get_default ().plug<TabActivatable> ("tab", this);
+                extensions.extension_added.connect ((info, extension) => ((TabActivatable)extension).activate ());
+                extensions.foreach ((extensions, info, extension) => { extensions.extension_added (info, extension); });
                 load_uri (uri ?? "internal:speed-dial");
-                Plugins.get_default ().plug (this);
             } else {
                 load_uri_delayed.begin (uri, title);
             }
@@ -86,8 +93,10 @@ namespace Midori {
         public override bool focus_in_event (Gdk.EventFocus event) {
             // Delayed load on focus
             if (display_uri != uri) {
+                var extensions = Plugins.get_default ().plug<TabActivatable> ("tab", this);
+                extensions.extension_added.connect ((info, extension) => ((TabActivatable)extension).activate ());
+                extensions.foreach ((extensions, info, extension) => { extensions.extension_added (info, extension); });
                 load_uri (display_uri);
-                Plugins.get_default ().plug (this);
             }
             return true;
         }

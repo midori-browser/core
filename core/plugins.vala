@@ -22,10 +22,25 @@ namespace Midori {
 
         Plugins () {
             enable_loader ("python");
-            string source_path = Path.build_path (Path.DIR_SEPARATOR_S,
+            // Plugins installed by the user
+            string user_path = Path.build_path (Path.DIR_SEPARATOR_S,
                 Environment.get_user_data_dir (), Environment.get_prgname (), "extensions");
-            debug ("Loading plugins from %s", source_path);
-            add_search_path (source_path, null);
+            add_search_path (user_path, null);
+            debug ("Loading plugins from %s", user_path);
+
+            var exec_path = ((App)Application.get_default ()).exec_path;
+            // Try and load plugins from build folder
+            var build_path = exec_path.get_parent ().get_child ("extensions");
+            if (build_path.query_exists (null)) {
+                debug ("Loading plugins from %s", build_path.get_path ());
+                add_search_path (build_path.get_path (), user_path);
+            }
+            // System-wide plugins
+            var system_path = exec_path.get_parent ().get_parent ().get_child ("lib").get_child (Environment.get_prgname ());
+            if (system_path.query_exists (null)) {
+                debug ("Loading plugins from %s", system_path.get_path ());
+                add_search_path (system_path.get_path (), user_path);
+            }
             foreach (var plugin in get_plugin_list ()) {
                 debug ("Found plugin %s", plugin.get_name ());
                 if (!try_load_plugin (plugin)) {
@@ -37,12 +52,10 @@ namespace Midori {
         /*
          * Plug the instance of the given object to make it extensible via Peas.
          */
-        public void plug (Object object) {
-            var extensions = new Peas.ExtensionSet (this, typeof (Peas.Activatable), "object", object, null);
-            extensions.extension_added.connect ((info, extension) => { ((Peas.Activatable)extension).activate (); });
-            extensions.extension_removed.connect ((info, extension) => { ((Peas.Activatable)extension).deactivate (); });
-            extensions.foreach ((extensions, info, extension) => { extensions.extension_added (info, extension); });
+        public Peas.ExtensionSet plug<T> (string name, Object object) {
+            var extensions = new Peas.ExtensionSet (this, typeof (T), name, object, null);
             object.set_data<Object> ("midori-plug", extensions);
+            return extensions;
         }
     }
 }

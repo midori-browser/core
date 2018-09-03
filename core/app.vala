@@ -10,6 +10,11 @@
 */
 
 namespace Midori {
+    public interface AppActivatable : Peas.ExtensionBase {
+        public abstract App app { owned get; set; }
+        public abstract void activate ();
+    }
+
     public class App : Gtk.Application {
         public File? exec_path { get; protected set; default = null; }
 
@@ -119,6 +124,10 @@ namespace Midori {
             if (!Gtk.Settings.get_default ().gtk_shell_shows_app_menu){
                 app_menu = null;
             }
+
+            var extensions = Plugins.get_default ().plug<AppActivatable> ("app", this);
+            extensions.extension_added.connect ((info, extension) => ((AppActivatable)extension).activate ());
+            extensions.foreach ((extensions, info, extension) => { extensions.extension_added (info, extension); });
         }
 
         async void internal_scheme (WebKit.URISchemeRequest request) {
