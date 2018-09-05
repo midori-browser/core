@@ -13,9 +13,14 @@ namespace Midori {
     public class App : Gtk.Application {
         public File? exec_path { get; protected set; default = null; }
 
+        [CCode (array_length = false, array_null_terminated = true)]
+        static string[]? execute = null;
+        static bool help_execute = false;
         public static bool incognito = false;
         static bool version = false;
         const OptionEntry[] options = {
+            { "execute", 'e', 0, OptionArg.STRING_ARRAY, ref execute, N_("Execute the specified command"), null },
+            { "help-execute", 0, 0, OptionArg.NONE, ref help_execute, N_("List available commands to execute with -e/ --execute"), null },
             { "private", 'p', 0, OptionArg.NONE, ref incognito, N_("Private browsing, no changes are saved"), null },
             { "version", 'V', 0, OptionArg.NONE, ref version, N_("Display version number"), null },
             { null }
@@ -27,7 +32,8 @@ namespace Midori {
 
         public App () {
             Object (application_id: "org.midori-browser.midori",
-                    flags: ApplicationFlags.HANDLES_OPEN);
+                    flags: ApplicationFlags.HANDLES_OPEN
+                         | ApplicationFlags.HANDLES_COMMAND_LINE);
 
             add_main_option_entries (options);
         }
@@ -194,19 +200,17 @@ namespace Midori {
                 : new Browser (this);
             string? uri = parameter.get_string () != "" ? parameter.get_string () : null;
             browser.add (new Tab (null, browser.web_context, uri));
+            browser.show ();
         }
 
         void win_incognito_new_activated () {
             var browser = new Browser.incognito (this);
             browser.add (new Tab (null, browser.web_context));
+            browser.show ();
         }
 
         void quit_activated () {
             quit ();
-        }
-
-        protected override void window_added (Gtk.Window window) {
-            base.window_added (window);
         }
 
         protected override void activate () {
@@ -224,6 +228,7 @@ namespace Midori {
             foreach (File file in files) {
                 browser.add (new Tab (browser.tab, browser.web_context, file.get_uri ()));
             }
+            browser.show ();
         }
 
         protected override int handle_local_options (VariantDict options) {
@@ -238,7 +243,65 @@ namespace Midori {
                     Config.PROJECT_BUGS, Config.PROJECT_WEBSITE);
                 return 0;
             }
+
+            // Propagate options processed in the primary instance
+            options.insert_value ("execute", execute);
+            options.insert_value ("help-execute", help_execute);
+            options.insert_value ("private", incognito);
             return -1;
+        }
+
+        protected override int command_line (ApplicationCommandLine command_line) {
+            hold ();
+
+            // Retrieve values for options passed from another process
+            var options = command_line.get_options_dict ();
+            execute = options.lookup_value ("execute", VariantType.STRING_ARRAY).dup_strv ();
+            help_execute = options.lookup_value ("help-execute", VariantType.BOOLEAN).get_boolean ();
+            incognito = options.lookup_value ("private", VariantType.BOOLEAN).get_boolean ();
+            debug ("Processing remote command line %s/ %s\n",
+                   string.joinv (", ", command_line.get_arguments ()), options.end ().print (true));
+
+            if (help_execute) {
+                foreach (string action in list_actions ()) {
+                    command_line.print ("%s\n", action);
+                }
+                var browser = incognito ? new Browser.incognito (this) : new Browser (this);
+                foreach (string action in browser.list_actions ()) {
+                    command_line.print ("%s\n", action);
+                }
+            }
+
+            uint argc = command_line.get_arguments ().length;
+            if (argc <= 1) {
+                activate ();
+            } else {
+                var files = new File[argc - 1];
+                uint i = 0;
+                foreach (string argument in command_line.get_arguments ()) {
+                    // Skip program name
+                    if (i > 0) {
+                        files[i - 1] = File.new_for_commandline_arg (argument);
+                    }
+                    i++;
+                }
+                open (files, "");
+            }
+
+            var action_group = active_window as ActionGroup;
+            foreach (string action_ in execute) {
+                // Accept action names regardless of case
+                string action = action_.down ();
+                debug ("Executing %s\n", action);
+                if (action_group.has_action (action)) {
+                    action_group.activate_action (action, null);
+                } else {
+                    warning (_("Unexpected action '%s'.").printf (action));
+                }
+            }
+
+            release ();
+            return  0;
         }
     }
 }

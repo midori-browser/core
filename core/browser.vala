@@ -239,12 +239,12 @@ namespace Midori {
         }
 
         public Browser (App app) {
-            Object (application: app, visible: true,
+            Object (application: app,
                     web_context: WebKit.WebContext.get_default ());
         }
 
         public Browser.incognito (App app) {
-            Object (application: app, visible: true,
+            Object (application: app,
                     web_context: new WebKit.WebContext.ephemeral ());
 
             profile.sensitive = false;
