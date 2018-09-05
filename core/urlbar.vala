@@ -23,17 +23,12 @@ namespace Midori {
             location = value;
             // Treat about:blank specially
             text = blank ? "" : value;
-            secure = false;
+            update_icon ();
         } }
         bool _secure = false;
         public bool secure { get { return _secure; } set {
             _secure = value;
-            if (blank) {
-                primary_icon_name = null;
-            } else {
-                primary_icon_name = value ? "channel-secure-symbolic" : "channel-insecure-symbolic";
-            }
-            primary_icon_activatable = !blank;
+            update_icon ();
         } }
         bool blank { get { return uri == "about:blank" || uri == "internal:speed-dial"; } }
 
@@ -289,6 +284,15 @@ namespace Midori {
             suggestions.show ();
             Gtk.grab_add (suggestions);
             suggestions.grab_focus ();
+        }
+
+        void update_icon () {
+            if (blank) {
+                primary_icon_name = null;
+            } else {
+                primary_icon_name = secure ? "channel-secure-symbolic" : "channel-insecure-symbolic";
+            }
+            primary_icon_activatable = !blank;
         }
 
         void icon_pressed (Gtk.EntryIconPosition position, Gdk.Event event) {
