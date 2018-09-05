@@ -75,7 +75,7 @@ configure_file(config.h.in config.h @ONLY)
 add_custom_target (uninstall
     COMMAND "xargs" "rm" "-v" "<" "install_manifest.txt")
 
-install(FILES COPYING README DESTINATION ${CMAKE_INSTALL_DOCDIR})
+install(FILES COPYING README.md DESTINATION ${CMAKE_INSTALL_DOCDIR})
 
 set(DESKTOP_ICON "${CMAKE_PROJECT_NAME}" CACHE STRING "The Icon value to be used in the .desktop file")
 
