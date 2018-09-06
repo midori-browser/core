@@ -31,7 +31,7 @@ namespace Midori {
         };
 
         public App () {
-            Object (application_id: "org.midori-browser.midori",
+            Object (application_id: "org.midori_browser.Midori",
                     flags: ApplicationFlags.HANDLES_OPEN
                          | ApplicationFlags.HANDLES_COMMAND_LINE);
 

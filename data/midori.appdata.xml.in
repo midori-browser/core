@@ -1,11 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright 2015-2018 Christian Dywan <christian@twotoasts.de> -->
 <component type="desktop">
-  <id>midori.desktop</id>
-  <metadata_license>CC0-1.0</metadata_license>
-  <project_license>LGPL-2.1</project_license>
-  <name>Midori</name>
-  <icon type="stock">midori</icon>
+  <id>org.midori_browser.Midori</id>
+  <launchable type="desktop-id">midori.desktop</launchable>
+  <metadata_license>LGPL-2.1-or-later</metadata_license>
+  <project_license>LGPL-2.1-or-later</project_license>
+  <_name>Midori Web Browser</_name>
+  <categories>
+    <category>Network</category>
+    <category>WebBrowser</category>
+  </categories>
+  <kudos>
+    <kudo>AppMenu</kudo>
+    <kudo>HiDpiIcon</kudo>
+    <kudo>ModernToolkit</kudo>
+    <kudo>Notifications</kudo>
+    <kudo>UserDocs</kudo>
+  </kudos>
   <summary>A fast and lightweight web browser</summary>
   <description>
     <p>
@@ -35,4 +46,11 @@
   <update_contact>christian@twotoasts.de</update_contact>
   <developer_name>Christian Dywan</developer_name>
   <url type="bugtracker">https://github.com/midori-browser/core/issues</url>
+  <url type="faq">https://www.midori-browser.org/faq</url>
+  <url type="donation">https://www.midori-browser.org/donate</url>
+  <translation type="gettext">midori</translation>
+  <content_rating type="oars-1.1" />
+  <releases>
+    <release version="0.5.11" date="2015-08-30"/>
+  </releases>
 </component>
