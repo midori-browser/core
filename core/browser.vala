@@ -10,6 +10,11 @@
 */
 
 namespace Midori {
+    public interface BrowserActivatable : Object {
+        public abstract Browser browser { owned get; set; }
+        public abstract void activate ();
+    }
+
     [GtkTemplate (ui = "/ui/browser.ui")]
     public class Browser : Gtk.ApplicationWindow {
         public WebKit.WebContext web_context { get; construct set; }
@@ -224,7 +229,10 @@ namespace Midori {
 
             // Reveal panel toggle after panels are added
             panel.add.connect ((widget) => { panel_toggle.show (); });
-            Plugins.get_default ().plug (panel);
+
+            var extensions = Plugins.get_default ().plug<BrowserActivatable> ("browser", this);
+            extensions.extension_added.connect ((info, extension) => ((BrowserActivatable)extension).activate ());
+            extensions.foreach ((extensions, info, extension) => { extensions.extension_added (info, extension); });
         }
 
         void update_decoration_layout () {

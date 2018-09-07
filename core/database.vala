@@ -22,11 +22,11 @@ namespace Midori {
     public delegate bool DatabaseCallback () throws DatabaseError;
 
     public class DatabaseStatement : Object, Initable {
-        public Sqlite.Statement? stmt { get { return _stmt; } }
-        protected Sqlite.Statement _stmt = null;
+        Sqlite.Statement stmt = null;
+        int64 last_row_id = -1;
+
         public Database? database { get; set construct; }
         public string? query { get; set construct; }
-        private int64 last_row_id = -1;
 
         public DatabaseStatement (Database database, string query) throws DatabaseError {
             Object (database: database, query: query);
@@ -34,9 +34,9 @@ namespace Midori {
         }
 
         public virtual bool init (Cancellable? cancellable = null) throws DatabaseError {
-            int result = database.db.prepare_v2 (query, -1, out _stmt, null);
+            int result = database.db.prepare_v2 (query, -1, out stmt, null);
             if (result != Sqlite.OK)
-                throw new DatabaseError.COMPILE ("Failed to compile statement '%s': %s".printf (query, database.db.errmsg ()));
+                throw new DatabaseError.COMPILE ("Failed to compile statement '%s': %s".printf (query, database.errmsg));
             return true;
         }
 
@@ -84,8 +84,8 @@ namespace Midori {
         public bool step () throws DatabaseError {
             int result = stmt.step ();
             if (result != Sqlite.DONE && result != Sqlite.ROW)
-                throw new DatabaseError.EXECUTE (database.db.errmsg ());
-            last_row_id = database.db.last_insert_rowid ();
+                throw new DatabaseError.EXECUTE (database.errmsg);
+            last_row_id = database.last_row_id;
             return result == Sqlite.ROW;
         }
 
@@ -187,12 +187,12 @@ namespace Midori {
     }
 
     public class Database : Object, Initable, ListModel, Loggable {
-        public Sqlite.Database? db { get { return _db; } }
-        protected Sqlite.Database? _db = null;
-        public string? table { get; protected set; default = null; }
-        public string path { get; protected set; default = ":memory:"; }
+        internal Sqlite.Database? db = null;
         string? _key = null;
         Cancellable? populate_cancellable = null;
+
+        public string? table { get; protected set; default = null; }
+        public string path { get; protected set; default = ":memory:"; }
         public string? key { get { return _key; } set {
             _key = value;
             if (populate_cancellable != null) {
@@ -207,6 +207,16 @@ namespace Midori {
          * Old or additional data should be opened if this is true.
          */
         public bool first_use { get; protected set; default = false; }
+
+        /*
+         * The ID of the last inserted row.
+         */
+        public int64 last_row_id { get { return db.last_insert_rowid (); } }
+
+        /*
+         * The error message of the last failed operation.
+         */
+        public string errmsg { get { return db.errmsg (); } }
 
         /*
          * If a filename is passed it's assumed to be in the config folder.
@@ -250,9 +260,10 @@ namespace Midori {
                 flags |= Sqlite.OPEN_READWRITE;
             }
 
-            if (Sqlite.Database.open_v2 (real_path, out _db, flags) != Sqlite.OK) {
+            if (Sqlite.Database.open_v2 (real_path, out db, flags) != Sqlite.OK) {
                 throw new DatabaseError.OPEN ("Failed to open database %s".printf (real_path));
             }
+            set_data<unowned Sqlite.Database> ("db", db);
 
             if (logging) {
                 debug ("Tracing %s", path);
@@ -274,9 +285,9 @@ namespace Midori {
             int64 user_version;
             Sqlite.Statement stmt;
             if (db.prepare_v2 ("PRAGMA user_version;", -1, out stmt, null) != Sqlite.OK)
-                throw new DatabaseError.EXECUTE ("Failed to compile statement %s".printf (db.errmsg ()));
+                throw new DatabaseError.EXECUTE ("Failed to compile statement %s".printf (errmsg));
             if (stmt.step () != Sqlite.ROW)
-                throw new DatabaseError.EXECUTE ("Failed to get row %s".printf (db.errmsg ()));
+                throw new DatabaseError.EXECUTE ("Failed to get row %s".printf (errmsg));
             user_version = stmt.column_int64 (0);
 
             if (user_version == 0) {
@@ -325,7 +336,7 @@ namespace Midori {
 
         public bool exec (string query) throws DatabaseError {
             if (db.exec (query) != Sqlite.OK)
-                throw new DatabaseError.EXECUTE (db.errmsg ());
+                throw new DatabaseError.EXECUTE (errmsg);
             return true;
         }
 

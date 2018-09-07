@@ -1,7 +1,8 @@
 # Copyright (C) 2013-2018 Christian Dywan <christian@twotoasts.de>
 
-set(LIBCORE_VERSION ${CORE_VERSION})
+set(LIBCORE_VERSION 0.6)
 set(LIBCORE_SOVERSION 0)
+set(LIBCORE_GIR Midori-${LIBCORE_VERSION})
 
 file(GLOB LIBCORE_SOURCE *.vala)
 list(REMOVE_ITEM LIBCORE_SOURCE "main.vala")
@@ -21,6 +22,8 @@ CUSTOM_VAPIS
     ${EXTRA_VAPIS}
 GENERATE_VAPI
     "${LIBCORE}"
+GENERATE_GIR
+    ${LIBCORE_GIR}
 GENERATE_HEADER
     "${LIBCORE}"
 )
@@ -33,10 +36,6 @@ OPTIONS
     ${VALAFLAGS}
 CUSTOM_VAPIS
     ${EXTRA_VAPIS}
-GENERATE_VAPI
-    "${CMAKE_PROJECT_NAME}"
-GENERATE_HEADER
-    "${CMAKE_PROJECT_NAME}"
 )
 
 add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/resources.c
@@ -59,6 +58,17 @@ set_target_properties("${LIBCORE}" PROPERTIES
                       SOVERSION ${LIBCORE_SOVERSION}
                       VERSION ${LIBCORE_VERSION}
                       )
+
+find_program (GIR_COMPILER_BIN g-ir-compiler)
+add_custom_target("g-ir-compiler_${LIBCORE}" ALL
+                  ${GIR_COMPILER_BIN} ${CMAKE_CURRENT_BINARY_DIR}/${LIBCORE_GIR}.gir
+                  --output ${CMAKE_CURRENT_BINARY_DIR}/${LIBCORE_GIR}.typelib
+                  WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
+                  DEPENDS ${LIBCORE_GIR}.gir)
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${LIBCORE_GIR}.gir"
+        DESTINATION "${CMAKE_INSTALL_DATADIR}/gir-1.0/")
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${LIBCORE_GIR}.typelib"
+        DESTINATION "${CMAKE_INSTALL_LIBDIR}/girepository-1.0/")
 
 include_directories(
                     ${CMAKE_SOURCE_DIR}

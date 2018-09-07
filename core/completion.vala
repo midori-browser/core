@@ -23,6 +23,11 @@ namespace Midori {
         }
     }
 
+    public interface CompletionActivatable : Peas.ExtensionBase {
+        public abstract Completion completion { owned get; set; }
+        public abstract void activate ();
+    }
+
     public class Completion : Object, ListModel {
         List<ListModel> models = new List<ListModel> ();
         public string? key { get; set; default = null; }
@@ -38,7 +43,10 @@ namespace Midori {
             } catch (DatabaseError error) {
                 debug ("Failed to initialize completion model: %s", error.message);
             }
-            Plugins.get_default ().plug (this);
+
+            var extensions = Plugins.get_default ().plug<CompletionActivatable> ("completion", this);
+            extensions.extension_added.connect ((info, extension) => ((CompletionActivatable)extension).activate ());
+            extensions.foreach ((extensions, info, extension) => { extensions.extension_added (info, extension); });
         }
 
         public Completion () {
@@ -48,7 +56,7 @@ namespace Midori {
          * Add a model to complete from. Items need to be based on DatabaseItem
          * and filtered by key if set.
          */
-        public virtual signal void add (ListModel model) {
+        public void add (ListModel model) {
             if (model is Database) {
                 bind_property ("key", model, "key");
             }

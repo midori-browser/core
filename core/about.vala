@@ -11,7 +11,7 @@
 
 namespace Midori {
     [GtkTemplate (ui = "/ui/about.ui")]
-    public class About : Gtk.AboutDialog {
+    class About : Gtk.AboutDialog {
         public About (Gtk.Window parent) {
            Object (transient_for: parent,
                    website: Config.PROJECT_WEBSITE,
