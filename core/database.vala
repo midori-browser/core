@@ -459,7 +459,7 @@ namespace Midori {
         /*
          * Update an existing item, where URI and date match.
          */
-        public async bool update (DatabaseItem item) throws DatabaseError {
+        public async virtual bool update (DatabaseItem item) throws DatabaseError {
             string sqlcmd = """
                 UPDATE %s SET title=:title WHERE uri = :uri AND date=:date
                 """.printf (table);
@@ -484,7 +484,7 @@ namespace Midori {
         /*
          * Insert an item into the database.
          */
-        public async bool insert (DatabaseItem item) throws DatabaseError {
+        public async virtual bool insert (DatabaseItem item) throws DatabaseError {
             item.database = this;
 
             string sqlcmd = """
