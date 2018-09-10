@@ -265,6 +265,11 @@ namespace Midori {
             }
             set_data<unowned Sqlite.Database> ("db", db);
 
+            // Note: Sqlite.DETERMINISTIC = 0x800
+            if (db.create_function ("MATCH", 2, Sqlite.UTF8 | 0x800, null, fuzzy_compare, null, null) != Sqlite.OK) {
+                throw new DatabaseError.COMPILE ("Failed to add MATCH function: %s".printf (errmsg));
+            }
+
             if (logging) {
                 debug ("Tracing %s", path);
                 db.profile ((sql, nanoseconds) => {
@@ -310,6 +315,21 @@ namespace Midori {
 
             first_use = !exists;
             return true;
+        }
+
+        /*
+         * Match string or strings separated by whitepace
+         */
+        static void fuzzy_compare (Sqlite.Context context, Sqlite.Value[] values) {
+            string[] needles = values[0].to_text ().split (" ");
+            string haystack = values[1].to_text ();
+            foreach (string needle in needles) {
+                if (needle in haystack) {
+                    context.result_int (-1);
+                    return;
+                }
+            }
+            context.result_int (0);
         }
 
         public bool exists (string path) {
