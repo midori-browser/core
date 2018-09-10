@@ -11,6 +11,7 @@
         <object class="GtkButton" id="go_back">
           <property name="focus-on-click">no</property>
           <property name="action-name">win.go-back</property>
+          <property name="tooltip-text" translatable="yes">Go back to the previous page</property>
           <property name="visible">yes</property>
           <child>
             <object class="GtkImage">
@@ -24,6 +25,7 @@
           <object class="GtkButton" id="go_forward">
             <property name="focus-on-click">no</property>
             <property name="action-name">win.go-forward</property>
+            <property name="tooltip-text" translatable="yes">Go forward to the next page</property>
             <property name="visible">yes</property>
             <child>
               <object class="GtkImage">
@@ -39,6 +41,7 @@
       <object class="GtkButton" id="reload">
         <property name="focus-on-click">no</property>
         <property name="action-name">win.tab-reload</property>
+        <property name="tooltip-text" translatable="yes">Reload the current page</property>
         <property name="visible">yes</property>
         <child>
           <object class="GtkImage">
@@ -52,6 +55,7 @@
       <object class="GtkButton" id="stop_loading">
         <property name="focus-on-click">no</property>
         <property name="action-name">win.tab-stop-loading</property>
+        <property name="tooltip-text" translatable="yes">Stop loading the current page</property>
         <property name="visible">yes</property>
         <child>
           <object class="GtkImage">
@@ -75,6 +79,7 @@
         <property name="focus-on-click">no</property>
         <property name="valign">center</property>
         <property name="action-name">win.fullscreen</property>
+        <property name="tooltip-text" translatable="yes">Toggle fullscreen view</property>
         <child>
           <object class="GtkImage">
             <property name="icon-name">view-restore-symbolic</property>
