@@ -203,6 +203,73 @@ namespace Midori {
             request.unref ();
         }
 
+        internal WebKit.WebContext ephemeral_context () {
+            var context = new WebKit.WebContext.ephemeral ();
+            context.register_uri_scheme ("internal", (request) => {
+                request.ref ();
+                private_scheme.begin (request);
+            });
+            context.register_uri_scheme ("stock", (request) => {
+                request.ref ();
+                stock_scheme.begin (request);
+            });
+            context.register_uri_scheme ("res", (request) => {
+                try {
+                    var stream = resources_open_stream (request.get_path (),
+                                                        ResourceLookupFlags.NONE);
+                    request.finish (stream, -1, null);
+                } catch (Error error) {
+                    request.finish_error (error);
+                    critical ("Failed to load resource %s: %s", request.get_uri (), error.message);
+                }
+            });
+            return context;
+        }
+
+        async void private_scheme (WebKit.URISchemeRequest request) {
+            string[] suggestions = {
+                _("No history or web cookies are being saved."),
+                _("Extensions are disabled."),
+                _("HTML5 storage, local database and application caches are disabled."),
+            };
+            string[] notes = {
+                _("Referrer URLs are stripped down to the hostname."),
+                _("DNS prefetching is disabled."),
+                _("The language and timezone are not revealed to websites."),
+                _("Flash and other Netscape plugins cannot be listed by websites."),
+            };
+
+            try {
+                string description = "<ul>";
+                foreach (var suggestion in suggestions) {
+                    description += "<li>%s</li>".printf (suggestion);
+                }
+                description += "</ul>";
+                description += "<b>%s</b><br>".printf (_("Midori prevents websites from tracking the user:"));
+                description += "<ul>";
+                foreach (var note in notes) {
+                    description += "<li>%s</li>".printf (note);
+                }
+                description += "</ul>";
+                string stylesheet = (string)resources_lookup_data ("/data/about.css",
+                                                                    ResourceLookupFlags.NONE).get_data ();
+                string html = ((string)resources_lookup_data ("/data/error.html",
+                                                             ResourceLookupFlags.NONE).get_data ())
+                    .replace ("{title}", _("Private Browsing"))
+                    .replace ("{icon}", "user-not-tracked")
+                    .replace ("{message}", _("Midori doesn't store any personal data:"))
+                    .replace ("{description}", description)
+                    .replace ("{tryagain}", "")
+                    .replace ("{stylesheet}", stylesheet);
+                var stream = new MemoryInputStream.from_data (html.data, free);
+                request.finish (stream, html.length, "text/html");
+            } catch (Error error) {
+                request.finish_error (error);
+                critical ("Failed to render %s: %s", request.get_uri (), error.message);
+            }
+            request.unref ();
+        }
+
         void win_new_activated (Action action, Variant? parameter) {
             var browser = incognito
                 ? new Browser.incognito (this)

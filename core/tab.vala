@@ -186,7 +186,7 @@ namespace Midori {
                     .replace ("{title}", title)
                     .replace ("{message}", message)
                     .replace ("{description}", description ?? "")
-                    .replace ("{tryagain}", _("Try Again"))
+                    .replace ("{tryagain}", "<span>%s</span>".printf (_("Try Again")))
                     .replace ("{uri}", display_uri);
                 load_alternate_html (html, display_uri, display_uri);
                 return true;
