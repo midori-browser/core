@@ -69,7 +69,7 @@ namespace Midori {
         [GtkChild]
         Navigationbar navigationbar;
         [GtkChild]
-        Gtk.Stack tabs;
+        public Gtk.Stack tabs;
         [GtkChild]
         public Gtk.Overlay overlay;
         [GtkChild]

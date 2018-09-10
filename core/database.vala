@@ -376,7 +376,7 @@ namespace Midori {
         /*
          * Delete an item from the database.
          */
-        public async bool delete (DatabaseItem item) throws DatabaseError {
+        public async virtual bool delete (DatabaseItem item) throws DatabaseError {
             string sqlcmd = """
                 DELETE FROM %s WHERE rowid = :id
                 """.printf (table);
