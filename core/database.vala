@@ -147,6 +147,7 @@ namespace Midori {
 
     public class DatabaseItem : Object {
         public Database? database { get; set; }
+        public int64 id { get; set; }
         public string uri { get; set; }
         public string? title { get; set; }
         public int64 date { get; set; }
@@ -367,16 +368,16 @@ namespace Midori {
         }
 
         /*
-         * Delete an item from the database, where the URI matches.
+         * Delete an item from the database.
          */
         public async bool delete (DatabaseItem item) throws DatabaseError {
             string sqlcmd = """
-                DELETE FROM %s WHERE uri = :uri
+                DELETE FROM %s WHERE rowid = :id
                 """.printf (table);
             DatabaseStatement statement;
             try {
                 statement = prepare (sqlcmd,
-                    ":uri", typeof (string), item.uri);
+                    ":id", typeof (int64), item.id);
                 if (statement.exec ()) {
                     if (_items != null) {
                         int index = _items.index (item);
@@ -392,11 +393,31 @@ namespace Midori {
         }
 
         /*
+         * Lookup a specific item by its URI.
+         */
+        public async virtual DatabaseItem? lookup (string uri) throws DatabaseError {
+            string sqlcmd = """
+                SELECT rowid, title, date FROM %s WHERE uri = :uri LIMIT 1
+                """.printf (table);
+            var statement = prepare (sqlcmd,
+                ":uri", typeof (string), uri);
+            if (statement.step ()) {
+                string title = statement.get_string ("title");
+                int64 date = statement.get_int64 ("date");
+                var item = new DatabaseItem (uri, title, date);
+                item.database = this;
+                item.id = statement.get_int64 ("rowid");
+                return item;
+            }
+            return null;
+        }
+
+        /*
          * Determine if the item is in the database, where the URI matches.
          */
         public bool contains (DatabaseItem item) throws DatabaseError {
             string sqlcmd = """
-                SELECT uri FROM %s WHERE uri = :uri
+                SELECT uri FROM %s WHERE uri = :uri LIMIT 1
                 """.printf (table);
             DatabaseStatement statement;
             try {
@@ -413,18 +434,21 @@ namespace Midori {
          * Query items from the database, matching filter if given.
          */
         public async virtual List<DatabaseItem>? query (string? filter=null, int64 max_items=15, Cancellable? cancellable=null) throws DatabaseError {
+            string where = filter != null ? "WHERE uri LIKE :filter OR title LIKE :filter" : "";
             string sqlcmd = """
-                SELECT uri, title, date, count () AS ct FROM %s
-                WHERE uri LIKE :filter OR title LIKE :filter
+                SELECT rowid, uri, title, date, count () AS ct FROM %s
+                %s
                 GROUP BY uri
                 ORDER BY ct DESC LIMIT :limit
-                """.printf (table);
+                """.printf (table, where);
             DatabaseStatement statement;
             try {
-                string real_filter = "%" + (filter ?? "").replace (" ", "%") + "%";
                 statement = prepare (sqlcmd,
-                    ":filter", typeof (string), real_filter,
                     ":limit", typeof (int64), max_items);
+                if (filter != null) {
+                    string real_filter = "%" + filter.replace (" ", "%") + "%";
+                    statement.bind (":filter", typeof (string), real_filter);
+                }
             } catch (Error error) {
                 critical (_("Failed to select from %s: %s"), table, error.message);
                 return null;
@@ -438,6 +462,7 @@ namespace Midori {
                     int64 date = statement.get_int64 ("date");
                     var item = new DatabaseItem (uri, title, date);
                     item.database = this;
+                    item.id = statement.get_int64 ("rowid");
                     items.append (item);
 
                     uint src = Idle.add (query.callback);
@@ -457,15 +482,16 @@ namespace Midori {
         }
 
         /*
-         * Update an existing item, where URI and date match.
+         * Update an existing item.
          */
         public async bool update (DatabaseItem item) throws DatabaseError {
             string sqlcmd = """
-                UPDATE %s SET title=:title WHERE uri = :uri AND date=:date
+                UPDATE %s SET uri=:uri, title=:title, date=:date WHERE rowid = :id
                 """.printf (table);
             DatabaseStatement statement;
             try {
                 statement = prepare (sqlcmd,
+                    ":id", typeof (int64), item.id,
                     ":uri", typeof (string), item.uri,
                     ":title", typeof (string), item.title,
                     ":date", typeof (int64), item.date);
@@ -495,6 +521,7 @@ namespace Midori {
                 ":title", typeof (string), item.title,
                 ":date", typeof (int64), item.date);
             if (statement.exec ()) {
+                item.id = statement.row_id ();
                 if (_items != null) {
                     _items.append (item);
                     items_changed (_items.index (item), 0, 1);
