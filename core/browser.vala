@@ -55,11 +55,7 @@ namespace Midori {
         [GtkChild]
         DownloadButton downloads;
         [GtkChild]
-        Gtk.MenuButton profile;
-        [GtkChild]
         Gtk.MenuButton app_menu;
-        [GtkChild]
-        Gtk.Image profile_icon;
         [GtkChild]
         Navigationbar navigationbar;
         [GtkChild]
@@ -126,15 +122,10 @@ namespace Midori {
                 application.set_accels_for_action ("win.tab-zoom(-0.1)", { "<Primary>minus" });
                 application.set_accels_for_action ("win.tab-zoom(1.0)", { "<Primary>0" });
 
-                profile.menu_model = application.get_menu_by_id ("profile-menu");
-                navigationbar.menubutton.menu_model = application.get_menu_by_id ("browser-menu");
+                app_menu.menu_model = application.get_menu_by_id ("app-menu");
+                navigationbar.menubutton.menu_model = application.get_menu_by_id ("page-menu");
 
                 application.bind_busy_property (this, "is-loading");
-                // App menu fallback as a button rather than a menu
-                if (!Gtk.Settings.get_default ().gtk_shell_shows_app_menu) {
-                    app_menu.menu_model = application.get_menu_by_id ("app-menu");
-                    app_menu.show ();
-                }
             });
 
             // Action for switching tabs via Alt+number
@@ -266,10 +257,8 @@ namespace Midori {
             Object (application: app,
                     web_context: app.ephemeral_context ());
 
-            profile.sensitive = false;
             remove_action ("clear-private-data");
             get_style_context ().add_class ("incognito");
-            profile_icon.icon_name = "user-not-tracked-symbolic";
         }
 
         public override bool key_press_event (Gdk.EventKey event) {

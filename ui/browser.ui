@@ -4,7 +4,7 @@
     <property name="mode">vertical</property>
     <widgets>
       <widget name="scrolled"/>
-      <widget name="profile"/>
+      <widget name="app_menu"/>
     </widgets>
   </object>
   <object class="GtkSizeGroup">
@@ -73,41 +73,19 @@
               </packing>
             </child>
             <child>
-              <object class="MidoriDownloadButton" id="downloads">
-                <property name="valign">center</property>
-              </object>
-              <packing>
-                <property name="pack-type">end</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkMenuButton" id="profile">
-                <property name="focus-on-click">no</property>
-                <property name="valign">center</property>
-                <property name="visible">yes</property>
-                <child>
-                  <object class="GtkImage" id="profile_icon">
-                    <property name="icon-name">user-info-symbolic</property>
-                    <property name="use-fallback">yes</property>
-                    <property name="visible">yes</property>
-                  </object>
-                </child>
-              </object>
-              <packing>
-                <property name="pack-type">end</property>
-              </packing>
-            </child>
-            <child>
               <object class="GtkMenuButton" id="app_menu">
                 <property name="focus-on-click">no</property>
                 <property name="valign">center</property>
-                <child>
-                  <object class="GtkImage">
-                    <property name="icon-name">view-more-symbolic</property>
-                    <property name="use-fallback">yes</property>
-                    <property name="visible">yes</property>
-                  </object>
-                </child>
+                <property name="direction">none</property>
+                <property name="visible">yes</property>
+              </object>
+              <packing>
+                <property name="pack-type">end</property>
+              </packing>
+            </child>
+            <child>
+              <object class="MidoriDownloadButton" id="downloads">
+                <property name="valign">center</property>
               </object>
               <packing>
                 <property name="pack-type">end</property>
