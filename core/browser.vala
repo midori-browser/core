@@ -253,7 +253,7 @@ namespace Midori {
 
         public Browser.incognito (App app) {
             Object (application: app,
-                    web_context: new WebKit.WebContext.ephemeral ());
+                    web_context: app.ephemeral_context ());
 
             profile.sensitive = false;
             remove_action ("clear-private-data");
