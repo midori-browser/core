@@ -73,6 +73,7 @@ namespace Midori {
         Gtk.SearchEntry search_entry;
 
         List<Binding> bindings;
+        uint focus_timeout = 0;
 
         construct {
             overlay.add_events (Gdk.EventMask.ENTER_NOTIFY_MASK);
@@ -185,7 +186,15 @@ namespace Midori {
                     bindings.append (tab.bind_property ("link-uri", statusbar, "label"));
                     bindings.append (tab.bind_property ("display-uri", navigationbar.urlbar, "uri"));
                     bindings.append (tab.bind_property ("pinned", navigationbar, "visible", BindingFlags.INVERT_BOOLEAN));
-                    tab.grab_focus ();
+                    if (focus_timeout > 0) {
+                        Source.remove (focus_timeout);
+                        focus_timeout = 0;
+                    }
+                    focus_timeout = Timeout.add (500, () => {
+                        tab.grab_focus ();
+                        goto_activated ();
+                        return Source.REMOVE;
+                    }, Priority.LOW);
                 } else {
                     var previous_tab = tabs.get_children ().nth_data (0);
                     if (previous_tab == null)
