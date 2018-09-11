@@ -12,6 +12,16 @@
         <attribute name="label" translatable="yes">New P_rivate Browsing Window</attribute>
         <attribute name="accel">&lt;Primary&gt;&lt;Shift&gt;p</attribute>
       </item>
+    </section>
+    <section>
+      <item>
+        <attribute name="action">win.clear-private-data</attribute>
+        <attribute name="hidden-when">action-disabled</attribute>
+        <attribute name="label" translatable="yes">_Clear private data</attribute>
+        <attribute name="accel">&lt;Primary&gt;&lt;Shift&gt;Delete</attribute>
+      </item>
+    </section>
+    <section>
       <item>
         <attribute name="action">win.show-help-overlay</attribute>
         <attribute name="hidden-when">action-disabled</attribute>
@@ -29,17 +39,7 @@
       </item>
     </section>
   </menu>
-  <menu id="profile-menu">
-    <section>
-      <item>
-        <attribute name="action">win.clear-private-data</attribute>
-        <attribute name="hidden-when">action-disabled</attribute>
-        <attribute name="label" translatable="yes">_Clear private data</attribute>
-        <attribute name="accel">&lt;Primary&gt;&lt;Shift&gt;Delete</attribute>
-      </item>
-    </section>
-  </menu>
-   <menu id="browser-menu">
+  <menu id="page-menu">
     <section>
       <item>
         <attribute name="action">win.find</attribute>
