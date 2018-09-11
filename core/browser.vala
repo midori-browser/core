@@ -38,6 +38,7 @@ namespace Midori {
             { "fullscreen", fullscreen_activated },
             { "show-downloads", show_downloads_activated },
             { "find", find_activated },
+            { "view-source", view_source_activated },
             { "print", print_activated },
             { "show-inspector", show_inspector_activated },
             { "clear-private-data", clear_private_data_activated },
@@ -104,6 +105,7 @@ namespace Midori {
                 application.set_accels_for_action ("win.fullscreen", { "F11" });
                 application.set_accels_for_action ("win.show-downloads", { "<Primary><Shift>j" });
                 application.set_accels_for_action ("win.find", { "<Primary>f", "slash" });
+                application.set_accels_for_action ("win.view-source", { "<Primary>u", "<Primary><Alt>u" });
                 application.set_accels_for_action ("win.print", { "<Primary>p" });
                 application.set_accels_for_action ("win.show-inspector", { "<Primary><Shift>i" });
                 application.set_accels_for_action ("win.goto", { "<Primary>l", "F7" });
@@ -394,6 +396,30 @@ namespace Midori {
                 options |= WebKit.FindOptions.BACKWARDS;
             }
             tab.get_find_controller ().search (search_entry.text, options, int.MAX);
+        }
+
+        void view_source_activated () {
+            view_source.begin (tab);
+        }
+
+        async void view_source (Tab tab) {
+            string uri = tab.display_uri;
+            try {
+                var file = File.new_for_uri (uri);
+                if (!uri.has_prefix ("file:///")) {
+                    FileIOStream stream;
+                    file = File.new_tmp ("sourceXXXXXX", out stream);
+                    var data = yield tab.get_main_resource ().get_data (null);
+                    yield stream.output_stream.write_async (data);
+                    yield stream.close_async ();
+                }
+                var files = new List<File> ();
+                files.append (file);
+                var info = AppInfo.get_default_for_type ("text/plain", false);
+                info.launch (files, get_display ().get_app_launch_context ());
+            } catch (Error error) {
+                critical ("Failed to open %s in editor: %s", uri, error.message);
+            }
         }
 
         void print_activated () {
