@@ -203,6 +203,11 @@ namespace Midori {
         public override bool context_menu (WebKit.ContextMenu menu,
             Gdk.Event event, WebKit.HitTestResult hit) {
 
+            // No context menu for pinned tabs
+            if (pinned) {
+                return true;
+            }
+
             if (hit.context_is_editable ()) {
                 return false;
             }

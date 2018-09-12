@@ -22,6 +22,7 @@ namespace Midori {
         public Tab? tab { get; protected set; }
         public ListStore trash { get; protected set; }
         public bool is_fullscreen { get; protected set; default = false; }
+        public bool is_locked { get; set; default = false; }
 
         const ActionEntry[] actions = {
             { "tab-new", tab_new_activated },
@@ -54,6 +55,10 @@ namespace Midori {
         Gtk.HeaderBar tabbar;
         [GtkChild]
         DownloadButton downloads;
+        [GtkChild]
+        Gtk.Button tab_new;
+        [GtkChild]
+        Gtk.Button toggle_fullscreen;
         [GtkChild]
         Gtk.MenuButton app_menu;
         [GtkChild]
@@ -143,6 +148,8 @@ namespace Midori {
 
             trash = new ListStore (typeof (DatabaseItem));
 
+            bind_property ("is-locked", tab_new, "visible", BindingFlags.INVERT_BOOLEAN);
+            bind_property ("is-locked", toggle_fullscreen, "visible", BindingFlags.INVERT_BOOLEAN);
             navigationbar.urlbar.notify["uri"].connect ((pspec) => {
                 string uri = navigationbar.urlbar.uri;
                 if (uri.has_prefix ("javascript:")) {
@@ -216,6 +223,7 @@ namespace Midori {
                 set_titlebar (null);
                 panelbar.show_close_button = false;
                 tabbar.show_close_button = false;
+                bind_property ("is-locked", tabbar, "visible", BindingFlags.INVERT_BOOLEAN);
                 var box = (get_child () as Gtk.Box);
                 box.add (titlebar);
                 box.reorder_child (titlebar, 0);
@@ -262,6 +270,10 @@ namespace Midori {
         }
 
         public override bool key_press_event (Gdk.EventKey event) {
+            // No keyboard shortcuts in locked state
+            if (is_locked) {
+                return true;
+            }
             // Give key handling in widgets precedence over actions
             // eg. Backspace in textfields should delete rather than go back
             if (propagate_key_event (event)) {
