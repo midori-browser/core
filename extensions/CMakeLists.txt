@@ -20,6 +20,7 @@ foreach(UNIT_SRC ${EXTENSIONS})
             ${PKGS}
         OPTIONS
             ${VALAFLAGS}
+            --gresources="${CMAKE_SOURCE_DIR}/gresource.xml"
         CUSTOM_VAPIS
             ${CMAKE_BINARY_DIR}/core/${LIBCORE}.vapi
             ${EXTRA_VAPIS}
