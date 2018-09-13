@@ -142,15 +142,32 @@ Midori code should in general have:
 
 ## Working with Git
 
-The development **master** (trunk, tip) is the latest iteration of the next release. Browse it online and look for other branches.
+If you haven't yet, [check that GitHub has your SSH key](https://github.com/settings/keys).
+> **Spoilers:** You can create an SSH key with **Passwords and Keys** aka **Seahorse**
+> or `ssh-keygen -t rsa` and specify `Host github.com` with `User git` in your SSH config.
 
-    git clone https://github.com/midori-browser/core.git
+[Fork the project on GitHub](https://help.github.com/articles/fork-a-repo).
+
+    # USERNAME is your GitHub username
+    git clone git@github.com:USERNAME/core.git
+
+Prepare to pull in updates from upstream:
+
+    git remote add upstream https://github.com/midori-browser/core.git
 
 > **Spoilers:** The code used to be hosted at `lp:midori` and `git.xfce.org/apps/midori` respectively.
 
+The development **master** (trunk, tip) is the latest iteration of the next release.
+
+    git checkout upstream/master
+
+Pick a name for your feature branch:
+
+    git checkout -B myfeature
+
 Remember to keep your branch updated:
 
-    git pull -r origin master
+    git pull -r upstream master
 
 Tell git your name if you haven't yet:
 
@@ -200,15 +217,11 @@ This may be seen as git's version of `bzr shelve`:
 As a general rule of thumb, `git COMMAND --help` gives you an explanation
 of any command and `git --help -a` lists all available commands.
 
-## Push proposed changes
+Push your branch and **propose it for merging into master**.
 
-* If you haven't yet, [check that GitHub has your SSH key](https://github.com/settings/keys).
-* [Fork the project on GitHub](https://help.github.com/articles/fork-a-repo)
-* Add your patch(es)
-* **Push it under your username** on GitHub and you can **propose it for merging into master**.
-* This will automatically request a **review from other developers** who can then comment on it and provide feedback.
-> **Spoilers:** You can create an SSH key with **Passwords and Keys** aka **Seahorse**
-> or `ssh-keygen -t rsa` and specify `Host github.com` with `User git` in your SSH config.
+    git push origin HEAD
+
+This will automatically request a **review from other developers** who can then comment on it and provide feedback.
 
 # Jargon
 
