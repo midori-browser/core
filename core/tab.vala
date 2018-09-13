@@ -46,8 +46,10 @@ namespace Midori {
                 can_go_forward = base.can_go_forward ();
             });
             notify["title"].connect ((pspec) => {
-                display_title = (title != null && title != "") ? title : display_uri;
-                item.title = display_title;
+                if (title != null && title != "") {
+                    display_title = title;
+                    item.title = display_title;
+                }
             });
         }
 
@@ -59,26 +61,30 @@ namespace Midori {
             settings.user_agent = Config.CORE_USER_AGENT;
             settings.enable_developer_extras = true;
 
+            if (uri != null) {
+                display_uri = uri;
+                display_title = (title != null && title != "") ? title : uri;
+            } else {
+                display_uri = "internal:speed-dial";
+                display_title = _("Speed Dial");
+            }
+            item = new DatabaseItem (display_uri, null, 0);
+
             if (pinned) {
                 var extensions = Plugins.get_default ().plug<TabActivatable> ("tab", this);
                 extensions.extension_added.connect ((info, extension) => ((TabActivatable)extension).activate ());
                 extensions.foreach ((extensions, info, extension) => { extensions.extension_added (info, extension); });
-                load_uri (uri ?? "internal:speed-dial");
+                load_uri (display_uri);
             } else {
                 load_uri_delayed.begin (uri, title);
             }
         }
 
         async void load_uri_delayed (string? uri, string? title) {
-            display_uri = uri ?? "internal:speed-dial";
-            display_title = title ?? display_uri;
-            item = new DatabaseItem (display_uri, display_title, 0);
-
             // Get title from history
             try {
                 var history = HistoryDatabase.get_default ();
-                var items = yield history.query (display_title, 1);
-                var item = items.nth_data (0);
+                var item = yield history.lookup (display_uri);
                 if (item != null) {
                     display_title = item.title;
                     this.item = item;
@@ -115,14 +121,18 @@ namespace Midori {
 
         public override void load_changed (WebKit.LoadEvent load_event) {
             if (load_event == WebKit.LoadEvent.COMMITTED) {
-                item = new DatabaseItem (uri, display_title, new DateTime.now_local ().to_unix ());
+                secure = get_tls_info (null, null);
+                item = new DatabaseItem (uri, null, new DateTime.now_local ().to_unix ());
+                // Don't add internal or blank pages to history
+                if (uri.has_prefix ("internal:") || uri.has_prefix ("about:")) {
+                    return;
+                }
                 try {
                     var history = HistoryDatabase.get_default ();
                     history.insert.begin (item);
                 } catch (DatabaseError error) {
                     debug ("Failed to insert history item: %s", error.message);
                 }
-                secure = get_tls_info (null, null);
             }
         }
 
