@@ -139,6 +139,8 @@ namespace Midori {
             item.bind_property ("icon", icon, "gicon");
             filename.label = item.basename;
             item.bind_property ("basename", filename, "label");
+            filename.tooltip_text = item.basename;
+            item.bind_property ("basename", filename, "tooltip-text");
             progress.fraction = item.progress;
             item.bind_property ("progress", progress, "fraction");
             progress.visible = item.loading;
