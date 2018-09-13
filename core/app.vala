@@ -18,12 +18,14 @@ namespace Midori {
     public class App : Gtk.Application {
         public File? exec_path { get; protected set; default = null; }
 
+        static string? app = null;
         [CCode (array_length = false, array_null_terminated = true)]
         static string[]? execute = null;
         static bool help_execute = false;
         public static bool incognito = false;
         static bool version = false;
         const OptionEntry[] options = {
+            { "app", 'a', 0, OptionArg.STRING, ref app, N_("Run ADDRESS as a web application"), N_("ADDRESS") },
             { "execute", 'e', 0, OptionArg.STRING_ARRAY, ref execute, N_("Execute the specified command"), null },
             { "help-execute", 0, 0, OptionArg.NONE, ref help_execute, N_("List available commands to execute with -e/ --execute"), null },
             { "private", 'p', 0, OptionArg.NONE, ref incognito, N_("Private browsing, no changes are saved"), null },
@@ -321,6 +323,7 @@ namespace Midori {
             }
 
             // Propagate options processed in the primary instance
+            options.insert_value ("app", app ?? "");
             options.insert_value ("execute", execute);
             options.insert_value ("help-execute", help_execute);
             options.insert_value ("private", incognito);
@@ -332,6 +335,7 @@ namespace Midori {
 
             // Retrieve values for options passed from another process
             var options = command_line.get_options_dict ();
+            app = options.lookup_value ("app", VariantType.STRING).get_string ();
             execute = options.lookup_value ("execute", VariantType.STRING_ARRAY).dup_strv ();
             help_execute = options.lookup_value ("help-execute", VariantType.BOOLEAN).get_boolean ();
             incognito = options.lookup_value ("private", VariantType.BOOLEAN).get_boolean ();
@@ -348,9 +352,20 @@ namespace Midori {
                 }
             }
 
+            if (app != "") {
+                var browser = new Browser (this);
+                browser.is_locked = true;
+                var tab = new Tab (null, browser.web_context, app);
+                tab.pinned = true;
+                browser.add (tab);
+                browser.show ();
+            }
+
             uint argc = command_line.get_arguments ().length;
             if (argc <= 1) {
-                activate ();
+                if (active_window == null) {
+                    activate ();
+                }
             } else {
                 var files = new File[argc - 1];
                 uint i = 0;

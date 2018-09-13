@@ -97,6 +97,11 @@ namespace Midori {
         }
 
         protected override bool button_press_event (Gdk.EventButton event) {
+            // No context menu for a single tab
+            if (!show_close) {
+                return false;
+            }
+
             switch (event.button) {
                 case Gdk.BUTTON_SECONDARY:
                     ((SimpleAction)group.lookup_action ("pin")).set_enabled (!tab.pinned);
