@@ -22,7 +22,7 @@ namespace Midori {
         [CCode (array_length = false, array_null_terminated = true)]
         static string[]? execute = null;
         static bool help_execute = false;
-        public static bool incognito = false;
+        static bool incognito = false;
         static bool version = false;
         const OptionEntry[] options = {
             { "app", 'a', 0, OptionArg.STRING, ref app, N_("Run ADDRESS as a web application"), N_("ADDRESS") },

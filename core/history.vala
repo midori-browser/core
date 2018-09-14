@@ -12,16 +12,19 @@
 namespace Midori {
     public class HistoryDatabase : Database {
         static HistoryDatabase? _default = null;
+        static HistoryDatabase? _default_incognito = null;
 
-        public static HistoryDatabase get_default () throws DatabaseError {
-            if (_default == null) {
-                _default = new HistoryDatabase ();
+        public static HistoryDatabase get_default (bool incognito=false) throws DatabaseError {
+            if (incognito) {
+                _default_incognito = _default_incognito ?? new HistoryDatabase (true);
+                return _default_incognito;
             }
+            _default = _default ?? new HistoryDatabase (false);
             return _default;
         }
 
-        HistoryDatabase () throws DatabaseError {
-            Object (path: "history.db");
+        HistoryDatabase (bool incognito) throws DatabaseError {
+            Object (path: "history.db", readonly: incognito);
             init ();
 
             try {

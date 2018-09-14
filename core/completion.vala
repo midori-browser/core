@@ -30,6 +30,7 @@ namespace Midori {
 
     public class Completion : Object, ListModel {
         List<ListModel> models = new List<ListModel> ();
+        public bool incognito { get; construct set; default = false; }
         public string? key { get; set; default = null; }
 
         construct {
@@ -39,7 +40,7 @@ namespace Midori {
             models.append (model);
 
             try {
-                add (HistoryDatabase.get_default ());
+                add (HistoryDatabase.get_default (incognito));
             } catch (DatabaseError error) {
                 debug ("Failed to initialize completion model: %s", error.message);
             }
@@ -49,7 +50,8 @@ namespace Midori {
             extensions.foreach ((extensions, info, extension) => { extensions.extension_added (info, extension); });
         }
 
-        public Completion () {
+        public Completion (bool incognito) {
+            Object (incognito: incognito);
         }
 
         /*

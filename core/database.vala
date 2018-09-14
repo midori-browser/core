@@ -204,6 +204,11 @@ namespace Midori {
         } }
 
         /*
+         * A read-only database will fail on insert, update and delete.
+         */
+        public bool readonly { get; protected set; default = false; }
+
+        /*
          * A new database successfully opened for the first time.
          * Old or additional data should be opened if this is true.
          */
@@ -254,7 +259,7 @@ namespace Midori {
             bool exists = exists (real_path);
 
             int flags = 0;
-            if (App.incognito) {
+            if (readonly) {
                 flags |= Sqlite.OPEN_READONLY;
             } else {
                 flags |= Sqlite.OPEN_CREATE;
