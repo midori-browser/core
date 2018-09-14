@@ -149,7 +149,6 @@ namespace Midori {
             trash = new ListStore (typeof (DatabaseItem));
 
             bind_property ("is-locked", tab_new, "visible", BindingFlags.INVERT_BOOLEAN);
-            bind_property ("is-locked", toggle_fullscreen, "visible", BindingFlags.INVERT_BOOLEAN);
             navigationbar.urlbar.notify["uri"].connect ((pspec) => {
                 string uri = navigationbar.urlbar.uri;
                 if (uri.has_prefix ("javascript:")) {
@@ -175,6 +174,7 @@ namespace Midori {
                     navigationbar.urlbar.secure = tab.secure;
                     statusbar.label = tab.link_uri;
                     navigationbar.urlbar.uri = tab.display_uri;
+                    toggle_fullscreen.visible = !tab.pinned;
                     navigationbar.visible = !tab.pinned;
                     bindings.append (tab.bind_property ("can-go-back", navigationbar.go_back, "sensitive"));
                     bindings.append (tab.bind_property ("can-go-forward", navigationbar.go_forward, "sensitive"));
@@ -185,6 +185,7 @@ namespace Midori {
                     bindings.append (tab.bind_property ("secure", navigationbar.urlbar, "secure"));
                     bindings.append (tab.bind_property ("link-uri", statusbar, "label"));
                     bindings.append (tab.bind_property ("display-uri", navigationbar.urlbar, "uri"));
+                    bindings.append (tab.bind_property ("pinned", toggle_fullscreen, "visible", BindingFlags.INVERT_BOOLEAN));
                     bindings.append (tab.bind_property ("pinned", navigationbar, "visible", BindingFlags.INVERT_BOOLEAN));
                     if (focus_timeout > 0) {
                         Source.remove (focus_timeout);
