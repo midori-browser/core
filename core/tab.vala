@@ -83,7 +83,7 @@ namespace Midori {
         async void load_uri_delayed (string? uri, string? title) {
             // Get title from history
             try {
-                var history = HistoryDatabase.get_default ();
+                var history = HistoryDatabase.get_default (web_context.is_ephemeral ());
                 var item = yield history.lookup (display_uri);
                 if (item != null) {
                     display_title = item.title;
@@ -125,6 +125,10 @@ namespace Midori {
                 item = new DatabaseItem (uri, null, new DateTime.now_local ().to_unix ());
                 // Don't add internal or blank pages to history
                 if (uri.has_prefix ("internal:") || uri.has_prefix ("about:")) {
+                    return;
+                }
+                // Don't add anything in private browsing mode
+                if (web_context.is_ephemeral ()) {
                     return;
                 }
                 try {
@@ -229,7 +233,7 @@ namespace Midori {
             }
             if (hit.context_is_link () && !hit.link_uri.has_prefix ("javascript:")) {
                 menu.append (new WebKit.ContextMenuItem.from_stock_action_with_label (WebKit.ContextMenuAction.OPEN_LINK_IN_NEW_WINDOW, _("Open Link in New _Tab")));
-                if (!App.incognito) {
+                if (!web_context.is_ephemeral ()) {
                     var action = new Gtk.Action ("link-window", _("Open Link in New _Window"), null, null);
                     action.activate.connect (() => {
                         var browser = new Browser ((App)Application.get_default ());

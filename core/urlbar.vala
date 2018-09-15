@@ -116,7 +116,7 @@ namespace Midori {
                     case Gdk.Key.Delete:
                     case Gdk.Key.KP_Delete:
                         var suggestion_row = (SuggestionRow)selected_row;
-                        if (suggestion_row != null) {
+                        if (suggestion_row != null && !suggestion_row.item.database.readonly) {
                             listbox.move_cursor (Gtk.MovementStep.DISPLAY_LINES, -1);
                             suggestion_row.item.delete.begin ();
                         }
@@ -277,7 +277,7 @@ namespace Midori {
             if (!suggestions.visible) {
                 suggestions.set_default_widget (this);
                 suggestions.relative_to = this;
-                var completion = new Completion ();
+                var completion = new Completion (((Browser)get_toplevel ()).tab.web_context.is_ephemeral ());
                 bind_property ("key", completion, "key");
                 listbox.bind_model (completion, create_row);
             }

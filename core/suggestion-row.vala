@@ -69,7 +69,7 @@ namespace Midori {
                 });
             }
             // Delete button to remove suggestions from history
-            this.delete.visible = item.database != null;
+            this.delete.visible = item.database != null && !item.database.readonly;
             this.delete.clicked.connect (() => { item.delete.begin (); });
         }
 
