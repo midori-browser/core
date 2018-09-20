@@ -476,7 +476,7 @@ namespace Midori {
         void about_activated () {
             var about = new About (this);
             about.run ();
-            about.hide ();
+            about.close ();
         }
     }
 }
