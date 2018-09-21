@@ -203,6 +203,11 @@ namespace Tabby {
                 connect_tab (tab, item);
                 browser.add (tab);
             }
+
+            // Nothing was restored, so we're left with one empty browser
+            if (default_browser != null) {
+                default_browser.add (new Midori.Tab (null, default_browser.web_context));
+            }
         }
 
         Midori.Browser browser_for_session (Midori.App app, int64 id) {
