@@ -324,7 +324,8 @@ namespace Midori {
         }
 
         public bool exec_script (string filename) throws DatabaseError {
-            string schema_path = "/data/%s/%s.sql".printf (table, filename);
+            string basename = Path.get_basename (path).split (".")[0];
+            string schema_path = "/data/%s/%s.sql".printf (basename, filename);
             try {
                 var schema = resources_lookup_data (schema_path, ResourceLookupFlags.NONE);
                 transaction (()=> { return exec ((string)schema.get_data ()); });
