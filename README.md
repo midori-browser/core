@@ -145,6 +145,7 @@ Midori code should in general have:
 If you haven't yet, [check that GitHub has your SSH key](https://github.com/settings/keys).
 > **Spoilers:** You can create an SSH key with **Passwords and Keys** aka **Seahorse**
 > or `ssh-keygen -t rsa` and specify `Host github.com` with `User git` in your SSH config.
+> See [GitHub docs](https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/) for further details.
 
 [Fork the project on GitHub](https://help.github.com/articles/fork-a-repo).
 
