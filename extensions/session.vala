@@ -161,6 +161,19 @@ namespace Tabby {
             }
         }
 
+        public async override bool clear (TimeSpan timespan) throws Midori.DatabaseError {
+            // Note: TimeSpan is defined in microseconds
+            int64 maximum_age = new DateTime.now_local ().to_unix () - timespan / 1000000;
+
+            string sqlcmd = """
+                DELETE FROM %s WHERE tstamp >= :maximum_age;
+                DELETE FROM sessions WHERE tstamp >= :maximum_age;
+                """.printf (table);
+            var statement = prepare (sqlcmd,
+                ":maximum_age", typeof (int64), maximum_age);
+            return statement.exec ();
+        }
+
         public async void restore_session (Midori.App app) throws Midori.DatabaseError {
             // Keep track of new windows
             app.window_added.connect ((window) => {
@@ -287,11 +300,37 @@ namespace Tabby {
             }
         }
     }
+
+    public class ClearSession : Peas.ExtensionBase, Midori.ClearPrivateDataActivatable {
+        public Gtk.Box box { owned get; set; }
+
+        Gtk.CheckButton button;
+
+        public void activate () {
+            button = new Gtk.CheckButton.with_mnemonic ("Last open _tabs");
+            button.show ();
+            box.add (button);
+        }
+
+        public async void clear (TimeSpan timespan) {
+            if (!button.active) {
+                return;
+            }
+
+            try {
+                yield SessionDatabase.get_default ().clear (timespan);
+            } catch (Midori.DatabaseError error) {
+                critical ("Failed to clear session: %s", error.message);
+            }
+        }
+    }
 }
 
 [ModuleInit]
 public void peas_register_types(TypeModule module) {
     ((Peas.ObjectModule)module).register_extension_type (
         typeof (Midori.AppActivatable), typeof (Tabby.Session));
+    ((Peas.ObjectModule)module).register_extension_type (
+        typeof (Midori.ClearPrivateDataActivatable), typeof (Tabby.ClearSession));
 
 }

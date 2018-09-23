@@ -545,9 +545,9 @@ namespace Midori {
             // Note: TimeSpan is defined in microseconds
             int64 maximum_age = new DateTime.now_local ().to_unix () - timespan / 1000000;
 
-            unowned string sqlcmd = """
-                DELETE FROM %s WHERE date <= :maximum_age;
-                """;
+            string sqlcmd = """
+                DELETE FROM %s WHERE date <= :maximum_age
+                """.printf (table);
             var statement = prepare (sqlcmd,
                 ":maximum_age", typeof (int64), maximum_age);
             return statement.exec ();
