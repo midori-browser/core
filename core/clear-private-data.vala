@@ -20,6 +20,9 @@ namespace Midori {
         Gtk.CheckButton websitedata;
         [GtkChild]
         Gtk.CheckButton cache;
+
+        Cancellable? show_cancellable = null;
+
         public ClearPrivateData (Gtk.Window parent) {
            Object (transient_for: parent,
                    // Adding this property via GtkBuilder doesn't work
@@ -28,7 +31,10 @@ namespace Midori {
         }
 
         public override void show () {
-            populate_data.begin ();
+            set_response_sensitive (Gtk.ResponseType.OK, false);
+            show_cancellable = new Cancellable ();
+            populate_data.begin (show_cancellable);
+
             try {
                 var database = HistoryDatabase.get_default ();
                 ulong handler = 0;
@@ -47,6 +53,9 @@ namespace Midori {
             var manager = WebKit.WebContext.get_default ().website_data_manager;
             try {
                 var data = yield manager.fetch (WebKit.WebsiteDataTypes.ALL, cancellable);
+                if (cancellable.is_cancelled ()) {
+                    return;
+                }
                 foreach (var website in data) {
                     if (((website.get_types () & WebKit.WebsiteDataTypes.COOKIES) != 0) ||
                         ((website.get_types () & WebKit.WebsiteDataTypes.LOCAL_STORAGE) != 0) ||
@@ -60,9 +69,11 @@ namespace Midori {
             } catch (Error error) {
                 debug ("Failed to fetch data: %s", error.message);
             }
+            set_response_sensitive (Gtk.ResponseType.OK, true);
         }
 
         public override void response (int response_id) {
+            show_cancellable.cancel ();
             if (response_id == Gtk.ResponseType.OK) {
                 var timespan = timerange.active_id == "last-hour"
                   ? TimeSpan.HOUR : TimeSpan.DAY;
