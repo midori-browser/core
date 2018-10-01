@@ -28,47 +28,70 @@ namespace Tabby {
             browsers = new HashTable<string, Midori.Browser> (str_hash, str_equal);
         }
 
-        public async override List<Midori.DatabaseItem>? query (string? filter=null, int64 max_items=int64.MAX, Cancellable? cancellable=null) throws Midori.DatabaseError {
+        async List<int64?> get_sessions () throws Midori.DatabaseError {
+            string sqlcmd = """
+                SELECT id, closed FROM sessions WHERE closed = 0
+                UNION
+                SELECT * FROM (SELECT id, closed FROM sessions WHERE closed = 1 ORDER BY tstamp DESC LIMIT 1)
+                ORDER BY closed;
+            """;
+            var sessions = new List<int64?> ();
+            var statement = prepare (sqlcmd);
+            while (statement.step ()) {
+                int64 id = statement.get_int64 ("id");
+                int64 closed = statement.get_int64 ("closed");
+                if (closed == 0 || sessions.length () == 0) {
+                    sessions.append (id);
+                }
+            }
+            return sessions;
+        }
+
+        async List<Midori.DatabaseItem>? get_items (int64 session_id, string? filter=null, int64 max_items=15, Cancellable? cancellable=null) throws Midori.DatabaseError {
             string where = filter != null ? "AND (uri LIKE :filter OR title LIKE :filter)" : "";
             string sqlcmd = """
-                SELECT id, uri, title, tstamp, session_id, closed FROM %s
-                WHERE closed = 0 %s
-                OR (session_id = (SELECT DISTINCT session_id from tabs ORDER BY tstamp DESC LIMIT 1))
-                ORDER BY closed, tstamp DESC LIMIT :limit
+                SELECT id, uri, title, tstamp FROM %s
+                WHERE session_id = :session_id %s
+                ORDER BY tstamp DESC LIMIT :limit
                 """.printf (table, where);
             var statement = prepare (sqlcmd,
+                ":session_id", typeof (int64), session_id,
                 ":limit", typeof (int64), max_items);
             if (filter != null) {
                 string real_filter = "%" + filter.replace (" ", "%") + "%";
                 statement.bind (":filter", typeof (string), real_filter);
             }
 
-            bool? fallback_to_closed = null;
             var items = new List<Midori.DatabaseItem> ();
             while (statement.step ()) {
-                // Get only non-closed or only closed tabs
-                bool closed = statement.get_int64 ("closed") == 1;
-                if (fallback_to_closed == null) {
-                    fallback_to_closed = closed;
-                } else if (fallback_to_closed != closed) {
-                    continue;
-                }
-
                 string uri = statement.get_string ("uri");
                 string title = statement.get_string ("title");
                 int64 date = statement.get_int64 ("tstamp");
                 var item = new Midori.DatabaseItem (uri, title, date);
                 item.database = this;
                 item.id = statement.get_int64 ("id");
-                item.set_data<int64> ("session_id", statement.get_int64 ("session_id"));
+                item.set_data<int64> ("session_id", session_id);
                 items.append (item);
 
-                uint src = Idle.add (query.callback);
+                uint src = Idle.add (get_items.callback);
                 yield;
                 Source.remove (src);
 
                 if (cancellable != null && cancellable.is_cancelled ())
                     return null;
+            }
+
+            if (cancellable != null && cancellable.is_cancelled ())
+                return null;
+            return items;
+        }
+
+        public async override List<Midori.DatabaseItem>? query (string? filter=null, int64 max_items=15, Cancellable? cancellable=null) throws Midori.DatabaseError {
+            var items = new List<Midori.DatabaseItem> ();
+            foreach (int64 session_id in yield get_sessions ()) {
+                foreach (var item in yield get_items (session_id, filter, max_items, cancellable)) {
+                    items.append (item);
+                }
             }
 
             if (cancellable != null && cancellable.is_cancelled ())
@@ -99,7 +122,7 @@ namespace Tabby {
 
         public async override bool update (Midori.DatabaseItem item) throws Midori.DatabaseError {
             string sqlcmd = """
-                UPDATE %s SET uri = :uri, title = :title, tstamp = :tstamp, closed = 0 WHERE id = :id
+                UPDATE %s SET uri = :uri, title = :title, tstamp = :tstamp WHERE id = :id
                 """.printf (table);
             try {
                 var statement = prepare (sqlcmd,
@@ -117,13 +140,11 @@ namespace Tabby {
         }
 
         public async override bool delete (Midori.DatabaseItem item) throws Midori.DatabaseError {
-            // Delete in the context of a session means close, so we can re-open as well
             string sqlcmd = """
-                UPDATE %s SET closed = 1, tstamp = :tstamp WHERE id = :id
+                DELETE FROM %s WHERE id = :id
                 """.printf (table);
             var statement = prepare (sqlcmd,
-                ":id", typeof (int64), item.id,
-                ":tstamp", typeof (int64), new DateTime.now_local ().to_unix ());
+                ":id", typeof (int64), item.id);
             if (statement.exec ()) {
                 return true;
             }
@@ -197,8 +218,21 @@ namespace Tabby {
             var default_browser = new Midori.Browser (app);
             default_browser.show ();
 
+            try {
+                default_browser = yield restore_windows (app, default_browser);
+            } catch (Midori.DatabaseError error) {
+                throw error;
+            } finally {
+                // Nothing was restored, so we're left with one empty browser
+                if (default_browser != null) {
+                    default_browser.add (new Midori.Tab (null, default_browser.web_context));
+                }
+            }
+        }
+
+        async Midori.Browser? restore_windows (Midori.App app, Midori.Browser default_browser) throws Midori.DatabaseError {
             // Restore existing session(s) that weren't closed, or the last closed one
-            foreach (var item in yield query ()) {
+            foreach (var item in yield query (null, int64.MAX - 1)) {
                 Midori.Browser browser;
                 int64 id = item.get_data<int64> ("session_id");
                 if (default_browser != null) {
@@ -216,11 +250,7 @@ namespace Tabby {
                 connect_tab (tab, item);
                 browser.add (tab);
             }
-
-            // Nothing was restored, so we're left with one empty browser
-            if (default_browser != null) {
-                default_browser.add (new Midori.Tab (null, default_browser.web_context));
-            }
+            return default_browser;
         }
 
         Midori.Browser browser_for_session (Midori.App app, int64 id) {
@@ -241,12 +271,8 @@ namespace Tabby {
                 tab_added.begin (widget as Midori.Tab, id);
             }
             browser.tabs.add.connect ((widget) => { tab_added.begin (widget as Midori.Tab, id); });
-            browser.tabs.remove.connect ((widget) => { tab_removed (widget as Midori.Tab); });
             browser.delete_event.connect ((event) => {
                 debug ("Closing session %s", id.to_string ());
-                foreach (var widget in browser.tabs.get_children ()) {
-                    tab_removed (widget as Midori.Tab);
-                }
                 update_session (id, true);
                 return false;
             });
@@ -257,6 +283,7 @@ namespace Tabby {
             tab.set_data<Midori.DatabaseItem?> ("tabby-item", item);
             tab.notify["uri"].connect ((pspec) => { item.uri = tab.uri; update.begin (item); });
             tab.notify["title"].connect ((pspec) => { item.title = tab.title; });
+            tab.close.connect (() => { tab_removed (tab); });
         }
 
         bool tab_is_connected (Midori.Tab tab) {
@@ -307,7 +334,7 @@ namespace Tabby {
         Gtk.CheckButton button;
 
         public void activate () {
-            button = new Gtk.CheckButton.with_mnemonic ("Last open _tabs");
+            button = new Gtk.CheckButton.with_mnemonic (_("Last open _tabs"));
             button.show ();
             box.add (button);
         }

@@ -535,6 +535,9 @@ namespace Midori {
                 tabs.child_set (tab, "title", tab.display_title);
             });
             tabs.add_titled (tab, tab.id, tab.display_title);
+            if (tabs.visible_child == null) {
+                tabs.visible_child = tab;
+            }
         }
 
         void clear_private_data_activated () {
