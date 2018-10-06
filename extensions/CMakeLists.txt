@@ -9,10 +9,21 @@ include_directories(
                     ${CMAKE_BINARY_DIR}
                     "${CMAKE_BINARY_DIR}/core"
                     )
-file(GLOB EXTENSIONS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.c *.vala)
+
+file(GLOB EXTENSIONS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *)
 foreach(UNIT_SRC ${EXTENSIONS})
-    if (${UNIT_SRC} MATCHES "(.vala)$")
+    # Extension sources may be in folders
+    string(FIND ${UNIT_SRC} "." UNIT_EXTENSION)
+    if (UNIT_EXTENSION EQUAL -1)
+        set(UNIT ${UNIT_SRC})
+        file(GLOB UNIT_SRC RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "${UNIT_SRC}/*.vala")
+    elseif (${UNIT_SRC} MATCHES "(.vala)$")
         string(REPLACE ".vala" "" UNIT ${UNIT_SRC})
+    else ()
+        message(STATUS "Skipping ${UNIT_SRC}")
+        continue()
+    endif ()
+
         include(ValaPrecompile)
         vala_precompile(UNIT_SRC_C ${UNIT}
             ${UNIT_SRC}
@@ -30,13 +41,6 @@ foreach(UNIT_SRC ${EXTENSIONS})
         set_target_properties(${UNIT} PROPERTIES
                               COMPILE_FLAGS "${VALA_CFLAGS}"
                               )
-    else()
-        string(REPLACE ".c" "" UNIT ${UNIT_SRC})
-        add_library(${UNIT} MODULE ${UNIT_SRC})
-        set_target_properties(${UNIT} PROPERTIES
-                              COMPILE_FLAGS ${CFLAGS}
-                              )
-    endif()
     target_link_libraries(${UNIT}
                           ${DEPS_LIBRARIES}
                           ${DEPS_GTK_LIBRARIES}

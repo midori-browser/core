@@ -21,6 +21,8 @@ namespace Midori {
         [GtkChild]
         public Gtk.ListBox listbox;
 
+        string cache = File.new_for_path (Path.build_filename (
+            Environment.get_user_cache_dir ())).get_uri ();
         ListStore model = new ListStore (typeof (DownloadItem));
 
         construct {
@@ -32,6 +34,10 @@ namespace Midori {
         }
 
         void download_started (WebKit.Download download) {
+            // Don't show cache files in the UI
+            if (download.destination.has_prefix (cache)) {
+                return;
+            }
             model.append (new DownloadItem.with_download (download));
         }
 

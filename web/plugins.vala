@@ -13,10 +13,14 @@ namespace Midori {
     public class Plugins : Peas.Engine {
         public Plugins (WebKit.WebExtension extension, Variant user_data) {
             enable_loader ("python");
-            string source_path = Path.build_path (Path.DIR_SEPARATOR_S,
+            // Plugins installed by the user
+            string user_path = Path.build_path (Path.DIR_SEPARATOR_S,
                 Environment.get_user_data_dir (), Config.PROJECT_NAME, "extensions");
-            debug ("Loading plugins from %s", source_path);
-            add_search_path (source_path, null);
+            debug ("Loading plugins from %s", user_path);
+            add_search_path (user_path, null);
+            // Built-ins from the build folder or system-wide
+            string builtin_path = user_data.get_string ();
+            add_search_path (builtin_path, user_path);
             foreach (var plugin in get_plugin_list ()) {
                 debug ("Found plugin %s", plugin.get_name ());
                 if (!try_load_plugin (plugin)) {
