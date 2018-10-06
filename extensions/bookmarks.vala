@@ -123,6 +123,8 @@ namespace Bookmarks {
         Gtk.Popover popover;
         [GtkChild]
         Gtk.Entry entry_title;
+        [GtkChild]
+        Gtk.Button button_remove;
 
         Midori.Browser browser;
 
@@ -133,6 +135,12 @@ namespace Bookmarks {
                 if (item != null) {
                     item.title = entry_title.text;
                 }
+            });
+            button_remove.clicked.connect (() => {
+                popover.hide ();
+                var item = browser.tab.get_data<Midori.DatabaseItem?> ("bookmarks-item");
+                item.delete.begin ();
+                browser.tab.set_data<Midori.DatabaseItem?> ("bookmarks-item", null);
             });
         }
 
