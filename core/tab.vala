@@ -255,7 +255,7 @@ namespace Midori {
             }
             if (hit.context_is_image ()) {
                 menu.append (new WebKit.ContextMenuItem.separator ());
-                menu.append (new WebKit.ContextMenuItem.from_stock_action (WebKit.ContextMenuAction.DOWNLOAD_IMAGE_TO_DISK));
+                menu.append (new WebKit.ContextMenuItem.from_stock_action_with_label (WebKit.ContextMenuAction.DOWNLOAD_IMAGE_TO_DISK, _("Save I_mage")));
                 menu.append (new WebKit.ContextMenuItem.from_stock_action (WebKit.ContextMenuAction.COPY_IMAGE_TO_CLIPBOARD));
                 menu.append (new WebKit.ContextMenuItem.from_stock_action (WebKit.ContextMenuAction.COPY_IMAGE_URL_TO_CLIPBOARD));
             }
