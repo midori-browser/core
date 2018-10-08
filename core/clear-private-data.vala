@@ -24,10 +24,16 @@ namespace Midori {
         Cancellable? show_cancellable = null;
 
         public ClearPrivateData (Gtk.Window parent) {
-           Object (transient_for: parent,
-                   // Adding this property via GtkBuilder doesn't work
-                   // "for technical reasons, this property is declared as an integer"
-                   use_header_bar: 1);
+           Object (transient_for: parent);
+        }
+
+        construct {
+            if (get_settings ().gtk_dialogs_use_header) {
+                title = null;
+                // Adding this property via GtkBuilder doesn't work
+                // "for technical reasons, this property is declared as an integer"
+                use_header_bar = 1;
+            }
         }
 
         public override void show () {
