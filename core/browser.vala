@@ -19,6 +19,7 @@ namespace Midori {
     public class Browser : Gtk.ApplicationWindow {
         public WebKit.WebContext web_context { get; construct set; }
         public bool is_loading { get { return tab != null && tab.is_loading; } }
+        public string? uri { get; protected set; }
         public Tab? tab { get; protected set; }
         public ListStore trash { get; protected set; }
         public bool is_fullscreen { get; protected set; default = false; }
@@ -131,6 +132,11 @@ namespace Midori {
                 navigationbar.menubutton.menu_model = application.get_menu_by_id ("page-menu");
 
                 application.bind_busy_property (this, "is-loading");
+
+                // Plug only after the app is connected and everything is setup
+                var extensions = Plugins.get_default ().plug<BrowserActivatable> ("browser", this);
+                extensions.extension_added.connect ((info, extension) => ((BrowserActivatable)extension).activate ());
+                extensions.foreach ((extensions, info, extension) => { extensions.extension_added (info, extension); });
             });
 
             // Action for switching tabs via Alt+number
@@ -170,6 +176,7 @@ namespace Midori {
                     navigationbar.reload.visible = !tab.is_loading;
                     navigationbar.stop_loading.visible = tab.is_loading;
                     navigationbar.urlbar.progress_fraction = tab.progress;
+                    uri = tab.display_uri;
                     title = tab.display_title;
                     navigationbar.urlbar.secure = tab.secure;
                     statusbar.label = tab.link_uri;
@@ -182,6 +189,7 @@ namespace Midori {
                     bindings.append (tab.bind_property ("is-loading", navigationbar.stop_loading, "visible"));
                     bindings.append (tab.bind_property ("progress", navigationbar.urlbar, "progress-fraction"));
                     bindings.append (tab.bind_property ("display-title", this, "title"));
+                    bindings.append (tab.bind_property ("display-uri", this, "uri"));
                     bindings.append (tab.bind_property ("secure", navigationbar.urlbar, "secure"));
                     bindings.append (tab.bind_property ("link-uri", statusbar, "label"));
                     bindings.append (tab.bind_property ("display-uri", navigationbar.urlbar, "uri"));
@@ -240,10 +248,6 @@ namespace Midori {
 
             // Reveal panel toggle after panels are added
             panel.add.connect ((widget) => { panel_toggle.show (); });
-
-            var extensions = Plugins.get_default ().plug<BrowserActivatable> ("browser", this);
-            extensions.extension_added.connect ((info, extension) => ((BrowserActivatable)extension).activate ());
-            extensions.foreach ((extensions, info, extension) => { extensions.extension_added (info, extension); });
         }
 
         void update_decoration_layout () {
@@ -255,6 +259,13 @@ namespace Midori {
             } else {
                 tabbar.decoration_layout = null;
             }
+        }
+
+        /*
+         * Add a button to be displayed in a toolbar.
+         */
+        public void add_button (Gtk.Button button) {
+            navigationbar.pack_end (button);
         }
 
         public Browser (App app) {
