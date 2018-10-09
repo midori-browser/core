@@ -460,6 +460,10 @@ namespace Midori {
                 return false;
             });
             tab.close.connect (() => {
+                // Don't add internal or blank pages to trash
+                if (tab.item.uri.has_prefix ("internal:") || tab.item.uri.has_prefix ("about:")) {
+                    return;
+                }
                 trash.append (tab.item);
             });
             // Support Gtk.StackSwitcher
