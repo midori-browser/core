@@ -64,11 +64,11 @@ namespace Midori {
         }
 
         public override void startup () {
-            base.startup ();
-
             Intl.bindtextdomain (Config.PROJECT_NAME, null);
             Intl.bind_textdomain_codeset (Config.PROJECT_NAME, "UTF-8");
             Intl.textdomain (Config.PROJECT_NAME);
+
+            base.startup ();
 
             Gtk.Window.set_default_icon_name (Config.PROJECT_NAME);
 
