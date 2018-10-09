@@ -38,13 +38,18 @@ CUSTOM_VAPIS
     ${EXTRA_VAPIS}
 )
 
-add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/resources.c
-                   COMMENT "Built resource"
-                   COMMAND glib-compile-resources
+file(GLOB UI_FILES ${CMAKE_SOURCE_DIR}/ui/*.ui)
+find_program (GLIB_COMPILE_RESOURCES_BIN glib-compile-resources)
+add_custom_command(OUTPUT resources.c
+                   COMMAND ${GLIB_COMPILE_RESOURCES_BIN}
                    --sourcedir ${CMAKE_SOURCE_DIR}
                    --generate-source
                    --target ${CMAKE_CURRENT_BINARY_DIR}/resources.c
-                   ${CMAKE_SOURCE_DIR}/gresource.xml)
+                   ${CMAKE_SOURCE_DIR}/gresource.xml
+                   DEPENDS ${CMAKE_SOURCE_DIR}/gresource.xml
+                   DEPENDS ${CMAKE_SOURCE_DIR}/data/gtk3.css
+                   DEPENDS ${UI_FILES}
+                   )
 
 add_library("${LIBCORE}" SHARED ${LIBCORE_SOURCE_C} ${CMAKE_CURRENT_BINARY_DIR}/resources.c)
 target_link_libraries("${LIBCORE}"
@@ -60,11 +65,11 @@ set_target_properties("${LIBCORE}" PROPERTIES
                       )
 
 find_program (GIR_COMPILER_BIN g-ir-compiler)
-add_custom_target("g-ir-compiler_${LIBCORE}" ALL
-                  ${GIR_COMPILER_BIN} ${CMAKE_CURRENT_BINARY_DIR}/${LIBCORE_GIR}.gir
+add_custom_target(${LIBCORE_GIR}.typelib ALL
+                  COMMAND ${GIR_COMPILER_BIN} ${CMAKE_CURRENT_BINARY_DIR}/${LIBCORE_GIR}.gir
                   --output ${CMAKE_CURRENT_BINARY_DIR}/${LIBCORE_GIR}.typelib
-                  WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
-                  DEPENDS ${LIBCORE_GIR}.gir)
+                  DEPENDS ${LIBCORE_GIR}.gir
+                  )
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${LIBCORE_GIR}.gir"
         DESTINATION "${CMAKE_INSTALL_DATADIR}/gir-1.0/")
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${LIBCORE_GIR}.typelib"
