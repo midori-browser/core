@@ -240,6 +240,7 @@ namespace Midori {
                 titlebar.unref ();
                 titlebar.get_style_context ().remove_class ("titlebar");
             } else {
+                get_settings ().gtk_dialogs_use_header = true;
                 Gtk.Settings.get_default ().notify["gtk-decoration-layout"].connect ((pspec) => {
                     update_decoration_layout ();
                 });
