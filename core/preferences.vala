@@ -61,7 +61,7 @@ namespace Midori {
                 switcher.homogeneous = true;
             }
 
-            var settings = Settings.get_default ();
+            var settings = CoreSettings.get_default ();
 
             Gtk.Box box = new LabelWidget (_("Behavior"));
             var checkbox = new Gtk.CheckButton.with_mnemonic (_("Enable Spell Checking"));

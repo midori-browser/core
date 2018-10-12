@@ -65,14 +65,14 @@ namespace Midori {
             tab.notify["pinned"].connect ((pspec) => {
                 update_visibility ();
             });
-            Settings.get_default ().notify["close-buttons-on-tabs"].connect ((pspec) => {
+            CoreSettings.get_default ().notify["close-buttons-on-tabs"].connect ((pspec) => {
                 update_visibility ();
             });
         }
 
         void update_visibility () {
             caption.visible = !(tab.pinned && _show_close);
-            close.visible = _show_close && !tab.pinned && Settings.get_default ().close_buttons_on_tabs;
+            close.visible = _show_close && !tab.pinned && CoreSettings.get_default ().close_buttons_on_tabs;
         }
 
         construct {

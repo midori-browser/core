@@ -10,24 +10,52 @@
 */
 
 namespace Midori {
-    public class Settings : Object {
-        static Settings? _default = null;
-        KeyFile? keyfile = new KeyFile ();
+    public class CoreSettings : Settings {
+        static CoreSettings? _default = null;
 
-        public string filename { get; construct set; }
-
-        public static Settings get_default () {
+        public static CoreSettings get_default () {
             if (_default == null) {
                 string filename = Path.build_filename (Environment.get_user_config_dir (),
                     Environment.get_prgname (), "config");
-                _default = new Settings (filename);
+                _default = new CoreSettings (filename);
             }
             return _default;
         }
 
-        Settings (string filename) {
+        CoreSettings (string filename) {
             Object (filename: filename);
         }
+
+        internal bool get_plugin_enabled (string plugin) {
+            return get_boolean ("extensions", "lib%s.so".printf (plugin));
+        }
+
+        internal void set_plugin_enabled (string plugin, bool enabled) {
+            set_boolean ("extensions", "lib%s.so".printf (plugin), enabled);
+        }
+
+        public bool enable_spell_checking { get {
+            return get_boolean ("settings", "enable-spell-checking", true);
+        } set {
+            set_boolean ("settings", "enable-spell-checking", value, true);
+        } }
+        public bool enable_javascript { get {
+            return get_boolean ("settings", "enable-javascript", true);
+        } set {
+            set_boolean ("settings", "enable-javascript", value, true);
+        } }
+
+        public bool close_buttons_on_tabs { get {
+            return get_boolean ("settings", "close-buttons-on-tabs", true);
+        } set {
+            set_boolean ("settings", "close-buttons-on-tabs", value, true);
+        } }
+    }
+
+    public class Settings : Object {
+        KeyFile? keyfile = new KeyFile ();
+
+        public string filename { get; construct set; }
 
         construct {
             load ();
@@ -78,30 +106,5 @@ namespace Midori {
             }
             return default;
         }
-
-        internal bool get_plugin_enabled (string plugin) {
-            return get_boolean ("extensions", "lib%s.so".printf (plugin));
-        }
-
-        internal void set_plugin_enabled (string plugin, bool enabled) {
-            set_boolean ("extensions", "lib%s.so".printf (plugin), enabled);
-        }
-
-        public bool enable_spell_checking { get {
-            return get_boolean ("settings", "enable-spell-checking", true);
-        } set {
-            set_boolean ("settings", "enable-spell-checking", value, true);
-        } }
-        public bool enable_javascript { get {
-            return get_boolean ("settings", "enable-javascript", true);
-        } set {
-            set_boolean ("settings", "enable-javascript", value, true);
-        } }
-
-        public bool close_buttons_on_tabs { get {
-            return get_boolean ("settings", "close-buttons-on-tabs", true);
-        } set {
-            set_boolean ("settings", "close-buttons-on-tabs", value, true);
-        } }
     }
 }
