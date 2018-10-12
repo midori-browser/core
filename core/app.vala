@@ -115,6 +115,10 @@ namespace Midori {
             context.initialize_web_extensions.connect (() => {
                 context.set_web_extensions_initialization_user_data ("");
             });
+            context.set_spell_checking_enabled (Settings.get_default ().enable_spell_checking);
+            Settings.get_default ().notify["enable-spell-checking"].connect ((pspec) => {
+                context.set_spell_checking_enabled (Settings.get_default ().enable_spell_checking);
+            });
 
             add_action_entries (actions, this);
 
@@ -224,6 +228,10 @@ namespace Midori {
                     request.finish_error (error);
                     critical ("Failed to load resource %s: %s", request.get_uri (), error.message);
                 }
+            });
+            context.set_spell_checking_enabled (Settings.get_default ().enable_spell_checking);
+            Settings.get_default ().notify["enable-spell-checking"].connect ((pspec) => {
+                context.set_spell_checking_enabled (Settings.get_default ().enable_spell_checking);
             });
             return context;
         }

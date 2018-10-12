@@ -44,6 +44,7 @@ namespace Midori {
             { "print", print_activated },
             { "show-inspector", show_inspector_activated },
             { "clear-private-data", clear_private_data_activated },
+            { "preferences", preferences_activated },
             { "about", about_activated },
         };
         [GtkChild]
@@ -119,6 +120,7 @@ namespace Midori {
                 application.set_accels_for_action ("win.tab-previous", { "<Primary><Shift>Tab" });
                 application.set_accels_for_action ("win.tab-next", { "<Primary>Tab" });
                 application.set_accels_for_action ("win.clear-private-data", { "<Primary><Shift>Delete" });
+                application.set_accels_for_action ("win.preferences", { "<Primary><Alt>p" });
 
                 for (var i = 0; i < 10; i++) {
                     application.set_accels_for_action ("win.tab-by-index(%d)".printf(i),
@@ -226,7 +228,8 @@ namespace Midori {
                 Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
 
             // Make headerbar (titlebar) the topmost bar if CSD is disabled
-            if (Environment.get_variable ("GTK_CSD") == "0") {
+            get_settings ().gtk_dialogs_use_header = Environment.get_variable ("GTK_CSD") != "0";
+            if (!get_settings ().gtk_dialogs_use_header) {
                 var titlebar = get_titlebar ();
                 titlebar.ref ();
                 set_titlebar (null);
@@ -240,7 +243,6 @@ namespace Midori {
                 titlebar.unref ();
                 titlebar.get_style_context ().remove_class ("titlebar");
             } else {
-                get_settings ().gtk_dialogs_use_header = true;
                 Gtk.Settings.get_default ().notify["gtk-decoration-layout"].connect ((pspec) => {
                     update_decoration_layout ();
                 });
@@ -487,6 +489,10 @@ namespace Midori {
 
         void clear_private_data_activated () {
             new ClearPrivateData (this).show ();
+        }
+
+        void preferences_activated () {
+            new Preferences (this).show ();
         }
 
         void about_activated () {

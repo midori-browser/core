@@ -18,8 +18,7 @@ namespace Midori {
         bool _show_close;
         public bool show_close { get { return _show_close; } set {
             _show_close = value;
-            caption.visible = !(tab.pinned && _show_close);
-            close.visible = _show_close && !tab.pinned;
+            update_visibility ();
         } }
 
         public signal void clicked ();
@@ -63,11 +62,17 @@ namespace Midori {
             });
 
             // Pinned tab style: icon only
-            caption.visible = !(tab.pinned && _show_close);
             tab.notify["pinned"].connect ((pspec) => {
-                caption.visible = !(tab.pinned && _show_close);
-                close.visible = _show_close && !tab.pinned;
+                update_visibility ();
             });
+            Settings.get_default ().notify["close-buttons-on-tabs"].connect ((pspec) => {
+                update_visibility ();
+            });
+        }
+
+        void update_visibility () {
+            caption.visible = !(tab.pinned && _show_close);
+            close.visible = _show_close && !tab.pinned && Settings.get_default ().close_buttons_on_tabs;
         }
 
         construct {
