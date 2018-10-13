@@ -9,7 +9,7 @@ jobs:
         name: Install dependencies
         command: |
           apt-get update
-          apt-get install -y cmake xvfb valac libwebkit2gtk-4.0-dev libsoup-gnome2.4-dev libgcr-3-dev libpeas-dev libsqlite3-dev intltool libxml2-utils
+          apt-get install -y --no-install-recommends cmake xvfb valac libwebkit2gtk-4.0-dev libsoup-gnome2.4-dev libgcr-3-dev libpeas-dev libsqlite3-dev intltool libxml2-utils gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-libav gstreamer1.0-tools
     - run:
         name: Build
         command: |
