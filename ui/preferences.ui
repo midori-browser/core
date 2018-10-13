@@ -1,0 +1,35 @@
+<interface>
+  <!-- Note: This can't be a Dialog or the titlebar won't work correctly -->
+  <template class="MidoriPreferences" parent="GtkWindow">
+    <property name="modal">yes</property>
+    <property name="resizable">no</property>
+    <child type="titlebar">
+      <object class="GtkHeaderBar">
+        <property name="title" translatable="yes">Preferences</property>
+        <property name="show-close-button">yes</property>
+        <property name="visible">yes</property>
+        <child type="title">
+          <object class="GtkStackSwitcher" id="switcher">
+            <property name="stack">categories</property>
+            <property name="homogeneous">no</property>
+            <property name="visible">yes</property>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="GtkBox" id="content_box">
+        <property name="orientation">vertical</property>
+        <property name="visible">yes</property>
+        <child>
+          <object class="GtkStack" id="categories">
+            <property name="visible">yes</property>
+          </object>
+          <packing>
+            <property name="pack-type">end</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>

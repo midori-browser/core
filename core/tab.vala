@@ -60,6 +60,11 @@ namespace Midori {
             var settings = get_settings ();
             settings.user_agent = Config.CORE_USER_AGENT;
             settings.enable_developer_extras = true;
+            var core_settings = CoreSettings.get_default ();
+            settings.enable_javascript = core_settings.enable_javascript;
+            core_settings.notify["enable-javascript"].connect ((pspec) => {
+                settings.enable_javascript = core_settings.enable_javascript;
+            });
 
             if (uri != null) {
                 display_uri = uri;

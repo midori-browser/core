@@ -41,12 +41,23 @@ namespace Midori {
                 debug ("Loading plugins from %s", system_path.get_path ());
                 add_search_path (system_path.get_path (), user_path);
             }
+            var settings = CoreSettings.get_default ();
             foreach (var plugin in get_plugin_list ()) {
                 debug ("Found plugin %s", plugin.get_name ());
-                if (!try_load_plugin (plugin)) {
-                    critical ("Failed to load plugin %s", plugin.get_module_name ());
+                if (plugin.is_builtin ()
+                 || settings.get_plugin_enabled (plugin.get_module_name ())) {
+                    if (!try_load_plugin (plugin)) {
+                        critical ("Failed to load plugin %s", plugin.get_module_name ());
+                    }
                 }
             }
+            // Save/ load state of plugins
+            load_plugin.connect ((info) => {
+                settings.set_plugin_enabled (info.get_module_name (), true);
+            });
+            unload_plugin.connect ((info) => {
+                settings.set_plugin_enabled (info.get_module_name (), false);
+            });
         }
 
         /*
