@@ -65,6 +65,19 @@
         </child>
       </object>
     </child>
+    <child>
+      <object class="GtkButton" id="homepage">
+        <property name="focus-on-click">no</property>
+        <property name="action-name">win.homepage</property>
+        <property name="tooltip-text" translatable="yes">Go to your homepage</property>
+        <child>
+          <object class="GtkImage">
+            <property name="icon-name">user-home-symbolic</property>
+            <property name="visible">yes</property>
+          </object>
+        </child>
+      </object>
+    </child>
     <child type="center">
       <object class="MidoriUrlbar" id="urlbar">
         <!-- expand has no effect, int.MAX doesn't work -->

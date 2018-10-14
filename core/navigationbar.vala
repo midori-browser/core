@@ -21,6 +21,8 @@ namespace Midori {
         [GtkChild]
         public Gtk.Button stop_loading;
         [GtkChild]
+        public Gtk.Button homepage;
+        [GtkChild]
         public Urlbar urlbar;
         [GtkChild]
         public Gtk.MenuButton menubutton;
@@ -28,6 +30,9 @@ namespace Midori {
         public Gtk.Button restore;
 
         construct {
+            var settings = CoreSettings.get_default ();
+            homepage.visible = settings.homepage_in_toolbar;
+            settings.bind_property ("homepage-in-toolbar", homepage, "visible");
         }
     }
 }

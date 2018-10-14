@@ -35,8 +35,8 @@ namespace Midori {
 
         construct {
             var model = new ListStore (typeof (DatabaseItem));
-            // Allow DuckDuckGo to distinguish Midori and in turn share revenue
-            model.append (new SuggestionItem.for_input ("https://duckduckgo.com/?q=%s&t=midori", _("Search with DuckDuckGo")));
+            var settings = CoreSettings.get_default ();
+            model.append (new SuggestionItem.for_input (settings.location_entry_search, _("_Search the Web")));
             models.append (model);
 
             try {

@@ -275,11 +275,10 @@ namespace Midori {
                 // Selected text, ellipsized if > 32 characters
                 string? text = Gtk.Clipboard.get_for_display (get_display (), Gdk.SELECTION_PRIMARY).wait_for_text ();
                 string? label = ((text != null && text.length > 32) ? text.substring (0, 32) + "…" : text).delimit ("\n", ' ');
-                var action = new Gtk.Action ("text-search", _("Search %s for \"%s\"").printf ("DuckDuckGo", label), null, null);
+                var action = new Gtk.Action ("text-search", _("Search for %s").printf (label), null, null);
                 action.activate.connect (() => {
-                    // Allow DuckDuckGo to distinguish Midori and in turn share revenue
-                    string uri = "https://duckduckgo.com/?q=%s&t=midori".printf (Uri.escape_string (text, ":/", true));
-                    var tab = new Tab (this, web_context, uri);
+                    var settings = CoreSettings.get_default ();
+                    var tab = new Tab (this, web_context, settings.uri_for_search (text));
                     ((Browser)get_toplevel ()).add (tab);
                 });
                 menu.append (new WebKit.ContextMenuItem (action));
