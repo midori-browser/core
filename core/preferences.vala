@@ -34,6 +34,9 @@ namespace Midori {
             if (widget != null) {
                 label.mnemonic_widget = widget;
                 set_center_widget (widget);
+                if (widget is Gtk.Entry) {
+                    ((Gtk.Entry)widget).width_chars = 30;
+                }
             }
         }
     }
@@ -74,8 +77,30 @@ namespace Midori {
             add (_("Browsing"), box);
 
             box = new LabelWidget (_("_Tabs"));
+            var entry = new Gtk.SearchEntry ();
+            entry.primary_icon_name = null;
+            entry.placeholder_text = Config.PROJECT_WEBSITE;
+            // Render non-URL eg. about:search as empty
+            entry.text = ("://" in settings.homepage || "." in settings.homepage) ? settings.homepage : "";
+            entry.search_changed.connect (() => {
+                if ("://" in entry.text || "." in entry.text || entry.text == "") {
+                    entry.get_style_context ().remove_class ("error");
+                    settings.homepage = entry.text;
+                } else {
+                    entry.get_style_context ().add_class ("error");
+                }
+            });
+            var button = new LabelWidget (_("Homepage:"), entry);
+            box.add (button);
             checkbox = new Gtk.CheckButton.with_mnemonic (_("Close Buttons on Tabs"));
             settings.bind_property ("close-buttons-on-tabs", checkbox, "active", BindingFlags.SYNC_CREATE | BindingFlags.BIDIRECTIONAL);
+            box.add (checkbox);
+            box.show_all ();
+            add (_("Browsing"), box);
+
+            box = new LabelWidget (_("Customize Toolbar"));
+            checkbox = new Gtk.CheckButton.with_mnemonic (_("Show Homepage"));
+            settings.bind_property ("homepage-in-toolbar", checkbox, "active", BindingFlags.SYNC_CREATE | BindingFlags.BIDIRECTIONAL);
             box.add (checkbox);
             box.show_all ();
             add (_("Browsing"), box);
@@ -96,7 +121,7 @@ namespace Midori {
                 close ();
                 return true;
             }
-            return false;
+            return base.key_press_event (event);
         }
 
         /*

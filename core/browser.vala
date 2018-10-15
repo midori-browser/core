@@ -35,6 +35,7 @@ namespace Midori {
             { "go-forward", go_forward_activated },
             { "tab-reload", tab_reload_activated },
             { "tab-stop-loading", tab_stop_loading_activated },
+            { "homepage", homepage_activated },
             { "tab-previous", tab_previous_activated },
             { "tab-next", tab_next_activated },
             { "fullscreen", fullscreen_activated },
@@ -117,6 +118,7 @@ namespace Midori {
                 application.set_accels_for_action ("win.go-forward", { "<Alt>Right", "<Shift>BackSpace" });
                 application.set_accels_for_action ("win.tab-reload", { "<Primary>r", "F5" });
                 application.set_accels_for_action ("win.tab-stop-loading", { "Escape" });
+                application.set_accels_for_action ("win.homepage", { "<Alt>Home" });
                 application.set_accels_for_action ("win.tab-previous", { "<Primary><Shift>Tab" });
                 application.set_accels_for_action ("win.tab-next", { "<Primary>Tab" });
                 application.set_accels_for_action ("win.clear-private-data", { "<Primary><Shift>Delete" });
@@ -354,6 +356,20 @@ namespace Midori {
 
         void tab_stop_loading_activated () {
             tab.stop_loading ();
+        }
+
+        void homepage_activated () {
+            var settings = CoreSettings.get_default ();
+            string homepage = settings.homepage;
+            if ("://" in homepage) {
+                tab.load_uri (homepage);
+            } else if ("." in homepage) {
+                // Prepend http:// if hompepage has no scheme
+                tab.load_uri ("http://" + homepage);
+            } else {
+                // Fallback to search if URI is about:search or anything else
+                tab.load_uri (settings.uri_for_search ());
+            }
         }
 
         void tab_previous_activated () {

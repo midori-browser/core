@@ -32,6 +32,7 @@ namespace Midori {
             Object (item: item);
             if (item is SuggestionItem) {
                 box.set_child_packing (title, true, true, 0, Gtk.PackType.END);
+                title.use_underline = true;
                 notify["location"].connect ((pspec) => {
                     if (location != null) {
                         item.uri = location;
@@ -43,7 +44,7 @@ namespace Midori {
                 notify["key"].connect ((pspec) => {
                     if (key != null) {
                         var suggestion = (SuggestionItem)item;
-                        item.uri = suggestion.search.printf (Uri.escape_string (key, ":/", true));
+                        item.uri = CoreSettings.get_default ().uri_for_search (key, suggestion.search);
                         icon.icon_name = "edit-find-symbolic";
                         uri.label = Markup.escape_text (key);
                         title.label = item.title;
