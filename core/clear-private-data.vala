@@ -30,7 +30,6 @@ namespace Midori {
         construct {
             if (get_settings ().gtk_dialogs_use_header) {
                 title = null;
-                // Adding this property via GtkBuilder doesn't work
                 // "for technical reasons, this property is declared as an integer"
                 use_header_bar = 1;
             }
@@ -81,8 +80,8 @@ namespace Midori {
         public override void response (int response_id) {
             show_cancellable.cancel ();
             if (response_id == Gtk.ResponseType.OK) {
-                var timespan = timerange.active_id == "last-hour"
-                  ? TimeSpan.HOUR : TimeSpan.DAY;
+                // The ID is the number of days as a string; 0 means everything
+                var timespan = timerange.active_id.to_int () * TimeSpan.DAY;
                 WebKit.WebsiteDataTypes types = 0;
                 if (websitedata.active) {
                     types |= WebKit.WebsiteDataTypes.COOKIES;
@@ -95,10 +94,8 @@ namespace Midori {
                     manager.clear.begin (types, timespan, null);
                 }
                 if (history.active) {
-                    // Note: TimeSpan is defined in microseconds
-                    int64 age = new DateTime.now_local ().to_unix () - timespan / 1000000;
                     try {
-                        HistoryDatabase.get_default ().clear.begin (age);
+                        HistoryDatabase.get_default ().clear.begin (timespan);
                     } catch (DatabaseError error) {
                         debug ("Failed to clear history: %s", error.message);
                     }

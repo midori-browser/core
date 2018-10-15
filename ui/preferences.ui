@@ -1,6 +1,5 @@
 <interface>
-  <!-- Note: This can't be a Dialog or the titlebar won't work correctly -->
-  <template class="MidoriPreferences" parent="GtkWindow">
+  <template class="MidoriPreferences" parent="GtkDialog">
     <property name="modal">yes</property>
     <property name="resizable">no</property>
     <child type="titlebar">
@@ -17,7 +16,7 @@
         </child>
       </object>
     </child>
-    <child>
+    <child internal-child="vbox">
       <object class="GtkBox" id="content_box">
         <property name="orientation">vertical</property>
         <property name="visible">yes</property>
