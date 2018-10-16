@@ -23,6 +23,23 @@ namespace Midori {
             Object (title: title, widget: widget);
         }
 
+        internal LabelWidget.for_days (string title, Object object, string property) {
+            var combo = new Gtk.ComboBoxText ();
+            combo.append ("0", _("1 hour"));
+            combo.append ("1", _("1 day"));
+            combo.append ("7", _("1 week"));
+            combo.append ("30", _("1 month"));
+            combo.append ("365", _("1 year"));
+            combo.show ();
+            int64 current_value;
+            object.get (property, out current_value);
+            combo.active_id = current_value.to_string ();
+            combo.notify["active-id"].connect ((pspec) => {
+                object.set (property, combo.active_id.to_int64 ());
+            });
+            Object (title: title, widget: combo);
+        }
+
         construct {
             bool header = widget == null;
             orientation = header ? Gtk.Orientation.VERTICAL : Gtk.Orientation.HORIZONTAL;
@@ -42,7 +59,7 @@ namespace Midori {
     }
 
     [GtkTemplate (ui = "/ui/preferences.ui")]
-    public class Preferences : Gtk.Window {
+    public class Preferences : Gtk.Dialog {
         [GtkChild]
         Gtk.StackSwitcher switcher;
         [GtkChild]
@@ -62,6 +79,9 @@ namespace Midori {
                 content_box.pack_start (switcher, false, false);
                 switcher.unref ();
                 switcher.homogeneous = true;
+            } else {
+                // "for technical reasons, this property is declared as an integer"
+                use_header_bar = 1;
             }
 
             var settings = CoreSettings.get_default ();
@@ -104,6 +124,21 @@ namespace Midori {
             box.add (checkbox);
             box.show_all ();
             add (_("Browsing"), box);
+
+            box = new LabelWidget (_("Cookies and Website data"));
+            checkbox = new Gtk.CheckButton.with_mnemonic (_("Only accept Cookies from sites you visit"));
+            settings.bind_property ("first-party-cookies-only", checkbox, "active", BindingFlags.SYNC_CREATE | BindingFlags.BIDIRECTIONAL);
+            checkbox.tooltip_text = _("Block cookies sent by third-party websites");
+            box.pack_start (checkbox, false, false, 4);
+            box.show_all ();
+            add (_("Privacy"), box);
+
+            box = new LabelWidget (_("_History"));
+            button = new LabelWidget.for_days (_("Delete pages from history after:"), settings, "maximum-history-age");
+            button.tooltip_text = _("The maximum number of days to save the history for");
+            box.pack_start (button, false, false, 4);
+            box.show_all ();
+            add (_("Privacy"), box);
 
             box = new Gtk.Box (Gtk.Orientation.VERTICAL, 4);
             box.add (new PeasGtk.PluginManagerView (null));

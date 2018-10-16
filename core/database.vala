@@ -203,10 +203,12 @@ namespace Midori {
             populate.begin (populate_cancellable);
         } }
 
+        internal int64 maximum_age { get; protected set; default = -1; }
+
         /*
          * A read-only database will fail on insert, update and delete.
          */
-        public bool readonly { get; protected set; default = false; }
+        public bool readonly { get; construct set; default = false; }
 
         /*
          * A new database successfully opened for the first time.
@@ -315,6 +317,14 @@ namespace Midori {
             }
 
             first_use = !exists;
+
+            if (!readonly) {
+                // Periodically delete local user data exceeding a maximum timespan
+                Timeout.add_seconds (60 * 60, () => {
+                    cap.begin (maximum_age);
+                    return Source.CONTINUE;
+                });
+            }
             return true;
         }
 
@@ -536,6 +546,32 @@ namespace Midori {
             return false;
         }
 
+        /*
+         * Clear recent data produced in the given amount of time.
+         */
+        public async virtual bool clear (TimeSpan timespan) throws DatabaseError {
+            // Note: TimeSpan is defined in microseconds
+            int64 maximum_age = new DateTime.now_local ().to_unix () - timespan / 1000000;
+
+            unowned string sqlcmd = """
+                DELETE FROM %s WHERE date <= :maximum_age;
+                """;
+            var statement = prepare (sqlcmd,
+                ":maximum_age", typeof (int64), maximum_age);
+            return statement.exec ();
+        }
+
+        /*
+         * Delete data exceeding a maximum age (expiry date).
+         */
+        internal async bool cap (int64 maximum_age) throws DatabaseError {
+            unowned string sqlcmd = """
+                DELETE FROM %s WHERE date >= :maximum_age;
+                """;
+            var statement = prepare (sqlcmd,
+                ":maximum_age", typeof (int64), maximum_age);
+            return statement.exec ();
+        }
         public Type get_item_type () {
             return typeof (DatabaseItem);
         }

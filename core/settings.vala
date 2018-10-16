@@ -97,6 +97,17 @@ namespace Midori {
                 toolbar_items = toolbar_items.replace ("Homepage", "");
             }
         } }
+
+        public bool first_party_cookies_only { get {
+            return get_boolean ("settings", "first-party-cookies-only", true);
+        } set {
+            set_boolean ("settings", "first-party-cookies-only", value, true);
+        } }
+        public int maximum_history_age { get {
+            return get_string ("settings", "maximum-history-age", "30").to_int ();
+        } set {
+            set_string ("settings", "maximum-history-age", value.to_string (), "30");
+        } }
     }
 
     public class Settings : Object {

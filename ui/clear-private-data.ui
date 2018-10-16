@@ -4,14 +4,14 @@
     <property name="title" translatable="yes">Clear Private Data</property>
     <child type="action">
       <object class="GtkButton" id="abort">
-        <property name="label" translatable="yes">_Cancel</property>
+        <property name="label" translatable="yes">C_ancel</property>
         <property name="use-underline">yes</property>
         <property name="visible">yes</property>
       </object>
     </child>
     <child type="action">
       <object class="GtkButton" id="proceed">
-        <property name="label" translatable="yes">Clear Private _Data</property>
+        <property name="label" translatable="yes">_Clear private data</property>
         <property name="can-default">yes</property>
         <property name="use-underline">yes</property>
         <property name="visible">yes</property>
@@ -48,8 +48,10 @@
                 <property name="active-id">last-hour</property>
                 <property name="visible">yes</property>
                 <items>
-                  <item id="last-hour" translatable="yes">The last hour</item>
-                  <item id="today" translatable="yes">Today</item>
+                  <item id="0" translatable="yes">Clear all</item>
+                  <item id="1" translatable="yes">1 day</item>
+                  <item id="7" translatable="yes">1 week</item>
+                  <item id="30" translatable="yes">1 month</item>
                 </items>
                 <accessibility>
                   <relation type="labelled-by" target="timerange_label"/>

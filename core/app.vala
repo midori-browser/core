@@ -120,6 +120,12 @@ namespace Midori {
             settings.notify["enable-spell-checking"].connect ((pspec) => {
                 context.set_spell_checking_enabled (settings.enable_spell_checking);
             });
+            context.get_cookie_manager ().set_accept_policy (
+                settings.first_party_cookies_only ? WebKit.CookieAcceptPolicy.NO_THIRD_PARTY : WebKit.CookieAcceptPolicy.ALWAYS);
+            settings.notify["first-party-cookies-only"].connect ((pspec) => {
+                context.get_cookie_manager ().set_accept_policy (
+                    settings.first_party_cookies_only ? WebKit.CookieAcceptPolicy.NO_THIRD_PARTY : WebKit.CookieAcceptPolicy.ALWAYS);
+            });
 
             add_action_entries (actions, this);
 
@@ -234,6 +240,12 @@ namespace Midori {
             context.set_spell_checking_enabled (settings.enable_spell_checking);
             settings.notify["enable-spell-checking"].connect ((pspec) => {
                 context.set_spell_checking_enabled (settings.enable_spell_checking);
+            });
+            context.get_cookie_manager ().set_accept_policy (
+                settings.first_party_cookies_only ? WebKit.CookieAcceptPolicy.NO_THIRD_PARTY : WebKit.CookieAcceptPolicy.ALWAYS);
+            settings.notify["first-party-cookies-only"].connect ((pspec) => {
+                context.get_cookie_manager ().set_accept_policy (
+                    settings.first_party_cookies_only ? WebKit.CookieAcceptPolicy.NO_THIRD_PARTY : WebKit.CookieAcceptPolicy.ALWAYS);
             });
             return context;
         }
