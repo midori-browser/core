@@ -52,7 +52,7 @@ namespace Midori {
         [GtkChild]
         Gtk.HeaderBar panelbar;
         [GtkChild]
-        Gtk.Stack panel;
+        public Gtk.Stack panel;
         [GtkChild]
         Gtk.ToggleButton panel_toggle;
         [GtkChild]
@@ -68,7 +68,7 @@ namespace Midori {
         [GtkChild]
         Navigationbar navigationbar;
         [GtkChild]
-        Gtk.Stack tabs;
+        public Gtk.Stack tabs;
         [GtkChild]
         public Gtk.Overlay overlay;
         [GtkChild]
@@ -141,6 +141,7 @@ namespace Midori {
                 // Plug only after the app is connected and everything is setup
                 var extensions = Plugins.get_default ().plug<BrowserActivatable> ("browser", this);
                 extensions.extension_added.connect ((info, extension) => ((BrowserActivatable)extension).activate ());
+                extensions.extension_removed.connect ((info, extension) => ((BrowserActivatable)extension).deactivate ());
                 extensions.foreach ((extensions, info, extension) => { extensions.extension_added (info, extension); });
             });
 
@@ -253,7 +254,19 @@ namespace Midori {
             }
 
             // Reveal panel toggle after panels are added
-            panel.add.connect ((widget) => { panel_toggle.show (); });
+            panel.add.connect ((widget) => {
+                panel_toggle.show ();
+                var settings = CoreSettings.get_default ();
+                if (settings.show_panel) {
+                    lookup_action ("panel").change_state (true);
+                }
+            });
+            panel.remove.connect ((widget) => {
+                panel_toggle.visible = panel.get_children ().length () > 0;
+                if (!panel_toggle.visible) {
+                    panel.hide ();
+                }
+            });
         }
 
         void update_decoration_layout () {
@@ -309,6 +322,7 @@ namespace Midori {
             if (panel_toggle.visible) {
                 action.set_state (state);
                 panel.visible = state.get_boolean ();
+                CoreSettings.get_default ().show_panel = panel.visible;
                 update_decoration_layout ();
             }
         }

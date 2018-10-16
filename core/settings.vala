@@ -34,6 +34,12 @@ namespace Midori {
             set_boolean ("extensions", "lib%s.so".printf (plugin), enabled);
         }
 
+        public bool show_panel { get {
+            return get_boolean ("settings", "show-panel", false);
+        } set {
+            set_boolean ("settings", "show-panel", value, false);
+        } }
+
         public bool enable_spell_checking { get {
             return get_boolean ("settings", "enable-spell-checking", true);
         } set {
