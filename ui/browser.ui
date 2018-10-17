@@ -21,6 +21,9 @@
       <object class="GtkPaned">
         <property name="visible">yes</property>
         <property name="position" bind-source="paned" bind-property="position" bind-flags="bidirectional|sync-create"/>
+        <style>
+          <class name="split_headerbar"/>
+        </style>
         <child>
           <object class="GtkHeaderBar" id="panelbar">
             <property name="show-close-button">yes</property>
