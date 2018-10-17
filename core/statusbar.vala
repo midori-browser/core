@@ -11,16 +11,23 @@
 
 namespace Midori {
     public class Statusbar : Gtk.Statusbar {
+        internal bool has_children = false;
+
         string? _label = null;
         public string? label { get { return _label; } set {
-            if (value != null && value != "") {
-                _label = value;
-                show ();
-            } else {
-                _label = "";
-                hide ();
-            }
+            _label = value ?? "";
+            visible = has_children || label != "";
             push (1, _label);
         } }
+
+
+        construct {
+            // Persistent statusbar mode with child widgets
+            add.connect ((widget) => { has_children = true; show (); });
+            ((Gtk.Box)this).remove.connect ((widget) => {
+                has_children = get_children ().length () > 0;
+                visible = !has_children && label != null && label != "";
+            });
+        }
     }
 }

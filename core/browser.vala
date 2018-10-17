@@ -72,7 +72,7 @@ namespace Midori {
         [GtkChild]
         public Gtk.Overlay overlay;
         [GtkChild]
-        Statusbar statusbar;
+        public Statusbar statusbar;
         [GtkChild]
         Gtk.SearchBar search;
         [GtkChild]
@@ -88,9 +88,12 @@ namespace Midori {
                     navigationbar.show ();
                     navigationbar.urlbar.grab_focus ();
                 }
-                statusbar.hide ();
-                statusbar.halign = statusbar.halign == Gtk.Align.START ? Gtk.Align.END : Gtk.Align.START;
-                statusbar.show ();
+                if (!statusbar.has_children) {
+                    statusbar.hide ();
+                    // Flip overlay to evade the mouse pointer
+                    statusbar.halign = statusbar.halign == Gtk.Align.START ? Gtk.Align.END : Gtk.Align.START;
+                    statusbar.show ();
+                }
                 return false;
             });
             navigationbar.urlbar.focus_out_event.connect ((event) => {
@@ -141,6 +144,7 @@ namespace Midori {
                 // Plug only after the app is connected and everything is setup
                 var extensions = Plugins.get_default ().plug<BrowserActivatable> ("browser", this);
                 extensions.extension_added.connect ((info, extension) => ((BrowserActivatable)extension).activate ());
+                extensions.extension_removed.connect ((info, extension) => ((BrowserActivatable)extension).deactivate ());
                 extensions.foreach ((extensions, info, extension) => { extensions.extension_added (info, extension); });
             });
 
