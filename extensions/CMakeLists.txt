@@ -46,7 +46,7 @@ foreach(UNIT_SRC ${EXTENSIONS})
             LIBRARY DESTINATION ${EXTENSIONDIR}
             )
     set(MANIFEST "${UNIT}.plugin")
-    configure_file(${MANIFEST}.in ${MANIFEST})
+    INTLTOOL_MERGE_DESKTOP_LIKE (${MANIFEST} po)
     install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${MANIFEST}
             DESTINATION ${EXTENSIONDIR}
             )
