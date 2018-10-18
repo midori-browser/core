@@ -13,6 +13,7 @@ namespace Midori {
     public interface BrowserActivatable : Object {
         public abstract Browser browser { owned get; set; }
         public abstract void activate ();
+        public signal void deactivate ();
     }
 
     [GtkTemplate (ui = "/ui/browser.ui")]
@@ -69,7 +70,7 @@ namespace Midori {
         [GtkChild]
         Gtk.Stack tabs;
         [GtkChild]
-        Gtk.Overlay overlay;
+        public Gtk.Overlay overlay;
         [GtkChild]
         Statusbar statusbar;
         [GtkChild]
