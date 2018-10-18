@@ -13,7 +13,7 @@ namespace Midori {
     public class Switcher : Gtk.Box {
         HashTable<Gtk.Widget, Tally> buttons;
         public Gtk.Stack? stack { get; set; }
-        public bool show_close_buttons { get; protected set; }
+        internal bool show_close_buttons { get; protected set; }
 
         construct {
             buttons = new HashTable<Gtk.Widget, Tally> (direct_hash, direct_equal);

@@ -7,6 +7,7 @@
       <object class="GtkBox">
         <property name="orientation">horizontal</property>
         <property name="visible">yes</property>
+        <property name="hexpand">yes</property>
         <child>
           <object class="MidoriFavicon" id="favicon">
             <!-- menu -->
@@ -27,6 +28,7 @@
             <!-- As per docs, when ellipsized and expanded max width is the minimum -->
             <property name="width-chars">8</property>
             <property name="max-width-chars">500</property>
+            <property name="hexpand">yes</property>
             <property name="visible">yes</property>
           </object>
         </child>
