@@ -18,6 +18,13 @@ namespace Midori {
         DELAYED_PAGES
     }
 
+    [CCode (cprefix = "MIDORI_PROXY_")]
+    public enum ProxyType {
+        AUTOMATIC,
+        HTTP,
+        NONE,
+    }
+
     public class CoreSettings : Settings {
         static CoreSettings? _default = null;
 
@@ -134,6 +141,29 @@ namespace Midori {
             } else if (!value && toolbar_items.contains ("Homepage")) {
                 toolbar_items = toolbar_items.replace ("Homepage", "");
             }
+        } }
+
+        public ProxyType proxy_type { get {
+            var proxy = get_string ("settings", "proxy-type", "MIDORI_PROXY_AUTOMATIC");
+            if (proxy.has_suffix ("AUTOMATIC")) {
+                return ProxyType.AUTOMATIC;
+            } else if (proxy.has_suffix ("HTTP")) {
+                return ProxyType.HTTP;
+            } else {
+                return ProxyType.NONE;
+            }
+        } set {
+            set_string ("settings", "proxy-type", value.to_string (), "MIDORI_PROXY_AUTOMATIC");
+        } }
+        public string http_proxy { owned get {
+            return get_string ("settings", "http-proxy", "");
+        } set {
+            set_string ("settings", "http-proxy", value);
+        } }
+        public int http_proxy_port { get {
+            return get_string ("settings", "http-proxy-port", "8080").to_int ();
+        } set {
+            set_string ("settings", "http-proxy-port", value.to_string (), "8080");
         } }
 
         public bool first_party_cookies_only { get {

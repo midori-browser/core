@@ -133,6 +133,16 @@ namespace Midori {
                 context.get_cookie_manager ().set_accept_policy (
                     settings.first_party_cookies_only ? WebKit.CookieAcceptPolicy.NO_THIRD_PARTY : WebKit.CookieAcceptPolicy.ALWAYS);
             });
+            apply_proxy_settings (settings, context);
+            settings.notify["proxy-type"].connect ((pspec) => {
+                apply_proxy_settings (settings, context);
+            });
+            settings.notify["http-proxy"].connect ((pspec) => {
+                apply_proxy_settings (settings, context);
+            });
+            settings.notify["proxy-port"].connect ((pspec) => {
+                apply_proxy_settings (settings, context);
+            });
 
             add_action_entries (actions, this);
 
@@ -239,6 +249,23 @@ namespace Midori {
             request.unref ();
         }
 
+        void apply_proxy_settings (CoreSettings settings, WebKit.WebContext context) {
+            switch (settings.proxy_type) {
+                case ProxyType.AUTOMATIC:
+                    context.set_network_proxy_settings (WebKit.NetworkProxyMode.DEFAULT, null);
+                    break;
+                case ProxyType.HTTP:
+                    string proxy_uri = "%s:%d".printf (settings.http_proxy, settings.http_proxy_port);
+                    context.set_network_proxy_settings (
+                        WebKit.NetworkProxyMode.CUSTOM,
+                        new WebKit.NetworkProxySettings (proxy_uri, null));
+                    break;
+                case ProxyType.NONE:
+                    context.set_network_proxy_settings (WebKit.NetworkProxyMode.NO_PROXY, null);
+                    break;
+            }
+        }
+
         internal WebKit.WebContext ephemeral_context () {
             var context = new WebKit.WebContext.ephemeral ();
             context.register_uri_scheme ("internal", (request) => {
@@ -269,6 +296,16 @@ namespace Midori {
             settings.notify["first-party-cookies-only"].connect ((pspec) => {
                 context.get_cookie_manager ().set_accept_policy (
                     settings.first_party_cookies_only ? WebKit.CookieAcceptPolicy.NO_THIRD_PARTY : WebKit.CookieAcceptPolicy.ALWAYS);
+            });
+            apply_proxy_settings (settings, context);
+            settings.notify["proxy-type"].connect ((pspec) => {
+                apply_proxy_settings (settings, context);
+            });
+            settings.notify["http-proxy"].connect ((pspec) => {
+                apply_proxy_settings (settings, context);
+            });
+            settings.notify["proxy-port"].connect ((pspec) => {
+                apply_proxy_settings (settings, context);
             });
             return context;
         }

@@ -17,11 +17,20 @@ namespace Midori {
     }
 
     public class LabelWidget : Gtk.Box {
-        public string title { get; construct set; }
+        public string? title { get; construct set; }
+        protected Gtk.Label label { get; set; }
         public Gtk.Widget? widget { get; construct set; }
+        Gtk.SizeGroup sizegroup = new Gtk.SizeGroup (Gtk.SizeGroupMode.HORIZONTAL);
 
-        public LabelWidget (string title, Gtk.Widget? widget=null) {
+        public LabelWidget (string? title, Gtk.Widget? widget=null) {
             Object (title: title, widget: widget);
+        }
+
+        public override void add (Gtk.Widget widget) {
+            base.add (widget);
+            if (widget is LabelWidget) {
+                sizegroup.add_widget (((LabelWidget)widget).label);
+            }
         }
 
         internal LabelWidget.for_days (string title, Object object, string property) {
@@ -45,14 +54,15 @@ namespace Midori {
             bool header = widget == null;
             orientation = header ? Gtk.Orientation.VERTICAL : Gtk.Orientation.HORIZONTAL;
             halign = Gtk.Align.START;
-            var label = new Gtk.Label.with_mnemonic (header ? "<b>%s</b>".printf (title) : title);
+            label = new Gtk.Label.with_mnemonic (header ? "<b>%s</b>".printf (title) : title);
             label.use_markup = header;
             label.halign = Gtk.Align.START;
             pack_start (label, false, false, 4);
             if (widget != null) {
                 label.mnemonic_widget = widget;
+                widget.margin = 4;
                 set_center_widget (widget);
-                if (widget is Gtk.Entry) {
+                if (widget is Gtk.Entry && !(widget is Gtk.SpinButton)) {
                     ((Gtk.Entry)widget).width_chars = 30;
                 }
             }
@@ -67,6 +77,8 @@ namespace Midori {
         Gtk.Box content_box;
         [GtkChild]
         Gtk.Stack categories;
+        Gtk.SearchEntry proxy;
+        Gtk.SpinButton port;
 
         public Preferences (Gtk.Window parent) {
             Object (transient_for: parent);
@@ -136,6 +148,41 @@ namespace Midori {
             box.show_all ();
             add (_("Browsing"), box);
 
+            box = new LabelWidget (_("Proxy server"));
+            var proxy_chooser = new Gtk.ComboBoxText ();
+            proxy_chooser.append ("0", _("Automatic (GNOME or environment)"));
+            proxy_chooser.append ("2", _("HTTP proxy server"));
+            proxy_chooser.append ("1", _("No proxy server"));
+            settings.bind_property ("proxy-type", proxy_chooser, "active", BindingFlags.SYNC_CREATE | BindingFlags.BIDIRECTIONAL);
+            box.add (new LabelWidget (null, proxy_chooser));
+            proxy = new Gtk.SearchEntry ();
+            proxy.primary_icon_name = null;
+            settings.bind_property ("http-proxy", proxy, "text", BindingFlags.SYNC_CREATE | BindingFlags.BIDIRECTIONAL);
+            box.add (new LabelWidget (_("URI"), proxy));
+            string proxy_types = "http https";
+            foreach (unowned IOExtension proxy in IOExtensionPoint.lookup (IOExtensionPoint.PROXY).get_extensions ()) {
+                if (!proxy_types.contains (proxy.get_name ())) {
+                    proxy_types += " %s".printf (proxy.get_name ());
+                }
+            }
+            proxy.search_changed.connect (() => {
+                foreach (string type in proxy_types.split (" ")) {
+                    if (settings.http_proxy.has_prefix (type + "://")) {
+                        proxy.get_style_context ().remove_class ("error");
+                        return;
+                    }
+                }
+                proxy.get_style_context ().add_class ("error");
+            });
+            box.add (new LabelWidget (_("Supported proxy types:"), new Gtk.Label (proxy_types)));
+            port = new Gtk.SpinButton.with_range (1, 65535, 1);
+            settings.bind_property ("http-proxy-port", port, "value", BindingFlags.SYNC_CREATE | BindingFlags.BIDIRECTIONAL);
+            box.add (new LabelWidget (_("Port"), port));
+            settings.notify["proxy-type"].connect (update_proxy_sensitivity);
+            update_proxy_sensitivity ();
+            box.show_all ();
+            add (_("Network"), box);
+
             box = new LabelWidget (_("Cookies and Website data"));
             checkbox = new Gtk.CheckButton.with_mnemonic (_("Only accept Cookies from sites you visit"));
             settings.bind_property ("first-party-cookies-only", checkbox, "active", BindingFlags.SYNC_CREATE | BindingFlags.BIDIRECTIONAL);
@@ -160,6 +207,12 @@ namespace Midori {
             extensions.extension_added.connect ((info, extension) => ((PreferencesActivatable)extension).activate ());
             extensions.extension_removed.connect ((info, extension) => ((PreferencesActivatable)extension).deactivate ());
             extensions.foreach ((extensions, info, extension) => { extensions.extension_added (info, extension); });
+        }
+
+        void update_proxy_sensitivity () {
+            var settings = CoreSettings.get_default ();
+            proxy.sensitive = settings.proxy_type == ProxyType.HTTP;
+            port.sensitive = settings.proxy_type == ProxyType.HTTP;
         }
 
         /*
