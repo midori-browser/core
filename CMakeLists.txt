@@ -28,6 +28,8 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 # Disallow building during install to avoid permission problems
 set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY 1)
 
+include(FindIntltool)
+
 find_package(Vala REQUIRED)
 vala_require("0.30.0")
 set(VALAFLAGS ${VALAFLAGS}
