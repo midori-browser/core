@@ -68,6 +68,22 @@ namespace Midori {
             CoreSettings.get_default ().notify["close-buttons-on-tabs"].connect ((pspec) => {
                 update_visibility ();
             });
+
+            update_close_position ();
+            Gtk.Settings.get_default ().notify["gtk-decoration-layout"].connect ((pspec) => {
+                update_close_position ();
+            });
+        }
+        void update_close_position () {
+            string layout = Gtk.Settings.get_default ().gtk_decoration_layout;
+            var box = (Gtk.Box)close.parent;
+            if (layout.index_of ("c") < layout.index_of (":")) {
+                box.reorder_child (close, 0);
+                box.reorder_child (favicon, -1);
+            } else {
+                box.reorder_child (close, -1);
+                box.reorder_child (favicon, 0);
+            }
         }
 
         void update_visibility () {
