@@ -39,10 +39,20 @@ namespace Midori {
         } set {
             set_boolean ("settings", "enable-spell-checking", value, true);
         } }
+        public bool auto_load_images { get {
+            return get_boolean ("settings", "auto-load-images", true);
+        } set {
+            set_boolean ("settings", "auto-load-images", value, true);
+        } }
         public bool enable_javascript { get {
             return get_boolean ("settings", "enable-javascript", true);
         } set {
             set_boolean ("settings", "enable-javascript", value, true);
+        } }
+        public bool enable_plugins { get {
+            return get_boolean ("settings", "enable-plugins", true);
+        } set {
+            set_boolean ("settings", "enable-plugins", value, true);
         } }
 
         public bool close_buttons_on_tabs { get {
