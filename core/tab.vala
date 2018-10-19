@@ -13,6 +13,7 @@ namespace Midori {
     public interface TabActivatable : Peas.ExtensionBase {
         public abstract Tab tab { owned get; set; }
         public abstract void activate ();
+        public signal void deactivate ();
     }
 
     [GtkTemplate (ui = "/ui/tab.ui")]
@@ -24,6 +25,7 @@ namespace Midori {
         public DatabaseItem? item { get; protected set; default = null; }
         public string display_uri { get; protected set; }
         public string display_title { get; protected set; }
+        public string? color { get; set; default = null; }
         public bool pinned { get; set; }
         public bool secure { get; protected set; }
         public string link_uri { get; protected set; }
@@ -75,10 +77,12 @@ namespace Midori {
             }
             item = new DatabaseItem (display_uri, null, 0);
 
+            var extensions = Plugins.get_default ().plug<TabActivatable> ("tab", this);
+            extensions.extension_added.connect ((info, extension) => ((TabActivatable)extension).activate ());
+            extensions.extension_removed.connect ((info, extension) => ((TabActivatable)extension).deactivate ());
+            extensions.foreach ((extensions, info, extension) => { extensions.extension_added (info, extension); });
+
             if (pinned) {
-                var extensions = Plugins.get_default ().plug<TabActivatable> ("tab", this);
-                extensions.extension_added.connect ((info, extension) => ((TabActivatable)extension).activate ());
-                extensions.foreach ((extensions, info, extension) => { extensions.extension_added (info, extension); });
                 load_uri (display_uri);
             } else {
                 load_uri_delayed.begin (uri, title);
@@ -102,9 +106,6 @@ namespace Midori {
         public override bool focus_in_event (Gdk.EventFocus event) {
             // Delayed load on focus
             if (display_uri != uri) {
-                var extensions = Plugins.get_default ().plug<TabActivatable> ("tab", this);
-                extensions.extension_added.connect ((info, extension) => ((TabActivatable)extension).activate ());
-                extensions.foreach ((extensions, info, extension) => { extensions.extension_added (info, extension); });
                 load_uri (display_uri);
             }
             return true;

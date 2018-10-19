@@ -56,6 +56,8 @@ namespace Midori {
             bind_property ("title", this, "tooltip-text");
             tab.bind_property ("visible", this, "visible");
             close.clicked.connect (() => { tab.try_close (); });
+            tab.notify["color"].connect (apply_color);
+            apply_color ();
             tab.notify["is-loading"].connect ((pspec) => {
                 favicon.visible = !tab.is_loading;
                 spinner.visible = !favicon.visible;
@@ -74,6 +76,24 @@ namespace Midori {
                 update_close_position ();
             });
         }
+
+        void apply_color () {
+            Gdk.Color? background_color = null;
+            if (tab.color != null) {
+                Gdk.Color.parse (tab.color, out background_color);
+                // Ensure high contrast by enforcing black/ white foreground based on Y(UV)
+                float brightness = 0.299f * (float)background_color.red / 255f
+                                 + 0.587f * (float)background_color.green / 255f
+                                 + 0.114f * (float)background_color.blue / 255f;
+                Gdk.Color foreground_color;
+                Gdk.Color.parse (brightness < 128 ? "white" : "black", out foreground_color);
+                modify_fg (Gtk.StateType.NORMAL, foreground_color);
+                modify_fg (Gtk.StateType.ACTIVE, foreground_color);
+            }
+            modify_bg (Gtk.StateType.NORMAL, background_color);
+            modify_bg (Gtk.StateType.ACTIVE, background_color);
+        }
+
         void update_close_position () {
             string layout = Gtk.Settings.get_default ().gtk_decoration_layout;
             var box = (Gtk.Box)close.parent;
