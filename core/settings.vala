@@ -16,7 +16,7 @@ namespace Midori {
         public static CoreSettings get_default () {
             if (_default == null) {
                 string filename = Path.build_filename (Environment.get_user_config_dir (),
-                    Environment.get_prgname (), "config");
+                    Config.PROJECT_NAME, "config");
                 _default = new CoreSettings (filename);
             }
             return _default;
@@ -26,11 +26,11 @@ namespace Midori {
             Object (filename: filename);
         }
 
-        internal bool get_plugin_enabled (string plugin) {
+        public bool get_plugin_enabled (string plugin) {
             return get_boolean ("extensions", "lib%s.so".printf (plugin));
         }
 
-        internal void set_plugin_enabled (string plugin, bool enabled) {
+        public void set_plugin_enabled (string plugin, bool enabled) {
             set_boolean ("extensions", "lib%s.so".printf (plugin), enabled);
         }
 
@@ -73,7 +73,7 @@ namespace Midori {
             set_string ("settings", "toolbar-items", value.replace (",,", ","), default_toolbar);
         } }
 
-        internal string uri_for_search (string? keywords=null, string? search=null) {
+        public string uri_for_search (string? keywords=null, string? search=null) {
             string uri = search ?? location_entry_search;
             /* Take a search engine URI and insert specified keywords.
                Keywords are percent-encoded. If the URI contains a %s
@@ -127,6 +127,7 @@ namespace Midori {
 
     public class Settings : Object {
         KeyFile? keyfile = new KeyFile ();
+        FileMonitor monitor;
 
         public string filename { get; construct set; }
 
@@ -137,6 +138,14 @@ namespace Midori {
         void load () {
             try {
                 keyfile.load_from_file (filename, KeyFileFlags.NONE);
+                monitor = File.new_for_path (filename).monitor (0, null);
+                monitor.changed.connect ((file, other, event) => {
+                    switch (event) {
+                        case GLib.FileMonitorEvent.CHANGES_DONE_HINT:
+                            debug ("Reloading settings from %s", filename);
+                            break;
+                    }
+                });
             } catch (FileError.NOENT error) {
                 /* It's no error if no config file exists */
             } catch (Error error) {

@@ -16,6 +16,9 @@ foreach(UNIT_SRC ${EXTENSIONS})
         include(ValaPrecompile)
         vala_precompile(UNIT_SRC_C ${UNIT}
             ${UNIT_SRC}
+            ${CMAKE_SOURCE_DIR}/core/loggable.vala
+            ${CMAKE_SOURCE_DIR}/core/plugins.vala
+            ${CMAKE_SOURCE_DIR}/core/settings.vala
         PACKAGES
             libsoup-2.4 libpeas-1.0
         OPTIONS

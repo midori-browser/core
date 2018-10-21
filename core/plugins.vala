@@ -10,37 +10,32 @@
 */
 
 namespace Midori {
-    class Plugins : Peas.Engine, Loggable {
+    public class Plugins : Peas.Engine, Loggable {
+        public string builtin_path { get; construct set; }
+
         static Plugins? _default = null;
 
-        public static new Plugins get_default () {
+        internal static new Plugins get_default (string? builtin_path=null) {
             if (_default == null) {
-                _default = new Plugins ();
+                _default = new Plugins (builtin_path);
             }
             return _default;
         }
 
-        Plugins () {
+        Plugins (string builtin_path) {
+            Object (builtin_path: builtin_path);
+        }
+
+        construct {
             enable_loader ("python");
             // Plugins installed by the user
             string user_path = Path.build_path (Path.DIR_SEPARATOR_S,
-                Environment.get_user_data_dir (), Environment.get_prgname (), "extensions");
-            add_search_path (user_path, null);
+                Environment.get_user_data_dir (), Config.PROJECT_NAME, "extensions");
             debug ("Loading plugins from %s", user_path);
+            add_search_path (user_path, null);
+            debug ("Loading plugins from %s", builtin_path);
+            add_search_path (builtin_path, user_path);
 
-            var exec_path = ((App)Application.get_default ()).exec_path;
-            // Try and load plugins from build folder
-            var build_path = exec_path.get_parent ().get_child ("extensions");
-            if (build_path.query_exists (null)) {
-                debug ("Loading plugins from %s", build_path.get_path ());
-                add_search_path (build_path.get_path (), user_path);
-            }
-            // System-wide plugins
-            var system_path = exec_path.get_parent ().get_parent ().get_child ("lib").get_child (Environment.get_prgname ());
-            if (system_path.query_exists (null)) {
-                debug ("Loading plugins from %s", system_path.get_path ());
-                add_search_path (system_path.get_path (), user_path);
-            }
             var settings = CoreSettings.get_default ();
             foreach (var plugin in get_plugin_list ()) {
                 debug ("Found plugin %s", plugin.get_name ());
@@ -51,13 +46,6 @@ namespace Midori {
                     }
                 }
             }
-            // Save/ load state of plugins
-            load_plugin.connect ((info) => {
-                settings.set_plugin_enabled (info.get_module_name (), true);
-            });
-            unload_plugin.connect ((info) => {
-                settings.set_plugin_enabled (info.get_module_name (), false);
-            });
         }
 
         /*

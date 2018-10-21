@@ -144,6 +144,21 @@ namespace Midori {
                 app_menu = null;
             }
 
+            // Try and load plugins from build folder
+            var builtin_path = exec_path.get_parent ().get_child ("extensions");
+            if (!builtin_path.query_exists (null)) {
+                // System-wide plugins
+                builtin_path = exec_path.get_parent ().get_parent ().get_child ("lib").get_child (Environment.get_prgname ());
+            }
+            var plugins = Plugins.get_default (builtin_path.get_path ());
+            // Save/ load state of plugins
+            plugins.load_plugin.connect ((info) => {
+                settings.set_plugin_enabled (info.get_module_name (), true);
+            });
+            plugins.unload_plugin.connect ((info) => {
+                settings.set_plugin_enabled (info.get_module_name (), false);
+            });
+
             var extensions = Plugins.get_default ().plug<AppActivatable> ("app", this);
             extensions.extension_added.connect ((info, extension) => ((AppActivatable)extension).activate ());
             extensions.foreach ((extensions, info, extension) => { extensions.extension_added (info, extension); });
