@@ -301,9 +301,7 @@ namespace Midori {
         }
 
         void win_new_activated (Action action, Variant? parameter) {
-            var browser = incognito
-                ? new Browser.incognito (this)
-                : new Browser (this);
+            var browser = new Browser (this);
             string? uri = parameter.get_string () != "" ? parameter.get_string () : null;
             browser.add (new Tab (null, browser.web_context, uri));
             browser.show ();
