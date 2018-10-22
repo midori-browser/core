@@ -96,6 +96,16 @@ namespace Midori {
             box.show_all ();
             add (_("Browsing"), box);
 
+            box = new LabelWidget (_("Search _with"));
+            var combo = new Gtk.ComboBoxText ();
+            combo.append ("https://duckduckgo.com/?q=%s", "Duck Duck Go");
+            combo.append ("http://search.yahoo.com/search?p=", "Yahoo");
+            combo.append ("http://www.google.com/search?q=%s", "Google");
+            settings.bind_property ("location-entry-search", combo, "active-id", BindingFlags.SYNC_CREATE | BindingFlags.BIDIRECTIONAL);
+            box.add (combo);
+            box.show_all ();
+            add (_("Browsing"), box);
+
             box = new LabelWidget (_("_Tabs"));
             var entry = new Gtk.SearchEntry ();
             entry.primary_icon_name = null;
