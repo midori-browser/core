@@ -1,6 +1,5 @@
 <interface>
   <object class="GtkShortcutsWindow" id="help_overlay">
-    <property name="modal">no</property>
     <child>
       <object class="GtkShortcutsSection">
         <property name="visible">yes</property>
@@ -52,14 +51,14 @@
             <child>
               <object class="GtkShortcutsShortcut">
                 <property name="accelerator">&lt;Primary&gt;r</property>
-                <property name="title" translatable="yes">Reload current page</property>
+                <property name="title" translatable="yes">Reload the current page</property>
                 <property name="visible">yes</property>
               </object>
             </child>
             <child>
               <object class="GtkShortcutsShortcut">
                 <property name="accelerator">Escape</property>
-                <property name="title" translatable="yes">Stop loading</property>
+                <property name="title" translatable="yes">Stop loading the current page</property>
                 <property name="visible">yes</property>
               </object>
             </child>
@@ -73,14 +72,14 @@
             <child>
               <object class="GtkShortcutsShortcut">
                 <property name="accelerator">&lt;Alt&gt;Left</property>
-                <property name="title" translatable="yes">Go back to previous page</property>
+                <property name="title" translatable="yes">Go back to the previous page</property>
                 <property name="visible">yes</property>
               </object>
             </child>
             <child>
               <object class="GtkShortcutsShortcut">
                 <property name="accelerator">&lt;Alt&gt;Right</property>
-                <property name="title" translatable="yes">Go to next page</property>
+                <property name="title" translatable="yes">Go forward to next page</property>
                 <property name="visible">yes</property>
               </object>
             </child>
@@ -88,12 +87,19 @@
         </child>
         <child>
           <object class="GtkShortcutsGroup">
-            <property name="title" translatable="yes">Windows</property>
+            <property name="title" translatable="yes">Browser window</property>
             <property name="visible">yes</property>
             <child>
               <object class="GtkShortcutsShortcut">
                 <property name="accelerator">&lt;Primary&gt;n</property>
                 <property name="title" translatable="yes">New Window</property>
+                <property name="visible">yes</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">&lt;Primary&gt;&lt;Shift&gt;p</property>
+                <property name="title" translatable="yes">New Private Browsing Window</property>
                 <property name="visible">yes</property>
               </object>
             </child>
@@ -122,26 +128,26 @@
         </child>
         <child>
           <object class="GtkShortcutsGroup">
-            <property name="title" translatable="yes">Page</property>
+            <property name="title" translatable="yes">View</property>
             <property name="visible">yes</property>
             <child>
               <object class="GtkShortcutsShortcut">
                 <property name="accelerator">&lt;Primary&gt;plus</property>
-                <property name="title" translatable="yes">Zoom in</property>
+                <property name="title" translatable="yes">Increase the zoom level</property>
                 <property name="visible">yes</property>
               </object>
             </child>
             <child>
               <object class="GtkShortcutsShortcut">
                 <property name="accelerator">&lt;Primary&gt;minus</property>
-                <property name="title" translatable="yes">Zoom out</property>
+                <property name="title" translatable="yes">Decrease the zoom level</property>
                 <property name="visible">yes</property>
               </object>
             </child>
             <child>
               <object class="GtkShortcutsShortcut">
                 <property name="accelerator">&lt;Primary&gt;0</property>
-                <property name="title" translatable="yes">Reset zoom level</property>
+                <property name="title" translatable="yes">Default Zoom Level</property>
                 <property name="visible">yes</property>
               </object>
             </child>
@@ -156,6 +162,13 @@
               <object class="GtkShortcutsShortcut">
                 <property name="accelerator">&lt;Primary&gt;u</property>
                 <property name="title" translatable="yes">View page source</property>
+                <property name="visible">yes</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">&lt;Primary&gt;p</property>
+                <property name="title" translatable="yes">Print the current page</property>
                 <property name="visible">yes</property>
               </object>
             </child>
