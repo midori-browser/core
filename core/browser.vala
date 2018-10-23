@@ -44,6 +44,7 @@ namespace Midori {
             { "find", find_activated },
             { "view-source", view_source_activated },
             { "print", print_activated },
+            { "caret-browsing", caret_browsing_activated },
             { "show-inspector", show_inspector_activated },
             { "clear-private-data", clear_private_data_activated },
             { "preferences", preferences_activated },
@@ -116,6 +117,7 @@ namespace Midori {
                 application.set_accels_for_action ("win.find", { "<Primary>f", "slash" });
                 application.set_accels_for_action ("win.view-source", { "<Primary>u", "<Primary><Alt>u" });
                 application.set_accels_for_action ("win.print", { "<Primary>p" });
+                application.set_accels_for_action ("win.caret-browsing", { "F7" });
                 application.set_accels_for_action ("win.show-inspector", { "<Primary><Shift>i" });
                 application.set_accels_for_action ("win.goto", { "<Primary>l", "F7" });
                 application.set_accels_for_action ("win.go-back", { "<Alt>Left", "BackSpace" });
@@ -470,6 +472,31 @@ namespace Midori {
 
         void print_activated () {
             tab.print (new WebKit.PrintOperation (tab));
+        }
+
+        void caret_browsing_activated () {
+            var settings = CoreSettings.get_default ();
+            if (!settings.enable_caret_browsing) {
+                var dialog = new Gtk.Dialog.with_buttons (
+                    get_settings ().gtk_dialogs_use_header ? null : _("Toggle text cursor navigation"),
+                    this,
+                    get_settings ().gtk_dialogs_use_header ? Gtk.DialogFlags.USE_HEADER_BAR : 0,
+                    Gtk.Stock.CANCEL, Gtk.ResponseType.CANCEL,
+                    _("_Enable Caret Browsing"), Gtk.ResponseType.ACCEPT);
+                var label = new Gtk.Label (_("Pressing F7 toggles Caret Browsing. When active, a text cursor appears in all websites."));
+                label.wrap = true;
+                label.max_width_chars = 33;
+                label.margin = 8;
+                label.show ();
+                dialog.get_content_area ().add (label);
+                dialog.set_default_response (Gtk.ResponseType.ACCEPT);
+                if (dialog.run () == Gtk.ResponseType.ACCEPT) {
+                    settings.enable_caret_browsing = true;
+                }
+                dialog.close ();
+            } else {
+                settings.enable_caret_browsing = false;
+            }
         }
 
         void show_inspector_activated () {

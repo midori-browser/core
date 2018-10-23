@@ -67,6 +67,7 @@ namespace Midori {
             core_settings.notify["enable-javascript"].connect ((pspec) => {
                 settings.enable_javascript = core_settings.enable_javascript;
             });
+            core_settings.bind_property ("enable-caret-browsing", settings, "enable-caret-browsing", BindingFlags.SYNC_CREATE);
 
             if (uri != null) {
                 display_uri = uri;

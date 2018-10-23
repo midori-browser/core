@@ -54,6 +54,11 @@ namespace Midori {
         } set {
             set_boolean ("settings", "enable-plugins", value, true);
         } }
+        public bool enable_caret_browsing { get {
+            return get_boolean ("settings", "enable-caret-browsing", false);
+        } set {
+            set_boolean ("settings", "enable-caret-browsing", value, false);
+        } }
 
         public bool close_buttons_on_tabs { get {
             return get_boolean ("settings", "close-buttons-on-tabs", true);
