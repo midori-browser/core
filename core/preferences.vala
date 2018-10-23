@@ -13,6 +13,7 @@ namespace Midori {
     public interface PreferencesActivatable : Object {
         public abstract Preferences preferences { owned get; set; }
         public abstract void activate ();
+        public signal void deactivate ();
     }
 
     public class LabelWidget : Gtk.Box {
@@ -147,6 +148,7 @@ namespace Midori {
 
             var extensions = Plugins.get_default ().plug<PreferencesActivatable> ("preferences", this);
             extensions.extension_added.connect ((info, extension) => ((PreferencesActivatable)extension).activate ());
+            extensions.extension_removed.connect ((info, extension) => ((PreferencesActivatable)extension).deactivate ());
             extensions.foreach ((extensions, info, extension) => { extensions.extension_added (info, extension); });
         }
 

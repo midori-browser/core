@@ -146,6 +146,11 @@ namespace Midori {
 
         void save () {
             try {
+                File.new_for_path (filename).get_parent ().make_directory_with_parents ();
+            } catch (Error error) {
+                // It's no error if the folder already exists
+            }
+            try {
                 keyfile.save_to_file (filename);
             } catch (Error error) {
                 critical ("Failed to save settings to %s: %s", filename, error.message);

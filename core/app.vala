@@ -113,7 +113,13 @@ namespace Midori {
             }
             context.set_web_extensions_directory (web_path.get_path ());
             context.initialize_web_extensions.connect (() => {
-                context.set_web_extensions_initialization_user_data ("");
+                // Prefer plugins from the build folder
+                var builtin_path = exec_path.get_parent ().get_child ("extensions");
+                if (!builtin_path.query_exists (null)) {
+                    // System-wide plugins
+                    builtin_path = exec_path.get_parent ().get_parent ().get_child ("lib").get_child (Config.PROJECT_NAME);
+                }
+                context.set_web_extensions_initialization_user_data (builtin_path.get_path ());
             });
             var settings = CoreSettings.get_default ();
             context.set_spell_checking_enabled (settings.enable_spell_checking);
