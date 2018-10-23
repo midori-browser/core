@@ -30,8 +30,7 @@
       <item>
         <attribute name="action">win.show-help-overlay</attribute>
         <attribute name="hidden-when">action-disabled</attribute>
-        <attribute name="label" translatable="yes">_Shortcuts</attribute>
-        <attribute name="accel">&lt;Primary&gt;&lt;Alt&gt;s</attribute>
+        <attribute name="label" translatable="yes">Shortcuts</attribute>
       </item>
       <item>
         <attribute name="action">win.about</attribute>
@@ -39,7 +38,7 @@
       </item>
       <item>
         <attribute name="action">app.quit</attribute>
-        <attribute name="label" translatable="yes">_Quit</attribute>
+        <attribute name="label" translatable="yes">Close a_ll Windows</attribute>
         <attribute name="accel">&lt;Primary&gt;q</attribute>
       </item>
     </section>
@@ -48,17 +47,17 @@
     <section>
       <item>
         <attribute name="action">win.find</attribute>
-        <attribute name="label" translatable="yes">_Find in Page</attribute>
+        <attribute name="label" translatable="yes">_Find…</attribute>
         <attribute name="accel">&lt;Primary&gt;f</attribute>
       </item>
       <item>
         <attribute name="action">win.view-source</attribute>
         <attribute name="label" translatable="yes">View So_urce</attribute>
-        <attribute name="accel">&lt;Primary&gt;&lt;Alt&gt;u</attribute>
+        <attribute name="accel">&lt;Primary&gt;u</attribute>
       </item>
       <item>
         <attribute name="action">win.print</attribute>
-        <attribute name="label" translatable="yes">_Print…</attribute>
+        <attribute name="label" translatable="yes">Print the current page</attribute>
         <attribute name="accel">&lt;Primary&gt;p</attribute>
       </item>
     </section>
@@ -68,12 +67,14 @@
       <item>
         <attribute name="action">tally.pin</attribute>
         <attribute name="hidden-when">action-disabled</attribute>
-        <attribute name="label" translatable="yes">_Pin Tab</attribute>
+        <attribute name="label" translatable="yes">Show Tab _Icon Only</attribute>
       </item>
+    </section>
+    <section>
       <item>
         <attribute name="action">tally.unpin</attribute>
         <attribute name="hidden-when">action-disabled</attribute>
-        <attribute name="label" translatable="yes">Unpin Ta_b</attribute>
+        <attribute name="label" translatable="yes">Show Tab _Label</attribute>
       </item>
     </section>
   </menu>
