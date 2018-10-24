@@ -240,18 +240,11 @@ namespace Midori {
             }
             if (hit.context_is_link () && !hit.link_uri.has_prefix ("javascript:")) {
                 menu.append (new WebKit.ContextMenuItem.from_stock_action_with_label (WebKit.ContextMenuAction.OPEN_LINK_IN_NEW_WINDOW, _("Open Link in New _Tab")));
-                if (!web_context.is_ephemeral ()) {
-                    var action = new Gtk.Action ("link-window", _("Open Link in New _Window"), null, null);
-                    action.activate.connect (() => {
-                        var browser = new Browser ((App)Application.get_default ());
-                        browser.add (new Tab (null, browser.web_context, hit.link_uri));
-                        browser.show ();
-                    });
-                    menu.append (new WebKit.ContextMenuItem (action));
-                }
-                var action = new Gtk.Action ("link-incognito", _("Open Link in New _Private Window"), null, null);
+                var action = new Gtk.Action ("link-window", _("Open Link in New _Window"), null, null);
                 action.activate.connect (() => {
-                    var browser = new Browser.incognito ((App)Application.get_default ());
+                    var browser = web_context.is_ephemeral ()
+                        ? new Browser.incognito ((App)Application.get_default ())
+                        : new Browser ((App)Application.get_default ());
                     browser.add (new Tab (null, browser.web_context, hit.link_uri));
                     browser.show ();
                 });

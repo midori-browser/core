@@ -258,6 +258,10 @@ namespace Midori {
                 update_decoration_layout ();
             }
 
+            if (web_context.is_ephemeral ()) {
+                get_style_context ().add_class ("incognito");
+            }
+
             // Reveal panel toggle after panels are added
             panel.add.connect ((widget) => { panel_toggle.show (); });
         }
@@ -288,9 +292,6 @@ namespace Midori {
         public Browser.incognito (App app) {
             Object (application: app,
                     web_context: app.ephemeral_context ());
-
-            remove_action ("clear-private-data");
-            get_style_context ().add_class ("incognito");
         }
 
         public override bool key_press_event (Gdk.EventKey event) {
