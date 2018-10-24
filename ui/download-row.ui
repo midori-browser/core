@@ -43,6 +43,11 @@
             </child>
             <child>
               <object class="GtkLabel" id="status">
+                <property name="ellipsize">end</property>
+                <property name="xalign">0.0</property>
+                <property name="hexpand">yes</property>
+                <!-- As per docs, when ellipsized and expanded max width is the minimum -->
+                <property name="max-width-chars">1</property>
                 <property name="visible">yes</property>
               </object>
             </child>

@@ -28,10 +28,12 @@ namespace Midori {
         construct {
             listbox.bind_model (model, create_row);
             popover.relative_to = this;
-
-            var context = WebKit.WebContext.get_default ();
-            context.download_started.connect (download_started);
         }
+
+        internal WebKit.WebContext web_context { set {
+            value.download_started.connect (download_started);
+        } }
+
 
         void download_started (WebKit.Download download) {
             // Don't show cache files in the UI
@@ -69,7 +71,7 @@ namespace Midori {
         public double progress { get; protected set; default = 0.0; }
         public WebKit.Download? download { get; protected set; default = null; }
         public bool loading { get; protected set; default = false; }
-        public bool failed { get; protected set; default = false; }
+        public string? error { get; protected set; default = null; }
         public void cancel () {
             if (download != null) {
                 download.cancel ();
@@ -84,7 +86,8 @@ namespace Midori {
                     try {
                         basename = Filename.display_basename (Filename.from_uri (filename));
                     } catch (ConvertError error) {
-                        debug ("Failed to convert: %s", error.message);
+                        basename = filename;
+                        critical ("Failed to convert: %s", error.message);
                     }
                 }
             });
@@ -96,15 +99,15 @@ namespace Midori {
 
         public DownloadItem.with_download (WebKit.Download download) {
             Object (download: download, loading: true);
-            download.bind_property ("destination", this, "filename");
-            download.bind_property ("estimated-progress", this, "progress");
+            download.bind_property ("destination", this, "filename", BindingFlags.SYNC_CREATE);
+            download.bind_property ("estimated-progress", this, "progress", BindingFlags.SYNC_CREATE);
             download.finished.connect (() => {
                 download = null;
                 loading = false;
             });
             download.failed.connect ((error) => {
                 loading = false;
-                failed = true;
+                this.error = error.message;
             });
         }
     }
@@ -125,6 +128,8 @@ namespace Midori {
         public Gtk.Button open;
         [GtkChild]
         public Gtk.Image error;
+        [GtkChild]
+        public Gtk.Label status;
 
         construct {
             cancel.clicked.connect (() => {
@@ -134,6 +139,7 @@ namespace Midori {
                 try {
                     Gtk.show_uri (get_screen (), item.filename, Gtk.get_current_event_time ());
                 } catch (Error error) {
+                    status.label = error.message;
                     critical ("Failed to open %s: %s", item.filename, error.message);
                 }
             });
@@ -141,27 +147,23 @@ namespace Midori {
 
         public DownloadRow (DownloadItem item) {
             Object (item: item);
-            icon.gicon = item.icon;
-            item.bind_property ("icon", icon, "gicon");
-            filename.label = item.basename;
-            item.bind_property ("basename", filename, "label");
-            filename.tooltip_text = item.basename;
-            item.bind_property ("basename", filename, "tooltip-text");
-            progress.fraction = item.progress;
-            item.bind_property ("progress", progress, "fraction");
-            progress.visible = item.loading;
-            cancel.visible = item.loading;
-            open.visible = !item.loading && !item.failed;
+            item.bind_property ("icon", icon, "gicon", BindingFlags.SYNC_CREATE);
+            item.bind_property ("basename", filename, "label", BindingFlags.SYNC_CREATE);
+            item.bind_property ("basename", filename, "tooltip-text", BindingFlags.SYNC_CREATE);
+            item.bind_property ("progress", progress, "fraction", BindingFlags.SYNC_CREATE);
+            status.bind_property ("label", status, "tooltip-text", BindingFlags.SYNC_CREATE);
             item.notify["loading"].connect (update_buttons);
-            item.notify["failed"].connect (update_buttons);
-            error.visible = item.failed;
-            item.bind_property ("failed", error, "visible");
+            item.notify["error"].connect (update_buttons);
+            update_buttons ();
         }
 
-        void update_buttons (ParamSpec pspec) {
+        void update_buttons () {
             progress.visible = item.loading;
             cancel.visible = item.loading;
-            open.visible = !item.loading && !item.failed;
+            open.visible = !item.loading && item.error == null;
+            error.visible = item.error != null;
+            status.label = item.error ?? "";
+            status.visible = item.error != null;
         }
     }
 }

@@ -258,6 +258,7 @@ namespace Midori {
                 update_decoration_layout ();
             }
 
+            downloads.web_context = web_context;
             if (web_context.is_ephemeral ()) {
                 get_style_context ().add_class ("incognito");
             }
