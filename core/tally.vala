@@ -79,17 +79,17 @@ namespace Midori {
 
         void apply_color () {
             Gdk.Color? background_color = null;
+            Gdk.Color? foreground_color = null;
             if (tab.color != null) {
                 Gdk.Color.parse (tab.color, out background_color);
                 // Ensure high contrast by enforcing black/ white foreground based on Y(UV)
                 float brightness = 0.299f * (float)background_color.red / 255f
                                  + 0.587f * (float)background_color.green / 255f
                                  + 0.114f * (float)background_color.blue / 255f;
-                Gdk.Color foreground_color;
                 Gdk.Color.parse (brightness < 128 ? "white" : "black", out foreground_color);
-                modify_fg (Gtk.StateType.NORMAL, foreground_color);
-                modify_fg (Gtk.StateType.ACTIVE, foreground_color);
             }
+            modify_fg (Gtk.StateType.NORMAL, foreground_color);
+            modify_fg (Gtk.StateType.ACTIVE, foreground_color);
             modify_bg (Gtk.StateType.NORMAL, background_color);
             modify_bg (Gtk.StateType.ACTIVE, background_color);
         }
