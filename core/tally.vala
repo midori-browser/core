@@ -100,9 +100,11 @@ namespace Midori {
             if (layout.index_of ("c") < layout.index_of (":")) {
                 box.reorder_child (close, 0);
                 box.reorder_child (favicon, -1);
+                box.reorder_child (spinner, -1);
             } else {
                 box.reorder_child (close, -1);
                 box.reorder_child (favicon, 0);
+                box.reorder_child (spinner, 0);
             }
         }
 
