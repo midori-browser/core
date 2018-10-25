@@ -136,6 +136,12 @@ namespace Midori {
                 tab.pinned = false;
             });
             group.add_action (action);
+            action = new SimpleAction ("duplicate", null);
+            action.activate.connect (() => {
+                var browser = (Browser)tab.get_ancestor (typeof (Browser));
+                browser.add (new Tab (null, tab.web_context, uri));
+            });
+            group.add_action (action);
             insert_action_group ("tally", group);
         }
 
