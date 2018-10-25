@@ -45,7 +45,25 @@ namespace Midori {
             if (button != null) {
                 foreach (var b in get_children ()) {
                     ((Tally)b).active = (b == button);
+                    if (button.active) {
+                        ensure_child_visible (button);
+                    }
                 }
+            }
+        }
+
+        void ensure_child_visible (Tally button) {
+            // Autoscroll active button into view if needed
+            var scrolled = (Gtk.ScrolledWindow)get_ancestor (typeof (Gtk.ScrolledWindow));
+            if (scrolled != null) {
+                // Schedule an idle so allocation will be set
+                Idle.add (() => {
+                    var adjustment = scrolled.hadjustment;
+                    Gtk.Allocation alloc;
+                    button.get_allocation (out alloc);
+                    adjustment.clamp_page (alloc.x, alloc.x + alloc.width);
+                    return Source.REMOVE;
+                });
             }
         }
     }
