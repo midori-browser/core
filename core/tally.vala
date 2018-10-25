@@ -110,7 +110,7 @@ namespace Midori {
 
         void update_visibility () {
             caption.visible = !(tab.pinned && _show_close);
-            close.visible = _show_close && !tab.pinned && CoreSettings.get_default ().close_buttons_on_tabs;
+            close.visible = !tab.pinned && CoreSettings.get_default ().close_buttons_on_tabs;
         }
 
         construct {

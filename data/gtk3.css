@@ -9,29 +9,78 @@
  See the file COPYING for the full license text.
 */
 
+/* Tab styling */
+.tab box {
+  margin: 0 4px;
+  padding: 4px 4px;
+}
 .tab:not(:checked) {
   opacity: 0.7;
 }
 .tab:hover {
-  box-shadow: inset 0 3px darker(@theme_selected_bg_color);
+  box-shadow: inset 0 3px darker(@theme_selected_bg_color),
+              inset 0 -1px @borders;
 }
 .tab:checked {
   box-shadow: inset 0 3px @theme_selected_bg_color;
-  font-weight: bold;
 }
 .tab label {
   text-shadow: none;
 }
-.tab:backdrop {
-  border: none;
-}
-.titlebar .tab:only-child {
-  box-shadow: none;
-}
-.tab button {
+
+/* No padding around close buttons */
+.tab .close {
   padding: 0;
   margin: 0;
 }
+
+/* Visually merge active tab label with navigationbar */
+.split_headerbar {
+  padding-bottom: 0;
+}
+.split_headerbar, headerbar {
+  border-bottom-width: 0;
+}
+headerbar {
+  box-shadow: inset 0 -1px @theme_bg_color;
+}
+.navigationbar, .navigationbar box {
+  border-top-width: 0;
+  background: transparent;
+}
+.tabbar {
+  box-shadow: inset 0 -2px @theme_bg_color;
+}
+
+/* Active tab label styling */
+.titlebar .tab:checked:not(:only-child),
+.split_headerbar:not(.titlebar) .tab:checked {
+  box-shadow: inset 0 3px @theme_selected_bg_color;
+  border-left: 1px solid @borders;
+  border-right: 1px solid @borders;
+  background-color: @theme_bg_color;
+}
+.titlebar:backdrop .tab:checked:not(:only-child),
+.split_headerbar:not(.titlebar):backdrop .tab:checked {
+  border-left: 1px solid alpha(@borders, 0.5);
+  border-right: 1px solid alpha(@borders, 0.5);
+}
+.titlebar .tab:checked:not(:only-child) *,
+.split_headerbar:not(.titlebar) .tab:checked * {
+  color: @theme_fg_color;
+}
+
+/* A single tab should really just be a label */
+.titlebar .tab:only-child {
+  box-shadow: none;
+}
+.titlebar .tab:only-child image,
+.titlebar .tab:only-child spinner,
+.titlebar .tab:only-child button {
+  opacity: 0.0;
+}
+
+/* Visible indication of private browsing */
 .incognito .split_headerbar {
   background: transparent -gtk-icontheme("user-not-tracked-symbolic") 80% 30%/auto 160% no-repeat, linear-gradient(to left, #81ca45 8%, #4da80d 25%);
   color: rgba(0, 0, 0, 0.3);
@@ -39,7 +88,15 @@
 .incognito .split_headerbar * {
   background: transparent;
   color: #eee;
+}
+
+/* Overlay statusbar */
 statusbar button {
   margin: 4px;
   padding: 0 4px;
+}
+
+/* Emphasize security indicator */
+.urlbar image.left {
+  color: @theme_selected_bg_color;
 }
