@@ -259,7 +259,6 @@ namespace Midori {
         async void private_scheme (WebKit.URISchemeRequest request) {
             string[] suggestions = {
                 _("No history or web cookies are being saved."),
-                _("Extensions are disabled."),
                 _("HTML5 storage, local database and application caches are disabled."),
             };
             string[] notes = {
