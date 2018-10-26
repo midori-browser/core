@@ -10,6 +10,15 @@
 */
 
 namespace Midori {
+    public const DebugKey[] keys = {
+        { "historydatabase", DebugFlags.HISTORY },
+    };
+
+    public enum DebugFlags {
+        NONE,
+        HISTORY,
+    }
+
     public interface Loggable : Object {
         public string domain { owned get {
             string? _domain = get_data<string> ("midori-domain");

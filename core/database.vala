@@ -178,15 +178,6 @@ namespace Midori {
         }
     }
 
-    public const DebugKey[] keys = {
-        { "historydatabase", DebugFlags.HISTORY },
-    };
-
-    public enum DebugFlags {
-        NONE,
-        HISTORY,
-    }
-
     public class Database : Object, Initable, ListModel, Loggable {
         internal Sqlite.Database? db = null;
         string? _key = null;
