@@ -1,39 +1,82 @@
+workspace: &workspace
+- restore_cache:
+    keys:
+    - source-v1-{{ .Branch }}-{{ .Revision }}
+    - source-v1-{{ .Branch }}-
+    - source-v1-
+- checkout
+- save_cache:
+    key:
+        source-v1-{{ .Branch }}-{{ .Revision }}
+    paths:
+    - ".git"
+    - "/var/cache/apt/archives/"
+
+build_and_install: &build_and_install
+  steps:
+  - run:
+      name: Install dependencies
+      command: |
+        apt-get update
+        apt-get install -y cmake xvfb valac libwebkit2gtk-4.0-dev libsoup-gnome2.4-dev libgcr-3-dev libpeas-dev libsqlite3-dev intltool libxml2-utils
+  - run:
+      name: Build
+      command: |
+        mkdir _build
+        cd _build
+        cmake -DCMAKE_INSTALL_PREFIX=/usr ..
+        make
+  - run:
+      name: Virtual framebuffer
+      command: Xvfb :99 -screen 0 1280x1024x24
+      background: true
+  - run:
+      name: Run unit tests
+      command: |
+        cd _build
+        make check
+  - run:
+      name: Install system-wide
+      command: |
+        cd _build
+        make install
+
 version: 2
 jobs:
-  build:
+  build_16_04:
     docker:
     - image: ubuntu:16.04
     steps:
-    - checkout
-    - run:
-        name: Install dependencies
-        command: |
-          apt-get update
-          apt-get install -y cmake xvfb valac libwebkit2gtk-4.0-dev libsoup-gnome2.4-dev libgcr-3-dev libpeas-dev libsqlite3-dev intltool libxml2-utils
-    - run:
-        name: Build
-        command: |
-          mkdir _build
-          cd _build
-          cmake -DCMAKE_INSTALL_PREFIX=/usr ..
-          make
-    - run:
-        name: Virtual framebuffer
-        command: Xvfb :99 -screen 0 1280x1024x24
-        background: true
-    - run:
-        name: Run unit tests
-        command: |
-          cd _build
-          make check
-    - run:
-        name: Install system-wide
-        command: |
-          cd _build
-          make install
+      <<: *workspace
+      <<: *build_and_install
+  build_18_04:
+    docker:
+    - image: ubuntu:18.04
+    steps:
+      <<: *workspace
+      <<: *build_and_install
+  build_snap:
+    docker:
+      - image: snapcore/snapcraft:edge
+    steps:
+      <<: *workspace
+      - run:
+          name: Update package cache
+          command: |
+              apt-get update
+      - run:
+          name: Snapcraft
+          command: |
+              snapcraft
 
 workflows:
   version: 2
-  ci:
+  "16.04":
     jobs:
-    - build
+    - build_16_04
+  "18.04":
+    jobs:
+    - build_18_04
+  "Snap":
+    jobs:
+    - build_snap
