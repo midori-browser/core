@@ -218,6 +218,16 @@ namespace Tabby {
             var default_browser = new Midori.Browser (app);
             default_browser.show ();
 
+            var settings = Midori.CoreSettings.get_default ();
+            if (settings.load_on_startup == Midori.StartupType.BLANK_PAGE) {
+                default_browser.add (new Midori.Tab (null, default_browser.web_context, "about:blank"));
+                return;
+            } else if (settings.load_on_startup == Midori.StartupType.HOMEPAGE) {
+                default_browser.add (new Midori.Tab (null, default_browser.web_context));
+                default_browser.activate_action ("homepage", null);
+                return;
+            }
+
             try {
                 default_browser = yield restore_windows (app, default_browser);
             } catch (Midori.DatabaseError error) {
@@ -328,6 +338,27 @@ namespace Tabby {
         }
     }
 
+    public class Preferences : Object, Midori.PreferencesActivatable {
+        public Midori.Preferences preferences { owned get; set; }
+
+        public void activate () {
+            var settings = Midori.CoreSettings.get_default ();
+            var box = new Midori.LabelWidget (_("Startup"));
+            var combo = new Gtk.ComboBoxText ();
+            combo.append ("0", _("Show Speed Dial"));
+            combo.append ("1", _("Show Homepage"));
+            combo.append ("2", _("Show last open tabs"));
+            settings.bind_property ("load-on-startup", combo, "active", BindingFlags.SYNC_CREATE | BindingFlags.BIDIRECTIONAL);
+            var button = new Midori.LabelWidget (_("When Midori starts:"), combo);
+            box.add (button);
+            box.show_all ();
+            preferences.add (_("Browsing"), box);
+            deactivate.connect (() => {
+                box.destroy ();
+            });
+        }
+    }
+
     public class ClearSession : Peas.ExtensionBase, Midori.ClearPrivateDataActivatable {
         public Gtk.Box box { owned get; set; }
 
@@ -357,6 +388,8 @@ namespace Tabby {
 public void peas_register_types(TypeModule module) {
     ((Peas.ObjectModule)module).register_extension_type (
         typeof (Midori.AppActivatable), typeof (Tabby.Session));
+    ((Peas.ObjectModule)module).register_extension_type (
+        typeof (Midori.PreferencesActivatable), typeof (Tabby.Preferences));
     ((Peas.ObjectModule)module).register_extension_type (
         typeof (Midori.ClearPrivateDataActivatable), typeof (Tabby.ClearSession));
 
