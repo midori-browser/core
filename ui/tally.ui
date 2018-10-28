@@ -12,13 +12,11 @@
             <!-- menu -->
             <property name="icon-size">1</property>
             <property name="visible">yes</property>
-            <property name="margin-right">4</property>
           </object>
         </child>
         <child>
           <object class="GtkSpinner" id="spinner">
             <property name="active">yes</property>
-            <property name="margin-right">4</property>
           </object>
         </child>
         <child>
@@ -44,6 +42,9 @@
                 <property name="visible">yes</property>
               </object>
             </child>
+            <style>
+                <class name="close"/>
+            </style>
           </object>
         </child>
       </object>
