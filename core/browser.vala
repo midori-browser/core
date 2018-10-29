@@ -285,6 +285,13 @@ namespace Midori {
             navigationbar.pack_end (button);
         }
 
+        /*
+         * Requests a default tab to be added to an otherwise empty window.
+         *
+         * Connect, adding one or more windows, and return true to override.
+         */
+        public signal bool default_tab ();
+
         public Browser (App app) {
             Object (application: app,
                     web_context: WebKit.WebContext.get_default ());
@@ -370,14 +377,20 @@ namespace Midori {
         void homepage_activated () {
             var settings = CoreSettings.get_default ();
             string homepage = settings.homepage;
+            string uri;
             if ("://" in homepage) {
-                tab.load_uri (homepage);
+                uri = homepage;
             } else if ("." in homepage) {
                 // Prepend http:// if hompepage has no scheme
-                tab.load_uri ("http://" + homepage);
+                uri = "http://" + homepage;
             } else {
                 // Fallback to search if URI is about:search or anything else
-                tab.load_uri (settings.uri_for_search ());
+                uri = settings.uri_for_search ();
+            }
+            if (tab == null) {
+                add (new Tab (null, web_context, uri));
+            } else {
+                tab.load_uri (uri);
             }
         }
 
@@ -535,9 +548,6 @@ namespace Midori {
                 tabs.child_set (tab, "title", tab.display_title);
             });
             tabs.add_titled (tab, tab.id, tab.display_title);
-            if (tabs.visible_child == null) {
-                tabs.visible_child = tab;
-            }
         }
 
         void clear_private_data_activated () {

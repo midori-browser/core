@@ -12,7 +12,7 @@
 namespace Midori {
     [CCode (cprefix = "MIDORI_STARTUP_")]
     public enum StartupType {
-        BLANK_PAGE,
+        SPEED_DIAL,
         HOMEPAGE,
         LAST_OPEN_PAGES,
         DELAYED_PAGES
@@ -42,17 +42,19 @@ namespace Midori {
             set_boolean ("extensions", "lib%s.so".printf (plugin), enabled);
         }
 
+        // Note: Speed Dial is saved as Blank Page for compatibility reasons
         public StartupType load_on_startup { get {
             var startup = get_string ("settings", "load-on-startup", "MIDORI_STARTUP_LAST_OPEN_PAGES");
             if (startup.has_suffix ("BLANK_PAGE")) {
-                return StartupType.BLANK_PAGE;
+                return StartupType.SPEED_DIAL;
             } else if (startup.has_suffix ("HOMEPAGE")) {
                 return StartupType.HOMEPAGE;
             } else {
                 return StartupType.LAST_OPEN_PAGES;
             }
         } set {
-            set_string ("settings", "load-on-startup", value.to_string (), "MIDORI_STARTUP_LAST_OPEN_PAGES");
+            var startup = value == StartupType.SPEED_DIAL ? "MIDORI_STARTUP_BLANK_PAGE" : value.to_string ();
+            set_string ("settings", "load-on-startup", startup, "MIDORI_STARTUP_LAST_OPEN_PAGES");
         } }
 
         public bool enable_spell_checking { get {
