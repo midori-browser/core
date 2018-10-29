@@ -37,7 +37,7 @@ namespace Midori {
 
         void download_started (WebKit.Download download) {
             // Don't show cache files in the UI
-            if (download.destination.has_prefix (cache)) {
+            if (download.destination != null && download.destination.has_prefix (cache)) {
                 return;
             }
             model.append (new DownloadItem.with_download (download));
