@@ -400,8 +400,7 @@ namespace Midori {
             }
 
             if (app != "") {
-                var browser = new Browser (this);
-                browser.is_locked = true;
+                var browser = new Browser (this, true);
                 var tab = new Tab (null, browser.web_context, app);
                 tab.pinned = true;
                 browser.add (tab);

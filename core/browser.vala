@@ -24,7 +24,7 @@ namespace Midori {
         public Tab? tab { get; protected set; }
         public ListStore trash { get; protected set; }
         public bool is_fullscreen { get; protected set; default = false; }
-        public bool is_locked { get; set; default = false; }
+        public bool is_locked { get; construct set; default = false; }
 
         const ActionEntry[] actions = {
             { "tab-new", tab_new_activated },
@@ -292,8 +292,9 @@ namespace Midori {
          */
         public signal bool default_tab ();
 
-        public Browser (App app) {
+        public Browser (App app, bool is_locked=false) {
             Object (application: app,
+                    is_locked: is_locked,
                     web_context: WebKit.WebContext.get_default ());
         }
 
