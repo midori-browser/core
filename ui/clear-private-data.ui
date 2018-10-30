@@ -36,7 +36,6 @@
           <object class="GtkBox">
             <property name="orientation">horizontal</property>
             <property name="spacing">4</property>
-            <property name="visible">yes</property>
             <child>
               <object class="GtkLabel" id="timerange_label">
                 <property name="label" translatable="yes">_Time range to clear</property>
@@ -46,7 +45,7 @@
             </child>
             <child>
               <object class="GtkComboBoxText" id="timerange">
-                <property name="active-id">last-hour</property>
+                <property name="active-id">0</property>
                 <property name="visible">yes</property>
                 <items>
                   <item id="0" translatable="yes">Clear all</item>
