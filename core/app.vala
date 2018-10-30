@@ -277,10 +277,7 @@ namespace Midori {
                 _("HTML5 storage, local database and application caches are disabled."),
             };
             string[] notes = {
-                _("Referrer URLs are stripped down to the hostname."),
                 _("DNS prefetching is disabled."),
-                _("The language and timezone are not revealed to websites."),
-                _("Flash and other Netscape plugins cannot be listed by websites."),
             };
 
             try {
