@@ -162,15 +162,6 @@ namespace Midori {
             extensions.foreach ((extensions, info, extension) => { extensions.extension_added (info, extension); });
         }
 
-        protected override bool key_press_event (Gdk.EventKey event) {
-            // Close on Escape like a Gtk.Dialog
-            if (event.keyval == Gdk.Key.Escape) {
-                close ();
-                return true;
-            }
-            return base.key_press_event (event);
-        }
-
         /*
          * Add a new category of preferences to be shown in the dialog.
          * An appropriate margin will automatically be added.
