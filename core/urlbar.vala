@@ -23,6 +23,7 @@ namespace Midori {
             location = value;
             // Treat about:blank specially
             text = blank ? "" : value;
+            set_position (-1);
             update_icon ();
         } }
         bool _secure = false;
@@ -52,17 +53,6 @@ namespace Midori {
             });
 
             listbox.row_selected.connect ((row) => {
-                if (row != null && selected_row != row) {
-                    var suggestion_row = (SuggestionRow)row;
-                    string? new_text = suggestion_row.item.uri;
-                    if (suggestion_row.item is SuggestionItem) {
-                        new_text = key;
-                    }
-                    if (new_text != null && new_text != text) {
-                        text = new_text;
-                        set_position (-1);
-                    }
-                }
                 selected_row = row;
             });
             listbox.row_activated.connect ((row) => {
@@ -160,6 +150,7 @@ namespace Midori {
                     return true;
                 case Gdk.Key.Escape:
                     text = blank ? "" : uri;
+                    set_position (-1);
                     // Propagate to allow Escape to stop loading
                     return false;
             }
