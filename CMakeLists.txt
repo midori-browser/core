@@ -9,14 +9,14 @@ add_definitions("-DGETTEXT_PACKAGE=\"${GETTEXT_PACKAGE}\"")
 project(${GETTEXT_PACKAGE} C)
 set(PROJECT_BUGS https://github.com/midori-browser/core/issues)
 set(PROJECT_WEBSITE https://www.midori-browser.org)
-set(CORE_VERSION 0.6.0)
+set(CORE_VERSION 6.0)
 
 execute_process(COMMAND "git" "describe" "--tags"
                 OUTPUT_VARIABLE REVISION
                 ERROR_QUIET
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 if (REVISION)
-    set(CORE_VERSION "${CORE_VERSION}~r${REVISION}")
+    set(CORE_VERSION "${REVISION}")
     # All warnings are errors in development builds
     set(VALAFLAGS ${VALAFLAGS} --fatal-warnings)
 else ()
