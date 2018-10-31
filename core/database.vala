@@ -324,7 +324,8 @@ namespace Midori {
         }
 
         public bool exec_script (string filename) throws DatabaseError {
-            string schema_path = "/data/%s/%s.sql".printf (table, filename);
+            string basename = Path.get_basename (path).split (".")[0];
+            string schema_path = "/data/%s/%s.sql".printf (basename, filename);
             try {
                 var schema = resources_lookup_data (schema_path, ResourceLookupFlags.NONE);
                 transaction (()=> { return exec ((string)schema.get_data ()); });
@@ -376,7 +377,7 @@ namespace Midori {
         /*
          * Delete an item from the database.
          */
-        public async bool delete (DatabaseItem item) throws DatabaseError {
+        public async virtual bool delete (DatabaseItem item) throws DatabaseError {
             string sqlcmd = """
                 DELETE FROM %s WHERE rowid = :id
                 """.printf (table);
@@ -544,9 +545,9 @@ namespace Midori {
             // Note: TimeSpan is defined in microseconds
             int64 maximum_age = new DateTime.now_local ().to_unix () - timespan / 1000000;
 
-            unowned string sqlcmd = """
-                DELETE FROM %s WHERE date <= :maximum_age;
-                """;
+            string sqlcmd = """
+                DELETE FROM %s WHERE date <= :maximum_age
+                """.printf (table);
             var statement = prepare (sqlcmd,
                 ":maximum_age", typeof (int64), maximum_age);
             return statement.exec ();

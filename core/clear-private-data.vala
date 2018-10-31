@@ -10,6 +10,12 @@
 */
 
 namespace Midori {
+    public interface ClearPrivateDataActivatable : Object {
+        public abstract Gtk.Box box { owned get; set; }
+        public abstract void activate ();
+        public async abstract void clear (TimeSpan timespan);
+    }
+
     [GtkTemplate (ui = "/ui/clear-private-data.ui")]
     class ClearPrivateData : Gtk.Dialog {
         [GtkChild]
@@ -22,6 +28,7 @@ namespace Midori {
         Gtk.CheckButton cache;
 
         Cancellable? show_cancellable = null;
+        Peas.ExtensionSet extensions;
 
         public ClearPrivateData (Gtk.Window parent) {
            Object (transient_for: parent);
@@ -51,6 +58,11 @@ namespace Midori {
             } catch (DatabaseError error) {
                 debug ("Failed to check history: %s", error.message);
             }
+
+            extensions = Plugins.get_default ().plug<ClearPrivateDataActivatable> ("box", history.parent);
+            extensions.extension_added.connect ((info, extension) => { ((ClearPrivateDataActivatable)extension).activate (); });
+            extensions.foreach ((extensions, info, extension) => { extensions.extension_added (info, extension); });
+
             base.show ();
         }
 
@@ -79,6 +91,10 @@ namespace Midori {
 
         public override void response (int response_id) {
             show_cancellable.cancel ();
+            response_async.begin (response_id);
+        }
+
+        async void response_async (int response_id) {
             if (response_id == Gtk.ResponseType.OK) {
                 // The ID is the number of days as a string; 0 means everything
                 var timespan = timerange.active_id.to_int () * TimeSpan.DAY;
@@ -91,14 +107,24 @@ namespace Midori {
                 }
                 if (types != 0) {
                     var manager = WebKit.WebContext.get_default ().website_data_manager;
-                    manager.clear.begin (types, timespan, null);
+                    try {
+                        yield manager.clear (types, timespan, null);
+                    } catch (Error error) {
+                        critical ("Failed to clear website data: %s", error.message);
+                    }
                 }
                 if (history.active) {
                     try {
-                        HistoryDatabase.get_default ().clear.begin (timespan);
+                        yield HistoryDatabase.get_default ().clear (timespan);
                     } catch (DatabaseError error) {
-                        debug ("Failed to clear history: %s", error.message);
+                        critical ("Failed to clear history: %s", error.message);
                     }
+                }
+
+                var active_extensions = new List<Peas.Extension> ();
+                extensions.foreach ((extensions, info, extension) => { active_extensions.append (extension); });
+                foreach (var extension in active_extensions) {
+                    yield ((ClearPrivateDataActivatable)extension).clear (timespan);
                 }
             }
             close ();

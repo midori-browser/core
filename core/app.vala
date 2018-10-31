@@ -313,14 +313,21 @@ namespace Midori {
 
         void win_new_activated (Action action, Variant? parameter) {
             var browser = new Browser (this);
+            if (!browser.default_tab ()) {
+                browser.add (new Tab (null, browser.web_context));
+            }
             string? uri = parameter.get_string () != "" ? parameter.get_string () : null;
-            browser.add (new Tab (null, browser.web_context, uri));
+            if (uri != null) {
+                browser.add (new Tab (null, browser.web_context, uri));
+            }
             browser.show ();
         }
 
         void win_incognito_new_activated () {
             var browser = new Browser.incognito (this);
-            browser.add (new Tab (null, browser.web_context));
+            if (!browser.default_tab ()) {
+                browser.add (new Tab (null, browser.web_context));
+            }
             browser.show ();
         }
 
@@ -390,8 +397,7 @@ namespace Midori {
             }
 
             if (app != "") {
-                var browser = new Browser (this);
-                browser.is_locked = true;
+                var browser = new Browser (this, true);
                 var tab = new Tab (null, browser.web_context, app);
                 tab.pinned = true;
                 browser.add (tab);

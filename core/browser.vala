@@ -24,7 +24,7 @@ namespace Midori {
         public Tab? tab { get; protected set; }
         public ListStore trash { get; protected set; }
         public bool is_fullscreen { get; protected set; default = false; }
-        public bool is_locked { get; set; default = false; }
+        public bool is_locked { get; construct set; default = false; }
 
         const ActionEntry[] actions = {
             { "tab-new", tab_new_activated },
@@ -69,7 +69,7 @@ namespace Midori {
         [GtkChild]
         Navigationbar navigationbar;
         [GtkChild]
-        Gtk.Stack tabs;
+        public Gtk.Stack tabs;
         [GtkChild]
         public Gtk.Overlay overlay;
         [GtkChild]
@@ -285,8 +285,16 @@ namespace Midori {
             navigationbar.pack_end (button);
         }
 
-        public Browser (App app) {
+        /*
+         * Requests a default tab to be added to an otherwise empty window.
+         *
+         * Connect, adding one or more windows, and return true to override.
+         */
+        public signal bool default_tab ();
+
+        public Browser (App app, bool is_locked=false) {
             Object (application: app,
+                    is_locked: is_locked,
                     web_context: WebKit.WebContext.get_default ());
         }
 
@@ -370,14 +378,20 @@ namespace Midori {
         void homepage_activated () {
             var settings = CoreSettings.get_default ();
             string homepage = settings.homepage;
+            string uri;
             if ("://" in homepage) {
-                tab.load_uri (homepage);
+                uri = homepage;
             } else if ("." in homepage) {
                 // Prepend http:// if hompepage has no scheme
-                tab.load_uri ("http://" + homepage);
+                uri = "http://" + homepage;
             } else {
                 // Fallback to search if URI is about:search or anything else
-                tab.load_uri (settings.uri_for_search ());
+                uri = settings.uri_for_search ();
+            }
+            if (tab == null) {
+                add (new Tab (null, web_context, uri));
+            } else {
+                tab.load_uri (uri);
             }
         }
 
