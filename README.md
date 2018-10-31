@@ -98,6 +98,20 @@ You'll want to **unit test** the code if you're testing a new version or contrib
 * `javascript:alert("test")`, `javascript:confirm("test")` and `javascript:input("test")` work
 * Websites can (un)toggle fullscreen mode
 
+# Release process
+
+Update `CORE_VERSION` in `CMakeLists.txt` to `6.0`.
+Add a section to `ChangeLog`.
+
+    git commit -p -v -m "Release Midori 6.0"
+    git checkout -B release-6.0
+    git push origin HEAD
+    git archive -o midori-v6.0.tar.gz -9 HEAD
+
+Propose a PR for the release.
+Publish the release on https://github.com/midori-browser/core/releases
+Promote snap on https://snapcraft.io/midori/release to the `stable` channel
+
 # Troubleshooting
 
 Testing an installed release may reveal crashers or memory corruption which require investigating from a local build and obtaining a stacktrace (backtrace, crash log).

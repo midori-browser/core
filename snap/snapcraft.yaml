@@ -3,8 +3,7 @@ version: git
 version-script: |
   set -x
   VERSION=$(grep -r "^set(CORE_VERSION" CMakeLists.txt | sed -r "s@.+ ([0-9.]+)\)@\1@")
-  REVISION=$(git describe --tags)
-  echo $VERSION~r$REVISION
+  echo $(git describe --tags || echo $VERSION)
 summary: a lightweight, fast, and free web browser
 description: |
   Midori is a lightweight yet powerful web browser which runs just as well on little embedded computers named for delicious pastries as it does on beefy machines with a core temperature exceeding that of planet earth. And it looks good doing that, too. Oh, and of course it's free software.
