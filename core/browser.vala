@@ -110,7 +110,7 @@ namespace Midori {
                 application.set_accels_for_action ("win.panel", { "F9" });
                 application.set_accels_for_action ("win.tab-new", { "<Primary>t" });
                 application.set_accels_for_action ("win.tab-close", { "<Primary>w" });
-                application.set_accels_for_action ("win.close", { "<Primary><Shift>w" });
+                application.set_accels_for_action ("win.close", { "<Primary><Shift>w", "<Primary>F4" });
                 application.set_accels_for_action ("win.tab-reopen", { "<Primary><Shift>t" });
                 application.set_accels_for_action ("win.fullscreen", { "F11" });
                 application.set_accels_for_action ("win.show-downloads", { "<Primary><Shift>j" });
@@ -129,10 +129,11 @@ namespace Midori {
                 application.set_accels_for_action ("win.tab-next", { "<Primary>Tab" });
                 application.set_accels_for_action ("win.clear-private-data", { "<Primary><Shift>Delete" });
                 application.set_accels_for_action ("win.preferences", { "<Primary><Alt>p" });
+                application.set_accels_for_action ("win.show-help-overlay", { "<Primary>F1", "<Shift>question" });
 
                 for (var i = 0; i < 10; i++) {
                     application.set_accels_for_action ("win.tab-by-index(%d)".printf(i),
-                        { "<Alt>%d".printf (i < 9 ? i + 1 : 0) });
+                        { "<Alt>%d".printf (i < 9 ? i + 1 : 0), "<Primary>%d".printf (i < 9 ? i + 1 : 0) });
                 }
                 application.set_accels_for_action ("win.tab-zoom(0.1)", { "<Primary>plus", "<Primary>equal" });
                 application.set_accels_for_action ("win.tab-zoom(-0.1)", { "<Primary>minus" });
