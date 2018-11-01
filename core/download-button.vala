@@ -13,6 +13,7 @@ namespace Midori {
     [GtkTemplate (ui = "/ui/download-button.ui")]
     public class DownloadButton : Gtk.Button {
         public virtual signal void show_downloads () {
+            get_style_context ().remove_class (Gtk.STYLE_CLASS_SUGGESTED_ACTION);
             popover.show ();
         }
 
@@ -40,7 +41,11 @@ namespace Midori {
             if (download.destination != null && download.destination.has_prefix (cache)) {
                 return;
             }
-            model.append (new DownloadItem.with_download (download));
+            var item = new DownloadItem.with_download (download);
+            item.finished.connect (() => {
+                get_style_context ().add_class (Gtk.STYLE_CLASS_SUGGESTED_ACTION);
+            });
+            model.append (item);
         }
 
         public Gtk.Widget create_row (Object item) {
@@ -79,6 +84,7 @@ namespace Midori {
                 loading = false;
             }
         }
+        public signal void finished ();
 
         construct {
             notify["filename"].connect ((pspec) => {
@@ -104,6 +110,7 @@ namespace Midori {
             download.finished.connect (() => {
                 download = null;
                 loading = false;
+                finished ();
             });
             download.failed.connect ((error) => {
                 loading = false;
