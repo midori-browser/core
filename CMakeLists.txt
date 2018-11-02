@@ -47,7 +47,7 @@ find_package(PkgConfig)
 pkg_check_modules(DEPS REQUIRED
                   sqlite3>=3.6.19
                   gio-2.0>=2.48.0
-                  libsoup-gnome-2.4>=2.48.0
+                  libsoup-2.4>=2.48.0
                   )
 set(PKGS sqlite3 gio-2.0 libsoup-2.4)
 
