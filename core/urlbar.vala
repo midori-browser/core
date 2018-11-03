@@ -180,7 +180,9 @@ namespace Midori {
         }
 
         string? magic_uri (string text) {
-            if (Path.is_absolute (text)) {
+            if (" " in text) {
+                return null;
+            } else if (Path.is_absolute (text)) {
                 try {
                     return Filename.to_uri (text);
                 } catch (ConvertError error ) {
@@ -209,10 +211,9 @@ namespace Midori {
 
         bool is_location (string uri) {
             /* file:// is not considered a location for security reasons */
-            return (("://" in uri && !(" " in uri)))
+            return uri.has_prefix ("about:")
               || uri.has_prefix ("http://")
               || uri.has_prefix ("https://")
-              || uri.has_prefix ("about:")
               || (uri.has_prefix ("data:") && (";" in uri))
               || uri.has_prefix ("javascript:");
         }
