@@ -1,7 +1,6 @@
 # Copyright (C) 2013-2018 Christian Dywan <christian@twotoasts.de>
 
-cmake_minimum_required(VERSION 3.0)
-cmake_policy(VERSION 3.0)
+cmake_minimum_required(VERSION 3.2)
 
 # dh_translations detects this if there's no variable used
 set (GETTEXT_PACKAGE "midori")
