@@ -20,6 +20,8 @@ namespace Midori {
         [GtkChild]
         public Gtk.Popover popover;
         [GtkChild]
+        public Gtk.Button clear;
+        [GtkChild]
         public Gtk.ListBox listbox;
 
         string cache = File.new_for_path (Path.build_filename (
@@ -29,6 +31,10 @@ namespace Midori {
         construct {
             listbox.bind_model (model, create_row);
             popover.relative_to = this;
+            clear.clicked.connect (() => {
+                hide ();
+                model.remove_all ();
+            });
         }
 
         internal WebKit.WebContext web_context { set {
