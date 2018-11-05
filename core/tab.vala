@@ -31,7 +31,7 @@ namespace Midori {
         public string link_uri { get; protected set; }
 
         [GtkChild]
-        Gtk.Popover popover;
+        internal Gtk.Popover popover;
         [GtkChild]
         Gtk.Label message;
         [GtkChild]
@@ -296,17 +296,14 @@ namespace Midori {
 
         public override bool script_dialog (WebKit.ScriptDialog dialog) {
             message.label = dialog.get_message ();
-            // Render inactive without setting sensitive which affects the popover
-            opacity = 0.3;
-            popover.closed.connect (() => {
-                opacity = 1.0;
-            });
 
             switch (dialog.get_dialog_type ()) {
                 case WebKit.ScriptDialogType.ALERT:
+                    confirm.hide ();
                     break;
                 case WebKit.ScriptDialogType.CONFIRM:
                 case WebKit.ScriptDialogType.BEFORE_UNLOAD_CONFIRM:
+                    confirm.label = _("_Confirm");
                     confirm.visible = true;
                     popover.closed.connect (() => {
                         dialog.confirm_set_confirmed (false);
@@ -318,6 +315,7 @@ namespace Midori {
                 case WebKit.ScriptDialogType.PROMPT:
                     entry.placeholder_text = dialog.prompt_get_default_text ();
                     entry.visible = true;
+                    confirm.label = _("_Confirm");
                     confirm.visible = true;
                     popover.closed.connect (() => {
                         dialog.prompt_set_text ("");
@@ -327,6 +325,25 @@ namespace Midori {
                     });
                     break;
             }
+            popover.show ();
+            return true;
+        }
+
+        public override bool permission_request (WebKit.PermissionRequest permission) {
+            if (permission is WebKit.GeolocationPermissionRequest) {
+                string hostname = new Soup.URI (uri).host;
+                message.label = _("%s wants to know your location.").printf (hostname);
+            } else {
+                message.label = permission.get_type ().name ();
+            }
+            confirm.label = _("_Allow");
+            confirm.show ();
+            confirm.clicked.connect (() => {
+                permission.allow ();
+            });
+            popover.closed.connect (() => {
+                permission.deny ();
+            });
             popover.show ();
             return true;
         }
