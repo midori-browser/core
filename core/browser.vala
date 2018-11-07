@@ -521,6 +521,7 @@ namespace Midori {
         }
 
         public new void add (Tab tab) {
+            tab.popover.relative_to = navigationbar.urlbar;
             tab.create.connect ((action) => {
                 var new_tab = new Tab (tab, web_context);
                 new_tab.hide ();
