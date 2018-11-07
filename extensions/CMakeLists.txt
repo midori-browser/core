@@ -19,11 +19,9 @@ foreach(UNIT_SRC ${EXTENSIONS})
         file(GLOB UNIT_SRC RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "${UNIT_SRC}/*.vala")
     elseif (${UNIT_SRC} MATCHES "(.vala)$")
         string(REPLACE ".vala" "" UNIT ${UNIT_SRC})
-    else ()
-        message(STATUS "Skipping ${UNIT_SRC}")
-        continue()
     endif ()
 
+    if ("${UNIT_SRC}" MATCHES "(.vala)$")
         include(ValaPrecompile)
         vala_precompile(UNIT_SRC_C ${UNIT}
             ${UNIT_SRC}
@@ -41,6 +39,9 @@ foreach(UNIT_SRC ${EXTENSIONS})
         set_target_properties(${UNIT} PROPERTIES
                               COMPILE_FLAGS "${VALA_CFLAGS}"
                               )
+    else ()
+        continue()
+    endif ()
     target_link_libraries(${UNIT}
                           ${DEPS_LIBRARIES}
                           ${DEPS_GTK_LIBRARIES}
