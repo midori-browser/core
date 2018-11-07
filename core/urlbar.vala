@@ -138,7 +138,7 @@ namespace Midori {
                             Application.get_default ().activate_action ("win-new", text);
                         } else {
                             var browser = ((Browser)get_toplevel ());
-                            browser.add (new Tab (browser.tab, browser.web_context, text));
+                            browser.add (new Tab (null, browser.web_context, text));
                         }
                     } else {
                         listbox.activate_cursor_row ();

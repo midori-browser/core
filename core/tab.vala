@@ -273,7 +273,7 @@ namespace Midori {
                 var action = new Gtk.Action ("text-search", _("Search for %s").printf (label), null, null);
                 action.activate.connect (() => {
                     var settings = CoreSettings.get_default ();
-                    var tab = new Tab (this, web_context, settings.uri_for_search (text));
+                    var tab = new Tab (null, web_context, settings.uri_for_search (text));
                     ((Browser)get_toplevel ()).add (tab);
                 });
                 menu.append (new WebKit.ContextMenuItem (action));

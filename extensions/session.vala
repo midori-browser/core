@@ -213,7 +213,7 @@ namespace Tabby {
                     var app = (Midori.App)default_browser.get_application ();
                     browser = browser_for_session (app, id);
                 }
-                var tab = new Midori.Tab (browser.tab, browser.web_context,
+                var tab = new Midori.Tab (null, browser.web_context,
                                           item.uri, item.title);
                 connect_tab (tab, item);
                 browser.add (tab);
