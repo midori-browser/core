@@ -5,4 +5,5 @@ namespace Config {
     public const string PROJECT_NAME;
     public const string PROJECT_BUGS;
     public const string PROJECT_WEBSITE;
+    public const string PLUGINDIR;
 }

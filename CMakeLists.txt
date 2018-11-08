@@ -39,8 +39,7 @@ set(VALAFLAGS ${VALAFLAGS}
 
 include(GNUInstallDirs)
 set(DATADIR ${CMAKE_INSTALL_FULL_DATADIR})
-
-configure_file(config.h.in config.h @ONLY)
+set(PLUGINDIR "${CMAKE_INSTALL_FULL_LIBDIR}/${CMAKE_PROJECT_NAME}" CACHE STRING "Location for system-wide plugins")
 
 find_package(PkgConfig)
 pkg_check_modules(DEPS REQUIRED

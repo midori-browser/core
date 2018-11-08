@@ -109,7 +109,7 @@ namespace Midori {
             var web_path = exec_path.get_parent ().get_child ("web");
             if (!web_path.query_exists (null)) {
                 // Alternatively look for an installed path
-                web_path = exec_path.get_parent ().get_parent ().get_child ("lib").get_child (Environment.get_prgname ());
+                web_path = File.new_for_path (Config.PLUGINDIR);
             }
             context.set_web_extensions_directory (web_path.get_path ());
             context.initialize_web_extensions.connect (() => {
@@ -149,7 +149,7 @@ namespace Midori {
             var builtin_path = exec_path.get_parent ().get_child ("extensions");
             if (!builtin_path.query_exists (null)) {
                 // System-wide plugins
-                builtin_path = exec_path.get_parent ().get_parent ().get_child ("lib").get_child (Environment.get_prgname ());
+                builtin_path = File.new_for_path (Config.PLUGINDIR);
             }
             var plugins = Plugins.get_default (builtin_path.get_path ());
             // Save/ load state of plugins

@@ -1,6 +1,5 @@
 # Copyright (C) 2013-2018 Christian Dywan <christian@twotoasts.de>
 
-set(EXTENSIONDIR "${CMAKE_INSTALL_FULL_LIBDIR}/${CMAKE_PROJECT_NAME}")
 include_directories(
                     "${CMAKE_SOURCE_DIR}"
                     "${CMAKE_SOURCE_DIR}/core"
@@ -45,6 +44,6 @@ foreach(UNIT_SRC ${EXTENSIONS})
                           ${DEPS_GTK_LIBRARIES}
                           )
     install(TARGETS ${UNIT}
-            LIBRARY DESTINATION ${EXTENSIONDIR}
+            LIBRARY DESTINATION ${PLUGINDIR}
             )
 endforeach ()
