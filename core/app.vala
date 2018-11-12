@@ -104,6 +104,7 @@ namespace Midori {
                 Environment.get_user_cache_dir (), Environment.get_prgname ());
             string icons = Path.build_path (Path.DIR_SEPARATOR_S, cache, "icondatabase");
             context.set_favicon_database_directory (icons);
+            context.set_process_model (WebKit.ProcessModel.MULTIPLE_SECONDARY_PROCESSES);
 
             // Try and load web extensions from build folder
             var web_path = exec_path.get_parent ().get_child ("web");

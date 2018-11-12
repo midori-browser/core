@@ -331,7 +331,7 @@ namespace Midori {
         }
 
         void tab_new_activated () {
-            var tab = new Tab (tab, web_context);
+            var tab = new Tab (null, web_context);
             add (tab);
             tabs.visible_child = tab;
         }
@@ -348,7 +348,7 @@ namespace Midori {
             uint index = trash.get_n_items ();
             if (index > 0) {
                 var item = trash.get_object (index - 1) as DatabaseItem;
-                add (new Tab (tab, web_context, item.uri, item.title));
+                add (new Tab (null, web_context, item.uri, item.title));
                 trash.remove (index - 1);
             }
         }

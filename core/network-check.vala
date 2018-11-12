@@ -28,7 +28,7 @@ namespace Midori {
 
         void login_clicked () {
             var browser = ((Browser)get_toplevel ());
-            browser.add (new Tab (browser.tab, browser.web_context, "http://example.com"));
+            browser.add (new Tab (null, browser.web_context, "http://example.com"));
         }
     }
 }
