@@ -165,18 +165,14 @@ namespace Midori {
 
         void update_key (string text) {
             location = magic_uri (text);
-            if (location == null) {
-                try {
-                    key = text;
-                    regex = new Regex ("(%s)".printf (Regex.escape_string (key)),
-                                       RegexCompileFlags.CASELESS);
-                } catch (RegexError error) {
-                    debug ("Failed to create regex: %s", error.message);
-                }
-            } else {
+            try {
+                key = text;
+                regex = new Regex ("(%s)".printf (Regex.escape_string (key)),
+                                   RegexCompileFlags.CASELESS);
+            } catch (RegexError error) {
                 regex = null;
+                debug ("Failed to create regex: %s", error.message);
             }
-
         }
 
         string? magic_uri (string text) {

@@ -42,7 +42,7 @@ namespace Midori {
                     }
                 });
                 notify["key"].connect ((pspec) => {
-                    if (key != null) {
+                    if (location == null) {
                         var suggestion = (SuggestionItem)item;
                         item.uri = CoreSettings.get_default ().uri_for_search (key, suggestion.search);
                         icon.icon_name = "edit-find-symbolic";
