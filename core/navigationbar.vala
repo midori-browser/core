@@ -13,6 +13,8 @@ namespace Midori {
     [GtkTemplate (ui = "/ui/navigationbar.ui")]
     public class Navigationbar : Gtk.ActionBar {
         [GtkChild]
+        public Gtk.Box actionbox;
+        [GtkChild]
         public Gtk.Button go_back;
         [GtkChild]
         public Gtk.Button go_forward;

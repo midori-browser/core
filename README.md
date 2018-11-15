@@ -97,6 +97,7 @@ You'll want to **unit test** the code if you're testing a new version or contrib
 * Download button lists on-going and finished downloads
 * `javascript:alert("test")`, `javascript:confirm("test")` and `javascript:input("test")` work
 * Websites can (un)toggle fullscreen mode
+* Shrinking the window moves browser and page actions into the respective menus
 
 # Release process
 

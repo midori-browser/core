@@ -19,28 +19,21 @@ namespace Midori {
     [GtkTemplate (ui = "/ui/browser.ui")]
     public class Browser : Gtk.ApplicationWindow {
         public WebKit.WebContext web_context { get; construct set; }
-        public bool is_loading { get { return tab != null && tab.is_loading; } }
+        public bool is_loading { get; protected set; default = false; }
         public string? uri { get; protected set; }
         public Tab? tab { get; protected set; }
         public ListStore trash { get; protected set; }
         public bool is_fullscreen { get; protected set; default = false; }
         public bool is_locked { get; construct set; default = false; }
+        internal bool is_small { get; protected set; default = false; }
 
         const ActionEntry[] actions = {
-            { "tab-new", tab_new_activated },
             { "tab-close", tab_close_activated },
             { "close", close_activated },
             { "tab-reopen", tab_reopen_activated },
             { "goto", goto_activated },
-            { "go-back", go_back_activated },
-            { "go-forward", go_forward_activated },
-            { "tab-reload", tab_reload_activated },
-            { "tab-stop-loading", tab_stop_loading_activated },
-            { "homepage", homepage_activated },
             { "tab-previous", tab_previous_activated },
             { "tab-next", tab_next_activated },
-            { "fullscreen", fullscreen_activated },
-            { "show-downloads", show_downloads_activated },
             { "find", find_activated },
             { "view-source", view_source_activated },
             { "print", print_activated },
@@ -55,9 +48,11 @@ namespace Midori {
         [GtkChild]
         Gtk.Stack panel;
         [GtkChild]
-        Gtk.ToggleButton panel_toggle;
-        [GtkChild]
         Gtk.HeaderBar tabbar;
+        [GtkChild]
+        Gtk.Box actionbox;
+        [GtkChild]
+        Gtk.ToggleButton panel_toggle;
         [GtkChild]
         DownloadButton downloads;
         [GtkChild]
@@ -141,6 +136,18 @@ namespace Midori {
 
                 app_menu.menu_model = application.get_menu_by_id ("app-menu");
                 navigationbar.menubutton.menu_model = application.get_menu_by_id ("page-menu");
+                notify["is-small"].connect (() => {
+                    if (is_small) {
+                        ((Menu)app_menu.menu_model).insert_section (0, null, application.get_menu_by_id ("app-menu-small"));
+                        ((Menu)navigationbar.menubutton.menu_model).insert_section (0, null, application.get_menu_by_id ("page-menu-small"));
+                        // Anchor downloads popover to app menu if the button is hidden
+                        downloads.popover.relative_to = app_menu;
+                    } else {
+                        ((Menu)app_menu.menu_model).remove (0);
+                        ((Menu)navigationbar.menubutton.menu_model).remove (0);
+                        downloads.popover.relative_to = downloads;
+                    }
+                });
 
                 application.bind_busy_property (this, "is-loading");
 
@@ -159,14 +166,69 @@ namespace Midori {
             action = new SimpleAction ("tab-zoom", VariantType.DOUBLE);
             action.activate.connect (tab_zoom_activated);
             add_action (action);
+            // Browser actions
+            action = new SimpleAction ("tab-new", null);
+            action.activate.connect (tab_new_activated);
+            add_action (action);
+            action.set_enabled (!is_locked);
+            var show_downloads = new SimpleAction ("show-downloads", null);
+            show_downloads.activate.connect (show_downloads_activated);
+            add_action (show_downloads);
+            show_downloads.set_enabled (false);
+            downloads.notify["visible"].connect (() => {
+                show_downloads.set_enabled (downloads.visible);
+            });
+            var fullscreen = new SimpleAction ("fullscreen", null);
+            fullscreen.activate.connect (fullscreen_activated);
+            add_action (fullscreen);
+            navigationbar.notify["visible"].connect (() => {
+                fullscreen.set_enabled (navigationbar.visible);
+            });
             // Action for panel toggling
             action = new SimpleAction.stateful ("panel", null, false);
+            action.set_enabled (false);
             action.change_state.connect (panel_activated);
             add_action (action);
+            // Reveal panel toggle after panels are added
+            panel.add.connect ((widget) => {
+                panel_toggle.show ();
+                action.set_enabled (true);
+            });
+            // Page actions
+            var go_back = new SimpleAction ("go-back", null);
+            go_back.activate.connect (go_back_activated);
+            add_action (go_back);
+            var go_forward = new SimpleAction ("go-forward", null);
+            go_back.activate.connect (go_forward_activated);
+            add_action (go_forward);
+            notify["uri"].connect (() => {
+                go_back.set_enabled (tab.can_go_back);
+                go_forward.set_enabled (tab.can_go_forward);
+            });
+            var reload = new SimpleAction ("tab-reload", null);
+            reload.activate.connect (tab_reload_activated);
+            add_action (reload);
+            var stop = new SimpleAction ("tab-stop-loading", null);
+            stop.activate.connect (tab_stop_loading_activated);
+            add_action (stop);
+            notify["is-loading"].connect (() => {
+                reload.set_enabled (!is_loading);
+                stop.set_enabled (is_loading);
+            });
+            action = new SimpleAction ("homepage", null);
+            action.activate.connect (homepage_activated);
+            add_action (action);
+            var settings = CoreSettings.get_default ();
+            action.set_enabled (settings.homepage_in_toolbar);
+            settings.notify["homepage-in-toolbar"].connect (() => {
+                action.set_enabled (settings.homepage_in_toolbar);
+            });
 
             trash = new ListStore (typeof (DatabaseItem));
 
             bind_property ("is-locked", tab_new, "visible", BindingFlags.INVERT_BOOLEAN);
+            bind_property ("is-small", actionbox, "visible", BindingFlags.SYNC_CREATE | BindingFlags.INVERT_BOOLEAN);
+            bind_property ("is-small", navigationbar.actionbox, "visible", BindingFlags.SYNC_CREATE | BindingFlags.INVERT_BOOLEAN);
             navigationbar.urlbar.notify["uri"].connect ((pspec) => {
                 string uri = navigationbar.urlbar.uri;
                 if (uri.has_prefix ("javascript:")) {
@@ -183,10 +245,6 @@ namespace Midori {
                 }
                 tab = (Tab)tabs.visible_child;
                 if (tab != null) {
-                    navigationbar.go_back.sensitive = tab.can_go_back;
-                    navigationbar.go_forward.sensitive = tab.can_go_forward;
-                    navigationbar.reload.visible = !tab.is_loading;
-                    navigationbar.stop_loading.visible = tab.is_loading;
                     navigationbar.urlbar.progress_fraction = tab.progress;
                     uri = tab.display_uri;
                     title = tab.display_title;
@@ -195,10 +253,9 @@ namespace Midori {
                     navigationbar.urlbar.uri = tab.display_uri;
                     toggle_fullscreen.visible = !tab.pinned;
                     navigationbar.visible = !tab.pinned;
-                    bindings.append (tab.bind_property ("can-go-back", navigationbar.go_back, "sensitive"));
-                    bindings.append (tab.bind_property ("can-go-forward", navigationbar.go_forward, "sensitive"));
-                    bindings.append (tab.bind_property ("is-loading", navigationbar.reload, "visible", BindingFlags.INVERT_BOOLEAN));
-                    bindings.append (tab.bind_property ("is-loading", navigationbar.stop_loading, "visible"));
+                    bindings.append (tab.bind_property ("is-loading", navigationbar.reload, "visible", BindingFlags.SYNC_CREATE | BindingFlags.INVERT_BOOLEAN));
+                    bindings.append (tab.bind_property ("is-loading", navigationbar.stop_loading, "visible", BindingFlags.SYNC_CREATE));
+                    bindings.append (tab.bind_property ("is-loading", this, "is-loading", BindingFlags.SYNC_CREATE));
                     bindings.append (tab.bind_property ("progress", navigationbar.urlbar, "progress-fraction"));
                     bindings.append (tab.bind_property ("display-title", this, "title"));
                     bindings.append (tab.bind_property ("display-uri", this, "uri"));
@@ -263,9 +320,6 @@ namespace Midori {
             if (web_context.is_ephemeral ()) {
                 get_style_context ().add_class ("incognito");
             }
-
-            // Reveal panel toggle after panels are added
-            panel.add.connect ((widget) => { panel_toggle.show (); });
         }
 
         void update_decoration_layout () {
@@ -277,6 +331,16 @@ namespace Midori {
             } else {
                 tabbar.decoration_layout = null;
             }
+        }
+
+        public override bool configure_event (Gdk.EventConfigure event) {
+            bool result = base.configure_event (event);
+
+            int width;
+            get_size (out width, null);
+            is_small = width < 500;
+
+            return result;
         }
 
         /*

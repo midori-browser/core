@@ -58,24 +58,6 @@
               </object>
             </child>
             <child>
-              <object class="GtkButton" id="toggle_fullscreen">
-                <property name="focus-on-click">no</property>
-                <property name="valign">center</property>
-                <property name="action-name">win.fullscreen</property>
-                <property name="tooltip-text" translatable="yes">Toggle fullscreen view</property>
-                <property name="visible">yes</property>
-                <child>
-                  <object class="GtkImage">
-                    <property name="icon-name">view-fullscreen-symbolic</property>
-                    <property name="visible">yes</property>
-                  </object>
-                </child>
-              </object>
-              <packing>
-                <property name="pack-type">end</property>
-              </packing>
-            </child>
-            <child>
               <object class="GtkMenuButton" id="app_menu">
                 <property name="focus-on-click">no</property>
                 <property name="valign">center</property>
@@ -87,41 +69,59 @@
               </packing>
             </child>
             <child>
-              <object class="MidoriDownloadButton" id="downloads">
-                <property name="valign">center</property>
-              </object>
-              <packing>
-                <property name="pack-type">end</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkToggleButton" id="panel_toggle">
-                <property name="focus-on-click">no</property>
-                <property name="valign">center</property>
-                <property name="action-name">win.panel</property>
-                <property name="tooltip-text" translatable="yes">Sidepanel</property>
+              <object class="GtkBox" id="actionbox">
+                <property name="orientation">horizontal</property>
+                <property name="visible">yes</property>
+                <style>
+                  <class name="linked"/>
+                </style>
                 <child>
-                  <object class="GtkImage">
-                    <property name="icon-name">view-grid-symbolic</property>
+                  <object class="GtkButton" id="tab_new">
+                    <property name="focus-on-click">no</property>
+                    <property name="valign">center</property>
+                    <property name="action-name">win.tab-new</property>
+                    <property name="tooltip-text" translatable="yes">Open a new tab</property>
                     <property name="visible">yes</property>
+                    <child>
+                      <object class="GtkImage">
+                        <property name="icon-name">tab-new-symbolic</property>
+                        <property name="visible">yes</property>
+                      </object>
+                    </child>
                   </object>
                 </child>
-              </object>
-              <packing>
-                <property name="pack-type">start</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="tab_new">
-                <property name="focus-on-click">no</property>
-                <property name="valign">center</property>
-                <property name="action-name">win.tab-new</property>
-                <property name="tooltip-text" translatable="yes">Open a new tab</property>
-                <property name="visible">yes</property>
                 <child>
-                  <object class="GtkImage">
-                    <property name="icon-name">tab-new-symbolic</property>
+                  <object class="GtkToggleButton" id="panel_toggle">
+                    <property name="focus-on-click">no</property>
+                    <property name="valign">center</property>
+                    <property name="action-name">win.panel</property>
+                    <property name="tooltip-text" translatable="yes">Sidepanel</property>
+                    <child>
+                      <object class="GtkImage">
+                        <property name="icon-name">view-grid-symbolic</property>
+                        <property name="visible">yes</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="MidoriDownloadButton" id="downloads">
+                    <property name="valign">center</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="toggle_fullscreen">
+                    <property name="focus-on-click">no</property>
+                    <property name="valign">center</property>
+                    <property name="action-name">win.fullscreen</property>
+                    <property name="tooltip-text" translatable="yes">Toggle fullscreen view</property>
                     <property name="visible">yes</property>
+                    <child>
+                      <object class="GtkImage">
+                        <property name="icon-name">view-fullscreen-symbolic</property>
+                        <property name="visible">yes</property>
+                      </object>
+                    </child>
                   </object>
                 </child>
               </object>
@@ -133,9 +133,6 @@
               <class name="tabbar"/>
             </style>
           </object>
-          <packing>
-            <property name="shrink">no</property>
-          </packing>
         </child>
       </object>
     </child>
@@ -216,6 +213,9 @@
                   </object>
                 </child>
               </object>
+              <packing>
+                <property name="shrink">no</property>
+              </packing>
             </child>
           </object>
         </child>
