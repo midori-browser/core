@@ -1,6 +1,5 @@
 # Copyright (C) 2013-2018 Christian Dywan <christian@twotoasts.de>
 
-set(EXTENSIONDIR "${CMAKE_INSTALL_FULL_LIBDIR}/${CMAKE_PROJECT_NAME}")
 include_directories(
                     "${CMAKE_SOURCE_DIR}"
                     "${CMAKE_SOURCE_DIR}/core"
@@ -48,11 +47,11 @@ foreach(UNIT_SRC ${EXTENSIONS})
                           ${LIBCORE}
                           )
     install(TARGETS ${UNIT}
-            LIBRARY DESTINATION ${EXTENSIONDIR}
+            LIBRARY DESTINATION ${PLUGINDIR}
             )
     set(MANIFEST "${UNIT}.plugin")
     INTLTOOL_MERGE_DESKTOP_LIKE (${MANIFEST} po)
     install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${MANIFEST}
-            DESTINATION ${EXTENSIONDIR}
+            DESTINATION ${PLUGINDIR}
             )
 endforeach ()
