@@ -60,7 +60,7 @@ namespace Midori {
             Object (related_view: related, web_context: web_context, visible: true);
 
             var settings = get_settings ();
-            settings.user_agent = Config.CORE_USER_AGENT;
+            settings.user_agent += " %s".printf (Config.CORE_USER_AGENT_VERSION);
             settings.enable_developer_extras = true;
             var core_settings = CoreSettings.get_default ();
             settings.enable_javascript = core_settings.enable_javascript;
