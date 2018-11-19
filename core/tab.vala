@@ -329,10 +329,32 @@ namespace Midori {
             return true;
         }
 
+        public override bool show_notification (WebKit.Notification webkit_notification) {
+            // Don't show notifications for the visible tab
+            if (get_mapped ()) {
+                return false;
+            }
+
+            var notification = new Notification (webkit_notification.title);
+            if (favicon != null) {
+                var image = (Cairo.ImageSurface)favicon;
+                var pixbuf = Gdk.pixbuf_get_from_surface (image, 0, 0, image.get_width (), image.get_height ());
+                notification.set_icon ((Icon)pixbuf);
+            }
+            notification.set_body (webkit_notification.body);
+            // Use a per-host ID to avoid collisions, but neglect the tag
+            string hostname = new Soup.URI (uri).host;
+            Application.get_default ().send_notification ("web-%s".printf (hostname), notification);
+            return true;
+        }
+
         public override bool permission_request (WebKit.PermissionRequest permission) {
             if (permission is WebKit.GeolocationPermissionRequest) {
                 string hostname = new Soup.URI (uri).host;
                 message.label = _("%s wants to know your location.").printf (hostname);
+            } else if (permission is WebKit.NotificationPermissionRequest) {
+                permission.allow ();
+                return true;
             } else {
                 message.label = permission.get_type ().name ();
             }
@@ -340,6 +362,7 @@ namespace Midori {
             confirm.show ();
             confirm.clicked.connect (() => {
                 permission.allow ();
+                popover.hide ();
             });
             popover.closed.connect (() => {
                 permission.deny ();

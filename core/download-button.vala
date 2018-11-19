@@ -168,6 +168,16 @@ namespace Midori {
             item.notify["loading"].connect (update_buttons);
             item.notify["error"].connect (update_buttons);
             update_buttons ();
+
+            item.finished.connect (() => {
+                var app = (App)Application.get_default ();
+                if (item.error == null && app.active_window != null) {
+                    var notification = new Notification (_("Transfer completed"));
+                    notification.set_icon (item.icon);
+                    notification.set_body (item.filename);
+                    app.send_notification ("download-finished", notification);
+                }
+            });
         }
 
         void update_buttons () {
