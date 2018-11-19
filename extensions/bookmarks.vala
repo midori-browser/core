@@ -193,6 +193,11 @@ namespace Bookmarks {
         public Midori.Browser browser { owned get; set; }
 
         public void activate () {
+            // No bookmarks in app mode
+            if (browser.is_locked) {
+                return;
+            }
+
             browser.add_button (new Button (browser));
         }
     }
