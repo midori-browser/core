@@ -307,7 +307,7 @@ namespace Midori {
         public override bool key_press_event (Gdk.EventKey event) {
             // No keyboard shortcuts in locked state
             if (is_locked) {
-                return true;
+                return propagate_key_event (event);
             }
             // Give key handling in widgets precedence over actions
             // eg. Backspace in textfields should delete rather than go back
