@@ -166,8 +166,13 @@ namespace Midori {
                 }
             }
             proxy.search_changed.connect (() => {
+                string[] parts = settings.http_proxy.split ("://", 2);
+                if (parts[1] == "" || ":" in parts[1] || "/" in parts[1]) {
+                    proxy.get_style_context ().add_class ("error");
+                    return;
+                }
                 foreach (string type in proxy_types.split (" ")) {
-                    if (settings.http_proxy.has_prefix (type + "://")) {
+                    if (parts[0] == type) {
                         proxy.get_style_context ().remove_class ("error");
                         return;
                     }
