@@ -68,9 +68,7 @@ set(CFLAGS "${CFLAGS} -g")
 set(VALA_CFLAGS "-g -fPIC -w -Werror")
 
 set(LIBCORE "${CMAKE_PROJECT_NAME}-core")
-set(CORE_OS "(X11; Linux x86_64)")
-set(CORE_ENGINE "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36")
-set(CORE_USER_AGENT "Mozilla/5.0 ${CORE_OS} ${CORE_ENGINE} Midori/6")
+set(CORE_USER_AGENT_VERSION "Midori/6")
 
 configure_file(config.h.in config.h @ONLY)
 
