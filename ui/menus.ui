@@ -1,4 +1,33 @@
 <interface>
+  <menu id="app-menu-small">
+    <section>
+      <attribute name="display-hint">horizontal-buttons</attribute>
+      <item>
+        <attribute name="action">win.tab-new</attribute>
+        <attribute name="hidden-when">action-disabled</attribute>
+        <attribute name="label" translatable="yes">Open a new tab</attribute>
+        <attribute name="verb-icon">tab-new-symbolic</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.panel</attribute>
+        <attribute name="hidden-when">action-disabled</attribute>
+        <attribute name="label" translatable="yes">Sidepanel</attribute>
+        <attribute name="verb-icon">view-grid-symbolic</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.show-downloads</attribute>
+        <attribute name="hidden-when">action-disabled</attribute>
+        <attribute name="label" translatable="yes">View downloaded files</attribute>
+        <attribute name="verb-icon">folder-download-symbolic</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.fullscreen</attribute>
+        <attribute name="hidden-when">action-disabled</attribute>
+        <attribute name="label" translatable="yes">Toggle fullscreen view</attribute>
+        <attribute name="verb-icon">view-fullscreen-symbolic</attribute>
+      </item>
+    </section>
+  </menu>
   <menu id="app-menu">
     <section>
       <item>
@@ -40,6 +69,39 @@
         <attribute name="action">app.quit</attribute>
         <attribute name="label" translatable="yes">Close a_ll Windows</attribute>
         <attribute name="accel">&lt;Primary&gt;q</attribute>
+      </item>
+    </section>
+  </menu>
+  <menu id="page-menu-small">
+    <section>
+      <attribute name="display-hint">horizontal-buttons</attribute>
+      <item>
+        <attribute name="action">win.go-back</attribute>
+        <attribute name="label" translatable="yes">Go back to the previous page</attribute>
+        <attribute name="verb-icon">go-previous-symbolic</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.go-forward</attribute>
+        <attribute name="label" translatable="yes">Go forward to the next page</attribute>
+        <attribute name="verb-icon">go-next-symbolic</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.tab-reload</attribute>
+        <attribute name="hidden-when">action-disabled</attribute>
+        <attribute name="label" translatable="yes">Reload the current page</attribute>
+        <attribute name="verb-icon">view-refresh-symbolic</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.tab-stop-loading</attribute>
+        <attribute name="hidden-when">action-disabled</attribute>
+        <attribute name="label" translatable="yes">Stop loading the current page</attribute>
+        <attribute name="verb-icon">process-stop-symbolic</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.homepage</attribute>
+        <attribute name="hidden-when">action-disabled</attribute>
+        <attribute name="label" translatable="yes">Go to your homepage</attribute>
+        <attribute name="verb-icon">user-home-symbolic</attribute>
       </item>
     </section>
   </menu>

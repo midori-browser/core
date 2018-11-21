@@ -1,26 +1,26 @@
 <interface>
   <template class="MidoriNavigationbar" parent="GtkActionBar">
-   <child>
-    <object class="GtkBox">
-      <property name="orientation">horizontal</property>
-      <property name="visible">yes</property>
-      <style>
-        <class name="linked"/>
-      </style>
-      <child>
-        <object class="GtkButton" id="go_back">
-          <property name="focus-on-click">no</property>
-          <property name="action-name">win.go-back</property>
-          <property name="tooltip-text" translatable="yes">Go back to the previous page</property>
-          <property name="visible">yes</property>
-          <child>
-            <object class="GtkImage">
-              <property name="icon-name">go-previous-symbolic</property>
-              <property name="visible">yes</property>
-            </object>
-          </child>
-        </object>
-      </child>
+    <child>
+      <object class="GtkBox" id="actionbox">
+        <property name="orientation">horizontal</property>
+        <property name="visible">yes</property>
+        <style>
+          <class name="linked"/>
+        </style>
+        <child>
+          <object class="GtkButton" id="go_back">
+            <property name="focus-on-click">no</property>
+            <property name="action-name">win.go-back</property>
+            <property name="tooltip-text" translatable="yes">Go back to the previous page</property>
+            <property name="visible">yes</property>
+            <child>
+              <object class="GtkImage">
+                <property name="icon-name">go-previous-symbolic</property>
+                <property name="visible">yes</property>
+              </object>
+            </child>
+          </object>
+        </child>
         <child>
           <object class="GtkButton" id="go_forward">
             <property name="focus-on-click">no</property>
@@ -35,8 +35,6 @@
             </child>
           </object>
         </child>
-      </object>
-    </child>
     <child>
       <object class="GtkButton" id="reload">
         <property name="focus-on-click">no</property>
@@ -78,12 +76,12 @@
         </child>
       </object>
     </child>
+      </object>
+    </child>
     <child type="center">
       <object class="MidoriUrlbar" id="urlbar">
         <!-- expand has no effect, int.MAX doesn't work -->
         <property name="max-width-chars">300</property>
-        <property name="margin-left">16</property>
-        <property name="margin-right">16</property>
         <property name="visible">yes</property>
       </object>
     </child>
