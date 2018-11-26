@@ -49,6 +49,17 @@ namespace Midori {
             set_boolean ("extensions", "lib%s.so".printf (plugin), enabled);
         }
 
+        public int last_window_width { get {
+            return get_string ("settings", "last-window-width", "710").to_int ();
+        } set {
+            set_string ("settings", "last-window-width", value.to_string ());
+        } }
+        public int last_window_height { get {
+            return get_string ("settings", "last-window-height", "530").to_int ();
+        } set {
+            set_string ("settings", "last-window-height", value.to_string ());
+        } }
+
         // Note: Speed Dial is saved as Blank Page for compatibility reasons
         public StartupType load_on_startup { get {
             var startup = get_string ("settings", "load-on-startup", "MIDORI_STARTUP_LAST_OPEN_PAGES");

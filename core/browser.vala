@@ -320,6 +320,11 @@ namespace Midori {
             if (web_context.is_ephemeral ()) {
                 get_style_context ().add_class ("incognito");
             }
+
+            if (settings.last_window_width > 0 && settings.last_window_height > 0) {
+                default_width = settings.last_window_width;
+                default_height = settings.last_window_height;
+            }
         }
 
         void update_decoration_layout () {
@@ -339,6 +344,14 @@ namespace Midori {
             int width;
             get_size (out width, null);
             is_small = width < 500;
+
+            if (!(get_style_context ().has_class ("tiled") || is_maximized || is_fullscreen)) {
+                int height;
+                get_size (null, out height);
+                var settings = CoreSettings.get_default ();
+                settings.last_window_width = width;
+                settings.last_window_height = height;
+            }
 
             return result;
         }
