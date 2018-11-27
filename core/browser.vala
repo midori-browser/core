@@ -137,16 +137,20 @@ namespace Midori {
                 app_menu.menu_model = application.get_menu_by_id ("app-menu");
                 navigationbar.menubutton.menu_model = application.get_menu_by_id ("page-menu");
                 notify["is-small"].connect (() => {
+                    var app_menu_model = new Menu ();
+                    app_menu_model.prepend_section (null, application.get_menu_by_id ("app-menu"));
+                    var page_menu_model = new Menu ();
+                    page_menu_model.prepend_section (null, application.get_menu_by_id ("page-menu"));
                     if (is_small) {
-                        ((Menu)app_menu.menu_model).insert_section (0, null, application.get_menu_by_id ("app-menu-small"));
-                        ((Menu)navigationbar.menubutton.menu_model).insert_section (0, null, application.get_menu_by_id ("page-menu-small"));
+                        app_menu_model.prepend_section (null, application.get_menu_by_id ("app-menu-small"));
+                        page_menu_model.prepend_section (null, application.get_menu_by_id ("page-menu-small"));
                         // Anchor downloads popover to app menu if the button is hidden
                         downloads.popover.relative_to = app_menu;
                     } else {
-                        ((Menu)app_menu.menu_model).remove (0);
-                        ((Menu)navigationbar.menubutton.menu_model).remove (0);
                         downloads.popover.relative_to = downloads;
                     }
+                    app_menu.menu_model = app_menu_model;
+                    navigationbar.menubutton.menu_model = page_menu_model;
                 });
 
                 application.bind_busy_property (this, "is-loading");
