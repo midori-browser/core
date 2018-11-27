@@ -109,7 +109,7 @@ namespace Midori {
             if (display_uri != uri) {
                 load_uri (display_uri);
             }
-            return true;
+            return base.focus_in_event (event);
         }
 
         void update_progress (ParamSpec pspec) {
