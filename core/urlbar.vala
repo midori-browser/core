@@ -284,9 +284,7 @@ namespace Midori {
         }
 
         void icon_pressed (Gtk.EntryIconPosition position, Gdk.Event event) {
-            TlsCertificate tls;
-            TlsCertificateFlags flags;
-            ((Browser)get_toplevel ()).tab.get_tls_info (out tls, out flags);
+            var tls = ((Browser)get_toplevel ()).tab.tls;
             var certificate = tls != null ? new Gcr.SimpleCertificate (tls.certificate.data) : null;
             if (details == null) {
                 var icon_area = get_icon_area (position);
