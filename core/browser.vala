@@ -603,6 +603,29 @@ namespace Midori {
 
         public new void add (Tab tab) {
             tab.popover.relative_to = navigationbar.urlbar;
+            if (is_locked) {
+                tab.decide_policy.connect ((decision, type) => {
+                    switch (type) {
+                        case WebKit.PolicyDecisionType.NAVIGATION_ACTION:
+                            // No user-initiated new tabs
+                            decision.use ();
+                            return true;
+                        case WebKit.PolicyDecisionType.NEW_WINDOW_ACTION:
+                            // External links open in the default browser
+                            var action = ((WebKit.NavigationPolicyDecision)decision).navigation_action;
+                            string uri = action.get_request ().uri;
+                            try {
+                                Gtk.show_uri (get_screen (), uri, Gtk.get_current_event_time ());
+                            } catch (Error error) {
+                                critical ("Failed to open %s: %s", uri, error.message);
+                            }
+                            decision.ignore ();
+                            return true;
+                        default:
+                            return false;
+                    }
+                });
+            }
             tab.create.connect ((action) => {
                 var new_tab = new Tab (tab, web_context);
                 new_tab.hide ();
