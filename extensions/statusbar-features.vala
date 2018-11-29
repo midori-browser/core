@@ -13,6 +13,50 @@ namespace StatusbarFeatures {
     public class Frontend : Object, Midori.BrowserActivatable {
         public Midori.Browser browser { owned get; set; }
 
+        public void add_zoom () {
+            var zoom = new Gtk.ComboBoxText.with_entry ();
+            var entry = zoom.get_child () as Gtk.Entry;
+            zoom.append_text ("50%");
+            zoom.append_text ("80%");
+            zoom.append_text ("100%");
+            zoom.append_text ("120%");
+            zoom.append_text ("150%");
+            zoom.append_text ("200%");
+            entry.set_width_chars (6);
+            entry.set_text ((100 * browser.tab.zoom_level).to_string () + "%");
+            zoom.show ();
+            zoom.changed.connect(() => {
+                if (zoom.get_active_text() == "50%") {
+                    browser.tab.zoom_level = 0.5;
+                } else if (zoom.get_active_text() == "80%") {
+                    browser.tab.zoom_level = 0.8;
+                } else if (zoom.get_active_text() == "100%") {
+                    browser.tab.zoom_level = 1.0;
+                } else if (zoom.get_active_text() == "120%") {
+                    browser.tab.zoom_level = 1.2;
+                } else if (zoom.get_active_text() == "150%") {
+                    browser.tab.zoom_level = 1.5;
+                } else if (zoom.get_active_text() == "200%") {
+                    browser.tab.zoom_level = 2.0;
+                }
+                if (entry.has_focus == false) {
+                    browser.tab.grab_focus ();
+                }
+            });
+
+            entry.activate.connect(() => {
+                if  (double.parse(entry.get_text ()) >= 1) {
+                    browser.tab.zoom_level = double.parse(zoom.get_active_text ()) / 100;
+                }
+                entry.set_text ((100 * browser.tab.zoom_level).to_string () + "%");
+                browser.tab.grab_focus ();
+            });
+
+             deactivate.connect (() => {
+                zoom.destroy ();
+            });
+            browser.statusbar.add (zoom);
+        }
         void add_toggle (string item, string? icon_name=null, string? tooltip=null) {
             var button = new Gtk.ToggleButton ();
             if (icon_name != null) {
@@ -47,6 +91,7 @@ namespace StatusbarFeatures {
                     add_toggle (item);
                 }
             }
+            add_zoom ();
         }
     }
 }
