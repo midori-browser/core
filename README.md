@@ -101,13 +101,13 @@ You'll want to **unit test** the code if you're testing a new version or contrib
 
 # Release process
 
-Update `CORE_VERSION` in `CMakeLists.txt` to `6.0`.
+Update `CORE_VERSION` in `CMakeLists.txt` to `7.0`.
 Add a section to `ChangeLog`.
 
-    git commit -p -v -m "Release Midori 6.0"
-    git checkout -B release-6.0
+    git commit -p -v -m "Release Midori 7.0"
+    git checkout -B release-7.0
     git push origin HEAD
-    git archive -o midori-v6.0.tar.gz -9 HEAD
+    git archive --prefix=midori-v7.0/ -o midori-v7.0.tar.gz -9 HEAD
 
 Propose a PR for the release.
 Publish the release on https://github.com/midori-browser/core/releases
