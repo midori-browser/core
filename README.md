@@ -47,6 +47,10 @@ you can install the **latest stable** version of Midori
 
 > **Spoilers:** For those more adventurous types out there, trying out the preview of the next version is only the switch of a channel away.
 
+# Installing Midori on Android
+
+You can opt-in for the [beta release on the Play Store](https://play.google.com/apps/testing/org.midori_browser.midori).
+
 # Building from source
 
 **Requirements**
@@ -246,6 +250,18 @@ This will automatically request a **review from other developers** who can then 
 * **ninja**: an internal tab, usually empty label, used for taking screenshots
 * **fortress**: user of an ancient release like 0.4.3 as found on Raspberry Pie, Debian, Ubuntu
 * **katze, sokoke, tabby**: legacy API names and coincidentally cat breeds
+
+# Midori for Android
+
+The easiest way to build, develop and test Midori on Android is with [Android Studio](https://developer.android.com/studio/#downloads) ([snap](https://snapcraft.io/android-studio)).
+
+When working with the command line, setting `JAVA_HOME` is paramount:
+
+    export JAVA_HOME=/snap/android-studio/current/android-studio/jre/
+
+Afterwards you can run commands like so:
+
+    ./gradlew lint test
 
 # Midori for Windows
 
