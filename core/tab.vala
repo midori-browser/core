@@ -28,6 +28,8 @@ namespace Midori {
         public string? color { get; set; default = null; }
         public bool pinned { get; set; }
         public bool secure { get; protected set; }
+        bool was_error = false;
+        internal TlsCertificate? tls { get; protected set; default = null; }
         public string link_uri { get; protected set; }
 
         [GtkChild]
@@ -128,8 +130,16 @@ namespace Midori {
 
         public override void load_changed (WebKit.LoadEvent load_event) {
             if (load_event == WebKit.LoadEvent.COMMITTED) {
-                secure = get_tls_info (null, null);
                 item = new DatabaseItem (uri, null, new DateTime.now_local ().to_unix ());
+                // Don't add errors to history or update the certificate
+                if (was_error) {
+                    was_error = false;
+                    return;
+                }
+                was_error = false;
+                TlsCertificate tls;
+                secure = get_tls_info (out tls, null);
+                this.tls = tls;
                 // Don't add internal or blank pages to history
                 if (uri.has_prefix ("internal:") || uri.has_prefix ("about:")) {
                     return;
@@ -152,7 +162,14 @@ namespace Midori {
         }
 
         public override bool web_process_crashed () {
+            this.tls = null;
             return display_error ("face-sad", _("Oops - %s").printf (uri), _("Something went wrong with '%s'.").printf (uri));
+        }
+
+        public override bool load_failed_with_tls_errors (string uri, GLib.TlsCertificate tls, GLib.TlsCertificateFlags flags) {
+            display_uri = uri;
+            this.tls = tls;
+            return display_error ("channel-insecure", _("Security unknown"), _("Something went wrong with '%s'.").printf (uri));
         }
 
         public override bool load_failed (WebKit.LoadEvent load_event, string uri, Error load_error) {
@@ -191,6 +208,7 @@ namespace Midori {
                 }
             }
             display_uri = uri;
+            this.tls = null;
             return display_error ("network-error", title, message, load_error.message);
         }
 
@@ -208,6 +226,7 @@ namespace Midori {
                     .replace ("{tryagain}", "<span>%s</span>".printf (_("Try Again")))
                     .replace ("{uri}", display_uri);
                 load_alternate_html (html, display_uri, display_uri);
+                was_error = true;
                 return true;
             } catch (Error error) {
                 critical ("Failed to display error: %s", error.message);
