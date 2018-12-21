@@ -25,7 +25,7 @@ if (INTLTOOL_MERGE_EXECUTABLE)
             DEPENDS ${desktop_id}.appdata.xml.in
         )
         install (FILES "${CMAKE_CURRENT_BINARY_DIR}/${desktop_id}.appdata.xml"
-                 DESTINATION "${CMAKE_INSTALL_PREFIX}/share/appdata")
+                 DESTINATION "${CMAKE_INSTALL_PREFIX}/share/metainfo")
     endmacro (INTLTOOL_MERGE_APPDATA desktop_id po_dir)
 else ()
     message(FATAL_ERROR "intltool-merge not found")
