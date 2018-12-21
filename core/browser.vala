@@ -115,11 +115,11 @@ namespace Midori {
                 application.set_accels_for_action ("win.caret-browsing", { "F7" });
                 application.set_accels_for_action ("win.show-inspector", { "<Primary><Shift>i" });
                 application.set_accels_for_action ("win.goto", { "<Primary>l", "F7" });
-                application.set_accels_for_action ("win.go-back", { "<Alt>Left", "BackSpace" });
+                application.set_accels_for_action ("win.go-back", { "<Alt>Left", "BackSpace", "Back" });
                 application.set_accels_for_action ("win.go-forward", { "<Alt>Right", "<Shift>BackSpace" });
                 application.set_accels_for_action ("win.tab-reload", { "<Primary>r", "F5" });
                 application.set_accels_for_action ("win.tab-stop-loading", { "Escape" });
-                application.set_accels_for_action ("win.homepage", { "<Alt>Home" });
+                application.set_accels_for_action ("win.homepage", { "<Alt>Home", "HomePage" });
                 application.set_accels_for_action ("win.tab-previous", { "<Primary><Shift>Tab" });
                 application.set_accels_for_action ("win.tab-next", { "<Primary>Tab" });
                 application.set_accels_for_action ("win.clear-private-data", { "<Primary><Shift>Delete" });
