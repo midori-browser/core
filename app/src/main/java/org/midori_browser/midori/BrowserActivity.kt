@@ -14,10 +14,13 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
+import android.webkit.CookieManager
 import android.webkit.WebSettings
+import android.webkit.WebStorage
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import kotlinx.android.synthetic.main.activity_browser.*
+import java.util.ResourceBundle.clearCache
 
 class BrowserActivity : AppCompatActivity() {
 
@@ -117,6 +120,13 @@ class BrowserActivity : AppCompatActivity() {
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
             }
             startActivity(Intent.createChooser(share, getString(R.string.actionShare)))
+            true
+        }
+        R.id.actionClearPrivateData -> {
+            @Suppress("DEPRECATION")
+            CookieManager.getInstance().removeAllCookie()
+            WebStorage.getInstance().deleteAllData()
+            webView.clearCache(true)
             true
         }
         else -> {
