@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2018 Christian Dywan <christian@twotoats.de>
+ Copyright (C) 2018-2019 Christian Dywan <christian@twotoats.de>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -17,7 +17,7 @@ namespace Midori {
     }
 
     [GtkTemplate (ui = "/ui/clear-private-data.ui")]
-    class ClearPrivateData : Gtk.Dialog {
+    public class ClearPrivateData : Gtk.Dialog {
         [GtkChild]
         Gtk.ComboBoxText timerange;
         [GtkChild]
@@ -43,9 +43,7 @@ namespace Midori {
         }
 
         public override void show () {
-            set_response_sensitive (Gtk.ResponseType.OK, false);
             show_cancellable = new Cancellable ();
-            populate_data.begin (show_cancellable);
 
             try {
                 var database = HistoryDatabase.get_default ();
@@ -66,29 +64,6 @@ namespace Midori {
             base.show ();
         }
 
-        async void populate_data (Cancellable? cancellable=null) {
-            var manager = WebKit.WebContext.get_default ().website_data_manager;
-            try {
-                var data = yield manager.fetch (WebKit.WebsiteDataTypes.ALL, cancellable);
-                if (cancellable.is_cancelled ()) {
-                    return;
-                }
-                foreach (var website in data) {
-                    if (((website.get_types () & WebKit.WebsiteDataTypes.COOKIES) != 0) ||
-                        ((website.get_types () & WebKit.WebsiteDataTypes.LOCAL_STORAGE) != 0) ||
-                        ((website.get_types () & WebKit.WebsiteDataTypes.WEBSQL_DATABASES) != 0) ||
-                        ((website.get_types () & WebKit.WebsiteDataTypes.INDEXEDDB_DATABASES) != 0)) {
-                        websitedata.sensitive = true;
-                    } else if ((website.get_types () & WebKit.WebsiteDataTypes.DISK_CACHE) != 0) {
-                        cache.sensitive = true;
-                    }
-                }
-            } catch (Error error) {
-                debug ("Failed to fetch data: %s", error.message);
-            }
-            set_response_sensitive (Gtk.ResponseType.OK, true);
-        }
-
         public override void response (int response_id) {
             show_cancellable.cancel ();
             response_async.begin (response_id);
@@ -104,6 +79,9 @@ namespace Midori {
                     types |= WebKit.WebsiteDataTypes.LOCAL_STORAGE;
                     types |= WebKit.WebsiteDataTypes.WEBSQL_DATABASES;
                     types |= WebKit.WebsiteDataTypes.INDEXEDDB_DATABASES;
+                }
+                if (cache.active) {
+                    types |= WebKit.WebsiteDataTypes.DISK_CACHE;
                 }
                 if (types != 0) {
                     var manager = WebKit.WebContext.get_default ().website_data_manager;
