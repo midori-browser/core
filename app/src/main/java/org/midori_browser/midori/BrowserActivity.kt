@@ -31,7 +31,7 @@ class BrowserActivity : AppCompatActivity() {
 
         val webSettings = webView.settings
         webSettings.javaScriptEnabled = true
-        webSettings.userAgentString += " " + getString(R.string.userAgentVersion)
+        requestDesktopSite(false)
         webSettings.databaseEnabled = true
         webSettings.setAppCacheEnabled(true)
         webSettings.domStorageEnabled = true
@@ -106,6 +106,20 @@ class BrowserActivity : AppCompatActivity() {
     }
 
     val completion = listOf("www.midori-browser.org", "example.com", "duckduckgo.com")
+    fun requestDesktopSite(desktopSite: Boolean) {
+        webView.settings.apply {
+            userAgentString = null // Reset to default
+            userAgentString = userAgentString + " " + getString(R.string.userAgentVersion)
+            if (desktopSite) {
+                // Websites look for "Android" and "Mobile" keywords to decide what's not desktop
+                val mobileOS = userAgentString.substring(userAgentString.indexOf("("), userAgentString.indexOf(")") + 1)
+                userAgentString = userAgentString.replace(mobileOS, "(X11; Linux x86_64)").replace(" Mobile", "")
+            }
+            useWideViewPort = desktopSite
+            loadWithOverviewMode = desktopSite
+        }
+    }
+
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.app_menu, menu)
@@ -127,6 +141,12 @@ class BrowserActivity : AppCompatActivity() {
             CookieManager.getInstance().removeAllCookie()
             WebStorage.getInstance().deleteAllData()
             webView.clearCache(true)
+            true
+        }
+        R.id.actionRequestDesktopSite -> {
+            item.isChecked = !item.isChecked
+            requestDesktopSite(item.isChecked)
+            webView.reload()
             true
         }
         else -> {
