@@ -41,6 +41,7 @@ namespace Midori {
             { "show-inspector", show_inspector_activated },
             { "clear-private-data", clear_private_data_activated },
             { "preferences", preferences_activated },
+            { "report", report_activated },
             { "about", about_activated },
         };
         [GtkChild]
@@ -663,6 +664,12 @@ namespace Midori {
 
         void preferences_activated () {
             new Preferences (this).show ();
+        }
+
+        void report_activated () {
+            var tab = new Tab (null, web_context, Config.PROJECT_BUGS);
+            add (tab);
+            tabs.visible_child = tab;
         }
 
         void about_activated () {
