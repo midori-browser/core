@@ -187,6 +187,16 @@ namespace Midori {
                 return false;
             }
 
+            // Forward URIs that WebKit can't show to external handler
+            if (load_error is WebKit.PolicyError.CANNOT_SHOW_URI) {
+                try {
+                    Gtk.show_uri (get_screen (), uri, Gtk.get_current_event_time ());
+                } catch (Error error) {
+                    critical ("Failed to open %s: %s", uri, error.message);
+                }
+                return true;
+            }
+
             var monitor = NetworkMonitor.get_default ();
             string hostname = new Soup.URI (uri).host;
             string? title = null;
