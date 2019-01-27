@@ -67,7 +67,7 @@ You can opt-in for the [beta release on the Play Store](https://play.google.com/
 
 Install dependencies on Ubuntu or Debian based distros:
 
-    sudo apt install valac libwebkit2gtk-4.0-dev libsoup-gnome2.4-dev libgcr-3-dev libpeas-dev libsqlite3-dev intltool libxml2-utils
+    sudo apt install cmake xvfb valac libwebkit2gtk-4.0-dev libsoup-gnome2.4-dev libgcr-3-dev libpeas-dev libsqlite3-dev intltool libxml2-utils gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-libav gstreamer1.0-tools
 
 Use CMake to build Midori:
 

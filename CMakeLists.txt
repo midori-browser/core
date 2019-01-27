@@ -72,6 +72,23 @@ set(CORE_USER_AGENT_VERSION "Midori/6")
 
 configure_file(config.h.in config.h @ONLY)
 
+# Check for required GStreamer codecs
+find_program (GST_INSPECT_BIN gst-inspect-1.0)
+if (NOT GST_INSPECT_BIN)
+    message(FATAL_ERROR "gst-inspect-1.0 not found")
+endif ()
+foreach (PLUGIN avmux_mp4 h264parse aacparse webmmux matroskaparse theoraparse)
+    execute_process(COMMAND ${GST_INSPECT_BIN} --exists ${PLUGIN}
+                    RESULT_VARIABLE PLUGIN_FOUND
+                    )
+    if (${PLUGIN_FOUND})
+        list(APPEND PLUGIN_ERRORS " ${PLUGIN}")
+    endif ()
+endforeach ()
+if (PLUGIN_ERRORS)
+    message(FATAL_ERROR "Required GStreamer plugins missing:\n  " ${PLUGIN_ERRORS})
+endif ()
+
 # CMake provides no uninstall target by design
 add_custom_target (uninstall
     COMMAND "xargs" "rm" "-v" "<" "install_manifest.txt")
