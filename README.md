@@ -65,9 +65,13 @@ You can opt-in for the [beta release on the Play Store](https://play.google.com/
 * GCR 2.32
 * Peas
 
-Install dependencies on Ubuntu or Debian based distros:
+Install dependencies on Astian OS, Ubuntu, Debian or other Debian-based distros:
 
-    sudo apt install valac libwebkit2gtk-4.0-dev libsoup-gnome2.4-dev libgcr-3-dev libpeas-dev libsqlite3-dev intltool libxml2-utils
+    sudo apt install cmake valac libwebkit2gtk-4.0-dev libgcr-3-dev libpeas-dev libsqlite3-dev intltool libxml2-utils
+
+Install dependencies on openSUSE:
+
+    sudo zypper in cmake vala gcc webkit2gtk3-devel libgcr-devel libpeas-devel sqlite3-devel fdupes gettext-tools intltool libxml2-devel
 
 Use CMake to build Midori:
 
