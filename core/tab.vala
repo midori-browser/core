@@ -59,7 +59,15 @@ namespace Midori {
 
         public Tab (Tab? related, WebKit.WebContext web_context,
                     string? uri = null, string? title = null) {
-            Object (related_view: related, web_context: web_context, visible: true);
+
+            // One content manager per web context
+            var content = web_context.get_data<WebKit.UserContentManager> ("user-content-manager");
+            if (content == null) {
+                content = new WebKit.UserContentManager ();
+                web_context.set_data<WebKit.UserContentManager> ("user-content-manager", content);
+            }
+
+            Object (related_view: related, web_context: web_context, user_content_manager: content, visible: true);
 
             var settings = get_settings ();
             settings.user_agent += " %s".printf (Config.CORE_USER_AGENT_VERSION);

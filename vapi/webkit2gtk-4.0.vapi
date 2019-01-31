@@ -809,15 +809,15 @@ namespace WebKit {
 		public bool is_editable ();
 		public void load_alternate_html (string content, string content_uri, string? base_uri);
 		public void load_bytes (GLib.Bytes bytes, string? mime_type, string? encoding, string? base_uri);
-		public void load_html (string content, string? base_uri);
+		public void load_html (string content, string? base_uri = null);
 		public void load_plain_text (string plain_text);
 		public void load_request (WebKit.URIRequest request);
 		public void load_uri (string uri);
 		public void reload ();
 		public void reload_bypass_cache ();
 		public void restore_session_state (WebKit.WebViewSessionState state);
-		public async WebKit.JavascriptResult run_javascript (string script, GLib.Cancellable? cancellable) throws GLib.Error;
-		public async WebKit.JavascriptResult run_javascript_from_gresource (string resource, GLib.Cancellable? cancellable) throws GLib.Error;
+		public async WebKit.JavascriptResult run_javascript (string script, GLib.Cancellable? cancellable = null) throws GLib.Error;
+		public async WebKit.JavascriptResult run_javascript_from_gresource (string resource, GLib.Cancellable? cancellable = null) throws GLib.Error;
 		public async GLib.InputStream save (WebKit.SaveMode save_mode, GLib.Cancellable? cancellable) throws GLib.Error;
 		public async bool save_to_file (GLib.File file, WebKit.SaveMode save_mode, GLib.Cancellable? cancellable) throws GLib.Error;
 		public void set_background_color (Gdk.RGBA rgba);
