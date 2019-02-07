@@ -33,7 +33,7 @@ find_package(Vala REQUIRED)
 vala_require("0.30.0")
 set(VALAFLAGS ${VALAFLAGS}
     --debug
-    --target-glib=2.48
+    --target-glib=2.46
     --enable-deprecated
     )
 
@@ -44,7 +44,7 @@ set(PLUGINDIR "${CMAKE_INSTALL_FULL_LIBDIR}/${CMAKE_PROJECT_NAME}" CACHE STRING 
 find_package(PkgConfig)
 pkg_check_modules(DEPS REQUIRED
                   sqlite3>=3.6.19
-                  gio-2.0>=2.48.0
+                  gio-2.0>=2.46.2
                   libsoup-2.4>=2.48.0
                   )
 set(PKGS sqlite3 gio-2.0 libsoup-2.4)

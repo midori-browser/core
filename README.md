@@ -55,7 +55,7 @@ You can opt-in for the [beta release on the Play Store](https://play.google.com/
 
 **Requirements**
 
-* GLib 2.48.0
+* GLib 2.46.2
 * GTK+ 3.12
 * gcr-3 2.32
 * [WebKit2GTK+](https://webkitgtk.org/) 2.16.6
