@@ -69,7 +69,6 @@ namespace WebExtension {
                 var extension = extensions.lookup (id);
                 if (extension == null) {
                     extension = new Extension (file);
-                    extensions.insert (id, extension);
 
                     // If we find a manifest, this is a web extension
                     var manifest_file = file.get_child ("manifest.json");
@@ -126,6 +125,7 @@ namespace WebExtension {
                         }
 
                         debug ("Loaded %s from %s", extension.name, file.get_path ());
+                        extensions.insert (id, extension);
                         extension_added (extension);
                     } catch (Error error) {
                         warning ("Failed to load extension '%s': %s\n", extension.name, error.message);
@@ -307,7 +307,8 @@ namespace WebExtension {
                 browser.add_button (new Button (extension as Extension));
             }
 
-            uint src = Idle.add (install_extension.callback);
+            // Employ a delay to avoid delaying startup with many extensions
+            uint src = Timeout.add (500, install_extension.callback);
             yield;
             Source.remove (src);
 
