@@ -54,8 +54,9 @@ pkg_check_modules(DEPS_GTK REQUIRED
                   webkit2gtk-4.0>=2.16.6
                   gcr-ui-3>=2.32
                   libpeas-gtk-1.0
+                  json-glib-1.0>=0.12
                   )
-set(PKGS ${PKGS} gtk+-3.0 libsoup-2.4 gcr-ui-3 libpeas-gtk-1.0)
+set(PKGS ${PKGS} gtk+-3.0 libsoup-2.4 gcr-ui-3 libpeas-gtk-1.0 json-glib-1.0)
 set(EXTRA_VAPIS
     ${CMAKE_SOURCE_DIR}/vapi/config.vapi
     ${CMAKE_SOURCE_DIR}/vapi/webkit2gtk-4.0.vapi

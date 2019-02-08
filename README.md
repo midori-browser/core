@@ -30,6 +30,7 @@ Midori is a lightweight yet powerful web browser which runs just as well on litt
 * Customizable side panels.
 * User scripts and styles a la Greasemonkey.
 * Web developer tools powered by WebKit.
+* Cross-browser extensions compatible with Chrome, Firefox, Opera and Vivaldi
 
 Please report comments, suggestions and bugs to:
     https://github.com/midori-browser/core/issues
@@ -64,14 +65,15 @@ You can opt-in for the [beta release on the Play Store](https://play.google.com/
 * [Vala](https://wiki.gnome.org/Projects/Vala) 0.30
 * GCR 2.32
 * Peas
+* JSON-Glib 0.12
 
 Install dependencies on Astian OS, Ubuntu, Debian or other Debian-based distros:
 
-    sudo apt install cmake valac libwebkit2gtk-4.0-dev libgcr-3-dev libpeas-dev libsqlite3-dev intltool libxml2-utils
+    sudo apt install cmake valac libwebkit2gtk-4.0-dev libgcr-3-dev libpeas-dev libsqlite3-dev libjson-glib-dev intltool libxml2-utils
 
 Install dependencies on openSUSE:
 
-    sudo zypper in cmake vala gcc webkit2gtk3-devel libgcr-devel libpeas-devel sqlite3-devel fdupes gettext-tools intltool libxml2-devel
+    sudo zypper in cmake vala gcc webkit2gtk3-devel libgcr-devel libpeas-devel sqlite3-devel json-glib-devel fdupes gettext-tools intltool libxml2-devel
 
 Use CMake to build Midori:
 
@@ -247,6 +249,43 @@ Push your branch and **propose it for merging into master**.
 
 This will automatically request a **review from other developers** who can then comment on it and provide feedback.
 
+# Extensions
+
+## Cross-browser web extensions
+
+The following API specification is supported by Midori:
+
+    manifest.json
+      name
+      version
+      description
+      background:
+        page: *.html
+        scripts:
+        - *.js
+      browser_action:
+        default_popup: *.html
+        default_icon: *.png
+        default_title
+      content_scripts:
+        js:
+        - *.js
+        css:
+        - *.css
+      manifest_version: 2
+
+    *.js
+      browser (chrome)
+        tabs
+          create
+          - url: uri
+          executeScript
+          - code: string
+        notifications
+          create
+          - title: string
+            message: string
+
 # Jargon
 
 * **freeze**: a period of bug fixes eg. 4/2 cycle means 4 weeks of features and 2 weeks of stabilization
@@ -254,6 +293,7 @@ This will automatically request a **review from other developers** who can then 
 * **ninja**: an internal tab, usually empty label, used for taking screenshots
 * **fortress**: user of an ancient release like 0.4.3 as found on Raspberry Pie, Debian, Ubuntu
 * **katze, sokoke, tabby**: legacy API names and coincidentally cat breeds
+* web extension: a cross-browser extension (plugin) - or in a webkit context, the multi-process api
 
 # Midori for Android
 

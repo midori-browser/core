@@ -38,7 +38,7 @@ namespace JS {
 		[CCode (cname = "JSObjectCallAsFunction", instance_pos = 1.1)]
 		public JS.Value call_as_function (JS.Context ctx, JS.Object? this_object, [CCode (array_length_pos = 2.5)] JS.Value[]? arguments, out JS.Value? exception);
 		[CCode (cname = "JSObjectGetProperty", instance_pos = 1.1)]
-		public JS.Value get_property (JS.Context ctx, JS.String property_name, out JS.Value? exception);
+		public JS.Value get_property (JS.Context ctx, JS.String property_name, out JS.Value? exception = null);
 		[CCode (cname = "JSObjectHasProperty", instance_pos = 1.1)]
 		public bool has_property (JS.Context ctx, JS.String property_name);
 		[CCode (cname = "JSObjectMakeFunction")]
@@ -54,7 +54,7 @@ namespace JS {
 		[CCode (cname = "JSStringGetMaximumUTF8CStringSize")]
 		public size_t get_maximum_utf8_cstring_size ();
 		[CCode (cname = "JSStringGetUTF8CString")]
-		public size_t get_utf8_cstring ([CCode (array_length_type = "gsize")] ref uint8[] buffer);
+		public size_t get_utf8_cstring ([CCode (array_length_type = "gsize")] uint8[] buffer);
 		[CCode (cname = "JSStringIsEqual")]
 		public bool is_equal (JS.String b);
 		[CCode (cname = "JSStringIsEqualToUTF8CString")]
