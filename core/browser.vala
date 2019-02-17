@@ -19,6 +19,7 @@ namespace Midori {
     [GtkTemplate (ui = "/ui/browser.ui")]
     public class Browser : Gtk.ApplicationWindow {
         public WebKit.WebContext web_context { get; construct set; }
+        internal bool idle { get; protected set; default = false; }
         public bool is_loading { get; protected set; default = false; }
         public string? uri { get; protected set; }
         public Tab? tab { get; protected set; }
@@ -78,7 +79,7 @@ namespace Midori {
         uint focus_timeout = 0;
 
         construct {
-            overlay.add_events (Gdk.EventMask.ENTER_NOTIFY_MASK);
+            overlay.add_events (Gdk.EventMask.ENTER_NOTIFY_MASK | Gdk.EventMask.POINTER_MOTION_MASK);
             overlay.enter_notify_event.connect ((event) => {
                 if (is_fullscreen && !tab.pinned) {
                     navigationbar.show ();
@@ -90,6 +91,10 @@ namespace Midori {
                     statusbar.halign = statusbar.halign == Gtk.Align.START ? Gtk.Align.END : Gtk.Align.START;
                     statusbar.show ();
                 }
+                return false;
+            });
+            overlay.motion_notify_event.connect ((event) => {
+                idle = false;
                 return false;
             });
             navigationbar.urlbar.focus_out_event.connect ((event) => {
@@ -216,6 +221,7 @@ namespace Midori {
             stop.activate.connect (tab_stop_loading_activated);
             add_action (stop);
             notify["is-loading"].connect (() => {
+                idle = false;
                 reload.set_enabled (!is_loading);
                 stop.set_enabled (is_loading);
             });
@@ -386,6 +392,7 @@ namespace Midori {
         }
 
         public override bool key_press_event (Gdk.EventKey event) {
+            idle = false;
             // No keyboard shortcuts in locked state
             if (is_locked) {
                 return propagate_key_event (event);
