@@ -34,6 +34,7 @@ namespace Midori {
             { "goto", goto_activated },
             { "tab-previous", tab_previous_activated },
             { "tab-next", tab_next_activated },
+            { "zoomin", zoom_in_activated },
             { "find", find_activated },
             { "view-source", view_source_activated },
             { "print", print_activated },
@@ -489,6 +490,10 @@ namespace Midori {
             var next = tabs.get_children ().nth_data (index + 1);
             if (next != null)
                 tabs.visible_child = (Tab)next;
+        }
+
+        void zoom_in_activated () {
+            activate_action ("tab-zoom", 0.1);
         }
 
         void tab_zoom_activated (Action action, Variant? parameter) {
