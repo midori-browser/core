@@ -194,6 +194,10 @@ namespace WebExtension {
 
                 foreach (var filename in extension.content_scripts) {
                     var script = yield extension.get_resource (filename);
+                    if (script == null) {
+                        warning ("Failed to inject content script for '%s': %s", extension.name, filename);
+                        continue;
+                    }
                     content.add_script (new WebKit.UserScript ((string)(script.get_data ()),
                                         WebKit.UserContentInjectedFrames.TOP_FRAME,
                                         WebKit.UserScriptInjectionTime.END,
@@ -201,6 +205,10 @@ namespace WebExtension {
                 }
                 foreach (var filename in extension.content_styles) {
                     var stylesheet = yield extension.get_resource (filename);
+                    if (stylesheet == null) {
+                        warning ("Failed to inject content stylesheet for '%s': %s", extension.name, filename);
+                        continue;
+                    }
                     content.add_style_sheet (new WebKit.UserStyleSheet ((string)(stylesheet.get_data ()),
                                              WebKit.UserContentInjectedFrames.TOP_FRAME,
                                              WebKit.UserStyleLevel.USER,
@@ -402,6 +410,10 @@ namespace WebExtension {
 
             foreach (var filename in extension.background_scripts) {
                 var script = yield extension.get_resource (filename);
+                if (script == null) {
+                    warning ("Failed to load background script for '%s': %s", extension.name, filename);
+                    continue;
+                }
                 background.get_user_content_manager ().add_script (new WebKit.UserScript ((string)(script.get_data ()),
                     WebKit.UserContentInjectedFrames.TOP_FRAME,
                     WebKit.UserScriptInjectionTime.END,
