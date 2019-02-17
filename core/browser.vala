@@ -298,8 +298,18 @@ namespace Midori {
             Gtk.StyleContext.add_provider_for_screen (get_screen (), provider,
                 Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
 
+            // Headerbar 1) by default under Budgie, GNOME and Pantheon 2) as per GTK_CSD
+            bool use_headerbar = Regex.match_simple (
+                "budgie|gnome|pantheon", Environment.get_variable ("XDG_CURRENT_DESKTOP"),
+                RegexCompileFlags.CASELESS, RegexMatchFlags.NOTEMPTY);
+            if (Environment.get_variable ("GTK_CSD") == "1") {
+                use_headerbar = true;
+            } else if (Environment.get_variable ("GTK_CSD") == "0") {
+                use_headerbar = false;
+            }
+            get_settings ().gtk_dialogs_use_header = use_headerbar;
+
             // Make headerbar (titlebar) the topmost bar if CSD is disabled
-            get_settings ().gtk_dialogs_use_header = Environment.get_variable ("GTK_CSD") != "0";
             if (!get_settings ().gtk_dialogs_use_header) {
                 var titlebar = get_titlebar ();
                 titlebar.ref ();
