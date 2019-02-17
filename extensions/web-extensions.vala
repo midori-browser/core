@@ -39,7 +39,10 @@ namespace WebExtension {
             }
             var child = file.get_child (resource);
             if (child.query_exists ()) {
-                return yield child.load_bytes_async (null, null);
+                uint8[] data;
+                if (yield child.load_contents_async (null, out data, null)) {
+                    return new Bytes (data);
+                }
             }
             throw new FileError.IO ("Failed to open '%s': Not found in %s".printf (resource, name));
         }
@@ -104,7 +107,7 @@ namespace WebExtension {
                                         uint8[] buffer;
                                         int64 offset;
                                         archive.read_data_block (out buffer, out offset);
-                                        stream = new MemoryInputStream.from_data (buffer);
+                                        stream = new MemoryInputStream.from_data (buffer, free);
                                     } else {
                                         uint8[] buffer;
                                         int64 offset;
