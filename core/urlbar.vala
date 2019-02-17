@@ -196,7 +196,7 @@ namespace Midori {
                 return text;
             } else if (is_ip_address (text)) {
                 return "http://" + text;
-            } else if (text == "localhost" || "." in text) {
+            } else if (text.has_prefix ("localhost") || "." in text) {
                 return "http://" + text;
             } else if (text == "") {
                 return "about:blank";
