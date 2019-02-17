@@ -363,6 +363,25 @@ namespace WebExtension {
     public class Browser : Object, Midori.BrowserActivatable {
         public Midori.Browser browser { owned get; set; }
 
+        async void extension_scheme (WebKit.URISchemeRequest request) {
+            string[] path = request.get_path ().substring (1, -1).split ("/", 2);
+            string id = path[0];
+            string resource = path[1];
+            var manager = ExtensionManager.get_default ();
+            var extension = manager.extensions.lookup (id);
+            try {
+                if (extension != null) {
+                    var data = yield extension.get_resource (resource);
+                    var stream = new MemoryInputStream.from_data (data.get_data (), free);
+                    request.finish (stream, data.length, "text/html");
+                }
+            } catch (Error error) {
+                request.finish_error (error);
+                critical ("Failed to render %s: %s", request.get_path (), error.message);
+            }
+            request.unref ();
+        }
+
         async void install_extension (Extension extension) throws Error {
             if (extension.browser_action != null) {
                 browser.add_button (new Button (extension as Extension));
