@@ -11,7 +11,9 @@
 
 namespace WebExtension {
     public class Extension : Object {
+        HashTable<string, Bytes> _files;
         public File file { get; protected set; }
+
         public string name { get; set; }
         public string description { get; set; }
         public string? background_page { get; owned set; }
@@ -22,6 +24,31 @@ namespace WebExtension {
 
         public Extension (File file) {
             Object (file: file, name: file.get_basename ());
+        }
+
+        public void add_resource (string resource, Bytes data) {
+            if (_files == null) {
+                _files = new HashTable<string, Bytes> (str_hash, str_equal);
+            }
+            _files.insert (resource, data);
+        }
+
+        public async Bytes get_resource (string resource) throws Error {
+            // Strip ./ or / prefix
+            string _resource = resource.has_prefix (".") ? resource.substring (1, -1) : resource;
+            _resource = _resource.has_prefix ("/") ? _resource.substring (1, -1) : _resource;
+
+            if (_files != null) {
+                return _files.lookup (_resource);
+            }
+            var child = file.get_child (_resource);
+            if (child.query_exists ()) {
+                uint8[] data;
+                if (yield child.load_contents_async (null, out data, null)) {
+                    return new Bytes (data);
+                }
+            }
+            throw new FileError.IO ("Failed to open '%s': Not found in %s".printf (resource, name));
         }
     }
 
@@ -37,7 +64,7 @@ namespace WebExtension {
 
     public class ExtensionManager : Object {
         static ExtensionManager? _default = null;
-        HashTable<string, Extension> extensions;
+        internal HashTable<string, Extension> extensions;
 
         public delegate void ExtensionManagerForeachFunc (Extension extension);
         public void @foreach (ExtensionManagerForeachFunc func) {
@@ -84,17 +111,50 @@ namespace WebExtension {
                 string id = Checksum.compute_for_string (ChecksumType.MD5, file.get_path ());
                 var extension = extensions.lookup (id);
                 if (extension == null) {
+                    InputStream? stream = null;
                     extension = new Extension (file);
 
-                    // If we find a manifest, this is a web extension
-                    var manifest_file = file.get_child ("manifest.json");
-                    if (!manifest_file.query_exists ()) {
-                        continue;
-                    }
-
                     try {
+                        // Try reading from a ZIP archive ie. .crx (Chrome/ Opera/ Vivaldi), .nex (Opera) or .xpi (Firefox)
+                        if (Regex.match_simple ("\\.(crx|nex|xpi)", file.get_basename (),
+                            RegexCompileFlags.CASELESS, RegexMatchFlags.NOTEMPTY)) {
+                            var archive = new Archive.Read ();
+                            archive.support_format_zip ();
+                            if (archive.open_filename (file.get_path (), 10240) == Archive.Result.OK) {
+                                unowned Archive.Entry entry;
+                                while (archive.next_header (out entry) == Archive.Result.OK) {
+                                    if (entry.pathname () == "manifest.json") {
+                                        uint8[] buffer;
+                                        int64 offset;
+                                        archive.read_data_block (out buffer, out offset);
+                                        stream = new MemoryInputStream.from_data (buffer, free);
+                                    } else {
+                                        uint8[] buffer;
+                                        int64 offset;
+                                        archive.read_data_block (out buffer, out offset);
+                                        extension.add_resource (entry.pathname (), new Bytes (buffer));
+                                    }
+                                }
+
+                                if (stream == null) {
+                                    throw new FileError.IO ("Failed to open '%s': no manifest.json".printf (file.get_path ()));
+                                }
+                            } else {
+                                throw new FileError.IO ("Failed to open '%s': %s".printf (file.get_path (), archive.error_string ()));
+                            }
+                        } else {
+                            // If we find a manifest, this is a web extension
+                            var manifest_file = file.get_child ("manifest.json");
+                            if (manifest_file.query_exists ()) {
+                                stream = new DataInputStream (yield manifest_file.read_async ());
+                            } else {
+                                continue;
+                            }
+                        }
+
                         var json = new Json.Parser ();
-                        yield json.load_from_stream_async (new DataInputStream (manifest_file.read ()));
+                        yield json.load_from_stream_async (stream);
+
                         var manifest = json.get_root ().get_object ();
                         if (manifest.has_member ("name")) {
                             extension.name = manifest.get_string_member ("name");
@@ -151,17 +211,23 @@ namespace WebExtension {
                 }
 
                 foreach (var filename in extension.content_scripts) {
-                    uint8[] script;
-                    yield file.get_child (filename).load_contents_async (null, out script, null);
-                    content.add_script (new WebKit.UserScript ((string)script,
+                    var script = yield extension.get_resource (filename);
+                    if (script == null) {
+                        warning ("Failed to inject content script for '%s': %s", extension.name, filename);
+                        continue;
+                    }
+                    content.add_script (new WebKit.UserScript ((string)(script.get_data ()),
                                         WebKit.UserContentInjectedFrames.TOP_FRAME,
                                         WebKit.UserScriptInjectionTime.END,
                                         null, null));
                 }
                 foreach (var filename in extension.content_styles) {
-                    uint8[] stylesheet;
-                    yield file.get_child (filename).load_contents_async (null, out stylesheet, null);
-                    content.add_style_sheet (new WebKit.UserStyleSheet ((string)stylesheet,
+                    var stylesheet = yield extension.get_resource (filename);
+                    if (stylesheet == null) {
+                        warning ("Failed to inject content stylesheet for '%s': %s", extension.name, filename);
+                        continue;
+                    }
+                    content.add_style_sheet (new WebKit.UserStyleSheet ((string)(stylesheet.get_data ()),
                                              WebKit.UserContentInjectedFrames.TOP_FRAME,
                                              WebKit.UserStyleLevel.USER,
                                              null, null));
@@ -248,7 +314,8 @@ namespace WebExtension {
             manager.install_api (this);
 
             if (uri != null) {
-                load_uri (extension.file.get_child (uri).get_uri ());
+                string id = Checksum.compute_for_string (ChecksumType.MD5, extension.file.get_path ());
+                load_uri ("extension:///%s/%s".printf (id, uri));
             } else {
                 load_html ("<body></body>", extension.file.get_uri ());
             }
@@ -285,25 +352,31 @@ namespace WebExtension {
             if (extension.browser_action.icon != null) {
                 debug ("Icon for %s: %s\n",
                        extension.name,
-                       extension.file.get_child (extension.browser_action.icon).get_path ());
-                // Ensure the icon fits the size of a button in the toolbar
-                int icon_width = 16, icon_height = 16;
-                Gtk.icon_size_lookup (Gtk.IconSize.BUTTON, out icon_width, out icon_height);
-                // Take scale factor into account
-                icon_width *= scale_factor;
-                icon_height *= scale_factor;
-                try {
-                    string filename = extension.file.get_child (extension.browser_action.icon).get_path ();
-                    icon.pixbuf = new Gdk.Pixbuf.from_file_at_scale (filename, icon_width, icon_height, true);
-                } catch (Error error) {
-                    warning ("Failed to set icon for %s: %s", extension.name, error.message);
-                }
+                       extension.browser_action.icon);
+                load_icon.begin (extension, icon);
             }
             if (extension.browser_action.popup != null) {
                 popover = new Gtk.Popover (this);
                 popover.add (new WebView (extension, extension.browser_action.popup));
             }
             add (icon);
+        }
+
+        async void load_icon (Extension extension, Gtk.Image icon) {
+            // Ensure the icon fits the size of a button in the toolbar
+            int icon_width = 16, icon_height = 16;
+            Gtk.icon_size_lookup (Gtk.IconSize.BUTTON, out icon_width, out icon_height);
+            // Take scale factor into account
+            icon_width *= scale_factor;
+            icon_height *= scale_factor;
+            try {
+                var image = yield extension.get_resource (extension.browser_action.icon);
+                // Note: The from_bytes variant has no autodetection
+                var stream = new MemoryInputStream.from_data (image.get_data (), free);
+                icon.pixbuf = yield new Gdk.Pixbuf.from_stream_at_scale_async (stream, icon_width, icon_height, true);
+            } catch (Error error) {
+                warning ("Failed to set icon for %s: %s", extension.name, error.message);
+            }
         }
     }
 
@@ -320,6 +393,25 @@ namespace WebExtension {
     public class Browser : Object, Midori.BrowserActivatable {
         public Midori.Browser browser { owned get; set; }
 
+        async void extension_scheme (WebKit.URISchemeRequest request) {
+            string[] path = request.get_path ().substring (1, -1).split ("/", 2);
+            string id = path[0];
+            string resource = path[1];
+            var manager = ExtensionManager.get_default ();
+            var extension = manager.extensions.lookup (id);
+            try {
+                if (extension != null) {
+                    var data = yield extension.get_resource (resource);
+                    var stream = new MemoryInputStream.from_data (data.get_data (), free);
+                    request.finish (stream, data.length, "text/html");
+                }
+            } catch (Error error) {
+                request.finish_error (error);
+                critical ("Failed to render %s: %s", request.get_path (), error.message);
+            }
+            request.unref ();
+        }
+
         async void install_extension (Extension extension) throws Error {
             if (extension.browser_action != null) {
                 browser.add_button (new Button (extension as Extension));
@@ -335,9 +427,12 @@ namespace WebExtension {
             (((Gtk.Container)browser.get_child ())).add (background);
 
             foreach (var filename in extension.background_scripts) {
-                uint8[] script;
-                yield extension.file.get_child (filename).load_contents_async (null, out script, null);
-                background.get_user_content_manager ().add_script (new WebKit.UserScript ((string)script,
+                var script = yield extension.get_resource (filename);
+                if (script == null) {
+                    warning ("Failed to load background script for '%s': %s", extension.name, filename);
+                    continue;
+                }
+                background.get_user_content_manager ().add_script (new WebKit.UserScript ((string)(script.get_data ()),
                     WebKit.UserContentInjectedFrames.TOP_FRAME,
                     WebKit.UserScriptInjectionTime.END,
                     null, null));
@@ -348,6 +443,12 @@ namespace WebExtension {
             if (browser.is_locked) {
                 return;
             }
+
+            var context = WebKit.WebContext.get_default ();
+            context.register_uri_scheme ("extension", (request) => {
+                request.ref ();
+                extension_scheme.begin (request);
+            });
 
             var manager = ExtensionManager.get_default ();
             manager.extension_added.connect ((extension) => {
