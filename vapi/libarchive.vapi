@@ -41,10 +41,6 @@ namespace Archive {
 	[CCode (cname="archive_close_callback")]
 	public delegate int CloseCallback (Archive archive);
 
-	// "void (*_progress_func)(void *)" function pointer without typedef.
-	[CCode (has_typedef = false)]
-	public delegate void ExtractProgressCallback ();
-
 	[CCode (cprefix="ARCHIVE_", cname="int", has_type_id = false)]
 	public enum Result {
 		EOF,
@@ -223,7 +219,6 @@ namespace Archive {
 
 		public Result extract (Entry entry, ExtractFlags? flags=0);
 		public Result extract2 (Entry entry, Write dest);
-		public void extract_set_progress_callback (ExtractProgressCallback cb);
 		public void extract_set_skip_file (int64_t dev, int64_t ino);
 		public Result close ();
 	}
@@ -332,26 +327,6 @@ namespace Archive {
 		public Result set_skip_file (int64_t dev, int64_t ino);
 		public Result set_options (ExtractFlags flags);
 		public Result set_standard_lookup ();
-
-		// "la_int64_t (*)(void *, const char *, la_int64_t)"
-		[CCode (has_typedef = false, instance_pos = 0)]
-		public delegate int64_t GroupLookup (string group, int64_t gid);
-		// "la_int64_t (*)(void *, const char *, la_int64_t)"
-		[CCode (has_typedef = false, instance_pos = 0)]
-		public delegate int64_t UserLookup (string user, int64_t uid);
-		// "void (*)(void *)"
-		[CCode (has_typedef = false, instance_pos = 0)]
-		public delegate void Cleanup ();
-
-		public Result set_group_lookup (
-			[CCode (delegate_target_pos = 0.9) ] GroupLookup lookup,
-			[CCode (delegate_target_pos = 0.9) ] Cleanup? cleanup = null
-		);
-
-		public Result set_user_lookup (
-			[CCode (delegate_target_pos = 0.9) ] UserLookup lookup,
-			[CCode (delegate_target_pos = 0.9) ] Cleanup? cleanup = null
-		);
 	}
 
 	[CCode (cheader_filename = "archive_entry.h", cprefix = "AE_", cname = "__LA_MODE_T", has_type_id = false)]
