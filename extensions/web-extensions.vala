@@ -109,12 +109,12 @@ namespace WebExtension {
                                 while (archive.next_header (out entry) == Archive.Result.OK) {
                                     if (entry.pathname () == "manifest.json") {
                                         uint8[] buffer;
-                                        Archive.int64_t offset;
+                                        int64 offset;
                                         archive.read_data_block (out buffer, out offset);
                                         stream = new MemoryInputStream.from_data (buffer, free);
                                     } else {
                                         uint8[] buffer;
-                                        Archive.int64_t offset;
+                                        int64 offset;
                                         archive.read_data_block (out buffer, out offset);
                                         extension.add_resource (entry.pathname (), new Bytes (buffer));
                                     }

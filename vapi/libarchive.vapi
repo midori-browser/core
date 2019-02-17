@@ -32,7 +32,7 @@ namespace Archive {
 	[CCode (instance_pos = 1.9, cname="archive_read_callback")]
 	public delegate ssize_t ReadCallback (Archive archive,[CCode (array_length = false)] out unowned uint8[] buffer);
 	[CCode (instance_pos = 1.9, cname="archive_skip_callback")]
-	public delegate int64_t SkipCallback (Archive archive, int64_t request);
+	public delegate int64 SkipCallback (Archive archive, int64 request);
 	[CCode (instance_pos = 1.9, cname="archive_write_callback")]
 	public delegate ssize_t WriteCallback (Archive archive,[CCode (array_length_type = "size_t")] uint8[] buffer);
 	[CCode (instance_pos = 1.9, cname="archive_open_callback")]
@@ -112,17 +112,11 @@ namespace Archive {
 		SPARSE
 	}
 
-	[SimpleType]
-	[IntegerType (rank = 9)]
-	[CCode (cname="la_int64_t")]
-	public struct int64_t {
-	}
-
 	[Compact]
 	[CCode (cname="struct archive", cprefix="archive_")]
 	public class Archive {
-		public int64_t position_compressed ();
-		public int64_t position_uncompressed ();
+		public int64 position_compressed ();
+		public int64 position_uncompressed ();
 
 		public Format format ();
 		// Filter #0 is the one closest to the format, -1 is a synonym
@@ -206,12 +200,12 @@ namespace Archive {
 		public Result open_fd (int fd, size_t block_size);
 		public Result open_FILE (GLib.FileStream file);
 		public Result next_header (out unowned Entry entry);
-		public int64_t header_position ();
+		public int64 header_position ();
 
 		[CCode (cname="archive_read_data")]
 		public ssize_t read_data ([CCode (array_length_type = "size_t")] uint8[] buffer);
 		[CCode (cname="archive_read_data_block")]
-		public Result read_data_block ([CCode (array_length_type = "size_t")] out unowned uint8[] buffer, out int64_t offset);
+		public Result read_data_block ([CCode (array_length_type = "size_t")] out unowned uint8[] buffer, out int64 offset);
 		[CCode (cname="archive_read_data_skip")]
 		public Result read_data_skip ();
 		[CCode (cname="archive_read_data_into_fd")]
@@ -219,7 +213,7 @@ namespace Archive {
 
 		public Result extract (Entry entry, ExtractFlags? flags=0);
 		public Result extract2 (Entry entry, Write dest);
-		public void extract_set_skip_file (int64_t dev, int64_t ino);
+		public void extract_set_skip_file (int64 dev, int64 ino);
 		public Result close ();
 	}
 
@@ -230,15 +224,15 @@ namespace Archive {
 		public Result set_symlink_logical ();
 		public Result set_symlink_physical ();
 		public Result set_symlink_hybrid ();
-		public unowned string gname (int64_t gid);
-		public unowned string uname (int64_t uid);
+		public unowned string gname (int64 gid);
+		public unowned string uname (int64 uid);
 		public Result set_standard_lookup ();
 
 		// HACK, they have no name in C. May not work correctly.
 		[CCode (instance_pos = 0, cname="void")]
-		public delegate unowned string GNameLookup (int64_t gid);
+		public delegate unowned string GNameLookup (int64 gid);
 		[CCode (instance_pos = 0, cname="void")]
-		public delegate unowned string UNameLookup (int64_t uid);
+		public delegate unowned string UNameLookup (int64 uid);
 		[CCode (instance_pos = 0, cname="void")]
 		public delegate void Cleanup ();
 
@@ -296,7 +290,7 @@ namespace Archive {
 		public int get_bytes_per_block ();
 		public Result set_bytes_in_last_block (int bytes_in_last_block);
 		public int get_bytes_in_last_block ();
-		public Result set_skip_file (int64_t dev, int64_t ino);
+		public Result set_skip_file (int64 dev, int64 ino);
 
 		public Result open (
 			[CCode (delegate_target_pos = 0.9)] OpenCallback ocb,
@@ -313,7 +307,7 @@ namespace Archive {
 		[CCode (cname="archive_write_data")]
 		public ssize_t write_data ([CCode (array_length_type = "size_t")] uint8[] data);
 		[CCode (cname="archive_write_data_block")]
-		public ssize_t write_data_block ([CCode (array_length_type = "size_t")] uint8[] data, int64_t offset);
+		public ssize_t write_data_block ([CCode (array_length_type = "size_t")] uint8[] data, int64 offset);
 
 		public Result finish_entry ();
 		public Result close ();
@@ -324,7 +318,7 @@ namespace Archive {
 	public class WriteDisk : Write {
 		public WriteDisk ();
 
-		public Result set_skip_file (int64_t dev, int64_t ino);
+		public Result set_skip_file (int64 dev, int64 ino);
 		public Result set_options (ExtractFlags flags);
 		public Result set_standard_lookup ();
 	}
@@ -355,30 +349,30 @@ namespace Archive {
 		public time_t ctime ();
 		public long ctime_nsec ();
 		public bool ctime_is_set ();
-		public int64_t dev ();
-		public int64_t devmajor ();
-		public int64_t devminor ();
+		public int64 dev ();
+		public int64 devmajor ();
+		public int64 devminor ();
 		public FileType filetype ();
 		public unowned string fflags_text ();
-		public int64_t gid ();
+		public int64 gid ();
 		public unowned string gname ();
 		public unowned string hardlink ();
-		public int64_t ino ();
+		public int64 ino ();
 		public FileType mode ();
 		public time_t mtime ();
 		public long mtime_nsec ();
 		public bool mtime_is_set ();
 		public uint nlink ();
 		public unowned string pathname ();
-		public int64_t rdev ();
-		public int64_t rdevmajor ();
-		public int64_t rdevminor ();
+		public int64 rdev ();
+		public int64 rdevmajor ();
+		public int64 rdevminor ();
 		public unowned string sourcepath ();
-		public int64_t size ();
+		public int64 size ();
 		public bool size_is_set ();
 		public unowned string strmode ();
 		public unowned string symlink ();
-		public int64_t uid ();
+		public int64 uid ();
 		public unowned string uname ();
 		public void set_atime (time_t atime, long blah);
 		public void unset_atime ();
@@ -386,13 +380,13 @@ namespace Archive {
 		public void unset_birthtime ();
 		public void set_ctime (time_t atime, long blah);
 		public void unset_ctime ();
-		public void set_dev (int64_t dev);
-		public void set_devmajor (int64_t major);
-		public void set_devminor (int64_t major);
+		public void set_dev (int64 dev);
+		public void set_devmajor (int64 major);
+		public void set_devminor (int64 major);
 		public void set_filetype (uint filetype);
 		public void set_fflags (ulong set, ulong clear);
 		public unowned string copy_fflags_text (string text);
-		public void set_gid (int64_t gid);
+		public void set_gid (int64 gid);
 		public void set_gname (string gname);
 		public Result update_gname_utf8 (string gname);
 		public void set_hardlink (string link);
@@ -406,14 +400,14 @@ namespace Archive {
 		public void set_pathname (string pathname);
 		public Result  update_pathname_utf8 (string pathname);
 		public void set_perm (FileType mode);
-		public void set_rdev (int64_t dev);
-		public void set_rdevmajor (int64_t devmajor);
-		public void set_rdevminor (int64_t devminor);
-		public void set_size (int64_t size);
+		public void set_rdev (int64 dev);
+		public void set_rdevmajor (int64 devmajor);
+		public void set_rdevminor (int64 devminor);
+		public void set_size (int64 size);
 		public void unset_size ();
 		public void copy_sourcepath (string sourcepath);
 		public void set_symlink (string symlink);
-		public void set_uid (int64_t uid);
+		public void set_uid (int64 uid);
 		public void set_uname (string uname);
 		public Result update_uname_utf8 (string uname);
 
