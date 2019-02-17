@@ -28,6 +28,7 @@ namespace Midori {
         internal bool is_small { get; protected set; default = false; }
 
         const ActionEntry[] actions = {
+            { "navigationbar", navigationbar_activated },
             { "tab-close", tab_close_activated },
             { "close", close_activated },
             { "tab-reopen", tab_reopen_activated },
@@ -415,6 +416,10 @@ namespace Midori {
             var tab = new Tab (null, web_context);
             add (tab);
             tabs.visible_child = tab;
+        }
+
+        void navigationbar_activated () {
+            navigationbar.show ();
         }
 
         void tab_close_activated () {
