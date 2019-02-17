@@ -34,10 +34,14 @@ namespace WebExtension {
         }
 
         public async Bytes get_resource (string resource) throws Error {
+            // Strip ./ or / prefix
+            string _resource = resource.has_prefix (".") ? resource.substring (1, -1) : resource;
+            _resource = _resource.has_prefix ("/") ? _resource.substring (1, -1) : _resource;
+
             if (_files != null) {
-                return _files.lookup (resource);
+                return _files.lookup (_resource);
             }
-            var child = file.get_child (resource);
+            var child = file.get_child (_resource);
             if (child.query_exists ()) {
                 uint8[] data;
                 if (yield child.load_contents_async (null, out data, null)) {
@@ -397,9 +401,8 @@ namespace WebExtension {
             (((Gtk.Container)browser.get_child ())).add (background);
 
             foreach (var filename in extension.background_scripts) {
-                uint8[] script;
-                yield extension.file.get_child (filename).load_contents_async (null, out script, null);
-                background.get_user_content_manager ().add_script (new WebKit.UserScript ((string)script,
+                var script = yield extension.get_resource (filename);
+                background.get_user_content_manager ().add_script (new WebKit.UserScript ((string)(script.get_data ()),
                     WebKit.UserContentInjectedFrames.TOP_FRAME,
                     WebKit.UserScriptInjectionTime.END,
                     null, null));
