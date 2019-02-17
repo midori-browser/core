@@ -51,6 +51,22 @@ namespace WebExtension {
         // "WebExtensionExtensionManager::extension_added" is not a value type
         public signal void extension_added (Object extension);
 
+        string? pick_default_icon (Json.Object action) {
+            if (action.has_member ("default_icon")) {
+                var node = action.get_member ("default_icon");
+                if (node != null) {
+                    if (node.get_node_type () == Json.NodeType.OBJECT) {
+                        foreach (var size in node.get_object ().get_members ()) {
+                            return node.get_object ().get_string_member (size);
+                        }
+                    } else if (node.get_node_type () == Json.NodeType.VALUE) {
+                        return node.get_string ();
+                    }
+                }
+            }
+            return null;
+        }
+
         public static ExtensionManager get_default () {
             if (_default == null) {
                 _default = new ExtensionManager ();
@@ -103,23 +119,25 @@ namespace WebExtension {
                             var action = manifest.get_object_member ("browser_action");
                             if (action != null) {
                                 extension.browser_action = new Action (
-                                    action.has_member ("default_icon") ? action.get_string_member ("default_icon") : null,
+                                    pick_default_icon (action),
                                     action.has_member ("default_title") ? action.get_string_member ("default_title") : null,
                                     action.has_member ("default_popup") ? action.get_string_member ("default_popup") : null);
                             }
                         }
 
                         if (manifest.has_member ("content_scripts")) {
-                            var content_scripts = manifest.get_object_member ("content_scripts");
-                            if (content_scripts != null && content_scripts.has_member ("js")) {
-                                foreach (var element in content_scripts.get_array_member ("js").get_elements ()) {
-                                    extension.content_scripts.append (element.get_string ());
+                            foreach (var element in manifest.get_array_member ("content_scripts").get_elements ()) {
+                                var content_script = element.get_object ();
+                                if (content_script.has_member ("js")) {
+                                    foreach (var js in content_script.get_array_member ("js").get_elements ()) {
+                                        extension.content_scripts.append (js.get_string ());
+                                    }
                                 }
-                            }
 
-                            if (content_scripts != null && content_scripts.has_member ("css")) {
-                                foreach (var element in content_scripts.get_array_member ("css").get_elements ()) {
-                                    extension.content_styles.append (element.get_string ());
+                                if (content_script.has_member ("css")) {
+                                    foreach (var css in content_script.get_array_member ("css").get_elements ()) {
+                                        extension.content_styles.append (css.get_string ());
+                                    }
                                 }
                             }
                         }
