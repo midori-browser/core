@@ -120,7 +120,7 @@ namespace Midori {
                 var builtin_path = exec_path.get_parent ().get_child ("extensions");
                 if (!builtin_path.query_exists (null)) {
                     // System-wide plugins
-                    builtin_path = exec_path.get_parent ().get_parent ().get_child ("lib").get_child (Config.PROJECT_NAME);
+                    builtin_path = File.new_for_path (Config.PLUGINDIR);
                 }
                 context.set_web_extensions_initialization_user_data (builtin_path.get_path ());
             });
