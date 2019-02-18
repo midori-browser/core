@@ -22,12 +22,14 @@ namespace Midori {
         [CCode (array_length = false, array_null_terminated = true)]
         static string[]? execute = null;
         static bool help_execute = false;
+        static int inactivity_reset = 0;
         static bool incognito = false;
         static bool version = false;
         const OptionEntry[] options = {
             { "app", 'a', 0, OptionArg.STRING, ref app, N_("Run ADDRESS as a web application"), N_("ADDRESS") },
             { "execute", 'e', 0, OptionArg.STRING_ARRAY, ref execute, N_("Execute the specified command"), null },
             { "help-execute", 0, 0, OptionArg.NONE, ref help_execute, N_("List available commands to execute with -e/ --execute"), null },
+            { "inactivity-reset", 'i', 0, OptionArg.INT, ref inactivity_reset, N_("Reset Midori after SECONDS seconds of inactivity"), N_("SECONDS") },
             { "private", 'p', 0, OptionArg.NONE, ref incognito, N_("Private browsing, no changes are saved"), null },
             { "version", 'V', 0, OptionArg.NONE, ref version, N_("Display version number"), null },
             { null }
@@ -409,6 +411,7 @@ namespace Midori {
             options.insert_value ("app", app ?? "");
             options.insert_value ("execute", execute);
             options.insert_value ("help-execute", help_execute);
+            options.insert_value ("inactivity-reset", inactivity_reset);
             options.insert_value ("private", incognito);
             return -1;
         }
@@ -421,6 +424,7 @@ namespace Midori {
             app = options.lookup_value ("app", VariantType.STRING).get_string ();
             execute = options.lookup_value ("execute", VariantType.STRING_ARRAY).dup_strv ();
             help_execute = options.lookup_value ("help-execute", VariantType.BOOLEAN).get_boolean ();
+            inactivity_reset = options.lookup_value ("inactivity-reset", VariantType.INT32).get_int32 ();
             incognito = options.lookup_value ("private", VariantType.BOOLEAN).get_boolean ();
             debug ("Processing remote command line %s/ %s\n",
                    string.joinv (", ", command_line.get_arguments ()), options.end ().print (true));
@@ -441,6 +445,16 @@ namespace Midori {
                 tab.pinned = true;
                 browser.add (tab);
                 browser.show ();
+                if (inactivity_reset > 0) {
+                    Timeout.add_seconds (inactivity_reset, () => {
+                        if (browser.idle) {
+                            tab.load_uri (app);
+                        } else {
+                            browser.idle = true;
+                        }
+                        return Source.CONTINUE;
+                    }, Priority.LOW);
+                }
             }
 
             uint argc = command_line.get_arguments ().length;
