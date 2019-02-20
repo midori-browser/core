@@ -190,9 +190,6 @@ namespace Midori {
             var fullscreen = new SimpleAction ("fullscreen", null);
             fullscreen.activate.connect (fullscreen_activated);
             add_action (fullscreen);
-            navigationbar.notify["visible"].connect (() => {
-                fullscreen.set_enabled (navigationbar.visible);
-            });
             // Action for panel toggling
             action = new SimpleAction.stateful ("panel", null, false);
             action.set_enabled (false);
