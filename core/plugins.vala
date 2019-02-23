@@ -40,7 +40,7 @@ namespace Midori {
             foreach (var plugin in get_plugin_list ()) {
                 debug ("Found plugin %s", plugin.get_name ());
                 if (plugin.is_builtin ()
-                 || settings.get_plugin_enabled (plugin.get_module_name ())) {
+                 || settings.get_plugin_enabled ("lib%s.so".printf (plugin.get_module_name ()))) {
                     if (!try_load_plugin (plugin)) {
                         critical ("Failed to load plugin %s", plugin.get_module_name ());
                     }
