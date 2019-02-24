@@ -38,7 +38,7 @@ namespace WebExtension {
             string _resource = resource.has_prefix (".") ? resource.substring (1, -1) : resource;
             _resource = _resource.has_prefix ("/") ? _resource.substring (1, -1) : _resource;
 
-            if (_files != null) {
+            if (_files != null && _files.contains (_resource)) {
                 return _files.lookup (_resource);
             }
             var child = file.get_child (_resource);
@@ -136,7 +136,9 @@ namespace WebExtension {
                                         uint8[] buffer;
                                         int64 offset;
                                         archive.read_data_block (out buffer, out offset);
-                                        extension.add_resource (entry.pathname (), new Bytes (buffer));
+                                        if (buffer.length > 0) {
+                                            extension.add_resource (entry.pathname (), new Bytes (buffer));
+                                        }
                                     }
                                 }
 
@@ -215,26 +217,26 @@ namespace WebExtension {
                 }
 
                 foreach (var filename in extension.content_scripts) {
-                    var script = yield extension.get_resource (filename);
-                    if (script == null) {
+                    try {
+                        var script = yield extension.get_resource (filename);
+                        content.add_script (new WebKit.UserScript ((string)(script.get_data ()),
+                                            WebKit.UserContentInjectedFrames.TOP_FRAME,
+                                            WebKit.UserScriptInjectionTime.END,
+                                            null, null));
+                    } catch (Error error) {
                         warning ("Failed to inject content script for '%s': %s", extension.name, filename);
-                        continue;
                     }
-                    content.add_script (new WebKit.UserScript ((string)(script.get_data ()),
-                                        WebKit.UserContentInjectedFrames.TOP_FRAME,
-                                        WebKit.UserScriptInjectionTime.END,
-                                        null, null));
                 }
                 foreach (var filename in extension.content_styles) {
-                    var stylesheet = yield extension.get_resource (filename);
-                    if (stylesheet == null) {
+                    try {
+                        var stylesheet = yield extension.get_resource (filename);
+                        content.add_style_sheet (new WebKit.UserStyleSheet ((string)(stylesheet.get_data ()),
+                                                 WebKit.UserContentInjectedFrames.TOP_FRAME,
+                                                 WebKit.UserStyleLevel.USER,
+                                                 null, null));
+                    } catch (Error error) {
                         warning ("Failed to inject content stylesheet for '%s': %s", extension.name, filename);
-                        continue;
                     }
-                    content.add_style_sheet (new WebKit.UserStyleSheet ((string)(stylesheet.get_data ()),
-                                             WebKit.UserContentInjectedFrames.TOP_FRAME,
-                                             WebKit.UserStyleLevel.USER,
-                                             null, null));
                 }
             }
         }
