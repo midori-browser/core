@@ -437,7 +437,9 @@ namespace Midori {
         void goto_activated () {
             if (!tab.pinned) {
                 navigationbar.show ();
-                navigationbar.urlbar.grab_focus ();
+                if (navigationbar.urlbar.blank) {
+                    navigationbar.urlbar.grab_focus ();
+                }
             }
         }
 
