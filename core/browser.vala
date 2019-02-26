@@ -27,6 +27,8 @@ namespace Midori {
         public bool is_fullscreen { get; protected set; default = false; }
         public bool is_locked { get; construct set; default = false; }
         internal bool is_small { get; protected set; default = false; }
+        Menu zoom_menu = new Menu ();
+        internal double zoom_level { get; protected set; default = 1.0f; }
 
         const ActionEntry[] actions = {
             { "navigationbar", navigationbar_activated },
@@ -148,6 +150,22 @@ namespace Midori {
                     app_menu_model.prepend_section (null, application.get_menu_by_id ("app-menu"));
                     var page_menu_model = new Menu ();
                     page_menu_model.prepend_section (null, application.get_menu_by_id ("page-menu"));
+
+                    zoom_menu = new Menu ();
+                    var zoom_section = new MenuItem.section (null, zoom_menu);
+                    zoom_section.set_attribute_value ("display-hint", "horizontal-buttons");
+                    page_menu_model.prepend_item (zoom_section);
+                    var zoom_out = new MenuItem (_("Decrease the zoom level"), "win.tab-zoom(-0.1)");
+                    // Note: set_icon with ThemedIcon.with_default_fallbacks doesn't work here
+                    zoom_out.set_attribute_value ("verb-icon", "zoom-out-symbolic");
+                    zoom_menu.append_item (zoom_out);
+                    var zoom_reset = new MenuItem ("%.f%%".printf(100 * tab.zoom_level), "win.tab-zoom(1.0)");
+                    zoom_menu.append_item (zoom_reset);
+                    var zoom_in = new MenuItem (_("Increase the zoom level"), "win.tab-zoom(0.1)");
+                    // Note: set_icon with ThemedIcon.with_default_fallbacks doesn't work here
+                    zoom_in.set_attribute_value ("verb-icon", "zoom-in-symbolic");
+                    zoom_menu.append_item (zoom_in);
+
                     if (is_small) {
                         app_menu_model.prepend_section (null, application.get_menu_by_id ("app-menu-small"));
                         page_menu_model.prepend_section (null, application.get_menu_by_id ("page-menu-small"));
@@ -158,6 +176,14 @@ namespace Midori {
                     }
                     app_menu.menu_model = app_menu_model;
                     navigationbar.menubutton.menu_model = page_menu_model;
+                });
+
+                notify["zoom-level"].connect (() => {
+                    if (zoom_menu.get_n_items () > 0) {
+                        zoom_menu.remove (1);
+                        var zoom_reset = new MenuItem ("%.f%%".printf(100 * tab.zoom_level), "win.tab-zoom(1.0)");
+                        zoom_menu.insert_item (1, zoom_reset);
+                    }
                 });
 
                 application.bind_busy_property (this, "is-loading");
@@ -273,6 +299,7 @@ namespace Midori {
                     bindings.append (tab.bind_property ("display-uri", navigationbar.urlbar, "uri"));
                     bindings.append (tab.bind_property ("pinned", toggle_fullscreen, "visible", BindingFlags.INVERT_BOOLEAN));
                     bindings.append (tab.bind_property ("pinned", navigationbar, "visible", BindingFlags.INVERT_BOOLEAN));
+                    bindings.append (tab.bind_property ("zoom-level", this, "zoom-level", BindingFlags.SYNC_CREATE));
                     if (focus_timeout > 0) {
                         Source.remove (focus_timeout);
                         focus_timeout = 0;
