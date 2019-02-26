@@ -72,10 +72,14 @@ parts:
       - libgcr-3-dev
       - libpeas-dev
       - libsqlite3-dev
+      - libjson-glib-dev
+      - libarchive-dev
       - intltool
       - ninja-build
       - libxml2-utils # xmllint
     stage-packages:
+      - libjson-glib-1.0-0
+      - libarchive13
       - libwebkit2gtk-4.0-37
       - libgcr-base-3-1
       - libgcr-ui-3-1
