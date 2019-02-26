@@ -31,7 +31,7 @@ namespace Midori {
             _secure = value;
             update_icon ();
         } }
-        bool blank { get { return uri == "about:blank" || uri == "internal:speed-dial"; } }
+        internal bool blank { get { return uri == "about:blank" || uri == "internal:speed-dial"; } }
 
         [GtkChild]
         Gtk.Popover? suggestions;
