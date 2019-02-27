@@ -42,11 +42,11 @@ namespace Midori {
         }
 
         public bool get_plugin_enabled (string plugin) {
-            return get_boolean ("extensions", "lib%s.so".printf (plugin));
+            return get_boolean ("extensions", plugin);
         }
 
         public void set_plugin_enabled (string plugin, bool enabled) {
-            set_boolean ("extensions", "lib%s.so".printf (plugin), enabled);
+            set_boolean ("extensions", plugin, enabled);
         }
 
         public int last_window_width { get {

@@ -31,7 +31,7 @@ namespace Midori {
             _secure = value;
             update_icon ();
         } }
-        bool blank { get { return uri == "about:blank" || uri == "internal:speed-dial"; } }
+        internal bool blank { get { return uri == "about:blank" || uri == "internal:speed-dial"; } }
 
         [GtkChild]
         Gtk.Popover? suggestions;
@@ -106,15 +106,12 @@ namespace Midori {
                     case Gdk.Key.Delete:
                     case Gdk.Key.KP_Delete:
                         var suggestion_row = (SuggestionRow)selected_row;
-                        if (suggestion_row != null && suggestion_row.get_index() != 0 && !suggestion_row.item.database.readonly) {
+                        if (suggestion_row != null && suggestion_row.item.database != null && !suggestion_row.item.database.readonly) {
                             listbox.move_cursor (Gtk.MovementStep.DISPLAY_LINES, -1);
                             suggestion_row.item.delete.begin ();
-                        } else {                            
-                            if (suggestion_row.get_index() == 0){
-                                return base.key_press_event (event);
-                            }
+                            return true;
                         }
-                        return true;
+                        return base.key_press_event (event);
                     case Gdk.Key.Escape:
                         popdown ();
                         return true;

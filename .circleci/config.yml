@@ -31,6 +31,18 @@ jobs:
         command: |
           cd _build
           make install
+  snap:
+    docker:
+    - image: cibuilds/snapcraft:stable
+    steps:
+    - checkout
+    - run:
+        name: Refresh package cache
+        command: |
+          apt-get update
+    - run:
+        name: Build snap
+        command: snapcraft
   android:
     docker:
     - image: circleci/android:api-28-alpha
@@ -61,4 +73,5 @@ workflows:
   ci:
     jobs:
     - build
+    - snap
     - android

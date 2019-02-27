@@ -38,7 +38,7 @@ namespace WebExtension {
             string _resource = resource.has_prefix (".") ? resource.substring (1, -1) : resource;
             _resource = _resource.has_prefix ("/") ? _resource.substring (1, -1) : _resource;
 
-            if (_files != null) {
+            if (_files != null && _files.contains (_resource)) {
                 return _files.lookup (_resource);
             }
             var child = file.get_child (_resource);
@@ -108,7 +108,11 @@ namespace WebExtension {
             FileInfo info;
             while ((info = enumerator.next_file ()) != null) {
                 var file = folder.get_child (info.get_name ());
-                string id = Checksum.compute_for_string (ChecksumType.MD5, file.get_path ());
+                string id = file.get_basename ();
+                if (!Midori.CoreSettings.get_default ().get_plugin_enabled (id)) {
+                    continue;
+                }
+
                 var extension = extensions.lookup (id);
                 if (extension == null) {
                     InputStream? stream = null;
@@ -132,7 +136,9 @@ namespace WebExtension {
                                         uint8[] buffer;
                                         int64 offset;
                                         archive.read_data_block (out buffer, out offset);
-                                        extension.add_resource (entry.pathname (), new Bytes (buffer));
+                                        if (buffer.length > 0) {
+                                            extension.add_resource (entry.pathname (), new Bytes (buffer));
+                                        }
                                     }
                                 }
 
@@ -155,6 +161,7 @@ namespace WebExtension {
                         var json = new Json.Parser ();
                         yield json.load_from_stream_async (stream);
 
+                        debug ("Loading web extension %s from %s", id, file.get_path ());
                         var manifest = json.get_root ().get_object ();
                         if (manifest.has_member ("name")) {
                             extension.name = manifest.get_string_member ("name");
@@ -202,7 +209,6 @@ namespace WebExtension {
                             }
                         }
 
-                        debug ("Loaded %s from %s", extension.name, file.get_path ());
                         extensions.insert (id, extension);
                         extension_added (extension);
                     } catch (Error error) {
@@ -211,26 +217,26 @@ namespace WebExtension {
                 }
 
                 foreach (var filename in extension.content_scripts) {
-                    var script = yield extension.get_resource (filename);
-                    if (script == null) {
+                    try {
+                        var script = yield extension.get_resource (filename);
+                        content.add_script (new WebKit.UserScript ((string)(script.get_data ()),
+                                            WebKit.UserContentInjectedFrames.TOP_FRAME,
+                                            WebKit.UserScriptInjectionTime.END,
+                                            null, null));
+                    } catch (Error error) {
                         warning ("Failed to inject content script for '%s': %s", extension.name, filename);
-                        continue;
                     }
-                    content.add_script (new WebKit.UserScript ((string)(script.get_data ()),
-                                        WebKit.UserContentInjectedFrames.TOP_FRAME,
-                                        WebKit.UserScriptInjectionTime.END,
-                                        null, null));
                 }
                 foreach (var filename in extension.content_styles) {
-                    var stylesheet = yield extension.get_resource (filename);
-                    if (stylesheet == null) {
+                    try {
+                        var stylesheet = yield extension.get_resource (filename);
+                        content.add_style_sheet (new WebKit.UserStyleSheet ((string)(stylesheet.get_data ()),
+                                                 WebKit.UserContentInjectedFrames.TOP_FRAME,
+                                                 WebKit.UserStyleLevel.USER,
+                                                 null, null));
+                    } catch (Error error) {
                         warning ("Failed to inject content stylesheet for '%s': %s", extension.name, filename);
-                        continue;
                     }
-                    content.add_style_sheet (new WebKit.UserStyleSheet ((string)(stylesheet.get_data ()),
-                                             WebKit.UserContentInjectedFrames.TOP_FRAME,
-                                             WebKit.UserStyleLevel.USER,
-                                             null, null));
                 }
             }
         }
@@ -281,7 +287,7 @@ namespace WebExtension {
         }
 
         public void install_api (WebKit.WebView web_view) {
-            web_view.get_settings ().enable_write_console_messages_to_stdout = true; // XXX
+            web_view.get_settings ().enable_write_console_messages_to_stdout = true;
 
             var content = web_view.get_user_content_manager ();
             if (content.register_script_message_handler ("midori")) {
@@ -314,7 +320,7 @@ namespace WebExtension {
             manager.install_api (this);
 
             if (uri != null) {
-                string id = Checksum.compute_for_string (ChecksumType.MD5, extension.file.get_path ());
+                string id = extension.file.get_basename ();
                 load_uri ("extension:///%s/%s".printf (id, uri));
             } else {
                 load_html ("<body></body>", extension.file.get_uri ());

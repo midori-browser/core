@@ -355,7 +355,21 @@ namespace Adblock {
                 debug ("%s for %s (%s)", directive.to_string (), request_uri, page_uri);
                 return directive;
             }
-            return null;
+
+            try {
+                //The uri is either Allowed(whitelist), Blocked(pattern), or neither
+                directive = whitelist.match (request_uri, page_uri);
+                if (directive == null) {
+                    directive = pattern.match (request_uri, page_uri);
+                }
+            } catch (Error error) {
+                critical ("Error matching %s %s: %s", request_uri, uri, error.message);
+            }
+
+            if (directive != null)
+                cache.insert (request_uri, directive);
+
+            return directive;
         }
     }
 }

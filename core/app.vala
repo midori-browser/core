@@ -167,10 +167,10 @@ namespace Midori {
             var plugins = Plugins.get_default (builtin_path.get_path ());
             // Save/ load state of plugins
             plugins.load_plugin.connect ((info) => {
-                settings.set_plugin_enabled (info.get_module_name (), true);
+                settings.set_plugin_enabled ("lib%s.so".printf (info.get_module_name ()), true);
             });
             plugins.unload_plugin.connect ((info) => {
-                settings.set_plugin_enabled (info.get_module_name (), false);
+                settings.set_plugin_enabled ("lib%s.so".printf (info.get_module_name ()), false);
             });
 
             var extensions = Plugins.get_default ().plug<AppActivatable> ("app", this);
