@@ -106,11 +106,12 @@ namespace Midori {
                     case Gdk.Key.Delete:
                     case Gdk.Key.KP_Delete:
                         var suggestion_row = (SuggestionRow)selected_row;
-                        if (suggestion_row != null && !suggestion_row.item.database.readonly) {
+                        if (suggestion_row != null && suggestion_row.item.database != null && !suggestion_row.item.database.readonly) {
                             listbox.move_cursor (Gtk.MovementStep.DISPLAY_LINES, -1);
                             suggestion_row.item.delete.begin ();
+                            return true;
                         }
-                        return true;
+                        return base.key_press_event (event);
                     case Gdk.Key.Escape:
                         popdown ();
                         return true;
