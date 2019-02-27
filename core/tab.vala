@@ -37,8 +37,6 @@ namespace Midori {
         [GtkChild]
         Gtk.Label message;
         [GtkChild]
-        Gtk.Entry entry;
-        [GtkChild]
         Gtk.Button confirm;
 
         construct {
@@ -332,37 +330,22 @@ namespace Midori {
         }
 
         public override bool script_dialog (WebKit.ScriptDialog dialog) {
-            message.label = dialog.get_message ();
-
             switch (dialog.get_dialog_type ()) {
                 case WebKit.ScriptDialogType.ALERT:
+                    message.label = dialog.get_message ();
                     confirm.hide ();
+                    popover.show ();
                     break;
                 case WebKit.ScriptDialogType.CONFIRM:
                 case WebKit.ScriptDialogType.BEFORE_UNLOAD_CONFIRM:
-                    confirm.label = _("_Confirm");
-                    confirm.visible = true;
-                    popover.closed.connect (() => {
-                        dialog.confirm_set_confirmed (false);
-                    });
-                    confirm.clicked.connect (() => {
-                        dialog.confirm_set_confirmed (true);
-                    });
+                    string hostname = new Soup.URI (uri).host;
+                    dialog.confirm_set_confirmed(((Browser)get_toplevel ()).prompt (hostname, dialog.get_message (), _("_Confirm")) != null);
                     break;
                 case WebKit.ScriptDialogType.PROMPT:
-                    entry.placeholder_text = dialog.prompt_get_default_text ();
-                    entry.visible = true;
-                    confirm.label = _("_Confirm");
-                    confirm.visible = true;
-                    popover.closed.connect (() => {
-                        dialog.prompt_set_text ("");
-                    });
-                    confirm.clicked.connect (() => {
-                        dialog.prompt_set_text (entry.text);
-                    });
+                    string hostname = new Soup.URI (uri).host;
+                    dialog.prompt_set_text(((Browser)get_toplevel ()).prompt (hostname, dialog.get_message (), _("_Confirm"), dialog.prompt_get_default_text ()));
                     break;
             }
-            popover.show ();
             return true;
         }
 

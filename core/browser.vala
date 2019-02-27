@@ -625,26 +625,41 @@ namespace Midori {
             tab.print (new WebKit.PrintOperation (tab));
         }
 
-        void caret_browsing_activated () {
-            var settings = CoreSettings.get_default ();
-            if (!settings.enable_caret_browsing) {
-                var dialog = new Gtk.Dialog.with_buttons (
-                    get_settings ().gtk_dialogs_use_header ? null : _("Toggle text cursor navigation"),
-                    this,
-                    get_settings ().gtk_dialogs_use_header ? Gtk.DialogFlags.USE_HEADER_BAR : 0,
-                    Gtk.Stock.CANCEL, Gtk.ResponseType.CANCEL,
-                    _("_Enable Caret Browsing"), Gtk.ResponseType.ACCEPT);
-                var label = new Gtk.Label (_("Pressing F7 toggles Caret Browsing. When active, a text cursor appears in all websites."));
+        internal string? prompt (string title, string message, string confirm, string? text=null) {
+            var dialog = new Gtk.Dialog.with_buttons (
+                get_settings ().gtk_dialogs_use_header ? null : (title ?? message),
+                this,
+                get_settings ().gtk_dialogs_use_header ? Gtk.DialogFlags.USE_HEADER_BAR : 0,
+                Gtk.Stock.CANCEL, Gtk.ResponseType.CANCEL,
+                confirm, Gtk.ResponseType.ACCEPT);
+            if (message != null) {
+                var label = new Gtk.Label (message);
                 label.wrap = true;
                 label.max_width_chars = 33;
                 label.margin = 8;
                 label.show ();
                 dialog.get_content_area ().add (label);
-                dialog.set_default_response (Gtk.ResponseType.ACCEPT);
-                if (dialog.run () == Gtk.ResponseType.ACCEPT) {
+            }
+            var entry = new Gtk.Entry ();
+            if (text != null) {
+                entry.text = text;
+                entry.show ();
+                dialog.get_content_area ().add (entry);
+            }
+            dialog.set_default_response (Gtk.ResponseType.ACCEPT);
+            string? result = dialog.run () == Gtk.ResponseType.ACCEPT ? (entry.get_text () ?? "") : null;
+            dialog.close ();
+            return result;
+        }
+
+        void caret_browsing_activated () {
+            var settings = CoreSettings.get_default ();
+            if (!settings.enable_caret_browsing) {
+                if (prompt (_("Toggle text cursor navigation"),
+                            _("Pressing F7 toggles Caret Browsing. When active, a text cursor appears in all websites."),
+                            _("_Enable Caret Browsing")) != null) {
                     settings.enable_caret_browsing = true;
                 }
-                dialog.close ();
             } else {
                 settings.enable_caret_browsing = false;
             }
