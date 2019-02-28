@@ -3,6 +3,8 @@
 [![Telegram](https://img.shields.io/badge/Telegram-Chat-gray.svg?style=flat&logo=telegram&colorA=5583a4&logoColor=fff)](https://www.midori-browser.org/telegram)
 [![Twitter](https://img.shields.io/twitter/follow/midoriweb.svg?style=social&label=Follow)](https://twitter.com/midoriweb)
 [![Donate](https://img.shields.io/badge/PayPal-Donate-gray.svg?style=flat&logo=paypal&colorA=0071bb&logoColor=fff)](https://www.midori-browser.org/donate)
+[![BountySource](https://img.shields.io/bountysource/team/midori/activity.svg)](https://www.bountysource.com/teams/midori)
+[![Patreon](https://img.shields.io/badge/PATREON-Pledge-red.svg)](https://www.patreon.com/midoribrowser)
 
 <p align="center">
     <img src="icons/scalable/apps/midori.svg"/>
@@ -111,13 +113,16 @@ You'll want to **unit test** the code if you're testing a new version or contrib
 
 # Release process
 
-Update `CORE_VERSION` in `CMakeLists.txt` to `7.0`.
+We're on a 8/4 cycle which means 8 weeks of features and 4 weeks of stabilization
+capped at a release once every 3 months ie. at the last of the third month.
+
+Update `CORE_VERSION` in `CMakeLists.txt` to `8.0`.
 Add a section to `ChangeLog`.
 
-    git commit -p -v -m "Release Midori 7.0"
-    git checkout -B release-7.0
+    git commit -p -v -m "Release Midori 8.0"
+    git checkout -B release-8.0
     git push origin HEAD
-    git archive --prefix=midori-v7.0/ -o midori-v7.0.tar.gz -9 HEAD
+    git archive --prefix=midori-v8.0/ -o midori-v8.0.tar.gz -9 HEAD
 
 Propose a PR for the release.
 Publish the release on https://github.com/midori-browser/core/releases
