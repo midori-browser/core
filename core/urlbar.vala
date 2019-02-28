@@ -177,7 +177,8 @@ namespace Midori {
         }
 
         string? magic_uri (string text) {
-            if (" " in text) {
+            // Leading or trailing space means search
+            if (text.has_prefix (" ") || text.has_suffix (" ")) {
                 return null;
             } else if (Path.is_absolute (text)) {
                 try {
