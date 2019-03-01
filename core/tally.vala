@@ -42,6 +42,8 @@ namespace Midori {
         [GtkChild]
         Favicon favicon;
         [GtkChild]
+        Gtk.Image audio;
+        [GtkChild]
         Gtk.Button close;
 
         public Tally (Tab tab) {
@@ -62,6 +64,7 @@ namespace Midori {
                 favicon.visible = !tab.is_loading;
                 spinner.visible = !favicon.visible;
             });
+            tab.bind_property ("is-playing-audio", audio, "visible", BindingFlags.SYNC_CREATE);
 
             // Pinned tab style: icon only
             tab.notify["pinned"].connect ((pspec) => {
