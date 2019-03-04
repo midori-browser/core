@@ -90,10 +90,11 @@ namespace Midori {
                     navigationbar.urlbar.grab_focus ();
                 }
                 if (!statusbar.has_children) {
+                    bool was_visible = statusbar.visible;
                     statusbar.hide ();
                     // Flip overlay to evade the mouse pointer
                     statusbar.halign = statusbar.halign == Gtk.Align.START ? Gtk.Align.END : Gtk.Align.START;
-                    statusbar.show ();
+                    statusbar.visible = was_visible;
                 }
                 return false;
             });
