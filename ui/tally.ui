@@ -20,6 +20,14 @@
           </object>
         </child>
         <child>
+          <object class="GtkImage" id="audio">
+            <property name="icon-name">audio-volume-high-symbolic</property>
+            <property name="use-fallback">yes</property>
+            <!-- menu -->
+            <property name="icon-size">1</property>
+          </object>
+        </child>
+        <child>
           <object class="GtkLabel" id="caption">
             <property name="ellipsize">end</property>
             <!-- As per docs, when ellipsized and expanded max width is the minimum -->
@@ -37,6 +45,7 @@
             <child>
               <object class="GtkImage">
                 <property name="icon-name">window-close-symbolic</property>
+                <property name="use-fallback">yes</property>
                 <!-- menu -->
                 <property name="icon-size">1</property>
                 <property name="visible">yes</property>
