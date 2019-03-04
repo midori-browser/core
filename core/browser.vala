@@ -476,7 +476,9 @@ namespace Midori {
             uint index = trash.get_n_items ();
             if (index > 0) {
                 var item = trash.get_object (index - 1) as DatabaseItem;
-                add (new Tab (null, web_context, item.uri, item.title));
+                var tab = new Tab (null, web_context, item.uri, item.title);
+                tab.set_data<bool> ("foreground", true);
+                add (tab);
                 trash.remove (index - 1);
             }
         }
@@ -723,6 +725,9 @@ namespace Midori {
                 tabs.child_set (tab, "title", tab.display_title);
             });
             tabs.add_titled (tab, tab.id, tab.display_title);
+            if (tab.get_data<bool> ("foreground")) {
+                tabs.visible_child = tab;
+            }
         }
 
         void clear_private_data_activated () {

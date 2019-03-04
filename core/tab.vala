@@ -410,7 +410,10 @@ namespace Midori {
                     break;
                 case WebKit.PolicyDecisionType.NEW_WINDOW_ACTION:
                     var action = ((WebKit.NavigationPolicyDecision)decision).navigation_action;
-                    create (action);
+                    var tab = ((Tab)create (action));
+                    tab.set_data<bool> ("foreground", true);
+                    tab.load_request (action.get_request ());
+                    tab.ready_to_show ();
                     decision.ignore ();
                     return true;
                 case WebKit.PolicyDecisionType.RESPONSE:
