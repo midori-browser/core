@@ -159,7 +159,7 @@ namespace Midori {
                     // Note: set_icon with ThemedIcon.with_default_fallbacks doesn't work here
                     zoom_out.set_attribute_value ("verb-icon", "zoom-out-symbolic");
                     zoom_menu.append_item (zoom_out);
-                    var zoom_reset = new MenuItem ("%.f%%".printf(100 * tab.zoom_level), "win.tab-zoom(1.0)");
+                    var zoom_reset = new MenuItem ("%.f%%".printf(100 * zoom_level), "win.tab-zoom(1.0)");
                     zoom_menu.append_item (zoom_reset);
                     var zoom_in = new MenuItem (_("Increase the zoom level"), "win.tab-zoom(0.1)");
                     // Note: set_icon with ThemedIcon.with_default_fallbacks doesn't work here
@@ -177,6 +177,7 @@ namespace Midori {
                     app_menu.menu_model = app_menu_model;
                     navigationbar.menubutton.menu_model = page_menu_model;
                 });
+                notify_property ("is-small");
 
                 notify["zoom-level"].connect (() => {
                     if (zoom_menu.get_n_items () > 0) {
