@@ -305,6 +305,7 @@ namespace Midori {
                         focus_timeout = 0;
                     }
                     focus_timeout = Timeout.add (500, () => {
+                        focus_timeout = 0;
                         tab.grab_focus ();
                         goto_activated ();
                         return Source.REMOVE;
