@@ -104,7 +104,9 @@ namespace Midori {
                 var history = HistoryDatabase.get_default (web_context.is_ephemeral ());
                 var item = yield history.lookup (display_uri);
                 if (item != null) {
-                    display_title = item.title;
+                    if (item.title != null && item.title != "") {
+                        display_title = item.title;
+                    }
                     this.item = item;
                 }
             } catch (DatabaseError error) {
