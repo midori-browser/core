@@ -27,8 +27,6 @@ namespace Midori {
         [GtkChild]
         public Urlbar urlbar;
         [GtkChild]
-        public Gtk.MenuButton menubutton;
-        [GtkChild]
         public Gtk.Button restore;
 
         construct {

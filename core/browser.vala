@@ -31,6 +31,7 @@ namespace Midori {
         internal double zoom_level { get; protected set; default = 1.0f; }
 
         const ActionEntry[] actions = {
+            { "compactmenu", compactmenu_activated },
             { "navigationbar", navigationbar_activated },
             { "tab-close", tab_close_activated },
             { "close", close_activated },
@@ -112,6 +113,7 @@ namespace Midori {
             add_action_entries (actions, this);
 
             notify["application"].connect ((pspec) => {
+                application.set_accels_for_action ("win.compactmenu", { "F10", "<Alt>f" });
                 application.set_accels_for_action ("win.panel", { "F9" });
                 application.set_accels_for_action ("win.tab-new", { "<Primary>t" });
                 application.set_accels_for_action ("win.tab-close", { "<Primary>w" });
@@ -145,17 +147,14 @@ namespace Midori {
                 application.set_accels_for_action ("win.tab-zoom(1.0)", { "<Primary>0" });
 
                 app_menu.menu_model = application.get_menu_by_id ("app-menu");
-                navigationbar.menubutton.menu_model = application.get_menu_by_id ("page-menu");
                 notify["is-small"].connect (() => {
                     var app_menu_model = new Menu ();
-                    app_menu_model.prepend_section (null, application.get_menu_by_id ("app-menu"));
-                    var page_menu_model = new Menu ();
-                    page_menu_model.prepend_section (null, application.get_menu_by_id ("page-menu"));
+                    app_menu_model.prepend_section (null, application.get_menu_by_id ("window-menu"));
 
                     zoom_menu = new Menu ();
                     var zoom_section = new MenuItem.section (null, zoom_menu);
                     zoom_section.set_attribute_value ("display-hint", "horizontal-buttons");
-                    page_menu_model.prepend_item (zoom_section);
+                    app_menu_model.append_item (zoom_section);
                     var zoom_out = new MenuItem (_("Decrease the zoom level"), "win.tab-zoom(-0.1)");
                     // Note: set_icon with ThemedIcon.with_default_fallbacks doesn't work here
                     zoom_out.set_attribute_value ("verb-icon", "zoom-out-symbolic");
@@ -167,16 +166,20 @@ namespace Midori {
                     zoom_in.set_attribute_value ("verb-icon", "zoom-in-symbolic");
                     zoom_menu.append_item (zoom_in);
 
+                    app_menu_model.append_section (null, application.get_menu_by_id ("page-menu"));
+
                     if (is_small) {
-                        app_menu_model.prepend_section (null, application.get_menu_by_id ("app-menu-small"));
-                        page_menu_model.prepend_section (null, application.get_menu_by_id ("page-menu-small"));
+                        if (!is_locked) {
+                            app_menu_model.prepend_section (null, application.get_menu_by_id ("page-menu-small"));
+                            app_menu_model.prepend_section (null, application.get_menu_by_id ("app-menu-small"));
+                        }
                         // Anchor downloads popover to app menu if the button is hidden
                         downloads.popover.relative_to = app_menu;
                     } else {
                         downloads.popover.relative_to = downloads;
                     }
+                    app_menu_model.append_section (null, application.get_menu_by_id ("app-menu"));
                     app_menu.menu_model = app_menu_model;
-                    navigationbar.menubutton.menu_model = page_menu_model;
                 });
                 notify_property ("is-small");
 
@@ -466,6 +469,10 @@ namespace Midori {
             tabs.visible_child = tab;
         }
 
+        void compactmenu_activated () {
+            app_menu.popover.show ();
+        }
+
         void navigationbar_activated () {
             navigationbar.show ();
         }
@@ -567,7 +574,6 @@ namespace Midori {
         void fullscreen_activated () {
             is_fullscreen = !is_fullscreen;
             navigationbar.restore.visible = is_fullscreen;
-            navigationbar.menubutton.visible = !is_fullscreen;
             if (is_fullscreen) {
                 fullscreen ();
                 navigationbar.hide ();
