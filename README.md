@@ -77,6 +77,10 @@ Install dependencies on openSUSE:
 
     sudo zypper in cmake vala gcc webkit2gtk3-devel libgcr-devel libpeas-devel sqlite3-devel json-glib-devel libarchive-devel fdupes gettext-tools intltool libxml2-devel
 
+Install dependencies on Fedora:
+
+    sudo dnf install gcc cmake intltool vala libsoup-devel sqlite-devel webkit2gtk3-devel gcr-devel json-glib-devel libpeas-devel libarchive-devel libxml2-devel
+
 Use CMake to build Midori:
 
     mkdir _build
