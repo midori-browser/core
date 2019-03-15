@@ -21,6 +21,7 @@ namespace WebExtension {
         public List<string> content_scripts { get; owned set; }
         public List<string> content_styles { get; owned set; }
         public Action? browser_action { get; set; }
+        public Action? sidebar { get; set; }
 
         public Extension (File file) {
             Object (file: file, name: file.get_basename ());
@@ -189,6 +190,16 @@ namespace WebExtension {
                                     pick_default_icon (action),
                                     action.has_member ("default_title") ? action.get_string_member ("default_title") : null,
                                     action.has_member ("default_popup") ? action.get_string_member ("default_popup") : null);
+                            }
+                        }
+
+                        if (manifest.has_member ("sidebar_action")) {
+                            var sidebar = manifest.has_member ("sidebar_action") ? manifest.get_object_member ("sidebar_action") : null;
+                            if (sidebar != null) {
+                                extension.sidebar = new Action (
+                                    pick_default_icon (sidebar),
+                                    sidebar.has_member ("default_title") ? sidebar.get_string_member ("default_title") : null,
+                                    sidebar.has_member ("default_panel") ? sidebar.get_string_member ("default_panel") : null);
                             }
                         }
 
@@ -421,6 +432,15 @@ namespace WebExtension {
         async void install_extension (Extension extension) throws Error {
             if (extension.browser_action != null) {
                 browser.add_button (new Button (extension as Extension));
+            }
+
+            if (extension.sidebar != null) {
+                var scrolled = new Gtk.ScrolledWindow (null, null);
+                var web_view = new WebView (extension, extension.browser_action.popup);
+                scrolled.show ();
+                scrolled.add (web_view);
+                browser.add_panel (scrolled);
+                scrolled.parent.child_set (scrolled, "title", extension.sidebar.title);
             }
 
             // Employ a delay to avoid delaying startup with many extensions

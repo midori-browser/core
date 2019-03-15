@@ -276,6 +276,10 @@ The following API specification is supported by Midori:
         default_popup: *.html
         default_icon: *.png
         default_title
+      sidebar_action:
+        default_panel: *.html
+        default_icon: *.png
+        default_title
       content_scripts:
         js:
         - *.js

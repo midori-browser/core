@@ -224,14 +224,14 @@ namespace Midori {
             fullscreen.activate.connect (fullscreen_activated);
             add_action (fullscreen);
             // Action for panel toggling
-            action = new SimpleAction.stateful ("panel", null, false);
-            action.set_enabled (false);
-            action.change_state.connect (panel_activated);
-            add_action (action);
+            var panel_action = new SimpleAction.stateful ("panel", null, false);
+            panel_action.set_enabled (false);
+            panel_action.change_state.connect (panel_activated);
+            add_action (panel_action);
             // Reveal panel toggle after panels are added
             panel.add.connect ((widget) => {
                 panel_toggle.show ();
-                action.set_enabled (true);
+                panel_action.set_enabled (true);
             });
             // Page actions
             var go_back = new SimpleAction ("go-back", null);
@@ -391,6 +391,8 @@ namespace Midori {
             } else {
                 tabbar.decoration_layout = null;
             }
+            ((Gtk.Container)tabbar.parent).child_set_property (tabbar, "shrink", !panel.visible);
+            ((Gtk.Container)navigationbar.parent.parent).child_set_property (navigationbar.parent, "shrink", panel.visible);
         }
 
         public override bool configure_event (Gdk.EventConfigure event) {
@@ -416,6 +418,14 @@ namespace Midori {
          */
         public void add_button (Gtk.Button button) {
             navigationbar.pack_end (button);
+        }
+
+        /*
+         * Add a panel to be displayed in the sidebar.
+         */
+        public void add_panel (Gtk.Widget widget) {
+            panel.add_named (widget, "%p".printf (widget));
+            panel.visible_child = widget;
         }
 
         /*
