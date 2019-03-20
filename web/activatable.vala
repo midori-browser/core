@@ -11,7 +11,9 @@
 
 Midori.Plugins? plugins;
 public void webkit_web_extension_initialize_with_user_data (WebKit.WebExtension extension, Variant user_data) {
-    plugins = Midori.Plugins.get_default (user_data.get_string ());
+    var paths = user_data as HashTable<string, string>;
+    Midori.CoreSettings.get_default (paths.lookup ("config"));
+    plugins = Midori.Plugins.get_default (paths.lookup ("builtin-path"));
     extension.page_created.connect ((page) => {
         var extensions = plugins.plug<Peas.Activatable> ("object", page);
         extensions.extension_added.connect ((info, extension) => ((Peas.Activatable)extension).activate ());

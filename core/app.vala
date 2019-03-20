@@ -24,9 +24,11 @@ namespace Midori {
         static bool help_execute = false;
         static int inactivity_reset = 0;
         static bool incognito = false;
+        static string? profile = null;
         static bool version = false;
         const OptionEntry[] options = {
             { "app", 'a', 0, OptionArg.STRING, ref app, N_("Run ADDRESS as a web application"), N_("ADDRESS") },
+            { "config", 'c', 0, OptionArg.FILENAME, ref profile, N_("Use FOLDER as configuration folder"), N_("FOLDER") },
             { "execute", 'e', 0, OptionArg.STRING_ARRAY, ref execute, N_("Execute the specified command"), null },
             { "help-execute", 0, 0, OptionArg.NONE, ref help_execute, N_("List available commands to execute with -e/ --execute"), null },
             { "inactivity-reset", 'i', 0, OptionArg.INT, ref inactivity_reset, N_("Reset Midori after SECONDS seconds of inactivity"), N_("SECONDS") },
@@ -97,10 +99,14 @@ namespace Midori {
                     critical ("Failed to load resource %s: %s", request.get_uri (), error.message);
                 }
             });
-            string config = Path.build_path (Path.DIR_SEPARATOR_S,
-                Environment.get_user_config_dir (), Environment.get_prgname ());
-            DirUtils.create_with_parents (config, 0700);
-            string cookies = Path.build_filename (config, "cookies");
+            debug ("Using profile: %s", profile);
+            File? config = File.new_for_path (profile);
+            try {
+                config.make_directory_with_parents ();
+            } catch (Error error) {
+                // It's no error if the folder already exists
+            }
+            string cookies = config.get_child ("cookies").get_path ();
             context.get_cookie_manager ().set_persistent_storage (cookies, WebKit.CookiePersistentStorage.SQLITE);
             string cache = Path.build_path (Path.DIR_SEPARATOR_S,
                 Environment.get_user_cache_dir (), Environment.get_prgname ());
@@ -122,9 +128,12 @@ namespace Midori {
                     // System-wide plugins
                     builtin_path = File.new_for_path (Config.PLUGINDIR);
                 }
-                context.set_web_extensions_initialization_user_data (builtin_path.get_path ());
+                var paths = new HashTable<string, string> (str_hash, str_equal);
+                paths.insert ("config", config.get_child ("config").get_path ());
+                paths.insert ("builtin-path", builtin_path.get_path ());
+                context.set_web_extensions_initialization_user_data (paths);
             });
-            var settings = CoreSettings.get_default ();
+            var settings = CoreSettings.get_default (config.get_child ("config").get_path ());
             context.set_spell_checking_enabled (settings.enable_spell_checking);
             settings.notify["enable-spell-checking"].connect ((pspec) => {
                 context.set_spell_checking_enabled (settings.enable_spell_checking);
@@ -407,8 +416,16 @@ namespace Midori {
                 return 0;
             }
 
+            if (profile == null) {
+                profile = Path.build_path (Path.DIR_SEPARATOR_S,
+                    Environment.get_user_config_dir (), Environment.get_prgname ());
+            } else {
+                application_id += "-%u".printf (profile.hash ()).ndup (1 + 5);
+            }
+
             // Propagate options processed in the primary instance
             options.insert_value ("app", app ?? "");
+            options.insert_value ("config", profile);
             options.insert_value ("execute", execute);
             options.insert_value ("help-execute", help_execute);
             options.insert_value ("inactivity-reset", inactivity_reset);
@@ -426,6 +443,7 @@ namespace Midori {
             help_execute = options.lookup_value ("help-execute", VariantType.BOOLEAN).get_boolean ();
             inactivity_reset = options.lookup_value ("inactivity-reset", VariantType.INT32).get_int32 ();
             incognito = options.lookup_value ("private", VariantType.BOOLEAN).get_boolean ();
+            profile = options.lookup_value ("config", VariantType.STRING).get_string ();
             debug ("Processing remote command line %s/ %s\n",
                    string.joinv (", ", command_line.get_arguments ()), options.end ().print (true));
 
