@@ -20,7 +20,6 @@ import android.webkit.WebStorage
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import kotlinx.android.synthetic.main.activity_browser.*
-import java.util.ResourceBundle.clearCache
 
 class BrowserActivity : AppCompatActivity() {
 
@@ -128,12 +127,11 @@ class BrowserActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.actionShare -> {
-            val share = Intent().apply {
-                action = Intent.ACTION_VIEW
-                data = Uri.parse(webView.url)
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-            }
-            startActivity(Intent.createChooser(share, getString(R.string.actionShare)))
+            val intent = Intent(Intent.ACTION_SEND)
+            val uri = Uri.parse(webView.url)
+            intent.putExtra(Intent.EXTRA_TEXT, uri.toString())
+            intent.type = "text/plain"
+            startActivity(Intent.createChooser(intent, getString(R.string.actionShare)))
             true
         }
         R.id.actionClearPrivateData -> {
