@@ -13,8 +13,6 @@ namespace Midori {
     [GtkTemplate (ui = "/ui/suggestion-row.ui")]
     public class SuggestionRow : Gtk.ListBoxRow {
         public DatabaseItem item { get; protected set; }
-        string? escaped_uri = null;
-        string? escaped_title = null;
         public string? location { get; set; }
         public Regex? regex { get; set; }
         public string? key { get; set; }
@@ -53,25 +51,27 @@ namespace Midori {
             // Double-check type for the sake of plugins
             } else if (item is DatabaseItem) {
                 icon.uri = item.uri;
-                escaped_title = item.title != null ? Markup.escape_text (item.title) : "";
-                title.label = escaped_title;
-                escaped_uri = Markup.escape_text (strip_uri_prefix (item.uri));
-                uri.label = escaped_uri;
-                notify["regex"].connect ((pspec) => {
-                    if (regex != null) {
-                        try {
-                            var highlight = "<b>\\1</b>";
-                            uri.label = regex.replace (escaped_uri, -1, 0, highlight);
-                            title.label = regex.replace (escaped_title, -1, 0, highlight);
-                        } catch (RegexError error) {
-                            debug ("Failed to apply regex: %s", error.message);
-                        }
-                    }
+                title.label = item.title != null ? render (item.title) : "";
+                uri.label = render (strip_uri_prefix (item.uri));
+                notify["key"].connect ((pspec) => {
+                    title.label = item.title != null ? render (item.title) : "";
+                    uri.label = render (strip_uri_prefix (item.uri));
                 });
             }
             // Delete button to remove suggestions from history
             this.delete.visible = item.database != null && !item.database.readonly;
             this.delete.clicked.connect (() => { item.delete.begin (); });
+        }
+
+        string render (string text) {
+            if (key != null && key[0] != '\0') {
+                int index = text.down ().index_of (key.down ());
+                if (index > -1) {
+                    return Markup.printf_escaped ("%s<b>%s</b>%s",
+                        text.substring (0, index), key, text.substring (index + key.length));
+                }
+            }
+            return Markup.escape_text (text);
         }
 
         string? strip_uri_prefix (string uri) {
