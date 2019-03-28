@@ -315,7 +315,9 @@ namespace Midori {
                         search_entry.text = tab.get_find_controller ().get_search_text () ?? "";
                         search.visible = search_entry.text != "";
                         search.search_mode_enabled = search.visible;
-                        goto_activated ();
+                        if (navigationbar.urlbar.blank) {
+                            navigationbar.urlbar.grab_focus ();
+                        }
                         return Source.REMOVE;
                     }, Priority.LOW);
                 } else {
@@ -509,9 +511,7 @@ namespace Midori {
         void goto_activated () {
             if (!tab.pinned) {
                 navigationbar.show ();
-                if (navigationbar.urlbar.blank) {
-                    navigationbar.urlbar.grab_focus ();
-                }
+                navigationbar.urlbar.grab_focus ();
             }
         }
 
