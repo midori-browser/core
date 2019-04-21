@@ -145,6 +145,21 @@ namespace Midori {
                 browser.add (new Tab (null, tab.web_context, uri));
             });
             group.add_action (action);
+            action = new SimpleAction ("close-other", null);
+            action.activate.connect (() => {
+                var browser = (Browser)tab.get_ancestor (typeof (Browser));
+                foreach (var widget in browser.tabs.get_children ()) {
+                    if (widget != tab) {
+                        ((Tab)widget).try_close ();
+                    }
+                }
+            });
+            group.add_action (action);
+            action = new SimpleAction ("close-tab", null);
+            action.activate.connect (() => {
+                tab.try_close ();
+            });
+            group.add_action (action);
             insert_action_group ("tally", group);
         }
 
