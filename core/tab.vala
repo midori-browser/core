@@ -69,7 +69,7 @@ namespace Midori {
 
             var settings = get_settings ();
             settings.user_agent += " %s".printf (Config.CORE_USER_AGENT_VERSION);
-            settings.enable_developer_extras = true;
+            bind_property ("pinned", settings, "enable-developer-extras", BindingFlags.SYNC_CREATE | BindingFlags.INVERT_BOOLEAN);
             var core_settings = CoreSettings.get_default ();
             settings.enable_javascript = core_settings.enable_javascript;
             core_settings.notify["enable-javascript"].connect ((pspec) => {
