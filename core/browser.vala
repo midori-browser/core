@@ -523,7 +523,26 @@ namespace Midori {
             tab.go_forward ();
         }
 
+        bool open_new_tab (string uri) {
+            var event = Gtk.get_current_event ();
+            if (event != null) {
+                Gdk.ModifierType state;
+                event.get_state (out state);
+                if ((state & Gdk.ModifierType.CONTROL_MASK) != 0) {
+                    var tab = new Tab (null, tab.web_context, uri);
+                    tab.set_data<bool> ("foreground", true);
+                    add (tab);
+                    return true;
+                }
+            }
+            return false;
+        }
+
         void tab_reload_activated () {
+            if (open_new_tab (tab.uri)) {
+                return;
+            }
+
             tab.reload ();
         }
 
@@ -544,6 +563,12 @@ namespace Midori {
                 // Fallback to search if URI is about:search or anything else
                 uri = settings.uri_for_search ();
             }
+
+            if (open_new_tab (uri)) {
+                add (new Tab (null, tab.web_context, uri));
+                return;
+            }
+
             if (tab == null) {
                 add (new Tab (null, web_context, uri));
             } else {
