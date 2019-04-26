@@ -276,6 +276,17 @@ namespace Midori {
             suggestions.grab_focus ();
         }
 
+        protected override void populate_popup (Gtk.Menu menu) {
+            string? text = Gtk.Clipboard.get_for_display (get_display (), Gdk.SELECTION_CLIPBOARD).wait_for_text ();
+            var menuitem = new Gtk.MenuItem.with_mnemonic ("Paste and p_roceed");
+            menuitem.sensitive = text != null;
+            menuitem.activate.connect (() => {
+                uri = magic_uri (text) ?? CoreSettings.get_default ().uri_for_search (text);
+            });
+            menuitem.show ();
+            menu.insert (menuitem, 3);
+        }
+
         void update_icon () {
             if (blank) {
                 primary_icon_name = null;
