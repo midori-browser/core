@@ -602,6 +602,10 @@ namespace Midori {
         void find_activated () {
             search.show ();
             search.search_mode_enabled = true;
+            string? text = Gtk.Clipboard.get_for_display (get_display (), Gdk.SELECTION_PRIMARY).wait_for_text ();
+            if (text != null) {
+                search_entry.text = text.strip ();
+            }
             search_entry.grab_focus ();
         }
 
