@@ -144,7 +144,7 @@ namespace Bookmarks {
             });
         }
 
-        async Midori.DatabaseItem item_for_tab (Midori.Tab tab) {
+        async Midori.DatabaseItem item_for_tab (Midori.Viewable tab) {
             var item = tab.get_data<Midori.DatabaseItem?> ("bookmarks-item");
             if (item == null) {
                 try {

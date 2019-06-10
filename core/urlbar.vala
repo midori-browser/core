@@ -267,7 +267,7 @@ namespace Midori {
             if (!suggestions.visible) {
                 suggestions.set_default_widget (this);
                 suggestions.relative_to = this;
-                var completion = new Completion (((Browser)get_toplevel ()).tab.web_context.is_ephemeral ());
+                var completion = new Completion (((Browser)get_toplevel ()).is_incognito);
                 bind_property ("key", completion, "key");
                 listbox.bind_model (completion, create_row);
             }

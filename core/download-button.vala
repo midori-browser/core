@@ -80,7 +80,7 @@ namespace Midori {
         public string? filename { get; protected set; default = null; }
         public string? basename { get; protected set; default = null; }
         public double progress { get; protected set; default = 0.0; }
-        public WebKit.Download? download { get; protected set; default = null; }
+        internal WebKit.Download? download { get; protected set; default = null; }
         public bool loading { get; protected set; default = false; }
         public string? error { get; protected set; default = null; }
         public void cancel () {
@@ -109,7 +109,7 @@ namespace Midori {
             Object (filename: filename);
         }
 
-        public DownloadItem.with_download (WebKit.Download download) {
+        internal DownloadItem.with_download (WebKit.Download download) {
             Object (download: download, loading: true);
             download.bind_property ("destination", this, "filename", BindingFlags.SYNC_CREATE);
             download.bind_property ("estimated-progress", this, "progress", BindingFlags.SYNC_CREATE);
