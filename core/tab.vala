@@ -114,14 +114,6 @@ namespace Midori {
             }
         }
 
-        public override bool focus_in_event (Gdk.EventFocus event) {
-            // Delayed load on focus
-            if (display_uri != uri) {
-                load_uri (display_uri);
-            }
-            return base.focus_in_event (event);
-        }
-
         void update_progress (ParamSpec pspec) {
             // Update back/ forward state here since there's no signal
             can_go_back = base.can_go_back ();

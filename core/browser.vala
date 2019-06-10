@@ -312,6 +312,9 @@ namespace Midori {
                     focus_timeout = Timeout.add (500, () => {
                         focus_timeout = 0;
                         tab.grab_focus ();
+                        if (tab.display_uri != tab.uri) {
+                            tab.load_uri (tab.display_uri);
+                        }
                         search_entry.text = tab.get_find_controller ().get_search_text () ?? "";
                         search.visible = search_entry.text != "";
                         search.search_mode_enabled = search.visible;
