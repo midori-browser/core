@@ -52,6 +52,7 @@ namespace Midori {
                     title: tab.display_title,
                     tooltip_text: tab.display_title,
                     visible: tab.visible);
+            tab.bind_property ("favicon", favicon, "surface", BindingFlags.SYNC_CREATE);
             tab.bind_property ("display-uri", this, "uri");
             title = tab.display_title;
             tab.bind_property ("display-title", this, "title");
@@ -117,7 +118,6 @@ namespace Midori {
         }
 
         construct {
-            bind_property ("uri", favicon, "uri");
             bind_property ("title", caption, "label");
             add_events (Gdk.EventMask.ENTER_NOTIFY_MASK);
             add_events (Gdk.EventMask.LEAVE_NOTIFY_MASK);
