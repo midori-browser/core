@@ -55,7 +55,7 @@ namespace Adblock {
                 button.destroy ();
             });
 
-            WebKit.WebContext.get_default ().register_uri_scheme ("abp", (request) => {
+            browser.web_context.register_uri_scheme ("abp", (request) => {
                 if (request.get_uri ().has_prefix ("abp:subscribe?location=")) {
                     // abp://subscripe?location=http://example.com&title=foo
                     var sub = new Subscription (request.get_uri ().substring (23, -1));
