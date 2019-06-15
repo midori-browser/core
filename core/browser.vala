@@ -454,12 +454,16 @@ namespace Midori {
             if (is_locked) {
                 return propagate_key_event (event);
             }
+            // Default behavior for standard widgets
+            if (!(get_focus () is WebKit.WebViewBase)) {
+                return base.key_press_event (event);
+            }
             // Give key handling in widgets precedence over actions
             // eg. Backspace in textfields should delete rather than go back
             if (propagate_key_event (event)) {
                 return true;
             }
-            if (base.key_press_event (event)) {
+            if (activate_key (event)) {
                 // Popdown completion if a key binding was fired
                 navigationbar.urlbar.popdown ();
                 return true;
