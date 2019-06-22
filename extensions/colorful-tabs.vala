@@ -12,7 +12,7 @@
 
 namespace ColorfulTabs {
     public class Tint : Peas.ExtensionBase, Midori.TabActivatable {
-        public Midori.Tab tab { owned get; set; }
+        public Midori.Viewable tab { owned get; set; }
 
         public void activate () {
             tab.notify["display-uri"].connect (apply_tint);

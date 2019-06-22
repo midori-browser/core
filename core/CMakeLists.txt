@@ -1,6 +1,6 @@
 # Copyright (C) 2013-2018 Christian Dywan <christian@twotoasts.de>
 
-set(LIBCORE_VERSION 0.6)
+set(LIBCORE_VERSION 0.9)
 set(LIBCORE_SOVERSION 0)
 set(LIBCORE_GIR Midori-${LIBCORE_VERSION})
 

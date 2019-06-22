@@ -207,16 +207,13 @@ namespace Tabby {
                     restored = true;
                     connect_browser (browser, id);
                     foreach (var widget in browser.tabs.get_children ()) {
-                        yield tab_added (widget as Midori.Tab, id);
+                        yield tab_added (widget as Midori.Viewable, id);
                     }
                 } else {
                     var app = (Midori.App)default_browser.get_application ();
                     browser = browser_for_session (app, id);
                 }
-                var tab = new Midori.Tab (null, browser.web_context,
-                                          item.uri, item.title);
-                connect_tab (tab, item);
-                browser.add (tab);
+                connect_tab (browser.add_tab (null, browser, item.uri, item.title), item);
             }
             return restored;
         }
@@ -242,9 +239,9 @@ namespace Tabby {
             browsers.insert (id.to_string (), browser);
             browser.set_data<bool> ("tabby_connected", true);
             foreach (var widget in browser.tabs.get_children ()) {
-                tab_added.begin (widget as Midori.Tab, id);
+                tab_added.begin (widget as Midori.Viewable, id);
             }
-            browser.tabs.add.connect ((widget) => { tab_added.begin (widget as Midori.Tab, id); });
+            browser.tabs.add.connect ((widget) => { tab_added.begin (widget as Midori.Viewable, id); });
             browser.delete_event.connect ((event) => {
                 debug ("Closing session %s", id.to_string ());
                 update_session (id, true);
@@ -252,7 +249,7 @@ namespace Tabby {
             });
         }
 
-        void connect_tab (Midori.Tab tab, Midori.DatabaseItem item) {
+        void connect_tab (Midori.Viewable tab, Midori.DatabaseItem item) {
             debug ("Connecting %s to session %s", item.uri, item.get_data<int64> ("session_id").to_string ());
             tab.set_data<Midori.DatabaseItem?> ("tabby-item", item);
             tab.notify["uri"].connect ((pspec) => { item.uri = tab.uri; update.begin (item); });
@@ -260,11 +257,11 @@ namespace Tabby {
             tab.close.connect (() => { tab_removed (tab); });
         }
 
-        bool tab_is_connected (Midori.Tab tab) {
+        bool tab_is_connected (Midori.Viewable tab) {
             return tab.get_data<Midori.DatabaseItem?> ("tabby-item") != null;
         }
 
-        async void tab_added (Midori.Tab tab, int64 id) {
+        async void tab_added (Midori.Viewable tab, int64 id) {
             if (tab_is_connected (tab)) {
                 return;
             }
@@ -279,7 +276,7 @@ namespace Tabby {
             }
         }
 
-        void tab_removed (Midori.Tab tab) {
+        void tab_removed (Midori.Viewable tab) {
             var item = tab.get_data<Midori.DatabaseItem?> ("tabby-item");
             debug ("Trashing tab %s:%s", item.get_data<int64> ("session_id").to_string (), tab.display_uri);
             item.delete.begin ();
@@ -293,7 +290,7 @@ namespace Tabby {
 
         public void activate () {
             // Don't track locked (app) or private windows
-            if (browser.is_locked || browser.web_context.is_ephemeral ()) {
+            if (browser.is_locked || browser.is_incognito) {
                 return;
             }
             // Skip windows already in the session
@@ -339,7 +336,7 @@ namespace Tabby {
             try {
                 bool restored = yield session.restore_windows (browser);
                 if (!restored) {
-                    browser.add (new Midori.Tab (null, browser.web_context));
+                    browser.add_tab (null, browser);
                     session.connect_browser (browser);
                 }
             } catch (Midori.DatabaseError error) {

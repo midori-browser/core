@@ -11,14 +11,37 @@
 
 namespace Midori {
     public interface TabActivatable : Peas.ExtensionBase {
-        public abstract Tab tab { owned get; set; }
+        public abstract Viewable tab { owned get; set; }
         public abstract void activate ();
         public signal void deactivate ();
     }
 
-    [GtkTemplate (ui = "/ui/tab.ui")]
-    public class Tab : WebKit.WebView {
+    public interface Viewable : Gtk.Widget {
         public string id { owned get { return "%p".printf (this); } }
+        public abstract double progress { get; protected set; }
+        public abstract double zoom_level { get; set; }
+        public abstract bool can_go_back { get; protected set; }
+        public abstract bool can_go_forward { get; protected set; }
+        public abstract string uri { get; }
+        public abstract string display_uri { get; protected set; }
+        public abstract string title { get; }
+        public abstract string display_title { get; protected set; }
+        public abstract string? color { get; set; default = null; }
+        public abstract bool pinned { get; set; }
+        public abstract bool secure { get; protected set; }
+        internal abstract TlsCertificate? tls { get; protected set; default = null; }
+        public abstract string link_uri { get; protected set; }
+        public abstract void load_uri (string uri);
+        public abstract void reload ();
+        public abstract void stop_loading ();
+        public abstract void go_back ();
+        public abstract void go_forward ();
+        public abstract signal void close ();
+        public async abstract void run_javascript (string script, Cancellable? cancellable = null);
+    }
+
+    [GtkTemplate (ui = "/ui/tab.ui")]
+    internal class Tab : WebKit.WebView, Viewable {
         public double progress { get; protected set; }
         public new bool can_go_back { get; protected set; }
         public new bool can_go_forward { get; protected set; }
@@ -55,7 +78,7 @@ namespace Midori {
             });
         }
 
-        public Tab (Tab? related, WebKit.WebContext web_context,
+        public Tab (Viewable? related, WebKit.WebContext web_context,
                     string? uri = null, string? title = null) {
 
             // One content manager per web context
@@ -65,7 +88,7 @@ namespace Midori {
                 web_context.set_data<WebKit.UserContentManager> ("user-content-manager", content);
             }
 
-            Object (related_view: related, web_context: web_context, user_content_manager: content, visible: true);
+            Object (related_view: (Tab?)related, web_context: web_context, user_content_manager: content, visible: true);
 
             var settings = get_settings ();
             settings.user_agent += " %s".printf (Config.CORE_USER_AGENT_VERSION);

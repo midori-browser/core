@@ -18,14 +18,15 @@ namespace Midori {
 
     [GtkTemplate (ui = "/ui/browser.ui")]
     public class Browser : Gtk.ApplicationWindow {
-        public WebKit.WebContext web_context { get; construct set; }
+        internal WebKit.WebContext web_context { get; protected set; }
         internal bool idle { get; protected set; default = false; }
         public bool is_loading { get; protected set; default = false; }
         public string? uri { get; protected set; }
-        public Tab? tab { get; protected set; }
+        public Viewable? tab { get; protected set; }
         public ListStore trash { get; protected set; }
         public bool is_fullscreen { get; protected set; default = false; }
         public bool is_locked { get; construct set; default = false; }
+        public bool is_incognito { get; construct set; default = false; }
         internal bool is_small { get; protected set; default = false; }
         Menu zoom_menu = new Menu ();
         internal double zoom_level { get; protected set; default = 1.0f; }
@@ -84,6 +85,7 @@ namespace Midori {
         uint focus_timeout = 0;
 
         construct {
+            web_context = is_incognito ? App.ephemeral_context () : WebKit.WebContext.get_default ();
             overlay.add_events (Gdk.EventMask.ENTER_NOTIFY_MASK | Gdk.EventMask.POINTER_MOTION_MASK);
             overlay.enter_notify_event.connect ((event) => {
                 if (is_fullscreen && !tab.pinned) {
@@ -272,7 +274,7 @@ namespace Midori {
             navigationbar.urlbar.notify["uri"].connect ((pspec) => {
                 string uri = navigationbar.urlbar.uri;
                 if (uri.has_prefix ("javascript:")) {
-                    tab.run_javascript.begin (uri.substring (11, -1), null);
+                    tab.run_javascript.begin (uri.substring (11, -1));
                 } else if (uri != tab.display_uri) {
                     tab.load_uri (uri);
                 }
@@ -312,7 +314,7 @@ namespace Midori {
                     focus_timeout = Timeout.add (500, () => {
                         focus_timeout = 0;
                         tab.grab_focus ();
-                        search_entry.text = tab.get_find_controller ().get_search_text () ?? "";
+                        search_entry.text = ((Tab)tab).get_find_controller ().get_search_text () ?? "";
                         search.visible = search_entry.text != "";
                         search.search_mode_enabled = search.visible;
                         if (navigationbar.urlbar.blank) {
@@ -440,12 +442,12 @@ namespace Midori {
         public Browser (App app, bool is_locked=false) {
             Object (application: app,
                     is_locked: is_locked,
-                    web_context: WebKit.WebContext.get_default ());
+                    is_incognito: false);
         }
 
         public Browser.incognito (App app) {
             Object (application: app,
-                    web_context: app.ephemeral_context ());
+                    is_incognito: true);
         }
 
         public override bool key_press_event (Gdk.EventKey event) {
@@ -494,7 +496,7 @@ namespace Midori {
         }
 
         void tab_close_activated () {
-            tab.try_close ();
+            ((Tab)tab).try_close ();
         }
 
         void close_activated () {
@@ -622,11 +624,11 @@ namespace Midori {
             if (backwards) {
                 options |= WebKit.FindOptions.BACKWARDS;
             }
-            tab.get_find_controller ().search (search_entry.text, options, int.MAX);
+            ((Tab)tab).get_find_controller ().search (search_entry.text, options, int.MAX);
         }
 
         void view_source_activated () {
-            view_source.begin (tab);
+            view_source.begin ((Tab)tab);
         }
 
         async void view_source (Tab tab) {
@@ -650,7 +652,7 @@ namespace Midori {
         }
 
         void print_activated () {
-            tab.print (new WebKit.PrintOperation (tab));
+            ((Tab)tab).print (new WebKit.PrintOperation ((Tab)tab));
         }
 
         internal string? prompt (string title, string message, string confirm, string? text=null) {
@@ -694,10 +696,22 @@ namespace Midori {
         }
 
         void show_inspector_activated () {
-            tab.get_inspector ().show ();
+            ((Tab)tab).get_inspector ().show ();
         }
 
-        public new void add (Tab tab) {
+        public Viewable add_tab (Viewable? related, Browser? browser,
+                                 string? uri = null, string? title = null) {
+            var tab = new Tab (related, browser.web_context, uri, title);
+            add (tab);
+            return tab;
+        }
+
+        public override void add (Gtk.Widget widget) {
+            var tab = widget as Tab;
+            if (tab == null) {
+                base.add (widget);
+                return;
+            }
             tab.popover.relative_to = navigationbar.urlbar;
             if (is_locked) {
                 tab.decide_policy.connect ((decision, type) => {

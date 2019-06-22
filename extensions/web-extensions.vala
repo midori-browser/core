@@ -264,8 +264,7 @@ namespace WebExtension {
                 if (fn != null && fn.has_prefix ("tabs.create")) {
                     var args = object.get_property (context, new JS.String.create_with_utf8_cstring ("args")).to_object (context);
                     string? url = js_to_string (context, args.get_property (context, new JS.String.create_with_utf8_cstring ("url")));
-                    var tab = new Midori.Tab (null, browser.tab.web_context, url);
-                    browser.add (tab);
+                    var tab = browser.add_tab (null, browser, url);
                     var promise = object.get_property (context, new JS.String.create_with_utf8_cstring ("promise")).to_number (context);
                     debug ("Calling back to promise #%.f".printf (promise));
                     web_view.run_javascript.begin ("promises[%.f].resolve({id:%s});".printf (promise, tab.id));
@@ -494,9 +493,9 @@ namespace WebExtension {
             browser.tabs.add.disconnect (tab_added);
 
             var manager = ExtensionManager.get_default ();
-            var tab = widget as Midori.Tab;
+            var tab = widget as Midori.Viewable;
 
-            var content = tab.get_user_content_manager ();
+            var content = ((WebKit.WebView)tab).get_user_content_manager ();
             // Try and load plugins from build folder
             var builtin_path = ((Midori.App)Application.get_default ()).exec_path.get_parent ().get_child ("extensions");
             manager.load_from_folder.begin (content, builtin_path);

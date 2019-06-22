@@ -211,7 +211,7 @@ namespace Midori {
             request.unref ();
         }
 
-        void request_finish_pixbuf (WebKit.URISchemeRequest request, Gdk.Pixbuf pixbuf) throws Error {
+        static void request_finish_pixbuf (WebKit.URISchemeRequest request, Gdk.Pixbuf pixbuf) throws Error {
             var output = new MemoryOutputStream (null, realloc, free);
             pixbuf.save_to_stream (output, "png");
             output.close ();
@@ -238,7 +238,7 @@ namespace Midori {
             request.unref ();
         }
 
-        async void stock_scheme (WebKit.URISchemeRequest request) {
+        async static void stock_scheme (WebKit.URISchemeRequest request) {
             string icon_name = request.get_path ().substring (1, -1);
             int icon_size = 48;
             Gtk.icon_size_lookup ((Gtk.IconSize)Gtk.IconSize.DIALOG, out icon_size, null);
@@ -252,7 +252,7 @@ namespace Midori {
             request.unref ();
         }
 
-        void apply_proxy_settings (CoreSettings settings, WebKit.WebContext context) {
+        static void apply_proxy_settings (CoreSettings settings, WebKit.WebContext context) {
             switch (settings.proxy_type) {
                 case ProxyType.AUTOMATIC:
                     context.set_network_proxy_settings (WebKit.NetworkProxyMode.DEFAULT, null);
@@ -269,7 +269,7 @@ namespace Midori {
             }
         }
 
-        internal WebKit.WebContext ephemeral_context () {
+        internal static WebKit.WebContext ephemeral_context () {
             var context = new WebKit.WebContext.ephemeral ();
             context.register_uri_scheme ("internal", (request) => {
                 request.ref ();
@@ -315,7 +315,7 @@ namespace Midori {
             return context;
         }
 
-        async void private_scheme (WebKit.URISchemeRequest request) {
+        async static void private_scheme (WebKit.URISchemeRequest request) {
             string[] suggestions = {
                 _("No history or web cookies are being saved."),
                 _("HTML5 storage, local database and application caches are disabled."),

@@ -12,7 +12,7 @@
 namespace Midori {
     [GtkTemplate (ui = "/ui/tally.ui")]
     public class Tally : Gtk.EventBox {
-        public Tab tab { get; protected set; }
+        internal Tab tab { get; protected set; }
         public string? uri { get; set; }
         public string? title { get; set; }
         bool _show_close;
@@ -46,7 +46,9 @@ namespace Midori {
         [GtkChild]
         Gtk.Button close;
 
-        public Tally (Tab tab) {
+        public Tally (Viewable viewable) {
+            var tab = viewable as Tab;
+            return_if_fail (tab != null);
             Object (tab: tab,
                     uri: tab.display_uri,
                     title: tab.display_title,
