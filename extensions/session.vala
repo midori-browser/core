@@ -50,7 +50,7 @@ namespace Tabby {
         async List<Midori.DatabaseItem>? get_items (int64 session_id, string? filter=null, int64 max_items=15, Cancellable? cancellable=null) throws Midori.DatabaseError {
             string where = filter != null ? "AND (uri LIKE :filter OR title LIKE :filter)" : "";
             string sqlcmd = """
-                SELECT id, uri, title, tstamp FROM %s
+                SELECT id, uri, title, tstamp, pinned FROM %s
                 WHERE session_id = :session_id %s
                 ORDER BY tstamp DESC LIMIT :limit
                 """.printf (table, where);
@@ -71,6 +71,7 @@ namespace Tabby {
                 item.database = this;
                 item.id = statement.get_int64 ("id");
                 item.set_data<int64> ("session_id", session_id);
+                item.set_data<int64> ("pinned", statement.get_int64 ("pinned"));
                 items.append (item);
 
                 uint src = Idle.add (get_items.callback);
@@ -182,6 +183,15 @@ namespace Tabby {
             }
         }
 
+        async void update_tab (Midori.DatabaseItem item) throws Midori.DatabaseError {
+            string sqlcmd = """
+                UPDATE %s SET pinned=:pinned WHERE rowid = :id
+                """.printf (table);
+            prepare (sqlcmd,
+                ":id", typeof (int64), item.id,
+                ":pinned", typeof (int64), item.get_data<int64> ("pinned")).exec ();
+        }
+
         public async override bool clear (TimeSpan timespan) throws Midori.DatabaseError {
             // Note: TimeSpan is defined in microseconds
             int64 maximum_age = new DateTime.now_local ().to_unix () - timespan / 1000000;
@@ -215,6 +225,7 @@ namespace Tabby {
                 }
                 var tab = new Midori.Tab (null, browser.web_context,
                                           item.uri, item.title);
+                tab.pinned = item.get_data<bool> ("pinned");
                 connect_tab (tab, item);
                 browser.add (tab);
             }
@@ -257,6 +268,7 @@ namespace Tabby {
             tab.set_data<Midori.DatabaseItem?> ("tabby-item", item);
             tab.notify["uri"].connect ((pspec) => { item.uri = tab.uri; update.begin (item); });
             tab.notify["title"].connect ((pspec) => { item.title = tab.title; });
+            tab.notify["pinned"].connect ((pspec) => { item.set_data<bool> ("pinned", tab.pinned); update_tab.begin (item); });
             tab.close.connect (() => { tab_removed (tab); });
         }
 

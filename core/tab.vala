@@ -53,6 +53,12 @@ namespace Midori {
                     item.title = display_title;
                 }
             });
+            notify["pinned"].connect ((pspec) => {
+                // Undelay if needed
+                if (display_uri != uri) {
+                    load_uri (display_uri);
+                }
+            });
         }
 
         public Tab (Tab? related, WebKit.WebContext web_context,
