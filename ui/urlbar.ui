@@ -22,6 +22,20 @@
             <property name="label" translatable="yes">Security unknown</property>
           </object>
         </child>
+        <child>
+          <object class="GtkActionBar">
+            <property name="visible">yes</property>
+            <child>
+              <object class="GtkButton" id="trust">
+                <property name="label" translatable="yes">_Trust this website</property>
+                <property name="use-underline">yes</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="pack-type">end</property>
+          </packing>
+        </child>
       </object>
     </child>
   </object>

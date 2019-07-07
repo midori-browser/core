@@ -43,6 +43,8 @@ namespace Midori {
         [GtkChild]
         Gtk.Box security_box;
         [GtkChild]
+        Gtk.Button trust;
+        [GtkChild]
         Gtk.Label security_status;
         Gcr.CertificateWidget? details = null;
 
@@ -313,12 +315,19 @@ namespace Midori {
                     }
                     return true;
                 });
+                trust.clicked.connect (() => {
+                    var tab = ((Browser)get_toplevel ()).tab;
+                    tab.web_context.allow_tls_certificate_for_host (tab.tls, new Soup.URI (uri).host);
+                    security.hide ();
+                    tab.reload ();
+                });
 
                 // Insert widget here because Gtk.Builder won't recognize the type
                 details = new Gcr.CertificateWidget (null);
                 security_box.add (details);
             }
             details.visible = tls != null;
+            trust.visible = tls != null && !secure;
             details.certificate = certificate;
             security_status.visible = !secure;
             security.show ();
