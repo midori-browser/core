@@ -17,6 +17,7 @@ namespace Adblock {
 
         construct {
             action_name = "win.adblock-status";
+            tooltip_text = _("Advertisement blocker");
             var image = new Gtk.Image.from_icon_name (icon_name, Gtk.IconSize.BUTTON);
             bind_property ("icon-name", image, "icon-name");
             image.use_fallback = true;
