@@ -40,7 +40,7 @@ namespace Midori {
         };
 
         public App () {
-            Object (application_id: "org.midori_browser.Midori",
+            Object (application_id: Config.PROJECT_DOMAIN,
                     flags: ApplicationFlags.HANDLES_OPEN
                          | ApplicationFlags.HANDLES_COMMAND_LINE);
 
@@ -72,7 +72,7 @@ namespace Midori {
 
             base.startup ();
 
-            Gtk.Window.set_default_icon_name (Config.PROJECT_NAME);
+            Gtk.Window.set_default_icon_name (Config.PROJECT_DOMAIN);
 
             var context = WebKit.WebContext.get_default ();
             context.register_uri_scheme ("internal", (request) => {

@@ -24,7 +24,7 @@ description: |
 
 grade: stable
 confinement: strict
-icon: icons/scalable/apps/midori.svg
+icon: icons/scalable/apps/org.midori_browser.Midori.svg
 
 apps:
   midori:
@@ -63,7 +63,7 @@ parts:
     plugin: cmake
     configflags:
       - -DCMAKE_INSTALL_DATADIR=/usr/share
-      - -DDESKTOP_ICON=/usr/share/icons/hicolor/scalable/apps/midori.svg
+      - -DDESKTOP_ICON=/usr/share/icons/hicolor/scalable/apps/org.midori_browser.Midori.svg
     build-packages:
       - git
       - valac
