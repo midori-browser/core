@@ -470,7 +470,7 @@ namespace WebExtension {
                 return;
             }
 
-            var context = WebKit.WebContext.get_default ();
+            var context = browser.web_context;
             context.register_uri_scheme ("extension", (request) => {
                 request.ref ();
                 extension_scheme.begin (request);

@@ -224,7 +224,7 @@ namespace Midori {
         async void favicon_scheme (WebKit.URISchemeRequest request) {
             string page_uri = request.get_path ().substring (1, -1);
             try {
-                var database = WebKit.WebContext.get_default ().get_favicon_database ();
+                var database = request.get_web_view ().web_context.get_favicon_database ();
                 var surface = yield database.get_favicon (page_uri, null);
                 if (surface != null) {
                     var image = (Cairo.ImageSurface)surface;

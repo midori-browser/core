@@ -84,7 +84,7 @@ namespace Midori {
                     types |= WebKit.WebsiteDataTypes.DISK_CACHE;
                 }
                 if (types != 0) {
-                    var manager = WebKit.WebContext.get_default ().website_data_manager;
+                    var manager = ((Browser)get_ancestor (typeof (Browser))).web_context.website_data_manager;
                     try {
                         yield manager.clear (types, timespan, null);
                     } catch (Error error) {
