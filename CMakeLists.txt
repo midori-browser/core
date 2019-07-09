@@ -6,6 +6,7 @@ cmake_minimum_required(VERSION 3.2)
 set (GETTEXT_PACKAGE "midori")
 add_definitions("-DGETTEXT_PACKAGE=\"${GETTEXT_PACKAGE}\"")
 project(${GETTEXT_PACKAGE} C)
+set(PROJECT_DOMAIN org.midori_browser.Midori)
 set(PROJECT_BUGS https://github.com/midori-browser/core/issues)
 set(PROJECT_WEBSITE https://www.midori-browser.org)
 set(CORE_VERSION 8.0)
@@ -81,7 +82,7 @@ add_custom_target (uninstall
 
 install(FILES COPYING README.md DESTINATION ${CMAKE_INSTALL_DOCDIR})
 
-set(DESKTOP_ICON "${CMAKE_PROJECT_NAME}" CACHE STRING "The Icon value to be used in the .desktop file")
+set(DESKTOP_ICON "${PROJECT_DOMAIN}" CACHE STRING "The Icon value to be used in the .desktop file")
 
 add_subdirectory (core)
 add_subdirectory (web)

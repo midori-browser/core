@@ -6,6 +6,6 @@ macro(install_icon name cat size)
 endmacro()
 
 foreach(SIZE 16x16 22x22 scalable)
-    install_icon(midori apps ${SIZE})
+    install_icon(${PROJECT_DOMAIN} apps ${SIZE})
 endforeach()
 
