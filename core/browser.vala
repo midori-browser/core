@@ -269,6 +269,7 @@ namespace Midori {
             bind_property ("is-locked", tab_new, "visible", BindingFlags.INVERT_BOOLEAN);
             bind_property ("is-small", actionbox, "visible", BindingFlags.SYNC_CREATE | BindingFlags.INVERT_BOOLEAN);
             bind_property ("is-small", navigationbar.actionbox, "visible", BindingFlags.SYNC_CREATE | BindingFlags.INVERT_BOOLEAN);
+            search.bind_property ("search-mode-enabled", search, "visible", BindingFlags.SYNC_CREATE);
             navigationbar.urlbar.notify["uri"].connect ((pspec) => {
                 string uri = navigationbar.urlbar.uri;
                 if (uri.has_prefix ("javascript:")) {
@@ -313,8 +314,7 @@ namespace Midori {
                         focus_timeout = 0;
                         tab.grab_focus ();
                         search_entry.text = tab.get_find_controller ().get_search_text () ?? "";
-                        search.visible = search_entry.text != "";
-                        search.search_mode_enabled = search.visible;
+                        search.search_mode_enabled = search_entry.text != "";
                         if (navigationbar.urlbar.blank) {
                             navigationbar.urlbar.grab_focus ();
                         }
@@ -604,7 +604,6 @@ namespace Midori {
         }
 
         void find_activated () {
-            search.show ();
             search.search_mode_enabled = true;
             search_entry.grab_focus ();
         }
