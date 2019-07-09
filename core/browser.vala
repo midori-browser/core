@@ -404,7 +404,7 @@ namespace Midori {
             get_size (out width, null);
             is_small = width < 500;
 
-            if (!(get_style_context ().has_class ("tiled") || is_maximized || is_fullscreen)) {
+            if (!(get_style_context ().has_class ("tiled") || is_maximized || is_fullscreen || is_locked)) {
                 int height;
                 get_size (null, out height);
                 var settings = CoreSettings.get_default ();
@@ -727,8 +727,21 @@ namespace Midori {
                 new_tab.hide ();
                 new_tab.ready_to_show.connect (() => {
                     new_tab.show ();
+                    if (!new_tab.get_window_properties ().locationbar_visible) {
+                        new_tab.pinned = true;
+                        var browser = new Browser ((App)application, true);
+                        var geometry = new_tab.get_window_properties ().geometry;
+                        browser.default_width = geometry.width > 1 ? geometry.width : 640;
+                        browser.default_height = geometry.height > 1 ? geometry.height : 480;
+                        browser.transient_for = this;
+                        browser.add (new_tab);
+                        browser.show ();
+                        return;
+                    }
+                    new_tab.set_data<bool> ("foreground", true);
                     add (new_tab);
                 });
+                new_tab.load_request (action.get_request ());
                 return new_tab;
             });
             tab.enter_fullscreen.connect (() => {
