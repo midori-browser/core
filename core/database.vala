@@ -230,8 +230,7 @@ namespace Midori {
             if (path.has_prefix (":memory:"))
                 return ":memory:";
             else if (!Path.is_absolute (path))
-                return Path.build_filename (Environment.get_user_config_dir (),
-                    Environment.get_prgname (), path);
+                return File.new_for_path (Midori.CoreSettings.get_default ().filename).get_parent ().get_child (path).get_path ();
             return path;
         }
 

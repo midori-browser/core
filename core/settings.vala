@@ -28,10 +28,8 @@ namespace Midori {
     public class CoreSettings : Settings {
         static CoreSettings? _default = null;
 
-        public static CoreSettings get_default () {
+        public static CoreSettings get_default (string? filename=null) {
             if (_default == null) {
-                string filename = Path.build_filename (Environment.get_user_config_dir (),
-                    Config.PROJECT_NAME, "config");
                 _default = new CoreSettings (filename);
             }
             return _default;
