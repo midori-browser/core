@@ -81,12 +81,16 @@ button {
 
 .shortcut {
     width: 27%;
-    max-width: 32%;
     height: 30%;
     margin: 1%;
-    display: inline-table;
+    background-repeat: no-repeat;
+    background-position: center;
+    display: inline-block;
     box-sizing: border-box;
     overflow: hidden;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12),
+                0 1px 2px rgba(0,0,0,0.24);
 }
 
 .shortcut a {
@@ -96,18 +100,7 @@ button {
     text-decoration: none;
 }
 
-.shortcut a img {
-    width: 50%;
-    height: 50%;
-    margin: auto;
-    margin-bottom: .5em;
-    display: block;
-    border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.12),
-                0 1px 2px rgba(0,0,0,0.24);
-}
-
-.shortcut a:hover img {
+.shortcut:hover {
     box-shadow: 0 3px 5px rgba(0,0,0,0.24),
                 0 3px 4px rgba(0,0,0,0.48);
 }
@@ -118,7 +111,7 @@ button {
     text-align: center;
     text-overflow: ellipsis;
     word-wrap: nowrap;
-    max-height: 2em;
+    height: 20%;
     line-height: 1em;
     overflow: hidden;
     display: block;

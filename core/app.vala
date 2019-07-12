@@ -187,12 +187,11 @@ namespace Midori {
                 foreach (var shortcut in shortcuts) {
                     index++;
                     content += """
-                        <div class="shortcut">
+                        <div class="shortcut" style="background-image: url('%s')">
                           <a href="%s" accesskey="%u">
-                            <img src="%s" />
                             <span class="title">%s</span>
                           </a>
-                        </div>""".printf (shortcut.uri, index, "favicon:///" + shortcut.uri, shortcut.title);
+                        </div>""".printf ("favicon:///" + shortcut.uri, shortcut.uri, index, shortcut.title);
                 }
                 string stylesheet = (string)resources_lookup_data ("/data/about.css",
                                                                     ResourceLookupFlags.NONE).get_data ();
