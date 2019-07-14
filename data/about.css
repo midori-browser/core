@@ -80,6 +80,7 @@ button {
 }
 
 .shortcut {
+    position: relative;
     width: 27%;
     height: 30%;
     margin: 1%;
@@ -106,13 +107,15 @@ button {
 }
 
 .shortcut a .title {
+    position: absolute;
+    bottom: 4px;
     margin: 4px;
     width: 90%;
     color: #222222;
     text-align: center;
     text-overflow: ellipsis;
     white-space: nowrap;
-    height: 20%;
+    height: 2em;
     line-height: 1em;
     overflow: hidden;
     display: block;
