@@ -181,17 +181,22 @@ namespace Midori {
 
         async void internal_scheme (WebKit.URISchemeRequest request) {
             try {
-                var shortcuts = yield HistoryDatabase.get_default ().query (null, 9);
+                var database = HistoryDatabase.get_default ();
+                var shortcuts = yield database.query (null, 9);
                 string content = "";
                 uint index = 0;
                 foreach (var shortcut in shortcuts) {
+                    var statement = database.prepare ("SELECT image FROM %s WHERE uri = :uri LIMIT 1".printf (database.table),
+                                                      ":uri", typeof (string), shortcut.uri);
+                    statement.step ();
+                    var image_uri = statement.get_string ("image") ?? "favicon:///" + shortcut.uri;
                     index++;
                     content += """
                         <div class="shortcut" style="background-image: url('%s')">
                           <a href="%s" accesskey="%u">
                             <span class="title">%s</span>
                           </a>
-                        </div>""".printf ("favicon:///" + shortcut.uri, shortcut.uri, index, shortcut.title);
+                        </div>""".printf (image_uri, shortcut.uri, index, shortcut.title);
                 }
                 string stylesheet = (string)resources_lookup_data ("/data/about.css",
                                                                     ResourceLookupFlags.NONE).get_data ();
