@@ -47,6 +47,7 @@ add_custom_command(OUTPUT resources.c
                    --target ${CMAKE_CURRENT_BINARY_DIR}/resources.c
                    ${CMAKE_SOURCE_DIR}/gresource.xml
                    DEPENDS ${CMAKE_SOURCE_DIR}/gresource.xml
+                   DEPENDS ${CMAKE_SOURCE_DIR}/data/about.css
                    DEPENDS ${CMAKE_SOURCE_DIR}/data/gtk3.css
                    DEPENDS ${CMAKE_SOURCE_DIR}/data/web-extension-api.js
                    DEPENDS ${UI_FILES}
