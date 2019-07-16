@@ -231,7 +231,7 @@ namespace Midori {
                 return ":memory:";
             else if (!Path.is_absolute (path))
                 return Path.build_filename (Environment.get_user_config_dir (),
-                    Environment.get_prgname (), path);
+                    Config.PROJECT_NAME, path);
             return path;
         }
 
