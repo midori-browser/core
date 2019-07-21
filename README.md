@@ -120,13 +120,13 @@ You'll want to **unit test** the code if you're testing a new version or contrib
 We're on a 8/4 cycle which means 8 weeks of features and 4 weeks of stabilization
 capped at a release once every 3 months ie. at the last of the third month.
 
-Update `CORE_VERSION` in `CMakeLists.txt` to `8.0`.
-Add a section to `ChangeLog`.
+Update `CORE_VERSION` in `CMakeLists.txt` to `10.0`.
+Add a section to `CHANGELOG.md`.
 
-    git commit -p -v -m "Release Midori 8.0"
-    git checkout -B release-8.0
+    git commit -p -v -m "Release Midori 10.0"
+    git checkout -B release-10.0
     git push origin HEAD
-    git archive --prefix=midori-v8.0/ -o midori-v8.0.tar.gz -9 HEAD
+    git archive --prefix=midori-v10.0/ -o midori-v10.0.tar.gz -9 HEAD
 
 Propose a PR for the release.
 Publish the release on https://github.com/midori-browser/core/releases

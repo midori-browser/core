@@ -9,7 +9,7 @@ project(${GETTEXT_PACKAGE} C)
 set(PROJECT_DOMAIN org.midori_browser.Midori)
 set(PROJECT_BUGS https://github.com/midori-browser/core/issues)
 set(PROJECT_WEBSITE https://www.midori-browser.org)
-set(CORE_VERSION 8.0)
+set(CORE_VERSION 9.0)
 
 execute_process(COMMAND "git" "describe" "--tags"
                 OUTPUT_VARIABLE REVISION
