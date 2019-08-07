@@ -631,6 +631,16 @@ namespace Midori {
         async void view_source (Tab tab) {
             string uri = tab.display_uri;
             try {
+                var info = AppInfo.get_default_for_type ("text/plain", false);
+                // No editor available? Show source in a tab
+                if (info == null) {
+                    var new_tab = new Tab (tab, web_context, uri, tab.display_title);
+                    new_tab.load_plain_text (((string)(yield tab.get_main_resource ().get_data (null))));
+                    new_tab.set_data<bool> ("foreground", true);
+                    add (new_tab);
+                    return;
+                }
+
                 var file = File.new_for_uri (uri);
                 if (!uri.has_prefix ("file:///")) {
                     FileIOStream stream;
@@ -641,7 +651,6 @@ namespace Midori {
                 }
                 var files = new List<File> ();
                 files.append (file);
-                var info = AppInfo.get_default_for_type ("text/plain", false);
                 info.launch (files, get_display ().get_app_launch_context ());
             } catch (Error error) {
                 critical ("Failed to open %s in editor: %s", uri, error.message);
