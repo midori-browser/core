@@ -14,6 +14,7 @@ namespace Midori {
     class About : Gtk.AboutDialog {
         public About (Gtk.Window parent) {
            Object (transient_for: parent,
+                   logo_icon_name: Config.PROJECT_DOMAIN,
                    website: Config.PROJECT_WEBSITE,
                    version: Config.CORE_VERSION);
            var report = add_button (_("_Report a Problem…"), Gtk.ResponseType.HELP) as Gtk.Button;
