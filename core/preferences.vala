@@ -115,6 +115,12 @@ namespace Midori {
             combo.append ("http://search.yahoo.com/search?p=", "Yahoo");
             combo.append ("http://www.google.com/search?q=%s", "Google");
             settings.bind_property ("location-entry-search", combo, "active-id", BindingFlags.SYNC_CREATE | BindingFlags.BIDIRECTIONAL);
+            // Generic item for custom search option
+            if (combo.get_active_text () == null) {
+                string hostname = new Soup.URI (settings.location_entry_search).host;
+                combo.append (settings.location_entry_search, hostname);
+                combo.active_id = settings.location_entry_search;
+            }
             box.add (combo);
             box.show_all ();
             add (_("Browsing"), box);
