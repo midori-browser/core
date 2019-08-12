@@ -1,5 +1,6 @@
 [![CircleCI](https://circleci.com/gh/midori-browser/core.svg?style=svg)](https://circleci.com/gh/midori-browser/core)
 [![Snap Status](https://build.snapcraft.io/badge/midori-browser/core.svg)](https://build.snapcraft.io/user/midori-browser/core)
+[![FlatHub](https://img.shields.io/badge/FlatHub-gray.svg)](https://flathub.org/apps/details/org.midori_browser.Midori)
 [![Telegram](https://img.shields.io/badge/Telegram-Chat-gray.svg?style=flat&logo=telegram&colorA=5583a4&logoColor=fff)](https://www.midori-browser.org/telegram)
 [![Twitter](https://img.shields.io/twitter/follow/midoriweb.svg?style=social&label=Follow)](https://twitter.com/midoriweb)
 [![Donate](https://img.shields.io/badge/PayPal-Donate-gray.svg?style=flat&logo=paypal&colorA=0071bb&logoColor=fff)](https://www.midori-browser.org/donate)
@@ -7,7 +8,7 @@
 [![Patreon](https://img.shields.io/badge/PATREON-Pledge-red.svg)](https://www.patreon.com/midoribrowser)
 
 <p align="center">
-    <img src="icons/scalable/apps/midori.svg"/>
+    <img src="icons/scalable/apps/org.midori_browser.Midori.svg"/>
 </p>
 
 <p align="center">
@@ -21,17 +22,17 @@ Midori is a lightweight yet powerful web browser which runs just as well on litt
 
 **Privacy out of the box**
 
-* Adblock filter list support.
-* Private browsing.
-* Manage cookies and scripts.
+* Adblock filter list support
+* Private browsing
+* Manage cookies and scripts
 
 **Productivity features**
 
-* Open a 1000 tabs instantly.
-* Easy web apps creation.
-* Customizable side panels.
-* User scripts and styles a la Greasemonkey.
-* Web developer tools powered by WebKit.
+* Open a 1000 tabs instantly
+* Easy web apps creation
+* Customizable side panels
+* User scripts and styles a la Greasemonkey
+* Web developer tools powered by WebKit
 * Cross-browser extensions compatible with Chrome, Firefox, Opera and Vivaldi
 
 Please report comments, suggestions and bugs to:
@@ -50,6 +51,10 @@ you can install the **latest stable** version of Midori
 
 > **Spoilers:** For those more adventurous types out there, trying out the preview of the next version is only the switch of a channel away.
 
+You can also install Midori from [FlatHub](https://flathub.org/apps/details/org.midori_browser.Midori).
+
+    flatpak install flathub org.midori_browser.Midori
+
 # Installing Midori on Android
 
 You can opt-in for the [beta release on the Play Store](https://play.google.com/apps/testing/org.midori_browser.midori).
@@ -58,16 +63,15 @@ You can opt-in for the [beta release on the Play Store](https://play.google.com/
 
 **Requirements**
 
-* GLib 2.46.2
-* GTK+ 3.12
-* gcr-3 2.32
-* [WebKit2GTK+](https://webkitgtk.org/) 2.16.6
-* libsoup 2.48.0
-* sqlite 3.6.19
+* [GLib](https://wiki.gnome.org/Projects/GLib) 2.46.2
+* [GTK](https://www.gtk.org) 3.12
+* [WebKitGTK](https://webkitgtk.org/) 2.16.6
+* [libsoup](https://wiki.gnome.org/Projects/libsoup) 2.48.0
+* [sqlite](https://sqlite.org) 3.6.19
 * [Vala](https://wiki.gnome.org/Projects/Vala) 0.30
 * GCR 2.32
-* Peas
-* JSON-Glib 0.12
+* [Libpeas](https://wiki.gnome.org/Projects/Libpeas)
+* [JSON-Glib](https://wiki.gnome.org/Projects/JsonGlib) 0.12
 
 Install dependencies on Astian OS, Ubuntu, Debian or other Debian-based distros:
 
@@ -122,6 +126,7 @@ capped at a release once every 3 months ie. at the last of the third month.
 
 Update `CORE_VERSION` in `CMakeLists.txt` to `10.0`.
 Add a section to `CHANGELOG.md`.
+Add release to `data/org.midori_browser.Midori.appdata.xml.in`.
 
     git commit -p -v -m "Release Midori 10.0"
     git checkout -B release-10.0
