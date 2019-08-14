@@ -443,7 +443,7 @@ namespace Midori {
         public async virtual List<DatabaseItem>? query (string? filter=null, int64 max_items=15, Cancellable? cancellable=null) throws DatabaseError {
             string where = filter != null ? "WHERE uri LIKE :filter OR title LIKE :filter" : "";
             string sqlcmd = """
-                SELECT rowid, uri, title, date, count () AS ct FROM %s
+                SELECT rowid, uri, title, date, count (uri) AS ct FROM %s
                 %s
                 GROUP BY uri
                 ORDER BY ct DESC LIMIT :limit

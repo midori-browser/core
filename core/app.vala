@@ -180,23 +180,32 @@ namespace Midori {
         }
 
         async void internal_scheme (WebKit.URISchemeRequest request) {
+            string sqlcmd = """
+                SELECT image, title, uri, COUNT () AS ct FROM history
+                WHERE image <> ''
+                GROUP BY image
+                ORDER BY ct DESC LIMIT 9
+            """;
             try {
                 var database = HistoryDatabase.get_default ();
-                var shortcuts = yield database.query (null, 9);
+                var statement = database.prepare (sqlcmd);
                 string content = "";
                 uint index = 0;
-                foreach (var shortcut in shortcuts) {
-                    var statement = database.prepare ("SELECT image FROM %s WHERE uri = :uri LIMIT 1".printf (database.table),
-                                                      ":uri", typeof (string), shortcut.uri);
-                    statement.step ();
-                    var image_uri = statement.get_string ("image") ?? "favicon:///" + shortcut.uri;
+                while (statement.step ()) {
+                    string uri = statement.get_string ("uri");
+                    string title = statement.get_string ("title");
+                    string image_uri = statement.get_string ("image");
                     index++;
                     content += """
                         <div class="shortcut" style="background-image: url('%s')">
                           <a href="%s" accesskey="%u">
                             <span class="title">%s</span>
                           </a>
-                        </div>""".printf (image_uri, shortcut.uri, index, shortcut.title);
+                        </div>""".printf (image_uri, uri, index, title);
+
+                    uint src = Idle.add (internal_scheme.callback);
+                    yield;
+                    Source.remove (src);
                 }
                 string stylesheet = (string)resources_lookup_data ("/data/about.css",
                                                                     ResourceLookupFlags.NONE).get_data ();
