@@ -73,6 +73,10 @@ namespace Midori {
 
             Object (related_view: related, web_context: web_context, user_content_manager: content, visible: true);
 
+            var rgba = Gdk.RGBA ();
+            rgba.parse ("#dedede");
+            set_background_color (rgba);
+
             var settings = get_settings ();
             settings.user_agent += " %s".printf (Config.CORE_USER_AGENT_VERSION);
             bind_property ("pinned", settings, "enable-developer-extras", BindingFlags.SYNC_CREATE | BindingFlags.INVERT_BOOLEAN);
@@ -120,14 +124,6 @@ namespace Midori {
             } catch (DatabaseError error) {
                 debug ("Failed to lookup title in history: %s", error.message);
             }
-        }
-
-        public override bool focus_in_event (Gdk.EventFocus event) {
-            // Delayed load on focus
-            if (display_uri != uri) {
-                load_uri (display_uri);
-            }
-            return base.focus_in_event (event);
         }
 
         void update_progress (ParamSpec pspec) {
