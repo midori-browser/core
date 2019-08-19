@@ -151,7 +151,7 @@ namespace Midori {
             var action = new SimpleAction ("win-new", VariantType.STRING);
             action.activate.connect (win_new_activated);
             add_action (action);
-            set_accels_for_action ("app.win-new", { "<Primary>n" });
+            set_accels_for_action ("app.win-new('')", { "<Primary>n" });
             set_accels_for_action ("app.win-incognito-new", { "<Primary><Shift>p", "<Primary><Shift>n" });
 
             // Unset app menu if not handled by the shell
