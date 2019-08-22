@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright 2015-2018 Christian Dywan <christian@twotoasts.de> -->
+<!-- Copyright 2015-2019 Christian Dywan <christian@twotoasts.de> -->
 <component type="desktop">
   <id>org.midori_browser.Midori</id>
   <launchable type="desktop-id">org.midori_browser.Midori.desktop</launchable>
@@ -22,19 +22,20 @@
     <p>
     Midori is a lightweight yet powerful web browser which runs just as well on little embedded computers named for delicious pastries as it does on beefy machines with a core temperature exceeding that of planet earth. And it looks good doing that, too. Oh, and of course it's free software.
     </p>
-    <p><b>Privacy out of the box</b></p>
+    <p>Privacy out of the box</p>
     <ul>
-      <li>Adblock filter list support.</li>
-      <li>Private browsing.</li>
-      <li>Manage cookies and scripts.</li>
+      <li>Adblock filter list support</li>
+      <li>Private browsing</li>
+      <li>Manage cookies and scripts</li>
     </ul>
-    <p><b></b></p>
+    <p>Productivity features</p>
     <ul>
-      <li>Open a 1000 tabs instantly.</li>
-      <li>Easy web apps creation.</li>
-      <li>Customizable side panels.</li>
-      <li>User scripts and styles a la Greasemonkey.</li>
-      <li>Web developer tools powered by WebKit.</li>
+      <li>Open a 1000 tabs instantly</li>
+      <li>Easy web apps creation</li>
+      <li>Customizable side panels</li>
+      <li>User scripts and styles a la Greasemonkey</li>
+      <li>Web developer tools powered by WebKit</li>
+      <li>Cross-browser extensions compatible with Chrome, Firefox, Opera and Vivaldi</li>
     </ul>
   </description>
   <url type="homepage">https://www.midori-browser.org/</url>
@@ -51,6 +52,27 @@
   <translation type="gettext">midori</translation>
   <content_rating type="oars-1.1" />
   <releases>
+    <release version="9.0" date="2019-07-27">
+      <description>
+        <ul>
+          <li>Use OpenGraph images for Speed Dial shortcuts</li>
+          <li>Better support for Javascript popups</li>
+          <li>(Re)store pinned tabs in the session</li>
+          <li>Re-introduce the Trust (certificate) button</li>
+          <li>Avoid key input recursion causing high CPU</li>
+          <li>Close Tab/ Other context menu items</li>
+          <li>Paste and Proceed option in the urlbar</li>
+          <li>Better urlbar suggestion escaping</li>
+          <li>Web extensions: Support for a sidebar action (experimental)</li>
+          <li>Merge app and page menu into one</li>
+          <li>Better focus handling of re-opened and background tabs</li>
+          <li>Show volume icon for tabs playing music</li>
+        </ul>
+      </description>
+    </release>
+    <release version="8.0" date="2019-02-28"/>
+    <release version="7.0" date="2018-11-30"/>
+    <release version="6.0" date="2018-10-31"/>
     <release version="0.5.11" date="2015-08-30"/>
   </releases>
 </component>
