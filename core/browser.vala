@@ -457,8 +457,8 @@ namespace Midori {
 			// Default behaviour for navigation bar
             if (get_focus () is Midori.Urlbar) {
                 if (navigationbar.urlbar.key_press_event (event)) {
-					return true;
-				}
+                    return true;
+                }
             }
             // Default behavior for standard widgets
             if (!(get_focus () is WebKit.WebViewBase)) {
