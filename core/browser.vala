@@ -121,7 +121,7 @@ namespace Midori {
                 application.set_accels_for_action ("win.tab-reopen", { "<Primary><Shift>t" });
                 application.set_accels_for_action ("win.fullscreen", { "F11" });
                 application.set_accels_for_action ("win.show-downloads", { "<Primary><Shift>j" });
-                application.set_accels_for_action ("win.find", { "<Primary>f" });
+                application.set_accels_for_action ("win.find", { "<Primary>f", "slash" });
                 application.set_accels_for_action ("win.view-source", { "<Primary>u", "<Primary><Alt>u" });
                 application.set_accels_for_action ("win.print", { "<Primary>p" });
                 application.set_accels_for_action ("win.caret-browsing", { "F7" });
@@ -453,6 +453,10 @@ namespace Midori {
             // No keyboard shortcuts in locked state
             if (is_locked) {
                 return propagate_key_event (event);
+            }
+			// Default behaviour for navigation bar
+            if (get_focus () is Midori.Urlbar) {
+                return navigationbar.urlbar.key_press_event (event);
             }
             // Default behavior for standard widgets
             if (!(get_focus () is WebKit.WebViewBase)) {
