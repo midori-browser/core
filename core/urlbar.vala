@@ -22,7 +22,7 @@ namespace Midori {
             _uri = value;
             location = value;
             // Treat about:blank specially
-            text = blank ? "" : value;
+            text = blank ? "" : SuggestionRow.unescape_uri (value);
             set_position (-1);
             update_icon ();
         } }

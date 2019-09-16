@@ -214,7 +214,7 @@ namespace Midori {
             }
 
             var monitor = NetworkMonitor.get_default ();
-            string hostname = new Soup.URI (uri).host;
+            string hostname = Hostname.to_unicode (new Soup.URI (uri).host);
             string? title = null;
             string? message = null;
             if (!monitor.network_available) {
@@ -261,7 +261,7 @@ namespace Midori {
         }
 
         public override void mouse_target_changed (WebKit.HitTestResult result, uint modifiers) {
-            link_uri = result.link_uri;
+            link_uri = result.link_uri != null ? SuggestionRow.strip_uri_prefix (result.link_uri) : null;
         }
 
         public override bool context_menu (WebKit.ContextMenu menu,
@@ -348,11 +348,11 @@ namespace Midori {
                     break;
                 case WebKit.ScriptDialogType.CONFIRM:
                 case WebKit.ScriptDialogType.BEFORE_UNLOAD_CONFIRM:
-                    string hostname = new Soup.URI (uri).host;
+                    string hostname = Hostname.to_unicode (new Soup.URI (uri).host);
                     dialog.confirm_set_confirmed(((Browser)get_toplevel ()).prompt (hostname, dialog.get_message (), _("_Confirm")) != null);
                     break;
                 case WebKit.ScriptDialogType.PROMPT:
-                    string hostname = new Soup.URI (uri).host;
+                    string hostname = Hostname.to_unicode (new Soup.URI (uri).host);
                     dialog.prompt_set_text(((Browser)get_toplevel ()).prompt (hostname, dialog.get_message (), _("_Confirm"), dialog.prompt_get_default_text ()));
                     break;
             }
@@ -380,7 +380,7 @@ namespace Midori {
 
         public override bool permission_request (WebKit.PermissionRequest permission) {
             if (permission is WebKit.GeolocationPermissionRequest) {
-                string hostname = new Soup.URI (uri).host;
+                string hostname = Hostname.to_unicode (new Soup.URI (uri).host);
                 message.label = _("%s wants to know your location.").printf (hostname);
             } else if (permission is WebKit.NotificationPermissionRequest) {
                 permission.allow ();
