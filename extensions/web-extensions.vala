@@ -10,12 +10,10 @@
 */
 
 namespace WebExtension {
-    public class Extension : Object {
+    public class Extension : Midori.Extension {
         HashTable<string, Bytes> _files;
         public File file { get; protected set; }
 
-        public string name { get; set; }
-        public string description { get; set; }
         public string? background_page { get; owned set; }
         public List<string> background_scripts { get; owned set; }
         public List<string> content_scripts { get; owned set; }
@@ -24,7 +22,7 @@ namespace WebExtension {
         public Action? sidebar { get; set; }
 
         public Extension (File file) {
-            Object (file: file, name: file.get_basename ());
+            Object (id: file.get_basename (), file: file, name: file.get_basename ());
         }
 
         public void add_resource (string resource, Bytes data) {
@@ -79,6 +77,8 @@ namespace WebExtension {
         // "WebExtensionExtensionManager::extension_added" is not a value type
         public signal void extension_added (Object extension);
 
+        public signal void extension_removed (Object extension);
+
         string? pick_default_icon (Json.Object action) {
             if (action.has_member ("default_icon")) {
                 var node = action.get_member ("default_icon");
@@ -103,21 +103,17 @@ namespace WebExtension {
             return _default;
         }
 
-        public async void load_from_folder (WebKit.UserContentManager content, File folder) throws Error {
+        public async void load_from_folder (File folder) throws Error {
             debug ("Load web extensions from %s", folder.get_path ());
             var enumerator = yield folder.enumerate_children_async (FileAttribute.STANDARD_NAME, 0);
             FileInfo info;
             while ((info = enumerator.next_file ()) != null) {
                 var file = folder.get_child (info.get_name ());
                 string id = file.get_basename ();
-                if (!Midori.CoreSettings.get_default ().get_plugin_enabled (id)) {
-                    continue;
-                }
 
                 var extension = extensions.lookup (id);
                 if (extension == null) {
                     InputStream? stream = null;
-                    extension = new Extension (file);
 
                     try {
                         // Try reading from a ZIP archive ie. .crx (Chrome/ Opera/ Vivaldi), .nex (Opera) or .xpi (Firefox)
@@ -126,6 +122,7 @@ namespace WebExtension {
                             var archive = new Archive.Read ();
                             archive.support_format_zip ();
                             if (archive.open_filename (file.get_path (), 10240) == Archive.Result.OK) {
+                                extension = new Extension (file);
                                 unowned Archive.Entry entry;
                                 while (archive.next_header (out entry) == Archive.Result.OK) {
                                     if (entry.pathname () == "manifest.json") {
@@ -153,6 +150,7 @@ namespace WebExtension {
                             // If we find a manifest, this is a web extension
                             var manifest_file = file.get_child ("manifest.json");
                             if (manifest_file.query_exists ()) {
+                                extension = new Extension (file);
                                 stream = new DataInputStream (yield manifest_file.read_async ());
                             } else {
                                 continue;
@@ -166,6 +164,9 @@ namespace WebExtension {
                         var manifest = json.get_root ().get_object ();
                         if (manifest.has_member ("name")) {
                             extension.name = manifest.get_string_member ("name");
+                        }
+                        if (manifest.has_member ("description")) {
+                            extension.description = manifest.get_string_member ("description");
                         }
 
                         if (manifest.has_member ("background")) {
@@ -193,8 +194,21 @@ namespace WebExtension {
                             }
                         }
 
+                        if (manifest.has_member ("icons")) {
+                            var node = manifest.get_member ("icons");
+                            if (node.get_node_type () == Json.NodeType.OBJECT) {
+                                foreach (var size in node.get_object ().get_members ()) {
+                                    var image = yield extension.get_resource (node.get_object ().get_string_member (size));
+                                    // Note: The from_bytes variant has no autodetection
+                                    var image_stream = new MemoryInputStream.from_data (image.get_data (), free);
+                                    extension.icon = yield new Gdk.Pixbuf.from_stream_async (image_stream, null);
+                                    break;
+                                }
+                            }
+                        }
+
                         if (manifest.has_member ("sidebar_action")) {
-                            var sidebar = manifest.has_member ("sidebar_action") ? manifest.get_object_member ("sidebar_action") : null;
+                            var sidebar = manifest.get_object_member ("sidebar_action");
                             if (sidebar != null) {
                                 extension.sidebar = new Action (
                                     pick_default_icon (sidebar),
@@ -220,33 +234,20 @@ namespace WebExtension {
                             }
                         }
 
+                        extension.available = true;
+                        extension.notify["active"].connect (() => {
+                            if (extension.active) {
+                                extension_added (extension);
+                            } else {
+                                extension_removed (extension);
+                            }
+                        });
                         extensions.insert (id, extension);
-                        extension_added (extension);
+                        if (extension.active) {
+                            extension_added (extension);
+                        }
                     } catch (Error error) {
-                        warning ("Failed to load extension '%s': %s\n", extension.name, error.message);
-                    }
-                }
-
-                foreach (var filename in extension.content_scripts) {
-                    try {
-                        var script = yield extension.get_resource (filename);
-                        content.add_script (new WebKit.UserScript ((string)(script.get_data ()),
-                                            WebKit.UserContentInjectedFrames.TOP_FRAME,
-                                            WebKit.UserScriptInjectionTime.END,
-                                            null, null));
-                    } catch (Error error) {
-                        warning ("Failed to inject content script for '%s': %s", extension.name, filename);
-                    }
-                }
-                foreach (var filename in extension.content_styles) {
-                    try {
-                        var stylesheet = yield extension.get_resource (filename);
-                        content.add_style_sheet (new WebKit.UserStyleSheet ((string)(stylesheet.get_data ()),
-                                                 WebKit.UserContentInjectedFrames.TOP_FRAME,
-                                                 WebKit.UserStyleLevel.USER,
-                                                 null, null));
-                    } catch (Error error) {
-                        warning ("Failed to inject content stylesheet for '%s': %s", extension.name, filename);
+                        warning ("Failed to load extension '%s': %s\n", extension != null ? extension.name : id, error.message);
                     }
                 }
             }
@@ -363,7 +364,7 @@ namespace WebExtension {
             tooltip_text = extension.browser_action.title ?? extension.name;
             visible = true;
             focus_on_click = false;
-            var icon = new Gtk.Image.from_icon_name ("midori-symbolic", Gtk.IconSize.BUTTON);
+            var icon = new Gtk.Image.from_icon_name ("libpeas-plugin-symbolic", Gtk.IconSize.BUTTON);
             icon.use_fallback = true;
             icon.visible = true;
             if (extension.browser_action.icon != null) {
@@ -430,6 +431,31 @@ namespace WebExtension {
         }
 
         async void install_extension (Extension extension) throws Error {
+            var content = browser.tab.get_user_content_manager ();
+            foreach (var filename in extension.content_scripts) {
+                try {
+                    var script = yield extension.get_resource (filename);
+                    content.add_script (new WebKit.UserScript ((string)(script.get_data ()),
+                                        WebKit.UserContentInjectedFrames.TOP_FRAME,
+                                        WebKit.UserScriptInjectionTime.END,
+                                        null, null));
+                } catch (Error error) {
+                    warning ("Failed to inject content script for '%s': %s", extension.name, filename);
+                }
+            }
+
+            foreach (var filename in extension.content_styles) {
+                try {
+                    var stylesheet = yield extension.get_resource (filename);
+                    content.add_style_sheet (new WebKit.UserStyleSheet ((string)(stylesheet.get_data ()),
+                                             WebKit.UserContentInjectedFrames.TOP_FRAME,
+                                             WebKit.UserStyleLevel.USER,
+                                             null, null));
+                } catch (Error error) {
+                    warning ("Failed to inject content stylesheet for '%s': %s", extension.name, filename);
+                }
+            }
+
             if (extension.browser_action != null) {
                 browser.add_button (new Button (extension as Extension));
             }
@@ -476,14 +502,6 @@ namespace WebExtension {
                 extension_scheme.begin (request);
             });
 
-            var manager = ExtensionManager.get_default ();
-            manager.extension_added.connect ((extension) => {
-                install_extension.begin ((Extension)extension);
-            });
-            manager.foreach ((extension) => {
-                install_extension.begin ((Extension)extension);
-            });
-
             browser.tabs.add.connect (tab_added);
             if (browser.tab != null) {
                 tab_added (browser.tab);
@@ -494,18 +512,34 @@ namespace WebExtension {
             browser.tabs.add.disconnect (tab_added);
 
             var manager = ExtensionManager.get_default ();
-            var tab = widget as Midori.Tab;
+            manager.extension_added.connect ((extension) => {
+                install_extension.begin ((Extension)extension);
+            });
+            manager.extension_removed.connect ((extension) => {
+                ((Extension)extension).available = false;
+            });
+            manager.foreach ((extension) => {
+                if (extension.active) {
+                    install_extension.begin ((Extension)extension);
+                }
+            });
+        }
+    }
 
-            var content = tab.get_user_content_manager ();
+    public class App : Peas.ExtensionBase, Midori.AppActivatable {
+        public Midori.App app { owned get; set; }
+
+        public void activate () {
+            var manager = ExtensionManager.get_default ();
             // Try and load plugins from build folder
             var builtin_path = ((Midori.App)Application.get_default ()).exec_path.get_parent ().get_child ("extensions");
-            manager.load_from_folder.begin (content, builtin_path);
+            manager.load_from_folder.begin (builtin_path);
             // System-wide plugins
-            manager.load_from_folder.begin (content, File.new_for_path (Config.PLUGINDIR));
+            manager.load_from_folder.begin (File.new_for_path (Config.PLUGINDIR));
             // Plugins installed by the user
             string user_path = Path.build_path (Path.DIR_SEPARATOR_S,
                 Environment.get_user_data_dir (), Config.PROJECT_NAME, "extensions");
-            manager.load_from_folder.begin (content, File.new_for_path (user_path));
+            manager.load_from_folder.begin (File.new_for_path (user_path));
         }
     }
 }
@@ -514,4 +548,6 @@ namespace WebExtension {
 public void peas_register_types(TypeModule module) {
     ((Peas.ObjectModule)module).register_extension_type (
         typeof (Midori.BrowserActivatable), typeof (WebExtension.Browser));
+    ((Peas.ObjectModule)module).register_extension_type (
+        typeof (Midori.AppActivatable), typeof (WebExtension.App));
 }
