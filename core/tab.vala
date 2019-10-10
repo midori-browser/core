@@ -374,6 +374,7 @@ namespace Midori {
             notification.set_body (webkit_notification.body);
             // Use a per-host ID to avoid collisions, but neglect the tag
             string hostname = new Soup.URI (uri).host;
+            notification.set_default_action_and_target_value("app.tab-focus", id);
             Application.get_default ().send_notification ("web-%s".printf (hostname), notification);
             return true;
         }
