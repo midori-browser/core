@@ -148,6 +148,10 @@ namespace Midori {
 
             add_action_entries (actions, this);
 
+            var tab_focus_action = new SimpleAction ("tab-focus", VariantType.STRING);
+            tab_focus_action.activate.connect (tab_focus_activated);
+            add_action (tab_focus_action);
+
             var action = new SimpleAction ("win-new", VariantType.STRING);
             action.activate.connect (win_new_activated);
             add_action (action);
@@ -366,6 +370,20 @@ namespace Midori {
                 critical ("Failed to render %s: %s", request.get_uri (), error.message);
             }
             request.unref ();
+        }
+
+        void tab_focus_activated (Action action, Variant? parameter) {
+            string id = parameter.get_string ();
+            foreach (var browser in get_windows ()) {
+                if (!(browser is Browser))
+                    continue;
+                foreach (var tab in ((Browser)browser).tabs.get_children ()) {
+                    if (((Tab)tab).id == id) {
+                        ((Browser)browser).tabs.visible_child = tab;
+                        browser.present ();
+                    }
+                }
+            }
         }
 
         void win_new_activated (Action action, Variant? parameter) {
