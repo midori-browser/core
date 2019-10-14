@@ -214,7 +214,41 @@ namespace Midori {
             add (_("Privacy"), box);
 
             box = new Gtk.Box (Gtk.Orientation.VERTICAL, 4);
-            box.add (new PeasGtk.PluginManagerView (null));
+            var plugins = new Gtk.ListBox ();
+            plugins.selection_mode = Gtk.SelectionMode.NONE;
+            foreach (var extension in Extension.extensions) {
+                var row = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 4);
+                extension.bind_property ("available", row, "sensitive", BindingFlags.SYNC_CREATE);
+                checkbox = new Gtk.CheckButton ();
+                extension.bind_property ("active", checkbox, "active", BindingFlags.SYNC_CREATE | BindingFlags.BIDIRECTIONAL);
+                row.pack_start (checkbox, false, false, 4);
+                var icon = new Gtk.Image.from_gicon (extension.icon, Gtk.IconSize.BUTTON);
+                // Icon size only applies to named icons
+                if (extension.icon is Gdk.Pixbuf) {
+                    int icon_width = 16, icon_height = 16;
+                    Gtk.icon_size_lookup ((Gtk.IconSize)icon.icon_size, out icon_width, out icon_height);
+                    // Take scale factor into account
+                    icon_width *= scale_factor;
+                    icon_height *= scale_factor;
+                    icon.pixbuf = ((Gdk.Pixbuf)extension.icon).scale_simple (icon_width, icon_height, Gdk.InterpType.BILINEAR);
+                }
+                row.pack_start (icon, false, false, 4);
+                var label = new Gtk.Box (Gtk.Orientation.VERTICAL, 4);
+                var name = new Gtk.Label (extension.name);
+                name.ellipsize = Pango.EllipsizeMode.END;
+                name.xalign = 0.0f;
+                label.pack_start (name);
+                var description = new Gtk.Label (extension.description);
+                description.ellipsize = Pango.EllipsizeMode.END;
+                description.xalign = 0.0f;
+                label.pack_start (description);
+                row.pack_end (label, true, true, 4);
+                plugins.add (row);
+            }
+            var scrolled = new Gtk.ScrolledWindow (null, null);
+            scrolled.min_content_height = 333;
+            scrolled.add (plugins);
+            box.add (scrolled);
             box.show_all ();
             add (_("Extensions"), box);
 

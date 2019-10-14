@@ -10,6 +10,29 @@
 */
 
 namespace Midori {
+    public class Extension : Object {
+        internal static List<Extension> extensions = null;
+
+        public string id { get; set; }
+        public string name { get; set; }
+        public string description { get; set; }
+        public Icon icon { get; set; default = new ThemedIcon.with_default_fallbacks ("libpeas-plugin-symbolic"); }
+        public bool available { get; set; default = false; }
+        public bool active { get {
+            return Midori.CoreSettings.get_default ().get_plugin_enabled (id);
+        } set {
+            Midori.CoreSettings.get_default ().set_plugin_enabled (id, value);
+        } }
+
+        construct {
+            extensions.append (this);
+        }
+
+        internal Extension (string id, string name, string description, Icon icon) {
+            Object (id: id, name: name, description: description, icon: icon);
+        }
+    }
+
     public class Plugins : Peas.Engine, Loggable {
         public string builtin_path { get; construct set; }
 
@@ -39,6 +62,24 @@ namespace Midori {
             var settings = CoreSettings.get_default ();
             foreach (var plugin in get_plugin_list ()) {
                 debug ("Found plugin %s", plugin.get_name ());
+                if (!plugin.is_builtin ()) {
+                    var extension = new Extension (
+                        "lib%s.so".printf (plugin.get_module_name ()), plugin.get_name (),
+                        plugin.get_description (), new ThemedIcon.with_default_fallbacks (plugin.get_icon_name ()));
+                    try {
+                        extension.available = plugin.is_available ();
+                        extension.notify["active"].connect (() => {
+                            if (extension.active) {
+                                try_load_plugin (plugin);
+                            }
+                            else {
+                                try_unload_plugin (plugin);
+                            }
+                        });
+                    } catch (Error error) {
+                        critical ("Failed to prepare plugin %s", plugin.get_module_name ());
+                    }
+                }
                 if (plugin.is_builtin ()
                  || settings.get_plugin_enabled ("lib%s.so".printf (plugin.get_module_name ()))) {
                     if (!try_load_plugin (plugin)) {
