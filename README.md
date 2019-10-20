@@ -150,13 +150,6 @@ If the problem is a warning, not a crash GLib has a handy feature
 
     env G_MESSAGES_DEBUG=all gdb _build/midori
 
-On Windows you can open the folder where Midori is installed and double-click gdb.exe which opens a command window:
-
-    file midori.exe
-    run
-    …
-    bt
-
 To verify a regression you might need to revert a particular change:
 
     # Revert only d54c7e45
@@ -327,82 +320,6 @@ Afterwards you can run commands like so:
 
 # Midori for Windows
 
-## For Linux developers
+Check out [midori-next](https://gitlab.com/midori-browser/midori-next).
 
-### Dependencies
-
-Midori for Windows is compiled on a Linux host and MinGW stack. For the current build Fedora 18 packages are used. Packages needed are listed below:
-
-    yum install gcc vala intltool
-
-For a native build
-
-    yum install libsoup-devel webkitgtk3-devel sqlite-devel
-
-For cross-compilation
-
-    yum install mingw{32,64}-webkitgtk3 mingw{32,64}-glib-networking mingw{32,64}-gdb mingw{32,64}-gstreamer-plugins-good
-
-Packages needed when assembling the archive
-
-    yum install faenza-icon-theme p7zip mingw32-nsis greybird-gtk3-theme
-
-Installing those should get you the packages needed to successfully build and develop Midori for Win32.
-
-### Building
-
-For 32-bit builds:
-
-    mkdir _mingw32
-    cd _mingw32
-    mingw32-cmake .. -DCMAKE_INSTALL_PREFIX=/usr/i686-w64-mingw32/sys-root/mingw -DCMAKE_VERBOSE_MAKEFILE=0
-    make
-    sudo make install
-
-For 64-bit builds:
-
-    mkdir _mingw64
-    cd _mingw64
-    mingw64-cmake .. -DCMAKE_INSTALL_PREFIX=/usr/x86_64-w64-mingw32/sys-root/mingw -DCMAKE_VERBOSE_MAKEFILE=0
-    make
-    sudo make install
-
-Once built and tested you can assemble the Midori archive with a helper script
-
-32-bit build:
-
-    env MINGW_PREFIX="/usr/i686-w64-mingw32/sys-root/mingw" ./win32/makedist/makedist.midori
-
-64-bit build:
-
-    env MINGW_PREFIX="/usr/x86_64-w64-mingw32/sys-root/mingw/" ./win32/makedist/makedist.midori x64
-
-### Testing
-
-For testing your changes a real system is recommended because WebKitGTK+ doesn't work properly under Wine. Mounting your MinGW directories as a network drive or shared folder in a Windows VM is a good option.
-
-## For Windows developers
-
-### Prerequisites
-
-* [MinGW](http://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win64/Personal%20Builds/rubenvb/gcc-4.8-release/x86_64-w64-mingw32-gcc-4.8.0-win32_rubenvb.7z/download) *mingw64 rubenvb*/ gcc 4.8.0 ([Releases](http://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win64/Personal%20Builds/rubenvb/gcc-4.8-release))
-* [7zip](http://www.7-zip.org/download.html) ([32bit Installer](http://downloads.sourceforge.net/sevenzip/7z920.exe)) to extract archives
-* [Python3](http://www.python.org/download/releases/3.3.5) to use **download-mingw-rpm.py**.
-* [download-mingw-rpm.py](https://github.com/mkbosmans/download-mingw-rpm/blob/master/download-mingw-rpm.py) to fetch and unpack rpm's
-* [Msys](http://sourceforge.net/projects/mingw-w64/files/External%20binary%20packages%20%28Win64%20hosted%29/MSYS%20%2832-bit%29/MSYS-20111123.zip/download) contains shell and some small utilities
-* [CMake](http://www.cmake.org/cmake/resources/software.html) ([Installer](http://www.cmake.org/files/v2.8/cmake-2.8.12.2-win32-x86.exe))
-* [Vala](http://ftp.gnome.org/pub/gnome/sources/vala/0.20/vala-0.20.0.tar.xz)
-
-
-> **Spoilers:** 32-bit versions are known to be more stable at the time of this writing.
-
-### Using download-mingw-rpm.py
-
-* Launch `cmd.exe` and navigate to the folder where the script was saved.
-* Make sure that Python can access `7z.exe`.
-* Run the following command and wait for it to extract the packages into your current directory:
-* `c:\Python33\python.exe download-mingw-rpm.py -u http://ftp.wsisiz.edu.pl/pub/linux/fedora/linux/updates/18/i386/ --deps mingw32-webkitgtk mingw32-glib-networking mingw32-gdb mingw32-gstreamer-plugins-good`
-
-See [Fedora 18 packages](http://dl.fedoraproject.org/pub/fedora/linux/releases/18/Everything/i386/os/Packages/m/).
-
-> **Spoilers:** Use `msys.bat` to launch a shell
+> **Spoilers:** Upstream WebKitGTK no longer supports Windows the latest code can't be built for or run on Windows. Instead there's a separate port available.
