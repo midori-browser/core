@@ -182,7 +182,7 @@ namespace Adblock {
             try {
                 yield parse (headers_only);
             } catch (Error error) {
-                critical ("Failed to parse %s%s: %s", headers_only ? "headers for " : "", uri, error.message);
+                debug ("Failed to parse %s%s: %s", headers_only ? "headers for " : "", uri, error.message);
             }
         }
 
@@ -218,6 +218,12 @@ namespace Adblock {
             string key = header;
             string value = "";
             if (header.contains (":")) {
+                // FIXME: Unsupported format
+                // !:partner_token=example.com
+                if (header.has_prefix ("!:")) {
+                    debug ("Unsupported header '%s'", header);
+                    return;
+                }
                 string[] parts = header.split (":", 2);
                 if (parts[0] != null && parts[0] != ""
                  && parts[1] != null && parts[1] != "") {

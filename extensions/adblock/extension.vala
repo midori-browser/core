@@ -162,9 +162,15 @@ namespace Adblock {
                 Application.get_default ().open (files, "");
                 return true;
             });
-            listbox.insert (label, -1);
+            var vbox = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
+            vbox.pack_end (label, false, false);
 
-            box.add (listbox);
+            var scrolled = new Gtk.ScrolledWindow (null, null);
+            scrolled.hscrollbar_policy = Gtk.PolicyType.NEVER;
+            scrolled.min_content_height = 150;
+            scrolled.add (listbox);
+            vbox.pack_start (scrolled, true, true);
+            box.add (vbox);
             box.show_all ();
             preferences.add (_("Privacy"), box);
             deactivate.connect (() => {
