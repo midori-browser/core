@@ -319,9 +319,25 @@ namespace Midori {
                 action.activate.connect (() => {
                     var settings = CoreSettings.get_default ();
                     var tab = new Tab (null, web_context, settings.uri_for_search (text));
+                    tab.set_data<bool> ("foreground", true);
                     ((Browser)get_toplevel ()).add (tab);
                 });
                 menu.append (new WebKit.ContextMenuItem (action));
+                // Open selected text that looks like a domain
+                try {
+                    if (!hit.context_is_link () && Soup.tld_get_base_domain (text) != null) {
+                        menu.append (new WebKit.ContextMenuItem.separator ());
+                        action = new Gtk.Action ("text-tab", "Open Link in New _Tab", null, null);
+                        action.activate.connect (() => {
+                            var tab = new Tab (null, web_context, text);
+                            tab.set_data<bool> ("foreground", true);
+                            ((Browser)get_toplevel ()).add (tab);
+                        });
+                        menu.append (new WebKit.ContextMenuItem (action));
+                    }
+                } catch (Error error) {
+                    debug ("Failed to determine domain suffix: %s", error.message);
+                }
             }
             if (clear) {
                 menu.append (new WebKit.ContextMenuItem.separator ());
