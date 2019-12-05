@@ -306,18 +306,23 @@ namespace Midori {
                     bindings.append (tab.bind_property ("pinned", toggle_fullscreen, "visible", BindingFlags.INVERT_BOOLEAN));
                     bindings.append (tab.bind_property ("pinned", navigationbar, "visible", BindingFlags.INVERT_BOOLEAN));
                     bindings.append (tab.bind_property ("zoom-level", this, "zoom-level", BindingFlags.SYNC_CREATE));
+                    if (navigationbar.urlbar.blank) {
+                        navigationbar.urlbar.grab_focus ();
+                    } else {
+                        tab.grab_focus ();
+                    }
                     if (focus_timeout > 0) {
                         Source.remove (focus_timeout);
                         focus_timeout = 0;
                     }
                     focus_timeout = Timeout.add (500, () => {
                         focus_timeout = 0;
-                        tab.grab_focus ();
+                        // Delayed load on focus
+                        if (tab.display_uri != tab.uri) {
+                            tab.load_uri (tab.display_uri);
+                        }
                         search_entry.text = tab.get_find_controller ().get_search_text () ?? "";
                         search.search_mode_enabled = search_entry.text != "";
-                        if (navigationbar.urlbar.blank) {
-                            navigationbar.urlbar.grab_focus ();
-                        }
                         return Source.REMOVE;
                     }, Priority.LOW);
                 } else {
