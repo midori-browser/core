@@ -74,10 +74,22 @@ namespace Midori {
             return Markup.escape_text (text);
         }
 
-        string? strip_uri_prefix (string uri) {
+        internal static string unescape_uri (string uri) {
+            // Percent-decode and decode punycode for user display
+            string[] parts = uri.split ("://", 2);
+            if (parts != null && parts[0] != null && parts[1] != null) {
+                string[] path = parts[1].split ("/", 2);
+                if (path != null && path[0] != null && path[1] != null) {
+                    return parts[0] + "://" + Hostname.to_unicode (path[0]) + "/" + Uri.unescape_string (path[1]);
+                }
+            }
+            return uri;
+        }
+
+        internal static string strip_uri_prefix (string uri) {
             bool is_http = uri.has_prefix ("http://") || uri.has_prefix ("https://");
             if (is_http || uri.has_prefix ("file://")) {
-                string stripped_uri = uri.split ("://")[1];
+                string stripped_uri = unescape_uri (uri);
                 if (is_http && stripped_uri.has_prefix ("www."))
                     return stripped_uri.substring (4, -1);
                 return stripped_uri;
