@@ -24,9 +24,11 @@ namespace Midori {
         static bool help_execute = false;
         static int inactivity_reset = 0;
         static bool incognito = false;
+        static bool single_app = false;
         static bool version = false;
         const OptionEntry[] options = {
             { "app", 'a', 0, OptionArg.STRING, ref app, N_("Run ADDRESS as a web application"), N_("ADDRESS") },
+            { "single-app", 'S', 0, OptionArg.NONE, ref single_app, N_("With --app, prefer currently open browser window (if any)"), null },
             { "execute", 'e', 0, OptionArg.STRING_ARRAY, ref execute, N_("Execute the specified command"), null },
             { "help-execute", 0, 0, OptionArg.NONE, ref help_execute, N_("List available commands to execute with -e/ --execute"), null },
             { "inactivity-reset", 'i', 0, OptionArg.INT, ref inactivity_reset, N_("Reset Midori after SECONDS seconds of inactivity"), N_("SECONDS") },
@@ -426,6 +428,7 @@ namespace Midori {
             // Propagate options processed in the primary instance
             options.insert_value ("app", app ?? "");
             options.insert_value ("execute", execute);
+            options.insert_value ("single-app", single_app);
             options.insert_value ("help-execute", help_execute);
             options.insert_value ("inactivity-reset", inactivity_reset);
             options.insert_value ("private", incognito);
@@ -438,6 +441,7 @@ namespace Midori {
             // Retrieve values for options passed from another process
             var options = command_line.get_options_dict ();
             app = options.lookup_value ("app", VariantType.STRING).get_string ();
+            single_app = options.lookup_value ("single-app", VariantType.BOOLEAN).get_boolean ();
             execute = options.lookup_value ("execute", VariantType.STRING_ARRAY).dup_strv ();
             help_execute = options.lookup_value ("help-execute", VariantType.BOOLEAN).get_boolean ();
             inactivity_reset = options.lookup_value ("inactivity-reset", VariantType.INT32).get_int32 ();
@@ -456,11 +460,24 @@ namespace Midori {
             }
 
             if (app != "") {
-                var browser = new Browser (this, true);
-                var tab = new Tab (null, browser.web_context, app);
-                tab.pinned = true;
-                browser.add (tab);
+                var create_new = !single_app || (active_window == null);
+
+                var browser = (create_new) ? new Browser (this, true) : (active_window as Browser) ;
+                Tab tab = null ;
+
+                var num_tabs = browser.tabs.get_children().length();
+
+                if (create_new || (num_tabs==0)) {
+                    tab = new Tab (null, browser.web_context, app);
+                    tab.pinned = true;
+                    browser.add (tab);
+                } else {
+                    tab = (Tab)browser.tabs.get_children().nth_data(0);
+                    tab.load_uri(app);
+                }
+
                 browser.show ();
+
                 if (inactivity_reset > 0) {
                     Timeout.add_seconds (inactivity_reset, () => {
                         if (browser.idle) {
