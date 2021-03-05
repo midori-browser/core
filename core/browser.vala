@@ -48,6 +48,7 @@ namespace Midori {
             { "clear-private-data", clear_private_data_activated },
             { "preferences", preferences_activated },
             { "about", about_activated },
+            { "force-fullscreen", force_fullscreen_activated },
         };
         [GtkChild]
         Gtk.HeaderBar panelbar;
@@ -602,6 +603,12 @@ namespace Midori {
                 unfullscreen ();
                 navigationbar.visible = !tab.pinned;
                 panel.visible = lookup_action ("panel").state.get_boolean ();
+            }
+        }
+
+        void force_fullscreen_activated () {
+            if (!is_fullscreen) {
+                fullscreen_activated ();
             }
         }
 
